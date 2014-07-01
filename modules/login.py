@@ -7,8 +7,5 @@ class Login:
     def disconnect(self):
         return
     def connect(self, login, password):
-        if login == "gderval" and password == "test":
-            return True
-        else:
-            return False
+        return False
 loginInstance = Login()
