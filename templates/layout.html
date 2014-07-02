@@ -36,7 +36,7 @@ $if "header" in content:
             $if "navbar" in content:
                 $:content.navbar
             $if loginInstance.isLoggedIn():
-                <p class="navbar-text navbar-right">Logged in as $loginInstance.getUsername() - <a href="/index?logoff" class="navbar-link">Log off</a></p>
+                <p class="navbar-text navbar-right">Logged in as $loginInstance.getRealname() - <a href="/index?logoff" class="navbar-link">Log off</a></p>
         </div>
     </div>
 
