@@ -23,4 +23,6 @@ class Login:
             return True
         else:
             return False
+        
+#Login class should be a singleton. loginInstance should be called from the outside of the module
 loginInstance = Login()

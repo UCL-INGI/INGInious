@@ -1,5 +1,7 @@
 import web
 
+#Control the session
+#There is a little hack to get the sessions to work in debug mode (save in config)
 class SessionManager:
 	def __init__(self):
 		self.session = None
@@ -11,4 +13,7 @@ class SessionManager:
 			self.session = web.config._session
 	def get(self):
 		return self.session
+
+#From outside of this module, should call sessionManager.get() to get the session.
+#SessionManager is init in app.py
 sessionManager = SessionManager()
