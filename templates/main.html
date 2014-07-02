@@ -1,3 +1,4 @@
+$def with (courses)
 $var title: My profile
 
 $# Left column content
@@ -6,6 +7,15 @@ $def leftColF():
 $var leftCol: $:leftColF()
 
 $# Start content
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque iaculis mattis volutpat. Etiam non semper nisl, in molestie libero. Nullam condimentum est sapien, at venenatis urna congue et. Morbi eu quam ac est mollis euismod. Vestibulum elit mauris, ornare non justo ut, tempus vulputate tortor. Cras odio diam, accumsan non turpis nec, condimentum tincidunt nibh. Vivamus lobortis imperdiet mauris, sed fringilla libero semper vel.<br/>
-<br/>
-Sed tempus risus ut leo elementum iaculis. Nulla congue, ligula vulputate interdum tempor, turpis lorem gravida magna, sit amet vehicula libero sem nec tortor. Pellentesque nisi diam, sollicitudin sit amet augue placerat, vehicula condimentum diam. Aliquam quis nulla felis. Fusce ac turpis nunc. Sed in ligula nec felis faucibus auctor ut id dui. Nunc placerat ac ligula nec consequat. Praesent dignissim mollis libero sed cursus. Praesent auctor elit blandit, sollicitudin velit quis, vestibulum risus. Maecenas in risus vel mi ullamcorper mattis in sit amet enim. Donec lacinia odio nunc, id ultrices diam interdum at. Maecenas sed magna ligula. Nunc mattis malesuada ligula, a dictum velit. Aliquam sit amet aliquet eros, id vulputate orci. Phasellus consectetur venenatis tempus. Donec at tortor tellus.
+<h2>Course list</h2>
+<div class="list-group">
+    $for courseId in courses
+        <a href="course/$courseId" class="list-group-item">
+            <div class="progress">
+                <div class="progress-bar progress-bar-success" style="width: 35%">
+                    35%
+                </div>
+            </div>
+            $courses[courseId]['name']
+        </a>
+</div>

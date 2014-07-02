@@ -1,6 +1,7 @@
 import web
 from modules.base import renderer
 from modules.login import loginInstance
+from modules.courses import Course
 
 #Index page
 class IndexPage:
@@ -12,7 +13,8 @@ class IndexPage:
                 loginInstance.disconnect();
                 return renderer.index(False)
             else:
-                return renderer.main()
+                courses = Course.GetAllCoursesIds()
+                return renderer.main(courses)
         else:
             return renderer.index(False)
     #Try to log in

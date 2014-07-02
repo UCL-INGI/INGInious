@@ -5,3 +5,6 @@ from modules.login import loginInstance
 templateGlobals = {'loginInstance': loginInstance}
 # Instance of the template renderer
 renderer = web.template.render('templates/', globals=templateGlobals, base='layout')
+
+#Tasks directory (created by the Makefile)
+tasksDirectory = "../out/tasks/"

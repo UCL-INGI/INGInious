@@ -1,0 +1,12 @@
+$def with (course)
+$var title: My $course.getName()
+
+$# Start content
+<h1>$course.getName()</h1>
+<h2>List of exercices</h2>
+<div class="list-group">
+    $for exId, exData in course.getTasks().iteritems()
+        <a href="/course/$course.getId()/$exId" class="list-group-item">
+            $exData['name']
+        </a>
+</div>
