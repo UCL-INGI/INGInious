@@ -19,6 +19,7 @@ class Login:
         sessionManager.get().realname = None
         sessionManager.get().email = None
         return
+    #Connect throught LDAP
     def connect(self, login, password):
         try:
             if not login.isalnum():

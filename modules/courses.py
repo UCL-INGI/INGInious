@@ -3,6 +3,7 @@ from os.path import isfile, join, splitext
 from modules.base import tasksDirectory
 import json
 
+#Represents a Course
 class Course:
     courseCache = None
     
@@ -22,6 +23,7 @@ class Course:
             Course.courseCache = output
         return Course.courseCache
     
+    #Constructor. courseId is the name of the .task file
     def __init__(self,courseId):
         if not courseId.isalnum():
             raise Exception("Course with invalid name: "+courseId)
@@ -44,9 +46,11 @@ class Course:
     def getAdmins(self):
         return self.admins
     
+    #Return the complete path to the tasks directory of the course
     def getCourseTasksDirectory(self):
         return join(tasksDirectory,self.id)
     
+    #Get all tasks in this course.
     def getTasks(self):
         if self.tasksCache == None:
             files = [ f for f in listdir(self.getCourseTasksDirectory()) if isfile(join(self.getCourseTasksDirectory(),f)) and splitext(join(self.getCourseTasksDirectory(),f))[1] == ".task"]
