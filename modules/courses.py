@@ -4,20 +4,23 @@ from modules.base import tasksDirectory
 import json
 
 class Course:
+    courseCache = None
     
     #Returns a table containing courseId=>{name:courseName, admins:[courseAdmins]} pairs.
     @staticmethod
     def GetAllCoursesIds():
-        files = [ f for f in listdir(tasksDirectory) if isfile(join(tasksDirectory,f)) and splitext(join(tasksDirectory,f))[1] == ".course"]
-        output = {};
-        for course in files:
-            try:
-                content = json.load(open(join(tasksDirectory,course), "r"))
-                if "name" in content and "admins" in content and isinstance(content["admins"],list):
-                    output[splitext(course)[0]]={"name": content["name"], "admins": content["admins"]}
-            except: #todo log the error
-                pass
-        return output
+        if Course.courseCache == None:
+            files = [ f for f in listdir(tasksDirectory) if isfile(join(tasksDirectory,f)) and splitext(join(tasksDirectory,f))[1] == ".course"]
+            output = {};
+            for course in files:
+                try:
+                    content = json.load(open(join(tasksDirectory,course), "r"))
+                    if "name" in content and "admins" in content and isinstance(content["admins"],list):
+                        output[splitext(course)[0]]={"name": content["name"], "admins": content["admins"]}
+                except: #todo log the error
+                    pass
+            Course.courseCache = output
+        return Course.courseCache
     
     def __init__(self,courseId):
         if not courseId.isalnum():
@@ -28,6 +31,7 @@ class Course:
                 self.id = courseId
                 self.name = content['name']
                 self.admins = content['admins']
+                self.tasksCache = None
             else:
                 raise Exception("Course has an invalid json description: "+courseId)
         except:
@@ -44,15 +48,17 @@ class Course:
         return join(tasksDirectory,self.id)
     
     def getTasks(self):
-        files = [ f for f in listdir(self.getCourseTasksDirectory()) if isfile(join(self.getCourseTasksDirectory(),f)) and splitext(join(self.getCourseTasksDirectory(),f))[1] == ".task"]
-        output = {};
-        for task in files:
-            try:
-                content = json.load(open(join(self.getCourseTasksDirectory(),task), "r"))
+        if self.tasksCache == None:
+            files = [ f for f in listdir(self.getCourseTasksDirectory()) if isfile(join(self.getCourseTasksDirectory(),f)) and splitext(join(self.getCourseTasksDirectory(),f))[1] == ".task"]
+            output = {};
+            for task in files:
                 try:
-                    output[splitext(task)[0]]=content#Task(content)
-                except:
+                    content = json.load(open(join(self.getCourseTasksDirectory(),task), "r"))
+                    try:
+                        output[splitext(task)[0]]=content#Task(content)
+                    except:
+                        pass
+                except: #todo log the error
                     pass
-            except: #todo log the error
-                pass
-        return output
+            self.tasksCache = output
+        return self.tasksCache

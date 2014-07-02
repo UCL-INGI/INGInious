@@ -1,12 +1,21 @@
 $def with (course)
 $var title: My $course.getName()
 
+$# Left column content
+$def leftColF():
+    <h3>Stats</h3>
+    <h3>Last submissions</h3>
+$var leftCol: $:leftColF()
+
 $# Start content
-<h1>$course.getName()</h1>
-<h2>List of exercices</h2>
+<ol class="breadcrumb">
+  <li><a href="/index">Home</a></li>
+  <li class="active">$course.getName()</li>
+</ol>
+<h2>$course.getName() - List of exercices</h2>
 <div class="list-group">
     $for exId, exData in course.getTasks().iteritems()
-        <a href="/course/$course.getId()/$exId" class="list-group-item">
+        <a href="/course/$course.getId()/$exId" class="list-group-item list-group-item-success">
             $exData['name']
         </a>
 </div>
