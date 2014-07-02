@@ -21,6 +21,8 @@ class Login:
         return
     def connect(self, login, password):
         try:
+            if not login.isalnum():
+                return False
             username = "uid=" + login + ",ou=People,dc=info,dc=ucl,dc=ac,dc=be"
             
             # Certificates
