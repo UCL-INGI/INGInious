@@ -1,3 +1,10 @@
+from os.path import join
+from modules.base import tasksDirectory, IdChecker
+from modules.tasks_problems import CreateTaskProblem
+from modules.parsableText import ParsableText
+import json
+import modules.courses
+
 class Task:
     def __init__(self,courseId,taskId):
         if not IdChecker(courseId):
@@ -97,12 +104,5 @@ class Task:
         return self.problems
     def getCourse(self):
         if self.course == None:
-            self.course = Course(self.courseId)
+            self.course = modules.courses.Course(self.courseId)
         return self.course
-
-from os.path import join
-from modules.base import tasksDirectory, IdChecker
-from modules.tasks_problems import CreateTaskProblem
-from modules.parsableText import ParsableText
-import json
-from modules.courses import Course #at the end, avoid circular imports
