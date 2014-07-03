@@ -1,6 +1,7 @@
 from os.path import join
 from modules.base import tasksDirectory
 from modules.tasks_problems import CreateTaskProblem
+from modules.parsableText import ParsableText
 import json
             
 class Task:
@@ -24,6 +25,10 @@ class Task:
         if "name" not in data:
             raise Exception("Tasks must have a name: "+taskId)
         self.name = data['name']
+        
+        if "context" not in data:
+            raise Exception("Tasks must have a context: "+taskId)
+        self.context = ParsableText(data['context'],"HTML" if "contextIsHTML" in data and data["contextIsHTML"] else "rst")
         
         if "environment" in data:
             self.environment = data['environment']

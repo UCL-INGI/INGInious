@@ -58,7 +58,7 @@ class Course:
             files = [ splitext(f)[0] for f in listdir(self.getCourseTasksDirectory()) if isfile(join(self.getCourseTasksDirectory(),f)) and splitext(join(self.getCourseTasksDirectory(),f))[1] == ".task"]
             output = {};
             for task in files:
-                #try:
+                #try: #TODO: enable
                     output[task] = Task(self.getId(),task)
                 #except: #todo log the error
                 #    pass

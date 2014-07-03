@@ -10,7 +10,7 @@ class BasicProblem:
     def getType(self):
         return None
     @abstractmethod
-    def show(self):
+    def showInput(self):
         return None
     @abstractmethod
     def evalResults(self,formInput):
@@ -43,7 +43,7 @@ class BasicCodeProblem(BasicProblem):
         if task.getEnvironment() == None:
             raise Exception("Environment undefined, but there is a problem with type=code or type=code-single-line")
         
-    def show(self):
+    def showInput(self):
         return "" #TODO
     
     def evalResults(self,formInput):
@@ -116,7 +116,7 @@ class MultipleChoiceProblem(BasicProblem):
         self.choices = goodChoices+badChoices
     def getType(self):
         return "multiple-choice"
-    def show(self):
+    def showInput(self):
         return None #TODO
     def evalResults(self,formInput):
         return None #TODO
