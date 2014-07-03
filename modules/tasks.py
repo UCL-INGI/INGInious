@@ -1,8 +1,8 @@
 class Task:
     def __init__(self,courseId,taskId):
-        if not idChecker(courseId):
+        if not IdChecker(courseId):
             raise Exception("Course with invalid id: "+courseId)
-        elif not idChecker(taskId):
+        elif not IdChecker(taskId):
             raise Exception("Task with invalid id: "+courseId+"/"+taskId)
         
         try:
@@ -101,7 +101,7 @@ class Task:
         return self.course
 
 from os.path import join
-from modules.base import tasksDirectory, idChecker
+from modules.base import tasksDirectory, IdChecker
 from modules.tasks_problems import CreateTaskProblem
 from modules.parsableText import ParsableText
 import json

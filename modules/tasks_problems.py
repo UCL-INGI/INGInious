@@ -1,7 +1,7 @@
 from modules.parsableText import ParsableText
 from abc import ABCMeta,abstractmethod
 from modules.tasks_code_boxes import InputBox, MultilineBox, TextBox
-from modules.base import idChecker
+from modules.base import IdChecker
 
 #Basic problem. Should not be instanced
 class BasicProblem:
@@ -51,7 +51,7 @@ class BasicCodeProblem(BasicProblem):
         return "" #TODO 
     
     def createBox(self,boxId,boxContent):
-        if not idChecker(boxId) and not boxId == "":
+        if not IdChecker(boxId) and not boxId == "":
             raise Exception("Invalid box id "+boxId)
         if "type" not in boxContent:
             raise Exception("Box "+boxId+" does not have a type")
@@ -125,7 +125,7 @@ class MultipleChoiceProblem(BasicProblem):
 #Creates a new instance of the right class for a given problem.
 def CreateTaskProblem(task,problemId,problemContent):
     #Basic checks
-    if not idChecker(problemId):
+    if not IdChecker(problemId):
         raise Exception("Invalid problem id: "+problemId)
     if "type" not in problemContent or problemContent['type'] not in ["code","code-single-line","multiple-choice"]:
         raise Exception("Invalid type for problem "+problemId)
