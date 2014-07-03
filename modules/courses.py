@@ -1,6 +1,7 @@
 from os import listdir
 from os.path import isfile, join, splitext
 from modules.base import tasksDirectory
+from modules.tasks import Task
 import json
 
 #Represents a Course
@@ -53,16 +54,13 @@ class Course:
     #Get all tasks in this course.
     def getTasks(self):
         if self.tasksCache == None:
-            files = [ f for f in listdir(self.getCourseTasksDirectory()) if isfile(join(self.getCourseTasksDirectory(),f)) and splitext(join(self.getCourseTasksDirectory(),f))[1] == ".task"]
+            #lists files ending with .task in the right directory, and keep only the taskId
+            files = [ splitext(f)[0] for f in listdir(self.getCourseTasksDirectory()) if isfile(join(self.getCourseTasksDirectory(),f)) and splitext(join(self.getCourseTasksDirectory(),f))[1] == ".task"]
             output = {};
             for task in files:
-                try:
-                    content = json.load(open(join(self.getCourseTasksDirectory(),task), "r"))
-                    try:
-                        output[splitext(task)[0]]=content#Task(content)
-                    except:
-                        pass
-                except: #todo log the error
-                    pass
+                #try:
+                    output[task] = Task(self.getId(),task)
+                #except: #todo log the error
+                #    pass
             self.tasksCache = output
         return self.tasksCache

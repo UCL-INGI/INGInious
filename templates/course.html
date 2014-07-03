@@ -16,6 +16,6 @@ $# Start content
 <div class="list-group">
     $for exId, exData in course.getTasks().iteritems()
         <a href="/course/$course.getId()/$exId" class="list-group-item list-group-item-success">
-            $exData['name']
+            $exData.getName()
         </a>
 </div>
