@@ -3,8 +3,8 @@ from abc import ABCMeta,abstractmethod
 from modules.tasks_code_boxes import InputBox, MultilineBox, TextBox
 from modules.base import IdChecker
 
-#Basic problem. Should not be instanced
 class BasicProblem:
+    """Basic problem. *Should not be instanced*"""
     __metaclass__ = ABCMeta
     
     @abstractmethod
@@ -37,8 +37,8 @@ class BasicProblem:
         self.name = content['name']
         self.header = ParsableText(content['header'],"HTML" if "headerIsHTML" in content and content["headerIsHTML"] else "rst")
 
-#Basic problem with code input. Do all the job with the backend
 class BasicCodeProblem(BasicProblem):
+    """Basic problem with code input. Do all the job with the backend"""
     def __init__(self,task,problemId,content):
         BasicProblem.__init__(self, task, id, content)
         if task.getEnvironment() == None:
@@ -65,29 +65,29 @@ class BasicCodeProblem(BasicProblem):
             raise Exception("Unknow box type "+boxContent["type"]+ "for box id "+boxId)
         
 
-#Code problem with a single line of input
 class CodeSingleLineProblem(BasicCodeProblem):
+    """Code problem with a single line of input"""
     def __init__(self,task,problemId,content):
         BasicCodeProblem.__init__(self,task,problemId,content)
-        self.boxes = {"":self.createBox("", {"type":"input-text"})}
+        self.boxes = [self.createBox("", {"type":"input-text"})]
     def getType(self):
         return "code-single-line"
     
-#Code problem 
 class CodeProblem(BasicCodeProblem):
+    """Code problem"""
     def __init__(self,task,problemId,content):
         BasicCodeProblem.__init__(self,task,problemId,content)
         if "boxes" in content:
-            self.boxes = {}
+            self.boxes = []
             for boxId, boxContent in content['boxes'].iteritems():
-                self.boxes[boxId] = self.createBox(boxId, boxContent)
+                self.boxes.append(self.createBox(boxId, boxContent))
         else:
             self.boxes = {"":self.createBox("", {"type":"multiline"})}
     def getType(self):
         return "code"
 
-#Multiple choice problems
 class MultipleChoiceProblem(BasicProblem):
+    """Multiple choice problems"""
     def __init__(self,task,problemId,content):
         BasicProblem.__init__(self,task,problemId,content)
         self.multiple = "multiple" in content and content["multiple"]
@@ -122,8 +122,8 @@ class MultipleChoiceProblem(BasicProblem):
     def evalResults(self,formInput):
         return None #TODO
 
-#Creates a new instance of the right class for a given problem.
 def CreateTaskProblem(task,problemId,problemContent):
+    """Creates a new instance of the right class for a given problem."""
     #Basic checks
     if not IdChecker(problemId):
         raise Exception("Invalid problem id: "+problemId)

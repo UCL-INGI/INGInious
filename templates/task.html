@@ -1,5 +1,5 @@
 $def with (task)
-$var title: $task.getName() - $task.getCourse().getName()
+$var title: $:task.getName() - $:task.getCourse().getName()
 
 $# Left column content
 $def leftColF():
@@ -16,3 +16,7 @@ $# Start content
 </ol>
 <h2>$task.getName()</h2>
 $:task.getContext()
+<hr/>
+$for key, problem in enumerate(task.getProblems()):
+    <h4>Question ${key+1}: $problem.getName()</h4>
+    $:problem.getHeader()

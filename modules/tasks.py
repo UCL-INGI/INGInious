@@ -1,9 +1,4 @@
-from os.path import join
-from modules.base import tasksDirectory, IdChecker
-from modules.tasks_problems import CreateTaskProblem
-from modules.parsableText import ParsableText
-import json
-import modules.courses
+
 
 class Task:
     def __init__(self,courseId,taskId):
@@ -13,7 +8,7 @@ class Task:
             raise Exception("Task with invalid id: "+courseId+"/"+taskId)
         
         try:
-            content = json.load(open(join(tasksDirectory,courseId,taskId+".task"), "r"))
+            content = json.load(open(join(tasksDirectory,courseId,taskId+".task"), "r"), object_pairs_hook=collections.OrderedDict)
         except:
             raise Exception("Task do not exists: "+courseId+"/"+taskId)
         
@@ -88,10 +83,11 @@ class Task:
             raise Exception("Tasks must have some problems descriptions")
         
         #Check all problems
-        self.problems = {}
-        for problemId, problemContent in data['problems'].iteritems():
-            self.problems[problemId] = CreateTaskProblem(self,problemId, problemContent)
-            
+        self.problems = []
+        
+        for problemId in data['problems']:
+            self.problems.append(CreateTaskProblem(self,problemId,data['problems'][problemId]))
+
     def getEnvironment(self):
         return self.environment
     def getName(self):
@@ -106,3 +102,11 @@ class Task:
         if self.course == None:
             self.course = modules.courses.Course(self.courseId)
         return self.course
+    
+from os.path import join
+from modules.base import tasksDirectory, IdChecker
+from modules.tasks_problems import CreateTaskProblem
+from modules.parsableText import ParsableText
+import json
+import modules.courses
+import collections
