@@ -1,14 +1,8 @@
-from os.path import join
-from modules.base import tasksDirectory
-from modules.tasks_problems import CreateTaskProblem
-from modules.parsableText import ParsableText
-import json
-            
 class Task:
     def __init__(self,courseId,taskId):
-        if not courseId.isalnum():
+        if not idChecker(courseId):
             raise Exception("Course with invalid id: "+courseId)
-        elif not taskId.isalnum():
+        elif not idChecker(taskId):
             raise Exception("Task with invalid id: "+courseId+"/"+taskId)
         
         try:
@@ -17,8 +11,10 @@ class Task:
             raise Exception("Task do not exists: "+courseId+"/"+taskId)
         
         self.initWithData(courseId, taskId, content)
-                
+    
+    """Checks content of the JSON data and init the Task object"""
     def initWithData(self,courseId, taskId, data):
+        self.course = None
         self.courseId = courseId
         self.taskId = taskId
         
@@ -93,3 +89,20 @@ class Task:
         return self.environment
     def getName(self):
         return self.name
+    def getContext(self):
+        return self.context
+    def getId(self):
+        return self.courseId
+    def getProblems(self):
+        return self.problems
+    def getCourse(self):
+        if self.course == None:
+            self.course = Course(self.courseId)
+        return self.course
+
+from os.path import join
+from modules.base import tasksDirectory, idChecker
+from modules.tasks_problems import CreateTaskProblem
+from modules.parsableText import ParsableText
+import json
+from modules.courses import Course #at the end, avoid circular imports

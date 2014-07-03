@@ -1,5 +1,6 @@
 import ldap
 from modules.session import sessionManager
+from modules.base import idChecker
 
 #Allow to login, logout and get informations about the current logged-in user.
 class Login:
@@ -22,7 +23,7 @@ class Login:
     #Connect throught LDAP
     def connect(self, login, password):
         try:
-            if not login.isalnum():
+            if not idChecker(login):
                 return False
             username = "uid=" + login + ",ou=People,dc=info,dc=ucl,dc=ac,dc=be"
             

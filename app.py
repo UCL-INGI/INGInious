@@ -6,7 +6,8 @@ from modules.session import sessionManager
 urls = (
     '/', 'pages.index.IndexPage',
     '/index', 'pages.index.IndexPage',
-    '/course/([^/]+)', 'pages.course.CoursePage'
+    '/course/([^/]+)', 'pages.course.CoursePage',
+    '/course/([^/]+)/([^/]+)', 'pages.tasks.TaskPage'
 )
 
 app = web.application(urls, globals())

@@ -1,5 +1,6 @@
 from abc import ABCMeta,abstractmethod
 from modules.parsableText import ParsableText
+from modules.base import idChecker
 
 #Basic box. Abstract
 class BasicBox:
@@ -23,7 +24,7 @@ class BasicBox:
         return self.show(self)
     
     def __init__(self,problem,boxId,boxData):
-        if not boxId.isalnum() and not boxId == "":
+        if not idChecker(boxId) and not boxId == "":
             raise Exception("Invalid box id: "+boxId)
         self.id = boxId
         self.problem = problem

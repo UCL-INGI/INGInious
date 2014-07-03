@@ -1,0 +1,18 @@
+$def with (task)
+$var title: $task.getName() - $task.getCourse().getName()
+
+$# Left column content
+$def leftColF():
+    <h3>Informations</h3>
+    
+    <h3>Last submissions</h3>
+$var leftCol: $:leftColF()
+
+$# Start content
+<ol class="breadcrumb">
+  <li><a href="/index">Home</a></li>
+  <li><a href="/course/$task.getCourse().getId()">$task.getCourse().getName()</a></li>
+  <li class="active">$task.getName()</li>
+</ol>
+<h2>$task.getName()</h2>
+$:task.getContext()

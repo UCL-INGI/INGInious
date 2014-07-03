@@ -1,15 +1,15 @@
 from modules.base import renderer
 from modules.login import loginInstance
-from modules.courses import Course
+from modules.tasks import Task
 
-#Course page
-class CoursePage:
+#Task page
+class TaskPage:
     #Simply display the page
-    def GET(self,courseId):
+    def GET(self,courseId,taskId):
         if loginInstance.isLoggedIn():
-            #try: #TODO:enable
-                course = Course(courseId)
-                return renderer.course(course)
+            #try:#TODO:enable
+                task = Task(courseId,taskId)
+                return renderer.task(task)
             #except:
             #    return renderer.error404()
         else:

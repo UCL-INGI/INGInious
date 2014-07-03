@@ -1,6 +1,6 @@
 from os import listdir
 from os.path import isfile, join, splitext
-from modules.base import tasksDirectory
+from modules.base import tasksDirectory, idChecker
 from modules.tasks import Task
 import json
 
@@ -26,7 +26,7 @@ class Course:
     
     #Constructor. courseId is the name of the .task file
     def __init__(self,courseId):
-        if not courseId.isalnum():
+        if not idChecker(courseId):
             raise Exception("Course with invalid name: "+courseId)
         try:
             content = json.load(open(join(tasksDirectory,courseId+".course"), "r"))

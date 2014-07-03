@@ -1,5 +1,6 @@
 import web
 from modules.login import loginInstance
+import re
 
 #Define global variables accessible from the templates
 templateGlobals = {'loginInstance': loginInstance}
@@ -8,3 +9,7 @@ renderer = web.template.render('templates/', globals=templateGlobals, base='layo
 
 #Tasks directory (created by the Makefile)
 tasksDirectory = "../out/tasks/"
+
+def idChecker(idToTest):
+    """Checks if a id is correct"""
+    return bool(re.match('[a-z0-9\-_\.]+$', idToTest, re.IGNORECASE))
