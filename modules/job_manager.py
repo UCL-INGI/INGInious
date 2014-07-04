@@ -2,6 +2,7 @@ import Queue
 import threading
 
 class JobManager (threading.Thread):
+    """ Thread Class that runs the jobs that are in the queue """
     def __init__(self):
         threading.Thread.__init__(self)
     def run(self):
@@ -20,12 +21,14 @@ class JobManager (threading.Thread):
             condition.release()
 
 def addJob(task, inputdata):
+    """ Add a job in the queue and returns a job id.
+        task is a Task instance and inputdata is the input is a dictionary """
     # Monitor lock
     condition.acquire()
     
     # Put task in the job queue
     addJob.cur_id  += 1
-    jobId = 'job' + `addJob.cur_id`
+    jobId = addJob.cur_id
     main_queue.put((jobId,task,inputdata))
     main_dict[jobId] = None
     
@@ -37,22 +40,25 @@ def addJob(task, inputdata):
     return jobId
 
 def isRunning(jobId):
+    """ Tells if a job given by job id is running/in queue """
     if main_dict.has_key(jobId):
         return main_dict[jobId] == None
     else:
         return False
 
 def isDone(jobId):
+    """ Tells if a job given y job id is done and its result is available """
     if main_dict.has_key(jobId):
         return main_dict[jobId] != None
     else:
         return False
 
 def getResult(jobId):
+    """ Returns the result of a job given by a job id or None if the job is not finished/in queue """
     result = None
     
     # Delete result from dictionary if there is sth
-    if not main_dict[jobId] == None:
+    if main_dict.has_key(jobId) and (not main_dict[jobId] == None):
         result = main_dict[jobId]
         del main_dict[jobId]
         
