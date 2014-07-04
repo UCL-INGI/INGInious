@@ -36,6 +36,12 @@ def addJob(task, inputdata):
     # Returns the jobId
     return jobId
 
+def isRunning(jobId):
+    if main_dict.has_key(jobId):
+        return main_dict[jobId] == None
+    else:
+        return False
+
 def isDone(jobId):
     if main_dict.has_key(jobId):
         return main_dict[jobId] != None
