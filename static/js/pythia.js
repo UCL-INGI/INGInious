@@ -44,22 +44,73 @@ function unblurTaskForm()
 function submitTask()
 {
 	var form = $('form#task');
+	serialized = form.serialize();
+	
 	blurTaskForm();
 	displayTaskLoadingAlert();
 	
+	jQuery.post(form.attr("action"), serialized, null, "json")
+	.done(function(data)
+	{
+		if ("status" in data && data["status"] == "ok" && "jobId" in data)
+		{
+			jobid = data['jobId'];
+			waitForJob(data['jobId']);
+		}
+		else
+		{
+			displayTaskErrorAlert();
+			unblurTaskForm();
+		}
+	})
+	.fail(function()
+	{
+		displayTaskErrorAlert();
+		unblurTaskForm();
+	});
+}
+
+//Wait for a job to end
+function waitForJob(jobId)
+{
 	setTimeout(function()
 	{
-		jQuery.post(form.attr("action"), form.serialize())
-		.done(function()
+		var url = $('form#task').attr("action");
+		jQuery.post(url, {"@action":"check","jobId":jobId}, null, "json")
+		.done(function(data)
 		{
-			
+			if("status" in data && data['status'] == "waiting")
+				waitForJob(jobId);
+			else if("status" in data && data['status'] == "done" && "result" in data)
+			{
+				if(data['result'] == "error" && "text" in data)
+				{
+					displayTaskStudentErrorAlert(data["text"]);
+					unblurTaskForm();
+				}
+				else if(data['result'] == "success")
+				{
+					displayTaskStudentSuccessAlert();
+					unblurTaskForm();
+				}
+				else
+				{
+					displayTaskErrorAlert();
+					unblurTaskForm();
+				}
+			}
+			else
+			{
+				displayTaskErrorAlert();
+				unblurTaskForm();
+			}
 		})
 		.fail(function()
 		{
 			displayTaskErrorAlert();
 			unblurTaskForm();
 		});
-	},5000);
+	}, 5000);
 }
 
 //Displays a loading alert in task form

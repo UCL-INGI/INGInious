@@ -19,6 +19,7 @@ $:task.getContext()
 <hr/>
 <div id="task_alert"></div>
 <form id="task" method="post" action="/course/$task.getCourse().getId()/$task.getId()">
+    <input type="hidden" name="@action" value="submit"/>
     $for key, problem in enumerate(task.getProblems()):
         <h3>Question ${key+1}: $problem.getName()</h3>
         $:problem.getHeader()
