@@ -37,10 +37,20 @@ def addJob(task, inputdata):
     return jobId
 
 def isDone(jobId):
-    return main_dict[jobId] != None
+    if main_dict.has_key(jobId):
+        return main_dict[jobId] != None
+    else:
+        return False
 
 def getResult(jobId):
-    return main_dict[jobId]
+    result = None
+    
+    # Delete result from dictionary if there is sth
+    if not main_dict[jobId] == None:
+        result = main_dict[jobId]
+        del main_dict[jobId]
+        
+    return result
 
 # Initialization
 addJob.cur_id = 0 # static variable
