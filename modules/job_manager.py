@@ -13,7 +13,7 @@ class JobManager (threading.Thread):
             
             # Launch the task
             jobId,task,inputdata = main_queue.get()
-            main_dict[jobId] = task
+            main_dict[jobId] = {"task":task,"result":"Done","input":inputdata}
             
             # Monitor notify
             condition.notify()
