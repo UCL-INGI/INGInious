@@ -1,6 +1,8 @@
 from abc import ABCMeta,abstractmethod
 from modules.parsableText import ParsableText
 from modules.base import IdChecker
+import web
+import re
 
 #Basic box. Abstract
 class BasicBox:
@@ -12,13 +14,21 @@ class BasicBox:
     
     @abstractmethod
     def show(self):
-        return None
+        return ""
     
     def getProblem(self):
         return self.problem
     
     def getId(self):
         return self.id
+    
+    def getCompleteId(self):
+        pid = str(self.getProblem().getId())
+        bid = str(self.getId())
+        if bid != "":
+            return pid+"."+bid
+        else:
+            return pid
     
     def __str__(self):
         return self.show(self)
@@ -35,13 +45,13 @@ class TextBox(BasicBox):
         return "text"
     
     def show(self):
-        return self.content
+        return str(web.template.render('templates/tasks/').box_text(self.content.parse()))
     
     def __init__(self,problem,boxId,boxData):
         BasicBox.__init__(self, problem, boxId, boxData)
         if "content" not in boxData:
             raise Exception("Box id "+boxId+" with type=text do not have content.")
-        self.content = ParsableText(boxData['content'], "HTML" if "contentIsHtml" in boxData and boxData["contentIsHtml"] else "rst")
+        self.content = ParsableText(boxData['content'], "HTML" if "contentIsHTML" in boxData and boxData["contentIsHTML"] else "rst")
 
 #Input box. Displays a html input object
 class InputBox(BasicBox):
@@ -49,7 +59,7 @@ class InputBox(BasicBox):
         return "input"
     
     def show(self):
-        return None #TODO
+        return str(web.template.render('templates/tasks/').box_input(self.getCompleteId(),self.input_type,self.maxChars))
     
     def __init__(self,problem,boxId,boxData):
         BasicBox.__init__(self, problem, boxId, boxData)
@@ -77,7 +87,7 @@ class MultilineBox(BasicBox):
         return "multiline"
     
     def show(self):
-        return None #TODO
+        return str(web.template.render('templates/tasks/').box_multiline(self.getCompleteId(),self.lines,self.maxChars,self.language))
     
     def __init__(self,problem,boxId,boxData):
         BasicBox.__init__(self, problem, boxId, boxData)
@@ -94,3 +104,10 @@ class MultilineBox(BasicBox):
             raise Exception("Invalid lines value in box "+boxId)
         else:
             self.lines = 8
+        
+        if "language" in boxData and re.match('[a-z0-9\-_\.]+$', boxData["language"], re.IGNORECASE):
+            self.language = boxData["language"]
+        elif "language" in boxData:
+            raise Exception("Invalid language "+boxData["language"])
+        else:
+            self.language = "plain"
