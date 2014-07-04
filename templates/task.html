@@ -17,7 +17,8 @@ $# Start content
 <h2>$task.getName()</h2>
 $:task.getContext()
 <hr/>
-<form method="post" action="/course/test/test">
+<div id="task_alert"></div>
+<form id="task" method="post" action="/course/$task.getCourse().getId()/$task.getId()">
     $for key, problem in enumerate(task.getProblems()):
         <h3>Question ${key+1}: $problem.getName()</h3>
         $:problem.getHeader()

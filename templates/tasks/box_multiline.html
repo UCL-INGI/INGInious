@@ -1,27 +1,4 @@
 $def with (inputId,lines,maxChars,language)
-<div id="$inputId"></div>
+<div id="$inputId" class="aceEditor" ></div>
 <input type="hidden" name="$inputId"/>
-<script>
-	jQuery(function()
-	{
-        var editor = ace.edit("$inputId");
-        $if language != "plain":
-        	editor.getSession().setMode("ace/mode/$language");
-        editor.getSession().setTabSize(4);
-        
-        editor.setOptions({
-			$if lines == 0:
-				minLines: 8,
-				maxLines: 8
-			$else:
-				minLines: $lines,
-				maxLines: $lines
-        });
-        
-        var textarea = jQuery('input[name="$inputId"]');
-        editor.getSession().on("change", function()
-        {
-            textarea.val(editor.getSession().getValue());
-        });
-	});
-</script>
+<script type="text/javascript">jQuery(function(){ registerCodeEditor("$inputId","$language",$lines); });</script>

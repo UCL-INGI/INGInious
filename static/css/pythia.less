@@ -1,3 +1,22 @@
+/* Mixins */
+.blur(@size)
+{
+	-webkit-filter: blur(@size); 
+	-moz-filter: blur(@size); 
+	-o-filter: blur(@size); 
+	-ms-filter: blur(@size); 
+	filter: blur(@size);
+}
+
+.transition(@transition)
+{
+	-webkit-transition: @transition;  
+	-moz-transition:    @transition;
+	-ms-transition:     @transition; 
+	-o-transition:      @transition;  
+	transition:         @transition;
+}
+
 .list-group .progress
 {
 	float: right;
@@ -16,10 +35,21 @@ input.monospace
 	font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
-//Fix for bootstrap
+/*Fix for bootstrap*/
 .form-inline.form-control
 {
 	display: inline-block;
 	width: auto;
 	vertical-align: middle;
+}
+
+form#task
+{
+	.blur(0px);
+	.transition(all 0.3s ease-in-out);
+}
+
+form#task.form-blur
+{
+	.blur(5px);
 }
