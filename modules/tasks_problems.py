@@ -2,6 +2,8 @@ from modules.parsableText import ParsableText
 from abc import ABCMeta,abstractmethod
 from modules.tasks_code_boxes import InputBox, MultilineBox, TextBox
 from modules.base import IdChecker
+from random import shuffle
+import web
 
 class BasicProblem:
     """Basic problem. *Should not be instanced*"""
@@ -27,6 +29,8 @@ class BasicProblem:
         return self.header
     
     def __init__(self,task,problemId,content):
+        if not IdChecker(problemId):
+            raise Exception("Invalid problem id: "+problemId)
         if "name" not in content or not isinstance(content['name'], basestring):
             raise Exception("Invalid name for problem "+id)
         if "header" not in content or not isinstance(content['header'], basestring):
@@ -40,12 +44,15 @@ class BasicProblem:
 class BasicCodeProblem(BasicProblem):
     """Basic problem with code input. Do all the job with the backend"""
     def __init__(self,task,problemId,content):
-        BasicProblem.__init__(self, task, id, content)
+        BasicProblem.__init__(self, task, problemId, content)
         if task.getEnvironment() == None:
             raise Exception("Environment undefined, but there is a problem with type=code or type=code-single-line")
         
     def showInput(self):
-        return "" #TODO
+        output = ""
+        for box in self.boxes:
+            output += box.show()
+        return output
     
     def evalResults(self,formInput):
         return "" #TODO 
@@ -82,7 +89,10 @@ class CodeProblem(BasicCodeProblem):
             for boxId, boxContent in content['boxes'].iteritems():
                 self.boxes.append(self.createBox(boxId, boxContent))
         else:
-            self.boxes = {"":self.createBox("", {"type":"multiline"})}
+            if "language" in content:
+                self.boxes = [self.createBox("", {"type":"multiline","language":content["language"]})]
+            else:
+                self.boxes = [self.createBox("", {"type":"multiline"})]
     def getType(self):
         return "code"
 
@@ -95,14 +105,16 @@ class MultipleChoiceProblem(BasicProblem):
             raise Exception("Multiple choice problem "+ problemId +" does not have choices or choices are not an array")
         goodChoices=[]
         badChoices=[]
-        for choice in content["choices"]:
-            data={}
+        for index, choice in enumerate(content["choices"]):
+            data={"index": index}
             if "text" not in choice:
                 raise Exception("A choice in "+problemId+" does not have text")
             data['text'] = ParsableText(choice['text'], 'HTML' if "textIsHTML" in choice and choice['textIsHTML'] else 'rst')
             if "valid" in choice and choice['valid']:
+                data['valid'] = True
                 goodChoices.append(data)
             else:
+                data['valid'] = False
                 badChoices.append(data)
         
         if len(goodChoices) == 0:
@@ -115,10 +127,39 @@ class MultipleChoiceProblem(BasicProblem):
             raise Exception("Invalid limit in problem "+problemId)
         
         self.choices = goodChoices+badChoices
+        shuffle(self.choices)
     def getType(self):
         return "multiple-choice"
     def showInput(self):
-        return None #TODO
+        choices = []
+        limit = self.limit
+        if self.multiple:
+            #take only the valid choices in the first pass
+            for entry in self.choices:
+                if entry['valid']:
+                    choices.append(entry)
+                    limit = limit-1
+            #take everything else in a second pass
+            for entry in self.choices:
+                if limit == 0:
+                    break
+                if not entry['valid']:
+                    choices.append(entry)
+                    limit = limit-1
+        else:
+            #need to have a valid entry
+            foundValid = False
+            for entry in self.choices:
+                if limit == 1 and not foundValid and entry['valid']:
+                    continue
+                elif limit == 0:
+                    break
+                choices.append(entry)
+                limit = limit-1
+                if entry['valid']:
+                    foundValid = True
+        shuffle(choices)
+        return str(web.template.render('templates/tasks/').multiplechoice(self.getId(),self.multiple,choices))
     def evalResults(self,formInput):
         return None #TODO
 

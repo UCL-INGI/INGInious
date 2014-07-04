@@ -17,6 +17,9 @@ $def with (content)
 <!-- Pythia Style-->
 <link href="/static/css/pythia.css" rel="stylesheet">
 
+<!-- JQuery -->
+<script src="/static/js/jquery.min.js"></script>
+
 $if "header" in content:
     $:content.header
 </head>
@@ -55,8 +58,9 @@ $if "header" in content:
 
     <!-- Bootstrap core JavaScript -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/ace/ace.js" type="text/javascript" charset="utf-8"></script>
     <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/form-validator/jquery.form-validator.min.js"></script>
     <script src="/static/js/pythia.js"></script>
 </body>
 </html>
