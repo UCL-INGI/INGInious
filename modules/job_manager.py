@@ -2,9 +2,8 @@ import Queue
 import threading
 
 class JobManager (threading.Thread):
-    def __init__(self, threadID):
+    def __init__(self):
         threading.Thread.__init__(self)
-        self.threadID = threadID
     def run(self):
         while True:
             # Monitor lock and check
@@ -13,8 +12,8 @@ class JobManager (threading.Thread):
                 condition.wait()
             
             # Launch the task
-            task,inputdata = main_queue.get()
-            print task
+            jobId,task,inputdata = main_queue.get()
+            main_dict[jobId] = task
             
             # Monitor notify
             condition.notify()
@@ -25,9 +24,9 @@ def addJob(task, inputdata):
     condition.acquire()
     
     # Put task in the job queue
-    main_queue.put((task,inputdata))
     addJob.cur_id  += 1
     jobId = 'job' + `addJob.cur_id`
+    main_queue.put((jobId,task,inputdata))
     main_dict[jobId] = None
     
     # Monitor notify
@@ -50,6 +49,6 @@ main_queue = Queue.Queue()
 main_dict = {}
 
 # Launch the main thread
-main_thread = JobManager(1)
+main_thread = JobManager()
 main_thread.daemon = True
 main_thread.start()
