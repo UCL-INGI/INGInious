@@ -1,13 +1,13 @@
 import web
 import frontend
-import pages
+import frontend.pages
 from frontend.session import sessionManager
 
 urls = (
-    '/', 'pages.index.IndexPage',
-    '/index', 'pages.index.IndexPage',
-    '/course/([^/]+)', 'pages.course.CoursePage',
-    '/course/([^/]+)/([^/]+)', 'pages.tasks.TaskPage'
+    '/', 'frontend.pages.index.IndexPage',
+    '/index', 'frontend.pages.index.IndexPage',
+    '/course/([^/]+)', 'frontend.pages.course.CoursePage',
+    '/course/([^/]+)/([^/]+)', 'frontend.pages.tasks.TaskPage'
 )
 
 app = web.application(urls, globals())

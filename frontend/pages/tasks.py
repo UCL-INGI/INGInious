@@ -1,9 +1,8 @@
-from common.base import renderer
+from frontend.base import renderer
 import frontend.user as User
 from common.tasks import Task
 import web
 import frontend.backend_interface as job_manager
-from frontend.session import sessionManager
 import json
 
 #Task page

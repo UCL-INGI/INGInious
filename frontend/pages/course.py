@@ -1,4 +1,4 @@
-from common.base import renderer
+from frontend.base import renderer
 import frontend.user as User
 from common.courses import Course
 

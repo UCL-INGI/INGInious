@@ -1,7 +1,6 @@
 from abc import ABCMeta,abstractmethod
 from common.parsableText import ParsableText
 from common.base import IdChecker
-import web
 import re
 
 #Basic box. Abstract
@@ -11,10 +10,6 @@ class BasicBox:
     @abstractmethod
     def getType(self):
         return None
-    
-    @abstractmethod
-    def show(self):
-        return ""
     
     def getProblem(self):
         return self.problem
@@ -44,9 +39,6 @@ class TextBox(BasicBox):
     def getType(self):
         return "text"
     
-    def show(self):
-        return str(web.template.render('templates/tasks/').box_text(self.content.parse()))
-    
     def __init__(self,problem,boxId,boxData):
         BasicBox.__init__(self, problem, boxId, boxData)
         if "content" not in boxData:
@@ -57,9 +49,6 @@ class TextBox(BasicBox):
 class InputBox(BasicBox):
     def getType(self):
         return "input"
-    
-    def show(self):
-        return str(web.template.render('templates/tasks/').box_input(self.getCompleteId(),self.input_type,self.maxChars))
     
     def __init__(self,problem,boxId,boxData):
         BasicBox.__init__(self, problem, boxId, boxData)
@@ -85,9 +74,6 @@ class InputBox(BasicBox):
 class MultilineBox(BasicBox):
     def getType(self):
         return "multiline"
-    
-    def show(self):
-        return str(web.template.render('templates/tasks/').box_multiline(self.getCompleteId(),self.lines,self.maxChars,self.language))
     
     def __init__(self,problem,boxId,boxData):
         BasicBox.__init__(self, problem, boxId, boxData)

@@ -3,7 +3,6 @@ from abc import ABCMeta,abstractmethod
 from common.tasks_code_boxes import InputBox, MultilineBox, TextBox
 from common.base import IdChecker
 from random import shuffle
-import web
 
 class BasicProblem:
     """Basic problem. *Should not be instanced*"""
@@ -11,9 +10,6 @@ class BasicProblem:
     
     @abstractmethod
     def getType(self):
-        return None
-    @abstractmethod
-    def showInput(self):
         return None
     @abstractmethod
     def evalResults(self,formInput):
@@ -47,12 +43,6 @@ class BasicCodeProblem(BasicProblem):
         BasicProblem.__init__(self, task, problemId, content)
         if task.getEnvironment() == None:
             raise Exception("Environment undefined, but there is a problem with type=code or type=code-single-line")
-        
-    def showInput(self):
-        output = ""
-        for box in self.boxes:
-            output += box.show()
-        return output
     
     def evalResults(self,formInput):
         return "" #TODO 
@@ -130,36 +120,6 @@ class MultipleChoiceProblem(BasicProblem):
         shuffle(self.choices)
     def getType(self):
         return "multiple-choice"
-    def showInput(self):
-        choices = []
-        limit = self.limit
-        if self.multiple:
-            #take only the valid choices in the first pass
-            for entry in self.choices:
-                if entry['valid']:
-                    choices.append(entry)
-                    limit = limit-1
-            #take everything else in a second pass
-            for entry in self.choices:
-                if limit == 0:
-                    break
-                if not entry['valid']:
-                    choices.append(entry)
-                    limit = limit-1
-        else:
-            #need to have a valid entry
-            foundValid = False
-            for entry in self.choices:
-                if limit == 1 and not foundValid and entry['valid']:
-                    continue
-                elif limit == 0:
-                    break
-                choices.append(entry)
-                limit = limit-1
-                if entry['valid']:
-                    foundValid = True
-        shuffle(choices)
-        return str(web.template.render('templates/tasks/').multiplechoice(self.getId(),self.multiple,choices))
     def evalResults(self,formInput):
         return None #TODO
 
