@@ -1,29 +1,29 @@
 import ldap
-from frontend.session import sessionManager
+from frontend.session import session
 import common.base
 
 def getUsername():
     """ Returns the username (which is unique) of the current user. Returns None if no user is logged in """
     if not isLoggedIn():
         return None
-    return sessionManager.get().username
+    return session.username
 
 def getRealname():
     """ Returns the real name of the current user. Returns None if no user is logged in """
     if not isLoggedIn():
         return None
-    return sessionManager.get().realname
+    return session.realname
 
 def isLoggedIn():
     """" Returns if the user is logged in or not """
-    return "loggedin" in sessionManager.get() and sessionManager.get().loggedin
+    return "loggedin" in session and session.loggedin
 
 def disconnect():
     """ Log off the current user """
-    sessionManager.get().loggedin = False
-    sessionManager.get().username = None
-    sessionManager.get().realname = None
-    sessionManager.get().email = None
+    session.loggedin = False
+    session.username = None
+    session.realname = None
+    session.email = None
     return
 
 def connect(self, login, password):
@@ -41,15 +41,15 @@ def connect(self, login, password):
         l.protocol_version = ldap.VERSION3
         l.simple_bind_s(username, password)
         
-        sessionManager.get().loggedin = True
+        session.loggedin = True
         
         # Fetch login informations
         results = l.search_s(username, ldap.SCOPE_SUBTREE, '(objectclass=person)', ['mail','cn','uid'])
         
         for req,entry in results:
-            sessionManager.get().email = entry['mail'][0]
-            sessionManager.get().username = entry['uid'][0]
-            sessionManager.get().realname = entry['cn'][0]
+            session.email = entry['mail'][0]
+            session.username = entry['uid'][0]
+            session.realname = entry['cn'][0]
         
         return True
     except ldap.LDAPError, e:

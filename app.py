@@ -1,7 +1,6 @@
 import web
-import frontend
 import frontend.pages
-from frontend.session import sessionManager
+import frontend.session
 
 urls = (
     '/', 'frontend.pages.index.IndexPage',
@@ -11,7 +10,7 @@ urls = (
 )
 
 app = web.application(urls, globals())
-sessionManager.init(app)
+frontend.session.init(app)
 
 if __name__ == "__main__":
     app.run()
