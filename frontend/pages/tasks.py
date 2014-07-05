@@ -24,7 +24,7 @@ class TaskPage:
         
     def POST(self,courseId,taskId):
         if User.isLoggedIn():
-            #try:#TODO:enable
+            try:
                 task = Task(courseId,taskId)
                 userinput = web.input()
                 if "@action" in userinput and userinput["@action"] == "submit":
@@ -43,8 +43,8 @@ class TaskPage:
                         return json.dumps({'status':"waiting"});
                 else:
                     return renderer.error404()
-            #except:
-            #    return renderer.error404()
+            except:
+                return renderer.error404()
         else:
             return renderer.index(False)
     

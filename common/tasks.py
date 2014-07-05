@@ -100,9 +100,11 @@ class Task:
     def getContext(self):
         return self.context
     def getId(self):
-        return self.courseId
+        return self.taskId
     def getProblems(self):
         return self.problems
+    def getCourseId(self):
+        return self.courseId
     def getCourse(self):
         if self.course == None:
             self.course = common.courses.Course(self.courseId)
