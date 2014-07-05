@@ -1,6 +1,8 @@
 import ldap
-from frontend.session import session
+
 import common.base
+from frontend.session import session
+
 
 def getUsername():
     """ Returns the username (which is unique) of the current user. Returns None if no user is logged in """

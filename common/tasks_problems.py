@@ -1,8 +1,10 @@
-from common.parsableText import ParsableText
-from abc import ABCMeta,abstractmethod
-from common.tasks_code_boxes import InputBox, MultilineBox, TextBox
-from common.base import IdChecker
+from abc import ABCMeta, abstractmethod
 from random import shuffle
+
+from common.base import IdChecker
+from common.parsableText import ParsableText
+from common.tasks_code_boxes import InputBox, MultilineBox, TextBox
+
 
 class BasicProblem:
     """Basic problem. *Should not be instanced*"""

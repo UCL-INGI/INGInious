@@ -1,6 +1,8 @@
 import web
+
 import frontend.pages
 import frontend.session
+
 
 urls = (
     '/', 'frontend.pages.index.IndexPage',

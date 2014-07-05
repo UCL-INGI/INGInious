@@ -1,8 +1,10 @@
+import json
 from os import listdir
 from os.path import isfile, join, splitext
+
 from common.base import tasksDirectory, IdChecker
 from common.tasks import Task
-import json
+
 
 #Represents a Course
 class Course:

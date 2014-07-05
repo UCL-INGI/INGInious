@@ -1,5 +1,6 @@
 from docutils import core
 
+
 class ParsableText:
     """Allow to parse a string with different parsers"""
     

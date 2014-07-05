@@ -1,6 +1,7 @@
 import Queue
 import threading
 
+
 class JobManager (threading.Thread):
     """ Thread Class that runs the jobs that are in the queue """
     def __init__(self):

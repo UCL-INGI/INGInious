@@ -1,6 +1,7 @@
+from common.courses import Course
 from frontend.base import renderer
 import frontend.user as User
-from common.courses import Course
+
 
 #Course page
 class CoursePage:

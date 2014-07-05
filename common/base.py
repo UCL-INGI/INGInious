@@ -1,5 +1,6 @@
 import re
 
+
 #Tasks directory (created by the Makefile)
 tasksDirectory = "../out/tasks/"
 

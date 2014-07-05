@@ -1,5 +1,7 @@
-import frontend.user as User
 import web
+
+import frontend.user as User
+
 
 #Define global variables accessible from the templates
 templateGlobals = {'User': User}

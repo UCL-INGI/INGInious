@@ -1,7 +1,9 @@
-from abc import ABCMeta,abstractmethod
-from common.parsableText import ParsableText
-from common.base import IdChecker
+from abc import ABCMeta, abstractmethod
 import re
+
+from common.base import IdChecker
+from common.parsableText import ParsableText
+
 
 #Basic box. Abstract
 class BasicBox:

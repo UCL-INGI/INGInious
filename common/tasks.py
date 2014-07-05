@@ -101,10 +101,13 @@ class Task:
             self.course = common.courses.Course(self.courseId)
         return self.course
     
-from os.path import join
-from common.base import tasksDirectory, IdChecker
-from common.tasks_problems import CreateTaskProblem
-from common.parsableText import ParsableText
-import json
-import common.courses
 import collections
+import json
+from os.path import join
+
+from common.base import tasksDirectory, IdChecker
+import common.courses
+from common.parsableText import ParsableText
+from common.tasks_problems import CreateTaskProblem
+
+

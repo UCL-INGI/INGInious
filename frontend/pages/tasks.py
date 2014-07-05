@@ -1,9 +1,12 @@
+import json
+
+import web
+
+from common.tasks import Task
+import frontend.backend_interface as job_manager
 from frontend.base import renderer
 import frontend.user as User
-from common.tasks import Task
-import web
-import frontend.backend_interface as job_manager
-import json
+
 
 #Task page
 class TaskPage:

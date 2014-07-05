@@ -1,9 +1,12 @@
 """ Modify tasks utilities classes (from modules common.tasks_code_boxes and common.tasks_problems) to include show functions """
 
+from random import shuffle
+
 import web
+
 from common.tasks_code_boxes import TextBox, InputBox, MultilineBox
 from common.tasks_problems import BasicCodeProblem, MultipleChoiceProblem
-from random import shuffle
+
 
 #Add show functions to problems' boxes
 def TextBoxShow(self):
