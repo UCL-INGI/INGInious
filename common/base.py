@@ -1,9 +1,9 @@
 import web
-from frontend.login import loginInstance
+import frontend.login as Login
 import re
 
 #Define global variables accessible from the templates
-templateGlobals = {'loginInstance': loginInstance}
+templateGlobals = {'Login': Login}
 # Instance of the template renderer
 renderer = web.template.render('templates/', globals=templateGlobals, base='layout')
 

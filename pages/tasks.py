@@ -1,5 +1,5 @@
 from common.base import renderer
-from frontend.login import loginInstance
+import frontend.login as Login
 from common.tasks import Task
 import web
 import frontend.backend_interface as job_manager
@@ -10,7 +10,7 @@ import json
 class TaskPage:
     #Simply display the page
     def GET(self,courseId,taskId):
-        if loginInstance.isLoggedIn():
+        if Login.isLoggedIn():
             #try:#TODO:enable
                 task = Task(courseId,taskId)
                 return renderer.task(task)
@@ -19,7 +19,7 @@ class TaskPage:
         else:
             return renderer.index(False)
     def POST(self,courseId,taskId):
-        if loginInstance.isLoggedIn():
+        if Login.isLoggedIn():
             #try:#TODO:enable
                 task = Task(courseId,taskId)
                 userinput = web.input()
