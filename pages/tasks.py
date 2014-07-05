@@ -1,9 +1,9 @@
-from modules.base import renderer
-from modules.login import loginInstance
-from modules.tasks import Task
+from common.base import renderer
+from frontend.login import loginInstance
+from common.tasks import Task
 import web
-import modules.job_manager as job_manager
-from modules.session import sessionManager
+import frontend.backend_interface as job_manager
+from frontend.session import sessionManager
 import json
 
 #Task page

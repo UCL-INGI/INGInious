@@ -22,7 +22,7 @@ class JobManager (threading.Thread):
 
 def addJob(task, inputdata):
     """ Add a job in the queue and returns a job id.
-        task is a Task instance and inputdata is the input is a dictionary """
+        task is a Task instance and inputdata is the input as a dictionary """
     # Monitor lock
     condition.acquire()
     
@@ -54,7 +54,7 @@ def isDone(jobId):
         return False
 
 def getResult(jobId):
-    """ Returns the result of a job given by a job id or None if the job is not finished/in queue """
+    """ Returns the result of a job given by a job id or None if the job is not finished/in queue. If the job is finished, subsequent call to getResult will return None (job is deleted) """
     result = None
     
     # Delete result from dictionary if there is sth

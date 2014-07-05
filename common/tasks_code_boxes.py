@@ -1,6 +1,6 @@
 from abc import ABCMeta,abstractmethod
-from modules.parsableText import ParsableText
-from modules.base import IdChecker
+from common.parsableText import ParsableText
+from common.base import IdChecker
 import web
 import re
 

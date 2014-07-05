@@ -1,7 +1,7 @@
 import web
-import modules
+import frontend
 import pages
-from modules.session import sessionManager
+from frontend.session import sessionManager
 
 urls = (
     '/', 'pages.index.IndexPage',

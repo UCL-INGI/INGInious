@@ -1,7 +1,7 @@
 import web
-from modules.base import renderer
-from modules.login import loginInstance
-from modules.courses import Course
+from common.base import renderer
+from frontend.login import loginInstance
+from common.courses import Course
 
 #Index page
 class IndexPage:

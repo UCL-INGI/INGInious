@@ -1,5 +1,5 @@
 import web
-from modules.login import loginInstance
+from frontend.login import loginInstance
 import re
 
 #Define global variables accessible from the templates

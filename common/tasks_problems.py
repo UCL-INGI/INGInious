@@ -1,7 +1,7 @@
-from modules.parsableText import ParsableText
+from common.parsableText import ParsableText
 from abc import ABCMeta,abstractmethod
-from modules.tasks_code_boxes import InputBox, MultilineBox, TextBox
-from modules.base import IdChecker
+from common.tasks_code_boxes import InputBox, MultilineBox, TextBox
+from common.base import IdChecker
 from random import shuffle
 import web
 

@@ -1,13 +1,13 @@
 from os import listdir
 from os.path import isfile, join, splitext
-from modules.base import tasksDirectory, IdChecker
-from modules.tasks import Task
+from common.base import tasksDirectory, IdChecker
+from common.tasks import Task
 import json
 
 #Represents a Course
 class Course:
     courseCache = None
-    
+
     #Returns a table containing courseId=>{name:courseName, admins:[courseAdmins]} pairs.
     @staticmethod
     def GetAllCoursesIds():
