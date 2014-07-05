@@ -1,17 +1,17 @@
 """ Compatibility layer to allow frontend to retain some informations about who created a job"""
 
 import backend.job_manager
-import frontend.login as Login
+import frontend.user as User
 
 userJobDict = {}
 
 def addJob(task, inputdata):
     """ Add a job in the queue and returns a job id.
         task is a Task instance and inputdata is the input as a dictionary """
-    if not Login.isLoggedIn():
+    if not User.isLoggedIn():
         raise Exception("A user must be logged in to submit an object")
     
-    username = Login.getUsername()
+    username = User.getUsername()
     if username not in userJobDict:
         userJobDict[username] = []
     
@@ -35,11 +35,11 @@ def getResult(jobId):
     if not isDone(jobId):
         return None
     result = backend.job_manager.getResult(jobId)
-    userJobDict[Login.getUsername()].remove(jobId)
+    userJobDict[User.getUsername()].remove(jobId)
     return result
     
 def userIsJobOwner(jobId):
     """ Returns true if the current user is the owner of this jobId, false else """
-    if not Login.isLoggedIn():
+    if not User.isLoggedIn():
         raise Exception("A user must be logged in to verify if he owns a jobId")
-    return Login.getUsername() in userJobDict and jobId in userJobDict[Login.getUsername()]
+    return User.getUsername() in userJobDict and jobId in userJobDict[User.getUsername()]

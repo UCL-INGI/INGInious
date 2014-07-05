@@ -1,12 +1,12 @@
 from common.base import renderer
-import frontend.login as Login
+import frontend.user as User
 from common.courses import Course
 
 #Course page
 class CoursePage:
     #Simply display the page
     def GET(self,courseId):
-        if Login.isLoggedIn():
+        if User.isLoggedIn():
             #try: #TODO:enable
                 course = Course(courseId)
                 return renderer.course(course)
