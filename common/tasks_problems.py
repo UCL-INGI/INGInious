@@ -16,6 +16,10 @@ class BasicProblem:
     @abstractmethod
     def evalResults(self,formInput):
         return None
+    @abstractmethod
+    def inputIsConsistent(self, taskInput):
+        """ Check if an input for this problem is consistent. Return true if this is case, false else """
+        return False
     
     def getId(self):
         return self.id
@@ -49,6 +53,12 @@ class BasicCodeProblem(BasicProblem):
     def evalResults(self,formInput):
         return "" #TODO 
     
+    def inputIsConsistent(self, taskInput):
+        for box in self.boxes:
+            if not box.inputIsConsistent(taskInput):
+                return False
+        return True
+    
     def createBox(self,boxId,boxContent):
         if not IdChecker(boxId) and not boxId == "":
             raise Exception("Invalid box id "+boxId)
@@ -79,6 +89,8 @@ class CodeProblem(BasicCodeProblem):
         if "boxes" in content:
             self.boxes = []
             for boxId, boxContent in content['boxes'].iteritems():
+                if boxId == "":
+                    raise Exception("Empty box ids are not allowed")
                 self.boxes.append(self.createBox(boxId, boxContent))
         else:
             if "language" in content:
@@ -120,10 +132,44 @@ class MultipleChoiceProblem(BasicProblem):
         
         self.choices = goodChoices+badChoices
         shuffle(self.choices)
+    
     def getType(self):
         return "multiple-choice"
+    
     def evalResults(self,formInput):
         return None #TODO
+    
+    def allowMultiple(self):
+        return self.multiple
+    
+    def getChoiceWithIndex(self,index):
+        for entry in self.choices:
+            if entry["index"] == index:
+                return entry
+        return None
+    
+    def inputIsConsistent(self, taskInput):
+        if self.getId() not in taskInput:
+            return False
+        if self.multiple:
+            if not isinstance(taskInput[self.getId()], list):
+                return False
+            if len(taskInput[self.getId()]) == 0:
+                return False
+            try: #test conversion to int
+                for entry in taskInput[self.getId()]:
+                    if self.getChoiceWithIndex(int(entry)) == None:
+                        return False
+            except:
+                return False
+        else:
+            try: #test conversion to int
+                if self.getChoiceWithIndex(int(taskInput[self.getId()])) == None:
+                    return False
+            except:
+                return False
+        return True
+                
 
 def CreateTaskProblem(task,problemId,problemContent):
     """Creates a new instance of the right class for a given problem."""

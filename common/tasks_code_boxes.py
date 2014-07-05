@@ -19,6 +19,10 @@ class BasicBox:
     def getId(self):
         return self.id
     
+    def inputIsConsistent(self, taskInput):
+        """ Check if an input for this box is consistent. Return true if this is case, false else """
+        return self.getCompleteId() in taskInput
+    
     def getCompleteId(self):
         """ Returns the complete id of this box. This id is unique among all problems and boxes in an exercice """
         pid = str(self.getProblem().getId())
@@ -43,6 +47,10 @@ class TextBox(BasicBox):
     def getType(self):
         return "text"
     
+    def inputIsConsistent(self, taskInput):
+        #do not call inputIsConsistent from BasicBox.
+        return True
+    
     def __init__(self,problem,boxId,boxData):
         BasicBox.__init__(self, problem, boxId, boxData)
         if "content" not in boxData:
@@ -54,6 +62,30 @@ class InputBox(BasicBox):
     def getType(self):
         return "input"
     
+    def inputIsConsistent(self, taskInput):
+        if not BasicBox.inputIsConsistent(self, taskInput):
+            return False
+        
+        if self.maxChars != 0 and len(taskInput[self.getCompleteId()]) > self.maxChars:
+            return False
+        
+        #do not allow empty answers
+        if len(taskInput[self.getCompleteId()]) == 0:
+            return False
+        
+        if self.input_type == "integer":
+            try:
+                int(taskInput[self.getCompleteId()])
+            except:
+                return False
+            
+        if self.input_type == "decimal":
+            try:
+                float(taskInput[self.getCompleteId()])
+            except:
+                return False
+        return True
+    
     def __init__(self,problem,boxId,boxData):
         BasicBox.__init__(self, problem, boxId, boxData)
         if boxData["type"] == "input-text": 
@@ -62,8 +94,6 @@ class InputBox(BasicBox):
             self.input_type = "integer"
         elif boxData["type"] == "input-decimal":
             self.input_type = "decimal"
-        elif boxData["type"] == "input-mail":
-            self.input_type = "mail"
         else:
             raise Exception("No such box type "+ boxData["type"] +" in box "+boxId)
         
@@ -78,6 +108,16 @@ class InputBox(BasicBox):
 class MultilineBox(BasicBox):
     def getType(self):
         return "multiline"
+    
+    def inputIsConsistent(self, taskInput):
+        if not BasicBox.inputIsConsistent(self, taskInput):
+            return False
+        if self.maxChars != 0 and len(taskInput[self.getCompleteId()]) > self.maxChars:
+            return False
+        #do not allow empty answers
+        if len(taskInput[self.getCompleteId()]) == 0:
+            return False
+        return True
     
     def __init__(self,problem,boxId,boxData):
         BasicBox.__init__(self, problem, boxId, boxData)

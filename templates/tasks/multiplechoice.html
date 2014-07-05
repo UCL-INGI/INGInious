@@ -4,7 +4,7 @@ $for choice in choices:
     $if checkbox:
         <div class="checkbox">
             <label>
-                <input type="checkbox" name="${pid}[]" value="$choice['index']"/> $:choice['text']
+                <input type="checkbox" name="${pid}" value="$choice['index']"/> $:choice['text']
             </label>
         </div>
     $else:

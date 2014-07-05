@@ -12,8 +12,8 @@ class Task:
         
         self.initWithData(courseId, taskId, content)
     
-    """Checks content of the JSON data and init the Task object"""
     def initWithData(self,courseId, taskId, data):
+        """Checks content of the JSON data and init the Task object"""
         self.course = None
         self.courseId = courseId
         self.taskId = taskId
@@ -86,6 +86,13 @@ class Task:
         for problemId in data['problems']:
             self.problems.append(CreateTaskProblem(self,problemId,data['problems'][problemId]))
 
+    def inputIsConsistent(self, taskInput):
+        """ Check if an input for a task is consistent. Return true if this is case, false else """
+        for problem in self.problems:
+            if not problem.inputIsConsistent(taskInput):
+                return False
+        return True
+    
     def getEnvironment(self):
         return self.environment
     def getName(self):

@@ -57,6 +57,11 @@ function submitTask()
             jobid = data['jobId'];
             waitForJob(data['jobId']);
         }
+        else if ("status" in data && data['status'] == "error" && "text" in data)
+        {
+        	displayTaskStudentErrorAlert(data["text"]);
+            unblurTaskForm();
+        }
         else
         {
             displayTaskErrorAlert();
