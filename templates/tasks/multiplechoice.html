@@ -4,12 +4,12 @@ $for choice in choices:
     $if checkbox:
         <div class="checkbox">
             <label>
-                <input type="checkbox" name="${pid}" value="$choice['index']"/> $:choice['text']
+                <input type="checkbox" name="${pid}" value="$choice['index']" data-validation="checkbox_group" data-validation-qty="min1"/> $:choice['text']
             </label>
         </div>
     $else:
         <div class="radio">
             <label>
-                <input type="radio" name="$pid" value="$choice['index']"/> $:choice['text']
+                <input type="radio" name="$pid" value="$choice['index']" data-validation="checkbox_group" data-validation-qty="min1"/> $:choice['text']
             </label>
         </div>

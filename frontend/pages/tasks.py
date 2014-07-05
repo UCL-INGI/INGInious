@@ -33,7 +33,7 @@ class TaskPage:
                     userinput = web.input(**dict.fromkeys(needArray, []))
                     print(userinput)
                     if not task.inputIsConsistent(userinput):
-                        return json.dumps({"status":"error","text":"Please fill all the boxes. <br/>The received data was invalid. Your response were not tested."});
+                        return json.dumps({"status":"error","text":"Please answer to all the questions. Your responses were not tested."});
                     jobId = job_manager.addJob(task, web.input)
                     return json.dumps({"status":"ok","jobId":jobId});
                 elif "@action" in userinput and userinput["@action"] == "check" and "jobId" in userinput:

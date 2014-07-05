@@ -2,6 +2,7 @@ $def with (inputId,type,maxChars)
 <input
     $if type == "text":
         type="text"
+        data-validation="required"
     $elif type == "integer":
         type="number"
         data-validation="number"
@@ -10,9 +11,6 @@ $def with (inputId,type,maxChars)
         type="number"
         data-validation="number"
         data-validation-allowing="float"
-    $elif type == "mail":
-        type="email"
-        data-validation="email"
     name="$inputId" 
     value=""
     class="monospace form-control form-inline"
