@@ -43,3 +43,13 @@ def userIsJobOwner(jobId):
     if not User.isLoggedIn():
         raise Exception("A user must be logged in to verify if he owns a jobId")
     return User.getUsername() in userJobDict and jobId in userJobDict[User.getUsername()]
+
+def getCurrentJobs():
+    """ Returns the list of the currently waiting/running jobs for the current user """
+    if not User.isLoggedIn():
+        raise Exception("A user must be logged in to verify if he owns a job")
+    if User.getUsername() not in userJobDict:
+        return []
+    else:
+        return userJobDict[User.getUsername()]
+    

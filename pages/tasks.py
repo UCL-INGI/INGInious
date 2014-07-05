@@ -25,10 +25,6 @@ class TaskPage:
                 userinput = web.input()
                 if "@action" in userinput and userinput["@action"] == "submit":
                     jobId = job_manager.addJob(task, web.input)
-                    
-                    if "waitingJobs" not in sessionManager.get():
-                        sessionManager.get().waitingJobs={}
-                    sessionManager.get().waitingJobs[jobId]={"courseId": courseId, "taskId": taskId}
                     return json.dumps({"status":"ok","jobId":jobId});
                 elif "@action" in userinput and userinput["@action"] == "check" and "jobId" in userinput:
                     if job_manager.isDone(int(userinput['jobId'])):
