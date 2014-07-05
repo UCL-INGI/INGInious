@@ -1,3 +1,5 @@
+""" Starts the frontend """
+
 import web
 
 import frontend.pages

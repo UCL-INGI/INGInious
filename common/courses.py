@@ -8,11 +8,12 @@ from common.tasks import Task
 
 #Represents a Course
 class Course:
+    """ Represents a course """
     courseCache = None
 
-    #Returns a table containing courseId=>{name:courseName, admins:[courseAdmins]} pairs.
     @staticmethod
     def GetAllCoursesIds():
+        """Returns a table containing courseId=>{name:courseName, admins:[courseAdmins]} pairs."""
         if Course.courseCache == None:
             files = [ f for f in listdir(tasksDirectory) if isfile(join(tasksDirectory,f)) and splitext(join(tasksDirectory,f))[1] == ".course"]
             output = {};
@@ -26,8 +27,8 @@ class Course:
             Course.courseCache = output
         return Course.courseCache
     
-    #Constructor. courseId is the name of the .task file
     def __init__(self,courseId):
+        """Constructor. courseId is the name of the .course file"""
         if not IdChecker(courseId):
             raise Exception("Course with invalid name: "+courseId)
         try:
@@ -49,12 +50,12 @@ class Course:
     def getAdmins(self):
         return self.admins
     
-    #Return the complete path to the tasks directory of the course
     def getCourseTasksDirectory(self):
+        """Return the complete path to the tasks directory of the course"""
         return join(tasksDirectory,self.id)
     
-    #Get all tasks in this course.
     def getTasks(self):
+        """Get all tasks in this course"""
         if self.tasksCache == None:
             #lists files ending with .task in the right directory, and keep only the taskId
             files = [ splitext(f)[0] for f in listdir(self.getCourseTasksDirectory()) if isfile(join(self.getCourseTasksDirectory(),f)) and splitext(join(self.getCourseTasksDirectory(),f))[1] == ".task"]

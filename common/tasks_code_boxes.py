@@ -20,6 +20,7 @@ class BasicBox:
         return self.id
     
     def getCompleteId(self):
+        """ Returns the complete id of this box. This id is unique among all problems and boxes in an exercice """
         pid = str(self.getProblem().getId())
         bid = str(self.getId())
         if bid != "":
@@ -31,6 +32,7 @@ class BasicBox:
         return self.show(self)
     
     def __init__(self,problem,boxId,boxData):
+        """ Constructor. problem is a BasicProblem (or derivated) instance, boxId a an alphanumeric id and boxData is the data for this box. """
         if not IdChecker(boxId) and not boxId == "":
             raise Exception("Invalid box id: "+boxId)
         self.id = boxId
