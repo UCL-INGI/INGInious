@@ -39,5 +39,7 @@ try:
 except Exception as inst:
     print "There was an error while validating the file:"
     print inst
+    exit(1)
 else:
     print "File verification succeeded"
+    exit(0)
