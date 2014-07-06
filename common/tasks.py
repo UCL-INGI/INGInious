@@ -1,14 +1,16 @@
 class Task:
     def __init__(self,courseId,taskId):
-        if not IdChecker(courseId):
+        if not IdChecker(courseId) and not courseId == "":
             raise Exception("Course with invalid id: "+courseId)
         elif not IdChecker(taskId):
             raise Exception("Task with invalid id: "+courseId+"/"+taskId)
         
         try:
             content = json.load(open(join(tasksDirectory,courseId,taskId+".task"), "r"), object_pairs_hook=collections.OrderedDict)
-        except:
-            raise Exception("Task do not exists: "+courseId+"/"+taskId)
+        except IOError:
+            raise Exception("File do not exists: "+join(tasksDirectory,courseId,taskId+".task"))
+        except Exception as inst:
+            raise Exception("Error while reading JSON: "+courseId+"/"+taskId+" :\n"+inst.__str__())
         
         self.initWithData(courseId, taskId, content)
     
