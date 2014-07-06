@@ -14,11 +14,11 @@ class TaskPage:
     #Simply display the page
     def GET(self,courseId,taskId):
         if User.isLoggedIn():
-            #try:#TODO:enable
+            try:
                 task = Task(courseId,taskId)
                 return renderer.task(task)
-            #except:
-            #    return renderer.error404()
+            except:
+                raise web.notfound()
         else:
             return renderer.index(False)
         
@@ -38,13 +38,13 @@ class TaskPage:
                     return json.dumps({"status":"ok","jobId":jobId});
                 elif "@action" in userinput and userinput["@action"] == "check" and "jobId" in userinput:
                     if job_manager.isDone(int(userinput['jobId'])):
-                        return json.dumps({"status":"done","result":"error","text":"TODO"});
+                        return json.dumps({"status":"done","result":"error","text":"TODO","problems":{"pb1":"It's a test for pb1"}});
                     else:
                         return json.dumps({'status':"waiting"});
                 else:
-                    return renderer.error404()
+                    raise web.notfound()
             except:
-                return renderer.error404()
+                raise web.notfound()
         else:
             return renderer.index(False)
     

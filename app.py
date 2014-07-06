@@ -16,5 +16,11 @@ urls = (
 app = web.application(urls, globals())
 frontend.session.init(app)
 
+#Must be done after frontend.session.init(app)
+import frontend.base
+def notfound():
+    return web.notfound(frontend.base.renderer.notfound())
+app.notfound = notfound
+
 if __name__ == "__main__":
     app.run()

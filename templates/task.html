@@ -22,6 +22,7 @@ $:task.getContext()
     <input type="hidden" name="@action" value="submit"/>
     $for key, problem in enumerate(task.getProblems()):
         <h3>Question ${key+1}: $problem.getName()</h3>
+        <div id="task_alert.$problem.getId()" class="task_alert_problem"></div>
         $:problem.getHeader()
         $:problem.showInput()
     <button type="submit" class="btn btn-default btn-lg btn-block center-block">Submit</button>

@@ -57,9 +57,9 @@ function submitTask()
             jobid = data['jobId'];
             waitForJob(data['jobId']);
         }
-        else if ("status" in data && data['status'] == "error" && "text" in data)
+        else if ("status" in data && data['status'] == "error")
         {
-        	displayTaskStudentErrorAlert(data["text"]);
+            displayTaskStudentErrorAlert(data);
             unblurTaskForm();
         }
         else
@@ -88,9 +88,9 @@ function waitForJob(jobId)
                 waitForJob(jobId);
             else if("status" in data && data['status'] == "done" && "result" in data)
             {
-                if(data['result'] == "error" && "text" in data)
+                if(data['result'] == "error")
                 {
-                    displayTaskStudentErrorAlert(data["text"]);
+                    displayTaskStudentErrorAlert(data);
                     unblurTaskForm();
                 }
                 else if(data['result'] == "success")
@@ -141,10 +141,37 @@ function displayTaskErrorAlert()
 //Displays a student error alert in task form
 function displayTaskStudentErrorAlert(content)
 {
-    $('#task_alert').html(getAlertCode("<b>There are some errors in your answer:</b><br/>"+content,"danger",true));
+	firstPos = -1;
+	
+	if("text" in content)
+	{
+        $('#task_alert').html(getAlertCode("<b>There are some errors in your answer:</b><br/>"+content.text,"danger",true));
+		firstPos = $("#task_alert").offset().top;
+	}
+	
+	if("problems" in content)
+	{
+		$(".task_alert_problem").each(function(key, elem)
+		{
+			problemId = elem.id.substr(11); //skip "task_alert."
+			if(problemId in content.problems)
+			{
+				$(elem).html(getAlertCode("<b>There are some errors in your answer:</b><br/>"+content.problems[problemId],"danger",true));
+				if(firstPos == -1 || firstPos > $(elem).offset().top)
+					firstPos = $(elem).offset().top;
+			}
+		});
+	}
+	
+	if(!("text" in content || "problems" in content))
+	{
+		$('#task_alert').html(getAlertCode("<b>There are some errors in your answer</b>","danger",true));
+		firstPos = $("#task_alert").offset().top;
+	}
+	
     $('html, body').animate(
     {
-        scrollTop: $("#task_alert").offset().top-100
+        scrollTop: firstPos-100
     }, 1000);
 }
 
