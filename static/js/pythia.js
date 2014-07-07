@@ -98,24 +98,34 @@ function waitForJob(jobId)
                     displayTaskStudentSuccessAlert();
                     unblurTaskForm();
                 }
+                else if(data['result'] == "timeout")
+                {
+                    displayTimeOutAlert();
+                    unblurTaskForm();
+                }
+                else if(data['result'] == "overflow")
+                {
+                    displayOverflowAlert();
+                    unblurTaskForm();
+                }
                 else
                 {
-                    displayTaskErrorAlert();
+                    displayTaskErrorAlert(data);
                     unblurTaskForm();
                 }
             }
             else
             {
-                displayTaskErrorAlert();
+                displayTaskErrorAlert("");
                 unblurTaskForm();
             }
         })
         .fail(function()
         {
-            displayTaskErrorAlert();
+            displayTaskErrorAlert("");
             unblurTaskForm();
         });
-    }, 5000);
+    }, 1000);
 }
 
 //Displays a loading alert in task form
@@ -128,10 +138,38 @@ function displayTaskLoadingAlert()
     }, 1000);
 }
 
-//Displays an internal error alert in task form
-function displayTaskErrorAlert()
+//Displays an overflow error alert in task form
+function displayOverflowAlert(content)
 {
-    $('#task_alert').html(getAlertCode("<b>An internal error occured. Please retry later.</b>","danger",true));
+    msg = "<b>Your submission made an overflow.</b>";
+    $('#task_alert').html(getAlertCode(msg,"warning",true));
+    $('html, body').animate(
+    {
+        scrollTop: $("#task_alert").offset().top-100
+    }, 1000);
+}
+
+//Displays a timeout error alert in task form
+function displayTimeOutAlert(content)
+{
+    msg = "<b>Your submission timed out.</b>";
+    $('#task_alert').html(getAlertCode(msg,"warning",true));
+    $('html, body').animate(
+    {
+        scrollTop: $("#task_alert").offset().top-100
+    }, 1000);
+}
+
+//Displays an internal error alert in task form
+function displayTaskErrorAlert(content)
+{
+    msg = "<b>An internal error occured. Please retry later.</b>";
+    if(content != "")
+    {
+        msg += "<br />Please send an email to the course administrator. Information : " + content.text;
+    }
+    
+    $('#task_alert').html(getAlertCode(msg,"danger",true));
     $('html, body').animate(
     {
         scrollTop: $("#task_alert").offset().top-100

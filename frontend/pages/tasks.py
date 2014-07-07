@@ -41,6 +41,7 @@ class TaskPage:
                     if job_manager.isDone(int(userinput['jobId'])):
                         web.header('Content-Type', 'application/json')
                         result = job_manager.getResult(int(userinput['jobId']))
+                        print json.dumps(self.cleanJSON(result))
                         return json.dumps(self.cleanJSON(result))
                     else:
                         web.header('Content-Type', 'application/json')

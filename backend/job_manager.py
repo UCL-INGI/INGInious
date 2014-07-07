@@ -55,7 +55,10 @@ class PythiaJobManager (JobManager):
         result_json = json.loads(result)
     
         if('output' in result_json):
-            output_json = json.loads(result_json['output'])
+            try:
+                output_json = json.loads(result_json['output'])
+            except ValueError, e:
+                output_json = {"result": "crash", "text": "Presentation Error"}
             retdict.update(output_json)
             
         if(result_json['status'] != "success"):
