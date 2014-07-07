@@ -9,37 +9,40 @@ from frontend.base import renderer
 import frontend.user as User
 
 
-#Task page
+# Task page
 class TaskPage:
-    #Simply display the page
-    def GET(self,courseId,taskId):
+    # Simply display the page
+    def GET(self, courseId, taskId):
         if User.isLoggedIn():
             try:
-                task = Task(courseId,taskId)
+                task = Task(courseId, taskId)
                 return renderer.task(task)
             except:
                 raise web.notfound()
         else:
             return renderer.index(False)
-        
-    def POST(self,courseId,taskId):
+
+    def POST(self, courseId, taskId):
         if User.isLoggedIn():
             try:
-                task = Task(courseId,taskId)
+                task = Task(courseId, taskId)
                 userinput = web.input()
                 if "@action" in userinput and userinput["@action"] == "submit":
-                    #Reparse user input with array for multiple choices
+                    # Reparse user input with array for multiple choices
                     needArray = self.listMultipleMultipleChoices(task)
                     userinput = web.input(**dict.fromkeys(needArray, []))
-                    print(userinput)
                     if not task.inputIsConsistent(userinput):
-                        return json.dumps({"status":"error","text":"Please answer to all the questions. Your responses were not tested."});
+                        web.header('Content-Type', 'application/json')
+                        return json.dumps({"status":"error", "text":"Please answer to all the questions. Your responses were not tested."});
                     jobId = job_manager.addJob(task, web.input)
-                    return json.dumps({"status":"ok","jobId":jobId});
+                    web.header('Content-Type', 'application/json')
+                    return json.dumps({"status":"ok", "jobId":jobId});
                 elif "@action" in userinput and userinput["@action"] == "check" and "jobId" in userinput:
                     if job_manager.isDone(int(userinput['jobId'])):
-                        return json.dumps({"status":"done","result":"error","text":"TODO","problems":{"pb1":"It's a test for pb1"}});
+                        web.header('Content-Type', 'application/json')
+                        return json.dumps({"status":"done", "result":"error", "text":"TODO", "problems":{"pb1":"It's a test for pb1"}});
                     else:
+                        web.header('Content-Type', 'application/json')
                         return json.dumps({'status':"waiting"});
                 else:
                     raise web.notfound()
@@ -47,10 +50,10 @@ class TaskPage:
                 raise web.notfound()
         else:
             return renderer.index(False)
-    
-    def listMultipleMultipleChoices(self,task):
+
+    def listMultipleMultipleChoices(self, task):
         """ List problems in task that expect and array as input """
-        o=[]
+        o = []
         for problem in task.getProblems():
             if isinstance(problem, MultipleChoiceProblem) and problem.allowMultiple():
                 o.append(problem.getId())

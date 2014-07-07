@@ -28,31 +28,31 @@ def disconnect():
     session.email = None
     return
 
-def connect(self, login, password):
+def connect(login, password):
     """Connect throught LDAP"""
     try:
         if not common.base.IdChecker(login):
             return False
         username = "uid=" + login + ",ou=People,dc=info,dc=ucl,dc=ac,dc=be"
-        
+
         # Certificates
-        ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT,ldap.OPT_X_TLS_NEVER)
-        
+        ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_NEVER)
+
         # Connection to LDAP
         l = ldap.initialize('ldaps://ldap.student.info.ucl.ac.be')
         l.protocol_version = ldap.VERSION3
         l.simple_bind_s(username, password)
-        
+
         session.loggedin = True
-        
+
         # Fetch login informations
-        results = l.search_s(username, ldap.SCOPE_SUBTREE, '(objectclass=person)', ['mail','cn','uid'])
-        
-        for req,entry in results:
+        results = l.search_s(username, ldap.SCOPE_SUBTREE, '(objectclass=person)', ['mail', 'cn', 'uid'])
+
+        for req, entry in results:
             session.email = entry['mail'][0]
             session.username = entry['uid'][0]
             session.realname = entry['cn'][0]
-        
+
         return True
     except ldap.LDAPError, e:
         return False

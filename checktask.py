@@ -9,7 +9,6 @@ import sys
 
 import common.base
 
-
 def usage():
     print "Usage: "
     print "\tpython checktask.py file.task"
@@ -24,7 +23,7 @@ common.base.tasksDirectory = os.path.dirname(sys.argv[1])
 # Get composants of the filename
 filename = os.path.splitext(os.path.basename(sys.argv[1]))
 
-from common.courses import Course #Must be done after changements on tasksDirectory
+from common.courses import Course  # Must be done after changements on tasksDirectory
 from common.tasks import Task
 
 if filename[1] not in [".task", ".course"]:

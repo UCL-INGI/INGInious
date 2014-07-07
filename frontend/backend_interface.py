@@ -1,4 +1,4 @@
-""" Compatibility layer to allow frontend to retain some informations about who created a job"""
+""" Compatibility layer to allow app_frontend to retain some informations about who created a job"""
 
 import backend.job_manager
 import frontend.user as User
