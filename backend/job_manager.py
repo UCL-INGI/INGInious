@@ -1,9 +1,11 @@
 import Queue
 import threading
-
+import socket
+import json
+import abc
 
 class JobManager (threading.Thread):
-    """ Thread Class that runs the jobs that are in the queue """
+    """ Abstract thread class that runs the jobs that are in the queue """
     def __init__(self):
         threading.Thread.__init__(self)
     def run(self):
@@ -13,13 +15,44 @@ class JobManager (threading.Thread):
             if main_queue.empty():
                 condition.wait()
             
-            # Launch the task
+            # Launch the task and save its result in the dictionary
             jobId,task,inputdata = main_queue.get()
-            main_dict[jobId] = {"task":task,"result":"Done","input":inputdata}
+            main_dict[jobId] = self.runJob(jobId, task, inputdata)
             
             # Monitor notify
             condition.notify()
             condition.release()
+    @abc.abstractmethod
+    def runJob(self, jobId, task, inputdata):
+        pass
+
+class PythiaJobManager (JobManager):
+    def __init__(self):
+        JobManager.__init__(self)
+    def connect(self):
+        self.host="127.0.0.1"
+        self.port=9000
+        self.sock = socket.create_connection((self.host,self.port))
+    def close(self):
+        self.sock.close()
+    def runJob(self, jobId, task, inputdata):
+        self.connect()
+        
+        # Send message to Pythia
+        msg='{ "message":"launch", "id": "'+ str(jobId) +'", "task": ' + json.dumps(task) + ', "input": ' + json.dumps(inputdata + '\n') + ' }'
+        self.sock.sendall(msg.encode('utf-8'))
+        
+        # Read message from Pythia
+        rdata = self.sock.recv(1024)
+        result = rdata
+        while not rdata.endswith('\n'):
+            rdata = self.sock.recv(1024)
+            result = result + rdata
+        self.close()
+        
+        # Parsing result
+        result_json = json.loads(result)
+        return {"task":task,"result":"Done","input":inputdata,"output": result_json}
 
 def addJob(task, inputdata):
     """ Add a job in the queue and returns a job id.
@@ -72,6 +105,6 @@ main_queue = Queue.Queue()
 main_dict = {}
 
 # Launch the main thread
-main_thread = JobManager()
+main_thread = PythiaJobManager()
 main_thread.daemon = True
 main_thread.start()
