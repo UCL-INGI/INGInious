@@ -41,18 +41,7 @@ class TaskPage:
                     if job_manager.isDone(int(userinput['jobId'])):
                         web.header('Content-Type', 'application/json')
                         result = job_manager.getResult(int(userinput['jobId']))
-                        
-                        # Copy JSON and delete what cannot be dumped
-                        to_json = result.copy() # COPY of dict
-                        if 'task' in to_json :
-                            del to_json['task']
-                        if 'input' in to_json:
-                            del to_json['input']
-                        if 'archive' in to_json:
-                            del to_json['archive']
-                        to_json['status'] = 'done'
-                        
-                        return json.dumps(to_json)
+                        return json.dumps(self.cleanJSON(result))
                     else:
                         web.header('Content-Type', 'application/json')
                         return json.dumps({'status':"waiting"});
@@ -63,6 +52,18 @@ class TaskPage:
         else:
             return renderer.index(False)
 
+    def cleanJSON(self, data):
+        # Copy JSON and delete what cannot be dumped
+        to_json = data.copy() # COPY of dict
+        if 'task' in to_json :
+            del to_json['task']
+        if 'input' in to_json:
+            del to_json['input']
+        if 'archive' in to_json:
+            del to_json['archive']
+        to_json['status'] = 'done'
+        return to_json
+    
     def listMultipleMultipleChoices(self, task):
         """ List problems in task that expect and array as input """
         o = []
