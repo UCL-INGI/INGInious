@@ -28,7 +28,7 @@ def disconnect():
     session.email = None
     return
 
-def connect(self, login, password):
+def connect(login, password):
     """Connect throught LDAP"""
     try:
         if not common.base.IdChecker(login):

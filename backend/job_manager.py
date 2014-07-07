@@ -39,7 +39,7 @@ class PythiaJobManager (JobManager):
         self.connect()
         
         # Send message to Pythia
-        msg='{ "message":"launch", "id": "'+ str(jobId) +'", "task": ' + json.dumps(task) + ', "input": ' + json.dumps(inputdata + '\n') + ' }'
+        msg='{ "message":"launch", "id": "'+ str(jobId) +'", "task": ' + task.getJSON() + ', "input": ' + json.dumps(json.dumps(inputdata) + '\n') + ' }'
         self.sock.sendall(msg.encode('utf-8'))
         
         # Read message from Pythia
@@ -51,8 +51,17 @@ class PythiaJobManager (JobManager):
         self.close()
         
         # Parsing result
+        retdict ={"task":task,"input":inputdata}
         result_json = json.loads(result)
-        return {"task":task,"result":"Done","input":inputdata,"output": result_json}
+    
+        if('output' in result_json):
+            output_json = json.loads(result_json['output'])
+            retdict.update(output_json)
+            
+        if(result_json['status'] != "success"):
+            retdict['result'] = result_json['status']
+        
+        return retdict
 
 def addJob(task, inputdata):
     """ Add a job in the queue and returns a job id.

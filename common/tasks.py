@@ -13,6 +13,7 @@ class Task:
             raise Exception("Error while reading JSON: "+courseId+"/"+taskId+" :\n"+inst.__str__())
         
         self.initWithData(courseId, taskId, content)
+        self.data = content
     
     def initWithData(self,courseId, taskId, data):
         """Checks content of the JSON data and init the Task object"""
@@ -111,6 +112,9 @@ class Task:
         if self.course == None:
             self.course = common.courses.Course(self.courseId)
         return self.course
+    def getJSON(self):
+        to_return = {"environment": self.environment, "taskfs": self.taskfs, "limits": self.limits}
+        return json.dumps(to_return)
     
 import collections
 import json

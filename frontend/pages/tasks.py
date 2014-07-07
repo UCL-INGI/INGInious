@@ -31,14 +31,23 @@ class TaskPage:
                     #Reparse user input with array for multiple choices
                     needArray = self.listMultipleMultipleChoices(task)
                     userinput = web.input(**dict.fromkeys(needArray, []))
-                    print(userinput)
                     if not task.inputIsConsistent(userinput):
                         return json.dumps({"status":"error","text":"Please answer to all the questions. Your responses were not tested."});
-                    jobId = job_manager.addJob(task, web.input)
+                    jobId = job_manager.addJob(task, userinput)
                     return json.dumps({"status":"ok","jobId":jobId});
                 elif "@action" in userinput and userinput["@action"] == "check" and "jobId" in userinput:
                     if job_manager.isDone(int(userinput['jobId'])):
-                        return json.dumps({"status":"done","result":"error","text":"TODO","problems":{"pb1":"It's a test for pb1"}});
+                        result = job_manager.getResult(int(userinput['jobId']))
+                        to_json = result.copy() # COPY of dict
+                        if 'task' in to_json :
+                            del to_json['task']
+                        if 'input' in to_json:
+                            del to_json['input']
+                        if 'archive' in to_json:
+                            del to_json['archive']
+                        to_json['status'] = 'done'
+                        print json.dumps(to_json)
+                        return json.dumps(to_json)
                     else:
                         return json.dumps({'status':"waiting"});
                 else:
