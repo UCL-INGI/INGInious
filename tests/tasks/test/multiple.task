@@ -1,0 +1,40 @@
+{
+    "environment": "busybox",     
+    "taskfs": "tasks/test/test.sfs",    
+    "author": ["Guillaume Derval"],
+    "name":"Unit test multiple question",
+    "context":"lol",
+    "limits":
+    {
+        "time": 60,               
+        "memory": 32,             
+        "disk": 100,              
+        "output": 1024            
+    },
+    "problems":                  
+    {
+        "idThirdExercice":
+        {
+            "name": "The third exercice",
+            "type": "multiple-choice",
+            "header": "<p>The answer to life, the universe and any other things is</p>",
+            "headerIsHTML": true,
+            "multiple": true, 
+            "choices":  
+            [
+                {
+                    "text":"It is, of course, 42!", 
+                    "valid":true 
+                },
+                {
+                    "text":"It should be <b>42</b> (but in bold)",
+                    "textIsHTML": true, 
+                    "valid":true
+                },
+                {"text":"43..."},
+                {"text":"41..."}
+            ],
+            "limit": 3
+        }
+    }
+}
