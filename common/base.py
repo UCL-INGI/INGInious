@@ -1,9 +1,8 @@
 import re
 
 
-# Tasks directory (created by the Makefile)
-# tasksDirectory = "../out/tasks/"
-tasksDirectory = "tests/tasks/"
+#Tasks directory (created by the Makefile)
+tasksDirectory = "../out/tasks/"
 
 def IdChecker(idToTest):
     """Checks if a id is correct"""
