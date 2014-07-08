@@ -116,6 +116,30 @@ class Task:
         to_return = {"environment": self.environment, "taskfs": self.taskfs, "limits": self.limits}
         return json.dumps(to_return)
     
+    def checkAnswer(self,taskInput):
+        """
+            Verify the answers in taskInput. Returns four values
+            1st: True the input is **currently** valid. (may become invalid after running the code), False else
+            2nd: True if the input needs to be run in the VM, False else
+            3rd: Main message, as a list (that can be join with \n or <br/> for example)
+            4th: Problem specific message, as a dictionnary
+        """
+        valid = True
+        needLaunch = False
+        mainMessage = []
+        problemMessages = {}
+        for problem in self.problems:
+            pv, pmm, pm = problem.checkAnswer(taskInput)
+            if pv == None:
+                needLaunch = True
+            elif pv == False:
+                valid = False
+            if pmm != None:
+                mainMessage.append(pmm)
+            if pm != None:
+                problemMessages[problem.getId()] = pm
+        return valid, needLaunch, mainMessage, problemMessages
+    
 import collections
 import json
 from os.path import join
