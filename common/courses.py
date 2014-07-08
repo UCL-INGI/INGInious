@@ -61,9 +61,9 @@ class Course:
             files = [ splitext(f)[0] for f in listdir(self.getCourseTasksDirectory()) if isfile(join(self.getCourseTasksDirectory(), f)) and splitext(join(self.getCourseTasksDirectory(), f))[1] == ".task"]
             output = {};
             for task in files:
-                try:
+                #try:
                     output[task] = Task(self.getId(), task)
-                except:
-                    pass
+                #except:
+                #    pass
             self.tasksCache = output
         return self.tasksCache

@@ -14,11 +14,11 @@ class TaskPage:
     # Simply display the page
     def GET(self, courseId, taskId):
         if User.isLoggedIn():
-            try:
+            #try:
                 task = Task(courseId, taskId)
                 return renderer.task(task)
-            except:
-                raise web.notfound()
+            #except:
+            #    raise web.notfound()
         else:
             return renderer.index(False)
 

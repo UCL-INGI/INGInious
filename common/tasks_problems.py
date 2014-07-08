@@ -82,7 +82,6 @@ class BasicCodeProblem(BasicProblem):
         else:
             raise Exception("Unknow box type "+boxContent["type"]+ "for box id "+boxId)
     
-    @abstractmethod
     def checkAnswer(self,inputData):
         return None, None, None
         
@@ -183,7 +182,6 @@ class MultipleChoiceProblem(BasicProblem):
                 return False
         return True
     
-    @abstractmethod
     def checkAnswer(self,taskInput):
         valid = True
         if self.multiple:

@@ -10,10 +10,10 @@ class CoursePage:
     # Simply display the page
     def GET(self, courseId):
         if User.isLoggedIn():
-            try:
+            #try:
                 course = Course(courseId)
                 return renderer.course(course)
-            except:
-                raise web.notfound()
+            #except:
+            #    raise web.notfound()
         else:
             return renderer.index(False)
