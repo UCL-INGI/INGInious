@@ -20,6 +20,15 @@ class BasicProblem:
     def inputIsConsistent(self, taskInput):
         """ Check if an input for this problem is consistent. Return true if this is case, false else """
         return False
+    @abstractmethod
+    def checkAnswer(self,taskInput):
+        """ 
+            Check the answer. Returns three values: 
+            the first is either True, False or None, indicating respectively that the answer is valid, invalid, or need to be sent to VM
+            the second is the error message assigned to the task, if any (unused for now)
+            the third is the error message assigned to this problem, if any
+        """
+        return True, None, None
     
     def getId(self):
         return self.id
@@ -72,6 +81,10 @@ class BasicCodeProblem(BasicProblem):
             return InputBox(self,boxId,boxContent)
         else:
             raise Exception("Unknow box type "+boxContent["type"]+ "for box id "+boxId)
+    
+    @abstractmethod
+    def checkAnswer(self,inputData):
+        return None, None, None
         
 
 class CodeSingleLineProblem(BasicCodeProblem):
@@ -169,7 +182,19 @@ class MultipleChoiceProblem(BasicProblem):
             except:
                 return False
         return True
-                
+    
+    @abstractmethod
+    def checkAnswer(self,taskInput):
+        valid = True
+        if self.multiple:
+            for choice in self.choices:
+                if choice["valid"] and not choice["index"] in taskInput[self.getId()] and not str(choice["index"]) in taskInput[self.getId()]:
+                    valid = False
+        else:
+            valid = self.getChoiceWithIndex(int(taskInput[self.getId()]))["valid"]
+        if not valid:
+            return False, None, "Wrong answer. Make sure to select all the valid possibilities" if self.multiple else "Wrong answer"
+        return True, None, None
 
 def CreateTaskProblem(task,problemId,problemContent):
     """Creates a new instance of the right class for a given problem."""
