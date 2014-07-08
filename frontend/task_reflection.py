@@ -49,7 +49,7 @@ def MultipleChoiceProblemShowInput(self):
         #need to have a valid entry
         foundValid = False
         for entry in self.choices:
-            if limit == 1 and not foundValid and entry['valid']:
+            if limit == 1 and not foundValid and not entry['valid']:
                 continue
             elif limit == 0:
                 break
