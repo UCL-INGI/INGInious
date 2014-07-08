@@ -6,7 +6,7 @@ class Task:
             raise Exception("Task with invalid id: "+courseId+"/"+taskId)
         
         try:
-            content = json.load(open(join(tasksDirectory,courseId,taskId+".task"), "r"), object_pairs_hook=collections.OrderedDict)
+            content = json.load(codecs.open(join(tasksDirectory,courseId,taskId+".task"), "r", 'utf-8'), object_pairs_hook=collections.OrderedDict)
         except IOError:
             raise Exception("File do not exists: "+join(tasksDirectory,courseId,taskId+".task"))
         except Exception as inst:
@@ -139,7 +139,8 @@ class Task:
             if pm != None:
                 problemMessages[problem.getId()] = pm
         return valid, needLaunch, mainMessage, problemMessages
-    
+
+import codecs
 import collections
 import json
 from os.path import join
