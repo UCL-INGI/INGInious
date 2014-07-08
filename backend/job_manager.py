@@ -15,9 +15,30 @@ class JobManager (threading.Thread):
             if main_queue.empty():
                 condition.wait()
             
-            # Launch the task and save its result in the dictionary
+            # Retrieves the task from the queue
             jobId,task,inputdata = main_queue.get()
-            main_dict[jobId] = self.runJob(jobId, task, inputdata)
+            
+            # Check task answer that do not need emulation
+            first_result,need_emul,first_text,first_problems = task.checkAnswer(inputdata)
+            finaldict = {"task":task,"input":inputdata, "result": first_result, "text": first_result}
+            if first_problems:
+                finaldict["problems"] = first_problems
+            
+            # Launch the emulation
+            if need_emul:
+                emul_result = self.runJob(jobId, task, inputdata)
+            else:
+                emul_result = {}
+            
+            # Merge results
+            if 'problems' in emul_result:
+                finaldict['problems'].update(emul_result['problems'])
+                tmp = finaldict['problems']
+            finaldict.update(emul_result)
+            if 'problems' in emul_result:
+                finaldict['problems'] = tmp
+                
+            main_dict[jobId] = finaldict
             
             # Monitor notify
             condition.notify()
@@ -36,7 +57,10 @@ class PythiaJobManager (JobManager):
     def close(self):
         self.sock.close()
     def runJob(self, jobId, task, inputdata):
-        self.connect()
+        try:
+            self.connect()
+        except socket.error, e:
+            return {"result": "crash", "text": "Couldn't connect to Pythia"}
         
         # Send message to Pythia
         msg='{ "message":"launch", "id": "'+ str(jobId) +'", "task": ' + task.getJSON() + ', "input": ' + json.dumps(json.dumps(inputdata) + '\n') + ' }'
@@ -51,7 +75,7 @@ class PythiaJobManager (JobManager):
         self.close()
         
         # Parsing result
-        retdict ={"task":task,"input":inputdata}
+        retdict ={}
         result_json = json.loads(result)
     
         if('output' in result_json):
