@@ -36,7 +36,7 @@ class testTask:
         testApp = TestApp(app_frontend.app.wsgifunc(*middleware))
         r = testApp.post('/course/test/workingcode', {"@action":"submit", "unit_test_exercice":inputVal})
         j = json.loads(r.body)
-        assert "status" in j and "jobId" in j and j["status"] == "ok"
+        assert "status" in j and "submissionId" in j and j["status"] == "ok"
         return j
     def testCheckWorking2(self):
         middleware = []
@@ -44,7 +44,7 @@ class testTask:
         testApp = TestApp(app_frontend.app.wsgifunc(*middleware))
         for tries in range(0, 100):
             time.sleep(1)
-            r = testApp.post('/course/test/workingcode', {"@action":"check", "jobId":j["jobId"]})
+            r = testApp.post('/course/test/workingcode', {"@action":"check", "submissionId":j["submissionId"]})
             j = json.loads(r.body)
             assert "status" in j and "status" != "error"
             if j["status"] == "done":

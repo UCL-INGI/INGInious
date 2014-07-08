@@ -4,7 +4,7 @@ import web
 
 from common.tasks import Task
 from common.tasks_problems import MultipleChoiceProblem
-import frontend.backend_interface as job_manager
+import frontend.submission_manager as submission_manager
 from frontend.base import renderer
 import frontend.user as User
 
@@ -24,7 +24,7 @@ class TaskPage:
 
     def POST(self, courseId, taskId):
         if User.isLoggedIn():
-            try:
+            #try:
                 task = Task(courseId, taskId)
                 userinput = web.input()
                 if "@action" in userinput and userinput["@action"] == "submit":
@@ -34,35 +34,32 @@ class TaskPage:
                     if not task.inputIsConsistent(userinput):
                         web.header('Content-Type', 'application/json')
                         return json.dumps({"status":"error", "text":"Please answer to all the questions. Your responses were not tested."});
-                    jobId = job_manager.addJob(task, userinput)
+                    submissionId = submission_manager.addJob(task, userinput)
                     web.header('Content-Type', 'application/json')
-                    return json.dumps({"status":"ok", "jobId":jobId});
-                elif "@action" in userinput and userinput["@action"] == "check" and "jobId" in userinput:
-                    if job_manager.isDone(int(userinput['jobId'])):
+                    return json.dumps({"status":"ok", "submissionId":str(submissionId)});
+                elif "@action" in userinput and userinput["@action"] == "check" and "submissionId" in userinput:
+                    if submission_manager.isDone(userinput['submissionId']):
                         web.header('Content-Type', 'application/json')
-                        result = job_manager.getResult(int(userinput['jobId']))
-                        return json.dumps(self.cleanJSON(result))
+                        result = submission_manager.getSubmission(userinput['submissionId'])
+                        return self.submissionToJSON(result)
                     else:
                         web.header('Content-Type', 'application/json')
                         return json.dumps({'status':"waiting"});
                 else:
                     raise web.notfound()
-            except:
-                raise web.notfound()
+            #except:
+            #    raise web.notfound()
         else:
             return renderer.index(False)
 
-    def cleanJSON(self, data):
-        # Copy JSON and delete what cannot be dumped
-        to_json = data.copy() # COPY of dict
-        if 'task' in to_json :
-            del to_json['task']
-        if 'input' in to_json:
-            del to_json['input']
-        if 'archive' in to_json:
-            del to_json['archive']
-        to_json['status'] = 'done'
-        return to_json
+    def submissionToJSON(self, data):
+        tojson = {'status':data['status'],'result':data['result'],'id':str(data["_id"]),'submittedOn':str(data['submittedOn'])}
+        if "text" in data:
+            tojson["text"] = data["text"]
+        if "problems" in data:
+            tojson["problems"] = data["problems"]
+        return json.dumps(tojson)
+        
     
     def listMultipleMultipleChoices(self, task):
         """ List problems in task that expect and array as input """

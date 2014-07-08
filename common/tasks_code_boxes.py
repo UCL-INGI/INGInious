@@ -28,11 +28,14 @@ class BasicBox:
         pid = str(self.getProblem().getId())
         bid = str(self.getId())
         if bid != "":
-            return pid+"."+bid
+            return pid+"/"+bid
         else:
             return pid
     
     def __str__(self):
+        return self.show(self)
+    
+    def __unicode__(self):
         return self.show(self)
     
     def __init__(self,problem,boxId,boxData):

@@ -10,7 +10,7 @@ class Task:
         except IOError:
             raise Exception("File do not exists: "+join(tasksDirectory,courseId,taskId+".task"))
         except Exception as inst:
-            raise Exception("Error while reading JSON: "+courseId+"/"+taskId+" :\n"+inst.__str__())
+            raise Exception("Error while reading JSON: "+courseId+"/"+taskId+" :\n"+str(inst))
         
         self.initWithData(courseId, taskId, content)
         self.data = content

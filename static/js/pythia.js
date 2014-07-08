@@ -52,10 +52,10 @@ function submitTask()
     jQuery.post(form.attr("action"), serialized, null, "json")
     .done(function(data)
     {
-        if ("status" in data && data["status"] == "ok" && "jobId" in data)
+        if ("status" in data && data["status"] == "ok" && "submissionId" in data)
         {
-            jobid = data['jobId'];
-            waitForJob(data['jobId']);
+            submissionId = data['submissionId'];
+            waitForSubmission(data['submissionId']);
         }
         else if ("status" in data && data['status'] == "error")
         {
@@ -76,16 +76,16 @@ function submitTask()
 }
 
 //Wait for a job to end
-function waitForJob(jobId)
+function waitForSubmission(submissionId)
 {
     setTimeout(function()
     {
         var url = $('form#task').attr("action");
-        jQuery.post(url, {"@action":"check","jobId":jobId}, null, "json")
+        jQuery.post(url, {"@action":"check","submissionId":submissionId}, null, "json")
         .done(function(data)
         {
             if("status" in data && data['status'] == "waiting")
-                waitForJob(jobId);
+            	waitForSubmission(submissionId);
             else if("status" in data && data['status'] == "done" && "result" in data)
             {
                 if(data['result'] == "error")
