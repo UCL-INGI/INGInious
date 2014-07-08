@@ -18,7 +18,6 @@ def getSubmission(submissionId,userCheck=True):
     if userCheck and not userIsSubmissionOwner(s):
         return None
     return s
-    
 
 def getSubmissionFromJobId(jobId):
     return database.submissions.find_one({'jobId': jobId})
@@ -79,7 +78,7 @@ class JobSaver (threading.Thread):
         print database.submissions.update(
             {"_id":submission["_id"]},
             {
-                #"$unset":{"jobId":""},
+                "$unset":{"jobId":""},
                 "$set":
                 {
                     "status": ("done" if job["result"] == "success" or job["result"] == "failed" else "error"), #error only if error was made by pythia
@@ -96,3 +95,13 @@ main_queue = Queue.Queue()
 main_thread = JobSaver()
 main_thread.daemon = True
 main_thread.start()
+
+
+def getUserSubmissions(task):
+    """ Get all the user's submissions for a given task """
+    if not User.isLoggedIn():
+        raise Exception("A user must be logged in to get his submissions")
+    cursor = database.submissions.find({"username":User.getUsername(),"taskId":task.getId(),"courseId":task.getCourseId()})
+    cursor.sort([("submittedOn",-1)])
+    return list(cursor)
+    

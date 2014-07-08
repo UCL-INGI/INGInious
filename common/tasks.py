@@ -112,6 +112,8 @@ class Task:
         if self.course == None:
             self.course = common.courses.Course(self.courseId)
         return self.course
+    def getAuthors(self):
+        return self.author
     def getJSON(self):
         to_return = {"environment": self.environment, "taskfs": self.taskfs, "limits": self.limits}
         return json.dumps(to_return)

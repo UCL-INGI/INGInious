@@ -2,15 +2,10 @@ $def with (inputId,type,maxChars)
 <input
     $if type == "text":
         type="text"
-        data-validation="required"
     $elif type == "integer":
         type="number"
-        data-validation="number"
-        data-validation-allowing="number"
     $elif type == "decimal":
         type="number"
-        data-validation="number"
-        data-validation-allowing="float"
     name="$inputId" 
     value=""
     class="monospace form-control form-inline"

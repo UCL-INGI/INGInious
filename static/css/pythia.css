@@ -31,3 +31,6 @@ form#task.form-blur {
   -ms-filter: blur(5px);
   filter: blur(5px);
 }
+#submissions .submission {
+  cursor: pointer;
+}

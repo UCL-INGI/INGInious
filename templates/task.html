@@ -1,11 +1,65 @@
-$def with (task)
+$def with (task,submissions)
 $var title: $:task.getName() - $:task.getCourse().getName()
 
 $# Left column content
 $def leftColF():
     <h3>Informations</h3>
-    
-    <h3>Last submissions</h3>
+    <table class="table table-condensed">
+        $if task.getAuthors():
+            <tr>
+                <td>Author(s)</td>
+                <td>$",".join(task.getAuthors())</td>
+            </tr>
+        <tr>
+            <td>Status</td>
+            <td id="task_status">
+                $if len(submissions) == 0:
+                    Not yet attempted
+                $else:
+                    $ succeeded=False
+                    $ waiting=False   
+                    $for submission in submissions:
+                        $if submission["status"] == "done" and submission["result"] == "success":
+                            $ succeeded=True
+                            $break
+                        $elif submission["status"] == "waiting":
+                            $ waiting=True
+                            $break
+                    $if succeeded:
+                        Succeeded
+                    $elif waiting:
+                        Waiting for verification
+                    $else:
+                        Wrong answer
+            </td>
+        </tr>
+        <tr>
+            <td>Tries</td>
+            <td id="task_tries">
+                ${len(submissions)}
+            </td>
+        </tr>
+    </table>
+    <h3>Submissions</h3>
+    <div id="submissions" class="list-group">
+        $if submissions:
+            $for submission in submissions:
+                <a class="submission list-group-item 
+                    $if submission['status'] == 'done' and submission['result'] == 'success':
+                        list-group-item-success
+                    $elif submission['status'] == 'done' and submission['result'] == 'save':
+                        list-group-item-info
+                    $elif submission['status'] == 'waiting':
+                        list-group-item-warning
+                    $else:
+                        list-group-item-danger
+                    "
+                    data-submission-id="$submission['_id']">
+                    $submission["submittedOn"].strftime("%d/%m/%Y %H:%M:%S")
+                </a>
+        $else:
+            <a class="list-group-item disabled submission-empty">No submissions</a>
+    </div>
 $var leftCol: $:leftColF()
 
 $# Start content
@@ -18,7 +72,12 @@ $# Start content
 $:task.getContext()
 <hr/>
 <div id="task_alert"></div>
-<form id="task" method="post" action="/course/${task.getCourse().getId()}/${task.getId()}">
+<form id="task" method="post" action="/course/${task.getCourse().getId()}/${task.getId()}"
+    $for submission in submissions:
+        $if submission["status"] == "waiting":
+            data-wait-submission="$submission['_id']"
+            $break
+>
     <input type="hidden" name="@action" value="submit"/>
     $for key, problem in enumerate(task.getProblems()):
         <h3>Question ${key+1}: $problem.getName()</h3>

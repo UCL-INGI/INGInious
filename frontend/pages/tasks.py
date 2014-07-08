@@ -16,7 +16,7 @@ class TaskPage:
         if User.isLoggedIn():
             #try:
                 task = Task(courseId, taskId)
-                return renderer.task(task)
+                return renderer.task(task,submission_manager.getUserSubmissions(task))
             #except:
             #    raise web.notfound()
         else:
@@ -34,6 +34,7 @@ class TaskPage:
                     if not task.inputIsConsistent(userinput):
                         web.header('Content-Type', 'application/json')
                         return json.dumps({"status":"error", "text":"Please answer to all the questions. Your responses were not tested."});
+                    del userinput['@action']
                     submissionId = submission_manager.addJob(task, userinput)
                     web.header('Content-Type', 'application/json')
                     return json.dumps({"status":"ok", "submissionId":str(submissionId)});
@@ -45,6 +46,12 @@ class TaskPage:
                     else:
                         web.header('Content-Type', 'application/json')
                         return json.dumps({'status':"waiting"});
+                elif "@action" in userinput and userinput["@action"] == "load_submission_input" and "submissionId" in userinput:
+                    submission = submission_manager.getSubmission(userinput["submissionId"])
+                    if not submission:
+                        raise web.notfound()
+                    web.header('Content-Type', 'application/json')
+                    return json.dumps({"status":"ok", "input":submission["input"]})
                 else:
                     raise web.notfound()
             #except:
