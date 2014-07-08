@@ -22,6 +22,10 @@ class ParsableText:
         """Returns parsed text"""
         return self.parse()
     
+    def __unicode__(self):
+        """Returns parsed text"""
+        return self.parse()
+    
     def rst(self,s):
         """Parses reStructuredText"""
         parts = core.publish_parts(source=s,writer_name='html')
