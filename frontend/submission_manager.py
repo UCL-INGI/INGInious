@@ -23,7 +23,6 @@ def getSubmissionFromJobId(jobId):
     return database.submissions.find_one({'jobId': jobId})
 
 def jobDoneCallback(jobId):
-    print "JOB "+str(jobId)+" IS DONE"
     submission = getSubmissionFromJobId(jobId)
     print submission
     assert submission["status"] == "waiting"
@@ -41,7 +40,6 @@ def addJob(task, inputdata):
     jobId = backend.job_manager.addJob(task, inputdata, jobDoneCallback)
     obj = {"username":username,"courseId":task.getCourseId(),"taskId":task.getId(),"input":inputdata,"status":"waiting","jobId":jobId,"submittedOn":datetime.now()}
     submissionId = database.submissions.insert(obj)
-    print "NEW SUBMISSION ID "+str(submissionId)
     return submissionId
 
 def isRunning(submissionId, userCheck = True):
@@ -73,9 +71,7 @@ class JobSaver (threading.Thread):
             #except:
             #    pass
     def save(self,submission,job):
-        print submission
-        print job
-        print database.submissions.update(
+        database.submissions.update(
             {"_id":submission["_id"]},
             {
                 "$unset":{"jobId":""},
@@ -89,7 +85,7 @@ class JobSaver (threading.Thread):
                 }
             }
         )
-        print "JOB "+str(submission["_id"])+" IS DONE"
+        
 
 main_queue = Queue.Queue()
 main_thread = JobSaver()
