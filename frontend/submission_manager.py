@@ -8,6 +8,12 @@ import threading
 import Queue
 from datetime import datetime
 import pymongo
+from sh import git
+import os.path
+import shutil
+import json
+import StringIO
+import tarfile
 
 def initBackendInterface():
     """ Ensures some indexes """
@@ -73,6 +79,14 @@ class JobSaver (threading.Thread):
     """ Thread class that saves results from waiting jobs """
     def __init__(self):
         threading.Thread.__init__(self)
+        mustdoinit = False
+        self.repopath = "./repo_submissions/"
+        if not os.path.exists(self.repopath):
+            mustdoinit = True
+            os.mkdir(self.repopath)
+        self.git = git.bake(_cwd=self.repopath)
+        if mustdoinit:
+            self.git.init()
     def run(self):
         while True:
             #try:
@@ -82,6 +96,7 @@ class JobSaver (threading.Thread):
             #except:
             #    pass
     def save(self,submission,job):
+        #Save submission to database
         database.submissions.update(
             {"_id":submission["_id"]},
             {
@@ -96,15 +111,44 @@ class JobSaver (threading.Thread):
                 }
             }
         )
-        print "TASK CACHE"
+        
+        #Update task status cache
         task_cache = database.taskstatus.find_one({"username":submission["username"],"courseId":submission["courseId"],"taskId":submission["taskId"]})
         print task_cache
         if task_cache == None:
             print database.taskstatus.insert({"username":submission["username"],"courseId":submission["courseId"],"taskId":submission["taskId"],"succeeded":(job["result"] == "success")})
         elif not task_cache["succeeded"] and job["result"] == "success":
             print database.taskstatus.save({"_id":task_cache["_id"],"username":submission["username"],"courseId":submission["courseId"],"taskId":submission["taskId"],"succeeded":(job["result"] == "success")})
-        print "TASK CACHE END"
-
+            
+        #Save submission to repo
+        #Verify that the directory for the course exists
+        if not os.path.exists(os.path.join(self.repopath,submission["courseId"])):
+            os.mkdir(os.path.join(self.repopath,submission["courseId"]))
+        #Idem with the task
+        if not os.path.exists(os.path.join(self.repopath,submission["courseId"],submission["taskId"])):
+            os.mkdir(os.path.join(self.repopath,submission["courseId"],submission["taskId"]))
+        #Idem with the username, but empty it
+        dirname = os.path.join(self.repopath,submission["courseId"],submission["taskId"],submission["username"])
+        if os.path.exists(dirname):
+            shutil.rmtree(dirname)
+        os.mkdir(dirname)
+        #Now we can put the input, the output and the zip
+        open(os.path.join(dirname,'input.json'),"w+").write(json.dumps(submission["input"]))
+        resultObj = {
+                     "pythia_status":("success" if job["result"] == "success" or job["result"] == "failed" else "error"),
+                     "result":job["result"],
+                     "text":(job["text"] if "text" in job else None),
+                     "problems":(job["problems"] if "problems" in job else {})
+                    }
+        open(os.path.join(dirname,'result.json'),"w+").write(json.dumps(resultObj))
+        if "archive" in job:
+            os.mkdir(os.path.join(dirname,'output'))
+            tar = tarfile.open(mode='w:gz',fileobj=StringIO(job["archive"]))
+            tar.extractall(os.path.join(dirname,'output'))
+            tar.close()
+        print git.add('--all','.')
+        print git.commit('-m',"'Submission "+str(submission["_id"])+"'")
+        
 main_queue = Queue.Queue()
 main_thread = JobSaver()
 main_thread.daemon = True
