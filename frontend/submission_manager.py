@@ -3,6 +3,7 @@
 import backend.job_manager
 import frontend.user as User
 from frontend.base import database, gridFS
+from common.base import pythiaConfiguration
 from bson.objectid import ObjectId
 import threading
 import Queue
@@ -80,13 +81,14 @@ class JobSaver (threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         mustdoinit = False
-        self.repopath = "./repo_submissions"
-        if not os.path.exists(self.repopath):
-            mustdoinit = True
-            os.mkdir(self.repopath)
-        self.git = git.bake('--work-tree='+self.repopath,'--git-dir='+os.path.join(self.repopath,'.git'))
-        if mustdoinit:
-            self.git.init()
+        if pythiaConfiguration["enableSubmissionRepo"]:
+            self.repopath = pythiaConfiguration["submissionRepoDirectory"]
+            if not os.path.exists(self.repopath):
+                mustdoinit = True
+                os.mkdir(self.repopath)
+            self.git = git.bake('--work-tree='+self.repopath,'--git-dir='+os.path.join(self.repopath,'.git'))
+            if mustdoinit:
+                self.git.init()
     def run(self):
         while True:
             #try:
@@ -119,35 +121,38 @@ class JobSaver (threading.Thread):
             print database.taskstatus.insert({"username":submission["username"],"courseId":submission["courseId"],"taskId":submission["taskId"],"succeeded":(job["result"] == "success")})
         elif not task_cache["succeeded"] and job["result"] == "success":
             print database.taskstatus.save({"_id":task_cache["_id"],"username":submission["username"],"courseId":submission["courseId"],"taskId":submission["taskId"],"succeeded":(job["result"] == "success")})
-            
-        #Save submission to repo
-        #Verify that the directory for the course exists
-        if not os.path.exists(os.path.join(self.repopath,submission["courseId"])):
-            os.mkdir(os.path.join(self.repopath,submission["courseId"]))
-        #Idem with the task
-        if not os.path.exists(os.path.join(self.repopath,submission["courseId"],submission["taskId"])):
-            os.mkdir(os.path.join(self.repopath,submission["courseId"],submission["taskId"]))
-        #Idem with the username, but empty it
-        dirname = os.path.join(self.repopath,submission["courseId"],submission["taskId"],submission["username"])
-        if os.path.exists(dirname):
-            shutil.rmtree(dirname)
-        os.mkdir(dirname)
-        #Now we can put the input, the output and the zip
-        open(os.path.join(dirname,'input.json'),"w+").write(json.dumps(submission["input"]))
-        resultObj = {
-                     "pythia_status":("success" if job["result"] == "success" or job["result"] == "failed" else "error"),
-                     "result":job["result"],
-                     "text":(job["text"] if "text" in job else None),
-                     "problems":(job["problems"] if "problems" in job else {})
-                    }
-        open(os.path.join(dirname,'result.json'),"w+").write(json.dumps(resultObj))
-        if "archive" in job:
-            os.mkdir(os.path.join(dirname,'output'))
-            tar = tarfile.open(mode='w:gz',fileobj=StringIO(job["archive"]))
-            tar.extractall(os.path.join(dirname,'output'))
-            tar.close()
-        self.git.add('--all','.')
-        self.git.commit('-m',"'Submission "+str(submission["_id"])+"'")
+        
+        if pythiaConfiguration["enableSubmissionRepo"]:
+            #Save submission to repo
+            #Verify that the directory for the course exists
+            if not os.path.exists(os.path.join(self.repopath,submission["courseId"])):
+                os.mkdir(os.path.join(self.repopath,submission["courseId"]))
+            #Idem with the task
+            if not os.path.exists(os.path.join(self.repopath,submission["courseId"],submission["taskId"])):
+                os.mkdir(os.path.join(self.repopath,submission["courseId"],submission["taskId"]))
+            #Idem with the username, but empty it
+            dirname = os.path.join(self.repopath,submission["courseId"],submission["taskId"],submission["username"])
+            if os.path.exists(dirname):
+                shutil.rmtree(dirname)
+            os.mkdir(dirname)
+            #Now we can put the input, the output and the zip
+            open(os.path.join(dirname,'submittedOn'),"w+").write(str(submission["submittedOn"]))
+            open(os.path.join(dirname,'input.json'),"w+").write(json.dumps(submission["input"]))
+            resultObj = {
+                         "pythia_status":("success" if job["result"] == "success" or job["result"] == "failed" else "error"),
+                         "result":job["result"],
+                         "text":(job["text"] if "text" in job else None),
+                         "problems":(job["problems"] if "problems" in job else {})
+                        }
+            open(os.path.join(dirname,'result.json'),"w+").write(json.dumps(resultObj))
+            if "archive" in job:
+                os.mkdir(os.path.join(dirname,'output'))
+                tar = tarfile.open(mode='w:gz',fileobj=StringIO(job["archive"]))
+                tar.extractall(os.path.join(dirname,'output'))
+                tar.close()
+                
+            self.git.add('--all','.')
+            self.git.commit('-m',"'Submission "+str(submission["_id"])+"'")
         
 main_queue = Queue.Queue()
 main_thread = JobSaver()

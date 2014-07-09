@@ -1,6 +1,7 @@
 import web
 
 from common.courses import Course
+from common.tasks import Task
 from frontend.base import renderer
 import frontend.user as User
 from frontend.submission_manager import getUserLastSubmissions
@@ -26,4 +27,12 @@ class IndexPage:
         else:
             return renderer.index(True)
     def callMain(self):
-        return renderer.main(Course.GetAllCourses(),getUserLastSubmissions({},5))
+        lastSubmissions=getUserLastSubmissions({},5)
+        exceptFreeLastSubmissions = []
+        for submission in lastSubmissions:
+            try:
+                submission["task"] = Task(submission['courseId'],submission['taskId'])
+                exceptFreeLastSubmissions.append(submission)
+            except:
+                pass
+        return renderer.main(Course.GetAllCourses(),exceptFreeLastSubmissions)
