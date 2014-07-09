@@ -1,4 +1,4 @@
-$def with (course)
+$def with (course,submissions)
 $var title: $:course.getName()
 
 $# Left column content
@@ -13,7 +13,6 @@ $def leftColF():
     <h3>Last submissions</h3>
     
     <div class="list-group">
-        $ submissions=course.getUserLastSubmissions()
         $if submissions:
             $for submission in submissions:
                 <a class="list-group-item 
@@ -27,7 +26,7 @@ $def leftColF():
                         list-group-item-danger
                     "
                     href="/course/$submission['courseId']/$submission['taskId']">
-                    $Task(submission['courseId'],submission['taskId']).getName()
+                    $submission['task'].getName()
                 </a>
         $else:
             <a class="list-group-item disabled submission-empty">No submissions</a>

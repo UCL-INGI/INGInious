@@ -1,6 +1,7 @@
 import web
 
 from common.courses import Course
+from common.tasks import Task
 from frontend.base import renderer
 import frontend.user as User
 
@@ -12,7 +13,15 @@ class CoursePage:
         if User.isLoggedIn():
             #try:
                 course = Course(courseId)
-                return renderer.course(course)
+                lastSubmissions=course.getUserLastSubmissions()
+                exceptFreeLastSubmissions = []
+                for submission in lastSubmissions:
+                    try:
+                        submission["task"] = Task(submission['courseId'],submission['taskId'])
+                        exceptFreeLastSubmissions.append(submission)
+                    except:
+                        pass
+                return renderer.course(course,exceptFreeLastSubmissions)
             #except:
             #    raise web.notfound()
         else:
