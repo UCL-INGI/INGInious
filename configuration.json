@@ -1,0 +1,5 @@
+{
+	"tasksDirectory": "../out/tasks/",
+	"enableSubmissionRepo": true,
+	"submissionRepoDirectory": "./repo_submissions"
+}

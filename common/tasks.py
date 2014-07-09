@@ -6,9 +6,9 @@ class Task:
             raise Exception("Task with invalid id: "+courseId+"/"+taskId)
         
         try:
-            content = json.load(codecs.open(join(tasksDirectory,courseId,taskId+".task"), "r", 'utf-8'), object_pairs_hook=collections.OrderedDict)
+            content = json.load(codecs.open(join(pythiaConfiguration["tasksDirectory"],courseId,taskId+".task"), "r", 'utf-8'), object_pairs_hook=collections.OrderedDict)
         except IOError:
-            raise Exception("File do not exists: "+join(tasksDirectory,courseId,taskId+".task"))
+            raise Exception("File do not exists: "+join(pythiaConfiguration["tasksDirectory"],courseId,taskId+".task"))
         except Exception as inst:
             raise Exception("Error while reading JSON: "+courseId+"/"+taskId+" :\n"+str(inst))
         
@@ -147,7 +147,7 @@ import collections
 import json
 from os.path import join
 
-from common.base import tasksDirectory, IdChecker
+from common.base import pythiaConfiguration, IdChecker
 import common.courses
 from common.parsableText import ParsableText
 from common.tasks_problems import CreateTaskProblem

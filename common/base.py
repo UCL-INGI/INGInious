@@ -1,8 +1,8 @@
 import re
+import json
 
-
-#Tasks directory (created by the Makefile)
-tasksDirectory = "../out/tasks/"
+#Import configuration
+pythiaConfiguration=json.load(open("./configuration.json","r"))
 
 def IdChecker(idToTest):
     """Checks if a id is correct"""

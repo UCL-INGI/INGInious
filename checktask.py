@@ -19,11 +19,11 @@ if len(sys.argv) != 2:
     usage()
 
 # Change default path to task Directory
-common.base.tasksDirectory = os.path.dirname(sys.argv[1])
+common.base.pythiaConfiguration["tasksDirectory"] = os.path.dirname(sys.argv[1])
 # Get composants of the filename
 filename = os.path.splitext(os.path.basename(sys.argv[1]))
 
-from common.courses import Course  # Must be done after changements on tasksDirectory
+from common.courses import Course  # Must be done after changements on pythiaConfiguration["tasksDirectory"]
 from common.tasks import Task
 
 if filename[1] not in [".task", ".course"]:
