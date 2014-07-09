@@ -70,7 +70,7 @@ function incrementTries()
 function updateTaskStatus(newStatus)
 {
 	currentStatus = $('#task_status').text().trim();
-	if(currentStatus == "Suceeded")
+	if(currentStatus == "Succeeded")
 		return;
 	$('#task_status').text(newStatus)
 }
@@ -132,7 +132,6 @@ function submitTask()
     blurTaskForm();
     resetAlerts();
     displayTaskLoadingAlert();
-    incrementTries();
     updateTaskStatus("Waiting for verification")
     
     jQuery.post(form.attr("action"), serialized, null, "json")
@@ -140,6 +139,7 @@ function submitTask()
     {
         if ("status" in data && data["status"] == "ok" && "submissionId" in data)
         {
+        	incrementTries();
             submissionId = data['submissionId'];
             displayNewSubmission(data['submissionId']);
             waitForSubmission(data['submissionId']);
@@ -189,7 +189,7 @@ function waitForSubmission(submissionId)
                 {
                     displayTaskStudentSuccessAlert();
                     updateSubmission(submissionId,data['result']);
-                    updateTaskStatus("Suceeded");
+                    updateTaskStatus("Succeeded");
                     unblurTaskForm();
                 }
                 else if(data['result'] == "timeout")

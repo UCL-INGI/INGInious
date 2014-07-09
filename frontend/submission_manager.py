@@ -7,8 +7,19 @@ from bson.objectid import ObjectId
 import threading
 import Queue
 from datetime import datetime
+import pymongo
 
 def initBackendInterface():
+    """ Ensures some indexes """
+    database.submissions.ensure_index([ ("username",pymongo.ASCENDING) ])
+    database.submissions.ensure_index([ ("courseId",pymongo.ASCENDING) ])
+    database.submissions.ensure_index([ ("courseId",pymongo.ASCENDING), ("taskId",pymongo.ASCENDING) ])
+    database.submissions.ensure_index([ ("submittedOn",pymongo.DESCENDING) ]) #sort speed
+    
+    database.taskstatus.ensure_index([ ("username",pymongo.ASCENDING) ])
+    database.taskstatus.ensure_index([ ("courseId",pymongo.ASCENDING) ])
+    database.taskstatus.ensure_index([ ("courseId",pymongo.ASCENDING), ("taskId",pymongo.ASCENDING) ])
+    
     """ Updates the submissions that have a jobId with the status error, as the server restarted """
     database.submissions.update({'jobId':{"$exists":True}},{"$unset":{'jobId':""},"$set":{'status':'error','text':'Internal error. Server restarted'}})
     pass
