@@ -84,9 +84,9 @@ class JobSaver (threading.Thread):
         if not os.path.exists(self.repopath):
             mustdoinit = True
             os.mkdir(self.repopath)
-        self.git = git.bake(_cwd=self.repopath)
+        self.git = git.bake(cwd=self.repopath,_cwd=self.repopath)
         if mustdoinit:
-            self.git.init()
+            self.git.init("./repo_submissions/")
     def run(self):
         while True:
             #try:
@@ -147,7 +147,7 @@ class JobSaver (threading.Thread):
             tar.extractall(os.path.join(dirname,'output'))
             tar.close()
         print git.add('--all','.')
-        print git.commit('-m',"'Submission "+str(submission["_id"])+"'")
+        #print git.commit('-m',"'Submission "+str(submission["_id"])+"'")
         
 main_queue = Queue.Queue()
 main_thread = JobSaver()
