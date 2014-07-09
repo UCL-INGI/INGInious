@@ -52,7 +52,10 @@ def connect(login, password):
             session.email = entry['mail'][0]
             session.username = entry['uid'][0]
             session.realname = entry['cn'][0]
-
+        
+        # Save username in the database (cache)
+        from frontend.base import database
+        database.usercache.insert({"_id":session.username,"realname":session.realname,"email":session.email})
         return True
     except ldap.LDAPError, e:
         return False
