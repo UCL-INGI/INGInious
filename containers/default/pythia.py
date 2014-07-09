@@ -2,6 +2,8 @@ import json
 import sys
 import shutil
 import os
+import resource
+import subprocess
 
 #Copy /ro/task (which is read-only) in /task. Everything will be executed there
 shutil.copytree("/ro/task","/task")
@@ -15,7 +17,11 @@ problems = {}
 for boxId in input:
     taskId = boxId.split("/")[0]
     problems[taskId] = str(input[boxId])
-print json.dumps({"result":"failed","text":"In fact, it's working, but it's a test :D","problems":problems})
 
-#TODO: launch task/control
-#Ressource: http://stackoverflow.com/questions/1689505/python-ulimit-and-nice-for-subprocess-call-subprocess-popen
+def setlimits():
+    resource.setrlimit(resource.RLIMIT_CPU, (1, 1))
+
+p = subprocess.Popen(["/task/run"], preexec_fn=setlimits, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+p.wait()
+text = "It's a test. Here is what /task/run returned: "+str(p.stdout.read())
+print json.dumps({"result":"failed","text":text,"problems":problems})
