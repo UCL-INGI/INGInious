@@ -6,7 +6,8 @@ import web
 
 from common.tasks_code_boxes import TextBox, InputBox, MultilineBox
 from common.tasks_problems import BasicCodeProblem, MultipleChoiceProblem
-
+from common.tasks import Task
+from common.courses import Course
 
 #Add show functions to problems' boxes
 def TextBoxShow(self):
@@ -60,3 +61,37 @@ def MultipleChoiceProblemShowInput(self):
     shuffle(choices)
     return str(web.template.render('templates/tasks/').multiplechoice(self.getId(),self.multiple,choices))
 MultipleChoiceProblem.showInput = MultipleChoiceProblemShowInput
+
+#Add utilities function to manage submissions from the task class
+def getUserStatus(self):
+    """ Returns "succeeded" if the current user solved this task, "failed" if he failed, and "notattempted" if he did not try it yet """
+    from frontend.base import database 
+    import frontend.user as User #insert here to avoid initialisation of session
+    task_cache = database.taskstatus.find_one({"username":User.getUsername(),"courseId":self.getCourseId(),"taskId":self.getId()})
+    if task_cache == None:
+        return "notattempted"
+    return "succeeded" if task_cache["succeeded"] else "failed"
+Task.getUserStatus = getUserStatus
+
+#Add utilities function to manage submissions from the course class
+def getUserCompletionPercentage(self):
+    """ Returns the percentage (integer) of completion of this course by the current user """
+    from frontend.base import database
+    import frontend.user as User #insert here to avoid initialisation of session
+    taskIds=[]
+    for taskId in self.getTasks():
+        taskIds.append(taskId)
+    result = database.taskstatus.find({"username":User.getUsername(),"courseId":self.getId(),"taskId":{"$in":taskIds},"succeeded":True}).count()
+    return int(result*100/len(taskIds))
+Course.getUserCompletionPercentage = getUserCompletionPercentage
+
+def getUserLastSubmissions(self,limit=5):
+    """ Returns a given number (default 5) of submissions of task from this course """
+    from frontend.base import database
+    import frontend.user as User #insert here to avoid initialisation of session
+    from frontend.submission_manager import getUserLastSubmissions
+    taskIds=[]
+    for taskId in self.getTasks():
+        taskIds.append(taskId)
+    return getUserLastSubmissions({"courseId":self.getId(),"taskId":{"$in":taskIds}},limit)
+Course.getUserLastSubmissions = getUserLastSubmissions

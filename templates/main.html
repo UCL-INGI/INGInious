@@ -1,10 +1,29 @@
-$def with (courses)
+$def with (courses,submissions)
 $var title: My profile
 
 $# Left column content
 $def leftColF():
-    <h3>Stats</h3>
     <h3>Last submissions</h3>
+    
+    <div class="list-group">
+        $if submissions:
+            $for submission in submissions:
+                <a class="list-group-item 
+                    $if submission['status'] == 'done' and submission['result'] == 'success':
+                        list-group-item-success
+                    $elif submission['status'] == 'done' and submission['result'] == 'save':
+                        list-group-item-info
+                    $elif submission['status'] == 'waiting':
+                        list-group-item-warning
+                    $else:
+                        list-group-item-danger
+                    "
+                    href="/course/$submission['courseId']/$submission['taskId']">
+                    $Task(submission['courseId'],submission['taskId']).getName()
+                </a>
+        $else:
+            <a class="list-group-item disabled submission-empty">No submissions</a>
+    </div>
 $var leftCol: $:leftColF()
 
 $# Start content
@@ -13,10 +32,11 @@ $# Start content
     $for courseId in courses
         <a href="course/$courseId" class="list-group-item">
             <div class="progress">
-                <div class="progress-bar progress-bar-success" style="width: 35%">
-                    35%
+                $ completion=courses[courseId].getUserCompletionPercentage()
+                <div class="progress-bar progress-bar-success" aria-valuenow="$completion" aria-valuemin="0" aria-valuemax="100" style="width: $completion%">
+                    $completion%
                 </div>
             </div>
-            $courses[courseId]['name']
+            $courses[courseId].getName()
         </a>
 </div>

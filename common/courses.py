@@ -12,16 +12,14 @@ class Course:
     courseCache = None
 
     @staticmethod
-    def GetAllCoursesIds():
+    def GetAllCourses():
         """Returns a table containing courseId=>{name:courseName, admins:[courseAdmins]} pairs."""
         if Course.courseCache == None:
             files = [ f for f in listdir(tasksDirectory) if isfile(join(tasksDirectory, f)) and splitext(join(tasksDirectory, f))[1] == ".course"]
             output = {};
             for course in files:
                 try:
-                    content = json.load(open(join(tasksDirectory, course), "r"))
-                    if "name" in content and "admins" in content and isinstance(content["admins"], list):
-                        output[splitext(course)[0]] = {"name": content["name"], "admins": content["admins"]}
+                    output[splitext(course)[0]] = Course(splitext(course)[0])
                 except:  # todo log the error
                     pass
             Course.courseCache = output

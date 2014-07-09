@@ -3,7 +3,7 @@ import web
 from common.courses import Course
 from frontend.base import renderer
 import frontend.user as User
-
+from frontend.submission_manager import getUserLastSubmissions
 
 #Index page
 class IndexPage:
@@ -15,13 +15,15 @@ class IndexPage:
                 User.disconnect();
                 return renderer.index(False)
             else:
-                return renderer.main(Course.GetAllCoursesIds())
+                return self.callMain()
         else:
             return renderer.index(False)
     #Try to log in
     def POST(self):
         userInput = web.input();
         if "login" in userInput and "password" in userInput and User.connect(userInput.login,userInput.password):
-            return renderer.main(Course.GetAllCoursesIds())
+            return self.callMain()
         else:
             return renderer.index(True)
+    def callMain(self):
+        return renderer.main(Course.GetAllCourses(),getUserLastSubmissions({},5))

@@ -85,7 +85,14 @@ class JobSaver (threading.Thread):
                 }
             }
         )
-        
+        print "TASK CACHE"
+        task_cache = database.taskstatus.find_one({"username":submission["username"],"courseId":submission["courseId"],"taskId":submission["taskId"]})
+        print task_cache
+        if task_cache == None:
+            print database.taskstatus.insert({"username":submission["username"],"courseId":submission["courseId"],"taskId":submission["taskId"],"succeeded":(job["result"] == "success")})
+        elif not task_cache["succeeded"] and job["result"] == "success":
+            print database.taskstatus.save({"_id":task_cache["_id"],"username":submission["username"],"courseId":submission["courseId"],"taskId":submission["taskId"],"succeeded":(job["result"] == "success")})
+        print "TASK CACHE END"
 
 main_queue = Queue.Queue()
 main_thread = JobSaver()
@@ -99,5 +106,14 @@ def getUserSubmissions(task):
         raise Exception("A user must be logged in to get his submissions")
     cursor = database.submissions.find({"username":User.getUsername(),"taskId":task.getId(),"courseId":task.getCourseId()})
     cursor.sort([("submittedOn",-1)])
+    return list(cursor)
+
+def getUserLastSubmissions(query,limit):
+    if not User.isLoggedIn():
+        raise Exception("A user must be logged in to get his submissions")
+    request = query.copy()
+    request.update({"username":User.getUsername()})
+    cursor = database.submissions.find(request)
+    cursor.sort([("submittedOn",-1)]).limit(limit)
     return list(cursor)
     
