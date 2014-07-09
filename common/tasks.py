@@ -33,15 +33,7 @@ class Task:
             self.environment = data['environment']
         else:
             self.environment = None
-        if "taskfs" in data:
-            self.taskfs = data['taskfs']
-        else:
-            self.taskfs = None
             
-        #Check integrity
-        if (self.environment == None and self.taskfs != None) or (self.environment != None and self.taskfs == None):
-            raise Exception("Task have to contain either both of 'environment' and 'taskfs' or none of them.")
-        
         #Authors
         if "author" in data and isinstance(data['author'], basestring): #verify if author is a string
             self.author = [data['author']]
@@ -114,9 +106,6 @@ class Task:
         return self.course
     def getAuthors(self):
         return self.author
-    def getJSON(self):
-        to_return = {"environment": self.environment, "taskfs": self.taskfs, "limits": self.limits}
-        return json.dumps(to_return)
     
     def checkAnswer(self,taskInput):
         """

@@ -1,5 +1,8 @@
 {
-	"tasksDirectory": "../out/tasks/",
+	"tasksDirectory": "./tasks",
+	"containersDirectory": "./containers",
+	"containerPrefix": "pythia/",
 	"enableSubmissionRepo": true,
-	"submissionRepoDirectory": "./repo_submissions"
+	"submissionRepoDirectory": "./repo_submissions",
+	"dockerServerUrl": "tcp://172.16.42.43:4243"
 }

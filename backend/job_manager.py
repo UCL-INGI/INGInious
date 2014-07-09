@@ -3,7 +3,10 @@ import threading
 import socket
 import json
 import abc
-
+import docker
+import os.path
+from common.base import pythiaConfiguration
+from common.tasks import Task
 class JobManager (threading.Thread):
     """ Abstract thread class that runs the jobs that are in the queue """
     def __init__(self):
@@ -28,10 +31,13 @@ class JobManager (threading.Thread):
             # Launch the emulation
             if need_emul:
                 print "STARTING PYTHIA JOB"
-                try:
-                    emul_result = self.runJob(jobId, task, inputdata)
-                except:
-                    emul_result = {"result":"error","text":"Internal error: can't connect to backend"}
+                #try:
+                emul_result = self.runJob(jobId, task, inputdata)
+                print "PYTHIA JOB RESPONSE"
+                print emul_result
+                #except Exception as inst:
+                #    print "PYTHIA JOB ERROR"
+                #    emul_result = {"result":"error","text":"Internal error: can't connect to backend"}
                 
                 if finaldict['result'] not in ["error","failed","success","timeout","overflow"]:
                     finaldict['result'] = "error"
@@ -78,48 +84,48 @@ class JobManager (threading.Thread):
     def runJob(self, jobId, task, inputdata):
         pass
 
-class PythiaJobManager (JobManager):
+class DockerJobManager (JobManager):
     def __init__(self):
         JobManager.__init__(self)
-    def connect(self):
-        self.host="127.0.0.1"
-        self.port=9000
-        self.sock = socket.create_connection((self.host,self.port),10)
-    def close(self):
-        self.sock.close()
-    def runJob(self, jobId, task, inputdata):
-        try:
-            self.connect()
-        except socket.error, e:
-            return {"result": "crash", "text": "Couldn't connect to Pythia"}
-        
-        # Send message to Pythia
-        msg='{ "message":"launch", "id": "'+ str(jobId) +'", "task": ' + task.getJSON() + ', "input": ' + json.dumps(json.dumps(inputdata) + '\n') + ' }'
-        self.sock.sendall(msg.encode('utf-8'))
-        
-        # Read message from Pythia
-        rdata = self.sock.recv(1024)
-        result = rdata
-        while not rdata.endswith('\n'):
-            rdata = self.sock.recv(1024)
-            result = result + rdata
-        self.close()
-        
-        # Parsing result
-        retdict ={}
-        result_json = json.loads(result)
-    
-        if('output' in result_json):
+        self.docker = docker.Client(base_url=pythiaConfiguration["dockerServerUrl"])
+        self.buildAllContainers()
+    def buildAllContainers(self):
+        """ Ensures all containers are up to date """
+        print "- Building containers"
+        containers = [ f for f in os.listdir(pythiaConfiguration["containersDirectory"]) if os.path.isdir(os.path.join(pythiaConfiguration["containersDirectory"], f)) and os.path.isfile(os.path.join(pythiaConfiguration["containersDirectory"], f, "Dockerfile"))]
+        for container in containers:
+            print "\tbuilding "+container
             try:
-                output_json = json.loads(result_json['output'])
-            except ValueError, e:
-                output_json = {"result": "crash", "text": "Presentation Error"}
-            retdict.update(output_json)
-            
-        if(result_json['status'] != "success"):
-            retdict['result'] = result_json['status']
-        
-        return retdict
+                self.buildContainer(container)
+            except Exception as inst:
+                print "\tthere was an error while building the container:"
+                print "\t\t"+str(inst)
+        print "- Containers have been built"
+    def buildContainer(self,container):
+        """ Ensure a container is up to date """
+        r=self.docker.build(path=os.path.join(pythiaConfiguration["containersDirectory"],container),tag=pythiaConfiguration["containerPrefix"]+container)
+        for i in r:
+            if i == "\n" or i == "\r\n":
+                continue
+            try:
+                j = json.loads(i)
+            except:
+                raise Exception("Error while building "+container+": can't read Docker output")
+            if 'error' in j:
+                raise Exception("Error while building "+container+": Docker returned error"+j["error"])
+
+    def getSockets(self,containerId):
+        """ Utility function to get stdin of a container """
+        return self.docker.attach_socket(containerId,{'stdin': 1, 'stream': 1})
+    
+    def runJob(self, jobId, task, inputdata):
+        """ Run the job by launching a container """
+        response = self.docker.create_container(pythiaConfiguration["containerPrefix"]+task.getEnvironment(), stdin_open=True, network_disabled=True, volumes={'/ro/task':{}})
+        containerId = response["Id"]
+        self.docker.start(containerId, binds={os.path.abspath(os.path.join(pythiaConfiguration["tasksDirectory"],task.getCourseId(),task.getId())):{'ro':True,'bind':'/ro/task'}})
+        self.getSockets(containerId).send(json.dumps(inputdata)+"\n")
+        self.docker.wait(containerId)
+        return json.loads(str(self.docker.logs(containerId, stdout=True, stderr=False)))
 
 def addJob(task, inputdata, callback = None):
     """ Add a job in the queue and returns a job id.
@@ -155,9 +161,9 @@ def getResult(jobId):
         If the job is finished, subsequent call to getResult will return None (job is deleted) 
         Results are dictionnaries with content similar to:
         {
-            "task":task,
-            "input":inputdata, 
-            "result": "error", 
+            "task":task, #mandatory
+            "input":inputdata,#mandatory
+            "result": "error", #mandatory
             "text": "Error message to be displayed on the top of the exercice", 
             "problems":{"pb1":"Error message for pb1"}, 
             "archive":"archive in base 64"
@@ -185,6 +191,6 @@ main_queue = Queue.Queue()
 main_dict = {}
 
 # Launch the main thread
-main_thread = PythiaJobManager()
+main_thread = DockerJobManager()
 main_thread.daemon = True
 main_thread.start()
