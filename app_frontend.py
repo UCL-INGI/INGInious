@@ -10,7 +10,8 @@ urls = (
     '/', 'frontend.pages.index.IndexPage',
     '/index', 'frontend.pages.index.IndexPage',
     '/course/([^/]+)', 'frontend.pages.course.CoursePage',
-    '/course/([^/]+)/([^/]+)', 'frontend.pages.tasks.TaskPage'
+    '/course/([^/]+)/([^/]+)', 'frontend.pages.tasks.TaskPage',
+    '/admin/([^/]+)', 'frontend.pages.admin_course.AdminCoursePage',
 )
 
 app = web.application(urls, globals())
