@@ -1,12 +1,11 @@
 import Queue
 import threading
-import socket
 import json
 import abc
 import docker
 import os.path
 from common.base import pythiaConfiguration
-from common.tasks import Task
+
 class JobManager (threading.Thread):
     """ Abstract thread class that runs the jobs that are in the queue """
     def __init__(self):
@@ -102,7 +101,7 @@ class DockerJobManager (JobManager):
                 print "\t\t"+str(inst)
         print "- Containers have been built"
     def buildContainer(self,container):
-        """ Ensure a container is up to date """
+        """ Ensures a container is up to date """
         r=self.docker.build(path=os.path.join(pythiaConfiguration["containersDirectory"],container),tag=pythiaConfiguration["containerPrefix"]+container)
         for i in r:
             if i == "\n" or i == "\r\n":
@@ -119,7 +118,7 @@ class DockerJobManager (JobManager):
         return self.docker.attach_socket(containerId,{'stdin': 1, 'stream': 1})
     
     def runJob(self, jobId, task, inputdata):
-        """ Run the job by launching a container """
+        """ Runs the job by launching a container """
         response = self.docker.create_container(pythiaConfiguration["containerPrefix"]+task.getEnvironment(), stdin_open=True, network_disabled=True, volumes={'/ro/task':{}})
         containerId = response["Id"]
         self.docker.start(containerId, binds={os.path.abspath(os.path.join(pythiaConfiguration["tasksDirectory"],task.getCourseId(),task.getId())):{'ro':True,'bind':'/ro/task'}})
