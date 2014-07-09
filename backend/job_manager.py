@@ -43,9 +43,9 @@ class JobManager (threading.Thread):
                     
                     finaldict["result"] = "success" if novmDict["result"] == "success" and finaldict["result"] == "success" else "failed"
                     if "text" in finaldict and "text" in novmDict:
-                        finaldict["text"] = finaldict["text"]+"\n"+novmDict["text"]
+                        finaldict["text"] = finaldict["text"]+"\n"+"\n".join(novmDict["text"])
                     elif "text" not in finaldict and "text" in novmDict:
-                        finaldict["text"] = novmDict["text"]
+                        finaldict["text"] = "\n".join(novmDict["text"])
                     
                     if "problems" in finaldict and "problems" in novmDict:
                         for p in novmDict["problems"]:
