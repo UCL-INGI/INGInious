@@ -23,5 +23,6 @@ def setlimits():
 
 p = subprocess.Popen(["/task/run"], preexec_fn=setlimits, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 p.wait()
-text = "It's a test. Here is what /task/run returned: "+str(p.stdout.read())
+stdout, stderr = p.communicate() #stderr is None, as it is redirected in stdout
+text = "It's a test. Here is what /task/run returned: "+stdout
 print json.dumps({"result":"failed","text":text,"problems":problems})
