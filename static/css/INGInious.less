@@ -46,11 +46,16 @@ input.monospace
 form#task
 {
     .transition(all 0.3s ease-in-out);
-}
-
-form#task.form-blur
-{
-    .blur(5px);
+    
+    &.form-blur
+    {
+    	.blur(5px);
+    }
+    
+    #task-submit
+    {
+    	margin-top: 10px;
+    }
 }
 
 #submissions .submission
