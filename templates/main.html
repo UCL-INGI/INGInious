@@ -20,7 +20,7 @@ $def leftColF():
                     "
                     href="/course/$submission['courseId']/$submission['taskId']">
                     <h4 class="list-group-item-heading">$submission["task"].getName()</h4>
-                    <p class="list-group-item-text">$submission["task"].getName()</p>
+                    <p class="list-group-item-text">$submission["task"].getCourse().getName()</p>
                 </a>
         $else:
             <a class="list-group-item disabled submission-empty">No submissions</a>
