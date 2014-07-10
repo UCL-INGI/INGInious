@@ -34,6 +34,7 @@ class JobManager (threading.Thread):
                 emul_result = self.runJob(jobId, task, inputdata)
                 print "PYTHIA JOB RESPONSE"
                 print emul_result
+                print json.dumps(emul_result, sort_keys=True, indent=4, separators=(',', ': '))
                 #except Exception as inst:
                 #    print "PYTHIA JOB ERROR"
                 #    emul_result = {"result":"error","text":"Internal error: can't connect to backend"}
@@ -124,7 +125,11 @@ class DockerJobManager (JobManager):
         self.docker.start(containerId, binds={os.path.abspath(os.path.join(pythiaConfiguration["tasksDirectory"],task.getCourseId(),task.getId())):{'ro':True,'bind':'/ro/task'}})
         self.getSockets(containerId).send(json.dumps(inputdata)+"\n")
         self.docker.wait(containerId)
-        return json.loads(str(self.docker.logs(containerId, stdout=True, stderr=False)))
+        stdout = str(self.docker.logs(containerId, stdout=True, stderr=False))
+        stderr = str(self.docker.logs(containerId, stdout=False, stderr=True))
+        print "STDOUT: "+stdout
+        print "STDERR: "+stderr
+        return json.loads(stdout)
 
 def addJob(task, inputdata, callback = None):
     """ Add a job in the queue and returns a job id.
