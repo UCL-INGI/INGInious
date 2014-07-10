@@ -11,7 +11,7 @@ class CoursePage:
     # Simply display the page
     def GET(self, courseId):
         if User.isLoggedIn():
-            #try:
+            try:
                 course = Course(courseId)
                 lastSubmissions=course.getUserLastSubmissions()
                 exceptFreeLastSubmissions = []
@@ -22,7 +22,10 @@ class CoursePage:
                     except:
                         pass
                 return renderer.course(course,exceptFreeLastSubmissions)
-            #except:
-            #    raise web.notfound()
+            except:
+                if web.config.debug:
+                    raise
+                else:
+                    raise web.notfound()
         else:
             return renderer.index(False)

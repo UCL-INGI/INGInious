@@ -14,7 +14,7 @@ class AdminCoursePage:
     # Simply display the page
     def GET(self, courseId):
         if User.isLoggedIn():
-            #try:
+            try:
                 course = Course(courseId)
                 if User.getUsername() not in course.getAdmins():
                     raise web.notfound()
@@ -22,8 +22,11 @@ class AdminCoursePage:
                 output = self.compute(course)
                 print json.dumps(output,sort_keys=True, indent=4, separators=(',', ': '))
                 return renderer.admin_course(course,output)
-            #except:
-            #    raise web.notfound()
+            except:
+                if web.config.debug:
+                    raise
+                else:
+                    raise web.notfound()
         else:
             return renderer.index(False)
     

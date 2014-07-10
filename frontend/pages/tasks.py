@@ -14,17 +14,20 @@ class TaskPage:
     # Simply display the page
     def GET(self, courseId, taskId):
         if User.isLoggedIn():
-            #try:
+            try:
                 task = Task(courseId, taskId)
                 return renderer.task(task,submission_manager.getUserSubmissions(task))
-            #except:
-            #    raise web.notfound()
+            except:
+                if web.config.debug:
+                    raise
+                else:
+                    raise web.notfound()
         else:
             return renderer.index(False)
 
     def POST(self, courseId, taskId):
         if User.isLoggedIn():
-            #try:
+            try:
                 task = Task(courseId, taskId)
                 userinput = web.input()
                 if "@action" in userinput and userinput["@action"] == "submit":
@@ -54,8 +57,11 @@ class TaskPage:
                     return json.dumps({"status":"ok", "input":submission["input"]})
                 else:
                     raise web.notfound()
-            #except:
-            #    raise web.notfound()
+            except:
+                if web.config.debug:
+                    raise
+                else:
+                    raise web.notfound()
         else:
             return renderer.index(False)
 
