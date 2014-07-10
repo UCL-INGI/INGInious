@@ -2,7 +2,7 @@ import re
 import json
 
 #Import configuration
-pythiaConfiguration=json.load(open("./configuration.json","r"))
+INGIniousConfiguration=json.load(open("./configuration.json","r"))
 
 def IdChecker(idToTest):
     """Checks if a id is correct"""

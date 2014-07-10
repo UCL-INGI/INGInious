@@ -12,7 +12,7 @@ templateGlobals = {'User': User,'Task': Task,'Course': Course}
 renderer = web.template.render('templates/', globals=templateGlobals, base='layout')
 
 def newDatabaseClient():
-    return MongoClient().pythia
+    return MongoClient().INGInious
 def newGridFSClient(database):
     return GridFS(database)
 

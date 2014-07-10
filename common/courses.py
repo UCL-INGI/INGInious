@@ -2,7 +2,7 @@ import json
 from os import listdir
 from os.path import isfile, join, splitext
 
-from common.base import pythiaConfiguration, IdChecker
+from common.base import INGIniousConfiguration, IdChecker
 from common.tasks import Task
 
 
@@ -15,7 +15,7 @@ class Course:
     def GetAllCourses():
         """Returns a table containing courseId=>{name:courseName, admins:[courseAdmins]} pairs."""
         if Course.courseCache == None:
-            files = [ f for f in listdir(pythiaConfiguration["tasksDirectory"]) if isfile(join(pythiaConfiguration["tasksDirectory"], f)) and splitext(join(pythiaConfiguration["tasksDirectory"], f))[1] == ".course"]
+            files = [ f for f in listdir(INGIniousConfiguration["tasksDirectory"]) if isfile(join(INGIniousConfiguration["tasksDirectory"], f)) and splitext(join(INGIniousConfiguration["tasksDirectory"], f))[1] == ".course"]
             output = {};
             for course in files:
                 try:
@@ -30,7 +30,7 @@ class Course:
         if not IdChecker(courseId):
             raise Exception("Course with invalid name: " + courseId)
         try:
-            content = json.load(open(join(pythiaConfiguration["tasksDirectory"], courseId + ".course"), "r"))
+            content = json.load(open(join(INGIniousConfiguration["tasksDirectory"], courseId + ".course"), "r"))
             if "name" in content and "admins" in content and isinstance(content["admins"], list):
                 self.id = courseId
                 self.name = content['name']
@@ -50,7 +50,7 @@ class Course:
 
     def getCourseTasksDirectory(self):
         """Return the complete path to the tasks directory of the course"""
-        return join(pythiaConfiguration["tasksDirectory"], self.id)
+        return join(INGIniousConfiguration["tasksDirectory"], self.id)
 
     def getTasks(self):
         """Get all tasks in this course"""

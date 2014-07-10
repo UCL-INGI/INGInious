@@ -5,7 +5,7 @@ import frontend.session
 import frontend.user
 import common.base
 
-common.base.pythiaConfiguration["tasksDirectory"] = "tests/tasks/"
+common.base.INGIniousConfiguration["tasksDirectory"] = "tests/tasks/"
 
 def nosessioninit(app):
     if web.config.get('_session') is None:

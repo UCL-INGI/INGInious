@@ -3,7 +3,7 @@
 import backend.job_manager
 import frontend.user as User
 from frontend.base import database, gridFS
-from common.base import pythiaConfiguration
+from common.base import INGIniousConfiguration
 from bson.objectid import ObjectId
 import threading
 import Queue
@@ -81,8 +81,8 @@ class JobSaver (threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         mustdoinit = False
-        if pythiaConfiguration["enableSubmissionRepo"]:
-            self.repopath = pythiaConfiguration["submissionRepoDirectory"]
+        if INGIniousConfiguration["enableSubmissionRepo"]:
+            self.repopath = INGIniousConfiguration["submissionRepoDirectory"]
             if not os.path.exists(self.repopath):
                 mustdoinit = True
                 os.mkdir(self.repopath)
@@ -105,7 +105,7 @@ class JobSaver (threading.Thread):
                 "$unset":{"jobId":""},
                 "$set":
                 {
-                    "status": ("done" if job["result"] == "success" or job["result"] == "failed" else "error"), #error only if error was made by pythia
+                    "status": ("done" if job["result"] == "success" or job["result"] == "failed" else "error"), #error only if error was made by INGInious
                     "result":job["result"],
                     "text":(job["text"] if "text" in job else None),
                     "problems":(job["problems"] if "problems" in job else {}),
@@ -122,7 +122,7 @@ class JobSaver (threading.Thread):
         elif not task_cache["succeeded"] and job["result"] == "success":
             print database.taskstatus.save({"_id":task_cache["_id"],"username":submission["username"],"courseId":submission["courseId"],"taskId":submission["taskId"],"succeeded":(job["result"] == "success")})
         
-        if pythiaConfiguration["enableSubmissionRepo"]:
+        if INGIniousConfiguration["enableSubmissionRepo"]:
             #Save submission to repo
             #Verify that the directory for the course exists
             if not os.path.exists(os.path.join(self.repopath,submission["courseId"])):
@@ -139,7 +139,7 @@ class JobSaver (threading.Thread):
             open(os.path.join(dirname,'submittedOn'),"w+").write(str(submission["submittedOn"]))
             open(os.path.join(dirname,'input.json'),"w+").write(json.dumps(submission["input"]))
             resultObj = {
-                         "pythia_status":("success" if job["result"] == "success" or job["result"] == "failed" else "error"),
+                         "INGInious_status":("success" if job["result"] == "success" or job["result"] == "failed" else "error"),
                          "result":job["result"],
                          "text":(job["text"] if "text" in job else None),
                          "problems":(job["problems"] if "problems" in job else {})

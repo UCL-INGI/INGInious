@@ -4,7 +4,7 @@ import json
 import abc
 import docker
 import os.path
-from common.base import pythiaConfiguration
+from common.base import INGIniousConfiguration
 
 class JobManager (threading.Thread):
     """ Abstract thread class that runs the jobs that are in the queue """
@@ -29,15 +29,11 @@ class JobManager (threading.Thread):
             
             # Launch the emulation
             if need_emul:
-                print "STARTING PYTHIA JOB"
-                #try:
-                emul_result = self.runJob(jobId, task, inputdata)
-                print "PYTHIA JOB RESPONSE"
-                print emul_result
-                print json.dumps(emul_result, sort_keys=True, indent=4, separators=(',', ': '))
-                #except Exception as inst:
-                #    print "PYTHIA JOB ERROR"
-                #    emul_result = {"result":"error","text":"Internal error: can't connect to backend"}
+                try:
+                    emul_result = self.runJob(jobId, task, inputdata)
+                    print json.dumps(emul_result, sort_keys=True, indent=4, separators=(',', ': '))
+                except Exception as inst:
+                    emul_result = {"result":"error","text":"Internal error: can't connect to backend"}
                 
                 if finaldict['result'] not in ["error","failed","success","timeout","overflow"]:
                     finaldict['result'] = "error"
@@ -73,11 +69,9 @@ class JobManager (threading.Thread):
                 elif emul_result["result"] == "overflow":
                     finaldict = basedict.copy()
                     finaldict.update({"result":emul_result["result"],"text":"Your code took too much memory or disk"})
-                print "END PYTHIA JOB"
             
 
             main_dict[jobId] = finaldict
-            print "CALL JOB CALLBACK"
             if callback != None:
                 callback(jobId)
     @abc.abstractmethod
@@ -87,12 +81,12 @@ class JobManager (threading.Thread):
 class DockerJobManager (JobManager):
     def __init__(self):
         JobManager.__init__(self)
-        self.docker = docker.Client(base_url=pythiaConfiguration["dockerServerUrl"])
+        self.docker = docker.Client(base_url=INGIniousConfiguration["dockerServerUrl"])
         self.buildAllContainers()
     def buildAllContainers(self):
         """ Ensures all containers are up to date """
         print "- Building containers"
-        containers = [ f for f in os.listdir(pythiaConfiguration["containersDirectory"]) if os.path.isdir(os.path.join(pythiaConfiguration["containersDirectory"], f)) and os.path.isfile(os.path.join(pythiaConfiguration["containersDirectory"], f, "Dockerfile"))]
+        containers = [ f for f in os.listdir(INGIniousConfiguration["containersDirectory"]) if os.path.isdir(os.path.join(INGIniousConfiguration["containersDirectory"], f)) and os.path.isfile(os.path.join(INGIniousConfiguration["containersDirectory"], f, "Dockerfile"))]
         for container in containers:
             print "\tbuilding "+container
             try:
@@ -103,7 +97,7 @@ class DockerJobManager (JobManager):
         print "- Containers have been built"
     def buildContainer(self,container):
         """ Ensures a container is up to date """
-        r=self.docker.build(path=os.path.join(pythiaConfiguration["containersDirectory"],container),tag=pythiaConfiguration["containerPrefix"]+container)
+        r=self.docker.build(path=os.path.join(INGIniousConfiguration["containersDirectory"],container),tag=INGIniousConfiguration["containerPrefix"]+container)
         for i in r:
             if i == "\n" or i == "\r\n":
                 continue
@@ -120,9 +114,9 @@ class DockerJobManager (JobManager):
     
     def runJob(self, jobId, task, inputdata):
         """ Runs the job by launching a container """
-        response = self.docker.create_container(pythiaConfiguration["containerPrefix"]+task.getEnvironment(), stdin_open=True, network_disabled=True, volumes={'/ro/task':{}})
+        response = self.docker.create_container(INGIniousConfiguration["containerPrefix"]+task.getEnvironment(), stdin_open=True, network_disabled=True, volumes={'/ro/task':{}})
         containerId = response["Id"]
-        self.docker.start(containerId, binds={os.path.abspath(os.path.join(pythiaConfiguration["tasksDirectory"],task.getCourseId(),task.getId())):{'ro':True,'bind':'/ro/task'}})
+        self.docker.start(containerId, binds={os.path.abspath(os.path.join(INGIniousConfiguration["tasksDirectory"],task.getCourseId(),task.getId())):{'ro':True,'bind':'/ro/task'}})
         self.getSockets(containerId).send(json.dumps(inputdata)+"\n")
         self.docker.wait(containerId)
         stdout = str(self.docker.logs(containerId, stdout=True, stderr=False))
