@@ -49,3 +49,6 @@ form#task.form-blur {
   margin-top: 0px;
   margin-bottom: 10px;
 }
+.progress-bar[aria-valuenow] {
+  min-width: 30px;
+}
