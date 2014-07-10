@@ -1,0 +1,6 @@
+.*
+!.pydevproject
+!.project
+*.py[cod]
+sessions*
+repo_submissions
