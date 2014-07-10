@@ -1,6 +1,6 @@
 # DOCKER-VERSION 1.1.0
 
-FROM    debian
+FROM    debian:sid
 
 # Update packages if it is needed
 RUN     apt-get update
@@ -16,7 +16,7 @@ RUN     apt-get -y install binutils libcunit1 libcunit1-dev
 RUN     apt-get -y install make valgrind libc6
 RUN     apt-get -y install libc-bin libgcc1 libstdc++6
 RUN     apt-get -y install libmpfr4 
-RUN     apt-get -y install lib32gmp10 
+RUN     apt-get -y install libgmp-dev libgmp10 
 RUN     apt-get -y install zlib1g 
 RUN     apt-get -y install libgomp1 
 RUN     apt-get -y install libc6-dev 
@@ -27,9 +27,17 @@ RUN     pip install xmltodict
 RUN     ln -s /usr/lib/jvm/java-6-openjdk/bin/java /bin/java
 RUN     ln -s /usr/lib/jvm/java-6-openjdk/bin/javac /bin/javac
 
-# Add mozart
+
 
 ADD . /pythia
+
+# Add mozart
 RUN     dpkg -i /pythia/mozart2.deb
 
+RUN     mkdir -p /usr/lib/python2.7/dist-packages/lib
+RUN     cp -R /pythia/lib/*.py  /usr/lib/python2.7/dist-packages/lib
+RUN     echo "lib" > /usr/lib/python2.7/dist-packages/lib.pth
+RUN     mkdir -p /usr/lib/python3.4/dist-packages/lib
+RUN     cp -R /pythia/lib/*.py  /usr/lib/python3.4/dist-packages/lib
+RUN     echo "lib" > /usr/lib/python3.4/dist-packages/lib.pth
 CMD ["python", "/pythia/pythia.py"]
