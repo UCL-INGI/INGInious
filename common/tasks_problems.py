@@ -13,13 +13,12 @@ class BasicProblem:
     @abstractmethod
     def getType(self):
         return None
-    @abstractmethod
-    def evalResults(self,formInput):
-        return None
+    
     @abstractmethod
     def inputIsConsistent(self, taskInput):
         """ Check if an input for this problem is consistent. Return true if this is case, false else """
         return False
+    
     @abstractmethod
     def checkAnswer(self,taskInput):
         """ 
@@ -52,15 +51,29 @@ class BasicProblem:
         self.name = content['name']
         self.header = ParsableText(content['header'],"HTML" if "headerIsHTML" in content and content["headerIsHTML"] else "rst")
 
+class MatchProblem(BasicProblem):
+    """Display an input box and check that the content is correct"""
+    def __init__(self,task,problemId,content):
+        BasicProblem.__init__(self, task, problemId, content)
+        if not "answer" in content:
+            raise Exception("There is no answer in this problem with type==match")
+        self.answer = str(content["answer"])
+    def getType(self):
+        return "match"
+    def inputIsConsistent(self, taskInput):
+        return self.getId() in taskInput
+    def checkAnswer(self,taskInput):
+        if taskInput[self.getId()].strip() == self.answer:
+            return True, None, "Correct answer"
+        else:
+            return False, None, "Invalid answer"
+        
 class BasicCodeProblem(BasicProblem):
     """Basic problem with code input. Do all the job with the backend"""
     def __init__(self,task,problemId,content):
         BasicProblem.__init__(self, task, problemId, content)
         if task.getEnvironment() == None:
             raise Exception("Environment undefined, but there is a problem with type=code or type=code-single-line")
-    
-    def evalResults(self,formInput):
-        return "" #TODO 
     
     def inputIsConsistent(self, taskInput):
         for box in self.boxes:
@@ -148,9 +161,6 @@ class MultipleChoiceProblem(BasicProblem):
     def getType(self):
         return "multiple-choice"
     
-    def evalResults(self,formInput):
-        return None #TODO
-    
     def allowMultiple(self):
         return self.multiple
     
@@ -199,7 +209,7 @@ def CreateTaskProblem(task,problemId,problemContent):
     #Basic checks
     if not IdChecker(problemId):
         raise Exception("Invalid problem id: "+problemId)
-    if "type" not in problemContent or problemContent['type'] not in ["code","code-single-line","multiple-choice"]:
+    if "type" not in problemContent or problemContent['type'] not in ["code","code-single-line","multiple-choice","match"]:
         raise Exception("Invalid type for problem "+problemId)
     
     #If there is code to send, a VM name must be present
@@ -212,3 +222,5 @@ def CreateTaskProblem(task,problemId,problemContent):
         return CodeSingleLineProblem(task,problemId,problemContent)
     elif problemContent['type'] == "multiple-choice":
         return MultipleChoiceProblem(task,problemId,problemContent)
+    elif problemContent['type'] == "match":
+        return MatchProblem(task,problemId,problemContent)

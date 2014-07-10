@@ -5,7 +5,7 @@ from random import shuffle
 import web
 
 from common.tasks_code_boxes import TextBox, InputBox, MultilineBox
-from common.tasks_problems import BasicCodeProblem, MultipleChoiceProblem
+from common.tasks_problems import BasicCodeProblem, MultipleChoiceProblem, MatchProblem
 from common.tasks import Task
 from common.courses import Course
 
@@ -29,6 +29,10 @@ def BasicCodeProblemShowInput(self):
         output += box.show()
     return output
 BasicCodeProblem.showInput = BasicCodeProblemShowInput
+
+def MatchProblemShowInput(self):
+    return str(web.template.render('templates/tasks/').match(self.getId()))
+MatchProblem.showInput = MatchProblemShowInput
 
 def MultipleChoiceProblemShowInput(self):
     choices = []
