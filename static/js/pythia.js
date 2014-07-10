@@ -176,7 +176,7 @@ function waitForSubmission(submissionId)
         {
             if("status" in data && data['status'] == "waiting")
             	waitForSubmission(submissionId);
-            else if("status" in data && data['status'] == "done" && "result" in data)
+            else if("status" in data && "result" in data)
             {
                 if(data['result'] == "failed")
                 {
