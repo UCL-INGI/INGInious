@@ -27,6 +27,9 @@ RUN     pip install xmltodict
 RUN     ln -s /usr/lib/jvm/java-6-openjdk/bin/java /bin/java
 RUN     ln -s /usr/lib/jvm/java-6-openjdk/bin/javac /bin/javac
 
+# Add mozart
+
 ADD . /pythia
+RUN     dpkg -i /pythia/mozart2.deb
 
 CMD ["python", "/pythia/pythia.py"]

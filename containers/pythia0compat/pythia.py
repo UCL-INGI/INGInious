@@ -44,6 +44,7 @@ if os.path.exists("/job/lib"):
 else:
     os.mkdir("/job/input/lib")
 copytree("/pythia/lib","/job/input/lib")
+#copytree("/pythia/lib","/tmp/work/lib")
 
 #Launch everything
 stdOutputData={"stdout":"","stderr":""}
@@ -75,13 +76,10 @@ stdOutputData["stdout"] = stdOutputData["stdout"]+"RUN: "+stdout+"\n"
 stdOutputData["stderr"] = stdOutputData["stderr"]+"RUN: "+stderr+"\n"
 
 #Move some files
-shutil.copytree("/tmp/work/output","/tmp/work/output_copy")
-stdOutputData["stderr"] = stdOutputData["stderr"] + "WTF1 " + str([ f for f in listdir("/tmp/work/output") if isfile(join("/tmp/work/output",f)) ])
-stdOutputData["stderr"] = stdOutputData["stderr"] + "WTF2 " + str([ f for f in listdir("/tmp/work/output_copy") if isfile(join("/tmp/work/output_copy",f)) ])
-shutil.move("/tmp/work/output_copy", "/tmp/work/output/files")
-stdOutputData["stderr"] = stdOutputData["stderr"] + "WTF3 " + str([ f for f in listdir("/tmp/work/output/files") if isfile(join("/tmp/work/output/files",f)) ])
+shutil.copytree("/tmp/work/output","/job/output/files")
+open("/job/output/status","w").write("done")
 
-os.chdir("/tmp/work")
+os.chdir("/job")
 setExecutable("/job/feedback.sh")
 p = subprocess.Popen(["/job/feedback.sh"], preexec_fn=setlimits, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 p.wait()
@@ -93,8 +91,10 @@ stdOutputData["stderr"] = stdOutputData["stderr"]+"FEEDBACK: "+stderr+"\n"
 if os.path.exists("feedback.xml"):
     file = open("feedback.xml","r")
     feedback = xmltodict.parse(file.read())['feedback']
-    text = (feedback["#text"] if "#text" in feedback else "")
-    problems = {feedback["question"]["@id"]: feedback["question"]["#text"]}
+    text = (feedback["#text"] if "#text" in feedback else "") + (feedback["general"] if "general" in feedback else "")
+    problems = {}
+    if "question" in feedback:
+        problems = {feedback["question"]["@id"]: feedback["question"]["#text"]}
     print json.dumps({"result":("success" if feedback["verdict"] == "OK" else "failed"),"text":text,"problems":problems,"v0out":stdOutputData})
 else:
     print json.dumps({"result":"crash","text":"The grader did not give any input","problems":{},"v0out":stdOutputData})
