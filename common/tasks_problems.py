@@ -41,15 +41,11 @@ class BasicProblem:
     def __init__(self,task,problemId,content):
         if not IdChecker(problemId):
             raise Exception("Invalid problem id: "+problemId)
-        if "name" not in content or not isinstance(content['name'], basestring):
-            raise Exception("Invalid name for problem "+id)
-        if "header" not in content or not isinstance(content['header'], basestring):
-            raise Exception("Invalid header for problem "+id)
         
         self.id = problemId
         self.task = task
-        self.name = content['name']
-        self.header = ParsableText(content['header'],"HTML" if "headerIsHTML" in content and content["headerIsHTML"] else "rst")
+        self.name = content['name'] if "name" in content else ""
+        self.header = ParsableText((content['header'] if "header" in content else ""),("HTML" if "headerIsHTML" in content and content["headerIsHTML"] else "rst"))
 
 class MatchProblem(BasicProblem):
     """Display an input box and check that the content is correct"""
