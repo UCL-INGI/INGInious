@@ -22,9 +22,20 @@ function registerCodeEditor(id,lang,lines)
 {
     var editor = ace.edit(id);
     if(lang != "plain")
+    {
+    	//fix some languages
+    	switch (lang.toLowerCase())
+    	{
+	    	case "c":
+	    	case "cpp":
+	    	case "c++":
+	    		lang = "c_cpp"
+	    		break;
+    	}
         editor.getSession().setMode("ace/mode/"+lang);
+    }
     editor.getSession().setTabSize(4);
-    editor.setOptions({minLines: lines,maxLines: lines});
+    editor.setOptions({minLines: lines, maxLines: Infinity});
     
     var textarea = jQuery('input[name="'+id+'"]');
     editor.getSession().on("change", function()
