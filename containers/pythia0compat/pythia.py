@@ -29,7 +29,9 @@ def setExecutable(filename):
 
 #get input data
 stdin = sys.stdin.read().strip('\0').strip()
-input_data = json.loads(stdin)
+data = json.loads(stdin)
+input_data = data["input"]
+limits = data["limits"]
 
 os.mkdir("/tmp/work")
 

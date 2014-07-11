@@ -11,7 +11,7 @@ import json
 os.mkdir("/tmp/output")
 
 # Retrieves the input data from Pythia
-input_data = json.loads(sys.stdin.read().strip('\0').strip())
+input_data = json.loads(sys.stdin.read().strip('\0').strip())["input"]
 
 for filepath in sys.argv[1:]:
     filepath = filepath

@@ -106,6 +106,8 @@ class Task:
         return self.course
     def getAuthors(self):
         return self.author
+    def getLimits(self):
+        return self.limits
     
     def checkAnswer(self,taskInput):
         """

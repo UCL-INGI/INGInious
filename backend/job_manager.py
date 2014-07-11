@@ -29,11 +29,11 @@ class JobManager (threading.Thread):
             
             # Launch the emulation
             if need_emul:
-                try:
-                    emul_result = self.runJob(jobId, task, inputdata)
-                    print json.dumps(emul_result, sort_keys=True, indent=4, separators=(',', ': '))
-                except Exception as inst:
-                    emul_result = {"result":"error","text":"Internal error: can't connect to backend"}
+                #try:
+                emul_result = self.runJob(jobId, task, {"limits": task.getLimits(), "input": inputdata})
+                print json.dumps(emul_result, sort_keys=True, indent=4, separators=(',', ': '))
+                #except Exception as inst:
+                #    emul_result = {"result":"error","text":"Internal error: can't connect to backend"}
                 
                 if finaldict['result'] not in ["error","failed","success","timeout","overflow"]:
                     finaldict['result'] = "error"
