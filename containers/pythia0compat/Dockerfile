@@ -28,7 +28,6 @@ RUN     ln -s /usr/lib/jvm/java-6-openjdk/bin/java /bin/java
 RUN     ln -s /usr/lib/jvm/java-6-openjdk/bin/javac /bin/javac
 
 
-
 ADD . /pythia
 
 # Add mozart

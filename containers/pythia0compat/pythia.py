@@ -21,7 +21,8 @@ def copytree(src, dst, symlinks=False, ignore=None):
             shutil.copy2(s, d)
             
 def setlimits():
-    resource.setrlimit(resource.RLIMIT_CPU, (60, 60)) #TODO: set real limits
+    resource.setrlimit(resource.RLIMIT_CPU, (limits["time"], limits["time"]))
+    
 
 def setExecutable(filename):
     st = os.stat(filename)
