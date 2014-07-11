@@ -29,11 +29,11 @@ class JobManager (threading.Thread):
             
             # Launch the emulation
             if need_emul:
-                #try:
-                emul_result = self.runJob(jobId, task, {"limits": task.getLimits(), "input": inputdata})
-                print json.dumps(emul_result, sort_keys=True, indent=4, separators=(',', ': '))
-                #except Exception as inst:
-                #    emul_result = {"result":"error","text":"Internal error: can't connect to backend"}
+                try:
+                    emul_result = self.runJob(jobId, task, {"limits": task.getLimits(), "input": inputdata})
+                    print json.dumps(emul_result, sort_keys=True, indent=4, separators=(',', ': '))
+                except Exception as inst:
+                    emul_result = {"result":"error","text":"The grader did not gave any output. This can be because you used too much memory."}
                 
                 if finaldict['result'] not in ["error","failed","success","timeout","overflow"]:
                     finaldict['result'] = "error"
@@ -114,15 +114,27 @@ class DockerJobManager (JobManager):
     
     def runJob(self, jobId, task, inputdata):
         """ Runs the job by launching a container """
-        response = self.docker.create_container(INGIniousConfiguration["containerPrefix"]+task.getEnvironment(), stdin_open=True, network_disabled=True, volumes={'/ro/task':{}})
+        #limits: currently we only supports time and memory limits. 
+        #Memory is the memory used by the VM, in megabytes, and time is the time taken by the script (not the VM!) in seconds
+        memLimit = task.getLimits()["memory"]
+        if memLimit < 20:
+            memLimit = 20
+        elif memLimit > 500:
+            memLimit = 500
+        
+        response = self.docker.create_container(
+            INGIniousConfiguration["containerPrefix"]+task.getEnvironment(), 
+            stdin_open=True, 
+            network_disabled=True, 
+            volumes={'/ro/task':{}},
+            mem_limit=memLimit*1024*1024
+        )
         containerId = response["Id"]
         self.docker.start(containerId, binds={os.path.abspath(os.path.join(INGIniousConfiguration["tasksDirectory"],task.getCourseId(),task.getId())):{'ro':True,'bind':'/ro/task'}})
         self.getSockets(containerId).send(json.dumps(inputdata)+"\n")
         self.docker.wait(containerId)
         stdout = str(self.docker.logs(containerId, stdout=True, stderr=False))
         stderr = str(self.docker.logs(containerId, stdout=False, stderr=True))
-        print "STDOUT: "+stdout
-        print "STDERR: "+stderr
         return json.loads(stdout)
 
 def addJob(task, inputdata, callback = None):

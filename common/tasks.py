@@ -46,7 +46,7 @@ class Task:
             self.author = []
         
         #Limits
-        self.limits = {"time":20, "memory":1024, "disk": 1024, "output": 1024}
+        self.limits = {"time":20, "memory":1024, "disk": 1024}
         if "limits" in data:
             #Check time
             if "time" in data["limits"] and isinstance(data['limits']['time'], (int)):
@@ -65,12 +65,6 @@ class Task:
                 self.limits['disk'] = data['limits']['disk']
             elif "disk" in data["limits"]:
                 raise Exception("Invalid disk limit")
-            
-            #Check output
-            if "output" in data["limits"] and isinstance(data['limits']['output'], (int)):
-                self.limits['output'] = data['limits']['output']
-            elif "output" in data["limits"]:
-                raise Exception("Invalid output limit")
         
         if "problems" not in data:
             raise Exception("Tasks must have some problems descriptions")
