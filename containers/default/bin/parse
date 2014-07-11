@@ -10,7 +10,7 @@ import inginious
 from inginious import templateparser
 
 def usage():
-    print "Usage : parse_template [-o|--output ]output_file input_file"
+    print "Usage : parse [-o|--output ]output_file input_file"
     print "JSON must be passed trough stdin"
     sys.exit(1)
 

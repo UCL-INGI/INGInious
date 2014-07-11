@@ -1,15 +1,13 @@
 #!/usr/bin/python
 import os
-import re
 import sys
-import codecs
 import json
 import getopt
 
 def load_feedback():
     """ Open existing feedback file """
-    if os.path.exists('/tmp/__feedback.json'):
-        f = open('/tmp/__feedback.json', 'r')
+    if os.path.exists('/.__output/__feedback.json'):
+        f = open('/.__output/__feedback.json', 'r')
         cont = f.read()
         f.close()
     else:
@@ -18,8 +16,14 @@ def load_feedback():
 
 def save_feedback(rdict):
     """ Save feedback file """
+    # Check for output folder
+    try:
+        os.makedirs('/.__output/')
+    except OSError, e:
+        pass
+    
     jcont = json.dumps(rdict)
-    f = codecs.open('/tmp/__feedback.json', 'w')
+    f = codecs.open('/.__output/__feedback.json', 'w')
     f.write(jcont)
     f.close()
 
