@@ -8,7 +8,7 @@ import stat
 from os import listdir
 from os.path import isfile, join
 import xmltodict
-import StringIO
+import tempfile
 
 def copytree(src, dst, symlinks=False, ignore=None):
     """ Custom copy tree to allow to copy into existing directories """
@@ -70,20 +70,26 @@ for question in input_data:
 if os.path.exists("/job/dataset.sh"):
     setExecutable("/job/dataset.sh")
     os.chdir("/job")
-    p = subprocess.Popen(["/job/dataset.sh"], preexec_fn=setlimits, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout = tempfile.TemporaryFile()
+    stderr = tempfile.TemporaryFile()
+    p = subprocess.Popen(["/job/dataset.sh"], preexec_fn=setlimits, stdout=stdout, stderr=stderr)
     p.wait()
-    stdout, stderr = p.communicate()
-    stdOutputData["stdout"] = stdOutputData["stdout"]+"DATASET: "+stdout+"\n"
-    stdOutputData["stderr"] = stdOutputData["stderr"]+"DATASET: "+stderr+"\n"
+    stdout.seek(0)
+    stderr.seek(0)
+    stdOutputData["stdout"] = stdOutputData["stdout"]+"DATASET: "+stdout.read()+"\n"
+    stdOutputData["stderr"] = stdOutputData["stderr"]+"DATASET: "+stderr.read()+"\n"
 
 os.chdir("/tmp/work")
 if os.path.exists("/job/run.sh"):
     setExecutable("/job/run.sh")
-    p = subprocess.Popen(["/job/run.sh"], preexec_fn=setlimits, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout = tempfile.TemporaryFile()
+    stderr = tempfile.TemporaryFile()
+    p = subprocess.Popen(["/job/run.sh"], preexec_fn=setlimits, stdout=stdout, stderr=stderr)
     p.wait()
-    stdout, stderr = p.communicate()
-    stdOutputData["stdout"] = stdOutputData["stdout"]+"RUN: "+stdout+"\n"
-    stdOutputData["stderr"] = stdOutputData["stderr"]+"RUN: "+stderr+"\n"
+    stdout.seek(0)
+    stderr.seek(0)
+    stdOutputData["stdout"] = stdOutputData["stdout"]+"RUN: "+stdout.read()+"\n"
+    stdOutputData["stderr"] = stdOutputData["stderr"]+"RUN: "+stderr.read()+"\n"
 
 #Move some files
 shutil.copytree("/tmp/work/output","/job/output/files")
@@ -91,11 +97,14 @@ open("/job/output/status","w").write("done")
 
 os.chdir("/job")
 setExecutable("/job/feedback.sh")
-p = subprocess.Popen(["/job/feedback.sh"], preexec_fn=setlimits, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+stdout = tempfile.TemporaryFile()
+stderr = tempfile.TemporaryFile()
+p = subprocess.Popen(["/job/feedback.sh"], preexec_fn=setlimits, stdout=stdout, stderr=stderr)
 p.wait()
-stdout, stderr = p.communicate()
-stdOutputData["stdout"] = stdOutputData["stdout"]+"FEEDBACK: "+stdout+"\n"
-stdOutputData["stderr"] = stdOutputData["stderr"]+"FEEDBACK: "+stderr+"\n"
+stdout.seek(0)
+stderr.seek(0)
+stdOutputData["stdout"] = stdOutputData["stdout"]+"FEEDBACK: "+stdout.read()+"\n"
+stdOutputData["stderr"] = stdOutputData["stderr"]+"FEEDBACK: "+stderr.read()+"\n"
 
 
 if os.path.exists("feedback.xml"):
