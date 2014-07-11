@@ -1,0 +1,45 @@
+#!/usr/bin/python
+import os
+import re
+import sys
+import codecs
+import json
+import getopt
+import inginious
+from inginious import feedback
+
+# Read arguments from the command line
+try:
+    opts, args = getopt.getopt(sys.argv[1:], 'r:f:i:p', ['result=', 'feedback=', 'id=' , 'print'])
+except getopt.GetoptError,e:
+    print e
+    sys.exit(2)
+
+result = ''
+feedback = ''
+problem = ''
+getjson = False
+
+for opt, arg in opts:
+    if opt in ('-r', '--result'):
+        result = arg
+    elif opt in ('-f', '--feedback'):
+        feedback = arg
+    elif opt in ('-i', '--id'):
+        problem = arg
+    elif opt in ('-p', '--print'):
+        getjson = True
+
+# Doing the real stuff
+
+if result != '':
+    inginious.feedback.set_result(result)
+    
+if feedback != '':
+    if problem == '':
+        inginious.feedback.set_global_feedback(feedback)
+    else:
+        inginious.feedback.set_problem_feedback(feedback, problem)
+
+if getjson:
+    print json.dumps(inginious.feedback.get_feedback())
