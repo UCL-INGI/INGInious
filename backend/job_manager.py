@@ -133,8 +133,11 @@ class DockerJobManager (JobManager):
         self.docker.start(containerId, binds={os.path.abspath(os.path.join(INGIniousConfiguration["tasksDirectory"],task.getCourseId(),task.getId())):{'ro':True,'bind':'/ro/task'}})
         self.getSockets(containerId).send(json.dumps(inputdata)+"\n")
         self.docker.wait(containerId)
+        # Get the std outputs
         stdout = str(self.docker.logs(containerId, stdout=True, stderr=False))
         stderr = str(self.docker.logs(containerId, stdout=False, stderr=True))
+        # Delete used containers to avoir using to much disk space
+        self.docker.remove_container(containerId, True, False, True)
         return json.loads(stdout)
 
 def addJob(task, inputdata, callback = None):
