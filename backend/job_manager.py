@@ -97,7 +97,7 @@ class DockerJobManager (JobManager):
         print "- Containers have been built"
     def buildContainer(self,container):
         """ Ensures a container is up to date """
-        r=self.docker.build(path=os.path.join(INGIniousConfiguration["containersDirectory"],container),tag=INGIniousConfiguration["containerPrefix"]+container)
+        r=self.docker.build(path=os.path.join(INGIniousConfiguration["containersDirectory"],container),tag=INGIniousConfiguration["containerPrefix"]+container,rm=True)
         for i in r:
             if i == "\n" or i == "\r\n":
                 continue
