@@ -136,7 +136,7 @@ class DockerJobManager (JobManager):
         # Get the std outputs
         stdout = str(self.docker.logs(containerId, stdout=True, stderr=False))
         stderr = str(self.docker.logs(containerId, stdout=False, stderr=True))
-        # Delete used containers to avoir using to much disk space
+        # Delete used containers to avoid using too much disk space
         self.docker.remove_container(containerId, True, False, True)
         return json.loads(stdout)
 
