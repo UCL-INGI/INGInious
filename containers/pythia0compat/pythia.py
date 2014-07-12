@@ -20,9 +20,21 @@ def copytree(src, dst, symlinks=False, ignore=None):
             shutil.copytree(s, d, symlinks, ignore)
         else:
             shutil.copy2(s, d)
+
+def setDirectoryRights(path):
+    for root, dirs, files in os.walk(path):  
+        for d in dirs:
+            os.chmod(os.path.join(root, d), 0o777)
+            os.chown(os.path.join(root, d), 4242, 4242)
+        for f in files:
+            os.chmod(os.path.join(root, f), 0o777)
+            os.chown(os.path.join(root, f), 4242, 4242)
             
 def setlimits():
+    os.setgid(4242)
+    os.setuid(4242)
     resource.setrlimit(resource.RLIMIT_CPU, (limits["time"]+5, limits["time"]+5))
+    resource.setrlimit(resource.RLIMIT_NPROC, (100, 100))
     
 def setExecutable(filename):
     st = os.stat(filename)
@@ -72,6 +84,12 @@ else:
     os.mkdir("/job/input/lib")
 copytree("/pythia/lib","/job/input/lib")
 
+#Set rights on some files
+setDirectoryRights("/job")
+setDirectoryRights("/tmp")
+setDirectoryRights("/pythia")
+setDirectoryRights("/tmp/work")
+
 #Launch everything
 stdOutputData={"stdout":"","stderr":""}
 
@@ -86,7 +104,8 @@ stdOutputData["stderr"] = stdOutputData["stderr"]+"PARSE: "+stderr+"\n"
 #Put the input in the .out files (...)
 for question in input_data:
     open("/tmp/work/output/"+question+".out","w").write(input_data[question])
-    
+setDirectoryRights("/tmp/work")
+
 if os.path.exists("/job/dataset.sh"):
     os.chdir("/job")
     try:
@@ -112,6 +131,7 @@ if os.path.exists("/job/run.sh"):
 shutil.copytree("/tmp/work/output","/job/output/files")
 open("/job/output/status","w").write("done")
 
+setDirectoryRights("/job")
 os.chdir("/job")
 try:
     stdout, stderr = executeProcess("/job/feedback.sh", "")
