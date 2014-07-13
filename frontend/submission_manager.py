@@ -37,6 +37,7 @@ def initBackendInterface():
     
     # Launch the thread that saves submissions to the git repo
     if INGIniousConfiguration["enableSubmissionRepo"]:
+        global submissionGitSaver
         submissionGitSaver = SubmissionGitSaver()
         submissionGitSaver.daemon = True
         submissionGitSaver.start()
