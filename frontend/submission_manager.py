@@ -40,13 +40,37 @@ def getSubmission(submissionId,userCheck=True):
 def getSubmissionFromJobId(jobId):
     return database.submissions.find_one({'jobId': jobId})
 
-def jobDoneCallback(jobId):
+def jobDoneCallback(jobId,job):
+    """ Callback called by JobManager when a job is done. Updates the submission in the database with the data returned after the completion of the job """
     submission = getSubmissionFromJobId(jobId)
-    print submission
-    assert submission["status"] == "waiting"
-    main_queue.put(submission)
     
+    #Save submission to database
+    database.submissions.update(
+        {"_id":submission["_id"]},
+        {
+            "$unset":{"jobId":""},
+            "$set":
+            {
+                "status": ("done" if job["result"] == "success" or job["result"] == "failed" else "error"), #error only if error was made by INGInious
+                "result":job["result"],
+                "text":(job["text"] if "text" in job else None),
+                "problems":(job["problems"] if "problems" in job else {}),
+                "archive":(gridFS.put(job["archive"]) if "archive" in job else None)
+            }
+        }
+    )
+    
+    #Update task status cache
+    task_cache = database.taskstatus.find_one({"username":submission["username"],"courseId":submission["courseId"],"taskId":submission["taskId"]})
+    print task_cache
+    if task_cache == None:
+        print database.taskstatus.insert({"username":submission["username"],"courseId":submission["courseId"],"taskId":submission["taskId"],"succeeded":(job["result"] == "success")})
+    elif not task_cache["succeeded"] and job["result"] == "success":
+        print database.taskstatus.save({"_id":task_cache["_id"],"username":submission["username"],"courseId":submission["courseId"],"taskId":submission["taskId"],"succeeded":(job["result"] == "success")})
 
+    if submissionGitSaver != None:
+        submissionGitSaver.add((submission,job))
+        
 def addJob(task, inputdata):
     """ Add a job in the queue and returns a submission id.
         task is a Task instance and inputdata is the input as a dictionary """
@@ -76,90 +100,65 @@ def userIsSubmissionOwner(submission):
         raise Exception("A user must be logged in to verify if he owns a jobId")
     return submission["username"] == User.getUsername()
 
-class JobSaver (threading.Thread):
-    """ Thread class that saves results from waiting jobs """
+class SubmissionGitSaver (threading.Thread):
+    """ 
+        Thread class that saves results from submission in the git repo. 
+        It must be a thread as a git commit can take some time and because we extract archives returned by Job Manager.
+        But it must also be launched only one time as our git operations are not really process/tread-safe ;-)
+    """
     def __init__(self):
         threading.Thread.__init__(self)
+        self.queue = Queue.Queue()
         mustdoinit = False
-        if INGIniousConfiguration["enableSubmissionRepo"]:
-            self.repopath = INGIniousConfiguration["submissionRepoDirectory"]
-            if not os.path.exists(self.repopath):
-                mustdoinit = True
-                os.mkdir(self.repopath)
-            self.git = git.bake('--work-tree='+self.repopath,'--git-dir='+os.path.join(self.repopath,'.git'))
-            if mustdoinit:
-                self.git.init()
+        self.repopath = INGIniousConfiguration["submissionRepoDirectory"]
+        if not os.path.exists(self.repopath):
+            mustdoinit = True
+            os.mkdir(self.repopath)
+        self.git = git.bake('--work-tree='+self.repopath,'--git-dir='+os.path.join(self.repopath,'.git'))
+        if mustdoinit:
+            self.git.init()
+    def add(self,submissionId):
+        self.queue.put(submissionId)
     def run(self):
         while True:
-            #try:
-                submission = main_queue.get()
-                job = backend.job_manager.getResult(submission["jobId"])
+            try:
+                submission,job = self.queue.get()
                 self.save(submission, job)
-            #except:
-            #    pass
+            except Exception as inst:
+                print "Exception in JobSaver: "+str(inst)
+                pass
     def save(self,submission,job):
-        #Save submission to database
-        database.submissions.update(
-            {"_id":submission["_id"]},
-            {
-                "$unset":{"jobId":""},
-                "$set":
-                {
-                    "status": ("done" if job["result"] == "success" or job["result"] == "failed" else "error"), #error only if error was made by INGInious
-                    "result":job["result"],
-                    "text":(job["text"] if "text" in job else None),
-                    "problems":(job["problems"] if "problems" in job else {}),
-                    "archive":(gridFS.put(job["archive"]) if "archive" in job else None)
-                }
-            }
-        )
-        
-        #Update task status cache
-        task_cache = database.taskstatus.find_one({"username":submission["username"],"courseId":submission["courseId"],"taskId":submission["taskId"]})
-        print task_cache
-        if task_cache == None:
-            print database.taskstatus.insert({"username":submission["username"],"courseId":submission["courseId"],"taskId":submission["taskId"],"succeeded":(job["result"] == "success")})
-        elif not task_cache["succeeded"] and job["result"] == "success":
-            print database.taskstatus.save({"_id":task_cache["_id"],"username":submission["username"],"courseId":submission["courseId"],"taskId":submission["taskId"],"succeeded":(job["result"] == "success")})
-        
-        if INGIniousConfiguration["enableSubmissionRepo"]:
-            #Save submission to repo
-            #Verify that the directory for the course exists
-            if not os.path.exists(os.path.join(self.repopath,submission["courseId"])):
-                os.mkdir(os.path.join(self.repopath,submission["courseId"]))
-            #Idem with the task
-            if not os.path.exists(os.path.join(self.repopath,submission["courseId"],submission["taskId"])):
-                os.mkdir(os.path.join(self.repopath,submission["courseId"],submission["taskId"]))
-            #Idem with the username, but empty it
-            dirname = os.path.join(self.repopath,submission["courseId"],submission["taskId"],submission["username"])
-            if os.path.exists(dirname):
-                shutil.rmtree(dirname)
-            os.mkdir(dirname)
-            #Now we can put the input, the output and the zip
-            open(os.path.join(dirname,'submittedOn'),"w+").write(str(submission["submittedOn"]))
-            open(os.path.join(dirname,'input.json'),"w+").write(json.dumps(submission["input"]))
-            resultObj = {
-                         "INGInious_status":("success" if job["result"] == "success" or job["result"] == "failed" else "error"),
-                         "result":job["result"],
-                         "text":(job["text"] if "text" in job else None),
-                         "problems":(job["problems"] if "problems" in job else {})
-                        }
-            open(os.path.join(dirname,'result.json'),"w+").write(json.dumps(resultObj))
-            if "archive" in job:
-                os.mkdir(os.path.join(dirname,'output'))
-                tar = tarfile.open(mode='w:gz',fileobj=StringIO(job["archive"]))
-                tar.extractall(os.path.join(dirname,'output'))
-                tar.close()
-                
-            self.git.add('--all','.')
-            self.git.commit('-m',"'Submission "+str(submission["_id"])+"'")
-        
-main_queue = Queue.Queue()
-main_thread = JobSaver()
-main_thread.daemon = True
-main_thread.start()
-
-
+        #Save submission to repo
+        print "Save submission "+str(submission["_id"])+" to git repo"
+        #Verify that the directory for the course exists
+        if not os.path.exists(os.path.join(self.repopath,submission["courseId"])):
+            os.mkdir(os.path.join(self.repopath,submission["courseId"]))
+        #Idem with the task
+        if not os.path.exists(os.path.join(self.repopath,submission["courseId"],submission["taskId"])):
+            os.mkdir(os.path.join(self.repopath,submission["courseId"],submission["taskId"]))
+        #Idem with the username, but empty it
+        dirname = os.path.join(self.repopath,submission["courseId"],submission["taskId"],submission["username"])
+        if os.path.exists(dirname):
+            shutil.rmtree(dirname)
+        os.mkdir(dirname)
+        #Now we can put the input, the output and the zip
+        open(os.path.join(dirname,'submittedOn'),"w+").write(str(submission["submittedOn"]))
+        open(os.path.join(dirname,'input.json'),"w+").write(json.dumps(submission["input"]))
+        resultObj = {
+                     "result":job["result"],
+                     "text":(job["text"] if "text" in job else None),
+                     "problems":(job["problems"] if "problems" in job else {})
+                    }
+        open(os.path.join(dirname,'result.json'),"w+").write(json.dumps(resultObj))
+        if "archive" in job:
+            os.mkdir(os.path.join(dirname,'output'))
+            tar = tarfile.open(mode='w:gz',fileobj=StringIO(job["archive"]))
+            tar.extractall(os.path.join(dirname,'output'))
+            tar.close()
+            
+        self.git.add('--all','.')
+        self.git.commit('-m',"'Submission "+str(submission["_id"])+"'")
+            
 def getUserSubmissions(task):
     """ Get all the user's submissions for a given task """
     if not User.isLoggedIn():
@@ -176,4 +175,10 @@ def getUserLastSubmissions(query,limit):
     cursor = database.submissions.find(request)
     cursor.sort([("submittedOn",-1)]).limit(limit)
     return list(cursor)
-    
+
+# Launch the thread that saves submissions to the git repo
+submissionGitSaver = None
+if INGIniousConfiguration["enableSubmissionRepo"]:
+    submissionGitSaver = SubmissionGitSaver()
+    submissionGitSaver.daemon = True
+    submissionGitSaver.start()

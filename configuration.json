@@ -2,7 +2,10 @@
 	"tasksDirectory": "./tasks",
 	"containersDirectory": "./containers",
 	"containerPrefix": "INGInious/",
+	"dockerServerUrl": "tcp://172.16.42.43:4243",
+	"jobManagers": 4,
+	"buildContainersOnStart": true,
+	
 	"enableSubmissionRepo": true,
-	"submissionRepoDirectory": "./repo_submissions",
-	"dockerServerUrl": "tcp://172.16.42.43:4243"
+	"submissionRepoDirectory": "./repo_submissions"
 }

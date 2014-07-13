@@ -73,40 +73,46 @@ class JobManager (threading.Thread):
 
             main_dict[jobId] = finaldict
             if callback != None:
-                callback(jobId)
+                callback(jobId, finaldict)
     @abc.abstractmethod
     def runJob(self, jobId, task, inputdata):
         pass
 
+def createDockerConnection():
+    """ Creates a new connection to the Docker daemon """
+    return docker.Client(base_url=INGIniousConfiguration["dockerServerUrl"])
+
+def buildDockerContainer(docker,container):
+    """ Ensures a container is up to date """
+    r=docker.build(path=os.path.join(INGIniousConfiguration["containersDirectory"],container),tag=INGIniousConfiguration["containerPrefix"]+container,rm=True)
+    for i in r:
+        if i == "\n" or i == "\r\n":
+            continue
+        try:
+            j = json.loads(i)
+        except:
+            raise Exception("Error while building "+container+": can't read Docker output")
+        if 'error' in j:
+            raise Exception("Error while building "+container+": Docker returned error"+j["error"])
+            
+def buildAllDockerContainers():
+    """ Ensures all containers are up to date """
+    print "- Building containers"
+    docker = createDockerConnection()
+    containers = [ f for f in os.listdir(INGIniousConfiguration["containersDirectory"]) if os.path.isdir(os.path.join(INGIniousConfiguration["containersDirectory"], f)) and os.path.isfile(os.path.join(INGIniousConfiguration["containersDirectory"], f, "Dockerfile"))]
+    for container in containers:
+        print "\tbuilding "+container
+        try:
+            buildDockerContainer(docker,container)
+        except Exception as inst:
+            print "\tthere was an error while building the container:"
+            print "\t\t"+str(inst)
+    print "- Containers have been built"
+    
 class DockerJobManager (JobManager):
     def __init__(self):
         JobManager.__init__(self)
-        self.docker = docker.Client(base_url=INGIniousConfiguration["dockerServerUrl"])
-        self.buildAllContainers()
-    def buildAllContainers(self):
-        """ Ensures all containers are up to date """
-        print "- Building containers"
-        containers = [ f for f in os.listdir(INGIniousConfiguration["containersDirectory"]) if os.path.isdir(os.path.join(INGIniousConfiguration["containersDirectory"], f)) and os.path.isfile(os.path.join(INGIniousConfiguration["containersDirectory"], f, "Dockerfile"))]
-        for container in containers:
-            print "\tbuilding "+container
-            try:
-                self.buildContainer(container)
-            except Exception as inst:
-                print "\tthere was an error while building the container:"
-                print "\t\t"+str(inst)
-        print "- Containers have been built"
-    def buildContainer(self,container):
-        """ Ensures a container is up to date """
-        r=self.docker.build(path=os.path.join(INGIniousConfiguration["containersDirectory"],container),tag=INGIniousConfiguration["containerPrefix"]+container,rm=True)
-        for i in r:
-            if i == "\n" or i == "\r\n":
-                continue
-            try:
-                j = json.loads(i)
-            except:
-                raise Exception("Error while building "+container+": can't read Docker output")
-            if 'error' in j:
-                raise Exception("Error while building "+container+": Docker returned error"+j["error"])
+        self.docker = createDockerConnection()
 
     def getSockets(self,containerId):
         """ Utility function to get stdin of a container """
@@ -203,7 +209,20 @@ addJob.cur_id = 0 # static variable
 main_queue = Queue.Queue()
 main_dict = {}
 
-# Launch the main thread
-main_thread = DockerJobManager()
-main_thread.daemon = True
-main_thread.start()
+# Build the containers if needed
+if "buildContainersOnStart" in INGIniousConfiguration and INGIniousConfiguration["buildContainersOnStart"]:
+    buildAllDockerContainers()
+    
+# Launch the job managers
+try:
+    jobManagerCount = int(INGIniousConfiguration["jobManagers"])
+except:
+    print "Configuration entry 'jobManagers' must be an integer"
+    jobManagerCount = 1
+if jobManagerCount < 1:
+    print "Configuration entry 'jobManagers' must be greater than 1"
+for i in range(0, jobManagerCount):
+    print "Starting Job Manager #"+str(i)
+    thread = DockerJobManager()
+    thread.daemon = True
+    thread.start()
