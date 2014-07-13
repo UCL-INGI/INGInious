@@ -1,5 +1,6 @@
 {
 	"tasksDirectory": "./tasks",
+	
 	"containersDirectory": "./containers",
 	"containerPrefix": "INGInious/",
 	"dockerServerUrl": "tcp://172.16.42.43:4243",

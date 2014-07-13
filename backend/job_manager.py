@@ -1,19 +1,19 @@
-import Queue
 import threading
 import json
-import abc
-import docker
-import os.path
-from common.base import INGIniousConfiguration
+from abc import ABCMeta, abstractmethod
 
 class JobManager (threading.Thread):
     """ Abstract thread class that runs the jobs that are in the queue """
-    def __init__(self):
+    __metaclass__ = ABCMeta
+    
+    def __init__(self,queue):
         threading.Thread.__init__(self)
+        self.queue = queue
+        
     def run(self):
         while True:
             # Retrieves the task from the queue
-            jobId,task,inputdata,callback = main_queue.get()
+            jobId,task,inputdata,callback = self.queue.getNextJob()
             
             # Base dictonnary with output
             basedict = {"task":task,"input":inputdata}
@@ -32,7 +32,7 @@ class JobManager (threading.Thread):
                 try:
                     emul_result = self.runJob(jobId, task, {"limits": task.getLimits(), "input": inputdata})
                     print json.dumps(emul_result, sort_keys=True, indent=4, separators=(',', ': '))
-                except Exception as inst:
+                except Exception:
                     emul_result = {"result":"error","text":"The grader did not gave any output. This can be because you used too much memory."}
                 
                 if finaldict['result'] not in ["error","failed","success","timeout","overflow"]:
@@ -70,159 +70,10 @@ class JobManager (threading.Thread):
                     finaldict = basedict.copy()
                     finaldict.update({"result":emul_result["result"],"text":"Your code took too much memory or disk"})
             
-
-            main_dict[jobId] = finaldict
+            self.queue.setResult(jobId, finaldict)
             if callback != None:
                 callback(jobId, finaldict)
-    @abc.abstractmethod
+                
+    @abstractmethod
     def runJob(self, jobId, task, inputdata):
         pass
-
-def createDockerConnection():
-    """ Creates a new connection to the Docker daemon """
-    return docker.Client(base_url=INGIniousConfiguration["dockerServerUrl"])
-
-def buildDockerContainer(docker,container):
-    """ Ensures a container is up to date """
-    r=docker.build(path=os.path.join(INGIniousConfiguration["containersDirectory"],container),tag=INGIniousConfiguration["containerPrefix"]+container,rm=True)
-    for i in r:
-        if i == "\n" or i == "\r\n":
-            continue
-        try:
-            j = json.loads(i)
-        except:
-            raise Exception("Error while building "+container+": can't read Docker output")
-        if 'error' in j:
-            raise Exception("Error while building "+container+": Docker returned error"+j["error"])
-            
-def buildAllDockerContainers():
-    """ Ensures all containers are up to date """
-    print "- Building containers"
-    docker = createDockerConnection()
-    containers = [ f for f in os.listdir(INGIniousConfiguration["containersDirectory"]) if os.path.isdir(os.path.join(INGIniousConfiguration["containersDirectory"], f)) and os.path.isfile(os.path.join(INGIniousConfiguration["containersDirectory"], f, "Dockerfile"))]
-    for container in containers:
-        print "\tbuilding "+container
-        try:
-            buildDockerContainer(docker,container)
-        except Exception as inst:
-            print "\tthere was an error while building the container:"
-            print "\t\t"+str(inst)
-    print "- Containers have been built"
-    
-class DockerJobManager (JobManager):
-    def __init__(self):
-        JobManager.__init__(self)
-        self.docker = createDockerConnection()
-
-    def getSockets(self,containerId):
-        """ Utility function to get stdin of a container """
-        return self.docker.attach_socket(containerId,{'stdin': 1, 'stream': 1})
-    
-    def runJob(self, jobId, task, inputdata):
-        """ Runs the job by launching a container """
-        #limits: currently we only supports time and memory limits. 
-        #Memory is the memory used by the VM, in megabytes, and time is the time taken by the script (not the VM!) in seconds
-        memLimit = task.getLimits()["memory"]
-        if memLimit < 20:
-            memLimit = 20
-        elif memLimit > 500:
-            memLimit = 500
-        
-        response = self.docker.create_container(
-            INGIniousConfiguration["containerPrefix"]+task.getEnvironment(), 
-            stdin_open=True, 
-            network_disabled=True, 
-            volumes={'/ro/task':{}},
-            mem_limit=memLimit*1024*1024
-        )
-        containerId = response["Id"]
-        self.docker.start(containerId, binds={os.path.abspath(os.path.join(INGIniousConfiguration["tasksDirectory"],task.getCourseId(),task.getId())):{'ro':True,'bind':'/ro/task'}})
-        self.getSockets(containerId).send(json.dumps(inputdata)+"\n")
-        self.docker.wait(containerId)
-        # Get the std outputs
-        stdout = str(self.docker.logs(containerId, stdout=True, stderr=False))
-        stderr = str(self.docker.logs(containerId, stdout=False, stderr=True))
-        # Delete used containers to avoid using too much disk space
-        self.docker.remove_container(containerId, True, False, True)
-        return json.loads(stdout)
-
-def addJob(task, inputdata, callback = None):
-    """ Add a job in the queue and returns a job id.
-        task is a Task instance and inputdata is the input as a dictionary
-        callback is a function (that can be None) that will be called ASYNC when the job is done. 
-        The callback receives the jobId as argument"""
-        
-    # Put task in the job queue
-    addJob.cur_id  += 1
-    jobId = addJob.cur_id
-    main_queue.put((jobId,task,inputdata,callback))
-    main_dict[jobId] = None
-    
-    # Returns the jobId
-    return jobId
-
-def isRunning(jobId):
-    """ Tells if a job given by job id is running/in queue """
-    if main_dict.has_key(jobId):
-        return main_dict[jobId] == None
-    else:
-        return False
-
-def isDone(jobId):
-    """ Tells if a job given y job id is done and its result is available """
-    if main_dict.has_key(jobId):
-        return main_dict[jobId] != None
-    else:
-        return False
-
-def getResult(jobId):
-    """ Returns the result of a job given by a job id or None if the job is not finished/in queue. 
-        If the job is finished, subsequent call to getResult will return None (job is deleted) 
-        Results are dictionnaries with content similar to:
-        {
-            "task":task, #mandatory
-            "input":inputdata,#mandatory
-            "result": "error", #mandatory
-            "text": "Error message to be displayed on the top of the exercice", 
-            "problems":{"pb1":"Error message for pb1"}, 
-            "archive":"archive in base 64"
-        }
-        
-        available result type are
-        * error: VM crashed
-        * failed: student made an error in his answers
-        * success: student solved the exercice
-        * timeout: student's code has timeout
-        * overflow: memory or disk overflow
-    """
-    result = None
-    
-    # Delete result from dictionary if there is sth
-    if main_dict.has_key(jobId) and (not main_dict[jobId] == None):
-        result = main_dict[jobId]
-        del main_dict[jobId]
-        
-    return result
-
-# Initialization
-addJob.cur_id = 0 # static variable
-main_queue = Queue.Queue()
-main_dict = {}
-
-# Build the containers if needed
-if "buildContainersOnStart" in INGIniousConfiguration and INGIniousConfiguration["buildContainersOnStart"]:
-    buildAllDockerContainers()
-    
-# Launch the job managers
-try:
-    jobManagerCount = int(INGIniousConfiguration["jobManagers"])
-except:
-    print "Configuration entry 'jobManagers' must be an integer"
-    jobManagerCount = 1
-if jobManagerCount < 1:
-    print "Configuration entry 'jobManagers' must be greater than 1"
-for i in range(0, jobManagerCount):
-    print "Starting Job Manager #"+str(i)
-    thread = DockerJobManager()
-    thread.daemon = True
-    thread.start()

@@ -1,6 +1,5 @@
-""" Compatibility layer to allow app_frontend to retain some informations about who created a job"""
-
-import backend.job_manager
+from backend.simple_job_queue import SimpleJobQueue
+from backend.docker_job_manager import DockerJobManager
 import frontend.user as User
 from frontend.base import database, gridFS
 from common.base import INGIniousConfiguration
@@ -16,8 +15,14 @@ import json
 import StringIO
 import tarfile
 
+submissionGitSaver = None
+jobQueue = None
+jobManagers = []
+
 def initBackendInterface():
-    """ Ensures some indexes """
+    """ inits everything that makes the backend working """
+    
+    # Ensures some indexes
     database.submissions.ensure_index([ ("username",pymongo.ASCENDING) ])
     database.submissions.ensure_index([ ("courseId",pymongo.ASCENDING) ])
     database.submissions.ensure_index([ ("courseId",pymongo.ASCENDING), ("taskId",pymongo.ASCENDING) ])
@@ -27,9 +32,38 @@ def initBackendInterface():
     database.taskstatus.ensure_index([ ("courseId",pymongo.ASCENDING) ])
     database.taskstatus.ensure_index([ ("courseId",pymongo.ASCENDING), ("taskId",pymongo.ASCENDING) ])
     
-    """ Updates the submissions that have a jobId with the status error, as the server restarted """
+    # Updates the submissions that have a jobId with the status error, as the server restarted """
     database.submissions.update({'jobId':{"$exists":True}},{"$unset":{'jobId':""},"$set":{'status':'error','text':'Internal error. Server restarted'}})
-    pass
+    
+    # Launch the thread that saves submissions to the git repo
+    if INGIniousConfiguration["enableSubmissionRepo"]:
+        submissionGitSaver = SubmissionGitSaver()
+        submissionGitSaver.daemon = True
+        submissionGitSaver.start()
+        
+    # Create the job queue
+    global jobQueue
+    jobQueue = SimpleJobQueue()    
+    
+    # Launch the job managers
+    try:
+        jobManagerCount = int(INGIniousConfiguration["jobManagers"])
+    except:
+        print "Configuration entry 'jobManagers' must be an integer"
+        jobManagerCount = 1
+    if jobManagerCount < 1:
+        print "Configuration entry 'jobManagers' must be greater than 1"
+    for i in range(0, jobManagerCount):
+        print "Starting Job Manager #"+str(i)
+        thread = DockerJobManager(jobQueue,INGIniousConfiguration["dockerServerUrl"], INGIniousConfiguration["tasksDirectory"], INGIniousConfiguration["containersDirectory"], INGIniousConfiguration["containerPrefix"])
+        
+        # Build the containers if needed
+        if i == 0 and "buildContainersOnStart" in INGIniousConfiguration and INGIniousConfiguration["buildContainersOnStart"]:
+            thread.buildAllDockerContainers()
+            
+        thread.daemon = True
+        thread.start()
+        jobManagers.append(thread)
 
 def getSubmission(submissionId,userCheck=True):
     s = database.submissions.find_one({'_id': ObjectId(submissionId)})
@@ -79,7 +113,7 @@ def addJob(task, inputdata):
     
     username = User.getUsername()
     
-    jobId = backend.job_manager.addJob(task, inputdata, jobDoneCallback)
+    jobId = jobQueue.addJob(task, inputdata, jobDoneCallback)
     obj = {"username":username,"courseId":task.getCourseId(),"taskId":task.getId(),"input":inputdata,"status":"waiting","jobId":jobId,"submittedOn":datetime.now()}
     submissionId = database.submissions.insert(obj)
     return submissionId
@@ -175,10 +209,3 @@ def getUserLastSubmissions(query,limit):
     cursor = database.submissions.find(request)
     cursor.sort([("submittedOn",-1)]).limit(limit)
     return list(cursor)
-
-# Launch the thread that saves submissions to the git repo
-submissionGitSaver = None
-if INGIniousConfiguration["enableSubmissionRepo"]:
-    submissionGitSaver = SubmissionGitSaver()
-    submissionGitSaver.daemon = True
-    submissionGitSaver.start()
