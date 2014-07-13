@@ -8,5 +8,7 @@
 	"buildContainersOnStart": true,
 	
 	"enableSubmissionRepo": true,
-	"submissionRepoDirectory": "./repo_submissions"
+	"submissionRepoDirectory": "./repo_submissions",
+	
+	"allowHTML": "tidy"
 }
