@@ -4,10 +4,17 @@ from common.courses import Course
 from frontend.base import renderer
 import frontend.user as User
 from frontend.base import database
+from bson.objectid import ObjectId
+from frontend.base import database, gridFS
 import json
 from common.tasks import Task
+import os
 from os import listdir
 from os.path import isfile, join, splitext
+import tarfile
+import tempfile
+import sys
+import time
 
 # Course administration page
 class AdminCoursePage:
@@ -18,6 +25,15 @@ class AdminCoursePage:
                 course = Course(courseId)
                 if User.getUsername() not in course.getAdmins():
                     raise web.notfound()
+                
+                userInput = web.input();
+                if "dl" in userInput:
+                    if userInput['dl'] == 'submission':
+                        return self.downloadSubmission(userInput['id'])
+                    elif userInput['dl'] == 'student_task':
+                        return self.downloadStudentTask(course, userInput['username'], userInput['task'])
+                    elif userInput['dl'] == 'student':
+                        return self.downloadStudent(course, userInput['username'])
                 
                 output = self.compute(course)
                 print json.dumps(output,sort_keys=True, indent=4, separators=(',', ': '))
@@ -30,6 +46,65 @@ class AdminCoursePage:
         else:
             return renderer.index(False)
     
+    def downloadSubmissionSet(self, submissions, filename, subFolders):
+        try:
+            tmpfile = tempfile.TemporaryFile()
+            tar = tarfile.open(fileobj=tmpfile, mode='w:')
+            
+            for submission in submissions:
+                if 'archive' not in submission or submission['archive'] == None:
+                    continue
+                subfile = gridFS.get(submission['archive'])
+                
+                taskfname = str(submission["_id"])+'.tgz'
+                # Generate file info
+                if 'taskId' in subFolders:
+                    taskfname = submission['taskId'] + '/' + taskfname
+                
+                if 'username' in subFolders:
+                    taskfname = submission['username'] + '/' + taskfname
+                    
+                info = tarfile.TarInfo(name=taskfname)
+                info.size = subfile.length
+                info.mtime = time.mktime(subfile.upload_date.timetuple())
+                
+                # Add file in tar archive
+                tar.addfile(info, fileobj=subfile)
+            
+            # Close tarfile and put tempfile cursor at 0
+            tar.close()
+            tmpfile.seek(0)
+            web.header('Content-Type','application/x-gzip', unique=True)
+            web.header('Content-Disposition','attachment; filename="' + filename +'"', unique=True)
+            return tmpfile.read()
+        except:
+            raise web.notfound()
+    
+    def downloadCourse(self, course, taskId):
+        submissions = database.submissions.find({"courseId":course.getId(),"status":{"$in":["done","error"]}})
+        return self.downloadSubmissionSet(submissions, '_'.join([course.getId(), taskId]) + '.tgz', ['task', 'username'])  
+    
+    def downloadTask(self, course, taskId):
+        submissions = database.submissions.find({"taskId":taskId,"courseId":course.getId(),"status":{"$in":["done","error"]}})
+        return self.downloadSubmissionSet(submissions, '_'.join([course.getId(), taskId]) + '.tgz', ['username'])  
+    
+    def downloadStudent(self, course, username):
+        submissions = database.submissions.find({"username":username,"courseId":course.getId(),"status":{"$in":["done","error"]}})
+        return self.downloadSubmissionSet(submissions, '_'.join([username,course.getId()]) + '.tgz', ['taskId'])    
+    
+    def downloadStudentTask(self, course, username, taskId):
+        submissions = database.submissions.find({"username":username,"courseId":course.getId(), "taskId":taskId ,"status":{"$in":["done","error"]}})
+        return self.downloadSubmissionSet(submissions, '_'.join([username,course.getId(),taskId]) + '.tgz', [])
+    
+    def downloadSubmission(self, subid):
+        try:
+            submission = database.submissions.find_one({'_id': ObjectId(subid)})
+            web.header('Content-Type','application/x-gzip', unique=True)
+            web.header('Content-Disposition','attachment; filename="' + '_'.join([submission["username"],submission["courseId"],submission["taskId"],str(submission["_id"])]) + '.tgz"', unique=True)
+            return gridFS.get(submission['archive']).read()
+        except:
+            raise web.notfound()
+        
     #Compute everything that is needed:
     def compute(self,course):
         output={"students":{},"tasks":{},"taskErrors":{}}
