@@ -14,6 +14,7 @@ import shutil
 import json
 import StringIO
 import tarfile
+import base64
 
 submissionGitSaver = None
 jobQueue = None
@@ -90,7 +91,7 @@ def jobDoneCallback(jobId,job):
                 "result":job["result"],
                 "text":(job["text"] if "text" in job else None),
                 "problems":(job["problems"] if "problems" in job else {}),
-                "archive":(gridFS.put(job["archive"]) if "archive" in job else None)
+                "archive":(gridFS.put(base64.b64decode(job["archive"])) if "archive" in job else None)
             }
         }
     )
@@ -156,12 +157,12 @@ class SubmissionGitSaver (threading.Thread):
         self.queue.put(submissionId)
     def run(self):
         while True:
-            try:
-                submission,job = self.queue.get()
-                self.save(submission, job)
-            except Exception as inst:
-                print "Exception in JobSaver: "+str(inst)
-                pass
+            #try:
+            submission,job = self.queue.get()
+            self.save(submission, job)
+            #except Exception as inst:
+            #    print "Exception in JobSaver: "+str(inst)
+            #    pass
     def save(self,submission,job):
         #Save submission to repo
         print "Save submission "+str(submission["_id"])+" to git repo"
@@ -187,7 +188,7 @@ class SubmissionGitSaver (threading.Thread):
         open(os.path.join(dirname,'result.json'),"w+").write(json.dumps(resultObj))
         if "archive" in job:
             os.mkdir(os.path.join(dirname,'output'))
-            tar = tarfile.open(mode='w:gz',fileobj=StringIO(job["archive"]))
+            tar = tarfile.open(mode='r:gz',fileobj=StringIO.StringIO(base64.b64decode(job["archive"])))
             tar.extractall(os.path.join(dirname,'output'))
             tar.close()
             
