@@ -6,24 +6,27 @@ import getopt
 
 def load_feedback():
     """ Open existing feedback file """
+    result = {}
     if os.path.exists('/.__output/__feedback.json'):
         f = open('/.__output/__feedback.json', 'r')
         cont = f.read()
         f.close()
     else:
         cont = '{}'
-    return json.loads(cont)
+    try:
+        result = json.loads(cont)
+    except ValueError, e:
+        result = {"result":"crash", "text":"Feedback file has been modified by user !"}
+    return result
 
 def save_feedback(rdict):
     """ Save feedback file """
     # Check for output folder
-    try:
+    if not os.path.exists('/.__output'):
         os.makedirs('/.__output/')
-    except OSError, e:
-        pass
     
     jcont = json.dumps(rdict)
-    f = codecs.open('/.__output/__feedback.json', 'w')
+    f = open('/.__output/__feedback.json', 'w')
     f.write(jcont)
     f.close()
 

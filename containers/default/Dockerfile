@@ -23,4 +23,8 @@ RUN     echo "inginious" > /usr/lib/python2.7/site-packages/inginious.pth
 RUN     rm -R /INGInious/bin
 RUN     rm -R /INGInious/inginious
 
+# Create worker user
+RUN     groupadd --gid 4242 worker
+RUN     useradd --uid 4242 --gid 4242 worker
+
 CMD ["INGInious"]

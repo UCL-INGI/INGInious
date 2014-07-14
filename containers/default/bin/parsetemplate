@@ -10,7 +10,7 @@ import inginious
 from inginious import templateparser
 
 def usage():
-    print "Usage : parse [-o|--output ]output_file input_file"
+    print "Usage : parsetemplate [-o|--output ]output_file input_file"
     print "JSON must be passed trough stdin"
     sys.exit(1)
 
@@ -36,7 +36,8 @@ if outfile == '':
 
 # Retrieves the input data from INGInious and open input file
 try:
-    input_data = json.loads(sys.stdin.read().strip('\0').strip())
+    with open('/.__input/__inputdata.json', 'r') as file:
+        input_data = json.loads(file.read().strip('\0').strip())
     with codecs.open(infile, 'r', 'utf-8') as file:
         content = file.read()
     content = inginious.templateparser.parseTemplate(content, input_data)
