@@ -58,11 +58,11 @@ class AdminCoursePage:
                 
                 taskfname = str(submission["_id"])+'.tgz'
                 # Generate file info
-                if 'taskId' in subFolders:
-                    taskfname = submission['taskId'] + '/' + taskfname
-                
-                if 'username' in subFolders:
-                    taskfname = submission['username'] + '/' + taskfname
+                for subFolder in SubFolders:
+                    if subFolder == 'taskId':
+                        taskfname = submission['taskId'] + '/' + taskfname
+                    elif subFolder == 'username':
+                        taskfname = submission['username'] + '/' + taskfname
                     
                 info = tarfile.TarInfo(name=taskfname)
                 info.size = subfile.length
@@ -82,7 +82,7 @@ class AdminCoursePage:
     
     def downloadCourse(self, course, taskId):
         submissions = database.submissions.find({"courseId":course.getId(),"status":{"$in":["done","error"]}})
-        return self.downloadSubmissionSet(submissions, '_'.join([course.getId(), taskId]) + '.tgz', ['task', 'username'])  
+        return self.downloadSubmissionSet(submissions, '_'.join([course.getId(), taskId]) + '.tgz', ['username', 'taskId'])  
     
     def downloadTask(self, course, taskId):
         submissions = database.submissions.find({"taskId":taskId,"courseId":course.getId(),"status":{"$in":["done","error"]}})
