@@ -10,6 +10,8 @@ from os.path import isfile, join
 import xmltodict
 import tempfile
 import time
+import tarfile
+import base64
 
 def copytree(src, dst, symlinks=False, ignore=None):
     """ Custom copy tree to allow to copy into existing directories """
@@ -61,12 +63,15 @@ def executeProcess(filename,stdinString):
     stderr.seek(0)
     return stdout.read(), stderr.read()
 
-#def get_tarfile(output_filename, source_dir):
-    #with tarfile.open(output_filename, "w:gz") as tar:
-        #tar.add(source_dir, arcname=os.path.basename(source_dir))
+def get_tarfile(source_dir):
+    encoded_string = ''
+    with tarfile.open('/job/output/files/archive.tgz', "w:gz") as tar:
+        tar.add(source_dir, arcname=os.path.basename(source_dir))
         
-    #with open(output_filename, "rb") as tar:
-        #encoded_string = base64.b64encode(tar.read())
+    with open('/job/output/files/archive.tgz', "rb") as tar:
+        encoded_string = base64.b64encode(tar.read())
+        
+    return encoded_string
 
 #get input data
 stdin = sys.stdin.read().strip('\0').strip()
@@ -140,12 +145,14 @@ if os.path.exists("/job/run.sh"):
 shutil.copytree("/tmp/work/output","/job/output/files")
 open("/job/output/status","w").write("done")
 
+archivetosend=get_tarfile('/job/output/files')
+
 setDirectoryRights("/job")
 os.chdir("/job")
 try:
     stdout, stderr = executeProcess("/job/feedback.sh", "")
 except:
-    print json.dumps({"result":"crash","text":"Feedback.sh did a timeout","problems":{},"v0out":stdOutputData})
+    print json.dumps({"result":"crash","text":"Feedback.sh did a timeout","problems":{},"v0out":stdOutputData, "archive":archivetosend})
     exit()
 stdOutputData["stdout"] = stdOutputData["stdout"]+"FEEDBACK: "+stdout+"\n"
 stdOutputData["stderr"] = stdOutputData["stderr"]+"FEEDBACK: "+stderr+"\n"
@@ -163,7 +170,7 @@ if os.path.exists("feedback.xml"):
     elif "question" in feedback: #ordered dict
         if "#text" in feedback["question"]:
             problems = {feedback["question"]["@id"]: feedback["question"]["#text"]}
-    print json.dumps({"result":("success" if feedback["verdict"] == "OK" else "failed"),"text":text,"problems":problems,"v0out":stdOutputData})
+    print json.dumps({"result":("success" if feedback["verdict"] == "OK" else "failed"),"text":text,"problems":problems,"v0out":stdOutputData, "archive":archivetosend})
 else:
-    print json.dumps({"result":"crash","text":"The grader did not give any input","problems":{},"v0out":stdOutputData})
+    print json.dumps({"result":"crash","text":"The grader did not give any input","problems":{},"v0out":stdOutputData, "archive":archivetosend})
 
