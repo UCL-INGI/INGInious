@@ -22,6 +22,8 @@ def copytree(src, dst, symlinks=False, ignore=None):
             shutil.copy2(s, d)
 
 def setDirectoryRights(path):
+    os.chmod(path, 0o777)
+    os.chown(path, 4242, 4242)
     for root, dirs, files in os.walk(path):  
         for d in dirs:
             os.chmod(os.path.join(root, d), 0o777)
@@ -59,6 +61,13 @@ def executeProcess(filename,stdinString):
     stderr.seek(0)
     return stdout.read(), stderr.read()
 
+#def get_tarfile(output_filename, source_dir):
+    #with tarfile.open(output_filename, "w:gz") as tar:
+        #tar.add(source_dir, arcname=os.path.basename(source_dir))
+        
+    #with open(output_filename, "rb") as tar:
+        #encoded_string = base64.b64encode(tar.read())
+
 #get input data
 stdin = sys.stdin.read().strip('\0').strip()
 data = json.loads(stdin)
@@ -88,7 +97,7 @@ copytree("/pythia/lib","/job/input/lib")
 setDirectoryRights("/job")
 setDirectoryRights("/tmp")
 setDirectoryRights("/pythia")
-setDirectoryRights("/tmp/work")
+setDirectoryRights("/tmp")
 
 #Launch everything
 stdOutputData={"stdout":"","stderr":""}

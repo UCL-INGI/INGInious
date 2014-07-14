@@ -42,6 +42,6 @@ RUN     echo "lib" > /usr/lib/python3.4/dist-packages/lib.pth
 
 # Create worker user
 RUN     addgroup --gid 4242 worker
-RUN     adduser --uid 4242 --gid 4242 worker
+RUN     useradd --uid 4242 --gid 4242 worker
 
 CMD ["python", "/pythia/pythia.py"]
