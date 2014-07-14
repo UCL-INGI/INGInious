@@ -47,7 +47,7 @@ class AdminCoursePage:
             return renderer.index(False)
     
     def downloadSubmissionSet(self, submissions, filename, subFolders):
-        try:
+        #try:
             tmpfile = tempfile.TemporaryFile()
             tar = tarfile.open(fileobj=tmpfile, mode='w:')
             
@@ -58,7 +58,7 @@ class AdminCoursePage:
                 
                 taskfname = str(submission["_id"])+'.tgz'
                 # Generate file info
-                for subFolder in SubFolders:
+                for subFolder in subFolders:
                     if subFolder == 'taskId':
                         taskfname = submission['taskId'] + '/' + taskfname
                     elif subFolder == 'username':
@@ -77,8 +77,8 @@ class AdminCoursePage:
             web.header('Content-Type','application/x-gzip', unique=True)
             web.header('Content-Disposition','attachment; filename="' + filename +'"', unique=True)
             return tmpfile.read()
-        except:
-            raise web.notfound()
+        #except:
+        #    raise web.notfound()
     
     def downloadCourse(self, course, taskId):
         submissions = database.submissions.find({"courseId":course.getId(),"status":{"$in":["done","error"]}})
