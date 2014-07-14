@@ -80,9 +80,9 @@ class AdminCoursePage:
         except:
             raise web.notfound()
     
-    def downloadCourse(self, course, taskId):
+    def downloadCourse(self, course):
         submissions = database.submissions.find({"courseId":course.getId(),"status":{"$in":["done","error"]}})
-        return self.downloadSubmissionSet(submissions, '_'.join([course.getId(), taskId]) + '.tgz', ['username', 'taskId'])  
+        return self.downloadSubmissionSet(submissions, '_'.join([course.getId()]) + '.tgz', ['username', 'taskId'])  
     
     def downloadTask(self, course, taskId):
         submissions = database.submissions.find({"taskId":taskId,"courseId":course.getId(),"status":{"$in":["done","error"]}})
