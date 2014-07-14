@@ -66,7 +66,7 @@ def executeProcess(filename,stdinString):
 def get_tarfile(source_dir):
     encoded_string = ''
     with tarfile.open('/job/output/files/archive.tgz', "w:gz") as tar:
-        tar.add(source_dir, arcname=os.path.basename(source_dir))
+        tar.add(source_dir, arcname='/', recursive=True)
         
     with open('/job/output/files/archive.tgz', "rb") as tar:
         encoded_string = base64.b64encode(tar.read())
@@ -145,18 +145,17 @@ if os.path.exists("/job/run.sh"):
 shutil.copytree("/tmp/work/output","/job/output/files")
 open("/job/output/status","w").write("done")
 
-archivetosend=get_tarfile('/job/output/files')
-
 setDirectoryRights("/job")
 os.chdir("/job")
 try:
     stdout, stderr = executeProcess("/job/feedback.sh", "")
 except:
-    print json.dumps({"result":"crash","text":"Feedback.sh did a timeout","problems":{},"v0out":stdOutputData, "archive":archivetosend})
+    print json.dumps({"result":"crash","text":"Feedback.sh did a timeout","problems":{},"v0out":stdOutputData})
     exit()
 stdOutputData["stdout"] = stdOutputData["stdout"]+"FEEDBACK: "+stdout+"\n"
 stdOutputData["stderr"] = stdOutputData["stderr"]+"FEEDBACK: "+stderr+"\n"
 
+archivetosend=get_tarfile('/job/output/files')
 
 if os.path.exists("feedback.xml"):
     fileF = open("feedback.xml","r")
