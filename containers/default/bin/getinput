@@ -1,0 +1,30 @@
+#!/usr/bin/python
+# Tool to import answer from standard input to the template files given in arguments
+import os
+import re
+import sys
+import codecs
+import json
+import getopt
+import inginious
+from inginious import templateparser
+
+def usage():
+    print "Usage : getinput problem_id"
+    sys.exit(1)
+
+# Read arguments from the command line
+if not sys.argv[1:]:
+    usage()
+
+# Retrieves the input data from INGInious and open input file
+try:
+    with open('/.__input/__inputdata.json', 'r') as file:
+        input_data = json.loads(file.read().strip('\0').strip())
+    print input_data['input'][sys.argv[1]]
+except IOError, e:
+    sys.stderr.write("Input file not found")
+    sys.exit(2)
+except ValueError, e:
+    sys.stderr.write("Input is not compatible")
+    sys.exit(2)
