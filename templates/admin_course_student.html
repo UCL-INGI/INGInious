@@ -1,0 +1,50 @@
+$def with (course,username,data)
+$ userData= UserData(username).getData()
+$var title: $:userData["realname"] - $:course.getName()
+
+
+<ol class="breadcrumb">
+  <li><a href="/index">Home</a></li>
+  <li><a href="/course/$course.getId()">$course.getName()</a></li>
+  <li><a href="/admin/$course.getId()">Manage</a></li>
+  <li class="active">Student - $userData["realname"]</li>
+</ol>
+<h2>Stats for $userData["realname"] ($username) - course $course.getName()</h2>
+<table class="table">
+    <tr>
+        <th>task</th>
+        <th>status</th>
+        <th># submissions</th>
+        <th>
+            <a href="/admin/${course.getId()}?dl=student&username=$username" class="btn btn-danger btn-xs">Download all submissions</a>
+            <a href="/admin/${course.getId()}/student/${username}?csv" class="btn btn-info btn-xs">CSV</a>
+        </th>
+    </tr>
+    $for taskId in data:
+    	<tr
+            $if data[taskId]["status"] == "notattemped":
+                class="warning"
+            $elif data[taskId]["status"] == "succeeded":
+                class="success"
+            $elif data[taskId]["status"] == "failed":
+                class="danger"
+        >
+    		<td><a href="/admin/${course.getId()}?dl=student_task&username=${username}&task=${taskId}">$data[taskId]["name"]</a></td>
+    		<td>
+                $if data[taskId]["status"] == "notviewed":
+                    Not viewed
+                $elif data[taskId]["status"] == "notattemped":
+                    Not attempted (viewed)
+                $elif data[taskId]["status"] == "succeeded":
+                    Succeeded
+                $else:
+                    Failed
+            </td>
+            <td>$data[taskId]["submissions"]</td>
+    		<td>
+                <a href="/course/${course.getId()}/$taskId" class="btn btn-default btn-xs">View task</a>
+    			<a href="/admin/${course.getId()}/student/$username/$taskId" class="btn btn-default btn-xs">View submissions</a>
+    			<a href="/admin/${course.getId()}?dl=student_task&username=${username}&task=${taskId}" class="btn btn-default btn-xs">Download submissions</a>
+    		</td>
+    	</tr>
+</table>

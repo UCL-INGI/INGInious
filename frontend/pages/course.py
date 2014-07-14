@@ -13,6 +13,7 @@ class CoursePage:
         if User.isLoggedIn():
             try:
                 course = Course(courseId)
+                User.getData().viewCourse(courseId)
                 lastSubmissions=course.getUserLastSubmissions()
                 exceptFreeLastSubmissions = []
                 for submission in lastSubmissions:

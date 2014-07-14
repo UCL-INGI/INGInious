@@ -31,8 +31,14 @@ def initBackendInterface():
     database.submissions.ensure_index([ ("submittedOn",pymongo.DESCENDING) ]) #sort speed
     
     database.user_tasks.ensure_index([("username",pymongo.ASCENDING),("courseId",pymongo.ASCENDING),("taskId",pymongo.ASCENDING)],unique=True)
-    database.user_courses.ensure_index([("username",pymongo.ASCENDING),("courseId",pymongo.ASCENDING)],unique=True)
+    database.user_tasks.ensure_index([("username",pymongo.ASCENDING),("courseId",pymongo.ASCENDING)])
+    database.user_tasks.ensure_index([("courseId",pymongo.ASCENDING),("taskId",pymongo.ASCENDING)])
+    database.user_tasks.ensure_index([("courseId",pymongo.ASCENDING)])
+    database.user_tasks.ensure_index([("username",pymongo.ASCENDING)])
     
+    database.user_courses.ensure_index([("username",pymongo.ASCENDING),("courseId",pymongo.ASCENDING)],unique=True)
+    database.user_courses.ensure_index([("courseId",pymongo.ASCENDING)])
+    database.user_courses.ensure_index([("username",pymongo.ASCENDING)])
     # Updates the submissions that have a jobId with the status error, as the server restarted """
     database.submissions.update({'jobId':{"$exists":True}},{"$unset":{'jobId':""},"$set":{'status':'error','text':'Internal error. Server restarted'}})
     

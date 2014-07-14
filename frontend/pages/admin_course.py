@@ -4,14 +4,82 @@ from common.courses import Course
 from frontend.base import renderer
 import frontend.user as User
 from frontend.base import database
-import json
 from common.tasks import Task
-from os import listdir
-from os.path import isfile, join, splitext
+import pymongo
+import csv
+import StringIO
+import cStringIO
+import codecs
 
-# Course administration page
-class AdminCoursePage:
-    # Simply display the page
+class UnicodeWriter:
+    """
+    A CSV writer which will write rows to CSV file "f",
+    which is encoded in the given encoding.
+    """
+
+    def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
+        # Redirect output to a queue
+        self.queue = cStringIO.StringIO()
+        self.writer = csv.writer(self.queue, dialect=dialect, **kwds)
+        self.stream = f
+        self.encoder = codecs.getincrementalencoder(encoding)()
+
+    def writerow(self, row):
+        self.writer.writerow([s.encode("utf-8") for s in row])
+        # Fetch UTF-8 output from the queue ...
+        data = self.queue.getvalue()
+        data = data.decode("utf-8")
+        # ... and reencode it into the target encoding
+        data = self.encoder.encode(data)
+        # write to the target stream
+        self.stream.write(data)
+        # empty queue
+        self.queue.truncate(0)
+
+    def writerows(self, rows):
+        for row in rows:
+            self.writerow(row)
+            
+def makeCSV(data):
+    columns = set()
+    output = [[]]
+    if isinstance(data, dict):
+        output[0].append("id")
+        for d in data:
+            for col in data[d]:
+                columns.add(col)
+    else:
+        for d in data:
+            for col in d:
+                columns.add(col)
+
+    for col in columns:
+        output[0].append(col)
+
+    if isinstance(data, dict):
+        for d in data:
+            no = [str(d)]
+            for col in columns:
+                no.append(unicode(data[d][col]) if col in data[d] else "")
+            output.append(no)
+    else:
+        for d in data:
+            no = []
+            for col in columns:
+                no.append(unicode(d[col]) if col in d else "")
+            output.append(no)
+
+    csvString = StringIO.StringIO()
+    csvwriter = UnicodeWriter(csvString)
+    for row in output:
+        csvwriter.writerow(row)
+    csvString.seek(0)
+    web.header('Content-Type','text/csv; charset=utf-8')
+    web.header('Content-disposition', 'attachment; filename=export.csv')
+    return csvString.read()
+    
+class AdminCourseStudentListPage:
+    """ Course administration page """
     def GET(self, courseId):
         if User.isLoggedIn():
             try:
@@ -19,9 +87,7 @@ class AdminCoursePage:
                 if User.getUsername() not in course.getAdmins():
                     raise web.notfound()
                 
-                output = self.compute(course)
-                print json.dumps(output,sort_keys=True, indent=4, separators=(',', ': '))
-                return renderer.admin_course(course,output)
+                return self.page(course)
             except:
                 if web.config.debug:
                     raise
@@ -30,77 +96,145 @@ class AdminCoursePage:
         else:
             return renderer.index(False)
     
-    #Compute everything that is needed:
-    def compute(self,course):
-        output={"students":{},"tasks":{},"taskErrors":{}}
-        #Get all students
-        students = list(database.submissions.distinct("username"))
-        for student in students:
-            #Init the output
-            data = database.usercache.find_one({"_id":student})
-            name = None
-            email = None
-            if data != None and "realname" in data and "email" in data:
-                name = data['realname']
-                email = data['email']
+    def page(self, course):
+        data = list(database.user_courses.find({"courseId":course.getId()}))
+        if "csv" in web.input():
+            return makeCSV(data)
+        return renderer.admin_course_student_list(course,data)
+
+class AdminCourseStudentInfoPage:
+    """ List information about a student """
+    def GET(self, courseId, username):
+        if User.isLoggedIn():
+            try:
+                course = Course(courseId)
+                if User.getUsername() not in course.getAdmins():
+                    raise web.notfound()
                 
-            output["students"][student] = {
-                "task_done":0, #out:done
-                "task_tried":0, #out:done
-                "total_tries":0, #out:done
-                "tasks":{}, #out:done
-                "name":name,
-                "email":email,
+                return self.page(course, username)
+            except:
+                if web.config.debug:
+                    raise
+                else:
+                    raise web.notfound()
+        else:
+            return renderer.index(False)
+        
+    def page(self, course, username):
+        data = list(database.user_tasks.find({"username":username, "courseId":course.getId()}))
+        tasks = course.getTasks()
+        result = {}
+        for taskId in tasks:
+            result[taskId] = {"name":tasks[taskId].getName(),"submissions":0,"status":"notviewed"}
+        for taskData in data:
+            if taskData["taskId"] in result:
+                result[taskData["taskId"]]["submissions"] = taskData["tried"]
+                if taskData["tried"] == 0:
+                    result[taskData["taskId"]]["status"] = "notattempted"
+                elif taskData["succeeded"]:
+                    result[taskData["taskId"]]["status"] = "succeeded"
+                else:
+                    result[taskData["taskId"]]["status"] = "failed"
+        if "csv" in web.input():
+            return makeCSV(result)
+        return renderer.admin_course_student(course,username,result)
+    
+
+class AdminCourseStudentTaskPage:
+    """ List information about a task done by a student """
+    def GET(self, courseId, username, taskId):
+        if User.isLoggedIn():
+            try:
+                course = Course(courseId)
+                if User.getUsername() not in course.getAdmins():
+                    raise web.notfound()
+                task = Task(courseId,taskId)
+                
+                return self.page(course, username, task)
+            except:
+                if web.config.debug:
+                    raise
+                else:
+                    raise web.notfound()
+        else:
+            return renderer.index(False)
+        
+    def page(self, course, username, task):
+        data = list(database.submissions.find({"username":username, "courseId":course.getId(), "taskId":task.getId()}).sort([("submittedOn",pymongo.DESCENDING)]))
+        if "csv" in web.input():
+            return makeCSV(data)
+        return renderer.admin_course_student_task(course,username,task,data)
+    
+class AdminCourseTaskListPage:
+    """ List informations about all tasks """
+    def GET(self, courseId):
+        if User.isLoggedIn():
+            try:
+                course = Course(courseId)
+                if User.getUsername() not in course.getAdmins():
+                    raise web.notfound()
+                
+                return self.page(course)
+            except:
+                if web.config.debug:
+                    raise
+                else:
+                    raise web.notfound()
+        else:
+            return renderer.index(False)
+        
+    def page(self, course):
+        data = database.user_tasks.aggregate(
+        [
+            {
+                "$match":{"courseId":course.getId()}
+            },
+            {
+                "$group":
+                {
+                    "_id":"$taskId",
+                    "viewed":{"$sum":1},
+                    "tried":{"$sum":"$tried"},
+                    "succeeded":{"$sum":{"$cond":["$succeeded",1,0]}}
+                }
             }
-        #Get all tasks
+        ])["result"]
+        result = {}
         tasks = course.getTasks()
         for taskId in tasks:
-            #Init the output
-            for student in students:
-                output["students"][student]["tasks"][taskId] = {
-                    "status":"notattempted", #out:done
-                    "name":tasks[taskId].getName(),
-                    "submissions":[] #out:done
-                }
-            output["tasks"][taskId]= {
-                "student_attempted":0, #out:done
-                "student_succeeded":0, #out:done
-                "name":tasks[taskId].getName(),
-                "submissions":[]
-            }
+            result[taskId] = {"name":tasks[taskId].getName(),"viewed":0, "tried":0, "succeeded":0}
+        for d in data:
+            if d["_id"] in result:
+                result[d["_id"]]["viewed"] = d["viewed"]
+                result[d["_id"]]["tried"] = d["tried"]
+                result[d["_id"]]["succeeded"] = d["succeeded"]
+        if "csv" in web.input():
+            return makeCSV(result)
+        return renderer.admin_course_task_list(course,result)
         
-        
-        #Get all submissions for this course, and parse everything!
-        submissions = database.submissions.find({"courseId":course.getId(),"status":{"$in":["done","error"]}})
-        for submission in submissions:
-            #if submission["status"] != "done" and submission["status"] != "error":
-            #    continue
-            taskId = submission["taskId"]
-            status = "failed"
-            if "result" in submission and submission["result"] == "success":
-                status = "succeeded"
-            student = submission["username"]
-            
-            output["students"][student]["total_tries"] = output["students"][student]["total_tries"]+1
-            if output["students"][student]["tasks"][taskId]["status"] == "notattempted":
-                output["students"][student]["task_tried"] = output["students"][student]["task_tried"]+1
-                output["tasks"][taskId]["student_attempted"] = output["tasks"][taskId]["student_attempted"]+1
-            if status == "succeeded":
-                if output["students"][student]["tasks"][taskId]["status"] != "succeeded":
-                    output["tasks"][taskId]["student_succeeded"] = output["tasks"][taskId]["student_succeeded"]+1
-                    output["students"][student]["task_done"] = output["students"][student]["task_done"]+1
-                output["students"][student]["tasks"][taskId]["status"] = status
-            elif output["students"][student]["tasks"][taskId]["status"] != "succeeded":
-                output["students"][student]["tasks"][taskId]["status"] = status
-            submissionSummary = {"id":str(submission["_id"]),"status":status,"submittedOn":submission["submittedOn"].strftime("%d/%m/%Y %H:%M:%S")}
-            output["students"][student]["tasks"][taskId]["submissions"].append(submissionSummary)
-            output["tasks"][taskId]["submissions"].append(submissionSummary)
-            
-        #Check if there are errors when loading some tasks
-        files = [ splitext(f)[0] for f in listdir(course.getCourseTasksDirectory()) if isfile(join(course.getCourseTasksDirectory(), f)) and splitext(join(course.getCourseTasksDirectory(), f))[1] == ".task"]
-        for task in files:
+class AdminCourseTaskInfoPage:
+    """ List informations about a task """
+    def GET(self, courseId, taskId):
+        if User.isLoggedIn():
             try:
-                Task(course.getId(), task)
-            except Exception as inst:
-                output[task] = str(inst)
-        return output
+                course = Course(courseId)
+                if User.getUsername() not in course.getAdmins():
+                    raise web.notfound()
+                task = Task(courseId, taskId)
+                
+                return self.page(course, task)
+            except:
+                if web.config.debug:
+                    raise
+                else:
+                    raise web.notfound()
+        else:
+            return renderer.index(False)
+        
+    def page(self, course, task):
+        data = list(database.user_tasks.find({"courseId":course.getId(), "taskId":task.getId()}))
+        if "csv" in web.input():
+            return makeCSV(data)
+        return renderer.admin_course_task_info(course,task,data)
+        
+        

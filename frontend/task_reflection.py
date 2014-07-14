@@ -72,6 +72,8 @@ def getUserStatus(self):
     import frontend.user as User #insert here to avoid initialisation of session
     task_cache = User.getData().getTaskData(self.getCourseId(), self.getId())
     if task_cache == None:
+        return "notviewed"
+    if task_cache["tried"] == 0:
         return "notattempted"
     return "succeeded" if task_cache["succeeded"] else "failed"
 Task.getUserStatus = getUserStatus

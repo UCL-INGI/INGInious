@@ -1,0 +1,37 @@
+$def with (course,data)
+$var title: $:course.getName()
+
+<ol class="breadcrumb">
+  <li><a href="/index">Home</a></li>
+  <li><a href="/course/$course.getId()">$course.getName()</a></li>
+  <li><a href="/admin/$course.getId()">Manage</a></li>
+  <li class="active">Tasks</li>
+</ol>
+<h2>Stats for tasks of course $course.getName()</h2>
+<h4><a href="/admin/${course.getId()}">Student view</a></h4>
+<table class="table">
+    <tr>
+        <th>task name</th>
+        <th># student viewed</th>
+        <th># student tried</th>
+        <th># student succeeded</th>
+        <th>
+        	<a href="/admin/${course.getId()}?dl=course" class="btn btn-danger btn-xs">Download all submissions</a>
+            <a href="/admin/${course.getId()}/tasks?csv" class="btn btn-info btn-xs">CSV</a>
+        </th>
+    </tr>
+    $for taskId in data:
+    	<tr>
+    		<td>
+    			<a href="/admin/${course.getId()}/task/$taskId">$data[taskId]["name"]</a>
+    		</td>
+    		<td>$data[taskId]["viewed"]</td>
+    		<td>$data[taskId]["tried"]</td>
+            <td>$data[taskId]["succeeded"]</td>
+    		<td>
+                <a href="/course/${course.getId()}/$taskId" class="btn btn-default btn-xs">View task</a>
+    			<a href="/admin/${course.getId()}/task/$taskId" class="btn btn-default btn-xs">View student list</a>
+    			<a href="/admin/${course.getId()}?dl=task&task=$taskId" class="btn btn-default btn-xs">Download submissions</a>
+    		</td>
+    	</tr>
+</table>

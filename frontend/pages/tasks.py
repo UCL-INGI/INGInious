@@ -16,6 +16,7 @@ class TaskPage:
         if User.isLoggedIn():
             try:
                 task = Task(courseId, taskId)
+                User.getData().viewTask(courseId, taskId)
                 return renderer.task(task,submission_manager.getUserSubmissions(task))
             except:
                 if web.config.debug:
@@ -29,6 +30,7 @@ class TaskPage:
         if User.isLoggedIn():
             try:
                 task = Task(courseId, taskId)
+                User.getData().viewTask(courseId, taskId)
                 userinput = web.input()
                 if "@action" in userinput and userinput["@action"] == "submit":
                     # Reparse user input with array for multiple choices

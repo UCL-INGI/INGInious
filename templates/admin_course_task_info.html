@@ -1,0 +1,52 @@
+$def with (course,task,data)
+$var title: $:task.getName() - $:course.getName()
+
+
+<ol class="breadcrumb">
+  <li><a href="/index">Home</a></li>
+  <li><a href="/course/$course.getId()">$course.getName()</a></li>
+  <li><a href="/admin/$course.getId()">Manage</a></li>
+  <li><a href="/admin/$course.getId()/tasks">Tasks</a></li>
+  <li class="active">Task "$task.getName()"</li>
+</ol>
+<h2>Stats for task "$task.getName()" - course $course.getName()</h2>
+<table class="table">
+    <tr>
+        <th>student</th>
+        <th>status</th>
+        <th># submissions</th>
+        <th>
+            <a href="/admin/${course.getId()}?dl=task&task=$task.getId()" class="btn btn-danger btn-xs">Download all submissions</a>
+            <a href="/admin/${course.getId()}/task/${task.getId()}?csv" class="btn btn-info btn-xs">CSV</a>
+        </th>
+    </tr>
+    $for taskData in data:
+        $ studentData=UserData(taskData["username"]).getData()
+    	<tr
+            $if taskData["tried"] != 0 and taskData["succeeded"]:
+                class="success"
+            $elif taskData["tried"] != 0:
+                class="danger"
+        >
+    		<td>
+                $if studentData["realname"] != "":
+                    <a href="/admin/${course.getId()}/student/$taskData["username"]">$studentData["realname"]</a> 
+                    (<a href="/admin/${course.getId()}/student/$taskData["username"]">$studentData["_id"]</a> - <a href='mailto:$studentData["email"]'>email</a>)
+                $else:
+                    $studentData["_id"]
+            </td>
+    		<td>
+                $if taskData["tried"] == 0:
+                    Not attempted (viewed)
+                $elif taskData["succeeded"]:
+                    Succeeded
+                $else:
+                    Failed
+            </td>
+            <td>$taskData["tried"]</td>
+    		<td>
+    			<a href="/admin/${course.getId()}/student/${taskData['username']}/$task.getId()" class="btn btn-default btn-xs">View submissions</a>
+    			<a href="/admin/${course.getId()}?dl=student_task&username=${taskData['username']}&task=$task.getId()" class="btn btn-default btn-xs">Download submissions</a>
+    		</td>
+    	</tr>
+</table>

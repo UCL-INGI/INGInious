@@ -1,0 +1,47 @@
+$def with (course,data)
+$var title: $:course.getName()
+
+<ol class="breadcrumb">
+  <li><a href="/index">Home</a></li>
+  <li><a href="/course/$course.getId()">$course.getName()</a></li>
+  <li class="active">Manage</li>
+</ol>
+<h2>Stats for course $course.getName()</h2>
+<h4><a href="/admin/${course.getId()}/tasks">Task view</a></h4>
+<table class="table">
+    <tr>
+        <th>student username</th>
+        <th># task tried</th>
+        <th># task done</th>
+        <th>progression</th>
+        <th>
+        	<a href="/admin/${course.getId()}?dl=course" class="btn btn-danger btn-xs">Download all submissions</a>
+        	<a href="/admin/${course.getId()}?csv" class="btn btn-info btn-xs">CSV</a>
+        </th>
+    </tr>
+    $for courseData in data:
+    	$ studentData=UserData(courseData["username"]).getData()
+    	<tr>
+    		<td>
+    			$if studentData["realname"] != "":
+    				<a href="/admin/${course.getId()}/student/$courseData["username"]">$studentData["realname"]</a> 
+    				(<a href="/admin/${course.getId()}/student/$courseData["username"]">$studentData["_id"]</a> - <a href='mailto:$studentData["email"]'>email</a>)
+    			$else:
+    				$studentData["_id"]
+    		</td>
+    		<td>$courseData["task_tried"]</td>
+    		<td>$courseData["task_succeeded"]</td>
+    		<td>
+    			<div class="progress">
+                    $ percentage=int(courseData["task_succeeded"]*100/len(course.getTasks()))
+                    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="$percentage" aria-valuemin="0" aria-valuemax="100" style="width: $percentage%">
+                        <span>$percentage%</span>
+                    </div>
+                </div>
+    		</td>
+    		<td>
+    			<a href="/admin/${course.getId()}/student/$courseData["username"]" class="btn btn-default btn-xs">View</a>
+    			<a href="/admin/${course.getId()}?dl=student&username=$courseData["username"]" class="btn btn-default btn-xs">Download submissions</a>
+    		</td>
+    	</tr>
+</table>

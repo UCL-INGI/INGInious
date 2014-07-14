@@ -11,7 +11,11 @@ urls = (
     '/index', 'frontend.pages.index.IndexPage',
     '/course/([^/]+)', 'frontend.pages.course.CoursePage',
     '/course/([^/]+)/([^/]+)', 'frontend.pages.tasks.TaskPage',
-    '/admin/([^/]+)', 'frontend.pages.admin_course.AdminCoursePage',
+    '/admin/([^/]+)', 'frontend.pages.admin_course.AdminCourseStudentListPage',
+    '/admin/([^/]+)/student/([^/]+)', 'frontend.pages.admin_course.AdminCourseStudentInfoPage',
+    '/admin/([^/]+)/student/([^/]+)/([^/]+)', 'frontend.pages.admin_course.AdminCourseStudentTaskPage',
+    '/admin/([^/]+)/tasks', 'frontend.pages.admin_course.AdminCourseTaskListPage',
+    '/admin/([^/]+)/task/([^/]+)', 'frontend.pages.admin_course.AdminCourseTaskInfoPage',
 )
 
 app = web.application(urls, globals())

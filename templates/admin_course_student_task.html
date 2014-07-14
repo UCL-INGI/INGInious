@@ -1,0 +1,42 @@
+$def with (course,username,task,data)
+$ userData= UserData(username).getData()
+$var title: $:task.getName() - $:userData["realname"] - $:course.getName()
+
+
+<ol class="breadcrumb">
+  <li><a href="/index">Home</a></li>
+  <li><a href="/course/$course.getId()">$course.getName()</a></li>
+  <li><a href="/admin/$course.getId()">Manage</a></li>
+  <li><a href="/admin/$course.getId()/student/$username">Student - $userData["realname"]</a></li>
+  <li class="active">Task - $:task.getName()</li>
+</ol>
+<h2>Submissions for the task "$:task.getName()" - $userData["realname"] ($username) - course $course.getName()</h2>
+<table class="table">
+    <tr>
+        <th>id</th>
+        <th>submitted on</th>
+        <th>result</th>
+        <th>
+            <a href="/admin/${course.getId()}?dl=student_task&username=${username}&task=${task.getId()}" class="btn btn-danger btn-xs">Download all submissions</a>
+            <a href="/admin/${course.getId()}/student/${username}/${task.getId()}?csv" class="btn btn-info btn-xs">CSV</a>
+        </th>
+    </tr>
+    $for submission in data:
+        $ succeeded = "result" in submission and submission["result"] == "success"
+    	<tr
+            $if succeeded:
+                class="success"
+            $else:
+                class="danger"
+        >
+    		<td>$submission["_id"]</td>
+            <td>$submission["submittedOn"]</td>
+            <td>
+                $if succeeded:
+                    Succeeded
+                $else:
+                    Failed
+            </td>
+            <td><a href="/admin/${course.getId()}?dl=submission&id=${submission['_id']}" class="btn btn-default btn-xs">Download</a></td>
+    	</tr>
+</table>
