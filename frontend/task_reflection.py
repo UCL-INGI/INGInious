@@ -69,9 +69,8 @@ MultipleChoiceProblem.showInput = MultipleChoiceProblemShowInput
 #Add utilities function to manage submissions from the task class
 def getUserStatus(self):
     """ Returns "succeeded" if the current user solved this task, "failed" if he failed, and "notattempted" if he did not try it yet """
-    from frontend.base import database 
     import frontend.user as User #insert here to avoid initialisation of session
-    task_cache = database.taskstatus.find_one({"username":User.getUsername(),"courseId":self.getCourseId(),"taskId":self.getId()})
+    task_cache = User.getData().getTaskData(self.getCourseId(), self.getId())
     if task_cache == None:
         return "notattempted"
     return "succeeded" if task_cache["succeeded"] else "failed"
@@ -80,13 +79,13 @@ Task.getUserStatus = getUserStatus
 #Add utilities function to manage submissions from the course class
 def getUserCompletionPercentage(self):
     """ Returns the percentage (integer) of completion of this course by the current user """
-    from frontend.base import database
     import frontend.user as User #insert here to avoid initialisation of session
-    taskIds=[]
-    for taskId in self.getTasks():
-        taskIds.append(taskId)
-    result = database.taskstatus.find({"username":User.getUsername(),"courseId":self.getId(),"taskId":{"$in":taskIds},"succeeded":True}).count()
-    return int(result*100/len(taskIds))
+    count = len(self.getTasks()) #already in cache
+    cache = User.getData().getCourseData(self.getId())
+    if cache == None:
+        return 0
+    return int(cache["task_succeeded"]*100/count)
+
 Course.getUserCompletionPercentage = getUserCompletionPercentage
 
 def getUserLastSubmissions(self,limit=5):

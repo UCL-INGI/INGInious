@@ -3,6 +3,9 @@ import ldap
 import common.base
 from frontend.session import session
 
+def getData():
+    import frontend.user_data
+    return frontend.user_data.UserData(session.username)
 
 def getUsername():
     """ Returns the username (which is unique) of the current user. Returns None if no user is logged in """
@@ -53,9 +56,8 @@ def connect(login, password):
             session.username = entry['uid'][0]
             session.realname = entry['cn'][0]
         
-        # Save username in the database (cache)
-        from frontend.base import database
-        database.usercache.save({"_id":session.username,"realname":session.realname,"email":session.email})
+        # Save everything in the database
+        getData().updateBasicInformations(session.realname,session.email)
         return True
     except ldap.LDAPError, e:
         return False
