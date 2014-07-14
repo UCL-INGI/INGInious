@@ -14,6 +14,7 @@ import shutil
 import json
 import StringIO
 import tarfile
+from user_data import UserData
 
 submissionGitSaver = None
 jobQueue = None
@@ -28,9 +29,8 @@ def initBackendInterface():
     database.submissions.ensure_index([ ("courseId",pymongo.ASCENDING), ("taskId",pymongo.ASCENDING) ])
     database.submissions.ensure_index([ ("submittedOn",pymongo.DESCENDING) ]) #sort speed
     
-    database.taskstatus.ensure_index([ ("username",pymongo.ASCENDING) ])
-    database.taskstatus.ensure_index([ ("courseId",pymongo.ASCENDING) ])
-    database.taskstatus.ensure_index([ ("courseId",pymongo.ASCENDING), ("taskId",pymongo.ASCENDING) ])
+    database.user_tasks.ensure_index([("username",pymongo.ASCENDING),("courseId",pymongo.ASCENDING),("taskId",pymongo.ASCENDING)],unique=True)
+    database.user_courses.ensure_index([("username",pymongo.ASCENDING),("courseId",pymongo.ASCENDING)],unique=True)
     
     # Updates the submissions that have a jobId with the status error, as the server restarted """
     database.submissions.update({'jobId':{"$exists":True}},{"$unset":{'jobId':""},"$set":{'status':'error','text':'Internal error. Server restarted'}})
@@ -94,15 +94,8 @@ def jobDoneCallback(jobId,job):
             }
         }
     )
+    UserData(submission["username"]).updateStatsWithNewSubmissionResult(submission,job)
     
-    #Update task status cache
-    task_cache = database.taskstatus.find_one({"username":submission["username"],"courseId":submission["courseId"],"taskId":submission["taskId"]})
-    print task_cache
-    if task_cache == None:
-        print database.taskstatus.insert({"username":submission["username"],"courseId":submission["courseId"],"taskId":submission["taskId"],"succeeded":(job["result"] == "success")})
-    elif not task_cache["succeeded"] and job["result"] == "success":
-        print database.taskstatus.save({"_id":task_cache["_id"],"username":submission["username"],"courseId":submission["courseId"],"taskId":submission["taskId"],"succeeded":(job["result"] == "success")})
-
     if submissionGitSaver != None:
         submissionGitSaver.add((submission,job))
         
