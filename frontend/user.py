@@ -55,7 +55,7 @@ def connect(login, password):
         
         # Save username in the database (cache)
         from frontend.base import database
-        database.usercache.insert({"_id":session.username,"realname":session.realname,"email":session.email})
+        database.usercache.save({"_id":session.username,"realname":session.realname,"email":session.email})
         return True
     except ldap.LDAPError, e:
         return False
