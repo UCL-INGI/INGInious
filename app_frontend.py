@@ -15,16 +15,17 @@ urls = (
 )
 
 app = web.application(urls, globals())
-frontend.session.init(app)
-
-#Must be done after frontend.session.init(app)
-import frontend.base
-def notfound():
-    return web.notfound(frontend.base.renderer.notfound())
-app.notfound = notfound
-#Idem
-import frontend.submission_manager
-frontend.submission_manager.initBackendInterface()
 
 if __name__ == "__main__":
+    frontend.session.init(app)
+
+    #Must be done after frontend.session.init(app)
+    import frontend.base
+    def notfound():
+        return web.notfound(frontend.base.renderer.notfound())
+    app.notfound = notfound
+    #Idem
+    import frontend.submission_manager
+    frontend.submission_manager.initBackendInterface()
+
     app.run()
