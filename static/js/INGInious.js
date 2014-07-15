@@ -322,8 +322,10 @@ function displayTaskErrorAlert(content)
 }
 
 //Displays a student error alert in task form
-function displayTaskStudentAlertWithProblems(content, topEmpty, topPrefix, prefix, type)
+function displayTaskStudentAlertWithProblems(content, topEmpty, topPrefix, prefix, type, alwaysShowTop)
 {
+	resetAlerts();
+	
 	firstPos = -1;
 	
 	if("text" in content && content.text != "")
@@ -346,7 +348,7 @@ function displayTaskStudentAlertWithProblems(content, topEmpty, topPrefix, prefi
 		});
 	}
 	
-	if(!("text" in content || "problems" in content))
+	if(firstPos == -1 || (alwaysShowTop && !("text" in content && content.text != "")))
 	{
 		$('#task_alert').html(getAlertCode(topEmpty,type,true));
 		firstPos = $("#task_alert").offset().top;
@@ -365,7 +367,7 @@ function displayTaskStudentErrorAlert(content)
 			"<b>There are some errors in your answer</b>",
 			"<b>There are some errors in your answer:</b><br/>",
 			"<b>There are some errors in your answer:</b><br/>",
-			"danger");
+			"danger",false);
 }
 
 //Displays a student success alert in task form
@@ -375,7 +377,7 @@ function displayTaskStudentSuccessAlert(content)
 			"<b>Your answer passed the tests!</b>",
 			"<b>Your answer passed the tests!</b><br/>",
 			"",
-			"success");
+			"success",true);
 }
 
 //Create an alert
