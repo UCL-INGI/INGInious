@@ -12,6 +12,7 @@ import tempfile
 import time
 import tarfile
 import base64
+import signal
 
 def copytree(src, dst, symlinks=False, ignore=None):
     """ Custom copy tree to allow to copy into existing directories """
@@ -37,7 +38,9 @@ def setDirectoryRights(path):
 def setlimits():
     os.setgid(4242)
     os.setuid(4242)
-    resource.setrlimit(resource.RLIMIT_CPU, (limits["time"], limits["time"]))
+    #Send a SIGXCPU after limits["time"], then a SIGKILL after limits["time"]+5
+    resource.setrlimit(resource.RLIMIT_CPU, (limits["time"], limits["time"]+5))
+    #Limit number of subprocesses
     resource.setrlimit(resource.RLIMIT_NPROC, (100, 100))
     
 def setExecutable(filename):
@@ -61,7 +64,12 @@ def executeProcess(filename,stdinString):
             raise Exception("Timeout")
     stdout.seek(0)
     stderr.seek(0)
-    return stdout.read(), stderr.read()
+    
+    status = p.returncode-128
+    if status == signal.SIGXCPU:
+        raise Exception("Timeout")
+    
+    return stdout.read()+" RETURN VALUE/"+str(p.returncode)+"/", stderr.read()
 
 def get_tarfile(source_dir):
     encoded_string = ''
