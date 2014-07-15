@@ -46,9 +46,9 @@ class Task:
             self.author = []
         
         #Order
-        self.order = None
+        self.order = -1
         if "order" in data:
-            self.order = str(data["order"])
+            self.order = int(data["order"])
         
         #Response is HTML
         self.responseIsHTML = "responseIsHTML" in data and data["contextIsHTML"]
