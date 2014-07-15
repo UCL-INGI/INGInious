@@ -81,16 +81,25 @@ data = json.loads(stdin)
 input_data = data["input"]
 limits = data["limits"]
 
+if sys.argv[1:] and sys.argv[1] == '--debug':
+    debug =True
+else:
+    debug = False
+
 # Create input data directory
-os.mkdir("/.__input")
-f = open('/.__input/__inputdata.json', 'w')
-f.write(stdin)
-f.close()
+if not os.path.exists('/.__input/__inputdata.json'):
+    os.mkdir("/.__input")
+    f = open('/.__input/__inputdata.json', 'w')
+    f.write(stdin)
+    f.close()
 
 # Create output directory
-os.mkdir("/.__output")
+if not os.path.exists('/.__output/'):
+    os.mkdir("/.__output")
 
 #Copy /ro/task (which is read-only) in /task. Everything will be executed there
+if os.path.exists('/task'):
+    shutil.rmtree('/task')
 shutil.copytree("/ro/task","/task")
 
 #Set rights on some files
@@ -105,8 +114,12 @@ if os.path.exists("/task/run"):
     os.chdir("/task")
     try:
         stdout, stderr = executeProcess("/task/run", "")
+        if debug:
+            print "STDOUT :\n--------\n" + stdout
+            print "STDERR :\n--------\n" + stderr
+            print "OUTPUT :\n--------\n"
     except:
-        print json.dumps({"result":"crash","text":"'/task/run' did a timeout","problems":{}})
+        print json.dumps({"result":"timeout","text":"'/task/run' did a timeout","problems":{}})
         exit()
 else:
     print json.dumps({"result":"crash","text":"'/task/run' couldn't be found","problems":{}})

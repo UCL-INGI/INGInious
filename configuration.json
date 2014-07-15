@@ -2,7 +2,7 @@
 	"tasksDirectory": "./tasks",
 	
 	"containersDirectory": "./containers",
-	"containerPrefix": "INGInious/",
+	"containerPrefix": "inginious/",
 	"dockerServerUrl": "unix:///var/run/docker.sock",
 	"jobManagers": 4,
 	"buildContainersOnStart": true,
