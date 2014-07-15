@@ -4,3 +4,4 @@
 *.py[cod]
 sessions*
 repo_submissions
+configuration.json
