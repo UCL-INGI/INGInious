@@ -3,7 +3,7 @@
 	
 	"containersDirectory": "./containers",
 	"containerPrefix": "inginious/",
-	"dockerServerUrl": "unix:///var/run/docker.sock",
+	"dockerServerUrl": "tcp://172.16.42.43:4243",
 	"jobManagers": 4,
 	"buildContainersOnStart": true,
 	
