@@ -198,7 +198,7 @@ function waitForSubmission(submissionId)
                 }
                 else if(data['result'] == "success")
                 {
-                    displayTaskStudentSuccessAlert();
+                    displayTaskStudentSuccessAlert(data);
                     updateSubmission(submissionId,data['result']);
                     updateTaskStatus("Succeeded");
                     unblurTaskForm();
@@ -322,13 +322,13 @@ function displayTaskErrorAlert(content)
 }
 
 //Displays a student error alert in task form
-function displayTaskStudentErrorAlert(content)
+function displayTaskStudentAlertWithProblems(content, topEmpty, topPrefix, prefix, type)
 {
 	firstPos = -1;
 	
-	if("text" in content)
+	if("text" in content && content.text != "")
 	{
-        $('#task_alert').html(getAlertCode("<b>There are some errors in your answer:</b><br/>"+content.text,"danger",true));
+        $('#task_alert').html(getAlertCode(topPrefix+content.text,type,true));
 		firstPos = $("#task_alert").offset().top;
 	}
 	
@@ -339,7 +339,7 @@ function displayTaskStudentErrorAlert(content)
 			problemId = elem.id.substr(11); //skip "task_alert."
 			if(problemId in content.problems)
 			{
-				$(elem).html(getAlertCode("<b>There are some errors in your answer:</b><br/>"+content.problems[problemId],"danger",true));
+				$(elem).html(getAlertCode(prefix+content.problems[problemId],type,true));
 				if(firstPos == -1 || firstPos > $(elem).offset().top)
 					firstPos = $(elem).offset().top;
 			}
@@ -348,7 +348,7 @@ function displayTaskStudentErrorAlert(content)
 	
 	if(!("text" in content || "problems" in content))
 	{
-		$('#task_alert').html(getAlertCode("<b>There are some errors in your answer</b>","danger",true));
+		$('#task_alert').html(getAlertCode(topEmpty,type,true));
 		firstPos = $("#task_alert").offset().top;
 	}
 	
@@ -358,14 +358,24 @@ function displayTaskStudentErrorAlert(content)
     }, 200);
 }
 
+//Displays a student error alert in task form
+function displayTaskStudentErrorAlert(content)
+{
+	displayTaskStudentAlertWithProblems(content,
+			"<b>There are some errors in your answer</b>",
+			"<b>There are some errors in your answer:</b><br/>",
+			"<b>There are some errors in your answer:</b><br/>",
+			"danger");
+}
+
 //Displays a student success alert in task form
 function displayTaskStudentSuccessAlert(content)
 {
-    $('#task_alert').html(getAlertCode("<b>Your answer passed the tests!</b>","success",true));
-    $('html, body').animate(
-    {
-        scrollTop: $("#task_alert").offset().top-100
-    }, 200);
+	displayTaskStudentAlertWithProblems(content,
+			"<b>Your answer passed the tests!</b>",
+			"<b>Your answer passed the tests!</b><br/>",
+			"",
+			"success");
 }
 
 //Create an alert
