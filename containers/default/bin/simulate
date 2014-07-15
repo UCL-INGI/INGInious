@@ -1,0 +1,91 @@
+#!/usr/bin/python
+import os
+import sys
+import json
+import getopt
+import inginious
+import shutil
+
+def load_input():
+    """ Open existing input file """
+    result = {}
+    if os.path.exists('/.__input/__inputdata.json'):
+        f = open('/.__input/__inputdata.json', 'r')
+        cont = f.read()
+        f.close()
+    else:
+        cont = '{"input":{}, "limits":{}}'
+    try:
+        result = json.loads(cont)
+    except ValueError, e:
+        print "Input file is corrupted !"
+        exit(2)
+    return result
+
+def save_input(rdict):
+    """ Save input file """
+    # Check for output folder
+    if not os.path.exists('/.__input'):
+        os.makedirs('/.__input/')
+    
+    jcont = json.dumps(rdict)
+    f = open('/.__input/__inputdata.json', 'w')
+    f.write(jcont)
+    f.close()
+
+def usage():
+    print "Usage : feedback [-a|--addinput ]filepath [-i|--id ]problem_id [-l|--addlimit ]limit [-t|--limittype] [-r|--run ]task_folder"
+    print "A problem id must be specified with parameter --addinput."
+    print "A limit type must be specified with parameter --addlimit."
+    print "The task folder must contains a runnable script 'run'"
+    sys.exit(1)
+
+# Read arguments from the command line
+try:
+    opts, args = getopt.getopt(sys.argv[1:], 'a:r:i:l:t:', ['addinput=', 'run=', 'id=' , 'addlimit=', 'limittype='])
+    if not opts:
+        usage()
+except getopt.GetoptError,e:
+    print e
+    sys.exit(1)
+
+inputfile = ''
+problem = ''
+limit = 0
+limittype = ''
+run = False
+taskfolder = ''
+
+for opt, arg in opts:
+    if opt in ('-r', '--run'):
+        if os.path.abspath(arg) == '/task' or os.path.abspath(arg) == '/ro/task':
+            print "Please use another directory than /task or /ro/task for input."
+            exit(2)
+        run = True
+        taskfolder = arg
+    elif opt in ('-a', '--addinput'):
+        feedback = arg
+    elif opt in ('-i', '--id'):
+        problem = arg
+    elif opt in ('-l', '--addlimit'):
+        limit = int(arg)
+    elif opt in ('-t', '--limittype'):
+        limittype = arg
+
+# Doing the real stuff
+if inputfile != '' and problem != '':
+    rdict = load_input()
+    rdict["input"][problem] = open(inputfile, 'rb').read().strip('\0')
+    save_input(rdict)
+
+if limittype != '' and limit != 0:
+    rdict = load_input()
+    rdict["limits"][limittype] = limit
+    save_input(rdict)
+
+if run:
+    if os.path.exists('/ro/task'):
+        shutil.rmtree("/ro/task")
+    shutil.copytree(taskfolder,"/ro/task")
+    print os.popen('cat /.__input/__inputdata.json | INGInious --debug').read()
+    shutil.rmtree("/ro/task")
