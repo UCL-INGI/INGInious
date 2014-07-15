@@ -16,6 +16,7 @@ import tarfile
 import tempfile
 import time
 from bson import json_util
+from collections import OrderedDict
 
 class UnicodeWriter:
     """
@@ -213,7 +214,7 @@ class AdminCourseStudentInfoPage:
     def page(self, course, username):
         data = list(database.user_tasks.find({"username":username, "courseId":course.getId()}))
         tasks = course.getTasks()
-        result = {}
+        result = OrderedDict()
         for taskId in tasks:
             result[taskId] = {"name":tasks[taskId].getName(),"submissions":0,"status":"notviewed"}
         for taskData in data:
@@ -289,7 +290,7 @@ class AdminCourseTaskListPage:
                 }
             }
         ])["result"]
-        result = {}
+        result = OrderedDict()
         tasks = course.getTasks()
         for taskId in tasks:
             result[taskId] = {"name":tasks[taskId].getName(),"viewed":0, "tried":0, "succeeded":0}
