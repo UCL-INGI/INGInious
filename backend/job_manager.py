@@ -70,7 +70,9 @@ class JobManager (threading.Thread):
                 elif emul_result["result"] == "overflow":
                     finaldict = basedict.copy()
                     finaldict.update({"result":emul_result["result"],"text":"Your code took too much memory or disk"})
-            
+            else:
+                finaldict["text"] = "\n".join(finaldict["text"])
+                
             # Parse returned content
             if "text" in finaldict:
                 finaldict["text"] = ParsableText(finaldict["text"],task.getResponseType()).parse()
