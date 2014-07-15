@@ -4,7 +4,7 @@ from os.path import isfile, join, splitext
 
 from common.base import INGIniousConfiguration, IdChecker
 from common.tasks import Task
-
+from collections import OrderedDict
 
 # Represents a Course
 class Course:
@@ -63,5 +63,6 @@ class Course:
                     output[task] = Task(self.getId(), task)
                 #except:
                 #    pass
+            output = OrderedDict(sorted(output.items(), key=lambda t: t[1].getOrder()))
             self.tasksCache = output
         return self.tasksCache

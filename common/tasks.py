@@ -45,6 +45,11 @@ class Task:
         else:
             self.author = []
         
+        #Order
+        self.order = None
+        if "order" in data:
+            self.order = str(data["order"])
+        
         #Response is HTML
         self.responseIsHTML = "responseIsHTML" in data and data["contextIsHTML"]
         
@@ -107,6 +112,8 @@ class Task:
         return self.limits
     def getResponseType(self):
         return "HTML" if self.responseIsHTML else "rst"
+    def getOrder(self):
+        return self.order
     
     def checkAnswer(self,taskInput):
         """
