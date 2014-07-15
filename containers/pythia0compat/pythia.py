@@ -13,6 +13,7 @@ import time
 import tarfile
 import base64
 import signal
+import codecs
 
 def copytree(src, dst, symlinks=False, ignore=None):
     """ Custom copy tree to allow to copy into existing directories """
@@ -125,7 +126,7 @@ stdOutputData["stderr"] = stdOutputData["stderr"]+"PARSE: "+stderr+"\n"
 
 #Put the input in the .out files (...)
 for question in input_data:
-    open("/tmp/work/output/"+question+".out","w").write(input_data[question])
+    codecs.open("/tmp/work/output/"+question+".out","w","utf-8").write(input_data[question])
 setDirectoryRights("/tmp/work")
 
 if os.path.exists("/job/dataset.sh"):
