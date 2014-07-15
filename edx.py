@@ -7,9 +7,11 @@ from common.base import INGIniousConfiguration
 from common.tasks import Task
 import threading
 import json
+import random
+
 web.config.debug = False
 
-courseId = "test"
+courseId = "edx"
 urls = (
     '/', 'ManageSubmission',
 )
@@ -50,7 +52,7 @@ class ManageSubmission:
                 <form action="/" method="post">
                     <textarea style="width:100%; height:400px;" name="xqueue_body">{
     "student_response": "def double(x):\\n return 2*x\\n",
-    "grader_payload": "problem_2"
+    "grader_payload": "basic"
 }</textarea><br/>
                     <input type="submit"/>
                 </form>
@@ -78,16 +80,15 @@ class ManageSubmission:
             return json.dumps({"correct":False,"score":0,"msg":"<p>Internal grader error: input not consistent with task</p>"})
         
         try:
-            jobReturn = {}
             jobSemaphore = threading.Semaphore(0)
             def manageOutput(jobId,job):
-                global jobReturn
                 print "RETURN JOB"
-                jobReturn = job
+                manageOutput.jobReturn = job
                 jobSemaphore.release()
             global jobQueue
             jobQueue.addJob(task, edxInput, manageOutput)
             jobSemaphore.acquire()
+            jobReturn = manageOutput.jobReturn
         except:
             return json.dumps({"correct":False,"score":0,"msg":"<p>Internal grader error: error while grading submission</p>"})
         
