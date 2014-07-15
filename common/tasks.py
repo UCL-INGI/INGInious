@@ -45,6 +45,9 @@ class Task:
         else:
             self.author = []
         
+        #Response is HTML
+        self.responseIsHTML = "responseIsHTML" in data and data["contextIsHTML"]
+        
         #Limits
         self.limits = {"time":20, "memory":1024, "disk": 1024}
         if "limits" in data:
@@ -102,6 +105,8 @@ class Task:
         return self.author
     def getLimits(self):
         return self.limits
+    def getResponseType(self):
+        return "HTML" if self.responseIsHTML else "rst"
     
     def checkAnswer(self,taskInput):
         """

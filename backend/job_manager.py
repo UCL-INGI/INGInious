@@ -1,6 +1,7 @@
 import threading
 import json
 from abc import ABCMeta, abstractmethod
+from common.parsableText import ParsableText
 
 class JobManager (threading.Thread):
     """ Abstract thread class that runs the jobs that are in the queue """
@@ -70,6 +71,13 @@ class JobManager (threading.Thread):
                     finaldict = basedict.copy()
                     finaldict.update({"result":emul_result["result"],"text":"Your code took too much memory or disk"})
             
+            # Parse returned content
+            if "text" in finaldict:
+                finaldict["text"] = ParsableText(finaldict["text"],task.getResponseType()).parse()
+            if "problems" in finaldict:
+                for pid in finaldict["problems"]:
+                    finaldict["problems"][pid] = ParsableText(finaldict["problems"][pid],task.getResponseType()).parse()
+                    
             self.queue.setResult(jobId, finaldict)
             if callback != None:
                 callback(jobId, finaldict)
