@@ -21,6 +21,7 @@ import tarfile
 import tempfile
 import sys
 import time
+from bson import json_util
 
 class UnicodeWriter:
     """
@@ -106,7 +107,10 @@ class AdminCourseStudentListPage:
                         return self.downloadStudentTask(course, userInput['username'], userInput['task'])
                     elif userInput['dl'] == 'student':
                         return self.downloadStudent(course, userInput['username'])
-                
+                    elif userInput['dl'] == 'course':
+                        return self.downloadCourse(course)
+                    elif userInput['dl'] == 'task':
+                        return self.downloadTask(course,userInput['task'])
                 return self.page(course)
             except:
                 if web.config.debug:
@@ -123,51 +127,64 @@ class AdminCourseStudentListPage:
         return renderer.admin_course_student_list(course,data)
 
     def downloadSubmissionSet(self, submissions, filename, subFolders):
+        if submissions.count(True) == 0:
+            return renderer.admin_course_not_any_submission()
+        
         try:
             tmpfile = tempfile.TemporaryFile()
             tar = tarfile.open(fileobj=tmpfile, mode='w:')
             
-            hasOne = False
             for submission in submissions:
-                if 'archive' not in submission or submission['archive'] == None or submission['archive'] == "":
-                    continue
-                hasOne = True
-                subfile = gridFS.get(submission['archive'])
-                taskfname = str(submission["_id"])+'.tgz'
+                submissionJson = StringIO.StringIO(json.dumps(submission, default=json_util.default, indent=4, separators=(',', ': ')))
+                submissionJsonfname = str(submission["_id"])+'.json'
                 # Generate file info
                 for subFolder in subFolders:
                     if subFolder == 'taskId':
-                        taskfname = submission['taskId'] + '/' + taskfname
+                        submissionJsonfname = submission['taskId'] + '/' + submissionJsonfname
                     elif subFolder == 'username':
-                        taskfname = submission['username'] + '/' + taskfname
-                    
-                info = tarfile.TarInfo(name=taskfname)
-                info.size = subfile.length
-                info.mtime = time.mktime(subfile.upload_date.timetuple())
+                        submissionJsonfname = submission['username'] + '/' + submissionJsonfname
+                info = tarfile.TarInfo(name=submissionJsonfname)
+                info.size = submissionJson.len
+                info.mtime = time.mktime(submission["submittedOn"].timetuple())
                 
                 # Add file in tar archive
-                tar.addfile(info, fileobj=subfile)
+                tar.addfile(info, fileobj=submissionJson)
+                
+                # If there is an archive, add it too
+                if 'archive' in submission and submission['archive'] != None and submission['archive'] != "":
+                    subfile = gridFS.get(submission['archive'])
+                    taskfname = str(submission["_id"])+'.tgz'
+                    # Generate file info
+                    for subFolder in subFolders:
+                        if subFolder == 'taskId':
+                            taskfname = submission['taskId'] + '/' + taskfname
+                        elif subFolder == 'username':
+                            taskfname = submission['username'] + '/' + taskfname
+                        
+                    info = tarfile.TarInfo(name=taskfname)
+                    info.size = subfile.length
+                    info.mtime = time.mktime(submission["submittedOn"].timetuple())
+                    
+                    # Add file in tar archive
+                    tar.addfile(info, fileobj=subfile)
             
             # Close tarfile and put tempfile cursor at 0
             tar.close()
             tmpfile.seek(0)
-            
-            # If there is no submission in the tar...
-            if not hasOne:
-                return renderer.admin_course_not_any_submission()
+    
             web.header('Content-Type','application/x-gzip', unique=True)
             web.header('Content-Disposition','attachment; filename="' + filename +'"', unique=True)
             return tmpfile.read()
         except:
             raise web.notfound()
     
-    def downloadCourse(self, courseId):
-        submissions = database.submissions.find({"courseId":courseId,"status":{"$in":["done","error"]}})
-        return self.downloadSubmissionSet(submissions, '_'.join([courseId]) + '.tgz', ['username', 'taskId'])  
+    def downloadCourse(self, course):
+        submissions = database.submissions.find({"courseId":course.getId(),"status":{"$in":["done","error"]}})
+        return self.downloadSubmissionSet(submissions, '_'.join([course.getId()]) + '.tgz', ['username', 'taskId'])  
     
     def downloadTask(self, course, taskId):
         submissions = database.submissions.find({"taskId":taskId,"courseId":course.getId(),"status":{"$in":["done","error"]}})
-        return self.downloadSubmissionSet(submissions, '_'.join([course.getId(), taskId]) + '.tgz', ['username'])  
+        return self.downloadSubmissionSet(submissions, '_'.join([course.getId(), taskId]) + '.tgz', ['username'])
     
     def downloadStudent(self, course, username):
         submissions = database.submissions.find({"username":username,"courseId":course.getId(),"status":{"$in":["done","error"]}})
@@ -178,13 +195,8 @@ class AdminCourseStudentListPage:
         return self.downloadSubmissionSet(submissions, '_'.join([username,course.getId(),taskId]) + '.tgz', [])
     
     def downloadSubmission(self, subid):
-        try:
-            submission = database.submissions.find_one({'_id': ObjectId(subid)})
-            web.header('Content-Type','application/x-gzip', unique=True)
-            web.header('Content-Disposition','attachment; filename="' + '_'.join([submission["username"],submission["courseId"],submission["taskId"],str(submission["_id"])]) + '.tgz"', unique=True)
-            return gridFS.get(submission['archive']).read()
-        except:
-            raise web.notfound()
+        submissions = database.submissions.find({'_id': ObjectId(subid)})
+        return self.downloadSubmissionSet(submissions, subid + '.tgz', [])
         
 class AdminCourseStudentInfoPage:
     """ List information about a student """
