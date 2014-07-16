@@ -20,14 +20,16 @@ class JobManager (threading.Thread):
             basedict = {"task":task,"input":inputdata}
             
             # Check task answer that do not need emulation
-            first_result,need_emul,first_text,first_problems = task.checkAnswer(inputdata)
+            first_result,need_emul,first_text,first_problems,multiple_choice_error_count = task.checkAnswer(inputdata)
             finaldict = basedict.copy()
             finaldict.update({"result": ("success" if first_result else "failed")})
             if first_text != None:
                 finaldict["text"] = first_text
             if first_problems:
                 finaldict["problems"] = first_problems
-            
+            if multiple_choice_error_count != 0:
+                finaldict["text"].append("You have {} errors in the multiple choice questions".format(multiple_choice_error_count))
+                
             # Launch the emulation
             if need_emul:
                 try:

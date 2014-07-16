@@ -116,8 +116,9 @@ class Task:
         needLaunch = False
         mainMessage = []
         problemMessages = {}
+        multipleChoiceErrorCount = 0
         for problem in self.problems:
-            pv, pmm, pm = problem.checkAnswer(taskInput)
+            pv, pmm, pm, mcec = problem.checkAnswer(taskInput)
             if pv == None:
                 needLaunch = True
             elif pv == False:
@@ -126,7 +127,8 @@ class Task:
                 mainMessage.append(pmm)
             if pm != None:
                 problemMessages[problem.getId()] = pm
-        return valid, needLaunch, mainMessage, problemMessages
+            multipleChoiceErrorCount += mcec
+        return valid, needLaunch, mainMessage, problemMessages, multipleChoiceErrorCount
 
 import codecs
 import collections

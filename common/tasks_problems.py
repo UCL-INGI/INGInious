@@ -22,12 +22,13 @@ class BasicProblem:
     @abstractmethod
     def checkAnswer(self,taskInput):
         """ 
-            Check the answer. Returns three values: 
+            Check the answer. Returns four values: 
             the first is either True, False or None, indicating respectively that the answer is valid, invalid, or need to be sent to VM
             the second is the error message assigned to the task, if any (unused for now)
             the third is the error message assigned to this problem, if any
+            this fourth is the number of error if this problem is a multiple choice problem. Must be an integer (0)
         """
-        return True, None, None
+        return True, None, None, 0
     
     def getId(self):
         return self.id
@@ -60,9 +61,9 @@ class MatchProblem(BasicProblem):
         return self.getId() in taskInput
     def checkAnswer(self,taskInput):
         if taskInput[self.getId()].strip() == self.answer:
-            return True, None, "Correct answer"
+            return True, None, "Correct answer", 0
         else:
-            return False, None, "Invalid answer"
+            return False, None, "Invalid answer", 0
         
 class BasicCodeProblem(BasicProblem):
     """Basic problem with code input. Do all the job with the backend"""
@@ -92,7 +93,7 @@ class BasicCodeProblem(BasicProblem):
             raise Exception("Unknow box type "+boxContent["type"]+ "for box id "+boxId)
     
     def checkAnswer(self,inputData):
-        return None, None, None
+        return None, None, None, 0
         
 
 class CodeSingleLineProblem(BasicCodeProblem):
@@ -125,7 +126,7 @@ class MultipleChoiceProblem(BasicProblem):
     """Multiple choice problems"""
     def __init__(self,task,problemId,content):
         BasicProblem.__init__(self,task,problemId,content)
-        self.multiple = "multiple" in content and content["multiple"]
+        self.multiple = content.get("multiple", False)
         if "choices" not in content or not isinstance(content['choices'], list):
             raise Exception("Multiple choice problem "+ problemId +" does not have choices or choices are not an array")
         goodChoices=[]
@@ -134,8 +135,8 @@ class MultipleChoiceProblem(BasicProblem):
             data={"index": index}
             if "text" not in choice:
                 raise Exception("A choice in "+problemId+" does not have text")
-            data['text'] = ParsableText(choice['text'], 'HTML' if "textIsHTML" in choice and choice['textIsHTML'] else 'rst')
-            if "valid" in choice and choice['valid']:
+            data['text'] = ParsableText(choice['text'], 'HTML' if choice.get('textIsHTML',False) else 'rst')
+            if choice.get('valid',False):
                 data['valid'] = True
                 goodChoices.append(data)
             else:
@@ -150,6 +151,8 @@ class MultipleChoiceProblem(BasicProblem):
             self.limit = content['limit']
         elif "limit" in content:
             raise Exception("Invalid limit in problem "+problemId)
+        
+        self.centralize = content.get("centralize",False)
         
         self.choices = goodChoices+badChoices
         shuffle(self.choices)
@@ -197,8 +200,11 @@ class MultipleChoiceProblem(BasicProblem):
         else:
             valid = self.getChoiceWithIndex(int(taskInput[self.getId()]))["valid"]
         if not valid:
-            return False, None, "Wrong answer. Make sure to select all the valid possibilities" if self.multiple else "Wrong answer"
-        return True, None, None
+            if self.centralize:
+                return False, None, None, 1
+            else:
+                return False, None, "Wrong answer. Make sure to select all the valid possibilities" if self.multiple else "Wrong answer", 1
+        return True, None, None, 0
 
 def CreateTaskProblem(task,problemId,problemContent):
     """Creates a new instance of the right class for a given problem."""
