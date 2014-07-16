@@ -32,6 +32,11 @@ $def leftColF():
             <a class="list-group-item disabled submission-empty">No submissions</a>
     </div>
     $if User.getUsername() in course.getAdmins():
+        $if not course.isOpen():
+            <div class="alert alert-warning" role="alert">
+                This course is currently invisible for students. 
+                You can change this by modifying the "accessible" option in the configuration of the course.
+            </div>
         <a href="/admin/$course.getId()" class="btn btn-primary btn-block">Manage</a>
 $var leftCol: $:leftColF()
 
@@ -42,14 +47,18 @@ $# Start content
 </ol>
 <h2>$course.getName() - List of exercices</h2>
 <div class="list-group">
-    $for exId, exData in course.getTasks().iteritems()
-        <a href="/course/$course.getId()/$exId" class="list-group-item 
-            $ status=exData.getUserStatus()
+    $for taskId, task in course.getTasks().iteritems()
+        <a href="/course/$course.getId()/$taskId" class="list-group-item 
+            $ status=task.getUserStatus()
+            $if not task.isOpen():
+                disabled
             $if status == 'failed':
                 list-group-item-danger
             $elif status == 'succeeded':
                 list-group-item-success
             ">
-            $exData.getName()
+            $task.getName()
+            $if not task.isOpen():
+                (task currently unavailable)
         </a>
 </div>

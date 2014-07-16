@@ -35,4 +35,5 @@ class IndexPage:
                 exceptFreeLastSubmissions.append(submission)
             except:
                 pass
-        return renderer.main(Course.GetAllCourses(),exceptFreeLastSubmissions)
+        courses = {courseId: course for courseId, course in Course.GetAllCourses().iteritems() if course.isOpen() or User.getUsername() in course.getAdmins()}
+        return renderer.main(courses,exceptFreeLastSubmissions)

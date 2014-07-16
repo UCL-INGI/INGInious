@@ -1,4 +1,4 @@
-$def with (task,submissions)
+$def with (course,task,submissions)
 $var title: $:task.getName() - $:task.getCourse().getName()
 
 $# Left column content
@@ -40,6 +40,17 @@ $def leftColF():
             </td>
         </tr>
     </table>
+    $if User.getUsername() in course.getAdmins():
+        $if not course.isOpen():
+            <div class="alert alert-warning" role="alert">
+                This course is currently invisible for students. 
+                You can change this by modifying the "accessible" option in the configuration of the course.
+            </div>
+        $if not task.isOpen():
+            <div class="alert alert-warning" role="alert">
+                This task is currently invisible for students. 
+                You can change this by modifying the "accessible" option in the configuration of the task.
+            </div>
     <h3>Submissions</h3>
     <div id="submissions" class="list-group">
         $if submissions:

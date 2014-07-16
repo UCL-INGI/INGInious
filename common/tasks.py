@@ -27,17 +27,14 @@ class Task:
         
         if "context" not in data:
             raise Exception("Tasks must have a context: "+taskId)
-        self.context = ParsableText(data['context'],"HTML" if "contextIsHTML" in data and data["contextIsHTML"] else "rst")
+        self.context = ParsableText(data['context'],"HTML" if data.get("contextIsHTML",False) else "rst")
         
-        if "environment" in data:
-            self.environment = data['environment']
-        else:
-            self.environment = None
+        self.environment = data.get('environment',None)
             
         #Authors
-        if "author" in data and isinstance(data['author'], basestring): #verify if author is a string
+        if isinstance(data.get('author'), basestring): #verify if author is a string
             self.author = [data['author']]
-        elif "author" in data and isinstance(data['author'], list): #verify if author is a list
+        elif isinstance(data.get('author'), list): #verify if author is a list
             for author in data['author']:
                 if not isinstance(author, basestring): #authors must be strings
                     raise Exception("This task has an invalid author")
@@ -45,34 +42,24 @@ class Task:
         else:
             self.author = []
         
+        #accessible
+        self.accessible = AccessibleTime(data.get("accessible",None))
+        
         #Order
-        self.order = -1
-        if "order" in data:
-            self.order = int(data["order"])
+        self.order = int(data.get('order',-1))
         
         #Response is HTML
-        self.responseIsHTML = "responseIsHTML" in data and data["contextIsHTML"]
+        self.responseIsHTML = data.get("responseIsHTML",False)
         
         #Limits
         self.limits = {"time":20, "memory":1024, "disk": 1024}
         if "limits" in data:
-            #Check time
-            if "time" in data["limits"] and isinstance(data['limits']['time'], (int)):
-                self.limits['time'] = data['limits']['time']
-            elif "time" in data["limits"]:
-                raise Exception("Invalid time limit")
-            
-            #Check memory
-            if "memory" in data["limits"] and isinstance(data['limits']['memory'], (int)):
-                self.limits['memory'] = data['limits']['memory']
-            elif "memory" in data["limits"]:
-                raise Exception("Invalid memory limit")
-            
-            #Check disk
-            if "disk" in data["limits"] and isinstance(data['limits']['disk'], (int)):
-                self.limits['disk'] = data['limits']['disk']
-            elif "disk" in data["limits"]:
-                raise Exception("Invalid disk limit")
+            try:
+                self.limits['time'] = int(data["limits"].get("time",20))
+                self.limits['memory'] = int(data["limits"].get("memory",1024))
+                self.limits['disk'] = int(data["limits"].get("disk",1024))
+            except:
+                raise Exception("Invalid limit")
         
         if "problems" not in data:
             raise Exception("Tasks must have some problems descriptions")
@@ -114,6 +101,8 @@ class Task:
         return "HTML" if self.responseIsHTML else "rst"
     def getOrder(self):
         return self.order
+    def isOpen(self):
+        return self.accessible.is_open()
     
     def checkAnswer(self,taskInput):
         """
@@ -148,5 +137,4 @@ from common.base import INGIniousConfiguration, IdChecker
 import common.courses
 from common.parsableText import ParsableText
 from common.tasks_problems import CreateTaskProblem
-
-
+from common.accessibleTime import AccessibleTime

@@ -2,6 +2,7 @@ import json
 
 import web
 
+from common.courses import Course
 from common.tasks import Task
 from common.tasks_problems import MultipleChoiceProblem
 import frontend.submission_manager as submission_manager
@@ -15,9 +16,16 @@ class TaskPage:
     def GET(self, courseId, taskId):
         if User.isLoggedIn():
             try:
+                course = Course(courseId)
+                if not course.isOpen() and User.getUsername() not in course.getAdmins():
+                    return renderer.course_unavailable();
+                
                 task = Task(courseId, taskId)
+                if not task.isOpen() and User.getUsername() not in course.getAdmins():
+                    return renderer.task_unavailable();
+                
                 User.getData().viewTask(courseId, taskId)
-                return renderer.task(task,submission_manager.getUserSubmissions(task))
+                return renderer.task(course,task,submission_manager.getUserSubmissions(task))
             except:
                 if web.config.debug:
                     raise
@@ -29,7 +37,14 @@ class TaskPage:
     def POST(self, courseId, taskId):
         if User.isLoggedIn():
             try:
+                course = Course(courseId)
+                if not course.isOpen() and User.getUsername() not in course.getAdmins():
+                    return renderer.course_unavailable();
+                
                 task = Task(courseId, taskId)
+                if not task.isOpen() and User.getUsername() not in course.getAdmins():
+                    return renderer.task_unavailable();
+                
                 User.getData().viewTask(courseId, taskId)
                 userinput = web.input()
                 if "@action" in userinput and userinput["@action"] == "submit":

@@ -13,6 +13,9 @@ class CoursePage:
         if User.isLoggedIn():
             try:
                 course = Course(courseId)
+                if not course.isOpen() and User.getUsername() not in course.getAdmins():
+                    return renderer.course_unavailable();
+                
                 User.getData().viewCourse(courseId)
                 lastSubmissions=course.getUserLastSubmissions()
                 exceptFreeLastSubmissions = []
