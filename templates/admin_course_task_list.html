@@ -1,4 +1,4 @@
-$def with (course,data)
+$def with (course,data,errors)
 $var title: $:course.getName()
 
 <ol class="breadcrumb">
@@ -35,3 +35,16 @@ $var title: $:course.getName()
     		</td>
     	</tr>
 </table>
+$if len(errors) != 0:
+    <h3>Errors while loading tasks</h3>
+    <table class="table">
+        <tr>
+            <th>task id</th>
+            <th>error</th>
+        </tr>
+        $for task in errors:
+            <tr>
+                <td>$task['taskId']</td>
+                <td><pre>$task['error']</pre></td>
+            </tr>
+    </table>

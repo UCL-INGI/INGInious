@@ -17,6 +17,8 @@ import tempfile
 import time
 from bson import json_util
 from collections import OrderedDict
+from os import listdir
+from os.path import isfile, join, splitext
 
 class UnicodeWriter:
     """
@@ -290,8 +292,21 @@ class AdminCourseTaskListPage:
                 }
             }
         ])["result"]
+        
+        # Load tasks and verify exceptions
+        files = [ splitext(f)[0] for f in listdir(course.getCourseTasksDirectory()) if isfile(join(course.getCourseTasksDirectory(), f)) and splitext(join(course.getCourseTasksDirectory(), f))[1] == ".task"]
+        output = {};
+        errors = [];
+        for task in files:
+            try:
+                output[task] = Task(course.getId(), task)
+            except Exception as inst:
+                errors.append({"taskId":task,"error":str(inst)})
+                pass
+        tasks = OrderedDict(sorted(output.items(), key=lambda t: t[1].getOrder()))
+
+        # Now load additionnal informations
         result = OrderedDict()
-        tasks = course.getTasks()
         for taskId in tasks:
             result[taskId] = {"name":tasks[taskId].getName(),"viewed":0, "tried":0, "succeeded":0}
         for d in data:
@@ -301,7 +316,7 @@ class AdminCourseTaskListPage:
                 result[d["_id"]]["succeeded"] = d["succeeded"]
         if "csv" in web.input():
             return makeCSV(result)
-        return renderer.admin_course_task_list(course,result)
+        return renderer.admin_course_task_list(course,result,errors)
         
 class AdminCourseTaskInfoPage:
     """ List informations about a task """
