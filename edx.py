@@ -13,7 +13,7 @@ web.config.debug = False
 
 courseId = "edx"
 urls = (
-    '/', 'ManageSubmission',
+    '/grader', 'ManageSubmission',
 )
 
 jobQueue = None
