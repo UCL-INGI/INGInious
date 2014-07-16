@@ -21,13 +21,9 @@ class Task:
         self.courseId = courseId
         self.taskId = taskId
         
-        if "name" not in data:
-            raise Exception("Tasks must have a name: "+taskId)
-        self.name = data['name']
+        self.name = data.get('name','Task {}'.format(taskId))
         
-        if "context" not in data:
-            raise Exception("Tasks must have a context: "+taskId)
-        self.context = ParsableText(data['context'],"HTML" if data.get("contextIsHTML",False) else "rst")
+        self.context = ParsableText(data.get('context',""),"HTML" if data.get("contextIsHTML",False) else "rst")
         
         self.environment = data.get('environment',None)
             
