@@ -192,7 +192,8 @@ class SubmissionGitSaver (threading.Thread):
             tar.close()
             
         self.git.add('--all','.')
-        self.git.commit('-m',"'Submission "+str(submission["_id"])+"'")
+        title = " - ".join([str(submission["courseId"])+"/"+str(submission["taskId"]),str(submission["_id"]),submission["username"],("success" if "result" in job and job["result"] == "success" else "failed")])
+        self.git.commit('-m', title)
             
 def getUserSubmissions(task):
     """ Get all the user's submissions for a given task """
