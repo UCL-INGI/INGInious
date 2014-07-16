@@ -287,7 +287,8 @@ class AdminCourseTaskListPage:
                 {
                     "_id":"$taskId",
                     "viewed":{"$sum":1},
-                    "tried":{"$sum":"$tried"},
+                    "attempted":{"$sum":{"$cond":[{"$ne":["$tried",0]},1,0]}},
+                    "attempts":{"$sum":"$tried"},
                     "succeeded":{"$sum":{"$cond":["$succeeded",1,0]}}
                 }
             }
@@ -308,11 +309,12 @@ class AdminCourseTaskListPage:
         # Now load additionnal informations
         result = OrderedDict()
         for taskId in tasks:
-            result[taskId] = {"name":tasks[taskId].getName(),"viewed":0, "tried":0, "succeeded":0}
+            result[taskId] = {"name":tasks[taskId].getName(),"viewed":0, "attempted":0, "attempts":0, "succeeded":0}
         for d in data:
             if d["_id"] in result:
                 result[d["_id"]]["viewed"] = d["viewed"]
-                result[d["_id"]]["tried"] = d["tried"]
+                result[d["_id"]]["attempted"] = d["attempted"]
+                result[d["_id"]]["attempts"] = d["attempts"]
                 result[d["_id"]]["succeeded"] = d["succeeded"]
         if "csv" in web.input():
             return makeCSV(result)
