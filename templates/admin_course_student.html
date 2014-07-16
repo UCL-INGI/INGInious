@@ -22,7 +22,7 @@ $var title: $:userData["realname"] - $:course.getName()
     </tr>
     $for taskId in data:
     	<tr
-            $if data[taskId]["status"] == "notattemped":
+            $if data[taskId]["status"] == "notattempted":
                 class="warning"
             $elif data[taskId]["status"] == "succeeded":
                 class="success"
@@ -33,7 +33,7 @@ $var title: $:userData["realname"] - $:course.getName()
     		<td>
                 $if data[taskId]["status"] == "notviewed":
                     Not viewed
-                $elif data[taskId]["status"] == "notattemped":
+                $elif data[taskId]["status"] == "notattempted":
                     Not attempted (viewed)
                 $elif data[taskId]["status"] == "succeeded":
                     Succeeded
