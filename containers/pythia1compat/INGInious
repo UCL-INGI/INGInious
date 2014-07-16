@@ -38,6 +38,8 @@ def setDirectoryRights(path):
 def setlimits():
     os.setgid(4242)
     os.setuid(4242)
+    os.environ["PATH"] += os.pathsep + '/opt/mozart2/bin'
+    os.environ["OZHOME"] = '/opt/mozart2'
     resource.setrlimit(resource.RLIMIT_CPU, (limits["time"], limits["time"]))
     resource.setrlimit(resource.RLIMIT_NPROC, (100, 100))
     
@@ -81,12 +83,6 @@ data = json.loads(stdin)
 input_data = data["input"]
 limits = data["limits"]
 
-# Create input data directory
-os.mkdir("/.__input")
-f = open('/.__input/__inputdata.json', 'w')
-f.write(stdin)
-f.close()
-
 # Create output directory
 os.mkdir("/.__output")
 
@@ -96,27 +92,36 @@ shutil.copytree("/ro/task","/task")
 #Set rights on some files
 setDirectoryRights("/tmp")
 setDirectoryRights("/task")
-setDirectoryRights("/.__input")
 setDirectoryRights("/.__output")
 
 #Launch everything
-
+stdout = '{}'
+stderr = '{}'
 if os.path.exists("/task/run"):
     os.chdir("/task")
     try:
-        stdout, stderr = executeProcess("/task/run", "")
+        stdout, stderr = executeProcess("/task/run", input_data['student_response']+'\n')
     except:
-        print json.dumps({"result":"timeout","text":"'/task/run' did a timeout","problems":{}})
+        print json.dumps({"result":"timeout","text":"'/task/run' did a timeout\n" + stdout,"problems":{}})
         exit()
 else:
     print json.dumps({"result":"crash","text":"'/task/run' couldn't be found","problems":{}})
     exit()
 
+# Copy required files in output folder
+for filepath in ['/tmp/work/new_file.oz', '/tmp/work/new_file.ozf', '/tmp/work/errC.txt', '/tmp/work/out.txt', '/tmp/work/out.txt']:
+    if os.path.exists(filepath):
+        shutil.copy(filepath, '/.__output')
+
 # Produce feedback
-feedback = inginious.feedback.get_feedback()
+feedback = json.loads(stdout)
 if not feedback:
     print json.dumps({"result":"crash", "text":"No feedback was given !", "problems":{}})
     exit()
 else:
+    feedback['result'] = 'success' if feedback['correct'] else 'failed'
+    del feedback['correct']
+    del feedback['score']
+    feedback['text'] = feedback.pop('msg')
     feedback['archive'] = b64tarfile('/.__output')
     print json.dumps(feedback)
