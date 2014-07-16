@@ -18,11 +18,11 @@ class TaskPage:
             try:
                 course = Course(courseId)
                 if not course.isOpen() and User.getUsername() not in course.getAdmins():
-                    return renderer.course_unavailable();
+                    return renderer.course_unavailable()
                 
                 task = Task(courseId, taskId)
                 if not task.isOpen() and User.getUsername() not in course.getAdmins():
-                    return renderer.task_unavailable();
+                    return renderer.task_unavailable()
                 
                 User.getData().viewTask(courseId, taskId)
                 return renderer.task(course,task,submission_manager.getUserSubmissions(task))
@@ -39,11 +39,11 @@ class TaskPage:
             try:
                 course = Course(courseId)
                 if not course.isOpen() and User.getUsername() not in course.getAdmins():
-                    return renderer.course_unavailable();
+                    return renderer.course_unavailable()
                 
                 task = Task(courseId, taskId)
                 if not task.isOpen() and User.getUsername() not in course.getAdmins():
-                    return renderer.task_unavailable();
+                    return renderer.task_unavailable()
                 
                 User.getData().viewTask(courseId, taskId)
                 userinput = web.input()
