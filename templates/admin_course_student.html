@@ -42,9 +42,8 @@ $var title: $:userData["realname"] - $:course.getName()
             </td>
             <td>$data[taskId]["submissions"]</td>
     		<td>
-                <a href="/course/${course.getId()}/$taskId" class="btn btn-default btn-xs">View task</a>
     			<a href="/admin/${course.getId()}/student/$username/$taskId" class="btn btn-default btn-xs">View submissions</a>
-    			<a href="/admin/${course.getId()}?dl=student_task&username=${username}&task=${taskId}" class="btn btn-default btn-xs">Download submissions</a>
+    			<a href="$data[taskId]['url']" class="btn btn-default btn-xs">Download submissions</a>
     		</td>
     	</tr>
 </table>

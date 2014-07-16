@@ -41,7 +41,7 @@ $var title: $:course.getName()
     		</td>
     		<td>
     			<a href="/admin/${course.getId()}/student/$courseData["username"]" class="btn btn-default btn-xs">View</a>
-    			<a href="/admin/${course.getId()}?dl=student&username=$courseData["username"]" class="btn btn-default btn-xs">Download submissions</a>
+    			<a href="$courseData['url']" class="btn btn-default btn-xs">Download submissions</a>
     		</td>
     	</tr>
 </table>

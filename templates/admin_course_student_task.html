@@ -37,6 +37,6 @@ $var title: $:task.getName() - $:userData["realname"] - $:course.getName()
                 $else:
                     Failed
             </td>
-            <td><a href="/admin/${course.getId()}?dl=submission&id=${submission['_id']}" class="btn btn-default btn-xs">Download</a></td>
+            <td><a href="$submission['url']" class="btn btn-default btn-xs">Download</a></td>
     	</tr>
 </table>

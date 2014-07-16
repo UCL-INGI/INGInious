@@ -117,8 +117,12 @@ class AdminCourseStudentListPage:
         else:
             return renderer.index(False)
     
+    def submissionUrlGenerator(self,course,username):
+        return "/admin/"+course.getId()+"?dl=student&username="+username
+    
     def page(self, course):
         data = list(database.user_courses.find({"courseId":course.getId()}))
+        data = [dict(f.items() + [("url",self.submissionUrlGenerator(course,f["username"]))]) for f in data]
         if "csv" in web.input():
             return makeCSV(data)
         return renderer.admin_course_student_list(course,data)
@@ -213,12 +217,15 @@ class AdminCourseStudentInfoPage:
         else:
             return renderer.index(False)
         
+    def submissionUrlGenerator(self,course,username,taskId):
+        return "/admin/"+course.getId()+"?dl=student_task&task="+taskId+"&username="+username
+    
     def page(self, course, username):
         data = list(database.user_tasks.find({"username":username, "courseId":course.getId()}))
         tasks = course.getTasks()
         result = OrderedDict()
         for taskId in tasks:
-            result[taskId] = {"name":tasks[taskId].getName(),"submissions":0,"status":"notviewed"}
+            result[taskId] = {"name":tasks[taskId].getName(),"submissions":0,"status":"notviewed","url":self.submissionUrlGenerator(course, username, taskId)}
         for taskData in data:
             if taskData["taskId"] in result:
                 result[taskData["taskId"]]["submissions"] = taskData["tried"]
@@ -251,9 +258,13 @@ class AdminCourseStudentTaskPage:
                     raise web.notfound()
         else:
             return renderer.index(False)
-        
+    
+    def submissionUrlGenerator(self,course,submissionId):
+        return "/admin/"+course.getId()+"?dl=submission&id="+submissionId
+    
     def page(self, course, username, task):
         data = list(database.submissions.find({"username":username, "courseId":course.getId(), "taskId":task.getId()}).sort([("submittedOn",pymongo.DESCENDING)]))
+        data = [dict(f.items() + [("url",self.submissionUrlGenerator(course,str(f["_id"])))]) for f in data]
         if "csv" in web.input():
             return makeCSV(data)
         return renderer.admin_course_student_task(course,username,task,data)
@@ -276,6 +287,9 @@ class AdminCourseTaskListPage:
         else:
             return renderer.index(False)
         
+    def submissionUrlGenerator(self,course,taskId):
+        return "/admin/"+course.getId()+"?dl=task&task="+taskId
+    
     def page(self, course):
         data = database.user_tasks.aggregate(
         [
@@ -309,7 +323,7 @@ class AdminCourseTaskListPage:
         # Now load additionnal informations
         result = OrderedDict()
         for taskId in tasks:
-            result[taskId] = {"name":tasks[taskId].getName(),"viewed":0, "attempted":0, "attempts":0, "succeeded":0}
+            result[taskId] = {"name":tasks[taskId].getName(),"viewed":0, "attempted":0, "attempts":0, "succeeded":0, "url":self.submissionUrlGenerator(course, taskId)}
         for d in data:
             if d["_id"] in result:
                 result[d["_id"]]["viewed"] = d["viewed"]
@@ -338,9 +352,13 @@ class AdminCourseTaskInfoPage:
                     raise web.notfound()
         else:
             return renderer.index(False)
-        
+    
+    def submissionUrlGenerator(self,course,task,taskData):
+        return "/admin/"+course.getId()+"?dl=student_task&username="+taskData['username']+"&task="+task.getId()
+    
     def page(self, course, task):
         data = list(database.user_tasks.find({"courseId":course.getId(), "taskId":task.getId()}))
+        data = [dict(f.items() + [("url",self.submissionUrlGenerator(course,task,f))]) for f in data]
         if "csv" in web.input():
             return makeCSV(data)
         return renderer.admin_course_task_info(course,task,data)

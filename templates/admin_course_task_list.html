@@ -31,9 +31,8 @@ $var title: $:course.getName()
             <td>$data[taskId]["succeeded"]</td>
             <td>$data[taskId]["attempts"]</td>
     		<td>
-                <a href="/course/${course.getId()}/$taskId" class="btn btn-default btn-xs">View task</a>
     			<a href="/admin/${course.getId()}/task/$taskId" class="btn btn-default btn-xs">View student list</a>
-    			<a href="/admin/${course.getId()}?dl=task&task=$taskId" class="btn btn-default btn-xs">Download submissions</a>
+    			<a href="$data[taskId]['url']" class="btn btn-default btn-xs">Download submissions</a>
     		</td>
     	</tr>
 </table>
