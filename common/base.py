@@ -1,8 +1,11 @@
 import re
 import json
 
-#Import configuration
-INGIniousConfiguration=json.load(open("./configuration.json","r"))
+class Configuration(dict):
+    def load(self,path):
+        self.update(json.load(open(path,"r")))
+        
+INGIniousConfiguration=Configuration()
 
 def IdChecker(idToTest):
     """Checks if a id is correct"""

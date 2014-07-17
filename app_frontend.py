@@ -1,7 +1,7 @@
 """ Starts the frontend """
 
 import web
-
+import common.base
 import frontend.pages
 import frontend.session
 
@@ -21,6 +21,7 @@ urls = (
 app = web.application(urls, globals())
 
 if __name__ == "__main__":
+    common.base.INGIniousConfiguration.load("./configuration.json")
     frontend.session.init(app)
 
     #Must be done after frontend.session.init(app)

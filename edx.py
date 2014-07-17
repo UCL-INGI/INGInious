@@ -19,6 +19,7 @@ urls = (
 jobQueue = None
 
 def init():
+    INGIniousConfiguration.load("./configuration.edx.json")
     global jobQueue
     jobQueue = SimpleJobQueue()
     
