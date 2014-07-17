@@ -1,40 +1,46 @@
+""" Index page """
 import web
 
 from common.courses import Course
 from common.tasks import Task
 from frontend.base import renderer
-from frontend.submission_manager import getUserLastSubmissions
+from frontend.submission_manager import get_user_last_submissions
 import frontend.user as User
 
 
-#Index page
 class IndexPage(object):
-    #Simply display the page
+
+    """ Index page """
+
     def GET(self):
-        if User.isLoggedIn():
-            userInput = web.input();
-            if "logoff" in userInput:
-                User.disconnect();
+        """ GET request """
+        if User.is_logged_in():
+            user_input = web.input()
+            if "logoff" in user_input:
+                User.disconnect()
                 return renderer.index(False)
             else:
-                return self.callMain()
+                return self.call_main()
         else:
             return renderer.index(False)
-    #Try to log in
+
     def POST(self):
-        userInput = web.input();
-        if "login" in userInput and "password" in userInput and User.connect(userInput.login,userInput.password):
-            return self.callMain()
+        """ POST request: login """
+        user_input = web.input()
+        if "login" in user_input and "password" in user_input and User.connect(user_input.login, user_input.password):
+            return self.call_main()
         else:
             return renderer.index(True)
-    def callMain(self):
-        lastSubmissions=getUserLastSubmissions({},5)
-        exceptFreeLastSubmissions = []
-        for submission in lastSubmissions:
+
+    def call_main(self):
+        """ Display main page (only when logged) """
+        last_submissions = get_user_last_submissions({}, 5)
+        except_free_last_submissions = []
+        for submission in last_submissions:
             try:
-                submission["task"] = Task(submission['courseId'],submission['taskId'])
-                exceptFreeLastSubmissions.append(submission)
+                submission["task"] = Task(submission['courseid'], submission['taskid'])
+                except_free_last_submissions.append(submission)
             except:
                 pass
-        courses = {courseId: course for courseId, course in Course.GetAllCourses().iteritems() if course.isOpen() or User.getUsername() in course.getAdmins()}
-        return renderer.main(courses,exceptFreeLastSubmissions)
+        courses = {courseid: course for courseid, course in Course.get_all_courses().iteritems() if course.is_open() or User.get_username() in course.get_admins()}
+        return renderer.main(courses, except_free_last_submissions)

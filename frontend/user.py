@@ -1,28 +1,36 @@
+""" Manages users' sessions """
 import ldap
 
 import common.base
 from frontend.session import session
 
 
-def getData():
+def get_data():
+    """ Get the User Data for the connected user """
+    if not is_logged_in():
+        return None
     import frontend.user_data
     return frontend.user_data.UserData(session.username)
 
-def getUsername():
+
+def get_username():
     """ Returns the username (which is unique) of the current user. Returns None if no user is logged in """
-    if not isLoggedIn():
+    if not is_logged_in():
         return None
     return session.username
 
-def getRealname():
+
+def get_realname():
     """ Returns the real name of the current user. Returns None if no user is logged in """
-    if not isLoggedIn():
+    if not is_logged_in():
         return None
     return session.realname
 
-def isLoggedIn():
+
+def is_logged_in():
     """" Returns if the user is logged in or not """
     return "loggedin" in session and session.loggedin
+
 
 def disconnect():
     """ Log off the current user """
@@ -32,10 +40,11 @@ def disconnect():
     session.email = None
     return
 
+
 def connect(login, password):
     """Connect throught LDAP"""
     try:
-        if not common.base.IdChecker(login):
+        if not common.base.id_checker(login):
             return False
         username = "uid=" + login + ",ou=People,dc=info,dc=ucl,dc=ac,dc=be"
 
@@ -43,22 +52,22 @@ def connect(login, password):
         ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_NEVER)
 
         # Connection to LDAP
-        l = ldap.initialize('ldaps://ldap.student.info.ucl.ac.be')
-        l.protocol_version = ldap.VERSION3
-        l.simple_bind_s(username, password)
+        ldap_instance = ldap.initialize('ldaps://ldap.student.info.ucl.ac.be')
+        ldap_instance.protocol_version = ldap.VERSION3
+        ldap_instance.simple_bind_s(username, password)
 
         session.loggedin = True
 
         # Fetch login informations
-        results = l.search_s(username, ldap.SCOPE_SUBTREE, '(objectclass=person)', ['mail', 'cn', 'uid'])
+        results = ldap_instance.search_s(username, ldap.SCOPE_SUBTREE, '(objectclass=person)', ['mail', 'cn', 'uid'])
 
         for _, entry in results:
             session.email = entry['mail'][0]
             session.username = entry['uid'][0]
             session.realname = entry['cn'][0]
-        
+
         # Save everything in the database
-        getData().updateBasicInformations(session.realname,session.email)
+        get_data().update_basic_informations(session.realname, session.email)
         return True
-    except ldap.LDAPError, _:
+    except ldap.LDAPError as _:
         return False

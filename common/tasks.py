@@ -1,130 +1,155 @@
+""" Task """
+
+
 class Task(object):
-    def __init__(self,courseId,taskId):
-        if not IdChecker(courseId) and not courseId == "":
-            raise Exception("Course with invalid id: "+courseId)
-        elif not IdChecker(taskId):
-            raise Exception("Task with invalid id: "+courseId+"/"+taskId)
-        
+
+    """ Contains the data for a task """
+
+    def __init__(self, courseid, taskid):
+        if not id_checker(courseid) and not courseid == "":
+            raise Exception("Course with invalid id: " + courseid)
+        elif not id_checker(taskid):
+            raise Exception("Task with invalid id: " + courseid + "/" + taskid)
+
         try:
-            content = json.load(codecs.open(join(INGIniousConfiguration["tasksDirectory"],courseId,taskId+".task"), "r", 'utf-8'), object_pairs_hook=collections.OrderedDict)
+            data = json.load(codecs.open(join(INGIniousConfiguration["tasks_directory"], courseid, taskid + ".task"), "r", 'utf-8'), object_pairs_hook=collections.OrderedDict)
         except IOError:
-            raise Exception("File do not exists: "+join(INGIniousConfiguration["tasksDirectory"],courseId,taskId+".task"))
+            raise Exception("File do not exists: " + join(INGIniousConfiguration["tasks_directory"], courseid, taskid + ".task"))
         except Exception as inst:
-            raise Exception("Error while reading JSON: "+courseId+"/"+taskId+" :\n"+str(inst))
-        
-        self.initWithData(courseId, taskId, content)
-        self.data = content
-    
-    def initWithData(self,courseId, taskId, data):
-        """Checks content of the JSON data and init the Task object"""
-        self.course = None
-        self.courseId = courseId
-        self.taskId = taskId
-        
-        self.name = data.get('name','Task {}'.format(taskId))
-        
-        self.context = ParsableText(data.get('context',""),"HTML" if data.get("contextIsHTML",False) else "rst")
-        
-        self.environment = data.get('environment',None)
-            
-        #Authors
-        if isinstance(data.get('author'), basestring): #verify if author is a string
-            self.author = [data['author']]
-        elif isinstance(data.get('author'), list): #verify if author is a list
+            raise Exception("Error while reading JSON: " + courseid + "/" + taskid + " :\n" + str(inst))
+
+        self._data = data
+        self._course = None
+        self._courseid = courseid
+        self._taskid = taskid
+
+        self._name = data.get('name', 'Task {}'.format(taskid))
+
+        self._context = ParsableText(data.get('context', ""), "HTML" if data.get("contextIsHTML", False) else "rst")
+
+        self._environment = data.get('environment', None)
+
+        # Authors
+        if isinstance(data.get('author'), basestring):  # verify if author is a string
+            self._author = [data['author']]
+        elif isinstance(data.get('author'), list):  # verify if author is a list
             for author in data['author']:
-                if not isinstance(author, basestring): #authors must be strings
+                if not isinstance(author, basestring):  # authors must be strings
                     raise Exception("This task has an invalid author")
-            self.author = data['author']
+            self._author = data['author']
         else:
-            self.author = []
-        
-        #accessible
-        self.accessible = AccessibleTime(data.get("accessible",None))
-        
-        #Order
-        self.order = int(data.get('order',-1))
-        
+            self._author = []
+
+        # _accessible
+        self._accessible = AccessibleTime(data.get("_accessible", None))
+
+        # Order
+        self._order = int(data.get('order', -1))
+
         #Response is HTML
-        self.responseIsHTML = data.get("responseIsHTML",False)
-        
-        #Limits
-        self.limits = {"time":20, "memory":1024, "disk": 1024}
+        self._response_is_html = data.get("responseIsHTML", False)
+
+        # Limits
+        self._limits = {"time": 20, "memory": 1024, "disk": 1024}
         if "limits" in data:
             try:
-                self.limits['time'] = int(data["limits"].get("time",20))
-                self.limits['memory'] = int(data["limits"].get("memory",1024))
-                self.limits['disk'] = int(data["limits"].get("disk",1024))
+                self._limits['time'] = int(data["limits"].get("time", 20))
+                self._limits['memory'] = int(data["limits"].get("memory", 1024))
+                self._limits['disk'] = int(data["limits"].get("disk", 1024))
             except:
                 raise Exception("Invalid limit")
-        
+
         if "problems" not in data:
             raise Exception("Tasks must have some problems descriptions")
-        
-        #Check all problems
-        self.problems = []
-        
-        for problemId in data['problems']:
-            self.problems.append(CreateTaskProblem(self,problemId,data['problems'][problemId]))
 
-    def inputIsConsistent(self, taskInput):
+        # Check all problems
+        self._problems = []
+
+        for problemid in data['problems']:
+            self._problems.append(create_task_problem(self, problemid, data['problems'][problemid]))
+
+    def input_is_consistent(self, task_input):
         """ Check if an input for a task is consistent. Return true if this is case, false else """
-        for problem in self.problems:
-            if not problem.inputIsConsistent(taskInput):
+        for problem in self._problems:
+            if not problem.input_is_consistent(task_input):
                 return False
         return True
-    
-    def getEnvironment(self):
-        return self.environment
-    def getName(self):
-        return self.name
-    def getContext(self):
-        return self.context
-    def getId(self):
-        return self.taskId
-    def getProblems(self):
-        return self.problems
-    def getCourseId(self):
-        return self.courseId
-    def getCourse(self):
-        if self.course == None:
-            self.course = common.courses.Course(self.courseId)
-        return self.course
-    def getAuthors(self):
-        return self.author
-    def getLimits(self):
-        return self.limits
-    def getResponseType(self):
-        return "HTML" if self.responseIsHTML else "rst"
-    def getOrder(self):
-        return self.order
-    def isOpen(self):
-        return self.accessible.is_open()
-    
-    def checkAnswer(self,taskInput):
+
+    def get_environment(self):
+        """ Returns the environment in which the job manager have to launch this task"""
+        return self._environment
+
+    def get_name(self):
+        """ Returns the name of this task """
+        return self._name
+
+    def get_context(self):
+        """ Get the context(description) of this task """
+        return self._context
+
+    def get_id(self):
+        """ Get the id of this task """
+        return self._taskid
+
+    def get_problems(self):
+        """ Get problems contained in this task """
+        return self._problems
+
+    def get_course_id(self):
+        """ Return the courseid of the course that contains this task """
+        return self._courseid
+
+    def get_course(self):
+        """ Return the course that contains this task """
+        if self._course is None:
+            self._course = common.courses.Course(self._courseid)
+        return self._course
+
+    def get_authors(self):
+        """ Return the list of this task's authors """
+        return self._author
+
+    def get_limits(self):
+        """ Return the limits of this task """
+        return self._limits
+
+    def get_response_type(self):
+        """ Returns the method used to parse the output of the task: HTML or rst """
+        return "HTML" if self._response_is_html else "rst"
+
+    def get_order(self):
+        """ Get the position of this task in the course """
+        return self._order
+
+    def is_open(self):
+        """ Returns if the task is open to students """
+        return self._accessible.is_open()
+
+    def check_answer(self, task_input):
         """
-            Verify the answers in taskInput. Returns four values
+            Verify the answers in task_input. Returns four values
             1st: True the input is **currently** valid. (may become invalid after running the code), False else
             2nd: True if the input needs to be run in the VM, False else
             3rd: Main message, as a list (that can be join with \n or <br/> for example)
             4th: Problem specific message, as a dictionnary
         """
         valid = True
-        needLaunch = False
-        mainMessage = []
-        problemMessages = {}
-        multipleChoiceErrorCount = 0
-        for problem in self.problems:
-            pv, pmm, pm, mcec = problem.checkAnswer(taskInput)
-            if pv == None:
-                needLaunch = True
-            elif pv == False:
+        need_launch = False
+        main_message = []
+        problem_messages = {}
+        multiple_choice_error_count = 0
+        for problem in self._problems:
+            problem_is_valid, problem_main_message, problem_messages, problem_mc_error_count = problem.check_answer(task_input)
+            if problem_is_valid is None:
+                need_launch = True
+            elif problem_is_valid == False:
                 valid = False
-            if pmm != None:
-                mainMessage.append(pmm)
-            if pm != None:
-                problemMessages[problem.getId()] = pm
-            multipleChoiceErrorCount += mcec
-        return valid, needLaunch, mainMessage, problemMessages, multipleChoiceErrorCount
+            if problem_main_message is not None:
+                main_message.append(problem_main_message)
+            if problem_messages is not None:
+                problem_messages[problem.get_id()] = problem_messages
+            multiple_choice_error_count += problem_mc_error_count
+        return valid, need_launch, main_message, problem_messages, multiple_choice_error_count
 
 import codecs
 import collections
@@ -132,9 +157,7 @@ import json
 from os.path import join
 
 from common.accessibleTime import AccessibleTime
-from common.base import INGIniousConfiguration, IdChecker
+from common.base import INGIniousConfiguration, id_checker
 import common.courses
 from common.parsableText import ParsableText
-from common.tasks_problems import CreateTaskProblem
-
-
+from common.tasks_problems import create_task_problem

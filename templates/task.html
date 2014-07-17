@@ -1,14 +1,14 @@
 $def with (course,task,submissions)
-$var title: $:task.getName() - $:task.getCourse().getName()
+$var title: $:task.get_name() - $:task.get_course().get_name()
 
 $# Left column content
 $def leftColF():
     <h3>Informations</h3>
     <table class="table table-condensed">
-        $if task.getAuthors():
+        $if task.get_authors():
             <tr>
                 <td>Author(s)</td>
-                <td>$",".join(task.getAuthors())</td>
+                <td>$",".join(task.get_authors())</td>
             </tr>
         <tr>
             <td>Status</td>
@@ -40,13 +40,13 @@ $def leftColF():
             </td>
         </tr>
     </table>
-    $if User.getUsername() in course.getAdmins():
-        $if not course.isOpen():
+    $if User.get_username() in course.get_admins():
+        $if not course.is_open():
             <div class="alert alert-warning" role="alert">
                 This course is currently invisible for students. 
                 You can change this by modifying the "accessible" option in the configuration of the course.
             </div>
-        $if not task.isOpen():
+        $if not task.is_open():
             <div class="alert alert-warning" role="alert">
                 This task is currently invisible for students. 
                 You can change this by modifying the "accessible" option in the configuration of the task.
@@ -66,7 +66,7 @@ $def leftColF():
                         list-group-item-danger
                     "
                     data-submission-id="$submission['_id']">
-                    $submission["submittedOn"].strftime("%d/%m/%Y %H:%M:%S")
+                    $submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S")
                 </a>
         $else:
             <a class="list-group-item disabled submission-empty">No submissions</a>
@@ -76,24 +76,24 @@ $var leftCol: $:leftColF()
 $# Start content
 <ol class="breadcrumb">
   <li><a href="/index">Home</a></li>
-  <li><a href="/course/$task.getCourse().getId()">$task.getCourse().getName()</a></li>
-  <li class="active">$task.getName()</li>
+  <li><a href="/course/$task.get_course().get_id()">$task.get_course().get_name()</a></li>
+  <li class="active">$task.get_name()</li>
 </ol>
-<h2>$task.getName()</h2>
-$:task.getContext()
+<h2>$task.get_name()</h2>
+$:task.get_context()
 <hr/>
 <div id="task_alert"></div>
-<form id="task" method="post" action="/course/${task.getCourse().getId()}/${task.getId()}"
+<form id="task" method="post" action="/course/${task.get_course().get_id()}/${task.get_id()}"
     $for submission in submissions:
         $if submission["status"] == "waiting":
             data-wait-submission="$submission['_id']"
             $break
 >
     <input type="hidden" name="@action" value="submit"/>
-    $for key, problem in enumerate(task.getProblems()):
-        <h3>Question ${key+1}: $problem.getName()</h3>
-        <div id="task_alert.$problem.getId()" class="task_alert_problem"></div>
-        $:problem.getHeader()
-        $:problem.showInput()
+    $for key, problem in enumerate(task.get_problems()):
+        <h3>Question ${key+1}: $problem.get_name()</h3>
+        <div id="task_alert.$problem.get_id()" class="task_alert_problem"></div>
+        $:problem.get_header()
+        $:problem.show_input()
     <button type="submit" class="btn btn-default btn-lg btn-block center-block" id="task-submit">Submit</button>
 </form>

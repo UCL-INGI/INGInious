@@ -8,7 +8,7 @@ import os
 import sys
 
 import common.base
-from common.courses import Course  # Must be done after changements on INGIniousConfiguration["tasksDirectory"]
+from common.courses import Course  # Must be done after changements on INGIniousConfiguration["tasks_directory"]
 from common.tasks import Task
 
 
@@ -22,7 +22,7 @@ if len(sys.argv) != 2:
     usage()
 
 # Change default path to task Directory
-common.base.INGIniousConfiguration["tasksDirectory"] = os.path.dirname(sys.argv[1])
+common.base.INGIniousConfiguration["tasks_directory"] = os.path.dirname(sys.argv[1])
 # Get composants of the filename
 filename = os.path.splitext(os.path.basename(sys.argv[1]))
 

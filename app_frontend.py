@@ -3,11 +3,10 @@
 import web
 
 import common.base
-import frontend.pages
 import frontend.session
 
 
-urls = (
+URLS = (
     '/', 'frontend.pages.index.IndexPage',
     '/index', 'frontend.pages.index.IndexPage',
     '/course/([^/]+)', 'frontend.pages.course.CoursePage',
@@ -19,19 +18,21 @@ urls = (
     '/admin/([^/]+)/task/([^/]+)', 'frontend.pages.admin_course.AdminCourseTaskInfoPage',
 )
 
-app = web.application(urls, globals())
+APP = web.application(URLS, globals())
 
 if __name__ == "__main__":
     common.base.INGIniousConfiguration.load("./configuration.json")
-    frontend.session.init(app)
+    frontend.session.init(APP)
 
-    #Must be done after frontend.session.init(app)
+    # Must be done after frontend.session.init(app)
     import frontend.base
-    def notfound():
-        return web.notfound(frontend.base.renderer.notfound())
-    app.notfound = notfound
-    #Idem
-    import frontend.submission_manager
-    frontend.submission_manager.initBackendInterface()
 
-    app.run()
+    def not_found():
+        """ Display the error 404 page """
+        return web.notfound(frontend.base.renderer.notfound())
+    APP.notfound = not_found
+    # Idem
+    import frontend.submission_manager
+    frontend.submission_manager.init_backend_interface()
+
+    APP.run()

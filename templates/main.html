@@ -18,9 +18,9 @@ $def leftColF():
                     $else:
                         list-group-item-danger
                     "
-                    href="/course/$submission['courseId']/$submission['taskId']">
-                    <h4 class="list-group-item-heading">$submission["task"].getName()</h4>
-                    <p class="list-group-item-text">$submission["task"].getCourse().getName()</p>
+                    href="/course/$submission['courseid']/$submission['taskid']">
+                    <h4 class="list-group-item-heading">$submission["task"].get_name()</h4>
+                    <p class="list-group-item-text">$submission["task"].get_course().get_name()</p>
                 </a>
         $else:
             <a class="list-group-item disabled submission-empty">No submissions</a>
@@ -30,14 +30,14 @@ $var leftCol: $:leftColF()
 $# Start content
 <h2>Course list</h2>
 <div class="list-group">
-    $for courseId in courses
-        <a href="course/$courseId" class="list-group-item">
+    $for courseid in courses
+        <a href="course/$courseid" class="list-group-item">
             <div class="progress">
-                $ completion=courses[courseId].getUserCompletionPercentage()
+                $ completion=courses[courseid].get_user_completion_percentage()
                 <div class="progress-bar progress-bar-success" aria-valuenow="$completion" aria-valuemin="0" aria-valuemax="100" style="width: $completion%">
                     $completion%
                 </div>
             </div>
-            $courses[courseId].getName()
+            $courses[courseid].get_name()
         </a>
 </div>

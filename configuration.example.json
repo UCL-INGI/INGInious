@@ -1,14 +1,14 @@
 {
-	"tasksDirectory": "./tasks",
+	"tasks_directory": "./tasks",
 	
-	"containersDirectory": "./containers",
-	"containerPrefix": "inginious/",
-	"dockerServerUrl": "tcp://172.16.42.43:4243",
-	"jobManagers": 4,
-	"buildContainersOnStart": true,
+	"containers_directory": "./containers",
+	"container_prefix": "inginious/",
+	"docker_server_url": "tcp://172.16.42.43:4243",
+	"job_managers": 4,
+	"build_containers_on_start": true,
 	
-	"enableSubmissionRepo": true,
-	"submissionRepoDirectory": "./repo_submissions",
+	"enable_submission_repo": true,
+	"submission_repo_directory": "./repo_submissions",
 	
-	"allowHTML": "tidy"
+	"allow_html": "tidy"
 }

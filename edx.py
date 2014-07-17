@@ -13,37 +13,45 @@ from common.tasks import Task
 
 web.config.debug = False
 
-courseId = "edx"
+courseid = "edx"
 urls = (
     '/grader', 'ManageSubmission',
 )
 
-jobQueue = None
+job_queue = None
+
 
 def init():
     INGIniousConfiguration.load("./configuration.edx.json")
-    global jobQueue
-    jobQueue = SimpleJobQueue()
-    
+    global job_queue
+    job_queue = SimpleJobQueue()
+
     try:
-        jobManagerCount = int(INGIniousConfiguration["jobManagers"])
+        jobManagerCount = int(INGIniousConfiguration["job_managers"])
     except:
-        print "Configuration entry 'jobManagers' must be an integer"
+        print "Configuration entry 'job_managers' must be an integer"
         jobManagerCount = 1
     if jobManagerCount < 1:
-        print "Configuration entry 'jobManagers' must be greater than 1"
+        print "Configuration entry 'job_managers' must be greater than 1"
     for i in range(0, jobManagerCount):
-        print "Starting Job Manager #"+str(i)
-        thread = DockerJobManager(jobQueue,INGIniousConfiguration["dockerServerUrl"], INGIniousConfiguration["tasksDirectory"], INGIniousConfiguration["containersDirectory"], INGIniousConfiguration["containerPrefix"])
-        
+        print "Starting Job Manager #" + str(i)
+        thread = DockerJobManager(
+            job_queue,
+            INGIniousConfiguration["docker_server_url"],
+            INGIniousConfiguration["tasks_directory"],
+            INGIniousConfiguration["containers_directory"],
+            INGIniousConfiguration["container_prefix"])
+
         # Build the containers if needed
-        if i == 0 and "buildContainersOnStart" in INGIniousConfiguration and INGIniousConfiguration["buildContainersOnStart"]:
-            thread.buildAllDockerContainers()
-            
+        if i == 0 and "build_containers_on_start" in INGIniousConfiguration and INGIniousConfiguration["build_containers_on_start"]:
+            thread.build_all_docker_containers()
+
         thread.daemon = True
-        thread.start() 
-        
+        thread.start()
+
+
 class ManageSubmission(object):
+
     def GET(self):
         return """
         <!DOCTYPE html>
@@ -67,49 +75,50 @@ class ManageSubmission(object):
         web.header('Content-Type', 'application/json')
         postInput = web.input()
         if "xqueue_body" not in postInput:
-            return json.dumps({"correct":False,"score":0,"msg":"<p>Internal grader error: no xqueue_body in POST</p>"})
+            return json.dumps({"correct": False, "score": 0, "msg": "<p>Internal grader error: no xqueue_body in POST</p>"})
         try:
             edxInput = json.loads(postInput.xqueue_body)
-            taskId = edxInput["grader_payload"]
+            taskid = edxInput["grader_payload"]
         except:
-            return json.dumps({"correct":False,"score":0,"msg":"<p>Internal grader error: cannot decode JSON</p>"})
-        
+            return json.dumps({"correct": False, "score": 0, "msg": "<p>Internal grader error: cannot decode JSON</p>"})
+
         try:
-            task = Task(courseId, taskId)
+            task = Task(courseid, taskid)
         except:
-            return json.dumps({"correct":False,"score":0,"msg":"<p>Internal grader error: unknown task</p>"})
-        
-        if not task.inputIsConsistent(edxInput):
-            return json.dumps({"correct":False,"score":0,"msg":"<p>Internal grader error: input not consistent with task</p>"})
-        
+            return json.dumps({"correct": False, "score": 0, "msg": "<p>Internal grader error: unknown task</p>"})
+
+        if not task.input_is_consistent(edxInput):
+            return json.dumps({"correct": False, "score": 0, "msg": "<p>Internal grader error: input not consistent with task</p>"})
+
         try:
             jobSemaphore = threading.Semaphore(0)
-            def manageOutput(_,job):
+
+            def manageOutput(_, job):
                 print "RETURN JOB"
                 manageOutput.jobReturn = job
                 jobSemaphore.release()
-            jobQueue.addJob(task, edxInput, manageOutput)
+            job_queue.add_job(task, edxInput, manageOutput)
             jobSemaphore.acquire()
             jobReturn = manageOutput.jobReturn
         except:
-            return json.dumps({"correct":False,"score":0,"msg":"<p>Internal grader error: error while grading submission</p>"})
-        
+            return json.dumps({"correct": False, "score": 0, "msg": "<p>Internal grader error: error while grading submission</p>"})
+
         try:
             text = ""
             if "text" in jobReturn:
                 text = jobReturn["text"]
             if "problems" in jobReturn:
                 for p in jobReturn["problems"]:
-                    text += "<br/><h4>"+jobReturn["task"].getProblems()[p].getName()+"</h4>"+jobReturn["problems"][p]
-                    
+                    text += "<br/><h4>" + jobReturn["task"].get_problems()[p].get_name() + "</h4>" + jobReturn["problems"][p]
+
             score = (1 if jobReturn["result"] == "success" else 0)
             if "score" in jobReturn:
                 score = jobReturn["score"]
-                
-            return json.dumps({"correct":(jobReturn["result"] == "success"),"score": score, "msg": text})
+
+            return json.dumps({"correct": (jobReturn["result"] == "success"), "score": score, "msg": text})
         except:
-            return json.dumps({"correct":False,"score":0,"msg":"<p>Internal grader error: error converting submission result</p>"})
-    
+            return json.dumps({"correct": False, "score": 0, "msg": "<p>Internal grader error: error converting submission result</p>"})
+
 
 app = web.application(urls, globals())
 if __name__ == "__main__":

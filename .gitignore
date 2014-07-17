@@ -7,3 +7,4 @@ repo_submissions
 configuration.json
 configuration.*.json
 !configuration.example.json
+dump

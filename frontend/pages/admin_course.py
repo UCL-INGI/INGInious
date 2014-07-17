@@ -1,3 +1,4 @@
+""" Pages only accessible to the course's admins """
 import StringIO
 import cStringIO
 import codecs
@@ -17,12 +18,13 @@ import web
 
 from common.courses import Course
 from common.tasks import Task
-from frontend.base import database, gridFS
+from frontend.base import database, gridfs
 from frontend.base import renderer
 import frontend.user as User
 
 
 class UnicodeWriter(object):
+
     """
     A CSV writer which will write rows to CSV file "f",
     which is encoded in the given encoding.
@@ -36,6 +38,7 @@ class UnicodeWriter(object):
         self.encoder = codecs.getincrementalencoder(encoding)()
 
     def writerow(self, row):
+        """ Writes a row to the CSV file """
         self.writer.writerow([s.encode("utf-8") for s in row])
         # Fetch UTF-8 output from the queue ...
         data = self.queue.getvalue()
@@ -48,68 +51,75 @@ class UnicodeWriter(object):
         self.queue.truncate(0)
 
     def writerows(self, rows):
+        """ Writes multiple rows to the CSV file """
         for row in rows:
             self.writerow(row)
-            
-def makeCSV(data):
+
+
+def make_csv(data):
+    """ Returns the content of a CSV file with the data of the dict/list data """
     columns = set()
     output = [[]]
     if isinstance(data, dict):
         output[0].append("id")
-        for d in data:
-            for col in data[d]:
+        for entry in data:
+            for col in data[entry]:
                 columns.add(col)
     else:
-        for d in data:
-            for col in d:
+        for entry in data:
+            for col in entry:
                 columns.add(col)
 
     for col in columns:
         output[0].append(col)
 
     if isinstance(data, dict):
-        for d in data:
-            no = [str(d)]
+        for entry in data:
+            new_output = [str(entry)]
             for col in columns:
-                no.append(unicode(data[d][col]) if col in data[d] else "")
-            output.append(no)
+                new_output.append(unicode(data[entry][col]) if col in data[entry] else "")
+            output.append(new_output)
     else:
-        for d in data:
-            no = []
+        for entry in data:
+            new_output = []
             for col in columns:
-                no.append(unicode(d[col]) if col in d else "")
-            output.append(no)
+                new_output.append(unicode(entry[col]) if col in entry else "")
+            output.append(new_output)
 
-    csvString = StringIO.StringIO()
-    csvwriter = UnicodeWriter(csvString)
+    csv_string = StringIO.StringIO()
+    csv_writer = UnicodeWriter(csv_string)
     for row in output:
-        csvwriter.writerow(row)
-    csvString.seek(0)
-    web.header('Content-Type','text/csv; charset=utf-8')
+        csv_writer.writerow(row)
+    csv_string.seek(0)
+    web.header('Content-Type', 'text/csv; charset=utf-8')
     web.header('Content-disposition', 'attachment; filename=export.csv')
-    return csvString.read()
-    
+    return csv_string.read()
+
+
 class AdminCourseStudentListPage(object):
+
     """ Course administration page """
-    def GET(self, courseId):
-        if User.isLoggedIn():
+
+    def GET(self, courseid):
+        """ GET request """
+        if User.is_logged_in():
             try:
-                course = Course(courseId)
-                if User.getUsername() not in course.getAdmins():
+                course = Course(courseid)
+                if User.get_username() not in course.get_admins():
                     raise web.notfound()
-                
-                userInput = web.input();
-                if "dl" in userInput:
-                    if userInput['dl'] == 'submission':
-                        return self.downloadSubmission(userInput['id'])
-                    elif userInput['dl'] == 'student_task':
-                        return self.downloadStudentTask(course, userInput['username'], userInput['task'])
-                    elif userInput['dl'] == 'student':
-                        return self.downloadStudent(course, userInput['username'])
-                    elif userInput['dl'] == 'course':
-                        return self.downloadCourse(course)
-                    elif userInput['dl'] == 'task':
-                        return self.downloadTask(course,userInput['task'])
+
+                user_input = web.input()
+                if "dl" in user_input:
+                    if user_input['dl'] == 'submission':
+                        return self.download_submission(user_input['id'])
+                    elif user_input['dl'] == 'student_task':
+                        return self.download_student_task(course, user_input['username'], user_input['task'])
+                    elif user_input['dl'] == 'student':
+                        return self.download_student(course, user_input['username'])
+                    elif user_input['dl'] == 'course':
+                        return self.download_course(course)
+                    elif user_input['dl'] == 'task':
+                        return self.download_task(course, user_input['task'])
                 return self.page(course)
             except:
                 if web.config.debug:
@@ -118,98 +128,110 @@ class AdminCourseStudentListPage(object):
                     raise web.notfound()
         else:
             return renderer.index(False)
-    
-    def submissionUrlGenerator(self,course,username):
-        return "/admin/"+course.getId()+"?dl=student&username="+username
-    
-    def page(self, course):
-        data = list(database.user_courses.find({"courseId":course.getId()}))
-        data = [dict(f.items() + [("url",self.submissionUrlGenerator(course,f["username"]))]) for f in data]
-        if "csv" in web.input():
-            return makeCSV(data)
-        return renderer.admin_course_student_list(course,data)
 
-    def downloadSubmissionSet(self, submissions, filename, subFolders):
+    def submission_url_generator(self, course, username):
+        """ Generates a submission url """
+        return "/admin/" + course.get_id() + "?dl=student&username=" + username
+
+    def page(self, course):
+        """ Get all data and display the page """
+        data = list(database.user_courses.find({"courseid": course.get_id()}))
+        data = [dict(f.items() + [("url", self.submission_url_generator(course, f["username"]))]) for f in data]
+        if "csv" in web.input():
+            return make_csv(data)
+        return renderer.admin_course_student_list(course, data)
+
+    def download_submission_set(self, submissions, filename, sub_folders):
+        """ Create a tar archive with all the submissions """
         if submissions.count(True) == 0:
             return renderer.admin_course_not_any_submission()
-        
+
         try:
             tmpfile = tempfile.TemporaryFile()
             tar = tarfile.open(fileobj=tmpfile, mode='w:')
-            
+
             for submission in submissions:
-                submissionJson = StringIO.StringIO(json.dumps(submission, default=json_util.default, indent=4, separators=(',', ': ')))
-                submissionJsonfname = str(submission["_id"])+'.json'
+                submission_json = StringIO.StringIO(json.dumps(submission, default=json_util.default, indent=4, separators=(',', ': ')))
+                submission_json_fname = str(submission["_id"]) + '.json'
                 # Generate file info
-                for subFolder in subFolders:
-                    if subFolder == 'taskId':
-                        submissionJsonfname = submission['taskId'] + '/' + submissionJsonfname
-                    elif subFolder == 'username':
-                        submissionJsonfname = submission['username'] + '/' + submissionJsonfname
-                info = tarfile.TarInfo(name=submissionJsonfname)
-                info.size = submissionJson.len
-                info.mtime = time.mktime(submission["submittedOn"].timetuple())
-                
+                for sub_folder in sub_folders:
+                    if sub_folder == 'taskid':
+                        submission_json_fname = submission['taskid'] + '/' + submission_json_fname
+                    elif sub_folder == 'username':
+                        submission_json_fname = submission['username'] + '/' + submission_json_fname
+                info = tarfile.TarInfo(name=submission_json_fname)
+                info.size = submission_json.len
+                info.mtime = time.mktime(submission["submitted_on"].timetuple())
+
                 # Add file in tar archive
-                tar.addfile(info, fileobj=submissionJson)
-                
+                tar.addfile(info, fileobj=submission_json)
+
                 # If there is an archive, add it too
-                if 'archive' in submission and submission['archive'] != None and submission['archive'] != "":
-                    subfile = gridFS.get(submission['archive'])
-                    taskfname = str(submission["_id"])+'.tgz'
+                if 'archive' in submission and submission['archive'] is not None and submission['archive'] != "":
+                    subfile = gridfs.get(submission['archive'])
+                    taskfname = str(submission["_id"]) + '.tgz'
                     # Generate file info
-                    for subFolder in subFolders:
-                        if subFolder == 'taskId':
-                            taskfname = submission['taskId'] + '/' + taskfname
-                        elif subFolder == 'username':
+                    for sub_folder in sub_folders:
+                        if sub_folder == 'taskid':
+                            taskfname = submission['taskid'] + '/' + taskfname
+                        elif sub_folder == 'username':
                             taskfname = submission['username'] + '/' + taskfname
-                        
+
                     info = tarfile.TarInfo(name=taskfname)
                     info.size = subfile.length
-                    info.mtime = time.mktime(submission["submittedOn"].timetuple())
-                    
+                    info.mtime = time.mktime(submission["submitted_on"].timetuple())
+
                     # Add file in tar archive
                     tar.addfile(info, fileobj=subfile)
-            
+
             # Close tarfile and put tempfile cursor at 0
             tar.close()
             tmpfile.seek(0)
-    
-            web.header('Content-Type','application/x-gzip', unique=True)
-            web.header('Content-Disposition','attachment; filename="' + filename +'"', unique=True)
+
+            web.header('Content-Type', 'application/x-gzip', unique=True)
+            web.header('Content-Disposition', 'attachment; filename="' + filename + '"', unique=True)
             return tmpfile.read()
         except:
             raise web.notfound()
-    
-    def downloadCourse(self, course):
-        submissions = database.submissions.find({"courseId":course.getId(),"status":{"$in":["done","error"]}})
-        return self.downloadSubmissionSet(submissions, '_'.join([course.getId()]) + '.tgz', ['username', 'taskId'])  
-    
-    def downloadTask(self, course, taskId):
-        submissions = database.submissions.find({"taskId":taskId,"courseId":course.getId(),"status":{"$in":["done","error"]}})
-        return self.downloadSubmissionSet(submissions, '_'.join([course.getId(), taskId]) + '.tgz', ['username'])
-    
-    def downloadStudent(self, course, username):
-        submissions = database.submissions.find({"username":username,"courseId":course.getId(),"status":{"$in":["done","error"]}})
-        return self.downloadSubmissionSet(submissions, '_'.join([username,course.getId()]) + '.tgz', ['taskId'])    
-    
-    def downloadStudentTask(self, course, username, taskId):
-        submissions = database.submissions.find({"username":username,"courseId":course.getId(), "taskId":taskId ,"status":{"$in":["done","error"]}})
-        return self.downloadSubmissionSet(submissions, '_'.join([username,course.getId(),taskId]) + '.tgz', [])
-    
-    def downloadSubmission(self, subid):
+
+    def download_course(self, course):
+        """ Download all submissions for a course """
+        submissions = database.submissions.find({"courseid": course.get_id(), "status": {"$in": ["done", "error"]}})
+        return self.download_submission_set(submissions, '_'.join([course.get_id()]) + '.tgz', ['username', 'taskid'])
+
+    def download_task(self, course, taskid):
+        """ Download all submission for a task """
+        submissions = database.submissions.find({"taskid": taskid, "courseid": course.get_id(), "status": {"$in": ["done", "error"]}})
+        return self.download_submission_set(submissions, '_'.join([course.get_id(), taskid]) + '.tgz', ['username'])
+
+    def download_student(self, course, username):
+        """ Download all submissions for a user for a given course """
+        submissions = database.submissions.find({"username": username, "courseid": course.get_id(), "status": {"$in": ["done", "error"]}})
+        return self.download_submission_set(submissions, '_'.join([username, course.get_id()]) + '.tgz', ['taskid'])
+
+    def download_student_task(self, course, username, taskid):
+        """ Download all submissions for a user for given task """
+        submissions = database.submissions.find({"username": username, "courseid": course.get_id(), "taskid": taskid, "status": {"$in": ["done", "error"]}})
+        return self.download_submission_set(submissions, '_'.join([username, course.get_id(), taskid]) + '.tgz', [])
+
+    def download_submission(self, subid):
+        """ Download a specific submission """
         submissions = database.submissions.find({'_id': ObjectId(subid)})
-        return self.downloadSubmissionSet(submissions, subid + '.tgz', [])
-        
+        return self.download_submission_set(submissions, subid + '.tgz', [])
+
+
 class AdminCourseStudentInfoPage(object):
+
     """ List information about a student """
-    def GET(self, courseId, username):
-        if User.isLoggedIn():
+
+    def GET(self, courseid, username):
+        """ GET request """
+        if User.is_logged_in():
             try:
-                course = Course(courseId)
-                if User.getUsername() not in course.getAdmins():
+                course = Course(courseid)
+                if User.get_username() not in course.get_admins():
                     raise web.notfound()
-                
+
                 return self.page(course, username)
             except:
                 if web.config.debug:
@@ -218,40 +240,45 @@ class AdminCourseStudentInfoPage(object):
                     raise web.notfound()
         else:
             return renderer.index(False)
-        
-    def submissionUrlGenerator(self,course,username,taskId):
-        return "/admin/"+course.getId()+"?dl=student_task&task="+taskId+"&username="+username
-    
+
+    def submission_url_generator(self, course, username, taskid):
+        """ Generates a submission url """
+        return "/admin/" + course.get_id() + "?dl=student_task&task=" + taskid + "&username=" + username
+
     def page(self, course, username):
-        data = list(database.user_tasks.find({"username":username, "courseId":course.getId()}))
-        tasks = course.getTasks()
+        """ Get all data and display the page """
+        data = list(database.user_tasks.find({"username": username, "courseid": course.get_id()}))
+        tasks = course.get_tasks()
         result = OrderedDict()
-        for taskId in tasks:
-            result[taskId] = {"name":tasks[taskId].getName(),"submissions":0,"status":"notviewed","url":self.submissionUrlGenerator(course, username, taskId)}
-        for taskData in data:
-            if taskData["taskId"] in result:
-                result[taskData["taskId"]]["submissions"] = taskData["tried"]
-                if taskData["tried"] == 0:
-                    result[taskData["taskId"]]["status"] = "notattempted"
-                elif taskData["succeeded"]:
-                    result[taskData["taskId"]]["status"] = "succeeded"
+        for taskid in tasks:
+            result[taskid] = {"name": tasks[taskid].get_name(), "submissions": 0, "status": "notviewed", "url": self.submission_url_generator(course, username, taskid)}
+        for taskdata in data:
+            if taskdata["taskid"] in result:
+                result[taskdata["taskid"]]["submissions"] = taskdata["tried"]
+                if taskdata["tried"] == 0:
+                    result[taskdata["taskid"]]["status"] = "notattempted"
+                elif taskdata["succeeded"]:
+                    result[taskdata["taskid"]]["status"] = "succeeded"
                 else:
-                    result[taskData["taskId"]]["status"] = "failed"
+                    result[taskdata["taskid"]]["status"] = "failed"
         if "csv" in web.input():
-            return makeCSV(result)
-        return renderer.admin_course_student(course,username,result)
-    
+            return make_csv(result)
+        return renderer.admin_course_student(course, username, result)
+
 
 class AdminCourseStudentTaskPage(object):
+
     """ List information about a task done by a student """
-    def GET(self, courseId, username, taskId):
-        if User.isLoggedIn():
+
+    def GET(self, courseid, username, taskid):
+        """ GET request """
+        if User.is_logged_in():
             try:
-                course = Course(courseId)
-                if User.getUsername() not in course.getAdmins():
+                course = Course(courseid)
+                if User.get_username() not in course.get_admins():
                     raise web.notfound()
-                task = Task(courseId,taskId)
-                
+                task = Task(courseid, taskid)
+
                 return self.page(course, username, task)
             except:
                 if web.config.debug:
@@ -260,26 +287,32 @@ class AdminCourseStudentTaskPage(object):
                     raise web.notfound()
         else:
             return renderer.index(False)
-    
-    def submissionUrlGenerator(self,course,submissionId):
-        return "/admin/"+course.getId()+"?dl=submission&id="+submissionId
-    
+
+    def submission_url_generator(self, course, submissionid):
+        """ Generates a submission url """
+        return "/admin/" + course.get_id() + "?dl=submission&id=" + submissionid
+
     def page(self, course, username, task):
-        data = list(database.submissions.find({"username":username, "courseId":course.getId(), "taskId":task.getId()}).sort([("submittedOn",pymongo.DESCENDING)]))
-        data = [dict(f.items() + [("url",self.submissionUrlGenerator(course,str(f["_id"])))]) for f in data]
+        """ Get all data and display the page """
+        data = list(database.submissions.find({"username": username, "courseid": course.get_id(), "taskid": task.get_id()}).sort([("submitted_on", pymongo.DESCENDING)]))
+        data = [dict(f.items() + [("url", self.submission_url_generator(course, str(f["_id"])))]) for f in data]
         if "csv" in web.input():
-            return makeCSV(data)
-        return renderer.admin_course_student_task(course,username,task,data)
-    
+            return make_csv(data)
+        return renderer.admin_course_student_task(course, username, task, data)
+
+
 class AdminCourseTaskListPage(object):
+
     """ List informations about all tasks """
-    def GET(self, courseId):
-        if User.isLoggedIn():
+
+    def GET(self, courseid):
+        """ GET request """
+        if User.is_logged_in():
             try:
-                course = Course(courseId)
-                if User.getUsername() not in course.getAdmins():
+                course = Course(courseid)
+                if User.get_username() not in course.get_admins():
                     raise web.notfound()
-                
+
                 return self.page(course)
             except:
                 if web.config.debug:
@@ -288,64 +321,77 @@ class AdminCourseTaskListPage(object):
                     raise web.notfound()
         else:
             return renderer.index(False)
-        
-    def submissionUrlGenerator(self,course,taskId):
-        return "/admin/"+course.getId()+"?dl=task&task="+taskId
-    
+
+    def submission_url_generator(self, course, taskid):
+        """ Generates a submission url """
+        return "/admin/" + course.get_id() + "?dl=task&task=" + taskid
+
     def page(self, course):
+        """ Get all data and display the page """
         data = database.user_tasks.aggregate(
-        [
-            {
-                "$match":{"courseId":course.getId()}
-            },
-            {
-                "$group":
+            [
                 {
-                    "_id":"$taskId",
-                    "viewed":{"$sum":1},
-                    "attempted":{"$sum":{"$cond":[{"$ne":["$tried",0]},1,0]}},
-                    "attempts":{"$sum":"$tried"},
-                    "succeeded":{"$sum":{"$cond":["$succeeded",1,0]}}
+                    "$match": {"courseid": course.get_id()}
+                },
+                {
+                    "$group":
+                    {
+                        "_id": "$taskid",
+                        "viewed": {"$sum": 1},
+                        "attempted": {"$sum": {"$cond": [{"$ne": ["$tried", 0]}, 1, 0]}},
+                        "attempts":{"$sum": "$tried"},
+                        "succeeded": {"$sum": {"$cond": ["$succeeded", 1, 0]}}
+                    }
                 }
-            }
-        ])["result"]
-        
+            ])["result"]
+
         # Load tasks and verify exceptions
-        files = [ splitext(f)[0] for f in listdir(course.getCourseTasksDirectory()) if isfile(join(course.getCourseTasksDirectory(), f)) and splitext(join(course.getCourseTasksDirectory(), f))[1] == ".task"]
-        output = {};
-        errors = [];
+        files = [
+            splitext(f)[0] for f in listdir(
+                course.get_course_tasks_directory()) if isfile(
+                join(
+                    course.get_course_tasks_directory(),
+                    f)) and splitext(
+                    join(
+                        course.get_course_tasks_directory(),
+                        f))[1] == ".task"]
+        output = {}
+        errors = []
         for task in files:
             try:
-                output[task] = Task(course.getId(), task)
+                output[task] = Task(course.get_id(), task)
             except Exception as inst:
-                errors.append({"taskId":task,"error":str(inst)})
-                pass
-        tasks = OrderedDict(sorted(output.items(), key=lambda t: t[1].getOrder()))
+                errors.append({"taskid": task, "error": str(inst)})
+        tasks = OrderedDict(sorted(output.items(), key=lambda t: t[1].get_order()))
 
         # Now load additionnal informations
         result = OrderedDict()
-        for taskId in tasks:
-            result[taskId] = {"name":tasks[taskId].getName(),"viewed":0, "attempted":0, "attempts":0, "succeeded":0, "url":self.submissionUrlGenerator(course, taskId)}
-        for d in data:
-            if d["_id"] in result:
-                result[d["_id"]]["viewed"] = d["viewed"]
-                result[d["_id"]]["attempted"] = d["attempted"]
-                result[d["_id"]]["attempts"] = d["attempts"]
-                result[d["_id"]]["succeeded"] = d["succeeded"]
+        for taskid in tasks:
+            result[taskid] = {"name": tasks[taskid].get_name(), "viewed": 0, "attempted": 0, "attempts": 0, "succeeded": 0, "url": self.submission_url_generator(course, taskid)}
+        for entry in data:
+            if entry["_id"] in result:
+                result[entry["_id"]]["viewed"] = entry["viewed"]
+                result[entry["_id"]]["attempted"] = entry["attempted"]
+                result[entry["_id"]]["attempts"] = entry["attempts"]
+                result[entry["_id"]]["succeeded"] = entry["succeeded"]
         if "csv" in web.input():
-            return makeCSV(result)
-        return renderer.admin_course_task_list(course,result,errors)
-        
+            return make_csv(result)
+        return renderer.admin_course_task_list(course, result, errors)
+
+
 class AdminCourseTaskInfoPage(object):
+
     """ List informations about a task """
-    def GET(self, courseId, taskId):
-        if User.isLoggedIn():
+
+    def GET(self, courseid, taskid):
+        """ GET request """
+        if User.is_logged_in():
             try:
-                course = Course(courseId)
-                if User.getUsername() not in course.getAdmins():
+                course = Course(courseid)
+                if User.get_username() not in course.get_admins():
                     raise web.notfound()
-                task = Task(courseId, taskId)
-                
+                task = Task(courseid, taskid)
+
                 return self.page(course, task)
             except:
                 if web.config.debug:
@@ -354,13 +400,15 @@ class AdminCourseTaskInfoPage(object):
                     raise web.notfound()
         else:
             return renderer.index(False)
-    
-    def submissionUrlGenerator(self,course,task,taskData):
-        return "/admin/"+course.getId()+"?dl=student_task&username="+taskData['username']+"&task="+task.getId()
-    
+
+    def submission_url_generator(self, course, task, task_data):
+        """ Generates a submission url """
+        return "/admin/" + course.get_id() + "?dl=student_task&username=" + task_data['username'] + "&task=" + task.get_id()
+
     def page(self, course, task):
-        data = list(database.user_tasks.find({"courseId":course.getId(), "taskId":task.getId()}))
-        data = [dict(f.items() + [("url",self.submissionUrlGenerator(course,task,f))]) for f in data]
+        """ Get all data and display the page """
+        data = list(database.user_tasks.find({"courseid": course.get_id(), "taskid": task.get_id()}))
+        data = [dict(f.items() + [("url", self.submission_url_generator(course, task, f))]) for f in data]
         if "csv" in web.input():
-            return makeCSV(data)
-        return renderer.admin_course_task_info(course,task,data)
+            return make_csv(data)
+        return renderer.admin_course_task_info(course, task, data)

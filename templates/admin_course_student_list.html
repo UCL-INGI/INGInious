@@ -1,13 +1,13 @@
 $def with (course,data)
-$var title: $:course.getName()
+$var title: $:course.get_name()
 
 <ol class="breadcrumb">
   <li><a href="/index">Home</a></li>
-  <li><a href="/course/$course.getId()">$course.getName()</a></li>
+  <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
   <li class="active">Manage</li>
 </ol>
-<h2>Stats for course $course.getName()</h2>
-<h4><a href="/admin/${course.getId()}/tasks">Task view</a></h4>
+<h2>Stats for course $course.get_name()</h2>
+<h4><a href="/admin/${course.get_id()}/tasks">Task view</a></h4>
 <table class="table">
     <tr>
         <th>student username</th>
@@ -15,17 +15,17 @@ $var title: $:course.getName()
         <th># task done</th>
         <th>progression</th>
         <th>
-        	<a href="/admin/${course.getId()}?dl=course" class="btn btn-danger btn-xs">Download all submissions</a>
-        	<a href="/admin/${course.getId()}?csv" class="btn btn-info btn-xs">CSV</a>
+        	<a href="/admin/${course.get_id()}?dl=course" class="btn btn-danger btn-xs">Download all submissions</a>
+        	<a href="/admin/${course.get_id()}?csv" class="btn btn-info btn-xs">CSV</a>
         </th>
     </tr>
     $for courseData in data:
-    	$ studentData=UserData(courseData["username"]).getData()
+    	$ studentData=UserData(courseData["username"]).get_data()
     	<tr>
     		<td>
     			$if studentData["realname"] != "":
-    				<a href="/admin/${course.getId()}/student/$courseData["username"]">$studentData["realname"]</a> 
-    				(<a href="/admin/${course.getId()}/student/$courseData["username"]">$studentData["_id"]</a> - <a href='mailto:$studentData["email"]'>email</a>)
+    				<a href="/admin/${course.get_id()}/student/$courseData["username"]">$studentData["realname"]</a> 
+    				(<a href="/admin/${course.get_id()}/student/$courseData["username"]">$studentData["_id"]</a> - <a href='mailto:$studentData["email"]'>email</a>)
     			$else:
     				$studentData["_id"]
     		</td>
@@ -33,14 +33,14 @@ $var title: $:course.getName()
     		<td>$courseData["task_succeeded"]</td>
     		<td>
     			<div class="progress">
-                    $ percentage=int(courseData["task_succeeded"]*100/len(course.getTasks()))
+                    $ percentage=int(courseData["task_succeeded"]*100/len(course.get_tasks()))
                     <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="$percentage" aria-valuemin="0" aria-valuemax="100" style="width: $percentage%">
                         <span>$percentage%</span>
                     </div>
                 </div>
     		</td>
     		<td>
-    			<a href="/admin/${course.getId()}/student/$courseData["username"]" class="btn btn-default btn-xs">View</a>
+    			<a href="/admin/${course.get_id()}/student/$courseData["username"]" class="btn btn-default btn-xs">View</a>
     			<a href="$courseData['url']" class="btn btn-default btn-xs">Download submissions</a>
     		</td>
     	</tr>

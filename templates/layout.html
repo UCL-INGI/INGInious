@@ -38,8 +38,8 @@ $if "header" in content:
             </div>
             $if "navbar" in content:
                 $:content.navbar
-            $if User.isLoggedIn():
-                <p class="navbar-text navbar-right">Logged in as $User.getRealname() - <a href="/index?logoff" class="navbar-link">Log off</a></p>
+            $if User.is_logged_in():
+                <p class="navbar-text navbar-right">Logged in as $User.get_realname() - <a href="/index?logoff" class="navbar-link">Log off</a></p>
         </div>
     </div>
 

@@ -1,146 +1,154 @@
+""" Boxes for tasks' problems """
 from abc import ABCMeta, abstractmethod
 import re
 
-from common.base import IdChecker
+from common.base import id_checker
 from common.parsableText import ParsableText
 
 
-#Basic box. Abstract
 class BasicBox(object):
+
+    """ A basic abstract problem box. A box is a small input for a problem. A problem can contain multiple boxes """
     __metaclass__ = ABCMeta
-    
+
     @abstractmethod
-    def getType(self):
+    def get_type(self):
+        """ Return the type of this box """
         return None
-    
-    def getProblem(self):
-        return self.problem
-    
-    def getId(self):
-        return self.id
-    
-    def inputIsConsistent(self, taskInput):
+
+    def get_problem(self):
+        """ Return the problem to which this box is linked """
+        return self._problem
+
+    def get_id(self):
+        """ Return the _id of this box """
+        return self._id
+
+    def input_is_consistent(self, task_input):
         """ Check if an input for this box is consistent. Return true if this is case, false else """
-        return self.getCompleteId() in taskInput
-    
-    def getCompleteId(self):
-        """ Returns the complete id of this box. This id is unique among all problems and boxes in an exercice """
-        pid = str(self.getProblem().getId())
-        bid = str(self.getId())
+        return self.get_complete_id() in task_input
+
+    def get_complete_id(self):
+        """ Returns the complete _id of this box. This _id is unique among all problems and boxes in an exercice """
+        pid = str(self.get_problem().get_id())
+        bid = str(self.get_id())
         if bid != "":
-            return pid+"/"+bid
+            return pid + "/" + bid
         else:
             return pid
-    
-    def __str__(self):
-        return self.show(self)
-    
-    def __unicode__(self):
-        return self.show(self)
-    
-    def __init__(self,problem,boxId,boxData):
-        """ Constructor. problem is a BasicProblem (or derivated) instance, boxId a an alphanumeric id and boxData is the data for this box. """
-        if not IdChecker(boxId) and not boxId == "":
-            raise Exception("Invalid box id: "+boxId)
-        self.id = boxId
-        self.problem = problem
 
-#Text box. Simply shows text.
+    def __init__(self, problem, boxid, boxdata):
+        """ Constructor. problem is a BasicProblem (or derivated) instance, boxid a an alphanumeric _id and boxdata is the data for this box. """
+        if not id_checker(boxid) and not boxid == "":
+            raise Exception("Invalid box _id: " + boxid)
+        self._id = boxid
+        self._problem = problem
+
+
 class TextBox(BasicBox):
-    def getType(self):
+
+    """Text box. Simply shows text."""
+
+    def get_type(self):
         return "text"
-    
-    def inputIsConsistent(self, taskInput):
-        #do not call inputIsConsistent from BasicBox.
+
+    def input_is_consistent(self, task_input):
+        # do not call input_is_consistent from BasicBox.
         return True
-    
-    def __init__(self,problem,boxId,boxData):
-        BasicBox.__init__(self, problem, boxId, boxData)
+
+    def __init__(self, problem, boxid, boxData):
+        BasicBox.__init__(self, problem, boxid, boxData)
         if "content" not in boxData:
-            raise Exception("Box id "+boxId+" with type=text do not have content.")
-        self.content = ParsableText(boxData['content'], "HTML" if "contentIsHTML" in boxData and boxData["contentIsHTML"] else "rst")
+            raise Exception("Box _id " + boxid + " with type=text do not have content.")
+        self._content = ParsableText(boxData['content'], "HTML" if "contentIsHTML" in boxData and boxData["contentIsHTML"] else "rst")
 
-#Input box. Displays a html input object
+
 class InputBox(BasicBox):
-    def getType(self):
-        return "input"
-    
-    def inputIsConsistent(self, taskInput):
-        if not BasicBox.inputIsConsistent(self, taskInput):
-            return False
-        
-        if self.maxChars != 0 and len(taskInput[self.getCompleteId()]) > self.maxChars:
-            return False
-        
-        #do not allow empty answers
-        if len(taskInput[self.getCompleteId()]) == 0:
-            return False
-        
-        if self.input_type == "integer":
-            try:
-                int(taskInput[self.getCompleteId()])
-            except:
-                return False
-            
-        if self.input_type == "decimal":
-            try:
-                float(taskInput[self.getCompleteId()])
-            except:
-                return False
-        return True
-    
-    def __init__(self,problem,boxId,boxData):
-        BasicBox.__init__(self, problem, boxId, boxData)
-        if boxData["type"] == "input-text": 
-            self.input_type = "text"
-        elif boxData["type"] == "input-integer":
-            self.input_type = "integer"
-        elif boxData["type"] == "input-decimal":
-            self.input_type = "decimal"
-        else:
-            raise Exception("No such box type "+ boxData["type"] +" in box "+boxId)
-        
-        if "maxChars" in boxData and isinstance(boxData['maxChars'], (int, long)) and boxData['maxChars'] > 0:
-            self.maxChars = boxData['maxChars']
-        elif "maxChars" in boxData:
-            raise Exception("Invalid maxChars value in box "+boxId)
-        else:
-            self.maxChars = 0
 
-#Multiline Box. Displays a html textarea object
+    """ Input box. Displays an input object """
+
+    def get_type(self):
+        return "input"
+
+    def input_is_consistent(self, taskInput):
+        if not BasicBox.input_is_consistent(self, taskInput):
+            return False
+
+        if self._max_chars != 0 and len(taskInput[self.get_complete_id()]) > self._max_chars:
+            return False
+
+        # do not allow empty answers
+        if len(taskInput[self.get_complete_id()]) == 0:
+            return False
+
+        if self._input_type == "integer":
+            try:
+                int(taskInput[self.get_complete_id()])
+            except ValueError:
+                return False
+
+        if self._input_type == "decimal":
+            try:
+                float(taskInput[self.get_complete_id()])
+            except ValueError:
+                return False
+        return True
+
+    def __init__(self, problem, boxid, boxData):
+        BasicBox.__init__(self, problem, boxid, boxData)
+        if boxData["type"] == "input-text":
+            self._input_type = "text"
+        elif boxData["type"] == "input-integer":
+            self._input_type = "integer"
+        elif boxData["type"] == "input-decimal":
+            self._input_type = "decimal"
+        else:
+            raise Exception("No such box type " + boxData["type"] + " in box " + boxid)
+
+        if "maxChars" in boxData and isinstance(boxData['maxChars'], (int, long)) and boxData['maxChars'] > 0:
+            self._max_chars = boxData['maxChars']
+        elif "maxChars" in boxData:
+            raise Exception("Invalid maxChars value in box " + boxid)
+        else:
+            self._max_chars = 0
+
+
 class MultilineBox(BasicBox):
-    def getType(self):
+
+    """ Multiline Box """
+
+    def get_type(self):
         return "multiline"
-    
-    def inputIsConsistent(self, taskInput):
-        if not BasicBox.inputIsConsistent(self, taskInput):
+
+    def input_is_consistent(self, taskInput):
+        if not BasicBox.input_is_consistent(self, taskInput):
             return False
-        if self.maxChars != 0 and len(taskInput[self.getCompleteId()]) > self.maxChars:
+        if self._max_chars != 0 and len(taskInput[self.get_complete_id()]) > self._max_chars:
             return False
-        #do not allow empty answers
-        if len(taskInput[self.getCompleteId()]) == 0:
+        # do not allow empty answers
+        if len(taskInput[self.get_complete_id()]) == 0:
             return False
         return True
-    
-    def __init__(self,problem,boxId,boxData):
-        BasicBox.__init__(self, problem, boxId, boxData)
+
+    def __init__(self, problem, boxid, boxData):
+        BasicBox.__init__(self, problem, boxid, boxData)
         if "maxChars" in boxData and isinstance(boxData['maxChars'], (int, long)) and boxData['maxChars'] > 0:
-            self.maxChars = boxData['maxChars']
+            self._max_chars = boxData['maxChars']
         elif "maxChars" in boxData:
-            raise Exception("Invalid maxChars value in box "+boxId)
+            raise Exception("Invalid maxChars value in box " + boxid)
         else:
-            self.maxChars = 0
-            
+            self._max_chars = 0
+
         if "lines" in boxData and isinstance(boxData['lines'], (int, long)) and boxData['lines'] > 0:
-            self.lines = boxData['lines']
+            self._lines = boxData['lines']
         elif "lines" in boxData:
-            raise Exception("Invalid lines value in box "+boxId)
+            raise Exception("Invalid lines value in box " + boxid)
         else:
-            self.lines = 8
-        
-        if "language" in boxData and re.match('[a-z0-9\-_\.]+$', boxData["language"], re.IGNORECASE):
-            self.language = boxData["language"]
+            self._lines = 8
+
+        if "language" in boxData and re.match(r'[a-z0-9\-_\.]+$', boxData["language"], re.IGNORECASE):
+            self._language = boxData["language"]
         elif "language" in boxData:
-            raise Exception("Invalid language "+boxData["language"])
+            raise Exception("Invalid language " + boxData["language"])
         else:
-            self.language = "plain"
+            self._language = "plain"

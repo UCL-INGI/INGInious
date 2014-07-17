@@ -1,11 +1,11 @@
 $def with (course,submissions)
-$var title: $:course.getName()
+$var title: $:course.get_name()
 
 $# Left column content
 $def leftColF():
     <h3>Progress</h3>
     <div class="progress">
-        $ completion=course.getUserCompletionPercentage()
+        $ completion=course.get_user_completion_percentage()
         <div class="progress-bar progress-bar-success" aria-valuenow="$completion" aria-valuemin="0" aria-valuemax="100" style="width: $completion%">
             $completion%
         </div>
@@ -25,40 +25,40 @@ $def leftColF():
                     $else:
                         list-group-item-danger
                     "
-                    href="/course/$submission['courseId']/$submission['taskId']">
-                    $submission['task'].getName()
+                    href="/course/$submission['courseid']/$submission['taskid']">
+                    $submission['task'].get_name()
                 </a>
         $else:
             <a class="list-group-item disabled submission-empty">No submissions</a>
     </div>
-    $if User.getUsername() in course.getAdmins():
-        $if not course.isOpen():
+    $if User.get_username() in course.get_admins():
+        $if not course.is_open():
             <div class="alert alert-warning" role="alert">
                 This course is currently invisible for students. 
                 You can change this by modifying the "accessible" option in the configuration of the course.
             </div>
-        <a href="/admin/$course.getId()" class="btn btn-primary btn-block">Manage</a>
+        <a href="/admin/$course.get_id()" class="btn btn-primary btn-block">Manage</a>
 $var leftCol: $:leftColF()
 
 $# Start content
 <ol class="breadcrumb">
   <li><a href="/index">Home</a></li>
-  <li class="active">$course.getName()</li>
+  <li class="active">$course.get_name()</li>
 </ol>
-<h2>$course.getName() - List of exercices</h2>
+<h2>$course.get_name() - List of exercices</h2>
 <div class="list-group">
-    $for taskId, task in course.getTasks().iteritems()
-        <a href="/course/$course.getId()/$taskId" class="list-group-item 
-            $ status=task.getUserStatus()
-            $if not task.isOpen():
+    $for taskid, task in course.get_tasks().iteritems()
+        <a href="/course/$course.get_id()/$taskid" class="list-group-item 
+            $ status=task.get_user_status()
+            $if not task.is_open():
                 disabled
             $if status == 'failed':
                 list-group-item-danger
             $elif status == 'succeeded':
                 list-group-item-success
             ">
-            $task.getName()
-            $if not task.isOpen():
+            $task.get_name()
+            $if not task.is_open():
                 (task currently unavailable)
         </a>
 </div>

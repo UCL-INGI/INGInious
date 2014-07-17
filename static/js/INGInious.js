@@ -148,12 +148,12 @@ function submitTask()
     jQuery.post(form.attr("action"), serialized, null, "json")
     .done(function(data)
     {
-        if ("status" in data && data["status"] == "ok" && "submissionId" in data)
+        if ("status" in data && data["status"] == "ok" && "submissionid" in data)
         {
         	incrementTries();
-            submissionId = data['submissionId'];
-            displayNewSubmission(data['submissionId']);
-            waitForSubmission(data['submissionId']);
+            submissionid = data['submissionid'];
+            displayNewSubmission(data['submissionid']);
+            waitForSubmission(data['submissionid']);
         }
         else if ("status" in data && data['status'] == "error")
         {
@@ -177,50 +177,50 @@ function submitTask()
 }
 
 //Wait for a job to end
-function waitForSubmission(submissionId)
+function waitForSubmission(submissionid)
 {
     setTimeout(function()
     {
         var url = $('form#task').attr("action");
-        jQuery.post(url, {"@action":"check","submissionId":submissionId}, null, "json")
+        jQuery.post(url, {"@action":"check","submissionid":submissionid}, null, "json")
         .done(function(data)
         {
             if("status" in data && data['status'] == "waiting")
-            	waitForSubmission(submissionId);
+            	waitForSubmission(submissionid);
             else if("status" in data && "result" in data)
             {
                 if(data['result'] == "failed")
                 {
                     displayTaskStudentErrorAlert(data);
-                    updateSubmission(submissionId,data['result']);
+                    updateSubmission(submissionid,data['result']);
                     updateTaskStatus("Wrong answer");
                     unblurTaskForm();
                 }
                 else if(data['result'] == "success")
                 {
                     displayTaskStudentSuccessAlert(data);
-                    updateSubmission(submissionId,data['result']);
+                    updateSubmission(submissionid,data['result']);
                     updateTaskStatus("Succeeded");
                     unblurTaskForm();
                 }
                 else if(data['result'] == "timeout")
                 {
                     displayTimeOutAlert();
-                    updateSubmission(submissionId,data['result']);
+                    updateSubmission(submissionid,data['result']);
                     updateTaskStatus("Wrong answer");
                     unblurTaskForm();
                 }
                 else if(data['result'] == "overflow")
                 {
                     displayOverflowAlert();
-                    updateSubmission(submissionId,data['result']);
+                    updateSubmission(submissionid,data['result']);
                     updateTaskStatus("Wrong answer");
                     unblurTaskForm();
                 }
                 else // == "error"
                 {
                     displayTaskErrorAlert(data);
-                    updateSubmission(submissionId,data['result']);
+                    updateSubmission(submissionid,data['result']);
                     updateTaskStatus("Wrong answer");
                     unblurTaskForm();
                 }
@@ -228,7 +228,7 @@ function waitForSubmission(submissionId)
             else
             {
                 displayTaskErrorAlert("");
-                updateSubmission(submissionId,"error");
+                updateSubmission(submissionid,"error");
                 updateTaskStatus("Wrong answer");
                 unblurTaskForm();
             }
@@ -236,7 +236,7 @@ function waitForSubmission(submissionId)
         .fail(function()
         {
             displayTaskErrorAlert("");
-            updateSubmission(submissionId,"error");
+            updateSubmission(submissionid,"error");
             updateTaskStatus("Wrong answer");
             unblurTaskForm();
         });
@@ -338,10 +338,10 @@ function displayTaskStudentAlertWithProblems(content, topEmpty, topPrefix, prefi
 	{
 		$(".task_alert_problem").each(function(key, elem)
 		{
-			problemId = elem.id.substr(11); //skip "task_alert."
-			if(problemId in content.problems)
+			problemid = elem.id.substr(11); //skip "task_alert."
+			if(problemid in content.problems)
 			{
-				$(elem).html(getAlertCode(prefix+content.problems[problemId],type,true));
+				$(elem).html(getAlertCode(prefix+content.problems[problemid],type,true));
 				if(firstPos == -1 || firstPos > $(elem).offset().top)
 					firstPos = $(elem).offset().top;
 			}
@@ -407,7 +407,7 @@ function loadOldSubmissionInput(id)
     displayTaskInputLoadingAlert();
     
 	var url = $('form#task').attr("action");
-    jQuery.post(url, {"@action":"load_submission_input","submissionId":id}, null, "json")
+    jQuery.post(url, {"@action":"load_submission_input","submissionid":id}, null, "json")
     .done(function(data)
     {
     	if( "status" in data && data['status'] == "ok" && "input" in data)

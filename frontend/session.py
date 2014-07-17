@@ -3,6 +3,7 @@ import web
 
 session = None
 
+
 def init(app):
     """ Init the session. Should be call before starting the web.py server """
     global session
