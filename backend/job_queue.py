@@ -1,4 +1,5 @@
-from abc import ABCMeta,abstractmethod
+from abc import ABCMeta, abstractmethod
+
 
 class JobQueueReceiver(object):
     """ Every job queue sent to a job manager should inherit from this abstract class """

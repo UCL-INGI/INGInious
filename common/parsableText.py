@@ -1,5 +1,7 @@
 from docutils import core
+
 from common.base import INGIniousConfiguration
+
 
 class ParsableText(object):
     """Allow to parse a string with different parsers"""

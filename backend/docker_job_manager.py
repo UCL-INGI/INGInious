@@ -1,8 +1,11 @@
-from backend.job_manager import JobManager
-import docker
-import os
 import json
-    
+import os
+
+import docker
+
+from backend.job_manager import JobManager
+
+
 class DockerJobManager (JobManager):
     def __init__(self, jobqueue, serverUrl, tasksDirectory, containersDirectory, containerPrefix):
         JobManager.__init__(self, jobqueue)

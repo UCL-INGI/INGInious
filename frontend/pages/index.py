@@ -3,8 +3,9 @@ import web
 from common.courses import Course
 from common.tasks import Task
 from frontend.base import renderer
-import frontend.user as User
 from frontend.submission_manager import getUserLastSubmissions
+import frontend.user as User
+
 
 #Index page
 class IndexPage(object):

@@ -1,6 +1,8 @@
-from backend.job_queue import JobQueueSender, JobQueueReceiver
 import Queue
 import uuid
+
+from backend.job_queue import JobQueueSender, JobQueueReceiver
+
 
 class SimpleJobQueue(JobQueueSender,JobQueueReceiver):
     """ A really simple job queue """

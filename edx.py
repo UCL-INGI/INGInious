@@ -1,13 +1,15 @@
 """ A simple grader for edx, that stands on the backend of INGInious """
 
+import json
+import threading
+
 import web
+
 from backend.docker_job_manager import DockerJobManager
 from backend.simple_job_queue import SimpleJobQueue
 from common.base import INGIniousConfiguration
 from common.tasks import Task
-import threading
-import json
-import random
+
 
 web.config.debug = False
 
@@ -82,11 +84,10 @@ class ManageSubmission(object):
         
         try:
             jobSemaphore = threading.Semaphore(0)
-            def manageOutput(jobId,job):
+            def manageOutput(_,job):
                 print "RETURN JOB"
                 manageOutput.jobReturn = job
                 jobSemaphore.release()
-            global jobQueue
             jobQueue.addJob(task, edxInput, manageOutput)
             jobSemaphore.acquire()
             jobReturn = manageOutput.jobReturn

@@ -5,8 +5,8 @@ import web
 from common.courses import Course
 from common.tasks import Task
 from common.tasks_problems import MultipleChoiceProblem
-import frontend.submission_manager as submission_manager
 from frontend.base import renderer
+import frontend.submission_manager as submission_manager
 import frontend.user as User
 
 

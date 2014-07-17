@@ -1,24 +1,26 @@
-import web
-
-from common.courses import Course
-from frontend.base import renderer
-import frontend.user as User
-from common.tasks import Task
-import pymongo
-import csv
 import StringIO
 import cStringIO
 import codecs
-from bson.objectid import ObjectId
-from frontend.base import database, gridFS
+from collections import OrderedDict
+import csv
 import json
+from os import listdir
+from os.path import isfile, join, splitext
 import tarfile
 import tempfile
 import time
+
 from bson import json_util
-from collections import OrderedDict
-from os import listdir
-from os.path import isfile, join, splitext
+from bson.objectid import ObjectId
+import pymongo
+import web
+
+from common.courses import Course
+from common.tasks import Task
+from frontend.base import database, gridFS
+from frontend.base import renderer
+import frontend.user as User
+
 
 class UnicodeWriter(object):
     """

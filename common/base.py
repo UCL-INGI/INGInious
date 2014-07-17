@@ -1,5 +1,6 @@
-import re
 import json
+import re
+
 
 class Configuration(dict):
     def load(self,path):

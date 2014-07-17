@@ -1,21 +1,24 @@
-from backend.simple_job_queue import SimpleJobQueue
-from backend.docker_job_manager import DockerJobManager
-import frontend.user as User
-from frontend.base import database, gridFS
-from common.base import INGIniousConfiguration
-from bson.objectid import ObjectId
-import threading
 import Queue
+import StringIO
+import base64
 from datetime import datetime
-import pymongo
-from sh import git
+import json
 import os.path
 import shutil
-import json
-import StringIO
 import tarfile
+import threading
+
+from bson.objectid import ObjectId
+import pymongo
+from sh import git
+
+from backend.docker_job_manager import DockerJobManager
+from backend.simple_job_queue import SimpleJobQueue
+from common.base import INGIniousConfiguration
+from frontend.base import database, gridFS
+import frontend.user as User
 from user_data import UserData
-import base64
+
 
 submissionGitSaver = None
 jobQueue = None

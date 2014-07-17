@@ -1,11 +1,12 @@
+from collections import OrderedDict
 import json
 from os import listdir
 from os.path import isfile, join, splitext
 
+from common.accessibleTime import AccessibleTime
 from common.base import INGIniousConfiguration, IdChecker
 from common.tasks import Task
-from collections import OrderedDict
-from common.accessibleTime import AccessibleTime
+
 
 # Represents a Course
 class Course(object):

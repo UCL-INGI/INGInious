@@ -8,6 +8,9 @@ import os
 import sys
 
 import common.base
+from common.courses import Course  # Must be done after changements on INGIniousConfiguration["tasksDirectory"]
+from common.tasks import Task
+
 
 def usage():
     print "Usage: "
@@ -23,8 +26,6 @@ common.base.INGIniousConfiguration["tasksDirectory"] = os.path.dirname(sys.argv[
 # Get composants of the filename
 filename = os.path.splitext(os.path.basename(sys.argv[1]))
 
-from common.courses import Course  # Must be done after changements on INGIniousConfiguration["tasksDirectory"]
-from common.tasks import Task
 
 if filename[1] not in [".task", ".course"]:
     print "This tool only support file with extension .task or .course"

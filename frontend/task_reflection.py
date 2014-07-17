@@ -4,10 +4,11 @@ from random import shuffle
 
 import web
 
+from common.courses import Course
+from common.tasks import Task
 from common.tasks_code_boxes import TextBox, InputBox, MultilineBox
 from common.tasks_problems import BasicCodeProblem, MultipleChoiceProblem, MatchProblem
-from common.tasks import Task
-from common.courses import Course
+
 
 #Add show functions to problems' boxes
 def TextBoxShow(self):
@@ -92,11 +93,9 @@ Course.getUserCompletionPercentage = getUserCompletionPercentage
 
 def getUserLastSubmissions(self,limit=5):
     """ Returns a given number (default 5) of submissions of task from this course """
-    from frontend.base import database
-    import frontend.user as User #insert here to avoid initialisation of session
-    from frontend.submission_manager import getUserLastSubmissions
+    from frontend.submission_manager import getUserLastSubmissions as externGetUserLastSubmissions
     taskIds=[]
     for taskId in self.getTasks():
         taskIds.append(taskId)
-    return getUserLastSubmissions({"courseId":self.getId(),"taskId":{"$in":taskIds}},limit)
+    return externGetUserLastSubmissions({"courseId":self.getId(),"taskId":{"$in":taskIds}},limit)
 Course.getUserLastSubmissions = getUserLastSubmissions

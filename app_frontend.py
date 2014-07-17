@@ -1,6 +1,7 @@
 """ Starts the frontend """
 
 import web
+
 import common.base
 import frontend.pages
 import frontend.session

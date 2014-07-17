@@ -3,6 +3,7 @@ import ldap
 import common.base
 from frontend.session import session
 
+
 def getData():
     import frontend.user_data
     return frontend.user_data.UserData(session.username)
@@ -51,7 +52,7 @@ def connect(login, password):
         # Fetch login informations
         results = l.search_s(username, ldap.SCOPE_SUBTREE, '(objectclass=person)', ['mail', 'cn', 'uid'])
 
-        for req, entry in results:
+        for _, entry in results:
             session.email = entry['mail'][0]
             session.username = entry['uid'][0]
             session.realname = entry['cn'][0]
@@ -59,5 +60,5 @@ def connect(login, password):
         # Save everything in the database
         getData().updateBasicInformations(session.realname,session.email)
         return True
-    except ldap.LDAPError, e:
+    except ldap.LDAPError, _:
         return False

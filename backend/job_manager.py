@@ -1,7 +1,9 @@
-import threading
-import json
 from abc import ABCMeta, abstractmethod
+import json
+import threading
+
 from common.parsableText import ParsableText
+
 
 class JobManager (threading.Thread):
     """ Abstract thread class that runs the jobs that are in the queue """
