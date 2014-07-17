@@ -7,7 +7,7 @@ import frontend.user as User
 
 
 # Course page
-class CoursePage:
+class CoursePage(object):
     # Simply display the page
     def GET(self, courseId):
         if User.isLoggedIn():

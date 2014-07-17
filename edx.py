@@ -40,7 +40,7 @@ def init():
         thread.daemon = True
         thread.start() 
         
-class ManageSubmission:
+class ManageSubmission(object):
     def GET(self):
         return """
         <!DOCTYPE html>

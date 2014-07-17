@@ -1,6 +1,6 @@
 from datetime import datetime
 
-class AccessibleTime:
+class AccessibleTime(object):
     """ represents the period of time that a course/task is accessible """
     def __init__(self,val=None):
         """ 

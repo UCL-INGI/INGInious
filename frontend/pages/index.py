@@ -7,7 +7,7 @@ import frontend.user as User
 from frontend.submission_manager import getUserLastSubmissions
 
 #Index page
-class IndexPage:
+class IndexPage(object):
     #Simply display the page
     def GET(self):
         if User.isLoggedIn():

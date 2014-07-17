@@ -8,7 +8,7 @@ from collections import OrderedDict
 from common.accessibleTime import AccessibleTime
 
 # Represents a Course
-class Course:
+class Course(object):
     """ Represents a course """
     
     @staticmethod

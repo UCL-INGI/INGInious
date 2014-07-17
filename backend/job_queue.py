@@ -1,6 +1,6 @@
 from abc import ABCMeta,abstractmethod
 
-class JobQueueReceiver:
+class JobQueueReceiver(object):
     """ Every job queue sent to a job manager should inherit from this abstract class """
     __metaclass__ = ABCMeta
     
@@ -14,7 +14,7 @@ class JobQueueReceiver:
         """ Set the result for a job. After the call to this method, the job is in the "done" state. See the getResult method for the content of result """
         return
     
-class JobQueueSender:
+class JobQueueSender(object):
     """ Abstract class that lists all the method needed to create a job queue """
     __metaclass__ = ABCMeta
 

@@ -6,7 +6,7 @@ from common.parsableText import ParsableText
 
 
 #Basic box. Abstract
-class BasicBox:
+class BasicBox(object):
     __metaclass__ = ABCMeta
     
     @abstractmethod

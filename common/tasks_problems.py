@@ -6,7 +6,7 @@ from common.parsableText import ParsableText
 from common.tasks_code_boxes import InputBox, MultilineBox, TextBox
 
 
-class BasicProblem:
+class BasicProblem(object):
     """Basic problem. *Should not be instanced*"""
     __metaclass__ = ABCMeta
     

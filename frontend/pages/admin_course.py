@@ -20,7 +20,7 @@ from collections import OrderedDict
 from os import listdir
 from os.path import isfile, join, splitext
 
-class UnicodeWriter:
+class UnicodeWriter(object):
     """
     A CSV writer which will write rows to CSV file "f",
     which is encoded in the given encoding.
@@ -87,7 +87,7 @@ def makeCSV(data):
     web.header('Content-disposition', 'attachment; filename=export.csv')
     return csvString.read()
     
-class AdminCourseStudentListPage:
+class AdminCourseStudentListPage(object):
     """ Course administration page """
     def GET(self, courseId):
         if User.isLoggedIn():
@@ -199,7 +199,7 @@ class AdminCourseStudentListPage:
         submissions = database.submissions.find({'_id': ObjectId(subid)})
         return self.downloadSubmissionSet(submissions, subid + '.tgz', [])
         
-class AdminCourseStudentInfoPage:
+class AdminCourseStudentInfoPage(object):
     """ List information about a student """
     def GET(self, courseId, username):
         if User.isLoggedIn():
@@ -240,7 +240,7 @@ class AdminCourseStudentInfoPage:
         return renderer.admin_course_student(course,username,result)
     
 
-class AdminCourseStudentTaskPage:
+class AdminCourseStudentTaskPage(object):
     """ List information about a task done by a student """
     def GET(self, courseId, username, taskId):
         if User.isLoggedIn():
@@ -269,7 +269,7 @@ class AdminCourseStudentTaskPage:
             return makeCSV(data)
         return renderer.admin_course_student_task(course,username,task,data)
     
-class AdminCourseTaskListPage:
+class AdminCourseTaskListPage(object):
     """ List informations about all tasks """
     def GET(self, courseId):
         if User.isLoggedIn():
@@ -334,7 +334,7 @@ class AdminCourseTaskListPage:
             return makeCSV(result)
         return renderer.admin_course_task_list(course,result,errors)
         
-class AdminCourseTaskInfoPage:
+class AdminCourseTaskInfoPage(object):
     """ List informations about a task """
     def GET(self, courseId, taskId):
         if User.isLoggedIn():

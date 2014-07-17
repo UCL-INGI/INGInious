@@ -11,7 +11,7 @@ import frontend.user as User
 
 
 # Task page
-class TaskPage:
+class TaskPage(object):
     # Simply display the page
     def GET(self, courseId, taskId):
         if User.isLoggedIn():

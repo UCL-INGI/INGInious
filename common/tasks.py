@@ -1,4 +1,4 @@
-class Task:
+class Task(object):
     def __init__(self,courseId,taskId):
         if not IdChecker(courseId) and not courseId == "":
             raise Exception("Course with invalid id: "+courseId)

@@ -1,6 +1,6 @@
 import frontend.base
 
-class UserData:
+class UserData(object):
     """ Allow to get and to modify data stored in database for a particular user
             userdata
             {
