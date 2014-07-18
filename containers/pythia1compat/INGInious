@@ -39,8 +39,6 @@ def setDirectoryRights(path):
 def setlimits():
     os.setgid(4242)
     os.setuid(4242)
-    os.environ["PATH"] += os.pathsep + '/opt/mozart2/bin'
-    os.environ["OZHOME"] = '/opt/mozart2'
     resource.setrlimit(resource.RLIMIT_CPU, (limits["time"], limits["time"]+5))
     resource.setrlimit(resource.RLIMIT_NPROC, (100, 100))
     
