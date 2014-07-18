@@ -16,4 +16,4 @@ INGIniousConfiguration = Configuration()
 
 def id_checker(id_to_test):
     """Checks if a id is correct"""
-    return bool(re.match('[a-z0-9\-_]+$', id_to_test, re.IGNORECASE))
+    return bool(re.match(r'[a-z0-9\-_]+$', id_to_test, re.IGNORECASE))

@@ -6,7 +6,6 @@ import web
 from common.tasks_problems import MultipleChoiceProblem
 from frontend.base import renderer
 from frontend.custom.courses import FrontendCourse
-from frontend.custom.tasks import FrontendTask
 import frontend.submission_manager as submission_manager
 import frontend.user as User
 

@@ -3,7 +3,7 @@ from abc import ABCMeta, abstractmethod
 import re
 
 from common.base import id_checker
-from common.parsableText import ParsableText
+from common.parsable_text import ParsableText
 
 
 class BasicBox(object):

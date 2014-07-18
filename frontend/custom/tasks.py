@@ -1,5 +1,5 @@
 """ Classes modifying basic tasks, problems and boxes classes """
-from common.parsableText import ParsableText
+from common.parsable_text import ParsableText
 import common.tasks
 from frontend.accessible_time import AccessibleTime
 from frontend.custom.task_problems import DisplayableCodeProblem, DisplayableCodeSingleLineProblem, DisplayableMatchProblem, DisplayableMultipleChoiceProblem

@@ -3,7 +3,7 @@ from abc import ABCMeta, abstractmethod
 from random import shuffle
 
 from common.base import id_checker
-from common.parsableText import ParsableText
+from common.parsable_text import ParsableText
 from common.tasks_code_boxes import InputBox, MultilineBox, TextBox
 
 

@@ -4,7 +4,7 @@ from abc import ABCMeta, abstractmethod
 import json
 import threading
 
-from common.parsableText import ParsableText
+from common.parsable_text import ParsableText
 
 
 class JobManager (threading.Thread):
