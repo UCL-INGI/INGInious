@@ -1,72 +1,54 @@
 """ Task """
+import codecs
+import collections
+import json
+from os.path import join
+
+from common.base import INGIniousConfiguration, id_checker
+from common.tasks_problems import CodeProblem, CodeSingleLineProblem, MultipleChoiceProblem, MatchProblem
 
 
 class Task(object):
 
     """ Contains the data for a task """
 
-    def __init__(self, courseid, taskid):
-        if not id_checker(courseid) and not courseid == "":
-            raise Exception("Course with invalid id: " + courseid)
-        elif not id_checker(taskid):
-            raise Exception("Task with invalid id: " + courseid + "/" + taskid)
+    def __init__(self, course, taskid):
+        if not id_checker(taskid):
+            raise Exception("Task with invalid id: " + course.get_id() + "/" + taskid)
 
-        try:
-            data = json.load(codecs.open(join(INGIniousConfiguration["tasks_directory"], courseid, taskid + ".task"), "r", 'utf-8'), object_pairs_hook=collections.OrderedDict)
-        except IOError:
-            raise Exception("File do not exists: " + join(INGIniousConfiguration["tasks_directory"], courseid, taskid + ".task"))
-        except Exception as inst:
-            raise Exception("Error while reading JSON: " + courseid + "/" + taskid + " :\n" + str(inst))
-
-        self._data = data
-        self._course = None
-        self._courseid = courseid
+        self._course = course
         self._taskid = taskid
 
-        self._name = data.get('name', 'Task {}'.format(taskid))
+        try:
+            self._data = json.load(codecs.open(join(INGIniousConfiguration["tasks_directory"], self._course.get_id(), self._taskid + ".task"), "r", 'utf-8'), object_pairs_hook=collections.OrderedDict)
+        except IOError:
+            raise Exception("File do not exists: " + join(INGIniousConfiguration["tasks_directory"], self._course.get_id(), self._taskid + ".task"))
+        except Exception as inst:
+            raise Exception("Error while reading JSON: " + self._course.get_id() + "/" + self._taskid + " :\n" + str(inst))
 
-        self._context = ParsableText(data.get('context', ""), "HTML" if data.get("contextIsHTML", False) else "rst")
-
-        self._environment = data.get('environment', None)
-
-        # Authors
-        if isinstance(data.get('author'), basestring):  # verify if author is a string
-            self._author = [data['author']]
-        elif isinstance(data.get('author'), list):  # verify if author is a list
-            for author in data['author']:
-                if not isinstance(author, basestring):  # authors must be strings
-                    raise Exception("This task has an invalid author")
-            self._author = data['author']
-        else:
-            self._author = []
-
-        # _accessible
-        self._accessible = AccessibleTime(data.get("_accessible", None))
-
-        # Order
-        self._order = int(data.get('order', -1))
+        self._environment = self._data.get('environment', None)
 
         #Response is HTML
-        self._response_is_html = data.get("responseIsHTML", False)
+        self._response_is_html = self._data.get("responseIsHTML", False)
 
         # Limits
         self._limits = {"time": 20, "memory": 1024, "disk": 1024}
-        if "limits" in data:
+        if "limits" in self._data:
             try:
-                self._limits['time'] = int(data["limits"].get("time", 20))
-                self._limits['memory'] = int(data["limits"].get("memory", 1024))
-                self._limits['disk'] = int(data["limits"].get("disk", 1024))
+                self._limits['time'] = int(self._data["limits"].get("time", 20))
+                self._limits['memory'] = int(self._data["limits"].get("memory", 1024))
+                self._limits['disk'] = int(self._data["limits"].get("disk", 1024))
             except:
                 raise Exception("Invalid limit")
 
-        if "problems" not in data:
+        if "problems" not in self._data:
             raise Exception("Tasks must have some problems descriptions")
 
         # Check all problems
         self._problems = []
 
-        for problemid in data['problems']:
-            self._problems.append(create_task_problem(self, problemid, data['problems'][problemid]))
+        for problemid in self._data['problems']:
+            self._problems.append(self._create_task_problem(self, problemid, self._data['problems'][problemid]))
 
     def input_is_consistent(self, task_input):
         """ Check if an input for a task is consistent. Return true if this is case, false else """
@@ -79,14 +61,6 @@ class Task(object):
         """ Returns the environment in which the job manager have to launch this task"""
         return self._environment
 
-    def get_name(self):
-        """ Returns the name of this task """
-        return self._name
-
-    def get_context(self):
-        """ Get the context(description) of this task """
-        return self._context
-
     def get_id(self):
         """ Get the id of this task """
         return self._taskid
@@ -97,17 +71,11 @@ class Task(object):
 
     def get_course_id(self):
         """ Return the courseid of the course that contains this task """
-        return self._courseid
+        return self._course.get_id()
 
     def get_course(self):
         """ Return the course that contains this task """
-        if self._course is None:
-            self._course = common.courses.Course(self._courseid)
         return self._course
-
-    def get_authors(self):
-        """ Return the list of this task's authors """
-        return self._author
 
     def get_limits(self):
         """ Return the limits of this task """
@@ -116,14 +84,6 @@ class Task(object):
     def get_response_type(self):
         """ Returns the method used to parse the output of the task: HTML or rst """
         return "HTML" if self._response_is_html else "rst"
-
-    def get_order(self):
-        """ Get the position of this task in the course """
-        return self._order
-
-    def is_open(self):
-        """ Returns if the task is open to students """
-        return self._accessible.is_open()
 
     def check_answer(self, task_input):
         """
@@ -151,13 +111,34 @@ class Task(object):
             multiple_choice_error_count += problem_mc_error_count
         return valid, need_launch, main_message, problem_messages, multiple_choice_error_count
 
-import codecs
-import collections
-import json
-from os.path import join
+    _problem_types = {"code": CodeProblem, "code-single-line": CodeSingleLineProblem, "multiple-choice": MultipleChoiceProblem, "match": MatchProblem}
 
-from common.accessibleTime import AccessibleTime
-from common.base import INGIniousConfiguration, id_checker
-import common.courses
-from common.parsableText import ParsableText
-from common.tasks_problems import create_task_problem
+    def _create_task_problem(self, task, problemid, problem_content):
+        """Creates a new instance of the right class for a given problem."""
+        # Basic checks
+        if not id_checker(problemid):
+            raise Exception("Invalid problem _id: " + problemid)
+        if problem_content.get('type', "") not in self._problem_types:
+            raise Exception("Invalid type for problem " + problemid)
+
+        return self._problem_types.get(problem_content.get('type', ""))(task, problemid, problem_content)
+
+    @classmethod
+    def add_problem_type(cls, problem_type, problem_class):
+        """ add a new problem type """
+        cls._problem_types[problem_type] = problem_class
+
+    @classmethod
+    def remove_problem_type(cls, problem_type):
+        """ delete a problem type """
+        del cls._problem_types[problem_type]
+
+    @classmethod
+    def remove_problem_types(cls):
+        """ delete all problem types """
+        cls._problem_types = {}
+
+    @classmethod
+    def add_problem_types(cls, problem_type_dict):
+        """ add new problem types """
+        cls._problem_types.update(problem_type_dict)

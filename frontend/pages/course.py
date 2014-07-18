@@ -1,13 +1,13 @@
 """ Course page """
 import web
 
-from common.courses import Course
-from common.tasks import Task
 from frontend.base import renderer
+from frontend.custom.courses import FrontendCourse
+from frontend.custom.tasks import FrontendTask
 import frontend.user as User
-
-
 # Course page
+
+
 class CoursePage(object):
 
     """ Course page """
@@ -17,7 +17,7 @@ class CoursePage(object):
 
         if User.is_logged_in():
             try:
-                course = Course(courseid)
+                course = FrontendCourse(courseid)
                 if not course.is_open() and User.get_username() not in course.get_admins():
                     return renderer.course_unavailable()
 
@@ -26,7 +26,7 @@ class CoursePage(object):
                 except_free_last_submissions = []
                 for submission in last_submissions:
                     try:
-                        submission["task"] = Task(submission['courseid'], submission['taskid'])
+                        submission["task"] = course.get_task(submission['taskid'])
                         except_free_last_submissions.append(submission)
                     except:
                         pass

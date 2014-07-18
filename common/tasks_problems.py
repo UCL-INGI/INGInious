@@ -9,7 +9,7 @@ from common.tasks_code_boxes import InputBox, MultilineBox, TextBox
 
 class BasicProblem(object):
 
-    """Basic problem. *Should not be instanced*"""
+    """Basic problem """
     __metaclass__ = ABCMeta
 
     @abstractmethod
@@ -102,19 +102,17 @@ class BasicCodeProblem(BasicProblem):
                 return False
         return True
 
+    _box_types = {"input-text": InputBox, "input-decimal": InputBox, "input-integer": InputBox, "multiline": MultilineBox, "text": TextBox}
+
     def _create_box(self, boxid, box_content):
         """ Create adequate box """
         if not id_checker(boxid) and not boxid == "":
             raise Exception("Invalid box _id " + boxid)
         if "type" not in box_content:
             raise Exception("Box " + boxid + " does not have a type")
-        if box_content["type"] == "multiline":
-            return MultilineBox(self, boxid, box_content)
-        elif box_content["type"] == "text":
-            return TextBox(self, boxid, box_content)
-        elif box_content["type"] in ["input-text", "input-mail", "input-decimal", "input-integer"]:
-            return InputBox(self, boxid, box_content)
-        else:
+        try:
+            return self._box_types[box_content["type"]](self, boxid, box_content)
+        except:
             raise Exception("Unknow box type " + box_content["type"] + "for box _id " + boxid)
 
     def check_answer(self, _):
@@ -242,25 +240,3 @@ class MultipleChoiceProblem(BasicProblem):
             else:
                 return False, None, "Wrong answer. Make sure to select all the valid possibilities" if self._multiple else "Wrong answer", 1
         return True, None, None, 0
-
-
-def create_task_problem(task, problemid, problem_content):
-    """Creates a new instance of the right class for a given problem."""
-    # Basic checks
-    if not id_checker(problemid):
-        raise Exception("Invalid problem _id: " + problemid)
-    if "type" not in problem_content or problem_content['type'] not in ["code", "code-single-line", "multiple-choice", "match"]:
-        raise Exception("Invalid type for problem " + problemid)
-
-    # If there is code to send, a VM name must be present
-    if problem_content['type'] in ["code", "code-single-line"] and task.get_environment() is None:
-        raise Exception("Environment undefined, but there is a problem with type=code")
-
-    if problem_content['type'] == "code":
-        return CodeProblem(task, problemid, problem_content)
-    elif problem_content['type'] == "code-single-line":
-        return CodeSingleLineProblem(task, problemid, problem_content)
-    elif problem_content['type'] == "multiple-choice":
-        return MultipleChoiceProblem(task, problemid, problem_content)
-    elif problem_content['type'] == "match":
-        return MatchProblem(task, problemid, problem_content)

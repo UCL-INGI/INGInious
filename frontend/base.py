@@ -3,16 +3,14 @@ from gridfs import GridFS
 from pymongo import MongoClient
 import web
 
-from common.courses import Course
-from common.tasks import Task
-import frontend.user as User
-import frontend.user_data
 
+def add_to_template_globals(name, value):
+    """ Add a variable to will be accessible in the templates """
+    add_to_template_globals.globals[name] = value
+add_to_template_globals.globals = {}
 
-# Define global variables accessible from the templates
-_template_globals = {'User': User, 'UserData': frontend.user_data.UserData, 'Task': Task, 'Course': Course}
 # Instance of the template renderer
-renderer = web.template.render('templates/', globals=_template_globals, base='layout')
+renderer = web.template.render('templates/', globals=add_to_template_globals.globals, base='layout')
 
 
 def new_database_client():

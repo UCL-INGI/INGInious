@@ -1,9 +1,8 @@
 """ Index page """
 import web
 
-from common.courses import Course
-from common.tasks import Task
 from frontend.base import renderer
+from frontend.custom.courses import FrontendCourse
 from frontend.submission_manager import get_user_last_submissions
 import frontend.user as User
 
@@ -38,9 +37,9 @@ class IndexPage(object):
         except_free_last_submissions = []
         for submission in last_submissions:
             try:
-                submission["task"] = Task(submission['courseid'], submission['taskid'])
+                submission["task"] = FrontendCourse(submission['courseid']).get_task(submission['taskid'])
                 except_free_last_submissions.append(submission)
             except:
                 pass
-        courses = {courseid: course for courseid, course in Course.get_all_courses().iteritems() if course.is_open() or User.get_username() in course.get_admins()}
+        courses = {courseid: course for courseid, course in FrontendCourse.get_all_courses().iteritems() if course.is_open() or User.get_username() in course.get_admins()}
         return renderer.main(courses, except_free_last_submissions)

@@ -33,7 +33,7 @@ if filename[1] not in [".task", ".course"]:
 
 try:
     if filename[1] == ".task":
-        Task("", filename[0])
+        FrontendTask("", filename[0])
     else:
         Course(filename[0])
 except Exception as inst:

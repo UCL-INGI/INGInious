@@ -1,8 +1,13 @@
 """ Manages users' sessions """
+import sys
+
 import ldap
 
 import common.base
+import frontend.base
 from frontend.session import session
+# Add this module to the templates
+frontend.base.add_to_template_globals("User", sys.modules[__name__])
 
 
 def get_data():

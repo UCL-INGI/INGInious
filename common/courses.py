@@ -4,18 +4,18 @@ import json
 from os import listdir
 from os.path import isfile, join, splitext
 
-from common.accessibleTime import AccessibleTime
 from common.base import INGIniousConfiguration, id_checker
-from common.tasks import Task
+import common.tasks
 
 
-# Represents a Course
 class Course(object):
 
     """ Represents a course """
 
-    @staticmethod
-    def get_all_courses():
+    _task_class = common.tasks.Task
+
+    @classmethod
+    def get_all_courses(cls):
         """Returns a table containing courseid=>Course pairs."""
         files = [
             splitext(f)[0] for f in listdir(
@@ -29,7 +29,7 @@ class Course(object):
         output = {}
         for course in files:
             try:
-                output[course] = Course(course)
+                output[course] = cls(course)
             except:  # todo log the error
                 pass
         return output
@@ -38,31 +38,17 @@ class Course(object):
         """Constructor. courseid is the name of the .course file"""
         if not id_checker(courseid):
             raise Exception("Course with invalid name: " + courseid)
-        content = json.load(open(join(INGIniousConfiguration["tasks_directory"], courseid + ".course"), "r"))
-        if "name" in content and "admins" in content and isinstance(content["admins"], list):
-            self._id = courseid
-            self._name = content['name']
-            self._admins = content['admins']
-            self._tasks_cache = None
-            self._accessible = AccessibleTime(content.get("accessible", None))
-        else:
-            raise Exception("Course has an invalid json description: " + courseid)
+        self._content = json.load(open(join(INGIniousConfiguration["tasks_directory"], courseid + ".course"), "r"))
+        self._id = courseid
+        self._tasks_cache = None
 
-    def get_name(self):
-        """ Return the name of this course """
-        return self._name
+    def get_task(self, taskid):
+        """ Return the class with name taskid """
+        return self._task_class(self, taskid)
 
     def get_id(self):
         """ Return the _id of this course """
         return self._id
-
-    def get_admins(self):
-        """ Return a list containing the ids of this course """
-        return self._admins
-
-    def is_open(self):
-        """ Return true if the course is open to students """
-        return self._accessible.is_open()
 
     def get_course_tasks_directory(self):
         """Return the complete path to the tasks directory of the course"""
@@ -83,10 +69,10 @@ class Course(object):
                         f))[1] == ".task"]
             output = {}
             for task in files:
-                # try:
-                output[task] = Task(self.get_id(), task)
-                # except:
-                #    pass
+                try:
+                    output[task] = self.get_task(task)
+                except:
+                    pass
             output = OrderedDict(sorted(output.items(), key=lambda t: t[1].get_order()))
             self._tasks_cache = output
         return self._tasks_cache

@@ -3,10 +3,10 @@ import json
 
 import web
 
-from common.courses import Course
-from common.tasks import Task
 from common.tasks_problems import MultipleChoiceProblem
 from frontend.base import renderer
+from frontend.custom.courses import FrontendCourse
+from frontend.custom.tasks import FrontendTask
 import frontend.submission_manager as submission_manager
 import frontend.user as User
 
@@ -19,11 +19,11 @@ class TaskPage(object):
         """ GET request """
         if User.is_logged_in():
             try:
-                course = Course(courseid)
+                course = FrontendCourse(courseid)
                 if not course.is_open() and User.get_username() not in course.get_admins():
                     return renderer.course_unavailable()
 
-                task = Task(courseid, taskid)
+                task = course.get_task(taskid)
                 if not task.is_open() and User.get_username() not in course.get_admins():
                     return renderer.task_unavailable()
 
@@ -41,11 +41,11 @@ class TaskPage(object):
         """ POST a new submission """
         if User.is_logged_in():
             try:
-                course = Course(courseid)
+                course = FrontendCourse(courseid)
                 if not course.is_open() and User.get_username() not in course.get_admins():
                     return renderer.course_unavailable()
 
-                task = Task(courseid, taskid)
+                task = course.get_task(taskid)
                 if not task.is_open() and User.get_username() not in course.get_admins():
                     return renderer.task_unavailable()
 

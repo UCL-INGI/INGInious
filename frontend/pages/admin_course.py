@@ -16,10 +16,10 @@ from bson.objectid import ObjectId
 import pymongo
 import web
 
-from common.courses import Course
-from common.tasks import Task
 from frontend.base import database, gridfs
 from frontend.base import renderer
+from frontend.custom.courses import FrontendCourse
+from frontend.custom.tasks import FrontendTask
 import frontend.user as User
 
 
@@ -104,7 +104,7 @@ class AdminCourseStudentListPage(object):
         """ GET request """
         if User.is_logged_in():
             try:
-                course = Course(courseid)
+                course = FrontendCourse(courseid)
                 if User.get_username() not in course.get_admins():
                     raise web.notfound()
 
@@ -228,7 +228,7 @@ class AdminCourseStudentInfoPage(object):
         """ GET request """
         if User.is_logged_in():
             try:
-                course = Course(courseid)
+                course = FrontendCourse(courseid)
                 if User.get_username() not in course.get_admins():
                     raise web.notfound()
 
@@ -274,10 +274,10 @@ class AdminCourseStudentTaskPage(object):
         """ GET request """
         if User.is_logged_in():
             try:
-                course = Course(courseid)
+                course = FrontendCourse(courseid)
                 if User.get_username() not in course.get_admins():
                     raise web.notfound()
-                task = Task(courseid, taskid)
+                task = course.get_task(taskid)
 
                 return self.page(course, username, task)
             except:
@@ -309,7 +309,7 @@ class AdminCourseTaskListPage(object):
         """ GET request """
         if User.is_logged_in():
             try:
-                course = Course(courseid)
+                course = FrontendCourse(courseid)
                 if User.get_username() not in course.get_admins():
                     raise web.notfound()
 
@@ -359,7 +359,7 @@ class AdminCourseTaskListPage(object):
         errors = []
         for task in files:
             try:
-                output[task] = Task(course.get_id(), task)
+                output[task] = course.get_task(task)
             except Exception as inst:
                 errors.append({"taskid": task, "error": str(inst)})
         tasks = OrderedDict(sorted(output.items(), key=lambda t: t[1].get_order()))
@@ -387,10 +387,10 @@ class AdminCourseTaskInfoPage(object):
         """ GET request """
         if User.is_logged_in():
             try:
-                course = Course(courseid)
+                course = FrontendCourse(courseid)
                 if User.get_username() not in course.get_admins():
                     raise web.notfound()
-                task = Task(courseid, taskid)
+                task = course.get_task(taskid)
 
                 return self.page(course, task)
             except:

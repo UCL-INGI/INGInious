@@ -124,3 +124,5 @@ class UserData(object):
             {"$inc": {"total_tries": 1, "task_tried": (1 if new_try else 0), "task_succeeded": (1 if new_succeed else 0)}})
 
         self._update_cache()
+
+frontend.base.add_to_template_globals("UserData", UserData)
