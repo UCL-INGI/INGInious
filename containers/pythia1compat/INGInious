@@ -1,20 +1,20 @@
 #! /usr/bin/python
-import json
-import sys
-import shutil
-import os
-import stat
-import resource
-import subprocess
-from os.path import isfile, join
-import inginious
-from inginious import feedback
-import time
-import tempfile
-import tarfile
 import base64
+from inginious import feedback
+import inginious
+import json
+import os
+from os.path import isfile, join
+import re
+import resource
+import shutil
 import signal
-
+import stat
+import subprocess
+import sys
+import tarfile
+import tempfile
+import time
 def copytree(src, dst, symlinks=False, ignore=None):
     """ Custom copy tree to allow to copy into existing directories """
     for item in os.listdir(src):
@@ -118,14 +118,22 @@ for filepath in ['/tmp/work/new_file.oz', '/tmp/work/new_file.ozf', '/tmp/work/e
         shutil.copy(filepath, '/.__output')
 
 # Produce feedback
-feedback = json.loads(stdout)
+stdout = "["+re.sub('\} *\n* *\{','},{',stdout)+"]"
+try:
+	feedback = json.loads(stdout)
+except:
+	print json.dumps({"result":"crash", "text":"Unable to read pythia1 feedback: "+stdout, "problems":{}})
+	exit()
 if not feedback:
     print json.dumps({"result":"crash", "text":"No feedback was given !", "problems":{}})
     exit()
 else:
-    feedback['result'] = 'success' if feedback['correct'] else 'failed'
-    del feedback['correct']
-    del feedback['score']
-    feedback['text'] = feedback.pop('msg')
-    feedback['archive'] = b64tarfile('/.__output')
-    print json.dumps(feedback)
+    output = {"result":'success','text':'','archive':b64tarfile('/.__output'),'problems':{},'realstdout':stdout}
+    for f in feedback:
+        if not f['correct']:
+            output['result'] = 'failed'
+        if f['msg'] != "":
+            if output['text'] != "":
+                output['text'] += "<br/>"
+            output['text'] += f['msg']
+    print json.dumps(output)
