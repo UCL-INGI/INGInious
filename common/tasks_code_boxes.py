@@ -37,7 +37,7 @@ class BasicBox(object):
         else:
             return pid
 
-    def __init__(self, problem, boxid, boxdata):
+    def __init__(self, problem, boxid, boxdata_):
         """ Constructor. problem is a BasicProblem (or derivated) instance, boxid a an alphanumeric _id and boxdata is the data for this box. """
         if not id_checker(boxid) and not boxid == "":
             raise Exception("Invalid box _id: " + boxid)

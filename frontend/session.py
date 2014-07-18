@@ -1,3 +1,4 @@
+""" Manages the sessions in web.py """
 import web
 
 
@@ -9,6 +10,6 @@ def init(app):
     global session
     if web.config.get('_session') is None:
         session = web.session.Session(app, web.session.DiskStore('sessions'), {'count': 0})
-        web.config._session = session
+        web.config._session = session  # pylint: disable=protected-access
     else:
-        session = web.config._session
+        session = web.config._session  # pylint: disable=protected-access

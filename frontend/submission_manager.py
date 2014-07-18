@@ -1,8 +1,8 @@
 """ Manages submissions """
+from datetime import datetime
 import Queue
 import StringIO
 import base64
-from datetime import datetime
 import json
 import os.path
 import shutil
@@ -10,17 +10,15 @@ import tarfile
 import threading
 
 from bson.objectid import ObjectId
+from sh import git  # pylint: disable=no-name-in-module
 import pymongo
-from sh import git
 
 from backend.docker_job_manager import DockerJobManager
 from backend.simple_job_queue import SimpleJobQueue
 from common.base import INGIniousConfiguration
 from frontend.base import database, gridfs
-import frontend.user as User
 from frontend.user_data import UserData
-
-
+import frontend.user as User
 submission_git_saver = None
 job_queue = None
 job_managers = []
@@ -60,8 +58,8 @@ def init_backend_interface():
 
     # Launch the job managers
     try:
-        job_manager_count = int(INGIniousConfiguration["job_managers"])
-    except:
+        job_manager_count = int(INGIniousConfiguration.get("job_managers", 1))
+    except ValueError:
         print "Configuration entry 'job_managers' must be an integer"
         job_manager_count = 1
     if job_manager_count < 1:

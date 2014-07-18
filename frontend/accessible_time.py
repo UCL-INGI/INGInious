@@ -32,7 +32,8 @@ class AccessibleTime(object):
             else:
                 self.val = [self._parse_date(values[0].strip()), self._parse_date(values[1].strip())]
 
-    def _parse_date(self, date):
+    @classmethod
+    def _parse_date(cls, date):
         """ Parse a valid date """
         if date == "":
             return None
