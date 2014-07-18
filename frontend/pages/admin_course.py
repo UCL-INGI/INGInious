@@ -19,7 +19,6 @@ import web
 from frontend.base import database, gridfs
 from frontend.base import renderer
 from frontend.custom.courses import FrontendCourse
-from frontend.custom.tasks import FrontendTask
 import frontend.user as User
 
 

@@ -6,6 +6,8 @@ import ldap
 import common.base
 import frontend.base
 from frontend.session import session
+import frontend.user_data
+
 # Add this module to the templates
 frontend.base.add_to_template_globals("User", sys.modules[__name__])
 
@@ -14,7 +16,6 @@ def get_data():
     """ Get the User Data for the connected user """
     if not is_logged_in():
         return None
-    import frontend.user_data
     return frontend.user_data.UserData(session.username)
 
 
