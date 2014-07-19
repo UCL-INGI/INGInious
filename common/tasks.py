@@ -1,13 +1,11 @@
 """ Task """
+from os.path import join
 import codecs
 import collections
 import json
-from os.path import join
 
 from common.base import INGIniousConfiguration, id_checker
 from common.tasks_problems import CodeProblem, CodeSingleLineProblem, MultipleChoiceProblem, MatchProblem
-
-
 class Task(object):
 
     """ Contains the data for a task """
@@ -99,15 +97,15 @@ class Task(object):
         problem_messages = {}
         multiple_choice_error_count = 0
         for problem in self._problems:
-            problem_is_valid, problem_main_message, problem_messages, problem_mc_error_count = problem.check_answer(task_input)
+            problem_is_valid, problem_main_message, problem_s_messages, problem_mc_error_count = problem.check_answer(task_input)
             if problem_is_valid is None:
                 need_launch = True
             elif problem_is_valid == False:
                 valid = False
             if problem_main_message is not None:
                 main_message.append(problem_main_message)
-            if problem_messages is not None:
-                problem_messages[problem.get_id()] = problem_messages
+            if problem_s_messages is not None:
+                problem_messages[problem.get_id()] = problem_s_messages
             multiple_choice_error_count += problem_mc_error_count
         return valid, need_launch, main_message, problem_messages, multiple_choice_error_count
 
