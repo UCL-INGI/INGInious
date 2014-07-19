@@ -2,7 +2,7 @@ $def with (error)
 $var title: Connexion
 
 $# Left column content
-$def leftColF(error):
+$def ColumnF(error):
     <form role="form" action="/index" method="post">
         $if error:
             <div class="alert alert-danger" role="alert">
@@ -20,7 +20,7 @@ $def leftColF(error):
         </div>
         <button type="submit" class="btn btn-default">Submit</button>
     </form>
-$var leftCol: $:leftColF(error)
+$var Column: $:ColumnF(error)
 
 $# Start content
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque iaculis mattis volutpat. Etiam non semper nisl, in molestie libero. Nullam condimentum est sapien, at venenatis urna congue et. Morbi eu quam ac est mollis euismod. Vestibulum elit mauris, ornare non justo ut, tempus vulputate tortor. Cras odio diam, accumsan non turpis nec, condimentum tincidunt nibh. Vivamus lobortis imperdiet mauris, sed fringilla libero semper vel.<br/>

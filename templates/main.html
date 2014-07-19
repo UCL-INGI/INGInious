@@ -2,7 +2,7 @@ $def with (courses,submissions)
 $var title: My profile
 
 $# Left column content
-$def leftColF():
+$def ColumnF():
     <h3>Last submissions</h3>
     
     <div class="list-group">
@@ -19,13 +19,12 @@ $def leftColF():
                         list-group-item-danger
                     "
                     href="/course/$submission['courseid']/$submission['taskid']">
-                    <h4 class="list-group-item-heading">$submission["task"].get_name()</h4>
-                    <p class="list-group-item-text">$submission["task"].get_course().get_name()</p>
+                    <b>$submission["task"].get_course().get_name()</b>: $submission["task"].get_name()
                 </a>
         $else:
             <a class="list-group-item disabled submission-empty">No submissions</a>
     </div>
-$var leftCol: $:leftColF()
+$var Column: $:ColumnF()
 
 $# Start content
 <h2>Course list</h2>

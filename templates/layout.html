@@ -25,8 +25,8 @@ $if "header" in content:
 </head>
 
 <body role="document">
-    <div class="navbar navbar-default navbar-static-top" role="navigation">
-        <div class="container">
+    <div class="navbar navbar-inverse navbar-static-top" role="navigation">
+        <div class="container-fluid">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse"
                     data-target=".navbar-collapse">
@@ -43,16 +43,17 @@ $if "header" in content:
         </div>
     </div>
 
-    <div class="container" role="main">
-            $if "leftCol" in content:
-                <div class="col-xs-12 col-sm-4 col-lg-3">
-                    $:content.leftCol
-                </div>
+    <div class="container-fluid" role="main">
+            $if "Column" in content:
                 <div class="col-xs-12 col-sm-8 col-lg-9">
             $else:
                 <div class="col-xs-12">
             $:content
         </div>
+        $if "Column" in content:
+        	<div class="col-xs-12 col-sm-4 col-lg-3">
+                $:content.Column
+            </div>    
     </div>
 
 

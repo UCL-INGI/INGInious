@@ -2,7 +2,7 @@ $def with (course,submissions)
 $var title: $:course.get_name()
 
 $# Left column content
-$def leftColF():
+$def ColumnF():
     <h3>Progress</h3>
     <div class="progress">
         $ completion=course.get_user_completion_percentage()
@@ -38,7 +38,7 @@ $def leftColF():
                 You can change this by modifying the "accessible" option in the configuration of the course.
             </div>
         <a href="/admin/$course.get_id()" class="btn btn-primary btn-block">Manage</a>
-$var leftCol: $:leftColF()
+$var Column: $:ColumnF()
 
 $# Start content
 <ol class="breadcrumb">

@@ -2,7 +2,7 @@ $def with (course,task,submissions)
 $var title: $:task.get_name() - $:task.get_course().get_name()
 
 $# Left column content
-$def leftColF():
+$def ColumnF():
     <h3>Informations</h3>
     <table class="table table-condensed">
         $if task.get_authors():
@@ -71,7 +71,7 @@ $def leftColF():
         $else:
             <a class="list-group-item disabled submission-empty">No submissions</a>
     </div>
-$var leftCol: $:leftColF()
+$var Column: $:ColumnF()
 
 $# Start content
 <ol class="breadcrumb">
