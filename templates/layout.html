@@ -25,7 +25,7 @@ $if "header" in content:
 </head>
 
 <body role="document">
-    <div class="navbar navbar-inverse navbar-static-top" role="navigation">
+    <div class="navbar navbar-default navbar-static-top" role="navigation">
         <div class="container-fluid">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse"
@@ -36,10 +36,12 @@ $if "header" in content:
                 </button>
                 <a class="navbar-brand" href="/index">INGInious</a>
             </div>
-            $if "navbar" in content:
-                $:content.navbar
-            $if User.is_logged_in():
-                <p class="navbar-text navbar-right">Logged in as $User.get_realname() - <a href="/index?logoff" class="navbar-link">Log off</a></p>
+            <div class="collapse navbar-collapse">
+                $if "navbar" in content:
+                    $:content.navbar
+                $if User.is_logged_in():
+                    <p class="navbar-text navbar-right">Logged in as $User.get_realname() - <a href="/index?logoff" class="navbar-link">Log off</a></p>
+            </div>
         </div>
     </div>
 

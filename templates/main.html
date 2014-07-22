@@ -30,13 +30,17 @@ $# Start content
 <h2>Course list</h2>
 <div class="list-group">
     $for courseid in courses
-        <a href="course/$courseid" class="list-group-item">
-            <div class="progress">
-                $ completion=courses[courseid].get_user_completion_percentage()
-                <div class="progress-bar progress-bar-success" aria-valuenow="$completion" aria-valuemin="0" aria-valuemax="100" style="width: $completion%">
-                    $completion%
+        <a href="course/$courseid" class="list-group-item row">
+            <div class="col-xs-12 col-md-7">
+            	$courses[courseid].get_name()
+            </div>
+            <div class="col-xs-12 col-md-5">
+                <div class="progress">
+                    $ completion=courses[courseid].get_user_completion_percentage()
+                    <div class="progress-bar progress-bar-success" aria-valuenow="$completion" aria-valuemin="0" aria-valuemax="100" style="width: $completion%">
+                        $completion%
+                    </div>
                 </div>
             </div>
-            $courses[courseid].get_name()
         </a>
 </div>
