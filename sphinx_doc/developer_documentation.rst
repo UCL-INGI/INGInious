@@ -1,7 +1,17 @@
 Developer's documentation
 =========================
 
-Contents:
+Guides
+------
+
+.. toctree::
+   :maxdepth: 3
+   
+   dev_doc/understand_inginious
+   dev_doc/how_to_extend
+
+Code documentation
+------------------
 
 .. toctree::
    :maxdepth: 3

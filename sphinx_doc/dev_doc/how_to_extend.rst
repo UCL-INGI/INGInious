@@ -1,0 +1,9 @@
+How to extend INGInious
+=======================
+
+INGInious is mainly a backend that is agnostic. It can be used to run nearly everything.
+The backend's code is in :doc:`backend`. You must uses these classes to run new jobs.
+
+The :doc:`common` contains classes that are intended to be inherited by new "frontends".
+The frontend given with INGInious is in fact an (big) extension of the :doc:`common`.
+You can use it as an example on how to extend INGInious.
