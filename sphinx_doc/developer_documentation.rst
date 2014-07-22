@@ -4,11 +4,11 @@ Developer's documentation
 Contents:
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 3
 
-   app_frontend
-   edx
-   frontend
-   common
-   backend
-   tests
+   dev_doc/app_frontend
+   dev_doc/edx
+   dev_doc/frontend
+   dev_doc/common
+   dev_doc/backend
+   dev_doc/tests

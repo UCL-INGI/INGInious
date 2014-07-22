@@ -9,7 +9,7 @@ Welcome to INGInious's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 3
 
    teacher_documentation
    developer_documentation
