@@ -12,12 +12,7 @@ Contents:
    :maxdepth: 4
 
    teacher_documentation
-   app_frontend
-   edx
-   frontend
-   common
-   backend
-   tests
+   developer_documentation
 
 
 Indices and tables
