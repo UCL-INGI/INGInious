@@ -7,7 +7,7 @@ import getopt
 
 def usage():
     print "Usage : archive [-o|--outsubdir ]output_subdir [-a|--add ]filepath [-r|--remove ]filepath"
-    print "--outubdir will put the file in the specified sub-directory in the output archive"
+    print "--outsubdir will put the file in the specified sub-directory in the output archive"
     print "If specified whith --remove, it prefixes the filepath"
     sys.exit(1)
 

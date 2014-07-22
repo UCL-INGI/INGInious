@@ -34,7 +34,7 @@ def save_input(rdict):
     f.close()
 
 def usage():
-    print "Usage : feedback [-a|--addinput ]filepath [-i|--id ]problem_id [-l|--addlimit ]limit [-t|--limittype] [-r|--run ]task_folder"
+    print "Usage : simulate [-a|--addinput ]filepath [-i|--id ]problem_id [-l|--addlimit ]limit [-t|--limittype] [-r|--run ]task_folder"
     print "A problem id must be specified with parameter --addinput."
     print "A limit type must be specified with parameter --addlimit."
     print "The task folder must contains a runnable script 'run'"
