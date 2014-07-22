@@ -8,3 +8,4 @@ configuration.json
 configuration.*.json
 !configuration.example.json
 dump
+sphinx_doc/_*
