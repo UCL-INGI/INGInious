@@ -11,11 +11,12 @@ Contents:
 .. toctree::
    :maxdepth: 4
 
+   teacher_documentation
    app_frontend
-   backend
-   common
    edx
    frontend
+   common
+   backend
    tests
 
 
