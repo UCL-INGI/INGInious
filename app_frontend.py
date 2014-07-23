@@ -2,10 +2,9 @@
 
 import web
 
+from frontend.plugins.plugin_manager import PluginManager
 import common.base
 import frontend.session
-
-
 urls = (
     '/', 'frontend.pages.index.IndexPage',
     '/index', 'frontend.pages.index.IndexPage',
@@ -34,5 +33,8 @@ if __name__ == "__main__":
     # Idem
     import frontend.submission_manager
     frontend.submission_manager.init_backend_interface()
+
+    # Must be done after everything else
+    PluginManager(common.base.INGIniousConfiguration.get("plugins", []))
 
     app.run()
