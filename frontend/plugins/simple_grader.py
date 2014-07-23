@@ -24,6 +24,13 @@ def init(plugin_manager, config):
 
         The grader will only return fields that are in the job return dict if their key match return_fields.
 
+        External submissions must take the form of a POST request on the url defined by *page_pattern*.
+        This POST must contains two data field:
+
+        - *taskid*: the task id of the task
+
+        - *input*: the input for the task, in JSON. The input is a dictionary filled with problemid:problem_answers pairs.
+
     """
     courseid = config.get('courseid', 'external')
     course = Course(courseid)

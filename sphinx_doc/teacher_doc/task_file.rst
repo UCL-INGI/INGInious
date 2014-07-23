@@ -17,6 +17,7 @@ The *.task* file is a JSON file containing informations about the task.
 		{
 			"a_problem_id":
 			{
+				"name": "The title of this question",
 				"header": "A header for this question",
 				"type": "code",
 				"language": "c"
