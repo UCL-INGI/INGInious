@@ -2,7 +2,6 @@
 import os
 import sys
 import json
-import getopt
 
 def load_feedback():
     """ Open existing feedback file """
