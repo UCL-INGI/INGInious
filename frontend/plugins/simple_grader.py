@@ -83,10 +83,6 @@ def init(plugin_manager, config):
             except:
                 return json.dumps({"result": "crash", "text": "An internal error occured"})
 
-            real_return = {}
-            for key, value in job_return.iteritems():
-                if return_fields.match(key):
-                    real_return[key] = value
-            return json.dumps(real_return)
+            return json.dumps({key: value for key, value in job_return.iteritems() if return_fields.match(key)})
 
     plugin_manager.add_page(page_pattern, ExternalGrader)
