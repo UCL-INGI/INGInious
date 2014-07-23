@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import os
 import sys
+import glob
 import json
 import getopt
 import docker
@@ -32,7 +33,7 @@ def run_task(task, inputdata):
     return stdout,stderr
 
 def usage():
-    print "Usage : test_task [-v|--verbose] [-i|--input-dir ]input_folder [-o|--output-dir ]output_folder task_folder"
+    print "Usage : test_task [-v|--verbose] [-i|--input-dir ]input_folder task_folder"
     print "Verbose mode prints the entire standard output from the task"
     sys.exit(1)
 
@@ -44,7 +45,7 @@ if euid != 0:
 
 # Read arguments from the command line
 try:
-    opts, args = getopt.getopt(sys.argv[1:], 'i:o:v', ['input-dir=', 'output-dir=', 'verbose'])
+    opts, args = getopt.getopt(sys.argv[1:], 'i:v', ['input-dir=', 'verbose'])
     if not args:
         usage()
 except getopt.GetoptError,e:
@@ -52,24 +53,18 @@ except getopt.GetoptError,e:
     sys.exit(1)
 
 inputdir = ''
-outputdir = ''
 verbose = False
 
 for opt, arg in opts:
     if opt in ('-i', '--input-dir'):
         inputdir = arg
-    elif opt in ('-o', '--output-dir'):
-        outputdir = arg
     elif opt in ('-v', '--verbose'):
         verbose = True
 
 taskdir=args[0]
 
 if not inputdir:
-    inputdir = args[0] + '/tests/in'
-    
-if not outputdir:
-    outputdir = args[0] + '/tests/out'
+    inputdir = args[0] + '/tests/'
 
 # Do the real stuff
 
@@ -83,12 +78,13 @@ task = json.load(taskfile)
 limits = task['limits']
 
 # List inputfiles
-inputfiles = os.listdir(inputdir)
+inputfiles = glob.glob(inputdir + '/*.in')
 
 dock = docker.Client(base_url='unix://var/run/docker.sock')
 
 i=1
 for filename in inputfiles:
+    filename = os.path.basename(filename)    
     print  '\x1b[34;1m[' + str(i) + '/' + str(len(inputfiles)) + ']' + " Testing input file : " + filename + '\033[0m'
     
     # Open the input file and merge with limits
@@ -109,7 +105,7 @@ for filename in inputfiles:
     # Open both JSON
     result = json.loads(stdout.strip('\0\n '))
     try:
-        outputfile = open(outputdir + '/' + filename, 'r')
+        outputfile = open(inputdir + '/' + os.path.splitext(os.path.basename(filename))[0] + '.out', 'r')
         outputdata = json.load(outputfile)
     except IOError, e:
         print "Error while loading output file"
