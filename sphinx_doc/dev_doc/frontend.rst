@@ -8,6 +8,7 @@ Subpackages
 
     frontend.custom
     frontend.pages
+    frontend.plugins
 
 Submodules
 ----------

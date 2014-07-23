@@ -67,6 +67,8 @@ We also use docker-osx_ instead of the official Boot2Docker because it allows to
 local directory flawlessly.
 
 .. _brew: http://brew.sh/
+.. _docker-osx: https://github.com/noplay/docker-osx
+
 ::
 
 	$ brew install mongodb
