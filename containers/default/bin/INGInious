@@ -9,6 +9,7 @@ import subprocess
 from os.path import isfile, join
 import inginious
 from inginious import feedback
+from inginious import tests
 import time
 import tempfile
 import tarfile
@@ -81,31 +82,29 @@ data = json.loads(stdin)
 input_data = data["input"]
 limits = data["limits"]
 
-if sys.argv[1:] and sys.argv[1] == '--debug':
-    debug =True
-else:
-    debug = False
+# Determining if debug mode or not
+debug = True if sys.argv[1:] and sys.argv[1] == '--debug' else False
 
 # Create input data directory
-if not os.path.exists('/.__input/__inputdata.json'):
-    os.mkdir("/.__input")
-    f = open('/.__input/__inputdata.json', 'w')
-    f.write(stdin)
-    f.close()
+os.mkdir("/.__input")
+f = open('/.__input/__inputdata.json', 'w')
+f.write(stdin)
+f.close()
+
+# Create tests directory
+os.mkdir('/.__tests')
 
 # Create output directory
-if not os.path.exists('/.__output/'):
-    os.mkdir("/.__output")
+os.mkdir("/.__output")
 
 #Copy /ro/task (which is read-only) in /task. Everything will be executed there
-if os.path.exists('/task'):
-    shutil.rmtree('/task')
 shutil.copytree("/ro/task","/task")
 
 #Set rights on some files
 setDirectoryRights("/tmp")
 setDirectoryRights("/task")
 setDirectoryRights("/.__input")
+setDirectoryRights("/.__tests")
 setDirectoryRights("/.__output")
 
 #Launch everything
@@ -114,22 +113,36 @@ if os.path.exists("/task/run"):
     os.chdir("/task")
     try:
         stdout, stderr = executeProcess("/task/run", "")
-        if debug:
-            print "STDOUT :\n--------\n" + stdout
-            print "STDERR :\n--------\n" + stderr
-            print "OUTPUT :\n--------\n"
     except:
-        print json.dumps({"result":"timeout","text":"'/task/run' did a timeout","problems":{}})
+        result={"result":"timeout","text":"'/task/run' did a timeout","problems":{}}
+        if debug:
+            result['stdout'] = stdout
+            result['stderr'] = stderr
+        print json.dumps(result)
         exit()
 else:
-    print json.dumps({"result":"crash","text":"'/task/run' couldn't be found","problems":{}})
+    result = {"result":"crash","text":"'/task/run' couldn't be found","problems":{}}
+    if debug:
+        result['stdout'] = stdout
+        result['stderr'] = stderr
+    print json.dumps(result)
     exit()
 
 # Produce feedback
 feedback = inginious.feedback.get_feedback()
+tests_results = inginious.tests.get_tests_results()
 if not feedback:
-    print json.dumps({"result":"crash", "text":"No feedback was given !", "problems":{}})
+    result = {"result":"crash", "text":"No feedback was given !", "problems":{}}
+    if debug:
+        result['stdout'] = stdout
+        result['stderr'] = stderr
+        result['tests'] = tests_results
+    print json.dumps(result)
     exit()
 else:
+    if debug:
+        feedback['stdout'] = stdout
+        feedback['stderr'] = stderr
+        feedback['tests'] = tests_results
     feedback['archive'] = b64tarfile('/.__output')
     print json.dumps(feedback)

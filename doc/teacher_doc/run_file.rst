@@ -27,7 +27,7 @@ feedback
 ````````
 
 The *feedback* command allows you to set the result of your tests.
-Every option is optionnal.
+Every argument is optionnal.
 
 -r, --result STATUS		set the result to STATUS. STATUS can be
 						success (the student succeeded the task),
