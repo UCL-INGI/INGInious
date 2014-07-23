@@ -14,6 +14,9 @@ class FrontendCourse(Course):
     def __init__(self, courseid):
         Course.__init__(self, courseid)
 
+        if self._content.get('nofrontend', False):
+            raise Exception("That course is not allowed to be displayed directly in the frontend")
+
         if "name" in self._content and "admins" in self._content and isinstance(self._content["admins"], list):
             self._name = self._content['name']
             self._admins = self._content['admins']

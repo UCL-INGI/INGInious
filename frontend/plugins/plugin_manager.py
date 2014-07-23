@@ -16,7 +16,8 @@ class PluginManager(object):
             raise Exception("You should not instanciate PluginManager more than once")
         return cls._instance
 
-    def __init__(self, config):
+    def __init__(self, app, config):
+        self.app = app
         self.plugins = []
         self.hooks = {}
         for entry in config:
@@ -38,3 +39,7 @@ class PluginManager(object):
         """ Call all hooks registered with this name """
         for func in self.hooks.get(name, []):
             func(**kwargs)
+
+    def add_page(self, pattern, classname):
+        """ Add a new page to the web application """
+        self.app.add_mapping(pattern, classname)

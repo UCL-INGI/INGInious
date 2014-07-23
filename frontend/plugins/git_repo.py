@@ -84,7 +84,18 @@ class SubmissionGitSaver(threading.Thread):
 
 
 def init(plugin_manager, config):
-    """ Init the plugin """
+    """
+        Init the plugin
+
+        Available configuration:
+        ::
+
+            {
+                "plugin_module": "frontend.plugins.git_repo",
+                "repo_directory": "./repo_submissions"
+            }
+
+    """
     submission_git_saver = SubmissionGitSaver(plugin_manager, config)
     submission_git_saver.daemon = True
     submission_git_saver.start()

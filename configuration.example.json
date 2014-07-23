@@ -7,8 +7,12 @@
 	"job_managers": 4,
 	"build_containers_on_start": true,
 	
-	"enable_submission_repo": true,
-	"submission_repo_directory": "./repo_submissions",
+	"plugins": [
+		{
+			"plugin_module": "frontend.plugins.git_repo",
+			"repo_directory": "./repo_submissions"
+		}
+	],
 	
 	"allow_html": "tidy"
 }

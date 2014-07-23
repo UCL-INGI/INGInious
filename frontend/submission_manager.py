@@ -156,3 +156,8 @@ def get_user_last_submissions(query, limit):
     cursor = database.submissions.find(request)
     cursor.sort([("submitted_on", -1)]).limit(limit)
     return list(cursor)
+
+
+def get_backend_job_queue():
+    """ Get the job_queue used by the backend. Should only be used by very specific plugins """
+    return job_queue

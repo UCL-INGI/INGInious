@@ -17,7 +17,7 @@ urls = (
     '/admin/([^/]+)/task/([^/]+)', 'frontend.pages.admin_course.AdminCourseTaskInfoPage',
 )
 
-app = web.application(urls, globals())
+app = web.application(urls, globals(), autoreload=False)
 
 if __name__ == "__main__":
     common.base.INGIniousConfiguration.load("./configuration.json")
@@ -35,6 +35,6 @@ if __name__ == "__main__":
     frontend.submission_manager.init_backend_interface()
 
     # Must be done after everything else
-    PluginManager(common.base.INGIniousConfiguration.get("plugins", []))
+    PluginManager(app, common.base.INGIniousConfiguration.get("plugins", []))
 
     app.run()
