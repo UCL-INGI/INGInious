@@ -6,7 +6,7 @@ from frontend.plugins.plugin_manager import PluginManager
 import common.base
 import frontend
 import frontend.session
-from frontend import submission_manager
+
 import frontend.base
 
 urls = (
@@ -27,8 +27,11 @@ def init_app(config_file):
     global app
     app = web.application(urls, globals(), autoreload=False)
     common.base.INGIniousConfiguration.load(config_file)
-    frontend.session.init(app)
 
+    frontend.base.init_database()
+    frontend.session.init(app)
+    
+    from frontend import submission_manager
     def not_found():
         """ Display the error 404 page """
         return web.notfound(frontend.base.renderer.notfound())

@@ -43,7 +43,6 @@ class SubmissionGitSaver(threading.Thread):
                 self.save(submission, job)
             except Exception as inst:
                 print "Exception in JobSaver: " + str(inst)
-                pass
 
     def save(self, submission, job):
         """ saves a new submission in the repo (done async) """
