@@ -1,8 +1,8 @@
 """ Classes modifying basic tasks, problems and boxes classes """
 from common.parsable_text import ParsableText
-import common.tasks
 from frontend.accessible_time import AccessibleTime
 from frontend.custom.task_problems import DisplayableCodeProblem, DisplayableCodeSingleLineProblem, DisplayableMatchProblem, DisplayableMultipleChoiceProblem
+import common.tasks
 
 
 class FrontendTask(common.tasks.Task):
@@ -31,7 +31,7 @@ class FrontendTask(common.tasks.Task):
             self._author = []
 
         # _accessible
-        self._accessible = AccessibleTime(self._data.get("_accessible", None))
+        self._accessible = AccessibleTime(self._data.get("accessible", None))
 
         # Order
         self._order = int(self._data.get('order', -1))

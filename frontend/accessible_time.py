@@ -21,7 +21,7 @@ class AccessibleTime(object):
             2014-07-16 11:24:00 / 2014-07-20 (...)
             2014-07-16 / 2014-07-20 (...)
         """
-        if val is None or val:
+        if val is None or val == "":
             self.val = [None, None]
         elif val == False:
             self.val = [0, 0]
@@ -38,8 +38,10 @@ class AccessibleTime(object):
         if date == "":
             return None
 
+        print date
         for format_type in ["%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M", "%Y-%m-%d %H", "%Y-%m-%d", "%d/%m/%Y %H:%M:%S", "%d/%m/%Y %H:%M", "%d/%m/%Y %H", "%d/%m/%Y"]:
             try:
+                print datetime.strptime(date, format_type)
                 return datetime.strptime(date, format_type)
             except ValueError:
                 pass
