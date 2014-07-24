@@ -26,7 +26,7 @@ class IndexPage(object):
     def POST(self):
         """ POST request: login """
         user_input = web.input()
-        if "login" in user_input and "password" in user_input and User.connect(user_input.login, user_input.password):
+        if "@authid" in user_input and User.connect(int(user_input["@authid"]), user_input):
             return self.call_main()
         else:
             return renderer.index(True)

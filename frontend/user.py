@@ -1,13 +1,10 @@
 """ Manages users' sessions """
 import sys
 
-import ldap
-
-import common.base
-import frontend.base
+from frontend.plugins.plugin_manager import PluginManager
 from frontend.session import session
+import frontend.base
 import frontend.user_data
-
 # Add this module to the templates
 frontend.base.add_to_template_globals("User", sys.modules[__name__])
 
@@ -47,33 +44,16 @@ def disconnect():
     return
 
 
-def connect(login, password):
-    """Connect throught LDAP"""
-    try:
-        if not common.base.id_checker(login):
-            return False
-        username = "uid=" + login + ",ou=People,dc=info,dc=ucl,dc=ac,dc=be"
+def connect_user_internal(username, email, realname):
+    """ Connect a user. Should only be used by plugins to effectively connect the user. **this function does not make any verifications!** """
+    session.loggedin = True
+    session.email = email
+    session.username = username
+    session.realname = realname
 
-        # Certificates
-        ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_NEVER)
+    get_data().update_basic_informations(session.realname, session.email)
 
-        # Connection to LDAP
-        ldap_instance = ldap.initialize('ldaps://ldap.student.info.ucl.ac.be')
-        ldap_instance.protocol_version = ldap.VERSION3
-        ldap_instance.simple_bind_s(username, password)
 
-        session.loggedin = True
-
-        # Fetch login informations
-        results = ldap_instance.search_s(username, ldap.SCOPE_SUBTREE, '(objectclass=person)', ['mail', 'cn', 'uid'])
-
-        for _, entry in results:
-            session.email = entry['mail'][0]
-            session.username = entry['uid'][0]
-            session.realname = entry['cn'][0]
-
-        # Save everything in the database
-        get_data().update_basic_informations(session.realname, session.email)
-        return True
-    except ldap.LDAPError as _:
-        return False
+def connect(auth_method_id, login_data):
+    """ Connect throught plugins """
+    return PluginManager.get_instance().get_auth_method_callback(auth_method_id)(login_data)

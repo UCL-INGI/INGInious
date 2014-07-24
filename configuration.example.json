@@ -11,7 +11,14 @@
 		{
 			"plugin_module": "frontend.plugins.git_repo",
 			"repo_directory": "./repo_submissions"
-		}
+		},
+		{
+            "plugin_module": "frontend.plugins.auth.ldap_auth",
+            "url": "ldaps://ldap.test.be",
+            "request": "uid={},ou=People",
+            "prefix": "",
+            "name": "LDAP Login"
+        }
 	],
 	
 	"allow_html": "tidy"
