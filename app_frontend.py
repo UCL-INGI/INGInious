@@ -4,7 +4,11 @@ import web
 
 from frontend.plugins.plugin_manager import PluginManager
 import common.base
+import frontend
 import frontend.session
+from frontend import submission_manager
+import frontend.base
+
 urls = (
     '/', 'frontend.pages.index.IndexPage',
     '/index', 'frontend.pages.index.IndexPage',
@@ -17,24 +21,24 @@ urls = (
     '/admin/([^/]+)/task/([^/]+)', 'frontend.pages.admin_course.AdminCourseTaskInfoPage',
 )
 
-app = web.application(urls, globals(), autoreload=False)
+app = None
 
-if __name__ == "__main__":
-    common.base.INGIniousConfiguration.load("./configuration.json")
+def init_app(config_file):
+    global app
+    app = web.application(urls, globals(), autoreload=False)
+    common.base.INGIniousConfiguration.load(config_file)
     frontend.session.init(app)
-
-    # Must be done after frontend.session.init(app)
-    import frontend.base
 
     def not_found():
         """ Display the error 404 page """
         return web.notfound(frontend.base.renderer.notfound())
     app.notfound = not_found
-    # Idem
-    import frontend.submission_manager
-    frontend.submission_manager.init_backend_interface()
+
+    submission_manager.init_backend_interface()
 
     # Must be done after everything else
     PluginManager(app, common.base.INGIniousConfiguration.get("plugins", []))
 
+if __name__ == "__main__":
+    init_app("./configuration.json")
     app.run()
