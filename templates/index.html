@@ -9,13 +9,14 @@ $def ColumnF(error):
             Invalid login/password
         </div>
     
-    <ul class="nav nav-tabs nav-justified" role="tablist">
-        $for authid, auth_method in enumerate(PluginManager.get_all_authentication_methods()):
-            <li 
-                $if authid == 0:
-                    class="active"
-            ><a href="#login-$authid" role="tab" data-toggle="tab">$auth_method["name"]</a></li>
-    </ul>
+    $if len(PluginManager.get_all_authentication_methods()) > 1:
+        <ul class="nav nav-tabs nav-justified" role="tablist">
+            $for authid, auth_method in enumerate(PluginManager.get_all_authentication_methods()):
+                <li 
+                    $if authid == 0:
+                        class="active"
+                ><a href="#login-$authid" role="tab" data-toggle="tab">$auth_method["name"]</a></li>
+        </ul>
     
     <!-- Tab panes -->
     <div class="tab-content">
