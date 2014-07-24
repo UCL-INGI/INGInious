@@ -38,10 +38,8 @@ class AccessibleTime(object):
         if date == "":
             return None
 
-        print date
         for format_type in ["%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M", "%Y-%m-%d %H", "%Y-%m-%d", "%d/%m/%Y %H:%M:%S", "%d/%m/%Y %H:%M", "%d/%m/%Y %H", "%d/%m/%Y"]:
             try:
-                print datetime.strptime(date, format_type)
                 return datetime.strptime(date, format_type)
             except ValueError:
                 pass
