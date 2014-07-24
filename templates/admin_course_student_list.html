@@ -15,7 +15,7 @@ $var title: $:course.get_name()
         <th># task done</th>
         <th>progression</th>
         <th>
-        	<a href="/admin/${course.get_id()}?dl=course" class="btn btn-danger btn-xs">Download all submissions</a>
+        	<a href="javascript:ask_to_download('/admin/${course.get_id()}?dl=course')" class="btn btn-danger btn-xs">Download all submissions</a>
         	<a href="/admin/${course.get_id()}?csv" class="btn btn-info btn-xs">CSV</a>
         </th>
     </tr>
@@ -41,7 +41,7 @@ $var title: $:course.get_name()
     		</td>
     		<td>
     			<a href="/admin/${course.get_id()}/student/$courseData["username"]" class="btn btn-default btn-xs">View</a>
-    			<a href="$courseData['url']" class="btn btn-default btn-xs">Download submissions</a>
+    			<a href="javascript:ask_to_download('$courseData['url']')" class="btn btn-default btn-xs">Download submissions</a>
     		</td>
     	</tr>
 </table>

@@ -1,12 +1,12 @@
 """ Pages only accessible to the course's admins """
+from collections import OrderedDict
+from os import listdir
+from os.path import isfile, join, splitext
 import StringIO
 import cStringIO
 import codecs
-from collections import OrderedDict
 import csv
 import json
-from os import listdir
-from os.path import isfile, join, splitext
 import tarfile
 import tempfile
 import time
@@ -109,16 +109,18 @@ class AdminCourseStudentListPage(object):
 
                 user_input = web.input()
                 if "dl" in user_input:
+                    include_old_submissions = "include_all" in user_input
+
                     if user_input['dl'] == 'submission':
-                        return self.download_submission(user_input['id'])
+                        return self.download_submission(user_input['id'], include_old_submissions)
                     elif user_input['dl'] == 'student_task':
-                        return self.download_student_task(course, user_input['username'], user_input['task'])
+                        return self.download_student_task(course, user_input['username'], user_input['task'], include_old_submissions)
                     elif user_input['dl'] == 'student':
-                        return self.download_student(course, user_input['username'])
+                        return self.download_student(course, user_input['username'], include_old_submissions)
                     elif user_input['dl'] == 'course':
-                        return self.download_course(course)
+                        return self.download_course(course, include_old_submissions)
                     elif user_input['dl'] == 'task':
-                        return self.download_task(course, user_input['task'])
+                        return self.download_task(course, user_input['task'], include_old_submissions)
                 return self.page(course)
             except:
                 if web.config.debug:
@@ -142,7 +144,7 @@ class AdminCourseStudentListPage(object):
 
     def download_submission_set(self, submissions, filename, sub_folders):
         """ Create a tar archive with all the submissions """
-        if submissions.count(True) == 0:
+        if len(submissions) == 0:
             return renderer.admin_course_not_any_submission()
 
         try:
@@ -193,30 +195,58 @@ class AdminCourseStudentListPage(object):
         except:
             raise web.notfound()
 
-    def download_course(self, course):
+    def download_course(self, course, include_old_submissions=False):
         """ Download all submissions for a course """
-        submissions = database.submissions.find({"courseid": course.get_id(), "status": {"$in": ["done", "error"]}})
+        submissions = list(database.submissions.find({"courseid": course.get_id(), "status": {"$in": ["done", "error"]}}))
+        if not include_old_submissions:
+            submissions = self._keep_last_submission(submissions)
         return self.download_submission_set(submissions, '_'.join([course.get_id()]) + '.tgz', ['username', 'taskid'])
 
-    def download_task(self, course, taskid):
+    def download_task(self, course, taskid, include_old_submissions=False):
         """ Download all submission for a task """
-        submissions = database.submissions.find({"taskid": taskid, "courseid": course.get_id(), "status": {"$in": ["done", "error"]}})
+        submissions = list(database.submissions.find({"taskid": taskid, "courseid": course.get_id(), "status": {"$in": ["done", "error"]}}))
+        if not include_old_submissions:
+            submissions = self._keep_last_submission(submissions)
         return self.download_submission_set(submissions, '_'.join([course.get_id(), taskid]) + '.tgz', ['username'])
 
-    def download_student(self, course, username):
+    def download_student(self, course, username, include_old_submissions=False):
         """ Download all submissions for a user for a given course """
-        submissions = database.submissions.find({"username": username, "courseid": course.get_id(), "status": {"$in": ["done", "error"]}})
+        submissions = list(database.submissions.find({"username": username, "courseid": course.get_id(), "status": {"$in": ["done", "error"]}}))
+        if not include_old_submissions:
+            submissions = self._keep_last_submission(submissions)
         return self.download_submission_set(submissions, '_'.join([username, course.get_id()]) + '.tgz', ['taskid'])
 
-    def download_student_task(self, course, username, taskid):
+    def download_student_task(self, course, username, taskid, include_old_submissions=True):
         """ Download all submissions for a user for given task """
-        submissions = database.submissions.find({"username": username, "courseid": course.get_id(), "taskid": taskid, "status": {"$in": ["done", "error"]}})
+        submissions = list(database.submissions.find({"username": username, "courseid": course.get_id(), "taskid": taskid, "status": {"$in": ["done", "error"]}}))
+        if not include_old_submissions:
+            submissions = self._keep_last_submission(submissions)
         return self.download_submission_set(submissions, '_'.join([username, course.get_id(), taskid]) + '.tgz', [])
 
-    def download_submission(self, subid):
+    def download_submission(self, subid, include_old_submissions=False):
         """ Download a specific submission """
-        submissions = database.submissions.find({'_id': ObjectId(subid)})
+        submissions = list(database.submissions.find({'_id': ObjectId(subid)}))
+        if not include_old_submissions:
+            submissions = self._keep_last_submission(submissions)
         return self.download_submission_set(submissions, subid + '.tgz', [])
+
+    def _keep_last_submission(self, submissions):
+        """ Internal command used to only keep the last valid submission, if any """
+        submissions.sort(key=lambda item: item['submitted_on'], reverse=True)
+        tasks = {}
+        for sub in submissions:
+            if sub["taskid"] not in tasks:
+                tasks[sub["taskid"]] = {}
+            if sub["username"] not in tasks[sub["taskid"]]:
+                tasks[sub["taskid"]][sub["username"]] = sub
+            elif tasks[sub["taskid"]][sub["username"]].get("result", "") != "success" and sub.get("result", "") == "success":
+                tasks[sub["taskid"]][sub["username"]] = sub
+        print tasks
+        final_subs = []
+        for task in tasks.itervalues():
+            for sub in task.itervalues():
+                final_subs.append(sub)
+        return final_subs
 
 
 class AdminCourseStudentInfoPage(object):

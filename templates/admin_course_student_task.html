@@ -17,7 +17,7 @@ $var title: $:task.get_name() - $:userData["realname"] - $:course.get_name()
         <th>submitted on</th>
         <th>result</th>
         <th>
-            <a href="/admin/${course.get_id()}?dl=student_task&username=${username}&task=${task.get_id()}" class="btn btn-danger btn-xs">Download all submissions</a>
+            <a href="javascript:ask_to_download('/admin/${course.get_id()}?dl=student_task&username=${username}&task=${task.get_id()}')" class="btn btn-danger btn-xs">Download all submissions</a>
             <a href="/admin/${course.get_id()}/student/${username}/${task.get_id()}?csv" class="btn btn-info btn-xs">CSV</a>
         </th>
     </tr>
