@@ -4,38 +4,32 @@
         python checktask.py file.task
         python checktask.py file.course
 """
-import os
 import sys
 
+from frontend.custom.courses import FrontendCourse
+from frontend.custom.tasks import FrontendTask
 import common.base
-from common.courses import Course  # Must be done after changements on INGIniousConfiguration["tasks_directory"]
-from common.tasks import Task
 
 
 def usage():
+    """ Usage """
     print "Usage: "
-    print "\tpython checktask.py file.task"
-    print "\tpython checktask.py file.course"
+    print "\tpython checktask.py task_directory courseid taskid"
+    print "\tpython checktask.py task_directory courseid"
     exit(1)
 
-if len(sys.argv) != 2:
+if len(sys.argv) not in [3, 4]:
     usage()
 
 # Change default path to task Directory
-common.base.INGIniousConfiguration["tasks_directory"] = os.path.dirname(sys.argv[1])
-# Get composants of the filename
-filename = os.path.splitext(os.path.basename(sys.argv[1]))
-
-
-if filename[1] not in [".task", ".course"]:
-    print "This tool only support file with extension .task or .course"
-    usage()
+common.base.INGIniousConfiguration["allow_html"] = "tidy"
+common.base.INGIniousConfiguration["tasks_directory"] = sys.argv[1]
 
 try:
-    if filename[1] == ".task":
-        FrontendTask("", filename[0])
+    if len(sys.argv) == 2:
+        FrontendCourse(sys.argv[2])
     else:
-        Course(filename[0])
+        FrontendTask(FrontendCourse(sys.argv[2]), sys.argv[3])
 except Exception as inst:
     print "There was an error while validating the file:"
     print inst
