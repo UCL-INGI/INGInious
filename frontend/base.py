@@ -2,6 +2,7 @@
 from gridfs import GridFS
 from pymongo import MongoClient
 import web
+from common.base import INGIniousConfiguration
 
 
 def add_to_template_globals(name, value):
@@ -15,12 +16,21 @@ renderer = web.template.render('templates/', globals=add_to_template_globals.glo
 
 def new_database_client():
     """ Creates a new MongoClient instance for INGINious """
-    return MongoClient().INGInious
+    return MongoClient(**INGIniousConfiguration.get('mongo_opt', {})).INGInious
 
 
 def new_gridfs_client(mongo_database):
     """ Creates a new link to the GridFS of the given database """
     return GridFS(mongo_database)
 
-database = new_database_client()
-gridfs = new_gridfs_client(database)
+
+database = None
+gridfs = None
+
+
+def init_database():
+    """ Init the db clients"""
+    global database
+    global gridfs
+    database = new_database_client()
+    gridfs = new_gridfs_client(database)

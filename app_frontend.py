@@ -21,6 +21,7 @@ app = web.application(urls, globals(), autoreload=False)
 
 if __name__ == "__main__":
     common.base.INGIniousConfiguration.load("./configuration.json")
+    frontend.base.init_database()
     frontend.session.init(app)
 
     # Must be done after frontend.session.init(app)
