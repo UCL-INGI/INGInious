@@ -1,4 +1,5 @@
 {
-    "name": "Unit test course name",
-    "admins": ["gderval","gegoa"]
+    "name": "Unit test 1",
+    "admins": ["testadmin1","testadmin2"],
+    "accessible": null
 }
