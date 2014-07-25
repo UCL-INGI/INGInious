@@ -7,10 +7,13 @@ def get_session():
     return get_session.session
 
 
-def init(app):
+def init(app, session=None):
     """ Init the session. Should be call before starting the web.py server """
-    if web.config.get('_session') is None:
-        get_session.session = web.session.Session(app, web.session.DiskStore('sessions'), {'count': 0})
-        web.config._session = get_session.session  # pylint: disable=protected-access
+    if session == None:
+        if web.config.get('_session') is None:
+            get_session.session = web.session.Session(app, web.session.DiskStore('sessions'))
+            web.config._session = get_session.session  # pylint: disable=protected-access
+        else:
+            get_session.session = web.config._session  # pylint: disable=protected-access
     else:
-        get_session.session = web.config._session  # pylint: disable=protected-access
+        get_session.session = web.session.Session(app, web.session.DiskStore('tests/sessions'), session)
