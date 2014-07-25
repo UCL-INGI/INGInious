@@ -1,11 +1,20 @@
 Creating a new task
 ===================
 
-Contents:
+Guides
+-------
 
 .. toctree::
    :maxdepth: 3
    
    task_tuto
+   best_practices
+   
+Documentation
+--------------
+
+.. toctree::
+   :maxdepth: 3
+   
    task_file
    run_file
