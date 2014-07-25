@@ -49,6 +49,11 @@ help:
 clean:
 	rm -rf $(BUILDDIR)/*
 
+staticdoc:
+	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) ../static/doc
+	@echo
+	@echo "Build finished. The HTML pages are in ../static/doc."
+
 html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
