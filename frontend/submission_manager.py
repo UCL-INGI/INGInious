@@ -9,38 +9,41 @@ import pymongo
 from backend.docker_job_manager import DockerJobManager
 from backend.simple_job_queue import SimpleJobQueue
 from common.base import INGIniousConfiguration
-from frontend.base import database, gridfs
+from frontend.base import get_database, get_gridfs
 from frontend.plugins.plugin_manager import PluginManager
 from frontend.user_data import UserData
 import frontend.user as User
-job_queue = None
 job_managers = []
+
+
+def get_backend_job_queue():
+    """ Get the job_queue used by the backend. Should only be used by very specific plugins """
+    return get_backend_job_queue.job_queue
 
 
 def init_backend_interface():
     """ inits everything that makes the backend working """
 
     # Ensures some indexes
-    database.submissions.ensure_index([("username", pymongo.ASCENDING)])
-    database.submissions.ensure_index([("courseid", pymongo.ASCENDING)])
-    database.submissions.ensure_index([("courseid", pymongo.ASCENDING), ("taskid", pymongo.ASCENDING)])
-    database.submissions.ensure_index([("submitted_on", pymongo.DESCENDING)])  # sort speed
+    get_database().submissions.ensure_index([("username", pymongo.ASCENDING)])
+    get_database().submissions.ensure_index([("courseid", pymongo.ASCENDING)])
+    get_database().submissions.ensure_index([("courseid", pymongo.ASCENDING), ("taskid", pymongo.ASCENDING)])
+    get_database().submissions.ensure_index([("submitted_on", pymongo.DESCENDING)])  # sort speed
 
-    database.user_tasks.ensure_index([("username", pymongo.ASCENDING), ("courseid", pymongo.ASCENDING), ("taskid", pymongo.ASCENDING)], unique=True)
-    database.user_tasks.ensure_index([("username", pymongo.ASCENDING), ("courseid", pymongo.ASCENDING)])
-    database.user_tasks.ensure_index([("courseid", pymongo.ASCENDING), ("taskid", pymongo.ASCENDING)])
-    database.user_tasks.ensure_index([("courseid", pymongo.ASCENDING)])
-    database.user_tasks.ensure_index([("username", pymongo.ASCENDING)])
+    get_database().user_tasks.ensure_index([("username", pymongo.ASCENDING), ("courseid", pymongo.ASCENDING), ("taskid", pymongo.ASCENDING)], unique=True)
+    get_database().user_tasks.ensure_index([("username", pymongo.ASCENDING), ("courseid", pymongo.ASCENDING)])
+    get_database().user_tasks.ensure_index([("courseid", pymongo.ASCENDING), ("taskid", pymongo.ASCENDING)])
+    get_database().user_tasks.ensure_index([("courseid", pymongo.ASCENDING)])
+    get_database().user_tasks.ensure_index([("username", pymongo.ASCENDING)])
 
-    database.user_courses.ensure_index([("username", pymongo.ASCENDING), ("courseid", pymongo.ASCENDING)], unique=True)
-    database.user_courses.ensure_index([("courseid", pymongo.ASCENDING)])
-    database.user_courses.ensure_index([("username", pymongo.ASCENDING)])
+    get_database().user_courses.ensure_index([("username", pymongo.ASCENDING), ("courseid", pymongo.ASCENDING)], unique=True)
+    get_database().user_courses.ensure_index([("courseid", pymongo.ASCENDING)])
+    get_database().user_courses.ensure_index([("username", pymongo.ASCENDING)])
     # Updates the submissions that have a jobid with the status error, as the server restarted """
-    database.submissions.update({'jobid': {"$exists": True}}, {"$unset": {'jobid': ""}, "$set": {'status': 'error', 'text': 'Internal error. Server restarted'}})
+    get_database().submissions.update({'jobid': {"$exists": True}}, {"$unset": {'jobid': ""}, "$set": {'status': 'error', 'text': 'Internal error. Server restarted'}})
 
     # Create the job queue
-    global job_queue
-    job_queue = SimpleJobQueue()
+    get_backend_job_queue.job_queue = SimpleJobQueue()
 
     # Launch the job managers
     try:
@@ -53,7 +56,7 @@ def init_backend_interface():
     for i in range(0, job_manager_count):
         print "Starting Job Manager #" + str(i)
         thread = DockerJobManager(
-            job_queue,
+            get_backend_job_queue(),
             INGIniousConfiguration["docker_server_url"],
             INGIniousConfiguration["tasks_directory"],
             INGIniousConfiguration["containers_directory"],
@@ -70,7 +73,7 @@ def init_backend_interface():
 
 def get_submission(submissionid, user_check=True):
     """ Get a submission from the database """
-    sub = database.submissions.find_one({'_id': ObjectId(submissionid)})
+    sub = get_database().submissions.find_one({'_id': ObjectId(submissionid)})
     if user_check and not user_is_submission_owner(sub):
         return None
     return sub
@@ -78,7 +81,7 @@ def get_submission(submissionid, user_check=True):
 
 def get_submission_from_jobid(jobid):
     """ Get a waiting submission from its jobid """
-    return database.submissions.find_one({'jobid': jobid})
+    return get_database().submissions.find_one({'jobid': jobid})
 
 
 def job_done_callback(jobid, job):
@@ -86,7 +89,7 @@ def job_done_callback(jobid, job):
     submission = get_submission_from_jobid(jobid)
 
     # Save submission to database
-    database.submissions.update(
+    get_database().submissions.update(
         {"_id": submission["_id"]},
         {
             "$unset": {"jobid": ""},
@@ -96,7 +99,7 @@ def job_done_callback(jobid, job):
                 "result": job["result"],
                 "text": (job["text"] if "text" in job else None),
                 "problems": (job["problems"] if "problems" in job else {}),
-                "archive": (gridfs.put(base64.b64decode(job["archive"])) if "archive" in job else None)
+                "archive": (get_gridfs().put(base64.b64decode(job["archive"])) if "archive" in job else None)
             }
         }
     )
@@ -113,9 +116,9 @@ def add_job(task, inputdata):
 
     username = User.get_username()
 
-    jobid = job_queue.add_job(task, inputdata, job_done_callback)
+    jobid = get_backend_job_queue().add_job(task, inputdata, job_done_callback)
     obj = {"username": username, "courseid": task.get_course_id(), "taskid": task.get_id(), "input": inputdata, "status": "waiting", "jobid": jobid, "submitted_on": datetime.now()}
-    submissionid = database.submissions.insert(obj)
+    submissionid = get_database().submissions.insert(obj)
     return submissionid
 
 
@@ -142,7 +145,7 @@ def get_user_submissions(task):
     """ Get all the user's submissions for a given task """
     if not User.is_logged_in():
         raise Exception("A user must be logged in to get his submissions")
-    cursor = database.submissions.find({"username": User.get_username(), "taskid": task.get_id(), "courseid": task.get_course_id()})
+    cursor = get_database().submissions.find({"username": User.get_username(), "taskid": task.get_id(), "courseid": task.get_course_id()})
     cursor.sort([("submitted_on", -1)])
     return list(cursor)
 
@@ -153,11 +156,6 @@ def get_user_last_submissions(query, limit):
         raise Exception("A user must be logged in to get his submissions")
     request = query.copy()
     request.update({"username": User.get_username()})
-    cursor = database.submissions.find(request)
+    cursor = get_database().submissions.find(request)
     cursor.sort([("submitted_on", -1)]).limit(limit)
     return list(cursor)
-
-
-def get_backend_job_queue():
-    """ Get the job_queue used by the backend. Should only be used by very specific plugins """
-    return job_queue

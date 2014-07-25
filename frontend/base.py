@@ -24,13 +24,17 @@ def new_gridfs_client(mongo_database):
     return GridFS(mongo_database)
 
 
-database = None
-gridfs = None
+def get_database():
+    """ Returns an access to the database """
+    return get_database.database
+
+
+def get_gridfs():
+    """ Returns an access to gridfs """
+    return get_gridfs.gridfs
 
 
 def init_database():
     """ Init the db clients"""
-    global database
-    global gridfs
-    database = new_database_client()
-    gridfs = new_gridfs_client(database)
+    get_database.database = new_database_client()
+    get_gridfs.gridfs = new_gridfs_client(get_database())
