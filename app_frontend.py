@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """ Starts the frontend """
 
 import web
