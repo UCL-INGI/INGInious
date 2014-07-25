@@ -47,4 +47,31 @@ The syntax is self-explanatory.
 Only username that are in the *admins* list are available to see students' submissions
 and statistics. The *admins* is only needed when using the frontend.
 
+There are other fields that are available in the frontend:
+
+-   *accessible*:
+    ::
+    
+        "accessible": "2014-05-21 / 2014-05-28 00:00:00"
+    	
+    When this field is defined, the course is only available if it match the *available* check.
+    This field can contain theses values:
+	
+    *true*
+        the task is always accessible
+    *false*
+        the task is never accessible
+    *"START"*
+        where *START* is a valid date, like "2014-05-10 10:11:12", or "2014-06-18".
+        The task is only accessible after *START*.
+    *"/END"*
+        where *END* is a valid date, like "2014-05-10 10:11:12", or "2014-06-18".
+        The task is only accessible before *END*.
+    *"START/END"*
+        where *START* and *END* are valid dates, like "2014-05-10 10:11:12", or 
+        "2014-06-18". The task is only accessible between *START* and *END*.
+
+-   *nofrontend*:
+	if this field is defined and is *true*, then the course won't be displayed on the frontend, but will still be available for the plugins.
+
 .. _INGI: http://www.uclouvain.be/ingi.html

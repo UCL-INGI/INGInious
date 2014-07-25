@@ -477,8 +477,8 @@ function ask_to_download(link)
       				'</div>'+
       				'<div class="modal-footer">'+
         				'<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>'+
-        				'<a href="'+link+'&include_all=1" type="button" class="btn btn-primary">Only the last valid submission</button>'+
-        				'<a href="'+link+'" type="button" class="btn btn-info">All submissions</button>'+
+        				'<a href="'+link+'" type="button" class="btn btn-primary">Only the last valid submission</button>'+
+        				'<a href="'+link+'&include_all=1" type="button" class="btn btn-info">All submissions</button>'+
       				'</div>'+
     			'</div>'+
 			'</div>'+
