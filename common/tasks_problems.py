@@ -232,6 +232,8 @@ class MultipleChoiceProblem(BasicProblem):
             for choice in self._choices:
                 if choice["valid"] and not choice["index"] in taskInput[self.get_id()] and not str(choice["index"]) in taskInput[self.get_id()]:
                     valid = False
+                elif not choice["valid"] and (choice["index"] in taskInput[self.get_id()] or str(choice["index"]) in taskInput[self.get_id()]):
+                    valid = False
         else:
             valid = self.get_choice_with_index(int(taskInput[self.get_id()]))["valid"]
         if not valid:
