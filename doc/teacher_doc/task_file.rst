@@ -13,6 +13,7 @@ The *.task* file is a JSON file containing informations about the task.
 		"context": "The context of this task. Explain here what the students have to do.",
 		"order": 1,
 		"name": "The complete name of this task",
+		"accessible": true,
 		"problems":
 		{
 			"a_problem_id":
@@ -32,19 +33,37 @@ The *.task* file is a JSON file containing informations about the task.
 		"environment": "default"
 	}
 
-*author*, *context*, *order*, *name*, *language* and *header* are only needed 
-if you use the frontend. 
-*context* and *header* are parsed using restructuredText [#]_ .
-*order* is an integer, used by the frontend to sort the task list. Task are sorted
-in increasing value of *order*.
+-   *author*, *context*, *order*, *name*, *language* and *header* are only needed 
+    if you use the frontend. 
+    *context* and *header* are parsed using restructuredText [#]_ .
 
-*problems* describes sub-problems of this task. This field is mandatory and must contain
-at least one problem. Problem types are described in the following section 
-`Problem types`_. Each problem must have an id which is alphanumeric and unique.
+-   *order* is an integer, used by the frontend to sort the task list. Task are sorted
+    in increasing value of *order*.
 
-*environment* is the name of the Docker container in which the student's code will run.
-This field is only needed if there is code to correct; a multiple-choice question does
-not need it.
+-   *accessible* describes when the task is accessible to student. This field is not 
+    mandatory (by default, the task is visible) and can contain the following values:
+
+    *true*
+        the task is always accessible
+    *false*
+        the task is never accessible
+    *"START"*
+        where *START* is a valid date, like "2014-05-10 10:11:12", or "2014-06-18".
+        The task is only accessible after *START*.
+    *"/END"*
+        where *END* is a valid date, like "2014-05-10 10:11:12", or "2014-06-18".
+        The task is only accessible before *END*.
+    *"START/END"*
+        where *START* and *END* are valid dates, like "2014-05-10 10:11:12", or 
+        "2014-06-18". The task is only accessible between *START* and *END*.
+
+-   *problems* describes sub-problems of this task. This field is mandatory and must contain
+    at least one problem. Problem types are described in the following section 
+    `Problem types`_. Each problem must have an id which is alphanumeric and unique.
+
+-   *environment* is the name of the Docker container in which the student's code will run.
+    This field is only needed if there is code to correct; a multiple-choice question does
+    not need it.
 
 .. [#] There are some options about using HTML instead of restructuredText, but they
        are purposely not documented :-)

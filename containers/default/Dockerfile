@@ -1,6 +1,6 @@
 # DOCKER-VERSION 1.1.0
 
-# We chosen centos
+# We chose centos
 FROM    centos
 
 # Update packages if it is needed
