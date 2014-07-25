@@ -124,7 +124,6 @@ class frontend_tasks_submit(unittest.TestCase):
             assert "status" in js
             if js["status"] == "done":
                 assert "result" in js and js["result"] == "success"
-                print js
                 break
 
     def test_incorrect_multichoice(self):
@@ -141,7 +140,6 @@ class frontend_tasks_submit(unittest.TestCase):
             assert "status" in js
             if js["status"] == "done":
                 assert "result" in js and js["result"] == "failed"
-                print js
                 break
     
     def tearDown(self):
