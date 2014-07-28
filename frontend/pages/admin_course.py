@@ -107,20 +107,6 @@ class AdminCourseStudentListPage(object):
                 if User.get_username() not in course.get_admins():
                     raise web.notfound()
 
-                user_input = web.input()
-                if "dl" in user_input:
-                    include_old_submissions = "include_all" in user_input
-
-                    if user_input['dl'] == 'submission':
-                        return self.download_submission(user_input['id'], include_old_submissions)
-                    elif user_input['dl'] == 'student_task':
-                        return self.download_student_task(course, user_input['username'], user_input['task'], include_old_submissions)
-                    elif user_input['dl'] == 'student':
-                        return self.download_student(course, user_input['username'], include_old_submissions)
-                    elif user_input['dl'] == 'course':
-                        return self.download_course(course, include_old_submissions)
-                    elif user_input['dl'] == 'task':
-                        return self.download_task(course, user_input['task'], include_old_submissions)
                 return self.page(course)
             except:
                 if web.config.debug:
@@ -141,6 +127,180 @@ class AdminCourseStudentListPage(object):
         if "csv" in web.input():
             return make_csv(data)
         return renderer.admin_course_student_list(course, data)
+
+
+class AdminCourseStudentInfoPage(object):
+
+    """ List information about a student """
+
+    def GET(self, courseid, username):
+        """ GET request """
+        if User.is_logged_in():
+            try:
+                course = FrontendCourse(courseid)
+                if User.get_username() not in course.get_admins():
+                    raise web.notfound()
+
+                return self.page(course, username)
+            except:
+                if web.config.debug:
+                    raise
+                else:
+                    raise web.notfound()
+        else:
+            return renderer.index(False)
+
+    def submission_url_generator(self, course, username, taskid):
+        """ Generates a submission url """
+        return "/admin/" + course.get_id() + "?dl=student_task&task=" + taskid + "&username=" + username
+
+    def page(self, course, username):
+        """ Get all data and display the page """
+        data = list(get_database().user_tasks.find({"username": username, "courseid": course.get_id()}))
+        tasks = course.get_tasks()
+        result = OrderedDict()
+        for taskid in tasks:
+            result[taskid] = {"name": tasks[taskid].get_name(), "submissions": 0, "status": "notviewed", "url": self.submission_url_generator(course, username, taskid)}
+        for taskdata in data:
+            if taskdata["taskid"] in result:
+                result[taskdata["taskid"]]["submissions"] = taskdata["tried"]
+                if taskdata["tried"] == 0:
+                    result[taskdata["taskid"]]["status"] = "notattempted"
+                elif taskdata["succeeded"]:
+                    result[taskdata["taskid"]]["status"] = "succeeded"
+                else:
+                    result[taskdata["taskid"]]["status"] = "failed"
+        if "csv" in web.input():
+            return make_csv(result)
+        return renderer.admin_course_student(course, username, result)
+
+
+class AdminCourseStudentTaskPage(object):
+
+    """ List information about a task done by a student """
+
+    def GET(self, courseid, username, taskid):
+        """ GET request """
+        if User.is_logged_in():
+            try:
+                course = FrontendCourse(courseid)
+                if User.get_username() not in course.get_admins():
+                    raise web.notfound()
+                task = course.get_task(taskid)
+
+                return self.page(course, username, task)
+            except:
+                if web.config.debug:
+                    raise
+                else:
+                    raise web.notfound()
+        else:
+            return renderer.index(False)
+
+    def submission_url_generator(self, course, submissionid):
+        """ Generates a submission url """
+        return "/admin/" + course.get_id() + "?dl=submission&id=" + submissionid
+
+    def page(self, course, username, task):
+        """ Get all data and display the page """
+        data = list(get_database().submissions.find({"username": username, "courseid": course.get_id(), "taskid": task.get_id()}).sort([("submitted_on", pymongo.DESCENDING)]))
+        data = [dict(f.items() + [("url", self.submission_url_generator(course, str(f["_id"])))]) for f in data]
+        if "csv" in web.input():
+            return make_csv(data)
+        return renderer.admin_course_student_task(course, username, task, data)
+
+
+class AdminCourseTaskListPage(object):
+
+    """ List informations about all tasks """
+
+    def GET(self, courseid):
+        """ GET request """
+        if User.is_logged_in():
+            try:
+                course = FrontendCourse(courseid)
+                if User.get_username() not in course.get_admins():
+                    raise web.notfound()
+
+                user_input = web.input()
+                if "dl" in user_input:
+                    include_old_submissions = "include_all" in user_input
+
+                    if user_input['dl'] == 'submission':
+                        return self.download_submission(user_input['id'], include_old_submissions)
+                    elif user_input['dl'] == 'student_task':
+                        return self.download_student_task(course, user_input['username'], user_input['task'], include_old_submissions)
+                    elif user_input['dl'] == 'student':
+                        return self.download_student(course, user_input['username'], include_old_submissions)
+                    elif user_input['dl'] == 'course':
+                        return self.download_course(course, include_old_submissions)
+                    elif user_input['dl'] == 'task':
+                        return self.download_task(course, user_input['task'], include_old_submissions)
+
+                return self.page(course)
+            except:
+                if web.config.debug:
+                    raise
+                else:
+                    raise web.notfound()
+        else:
+            return renderer.index(False)
+
+    def submission_url_generator(self, course, taskid):
+        """ Generates a submission url """
+        return "/admin/" + course.get_id() + "?dl=task&task=" + taskid
+
+    def page(self, course):
+        """ Get all data and display the page """
+        data = get_database().user_tasks.aggregate(
+            [
+                {
+                    "$match": {"courseid": course.get_id()}
+                },
+                {
+                    "$group":
+                    {
+                        "_id": "$taskid",
+                        "viewed": {"$sum": 1},
+                        "attempted": {"$sum": {"$cond": [{"$ne": ["$tried", 0]}, 1, 0]}},
+                        "attempts":{"$sum": "$tried"},
+                        "succeeded": {"$sum": {"$cond": ["$succeeded", 1, 0]}}
+                    }
+                }
+            ])["result"]
+
+        # Load tasks and verify exceptions
+        files = [
+            splitext(f)[0] for f in listdir(
+                course.get_course_tasks_directory()) if isfile(
+                join(
+                    course.get_course_tasks_directory(),
+                    f)) and splitext(
+                    join(
+                        course.get_course_tasks_directory(),
+                        f))[1] == ".task"]
+        output = {}
+        errors = []
+        for task in files:
+            try:
+                output[task] = course.get_task(task)
+            except Exception as inst:
+                errors.append({"taskid": task, "error": str(inst)})
+        tasks = OrderedDict(sorted(output.items(), key=lambda t: t[1].get_order()))
+
+        # Now load additionnal informations
+        result = OrderedDict()
+        for taskid in tasks:
+            result[taskid] = {"name": tasks[taskid].get_name(), "viewed": 0, "attempted": 0, "attempts": 0, "succeeded": 0, "url": self.submission_url_generator(course, taskid)}
+        for entry in data:
+            if entry["_id"] in result:
+                result[entry["_id"]]["viewed"] = entry["viewed"]
+                result[entry["_id"]]["attempted"] = entry["attempted"]
+                result[entry["_id"]]["attempts"] = entry["attempts"]
+                result[entry["_id"]]["succeeded"] = entry["succeeded"]
+        if "csv" in web.input():
+            return make_csv(result)
+        return renderer.admin_course_task_list(course, result, errors)
 
     def download_submission_set(self, submissions, filename, sub_folders):
         """ Create a tar archive with all the submissions """
@@ -246,165 +406,6 @@ class AdminCourseStudentListPage(object):
             for sub in task.itervalues():
                 final_subs.append(sub)
         return final_subs
-
-
-class AdminCourseStudentInfoPage(object):
-
-    """ List information about a student """
-
-    def GET(self, courseid, username):
-        """ GET request """
-        if User.is_logged_in():
-            try:
-                course = FrontendCourse(courseid)
-                if User.get_username() not in course.get_admins():
-                    raise web.notfound()
-
-                return self.page(course, username)
-            except:
-                if web.config.debug:
-                    raise
-                else:
-                    raise web.notfound()
-        else:
-            return renderer.index(False)
-
-    def submission_url_generator(self, course, username, taskid):
-        """ Generates a submission url """
-        return "/admin/" + course.get_id() + "?dl=student_task&task=" + taskid + "&username=" + username
-
-    def page(self, course, username):
-        """ Get all data and display the page """
-        data = list(get_database().user_tasks.find({"username": username, "courseid": course.get_id()}))
-        tasks = course.get_tasks()
-        result = OrderedDict()
-        for taskid in tasks:
-            result[taskid] = {"name": tasks[taskid].get_name(), "submissions": 0, "status": "notviewed", "url": self.submission_url_generator(course, username, taskid)}
-        for taskdata in data:
-            if taskdata["taskid"] in result:
-                result[taskdata["taskid"]]["submissions"] = taskdata["tried"]
-                if taskdata["tried"] == 0:
-                    result[taskdata["taskid"]]["status"] = "notattempted"
-                elif taskdata["succeeded"]:
-                    result[taskdata["taskid"]]["status"] = "succeeded"
-                else:
-                    result[taskdata["taskid"]]["status"] = "failed"
-        if "csv" in web.input():
-            return make_csv(result)
-        return renderer.admin_course_student(course, username, result)
-
-
-class AdminCourseStudentTaskPage(object):
-
-    """ List information about a task done by a student """
-
-    def GET(self, courseid, username, taskid):
-        """ GET request """
-        if User.is_logged_in():
-            try:
-                course = FrontendCourse(courseid)
-                if User.get_username() not in course.get_admins():
-                    raise web.notfound()
-                task = course.get_task(taskid)
-
-                return self.page(course, username, task)
-            except:
-                if web.config.debug:
-                    raise
-                else:
-                    raise web.notfound()
-        else:
-            return renderer.index(False)
-
-    def submission_url_generator(self, course, submissionid):
-        """ Generates a submission url """
-        return "/admin/" + course.get_id() + "?dl=submission&id=" + submissionid
-
-    def page(self, course, username, task):
-        """ Get all data and display the page """
-        data = list(get_database().submissions.find({"username": username, "courseid": course.get_id(), "taskid": task.get_id()}).sort([("submitted_on", pymongo.DESCENDING)]))
-        data = [dict(f.items() + [("url", self.submission_url_generator(course, str(f["_id"])))]) for f in data]
-        if "csv" in web.input():
-            return make_csv(data)
-        return renderer.admin_course_student_task(course, username, task, data)
-
-
-class AdminCourseTaskListPage(object):
-
-    """ List informations about all tasks """
-
-    def GET(self, courseid):
-        """ GET request """
-        if User.is_logged_in():
-            try:
-                course = FrontendCourse(courseid)
-                if User.get_username() not in course.get_admins():
-                    raise web.notfound()
-
-                return self.page(course)
-            except:
-                if web.config.debug:
-                    raise
-                else:
-                    raise web.notfound()
-        else:
-            return renderer.index(False)
-
-    def submission_url_generator(self, course, taskid):
-        """ Generates a submission url """
-        return "/admin/" + course.get_id() + "?dl=task&task=" + taskid
-
-    def page(self, course):
-        """ Get all data and display the page """
-        data = get_database().user_tasks.aggregate(
-            [
-                {
-                    "$match": {"courseid": course.get_id()}
-                },
-                {
-                    "$group":
-                    {
-                        "_id": "$taskid",
-                        "viewed": {"$sum": 1},
-                        "attempted": {"$sum": {"$cond": [{"$ne": ["$tried", 0]}, 1, 0]}},
-                        "attempts":{"$sum": "$tried"},
-                        "succeeded": {"$sum": {"$cond": ["$succeeded", 1, 0]}}
-                    }
-                }
-            ])["result"]
-
-        # Load tasks and verify exceptions
-        files = [
-            splitext(f)[0] for f in listdir(
-                course.get_course_tasks_directory()) if isfile(
-                join(
-                    course.get_course_tasks_directory(),
-                    f)) and splitext(
-                    join(
-                        course.get_course_tasks_directory(),
-                        f))[1] == ".task"]
-        output = {}
-        errors = []
-        for task in files:
-            try:
-                output[task] = course.get_task(task)
-            except Exception as inst:
-                errors.append({"taskid": task, "error": str(inst)})
-        tasks = OrderedDict(sorted(output.items(), key=lambda t: t[1].get_order()))
-
-        # Now load additionnal informations
-        result = OrderedDict()
-        for taskid in tasks:
-            result[taskid] = {"name": tasks[taskid].get_name(), "viewed": 0, "attempted": 0, "attempts": 0, "succeeded": 0, "url": self.submission_url_generator(course, taskid)}
-        for entry in data:
-            if entry["_id"] in result:
-                result[entry["_id"]]["viewed"] = entry["viewed"]
-                result[entry["_id"]]["attempted"] = entry["attempted"]
-                result[entry["_id"]]["attempts"] = entry["attempts"]
-                result[entry["_id"]]["succeeded"] = entry["succeeded"]
-        if "csv" in web.input():
-            return make_csv(result)
-        return renderer.admin_course_task_list(course, result, errors)
 
 
 class AdminCourseTaskInfoPage(object):
