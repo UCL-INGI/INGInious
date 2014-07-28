@@ -1,13 +1,11 @@
 """ Contains the class Course and utility functions """
 from collections import OrderedDict
-import json
 from os import listdir
 from os.path import isfile, join, splitext
+import json
 
 from common.base import INGIniousConfiguration, id_checker
 import common.tasks
-
-
 class Course(object):
 
     """ Represents a course """

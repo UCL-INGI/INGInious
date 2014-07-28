@@ -83,7 +83,7 @@ $# Start content
 $:task.get_context()
 <hr/>
 <div id="task_alert"></div>
-<form id="task" method="post" action="/course/${task.get_course().get_id()}/${task.get_id()}"
+<form id="task" method="post" action="/course/${task.get_course().get_id()}/${task.get_id()}" enctype="multipart/form-data"
     $for submission in submissions:
         $if submission["status"] == "waiting":
             data-wait-submission="$submission['_id']"

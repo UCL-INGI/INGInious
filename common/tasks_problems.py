@@ -4,7 +4,7 @@ from random import shuffle
 
 from common.base import id_checker
 from common.parsable_text import ParsableText
-from common.tasks_code_boxes import InputBox, MultilineBox, TextBox
+from common.tasks_code_boxes import InputBox, MultilineBox, TextBox, FileBox
 
 
 class BasicProblem(object):
@@ -92,6 +92,10 @@ class BasicCodeProblem(BasicProblem):
         if task.get_environment() is None:
             raise Exception("Environment undefined, but there is a problem with type=code or type=code-single-line")
 
+    def get_boxes(self):
+        """ Returns all the boxes of this code problem """
+        return self._boxes
+
     @abstractmethod
     def get_type(self):
         return None
@@ -102,7 +106,7 @@ class BasicCodeProblem(BasicProblem):
                 return False
         return True
 
-    _box_types = {"input-text": InputBox, "input-decimal": InputBox, "input-integer": InputBox, "multiline": MultilineBox, "text": TextBox}
+    _box_types = {"input-text": InputBox, "input-decimal": InputBox, "input-integer": InputBox, "multiline": MultilineBox, "text": TextBox, "file": FileBox}
 
     def _create_box(self, boxid, box_content):
         """ Create adequate box """
@@ -129,6 +133,18 @@ class CodeSingleLineProblem(BasicCodeProblem):
 
     def get_type(self):
         return "code-single-line"
+
+
+class CodeFileProblem(BasicCodeProblem):
+
+    """Code problem which allow to test a file"""
+
+    def __init__(self, task, problemid, content):
+        BasicCodeProblem.__init__(self, task, problemid, content)
+        self._boxes = [self._create_box("", {"type": "file", "max_size": content.get("max_size", None), "allowed_exts": content.get("allowed_exts", None)})]
+
+    def get_type(self):
+        return "code-file"
 
 
 class CodeProblem(BasicCodeProblem):

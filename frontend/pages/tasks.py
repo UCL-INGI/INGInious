@@ -3,7 +3,8 @@ import json
 
 import web
 
-from common.tasks_problems import MultipleChoiceProblem
+from common.tasks_code_boxes import FileBox
+from common.tasks_problems import MultipleChoiceProblem, BasicCodeProblem
 from frontend.base import renderer
 from frontend.custom.courses import FrontendCourse
 import frontend.submission_manager as submission_manager
@@ -52,8 +53,8 @@ class TaskPage(object):
                 userinput = web.input()
                 if "@action" in userinput and userinput["@action"] == "submit":
                     # Reparse user input with array for multiple choices
-                    need_array = self.list_multiple_multiple_choices(task)
-                    userinput = web.input(**dict.fromkeys(need_array, []))
+                    init_var = self.list_multiple_multiple_choices_and_files(task)
+                    userinput = task.adapt_input_for_backend(web.input(**init_var))
                     if not task.input_is_consistent(userinput):
                         web.header('Content-Type', 'application/json')
                         return json.dumps({"status": "error", "text": "Please answer to all the questions. Your responses were not tested."})
@@ -94,10 +95,14 @@ class TaskPage(object):
             tojson["problems"] = data["problems"]
         return json.dumps(tojson)
 
-    def list_multiple_multiple_choices(self, task):
+    def list_multiple_multiple_choices_and_files(self, task):
         """ List problems in task that expect and array as input """
-        output = []
+        output = {}
         for problem in task.get_problems():
             if isinstance(problem, MultipleChoiceProblem) and problem.allow_multiple():
-                output.append(problem.get_id())
+                output[problem.get_id()] = []
+            elif isinstance(problem, BasicCodeProblem):
+                for box in problem.get_boxes():
+                    if isinstance(box, FileBox):
+                        output[box.get_complete_id()] = {}
         return output

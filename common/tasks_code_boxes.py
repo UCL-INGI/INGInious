@@ -1,8 +1,10 @@
 """ Boxes for tasks' problems """
 from abc import ABCMeta, abstractmethod
+import os.path
 import re
+import sys
 
-from common.base import id_checker
+from common.base import id_checker, INGIniousConfiguration
 from common.parsable_text import ParsableText
 
 
@@ -61,6 +63,48 @@ class TextBox(BasicBox):
         if "content" not in boxData:
             raise Exception("Box _id " + boxid + " with type=text do not have content.")
         self._content = ParsableText(boxData['content'], "HTML" if "contentIsHTML" in boxData and boxData["contentIsHTML"] else "rst")
+
+
+class FileBox(BasicBox):
+
+    """
+        File box. Allow to send a file to the backend.
+        The input for this box must be a dictionnary, containing two keys:
+        ::
+
+            {
+                "filename": "thefilename.txt",
+                "value": "the content of the file"
+            }
+
+    """
+
+    def get_type(self):
+        return "file"
+
+    def input_is_consistent(self, taskInput):
+        if not BasicBox.input_is_consistent(self, taskInput):
+            return False
+
+        try:
+            _, ext = os.path.splitext(taskInput[self.get_complete_id()]["filename"])
+            if ext not in self._allowed_exts:
+                return False
+
+            if sys.getsizeof(taskInput[self.get_complete_id()]["value"]) > self._max_size:
+                return False
+        except:
+            return False
+        return True
+
+    def __init__(self, problem, boxid, boxData):
+        BasicBox.__init__(self, problem, boxid, boxData)
+        self._allowed_exts = boxData.get("allowed_exts", INGIniousConfiguration.get('allowed_file_extensions', None))
+        if self._allowed_exts is None:
+            self._allowed_exts = [".c", ".cpp", ".java", ".oz", ".zip", ".tar.gz", ".tar.bz2", ".txt"]
+        self._max_size = boxData.get("max_size", INGIniousConfiguration.get('max_file_size', None))
+        if self._max_size is None:
+            self._max_size = 1024 * 1024
 
 
 class InputBox(BasicBox):

@@ -136,44 +136,45 @@ function submitTask()
 {
 	if(loadingSomething)
 		return;
-	
-    var form = $('form#task');
-    serialized = form.serialize();
     
-    blurTaskForm();
-    resetAlerts();
-    displayTaskLoadingAlert();
-    updateTaskStatus("Waiting for verification")
-    
-    jQuery.post(form.attr("action"), serialized, null, "json")
-    .done(function(data)
+    //Must be done before blurTaskForm as when a form is disabled, no input is sent by the plugin
+    $('form#task').ajaxSubmit(
     {
-        if ("status" in data && data["status"] == "ok" && "submissionid" in data)
+    	dataType: 'json',
+    	success: function(data)
         {
-        	incrementTries();
-            submissionid = data['submissionid'];
-            displayNewSubmission(data['submissionid']);
-            waitForSubmission(data['submissionid']);
-        }
-        else if ("status" in data && data['status'] == "error")
-        {
-            displayTaskStudentErrorAlert(data);
-            updateTaskStatus("Internal error");
-            unblurTaskForm();
-        }
-        else
+            if ("status" in data && data["status"] == "ok" && "submissionid" in data)
+            {
+            	incrementTries();
+                submissionid = data['submissionid'];
+                displayNewSubmission(data['submissionid']);
+                waitForSubmission(data['submissionid']);
+            }
+            else if ("status" in data && data['status'] == "error")
+            {
+                displayTaskStudentErrorAlert(data);
+                updateTaskStatus("Internal error");
+                unblurTaskForm();
+            }
+            else
+            {
+                displayTaskErrorAlert();
+                updateTaskStatus("Internal error");
+                unblurTaskForm();
+            }
+        }, 
+    	error: function()
         {
             displayTaskErrorAlert();
             updateTaskStatus("Internal error");
             unblurTaskForm();
         }
-    })
-    .fail(function()
-    {
-        displayTaskErrorAlert();
-        updateTaskStatus("Internal error");
-        unblurTaskForm();
     });
+    
+    blurTaskForm();
+    resetAlerts();
+    displayTaskLoadingAlert();
+    updateTaskStatus("Waiting for verification");
 }
 
 //Wait for a job to end

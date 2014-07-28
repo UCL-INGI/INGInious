@@ -5,8 +5,8 @@ from random import shuffle
 
 import web
 
-from common.tasks_problems import BasicProblem, BasicCodeProblem, CodeProblem, CodeSingleLineProblem, MatchProblem, MultipleChoiceProblem
-from frontend.custom.tasks_code_boxes import DisplayableInputBox, DisplayableMultilineBox, DisplayableTextBox
+from common.tasks_problems import BasicProblem, BasicCodeProblem, CodeProblem, CodeSingleLineProblem, MatchProblem, MultipleChoiceProblem, CodeFileProblem
+from frontend.custom.tasks_code_boxes import DisplayableInputBox, DisplayableMultilineBox, DisplayableTextBox, DisplayableFileBox
 
 
 class DisplayableBasicProblem(BasicProblem):
@@ -22,6 +22,10 @@ class DisplayableBasicProblem(BasicProblem):
         """ get the html for this problem """
         return self.show_input()
 
+    def adapt_input_for_backend(self, input_data):
+        """ Adapt the input from web.py for the backend """
+        return input_data
+
     @abstractmethod
     def show_input(self):
         """ get the html for this problem """
@@ -36,7 +40,18 @@ class DisplayableBasicCodeProblem(BasicCodeProblem, DisplayableBasicProblem):
     def get_type(self):
         return None
 
-    _box_types = {"input-text": DisplayableInputBox, "input-decimal": DisplayableInputBox, "input-integer": DisplayableInputBox, "multiline": DisplayableMultilineBox, "text": DisplayableTextBox}
+    _box_types = {
+        "input-text": DisplayableInputBox,
+        "input-decimal": DisplayableInputBox,
+        "input-integer": DisplayableInputBox,
+        "multiline": DisplayableMultilineBox,
+        "text": DisplayableTextBox,
+        "file": DisplayableFileBox}
+
+    def adapt_input_for_backend(self, input_data):
+        for box in self._boxes:
+            input_data = box.adapt_input_for_backend(input_data)
+        return input_data
 
     def show_input(self):
         """ Show BasicCodeProblem and derivatives """
@@ -53,6 +68,12 @@ class DisplayableCodeSingleLineProblem(CodeSingleLineProblem, DisplayableBasicCo
 
 
 class DisplayableCodeProblem(CodeProblem, DisplayableBasicCodeProblem):
+
+    """ A displayable code problem """
+    pass
+
+
+class DisplayableCodeFileProblem(CodeFileProblem, DisplayableBasicCodeProblem):
 
     """ A displayable code problem """
     pass

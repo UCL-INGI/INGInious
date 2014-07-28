@@ -1,0 +1,19 @@
+$def with (inputId,max_size,allowed_exts, json)
+
+$def sizeof_fmt(num):
+    $ num=float(num)
+    $for x in ['bytes','KB','MB','GB']:
+        $if -1024 < num < 1024:
+            $return "%3.1f%s" % (num, x)
+        $ num /= 1024.0
+    $return "%3.1f%s" % (num, 'TB')
+    
+<input
+    type="file"
+    name="$inputId"
+    data-max-size="$max_size"
+    data-allowed-exts="$json.dumps(allowed_exts)"
+/><br/>
+
+Max file size: $sizeof_fmt(max_size)<br/>
+Allowed extensions: $', '.join(allowed_exts)

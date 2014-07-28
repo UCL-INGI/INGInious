@@ -21,7 +21,10 @@ if not sys.argv[1:]:
 try:
     with open('/.__input/__inputdata.json', 'r') as file:
         input_data = json.loads(file.read().strip('\0').strip())
-    print input_data['input'][sys.argv[1]]
+    if isinstance(input_data['input'][sys.argv[1]], dict) and "filename" in input_data['input'][sys.argv[1]] and "value" in input_data['input'][sys.argv[1]]:
+        print input_data['input'][sys.argv[1]]["value"]
+    else:
+        print input_data['input'][sys.argv[1]]
 except IOError, e:
     sys.stderr.write("Input file not found")
     sys.exit(2)

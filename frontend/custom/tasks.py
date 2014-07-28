@@ -1,7 +1,7 @@
 """ Classes modifying basic tasks, problems and boxes classes """
 from common.parsable_text import ParsableText
 from frontend.accessible_time import AccessibleTime
-from frontend.custom.task_problems import DisplayableCodeProblem, DisplayableCodeSingleLineProblem, DisplayableMatchProblem, DisplayableMultipleChoiceProblem
+from frontend.custom.task_problems import DisplayableCodeProblem, DisplayableCodeSingleLineProblem, DisplayableMatchProblem, DisplayableMultipleChoiceProblem, DisplayableCodeFileProblem
 import common.tasks
 
 
@@ -10,7 +10,12 @@ class FrontendTask(common.tasks.Task):
     """ A task that stores additionnal context informations """
 
     # Redefine _problem_types with displayable ones
-    _problem_types = {"code": DisplayableCodeProblem, "code-single-line": DisplayableCodeSingleLineProblem, "multiple-choice": DisplayableMultipleChoiceProblem, "match": DisplayableMatchProblem}
+    _problem_types = {
+        "code": DisplayableCodeProblem,
+        "code-file": DisplayableCodeFileProblem,
+        "code-single-line": DisplayableCodeSingleLineProblem,
+        "multiple-choice": DisplayableMultipleChoiceProblem,
+        "match": DisplayableMatchProblem}
 
     def __init__(self, course, taskid):
         common.tasks.Task.__init__(self, course, taskid)
@@ -65,3 +70,9 @@ class FrontendTask(common.tasks.Task):
         if task_cache["tried"] == 0:
             return "notattempted"
         return "succeeded" if task_cache["succeeded"] else "failed"
+
+    def adapt_input_for_backend(self, input_data):
+        """ Adapt the input from web.py for the backend """
+        for problem in self._problems:
+            input_data = problem.adapt_input_for_backend(input_data)
+        return input_data
