@@ -1,11 +1,12 @@
 """ Contains the class Course and utility functions """
-from collections import OrderedDict
 from os import listdir
 from os.path import isfile, join, splitext
 import json
 
 from common.base import INGIniousConfiguration, id_checker
 import common.tasks
+
+
 class Course(object):
 
     """ Represents a course """
@@ -71,6 +72,5 @@ class Course(object):
                     output[task] = self.get_task(task)
                 except:
                     pass
-            output = OrderedDict(sorted(output.items(), key=lambda t: t[1].get_order()))
             self._tasks_cache = output
         return self._tasks_cache

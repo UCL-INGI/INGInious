@@ -1,5 +1,7 @@
 """ A course class with some modification for users """
 
+from collections import OrderedDict
+
 from common.courses import Course
 from frontend.accessible_time import AccessibleTime
 from frontend.custom.tasks import FrontendTask
@@ -55,3 +57,6 @@ class FrontendCourse(Course):
         for task_id in self.get_tasks():
             task_ids.append(task_id)
         return extern_get_user_last_submissions({"courseid": self.get_id(), "taskid": {"$in": task_ids}}, limit)
+
+    def get_tasks(self):
+        return OrderedDict(sorted(Course.get_tasks(self).items(), key=lambda t: t[1].get_order()))
