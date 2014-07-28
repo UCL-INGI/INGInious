@@ -32,7 +32,7 @@ def get_app(config_file):
 
     def not_found():
         """ Display the error 404 page """
-        return web.notfound(frontend.base.renderer.notfound())
+        return web.notfound(frontend.base.renderer.notfound('Page not found'))
     appli.notfound = not_found
 
     submission_manager.init_backend_interface()

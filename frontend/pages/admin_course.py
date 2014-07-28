@@ -145,8 +145,7 @@ class AdminCourseStudentListPage(object):
     def download_submission_set(self, submissions, filename, sub_folders):
         """ Create a tar archive with all the submissions """
         if len(submissions) == 0:
-            return renderer.admin_course_not_any_submission()
-
+            raise web.notfound(renderer.notfound("There's no submission that matches your request"))
         try:
             tmpfile = tempfile.TemporaryFile()
             tar = tarfile.open(fileobj=tmpfile, mode='w:')

@@ -29,6 +29,12 @@ class frontend_login_session(unittest.TestCase):
 class frontend_login_nosession(unittest.TestCase):
     def setUp(self):
         print "\033[1m-> frontend_login_nosession:setUp_:begin\033[0m"
+        
+        # Loads tests credentials from config file
+        self.wrong_username = common.base.INGIniousConfiguration['tests']['wrong_username']
+        self.wrong_password = common.base.INGIniousConfiguration['tests']['wrong_password']
+        self.correct_username = common.base.INGIniousConfiguration['tests']['correct_username']
+        self.correct_password = common.base.INGIniousConfiguration['tests']['correct_password']
         frontend.session.init(app, {'loggedin':False}) 
         
     def test_init(self):
@@ -41,8 +47,8 @@ class frontend_login_nosession(unittest.TestCase):
         '''Tests if correct credentials leads to a logged user page'''
         resp = appt.get('/')
         form = resp.forms[0]
-        form['login'] = correct_username
-        form['password'] = correct_password
+        form['login'] = self.correct_username
+        form['password'] = self.correct_password
         resp = form.submit()
         self.assertEqual(resp.status_int,200)
         resp.mustcontain('Log off')
@@ -51,8 +57,8 @@ class frontend_login_nosession(unittest.TestCase):
         '''Tests if wrong credentials leads to the home page with login'''
         resp = appt.get('/')
         form = resp.forms[0]
-        form['login'] = wrong_username
-        form['password'] = wrong_password
+        form['login'] = self.wrong_username
+        form['password'] = self.wrong_password
         resp = form.submit()
         self.assertEqual(resp.status_int,200)
         self.assertEqual(frontend.user.is_logged_in(), False)
@@ -60,12 +66,6 @@ class frontend_login_nosession(unittest.TestCase):
     
     def tearDown(self):
         print "\033[1m-> frontend_login_nosession:setUp_:tearDown\033[0m"
-
-# Load configuration for tests
-wrong_username = common.base.INGIniousConfiguration['tests']['wrong_username']
-wrong_password = common.base.INGIniousConfiguration['tests']['wrong_password']
-correct_username = common.base.INGIniousConfiguration['tests']['correct_username']
-correct_password = common.base.INGIniousConfiguration['tests']['correct_password']
 
 if __name__ == "__main__":
     unittest.main()

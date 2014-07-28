@@ -6,7 +6,7 @@ import frontend.session
 import common.base
 from tests import *
 
-class frontend_course_display(unittest.TestCase):
+class frontend_courses(unittest.TestCase):
     def setUp(self):
         print "\033[1m-> frontend_course_display:setUp\033[0m"
         frontend.session.init(app, {'loggedin':True, 'username':"test", "realname":"Test", "email":"mail@test.com"})
