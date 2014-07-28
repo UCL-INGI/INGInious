@@ -1,7 +1,9 @@
-$def with (course,taskid,task_data)
-$var title: Edit $:task.get_name()
+$def with (course,taskid,task_data,environments,problemdump,AccessibleTime)
+$var title: Edit $taskid
 
-<form action="/admin/${course.get_id()}/edit/$taskid" method="post">
+<h2>Edit task "$taskid"</h2>
+<form action="/admin/${course.get_id()}/edit/$taskid" method="post" class="form-horizontal">
+    <h3>General informations</h3>
     <input type="hidden" name="@action" value="edit_task"/>
     <div class="form-group">
         <label for="name" class="col-sm-2 control-label">Name</label>
@@ -12,7 +14,292 @@ $var title: Edit $:task.get_name()
     <div class="form-group">
         <label for="context" class="col-sm-2 control-label">Context</label>
         <div class="col-sm-10">
-            <textarea class="form-control" id="context" name="context" placeholder="A description of what the student will have to do in this task">${task_data.get('context','')}</textarea>
+            <textarea rows="10" class="form-control" id="context" name="context" placeholder="A description of what the student will have to do in this task">${task_data.get('context','')}</textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="author" class="col-sm-2 control-label">Author</label>
+        <div class="col-sm-10">
+            $if isinstance(task_data.get('author',[]),list):
+                $ a=', '.join(task_data.get('author',[]))
+            $else:
+                $ a=task_data.get('author',[])
+            <input type="text" class="form-control" id="author" name="author" placeholder="Your name" value="$a"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="accessible" class="col-sm-2 control-label">Accessible</label>
+        <div class="col-sm-10">
+            <label>
+                <input type="radio" value="false" name="accessible"
+                    $if task_data.get('accessible',True) == False:
+                        checked="checked"
+                /> Never
+            </label><br/>
+            <label>
+                <input type="radio" value="true" name="accessible"
+                    $if task_data.get('accessible',True) == True:
+                        checked="checked"
+                /> Always
+            </label><br/>
+            <label>
+                <input type="radio" value="custom" name="accessible"
+                    $if task_data.get('accessible',True) not in [True, False]:
+                        checked="checked"
+                />
+                $ at = AccessibleTime(task_data.get('accessible',True))
+                From <input type="datetime" class="form-control" name="accessible_start" value="${at.get_std_start_date()}" placeholder="2014-06-29 10:00:00"/>
+                to <input type="datetime" class="form-control" name="accessible_end" value="${at.get_std_end_date()}" placeholder="2014-06-30 11:00:00"/>
+            </label>
+        </div>
+    </div>
+    <h3>Virtual machine setup</h3>
+    <div class="form-group">
+        <label for="limit-time" class="col-sm-2 control-label">Timeout limit (in seconds)</label>
+        <div class="col-sm-10">
+            <input type="number" class="form-control" id="limit-time" name="limit-time" placeholder="30" value="${task_data.get('limits',{}).get('time',30)}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="limit-memory" class="col-sm-2 control-label">Memory limit (in megabytes)</label>
+        <div class="col-sm-10">
+            <input type="number" class="form-control" id="limit-memory" name="limit-memory" placeholder="30" value="${task_data.get('limits',{}).get('memory',100)}"/>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="limit-output" class="col-sm-2 control-label">Output limit (in megabytes)</label>
+        <div class="col-sm-10">
+            <input type="number" class="form-control" id="limit-output" name="limit-output" placeholder="2" value="${task_data.get('limits',{}).get('output',2)}"/>
+        </div>
+    </div>
+    <hr/>
+    <div class="form-group">
+        <label for="environment" class="col-sm-2 control-label">Environment</label>
+        <div class="col-sm-10">
+            <select id="environment" class="form-control" name="environment">
+                $for env in environments:
+                    <option value="$env"
+                        $if env == task_data.get('environment'):
+                            selected="selected"
+                    >$env</option>
+            </select>
+        </div>
+    </div>
+    <h3>Subproblems</h3>
+    <div class="row" id="new_subproblem">
+        <div class="form-group">
+            <label for="new_subproblem_pid" class="col-sm-2 control-label">New problem id</label>
+            <div class="col-sm-3">
+                <input type="text" class="form-control" id="new_subproblem_pid" value="" placeholder="new-problem-id"/>
+            </div>
+            <label for="new_subproblem_type" class="col-sm-2 control-label">problem type</label>
+            <div class="col-sm-3">
+                <select class="form-control" id="new_subproblem_type">
+                    <option value="subproblem_code">code</option>
+                    <option value="subproblem_match">match</option>
+                    <option value="subproblem_multiple_choice">multiple choice</option>
+                    <option value="subproblem_custom">custom</option>
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <button type="button" class="btn btn-primary btn-block" onclick="studio_sub_add()">Add a new subproblem</button>
+            </div>
         </div>
     </div>
 </form>
+<div id="subproblem_templates" style="display:none">
+    <div id="subproblem_code">
+        <div class="well row" id="subproblem_well_PID">
+            <input type="hidden" name="problem[PID][@order]" value="ORDER"/>
+            <div class="form-group">
+                <label for="pid-PID" class="col-sm-2 control-label">Problem id</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="pid-PID" disabled="disabled" value="PID"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="name-PID" class="col-sm-2 control-label">Name</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="A title for this question"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="context-PID" class="col-sm-2 control-label">Context</label>
+                <div class="col-sm-10">
+                    <textarea rows="10" class="form-control" id="context-PID" name="problem[PID][context]" placeholder="A description of what the student will have to do in this subproblem"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="language-PID" class="col-sm-2 control-label">Language</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="language-PID" name="problem[PID][language]" placeholder="Language used in this question (c/c++/java/python/oz/...)"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="type-PID" class="col-sm-2 control-label">Type</label>
+                <div class="col-sm-10">
+                    <select class="form-control" id="type-PID" name="problem[PID][type]">
+                        <option value="code">Multiline code</option>
+                        <option value="code-single-line">Single-line code</option>
+                        <option value="file">File upload</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-4">
+                    <button class="btn btn-danger btn-sm btn-block" type="button" onclick="studio_subproblem_delete('PID')"><span class="glyphicon glyphicon-remove-sign"></span> Delete subproblem</button>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_subproblem_up('PID')"><span class="glyphicon glyphicon-arrow-up"></span> Up</button>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_subproblem_down('PID')"><span class="glyphicon glyphicon-arrow-down"></span> Down</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="subproblem_match">
+        <div class="well row" id="subproblem_well_PID">
+            <input type="hidden" name="problem[PID][type]" value="match"/>
+            <input type="hidden" name="problem[PID][@order]" value="ORDER"/>
+            <div class="form-group">
+                <label for="pid-PID" class="col-sm-2 control-label">Problem id</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="pid-PID" disabled="disabled" value="PID"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="name-PID" class="col-sm-2 control-label">Name</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="A title for this question"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="context-PID" class="col-sm-2 control-label">Context</label>
+                <div class="col-sm-10">
+                    <textarea rows="10" class="form-control" id="context-PID" name="problem[PID][context]" placeholder="A description of what the student will have to do in this subproblem"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="answer-PID" class="col-sm-2 control-label">Answer</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="answer-PID" name="problem[PID][answer]" placeholder="Answer of this question"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-4">
+                    <button class="btn btn-danger btn-sm btn-block" type="button" onclick="studio_subproblem_delete('PID')"><span class="glyphicon glyphicon-remove-sign"></span> Delete subproblem</button>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_subproblem_up('PID')"><span class="glyphicon glyphicon-arrow-up"></span> Up</button>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_subproblem_down('PID')"><span class="glyphicon glyphicon-arrow-down"></span> Down</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="subproblem_multiple_choice">
+        <div class="well row" id="subproblem_well_PID">
+            <input type="hidden" name="problem[PID][type]" value="multiple-choice"/>
+            <input type="hidden" name="problem[PID][@order]" value="ORDER"/>
+            <div class="form-group">
+                <label for="pid-PID" class="col-sm-2 control-label">Problem id</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="pid-PID" disabled="disabled" value="PID"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="name-PID" class="col-sm-2 control-label">Name</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="A title for this question"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="context-PID" class="col-sm-2 control-label">Context</label>
+                <div class="col-sm-10">
+                    <textarea rows="10" class="form-control" id="context-PID" name="problem[PID][context]" placeholder="A description of what the student will have to do in this subproblem"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="multiple-PID" class="col-sm-2 control-label">Must select multiple answers</label>
+                <div class="col-sm-10">
+                    <input type="checkbox" class="form-control" id="multiple-PID" name="problem[PID][multiple]"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="choices-PID" class="col-sm-2 control-label">Choices</label>
+                <div class="col-sm-10">
+                    <table class="table table-condensed table-striped">
+                        <tr><th>Choice</th><th>Valid?</th></tr>
+                        <tr class="subproblem_multiple_choice_choice" style="display:none">
+                            <td>
+                                <input type="text" class="form-control" name="problem[PID][choices][CHOICE][name]" placeholder="The name of this choice"/>
+                            </td>
+                            <td>
+                                <input type="checkbox" class="form-control" name="problem[PID][choices][CHOICE][valid]"/>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-4">
+                    <button class="btn btn-danger btn-sm btn-block" type="button" onclick="studio_subproblem_delete('PID')"><span class="glyphicon glyphicon-remove-sign"></span> Delete subproblem</button>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_subproblem_up('PID')"><span class="glyphicon glyphicon-arrow-up"></span> Up</button>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_subproblem_down('PID')"><span class="glyphicon glyphicon-arrow-down"></span> Down</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="subproblem_custom">
+        <div class="well row" id="subproblem_well_PID">
+            <input type="hidden" name="problem[PID][type]" value="custom"/>
+            <input type="hidden" name="problem[PID][@order]" value="ORDER"/>
+            
+            <div class="form-group">
+                <label for="pid-PID" class="col-sm-2 control-label">Problem id</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="pid-PID" disabled="disabled" value="PID"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="name-PID" class="col-sm-2 control-label">Name</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="A title for this question"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="context-PID" class="col-sm-2 control-label">Context</label>
+                <div class="col-sm-10">
+                    <textarea rows="10" class="form-control" id="context-PID" name="problem[PID][context]" placeholder="A description of what the student will have to do in this subproblem"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="custom-PID" class="col-sm-2 control-label">Custom data (JSON)</label>
+                <div class="col-sm-10">
+                    <textarea rows="10" class="form-control" id="custom-PID" name="problem[PID][custom]" placeholder="{}"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-4">
+                    <button class="btn btn-danger btn-sm btn-block" type="button" onclick="studio_subproblem_delete('PID')"><span class="glyphicon glyphicon-remove-sign"></span> Delete subproblem</button>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_subproblem_up('PID')"><span class="glyphicon glyphicon-arrow-up"></span> Up</button>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_subproblem_down('PID')"><span class="glyphicon glyphicon-arrow-down"></span> Down</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+	problem_data = $:{problemdump};
+	\$ (function(){ studio_load(problem_data); });
+</script>

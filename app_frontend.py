@@ -19,6 +19,7 @@ urls = (
     '/admin/([^/]+)/student/([^/]+)/([^/]+)', 'frontend.pages.admin_course.AdminCourseStudentTaskPage',
     '/admin/([^/]+)/tasks', 'frontend.pages.admin_course.AdminCourseTaskListPage',
     '/admin/([^/]+)/task/([^/]+)', 'frontend.pages.admin_course.AdminCourseTaskInfoPage',
+    '/admin/([^/]+)/edit/([^/]+)', 'frontend.pages.admin_course_edit.AdminCourseEditTask',
 )
 
 

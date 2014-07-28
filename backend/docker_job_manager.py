@@ -66,19 +66,29 @@ class DockerJobManager (JobManager):
             if 'error' in j:
                 raise Exception("Error while building " + container + ": Docker returned error" + j["error"])
 
+    @classmethod
+    def get_container_names(cls, container_directory, with_prefix=None):
+        """ Returns available containers """
+        containers = [
+            f for f in os.listdir(
+                container_directory) if os.path.isdir(
+                os.path.join(
+                    container_directory,
+                    f)) and os.path.isfile(
+                    os.path.join(
+                        container_directory,
+                        f,
+                        "Dockerfile"))]
+
+        if with_prefix:
+            containers = [with_prefix + f for f in containers]
+        return containers
+
     def build_all_docker_containers(self):
         """ Ensures all containers are up to date """
         print "- Building containers"
-        containers = [
-            f for f in os.listdir(
-                self.containers_directory) if os.path.isdir(
-                os.path.join(
-                    self.containers_directory,
-                    f)) and os.path.isfile(
-                    os.path.join(
-                        self.containers_directory,
-                        f,
-                        "Dockerfile"))]
+
+        containers = self.get_container_names(self.containers_directory)
         for container in containers:
             print "\tbuilding " + container
             try:

@@ -490,3 +490,128 @@ function ask_to_download(link)
 	});
 	$('#downloadModal').modal('show');
 }
+
+
+/****************\
+|     Studio     |
+\****************/
+/**
+ * Load the studio, creating blocks for existing subproblems
+ */
+function studio_load(data)
+{
+	jQuery.each(data, function(pid, problem)
+	{
+		template = studio_get_template_for_problem(problem);
+		studio_create_from_template(template, pid);
+		studio_init_template(template,pid,problem);
+	});
+}
+
+/**
+ * Get the right template for a given problem
+ * @param problem
+ */
+function studio_get_template_for_problem(problem)
+{
+	if(problem["type"] == "code" && !problem["boxes"])
+		return "#subproblem_code";
+	else if(problem["type"] == "code")
+		return "#subproblem_custom";
+	else if(problem["type"] == "match")
+		return "#subproblem_match";
+	else if(problem["type"] == "multiple-choice")
+		return "#subproblem_multiple_choice";
+	else
+		return "#subproblem_custom";
+	return "#subproblem_custom";
+}
+
+/**
+ * Create a new template and put it at the bottom of the problem list
+ * @param template
+ * @param pid
+ */
+function studio_create_from_template(template, pid)
+{
+	tpl = $(template).html().replace(/PID/g,pid);
+	$('#new_subproblem').before(tpl);
+}
+
+/**
+ * Get the real id of the DOM element containing the problem
+ * @param pid
+ */
+function studio_get_problem(pid)
+{
+	return "subproblem_well_"+pid;
+}
+
+/**
+ * Init a template with data from an existing problem
+ * @param template
+ * @param pid
+ * @param problem
+ */
+function studio_init_template(template,pid,problem)
+{
+	well = $(studio_get_problem(pid));
+	switch(template)
+	{
+	case "#subproblem_code":
+		studio_init_template_code(well, pid, problem);
+		break;
+	case "#subproblem_custom":
+		studio_init_template_custom(well, pid, problem);
+		break;
+	case "#subproblem_match":
+		studio_init_template_match(well, pid, problem);
+		break;
+	case "#subproblem_multiple_choice":
+		studio_init_template_multiple_choice(well, pid, problem);
+		break;
+	}
+	return;
+}
+
+/**
+ * Init a code template
+ * @param well: the DOM element containing the input fields
+ * @param pid
+ * @param problem
+ */
+function studio_init_template_code(well, pid, problem)
+{
+}
+
+/**
+ * Init a custom template
+ * @param well: the DOM element containing the input fields
+ * @param pid
+ * @param problem
+ */
+function studio_init_template_custom(well, pid, problem)
+{
+}
+
+/**
+ * Init a match template
+ * @param well: the DOM element containing the input fields
+ * @param pid
+ * @param problem
+ */
+function studio_init_template_match(well, pid, problem)
+{
+}
+
+/**
+ * Init a multiple choice template
+ * @param well: the DOM element containing the input fields
+ * @param pid
+ * @param problem
+ */
+function studio_init_template_multiple_choice(well, pid, problem)
+{
+}
+
+

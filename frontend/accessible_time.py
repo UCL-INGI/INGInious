@@ -21,7 +21,7 @@ class AccessibleTime(object):
             2014-07-16 11:24:00 / 2014-07-20 (...)
             2014-07-16 / 2014-07-20 (...)
         """
-        if val is None or val == "":
+        if val is None or val == "" or val is True:
             self.val = [None, None]
         elif val == False:
             self.val = [0, 0]
@@ -58,3 +58,19 @@ class AccessibleTime(object):
         if second is not None and second < when:
             return False
         return True
+
+    def get_std_start_date(self):
+        """ If the date is custom, return the start datetime with the format %Y-%m-%d %H:%M:%S. Else, returns "". """
+        first, _ = self.val
+        if isinstance(first, datetime):
+            return first.strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            return ""
+
+    def get_std_end_date(self):
+        """ If the date is custom, return the end datetime with the format %Y-%m-%d %H:%M:%S. Else, returns "". """
+        _, second = self.val
+        if isinstance(second, datetime):
+            return second.strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            return ""
