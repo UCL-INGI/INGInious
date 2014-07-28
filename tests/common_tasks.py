@@ -2,6 +2,8 @@ import unittest
 import common.base
 import common.tasks
 import common.courses
+import common.tasks_code_boxes
+from tests import *
 
 class common_tasks_basic(unittest.TestCase):
     def setUp(self):
@@ -25,7 +27,7 @@ class common_tasks_basic(unittest.TestCase):
     def tearDown(self):
         print "\033[1m-> common_tasks_basic:setUp_:tearDown\033[0m"
 
-class backend_tasks_problems(unittest.TestCase):
+class common_tasks_problems(unittest.TestCase):
     def setUp(self):
         print "\033[1m-> common_tasks_problems:setUp_:begin\033[0m"
     
@@ -78,6 +80,77 @@ class backend_tasks_problems(unittest.TestCase):
         
     def tearDown(self):
         print "\033[1m-> common_tasks_problems:setUp_:tearDown\033[0m"
+
+class common_tasks_boxes(unittest.TestCase):
+    def setUp(self):
+        print "\033[1m-> common_tasks_boxes:setUp_:begin\033[0m"
+    
+    def test_number_boxes(self):
+        '''Tests if get_boxes returns the correct number of boxes'''
+        p = common.tasks.Task(common.courses.Course('test2'), 'task4').get_problems()[0]
+        assert len(p.get_boxes()) == 12
+    
+    def test_filebox(self):
+        '''Tests filebox methods'''
+        p = common.tasks.Task(common.courses.Course('test2'), 'task4').get_problems()[0]
+        box = p.get_boxes()[11]
+        assert box.get_type() == 'file'
+        
+        # Check random form input
+        assert box.input_is_consistent({"unittest/file1": {"filename":"test.txt", "value":"test"}})
+        assert not box.input_is_consistent({"unittest/file1": {"filename":"test.txt", "content":"test"}})
+        assert not box.input_is_consistent("test")
+    
+    def test_integer_inputbox(self):
+        '''Tests integer inputbox methods'''
+        p = common.tasks.Task(common.courses.Course('test2'), 'task4').get_problems()[0]
+        box = p.get_boxes()[1]
+        assert box.get_type() == 'input' and box._input_type =='integer'
+        
+        # Check random form input
+        assert box.input_is_consistent({"unittest/int1": "42"})
+        assert not box.input_is_consistent({"unittest/int1": "test"})
+        assert not box.input_is_consistent("ddd")
+        assert not box.input_is_consistent(42)
+    
+    def test_decimal_inputbox(self):
+        '''Tests decimal inputbox methods'''
+        p = common.tasks.Task(common.courses.Course('test2'), 'task4').get_problems()[0]
+        box = p.get_boxes()[3]
+        assert box.get_type() == 'input' and box._input_type =='decimal'
+        
+        # Check random form input
+        assert box.input_is_consistent({"unittest/decimal1": "42.3"})
+        assert not box.input_is_consistent({"unittest/decimal1": "test"})
+        assert not box.input_is_consistent("ddd")
+        assert not box.input_is_consistent(42)
+    
+    def test_text_inputbox(self):
+        '''Tests text inputbox methods'''
+        p = common.tasks.Task(common.courses.Course('test2'), 'task4').get_problems()[0]
+        box = p.get_boxes()[5]
+        assert box.get_type() == 'input' and box._input_type =='text'
+        
+        # Check random form input
+        assert box.input_is_consistent({"unittest/text1": "42.3"})
+        assert box.input_is_consistent({"unittest/text1": "test"})
+        assert not box.input_is_consistent("ddd")
+        assert not box.input_is_consistent(42)
+    
+    def test_multiline_inputbox(self):
+        '''Tests multiline inputbox methods'''
+        p = common.tasks.Task(common.courses.Course('test2'), 'task4').get_problems()[0]
+        box = p.get_boxes()[8]
+        assert box.get_type() == 'multiline'
+        
+        # Check random form input
+        assert box.input_is_consistent({"unittest/code1": "42.3"})
+        assert box.input_is_consistent({"unittest/code1": "test"})
+        assert not box.input_is_consistent("ddd")
+        assert not box.input_is_consistent(42)
+        
+    def tearDown(self):
+        print "\033[1m-> common_tasks_boxes:setUp_:tearDown\033[0m"
 
 if __name__ == "__main__":
     unittest.main()

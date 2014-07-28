@@ -33,7 +33,6 @@ class frontend_admin_views(unittest.TestCase):
     def test_course_student_view(self):
         '''Tests if student view displays correctly'''
         resp = appt.get('/admin/test')
-        resp.mustcontain('testadmin1')
         resp.mustcontain('Download all submissions')
         resp.mustcontain('CSV')
         resp.mustcontain('Download submissions')

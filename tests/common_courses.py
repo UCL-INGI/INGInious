@@ -1,6 +1,7 @@
 import unittest
 import common.base
 import common.courses
+from tests import *
 
 class common_courses(unittest.TestCase):
     def setUp(self):
