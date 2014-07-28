@@ -29,7 +29,7 @@ class BasicProblem(object):
             the first is either True, False or None, indicating respectively that the answer is valid, invalid, or need to be sent to VM
             the second is the error message assigned to the task, if any (unused for now)
             the third is the error message assigned to this problem, if any
-            this fourth is the number of error if this problem is a multiple choice problem. Must be an integer (0)
+            this fourth is the number of error if this problem is a multi-box problem. Must be an integer (0)
         """
         return True, None, None, 0
 
