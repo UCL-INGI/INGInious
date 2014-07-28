@@ -149,7 +149,7 @@ are demonstrated above. Every configuration in the boxes (*maxChars*,*lines*,*la
 is not mandatory, except *content* if the box type is *text*.
 
 In the *run* file (see :doc:`run_file`), boxes input are available with the name 
-*problem_id.box_id*
+*problem_id/box_id*
 
 Match problems
 ``````````````

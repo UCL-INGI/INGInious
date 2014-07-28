@@ -55,6 +55,8 @@ For example, for the problem id "pid", the command to do is:
 
 	getinput pid
 	
+When a problem is defined with several boxes, the argument becomes *pid/bid* where "pid" stands for the problem id and "bid" for "box id".
+
 parsetemplate
 `````````````
 
