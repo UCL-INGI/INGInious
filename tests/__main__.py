@@ -8,6 +8,8 @@ if __name__ == "__main__":
         'tests.frontend_tasks',
         'tests.frontend_submissions',
         'tests.frontend_admin',
+        'tests.common_courses',
+        'tests.common_tasks'
         ]
 
     suite = unittest.TestSuite()

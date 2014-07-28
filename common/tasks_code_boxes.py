@@ -28,7 +28,10 @@ class BasicBox(object):
 
     def input_is_consistent(self, task_input):
         """ Check if an input for this box is consistent. Return true if this is case, false else """
-        return self.get_complete_id() in task_input
+        try:
+            return self.get_complete_id() in task_input
+        except:
+            return False
 
     def get_complete_id(self):
         """ Returns the complete _id of this box. This _id is unique among all problems and boxes in an exercice """
@@ -122,19 +125,22 @@ class InputBox(BasicBox):
             return False
 
         # do not allow empty answers
-        if len(taskInput[self.get_complete_id()]) == 0:
+        try:
+            if len(taskInput[self.get_complete_id()]) == 0:
+                return False
+        except:
             return False
 
         if self._input_type == "integer":
             try:
                 int(taskInput[self.get_complete_id()])
-            except ValueError:
+            except:
                 return False
 
         if self._input_type == "decimal":
             try:
                 float(taskInput[self.get_complete_id()])
-            except ValueError:
+            except:
                 return False
         return True
 
