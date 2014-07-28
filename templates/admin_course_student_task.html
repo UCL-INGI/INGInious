@@ -7,10 +7,11 @@ $var title: $:task.get_name() - $:userData["realname"] - $:course.get_name()
   <li><a href="/index">Home</a></li>
   <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
   <li><a href="/admin/$course.get_id()">Manage</a></li>
+  <li><a href="/admin/$course.get_id()/students">Students</a></li>
   <li><a href="/admin/$course.get_id()/student/$username">Student - $userData["realname"]</a></li>
   <li class="active">Task - $:task.get_name()</li>
 </ol>
-<h2>Submissions for the task "$:task.get_name()" - $userData["realname"] ($username) - course $course.get_name()</h2>
+<h2>Submissions for the task "$:task.get_name()" - $userData["realname"] ($username)</h2>
 <table class="table">
     <tr>
         <th>id</th>

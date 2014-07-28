@@ -4,9 +4,10 @@ $var title: $:course.get_name()
 <ol class="breadcrumb">
   <li><a href="/index">Home</a></li>
   <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
-  <li class="active">Manage</li>
+  <li><a href="/admin/$course.get_id()">Manage</a></li>
+  <li class="active">Students</li>
 </ol>
-<h2>Stats for course $course.get_name()</h2>
+<h2>Statistics per student</h2>
 <h4><a href="/admin/${course.get_id()}/tasks">Task view</a></h4>
 <table class="table">
     <tr>

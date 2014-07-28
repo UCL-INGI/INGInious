@@ -7,9 +7,10 @@ $var title: $:userData["realname"] - $:course.get_name()
   <li><a href="/index">Home</a></li>
   <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
   <li><a href="/admin/$course.get_id()">Manage</a></li>
+  <li><a href="/admin/$course.get_id()/students">Students</a></li>
   <li class="active">Student - $userData["realname"]</li>
 </ol>
-<h2>Stats for $userData["realname"] ($username) - course $course.get_name()</h2>
+<h2>Statistics for student $userData["realname"] ($username)</h2>
 <table class="table">
     <tr>
         <th>task</th>

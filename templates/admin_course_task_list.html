@@ -7,8 +7,8 @@ $var title: $:course.get_name()
   <li><a href="/admin/$course.get_id()">Manage</a></li>
   <li class="active">Tasks</li>
 </ol>
-<h2>Stats for tasks of course $course.get_name()</h2>
-<h4><a href="/admin/${course.get_id()}">Student view</a></h4>
+<h2>Tasks</h2>
+<h4><a href="/admin/${course.get_id()}/students">View students</a></h4>
 <table class="table">
     <tr>
         <th>task name</th>
@@ -31,6 +31,7 @@ $var title: $:course.get_name()
             <td>$data[taskid]["succeeded"]</td>
             <td>$data[taskid]["attempts"]</td>
     		<td>
+                <a href="/admin/${course.get_id()}/edit/$taskid" class="btn btn-primary btn-xs">Edit task</a>
     			<a href="/admin/${course.get_id()}/task/$taskid" class="btn btn-default btn-xs">View student list</a>
     			<a href="javascript:ask_to_download('$data[taskid]['url']')" class="btn btn-default btn-xs">Download submissions</a>
     		</td>

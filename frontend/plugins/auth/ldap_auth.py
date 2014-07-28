@@ -19,7 +19,7 @@ def init(plugin_manager, conf):
                 "name": "LDAP Login"
             }
 
-        *prefix* is the prefix used internally to distingish user that have the same username on different login services
+        *prefix* is the prefix used internally to distinguish user that have the same username on different login services
     """
 
     def connect(login_data):
