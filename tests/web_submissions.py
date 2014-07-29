@@ -8,13 +8,13 @@ import json
 import time
 from tests import *
 
-class frontend_submissions(unittest.TestCase):
+class web_submissions(unittest.TestCase):
     def setUp(self):
-        print "\033[1m-> frontend_tasks_submit:setUp\033[0m"
         frontend.session.init(app, {'loggedin':True, 'username':"test", "realname":"Test", "email":"mail@test.com"})
 
     def test_code(self):
         ''' Tests submission and check of a code '''
+        print "\033[1m-> web-submissions: code-problem submission\033[0m"
         resp = appt.post('/course/test/task1', {"@action":"submit", "unittest/decimal": "2"})
         js = json.loads(resp.body)
         assert "status" in js and "submissionid" in js and js["status"] == "ok"
@@ -31,6 +31,7 @@ class frontend_submissions(unittest.TestCase):
     
     def test_match(self):
         ''' Tests submission and check of a code '''
+        print "\033[1m-> web-submissions: match-problem submission\033[0m"
         resp = appt.post('/course/test2/task1', {"@action":"submit", "unittest": "Answer 1"})
         js = json.loads(resp.body)
         assert "status" in js and "submissionid" in js and js["status"] == "ok"
@@ -47,6 +48,7 @@ class frontend_submissions(unittest.TestCase):
     
     def test_correct_multichoice(self):
         ''' Tests correct submission and check of a multichoice '''
+        print "\033[1m-> web-submissions: correct multi-choice problem submission\033[0m"
         resp = appt.post('/course/test2/task3', {"@action":"submit", "unittest": ["1","0"]})
         js = json.loads(resp.body)
         assert "status" in js and "submissionid" in js and js["status"] == "ok"
@@ -63,6 +65,7 @@ class frontend_submissions(unittest.TestCase):
 
     def test_incorrect_multichoice(self):
         ''' Tests incorrect submission and check of a multichoice '''
+        print "\033[1m-> web-submissions: incorrect multi-choice problem submission\033[0m"
         resp = appt.post('/course/test2/task3', {"@action":"submit", "unittest": ["1"]})
         js = json.loads(resp.body)
         assert "status" in js and "submissionid" in js and js["status"] == "ok"
@@ -78,7 +81,7 @@ class frontend_submissions(unittest.TestCase):
                 break
     
     def tearDown(self):
-        print "\033[1m-> frontend_tasks_submit:tearDown\033[0m"
+        pass
 
 if __name__ == "__main__":
     unittest.main()

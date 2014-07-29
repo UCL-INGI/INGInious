@@ -5,10 +5,11 @@ from tests import *
 
 class common_courses(unittest.TestCase):
     def setUp(self):
-        print "\033[1m-> common_courses:setUp_:begin\033[0m"
+        pass
     
     def test_course_loading(self):
         '''Tests if a course file loads correctly'''
+        print "\033[1m-> common-courses: course loading\033[0m"
         c = common.courses.Course('test')
         assert c.get_id() == 'test'
         assert c._content['accessible'] == None
@@ -29,6 +30,7 @@ class common_courses(unittest.TestCase):
     
     def test_all_courses_loading(self):
         '''Tests if all courses are loaded by Course.get_all_courses()'''
+        print "\033[1m-> common-courses: all courses loading\033[0m"
         c = common.courses.Course.get_all_courses()
         assert 'test' in c
         assert 'test2' in c
@@ -36,6 +38,7 @@ class common_courses(unittest.TestCase):
     
     def test_tasks_loading(self):
         '''Tests loading tasks from the get_tasks method'''
+        print "\033[1m-> common-courses: course tasks loading\033[0m"
         c = common.courses.Course('test')
         t = c.get_tasks()
         assert 'task1' in t
@@ -44,7 +47,7 @@ class common_courses(unittest.TestCase):
         assert 'task4' in t
         
     def tearDown(self):
-        print "\033[1m-> common_courses:setUp_:tearDown\033[0m"
+        pass
 
 if __name__ == "__main__":
     unittest.main()
