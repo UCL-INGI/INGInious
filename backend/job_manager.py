@@ -1,97 +1,152 @@
-""" Contain the abstract class JobManager """
-
-from abc import ABCMeta, abstractmethod
-import json
+""" Contains the class JobManager """
+import multiprocessing
+import os
 import threading
+import uuid
 
-from common.parsable_text import ParsableText
+from backend._callback_manager import CallbackManager
+from backend._submitter import submitter
+from backend._waiter import Waiter
 
 
-class JobManager (threading.Thread):
+class JobManager(object):
 
-    """ Abstract thread class that runs the jobs that are in the queue """
-    __metaclass__ = ABCMeta
+    """ Manages jobs """
 
-    def __init__(self, queue):
-        threading.Thread.__init__(self)
-        self.queue = queue
+    def __init__(self, docker_instances, containers_directory, tasks_directory, callback_manager_count=1, submitter_count=None):
+        """
+            Starts a job manager.
 
-    def run(self):
-        while True:
-            # Retrieves the task from the queue
-            jobid, task, inputdata, callback = self.queue.get_next_job()
+            Arguments:
 
-            # Base dictonnary with output
-            basedict = {"task": task, "input": inputdata}
+            *docker_instances*
+                A list of dictionaries containing information about a distant docker daemon:
+                ::
 
-            # Check task answer that do not need emulation
-            first_result, need_emul, first_text, first_problems, multiple_choice_error_count = task.check_answer(inputdata)
-            final_dict = basedict.copy()
-            final_dict.update({"result": ("success" if first_result else "failed")})
-            if first_text is not None:
-                final_dict["text"] = first_text
-            if first_problems:
-                final_dict["problems"] = first_problems
-            if multiple_choice_error_count != 0:
-                final_dict["text"].append("You have {} errors in the multiple choice questions".format(multiple_choice_error_count))
+                    {
+                        server_url: "the url to the docker daemon. May be a UNIX socket. Mandatory",
+                        container_prefix: "The prefix to be used on container names. by default, it is 'inginious/'",
+                        waiters: 1,
+                        time_between_polls: 1
+                    }
 
-            # Launch the emulation
-            if need_emul:
-                try:
-                    emul_result = self.run_job(jobid, task, {"limits": task.get_limits(), "input": inputdata})
-                    print json.dumps(emul_result, sort_keys=True, indent=4, separators=(',', ': '))
-                except Exception:
-                    emul_result = {"result": "error", "text": "The grader did not gave any output. This can be because you used too much memory."}
+                *waiters* is an integer indicating the number of waiters processes to start for this docker instance.
+                *time_between_polls* is an integer in seconds. It is the time between two polls on the distant docker
+                daemon to see if the job is done
 
-                if final_dict['result'] not in ["error", "failed", "success", "timeout", "overflow"]:
-                    final_dict['result'] = "error"
+            *containers_directory*
+                The local directory path containing the Dockerfiles
 
-                if emul_result["result"] not in ["error", "timeout", "overflow"]:
-                    # Merge results
-                    no_vm_dict = final_dict
-                    final_dict = emul_result
+            *tasks_directory*
+                The local directory path containing the courses and the tasks
 
-                    final_dict["result"] = "success" if no_vm_dict["result"] == "success" and final_dict["result"] == "success" else "failed"
-                    if "text" in final_dict and "text" in no_vm_dict:
-                        final_dict["text"] = final_dict["text"] + "\n" + "\n".join(no_vm_dict["text"])
-                    elif "text" not in final_dict and "text" in no_vm_dict:
-                        final_dict["text"] = "\n".join(no_vm_dict["text"])
+            *submitter_count*
+                Size of the submitter pool. Default the the number of processors
 
-                    if "problems" in final_dict and "problems" in no_vm_dict:
-                        for pid in no_vm_dict["problems"]:
-                            if pid in final_dict["problems"]:
-                                final_dict["problems"][pid] = final_dict["problems"][pid] + "\n" + no_vm_dict["problems"][pid]
-                            else:
-                                final_dict["problems"][pid] = no_vm_dict["problems"][pid]
-                    elif "problems" not in final_dict and "problems" in no_vm_dict:
-                        final_dict["problems"] = no_vm_dict["problems"]
-                elif emul_result["result"] in ["error", "timeout", "overflow"] and "text" in emul_result:
-                    final_dict = basedict.copy()
-                    final_dict.update({"result": emul_result["result"], "text": emul_result["text"]})
-                elif emul_result["result"] == "error":
-                    final_dict = basedict.copy()
-                    final_dict.update({"result": emul_result["result"], "text": "An unknown internal error occured"})
-                elif emul_result["result"] == "timeout":
-                    final_dict = basedict.copy()
-                    final_dict.update({"result": emul_result["result"], "text": "Your code took too much time to execute"})
-                elif emul_result["result"] == "overflow":
-                    final_dict = basedict.copy()
-                    final_dict.update({"result": emul_result["result"], "text": "Your code took too much memory or disk"})
-            else:
-                final_dict["text"] = "\n".join(final_dict["text"])
+            *callback_manager_count*
+                Number of thread to launch to handle the callbacks
 
-            # Parse returned content
-            if "text" in final_dict:
-                final_dict["text"] = ParsableText(final_dict["text"], task.get_response_type()).parse()
-            if "problems" in final_dict:
-                for pid in final_dict["problems"]:
-                    final_dict["problems"][pid] = ParsableText(final_dict["problems"][pid], task.get_response_type()).parse()
+            A job manager manages, in fact, pools of processes called submitters and waiters.
 
-            self.queue.set_result(jobid, final_dict)
-            if callback is not None:
-                callback(jobid, final_dict)
+            The first pool, containing the submitters, launch *submitter_count* processes.
+            If *submitter_count* = None, it launches the amount of processors available.
+            Submitters are in charge of starting the (maybe distant) docker containers.
 
-    @abstractmethod
-    def run_job(self, jobid, task, inputdata):
-        """ Run a new job """
-        pass
+            The second pool contains a number of waiters (the number is defined by each docker instance's configuration)
+            that *wait* for a job to end on the distant docker daemon. Starting more than one process per docker instance is most of the time useless.
+
+            NB: in fact, the *waiters* pool is not a python multiprocessing.Pool object.
+
+            The job manager also launch a number of thread to handle the callbacks (the number is given by callback_manager_count)
+        """
+        self._containers_directory = containers_directory
+        self._tasks_directory = tasks_directory
+
+        self._memory_manager = multiprocessing.Manager()
+
+        print "Starting the submitter pool"
+        self._submitter_pool = multiprocessing.Pool(submitter_count)
+
+        self._docker_waiter_queues = []
+        self._docker_waiter_processes = []
+
+        self._done_queue = self._memory_manager.Queue()
+
+        #_running_job_count is only used by the current process, but needs to be locked
+        self._running_job_count = []
+        self._running_job_count_lock = threading.Lock()
+        self._running_job_data = {}
+
+        self._docker_config = docker_instances
+
+        # Start waiters
+        print "Starting waiters"
+        for docker_instance_id, docker_config in enumerate(self._docker_config):
+
+            docker_instance_queue = self._memory_manager.Queue()
+            self._docker_waiter_queues.append(docker_instance_queue)
+
+            processes = []
+            for i in range(docker_config.get("waiters", 1)):
+                print "Starting waiter {} from docker instance {}".format(i, docker_instance_id)
+                process = Waiter(docker_instance_queue, self._done_queue, docker_config)
+                process.start()
+                processes.append(process)
+            self._docker_waiter_processes.append(processes)
+            self._running_job_count.append(0)
+
+        # Start callback managers
+        print "Starting callback managers"
+        self._callback_manager = []
+        for _ in range(callback_manager_count):
+            process = CallbackManager(self._done_queue, self._running_job_data, self._running_job_count, self._running_job_count_lock)
+            self._callback_manager.append(process)
+            process.start()
+
+        print "Job Manager initialization done"
+
+    def _get_docker_instance_and_inc(self):
+        """ Return the id of a docker instance and increment the job count associated """
+        self._running_job_count_lock.acquire()
+        min_index, min_value = min(enumerate(self._running_job_count), key=lambda p: p[1])
+        self._running_job_count[min_index] = min_value + 1
+        self._running_job_count_lock.release()
+        return min_index
+
+    def new_job(self, task, inputdata, callback):
+        """ Add a new job. callback is a function that will be called asynchronously in the job manager's process. """
+        jobid = uuid.uuid4()
+
+        # Base dictonnary with output
+        basedict = {"task": task, "input": inputdata}
+
+        # Check task answer that do not need emulation
+        first_result, need_emul, first_text, first_problems, multiple_choice_error_count = task.check_answer(inputdata)
+        basedict.update({"result": ("success" if first_result else "failed")})
+        if first_text is not None:
+            basedict["text"] = first_text
+        if first_problems:
+            basedict["problems"] = first_problems
+        if multiple_choice_error_count != 0:
+            basedict["text"].append("You have {} errors in the multiple choice questions".format(multiple_choice_error_count))
+
+        if need_emul:
+            # Go through the whole process: sent everything to docker
+            docker_instance = self._get_docker_instance_and_inc()
+
+            self._running_job_data[jobid] = (task, callback, basedict)
+
+            self._submitter_pool.apply_async(
+                submitter, [jobid, inputdata,
+                            os.path.join(self._tasks_directory, task.get_course_id(), task.get_id()),
+                            task.get_limits(),
+                            task.get_environment(),
+                            self._docker_config[docker_instance],
+                            self._docker_waiter_queues[docker_instance]])
+        else:
+            # Only send data to a CallbackManager
+            basedict["text"] = "\n".join(basedict["text"])
+            self._running_job_data[jobid] = (task, callback, basedict)
+            self._done_queue.put((jobid, None))
+
+        return jobid

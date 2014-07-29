@@ -1,0 +1,1 @@
+""" The backend of INGInious. Contains the main backend class, JobManager, and some utilities """

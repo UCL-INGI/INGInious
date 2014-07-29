@@ -6,8 +6,7 @@ from bson.objectid import ObjectId
 from sh import git  # pylint: disable=no-name-in-module
 import pymongo
 
-from backend.docker_job_manager import DockerJobManager
-from backend.simple_job_queue import SimpleJobQueue
+from backend.job_manager import JobManager
 from common.base import INGIniousConfiguration
 from frontend.base import get_database, get_gridfs
 from frontend.plugins.plugin_manager import PluginManager
@@ -16,9 +15,9 @@ import frontend.user as User
 job_managers = []
 
 
-def get_backend_job_queue():
-    """ Get the job_queue used by the backend. Should only be used by very specific plugins """
-    return get_backend_job_queue.job_queue
+def get_job_manager():
+    """ Get the JobManager. Should only be used by very specific plugins """
+    return get_job_manager.job_manager
 
 
 def init_backend_interface():
@@ -42,33 +41,17 @@ def init_backend_interface():
     # Updates the submissions that have a jobid with the status error, as the server restarted """
     get_database().submissions.update({'jobid': {"$exists": True}}, {"$unset": {'jobid': ""}, "$set": {'status': 'error', 'text': 'Internal error. Server restarted'}})
 
-    # Create the job queue
-    get_backend_job_queue.job_queue = SimpleJobQueue()
-
-    # Launch the job managers
-    try:
-        job_manager_count = int(INGIniousConfiguration.get("job_managers", 1))
-    except ValueError:
-        print "Configuration entry 'job_managers' must be an integer"
-        job_manager_count = 1
-    if job_manager_count < 1:
-        print "Configuration entry 'job_managers' must be greater than 1"
-    for i in range(0, job_manager_count):
-        print "Starting Job Manager #" + str(i)
-        thread = DockerJobManager(
-            get_backend_job_queue(),
-            INGIniousConfiguration["docker_server_url"],
-            INGIniousConfiguration["tasks_directory"],
-            INGIniousConfiguration["containers_directory"],
-            INGIniousConfiguration["container_prefix"])
-
-        # Build the containers if needed
-        if i == 0 and "build_containers_on_start" in INGIniousConfiguration and INGIniousConfiguration["build_containers_on_start"]:
-            thread.build_all_docker_containers()
-
-        thread.daemon = True
-        thread.start()
-        job_managers.append(thread)
+    # Create the job manager
+    get_job_manager.job_manager = JobManager(
+        INGIniousConfiguration["docker_instances"],
+        INGIniousConfiguration["containers_directory"],
+        INGIniousConfiguration["tasks_directory"],
+        INGIniousConfiguration.get(
+            "callback_managers_threads",
+            1),
+        INGIniousConfiguration.get(
+            "submitters_processes",
+            1))
 
 
 def get_submission(submissionid, user_check=True):
@@ -84,7 +67,7 @@ def get_submission_from_jobid(jobid):
     return get_database().submissions.find_one({'jobid': jobid})
 
 
-def job_done_callback(jobid, job):
+def job_done_callback(jobid, _, job):
     """ Callback called by JobManager when a job is done. Updates the submission in the database with the data returned after the completion of the job """
     submission = get_submission_from_jobid(jobid)
 
@@ -105,8 +88,6 @@ def job_done_callback(jobid, job):
     )
     UserData(submission["username"]).update_stats(submission, job)
 
-    get_backend_job_queue().get_result(jobid) # Removes submissions from the queue
-
     PluginManager.get_instance().call_hook("submission_done", submission=submission, job=job)
 
 
@@ -118,7 +99,7 @@ def add_job(task, inputdata):
 
     username = User.get_username()
 
-    jobid = get_backend_job_queue().add_job(task, inputdata, job_done_callback)
+    jobid = get_job_manager().new_job(task, inputdata, job_done_callback)
     obj = {"username": username, "courseid": task.get_course_id(), "taskid": task.get_id(), "input": inputdata, "status": "waiting", "jobid": jobid, "submitted_on": datetime.now()}
     submissionid = get_database().submissions.insert(obj)
     return submissionid

@@ -71,12 +71,12 @@ def init(plugin_manager, config):
             try:
                 job_semaphore = threading.Semaphore(0)
 
-                def manage_output(_, job):
+                def manage_output(dummy1_, dummy2_, job):
                     """ Manages the output of this job """
                     print "RETURN JOB"
                     manage_output.jobReturn = job
                     job_semaphore.release()
-                frontend.submission_manager.get_backend_job_queue().add_job(task, edx_input, manage_output)
+                frontend.submission_manager.get_job_manager().new_job(task, edx_input, manage_output)
                 job_semaphore.acquire()
                 job_return = manage_output.jobReturn
             except:
