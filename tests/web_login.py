@@ -52,7 +52,6 @@ class web_login_nosession(unittest.TestCase):
         form['login'] = self.correct_username
         form['password'] = self.correct_password
         resp = form.submit()
-        print resp
         self.assertEqual(resp.status_int,200)
         resp.mustcontain('Log off')
         
