@@ -105,6 +105,8 @@ def job_done_callback(jobid, job):
     )
     UserData(submission["username"]).update_stats(submission, job)
 
+    get_backend_job_queue().get_result(jobid) # Removes submissions from the queue
+
     PluginManager.get_instance().call_hook("submission_done", submission=submission, job=job)
 
 
