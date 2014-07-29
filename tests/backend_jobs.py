@@ -3,6 +3,8 @@ from common.base import INGIniousConfiguration
 import common.base
 import common.tasks
 import common.courses
+from backend.job_manager import JobManager
+from backend.docker_job_manager import DockerJobManager
 import frontend
 import frontend.submission_manager
 import uuid
@@ -45,7 +47,11 @@ class backend_jobs(unittest.TestCase):
         print "Job finished"
     
     def test_docker_job(self):
+        '''Tests if a job runs correctly in Docker'''
         djm = DockerJobManager(queue, INGIniousConfiguration["docker_server_url"], INGIniousConfiguration["tasks_directory"], INGIniousConfiguration["containers_directory"], INGIniousConfiguration["container_prefix"])
+        t = common.tasks.Task(common.courses.Course('test'), 'task1')
+        test_result = djm.run_job(0, t, {"input":{"unittest/decimal":"12.5"}, "limits":t.get_limits()})
+        assert test_result['result'] == 'success'
         
         
     def tearDown(self):
