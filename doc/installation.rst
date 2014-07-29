@@ -48,8 +48,8 @@ Don't forget to enable EPEL_.
 
 ::
 
-	$ sudo yum install git mongodb mongodb-server docker python-pip gcc python-devel python-ldap
-	$ sudo pip install pymongo pytidylib docker-py sh web.py docutils
+	$ sudo yum install git mongodb mongodb-server docker python-pip gcc python-devel
+	$ sudo pip install pymongo pytidylib docker-py sh web.py docutils simpleldap
 
 Some remarks:
 
@@ -94,7 +94,7 @@ local directory flawlessly.
 	$ brew install pip
 	$ sudo curl https://raw.githubusercontent.com/noplay/docker-osx/1.0.0/docker-osx > /usr/local/bin/docker-osx
 	$ sudo chmod +x /usr/local/bin/docker-osx
-	$ sudo pip install pymongo pytidylib docker-py sh webpy docutils python-ldap
+	$ sudo pip install pymongo pytidylib docker-py sh webpy docutils simpleldap
 
 Follow the instruction of brew to enable mongodb.
 Each time you have to run INGInious, don't forget to start docker-osx by running
