@@ -1,27 +1,30 @@
 {
-	"tasks_directory": "./tasks",
-	
-	"containers_directory": "./containers",
-	"container_prefix": "inginious/",
-	"docker_server_url": "tcp://172.16.42.43:4243",
-	"job_managers": 4,
-	"build_containers_on_start": true,
-	
-	"mongo_opt": {"host": "localhost"},
-	
-	"plugins": [
-		{
-			"plugin_module": "frontend.plugins.git_repo",
-			"repo_directory": "./repo_submissions"
-		},
-		{
+    "tasks_directory": "./tasks",
+    
+    "containers_directory": "./containers",
+    "container_prefix": "inginious/",
+    "docker_server_url": "tcp://172.16.42.43:4243",
+    "job_managers": 4,
+    "build_containers_on_start": true,
+    
+    "mongo_opt": {"host": "localhost"},
+    
+    "plugins": [
+        {
+            "plugin_module": "frontend.plugins.git_repo",
+            "repo_directory": "./repo_submissions"
+        },
+        {
             "plugin_module": "frontend.plugins.auth.ldap_auth",
-            "url": "ldaps://ldap.test.be",
-            "request": "uid={},ou=People",
+            "host": "ldap.test.be",
+            "port": 0,
+            "encryption": "ssl",
+            "base_dn": "o=test,c=be",
+            "request": "uid={}",
             "prefix": "",
             "name": "LDAP Login"
         }
-	],
-	
-	"allow_html": "tidy"
+    ],
+    
+    "allow_html": "tidy"
 }
