@@ -6,29 +6,29 @@ import frontend.session
 import common.base
 from tests import *
 
-class frontend_login_session(unittest.TestCase):
+class web_login_session(unittest.TestCase):
     def setUp(self):
-        print "\033[1m-> frontend_login_session:setUp_:begin\033[0m"
         frontend.session.init(app, {'loggedin':True, 'username':"test", "realname":"Test", "email":"mail@test.com"})
         
     def test_init(self):
         '''Tests if home page loads with a connected user'''
+        print "\033[1m-> web-login: index response when connected\033[0m"
         resp = appt.get('/')
         self.assertEqual(resp.status_int,200)
         resp.mustcontain('Log off')
     
     def test_logout(self):
         '''Tests if logout works'''
+        print "\033[1m-> web-login: logout\033[0m"
         resp = appt.get('/index?logoff')
         self.assertEqual(resp.status_int, 200)
         resp.mustcontain('Log in')
     
     def tearDown(self):
-        print "\033[1m-> frontend_login_session:setUp_:tearDown\033[0m"
+        pass
 
-class frontend_login_nosession(unittest.TestCase):
+class web_login_nosession(unittest.TestCase):
     def setUp(self):
-        print "\033[1m-> frontend_login_nosession:setUp_:begin\033[0m"
         
         # Loads tests credentials from config file
         self.wrong_username = common.base.INGIniousConfiguration['tests']['wrong_username']
@@ -39,12 +39,14 @@ class frontend_login_nosession(unittest.TestCase):
         
     def test_init(self):
         '''Tests if home page gives response and invites user to log'''
+        print "\033[1m-> web-login: index response when not connected\033[0m"
         resp = appt.get('/')
         self.assertEqual(resp.status_int,200)
         resp.mustcontain('Log in')
     
     def test_correct_login(self):
         '''Tests if correct credentials leads to a logged user page'''
+        print "\033[1m-> web-login: correct login\033[0m"
         resp = appt.get('/')
         form = resp.forms[0]
         form['login'] = self.correct_username
@@ -55,6 +57,7 @@ class frontend_login_nosession(unittest.TestCase):
         
     def test_wrong_login(self):
         '''Tests if wrong credentials leads to the home page with login'''
+        print "\033[1m-> web-login: incorrect login\033[0m"
         resp = appt.get('/')
         form = resp.forms[0]
         form['login'] = self.wrong_username
@@ -65,7 +68,7 @@ class frontend_login_nosession(unittest.TestCase):
         resp.mustcontain('Invalid login/password')
     
     def tearDown(self):
-        print "\033[1m-> frontend_login_nosession:setUp_:tearDown\033[0m"
+        pass
 
 if __name__ == "__main__":
     unittest.main()

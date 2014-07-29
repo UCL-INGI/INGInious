@@ -3,13 +3,14 @@ import shutil
 
 if __name__ == "__main__":
     testmodules = [
-        'tests.frontend_login',
-        'tests.frontend_courses',
-        'tests.frontend_tasks',
-        'tests.frontend_submissions',
-        'tests.frontend_admin',
         'tests.common_courses',
-        'tests.common_tasks'
+        'tests.common_tasks',
+        'tests.backend_jobs',
+        'tests.web_login',
+        'tests.web_courses',
+        'tests.web_tasks',
+        'tests.web_submissions',
+        'tests.web_admin'
         ]
 
     suite = unittest.TestSuite()

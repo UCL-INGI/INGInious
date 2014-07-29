@@ -8,13 +8,13 @@ import json
 import time
 from tests import *
 
-class frontend_tasks(unittest.TestCase):
+class web_tasks(unittest.TestCase):
     def setUp(self):
-        print "\033[1m-> frontend_tasks_display:setUp\033[0m"
         frontend.session.init(app, {'loggedin':True, 'username':"test", "realname":"Test", "email":"mail@test.com"})
         
     def test_basic_tasks_list(self):
         '''Tests if a basic course list is correct'''
+        print "\033[1m-> web-tasks: course tasks list\033[0m"
         resp = appt.get('/course/test')
         self.assertEqual(resp.status_int,200)
         resp.mustcontain('Task 1')
@@ -24,6 +24,7 @@ class frontend_tasks(unittest.TestCase):
     
     def test_decimal_rendering(self):
         '''Tests rendering of a decimal question '''
+        print "\033[1m-> web-tasks: decimal-input task rendering\033[0m"
         resp = appt.get('/course/test/task1')
         resp.mustcontain('Header 1')
         resp.mustcontain('input type="number" name="unittest/decimal')
@@ -31,6 +32,7 @@ class frontend_tasks(unittest.TestCase):
     
     def test_integer_rendering(self):
         '''Tests rendering of a decimal question '''
+        print "\033[1m-> web-tasks: integer-input task rendering\033[0m"
         resp = appt.get('/course/test/task2')
         resp.mustcontain('Question 2')
         resp.mustcontain('Header 2')
@@ -39,6 +41,7 @@ class frontend_tasks(unittest.TestCase):
     
     def test_multichoice_rendering(self):
         '''Tests rendering of a multichoice question '''
+        print "\033[1m-> web-tasks: multichoice-input task rendering\033[0m"
         resp = appt.get('/course/test/task3')
         resp.mustcontain('Question 3')
         resp.mustcontain('Header 3')
@@ -58,6 +61,7 @@ class frontend_tasks(unittest.TestCase):
     
     def test_multiline_rendering(self):
         '''Tests rendering of a multiline code question '''
+        print "\033[1m-> web-tasks: multiline-input task rendering\033[0m"
         resp = appt.get('/course/test/task4')
         resp.mustcontain('Question 4')
         resp.mustcontain('Header 4')
@@ -65,13 +69,14 @@ class frontend_tasks(unittest.TestCase):
     
     def test_accessibility(self):
         '''Tests accessibility of different tasks '''
+        print "\033[1m-> web-tasks: task accessibility\033[0m"
         resp = appt.get('/course/test2')
         resp.mustcontain('Task 1')
         resp.mustcontain('Task 3') # 1970 - 2033
         resp.mustcontain('Task 2 (task currently unavailable)') # Accesibility 1970-1970
     
     def tearDown(self):
-        print "\033[1m-> frontend_tasks_display:tearDown\033[0m"
+        pass
 
 if __name__ == "__main__":
     unittest.main()

@@ -6,13 +6,13 @@ import frontend.session
 import common.base
 from tests import *
 
-class frontend_courses(unittest.TestCase):
+class web_courses(unittest.TestCase):
     def setUp(self):
-        print "\033[1m-> frontend_course_display:setUp\033[0m"
         frontend.session.init(app, {'loggedin':True, 'username':"test", "realname":"Test", "email":"mail@test.com"})
         
     def test_course_list(self):
         '''Tests if the course list is correct'''
+        print "\033[1m-> web-courses: course list\033[0m"
         resp = appt.get('/index')
         self.assertEqual(resp.status_int,200)
         resp.mustcontain('Unit test 1') # Accessibility : null
@@ -21,6 +21,7 @@ class frontend_courses(unittest.TestCase):
     
     def test_course_admin(self):
         '''Tests accessibility to course administration'''
+        print "\033[1m-> web-courses: course administration link visibility\033[0m"
         frontend.session.init(app, {'loggedin':True, 'username':"testadmin2", "realname":"Test", "email":"mail@test.com"})
         resp = appt.get('/course/test')
         resp.mustcontain('Statistics') #testadmin2 is an admin
@@ -28,7 +29,7 @@ class frontend_courses(unittest.TestCase):
         assert 'Manage' not in resp # testadmin2 is not an admin
     
     def tearDown(self):
-        print "\033[1m-> frontend_course_display:tearDown\033[0m"
+        pass
 
 if __name__ == "__main__":
     unittest.main()

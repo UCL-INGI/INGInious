@@ -7,10 +7,11 @@ from tests import *
 
 class common_tasks_basic(unittest.TestCase):
     def setUp(self):
-        print "\033[1m-> common_tasks_basic:setUp_:begin\033[0m"
+        pass
     
     def test_task_loading(self):
         '''Tests if a course file loads correctly'''
+        print "\033[1m-> common-tasks: task loading\033[0m"
         t = common.tasks.Task(common.courses.Course('test'), 'task1')
         assert t.get_environment() == 'default'
         assert t.get_id() == 'task1'
@@ -25,14 +26,15 @@ class common_tasks_basic(unittest.TestCase):
         assert t.get_problems()[0].get_type() == 'code'
     
     def tearDown(self):
-        print "\033[1m-> common_tasks_basic:setUp_:tearDown\033[0m"
+        pass
 
 class common_tasks_problems(unittest.TestCase):
     def setUp(self):
-        print "\033[1m-> common_tasks_problems:setUp_:begin\033[0m"
+        pass
     
     def test_problem_types(self):
         '''Tests if problem types are correctly recognized'''
+        print "\033[1m-> common-tasks: problem types parsing\033[0m"
         t = common.tasks.Task(common.courses.Course('test2'), 'task1')
         assert t.get_problems()[0].get_type() == 'match'
         
@@ -44,6 +46,7 @@ class common_tasks_problems(unittest.TestCase):
     
     def test_multiple_choice(self):
         '''Tests multiple choice problems methods'''
+        print "\033[1m-> common-tasks: multiple-choice parsing\033[0m"
         p = common.tasks.Task(common.courses.Course('test2'), 'task3').get_problems()[0]
         assert p.allow_multiple()
         
@@ -58,6 +61,7 @@ class common_tasks_problems(unittest.TestCase):
     
     def test_match(self):
         '''Tests match problems methods'''
+        print "\033[1m-> common-tasks: match-problem loading\033[0m"
         p = common.tasks.Task(common.courses.Course('test2'), 'task1').get_problems()[0]
         
         # Check correct and incorrect answer
@@ -71,6 +75,7 @@ class common_tasks_problems(unittest.TestCase):
     
     def test_code(self):
         '''Tests code problems methods'''
+        print "\033[1m-> common-tasks: code-problem parsing\033[0m"
         p = common.tasks.Task(common.courses.Course('test'), 'task1').get_problems()[0]
         
         # Check random form input
@@ -79,19 +84,21 @@ class common_tasks_problems(unittest.TestCase):
         assert not p.input_is_consistent({'unittest':'10'})
         
     def tearDown(self):
-        print "\033[1m-> common_tasks_problems:setUp_:tearDown\033[0m"
+        pass
 
 class common_tasks_boxes(unittest.TestCase):
     def setUp(self):
-        print "\033[1m-> common_tasks_boxes:setUp_:begin\033[0m"
+        pass
     
     def test_number_boxes(self):
         '''Tests if get_boxes returns the correct number of boxes'''
+        print "\033[1m-> common-tasks: problem boxes count\033[0m"
         p = common.tasks.Task(common.courses.Course('test2'), 'task4').get_problems()[0]
         assert len(p.get_boxes()) == 12
     
     def test_filebox(self):
         '''Tests filebox methods'''
+        print "\033[1m-> common-tasks: filebox problem type\033[0m"
         p = common.tasks.Task(common.courses.Course('test2'), 'task4').get_problems()[0]
         box = p.get_boxes()[11]
         assert box.get_type() == 'file'
@@ -103,6 +110,7 @@ class common_tasks_boxes(unittest.TestCase):
     
     def test_integer_inputbox(self):
         '''Tests integer inputbox methods'''
+        print "\033[1m-> common-tasks: integer box problem type\033[0m"
         p = common.tasks.Task(common.courses.Course('test2'), 'task4').get_problems()[0]
         box = p.get_boxes()[1]
         assert box.get_type() == 'input' and box._input_type =='integer'
@@ -115,6 +123,7 @@ class common_tasks_boxes(unittest.TestCase):
     
     def test_decimal_inputbox(self):
         '''Tests decimal inputbox methods'''
+        print "\033[1m-> common-tasks: decimal box problem type\033[0m"
         p = common.tasks.Task(common.courses.Course('test2'), 'task4').get_problems()[0]
         box = p.get_boxes()[3]
         assert box.get_type() == 'input' and box._input_type =='decimal'
@@ -127,6 +136,7 @@ class common_tasks_boxes(unittest.TestCase):
     
     def test_text_inputbox(self):
         '''Tests text inputbox methods'''
+        print "\033[1m-> common-tasks: text-input box problem type\033[0m"
         p = common.tasks.Task(common.courses.Course('test2'), 'task4').get_problems()[0]
         box = p.get_boxes()[5]
         assert box.get_type() == 'input' and box._input_type =='text'
@@ -139,6 +149,7 @@ class common_tasks_boxes(unittest.TestCase):
     
     def test_multiline_inputbox(self):
         '''Tests multiline inputbox methods'''
+        print "\033[1m-> common-tasks: multiline box problem type\033[0m"
         p = common.tasks.Task(common.courses.Course('test2'), 'task4').get_problems()[0]
         box = p.get_boxes()[8]
         assert box.get_type() == 'multiline'
@@ -150,7 +161,7 @@ class common_tasks_boxes(unittest.TestCase):
         assert not box.input_is_consistent(42)
         
     def tearDown(self):
-        print "\033[1m-> common_tasks_boxes:setUp_:tearDown\033[0m"
+        pass
 
 if __name__ == "__main__":
     unittest.main()
