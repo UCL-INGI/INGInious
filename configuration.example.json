@@ -7,7 +7,7 @@
     "job_managers": 4,
     "build_containers_on_start": true,
     
-    "mongo_opt": {"host": "localhost"},
+    "mongo_opt": {"host": "localhost", "database":"INGInious"},
     
     "plugins": [
         {
