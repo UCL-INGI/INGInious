@@ -7,6 +7,11 @@
 	"job_managers": 4,
 	"build_containers_on_start": false,
 	
+	"mongo_opt": {
+		"host": "localhost",
+		"database":"INGInious" 
+	},
+
 	"plugins": [
 		{
 			"plugin_module": "frontend.plugins.git_repo",

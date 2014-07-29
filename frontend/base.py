@@ -16,9 +16,9 @@ renderer = web.template.render('templates/', globals=add_to_template_globals.glo
 
 def new_database_client():
     """ Creates a new MongoClient instance for INGINious """
-    config = {'host':INGIniousConfiguration['mongo_opt'].get('host', 'localhost')} if 'mongo_opt' in INGIniousConfiguration else {}
+    config = {'host':INGIniousConfiguration.get('mongo_opt', {}).get('host', 'localhost')}
     client = MongoClient(**config)
-    return client[INGIniousConfiguration['mongo_opt'].get('database', 'INGInious') if 'mongo_opt' in INGIniousConfiguration else 'INGInious']
+    return client[INGIniousConfiguration.get('mongo_opt', {}).get('database', 'INGInious')]
 
 
 def new_gridfs_client(mongo_database):
