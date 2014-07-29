@@ -19,7 +19,8 @@ def init(plugin_manager, conf):
                 "base_dn": "o=test,c=be",
                 "request": "uid={}",
                 "prefix": "",
-                "name": "LDAP Login"
+                "name": "LDAP Login",
+                "require_cert": true
             }
 
         *host*
@@ -31,6 +32,8 @@ def init(plugin_manager, conf):
             Request made to the server in order to find the dn of the user. The characters "{}" will be replaced by the login name.
         *prefix*
             The prefix used internally to distinguish user that have the same username on different login services
+        *require_cert*
+            true if a certificate is needed.
     """
 
     def connect(login_data):
@@ -53,8 +56,10 @@ def init(plugin_manager, conf):
 
             base_dn = conf.get('base_dn', '')
 
+            require_cert = conf.get('require_cert', True)
+
             # Connect to the ldap
-            conn = simpleldap.Connection(host, port=port, encryption=encryption, search_defaults={"base_dn": base_dn})
+            conn = simpleldap.Connection(host, port=port, encryption=encryption, require_cert=require_cert, search_defaults={"base_dn": base_dn})
             request = conf.get('request', "uid={},ou=People").format(login)
             user_data = conn.get(request)
             if conn.authenticate(user_data.dn, password):

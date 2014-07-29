@@ -22,7 +22,8 @@
             "base_dn": "o=test,c=be",
             "request": "uid={}",
             "prefix": "",
-            "name": "LDAP Login"
+            "name": "LDAP Login",
+            "require_cert": true
         }
     ],
     
