@@ -54,7 +54,7 @@ def init(plugin_manager, conf):
             base_dn = conf.get('base_dn', '')
 
             # Connect to the ldap
-            conn = simpleldap.Connection(host, port=port, encryption=encryption, search_defaults={"base_dn": base_dn})
+            conn = simpleldap.Connection(host, port=port, encryption=encryption, search_defaults={"base_dn": base_dn}, require_cert=False)
             request = conf.get('request', "uid={},ou=People").format(login)
             user_data = conn.get(request)
             if conn.authenticate(user_data.dn, password):
@@ -66,7 +66,8 @@ def init(plugin_manager, conf):
                 return True
             else:
                 return False
-        except:
+        except Exception, e:
+            print e
             return False
 
     plugin_manager.register_auth_method(conf.get('name', 'LDAP Login'), {"login": {"type": "text", "placeholder": "Login"}, "password": {"type": "password", "placeholder": "Password"}}, connect)
