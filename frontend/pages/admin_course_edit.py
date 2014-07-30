@@ -5,11 +5,11 @@ import collections
 import json
 import os.path
 
-from backend.docker_job_manager import DockerJobManager
 from common.base import INGIniousConfiguration, id_checker
 from frontend.accessible_time import AccessibleTime
 from frontend.base import renderer
 from frontend.custom.courses import FrontendCourse
+from frontend.submission_manager import get_job_manager
 
 
 class AdminCourseEditTask(object):
@@ -25,5 +25,5 @@ class AdminCourseEditTask(object):
             task_data = json.load(codecs.open(os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid + ".task"), "r", 'utf-8'), object_pairs_hook=collections.OrderedDict)
         except:
             task_data = {}
-        environments = DockerJobManager.get_container_names(INGIniousConfiguration["containers_directory"])
+        environments = get_job_manager().get_container_names()
         return renderer.admin_course_edit_task(course, taskid, task_data, environments, json.dumps(task_data.get('problems', {})), AccessibleTime)

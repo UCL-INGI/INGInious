@@ -99,7 +99,7 @@ class JobManager(object):
 
                 if docker_config.get("build_containers_on_start", False):
                     print "Starting image builder for docker instance {}".format(docker_instance_id)
-                    process = ContainerImageCreator(docker_instance_id, docker_config, self._containers_directory)
+                    process = ContainerImageCreator(docker_instance_id, docker_config, self._containers_directory, self.get_container_names())
                     process.start()
                     builders.append(process)
 
@@ -178,3 +178,18 @@ class JobManager(object):
             self._done_queue.put((None, jobid, None))
 
         return jobid
+
+    def get_container_names(self):
+        """ Returns available containers """
+        containers = [
+            f for f in os.listdir(
+                self._containers_directory) if os.path.isdir(
+                os.path.join(
+                    self._containers_directory,
+                    f)) and os.path.isfile(
+                    os.path.join(
+                        self._containers_directory,
+                        f,
+                        "Dockerfile"))]
+
+        return containers

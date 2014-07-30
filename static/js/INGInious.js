@@ -544,7 +544,7 @@ function studio_create_from_template(template, pid)
  */
 function studio_get_problem(pid)
 {
-	return "subproblem_well_"+pid;
+	return "#subproblem_well_"+pid;
 }
 
 /**
@@ -582,6 +582,13 @@ function studio_init_template(template,pid,problem)
  */
 function studio_init_template_code(well, pid, problem)
 {
+	if("name" in problem)
+		$('#name-'+pid,well).val(problem["name"])
+	if("header" in problem)
+		$('#header-'+pid,well).val(problem["header"])
+	if("language" in problem)
+		$('#language-'+pid,well).val(problem["language"])
+	
 }
 
 /**
