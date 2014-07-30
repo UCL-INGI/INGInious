@@ -14,6 +14,7 @@ class JobManagerBuffer(object):
         """ Runs a new job. It works exactly like the JobManager class, instead that there is no callback """
         jobid = self._job_manager.new_job(task, inputdata, self._callback)
         self._waiting_jobs.append(jobid)
+        return jobid
 
     def _callback(self, jobid, _, result):
         """ Callback for self._job_manager.new_job """

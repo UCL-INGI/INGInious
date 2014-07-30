@@ -4,10 +4,9 @@ import threading
 
 import web
 
+from backend.job_manager_sync import JobManagerSync
 from common.courses import Course
 import frontend.submission_manager
-
-
 def init(plugin_manager, config):
     """
         Init the edx plugin.
@@ -24,6 +23,8 @@ def init(plugin_manager, config):
     courseid = config.get('courseid', 'edx')
     course = Course(courseid)
     page_pattern = config.get('page_pattern', '/edx')
+
+    job_manager_sync = JobManagerSync(frontend.submission_manager.get_job_manager())
 
     class EDX(object):
 
@@ -69,16 +70,7 @@ def init(plugin_manager, config):
                 return json.dumps({"correct": False, "score": 0, "msg": "<p>Internal grader error: input not consistent with task</p>"})
 
             try:
-                job_semaphore = threading.Semaphore(0)
-
-                def manage_output(dummy1_, dummy2_, job):
-                    """ Manages the output of this job """
-                    print "RETURN JOB"
-                    manage_output.jobReturn = job
-                    job_semaphore.release()
-                frontend.submission_manager.get_job_manager().new_job(task, edx_input, manage_output)
-                job_semaphore.acquire()
-                job_return = manage_output.jobReturn
+                job_return = job_manager_sync.new_job(task, edx_input)
             except:
                 return json.dumps({"correct": False, "score": 0, "msg": "<p>Internal grader error: error while grading submission</p>"})
 

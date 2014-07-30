@@ -5,6 +5,8 @@ import threading
 
 import web
 
+from backend.job_manager_buffer import JobManagerBuffer
+from backend.job_manager_sync import JobManagerSync
 from common.courses import Course
 import frontend.submission_manager
 
@@ -110,7 +112,8 @@ def init(plugin_manager, config):
     page_pattern = config.get('page_pattern', '/external')
     return_fields = re.compile(config.get('return_fields', '^(result|text|problems)$'))
 
-    async_job_data = {}
+    job_manager_buffer = JobManagerBuffer(frontend.submission_manager.get_job_manager())
+    job_manager_sync = JobManagerSync(frontend.submission_manager.get_job_manager())
 
     class ExternalGrader(object):
 
@@ -135,10 +138,8 @@ def init(plugin_manager, config):
             </html>"""
 
         def keep_only_config_return_values(self, job_return):
+            """ Keep only some useful return values """
             return {key: value for key, value in job_return.iteritems() if return_fields.match(key)}
-
-        def manage_async_job(self, jobid, _, result):
-            async_job_data[jobid] = result
 
         def POST(self):
             """ POST request """
@@ -160,32 +161,24 @@ def init(plugin_manager, config):
                 if post_input.get("async") is None:
                     # New sync job
                     try:
-                        job_semaphore = threading.Semaphore(0)
-
-                        def manage_output(dummy1_, dummy2_, job):
-                            """ Manages the output of this job """
-                            print "RETURN JOB"
-                            manage_output.jobReturn = job
-                            job_semaphore.release()
-                        frontend.submission_manager.get_job_manager().new_job(task, task_input, manage_output)
-                        job_semaphore.acquire()
-                        job_return = manage_output.jobReturn
+                        job_return = job_manager_sync.new_job(task, task_input)
                     except:
                         return json.dumps({"status": "error", "status_message": "An internal error occured"})
 
                     return json.dumps(dict({"status": "ok"}.items() + self.keep_only_config_return_values(job_return).items()))
                 else:
                     # New async job
-                    jobid = frontend.submission_manager.get_job_manager().new_job(task, task_input, self.manage_async_job)
+                    jobid = job_manager_buffer.new_job(task, task_input)
                     return json.dumps({"status": "ok", "jobid": str(jobid)})
             elif "jobid" in post_input:
                 # Get status of async job
-                if post_input["jobid"] not in async_job_data:
+                if job_manager_buffer.is_waiting(post_input["jobid"]):
                     return json.dumps({"status": "waiting"})
-                else:
-                    job_return = async_job_data[post_input["jobid"]]
-                    del async_job_data[post_input["jobid"]]
+                elif job_manager_buffer.is_done(post_input["jobid"]):
+                    job_return = job_manager_buffer.get_result(post_input["jobid"])
                     return json.dumps(dict({"status": "ok"}.items() + self.keep_only_config_return_values(job_return).items()))
+                else:
+                    return json.dumps({"status": "error", "status_message": "There is no job with jobid {}".format(jobid)})
             else:
                 return json.dumps({"status": "error", "status_message": "Unknown request type"})
 
