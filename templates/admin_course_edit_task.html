@@ -110,7 +110,7 @@ $var title: Edit $taskid
                 </select>
             </div>
             <div class="col-sm-2">
-                <button type="button" class="btn btn-primary btn-block" onclick="studio_sub_add()">Add a new subproblem</button>
+                <button type="button" class="btn btn-primary btn-block" onclick="studio_create_new_subproblem()">Add a new subproblem</button>
             </div>
         </div>
     </div>
@@ -239,7 +239,7 @@ $var title: Edit $taskid
                 <label for="choices-PID" class="col-sm-2 control-label">Choices</label>
                 <div class="col-sm-10">
                     <table id="choices-PID" class="table table-condensed table-striped">
-                        <tr><th>Choice</th><th>Valid?</th></tr>
+                        <tr><th>Choice</th><th>Valid?</th><th></th></tr>
                         <tr class="subproblem_multiple_choice_choice" style="display:none">
                             <td>
                                 <input type="text" class="form-control subproblem_multiple_choice_text" name="problem[PID][choices][CHOICE][text]" placeholder="The name of this choice"/>
@@ -247,6 +247,12 @@ $var title: Edit $taskid
                             <td>
                                 <input type="checkbox" class="form-control subproblem_multiple_choice_valid" name="problem[PID][choices][CHOICE][valid]"/>
                             </td>
+                            <td>
+                                <button class="btn btn-danger btn-sm btn-block" type="button" onclick="studio_delete_choice('PID',CHOICE)"><span class="glyphicon glyphicon-remove-sign"></span> Delete</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="3"><button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_create_choice('PID',{})"><span class="glyphicon glyphicon-add-sign"></span> Add new choice</button></td>
                         </tr>
                     </table>
                 </div>

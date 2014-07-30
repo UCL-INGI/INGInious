@@ -528,6 +528,26 @@ function studio_get_template_for_problem(problem)
 }
 
 /**
+ * Create new subproblem from the data in the form
+ */
+function studio_create_new_subproblem()
+{
+	if(!$('#new_subproblem_pid').val().match(/^[a-zA-Z\._\-]+$/))
+	{
+		alert('Problem id should only contain alphanumeric characters (in addition to ".", "_" and "-").');
+		return;
+	}
+	
+	if($(studio_get_problem($('#new_subproblem_pid').val())).length != 0)
+	{
+		alert('This problem id is already used.');
+		return;
+	}
+	
+	studio_create_from_template('#'+$('#new_subproblem_type').val(),$('#new_subproblem_pid').val())
+}
+
+/**
  * Create a new template and put it at the bottom of the problem list
  * @param template
  * @param pid
@@ -641,17 +661,44 @@ function studio_init_template_multiple_choice(well, pid, problem)
 	if("multiple" in problem && problem["multiple"] == true)
 		$('#multiple-'+pid,well).attr('checked', true)
 	
-	row = $(".subproblem_multiple_choice_choice",well).html()
 	jQuery.each(problem["choices"], function(index, elem)
 	{
-		new_row = "<tr>"+row.replace(/PID/g,pid).replace(/CHOICE/g,index)+"</tr>";
-		new_row = $(new_row)
-		$("#choices-"+pid,well).append(new_row);
-		if("text" in elem)
-			$(".subproblem_multiple_choice_text", new_row).val(elem["text"]);
-		if("valid" in elem && elem["valid"] == true)
-			$(".subproblem_multiple_choice_valid", new_row).attr('checked', true)
+		studio_create_choice(pid, elem);
 	});
+}
+
+/**
+ * Create a new choice in a given multiple-choice problem
+ * @param pid
+ * @param choice_data
+ */
+function studio_create_choice(pid, choice_data)
+{
+	well = $(studio_get_problem(pid));
+	
+	index = 0;
+	while($('#choice-'+index+'-'+pid).length != 0)
+		index++;
+	
+	row = $(".subproblem_multiple_choice_choice",well).html()
+	new_row_content = row.replace(/PID/g,pid).replace(/CHOICE/g,index);
+	new_row = $("<tr></tr>").attr('id','choice-'+index+'-'+pid).html(new_row_content);
+	$(".subproblem_multiple_choice_choice",well).before(new_row);
+	
+	if("text" in choice_data)
+		$(".subproblem_multiple_choice_text", new_row).val(choice_data["text"]);
+	if("valid" in choice_data && choice_data["valid"] == true)
+		$(".subproblem_multiple_choice_valid", new_row).attr('checked', true)
+}
+
+/**
+ * Delete a multiple choice answer
+ * @param pid
+ * @param choice
+ */
+function studio_delete_choice(pid,choice)
+{
+	$('#choice-'+choice+'-'+pid).detach();
 }
 
 /**
