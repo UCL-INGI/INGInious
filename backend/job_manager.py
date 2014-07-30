@@ -27,7 +27,8 @@ class JobManager(object):
                         server_url: "the url to the docker daemon. May be a UNIX socket. Mandatory",
                         container_prefix: "The prefix to be used on container names. by default, it is 'inginious/'",
                         waiters: 1,
-                        time_between_polls: 1
+                        time_between_polls: 0.5,
+                        max_concurrent_jobs: 100
                     }
 
                 *waiters* is an integer indicating the number of waiters processes to start for this docker instance.
@@ -89,7 +90,7 @@ class JobManager(object):
             processes = []
             for i in range(docker_config.get("waiters", 1)):
                 print "Starting waiter {} from docker instance {}".format(i, docker_instance_id)
-                process = Waiter(docker_instance_queue, self._done_queue, docker_config)
+                process = Waiter(docker_instance_id, docker_instance_queue, self._done_queue, docker_config)
                 process.start()
                 processes.append(process)
             self._docker_waiter_processes.append(processes)
@@ -108,7 +109,15 @@ class JobManager(object):
     def _get_docker_instance_and_inc(self):
         """ Return the id of a docker instance and increment the job count associated """
         self._running_job_count_lock.acquire()
-        min_index, min_value = min(enumerate(self._running_job_count), key=lambda p: p[1])
+        available_instances = [
+            (entry, count) for entry, count in enumerate(
+                self._running_job_count) if self._docker_config[entry].get(
+                "max_concurrent_jobs", 100) == 0 or self._docker_config[entry].get(
+                "max_concurrent_jobs", 100) > count]
+        if not len(available_instances):
+            self._running_job_count_lock.release()
+            return None
+        min_index, min_value = min(available_instances, key=lambda p: p[1])
         self._running_job_count[min_index] = min_value + 1
         self._running_job_count_lock.release()
         return min_index
@@ -134,19 +143,22 @@ class JobManager(object):
             # Go through the whole process: sent everything to docker
             docker_instance = self._get_docker_instance_and_inc()
 
-            self._running_job_data[jobid] = (task, callback, basedict)
+            if docker_instance is None:
+                self._done_queue.put((None, jobid, {"result": "crash", "text": "INGInious is over-capacity. Please try later."}))
+            else:
+                self._running_job_data[jobid] = (task, callback, basedict)
 
-            self._submitter_pool.apply_async(
-                submitter, [jobid, inputdata,
-                            os.path.join(self._tasks_directory, task.get_course_id(), task.get_id()),
-                            task.get_limits(),
-                            task.get_environment(),
-                            self._docker_config[docker_instance],
-                            self._docker_waiter_queues[docker_instance]])
+                self._submitter_pool.apply_async(
+                    submitter, [jobid, inputdata,
+                                os.path.join(self._tasks_directory, task.get_course_id(), task.get_id()),
+                                task.get_limits(),
+                                task.get_environment(),
+                                self._docker_config[docker_instance],
+                                self._docker_waiter_queues[docker_instance]])
         else:
             # Only send data to a CallbackManager
             basedict["text"] = "\n".join(basedict["text"])
             self._running_job_data[jobid] = (task, callback, basedict)
-            self._done_queue.put((jobid, None))
+            self._done_queue.put((None, jobid, None))
 
         return jobid

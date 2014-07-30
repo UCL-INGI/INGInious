@@ -9,12 +9,19 @@ import docker
 
 class Waiter(multiprocessing.Process):
 
-    """ Periodically call the distant docker to know which containers are done """
+    """
+        Periodically call the distant docker to know which containers are done
 
-    def __init__(self, input_queue, output_queue, docker_configuration):
+        Take from the input_queue tuples with the form (jobid, containerid) and
+        put in the output_queue tuples with the form (docker_instanceid, jobid, result)
+
+    """
+
+    def __init__(self, docker_instanceid, input_queue, output_queue, docker_configuration):
         multiprocessing.Process.__init__(self)
         self.daemon = True
         self._docker_configuration = docker_configuration
+        self._docker_instanceid = docker_instanceid
         self._input_queue = input_queue
         self._output_queue = output_queue
         self._waiting_jobs = {}
@@ -22,7 +29,7 @@ class Waiter(multiprocessing.Process):
 
     def run(self):
         while True:
-            time.sleep(self._docker_configuration.get("time_between_polls", 1))
+            time.sleep(self._docker_configuration.get("time_between_polls", 0.5))
             # Empty the queue
             empty = False
             while not empty:
@@ -35,6 +42,8 @@ class Waiter(multiprocessing.Process):
                     else:
                         self._waiting_jobs[containerid] = jobid
                 except Queue.Empty:
+                    empty = True
+                except EOFError:
                     empty = True
 
             # Query the running containers
@@ -56,7 +65,7 @@ class Waiter(multiprocessing.Process):
                     self._docker.remove_container(containerid, True, False, True)
                     result = json.loads(stdout)
                     print "Sent result to callback manager for jobid {}".format(jobid)
-                    self._output_queue.put((jobid, result))
+                    self._output_queue.put((self._docker_instanceid, jobid, result))
                 except:
                     print "No result for jobid {} after container run".format(jobid)
-                    self._output_queue.put((jobid, {"result": "crash", "text": "No output given by the task. Please contact an administrator if this problem reoccurs."}))
+                    self._output_queue.put((self._docker_instanceid, jobid, {"result": "crash", "text": "No output given by the task. Please contact an administrator if this problem reoccurs."}))

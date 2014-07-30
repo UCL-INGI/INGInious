@@ -16,7 +16,11 @@ class CallbackManager(threading.Thread):
 
     def run(self):
         while True:
-            jobid, result = self._input_queue.get()
+            try:
+                docker_instanceid, jobid, result = self._input_queue.get()
+            except EOFError:
+                return
+
             print "CallbackManager received result for jobid {}".format(jobid)
             task, callback, base_dict = self._waiting_job_data[jobid]
 
@@ -26,6 +30,12 @@ class CallbackManager(threading.Thread):
                 callback(jobid, task, final_result)
             except:
                 print "CallbackManager failed to call the callback function for jobid {}".format(jobid)
+
+            # Decrement the job counter
+            if docker_instanceid is not None:
+                self._running_job_count_lock.acquire()
+                self._running_job_count[docker_instanceid] = self._running_job_count[docker_instanceid] - 1
+                self._running_job_count_lock.release()
 
     def _merge_emul_result(self, origin_dict, emul_result):
         """ Merge the results of the multiple-choice (and other special problem types) questions with the returned results of the containers """
