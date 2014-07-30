@@ -8,6 +8,8 @@ import frontend
 import frontend.submission_manager
 import uuid
 import time
+import Queue
+import backend._submitter
 from tests import *
 
 class backend_jobs(unittest.TestCase):
@@ -26,7 +28,7 @@ class backend_jobs(unittest.TestCase):
     
     def test_job_manager(self):
         '''Tests if a job adds in the queue and is treated correctly'''
-        print "\033[1m-> backend-jobs: queue job processing \033[0m"
+        print "\033[1m-> backend-jobs: job manager\033[0m"
         self.done = False
         t = common.tasks.Task(common.courses.Course('test'), 'task1')
         self.jid = self.jm.new_job(t, {"input":{"unittest/decimal":"12.5"}, "limits":t.get_limits()}, self.job_finished)
