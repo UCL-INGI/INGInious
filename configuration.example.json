@@ -2,10 +2,17 @@
     "tasks_directory": "./tasks",
     
     "containers_directory": "./containers",
-    "container_prefix": "inginious/",
-    "docker_server_url": "tcp://172.16.42.43:4243",
-    "job_managers": 4,
-    "build_containers_on_start": true,
+    
+    "docker_instances": [
+		{
+			"container_prefix": "inginious/",
+			"server_url": "tcp://172.16.42.43:4243",
+			"build_containers_on_start": true
+		}
+	],
+    
+    "callback_managers_threads": 2,
+    "submitters_processes": 2,
     
     "mongo_opt": {"host": "localhost", "database":"INGInious"},
     

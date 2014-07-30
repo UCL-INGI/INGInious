@@ -47,13 +47,13 @@ $if "header" in content:
 
     <div class="container-fluid" role="main">
             $if "Column" in content:
-                <div class="col-xs-12 col-sm-8 col-lg-9">
+                <div id="content" class="col-xs-12 col-sm-8 col-lg-9">
             $else:
-                <div class="col-xs-12">
+                <div id="content" class="col-xs-12">
             $:content
         </div>
         $if "Column" in content:
-        	<div class="col-xs-12 col-sm-4 col-lg-3">
+        	<div id="sidebar" class="col-xs-12 col-sm-4 col-lg-3" data-spy="affix" data-offset-top="1" data-offset-bottom="1">
                 $:content.Column
             </div>    
     </div>

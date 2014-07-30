@@ -53,3 +53,13 @@ form#task #task-submit {
 .progress-bar[aria-valuenow] {
   min-width: 30px;
 }
+#sidebar.affix {
+  right: 0;
+  padding-right: 30px;
+  padding-left: 8px;
+}
+@media screen and (max-width: 768px) {
+  #sidebar {
+    position: static !important;
+  }
+}
