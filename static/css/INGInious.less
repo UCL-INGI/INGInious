@@ -86,3 +86,18 @@ form#task
 {
 	min-width: 30px;
 }
+
+#sidebar
+{
+	&.affix
+	{
+		right: 0;
+		padding-right: 30px;
+		padding-left: 8px;
+	}
+	
+	@media screen and (max-width: 768px)
+	{
+		position:static !important;
+	}
+}
