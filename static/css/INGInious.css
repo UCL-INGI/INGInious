@@ -1,4 +1,41 @@
+@import url(http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:300,400);
 /* Mixins */
+/* Fonts */
+.navbar-brand {
+  font-family: 'Yanone Kaffeesatz', sans-serif;
+  font-weight: 400;
+  font-size: 25px;
+}
+.navbar-brand img {
+  height: 34px;
+  margin-top: -8px;
+  vertical-align: top;
+}
+/*Fixes for bootstrap*/
+.form-inline.form-control {
+  display: inline-block;
+  width: auto;
+  vertical-align: middle;
+}
+.table td.td-collapse {
+  padding: 0;
+  border: none;
+  background-color: #f9f9f9;
+}
+.table td.td-collapse > div {
+  border-top: 1px solid #dddddd;
+  border-left: 1px solid black;
+  padding-left: 50px;
+  padding-right: 0px;
+}
+.table td.td-collapse > div table.table {
+  margin-top: 0px;
+  margin-bottom: 10px;
+}
+.progress-bar[aria-valuenow] {
+  min-width: 30px;
+}
+/* Other */
 .list-group .progress {
   margin: 0;
 }
@@ -9,11 +46,15 @@ label p {
 input.monospace {
   font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
 }
-/*Fix for bootstrap*/
-.form-inline.form-control {
-  display: inline-block;
-  width: auto;
-  vertical-align: middle;
+#sidebar.affix {
+  right: 0;
+  padding-right: 30px;
+  padding-left: 8px;
+}
+@media screen and (max-width: 768px) {
+  #sidebar {
+    position: static !important;
+  }
 }
 form#task {
   -webkit-transition: all 0.3s ease-in-out;
@@ -34,32 +75,4 @@ form#task #task-submit {
 }
 #submissions .submission {
   cursor: pointer;
-}
-.table td.td-collapse {
-  padding: 0;
-  border: none;
-  background-color: #f9f9f9;
-}
-.table td.td-collapse > div {
-  border-top: 1px solid #dddddd;
-  border-left: 1px solid black;
-  padding-left: 50px;
-  padding-right: 0px;
-}
-.table td.td-collapse > div table.table {
-  margin-top: 0px;
-  margin-bottom: 10px;
-}
-.progress-bar[aria-valuenow] {
-  min-width: 30px;
-}
-#sidebar.affix {
-  right: 0;
-  padding-right: 30px;
-  padding-left: 8px;
-}
-@media screen and (max-width: 768px) {
-  #sidebar {
-    position: static !important;
-  }
 }

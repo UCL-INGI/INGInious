@@ -8,6 +8,23 @@
     filter: blur(@size);
 }
 
+/* Fonts */
+@import url(http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:300,400);
+
+.navbar-brand
+{
+	font-family: 'Yanone Kaffeesatz', sans-serif;
+	font-weight: 400;
+	font-size: 25px;
+	
+	img
+	{
+		height: 34px;
+		margin-top: -8px;
+		vertical-align: top;
+	}
+}
+
 .transition(@transition)
 {
     -webkit-transition: @transition;  
@@ -17,48 +34,12 @@
     transition:         @transition;
 }
 
-.list-group .progress
-{
-    margin: 0;
-}
-
-label p
-{
-    margin: 0;
-    padding :0;
-}
-
-input.monospace
-{
-    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
-}
-
-/*Fix for bootstrap*/
+/*Fixes for bootstrap*/
 .form-inline.form-control
 {
     display: inline-block;
     width: auto;
     vertical-align: middle;
-}
-
-form#task
-{
-    .transition(all 0.3s ease-in-out);
-    
-    &.form-blur
-    {
-    	.blur(5px);
-    }
-    
-    #task-submit
-    {
-    	margin-top: 10px;
-    }
-}
-
-#submissions .submission
-{
-	cursor: pointer;
 }
 
 .table td.td-collapse
@@ -87,6 +68,23 @@ form#task
 	min-width: 30px;
 }
 
+/* Other */
+.list-group .progress
+{
+    margin: 0;
+}
+
+label p
+{
+    margin: 0;
+    padding :0;
+}
+
+input.monospace
+{
+    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
 #sidebar
 {
 	&.affix
@@ -100,4 +98,24 @@ form#task
 	{
 		position:static !important;
 	}
+}
+
+form#task
+{
+    .transition(all 0.3s ease-in-out);
+    
+    &.form-blur
+    {
+    	.blur(5px);
+    }
+    
+    #task-submit
+    {
+    	margin-top: 10px;
+    }
+}
+
+#submissions .submission
+{
+	cursor: pointer;
 }
