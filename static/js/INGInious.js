@@ -162,7 +162,7 @@ function submitTask()
                 updateTaskStatus("Internal error");
                 unblurTaskForm();
             }
-        }, 
+        },
     	error: function()
         {
             displayTaskErrorAlert();
@@ -506,6 +506,65 @@ function studio_load(data)
 		studio_create_from_template(template, pid);
 		studio_init_template(template,pid,problem);
 	});
+	
+	$('form#edit_task_form').on('submit', function(){studio_submit(); return false;});
+}
+
+/**
+ * Display a message indicating the status of a save action
+ * @param type
+ * @param message
+ */
+function studio_display_task_submit_message(content, type, dismissible)
+{
+	code = getAlertCode(content,type,dismissible)
+	$('#task_edit_submit_status').html(code);
+}
+
+/**
+ * Submit the form
+ */
+studio_submitting = false;
+function studio_submit()
+{
+	if(studio_submitting)
+		return;
+	studio_submitting = true;
+	
+	studio_display_task_submit_message("Saving...", "info", false);
+	
+	$('form#edit_task_form').ajaxSubmit(
+    {
+    	dataType: 'json',
+    	success: function(data)
+        {
+            if ("status" in data && data["status"] == "ok")
+            {
+            	studio_display_task_submit_message("Task saved.", "success", true);
+            	$('#task_edit_submit_button').attr('disabled', false);
+            	studio_submitting = false;
+            }
+            else if ("error" in data)
+            {
+            	studio_display_task_submit_message(data["error"], "danger", true);
+            	$('#task_edit_submit_button').attr('disabled', false);
+            	studio_submitting = false;
+            }
+            else
+            {
+            	studio_display_task_submit_message("An internal error occured", "danger", true);
+            	$('#task_edit_submit_button').attr('disabled', false);
+            	studio_submitting = false;
+            }
+        },
+    	error: function()
+        {
+    		studio_display_task_submit_message("An internal error occured", "danger", true);
+    		$('#task_edit_submit_button').attr('disabled', false);
+    		studio_submitting = false;
+        }
+    });
+	$('#task_edit_submit_button').attr('disabled', true);
 }
 
 /**
@@ -680,10 +739,10 @@ function studio_create_choice(pid, choice_data)
 	while($('#choice-'+index+'-'+pid).length != 0)
 		index++;
 	
-	row = $(".subproblem_multiple_choice_choice",well).html()
+	row = $("#subproblem_multiple_choice_choice").html()
 	new_row_content = row.replace(/PID/g,pid).replace(/CHOICE/g,index);
 	new_row = $("<tr></tr>").attr('id','choice-'+index+'-'+pid).html(new_row_content);
-	$(".subproblem_multiple_choice_choice",well).before(new_row);
+	$("#add-choices-"+pid,well).before(new_row);
 	
 	if("text" in choice_data)
 		$(".subproblem_multiple_choice_text", new_row).val(choice_data["text"]);
