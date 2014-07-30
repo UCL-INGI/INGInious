@@ -654,4 +654,38 @@ function studio_init_template_multiple_choice(well, pid, problem)
 	});
 }
 
+/**
+ * Move subproblem up
+ * @param pid
+ */
+function studio_subproblem_up(pid)
+{
+	well = $(studio_get_problem(pid));
+	prev = well.prev(".well.row");
+	if(prev.length)
+		well.detach().insertBefore(prev);
+}
 
+/**
+ * Move subproblem down
+ * @param pid
+ */
+function studio_subproblem_down(pid)
+{
+	well = $(studio_get_problem(pid));
+	next = well.next(".well.row");
+	if(next.length)
+		well.detach().insertAfter(next);
+}
+
+/**
+ * Delete subproblem
+ * @param pid
+ */
+function studio_subproblem_delete(pid)
+{
+	well = $(studio_get_problem(pid));
+	if(!confirm("Are you sure that you want to delete this subproblem?"))
+		return;
+	well.detach();
+}
