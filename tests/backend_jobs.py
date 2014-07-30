@@ -26,7 +26,7 @@ class backend_jobs(unittest.TestCase):
     
     def test_job_manager(self):
         '''Tests if a job adds in the queue and is treated correctly'''
-        print "\033[1m-> backend-jobs: queue job processing \033[0m"
+        print "\033[1m-> backend-jobs: job manager\033[0m"
         self.done = False
         t = common.tasks.Task(common.courses.Course('test'), 'task1')
         self.jid = self.jm.new_job(t, {"input":{"unittest/decimal":"12.5"}, "limits":t.get_limits()}, self.job_finished)
@@ -37,6 +37,10 @@ class backend_jobs(unittest.TestCase):
             print "Waiting for the job to end..."
         
         print "Job finished"
+    
+    def test_submitter(self):
+        '''Tests submission to docker'''
+        print "\033[1m-> backend-jobs: submitter\033[0m"
         
     def tearDown(self):
         pass
