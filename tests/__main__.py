@@ -1,11 +1,12 @@
 import unittest
-import shutil
 
 if __name__ == "__main__":
     testmodules = [
         'tests.common_courses',
         'tests.common_tasks',
         'tests.backend_jobs',
+        'tests.frontend_courses',
+        'tests.frontend_tasks',
         'tests.web_login',
         'tests.web_courses',
         'tests.web_tasks',
@@ -19,5 +20,3 @@ if __name__ == "__main__":
         suite.addTest(unittest.defaultTestLoader.loadTestsFromName(t))
 
     unittest.TextTestRunner().run(suite)
-    
-    shutil.rmtree('./tests/sessions')
