@@ -514,7 +514,7 @@ function studio_load(data)
  */
 function studio_get_template_for_problem(problem)
 {
-	if(problem["type"] == "code" && !problem["boxes"])
+	if((problem["type"] == "code" && !problem["boxes"]) || problem["type"] == "code-single-line" || problem["type"] == "code-file")
 		return "#subproblem_code";
 	else if(problem["type"] == "code")
 		return "#subproblem_custom";
@@ -588,7 +588,8 @@ function studio_init_template_code(well, pid, problem)
 		$('#header-'+pid,well).val(problem["header"])
 	if("language" in problem)
 		$('#language-'+pid,well).val(problem["language"])
-	
+	if("type" in problem)
+		$('#type-'+pid,well).val(problem["type"])
 }
 
 /**
@@ -599,6 +600,14 @@ function studio_init_template_code(well, pid, problem)
  */
 function studio_init_template_custom(well, pid, problem)
 {
+	if("name" in problem)
+		$('#name-'+pid,well).val(problem["name"])
+	if("header" in problem)
+		$('#header-'+pid,well).val(problem["header"])
+		
+	delete problem["name"];
+	delete problem["header"];
+	$('#custom-'+pid,well).val(JSON.stringify(problem))
 }
 
 /**
@@ -609,6 +618,12 @@ function studio_init_template_custom(well, pid, problem)
  */
 function studio_init_template_match(well, pid, problem)
 {
+	if("name" in problem)
+		$('#name-'+pid,well).val(problem["name"])
+	if("header" in problem)
+		$('#header-'+pid,well).val(problem["header"])
+	if("answer" in problem)
+		$('#answer-'+pid,well).val(problem["answer"])
 }
 
 /**
@@ -619,6 +634,24 @@ function studio_init_template_match(well, pid, problem)
  */
 function studio_init_template_multiple_choice(well, pid, problem)
 {
+	if("name" in problem)
+		$('#name-'+pid,well).val(problem["name"])
+	if("header" in problem)
+		$('#header-'+pid,well).val(problem["header"])
+	if("multiple" in problem && problem["multiple"] == true)
+		$('#multiple-'+pid,well).attr('checked', true)
+	
+	row = $(".subproblem_multiple_choice_choice",well).html()
+	jQuery.each(problem["choices"], function(index, elem)
+	{
+		new_row = "<tr>"+row.replace(/PID/g,pid).replace(/CHOICE/g,index)+"</tr>";
+		new_row = $(new_row)
+		$("#choices-"+pid,well).append(new_row);
+		if("text" in elem)
+			$(".subproblem_multiple_choice_text", new_row).val(elem["text"]);
+		if("valid" in elem && elem["valid"] == true)
+			$(".subproblem_multiple_choice_valid", new_row).attr('checked', true)
+	});
 }
 
 

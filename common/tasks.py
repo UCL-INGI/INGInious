@@ -5,7 +5,9 @@ import collections
 import json
 
 from common.base import INGIniousConfiguration, id_checker
-from common.tasks_problems import CodeProblem, CodeSingleLineProblem, MultipleChoiceProblem, MatchProblem
+from common.tasks_problems import CodeProblem, CodeSingleLineProblem, MultipleChoiceProblem, MatchProblem, CodeFileProblem
+
+
 class Task(object):
 
     """ Contains the data for a task """
@@ -109,7 +111,7 @@ class Task(object):
             multiple_choice_error_count += problem_mc_error_count
         return valid, need_launch, main_message, problem_messages, multiple_choice_error_count
 
-    _problem_types = {"code": CodeProblem, "code-single-line": CodeSingleLineProblem, "multiple-choice": MultipleChoiceProblem, "match": MatchProblem}
+    _problem_types = {"code": CodeProblem, "code-single-line": CodeSingleLineProblem, "code-file": CodeFileProblem, "multiple-choice": MultipleChoiceProblem, "match": MatchProblem}
 
     def _create_task_problem(self, task, problemid, problem_content):
         """Creates a new instance of the right class for a given problem."""
