@@ -8,6 +8,8 @@ import frontend
 import frontend.submission_manager
 import uuid
 import time
+import Queue
+import backend._submitter
 from tests import *
 
 class backend_jobs(unittest.TestCase):
@@ -37,10 +39,6 @@ class backend_jobs(unittest.TestCase):
             print "Waiting for the job to end..."
         
         print "Job finished"
-    
-    def test_submitter(self):
-        '''Tests submission to docker'''
-        print "\033[1m-> backend-jobs: submitter\033[0m"
         
     def tearDown(self):
         pass
