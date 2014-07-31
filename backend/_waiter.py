@@ -13,7 +13,7 @@ class Waiter(multiprocessing.Process):
         Periodically call the distant docker to know which containers are done
 
         Take from the input_queue tuples with the form (jobid, containerid) and
-        put in the output_queue tuples with the form (docker_instanceid, jobid, result)
+        put in the output_queue tuples with the form (docker_instanceid, jobid, containerid, result)
 
     """
 
