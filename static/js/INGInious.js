@@ -162,7 +162,7 @@ function submitTask()
                 updateTaskStatus("Internal error");
                 unblurTaskForm();
             }
-        }, 
+        },
     	error: function()
         {
             displayTaskErrorAlert();
@@ -506,6 +506,65 @@ function studio_load(data)
 		studio_create_from_template(template, pid);
 		studio_init_template(template,pid,problem);
 	});
+	
+	$('form#edit_task_form').on('submit', function(){studio_submit(); return false;});
+}
+
+/**
+ * Display a message indicating the status of a save action
+ * @param type
+ * @param message
+ */
+function studio_display_task_submit_message(content, type, dismissible)
+{
+	code = getAlertCode(content,type,dismissible)
+	$('#task_edit_submit_status').html(code);
+}
+
+/**
+ * Submit the form
+ */
+studio_submitting = false;
+function studio_submit()
+{
+	if(studio_submitting)
+		return;
+	studio_submitting = true;
+	
+	studio_display_task_submit_message("Saving...", "info", false);
+	
+	$('form#edit_task_form').ajaxSubmit(
+    {
+    	dataType: 'json',
+    	success: function(data)
+        {
+            if ("status" in data && data["status"] == "ok")
+            {
+            	studio_display_task_submit_message("Task saved.", "success", true);
+            	$('#task_edit_submit_button').attr('disabled', false);
+            	studio_submitting = false;
+            }
+            else if ("error" in data)
+            {
+            	studio_display_task_submit_message(data["error"], "danger", true);
+            	$('#task_edit_submit_button').attr('disabled', false);
+            	studio_submitting = false;
+            }
+            else
+            {
+            	studio_display_task_submit_message("An internal error occured", "danger", true);
+            	$('#task_edit_submit_button').attr('disabled', false);
+            	studio_submitting = false;
+            }
+        },
+    	error: function()
+        {
+    		studio_display_task_submit_message("An internal error occured", "danger", true);
+    		$('#task_edit_submit_button').attr('disabled', false);
+    		studio_submitting = false;
+        }
+    });
+	$('#task_edit_submit_button').attr('disabled', true);
 }
 
 /**
@@ -514,7 +573,7 @@ function studio_load(data)
  */
 function studio_get_template_for_problem(problem)
 {
-	if(problem["type"] == "code" && !problem["boxes"])
+	if((problem["type"] == "code" && !problem["boxes"]) || problem["type"] == "code-single-line" || problem["type"] == "code-file")
 		return "#subproblem_code";
 	else if(problem["type"] == "code")
 		return "#subproblem_custom";
@@ -525,6 +584,26 @@ function studio_get_template_for_problem(problem)
 	else
 		return "#subproblem_custom";
 	return "#subproblem_custom";
+}
+
+/**
+ * Create new subproblem from the data in the form
+ */
+function studio_create_new_subproblem()
+{
+	if(!$('#new_subproblem_pid').val().match(/^[a-zA-Z\._\-]+$/))
+	{
+		alert('Problem id should only contain alphanumeric characters (in addition to ".", "_" and "-").');
+		return;
+	}
+	
+	if($(studio_get_problem($('#new_subproblem_pid').val())).length != 0)
+	{
+		alert('This problem id is already used.');
+		return;
+	}
+	
+	studio_create_from_template('#'+$('#new_subproblem_type').val(),$('#new_subproblem_pid').val())
 }
 
 /**
@@ -544,7 +623,7 @@ function studio_create_from_template(template, pid)
  */
 function studio_get_problem(pid)
 {
-	return "subproblem_well_"+pid;
+	return "#subproblem_well_"+pid;
 }
 
 /**
@@ -582,6 +661,14 @@ function studio_init_template(template,pid,problem)
  */
 function studio_init_template_code(well, pid, problem)
 {
+	if("name" in problem)
+		$('#name-'+pid,well).val(problem["name"])
+	if("header" in problem)
+		$('#header-'+pid,well).val(problem["header"])
+	if("language" in problem)
+		$('#language-'+pid,well).val(problem["language"])
+	if("type" in problem)
+		$('#type-'+pid,well).val(problem["type"])
 }
 
 /**
@@ -592,6 +679,14 @@ function studio_init_template_code(well, pid, problem)
  */
 function studio_init_template_custom(well, pid, problem)
 {
+	if("name" in problem)
+		$('#name-'+pid,well).val(problem["name"])
+	if("header" in problem)
+		$('#header-'+pid,well).val(problem["header"])
+		
+	delete problem["name"];
+	delete problem["header"];
+	$('#custom-'+pid,well).val(JSON.stringify(problem))
 }
 
 /**
@@ -602,6 +697,12 @@ function studio_init_template_custom(well, pid, problem)
  */
 function studio_init_template_match(well, pid, problem)
 {
+	if("name" in problem)
+		$('#name-'+pid,well).val(problem["name"])
+	if("header" in problem)
+		$('#header-'+pid,well).val(problem["header"])
+	if("answer" in problem)
+		$('#answer-'+pid,well).val(problem["answer"])
 }
 
 /**
@@ -612,6 +713,85 @@ function studio_init_template_match(well, pid, problem)
  */
 function studio_init_template_multiple_choice(well, pid, problem)
 {
+	if("name" in problem)
+		$('#name-'+pid,well).val(problem["name"])
+	if("header" in problem)
+		$('#header-'+pid,well).val(problem["header"])
+	if("multiple" in problem && problem["multiple"] == true)
+		$('#multiple-'+pid,well).attr('checked', true)
+	
+	jQuery.each(problem["choices"], function(index, elem)
+	{
+		studio_create_choice(pid, elem);
+	});
 }
 
+/**
+ * Create a new choice in a given multiple-choice problem
+ * @param pid
+ * @param choice_data
+ */
+function studio_create_choice(pid, choice_data)
+{
+	well = $(studio_get_problem(pid));
+	
+	index = 0;
+	while($('#choice-'+index+'-'+pid).length != 0)
+		index++;
+	
+	row = $("#subproblem_multiple_choice_choice").html()
+	new_row_content = row.replace(/PID/g,pid).replace(/CHOICE/g,index);
+	new_row = $("<tr></tr>").attr('id','choice-'+index+'-'+pid).html(new_row_content);
+	$("#add-choices-"+pid,well).before(new_row);
+	
+	if("text" in choice_data)
+		$(".subproblem_multiple_choice_text", new_row).val(choice_data["text"]);
+	if("valid" in choice_data && choice_data["valid"] == true)
+		$(".subproblem_multiple_choice_valid", new_row).attr('checked', true)
+}
 
+/**
+ * Delete a multiple choice answer
+ * @param pid
+ * @param choice
+ */
+function studio_delete_choice(pid,choice)
+{
+	$('#choice-'+choice+'-'+pid).detach();
+}
+
+/**
+ * Move subproblem up
+ * @param pid
+ */
+function studio_subproblem_up(pid)
+{
+	well = $(studio_get_problem(pid));
+	prev = well.prev(".well.row");
+	if(prev.length)
+		well.detach().insertBefore(prev);
+}
+
+/**
+ * Move subproblem down
+ * @param pid
+ */
+function studio_subproblem_down(pid)
+{
+	well = $(studio_get_problem(pid));
+	next = well.next(".well.row");
+	if(next.length)
+		well.detach().insertAfter(next);
+}
+
+/**
+ * Delete subproblem
+ * @param pid
+ */
+function studio_subproblem_delete(pid)
+{
+	well = $(studio_get_problem(pid));
+	if(!confirm("Are you sure that you want to delete this subproblem?"))
+		return;
+	well.detach();
+}

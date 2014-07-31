@@ -1,9 +1,29 @@
 $def with (course,taskid,task_data,environments,problemdump,AccessibleTime)
 $var title: Edit $taskid
 
+$def ColumnF():
+    <div id="task_edit_submit_status"></div>
+    <button class="btn btn-primary btn-block" id="task_edit_submit_button" type="button" onclick="studio_submit()"><span class="glyphicon glyphicon-download-alt"></span> Submit</button>
+    <h4>Shortcuts</h4>
+    <div class="list-group">
+        <a href="#general_informations" class="list-group-item">General informations</a>
+        <a href="#virtual_machine_setup" class="list-group-item">Virtual machine setup</a>
+        <a href="#subproblems" class="list-group-item">Subproblems</a>
+        <a href="#new_subproblem" class="list-group-item">New subproblem</a>
+    </div>
+$var Column: $:ColumnF()
+
+<ol class="breadcrumb">
+  <li><a href="/index">Home</a></li>
+  <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
+  <li><a href="/admin/$course.get_id()">Manage</a></li>
+  <li><a href="/admin/$course.get_id()/tasks">Tasks</a></li>
+  <li class="active">Edit task "$taskid"</li>
+</ol>
+
 <h2>Edit task "$taskid"</h2>
-<form action="/admin/${course.get_id()}/edit/$taskid" method="post" class="form-horizontal">
-    <h3>General informations</h3>
+<form id="edit_task_form" action="/admin/${course.get_id()}/edit/$taskid" method="post" class="form-horizontal">
+    <h3 id="general_informations">General informations</h3>
     <input type="hidden" name="@action" value="edit_task"/>
     <div class="form-group">
         <label for="name" class="col-sm-2 control-label">Name</label>
@@ -53,7 +73,7 @@ $var title: Edit $taskid
             </label>
         </div>
     </div>
-    <h3>Virtual machine setup</h3>
+    <h3 id="virtual_machine_setup">Virtual machine setup</h3>
     <div class="form-group">
         <label for="limit-time" class="col-sm-2 control-label">Timeout limit (in seconds)</label>
         <div class="col-sm-10">
@@ -85,7 +105,7 @@ $var title: Edit $taskid
             </select>
         </div>
     </div>
-    <h3>Subproblems</h3>
+    <h3 id="subproblems">Subproblems</h3>
     <div class="row" id="new_subproblem">
         <div class="form-group">
             <label for="new_subproblem_pid" class="col-sm-2 control-label">New problem id</label>
@@ -102,11 +122,15 @@ $var title: Edit $taskid
                 </select>
             </div>
             <div class="col-sm-2">
-                <button type="button" class="btn btn-primary btn-block" onclick="studio_sub_add()">Add a new subproblem</button>
+                <button type="button" class="btn btn-primary btn-block" onclick="studio_create_new_subproblem()">Add subproblem</button>
             </div>
         </div>
     </div>
 </form>
+
+
+
+<!-- these divs are templates used by the javascript code to display problems -->
 <div id="subproblem_templates" style="display:none">
     <div id="subproblem_code">
         <div class="well row" id="subproblem_well_PID">
@@ -124,9 +148,9 @@ $var title: Edit $taskid
                 </div>
             </div>
             <div class="form-group">
-                <label for="context-PID" class="col-sm-2 control-label">Context</label>
+                <label for="header-PID" class="col-sm-2 control-label">Context</label>
                 <div class="col-sm-10">
-                    <textarea rows="10" class="form-control" id="context-PID" name="problem[PID][context]" placeholder="A description of what the student will have to do in this subproblem"></textarea>
+                    <textarea rows="10" class="form-control" id="header-PID" name="problem[PID][header]" placeholder="A description of what the student will have to do in this subproblem"></textarea>
                 </div>
             </div>
             <div class="form-group">
@@ -141,7 +165,7 @@ $var title: Edit $taskid
                     <select class="form-control" id="type-PID" name="problem[PID][type]">
                         <option value="code">Multiline code</option>
                         <option value="code-single-line">Single-line code</option>
-                        <option value="file">File upload</option>
+                        <option value="code-file">File upload</option>
                     </select>
                 </div>
             </div>
@@ -175,9 +199,9 @@ $var title: Edit $taskid
                 </div>
             </div>
             <div class="form-group">
-                <label for="context-PID" class="col-sm-2 control-label">Context</label>
+                <label for="header-PID" class="col-sm-2 control-label">Context</label>
                 <div class="col-sm-10">
-                    <textarea rows="10" class="form-control" id="context-PID" name="problem[PID][context]" placeholder="A description of what the student will have to do in this subproblem"></textarea>
+                    <textarea rows="10" class="form-control" id="header-PID" name="problem[PID][header]" placeholder="A description of what the student will have to do in this subproblem"></textarea>
                 </div>
             </div>
             <div class="form-group">
@@ -216,13 +240,13 @@ $var title: Edit $taskid
                 </div>
             </div>
             <div class="form-group">
-                <label for="context-PID" class="col-sm-2 control-label">Context</label>
+                <label for="header-PID" class="col-sm-2 control-label">Context</label>
                 <div class="col-sm-10">
-                    <textarea rows="10" class="form-control" id="context-PID" name="problem[PID][context]" placeholder="A description of what the student will have to do in this subproblem"></textarea>
+                    <textarea rows="10" class="form-control" id="header-PID" name="problem[PID][header]" placeholder="A description of what the student will have to do in this subproblem"></textarea>
                 </div>
             </div>
             <div class="form-group">
-                <label for="multiple-PID" class="col-sm-2 control-label">Must select multiple answers</label>
+                <label for="multiple-PID" class="col-sm-2 control-label">Can select multiple answers</label>
                 <div class="col-sm-10">
                     <input type="checkbox" class="form-control" id="multiple-PID" name="problem[PID][multiple]"/>
                 </div>
@@ -230,15 +254,10 @@ $var title: Edit $taskid
             <div class="form-group">
                 <label for="choices-PID" class="col-sm-2 control-label">Choices</label>
                 <div class="col-sm-10">
-                    <table class="table table-condensed table-striped">
-                        <tr><th>Choice</th><th>Valid?</th></tr>
-                        <tr class="subproblem_multiple_choice_choice" style="display:none">
-                            <td>
-                                <input type="text" class="form-control" name="problem[PID][choices][CHOICE][name]" placeholder="The name of this choice"/>
-                            </td>
-                            <td>
-                                <input type="checkbox" class="form-control" name="problem[PID][choices][CHOICE][valid]"/>
-                            </td>
+                    <table id="choices-PID" class="table table-condensed table-striped">
+                        <tr><th>Choice</th><th>Valid?</th><th></th></tr>
+                        <tr id="add-choices-PID">
+                            <td colspan="3"><button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_create_choice('PID',{})"><span class="glyphicon glyphicon-add-sign"></span> Add new choice</button></td>
                         </tr>
                     </table>
                 </div>
@@ -256,6 +275,19 @@ $var title: Edit $taskid
             </div>
         </div>
     </div>
+    <table>
+        <tr id="subproblem_multiple_choice_choice">
+            <td>
+                <input type="text" class="form-control subproblem_multiple_choice_text" name="problem[PID][choices][CHOICE][text]" placeholder="The name of this choice"/>
+            </td>
+            <td>
+                <input type="checkbox" class="form-control subproblem_multiple_choice_valid" name="problem[PID][choices][CHOICE][valid]"/>
+            </td>
+            <td>
+                <button class="btn btn-danger btn-sm btn-block" type="button" onclick="studio_delete_choice('PID',CHOICE)"><span class="glyphicon glyphicon-remove-sign"></span> Delete</button>
+            </td>
+        </tr>
+    </table>
     <div id="subproblem_custom">
         <div class="well row" id="subproblem_well_PID">
             <input type="hidden" name="problem[PID][type]" value="custom"/>
@@ -274,9 +306,9 @@ $var title: Edit $taskid
                 </div>
             </div>
             <div class="form-group">
-                <label for="context-PID" class="col-sm-2 control-label">Context</label>
+                <label for="header-PID" class="col-sm-2 control-label">Context</label>
                 <div class="col-sm-10">
-                    <textarea rows="10" class="form-control" id="context-PID" name="problem[PID][context]" placeholder="A description of what the student will have to do in this subproblem"></textarea>
+                    <textarea rows="10" class="form-control" id="header-PID" name="problem[PID][header]" placeholder="A description of what the student will have to do in this subproblem"></textarea>
                 </div>
             </div>
             <div class="form-group">
@@ -299,6 +331,8 @@ $var title: Edit $taskid
         </div>
     </div>
 </div>
+
+<!-- init -->
 <script type="text/javascript">
 	problem_data = $:{problemdump};
 	\$ (function(){ studio_load(problem_data); });

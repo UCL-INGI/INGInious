@@ -5,6 +5,7 @@ import threading
 import uuid
 
 from backend._callback_manager import CallbackManager
+from backend._container_image_creator import ContainerImageCreator
 from backend._submitter import submitter
 from backend._waiter import Waiter
 
@@ -28,7 +29,8 @@ class JobManager(object):
                         container_prefix: "The prefix to be used on container names. by default, it is 'inginious/'",
                         waiters: 1,
                         time_between_polls: 0.5,
-                        max_concurrent_jobs: 100
+                        max_concurrent_jobs: 100,
+                        build_containers_on_start: false
                     }
 
                 *waiters* is an integer indicating the number of waiters processes to start for this docker instance.
@@ -81,7 +83,8 @@ class JobManager(object):
         self._docker_config = docker_instances
 
         # Start waiters
-        print "Starting waiters"
+        print "Starting waiters and container image builders"
+        builders = []
         for docker_instance_id, docker_config in enumerate(self._docker_config):
 
             docker_instance_queue = self._memory_manager.Queue()
@@ -93,8 +96,21 @@ class JobManager(object):
                 process = Waiter(docker_instance_id, docker_instance_queue, self._done_queue, docker_config)
                 process.start()
                 processes.append(process)
+
+                if docker_config.get("build_containers_on_start", False):
+                    print "Starting image builder for docker instance {}".format(docker_instance_id)
+                    process = ContainerImageCreator(docker_instance_id, docker_config, self._containers_directory, self.get_container_names())
+                    process.start()
+                    builders.append(process)
+
             self._docker_waiter_processes.append(processes)
             self._running_job_count.append(0)
+
+        if len(builders):
+            print "Waiting for builders to end"
+            for builder in builders:
+                builder.join()
+            print "Builders ended"
 
         # Start callback managers
         print "Starting callback managers"
@@ -153,7 +169,7 @@ class JobManager(object):
             docker_instance = self._get_docker_instance_and_inc()
 
             if docker_instance is None:
-                self._done_queue.put((None, jobid, {"result": "crash", "text": "INGInious is over-capacity. Please try later."}))
+                self._done_queue.put((None, jobid, {"result": "crash", "text": "INGInious is over-capacity. Please try again later."}))
             else:
                 self._running_job_data[jobid] = (task, callback, basedict)
 
@@ -171,3 +187,18 @@ class JobManager(object):
             self._done_queue.put((None, jobid, None))
 
         return jobid
+
+    def get_container_names(self):
+        """ Returns available containers """
+        containers = [
+            f for f in os.listdir(
+                self._containers_directory) if os.path.isdir(
+                os.path.join(
+                    self._containers_directory,
+                    f)) and os.path.isfile(
+                    os.path.join(
+                        self._containers_directory,
+                        f,
+                        "Dockerfile"))]
+
+        return containers
