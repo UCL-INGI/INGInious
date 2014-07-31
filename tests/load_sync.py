@@ -62,7 +62,7 @@ class load_sync(unittest.TestCase):
         watchth.start()
         
         # Launch threads
-        for x in range(0, 10):
+        for x in range(0, 0):
             th = SyncSubmitter(self.queue,x)
             self.thqueue.put(th)
             th.daemon = True
@@ -83,4 +83,8 @@ class load_sync(unittest.TestCase):
             assert item[1], item[1]
 
 if __name__ == "__main__":
-    unittest.main()
+    resp = appt.get('/tests/stats', status='*')
+    if resp.status_int == 200:
+        unittest.main()
+    else:
+        print "\033[31;1m-> load-sync: job manager plugin not running\033[0m"

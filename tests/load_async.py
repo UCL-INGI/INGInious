@@ -12,9 +12,10 @@ from tests import *
 import time
 import json
 import uuid
+import json
 
 class AsyncSubmitter(threading.Thread):
-    """ Launch a sync submission """
+    """ Launch an async submission """
 
     def __init__(self, queue, tid):
         threading.Thread.__init__(self)
@@ -28,15 +29,15 @@ class AsyncSubmitter(threading.Thread):
         print "\033[1;34m--> STARTING THREAD " + str(self.tid) + "\033[0m"
         t0 = time.time()
         
-        resp = appt.post('/course/test/task1', {"@action":"submit", "unittest/decimal": "2"})
-        print resp.body
+        resp = appt.post('/cnp3', {"taskid":"HelloWorld", "input":json.dumps({"student_response": "{Browse \'Hello World!\'}"}) , "async":''})
         js = json.loads(resp.body)
-        assert "status" in js and "submissionid" in js and js["status"] == "ok"
-        sub_id = js["submissionid"]
+        assert "status" in js and "jobid" in js and js["status"] == "done"
+        sub_id = js["jobid"]
         
         for tries in range(0, 100):
             time.sleep(1)
-            resp = appt.post('/course/test/task1', {"@action":"check", "submissionid":sub_id})
+            resp = appt.post('/cnp3', {"jobid":sub_id})
+            print resp.body
             js = json.loads(resp.body)
             assert "status" in js and "status" != "error"
             if js["status"] == "done":
@@ -75,12 +76,14 @@ class load_async(unittest.TestCase):
         
         # Start resource watcher
         watchth = Watcher()
+        watchth.daemon = True
         watchth.start()
         
         # Launch threads
-        for x in range(0, 10):
+        for x in range(0, 0):
             th = AsyncSubmitter(self.queue, x)
             self.thqueue.put(th)
+            th.daemon = True
             th.start()
         
         # Join threads
@@ -98,4 +101,8 @@ class load_async(unittest.TestCase):
             assert item[1], item[1]
 
 if __name__ == "__main__":
-    unittest.main()
+    resp = appt.get('/tests/stats', status='*')
+    if resp.status_int == 200:
+        unittest.main()
+    else:
+        print "\033[31;1m-> load-async: job manager plugin not running\033[0m"

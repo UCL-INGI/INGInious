@@ -79,4 +79,7 @@ class web_tasks(unittest.TestCase):
         pass
 
 if __name__ == "__main__":
-    unittest.main()
+    if common.base.INGIniousConfiguration.get('test',{}).get('host_url', ''):
+        unittest.main()
+    else:
+        print "\033[31;1m-> web-tasks: tests cannot be run remotely\033[0m"
