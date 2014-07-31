@@ -1,4 +1,3 @@
 $def with (inputId,lines,maxChars,language)
-<div id="$inputId" class="aceEditor" ></div>
+<div id="$inputId" class="aceEditor" data-x-language="$language" data-x-lines="$lines"></div>
 <input type="hidden" name="$inputId"/>
-<script type="text/javascript">jQuery(function(){ registerCodeEditor("$inputId","$language",$lines); });</script>

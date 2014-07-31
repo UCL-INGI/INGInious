@@ -172,6 +172,13 @@ $var Column: $:ColumnF()
                     <textarea rows="10" class="form-control" id="header-PID" name="problem[PID][header]" placeholder="A description of what the student will have to do in this subproblem"></textarea>
                 </div>
             </div>
+            $if contains_is_html:
+                <div class="form-group">
+                    <label for="headerIsHTML-PID" class="col-sm-2 control-label">Is context written in HTML instead of restructuredText?</label>
+                    <div class="col-sm-10">
+                        <input type="checkbox" class="form-control" id="headerIsHTML-PID" name="problem[PID][headerIsHTML]"/>
+                    </div>
+                </div>
             <div class="form-group">
                 <label for="language-PID" class="col-sm-2 control-label">Language</label>
                 <div class="col-sm-10">

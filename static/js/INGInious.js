@@ -8,7 +8,16 @@ $(function()
         displayTaskLoadingAlert();
     	waitForSubmission($('form#task').attr("data-wait-submission"));
     }
-    $('#submissions .submission').on('click', clickOnSubmission)
+    $('#submissions .submission').on('click', clickOnSubmission);
+    
+    $('.aceEditor').each(function(index,elem)
+    {
+    	registerCodeEditor($(elem).attr('id'),$(elem).attr('data-x-language'),$(elem).attr('data-x-lines'));
+    });
+    
+    //Start affix only if there the height of the sidebar is less than the height of the content
+    if($('#sidebar').height() < $('#content').height())
+    	$('#sidebar').affix({offset:{top:83,bottom:1}});
 });
 
 //Contains all code editors

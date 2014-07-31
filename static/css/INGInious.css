@@ -48,8 +48,9 @@ input.monospace {
 }
 #sidebar.affix {
   right: 0;
+  top: 0;
   padding-right: 30px;
-  padding-left: 8px;
+  padding-left: 7px;
 }
 @media screen and (max-width: 768px) {
   #sidebar {
@@ -75,4 +76,12 @@ form#task #task-submit {
 }
 #submissions .submission {
   cursor: pointer;
+}
+.index-logo {
+  position: absolute;
+  right: 0;
+}
+.index-logo img {
+  width: 100%;
+  max-width: 300px;
 }
