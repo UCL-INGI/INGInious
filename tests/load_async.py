@@ -37,10 +37,10 @@ class AsyncSubmitter(threading.Thread):
         for tries in range(0, 100):
             time.sleep(1)
             resp = appt.post('/cnp3', {"jobid":sub_id})
-            print resp.body
             js = json.loads(resp.body)
             assert "status" in js and "status" != "error"
             if js["status"] == "done":
+                print js
                 self.assertion('"result" in js and js["result"] != "error"', "result" in js and js["result"] != "error")
                 break
         
@@ -80,7 +80,7 @@ class load_async(unittest.TestCase):
         watchth.start()
         
         # Launch threads
-        for x in range(0, 0):
+        for x in range(0, 500):
             th = AsyncSubmitter(self.queue, x)
             self.thqueue.put(th)
             th.daemon = True
@@ -98,7 +98,7 @@ class load_async(unittest.TestCase):
     def tearDown(self):
         while not self.queue.empty():
             item = self.queue.get()
-            assert item[1], item[1]
+            assert item[1], item[0]
 
 if __name__ == "__main__":
     resp = appt.get('/tests/stats', status='*')
