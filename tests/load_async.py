@@ -78,7 +78,7 @@ class load_async(unittest.TestCase):
         watchth.start()
         
         # Launch threads
-        for x in range(0, 5):
+        for x in range(0, 10):
             th = AsyncSubmitter(self.queue, x)
             self.thqueue.put(th)
             th.start()

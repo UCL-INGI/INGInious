@@ -62,7 +62,7 @@ class load_sync(unittest.TestCase):
         watchth.start()
         
         # Launch threads
-        for x in range(0, 5):
+        for x in range(0, 10):
             th = SyncSubmitter(self.queue,x)
             self.thqueue.put(th)
             th.daemon = True
