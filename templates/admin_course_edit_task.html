@@ -1,4 +1,4 @@
-$def with (course,taskid,task_data,environments,problemdump,AccessibleTime)
+$def with (course,taskid,task_data,environments,problemdump,contains_is_html,AccessibleTime)
 $var title: Edit $taskid
 
 $def ColumnF():
@@ -37,6 +37,16 @@ $var Column: $:ColumnF()
             <textarea rows="10" class="form-control" id="context" name="context" placeholder="A description of what the student will have to do in this task">${task_data.get('context','')}</textarea>
         </div>
     </div>
+    $if contains_is_html:
+        <div class="form-group">
+            <label for="contextIsHTML" class="col-sm-2 control-label">Is context written in HTML instead of restructuredText?</label>
+            <div class="col-sm-10">
+                <input type="checkbox" class="form-control" id="contextIsHTML" name="contextIsHTML"
+                    $if task_data.get('contextIsHTML',False):
+                        checked="checked"
+                />
+            </div>
+        </div>
     <div class="form-group">
         <label for="author" class="col-sm-2 control-label">Author</label>
         <div class="col-sm-10">
@@ -77,22 +87,21 @@ $var Column: $:ColumnF()
     <div class="form-group">
         <label for="limit-time" class="col-sm-2 control-label">Timeout limit (in seconds)</label>
         <div class="col-sm-10">
-            <input type="number" class="form-control" id="limit-time" name="limit-time" placeholder="30" value="${task_data.get('limits',{}).get('time',30)}"/>
+            <input type="number" class="form-control" id="limit-time" name="limits[time]" placeholder="30" value="${task_data.get('limits',{}).get('time',30)}"/>
         </div>
     </div>
     <div class="form-group">
         <label for="limit-memory" class="col-sm-2 control-label">Memory limit (in megabytes)</label>
         <div class="col-sm-10">
-            <input type="number" class="form-control" id="limit-memory" name="limit-memory" placeholder="30" value="${task_data.get('limits',{}).get('memory',100)}"/>
+            <input type="number" class="form-control" id="limit-memory" name="limits[memory]" placeholder="30" value="${task_data.get('limits',{}).get('memory',100)}"/>
         </div>
     </div>
     <div class="form-group">
         <label for="limit-output" class="col-sm-2 control-label">Output limit (in megabytes)</label>
         <div class="col-sm-10">
-            <input type="number" class="form-control" id="limit-output" name="limit-output" placeholder="2" value="${task_data.get('limits',{}).get('output',2)}"/>
+            <input type="number" class="form-control" id="limit-output" name="limits[output]" placeholder="2" value="${task_data.get('limits',{}).get('output',2)}"/>
         </div>
     </div>
-    <hr/>
     <div class="form-group">
         <label for="environment" class="col-sm-2 control-label">Environment</label>
         <div class="col-sm-10">
@@ -105,6 +114,16 @@ $var Column: $:ColumnF()
             </select>
         </div>
     </div>
+    $if contains_is_html:
+        <div class="form-group">
+            <label for="responseIsHTML" class="col-sm-2 control-label">Are the task's responses written in HTML instead of restructuredText?</label>
+            <div class="col-sm-10">
+                <input type="checkbox" class="form-control" id="responseIsHTML" name="responseIsHTML"
+                    $if task_data.get('responseIsHTML',False):
+                        checked="checked"
+                />
+            </div>
+        </div>
     <h3 id="subproblems">Subproblems</h3>
     <div class="row" id="new_subproblem">
         <div class="form-group">
@@ -134,7 +153,7 @@ $var Column: $:ColumnF()
 <div id="subproblem_templates" style="display:none">
     <div id="subproblem_code">
         <div class="well row" id="subproblem_well_PID">
-            <input type="hidden" name="problem[PID][@order]" value="ORDER"/>
+            <input type="hidden" class="subproblem_order" name="problem[PID][@order]" value="ORDER"/>
             <div class="form-group">
                 <label for="pid-PID" class="col-sm-2 control-label">Problem id</label>
                 <div class="col-sm-10">
@@ -185,7 +204,7 @@ $var Column: $:ColumnF()
     <div id="subproblem_match">
         <div class="well row" id="subproblem_well_PID">
             <input type="hidden" name="problem[PID][type]" value="match"/>
-            <input type="hidden" name="problem[PID][@order]" value="ORDER"/>
+            <input type="hidden" class="subproblem_order" name="problem[PID][@order]" value="ORDER"/>
             <div class="form-group">
                 <label for="pid-PID" class="col-sm-2 control-label">Problem id</label>
                 <div class="col-sm-10">
@@ -226,7 +245,7 @@ $var Column: $:ColumnF()
     <div id="subproblem_multiple_choice">
         <div class="well row" id="subproblem_well_PID">
             <input type="hidden" name="problem[PID][type]" value="multiple-choice"/>
-            <input type="hidden" name="problem[PID][@order]" value="ORDER"/>
+            <input type="hidden" class="subproblem_order" name="problem[PID][@order]" value="ORDER"/>
             <div class="form-group">
                 <label for="pid-PID" class="col-sm-2 control-label">Problem id</label>
                 <div class="col-sm-10">
@@ -291,7 +310,7 @@ $var Column: $:ColumnF()
     <div id="subproblem_custom">
         <div class="well row" id="subproblem_well_PID">
             <input type="hidden" name="problem[PID][type]" value="custom"/>
-            <input type="hidden" name="problem[PID][@order]" value="ORDER"/>
+            <input type="hidden" class="subproblem_order" name="problem[PID][@order]" value="ORDER"/>
             
             <div class="form-group">
                 <label for="pid-PID" class="col-sm-2 control-label">Problem id</label>

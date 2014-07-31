@@ -97,11 +97,11 @@ class JobManager(object):
                 process.start()
                 processes.append(process)
 
-                if docker_config.get("build_containers_on_start", False):
-                    print "Starting image builder for docker instance {}".format(docker_instance_id)
-                    process = ContainerImageCreator(docker_instance_id, docker_config, self._containers_directory, self.get_container_names())
-                    process.start()
-                    builders.append(process)
+            if docker_config.get("build_containers_on_start", False):
+                print "Starting image builder for docker instance {}".format(docker_instance_id)
+                process = ContainerImageCreator(docker_instance_id, docker_config, self._containers_directory, self.get_container_names())
+                process.start()
+                builders.append(process)
 
             self._docker_waiter_processes.append(processes)
             self._running_job_count.append(0)
@@ -128,7 +128,7 @@ class JobManager(object):
         available_instances = [
             (entry, count) for entry, count in enumerate(
                 self._running_job_count) if self._docker_config[entry].get(
-                "max_concurrent_jobs", 100) == 0 or self._docker_config[entry].get(
+                "q", 100) == 0 or self._docker_config[entry].get(
                 "max_concurrent_jobs", 100) > count]
         if not len(available_instances):
             self._running_job_count_lock.release()

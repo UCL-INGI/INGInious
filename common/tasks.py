@@ -12,19 +12,36 @@ class Task(object):
 
     """ Contains the data for a task """
 
-    def __init__(self, course, taskid):
+    def __init__(self, course, taskid, init_data=None):
+        """
+            Init the task. course is a Course object, taskid the task id, and init_data is a dictionnary containing the data needed to initialize the Task object.
+            If init_data is None, the data will be taken from the course tasks' directory.
+        """
+
         if not id_checker(taskid):
             raise Exception("Task with invalid id: " + course.get_id() + "/" + taskid)
 
         self._course = course
         self._taskid = taskid
 
-        try:
-            self._data = json.load(codecs.open(join(INGIniousConfiguration["tasks_directory"], self._course.get_id(), self._taskid + ".task"), "r", 'utf-8'), object_pairs_hook=collections.OrderedDict)
-        except IOError:
-            raise Exception("File do not exists: " + join(INGIniousConfiguration["tasks_directory"], self._course.get_id(), self._taskid + ".task"))
-        except Exception as inst:
-            raise Exception("Error while reading JSON: " + self._course.get_id() + "/" + self._taskid + " :\n" + str(inst))
+        if init_data is None:
+            try:
+                self._data = json.load(
+                    codecs.open(
+                        join(
+                            INGIniousConfiguration["tasks_directory"],
+                            self._course.get_id(),
+                            self._taskid +
+                            ".task"),
+                        "r",
+                        'utf-8'),
+                    object_pairs_hook=collections.OrderedDict)
+            except IOError:
+                raise Exception("File do not exists: " + join(INGIniousConfiguration["tasks_directory"], self._course.get_id(), self._taskid + ".task"))
+            except Exception as inst:
+                raise Exception("Error while reading JSON: " + self._course.get_id() + "/" + self._taskid + " :\n" + str(inst))
+        else:
+            self._data = init_data
 
         self._environment = self._data.get('environment', None)
 

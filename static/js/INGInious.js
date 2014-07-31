@@ -533,6 +533,11 @@ function studio_submit()
 	
 	studio_display_task_submit_message("Saving...", "info", false);
 	
+	$('form#edit_task_form .subproblem_order').each(function(index,elem)
+	{
+		$(elem).val(index);
+	});
+	
 	$('form#edit_task_form').ajaxSubmit(
     {
     	dataType: 'json',
@@ -544,9 +549,9 @@ function studio_submit()
             	$('#task_edit_submit_button').attr('disabled', false);
             	studio_submitting = false;
             }
-            else if ("error" in data)
+            else if ("message" in data)
             {
-            	studio_display_task_submit_message(data["error"], "danger", true);
+            	studio_display_task_submit_message(data["message"], "danger", true);
             	$('#task_edit_submit_button').attr('disabled', false);
             	studio_submitting = false;
             }

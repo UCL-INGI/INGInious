@@ -17,8 +17,8 @@ class FrontendTask(common.tasks.Task):
         "multiple-choice": DisplayableMultipleChoiceProblem,
         "match": DisplayableMatchProblem}
 
-    def __init__(self, course, taskid):
-        common.tasks.Task.__init__(self, course, taskid)
+    def __init__(self, course, taskid, init_data=None):
+        common.tasks.Task.__init__(self, course, taskid, init_data)
 
         self._name = self._data.get('name', 'Task {}'.format(taskid))
 
