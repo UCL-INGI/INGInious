@@ -106,6 +106,15 @@ class JobManager(object):
 
         print "Job Manager initialization done"
 
+    def get_waiting_jobs_count(self):
+        """Returns the total number of waiting jobs in the Job Manager"""
+        self._running_job_count_lock.acquire()
+        result = 0
+        for item in self._running_job_count:
+            result += item
+        self._running_job_count_lock.release()
+        return item
+
     def _get_docker_instance_and_inc(self):
         """ Return the id of a docker instance and increment the job count associated """
         self._running_job_count_lock.acquire()
