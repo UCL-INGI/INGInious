@@ -1,9 +1,9 @@
-@import url(http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:300,400);
+@import url(http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:300);
 /* Mixins */
 /* Fonts */
 .navbar-brand {
   font-family: 'Yanone Kaffeesatz', sans-serif;
-  font-weight: 400;
+  font-weight: 300;
   font-size: 25px;
 }
 .navbar-brand img {
