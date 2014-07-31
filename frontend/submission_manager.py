@@ -50,8 +50,8 @@ def init_backend_interface():
             "callback_managers_threads",
             1),
         INGIniousConfiguration.get(
-            "submitters_processes",
-            1))
+            "process_pool_size",
+            None))
 
 
 def get_submission(submissionid, user_check=True):
@@ -86,7 +86,7 @@ def job_done_callback(jobid, _, job):
             }
         }
     )
-    
+
     UserData(submission["username"]).update_stats(submission, job)
 
     PluginManager.get_instance().call_hook("submission_done", submission=submission, job=job)

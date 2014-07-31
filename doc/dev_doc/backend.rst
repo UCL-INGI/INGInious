@@ -12,9 +12,9 @@ When a job is submitted to an object of the class JobManager, the following proc
 
 	#.	A new docker instance is selected. The docker instance with the less running jobs is chosen.
 	
-	#.	The job is then sent to a process pool, containing processes that we call *submitters*.
-		The submitter is in charge of connecting to the chosen docker instance and to run a new container instance.
-		The submitter then put the container id of the newly created container in the wait queue of the chosen docker instance.
+	#.	The job is then sent to a process pool, which runs the *submitter* function.
+		The submitter function is in charge of connecting to the chosen docker instance and to run a new container instance.
+		It then put the container id of the newly created container in the wait queue of the chosen docker instance.
 	
 	#.	The queue is read by processes called *waiters*. One or more *waiter* is associated with each docker instance. A *waiter*
 		is in charge of emptying the wait queue and to periodically verify that a container has ended.
@@ -28,6 +28,8 @@ When a job is submitted to an object of the class JobManager, the following proc
 	They are in charge of calling the callbacks functions given when submitting the job.
 	It is important that callback are made inside the JobManager's process. This allow users of the JobManager object to use non-pickable callback functions, such as bound functions.
 	(this allows to be more flexible).
+	
+#.	If the job was launched in a container, the callback manager also start the function *deleter* in the process pool, which deletes the container.
 	
 Submodules
 ----------

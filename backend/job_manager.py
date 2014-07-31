@@ -1,5 +1,6 @@
 """ Contains the class JobManager """
 import multiprocessing
+import multiprocessing.managers
 import os
 import threading
 import uuid
@@ -14,7 +15,7 @@ class JobManager(object):
 
     """ Manages jobs """
 
-    def __init__(self, docker_instances, containers_directory, tasks_directory, callback_manager_count=1, submitter_count=None):
+    def __init__(self, docker_instances, containers_directory, tasks_directory, callback_manager_count=1, process_pool_size=None):
         """
             Starts a job manager.
 
@@ -43,22 +44,22 @@ class JobManager(object):
             *tasks_directory*
                 The local directory path containing the courses and the tasks
 
-            *submitter_count*
-                Size of the submitter pool. Default the the number of processors
+            *process_pool_size*
+                Size of the process pool which runs the submit and delete action. Default: number of processors
 
             *callback_manager_count*
                 Number of thread to launch to handle the callbacks
 
             A job manager manages, in fact, pools of processes called submitters and waiters.
 
-            The first pool, containing the submitters, launch *submitter_count* processes.
-            If *submitter_count* = None, it launches the amount of processors available.
-            Submitters are in charge of starting the (maybe distant) docker containers.
+            The first pool, which runs two actions: submit and delete, launches *process_pool_size* processes.
+            If *process_pool_size* = None, it launches the amount of processors available.
+            The submit and delete actions respectively starts or delete a docker container.
 
             The second pool contains a number of waiters (the number is defined by each docker instance's configuration)
             that *wait* for a job to end on the distant docker daemon. Starting more than one process per docker instance is most of the time useless.
 
-            NB: in fact, the *waiters* pool is not a python multiprocessing.Pool object.
+            NB: in fact, the *waiters* pool is not a Python *multiprocessing.Pool* object.
 
             The job manager also launch a number of thread to handle the callbacks (the number is given by callback_manager_count)
         """
@@ -68,7 +69,7 @@ class JobManager(object):
         self._memory_manager = multiprocessing.Manager()
 
         print "Starting the submitter pool"
-        self._submitter_pool = multiprocessing.Pool(submitter_count)
+        self._process_pool = multiprocessing.Pool(process_pool_size)
 
         self._docker_waiter_queues = []
         self._docker_waiter_processes = []
@@ -116,7 +117,7 @@ class JobManager(object):
         print "Starting callback managers"
         self._callback_manager = []
         for _ in range(callback_manager_count):
-            process = CallbackManager(self._done_queue, self._running_job_data, self._running_job_count, self._running_job_count_lock)
+            process = CallbackManager(self._done_queue, self._docker_config, self._running_job_data, self._running_job_count, self._running_job_count_lock, self._process_pool)
             self._callback_manager.append(process)
             process.start()
 
@@ -173,7 +174,7 @@ class JobManager(object):
             else:
                 self._running_job_data[jobid] = (task, callback, basedict)
 
-                self._submitter_pool.apply_async(
+                self._process_pool.apply_async(
                     submitter, [jobid, inputdata,
                                 os.path.join(self._tasks_directory, task.get_course_id(), task.get_id()),
                                 task.get_limits(),
@@ -184,7 +185,7 @@ class JobManager(object):
             # Only send data to a CallbackManager
             basedict["text"] = "\n".join(basedict["text"])
             self._running_job_data[jobid] = (task, callback, basedict)
-            self._done_queue.put((None, jobid, None))
+            self._done_queue.put((None, jobid, None, None))
 
         return jobid
 

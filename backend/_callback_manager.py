@@ -1,23 +1,37 @@
 """ Contains the class CallbackManager, used by JobManager. Runs the callbacks. """
 import threading
+import docker
+
+
+def _deleter(docker_config, jobid, containerid):
+    """ Deletes a container """
+    try:
+        print "Deleting container {} (job {})".format(jobid, containerid)
+        docker_connection = docker.Client(base_url=docker_config.get('server_url'))
+        docker_connection.remove_container(containerid, True, False, True)
+        print "Container {} deleted (job {})".format(jobid, containerid)
+    except:
+        print "Cannot delete container {} (job {})".format(jobid, containerid)
 
 
 class CallbackManager(threading.Thread):
 
-    """ Runs callback in the job manager's process """
+    """ Runs callback in the job manager's process and deletes the container """
 
-    def __init__(self, input_queue, waiting_job_data, running_job_count, running_job_count_lock):
+    def __init__(self, input_queue, docker_instances_config, waiting_job_data, running_job_count, running_job_count_lock, process_pool):
         threading.Thread.__init__(self)
         self.daemon = True
         self._input_queue = input_queue
         self._waiting_job_data = waiting_job_data
         self._running_job_count = running_job_count
         self._running_job_count_lock = running_job_count_lock
+        self._process_pool = process_pool
+        self._docker_instances_config = docker_instances_config
 
     def run(self):
         while True:
             try:
-                docker_instanceid, jobid, result = self._input_queue.get()
+                docker_instanceid, jobid, containerid, result = self._input_queue.get()
             except EOFError:
                 return
 
@@ -26,6 +40,11 @@ class CallbackManager(threading.Thread):
 
             final_result = self._merge_emul_result(base_dict, result)
 
+            # Delete the container
+            if docker_instanceid is not None and containerid is not None:
+                self._process_pool.apply_async(_deleter, [self._docker_instances_config[docker_instanceid], jobid, containerid])
+
+            # Call the callback
             try:
                 callback(jobid, task, final_result)
             except:

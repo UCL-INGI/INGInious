@@ -61,11 +61,11 @@ class Waiter(multiprocessing.Process):
                     stderr = str(self._docker.logs(containerid, stdout=False, stderr=True))
                     if stderr != "":
                         print "STDERR: " + stderr
-                    # Delete used containers to avoid using too much disk space
-                    self._docker.remove_container(containerid, True, False, True)
                     result = json.loads(stdout)
                     print "Sent result to callback manager for jobid {}".format(jobid)
-                    self._output_queue.put((self._docker_instanceid, jobid, result))
+                    self._output_queue.put((self._docker_instanceid, jobid, containerid, result))
                 except:
                     print "No result for jobid {} after container run".format(jobid)
-                    self._output_queue.put((self._docker_instanceid, jobid, {"result": "crash", "text": "No output given by the task. Please contact an administrator if this problem reoccurs."}))
+                    self._output_queue.put(
+                        (self._docker_instanceid, jobid, None, {
+                            "result": "crash", "text": "No output given by the task. Please contact an administrator if this problem reoccurs."}))
