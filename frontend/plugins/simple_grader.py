@@ -64,7 +64,7 @@ def init(plugin_manager, config):
 
                 {
 
-                    "status": "ok",
+                    "status": "done",
                     "jobid": "the jobid of the async job. Will be needed to get the results."
                 }
 
@@ -165,20 +165,20 @@ def init(plugin_manager, config):
                     except:
                         return json.dumps({"status": "error", "status_message": "An internal error occured"})
 
-                    return json.dumps(dict({"status": "ok"}.items() + self.keep_only_config_return_values(job_return).items()))
+                    return json.dumps(dict({"status": "done"}.items() + self.keep_only_config_return_values(job_return).items()))
                 else:
                     # New async job
                     jobid = job_manager_buffer.new_job(task, task_input)
-                    return json.dumps({"status": "ok", "jobid": str(jobid)})
+                    return json.dumps({"status": "done", "jobid": str(jobid)})
             elif "jobid" in post_input:
                 # Get status of async job
                 if job_manager_buffer.is_waiting(post_input["jobid"]):
                     return json.dumps({"status": "waiting"})
                 elif job_manager_buffer.is_done(post_input["jobid"]):
                     job_return = job_manager_buffer.get_result(post_input["jobid"])
-                    return json.dumps(dict({"status": "ok"}.items() + self.keep_only_config_return_values(job_return).items()))
+                    return json.dumps(dict({"status": "done"}.items() + self.keep_only_config_return_values(job_return).items()))
                 else:
-                    return json.dumps({"status": "error", "status_message": "There is no job with jobid {}".format(jobid)})
+                    return json.dumps({"status": "error", "status_message": "There is no job with jobid {}".format(post_input["jobid"])})
             else:
                 return json.dumps({"status": "error", "status_message": "Unknown request type"})
 
