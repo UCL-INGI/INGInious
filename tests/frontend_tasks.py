@@ -42,7 +42,7 @@ class frontend_tasks(unittest.TestCase):
         pass
 
 if __name__ == "__main__":
-    if common.base.INGIniousConfiguration.get('test',{}).get('host_url', ''):
+    if not common.base.INGIniousConfiguration.get('tests',{}).get('host_url', ''):
         unittest.main()
     else:
         print "\033[31;1m-> frontend-tasks: tests cannot be run remotely\033[0m"
