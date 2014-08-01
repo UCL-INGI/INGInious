@@ -45,26 +45,21 @@ if euid != 0:
 
 # Read arguments from the command line
 try:
-    opts, args = getopt.getopt(sys.argv[1:], 'i:v', ['input-dir=', 'verbose'])
+    opts, args = getopt.getopt(sys.argv[1:], 'iv', ['verbose'])
     if not args:
         usage()
 except getopt.GetoptError,e:
     print e
     sys.exit(1)
 
-inputdir = ''
-verbose = False
 
+verbose = False
 for opt, arg in opts:
-    if opt in ('-i', '--input-dir'):
-        inputdir = arg
-    elif opt in ('-v', '--verbose'):
+    if opt in ('-v', '--verbose'):
         verbose = True
 
 taskdir=args[0]
-
-if not inputdir:
-    inputdir = args[0]
+inputdir = args[0]
 
 # Do the real stuff
 

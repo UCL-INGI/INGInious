@@ -55,8 +55,8 @@ given execution point. The *value* argument is of type string.
 
 Creating a new test batch
 `````````````````````````
-Now you've defined some tags for which you want to assert the value correctness, you can define some input and expected output file. 
-These must be written in JSON with the following syntax. Your input file must be like this :
+Now you've defined some tags for which you want to assert the value correctness, you can define some test files. 
+These must be written in JSON with the following syntax. It must be like this :
 ::
 
     {
@@ -64,23 +64,16 @@ These must be written in JSON with the following syntax. Your input file must be
             {
                     "pid_1":"Answer to the problem with problem id pid_1",
                     "pid_2":"Answer to the problem with problem id pid_2"
-            }
-    }
-
-In this example, *pid_1* and *pid_2* are two given problem id, which you defined in your task file. The value associated with theses keys are the input
-you would insert in the form field.
-
-A corresponding output file could be :
-
-::
-
-    {
-            "result":"success",
+            },
+	    "result":"success",
             "tests": 
             {
                     "answer":"42"
             }
     }
+
+In this example, *pid_1* and *pid_2* are two given problem id, which you defined in your task file. 
+The value associated with theses keys are the input you would insert in the form field.
 
 In this file, only the final result and the value of test tag *answer* are wanted to be checked with the specified expected values. More fields can be checked :
 
@@ -96,12 +89,10 @@ omit these fields in the expected output file.
 Testing a task with several test batches
 ````````````````````````````````````````
 
-To test your task, you need to put your input and expected output files together in one directory (e.g. : *tests/* subdirectory in your task folder). These ones must have the same 
-basename and end with the extension *.in* for input file and *.out* for expected output file. For instance, *test1.in* and *test1.out* are valid names for these files.
+To test your task, you need to put your tests files together in the task directory with extension *.text*. For instance, *test1.test* and *test2.test* are valid names for these files.
 
 Once your test files are written, you can launch the test with the command-line tool *test_task* from the INGInious distribution, with the following calling syntax :
 ::
-    test_task [-v|--verbose] [-i|--input-dir ]input_folder task_folder
+    test_task [-v|--verbose] task_folder
     
-where *verbose* is used to print the complete standard output produced bu the execution of your task, *input_folder* is used to specify a folder where test files can be found
-(if another than the *tests/* subdirectory) and *task_folder* is the folder which contains the task files (please note that the *.task* file associated with the task must be found in the parent directory).  
+where *verbose* is used to print the complete standard output produced by the execution of your task and *task_folder* is the folder which contains the task files (please note that the *.task* file associated with the task must be found in the parent directory).
