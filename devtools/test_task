@@ -45,26 +45,21 @@ if euid != 0:
 
 # Read arguments from the command line
 try:
-    opts, args = getopt.getopt(sys.argv[1:], 'i:v', ['input-dir=', 'verbose'])
+    opts, args = getopt.getopt(sys.argv[1:], 'iv', ['verbose'])
     if not args:
         usage()
 except getopt.GetoptError,e:
     print e
     sys.exit(1)
 
-inputdir = ''
-verbose = False
 
+verbose = False
 for opt, arg in opts:
-    if opt in ('-i', '--input-dir'):
-        inputdir = arg
-    elif opt in ('-v', '--verbose'):
+    if opt in ('-v', '--verbose'):
         verbose = True
 
 taskdir=args[0]
-
-if not inputdir:
-    inputdir = args[0] + '/tests/'
+inputdir = args[0]
 
 # Do the real stuff
 
@@ -78,7 +73,7 @@ task = json.load(taskfile)
 limits = task['limits']
 
 # List inputfiles
-inputfiles = glob.glob(inputdir + '/*.in')
+inputfiles = glob.glob(inputdir + '/*.test')
 
 dock = docker.Client(base_url='unix://var/run/docker.sock')
 
@@ -93,23 +88,17 @@ for filename in inputfiles:
     except IOError, e:
         print e
         exit(2)
-    inputdata = json.load(inputfile)
-    inputdata['limits'] = limits
+    data = json.load(inputfile)
+    data['limits'] = limits
     
     # Run the task
-    stdout,stderr = run_task(task, inputdata)
+    stdout,stderr = run_task(task, data)
     
     if stderr:
         print  '\x1b[31;1m' + stderr + '\033[0m'
     
-    # Open both JSON
+    # Open freshly computed json
     result = json.loads(stdout.strip('\0\n '))
-    try:
-        outputfile = open(inputdir + '/' + os.path.splitext(os.path.basename(filename))[0] + '.out', 'r')
-        outputdata = json.load(outputfile)
-    except IOError, e:
-        print "Error while loading output file"
-        outputdata = {}
     
     # Print stdout if verbose
     if verbose:
@@ -126,61 +115,61 @@ for filename in inputfiles:
         for line in result['stderr'].splitlines(1):
             print  '\x1b[31;1m\t' + line.strip('\n') + '\033[0m'
 
-    if 'stdout' in outputdata:
-        if outputdata['stdout'] != result['stdout']:
+    if 'stdout' in data:
+        if data['stdout'] != result['stdout']:
             noprob = False
             print "\033[1m-> Standard output doesn't match :\033[0m"
-            for line in difflib.unified_diff(outputdata['stdout'].splitlines(1),result['stdout'].splitlines(1), fromfile='Expected', tofile='Actual'):
+            for line in difflib.unified_diff(data['stdout'].splitlines(1),result['stdout'].splitlines(1), fromfile='Expected', tofile='Actual'):
                 print '\t' + line.strip('\n')
     
-    if 'result' in outputdata:
-        if outputdata['result'] != result['result']:
+    if 'result' in data:
+        if data['result'] != result['result']:
             noprob = False
             print "\033[1m-> Result doesn't match :\033[0m"
-            print "\t Expected result : " + outputdata['result']
+            print "\t Expected result : " + data['result']
             print "\t Actual result : " + result['result']
     
-    if 'text' in outputdata:
+    if 'text' in data:
         if not 'text' in result:
             noprob = False
             print "\033[1m-> No global feedback given \033[0m"
-            print "\t Expected result : " + outputdata['text']
-        elif outputdata['text'] != result['text']:
+            print "\t Expected result : " + data['text']
+        elif data['text'] != result['text']:
             noprob = False
             print "\033[1m-> Global feedback doesn't match :\033[0m"
-            print "\t Expected result : " + outputdata['text']
+            print "\t Expected result : " + data['text']
             print "\t Actual result : " + result['text']
     
-    if 'problems' in outputdata:
+    if 'problems' in data:
         if not 'problems' in result:
             noprob = False
             print "\033[1m-> No specific problem feedback given as expected \033[0m"
         else:
-            for problem in outputdata['problems']:
+            for problem in data['problems']:
                 if not problem in result['problems']:
                     noprob = False
                     print "\033[1m-> No feedback for problem id " +problem + " given \033[0m"
-                    print "\t Expected result : " + outputdata['problems'][problem]
-                elif outputdata['problems'][problem] != result['problems'][problem]:
+                    print "\t Expected result : " + data['problems'][problem]
+                elif data['problems'][problem] != result['problems'][problem]:
                     noprob = False
                     print "\033[1m-> Feedback for problem id " +problem + " doesn't match :\033[0m"
-                    print "\t Expected result : " + outputdata['problems'][problem]
+                    print "\t Expected result : " + data['problems'][problem]
                     print "\t Actual result : " + result['problems'][problem]
                 
-    if 'tests' in outputdata:
+    if 'tests' in data:
         if not 'tests' in result:
             noprob = False
             print "\033[1m-> No tests results given as expected \033[0m"
         else:
-            for tag in outputdata['tests']:
+            for tag in data['tests']:
                 if not tag in result['tests']:
                     noprob = False
                     print "\033[1m-> No test result with tag '" + tag + "' given \033[0m"
-                    print "\t Expected result : " + outputdata['tests'][tag]
-                elif outputdata['tests'][tag] != result['tests'][tag]:
+                    print "\t Expected result : " + data['tests'][tag]
+                elif data['tests'][tag] != result['tests'][tag]:
                     noprob = False
                     print "\033[1m-> Test with tag '" + tag + "' failed :\033[0m"
-                    print "\t Expected result : " + outputdata['tests'][tag]
+                    print "\t Expected result : " + data['tests'][tag]
                     print "\t Actual result : " + result['tests'][tag]
     
     if noprob:
