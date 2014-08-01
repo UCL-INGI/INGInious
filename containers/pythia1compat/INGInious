@@ -1,6 +1,7 @@
 #! /usr/bin/python
 import base64
 from inginious import feedback
+from inginious import tests
 import inginious
 import json
 import os
@@ -15,6 +16,7 @@ import sys
 import tarfile
 import tempfile
 import time
+
 def copytree(src, dst, symlinks=False, ignore=None):
     """ Custom copy tree to allow to copy into existing directories """
     for item in os.listdir(src):
@@ -87,6 +89,12 @@ data = json.loads(stdin)
 input_data = data["input"]
 limits = data["limits"]
 
+# Determining if debug mode or not
+debug = True if sys.argv[1:] and sys.argv[1] == '--debug' else False
+
+# Create tests directory
+os.mkdir('/.__tests')
+
 # Create output directory
 os.mkdir("/.__output")
 
@@ -96,20 +104,27 @@ shutil.copytree("/ro/task","/task")
 #Set rights on some files
 setDirectoryRights("/tmp")
 setDirectoryRights("/task")
+setDirectoryRights("/.__tests")
 setDirectoryRights("/.__output")
 
 #Launch everything
-stdout = '{}'
-stderr = '{}'
 if os.path.exists("/task/run"):
     os.chdir("/task")
     try:
         stdout, stderr = executeProcess("/task/run", input_data['student_response']+'\n')
     except:
-        print json.dumps({"result":"timeout","text":"'/task/run' did a timeout\n" + stdout,"problems":{}})
+        result={"result":"timeout","text":"'/task/run' did a timeout","problems":{}}
+        if debug:
+            result['stdout'] = stdout
+            result['stderr'] = stderr
+        print json.dumps(result)
         exit()
 else:
-    print json.dumps({"result":"crash","text":"'/task/run' couldn't be found","problems":{}})
+    result = {"result":"crash","text":"'/task/run' couldn't be found","problems":{}}
+    if debug:
+        result['stdout'] = stdout
+        result['stderr'] = stderr
+    print json.dumps(result)
     exit()
 
 # Copy required files in output folder
@@ -119,16 +134,21 @@ for filepath in ['/tmp/work/new_file.oz', '/tmp/work/new_file.ozf', '/tmp/work/e
 
 # Produce feedback
 stdout = "["+re.sub('\} *\n* *\{','},{',stdout)+"]"
+tests_results = inginious.tests.get_tests_results()
 try:
 	feedback = json.loads(stdout)
 except:
-	print json.dumps({"result":"crash", "text":"Unable to read pythia1 feedback: "+stdout, "problems":{}})
+	print json.dumps({"result":"crash", "text":"Unable to read feedback: " + stdout, "problems":{}})
 	exit()
 if not feedback:
     print json.dumps({"result":"crash", "text":"No feedback was given !", "problems":{}})
     exit()
 else:
-    output = {"result":'success','text':'','archive':b64tarfile('/.__output'),'problems':{},'realstdout':stdout}
+    output = {"result":'success','text':'','archive':b64tarfile('/.__output'),'problems':{}}
+    if debug:
+        output['stdout'] = stdout
+        output['stderr'] = stderr
+        output['tests'] = tests_results
     for f in feedback:
         if not f['correct']:
             output['result'] = 'failed'

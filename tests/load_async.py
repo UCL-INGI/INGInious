@@ -66,7 +66,7 @@ class Watcher(threading.Thread):
 class load_async(unittest.TestCase):
     def setUp(self):
         frontend.session.init(app, {'loggedin':True, 'username':"test", "realname":"Test", "email":"mail@test.com"})
-        self.noth = 100
+        self.noth = 10
         self.inittime = time.time()
         self.jm = frontend.submission_manager.get_job_manager()
         self.queue = Queue.Queue()
