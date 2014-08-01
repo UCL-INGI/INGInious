@@ -34,7 +34,7 @@ class AsyncSubmitter(threading.Thread):
         assert "status" in js and "jobid" in js and js["status"] == "done"
         sub_id = js["jobid"]
         
-        for tries in range(0, 100):
+        for tries in range(0, 1000):
             time.sleep(1)
             resp = appt.post('/cnp3', {"jobid":sub_id})
             js = json.loads(resp.body)
@@ -45,7 +45,7 @@ class AsyncSubmitter(threading.Thread):
                 break
         
         t1 = time.time() - t0
-        print "\033[1;34m--> FINISHING THREAD " + str(self.tid) + " in " + str(t1) + "seconds\033[0m"
+        print "\033[1;34m--> FINISHING THREAD " + str(self.tid) + " in " + str(t1) + " seconds\033[0m"
 
 class Watcher(threading.Thread):
     """ Launch a sync submission """
@@ -66,6 +66,8 @@ class Watcher(threading.Thread):
 class load_async(unittest.TestCase):
     def setUp(self):
         frontend.session.init(app, {'loggedin':True, 'username':"test", "realname":"Test", "email":"mail@test.com"})
+        self.noth = 100
+        self.inittime = time.time()
         self.jm = frontend.submission_manager.get_job_manager()
         self.queue = Queue.Queue()
         self.thqueue = Queue.Queue()
@@ -80,7 +82,7 @@ class load_async(unittest.TestCase):
         watchth.start()
         
         # Launch threads
-        for x in range(0, 500):
+        for x in range(0, self.noth):
             th = AsyncSubmitter(self.queue, x)
             self.thqueue.put(th)
             th.daemon = True
@@ -96,6 +98,7 @@ class load_async(unittest.TestCase):
         watchth.join()
           
     def tearDown(self):
+        print "\033[32;1m--> AVERAGE EXEC. TIME : " + str((time.time()-self.inittime)/self.noth) + " seconds\033[0m"
         while not self.queue.empty():
             item = self.queue.get()
             assert item[1], item[0]
