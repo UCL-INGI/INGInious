@@ -77,8 +77,31 @@ class AdminCourseEditTask(object):
     def parse_problem(self, problem_content):
         """ Parses a problem, modifying some data """
         del problem_content["@order"]
+
+        if "headerIsHTML" in problem_content:
+            problem_content["headerIsHTML"] = True
+
+        if "multiple" in problem_content:
+            problem_content["multiple"] = True
+
+        if "centralize" in problem_content:
+            problem_content["centralize"] = True
+
         if "choices" in problem_content:
             problem_content["choices"] = problem_content["choices"].values()
+
+        if "limit" in problem_content:
+            try:
+                problem_content["limit"] = int(problem_content["limit"])
+            except:
+                problem_content["limit"] = 0
+
+        for choice in problem_content["choices"]:
+            if "valid" in choice:
+                choice["valid"] = True
+            if "textIsHTML" in choice:
+                choice["textIsHTML"] = True
+
         return problem_content
 
     def POST(self, courseid, taskid):
@@ -94,7 +117,7 @@ class AdminCourseEditTask(object):
 
             # Order the problems (this line also deletes @order from the result)
             data["problems"] = OrderedDict([(key, self.parse_problem(val))
-                                            for key, val in sorted(problems.iteritems(), key=lambda x: x[1]['@order'])])
+                                            for key, val in sorted(problems.iteritems(), key=lambda x: int(x[1]['@order']))])
             data["limits"] = limits
 
             # Accessible
@@ -106,6 +129,12 @@ class AdminCourseEditTask(object):
                 data["accessible"] = False
             del data["accessible_start"]
             del data["accessible_end"]
+
+            # Checkboxes
+            if data["responseIsHTML"]:
+                data["responseIsHTML"] = True
+            if data["contextIsHTML"]:
+                data["contextIsHTML"] = True
         except:
             return json.dumps({"status": "error", "message": "Your browser returned an invalid form"})
 
@@ -123,6 +152,8 @@ class AdminCourseEditTask(object):
         except:
             pass
 
+        print data
+
         try:
             FrontendTask(course, taskid, data)
         except Exception as message:
@@ -130,7 +161,7 @@ class AdminCourseEditTask(object):
 
         try:
             with open(path_to_task, 'w') as task_file:
-                task_file.write(json.dumps(data, indent=4, separators=(',', ': ')))
+                task_file.write(json.dumps(data, sort_keys=False, indent=4, separators=(',', ': ')))
         except:
             raise
 

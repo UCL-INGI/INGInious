@@ -87,6 +87,9 @@ class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableBasicPr
         """ Show multiple choice problems """
         choices = []
         limit = self._limit
+        if limit == 0:
+            limit = len(self._choices)  # no limit
+
         if self._multiple:
             # take only the valid choices in the first pass
             for entry in self._choices:

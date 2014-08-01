@@ -676,13 +676,16 @@ function studio_init_template(template,pid,problem)
 function studio_init_template_code(well, pid, problem)
 {
 	if("name" in problem)
-		$('#name-'+pid,well).val(problem["name"])
+		$('#name-'+pid,well).val(problem["name"]);
 	if("header" in problem)
-		$('#header-'+pid,well).val(problem["header"])
+		$('#header-'+pid,well).val(problem["header"]);
+	if("headerIsHTML" in problem && problem["headerIsHTML"])
+		$('#headerIsHTML-'+pid,well).attr('checked', true);
+	
 	if("language" in problem)
-		$('#language-'+pid,well).val(problem["language"])
+		$('#language-'+pid,well).val(problem["language"]);
 	if("type" in problem)
-		$('#type-'+pid,well).val(problem["type"])
+		$('#type-'+pid,well).val(problem["type"]);
 }
 
 /**
@@ -694,10 +697,12 @@ function studio_init_template_code(well, pid, problem)
 function studio_init_template_custom(well, pid, problem)
 {
 	if("name" in problem)
-		$('#name-'+pid,well).val(problem["name"])
+		$('#name-'+pid,well).val(problem["name"]);
 	if("header" in problem)
-		$('#header-'+pid,well).val(problem["header"])
-		
+		$('#header-'+pid,well).val(problem["header"]);
+	if("headerIsHTML" in problem && problem["headerIsHTML"])
+		$('#headerIsHTML-'+pid,well).attr('checked', true);
+	
 	delete problem["name"];
 	delete problem["header"];
 	$('#custom-'+pid,well).val(JSON.stringify(problem))
@@ -712,11 +717,11 @@ function studio_init_template_custom(well, pid, problem)
 function studio_init_template_match(well, pid, problem)
 {
 	if("name" in problem)
-		$('#name-'+pid,well).val(problem["name"])
+		$('#name-'+pid,well).val(problem["name"]);
 	if("header" in problem)
-		$('#header-'+pid,well).val(problem["header"])
-	if("answer" in problem)
-		$('#answer-'+pid,well).val(problem["answer"])
+		$('#header-'+pid,well).val(problem["header"]);
+	if("headerIsHTML" in problem && problem["headerIsHTML"])
+		$('#headerIsHTML-'+pid,well).attr('checked', true);
 }
 
 /**
@@ -728,12 +733,19 @@ function studio_init_template_match(well, pid, problem)
 function studio_init_template_multiple_choice(well, pid, problem)
 {
 	if("name" in problem)
-		$('#name-'+pid,well).val(problem["name"])
+		$('#name-'+pid,well).val(problem["name"]);
 	if("header" in problem)
-		$('#header-'+pid,well).val(problem["header"])
-	if("multiple" in problem && problem["multiple"] == true)
-		$('#multiple-'+pid,well).attr('checked', true)
-	
+		$('#header-'+pid,well).val(problem["header"]);
+	if("headerIsHTML" in problem && problem["headerIsHTML"])
+		$('#headerIsHTML-'+pid,well).attr('checked', true);
+	if("limit" in problem)
+		$('#limit-'+pid,well).val(problem["limit"]);
+	else
+		$('#limit-'+pid,well).val(0);
+	if("multiple" in problem && problem["multiple"])
+		$('#multiple-'+pid,well).attr('checked', true);
+	if("centralize" in problem && problem["centralize"])
+		$('#centralize-'+pid,well).attr('checked', true);
 	jQuery.each(problem["choices"], function(index, elem)
 	{
 		studio_create_choice(pid, elem);
@@ -760,6 +772,8 @@ function studio_create_choice(pid, choice_data)
 	
 	if("text" in choice_data)
 		$(".subproblem_multiple_choice_text", new_row).val(choice_data["text"]);
+	if("textIsHTML" in choice_data && choice_data["textIsHTML"] == true)
+		$(".subproblem_multiple_choice_html", new_row).attr('checked', true)
 	if("valid" in choice_data && choice_data["valid"] == true)
 		$(".subproblem_multiple_choice_valid", new_row).attr('checked', true)
 }
