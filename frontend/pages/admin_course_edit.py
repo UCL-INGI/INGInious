@@ -88,55 +88,54 @@ class AdminCourseEditTask(object):
             problem_content["centralize"] = True
 
         if "choices" in problem_content:
-            problem_content["choices"] = problem_content["choices"].values()
+            problem_content["choices"] = [val for _, val in sorted(problem_content["choices"].iteritems(), key=lambda x: int(x[0]))]
+            for choice in problem_content["choices"]:
+                if "valid" in choice:
+                    choice["valid"] = True
+                if "textIsHTML" in choice:
+                    choice["textIsHTML"] = True
 
         if "limit" in problem_content:
             try:
                 problem_content["limit"] = int(problem_content["limit"])
             except:
-                problem_content["limit"] = 0
-
-        for choice in problem_content["choices"]:
-            if "valid" in choice:
-                choice["valid"] = True
-            if "textIsHTML" in choice:
-                choice["textIsHTML"] = True
+                del problem_content["limit"]
 
         return problem_content
 
     def POST(self, courseid, taskid):
         """ Edit a task """
         # Parse content
-        try:
-            data = web.input()
-            problems = self.dict_from_prefix("problem", data)
-            limits = self.dict_from_prefix("limits", data)
+        # try:
+        data = web.input()
+        problems = self.dict_from_prefix("problem", data)
+        limits = self.dict_from_prefix("limits", data)
 
-            data = {key: val for key, val in data.iteritems() if not key.startswith("problem") and not key.startswith("limits")}
-            del data["@action"]
+        data = {key: val for key, val in data.iteritems() if not key.startswith("problem") and not key.startswith("limits")}
+        del data["@action"]
 
-            # Order the problems (this line also deletes @order from the result)
-            data["problems"] = OrderedDict([(key, self.parse_problem(val))
-                                            for key, val in sorted(problems.iteritems(), key=lambda x: int(x[1]['@order']))])
-            data["limits"] = limits
+        # Order the problems (this line also deletes @order from the result)
+        data["problems"] = OrderedDict([(key, self.parse_problem(val))
+                                        for key, val in sorted(problems.iteritems(), key=lambda x: int(x[1]['@order']))])
+        data["limits"] = limits
 
-            # Accessible
-            if data["accessible"] == "custom":
-                data["accessible"] = "{}/{}".format(data["accessible_start"], data["accessible_end"])
-            elif data["accessible"] == "true":
-                data["accessible"] = True
-            else:
-                data["accessible"] = False
-            del data["accessible_start"]
-            del data["accessible_end"]
+        # Accessible
+        if data["accessible"] == "custom":
+            data["accessible"] = "{}/{}".format(data["accessible_start"], data["accessible_end"])
+        elif data["accessible"] == "true":
+            data["accessible"] = True
+        else:
+            data["accessible"] = False
+        del data["accessible_start"]
+        del data["accessible_end"]
 
-            # Checkboxes
-            if data["responseIsHTML"]:
-                data["responseIsHTML"] = True
-            if data["contextIsHTML"]:
-                data["contextIsHTML"] = True
-        except:
-            return json.dumps({"status": "error", "message": "Your browser returned an invalid form"})
+        # Checkboxes
+        if data.get("responseIsHTML"):
+            data["responseIsHTML"] = True
+        if data.get("contextIsHTML"):
+            data["contextIsHTML"] = True
+        # except:
+        #    return json.dumps({"status": "error", "message": "Your browser returned an invalid form"})
 
         # Get the course
         try:
