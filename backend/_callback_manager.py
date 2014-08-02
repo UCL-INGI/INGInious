@@ -21,6 +21,7 @@ class CallbackManager(threading.Thread):
                 return
 
             task, callback, base_dict = self._waiting_job_data[jobid]
+            del self._waiting_job_data[jobid]
 
             final_result = self._merge_emul_result(base_dict, result)
 

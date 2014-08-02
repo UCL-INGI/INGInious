@@ -88,6 +88,10 @@ class JobManager(object):
 
         print "Job Manager initialization done"
 
+    def get_waiting_jobs_count(self):
+        """Returns the total number of waiting jobs in the Job Manager"""
+        return len(self._running_job_data)
+
     def new_job(self, task, inputdata, callback):
         """ Add a new job. callback is a function that will be called asynchronously in the job manager's process. """
         jobid = uuid.uuid4()
