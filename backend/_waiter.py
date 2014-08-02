@@ -38,7 +38,7 @@ class Waiter(multiprocessing.Process):
                     print "Waiter received jobid {} with containerid {}".format(jobid, containerid)
                     if containerid is None:
                         # an error occured
-                        self._output_queue.put({"result": "crash", "text": "Unable to start the task verification"})
+                        self._output_queue.put((self._docker_instanceid, jobid, None, {"result": "crash", "text": "Unable to start the task verification"}))
                     else:
                         self._waiting_jobs[containerid] = jobid
                 except Queue.Empty:

@@ -3,9 +3,6 @@
 # We chose centos
 FROM    centos
 
-# Update packages if it is needed
-RUN     yum -y update
-
 # Install python, needed for pythia's scripts
 RUN     yum -y install python
 
