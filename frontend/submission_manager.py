@@ -51,7 +51,10 @@ def init_backend_interface():
             1),
         INGIniousConfiguration.get(
             "process_pool_size",
-            None))
+            4),
+        INGIniousConfiguration.get(
+            "process_pool_size",
+            4))
 
 
 def get_submission(submissionid, user_check=True):

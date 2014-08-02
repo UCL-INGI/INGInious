@@ -1,21 +1,18 @@
 """ Contains the class JobManager """
 import multiprocessing
-import multiprocessing.managers
 import os
-import threading
 import uuid
 
 from backend._callback_manager import CallbackManager
-from backend._container_image_creator import ContainerImageCreator
-from backend._submitter import submitter
-from backend._waiter import Waiter
+from backend._message_types import RUN_JOB
+import backend._pool_manager
 
 
 class JobManager(object):
 
     """ Manages jobs """
 
-    def __init__(self, docker_instances, containers_directory, tasks_directory, callback_manager_count=1, process_pool_size=None):
+    def __init__(self, docker_instances, containers_directory, tasks_directory, callback_manager_count=1, slow_pool_size=None, fast_pool_size=None):
         """
             Starts a job manager.
 
@@ -65,94 +62,37 @@ class JobManager(object):
         """
         self._containers_directory = containers_directory
         self._tasks_directory = tasks_directory
-
-        self._memory_manager = multiprocessing.Manager()
-
-        print "Starting the submitter pool"
-        self._process_pool = multiprocessing.Pool(process_pool_size)
-
-        self._docker_waiter_queues = []
-        self._docker_waiter_processes = []
-
-        self._done_queue = self._memory_manager.Queue()
-
-        #_running_job_count is only used by the current process, but needs to be locked
-        self._running_job_count = []
-        self._running_job_count_lock = threading.Lock()
-        self._running_job_data = {}
-
         self._docker_config = docker_instances
 
-        # Start waiters
-        print "Starting waiters and container image builders"
-        builders = []
-        for docker_instance_id, docker_config in enumerate(self._docker_config):
+        self._memory_manager = multiprocessing.Manager()
+        self._operations_queue = self._memory_manager.Queue()
+        self._done_queue = self._memory_manager.Queue()
 
-            docker_instance_queue = self._memory_manager.Queue()
-            self._docker_waiter_queues.append(docker_instance_queue)
+        self._running_job_data = {}
 
-            processes = []
-            for i in range(docker_config.get("waiters", 1)):
-                print "Starting waiter {} from docker instance {}".format(i, docker_instance_id)
-                process = Waiter(docker_instance_id, docker_instance_queue, self._done_queue, docker_config)
-                process.start()
-                processes.append(process)
+        # Correct the size of the slow pool size, which will contain all waiters
+        if (multiprocessing.cpu_count() if slow_pool_size is None else slow_pool_size) < len(self._docker_config) + 1:
+            slow_pool_size = len(self._docker_config) + 1
 
-            if docker_config.get("build_containers_on_start", False):
-                print "Starting image builder for docker instance {}".format(docker_instance_id)
-                process = ContainerImageCreator(docker_instance_id, docker_config, self._containers_directory, self.get_container_names())
-                process.start()
-                builders.append(process)
-
-            self._docker_waiter_processes.append(processes)
-            self._running_job_count.append(0)
-
-        if len(builders):
-            print "Waiting for builders to end"
-            for builder in builders:
-                builder.join()
-            print "Builders ended"
+        # Start the pool manager
+        self._pool_manager = backend._pool_manager.PoolManager(self._operations_queue, self._done_queue, docker_instances, containers_directory, tasks_directory, fast_pool_size, slow_pool_size)
+        self._pool_manager.start()
 
         # Start callback managers
         print "Starting callback managers"
         self._callback_manager = []
         for _ in range(callback_manager_count):
-            process = CallbackManager(self._done_queue, self._docker_config, self._running_job_data, self._running_job_count, self._running_job_count_lock, self._process_pool)
+            process = CallbackManager(self._done_queue, self._docker_config, self._running_job_data)
             self._callback_manager.append(process)
             process.start()
 
         print "Job Manager initialization done"
 
-    def get_waiting_jobs_count(self):
-        """Returns the total number of waiting jobs in the Job Manager"""
-        self._running_job_count_lock.acquire()
-        result = 0
-        for item in self._running_job_count:
-            result += item
-        self._running_job_count_lock.release()
-        return item
-
-    def _get_docker_instance_and_inc(self):
-        """ Return the id of a docker instance and increment the job count associated """
-        self._running_job_count_lock.acquire()
-        available_instances = [
-            (entry, count) for entry, count in enumerate(
-                self._running_job_count) if self._docker_config[entry].get(
-                "q", 100) == 0 or self._docker_config[entry].get(
-                "max_concurrent_jobs", 100) > count]
-        if not len(available_instances):
-            self._running_job_count_lock.release()
-            return None
-        min_index, min_value = min(available_instances, key=lambda p: p[1])
-        self._running_job_count[min_index] = min_value + 1
-        self._running_job_count_lock.release()
-        return min_index
-
     def new_job(self, task, inputdata, callback):
         """ Add a new job. callback is a function that will be called asynchronously in the job manager's process. """
         jobid = uuid.uuid4()
 
-        # Base dictonnary with output
+        # Base dictionary with output
         basedict = {"task": task, "input": inputdata}
 
         # Check task answer that do not need emulation
@@ -167,38 +107,27 @@ class JobManager(object):
 
         if need_emul:
             # Go through the whole process: sent everything to docker
-            docker_instance = self._get_docker_instance_and_inc()
-
-            if docker_instance is None:
-                self._done_queue.put((None, jobid, {"result": "crash", "text": "INGInious is over-capacity. Please try again later."}))
-            else:
-                self._running_job_data[jobid] = (task, callback, basedict)
-
-                self._process_pool.apply_async(
-                    submitter, [jobid, inputdata,
-                                os.path.join(self._tasks_directory, task.get_course_id(), task.get_id()),
-                                task.get_limits(),
-                                task.get_environment(),
-                                self._docker_config[docker_instance],
-                                self._docker_waiter_queues[docker_instance]])
+            self._running_job_data[jobid] = (task, callback, basedict)
+            self._operations_queue.put((RUN_JOB, [jobid, inputdata, os.path.join(self._tasks_directory, task.get_course_id(), task.get_id()), task.get_limits(), task.get_environment()]))
         else:
             # Only send data to a CallbackManager
             basedict["text"] = "\n".join(basedict["text"])
             self._running_job_data[jobid] = (task, callback, basedict)
-            self._done_queue.put((None, jobid, None, None))
+            self._done_queue.put((jobid, None))
 
         return jobid
 
-    def get_container_names(self):
+    @staticmethod
+    def get_container_names(containers_directory):
         """ Returns available containers """
         containers = [
             f for f in os.listdir(
-                self._containers_directory) if os.path.isdir(
+                containers_directory) if os.path.isdir(
                 os.path.join(
-                    self._containers_directory,
+                    containers_directory,
                     f)) and os.path.isfile(
                     os.path.join(
-                        self._containers_directory,
+                        containers_directory,
                         f,
                         "Dockerfile"))]
 

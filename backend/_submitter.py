@@ -1,9 +1,11 @@
-""" Contains the submitter function, which is used by JobManager to run new containers """
+""" Contains the submitter function, which is used by PoolManager to run new containers """
 
 import json
 import os.path
 
 import docker
+
+from backend._message_types import JOB_LAUNCHED
 
 
 def submitter(jobid, inputdata, task_directory, limits, environment, docker_config, output_queue):
@@ -30,7 +32,6 @@ def submitter(jobid, inputdata, task_directory, limits, environment, docker_conf
 
     """
     try:
-        print "Start creating container for jobid {}".format(jobid)
         docker_connection = docker.Client(base_url=docker_config.get('server_url'))
         mem_limit = limits.get("memory", 100)
         if mem_limit < 20:
@@ -54,8 +55,7 @@ def submitter(jobid, inputdata, task_directory, limits, environment, docker_conf
         container_input = {"input": inputdata, "limits": limits}
         docker_connection.attach_socket(container_id, {'stdin': 1, 'stream': 1}).send(json.dumps(container_input) + "\n")
 
-        output_queue.put((jobid, container_id))
-        print "Container for jobid {} started: {}".format(jobid, container_id)
+        output_queue.put((JOB_LAUNCHED, [jobid, container_id]))
     except:
         print "Container for jobid {} failed to start".format(jobid)
-        output_queue.put((jobid, None))
+        output_queue.put((JOB_LAUNCHED, [jobid, None]))
