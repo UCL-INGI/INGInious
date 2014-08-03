@@ -1,6 +1,8 @@
 INGInious
 =========
 
+<img align="right" src="static/images/logo.png">
+
 INGInious is an intelligent grader that allows secured and automated testing of code made by students.
 
 It is written in Python and uses [Docker](https://www.docker.com/) to run student's code inside a secured environment.
