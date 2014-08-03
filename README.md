@@ -7,9 +7,12 @@ INGInious is an intelligent grader that allows secured and automated testing of 
 
 It is written in Python and uses [Docker](https://www.docker.com/) to run student's code inside a secured environment.
 
-INGInious provides a backend which manages interaction with Docker and grade code, and a frontend which allows students to submit their code in a simple and beautiful interface.
+INGInious provides a backend which manages interaction with Docker and grade code, and a frontend which allows students to submit their code in a simple and beautiful interface. The frontent also includes a simple administration interface that allows teachers to check the progression of their students and to modify exercices in a simple way.
 
 The backend is independent of the frontend and was made to be used as a library.
+
+INGInious can be used as an external grader for EDX. The course [Paradigms of Computer Programming - Fundamentals](https://courses.edx.org/courses/LouvainX/Louv1.1x/3T2014/info) 
+uses INGInious to correct students' code.
 
 Documentation
 -------------
