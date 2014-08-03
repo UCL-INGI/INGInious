@@ -50,10 +50,10 @@ def init_backend_interface():
             "callback_managers_threads",
             1),
         INGIniousConfiguration.get(
-            "process_pool_size",
+            "slow_pool_size",
             4),
         INGIniousConfiguration.get(
-            "process_pool_size",
+            "fast_pool_size",
             4))
 
 
@@ -103,9 +103,12 @@ def add_job(task, inputdata):
 
     username = User.get_username()
 
-    jobid = get_job_manager().new_job(task, inputdata, job_done_callback)
+    jobid = get_job_manager().new_job_id()
     obj = {"username": username, "courseid": task.get_course_id(), "taskid": task.get_id(), "input": inputdata, "status": "waiting", "jobid": jobid, "submitted_on": datetime.now()}
     submissionid = get_database().submissions.insert(obj)
+
+    get_job_manager().new_job(task, inputdata, job_done_callback, jobid)
+
     return submissionid
 
 

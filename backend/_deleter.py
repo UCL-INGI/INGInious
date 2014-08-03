@@ -7,5 +7,5 @@ def deleter(docker_config, containerid):
     try:
         docker_connection = docker.Client(base_url=docker_config.get('server_url'))
         docker_connection.remove_container(containerid, True, False, True)
-    except:
-        print "Cannot delete container {}".format(containerid)
+    except Exception as e:
+        print "Cannot delete container {}: {}".format(containerid, repr(e))

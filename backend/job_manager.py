@@ -1,10 +1,11 @@
 """ Contains the class JobManager """
 import multiprocessing
 import os
+import signal
 import uuid
 
 from backend._callback_manager import CallbackManager
-from backend._message_types import RUN_JOB
+from backend._message_types import RUN_JOB, CLOSE
 import backend._pool_manager
 
 
@@ -25,15 +26,9 @@ class JobManager(object):
                     {
                         server_url: "the url to the docker daemon. May be a UNIX socket. Mandatory",
                         container_prefix: "The prefix to be used on container names. by default, it is 'inginious/'",
-                        waiters: 1,
-                        time_between_polls: 0.5,
                         max_concurrent_jobs: 100,
                         build_containers_on_start: false
                     }
-
-                *waiters* is an integer indicating the number of waiters processes to start for this docker instance.
-                *time_between_polls* is an integer in seconds. It is the time between two polls on the distant docker
-                daemon to see if the job is done
 
             *containers_directory*
                 The local directory path containing the Dockerfiles
@@ -41,22 +36,28 @@ class JobManager(object):
             *tasks_directory*
                 The local directory path containing the courses and the tasks
 
-            *process_pool_size*
-                Size of the process pool which runs the submit and delete action. Default: number of processors
+            *slow_pool_size* and *fast_pool_size*
+                Size of the process pool which runs respectively actions that are slow or fast. Default: number of processors
+                Slow actions includes:
+
+                -    waiting for containers
+
+                -    deleting containers
+
+                -    building container images
+
+                Fast actions are:
+
+                -    creating and launching a container
+
+                -    retrieving results from a container
 
             *callback_manager_count*
                 Number of thread to launch to handle the callbacks
 
-            A job manager manages, in fact, pools of processes called submitters and waiters.
+            A job manager launches in fact a process called a pool manager.
 
-            The first pool, which runs two actions: submit and delete, launches *process_pool_size* processes.
-            If *process_pool_size* = None, it launches the amount of processors available.
-            The submit and delete actions respectively starts or delete a docker container.
-
-            The second pool contains a number of waiters (the number is defined by each docker instance's configuration)
-            that *wait* for a job to end on the distant docker daemon. Starting more than one process per docker instance is most of the time useless.
-
-            NB: in fact, the *waiters* pool is not a Python *multiprocessing.Pool* object.
+            A pool manager runs two pools of processes, one for actions that are slow, the other for fast actions.
 
             The job manager also launch a number of thread to handle the callbacks (the number is given by callback_manager_count)
         """
@@ -78,6 +79,8 @@ class JobManager(object):
         self._pool_manager = backend._pool_manager.PoolManager(self._operations_queue, self._done_queue, docker_instances, containers_directory, tasks_directory, fast_pool_size, slow_pool_size)
         self._pool_manager.start()
 
+        signal.signal(signal.SIGINT, self.cleanup)
+
         # Start callback managers
         print "Starting callback managers"
         self._callback_manager = []
@@ -88,13 +91,23 @@ class JobManager(object):
 
         print "Job Manager initialization done"
 
+    def cleanup(self):
+        """ Close the pool manager """
+        self._operations_queue.put((CLOSE, []))
+        self._pool_manager.join()
+
     def get_waiting_jobs_count(self):
         """Returns the total number of waiting jobs in the Job Manager"""
         return len(self._running_job_data)
 
-    def new_job(self, task, inputdata, callback):
+    def new_job_id(self):
+        """ Returns a new job id. The job id is unique and should be passed to the new_job function """
+        return uuid.uuid4()
+
+    def new_job(self, task, inputdata, callback, jobid=None):
         """ Add a new job. callback is a function that will be called asynchronously in the job manager's process. """
-        jobid = uuid.uuid4()
+        if jobid is None:
+            jobid = self.new_job_id()
 
         # Base dictionary with output
         basedict = {"task": task, "input": inputdata}

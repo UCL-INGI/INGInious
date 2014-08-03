@@ -17,6 +17,9 @@
     JOB_RESULT
         Returns the job results
         (JOB_RESULT, [jobid, results])
+    CLOSE
+        Closes the pool manager
+        (CLOSE, [])
 """
 # Message types
 CONTAINER_IMAGE_BUILT = 0
@@ -24,3 +27,4 @@ RUN_JOB = 1
 JOB_LAUNCHED = 2
 CONTAINER_DONE = 3
 JOB_RESULT = 4
+CLOSE = 5

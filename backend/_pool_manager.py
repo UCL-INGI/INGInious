@@ -1,10 +1,11 @@
 """ A manager for process pools """
+from collections import deque
 import multiprocessing
 
 from backend._container_image_creator import container_image_creator
 from backend._deleter import deleter
 from backend._event_reader import event_reader
-from backend._message_types import CONTAINER_DONE, CONTAINER_IMAGE_BUILT, JOB_LAUNCHED, JOB_RESULT, RUN_JOB
+from backend._message_types import CONTAINER_DONE, CONTAINER_IMAGE_BUILT, JOB_LAUNCHED, JOB_RESULT, RUN_JOB, CLOSE
 from backend._result_getter import result_getter
 import backend._submitter
 import backend.job_manager
@@ -36,10 +37,13 @@ class PoolManager(multiprocessing.Process):
             RUN_JOB: PoolManager._run_job,
             JOB_LAUNCHED: PoolManager._job_launched,
             CONTAINER_DONE: PoolManager._container_done,
-            JOB_RESULT: PoolManager._job_result}
+            JOB_RESULT: PoolManager._job_result,
+            CLOSE: PoolManager.close}
 
         # Jobs waiting while we are building a container image
         self._jobs_waiting_for_container = {}
+        # Jobs waiting for a docker instance
+        self._jobs_waiting_for_docker_instance = deque()
 
         self._running_job_count = []
 
@@ -73,6 +77,13 @@ class PoolManager(multiprocessing.Process):
         self._running_job_count[min_index] = min_value + 1
         return min_index
 
+    def close(self):
+        """ Closes the pool manager"""
+        print "Closing the pool manager"
+        self._fast_pool.terminate()
+        self._slow_pool.terminate()
+        exit(0)
+
     def run(self):
         # Pools have to be started inside the run function, as it is the first to be run inside the process
         print "Starting pools"
@@ -102,9 +113,12 @@ class PoolManager(multiprocessing.Process):
             self._slow_pool.apply_async(event_reader, [docker_instance_id, docker_config, self._queue])
 
         while True:
-            message_type, message = self._queue.get()
-            message_manager = self.message_managers[message_type]
-            message_manager(self, message)
+            try:
+                message_type, message = self._queue.get()
+                message_manager = self.message_managers[message_type]
+                message_manager(self, message)
+            except (IOError, KeyboardInterrupt, SystemExit, EOFError):
+                self.close()
 
     def _container_image_built(self, message):
         """ Manages CONTAINER_IMAGE_BUILT. Launches jobs waiting for a specific container image """
@@ -119,7 +133,7 @@ class PoolManager(multiprocessing.Process):
 
         docker_instance = self._get_docker_instance_and_inc()
         if docker_instance is None:
-            self._done_queue.put((jobid, {"result": "crash", "text": "INGInious is over-capacity. Please try again later."}))
+            self._jobs_waiting_for_docker_instance.append(job)
         else:
             self._job_running_on[jobid] = docker_instance
             if self._jobs_waiting_for_container[docker_instance] is None or self._jobs_waiting_for_container[docker_instance][environment] is None:
@@ -154,8 +168,12 @@ class PoolManager(multiprocessing.Process):
         jobid, result = message
         self._done_queue.put((jobid, result))
         self._slow_pool.apply_async(deleter, [self._docker_config[self._job_running_on[jobid]], self._job_running_on_container[jobid]])
+        self._running_job_count[self._job_running_on[jobid]] = self._running_job_count[self._job_running_on[jobid]] - 1
         del self._job_running_on[jobid]
         del self._job_running_on_container[jobid]
+
+        if len(self._jobs_waiting_for_docker_instance) != 0:
+            self._run_job(self._jobs_waiting_for_docker_instance.popleft())
 
     def _start_get_result(self, jobid, containerid):
         """ Runs a result_getter in the fast_pool """

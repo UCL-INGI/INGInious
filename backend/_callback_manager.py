@@ -28,8 +28,8 @@ class CallbackManager(threading.Thread):
             # Call the callback
             try:
                 callback(jobid, task, final_result)
-            except:
-                print "CallbackManager failed to call the callback function for jobid {}".format(jobid)
+            except Exception as e:
+                print "CallbackManager failed to call the callback function for jobid {}: {}".format(jobid, repr(e))
 
     def _merge_emul_result(self, origin_dict, emul_result):
         """ Merge the results of the multiple-choice (and other special problem types) questions with the returned results of the containers """
