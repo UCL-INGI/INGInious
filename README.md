@@ -11,7 +11,7 @@ INGInious provides a backend which manages interaction with Docker and grade cod
 
 The backend is independent of the frontend and was made to be used as a library.
 
-INGInious can be used as an external grader for EDX. The course [Paradigms of Computer Programming - Fundamentals](https://courses.edx.org/courses/LouvainX/Louv1.1x/3T2014/info) 
+INGInious can be used as an external grader for EDX. The course [Paradigms of Computer Programming - Fundamentals](https://www.edx.org/course/louvainx/louvainx-louv1-1x-paradigms-computer-2751) 
 uses INGInious to correct students' code.
 
 Documentation
