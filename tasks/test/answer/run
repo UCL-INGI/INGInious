@@ -1,0 +1,9 @@
+#!/bin/python
+import time
+import os
+
+answer = os.popen("getinput q1").read().strip('\0 \n')
+if answer == 'Earth' or answer == 'earth':
+    os.popen('feedback --result "success"')
+else:
+    time.sleep(30)

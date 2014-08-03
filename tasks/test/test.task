@@ -1,0 +1,105 @@
+{
+    "environment": "default",     
+    "taskfs": "test/test.sfs",    
+    "author": ["Guillaume Derval"],
+    "name":"Un titre d'énoncé farfelu",
+    "context":"lol",
+    "limits":                     
+    {
+        "time": 60,               
+        "memory": 32,             
+        "disk": 100,              
+        "output": 1024            
+    },
+    "problems":                  
+    {
+        "idFirstExercice":       
+        {
+            "name": "The first exercice", 
+            "type": "code",      
+            "header": "<p>The first exercice consists of blablabla</p>", 
+            "headerIsHTML": true,
+            "language": "java"
+        },
+        "idSecondExercice":
+        {
+            "name": "The second exercice",
+            "type": "code",
+            "header": "<p>The second exercice consists of blablabla</p>", 
+            "headerIsHTML": true, 
+            "boxes":             
+            {
+                "text1":                        
+                {
+                    "type": "text",               
+                    "content": "<code>for(i=</code>", 
+                    "contentIsHTML": true    
+                },
+                "for1":
+                {
+                    "type": "input-integer",         
+                    "maxChars": 3
+                },
+                "text2": {"type":"text","content":"<code>; i <= </code>","contentIsHTML": true},
+                "for2": {"type": "input-decimal","maxChars": 10},
+                "text3": {"type":"text","content":"<code>;</code>","contentIsHTML": true},
+                "for3": {"type": "input-text","maxChars": 10},                
+                "text4": {"type":"text","content":"<code>)</code>","contentIsHTML": true},
+                "text5": {"type":"text","content":"<br/><code>{</code><br/>","contentIsHTML": true},
+                "for-content":
+                {
+                    "type":"multiline",           
+                    "maxChars": 1000,             
+                    "lines": 5,
+                    "language": "python"
+                },
+                "text6": {"type":"text","content":"<code>}</code>","contentIsHTML": true}
+            }
+        },
+        "idThirdExercice":
+        {
+            "name": "The third exercice",
+            "type": "multiple-choice",
+            "header": "<p>The answer to life, the universe and any other things is</p>",
+            "headerIsHTML": true,
+            "multiple": true, 
+            "choices":  
+            [
+                {
+                    "text":"It is, of course, 42!", 
+                    "valid":true 
+                },
+                {
+                    "text":"It should be <b>42</b> (but in bold)",
+                    "textIsHTML": true, 
+                    "valid":true
+                },
+                {"text":"43..."},
+                {"text":"41..."}
+            ],
+            "limit": 3 
+        },
+        "idFourthExercice":
+        {
+            "name": "The fourth exercice",
+            "type": "multiple-choice",
+            "header": "<p>The answer to life, the universe and any other things is</p>",
+            "headerIsHTML": true,
+            "choices":  
+            [
+                {
+                    "text":"It is, of course, 42!", 
+                    "valid":true 
+                },
+                {
+                    "text":"It should be <b>42</b> (but in bold)",
+                    "textIsHTML": true, 
+                    "valid":true
+                },
+                {"text":"43..."},
+                {"text":"41..."}
+            ],
+            "limit": 3 
+        }
+    }
+}

@@ -1,0 +1,22 @@
+	{
+		"author": "Guillaume Derval",
+		"name": "Hello World!",
+		"context": "In this task, you will have to write a python script that displays 'Hello World!'.",
+		"problems":
+		{
+			"question1":
+			{
+				"name": "Let's print it",
+				"header": "def func():",
+				"type": "code",
+				"language": "python"
+			}
+		},
+		"limits":
+		{
+			"time": 10,
+			"memory": 50,
+			"output": 1000
+		},
+		"environment": "default"
+	}

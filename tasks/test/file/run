@@ -1,0 +1,11 @@
+#! /bin/bash
+
+# Verify the file content
+output=$(getinput "question1")
+if [ "$output" = "Hello World!" ]; then
+	# The student succeeded
+	feedback --result success --feedback "You solved this difficult task!"
+else
+	# The student failed
+	feedback --result failed --feedback "Your file does not contain 'Hello World!'."
+fi

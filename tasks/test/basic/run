@@ -1,0 +1,4 @@
+#!/bin/sh
+parsetemplate test.sh
+sh test.sh
+archive --add test.sh

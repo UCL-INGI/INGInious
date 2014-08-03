@@ -1,0 +1,22 @@
+{
+    "author": "Anthony Gégo",
+    "context": "Let's calculate from scratch the answer to Life, the Universe, and Everything. It won't be surprising if we time out in this case, as it requires a 7.5-million-year long computation.\n\nYet, if you can provide the answer to the following question, you can drastically reduce the need time to obtain the answer.",
+    "contextIsHTML": false,
+    "environment": "default",
+    "order":0,
+    "limits": {
+        "disk": 50,
+        "memory": 32,
+        "output": 5210,
+        "time": 10
+    },
+    "name": "Deep Thought Simulation",
+    "problems": {
+        "q1": {
+            "header": "Hint : we live on it.",
+            "headerIsHTML": false,
+            "name": "Which planet was created in this goal ?",
+            "type": "code-single-line"
+        }
+    }
+}
