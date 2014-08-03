@@ -18,4 +18,4 @@ On Linux, run `make html` in the directory `/doc` to create a html version of th
 Notes on security
 -----------------
 
-Docker container can be used securely with SELinux enabled. Please do not run untrusted code without activating SELinux.
+Docker containers can be used securely with SELinux enabled. Please do not run untrusted code without activating SELinux.
