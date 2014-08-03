@@ -1,4 +1,5 @@
 """ Contains the JobManagerBuffer, which creates a buffer for a JobManager """
+import time
 
 
 class JobManagerBuffer(object):
@@ -12,8 +13,9 @@ class JobManagerBuffer(object):
 
     def new_job(self, task, inputdata):
         """ Runs a new job. It works exactly like the JobManager class, instead that there is no callback """
-        jobid = self._job_manager.new_job(task, inputdata, self._callback)
+        jobid = self._job_manager.new_job_id()
         self._waiting_jobs.append(str(jobid))
+        self._job_manager.new_job(task, inputdata, self._callback, jobid)
         return jobid
 
     def _callback(self, jobid, _, result):
@@ -23,7 +25,6 @@ class JobManagerBuffer(object):
 
     def is_waiting(self, jobid):
         """ Return true if the job is in queue """
-        print self._waiting_jobs
         return str(jobid) in self._waiting_jobs
 
     def is_done(self, jobid):

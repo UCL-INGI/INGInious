@@ -1,60 +1,35 @@
 """ Contains the class CallbackManager, used by JobManager. Runs the callbacks. """
 import threading
-import docker
-
-
-def _deleter(docker_config, jobid, containerid):
-    """ Deletes a container """
-    try:
-        print "Deleting container {} (job {})".format(jobid, containerid)
-        docker_connection = docker.Client(base_url=docker_config.get('server_url'))
-        docker_connection.remove_container(containerid, True, False, True)
-        print "Container {} deleted (job {})".format(jobid, containerid)
-    except:
-        print "Cannot delete container {} (job {})".format(jobid, containerid)
 
 
 class CallbackManager(threading.Thread):
 
     """ Runs callback in the job manager's process and deletes the container """
 
-    def __init__(self, input_queue, docker_instances_config, waiting_job_data, running_job_count, running_job_count_lock, process_pool):
+    def __init__(self, input_queue, docker_instances_config, waiting_job_data):
         threading.Thread.__init__(self)
         self.daemon = True
         self._input_queue = input_queue
         self._waiting_job_data = waiting_job_data
-        self._running_job_count = running_job_count
-        self._running_job_count_lock = running_job_count_lock
-        self._process_pool = process_pool
         self._docker_instances_config = docker_instances_config
 
     def run(self):
         while True:
             try:
-                docker_instanceid, jobid, containerid, result = self._input_queue.get()
+                jobid, result = self._input_queue.get()
             except EOFError:
                 return
 
-            print "CallbackManager received result for jobid {}".format(jobid)
             task, callback, base_dict = self._waiting_job_data[jobid]
+            del self._waiting_job_data[jobid]
 
             final_result = self._merge_emul_result(base_dict, result)
-
-            # Delete the container
-            if docker_instanceid is not None and containerid is not None:
-                self._process_pool.apply_async(_deleter, [self._docker_instances_config[docker_instanceid], jobid, containerid])
 
             # Call the callback
             try:
                 callback(jobid, task, final_result)
-            except:
-                print "CallbackManager failed to call the callback function for jobid {}".format(jobid)
-
-            # Decrement the job counter
-            if docker_instanceid is not None:
-                self._running_job_count_lock.acquire()
-                self._running_job_count[docker_instanceid] = self._running_job_count[docker_instanceid] - 1
-                self._running_job_count_lock.release()
+            except Exception as e:
+                print "CallbackManager failed to call the callback function for jobid {}: {}".format(jobid, repr(e))
 
     def _merge_emul_result(self, origin_dict, emul_result):
         """ Merge the results of the multiple-choice (and other special problem types) questions with the returned results of the containers """
