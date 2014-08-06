@@ -175,6 +175,9 @@ def init(plugin_manager, config):
                 except:
                     return json.dumps({"status": "error", "status_message": "Cannot open task"})
 
+                if not task.input_is_consistent(task_input):
+                    return json.dumps({"status": "error", "status_message": "Input is not consistent with the task"})
+                
                 if post_input.get("async") is None:
                     # New sync job
                     try:
