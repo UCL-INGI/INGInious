@@ -25,7 +25,7 @@ from backend._deleter import deleter
 from backend._event_reader import event_reader
 from backend._message_types import CONTAINER_DONE, CONTAINER_IMAGE_BUILT, JOB_LAUNCHED, JOB_RESULT, RUN_JOB, CLOSE
 from backend._result_getter import result_getter
-import backend._submitter
+from backend._submitter import submitter
 import backend.job_manager
 
 
@@ -37,7 +37,7 @@ class PoolManager(multiprocessing.Process):
         Operations to send to the pools are received in a queue. Operations are tuples, which contents are defined in the module _message_type
     """
 
-    def __init__(self, operations_queue, done_queue, docker_instances, containers_directory, tasks_directory, fast_pool_size=None, slow_pool_size=None):
+    def __init__(self, operations_queue, done_queue, docker_instances, containers_directory, tasks_directory, fast_pool_size=None, slow_pool_size=None, containers_hard=[]):
         multiprocessing.Process.__init__(self)
 
         self._queue = operations_queue
@@ -62,14 +62,20 @@ class PoolManager(multiprocessing.Process):
         self._jobs_waiting_for_container = {}
         # Jobs waiting for a docker instance
         self._jobs_waiting_for_docker_instance = deque()
+        self._jobs_waiting_for_docker_instance_hard = deque()
 
         self._running_job_count = []
+        self._running_job_count_hard = [] #self._running_job_count = self._running_job_count_hard + fast
 
         self._job_running_on = {}  # jobid:docker_instance_id
         self._job_running_on_container = {}  # jobid:containerid
 
         self._containers_done = []
         self._containers_launched = []
+
+        self._hard_jobs_id = set()
+
+        self._containers_hard = containers_hard
 
         # Pools will be started inside the start() method
         self._fast_pool = None
@@ -82,17 +88,20 @@ class PoolManager(multiprocessing.Process):
             result += item
         return result
 
-    def _get_docker_instance_and_inc(self):
+    def _get_docker_instance_and_inc(self, hard):
         """ Return the id of a docker instance and increment the job count associated """
         available_instances = [
-            (entry, count) for entry, count in enumerate(
-                self._running_job_count) if self._docker_config[entry].get(
-                "q", 100) == 0 or self._docker_config[entry].get(
-                "max_concurrent_jobs", 100) > count]
+            (entry, count) for entry, count in enumerate(self._running_job_count)
+            if (self._docker_config[entry].get("max_concurrent_jobs", 100) == 0 or self._docker_config[entry].get("max_concurrent_jobs", 100) > count) and
+            (not hard or self._docker_config[entry].get("max_concurrent_hard_jobs", 10) == 0 or
+             self._docker_config[entry].get("max_concurrent_hard_jobs", 10) > self._running_job_count_hard[entry])
+            ]
         if not len(available_instances):
             return None
         min_index, min_value = min(available_instances, key=lambda p: p[1])
         self._running_job_count[min_index] = min_value + 1
+        if hard:
+            self._running_job_count_hard[min_index] = min_value + 1
         return min_index
 
     def close(self):
@@ -149,9 +158,13 @@ class PoolManager(multiprocessing.Process):
         """ Manages RUN_JOB. Runs a new job if the container is ready or put it in _jobs_waiting_for_container """
         jobid, input_data, task_directory, limits, environment = job
 
-        docker_instance = self._get_docker_instance_and_inc()
+        is_hard = environment in self._containers_hard or limits.get("hard",False)
+        docker_instance = self._get_docker_instance_and_inc(is_hard)
         if docker_instance is None:
-            self._jobs_waiting_for_docker_instance.append(job)
+            if is_hard:
+                self._jobs_waiting_for_docker_instance_hard.append(job)
+            else:
+                self._jobs_waiting_for_docker_instance.append(job)
         else:
             self._job_running_on[jobid] = docker_instance
             if self._jobs_waiting_for_container[docker_instance] is None or self._jobs_waiting_for_container[docker_instance][environment] is None:
@@ -186,10 +199,23 @@ class PoolManager(multiprocessing.Process):
         jobid, result = message
         self._done_queue.put((jobid, result))
         self._slow_pool.apply_async(deleter, [self._docker_config[self._job_running_on[jobid]], self._job_running_on_container[jobid]])
+
+        was_hard = jobid in self._hard_jobs_id
         self._running_job_count[self._job_running_on[jobid]] = self._running_job_count[self._job_running_on[jobid]] - 1
+        if was_hard:
+            self._running_job_count_hard[self._job_running_on[jobid]] = self._running_job_count_hard[self._job_running_on[jobid]] - 1
+            self._hard_jobs_id.discard(jobid)
+
         del self._job_running_on[jobid]
         del self._job_running_on_container[jobid]
 
+        #If the job was slow, we can run another slow job
+        if was_hard:
+            if len(self._jobs_waiting_for_docker_instance_hard) != 0:
+                self._run_job(self._jobs_waiting_for_docker_instance_hard.popleft())
+                return
+
+        #Else, run a fast job
         if len(self._jobs_waiting_for_docker_instance) != 0:
             self._run_job(self._jobs_waiting_for_docker_instance.popleft())
 
@@ -200,4 +226,6 @@ class PoolManager(multiprocessing.Process):
     def _run_job_real(self, job, docker_instance):
         """ Runs a job """
         jobid, input_data, task_directory, limits, environment = job
-        self._fast_pool.apply_async(backend._submitter.submitter, [jobid, input_data, task_directory, limits, environment, self._docker_config[docker_instance], self._queue])
+        if environment in self._containers_hard or limits.get("hard",False):
+            self._hard_jobs_id.add(jobid)
+        self._fast_pool.apply_async(submitter, [jobid, input_data, task_directory, limits, environment, self._docker_config[docker_instance], self._queue])

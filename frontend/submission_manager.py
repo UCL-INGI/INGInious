@@ -72,7 +72,10 @@ def init_backend_interface():
             4),
         INGIniousConfiguration.get(
             "fast_pool_size",
-            4))
+            4),
+        INGIniousConfiguration.get(
+            "containers_hard",
+            []))
 
 
 def get_submission(submissionid, user_check=True):

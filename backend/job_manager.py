@@ -31,7 +31,7 @@ class JobManager(object):
 
     """ Manages jobs """
 
-    def __init__(self, docker_instances, containers_directory, tasks_directory, callback_manager_count=1, slow_pool_size=None, fast_pool_size=None):
+    def __init__(self, docker_instances, containers_directory, tasks_directory, callback_manager_count=1, slow_pool_size=None, fast_pool_size=None, containers_hard=[]):
         """
             Starts a job manager.
 
@@ -94,7 +94,8 @@ class JobManager(object):
             slow_pool_size = len(self._docker_config) + 1
 
         # Start the pool manager
-        self._pool_manager = backend._pool_manager.PoolManager(self._operations_queue, self._done_queue, docker_instances, containers_directory, tasks_directory, fast_pool_size, slow_pool_size)
+        self._pool_manager = backend._pool_manager.PoolManager(self._operations_queue, self._done_queue, 
+                                                               docker_instances, containers_directory, tasks_directory, fast_pool_size, slow_pool_size, containers_hard)
         self._pool_manager.start()
 
         signal.signal(signal.SIGINT, self.cleanup)
