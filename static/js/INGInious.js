@@ -470,10 +470,10 @@ function loadInput(input)
 		{
 			if($(this).attr('type') != "checkbox" && $(this).attr('type') != "radio")
 				$(this).prop('value',input[id]);
-			else if($(this).attr('type') == "checkbox" && jQuery.isArray(input[id]) && $.inArray($(this).prop('value'),input[id]))
-				$(this).prop('checked','checked');
-			else if($(this).attr('type') == "radio" && $(this).prop('value') == input[id])
-				$(this).prop('checked','checked');
+			else if($(this).attr('type') == "checkbox" && jQuery.isArray(input[id]) && $.inArray(parseInt($(this).prop('value')),input[id]))
+				$(this).prop('checked',true);
+			else if($(this).attr('type') == "radio" && parseInt($(this).prop('value')) == input[id])
+				$(this).prop('checked',true);
 			else if($(this).attr('type') == "checkbox" || $(this).attr('type') == "radio")
 				$(this).prop('checked',false);
 		}
