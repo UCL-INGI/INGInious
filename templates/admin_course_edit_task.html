@@ -96,11 +96,31 @@ $var Column: $:ColumnF()
                 <input type="radio" value="custom" name="accessible"
                     $if task_data.get('accessible',True) not in [True, False]:
                         checked="checked"
-                />
-                $ at = AccessibleTime(task_data.get('accessible',True))
-                From <input type="datetime" class="form-control" name="accessible_start" value="${at.get_std_start_date()}" placeholder="2014-06-29 10:00:00"/>
-                to <input type="datetime" class="form-control" name="accessible_end" value="${at.get_std_end_date()}" placeholder="2014-06-30 11:00:00"/>
+                /> Custom:
             </label>
+            $ at = AccessibleTime(task_data.get('accessible',True))
+            <div class="row">
+                <div class="col-xs-2 col-lg-2"><label class="control-label">From</label></div>
+                <div class="col-xs-10 col-lg-4">
+                    <div class='input-group date' id='accessible_start_picker'>
+                        <input name="accessible_start" data-date-format="YYYY-MM-DD hh:mm:ss" value="${at.get_std_start_date()}" placeholder="2014-06-29 10:00" type='text' class="form-control" />
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                    </div>
+                </div>
+                <div class="col-xs-2 col-lg-2"><label class="control-label">To</label></div>
+                <div class="col-xs-10 col-lg-4">
+                    <div class='input-group date' id='accessible_end_picker'>
+                        <input name="accessible_end" data-date-format="YYYY-MM-DD hh:mm:ss" value="${at.get_std_end_date()}" placeholder="2014-06-29 10:00" type='text' class="form-control" />
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                    </div>
+                </div>
+            </div>
+            <script type="text/javascript">
+                \$(function() {
+                    \$('#accessible_start_picker').datetimepicker({useSeconds: true,sideBySide: true});
+                    \$('#accessible_end_picker').datetimepicker({useSeconds: true,sideBySide: true});
+                });
+            </script>
         </div>
     </div>
     <h3 id="virtual_machine_setup">Virtual machine setup</h3>

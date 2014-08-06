@@ -48,7 +48,7 @@ class AdminCourseEditTask(object):
             task_data = json.load(codecs.open(os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid + ".task"), "r", 'utf-8'), object_pairs_hook=collections.OrderedDict)
         except:
             task_data = {}
-        environments = get_job_manager().get_container_names()
+        environments = get_job_manager().get_container_names(INGIniousConfiguration["containers_directory"])
         return renderer.admin_course_edit_task(course, taskid, task_data, environments, json.dumps(task_data.get('problems', {})), self.contains_is_html(task_data), AccessibleTime)
 
     @classmethod
