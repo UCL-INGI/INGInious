@@ -9,3 +9,4 @@ configuration.*.json
 !configuration.example.json
 dump
 doc/_*
+tasks
