@@ -244,8 +244,6 @@ class MultipleChoiceProblem(BasicProblem):
         if self._multiple:
             if not isinstance(task_input[self.get_id()], list):
                 return False
-            if len(task_input[self.get_id()]) == 0:
-                return False
             try:  # test conversion to int
                 for entry in task_input[self.get_id()]:
                     if self.get_choice_with_index(int(entry)) is None:
