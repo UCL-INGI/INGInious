@@ -85,3 +85,23 @@ form#task #task-submit {
   width: 100%;
   max-width: 300px;
 }
+/* Footer */
+html,
+body {
+  height: 100%;
+}
+#wrapper {
+  min-height: 100%;
+  height: auto !important;
+  height: 100%;
+  margin: 0 auto -81px;
+}
+#footer,
+#footer_push {
+  padding-top: 21px;
+  height: 81px;
+}
+#footer .navbar,
+#footer_push .navbar {
+  margin-bottom: 0;
+}
