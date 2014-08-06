@@ -97,11 +97,11 @@ body {
   margin: 0 auto -81px;
 }
 #footer,
-#footer_push {
+.footer_push {
   padding-top: 21px;
   height: 81px;
 }
 #footer .navbar,
-#footer_push .navbar {
+.footer_push .navbar {
   margin-bottom: 0;
 }
