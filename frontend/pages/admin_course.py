@@ -34,6 +34,7 @@ from bson.objectid import ObjectId
 import pymongo
 import web
 
+from common.tasks_file_manager import TaskFileManager
 from frontend.base import get_database, get_gridfs
 from frontend.base import renderer
 from frontend.custom.courses import FrontendCourse
@@ -140,7 +141,7 @@ class AdminCourseStudentListPage(object):
     def page(self, course):
         """ Get all data and display the page """
         data = UserData.get_course_data_for_users(course.get_id())
-        data = [dict(f.items() + [("url", self.submission_url_generator(course, username)),("username", username)]) for username, f in data.iteritems()]
+        data = [dict(f.items() + [("url", self.submission_url_generator(course, username)), ("username", username)]) for username, f in data.iteritems()]
         if "csv" in web.input():
             return make_csv(data)
         return renderer.admin_course_student_list(course, data)
@@ -287,15 +288,7 @@ class AdminCourseTaskListPage(object):
             ])["result"]
 
         # Load tasks and verify exceptions
-        files = [
-            splitext(f)[0] for f in listdir(
-                course.get_course_tasks_directory()) if isfile(
-                join(
-                    course.get_course_tasks_directory(),
-                    f)) and splitext(
-                    join(
-                        course.get_course_tasks_directory(),
-                        f))[1] == ".task"]
+        files = TaskFileManager.get_tasks(course.get_id())
         output = {}
         errors = []
         for task in files:

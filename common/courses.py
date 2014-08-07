@@ -22,6 +22,7 @@ import os
 import os.path
 
 from common.base import INGIniousConfiguration, id_checker
+from common.tasks_file_manager import TaskFileManager
 import common.tasks
 
 
@@ -66,18 +67,9 @@ class Course(object):
     def get_tasks(self):
         """Get all tasks in this course"""
         if self._tasks_cache is None:
-            # lists files ending with .task in the right directory, and keep only the taskid
-            files = [
-                os.path.splitext(f)[0] for f in os.listdir(
-                    self.get_course_tasks_directory()) if os.path.isfile(
-                    os.path.join(
-                        self.get_course_tasks_directory(),
-                        f)) and os.path.splitext(
-                    os.path.join(
-                        self.get_course_tasks_directory(),
-                        f))[1] == ".task"]
+            tasks = TaskFileManager.get_tasks(self.get_id())
             output = {}
-            for task in files:
+            for task in tasks:
                 try:
                     output[task] = self.get_task(task)
                 except:

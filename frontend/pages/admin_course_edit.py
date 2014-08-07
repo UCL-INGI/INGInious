@@ -28,6 +28,7 @@ import re
 import web
 
 from common.base import INGIniousConfiguration, id_checker
+from common.tasks_file_manager import TaskFileManager
 from frontend.accessible_time import AccessibleTime
 from frontend.base import renderer
 from frontend.custom.courses import FrontendCourse
@@ -45,11 +46,33 @@ class AdminCourseEditTask(object):
             raise Exception("Invalid task id")
         course = FrontendCourse(courseid)
         try:
-            task_data = json.load(codecs.open(os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid + ".task"), "r", 'utf-8'), object_pairs_hook=collections.OrderedDict)
+            task_data = TaskFileManager.get_manager(courseid, taskid).read()
         except:
+            task_data = None
+        if task_data is None:
             task_data = {}
         environments = get_job_manager().get_container_names(INGIniousConfiguration["containers_directory"])
-        return renderer.admin_course_edit_task(course, taskid, task_data, environments, json.dumps(task_data.get('problems', {})), self.contains_is_html(task_data), AccessibleTime)
+
+        current_filetype = None
+        try:
+            current_filetype = TaskFileManager.get_manager(courseid, taskid).get_ext()
+        except:
+            pass
+        available_filetypes = TaskFileManager.get_available_file_managers().keys()
+
+        return renderer.admin_course_edit_task(
+            course,
+            taskid,
+            task_data,
+            environments,
+            json.dumps(
+                task_data.get(
+                    'problems',
+                    {})),
+            self.contains_is_html(task_data),
+            current_filetype,
+            available_filetypes,
+            AccessibleTime)
 
     @classmethod
     def contains_is_html(cls, data):
@@ -124,36 +147,42 @@ class AdminCourseEditTask(object):
     def POST(self, courseid, taskid):
         """ Edit a task """
         # Parse content
-        # try:
-        data = web.input()
-        problems = self.dict_from_prefix("problem", data)
-        limits = self.dict_from_prefix("limits", data)
+        try:
+            data = web.input()
+            problems = self.dict_from_prefix("problem", data)
+            limits = self.dict_from_prefix("limits", data)
 
-        data = {key: val for key, val in data.iteritems() if not key.startswith("problem") and not key.startswith("limits")}
-        del data["@action"]
+            data = {key: val for key, val in data.iteritems() if not key.startswith("problem") and not key.startswith("limits")}
+            del data["@action"]
 
-        # Order the problems (this line also deletes @order from the result)
-        data["problems"] = OrderedDict([(key, self.parse_problem(val))
-                                        for key, val in sorted(problems.iteritems(), key=lambda x: int(x[1]['@order']))])
-        data["limits"] = limits
+            try:
+                file_manager = TaskFileManager.get_available_file_managers()[data["@filetype"]](courseid, taskid)
+            except Exception as inst:
+                return json.dumps({"status": "error", "message": "Invalid file type: {}".format(str(inst))})
+            del data["@filetype"]
 
-        # Accessible
-        if data["accessible"] == "custom":
-            data["accessible"] = "{}/{}".format(data["accessible_start"], data["accessible_end"])
-        elif data["accessible"] == "true":
-            data["accessible"] = True
-        else:
-            data["accessible"] = False
-        del data["accessible_start"]
-        del data["accessible_end"]
+            # Order the problems (this line also deletes @order from the result)
+            data["problems"] = OrderedDict([(key, self.parse_problem(val))
+                                            for key, val in sorted(problems.iteritems(), key=lambda x: int(x[1]['@order']))])
+            data["limits"] = limits
 
-        # Checkboxes
-        if data.get("responseIsHTML"):
-            data["responseIsHTML"] = True
-        if data.get("contextIsHTML"):
-            data["contextIsHTML"] = True
-        # except:
-        #    return json.dumps({"status": "error", "message": "Your browser returned an invalid form"})
+            # Accessible
+            if data["accessible"] == "custom":
+                data["accessible"] = "{}/{}".format(data["accessible_start"], data["accessible_end"])
+            elif data["accessible"] == "true":
+                data["accessible"] = True
+            else:
+                data["accessible"] = False
+            del data["accessible_start"]
+            del data["accessible_end"]
+
+            # Checkboxes
+            if data.get("responseIsHTML"):
+                data["responseIsHTML"] = True
+            if data.get("contextIsHTML"):
+                data["contextIsHTML"] = True
+        except:
+            return json.dumps({"status": "error", "message": "Your browser returned an invalid form"})
 
         # Get the course
         try:
@@ -162,24 +191,18 @@ class AdminCourseEditTask(object):
             return json.dumps({"status": "error", "message": "Error while reading course's informations"})
 
         # Get original data
-        path_to_task = os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid + ".task")
         try:
-            orig_data = json.load(codecs.open(path_to_task, "r", 'utf-8'), object_pairs_hook=collections.OrderedDict)
+            orig_data = TaskFileManager.get_manager(courseid, taskid).read()
             data["order"] = orig_data["order"]
         except:
             pass
-
-        print data
 
         try:
             FrontendTask(course, taskid, data)
         except Exception as message:
             return json.dumps({"status": "error", "message": "Invalid data: {}".format(str(message))})
 
-        try:
-            with open(path_to_task, 'w') as task_file:
-                task_file.write(json.dumps(data, sort_keys=False, indent=4, separators=(',', ': ')))
-        except:
-            raise
+        TaskFileManager.delete_all_possible_task_files(courseid, taskid)
+        file_manager.write(data)
 
         return json.dumps({"status": "ok"})

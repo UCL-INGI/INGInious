@@ -18,11 +18,8 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Task """
 from os.path import join
-import codecs
-import collections
-import json
-
 from common.base import INGIniousConfiguration, id_checker
+from common.tasks_file_manager import TaskFileManager
 from common.tasks_problems import CodeProblem, CodeSingleLineProblem, MultipleChoiceProblem, MatchProblem, CodeFileProblem
 
 
@@ -44,20 +41,9 @@ class Task(object):
 
         if init_data is None:
             try:
-                self._data = json.load(
-                    codecs.open(
-                        join(
-                            INGIniousConfiguration["tasks_directory"],
-                            self._course.get_id(),
-                            self._taskid +
-                            ".task"),
-                        "r",
-                        'utf-8'),
-                    object_pairs_hook=collections.OrderedDict)
-            except IOError:
-                raise Exception("File do not exists: " + join(INGIniousConfiguration["tasks_directory"], self._course.get_id(), self._taskid + ".task"))
+                self._data = TaskFileManager.get_manager(self.get_course_id(), self.get_id()).read()
             except Exception as inst:
-                raise Exception("Error while reading JSON: " + self._course.get_id() + "/" + self._taskid + " :\n" + str(inst))
+                raise Exception("Error while reading task file: " + self._course.get_id() + "/" + self._taskid + " :\n" + str(inst))
         else:
             self._data = init_data
 
