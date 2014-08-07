@@ -740,6 +740,8 @@ function studio_init_template_match(well, pid, problem)
 		$('#header-'+pid,well).val(problem["header"]);
 	if("headerIsHTML" in problem && problem["headerIsHTML"])
 		$('#headerIsHTML-'+pid,well).attr('checked', true);
+	if("answer" in problem)
+		$('#answer-'+pid,well).val(problem["answer"]);
 }
 
 /**
