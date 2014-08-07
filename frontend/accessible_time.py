@@ -61,7 +61,7 @@ class AccessibleTime(object):
                 return datetime.strptime(date, format_type)
             except ValueError:
                 pass
-        raise Exception("Unknow format for " + date)
+        raise Exception("Unknown format for " + date)
 
     def is_open(self, when=None):
         """ Returns True if the course/task is still open """
