@@ -77,9 +77,9 @@ def dict2rst(dict_obj):
             if 'choices' in problem:
                 for choice in problem['choices']:
                     if 'valid' in choice and choice['valid']:
-                        rst += '\t.. positive:\n'
+                        rst += '\t.. positive::\n'
                     else:
-                        rst += '\t.. negative:\n'
+                        rst += '\t.. negative::\n'
                     if 'text' in choice:
                         rst += tabularize(choice['text'], 2) + '\n'
                     rst += '\n'
