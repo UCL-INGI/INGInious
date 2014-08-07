@@ -22,7 +22,7 @@ import os
 import os.path
 
 from common.base import INGIniousConfiguration, id_checker
-from common.tasks_file_manager import TaskFileManager
+from common.task_file_managers.tasks_file_manager import TaskFileManager
 import common.tasks
 
 

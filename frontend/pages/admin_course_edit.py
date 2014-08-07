@@ -28,7 +28,7 @@ import re
 import web
 
 from common.base import INGIniousConfiguration, id_checker
-from common.tasks_file_manager import TaskFileManager
+from common.task_file_managers.tasks_file_manager import TaskFileManager
 from frontend.accessible_time import AccessibleTime
 from frontend.base import renderer
 from frontend.custom.courses import FrontendCourse

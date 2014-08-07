@@ -19,7 +19,7 @@
 """ Task """
 from os.path import join
 from common.base import INGIniousConfiguration, id_checker
-from common.tasks_file_manager import TaskFileManager
+from common.task_file_managers.tasks_file_manager import TaskFileManager
 from common.tasks_problems import CodeProblem, CodeSingleLineProblem, MultipleChoiceProblem, MatchProblem, CodeFileProblem
 
 

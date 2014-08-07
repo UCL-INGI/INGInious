@@ -19,8 +19,6 @@
 """ Task file managers """
 from abc import ABCMeta, abstractmethod
 import codecs
-import collections
-import json
 import os.path
 
 from common.base import INGIniousConfiguration
@@ -105,18 +103,3 @@ class TaskFileManager(object):
     def get_available_file_managers(cls):
         """ Get a dict with ext:class pairs """
         return {f.get_ext(): f for f in TaskFileManager.__subclasses__()}
-
-
-class TaskJSONFileManager(TaskFileManager):
-
-    """ Read and write task descriptions in JSON """
-
-    def _get_content(self, content):
-        return json.loads(content, object_pairs_hook=collections.OrderedDict)
-
-    @classmethod
-    def get_ext(cls):
-        return "json"
-
-    def _generate_content(self, data):
-        return json.dumps(data, sort_keys=False, indent=4, separators=(',', ': '))

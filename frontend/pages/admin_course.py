@@ -34,7 +34,7 @@ from bson.objectid import ObjectId
 import pymongo
 import web
 
-from common.tasks_file_manager import TaskFileManager
+from common.task_file_managers.tasks_file_manager import TaskFileManager
 from frontend.base import get_database, get_gridfs
 from frontend.base import renderer
 from frontend.custom.courses import FrontendCourse
