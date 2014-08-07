@@ -10,3 +10,4 @@ configuration.*.json
 dump
 doc/_*
 tasks
+!tests/tasks
