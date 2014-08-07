@@ -59,14 +59,10 @@ class FrontendCourse(Course):
     def get_user_completion_percentage(self):
         """ Returns the percentage (integer) of completion of this course by the current user """
         import frontend.user as User  # insert here to avoid initialisation of session
-        count = len(self.get_tasks())  # already in cache
-        if count == 0:
-            return 0
-
         cache = User.get_data().get_course_data(self.get_id())
         if cache is None:
             return 0
-        return int(cache["task_succeeded"] * 100 / count)
+        return int(cache["task_succeeded"] * 100 / cache["total_tasks"])
 
     def get_user_last_submissions(self, limit=5):
         """ Returns a given number (default 5) of submissions of task from this course """

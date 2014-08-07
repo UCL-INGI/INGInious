@@ -38,7 +38,6 @@ class CoursePage(object):
                 if not course.is_open() and User.get_username() not in course.get_admins():
                     return renderer.course_unavailable()
 
-                User.get_data().view_course(courseid)
                 last_submissions = course.get_user_last_submissions()
                 except_free_last_submissions = []
                 for submission in last_submissions:

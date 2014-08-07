@@ -4,11 +4,6 @@ Best practices
 Do not delete tasks
 -------------------
 
-Deleting task is a *bad idea* ® because INGInious maintains some caches with information about how many tasks the students solved.
-
-As these caches are not re-computed, deleting a task may create some problem with completion percentage: 
-some student may have succeeded more than 100% of the course.
-
 Instead of deleting a task, it is better to make it unavailable, using the *accessible* field.
 
 For example, if 2014-05-11 is the date where the task became unavailable:

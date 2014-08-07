@@ -72,17 +72,18 @@ $# Start content
 <h2>$course.get_name() - List of exercices</h2>
 <div class="list-group">
     $for taskid, task in course.get_tasks().iteritems()
-        <a href="/course/$course.get_id()/$taskid" class="list-group-item 
-            $ status=task.get_user_status()
-            $if not task.is_open():
-                disabled
-            $if status == 'failed':
-                list-group-item-danger
-            $elif status == 'succeeded':
-                list-group-item-success
-            ">
-            $task.get_name()
-            $if not task.is_open():
-                (task currently unavailable)
-        </a>
+        $if course.is_open() or User.get_username() in course.get_admins():
+            <a href="/course/$course.get_id()/$taskid" class="list-group-item 
+                $ status=task.get_user_status()
+                $if not task.is_open():
+                    disabled
+                $if status == 'failed':
+                    list-group-item-danger
+                $elif status == 'succeeded':
+                    list-group-item-success
+                ">
+                $task.get_name()
+                $if not task.is_open():
+                    (task currently unavailable)
+            </a>
 </div>

@@ -37,9 +37,8 @@ import web
 from frontend.base import get_database, get_gridfs
 from frontend.base import renderer
 from frontend.custom.courses import FrontendCourse
+from frontend.user_data import UserData
 import frontend.user as User
-
-
 class UnicodeWriter(object):
 
     """
@@ -140,8 +139,8 @@ class AdminCourseStudentListPage(object):
 
     def page(self, course):
         """ Get all data and display the page """
-        data = list(get_database().user_courses.find({"courseid": course.get_id()}))
-        data = [dict(f.items() + [("url", self.submission_url_generator(course, f["username"]))]) for f in data]
+        data = UserData.get_course_data_for_users(course.get_id())
+        data = [dict(f.items() + [("url", self.submission_url_generator(course, username)),("username", username)]) for username, f in data.iteritems()]
         if "csv" in web.input():
             return make_csv(data)
         return renderer.admin_course_student_list(course, data)
