@@ -1,0 +1,41 @@
+#!/bin/sh
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+mount -t tmpfs none /tmp
+mount -t tmpfs none /var/run
+mount -t tmpfs none /task
+mount -t tmpfs none /.__input
+mount -t tmpfs none /.__output
+mount -t tmpfs none /.__tests
+mount -t hostfs -o $LOGDIR none /var/log
+mount -t proc none /proc
+mkdir /dev/pts
+mount -t devpts none /dev/pts
+mkdir /dev/shm
+mount -t tmpfs none /dev/shm
+mount -t sysfs none /sys
+mount -t tmpfs none /sys/fs/cgroup
+for SUBSYS in memory devices cpuset
+do
+mkdir /sys/fs/cgroup/$SUBSYS
+mount -t cgroup -o $SUBSYS none /sys/fs/cgroup/$SUBSYS
+done
+echo 1 > /proc/sys/net/ipv4/ip_forward
+echo 0 > /proc/sys/kernel/printk
+ip addr add 127.0.0.1 dev lo
+ip link set lo up
+ip addr add 10.1.1.1/24 dev eth0
+ip link set eth0 up
+ip route add default via 10.1.1.254
+# This is to handle when /etc/resolv.conf -> /run/resolvconf/resolv.conf
+[ -L /etc/resolv.conf ] && {
+	mkdir -p $(dirname $(readlink --canonicalize-missing /etc/resolv.conf))
+	[ -f /etc/resolv.conf ] || {
+		cat /var/log/resolv.conf > /etc/resolv.conf
+	}
+}
+[ -f /var/log/output ] && {
+	exec >>/var/log/output
+	exec 2>>/var/log/err_output
+}
+sh /var/log/cmd < /var/log/input
+echo $? >/var/log/status

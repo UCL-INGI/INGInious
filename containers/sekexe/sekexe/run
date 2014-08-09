@@ -1,0 +1,53 @@
+#!/bin/sh
+
+REQUIREMENTS="/sbin/ip"
+for R in $REQUIREMENTS
+do
+	[ -x $R ] || {
+		echo "Requirement $R not found. Aborting."
+		exit 1
+	}
+done
+
+if [ "$2" ]
+then
+	shift
+	echo "Extraneous arguments: $*"
+	echo "Try to enclose them within quotes?"
+	exit 255
+fi
+
+LOGDIR=/tmp/log.$$
+mkdir $LOGDIR
+MEMDIR=/tmp/mem.$$
+mkdir $MEMDIR
+export TMPDIR=$MEMDIR
+
+CMD="$1"
+STDIN=/dev/null
+STDOUT=/dev/null
+STDERR=/dev/null
+touch $LOGDIR/output
+touch $LOGDIR/err_output
+trap '' TERM
+
+#Read input, must end with a \0
+cat > $LOGDIR/input
+
+cat /etc/resolv.conf > $LOGDIR/resolv.conf
+
+echo "$CMD" > $LOGDIR/cmd
+INITDIR="$(readlink --canonicalize $(dirname "$0"))"
+$INITDIR/uml quiet mem=2G rootfstype=hostfs rootflags=/ ro \
+       	init=$INITDIR/init LOGDIR="$LOGDIR" \
+  	<$STDIN >$STDOUT 2>$STDERR
+
+cat $LOGDIR/output >&1
+cat $LOGDIR/err_output >&2
+
+STATUS=""
+[ -f "$LOGDIR/status" ] && STATUS="$(cat $LOGDIR/status)"
+[ "$DEBUG" ] || rm -rf "$LOGDIR"
+[ "$STATUS" ] && exit $STATUS
+exit 255
+
