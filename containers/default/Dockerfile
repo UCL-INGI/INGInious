@@ -17,8 +17,7 @@ RUN     cp -R /INGInious/inginious/*.py  /usr/lib/python2.7/site-packages/ingini
 RUN     echo "inginious" > /usr/lib/python2.7/site-packages/inginious.pth
 
 # Delete unneeded folders
-RUN     rm -R /INGInious/bin
-RUN     rm -R /INGInious/inginious
+RUN     rm -R /INGInious
 
 # Create worker user
 RUN     groupadd --gid 4242 worker
