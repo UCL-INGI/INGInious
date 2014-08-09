@@ -86,19 +86,22 @@ limits = data["limits"]
 debug = True if sys.argv[1:] and sys.argv[1] == '--debug' else False
 
 # Create input data directory
-os.mkdir("/.__input")
+if not os.path.exists("/.__input"):
+    os.mkdir("/.__input")
 f = open('/.__input/__inputdata.json', 'w')
 f.write(stdin)
 f.close()
 
 # Create tests directory
-os.mkdir('/.__tests')
+if not os.path.exists("/.__tests"):
+    os.mkdir('/.__tests')
 
 # Create output directory
-os.mkdir("/.__output")
+if not os.path.exists("/.__output"):
+    os.mkdir("/.__output")
 
 #Copy /ro/task (which is read-only) in /task. Everything will be executed there
-shutil.copytree("/ro/task","/task")
+copytree("/ro/task","/task")
 
 #Set rights on some files
 setDirectoryRights("/tmp")
