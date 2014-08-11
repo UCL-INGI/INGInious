@@ -18,6 +18,7 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Contains the class CallbackManager, used by JobManager. Runs the callbacks. """
 import threading
+from common.parsable_text import ParsableText
 
 
 class CallbackManager(threading.Thread):
@@ -41,13 +42,22 @@ class CallbackManager(threading.Thread):
             task, callback, base_dict = self._waiting_job_data[jobid]
             del self._waiting_job_data[jobid]
 
-            final_result = self._merge_emul_result(base_dict, result)
+            final_result = self._parse_text(task, self._merge_emul_result(base_dict, result))
 
             # Call the callback
             try:
                 callback(jobid, task, final_result)
             except Exception as e:
                 print "CallbackManager failed to call the callback function for jobid {}: {}".format(jobid, repr(e))
+
+    def _parse_text(self, task, final_dict):
+        """ Parses text """
+        if "text" in final_dict:
+            final_dict["text"] = ParsableText(final_dict["text"], task.get_response_type()).parse()
+        if "problems" in final_dict:
+            for problem in final_dict["problems"]:
+                final_dict["problems"][problem] = ParsableText(final_dict["problems"][problem], task.get_response_type()).parse()
+        return final_dict
 
     def _merge_emul_result(self, origin_dict, emul_result):
         """ Merge the results of the multiple-choice (and other special problem types) questions with the returned results of the containers """
