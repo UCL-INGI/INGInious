@@ -65,7 +65,7 @@ inputdir = args[0]
 
 #Open the taskfile
 try:
-    taskfile = open(taskdir + '.task', 'r')
+    taskfile = open(taskdir + '/task.json', 'r')
 except IOError, e:
     print e
     exit(2)
@@ -115,32 +115,32 @@ for filename in inputfiles:
         for line in result['stderr'].splitlines(1):
             print  '\x1b[31;1m\t' + line.strip('\n') + '\033[0m'
 
-    if 'stdout' in data:
+    if 'stdout' in data and data['stdout']:
         if data['stdout'] != result['stdout']:
             noprob = False
             print "\033[1m-> Standard output doesn't match :\033[0m"
             for line in difflib.unified_diff(data['stdout'].splitlines(1),result['stdout'].splitlines(1), fromfile='Expected', tofile='Actual'):
                 print '\t' + line.strip('\n')
     
-    if 'result' in data:
+    if 'result' in data and data['result']:
         if data['result'] != result['result']:
             noprob = False
             print "\033[1m-> Result doesn't match :\033[0m"
             print "\t Expected result : " + data['result']
             print "\t Actual result : " + result['result']
     
-    if 'text' in data:
+    if 'text' in data and data['text']:
         if not 'text' in result:
             noprob = False
             print "\033[1m-> No global feedback given \033[0m"
             print "\t Expected result : " + data['text']
-        elif data['text'] != result['text']:
+        elif data['text'].strip() != result['text'].strip():
             noprob = False
             print "\033[1m-> Global feedback doesn't match :\033[0m"
             print "\t Expected result : " + data['text']
             print "\t Actual result : " + result['text']
     
-    if 'problems' in data:
+    if 'problems' in data and data['problems']:
         if not 'problems' in result:
             noprob = False
             print "\033[1m-> No specific problem feedback given as expected \033[0m"
@@ -150,13 +150,13 @@ for filename in inputfiles:
                     noprob = False
                     print "\033[1m-> No feedback for problem id " +problem + " given \033[0m"
                     print "\t Expected result : " + data['problems'][problem]
-                elif data['problems'][problem] != result['problems'][problem]:
+                elif data['problems'][problem].strip() != result['problems'][problem].strip():
                     noprob = False
                     print "\033[1m-> Feedback for problem id " +problem + " doesn't match :\033[0m"
                     print "\t Expected result : " + data['problems'][problem]
                     print "\t Actual result : " + result['problems'][problem]
                 
-    if 'tests' in data:
+    if 'tests' in data and data['tests']:
         if not 'tests' in result:
             noprob = False
             print "\033[1m-> No tests results given as expected \033[0m"
