@@ -101,6 +101,8 @@ if not os.path.exists("/.__output"):
     os.mkdir("/.__output")
 
 #Copy /ro/task (which is read-only) in /task. Everything will be executed there
+if not os.path.exists("/task"):
+    os.mkdir("/task")
 copytree("/ro/task","/task")
 
 #Set rights on some files
