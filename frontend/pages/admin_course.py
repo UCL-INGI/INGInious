@@ -322,7 +322,7 @@ class AdminCourseTaskListPage(object):
 
             for submission in submissions:
                 submission_json = StringIO.StringIO(json.dumps(submission, default=json_util.default, indent=4, separators=(',', ': ')))
-                submission_json_fname = str(submission["_id"]) + '.json'
+                submission_json_fname = str(submission["_id"]) + '.test'
                 # Generate file info
                 for sub_folder in sub_folders:
                     if sub_folder == 'taskid':

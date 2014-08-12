@@ -101,7 +101,8 @@ def job_done_callback(jobid, _, job):
             {
                 "status": ("done" if job["result"] == "success" or job["result"] == "failed" else "error"),  # error only if error was made by INGInious
                 "result": job["result"],
-                "text": (job["text"] if "text" in job else None),
+                "text": job.get("text", None),
+                "tests": job.get("tests", None),
                 "problems": (job["problems"] if "problems" in job else {}),
                 "archive": (get_gridfs().put(base64.b64decode(job["archive"])) if "archive" in job else None)
             }
