@@ -148,7 +148,7 @@ class PoolManager(multiprocessing.Process):
         """ Manages JOB_LAUNCHED. Get the result of the job if the container has already finished, or put it in a wait state """
         jobid, containerid = message
         if containerid is None:
-            self._done_queue.put((jobid, None))
+            self._done_queue.put((jobid, {"result": "crash", "text": "Cannot start the container"}))
             del self._job_running_on[jobid]
         else:
             self._job_running_on_container[jobid] = containerid
