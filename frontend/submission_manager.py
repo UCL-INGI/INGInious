@@ -59,7 +59,7 @@ def init_backend_interface():
     # Create the job manager
     get_job_manager.job_manager = JobManager(
         INGIniousConfiguration["docker_instances"],
-        INGIniousConfiguration["containers_directory"],
+        INGIniousConfiguration["containers"],
         INGIniousConfiguration["tasks_directory"],
         INGIniousConfiguration.get(
             "callback_managers_threads",

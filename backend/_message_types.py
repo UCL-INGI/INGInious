@@ -19,10 +19,6 @@
 """
     Contains the message types that can be sent to the pool manager's queue.
 
-    CONTAINER_IMAGE_BUILT
-        Indicates that a container image has been built on a remote docker instance
-        Tuple should contain:
-        (CONTAINER_IMAGE_BUILT, [docker_instance_id, container_name])
     RUN_JOB
         Runs a new job
         (RUN_JOB, [jobid, input_data, task_directory, limits, environment])
@@ -40,7 +36,6 @@
         (CLOSE, [])
 """
 # Message types
-CONTAINER_IMAGE_BUILT = 0
 RUN_JOB = 1
 JOB_LAUNCHED = 2
 CONTAINER_DONE = 3

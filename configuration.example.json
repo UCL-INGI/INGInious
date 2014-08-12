@@ -1,13 +1,14 @@
 {
     "tasks_directory": "./tasks",
     
-    "containers_directory": "./containers",
+    "containers": {
+    	"default": "ingi/inginious-c-default",
+    	"sekexe": "ingi/inginious-c-sekexe"
+    },
     
     "docker_instances": [
 		{
-			"container_prefix": "inginious/",
-			"server_url": "tcp://172.16.42.43:4243",
-			"build_containers_on_start": true
+			"server_url": "tcp://172.16.42.43:4243"
 		}
 	],
     

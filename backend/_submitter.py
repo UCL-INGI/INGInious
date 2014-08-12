@@ -58,7 +58,7 @@ def submitter(jobid, inputdata, task_directory, limits, environment, docker_conf
             mem_limit = 500
 
         response = docker_connection.create_container(
-            docker_config.get("container_prefix", "inginious/") + environment,
+            environment,
             stdin_open=True,
             network_disabled=True,
             volumes={'/ro/task': {}},

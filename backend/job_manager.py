@@ -31,7 +31,7 @@ class JobManager(object):
 
     """ Manages jobs """
 
-    def __init__(self, docker_instances, containers_directory, tasks_directory, callback_manager_count=1, slow_pool_size=None, fast_pool_size=None, containers_hard=[]):
+    def __init__(self, docker_instances, containers_names, tasks_directory, callback_manager_count=1, slow_pool_size=None, fast_pool_size=None, containers_hard=[]):
         """
             Starts a job manager.
 
@@ -43,13 +43,11 @@ class JobManager(object):
 
                     {
                         server_url: "the url to the docker daemon. May be a UNIX socket. Mandatory",
-                        container_prefix: "The prefix to be used on container names. by default, it is 'inginious/'",
-                        max_concurrent_jobs: 100,
-                        build_containers_on_start: false
+                        max_concurrent_jobs: 100
                     }
 
-            *containers_directory*
-                The local directory path containing the Dockerfiles
+            *containers_names*
+                A dict containing, as key, a simple name for each container image, and as value the urls to get the docker container images.
 
             *tasks_directory*
                 The local directory path containing the courses and the tasks
@@ -79,7 +77,7 @@ class JobManager(object):
 
             The job manager also launch a number of thread to handle the callbacks (the number is given by callback_manager_count)
         """
-        self._containers_directory = containers_directory
+        self._containers_names = containers_names
         self._tasks_directory = tasks_directory
         self._docker_config = docker_instances
 
@@ -94,8 +92,8 @@ class JobManager(object):
             slow_pool_size = len(self._docker_config) + 1
 
         # Start the pool manager
-        self._pool_manager = backend._pool_manager.PoolManager(self._operations_queue, self._done_queue, 
-                                                               docker_instances, containers_directory, tasks_directory, fast_pool_size, slow_pool_size, containers_hard)
+        self._pool_manager = backend._pool_manager.PoolManager(self._operations_queue, self._done_queue,
+                                                               docker_instances, containers_names, tasks_directory, fast_pool_size, slow_pool_size, containers_hard)
         self._pool_manager.start()
 
         signal.signal(signal.SIGINT, self.cleanup)
@@ -152,19 +150,3 @@ class JobManager(object):
             self._done_queue.put((jobid, None))
 
         return jobid
-
-    @staticmethod
-    def get_container_names(containers_directory):
-        """ Returns available containers """
-        containers = [
-            f for f in os.listdir(
-                containers_directory) if os.path.isdir(
-                os.path.join(
-                    containers_directory,
-                    f)) and os.path.isfile(
-                    os.path.join(
-                        containers_directory,
-                        f,
-                        "Dockerfile"))]
-
-        return containers

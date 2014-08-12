@@ -19,10 +19,7 @@
 """ Pages that allow editing of tasks """
 
 from collections import OrderedDict
-import codecs
-import collections
 import json
-import os.path
 import re
 
 import web
@@ -33,7 +30,6 @@ from frontend.accessible_time import AccessibleTime
 from frontend.base import renderer
 from frontend.custom.courses import FrontendCourse
 from frontend.custom.tasks import FrontendTask
-from frontend.submission_manager import get_job_manager
 
 
 class AdminCourseEditTask(object):
@@ -51,7 +47,7 @@ class AdminCourseEditTask(object):
             task_data = None
         if task_data is None:
             task_data = {}
-        environments = get_job_manager().get_container_names(INGIniousConfiguration["containers_directory"])
+        environments = INGIniousConfiguration["containers"].keys()
 
         current_filetype = None
         try:
