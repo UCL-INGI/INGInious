@@ -1,4 +1,22 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
+#
+# Copyright (c) 2014 Université Catholique de Louvain.
+#
+# This file is part of INGInious.
+#
+# INGInious is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# INGInious is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public
+# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 import os
 import sys
 import glob
@@ -6,17 +24,20 @@ import json
 import getopt
 import docker
 import difflib
+import common.base
+import common.tasks
+import common.courses
 
 def run_task(task, inputdata):
     # Define memory limits
-    mem_limit = task["limits"]["memory"]
+    mem_limit = task.get_limits()["memory"]
     if mem_limit < 20:
         mem_limit = 20
     elif mem_limit > 500:
         mem_limit = 500
 
     # Create container and fetch container id
-    response = dock.create_container('inginious/' + task['environment'], command='INGInious --debug', stdin_open=True, network_disabled=True, volumes={'/ro/task': {}}, mem_limit=mem_limit * 1024 * 1024)
+    response = dock.create_container('inginious/' + task.get_environment(), command='INGInious --debug', stdin_open=True, network_disabled=True, volumes={'/ro/task': {}}, mem_limit=mem_limit * 1024 * 1024)
     container_id = response["Id"]
     
     # Start the container
@@ -33,7 +54,7 @@ def run_task(task, inputdata):
     return stdout,stderr
 
 def usage():
-    print "Usage : test_task [-v|--verbose] [-i|--input-dir ]input_folder task_folder"
+    print "Usage : test_task [-v|--verbose]  course_id/task_id"
     print "Verbose mode prints the entire standard output from the task"
     sys.exit(1)
 
@@ -45,7 +66,7 @@ if euid != 0:
 
 # Read arguments from the command line
 try:
-    opts, args = getopt.getopt(sys.argv[1:], 'iv', ['verbose'])
+    opts, args = getopt.getopt(sys.argv[1:], 'v', ['verbose'])
     if not args:
         usage()
 except getopt.GetoptError,e:
@@ -58,24 +79,23 @@ for opt, arg in opts:
     if opt in ('-v', '--verbose'):
         verbose = True
 
-taskdir=args[0]
-inputdir = args[0]
 
-# Do the real stuff
+# Read input argument
+ids = args[0].split('/')
+courseid = ids[0]
+taskid = ids[1]
+
+# Read configuration file to obtain tasks directory
+common.base.INGIniousConfiguration.load("./configuration.json")
+taskdir= common.base.INGIniousConfiguration['tasks_directory'] + '/' + courseid + '/' + taskid
+dock = docker.Client(base_url=common.base.INGIniousConfiguration.get("docker_instances")[0].get("server_url"))
 
 #Open the taskfile
-try:
-    taskfile = open(taskdir + '/task.json', 'r')
-except IOError, e:
-    print e
-    exit(2)
-task = json.load(taskfile)
-limits = task['limits']
+task = common.courses.Course(courseid).get_task(taskid)
+limits = task.get_limits()
 
 # List inputfiles
-inputfiles = glob.glob(inputdir + '/*.test')
-
-dock = docker.Client(base_url='unix://var/run/docker.sock')
+inputfiles = glob.glob(taskdir + '/*.test')
 
 i=1
 for filename in inputfiles:
@@ -84,7 +104,7 @@ for filename in inputfiles:
     
     # Open the input file and merge with limits
     try:
-        inputfile = open(inputdir + '/' + filename, 'r')
+        inputfile = open(taskdir + '/' + filename, 'r')
     except IOError, e:
         print e
         exit(2)

@@ -115,14 +115,14 @@ Testing a task with test files
 ``````````````````````````````
 
 To test your task, you need to put your tests files together in the task
-directory with extension *.text*. For instance, *test1.test* and 
-*test2.test* are valid names for these files.
+directory with extension *.test*. For instance, *test1.test* and 
+*test2.test* are valid filenames.
 
 Once your test files are written, you can launch the test with the 
 command-line tool *test_task* from the INGInious distribution, with the 
 following calling syntax :
 ::
-    test_task [-v|--verbose] task_folder
+    testtask [-v|--verbose] course_id/task_id
     
 where *verbose* is used to print the complete standard output produced 
 by the execution of your task and *task_folder* is the folder which 
