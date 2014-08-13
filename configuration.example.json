@@ -23,15 +23,8 @@
             "repo_directory": "./repo_submissions"
         },
         {
-            "plugin_module": "frontend.plugins.auth.ldap_auth",
-            "host": "ldap.test.be",
-            "port": 0,
-            "encryption": "ssl",
-            "base_dn": "o=test,c=be",
-            "request": "uid={}",
-            "prefix": "",
-            "name": "LDAP Login",
-            "require_cert": true
+            "plugin_module": "frontend.plugins.auth.demo_auth",
+            "users": {"test":"test"}
         }
     ],
     
