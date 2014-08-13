@@ -217,6 +217,9 @@ function waitForSubmission(submissionid)
             	waitForSubmission(submissionid);
             else if("status" in data && "result" in data)
             {
+            	if("debug" in data)
+            		displayDebugInfo(data["debug"]);
+
                 if(data['result'] == "failed")
                 {
                     displayTaskStudentErrorAlert(data);
@@ -269,6 +272,12 @@ function waitForSubmission(submissionid)
             unblurTaskForm();
         });
     }, 1000);
+}
+
+//Displays debug info
+function displayDebugInfo(info)
+{
+	$('#task_debug').html("<pre>"+info+"</pre>");
 }
 
 //Displays a loading alert in task form

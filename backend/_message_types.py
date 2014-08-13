@@ -21,7 +21,7 @@
 
     RUN_JOB
         Runs a new job
-        (RUN_JOB, [jobid, input_data, task_directory, limits, environment])
+        (RUN_JOB, [jobid, input_data, task_directory, limits, environment, debug])
     JOB_LAUNCHED
         Indicates that a job is now running on a remote docker instance.
         (JOB_LAUNCHED, [jobid, containerid])

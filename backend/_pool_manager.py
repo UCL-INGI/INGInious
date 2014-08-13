@@ -131,7 +131,7 @@ class PoolManager(multiprocessing.Process):
 
     def _run_job(self, job):
         """ Manages RUN_JOB. Runs a new job"""
-        jobid, input_data, task_directory, limits, environment = job
+        jobid, input_data, task_directory, limits, environment, debug = job
 
         is_hard = environment in self._containers_hard or limits.get("hard", False)
         docker_instance = self._get_docker_instance_and_inc(is_hard)
@@ -201,7 +201,7 @@ class PoolManager(multiprocessing.Process):
 
     def _run_job_real(self, job, docker_instance):
         """ Runs a job """
-        jobid, input_data, task_directory, limits, environment = job
+        jobid, input_data, task_directory, limits, environment, debug = job
         if environment in self._containers_hard or limits.get("hard", False):
             self._hard_jobs_id.add(jobid)
-        self._fast_pool.apply_async(submitter, [jobid, input_data, task_directory, limits, self._container_names.get(environment, 'default'), self._docker_config[docker_instance], self._queue])
+        self._fast_pool.apply_async(submitter, [jobid, input_data, task_directory, limits, self._container_names.get(environment, 'default'), debug, self._docker_config[docker_instance], self._queue])

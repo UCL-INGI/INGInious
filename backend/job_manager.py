@@ -121,7 +121,7 @@ class JobManager(object):
         """ Returns a new job id. The job id is unique and should be passed to the new_job function """
         return uuid.uuid4()
 
-    def new_job(self, task, inputdata, callback, jobid=None):
+    def new_job(self, task, inputdata, callback, jobid=None, debug=False):
         """ Add a new job. callback is a function that will be called asynchronously in the job manager's process. """
         if jobid is None:
             jobid = self.new_job_id()
@@ -142,7 +142,7 @@ class JobManager(object):
         if need_emul:
             # Go through the whole process: sent everything to docker
             self._running_job_data[jobid] = (task, callback, basedict)
-            self._operations_queue.put((RUN_JOB, [jobid, inputdata, os.path.join(self._tasks_directory, task.get_course_id(), task.get_id()), task.get_limits(), task.get_environment()]))
+            self._operations_queue.put((RUN_JOB, [jobid, inputdata, os.path.join(self._tasks_directory, task.get_course_id(), task.get_id()), task.get_limits(), task.get_environment(), debug]))
         else:
             # Only send data to a CallbackManager
             basedict["text"] = "\n".join(basedict["text"])

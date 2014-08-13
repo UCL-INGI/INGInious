@@ -18,6 +18,7 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Contains the JobManagerBuffer, which creates a buffer for a JobManager """
 
+
 class JobManagerBuffer(object):
 
     """ A buffer for a JobManager """
@@ -27,11 +28,11 @@ class JobManagerBuffer(object):
         self._waiting_jobs = []
         self._jobs_done = {}
 
-    def new_job(self, task, inputdata):
+    def new_job(self, task, inputdata, debug=False):
         """ Runs a new job. It works exactly like the JobManager class, instead that there is no callback """
         jobid = self._job_manager.new_job_id()
         self._waiting_jobs.append(str(jobid))
-        self._job_manager.new_job(task, inputdata, self._callback, jobid)
+        self._job_manager.new_job(task, inputdata, self._callback, jobid, debug)
         return jobid
 
     def _callback(self, jobid, _, result):

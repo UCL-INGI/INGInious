@@ -26,7 +26,7 @@ import docker
 from backend._message_types import JOB_LAUNCHED
 
 
-def submitter(jobid, inputdata, task_directory, limits, environment, docker_config, output_queue):
+def submitter(jobid, inputdata, task_directory, limits, environment, debug, docker_config, output_queue):
     """
         Runs a new job.
 
@@ -42,6 +42,8 @@ def submitter(jobid, inputdata, task_directory, limits, environment, docker_conf
             the dictionary containing the task's limit
         *environment*
             the image to run the task in
+        *debug*
+            boolean indicating if the container should return additionnal debug information
         *docker_config*
             docker configuration, as a dict. See the JobManager class.
         *output_queue*
@@ -71,6 +73,8 @@ def submitter(jobid, inputdata, task_directory, limits, environment, docker_conf
 
         # Send the input data
         container_input = {"input": inputdata, "limits": limits}
+        if debug:
+            container_input["debug"] = True
         docker_connection.attach_socket(container_id, {'stdin': 1, 'stream': 1}).send(json.dumps(container_input) + "\n")
 
         output_queue.put((JOB_LAUNCHED, [jobid, container_id]))

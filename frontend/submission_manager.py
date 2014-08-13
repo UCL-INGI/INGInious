@@ -92,20 +92,26 @@ def job_done_callback(jobid, _, job):
     """ Callback called by JobManager when a job is done. Updates the submission in the database with the data returned after the completion of the job """
     submission = get_submission_from_jobid(jobid)
 
+    data = {
+        "status": ("done" if job["result"] == "success" or job["result"] == "failed" else "error"),  # error only if error was made by INGInious
+        "result": job["result"],
+        "text": job.get("text", None),
+        "tests": job.get("tests", None),
+        "problems": (job["problems"] if "problems" in job else {}),
+        "archive": (get_gridfs().put(base64.b64decode(job["archive"])) if "archive" in job else None)
+    }
+
+    # Store additional data
+    for index in job:
+        if index not in data:
+            data[index] = job[index]
+
     # Save submission to database
     get_database().submissions.update(
         {"_id": submission["_id"]},
         {
             "$unset": {"jobid": ""},
-            "$set":
-            {
-                "status": ("done" if job["result"] == "success" or job["result"] == "failed" else "error"),  # error only if error was made by INGInious
-                "result": job["result"],
-                "text": job.get("text", None),
-                "tests": job.get("tests", None),
-                "problems": (job["problems"] if "problems" in job else {}),
-                "archive": (get_gridfs().put(base64.b64decode(job["archive"])) if "archive" in job else None)
-            }
+            "$set": data
         }
     )
 
@@ -114,9 +120,11 @@ def job_done_callback(jobid, _, job):
     PluginManager.get_instance().call_hook("submission_done", submission=submission, job=job)
 
 
-def add_job(task, inputdata):
+def add_job(task, inputdata, debug=False):
     """ Add a job in the queue and returns a submission id.
-        task is a Task instance and inputdata is the input as a dictionary """
+        task is a Task instance and inputdata is the input as a dictionary
+        If debug is true, more debug data will be saved
+    """
     if not User.is_logged_in():
         raise Exception("A user must be logged in to submit an object")
 
@@ -126,7 +134,7 @@ def add_job(task, inputdata):
     obj = {"username": username, "courseid": task.get_course_id(), "taskid": task.get_id(), "input": inputdata, "status": "waiting", "jobid": jobid, "submitted_on": datetime.now()}
     submissionid = get_database().submissions.insert(obj)
 
-    get_job_manager().new_job(task, inputdata, job_done_callback, jobid)
+    get_job_manager().new_job(task, inputdata, job_done_callback, jobid, debug)
 
     return submissionid
 
