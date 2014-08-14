@@ -31,7 +31,7 @@ Make small tests
 ----------------
 
 Inside your tasks, do not test everything is a single test file.
-Using a file for each test is a good pratice, and will allow you to debug your code efficiently, 
-while providing students fine-grained errors descriptions.
+Using a file for each test is a good practice, and will allow you to debug your code efficiently, 
+while providing students fine-grained error descriptions.
 
 Try to use unit-test libraries provided by your programming language.
