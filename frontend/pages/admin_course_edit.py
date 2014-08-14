@@ -152,15 +152,18 @@ class AdminCourseEditTask(object):
 
     def POST(self, courseid, taskid):
         """ Edit a task """
+        if not id_checker(taskid) or not id_checker(courseid):
+            raise Exception("Invalid course/task id")
+
         # Parse content
         try:
             data = web.input(task_file={})
 
-            if data.get("task_file") is not None:
+            try:
                 task_zip = data.get("task_file").file
-                del data["task_file"]
-            else:
+            except:
                 task_zip = None
+            del data["task_file"]
 
             problems = self.dict_from_prefix("problem", data)
             limits = self.dict_from_prefix("limits", data)
@@ -194,8 +197,8 @@ class AdminCourseEditTask(object):
                 data["responseIsHTML"] = True
             if data.get("contextIsHTML"):
                 data["contextIsHTML"] = True
-        except:
-            return json.dumps({"status": "error", "message": "Your browser returned an invalid form"})
+        except Exception as message:
+            return json.dumps({"status": "error", "message": "Your browser returned an invalid form ({})".format(str(message))})
 
         # Get the course
         try:
@@ -214,6 +217,9 @@ class AdminCourseEditTask(object):
             FrontendTask(course, taskid, data)
         except Exception as message:
             return json.dumps({"status": "error", "message": "Invalid data: {}".format(str(message))})
+
+        if not os.path.exists(os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid)):
+            os.mkdir(os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid))
 
         if task_zip:
             try:
