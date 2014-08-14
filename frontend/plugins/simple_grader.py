@@ -160,6 +160,7 @@ def init(plugin_manager, config):
 
         def POST(self):
             """ POST request """
+            web.header('Access-Control-Allow-Origin','*')
             web.header('Content-Type', 'application/json')
             post_input = web.input()
 
