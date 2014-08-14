@@ -11,3 +11,4 @@ Contents:
    teacher_doc/create_task
    teacher_doc/testing
    teacher_doc/create_container
+   teacher_doc/course_management
