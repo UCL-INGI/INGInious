@@ -22,7 +22,8 @@ The administration page gives you several global list views :
   switching to "View students" in the main administration page.
 - All the students who tried a given task, if they succeded it, and the
   number of submissions they did. You can show these information by 
-  clicking "View student list" on the main administration page
+  clicking "View student list" on the main administration page or by
+  clicking "Satistics" on the task page.
 - All the tasks tried by a given student, if (s)he succeded it and the
   number of submissions (s)he did. These information can be displayed by 
   clicking "View" in the students list of a course.
@@ -36,13 +37,37 @@ treatment in your favourite spreadsheet editor.
 Downloading submissions
 ```````````````````````
 All views allows you to download a set of submissions, from a specific 
-submission to all submissions related to one course.
+submission to all submissions related to one course. You can choose
+to download either the last (correct if succeded) submissions or all the
+submissions available.
+
+Submissions are downloadable as gzip tarball (.tgz) files. You may need
+some third-party software if your operating system does not support this
+format natively. The files contain, for each submissions, a test file
+with extension *test* and 
 
 Task edition
 ------------
 
+All tasks can be edited on-line. To access the task editor, just click 
+on "Edit task" on the task page or from the main administration page.
+Task problems containing boxes are not graphically editable due to
+their high modularity. These kinds of problem editable on-line in JSON
+format.
+
 Adding/removing problems
 ````````````````````````
+Adding and removing problems are very easy in the task editor, go to the
+end of the page or click on the quick link "Add subproblem". You'll then
+be brought to a new form asking a problem-id (alphanumerical characters)
+and a problem type. 
+
+To make a more complex question with boxes, choose "custom" problem and 
+write the JSON problem description as described in the task file format.
+
+When editing a multiple choice problem, you're asked if the student is 
+shown a multiple-answers- or single-answer-problem and which of the
+possible choices is (are) good answer(s). 
 
 Uploading task files
 ````````````````````
