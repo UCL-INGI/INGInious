@@ -67,11 +67,6 @@ def init(plugin_manager, config):
             </html>"""
 
         def POST(self):
-            str = self.HandlePost()
-            print str
-            return str
-
-        def HandlePost(self):
             """ POST request """
             web.header('Content-Type', 'application/json')
 
