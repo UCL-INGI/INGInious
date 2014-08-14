@@ -138,6 +138,14 @@ class AdminCourseEditTask(object):
             except:
                 del problem_content["limit"]
 
+        if problem_content["type"] == "custom":
+            try:
+                custom_content = json.loads(problem_content["custom"])
+            except:
+                raise Exception("Invalid JSON in custom content")
+            problem_content.update(custom_content)
+            del problem_content["custom"]
+
         return problem_content
 
     def POST(self, courseid, taskid):
