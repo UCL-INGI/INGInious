@@ -28,6 +28,7 @@ $def ColumnF():
         <a href="#virtual_machine_setup" class="list-group-item">Virtual machine setup</a>
         <a href="#subproblems" class="list-group-item">Subproblems</a>
         <a href="#new_subproblem" class="list-group-item">New subproblem</a>
+        <a href="#task_files" class="list-group-item">Task files</a>
     </div>
 $var Column: $:ColumnF()
 
@@ -40,7 +41,7 @@ $var Column: $:ColumnF()
 </ol>
 
 <h2>Edit task "$taskid"</h2>
-<form id="edit_task_form" action="/admin/${course.get_id()}/edit/$taskid" method="post" class="form-horizontal">
+<form id="edit_task_form" action="/admin/${course.get_id()}/edit/$taskid" method="post" enctype="multipart/form-data" class="form-horizontal">
     <h3 id="general_informations">General informations</h3>
     <input type="hidden" name="@action" value="edit_task"/>
     <div class="form-group">
@@ -199,6 +200,19 @@ $var Column: $:ColumnF()
             </div>
         </div>
     </div>
+    <h3 id="task_files">Task files</h3>
+    <a href="/admin/${course.get_id()}/files/$taskid" class="btn btn-info center-block">Download existing files</a>
+    <br/>
+    <br/>
+    <p>
+        You can upload here a .zip file containing files for this task. <b>Files contained in this zip file will replace all existing files</b>.<br/>
+        <b>This action is irreversible.</b><br/>
+        <br/>
+        If you do not upload any file, no actions will be done and the existing files will be kept.
+    </p>
+    <p class="text-center">
+        <input type="file" name="task_file"/>
+    </p>
 </form>
 
 

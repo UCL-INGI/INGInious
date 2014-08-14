@@ -19,7 +19,9 @@
 """ Pages that allow editing of tasks """
 
 from collections import OrderedDict
+from zipfile import ZipFile
 import json
+import os.path
 import re
 
 import web
@@ -152,7 +154,14 @@ class AdminCourseEditTask(object):
         """ Edit a task """
         # Parse content
         try:
-            data = web.input()
+            data = web.input(task_file={})
+
+            if data.get("task_file") is not None:
+                task_zip = data.get("task_file").file
+                del data["task_file"]
+            else:
+                task_zip = None
+
             problems = self.dict_from_prefix("problem", data)
             limits = self.dict_from_prefix("limits", data)
 
@@ -205,6 +214,17 @@ class AdminCourseEditTask(object):
             FrontendTask(course, taskid, data)
         except Exception as message:
             return json.dumps({"status": "error", "message": "Invalid data: {}".format(str(message))})
+
+        if task_zip:
+            try:
+                zipfile = ZipFile(task_zip)
+            except Exception as message:
+                return json.dumps({"status": "error", "message": "Cannot read zip file. Files were not modified"})
+
+            try:
+                zipfile.extractall(os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid))
+            except Exception as message:
+                return json.dumps({"status": "error", "message": "There was a problem while extracting the zip archive. Some files may have been modified"})
 
         TaskFileManager.delete_all_possible_task_files(courseid, taskid)
         file_manager.write(data)
