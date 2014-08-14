@@ -277,7 +277,27 @@ function waitForSubmission(submissionid)
 //Displays debug info
 function displayDebugInfo(info)
 {
-	$('#task_debug').html("<pre>"+info+"</pre>");
+	displayDebugInfoRecur(info,$('#task_debug'));
+}
+function displayDebugInfoRecur(info,box)
+{
+	var data = $(document.createElement('dl'));
+	data.text(" ");
+	box.html(data);
+	
+	jQuery.each(info, function(index, elem)
+	{
+		var namebox = $(document.createElement('dt'));
+		var content = $(document.createElement('dd'));
+		data.append(namebox);
+		data.append(content);
+		
+		namebox.text(index);
+		if( jQuery.isPlainObject(elem) )
+			displayDebugInfoRecur(elem, content);
+		else
+			content.text(elem);
+	});
 }
 
 //Displays a loading alert in task form

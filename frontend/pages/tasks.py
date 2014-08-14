@@ -120,8 +120,8 @@ class TaskPage(object):
             tojson["problems"] = data["problems"]
 
         if debug:
-            tojson["debug"] = web.websafe(json.dumps(data, indent=4, separators=(',', ': '), default=str))
-        return json.dumps(tojson)
+            tojson["debug"] = data
+        return json.dumps(tojson, default=str)
 
     def list_multiple_multiple_choices_and_files(self, task):
         """ List problems in task that expect and array as input """

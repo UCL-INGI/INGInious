@@ -85,6 +85,14 @@ form#task #task-submit {
   width: 100%;
   max-width: 300px;
 }
+#task_debug dd {
+  border-left: 1px solid #ccc;
+  padding-left: 20px;
+  min-height: 20px;
+}
+#task_debug dd dl {
+  margin-bottom: 0;
+}
 /* Footer */
 html,
 body {
