@@ -1,0 +1,17 @@
+{
+    "maindir":"../tasks",
+    "repos":
+    [
+        {
+            "course":"TEST0000",
+			"keyfile":"TEST0000.key", 
+            "url":"git@github.com:user/TEST0000.git"
+        },
+		{
+            "course":"TEST0001",
+			"keyfile":"TEST0001.key",
+            "url":"git@github.com:user/TEST0001.git"
+        }
+    ]
+}
+
