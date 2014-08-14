@@ -67,6 +67,11 @@ def init(plugin_manager, config):
             </html>"""
 
         def POST(self):
+            str = self.HandlePost()
+            print str
+            return str
+
+        def HandlePost(self):
             """ POST request """
             web.header('Content-Type', 'application/json')
 
@@ -75,28 +80,28 @@ def init(plugin_manager, config):
             try:
                 decoded_input = json.loads(post_input)
             except:
-                return json.dumps({"correct": False, "score": 0, "msg": "<p>Internal grader error: cannot decode POST</p>"})
+                return json.dumps({"correct": None, "score": 0, "msg": "<p>Internal grader error: cannot decode POST</p>"})
 
             if "xqueue_body" not in decoded_input:
-                return json.dumps({"correct": False, "score": 0, "msg": "<p>Internal grader error: no xqueue_body in POST</p>"})
+                return json.dumps({"correct": None, "score": 0, "msg": "<p>Internal grader error: no xqueue_body in POST</p>"})
             try:
                 edx_input = json.loads(decoded_input["xqueue_body"])
                 taskid = json.loads(edx_input["grader_payload"])["tid"]
             except:
-                return json.dumps({"correct": False, "score": 0, "msg": "<p>Internal grader error: cannot decode JSON</p>"})
+                return json.dumps({"correct": None, "score": 0, "msg": "<p>Internal grader error: cannot decode JSON</p>"})
 
             try:
                 task = course.get_task(taskid)
             except:
-                return json.dumps({"correct": False, "score": 0, "msg": "<p>Internal grader error: unknown task {}</p>".format(taskid)})
+                return json.dumps({"correct": None, "score": 0, "msg": "<p>Internal grader error: unknown task {}</p>".format(taskid)})
 
             if not task.input_is_consistent(edx_input):
-                return json.dumps({"correct": False, "score": 0, "msg": "<p>Internal grader error: input not consistent with task</p>"})
+                return json.dumps({"correct": None, "score": 0, "msg": "<p>Internal grader error: input not consistent with task</p>"})
 
             try:
                 job_return = job_manager_sync.new_job(task, edx_input)
             except:
-                return json.dumps({"correct": False, "score": 0, "msg": "<p>Internal grader error: error while grading submission</p>"})
+                return json.dumps({"correct": None, "score": 0, "msg": "<p>Internal grader error: error while grading submission</p>"})
 
             try:
                 text = ""
@@ -110,8 +115,10 @@ def init(plugin_manager, config):
                 if "score" in job_return:
                     score = job_return["score"]
 
-                return json.dumps({"correct": (job_return["result"] == "success"), "score": score, "msg": text})
+                import tidylib
+                out, dummy = tidylib.tidy_fragment(text,options={'output-xhtml':1,'enclose-block-text':1,'enclose-text':1})
+                return json.dumps({"correct": (True if (job_return["result"] == "success") else None), "score": score, "msg": out})
             except:
-                return json.dumps({"correct": False, "score": 0, "msg": "<p>Internal grader error: error converting submission result</p>"})
+                return json.dumps({"correct": None, "score": 0, "msg": "<p>Internal grader error: error converting submission result</p>"})
 
     plugin_manager.add_page(page_pattern, EDX)
