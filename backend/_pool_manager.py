@@ -19,12 +19,18 @@
 """ A manager for process pools """
 from collections import deque
 import multiprocessing
+import signal
 
 from backend._deleter import deleter
 from backend._event_reader import event_reader
 from backend._message_types import CONTAINER_DONE, JOB_LAUNCHED, JOB_RESULT, RUN_JOB, CLOSE
 from backend._result_getter import result_getter
 from backend._submitter import submitter
+
+
+def _init_worker():
+    """ Allow processes in pools to ignore SIGINT """
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
 
 
 class PoolManager(multiprocessing.Process):
@@ -99,18 +105,25 @@ class PoolManager(multiprocessing.Process):
             self._running_job_count_hard[min_index] = min_value + 1
         return min_index
 
-    def close(self):
+    def close(self, dummy1=None, dummy2=None):
         """ Closes the pool manager"""
-        print "Closing the pool manager"
+        print "Terminating pools"
         self._fast_pool.terminate()
         self._slow_pool.terminate()
+        print "Waiting for fast pool"
+        self._fast_pool.join()
+        print "Waiting for slow pool"
+        self._slow_pool.join()
+        print "Closing pool manager"
         exit(0)
 
     def run(self):
         # Pools have to be started inside the run function, as it is the first to be run inside the process
         print "Starting pools"
-        self._fast_pool = multiprocessing.Pool(self._fast_pool_size)
-        self._slow_pool = multiprocessing.Pool(self._slow_pool_size)
+        self._fast_pool = multiprocessing.Pool(self._fast_pool_size, _init_worker)
+        self._slow_pool = multiprocessing.Pool(self._slow_pool_size, _init_worker)
+
+        signal.signal(signal.SIGINT, signal.SIG_IGN)
 
         for docker_instance_id, docker_config in enumerate(self._docker_config):
             self._containers_done.append([])
@@ -126,8 +139,9 @@ class PoolManager(multiprocessing.Process):
                 message_type, message = self._queue.get()
                 message_manager = self.message_managers[message_type]
                 message_manager(self, message)
-            except (IOError, KeyboardInterrupt, SystemExit, EOFError):
+            except (IOError, EOFError):
                 self.close()
+                return
 
     def _run_job(self, job):
         """ Manages RUN_JOB. Runs a new job"""

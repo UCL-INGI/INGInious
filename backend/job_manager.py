@@ -18,6 +18,7 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Contains the class JobManager """
 import multiprocessing
+import multiprocessing.managers
 import os
 import signal
 import uuid
@@ -25,6 +26,11 @@ import uuid
 from backend._callback_manager import CallbackManager
 from backend._message_types import RUN_JOB, CLOSE
 import backend._pool_manager
+
+
+def _init_manager():
+    """ Makes the manager ignore SIGINT """
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
 
 
 class JobManager(object):
@@ -81,7 +87,9 @@ class JobManager(object):
         self._tasks_directory = tasks_directory
         self._docker_config = docker_instances
 
-        self._memory_manager = multiprocessing.Manager()
+        self._memory_manager = multiprocessing.managers.SyncManager()
+        self._memory_manager.start(_init_manager)
+
         self._operations_queue = self._memory_manager.Queue()
         self._done_queue = self._memory_manager.Queue()
 
@@ -108,10 +116,21 @@ class JobManager(object):
 
         print "Job Manager initialization done"
 
-    def cleanup(self):
+    def cleanup(self, dummy1=None, dummy2=None):
         """ Close the pool manager """
+        print "Received exit signal"
+        print "Tell the pool manager to close itself"
         self._operations_queue.put((CLOSE, []))
-        self._pool_manager.join()
+        print "Waiting five seconds for the pool manager to close"
+        self._pool_manager.join(5)
+        if self._pool_manager.is_alive():
+            print "Pool manager did not exit. Killing it."
+            self._pool_manager.terminate()
+            self._pool_manager.join()
+        print "Stopping the process sync manager"
+        self._memory_manager.shutdown()
+        print "Exiting"
+        exit(0)
 
     def get_waiting_jobs_count(self):
         """Returns the total number of waiting jobs in the Job Manager"""
