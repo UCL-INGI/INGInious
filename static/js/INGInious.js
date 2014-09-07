@@ -652,7 +652,7 @@ function studio_get_template_for_problem(problem)
  */
 function studio_create_new_subproblem()
 {
-	if(!$('#new_subproblem_pid').val().match(/^[a-zA-Z\._\-]+$/))
+	if(!$('#new_subproblem_pid').val().match(/^[a-zA-Z0-9\._\-]+$/))
 	{
 		alert('Problem id should only contain alphanumeric characters (in addition to ".", "_" and "-").');
 		return;
