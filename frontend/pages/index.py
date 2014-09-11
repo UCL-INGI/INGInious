@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Index page """
+from collections import OrderedDict
+
 import web
 
 from frontend.base import renderer
@@ -60,4 +62,5 @@ class IndexPage(object):
             except:
                 pass
         courses = {courseid: course for courseid, course in FrontendCourse.get_all_courses().iteritems() if course.is_open() or User.get_username() in course.get_admins()}
+        courses = OrderedDict(sorted(courses.iteritems(), key=lambda x: x[1].get_name()))
         return renderer.main(courses, except_free_last_submissions)
