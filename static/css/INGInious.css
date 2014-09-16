@@ -89,6 +89,8 @@ form#task #task-submit {
   border-left: 1px solid #ccc;
   padding-left: 20px;
   min-height: 20px;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 #task_debug dd dl {
   margin-bottom: 0;
