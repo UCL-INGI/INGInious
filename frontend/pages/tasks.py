@@ -91,12 +91,14 @@ class TaskPage(object):
                     if submission_manager.is_done(userinput['submissionid']):
                         web.header('Content-Type', 'application/json')
                         result = submission_manager.get_submission(userinput['submissionid'])
+                        result = submission_manager.get_input_from_submission(result)
                         return self.submission_to_json(result, User.get_username() in course.get_admins())
                     else:
                         web.header('Content-Type', 'application/json')
                         return json.dumps({'status': "waiting"})
                 elif "@action" in userinput and userinput["@action"] == "load_submission_input" and "submissionid" in userinput:
                     submission = submission_manager.get_submission(userinput["submissionid"])
+                    submission = submission_manager.get_input_from_submission(submission)
                     if not submission:
                         raise web.notfound()
                     web.header('Content-Type', 'application/json')

@@ -20,6 +20,7 @@
 from datetime import datetime
 import base64
 
+import json
 from bson.objectid import ObjectId
 from sh import git  # pylint: disable=no-name-in-module
 import pymongo
@@ -91,6 +92,7 @@ def get_submission_from_jobid(jobid):
 def job_done_callback(jobid, _, job):
     """ Callback called by JobManager when a job is done. Updates the submission in the database with the data returned after the completion of the job """
     submission = get_submission_from_jobid(jobid)
+    submission = get_input_from_submission(submission)
 
     data = {
         "status": ("done" if job["result"] == "success" or job["result"] == "failed" else "error"),  # error only if error was made by INGInious
@@ -132,12 +134,37 @@ def add_job(task, inputdata, debug=False):
     username = User.get_username()
 
     jobid = get_job_manager().new_job_id()
-    obj = {"username": username, "courseid": task.get_course_id(), "taskid": task.get_id(), "input": inputdata, "status": "waiting", "jobid": jobid, "submitted_on": datetime.now()}
+
+    obj = {
+        "username": username,
+        "courseid": task.get_course_id(),
+        "taskid": task.get_id(),
+        "input": get_gridfs().put(
+            json.dumps(inputdata)),
+        "status": "waiting",
+        "jobid": jobid,
+        "submitted_on": datetime.now()}
     submissionid = get_database().submissions.insert(obj)
 
     get_job_manager().new_job(task, inputdata, job_done_callback, jobid, debug)
 
     return submissionid
+
+
+def get_input_from_submission(submission, only_input=False):
+    """ Get the input of a submission. If only_input is False, returns the full submissions with a dictionnary object at the key "input". Else, returns only the dictionnary. """
+    if isinstance(submission.get("input", {}), dict):
+        if only_input:
+            return submission.get("input", {})
+        else:
+            return submission
+    else:
+        inp = json.load(get_gridfs().get(submission['input']))
+        if only_input:
+            return inp
+        else:
+            submission["input"] = inp
+            return submission
 
 
 def is_running(submissionid, user_check=True):

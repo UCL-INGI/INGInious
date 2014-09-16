@@ -38,6 +38,7 @@ from common.task_file_managers.tasks_file_manager import TaskFileManager
 from frontend.base import get_database, get_gridfs
 from frontend.base import renderer
 from frontend.custom.courses import FrontendCourse
+from frontend.submission_manager import get_input_from_submission
 from frontend.user_data import UserData
 import frontend.user as User
 class UnicodeWriter(object):
@@ -321,6 +322,7 @@ class AdminCourseTaskListPage(object):
             tar = tarfile.open(fileobj=tmpfile, mode='w:')
 
             for submission in submissions:
+                submission = get_input_from_submission(submission)
                 submission_json = StringIO.StringIO(json.dumps(submission, default=json_util.default, indent=4, separators=(',', ': ')))
                 submission_json_fname = str(submission["_id"]) + '.test'
                 # Generate file info
