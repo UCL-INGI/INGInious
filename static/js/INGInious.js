@@ -470,7 +470,7 @@ function loadOldSubmissionInput(id)
     	if( "status" in data && data['status'] == "ok" && "input" in data)
     	{
     		unblurTaskForm();
-    		loadInput(data['input']);
+    		loadInput(id, data['input']);
     		displayTaskInputDoneAlert();
     	}
     	else
@@ -486,7 +486,7 @@ function loadOldSubmissionInput(id)
 }
 
 //Load data from input into the form inputs
-function loadInput(input)
+function loadInput(submissionid, input)
 {
 	$('form#task input').each(function()
 	{
@@ -497,7 +497,7 @@ function loadInput(input)
 		
 		if(id in input)
 		{
-			if($(this).attr('type') != "checkbox" && $(this).attr('type') != "radio")
+			if($(this).attr('type') != "checkbox" && $(this).attr('type') != "radio" && $(this).attr('type') != "file")
 				$(this).prop('value',input[id]);
 			else if($(this).attr('type') == "checkbox" && jQuery.isArray(input[id]) && $.inArray(parseInt($(this).prop('value')),input[id]))
 				$(this).prop('checked',true);
@@ -505,6 +505,12 @@ function loadInput(input)
 				$(this).prop('checked',true);
 			else if($(this).attr('type') == "checkbox" || $(this).attr('type') == "radio")
 				$(this).prop('checked',false);
+			else if($(this).attr('type') == 'file')
+			{
+				//display the download button associated with this file
+				$('#download-input-file-'+id).attr('href',$('form#task').attr("action")+"?submissionid="+submissionid+"&questionid="+id);
+				$('#download-input-file-'+id).css('display','block');
+			}
 		}
 		else if($(this).attr('type') == "checkbox" || $(this).attr('type') == "radio")
 			$(this).prop('checked',false);

@@ -17,7 +17,10 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Task page """
+import base64
 import json
+import mimetypes
+import urllib
 
 import web
 
@@ -31,7 +34,7 @@ import frontend.user as User
 
 class TaskPage(object):
 
-    """ Display a task """
+    """ Display a task (and allow to reload old submission/file uploaded during a submission) """
 
     def GET(self, courseid, taskid):
         """ GET request """
@@ -46,7 +49,30 @@ class TaskPage(object):
                     return renderer.task_unavailable()
 
                 User.get_data().view_task(courseid, taskid)
-                return renderer.task(course, task, submission_manager.get_user_submissions(task))
+
+                userinput = web.input()
+                if "submissionid" in userinput and "questionid" in userinput:
+                    # Download a previously submitted file
+                    submission = submission_manager.get_submission(userinput["submissionid"], True)
+                    if submission is None:
+                        raise web.notfound()
+                    sinput = submission_manager.get_input_from_submission(submission, True)
+                    if userinput["questionid"] not in sinput:
+                        raise web.notfound()
+
+                    if isinstance(sinput[userinput["questionid"]], dict):
+                        # File uploaded previously
+                        mimetypes.init()
+                        mime_type = mimetypes.guess_type(urllib.pathname2url(sinput[userinput["questionid"]]['filename']))
+                        web.header('Content-Type', mime_type)
+                        return base64.b64decode(sinput[userinput["questionid"]]['value'])
+                    else:
+                        # Other file, download it as text
+                        web.header('Content-Type', 'text/plain')
+                        return sinput[userinput["questionid"]]
+                else:
+                    # Display the task itself
+                    return renderer.task(course, task, submission_manager.get_user_submissions(task))
             except:
                 if web.config.debug:
                     raise
