@@ -470,8 +470,9 @@ function loadOldSubmissionInput(id)
     	if( "status" in data && data['status'] == "ok" && "input" in data)
     	{
     		unblurTaskForm();
+    		loadOldFeedback(data);
     		loadInput(id, data['input']);
-    		displayTaskInputDoneAlert();
+    		//displayTaskInputDoneAlert();
     	}
     	else
     	{
@@ -483,6 +484,29 @@ function loadOldSubmissionInput(id)
     	displayTaskInputErrorAlert();
         unblurTaskForm();
     });
+}
+
+//Load feedback from an old submission
+function loadOldFeedback(data)
+{
+	if("status" in data && "result" in data)
+    {
+    	if("debug" in data)
+    		displayDebugInfo(data["debug"]);
+
+        if(data['result'] == "failed")
+            displayTaskStudentErrorAlert(data);
+        else if(data['result'] == "success")
+            displayTaskStudentSuccessAlert(data);
+        else if(data['result'] == "timeout")
+            displayTimeOutAlert();
+        else if(data['result'] == "overflow")
+            displayOverflowAlert();
+        else // == "error"
+            displayTaskErrorAlert(data);
+    }
+    else
+        displayTaskErrorAlert("");
 }
 
 //Load data from input into the form inputs

@@ -128,7 +128,7 @@ class TaskPage(object):
                     if not submission:
                         raise web.notfound()
                     web.header('Content-Type', 'application/json')
-                    return json.dumps({"status": "ok", "input": submission["input"]})
+                    return self.submission_to_json(submission, (User.get_username() in course.get_admins()), True)
                 else:
                     raise web.notfound()
             except:
@@ -139,9 +139,16 @@ class TaskPage(object):
         else:
             return renderer.index(False)
 
-    def submission_to_json(self, data, debug):
+    def submission_to_json(self, data, debug, reloading=False):
         """ Converts a submission to json (keeps only needed fields) """
         tojson = {'status': data['status'], 'result': data['result'], 'id': str(data["_id"]), 'submitted_on': str(data['submitted_on'])}
+
+        if reloading:
+            # Set status='ok' because we are reloading an old submission.
+            tojson["status"] = 'ok'
+            # And also include input
+            tojson["input"] = data.get('input', {})
+
         if "text" in data:
             tojson["text"] = data["text"]
         if "problems" in data:
