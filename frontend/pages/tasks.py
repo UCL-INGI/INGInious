@@ -141,7 +141,7 @@ class TaskPage(object):
 
     def submission_to_json(self, data, debug, reloading=False):
         """ Converts a submission to json (keeps only needed fields) """
-        tojson = {'status': data['status'], 'result': data['result'], 'id': str(data["_id"]), 'submitted_on': str(data['submitted_on'])}
+        tojson = {'status': data['status'], 'result': data.get('result', 'crash'), 'id': str(data["_id"]), 'submitted_on': str(data['submitted_on'])}
 
         if reloading:
             # Set status='ok' because we are reloading an old submission.

@@ -104,7 +104,7 @@ def job_done_callback(jobid, _, job):
     }
 
     # Store additional data
-    dont_dump = ["task", "course"]
+    dont_dump = ["task", "course", "input"]
     for index in job:
         if index not in data and index not in dont_dump:
             data[index] = job[index]
