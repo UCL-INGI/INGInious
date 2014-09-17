@@ -140,6 +140,18 @@ class AdminCourseEditTask(object):
             except:
                 del problem_content["limit"]
 
+        if "allowed_exts" in problem_content:
+            if problem_content["allowed_exts"] == "":
+                del problem_content["allowed_exts"]
+            else:
+                problem_content["allowed_exts"] = problem_content["allowed_exts"].split(',')
+
+        if "max_size" in problem_content:
+            try:
+                problem_content["max_size"] = int(problem_content["max_size"])
+            except:
+                del problem_content["max_size"]
+
         if problem_content["type"] == "custom":
             try:
                 custom_content = json.loads(problem_content["custom"])

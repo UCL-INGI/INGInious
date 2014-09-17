@@ -664,8 +664,10 @@ function studio_submit()
  */
 function studio_get_template_for_problem(problem)
 {
-	if((problem["type"] == "code" && !problem["boxes"]) || problem["type"] == "code-single-line" || problem["type"] == "code-file")
+	if((problem["type"] == "code" && !problem["boxes"]) || problem["type"] == "code-single-line")
 		return "#subproblem_code";
+	else if(problem["type"] == "code-file")
+		return "#subproblem_code_file";
 	else if(problem["type"] == "code")
 		return "#subproblem_custom";
 	else if(problem["type"] == "match")
@@ -731,6 +733,9 @@ function studio_init_template(template,pid,problem)
 	case "#subproblem_code":
 		studio_init_template_code(well, pid, problem);
 		break;
+	case "#subproblem_code_file":
+		studio_init_template_code_file(well, pid, problem);
+		break;
 	case "#subproblem_custom":
 		studio_init_template_custom(well, pid, problem);
 		break;
@@ -763,6 +768,27 @@ function studio_init_template_code(well, pid, problem)
 		$('#language-'+pid,well).val(problem["language"]);
 	if("type" in problem)
 		$('#type-'+pid,well).val(problem["type"]);
+}
+
+/**
+ * Init a code_file template
+ * @param well: the DOM element containing the input fields
+ * @param pid
+ * @param problem
+ */
+function studio_init_template_code_file(well, pid, problem)
+{
+	if("name" in problem)
+		$('#name-'+pid,well).val(problem["name"]);
+	if("header" in problem)
+		$('#header-'+pid,well).val(problem["header"]);
+	if("headerIsHTML" in problem && problem["headerIsHTML"])
+		$('#headerIsHTML-'+pid,well).attr('checked', true);
+	
+	if("max_size" in problem)
+		$('#maxsize-'+pid,well).val(problem["max_size"]);
+	if("allowed_exts" in problem)
+		$('#extensions-'+pid,well).val(problem["allowed_exts"].join());
 }
 
 /**
