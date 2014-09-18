@@ -63,5 +63,6 @@ class ParsableText(object):
 
     def rst(self, string):
         """Parses reStructuredText"""
-        parts = core.publish_parts(source=string, writer_name='html')
+        overrides = {'initial_header_level': 3, 'doctitle_xform': False}
+        parts = core.publish_parts(source=string, writer_name='html', settings_overrides=overrides)
         return parts['body_pre_docinfo'] + parts['fragment']
