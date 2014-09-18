@@ -62,12 +62,6 @@ class CallbackManager(threading.Thread):
     def _merge_emul_result(self, origin_dict, emul_result):
         """ Merge the results of the multiple-choice (and other special problem types) questions with the returned results of the containers """
 
-        # Also includes stderr and stdout (for debug)
-        if "stderr" in emul_result:
-            origin_dict["stderr"] = emul_result["stderr"]
-        if "stdout" in emul_result:
-            origin_dict["stdout"] = emul_result["stdout"]
-
         # If no docker job was run, returns directly the original response dict, but without lists
         if emul_result is None:
             if "text" in origin_dict and isinstance(origin_dict["text"], list):
@@ -77,6 +71,12 @@ class CallbackManager(threading.Thread):
                     if isinstance(origin_dict["problems"][problem], list):
                         origin_dict["problems"][problem] = "\n".join(origin_dict["problems"][problem])
             return origin_dict
+
+        # Include stderr and stdout (for debug)
+        if "stderr" in emul_result:
+            origin_dict["stderr"] = emul_result["stderr"]
+        if "stdout" in emul_result:
+            origin_dict["stdout"] = emul_result["stdout"]
 
         # Else merge everything
         if emul_result['result'] not in ["error", "failed", "success", "timeout", "overflow"]:
