@@ -20,10 +20,13 @@
 import base64
 import json
 import mimetypes
+import os
+import posixpath
 import urllib
 
 import web
 
+from common.base import INGIniousConfiguration
 from common.tasks_code_boxes import FileBox
 from common.tasks_problems import MultipleChoiceProblem, BasicCodeProblem
 from frontend.base import renderer
@@ -64,7 +67,7 @@ class TaskPage(object):
                         # File uploaded previously
                         mimetypes.init()
                         mime_type = mimetypes.guess_type(urllib.pathname2url(sinput[userinput["questionid"]]['filename']))
-                        web.header('Content-Type', mime_type)
+                        web.header('Content-Type', mime_type[0])
                         return base64.b64decode(sinput[userinput["questionid"]]['value'])
                     else:
                         # Other file, download it as text
@@ -169,3 +172,44 @@ class TaskPage(object):
                     if isinstance(box, FileBox):
                         output[box.get_complete_id()] = {}
         return output
+
+
+class TaskPageStaticDownload(object):
+
+    """ Allow to download files stored in the task folder """
+
+    def GET(self, courseid, taskid, path):
+        """ GET request """
+        if User.is_logged_in():
+            try:
+                course = FrontendCourse(courseid)
+                if not course.is_open() and User.get_username() not in course.get_admins():
+                    return renderer.course_unavailable()
+
+                task = course.get_task(taskid)
+                if not task.is_open() and User.get_username() not in course.get_admins():
+                    return renderer.task_unavailable()
+
+                path_norm = posixpath.normpath(urllib.unquote(path))
+                public_folder_path = os.path.normpath(os.path.realpath(os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid, "public")))
+                file_path = os.path.normpath(os.path.realpath(os.path.join(public_folder_path, path_norm)))
+
+                # Verify that we are still inside the public directory
+                if os.path.normpath(os.path.commonprefix([public_folder_path, file_path])) != public_folder_path:
+                    raise web.notfound()
+
+                if os.path.isfile(file_path):
+                    mimetypes.init()
+                    mime_type = mimetypes.guess_type(file_path)
+                    web.header('Content-Type', mime_type[0])
+                    with open(file_path) as static_file:
+                        return static_file.read()
+                else:
+                    raise web.notfound()
+            except:
+                if web.config.debug:
+                    raise
+                else:
+                    raise web.notfound()
+        else:
+            return renderer.index(False)

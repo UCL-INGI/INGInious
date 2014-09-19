@@ -31,6 +31,7 @@ urls = (
     '/index', 'frontend.pages.index.IndexPage',
     '/course/([^/]+)', 'frontend.pages.course.CoursePage',
     '/course/([^/]+)/([^/]+)', 'frontend.pages.tasks.TaskPage',
+    '/course/([^/]+)/([^/]+)/(.*)', 'frontend.pages.tasks.TaskPageStaticDownload',
     '/admin/([^/]+)', 'frontend.pages.admin_course.AdminCourseTaskListPage',
     '/admin/([^/]+)/students', 'frontend.pages.admin_course.AdminCourseStudentListPage',
     '/admin/([^/]+)/student/([^/]+)', 'frontend.pages.admin_course.AdminCourseStudentInfoPage',
