@@ -54,6 +54,10 @@ $var title: $:course.get_name()
     			<a href="javascript:ask_to_download('$data[taskid]['url']')" class="btn btn-default btn-xs">Download submissions</a>
     		</td>
     	</tr>
+    <tr>
+        <td colspan="5"><input type="text" class="form-control" id="new_task_id" placeholder="New task id"/></td>
+        <td><a href="javascript:studio_create_new_task();" class="btn btn-info btn-large btn-block">Create new task</a></td>
+    </tr>
 </table>
 $if len(errors) != 0:
     <h3>Errors while loading tasks</h3>

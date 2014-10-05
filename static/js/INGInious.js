@@ -582,6 +582,19 @@ function ask_to_download(link)
 |     Studio     |
 \****************/
 /**
+ * Redirect to the studio to create a new task
+ */
+function studio_create_new_task()
+{
+	if(!$('#new_task_id').val().match(/^[a-zA-Z0-9\._\-]+$/))
+	{
+		alert('Task id should only contain alphanumeric characters (in addition to ".", "_" and "-").');
+		return;
+	}
+	window.location.href="/admin/test/edit/"+$('#new_task_id').val()
+}
+
+/**
  * Load the studio, creating blocks for existing subproblems
  */
 function studio_load(data)
