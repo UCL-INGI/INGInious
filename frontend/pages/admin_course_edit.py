@@ -189,6 +189,9 @@ class AdminCourseEditTask(object):
                 return json.dumps({"status": "error", "message": "Invalid file type: {}".format(str(inst))})
             del data["@filetype"]
 
+            if problems is None:
+                return json.dumps({"status": "error", "message": "You cannot create a task without subproblems"})
+
             # Order the problems (this line also deletes @order from the result)
             data["problems"] = OrderedDict([(key, self.parse_problem(val))
                                             for key, val in sorted(problems.iteritems(), key=lambda x: int(x[1]['@order']))])
