@@ -79,10 +79,10 @@ class CallbackManager(threading.Thread):
             origin_dict["stdout"] = emul_result["stdout"]
 
         # Else merge everything
-        if emul_result['result'] not in ["error", "failed", "success", "timeout", "overflow"]:
+        if emul_result['result'] not in ["error", "failed", "success", "timeout", "overflow", "crash"]:
             emul_result['result'] = "error"
 
-        if emul_result["result"] not in ["error", "timeout", "overflow"]:
+        if emul_result["result"] not in ["error", "timeout", "overflow", "crash"]:
             final_dict = emul_result
 
             final_dict["result"] = "success" if origin_dict["result"] == "success" and final_dict["result"] == "success" else "failed"
@@ -99,7 +99,7 @@ class CallbackManager(threading.Thread):
                         final_dict["problems"][pid] = origin_dict["problems"][pid]
             elif "problems" not in final_dict and "problems" in origin_dict:
                 final_dict["problems"] = origin_dict["problems"]
-        elif emul_result["result"] in ["error", "timeout", "overflow"] and "text" in emul_result:
+        elif emul_result["result"] in ["error", "timeout", "overflow", "crash"] and "text" in emul_result:
             final_dict = origin_dict.copy()
             final_dict.update({"result": emul_result["result"], "text": emul_result["text"]})
         elif emul_result["result"] == "error":
@@ -111,4 +111,7 @@ class CallbackManager(threading.Thread):
         elif emul_result["result"] == "overflow":
             final_dict = origin_dict.copy()
             final_dict.update({"result": emul_result["result"], "text": "Your code took too much memory or disk"})
+        elif emul_result["result"] == "crash":
+            final_dict = origin_dict.copy()
+            final_dict.update({"result": emul_result["result"], "text": "There was an internal error while running the tests"})
         return final_dict
