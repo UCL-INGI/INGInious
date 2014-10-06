@@ -18,13 +18,13 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Pages only accessible to the course's admins """
 from collections import OrderedDict
-from os import listdir
-from os.path import isfile, join, splitext
 import StringIO
+import base64
 import cStringIO
 import codecs
 import csv
 import json
+import os.path
 import tarfile
 import tempfile
 import time
@@ -41,6 +41,8 @@ from frontend.custom.courses import FrontendCourse
 from frontend.submission_manager import get_input_from_submission
 from frontend.user_data import UserData
 import frontend.user as User
+
+
 class UnicodeWriter(object):
 
     """
@@ -323,14 +325,17 @@ class AdminCourseTaskListPage(object):
 
             for submission in submissions:
                 submission = get_input_from_submission(submission)
-                submission_json = StringIO.StringIO(json.dumps(submission, default=json_util.default, indent=4, separators=(',', ': ')))
-                submission_json_fname = str(submission["_id"]) + '.test'
-                # Generate file info
+
+                # Compute base path in the tar file
+                base_path = "/"
                 for sub_folder in sub_folders:
                     if sub_folder == 'taskid':
-                        submission_json_fname = submission['taskid'] + '/' + submission_json_fname
+                        base_path = submission['taskid'] + '/' + base_path
                     elif sub_folder == 'username':
-                        submission_json_fname = submission['username'] + '/' + submission_json_fname
+                        base_path = submission['username'] + '/' + base_path
+
+                submission_json = StringIO.StringIO(json.dumps(submission, default=json_util.default, indent=4, separators=(',', ': ')))
+                submission_json_fname = base_path + str(submission["_id"]) + '.test'
                 info = tarfile.TarInfo(name=submission_json_fname)
                 info.size = submission_json.len
                 info.mtime = time.mktime(submission["submitted_on"].timetuple())
@@ -341,20 +346,32 @@ class AdminCourseTaskListPage(object):
                 # If there is an archive, add it too
                 if 'archive' in submission and submission['archive'] is not None and submission['archive'] != "":
                     subfile = get_gridfs().get(submission['archive'])
-                    taskfname = str(submission["_id"]) + '.tgz'
-                    # Generate file info
-                    for sub_folder in sub_folders:
-                        if sub_folder == 'taskid':
-                            taskfname = submission['taskid'] + '/' + taskfname
-                        elif sub_folder == 'username':
-                            taskfname = submission['username'] + '/' + taskfname
+                    taskfname = base_path + str(submission["_id"]) + '.tgz'
 
+                    # Generate file info
                     info = tarfile.TarInfo(name=taskfname)
                     info.size = subfile.length
                     info.mtime = time.mktime(submission["submitted_on"].timetuple())
 
                     # Add file in tar archive
                     tar.addfile(info, fileobj=subfile)
+
+                # If there files that were uploaded by the student, add them
+                if submission['input'] is not None:
+                    for pid, problem in submission['input'].iteritems():
+                        # If problem is a dict, it is a file (from the specification of the problems)
+                        if isinstance(problem, dict):
+                            _, ext = os.path.splitext(problem['filename'])
+                            subfile = StringIO.StringIO(base64.b64decode(problem['value']))
+                            taskfname = base_path + str(submission["_id"]) + '_uploaded_files/' + pid + ext
+
+                            # Generate file info
+                            info = tarfile.TarInfo(name=taskfname)
+                            info.size = subfile.len
+                            info.mtime = time.mktime(submission["submitted_on"].timetuple())
+
+                            # Add file in tar archive
+                            tar.addfile(info, fileobj=subfile)
 
             # Close tarfile and put tempfile cursor at 0
             tar.close()
