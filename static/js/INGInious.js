@@ -591,7 +591,7 @@ function studio_create_new_task()
 		alert('Task id should only contain alphanumeric characters (in addition to ".", "_" and "-").');
 		return;
 	}
-	window.location.href="/admin/test/edit/"+$('#new_task_id').val()
+	window.location.href=window.location.href+"/edit/"+$('#new_task_id').val()
 }
 
 /**
