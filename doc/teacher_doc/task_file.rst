@@ -2,10 +2,14 @@ Task description files
 ======================
 
 Inside a course folder (see `Creating a new course`) tasks must have 
-(for example with *taskname* as task id) a file *taskname.task* and a folder named
-*taskname*.
+(for example with *taskname* as task id) a folder named
+*taskname*, and, inside this folder, a file named *task.json*.
 
-The *.task* file is a JSON file containing informations about the task.
+(Note: it is possible to create a file named *task.rst* instead of 
+*task.json*. This file can then be writen in restructuredText. But this
+is not yet documented)
+
+*task.json* is a JSON file containing informations about the task.
 ::
 
 	{

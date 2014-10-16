@@ -6,36 +6,34 @@ The directory structure for the courses and tasks in INGInious is:
 ::
 
 	tasks/
-		course_name_1.course
 		course_name_1/
-			task_1.task
+			course.json
 			task_1/
+				task.json
 				run
 				...
-			task_2.task
 			task2/
+ 				task.json
 				run
 				...
-		course_name_2.course
 		course_name_2/
-			task_1.task
+			course.json
 			task_1/
+				task.rst
 				run
 				...
-			another.task
 			another/
+				task.rst
 				run
 				...
 
 Most of the time (this is the case in INGI_) the teaching team do not have direct
 access to the *tasks* folder, but only to the folder of the course it maintains.
-If this is the case for you, you can skip this section and go directly to 
-`Creating a new task`.
 
 In the main *tasks* folder, each course (for example for the course with id *course_name*)
-must have a *course_name.course* file, and a folder named *course_name*.
+must have a folder named *course_name*, and, inside this folder, a file called *course.json*.
 
-The *.course* are JSON files, containing basic informations about the course:
+*course.json* is a JSON files, containing basic informations about the course:
 ::
 
 	{
