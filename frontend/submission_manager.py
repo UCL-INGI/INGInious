@@ -55,7 +55,7 @@ def init_backend_interface():
     get_database().user_tasks.ensure_index([("username", pymongo.ASCENDING)])
 
     # Updates the submissions that have a jobid with the status error, as the server restarted """
-    get_database().submissions.update({'jobid': {"$exists": True}}, {"$unset": {'jobid': ""}, "$set": {'status': 'error', 'text': 'Internal error. Server restarted'}})
+    get_database().submissions.update({'jobid': {"$exists": True}}, {"$unset": {'jobid': ""}, "$set": {'status': 'error', 'text': 'Internal error. Server restarted'}}, False, False, None, True)
 
     # Create the job manager
     get_job_manager.job_manager = JobManager(
