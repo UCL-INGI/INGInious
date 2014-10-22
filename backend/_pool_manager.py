@@ -129,6 +129,7 @@ class PoolManager(multiprocessing.Process):
             self._containers_done.append([])
             self._containers_launched.append({})
             self._running_job_count.append(0)
+            self._running_job_count_hard.append(0)
 
         print "Starting event readers"
         for docker_instance_id, docker_config in enumerate(self._docker_config):
