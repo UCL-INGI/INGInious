@@ -108,8 +108,7 @@ class FileBox(BasicBox):
             return False
 
         try:
-            _, ext = os.path.splitext(taskInput[self.get_complete_id()]["filename"])
-            if ext not in self._allowed_exts:
+            if not taskInput[self.get_complete_id()]["filename"].endswith(tuple(self._allowed_exts)):
                 return False
 
             if sys.getsizeof(taskInput[self.get_complete_id()]["value"]) > self._max_size:
