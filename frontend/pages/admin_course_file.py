@@ -5,6 +5,8 @@ import zipfile
 import web
 from common.base import INGIniousConfiguration, id_checker
 from common.task_file_managers.tasks_file_manager import TaskFileManager
+from frontend.custom.courses import FrontendCourse
+import frontend.user as User
 
 
 def make_zipfile(output_filename, source_dir, exclude):
@@ -37,6 +39,14 @@ class AdminDownloadTaskFiles(object):
             raise Exception("Invalid task id")
         if not id_checker(courseid):
             raise Exception("Invalid task id")
+
+        try:
+            course = FrontendCourse(courseid)
+            if not User.is_logged_in() or User.get_username() not in course.get_admins():
+                raise web.notfound()
+        except:
+            raise web.notfound()
+
         exclude = ["task.{}".format(subclass.get_ext()) for subclass in TaskFileManager.__subclasses__()]
         dir_path = os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid)
 
