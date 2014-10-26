@@ -17,11 +17,11 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Pages only accessible to the course's admins """
-from collections import OrderedDict
 import StringIO
 import base64
 import cStringIO
 import codecs
+from collections import OrderedDict
 import csv
 import json
 import os.path
@@ -39,8 +39,8 @@ from frontend.base import get_database, get_gridfs
 from frontend.base import renderer
 from frontend.custom.courses import FrontendCourse
 from frontend.submission_manager import get_input_from_submission
-from frontend.user_data import UserData
 import frontend.user as User
+from frontend.user_data import UserData
 
 
 class UnicodeWriter(object):
@@ -361,7 +361,15 @@ class AdminCourseTaskListPage(object):
                     for pid, problem in submission['input'].iteritems():
                         # If problem is a dict, it is a file (from the specification of the problems)
                         if isinstance(problem, dict):
-                            _, ext = os.path.splitext(problem['filename'])
+                            # Get the extension (match extensions with more than one dot too)
+                            DOUBLE_EXTENSIONS = ['.tar.gz', '.tar.bz2', '.tar.bz', '.tar.xz']
+                            if not problem['filename'].endswith(tuple(DOUBLE_EXTENSIONS)):
+                                _, ext = os.path.splitext(problem['filename'])
+                            else:
+                                for t_ext in DOUBLE_EXTENSIONS:
+                                    if problem['filename'].endswith(t_ext):
+                                        ext = t_ext
+
                             subfile = StringIO.StringIO(base64.b64decode(problem['value']))
                             taskfname = base_path + str(submission["_id"]) + '_uploaded_files/' + pid + ext
 
