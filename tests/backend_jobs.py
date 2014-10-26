@@ -32,7 +32,7 @@ import frontend
 import frontend.submission_manager
 class backend_jobs(unittest.TestCase):
     def setUp(self):
-        self.jm = frontend.submission_manager.get_job_manager.job_manager
+        self.jm = frontend.submission_manager.get_job_manager()
     
     def job_finished(self, jid, task, final_dict):
         '''Catches ending of a test job and tests the final state of the queue'''

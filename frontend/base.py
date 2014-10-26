@@ -29,12 +29,20 @@ def add_to_template_globals(name, value):
 add_to_template_globals.globals = {}
 
 # Instance of the template renderer
-renderer = web.template.render('templates/', globals=add_to_template_globals.globals, base='layout')
+
+
+def get_template_renderer(dir_path, base=None):
+    """ Create a template renderer on templates in the directory specified.
+        *base* is the base layout name.
+    """
+    return web.template.render(dir_path, globals=add_to_template_globals.globals, base=base)
+
+renderer = get_template_renderer('templates/', 'layout')
 
 
 def new_database_client():
     """ Creates a new MongoClient instance for INGINious """
-    config = {'host':INGIniousConfiguration.get('mongo_opt', {}).get('host', 'localhost')}
+    config = {'host': INGIniousConfiguration.get('mongo_opt', {}).get('host', 'localhost')}
     client = MongoClient(**config)
     return client[INGIniousConfiguration.get('mongo_opt', {}).get('database', 'INGInious')]
 

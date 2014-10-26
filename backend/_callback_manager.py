@@ -25,12 +25,13 @@ class CallbackManager(threading.Thread):
 
     """ Runs callback in the job manager's process and deletes the container """
 
-    def __init__(self, input_queue, docker_instances_config, waiting_job_data):
+    def __init__(self, input_queue, docker_instances_config, waiting_job_data, hook_manager):
         threading.Thread.__init__(self)
         self.daemon = True
         self._input_queue = input_queue
         self._waiting_job_data = waiting_job_data
         self._docker_instances_config = docker_instances_config
+        self._hook_manager = hook_manager
 
     def run(self):
         while True:
@@ -39,7 +40,7 @@ class CallbackManager(threading.Thread):
             except EOFError:
                 return
 
-            task, callback, base_dict = self._waiting_job_data[jobid]
+            task, callback, base_dict, statinfo = self._waiting_job_data[jobid]
             del self._waiting_job_data[jobid]
 
             final_result = self._parse_text(task, self._merge_emul_result(base_dict, result))
@@ -49,6 +50,8 @@ class CallbackManager(threading.Thread):
                 callback(jobid, task, final_result)
             except Exception as e:
                 print "CallbackManager failed to call the callback function for jobid {}: {}".format(jobid, repr(e))
+
+            self._hook_manager.call_hook("job_ended", jobid=jobid, task=task, statinfo=statinfo, result=final_result)
 
     def _parse_text(self, task, final_dict):
         """ Parses text """

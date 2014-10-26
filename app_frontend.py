@@ -21,10 +21,10 @@
 
 import web
 
-from frontend import submission_manager
-from frontend.plugins.plugin_manager import PluginManager
 import common.base
+from frontend import submission_manager
 import frontend.base
+from frontend.plugins.plugin_manager import PluginManager
 import frontend.session
 urls = (
     '/', 'frontend.pages.index.IndexPage',
@@ -56,10 +56,13 @@ def get_app(config_file):
         return web.notfound(frontend.base.renderer.notfound('Page not found'))
     appli.notfound = not_found
 
-    submission_manager.init_backend_interface()
+    plugin_manager = PluginManager(appli, common.base.INGIniousConfiguration.get("plugins", []))
 
-    # Must be done after everything else
-    PluginManager(appli, common.base.INGIniousConfiguration.get("plugins", []))
+    # Plugin Manager is also a Hook Manager
+    submission_manager.init_backend_interface(plugin_manager)
+
+    # Loads plugins
+    plugin_manager.load()
 
     return appli
 

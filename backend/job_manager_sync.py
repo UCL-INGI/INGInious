@@ -27,7 +27,7 @@ class JobManagerSync(object):
     def __init__(self, job_manager):
         self._job_manager = job_manager
 
-    def new_job(self, task, inputdata, debug=False):
+    def new_job(self, task, inputdata, launcher_name = "Unknown", debug=False):
         """
             Runs a new job.
             It works exactly like the JobManager class, instead that there is no callback and directly returns result.
@@ -39,7 +39,7 @@ class JobManagerSync(object):
             print "RETURN JOB"
             manage_output.jobReturn = job
             job_semaphore.release()
-        self._job_manager.new_job(task, inputdata, manage_output, None, debug)
+        self._job_manager.new_job(task, inputdata, manage_output, launcher_name, None, debug)
         job_semaphore.acquire()
         job_return = manage_output.jobReturn
         return job_return

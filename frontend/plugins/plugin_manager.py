@@ -16,12 +16,15 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
+from distutils.command.config import config
 """ Plugin Manager """
 import importlib
+
+from backend.hook_manager import HookManager
 import frontend.base
 
 
-class PluginManager(object):
+class PluginManager(HookManager):
 
     """ Registers an manage plugins """
 
@@ -36,32 +39,24 @@ class PluginManager(object):
         return cls._instance
 
     def __init__(self, app, config):
+        HookManager.__init__(self)
         self.app = app
         self.plugins = []
-        self.hooks = {}
         self.authentication = []
-
-        for entry in config:
-            module = importlib.import_module(entry["plugin_module"])
-            self.plugins.append(module.init(self, entry))
+        self._config = config
 
         frontend.base.add_to_template_globals("PluginManager", self)
+
+    def load(self):
+        """ Loads the plugin manager. Must be done after the initialisation of the backend """
+        for entry in self._config:
+            module = importlib.import_module(entry["plugin_module"])
+            self.plugins.append(module.init(self, entry))
 
     @classmethod
     def get_instance(cls):
         """ get the instance of PluginManager """
         return cls._instance
-
-    def add_hook(self, name, callback):
-        """ Add a new hook that can be called with the call_hook function """
-        hook_list = self.hooks.get(name, [])
-        hook_list.append(callback)
-        self.hooks[name] = hook_list
-
-    def call_hook(self, name, **kwargs):
-        """ Call all hooks registered with this name """
-        for func in self.hooks.get(name, []):
-            func(**kwargs)
 
     def add_page(self, pattern, classname):
         """ Add a new page to the web application """

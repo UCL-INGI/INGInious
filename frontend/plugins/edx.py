@@ -94,7 +94,7 @@ def init(plugin_manager, config):
                 return json.dumps({"correct": None, "score": 0, "msg": "<p>Internal grader error: input not consistent with task</p>"})
 
             try:
-                job_return = job_manager_sync.new_job(task, edx_input)
+                job_return = job_manager_sync.new_job(task, edx_input, "Plugin - EDX")
             except:
                 return json.dumps({"correct": None, "score": 0, "msg": "<p>Internal grader error: error while grading submission</p>"})
 

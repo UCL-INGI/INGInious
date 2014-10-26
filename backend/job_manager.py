@@ -17,15 +17,16 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Contains the class JobManager """
-import multiprocessing
 import multiprocessing.managers
 import os
 import signal
+import time
 import uuid
 
 from backend._callback_manager import CallbackManager
 from backend._message_types import RUN_JOB, CLOSE
 import backend._pool_manager
+from hook_manager import HookManager
 
 
 def _init_manager():
@@ -37,7 +38,7 @@ class JobManager(object):
 
     """ Manages jobs """
 
-    def __init__(self, docker_instances, containers_names, tasks_directory, callback_manager_count=1, slow_pool_size=None, fast_pool_size=None, containers_hard=[]):
+    def __init__(self, docker_instances, containers_names, tasks_directory, callback_manager_count=1, slow_pool_size=None, fast_pool_size=None, containers_hard=[], hook_manager=None):
         """
             Starts a job manager.
 
@@ -77,6 +78,9 @@ class JobManager(object):
             *callback_manager_count*
                 Number of thread to launch to handle the callbacks
 
+            *hook_manager*
+                An instance of HookManager. If no instance is given, a new one will be created.
+
             A job manager launches in fact a process called a pool manager.
 
             A pool manager runs two pools of processes, one for actions that are slow, the other for fast actions.
@@ -86,6 +90,8 @@ class JobManager(object):
         self._containers_names = containers_names
         self._tasks_directory = tasks_directory
         self._docker_config = docker_instances
+
+        self._hook_manager = HookManager() if hook_manager is None else hook_manager
 
         self._memory_manager = multiprocessing.managers.SyncManager()
         self._memory_manager.start(_init_manager)
@@ -110,15 +116,18 @@ class JobManager(object):
         print "Starting callback managers"
         self._callback_manager = []
         for _ in range(callback_manager_count):
-            process = CallbackManager(self._done_queue, self._docker_config, self._running_job_data)
+            process = CallbackManager(self._done_queue, self._docker_config, self._running_job_data, self._hook_manager)
             self._callback_manager.append(process)
             process.start()
 
         print "Job Manager initialization done"
+        self._hook_manager.call_hook("job_manager_init_done", job_manager=self)
 
     def cleanup(self, dummy1=None, dummy2=None):
         """ Close the pool manager """
         print "Received exit signal"
+        print "Calling job_manager_exit hook"
+        self._hook_manager.call_hook("job_manager_exit", job_manager=self)
         print "Tell the pool manager to close itself"
         self._operations_queue.put((CLOSE, []))
         print "Waiting five seconds for the pool manager to close"
@@ -140,7 +149,7 @@ class JobManager(object):
         """ Returns a new job id. The job id is unique and should be passed to the new_job function """
         return uuid.uuid4()
 
-    def new_job(self, task, inputdata, callback, jobid=None, debug=False):
+    def new_job(self, task, inputdata, callback, launcher_name="Unknown", jobid=None, debug=False):
         """ Add a new job. callback is a function that will be called asynchronously in the job manager's process. """
         if jobid is None:
             jobid = self.new_job_id()
@@ -158,14 +167,19 @@ class JobManager(object):
         if multiple_choice_error_count != 0:
             basedict["text"].append("You have {} errors in the multiple choice questions".format(multiple_choice_error_count))
 
+        # Compute some informations that will be useful for statistics
+        statinfo = {"launched": time.time(), "launcher_name": launcher_name}
+
         if need_emul:
             # Go through the whole process: sent everything to docker
-            self._running_job_data[jobid] = (task, callback, basedict)
+            self._running_job_data[jobid] = (task, callback, basedict, statinfo)
+            self._hook_manager.call_hook("new_job", jobid=jobid, task=task, statinfo=statinfo, inputdata=inputdata)
             self._operations_queue.put((RUN_JOB, [jobid, inputdata, os.path.join(self._tasks_directory, task.get_course_id(), task.get_id()), task.get_limits(), task.get_environment(), debug]))
         else:
             # Only send data to a CallbackManager
             basedict["text"] = "\n".join(basedict["text"])
-            self._running_job_data[jobid] = (task, callback, basedict)
+            self._running_job_data[jobid] = (task, callback, basedict, statinfo)
+            self._hook_manager.call_hook("new_job", jobid=jobid, task=task, statinfo=statinfo, inputdata=inputdata)
             self._done_queue.put((jobid, None))
 
         return jobid

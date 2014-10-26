@@ -182,14 +182,14 @@ def init(plugin_manager, config):
                 if post_input.get("async") is None:
                     # New sync job
                     try:
-                        job_return = job_manager_sync.new_job(task, task_input)
+                        job_return = job_manager_sync.new_job(task, task_input, "Plugin - Simple Grader")
                     except:
                         return json.dumps({"status": "error", "status_message": "An internal error occured"})
 
                     return json.dumps(dict({"status": "done"}.items() + self.keep_only_config_return_values(job_return).items()))
                 else:
                     # New async job
-                    jobid = job_manager_buffer.new_job(task, task_input)
+                    jobid = job_manager_buffer.new_job(task, task_input, "Plugin - Simple Grader")
                     return json.dumps({"status": "done", "jobid": str(jobid)})
             elif "jobid" in post_input:
                 # Get status of async job

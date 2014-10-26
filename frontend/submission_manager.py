@@ -17,20 +17,20 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Manages submissions """
-from datetime import datetime
 import base64
-
+from datetime import datetime
 import json
+
 from bson.objectid import ObjectId
-from sh import git  # pylint: disable=no-name-in-module
 import pymongo
+from sh import git  # pylint: disable=no-name-in-module
 
 from backend.job_manager import JobManager
 from common.base import INGIniousConfiguration
 from frontend.base import get_database, get_gridfs
 from frontend.plugins.plugin_manager import PluginManager
-from frontend.user_data import UserData
 import frontend.user as User
+from frontend.user_data import UserData
 job_managers = []
 
 
@@ -39,7 +39,7 @@ def get_job_manager():
     return get_job_manager.job_manager
 
 
-def init_backend_interface():
+def init_backend_interface(plugin_manager):
     """ inits everything that makes the backend working """
 
     # Ensures some indexes
@@ -73,7 +73,8 @@ def init_backend_interface():
             4),
         INGIniousConfiguration.get(
             "containers_hard",
-            []))
+            []),
+        plugin_manager)
 
 
 def get_submission(submissionid, user_check=True):
@@ -146,7 +147,9 @@ def add_job(task, inputdata, debug=False):
         "submitted_on": datetime.now()}
     submissionid = get_database().submissions.insert(obj)
 
-    get_job_manager().new_job(task, inputdata, job_done_callback, jobid, debug)
+    PluginManager.get_instance().call_hook("new_submission", submissionid=submissionid, submission=obj, jobid=jobid, inputdata=inputdata)
+
+    get_job_manager().new_job(task, inputdata, job_done_callback, "Frontend - {}".format(username), jobid, debug)
 
     return submissionid
 
