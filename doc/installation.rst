@@ -91,10 +91,9 @@ local directory flawlessly.
 
 	$ brew install mongodb
 	$ brew install python
-	$ brew install pip
 	$ sudo curl https://raw.githubusercontent.com/noplay/docker-osx/1.0.0/docker-osx > /usr/local/bin/docker-osx
 	$ sudo chmod +x /usr/local/bin/docker-osx
-	$ sudo pip install pymongo pytidylib docker-py sh webpy docutils simpleldap
+	$ sudo pip install pymongo pytidylib docker-py sh web.py docutils
 
 Follow the instruction of brew to enable mongodb.
 Each time you have to run INGInious, don't forget to start docker-osx by running
