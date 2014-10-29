@@ -1,28 +1,55 @@
 What is INGInious?
 ==================
 
-Made by the INGI_ department at the Catholic University of Louvain,
-INGInious is a tool built in Python_ on the top of Docker_, that allows teacher to 
-automatize the test on the code made by the students.
+INGInious provides a simple and secure way to execute and test untrusted code.
+It has been developed by the INGI_ department (UCL_) to grade programming assignments.
+The whole tool is written in Python_ (version 2).
+Behind the scenes, it relies on Docker_ to provide secure execution environments and on MongoDB_ to keep track of submissions.
 
-INGInious is completely language-agnostic: you can make containers_ for every language that
-you can run on a Linux distribution.
+INGInious is completely language-agnostic.
+If you can execute some code on a Linux machine, INGInious will run it.
+A container shipping Wine_ could even grade a '.exe'.
 
-.. _Python: http://www.python.org/
-.. _Docker: https://www.docker.com/
+As of September 2014, it is used both directly by the teaching staff of INGI_ and as a backend for edX_ courses Louv1.1x_ and Louv1.2x_.
+
+.. _Python: http://www.python.org
+.. _Docker: https://www.docker.com
 .. _INGI: http://www.uclouvain.be/ingi.html
+.. _UCL: http://www.uclouvain.be
+.. _MongoDB: http://www.mongodb.com
+.. _Wine: http://www.winehq.org
+.. _edX: https://www.edx.org
+.. _Louv1.1x: https://www.edx.org/course/louvainx/louvainx-louv1-1x-paradigms-computer-2751
+.. _Louv1.2x: https://www.edx.org/course/louvainx/louvainx-louv1-2x-paradigms-computer-4436
+
 
 How does INGInious work?
 ------------------------
 
-INGInious is basically a backend (which is, in Python, the :doc:`../dev_doc/backend`) which receives
-the code of the student and send it to a Docker container_. The Docker container then makes
-some verifications on the code of the student and returns a status, that can be *success*,
-*crash*, *timeout*, or *failed*.
+INGInious is based on the concept of tasks (see :ref:`task`). A task is a set of one or more related (sub)questions.
+For each task, an infinite number of submissions is allowed, but a user must wait for the result of its current submission before trying a new one.
 
-INGInious also provides a frontend (you guessed it, this is the :doc:`../dev_doc/frontend` in Python).
-Made with MongoDB as database, the frontend is in fact an extension of the backend,
-and allows students to work directly on a website. Statistics are available for the teachers through a dedicated interface.
+For simplicity, tasks are groupped by courses (see :ref:`course`).
+Usually, an INGInious course has one task per assignment.
+
+A submission is a set of deliverables (chunks of code, files, archives, etc.) that correspond each to one of the (sub)questions of the task.
+These files are made available to the *run file* (see :ref:`run file`), a special script provided by the task.
+That script is responsible for providing feedback on the submission by compiling, executing or applying any form of checking and testing to the deliverables.
+In its simplest form, the feedback consists of either *success* or *failed*.
+
+Architecture
+````````````
+
+INGInious comes with two distinct parts, a backend and a fontend.
+
+The backend (see :doc:`../dev_doc/backend`) receives the code of the students and sends it to a Docker container_.
+That container then makes some verifications on the submission and returns one of the following four possible status : *success*, *crash*, *timeout*, or *failed*.
+
+INGInious also provides a frontend (see :doc:`../dev_doc/frontend`).
+Made with MongoDB as database, the frontend is in fact an extension of the backend and allows students to work directly on a website.
+This frontend also provides statics and management tools for the teachers.
+
+Most of these functionalities can be extended through plugins.
 
 .. _container:
 .. _containers:
@@ -46,9 +73,9 @@ Isolation
 `````````
 
 Isolation allows teachers and system administrators to stop worrying about the code that
-the students provides. 
+the students provides.
 
-For example, if a student provides a forkbomb instead of a good code for the 
+For example, if a student provides a forkbomb instead of a good code for the
 test, the forkbomb will be contained inside the container. The host operating system
 (the computer that runs INGInious) won't be affected.
 

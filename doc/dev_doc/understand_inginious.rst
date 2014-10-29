@@ -3,11 +3,11 @@ Understand INGInious
 
 INGInious is made from three different packages:
 
-- The :doc:`common` which contains basic blocks, like *tasks* and 
+- The :doc:`common` which contains basic blocks, like *tasks* and
   *courses*. Derivates from this blocks are created by the frontend and other modules.
   The :doc:`common` does not need the :doc:`backend` nor the :doc:`frontend`.
 - The :doc:`backend` which contains only the needed classes to allow running tasks.
-- The :doc:`frontend` which is a web interface for the backend. 
+- The :doc:`frontend` which is a web interface for the backend.
 
 Jobs
 ----

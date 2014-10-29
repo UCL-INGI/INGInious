@@ -11,5 +11,5 @@ the folder "/path/to/INGInious/tasks/courseA/taskB/public/".
 The image will then be available with the url:
 http://domain.name.com/course/courseA/taskB/flower.png
 
-This allows you to insert images inside the context of your tasks, and to share 
+This allows you to insert images inside the context of your tasks, and to share
 additional resources like datasets or slides.

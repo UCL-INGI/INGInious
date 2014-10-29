@@ -18,11 +18,11 @@ Each hook available in INGInious is described here, starting with its name and p
 *job_manager_exit* (*job_manager*)
 	Called when a JobManager received the exit signal, before the JobManager exits.
 *new_job* (*jobid*, *task*, *statinfo*, *inputdata*)
-	Called when a job was just submitted. *task* contains a Task object, 
+	Called when a job was just submitted. *task* contains a Task object,
 	*statinfo* is a dictionnary containing various informations about the job.
 	*inputdata* contains the answers that were submitted to INGInious.
 *job_ended* (*jobid*, *task*, *statinfo*, *results*)
-	Called when a job has ended. *task* contains a Task object, 
+	Called when a job has ended. *task* contains a Task object,
 	*statinfo* is a dictionnary containing various informations about the job.
 	*results* contains the results of the job.
 *new_submission* (*submissionid*, *submission*, *jobid*, *inputdata*)
