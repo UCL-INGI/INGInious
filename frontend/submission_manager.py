@@ -23,7 +23,6 @@ import json
 
 from bson.objectid import ObjectId
 import pymongo
-from sh import git  # pylint: disable=no-name-in-module
 
 from backend.job_manager import JobManager
 from common.base import INGIniousConfiguration
