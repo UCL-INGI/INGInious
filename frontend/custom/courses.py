@@ -52,9 +52,13 @@ class FrontendCourse(Course):
         """ Return a list containing the ids of this course """
         return self._admins
 
-    def is_open(self):
-        """ Return true if the course is open to students """
+    def is_open_to_non_admin(self):
+        """ Returns true if the course is accessible by users that are not administrator of this course """
         return self._accessible.is_open()
+
+    def is_open_to_user(self, username):
+        """ Returns true if the course is open to this user """
+        return self._accessible.is_open() or username in self.get_admins()
 
     def get_user_completion_percentage(self):
         """ Returns the percentage (integer) of completion of this course by the current user """

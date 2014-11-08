@@ -51,7 +51,7 @@ $# Start content
         <a href="course/$courseid" class="list-group-item row">
             <div class="col-xs-12 col-md-7">
                 $courses[courseid].get_name()
-                $if not courses[courseid].is_open():
+                $if not courses[courseid].is_open_to_non_admin():
                     - <b>course not shown to students</b>
             </div>
             <div class="col-xs-12 col-md-5">

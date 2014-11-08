@@ -60,12 +60,12 @@ $def ColumnF():
     </table>
     $if User.get_username() in course.get_admins():
         <h3>Administration</h3>
-        $if not course.is_open():
+        $if not course.is_open_to_non_admin():
             <div class="alert alert-warning" role="alert">
                 This course is currently invisible for students. 
                 You can change this by modifying the "accessible" option in the configuration of the course.
             </div>
-        $if not task.is_open():
+        $if not task.is_open_to_non_admin():
             <div class="alert alert-warning" role="alert">
                 This task is currently invisible for students. 
                 You can change this by modifying the "accessible" option in the configuration of the task.

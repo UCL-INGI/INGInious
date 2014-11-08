@@ -18,9 +18,9 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Classes modifying basic tasks, problems and boxes classes """
 from common.parsable_text import ParsableText
+import common.tasks
 from frontend.accessible_time import AccessibleTime
 from frontend.custom.task_problems import DisplayableCodeProblem, DisplayableCodeSingleLineProblem, DisplayableMatchProblem, DisplayableMultipleChoiceProblem, DisplayableCodeFileProblem
-import common.tasks
 
 
 class FrontendTask(common.tasks.Task):
@@ -75,9 +75,13 @@ class FrontendTask(common.tasks.Task):
         """ Get the position of this task in the course """
         return self._order
 
-    def is_open(self):
-        """ Returns if the task is open to students """
-        return self._accessible.is_open()
+    def is_open_to_non_admin(self):
+        """ Returns true if the task is accessible by users that are not administrator of the course """
+        return self.get_course().is_open_to_non_admin() and self._accessible.is_open()
+
+    def is_open_to_user(self, username):
+        """ Returns true if the task is open to this user """
+        return (self.get_course().is_open_to_user(username) and self._accessible.is_open()) or username in self.get_course().get_admins()
 
     def get_user_status(self):
         """ Returns "succeeded" if the current user solved this task, "failed" if he failed, and "notattempted" if he did not try it yet """

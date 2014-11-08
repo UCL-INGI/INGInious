@@ -61,6 +61,6 @@ class IndexPage(object):
                 except_free_last_submissions.append(submission)
             except:
                 pass
-        courses = {courseid: course for courseid, course in FrontendCourse.get_all_courses().iteritems() if course.is_open() or User.get_username() in course.get_admins()}
+        courses = {courseid: course for courseid, course in FrontendCourse.get_all_courses().iteritems() if course.is_open_to_user(User.get_username())}
         courses = OrderedDict(sorted(courses.iteritems(), key=lambda x: x[1].get_name()))
         return renderer.main(courses, except_free_last_submissions)
