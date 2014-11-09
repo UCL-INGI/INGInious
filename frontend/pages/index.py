@@ -46,13 +46,39 @@ class IndexPage(object):
     def POST(self):
         """ POST request: login """
         user_input = web.input()
-        if "@authid" in user_input and User.connect(int(user_input["@authid"]), user_input):
+        if "@authid" in user_input:  # connect
+            if User.connect(int(user_input["@authid"]), user_input):
+                return self.call_main()
+            else:
+                return renderer.index(True)
+        elif User.is_logged_in():  # register to a course
             return self.call_main()
         else:
-            return renderer.index(True)
+            return renderer.index(False)
 
     def call_main(self):
         """ Display main page (only when logged) """
+
+        # Handle registration to a course
+        user_input = web.input()
+        registration_status = None
+        if "register_courseid" in user_input and user_input["register_courseid"] != "":
+            try:
+                course = FrontendCourse(user_input["register_courseid"])
+                if not course.is_registration_possible():
+                    registration_status = False
+                else:
+                    registration_status = course.register_user(User.get_username(), user_input.get("register_password", None))
+            except:
+                registration_status = False
+        if "unregister_courseid" in user_input:
+            try:
+                course = FrontendCourse(user_input["unregister_courseid"])
+                course.unregister_user(User.get_username())
+            except:
+                pass
+
+        # Display
         last_submissions = get_user_last_submissions({}, 5)
         except_free_last_submissions = []
         for submission in last_submissions:
@@ -61,6 +87,13 @@ class IndexPage(object):
                 except_free_last_submissions.append(submission)
             except:
                 pass
-        courses = {courseid: course for courseid, course in FrontendCourse.get_all_courses().iteritems() if course.is_open_to_user(User.get_username())}
-        courses = OrderedDict(sorted(courses.iteritems(), key=lambda x: x[1].get_name()))
-        return renderer.main(courses, except_free_last_submissions)
+
+        all_courses = FrontendCourse.get_all_courses()
+
+        open_courses = {courseid: course for courseid, course in all_courses.iteritems() if course.is_open_to_user(User.get_username())}
+        open_courses = OrderedDict(sorted(open_courses.iteritems(), key=lambda x: x[1].get_name()))
+
+        registerable_courses = {courseid: course for courseid, course in all_courses.iteritems() if not course.is_open_to_user(User.get_username()) and course.is_registration_possible()}
+        registerable_courses = OrderedDict(sorted(registerable_courses.iteritems(), key=lambda x: x[1].get_name()))
+
+        return renderer.main(open_courses, registerable_courses, except_free_last_submissions, registration_status)

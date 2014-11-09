@@ -1,4 +1,4 @@
-$def with (courses,submissions)
+$def with (open_courses,registrable_courses,submissions,registration_status)
 
 $# Copyright (c) 2014 Université Catholique de Louvain.
 $#
@@ -45,22 +45,49 @@ $def ColumnF():
 $var Column: $:ColumnF()
 
 $# Start content
-<h2>Course list</h2>
+<h2>My courses</h2>
 <div class="list-group">
-    $for courseid in courses
-        <a href="course/$courseid" class="list-group-item row">
-            <div class="col-xs-12 col-md-7">
-                $courses[courseid].get_name()
-                $if not courses[courseid].is_open_to_non_admin():
-                    - <b>course not shown to students</b>
-            </div>
-            <div class="col-xs-12 col-md-5">
-                <div class="progress">
-                    $ completion=courses[courseid].get_user_completion_percentage()
-                    <div class="progress-bar progress-bar-success" aria-valuenow="$completion" aria-valuemin="0" aria-valuemax="100" style="width: $completion%">
-                        $completion%
+	$if len(open_courses) != 0:
+        $for courseid in open_courses:
+            <a href="course/$courseid" class="list-group-item row">
+                <div class="col-xs-12 col-md-7">
+                    $open_courses[courseid].get_name()
+                    $if not open_courses[courseid].is_open_to_non_admin():
+                        - <b>course not shown to students</b>
+                </div>
+                <div class="col-xs-12 col-md-5">
+                    <div class="progress">
+                        $ completion=open_courses[courseid].get_user_completion_percentage()
+                        <div class="progress-bar progress-bar-success" aria-valuenow="$completion" aria-valuemin="0" aria-valuemax="100" style="width: $completion%">
+                            $completion%
+                        </div>
                     </div>
                 </div>
-            </div>
-        </a>
+            </a>
+    $else:
+        <a href="#register" class="list-group-item row disabled">You are not registered to any course</a>
 </div>
+<hr/>
+<h3>Register to a new course</h3>
+$if registration_status == True:
+    <div class="alert alert-success" role="alert">Registration complete.</div>
+$elif registration_status == False:
+    <div class="alert alert-danger" role="alert">Registration failed. Please check that you properly typed the password.</div>
+<form class="form row" role="form" action="/" method="post">
+    <div class="form-group col-sm-8">
+        <label class="sr-only" for="register_courseid">Course</label>
+        <select class="form-control" id="register_courseid" name="register_courseid">
+            <option value="">Select a course</option>
+            $for courseid, course in registrable_courses.iteritems():
+                <option value="$courseid"
+                $if course.is_password_needed_for_registration():
+                    data-password="1"
+                >$course.get_name()</option>
+        </select>
+    </div>
+    <div class="form-group col-sm-4">
+        <label class="sr-only" for="register_password">Password</label>
+        <input class="form-control" type="text" id="register_password" name="register_password" disabled="disabled" placeholder="Password">
+    </div>
+    <div class="col-sm-12"><button type="submit" class="btn btn-block btn-default">Register</button></div>
+</form>

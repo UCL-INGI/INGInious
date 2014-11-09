@@ -143,7 +143,7 @@ class AdminCourseStudentListPage(object):
 
     def page(self, course):
         """ Get all data and display the page """
-        data = UserData.get_course_data_for_users(course.get_id())
+        data = UserData.get_course_data_for_users(course.get_id(), course.get_registered_users())
         data = [dict(f.items() + [("url", self.submission_url_generator(course, username)), ("username", username)]) for username, f in data.iteritems()]
         if "csv" in web.input():
             return make_csv(data)
@@ -276,7 +276,11 @@ class AdminCourseTaskListPage(object):
         data = get_database().user_tasks.aggregate(
             [
                 {
-                    "$match": {"courseid": course.get_id()}
+                    "$match":
+                    {
+                        "courseid": course.get_id(),
+                        "username": {"$in": course.get_registered_users()}
+                    }
                 },
                 {
                     "$group":
@@ -393,14 +397,14 @@ class AdminCourseTaskListPage(object):
 
     def download_course(self, course, include_old_submissions=False):
         """ Download all submissions for a course """
-        submissions = list(get_database().submissions.find({"courseid": course.get_id(), "status": {"$in": ["done", "error"]}}))
+        submissions = list(get_database().submissions.find({"courseid": course.get_id(), "username": {"$in": course.get_registered_users()}, "status": {"$in": ["done", "error"]}}))
         if not include_old_submissions:
             submissions = self._keep_last_submission(submissions)
         return self.download_submission_set(submissions, '_'.join([course.get_id()]) + '.tgz', ['username', 'taskid'])
 
     def download_task(self, course, taskid, include_old_submissions=False):
         """ Download all submission for a task """
-        submissions = list(get_database().submissions.find({"taskid": taskid, "courseid": course.get_id(), "status": {"$in": ["done", "error"]}}))
+        submissions = list(get_database().submissions.find({"taskid": taskid, "courseid": course.get_id(), "username": {"$in": course.get_registered_users()}, "status": {"$in": ["done", "error"]}}))
         if not include_old_submissions:
             submissions = self._keep_last_submission(submissions)
         return self.download_submission_set(submissions, '_'.join([course.get_id(), taskid]) + '.tgz', ['username'])
@@ -473,7 +477,7 @@ class AdminCourseTaskInfoPage(object):
 
     def page(self, course, task):
         """ Get all data and display the page """
-        data = list(get_database().user_tasks.find({"courseid": course.get_id(), "taskid": task.get_id()}))
+        data = list(get_database().user_tasks.find({"courseid": course.get_id(), "taskid": task.get_id(), "username": {"$in": course.get_registered_users()}}))
         data = [dict(f.items() + [("url", self.submission_url_generator(course, task, f))]) for f in data]
         if "csv" in web.input():
             return make_csv(data)

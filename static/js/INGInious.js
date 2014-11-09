@@ -36,6 +36,18 @@ $(function()
     //Start affix only if there the height of the sidebar is less than the height of the content
     if($('#sidebar').height() < $('#content').height())
     	$('#sidebar').affix({offset:{top:83,bottom:1}});
+    
+    //Registration form, disable the password field when not needed
+    if($('#register_courseid'))
+    {
+    	$('#register_courseid').change(function()
+    	{
+    		if($('#register_courseid option[value="'+$('#register_courseid').val()+'"]').attr('data-password') == 1)
+    			$('#register_password').removeAttr('disabled')
+    		else
+    			$('#register_password').attr('disabled','disabled')
+    	});
+    }
 });
 
 //Contains all code editors
