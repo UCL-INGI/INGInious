@@ -76,12 +76,13 @@ class FrontendCourse(Course):
         """ Returns the password needed for registration (None if there is no password) """
         return self._registration_password
 
-    def register_user(self, username, password=None):
+    def register_user(self, username, password=None, force=False):
         """ Register a user to the course. Returns True if the registration succeeded, False else. """
-        if not self.is_registration_possible():
-            return False
-        if self.is_password_needed_for_registration() and self._registration_password != password:
-            return False
+        if not force:
+            if not self.is_registration_possible():
+                return False
+            if self.is_password_needed_for_registration() and self._registration_password != password:
+                return False
         if self.is_open_to_user(username):
             return False  # already registered?
         get_database().registration.insert({"username": username, "courseid": self.get_id(), "date": datetime.now()})
