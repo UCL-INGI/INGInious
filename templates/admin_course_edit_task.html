@@ -30,6 +30,11 @@ $def ColumnF():
         <a href="#new_subproblem" class="list-group-item">New subproblem</a>
         <a href="#task_files" class="list-group-item">Task files</a>
     </div>
+    <div class="list-group">
+        <a href="/admin/${course.get_id()}/settings" class="list-group-item"><span class="glyphicon glyphicon-cog"></span> Course settings</a>
+        <a href="/admin/${course.get_id()}/students" class="list-group-item"><span class="glyphicon glyphicon-user"></span> Students</a>
+        <a href="/admin/${course.get_id()}/tasks" class="list-group-item active"><span class="glyphicon glyphicon-tasks"></span> Tasks</a>
+    </div>
 $var Column: $:ColumnF()
 
 <ol class="breadcrumb">

@@ -51,7 +51,7 @@ class IndexPage(object):
                 return self.call_main()
             else:
                 return renderer.index(True)
-        elif User.is_logged_in():  # register to a course
+        elif User.is_logged_in():  # register for a course
             return self.call_main()
         else:
             return renderer.index(False)

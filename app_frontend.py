@@ -32,14 +32,16 @@ urls = (
     '/course/([^/]+)', 'frontend.pages.course.CoursePage',
     '/course/([^/]+)/([^/]+)', 'frontend.pages.tasks.TaskPage',
     '/course/([^/]+)/([^/]+)/(.*)', 'frontend.pages.tasks.TaskPageStaticDownload',
-    '/admin/([^/]+)', 'frontend.pages.admin_course.AdminCourseTaskListPage',
-    '/admin/([^/]+)/students', 'frontend.pages.admin_course.AdminCourseStudentListPage',
-    '/admin/([^/]+)/student/([^/]+)', 'frontend.pages.admin_course.AdminCourseStudentInfoPage',
-    '/admin/([^/]+)/student/([^/]+)/([^/]+)', 'frontend.pages.admin_course.AdminCourseStudentTaskPage',
-    '/admin/([^/]+)/tasks', 'frontend.pages.admin_course.AdminCourseTaskListPage',
-    '/admin/([^/]+)/task/([^/]+)', 'frontend.pages.admin_course.AdminCourseTaskInfoPage',
-    '/admin/([^/]+)/edit/([^/]+)', 'frontend.pages.admin_course_edit.AdminCourseEditTask',
-    '/admin/([^/]+)/files/([^/]+)', 'frontend.pages.admin_course_file.AdminDownloadTaskFiles',
+    '/admin/([^/]+)', 'frontend.pages.course_admin.settings.CourseSettings',
+    '/admin/([^/]+)/settings', 'frontend.pages.course_admin.settings.CourseSettings',
+    '/admin/([^/]+)/students', 'frontend.pages.course_admin.student_list.CourseStudentListPage',
+    '/admin/([^/]+)/student/([^/]+)', 'frontend.pages.course_admin.student_info.CourseStudentInfoPage',
+    '/admin/([^/]+)/student/([^/]+)/([^/]+)', 'frontend.pages.course_admin.student_task.CourseStudentTaskPage',
+    '/admin/([^/]+)/tasks', 'frontend.pages.course_admin.task_list.CourseTaskListPage',
+    '/admin/([^/]+)/task/([^/]+)', 'frontend.pages.course_admin.task_info.CourseTaskInfoPage',
+    '/admin/([^/]+)/edit/([^/]+)', 'frontend.pages.course_admin.task_edit.CourseEditTask',
+    '/admin/([^/]+)/files/([^/]+)', 'frontend.pages.course_admin.task_file.DownloadTaskFiles',
+    '/admin/([^/]+)/submissions', 'frontend.pages.course_admin.submission_files.DownloadSubmissionFiles'
 )
 
 

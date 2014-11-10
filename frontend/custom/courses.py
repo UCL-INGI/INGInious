@@ -39,13 +39,12 @@ class FrontendCourse(Course):
         if self._content.get('nofrontend', False):
             raise Exception("That course is not allowed to be displayed directly in the frontend")
 
-        self._registration = AccessibleTime(self._content.get("registration", None))
-        self._registration_password = self._content.get('registration_password', None)
-
         if "name" in self._content and "admins" in self._content and isinstance(self._content["admins"], list):
             self._name = self._content['name']
             self._admins = self._content['admins']
             self._accessible = AccessibleTime(self._content.get("accessible", None))
+            self._registration = AccessibleTime(self._content.get("registration", None))
+            self._registration_password = self._content.get('registration_password', None)
         else:
             raise Exception("Course has an invalid json description: " + courseid)
 
@@ -63,15 +62,19 @@ class FrontendCourse(Course):
 
     def is_open_to_user(self, username):
         """ Returns true if the course is open to this user """
-        return self._accessible.is_open() and self.is_user_registered(username)
+        return (self._accessible.is_open() and self.is_user_registered(username)) or username in self.get_admins()
 
     def is_registration_possible(self):
-        """ Returns true if users can register to this course """
+        """ Returns true if users can register for this course """
         return self._accessible.is_open() and self._registration.is_open()
 
     def is_password_needed_for_registration(self):
         """ Returns true if a password is needed for registration """
         return self._registration_password is not None
+
+    def get_registration_password(self):
+        """ Returns the password needed for registration (None if there is no password) """
+        return self._registration_password
 
     def register_user(self, username, password=None):
         """ Register a user to the course. Returns True if the registration succeeded, False else. """
@@ -99,6 +102,14 @@ class FrontendCourse(Course):
             return list(set(l + self.get_admins()))
         else:
             return l
+
+    def get_accessibility(self):
+        """ Return the AccessibleTime object associated with the accessibility of this course """
+        return self._accessible
+
+    def get_registration_accessibility(self):
+        """ Return the AccessibleTime object associated with the registration """
+        return self._registration
 
     def get_user_completion_percentage(self):
         """ Returns the percentage (integer) of completion of this course by the current user """

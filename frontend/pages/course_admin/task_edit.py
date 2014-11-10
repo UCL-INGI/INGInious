@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Pages that allow editing of tasks """
-
 from collections import OrderedDict
 import json
 import os.path
@@ -32,10 +31,10 @@ from frontend.accessible_time import AccessibleTime
 from frontend.base import renderer
 from frontend.custom.courses import FrontendCourse
 from frontend.custom.tasks import FrontendTask
-import frontend.user as User
+from frontend.pages.course_admin.utils import get_course_and_check_rights
 
 
-class AdminCourseEditTask(object):
+class CourseEditTask(object):
 
     """ Edit a task """
 
@@ -44,12 +43,7 @@ class AdminCourseEditTask(object):
         if not id_checker(taskid):
             raise Exception("Invalid task id")
 
-        try:
-            course = FrontendCourse(courseid)
-            if not User.is_logged_in() or User.get_username() not in course.get_admins():
-                raise web.notfound()
-        except:
-            raise web.notfound()
+        course = get_course_and_check_rights(courseid)
 
         try:
             task_data = TaskFileManager.get_manager(courseid, taskid).read()
@@ -175,12 +169,7 @@ class AdminCourseEditTask(object):
         if not id_checker(taskid) or not id_checker(courseid):
             raise Exception("Invalid course/task id")
 
-        try:
-            course = FrontendCourse(courseid)
-            if not User.is_logged_in() or User.get_username() not in course.get_admins():
-                raise web.notfound()
-        except:
-            raise web.notfound()
+        course = get_course_and_check_rights(courseid)
 
         # Parse content
         try:

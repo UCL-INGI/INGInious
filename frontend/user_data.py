@@ -85,10 +85,8 @@ class UserData(object):
         match = {"courseid": courseid}
         if users is not None:
             match["username"] = {"$in": users}
-        # Keep only visibles tasks
-        taskids = [
-            taskid for taskid,
-            task in course.get_tasks().iteritems() if task.is_open_to_non_admin()]
+
+        taskids = course.get_tasks().keys()
         match["taskid"] = {"$in": taskids}
 
         data = get_database().user_tasks.aggregate(

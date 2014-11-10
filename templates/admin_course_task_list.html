@@ -19,6 +19,14 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 
 $var title: $:course.get_name()
 
+$def ColumnF():
+    <div class="list-group">
+        <a href="/admin/${course.get_id()}/settings" class="list-group-item"><span class="glyphicon glyphicon-cog"></span> Course settings</a>
+        <a href="/admin/${course.get_id()}/students" class="list-group-item"><span class="glyphicon glyphicon-user"></span> Students</a>
+        <a href="/admin/${course.get_id()}/tasks" class="list-group-item active"><span class="glyphicon glyphicon-tasks"></span> Tasks</a>
+    </div>
+$var Column: $:ColumnF()
+
 <ol class="breadcrumb">
   <li><a href="/index">Home</a></li>
   <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
@@ -26,7 +34,6 @@ $var title: $:course.get_name()
   <li class="active">Tasks</li>
 </ol>
 <h2>Tasks</h2>
-<h4><a href="/admin/${course.get_id()}/students">View students</a></h4>
 <table class="table">
     <tr>
         <th>task name</th>
@@ -35,7 +42,7 @@ $var title: $:course.get_name()
         <th># student succeeded</th>
         <th># attempts</th>
         <th>
-        	<a href="javascript:ask_to_download('/admin/${course.get_id()}?dl=course')" class="btn btn-danger btn-xs">Download all submissions</a>
+        	<a href="javascript:ask_to_download('/admin/${course.get_id()}/submissions?dl=course')" class="btn btn-danger btn-xs">Download all submissions</a>
             <a href="/admin/${course.get_id()}/tasks?csv" class="btn btn-info btn-xs">CSV</a>
         </th>
     </tr>
