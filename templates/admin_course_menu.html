@@ -1,0 +1,8 @@
+$def with (course,entries,current)
+<div class="list-group">
+    $for link, name in entries:
+        <a href="/admin/${course.get_id()}/${link}" class="list-group-item
+        $if current == link:
+            active
+        ">$:name</a>
+</div>

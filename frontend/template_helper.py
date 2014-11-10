@@ -19,6 +19,7 @@
 """ Helper for the templates """
 
 from frontend.base import add_to_template_globals
+import frontend.pages.course_admin.utils
 from frontend.plugins.plugin_manager import PluginManager
 
 
@@ -27,7 +28,7 @@ class TemplateHelper(object):
     """ Class accessible from templates that calls function defined in the Python part of the code """
 
     _instance = None
-    _base_helpers = {}
+    _base_helpers = {"course_admin_menu": frontend.pages.course_admin.utils.get_menu}
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:

@@ -37,3 +37,7 @@ Each hook available in INGInious is described here, starting with its name and p
 *template_helper* ()
     Adds a new helper to the instance of TemplateHelper. Should return a tuple (name,func) where name is the name that will
     be indicated when calling the TemplateHelper.call method, and func is the function that will be called.
+*course_admin_menu* (*course*)
+    Used to add links to the administration menu. This hook should return a tuple (link,name) 
+    where link is the relative link from the index of the course administration.
+    You can also return None.
