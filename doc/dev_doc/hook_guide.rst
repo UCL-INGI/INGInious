@@ -34,3 +34,6 @@ Each hook available in INGInious is described here, starting with its name and p
 *submission_done* (*submission*, *job*)
 	Called when a submission has ended. The submissionid is contained in the dictionnary submission, under the field *_id*.
 	(submission_done is called after job_ended)
+*template_helper* ()
+    Adds a new helper to the instance of TemplateHelper. Should return a tuple (name,func) where name is the name that will
+    be indicated when calling the TemplateHelper.call method, and func is the function that will be called.
