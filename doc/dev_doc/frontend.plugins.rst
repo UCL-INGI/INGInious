@@ -3,8 +3,8 @@ frontend.plugins package
 
 This packages contains some working plugins as example.
 
-Plugins only need to define a function called init, which takes two arguments: the 
-current PluginManager_ object and the configuration assigned to this plugin 
+Plugins only need to define a function called init, which takes two arguments: the
+current PluginManager_ object and the configuration assigned to this plugin
 (a dictionnary).
 
 The class PluginManager_ provides some useful methods to interact with the frontend.

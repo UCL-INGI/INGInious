@@ -1,11 +1,11 @@
 Task description files
 ======================
 
-Inside a course folder (see `Creating a new course`) tasks must have 
+Inside a course folder (see `Creating a new course`) tasks must have
 (for example with *taskname* as task id) a folder named
 *taskname*, and, inside this folder, a file named *task.json*.
 
-(Note: it is possible to create a file named *task.rst* instead of 
+(Note: it is possible to create a file named *task.rst* instead of
 *task.json*. This file can then be writen in restructuredText. But this
 is not yet documented)
 
@@ -37,14 +37,14 @@ is not yet documented)
 		"environment": "default"
 	}
 
--   *author*, *context*, *order*, *name*, *language* and *header* are only needed 
-    if you use the frontend. 
+-   *author*, *context*, *order*, *name*, *language* and *header* are only needed
+    if you use the frontend.
     *context* and *header* are parsed using restructuredText [#]_ .
 
 -   *order* is an integer, used by the frontend to sort the task list. Task are sorted
     in increasing value of *order*.
 
--   *accessible* describes when the task is accessible to student. This field is not 
+-   *accessible* describes when the task is accessible to student. This field is not
     mandatory (by default, the task is visible) and can contain the following values:
 
     *true*
@@ -58,11 +58,11 @@ is not yet documented)
         where *END* is a valid date, like "2014-05-10 10:11:12", or "2014-06-18".
         The task is only accessible before *END*.
     *"START/END"*
-        where *START* and *END* are valid dates, like "2014-05-10 10:11:12", or 
+        where *START* and *END* are valid dates, like "2014-05-10 10:11:12", or
         "2014-06-18". The task is only accessible between *START* and *END*.
 
 -   *problems* describes sub-problems of this task. This field is mandatory and must contain
-    at least one problem. Problem types are described in the following section 
+    at least one problem. Problem types are described in the following section
     `Problem types`_. Each problem must have an id which is alphanumeric and unique.
 
 -   *environment* is the name of the Docker container in which the student's code will run.
@@ -71,7 +71,7 @@ is not yet documented)
 
 .. [#] There are some options about using HTML instead of restructuredText, but they
        are purposely not documented :-)
-       
+
 Problem types
 -------------
 
@@ -91,8 +91,8 @@ Here is a simple example for a code problem
 		"name": "A name"
 	}
 
-*header* and *language* are only needed when using the frontend and are not mandatory. 
-This description typically displays on the frontend a box where student 
+*header* and *language* are only needed when using the frontend and are not mandatory.
+This description typically displays on the frontend a box where student
 can put their code.
 
 Code problem input's are available in the *run* script (see :doc:`run_file`) directly with the
@@ -146,13 +146,13 @@ Advanced code problems are available:
 			}
 		}
 	}
-	
+
 *Boxes* are displayable (on the frontend) input fields that allows the student
 to fill more than one entry per problem. Different box types are available, all of them
 are demonstrated above. Every configuration in the boxes (*maxChars*,*lines*,*language*)
 is not mandatory, except *content* if the box type is *text*.
 
-In the *run* file (see :doc:`run_file`), boxes input are available with the name 
+In the *run* file (see :doc:`run_file`), boxes input are available with the name
 *problem_id/box_id*
 
 Match problems
@@ -170,7 +170,7 @@ returns if the student entered exactly the text given in the "answer" field.
 		"answer": "42"
 	}
 
-Match problem input's are available in the *run* script (see :doc:`run_file`) 
+Match problem input's are available in the *run* script (see :doc:`run_file`)
 directly with the id of the problem.
 
 Multiple choice problems
@@ -198,7 +198,7 @@ Multiple choice problems
 			{text:"41?"},
 		]
 	}
-	
+
 Choices are described in the *choices* section of the JSON. Each choice must have
 a *text* field (on the frontend) that will be parsed in restructuredText. Valid choices
 must have a *"valid"=true* field.
@@ -208,6 +208,6 @@ must have a *"valid"=true* field.
 Choices are chosen randomly in the list. If the *limit* field is set, the number of
 choices taken equals to the limit. There is always a valid answer in the chosen choices.
 
-Multiple choice problem input's are available in the *run* script (see :doc:`run_file`) 
-directly with the id of the problem. The input can be either an array of 
+Multiple choice problem input's are available in the *run* script (see :doc:`run_file`)
+directly with the id of the problem. The input can be either an array of
 integer if *multiple* is true or an integer. Choices are numbered sequentially from 0.

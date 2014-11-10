@@ -27,7 +27,7 @@ tests.common_courses module
     :members:
     :undoc-members:
     :show-inheritance:
-   
+
 tests.common_tasks module
 ---------------------------
 
@@ -35,7 +35,7 @@ tests.common_tasks module
     :members:
     :undoc-members:
     :show-inheritance:
-    
+
 tests.frontend_courses module
 ------------------------------
 
@@ -43,7 +43,7 @@ tests.frontend_courses module
     :members:
     :undoc-members:
     :show-inheritance:
-    
+
 tests.frontend_tasks module
 ---------------------------
 
@@ -51,7 +51,7 @@ tests.frontend_tasks module
     :members:
     :undoc-members:
     :show-inheritance:
-    
+
 tests.web_admin module
 ------------------------
 
@@ -59,7 +59,7 @@ tests.web_admin module
     :members:
     :undoc-members:
     :show-inheritance:
-    
+
 tests.web_courses module
 ------------------------
 
@@ -67,7 +67,7 @@ tests.web_courses module
     :members:
     :undoc-members:
     :show-inheritance:
-    
+
 tests.web_login module
 ------------------------
 
@@ -75,7 +75,7 @@ tests.web_login module
     :members:
     :undoc-members:
     :show-inheritance:
-    
+
 tests.web_submissions module
 ------------------------------
 
@@ -83,7 +83,7 @@ tests.web_submissions module
     :members:
     :undoc-members:
     :show-inheritance:
-    
+
 tests.web_tasks module
 ------------------------
 

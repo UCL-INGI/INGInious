@@ -34,7 +34,7 @@ Here is a simple task description. Put this file with the name *helloworld.task*
 		},
 		"environment": "default"
 	}
-	
+
 Most of the fields are self-explanatory. Some remarks:
 
 - "problems" is a dictionnary of problem. Each problem must have an unique id, for example here "question1".
@@ -53,7 +53,7 @@ Let's first create a template, where we will put the code of the student.
 
 	def func():
 	@	@question1@@
-	
+
 	func()
 
 Name the file *template.py* for example. The syntax is very simple: put a first *@* on the line where you want to put the code of the student. Then indent the line and write a second *@*.
@@ -62,12 +62,12 @@ Now write the problem id of the problem you want to take the input from (*questi
 Now we can create the file called *run*. *run* will be the script that is launched when the task is started. Here we will create a *bash* script, that parses the template and verifies its content.
 
 ::
-	
+
 	#! /bin/bash
-	
+
 	# This line parses the template and put the result in studentcode.py
-	parsetemplate --output studentcode.py template.py 
-	
+	parsetemplate --output studentcode.py template.py
+
 	# Verify the output of the code...
 	output=$(python studentcode.py)
 	if [ "$output" = "Hello World!" ]; then
@@ -77,7 +77,7 @@ Now we can create the file called *run*. *run* will be the script that is launch
 		# The student failed
 		feedback --result failed --feedback "Your output is $output"
 	fi
-	
+
 Here we use two commands provided by INGInious, parsetemplate and feedback. The code is commented and should be self-explanatory :-)
 
 Put this content at the path helloworld/run and don't forget to give it the execution rights:
@@ -92,4 +92,3 @@ Test it
 Your code should now work properly, you can restart the INGInious frontend and test it :-)
 
 More documentation is available here: :doc:`create_task`.
-		

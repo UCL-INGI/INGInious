@@ -5,7 +5,7 @@ Supported platforms
 -------------------
 
 INGInious is tested under OS X 10.9 and CentOS 7 but will probably run without problems on any
-other Linux distribution and even on Microsoft Windows® (with some adjustments to the 
+other Linux distribution and even on Microsoft Windows® (with some adjustments to the
 configuration of Boot2Docker).
 
 Dependencies
@@ -69,7 +69,7 @@ You can then start the services *mongod* and *docker*.
 
 	$ sudo service mongod start
 	$ sudo service docker start
-	
+
 To start them on system startup, use these commands:
 
 ::
@@ -105,16 +105,130 @@ Each time you have to run INGInious, don't forget to start docker-osx by running
 Installation of INGInious
 -------------------------
 
-The installation consist on cloning the github repository of INGInious and to start the
-frontend:
+The installation consist on cloning the github repository of INGInious
+and to provide configuration option in ``/configuration.json``.
 
 ::
-	
+
 	$ git clone https://github.com/INGInious/INGInious.git
 	$ cd INGInious
+	$ cp configuration.example.json configuration.json
+
+You should now review and tune configuration options in ``configuration.json`` according to `Configuring INGInious`_.
+
+Finally, you can start a demo server with the following command.
+If you want a robust webserver for production, see :ref:`production`.
+
+::
+
 	$ python app_frontend.py
 
 The server will be running on localhost:8080.
+
+
+.. _tasks folder:
+
+Configuring INGInious
+---------------------
+
+Configuring INGInious is done via a file named ``configuration.json``.
+To get you started, a file named ``configuration.example.json`` is provided.
+It content is :
+
+::
+
+	{
+	    "tasks_directory": "./tasks",
+
+	    "containers": {
+			"default": "ingi/inginious-c-default",
+			"sekexe": "ingi/inginious-c-sekexe"
+	    },
+
+	    "docker_instances": [
+			{
+				"server_url": "tcp://172.16.42.43:4243"
+			}
+		],
+
+	    "callback_managers_threads": 2,
+	    "submitters_processes": 2,
+
+	    "mongo_opt": {"host": "localhost", "database":"INGInious"},
+
+	    "plugins": [
+	        {
+	            "plugin_module": "frontend.plugins.git_repo",
+	            "repo_directory": "./repo_submissions"
+	        },
+	        {
+	            "plugin_module": "frontend.plugins.auth.demo_auth",
+	            "users": {"test":"test"}
+	        }
+	    ],
+
+	    "allow_html": "tidy"
+	}
+
+The different entries are :
+
+
+``tasks_directory``
+    The path to the directory that contains all the task definitions, grouped by courses.
+    (see :ref:`task`)
+
+``containers``
+    A ditionnary of docker's container names.
+    The key will be used in the task definition to identify the container, and the value must be a valid Docker container identifier.
+    The some `pre-built containers`_ are available on Docker's hub.
+
+
+``docker_instances``
+    A list of dictionnaries containing the configuration of docker instances.
+    Allowed entries are :
+
+    ``server_url``
+        The *base_url* of a docker instance. If you run a local instance, you will probably want to change the default value to ``'unix://var/run/docker.sock'``.
+        See `docker-py API`_ for detailed information.
+
+    ``max_concurent_jobs``
+        Undocumented
+
+    ``max_concurent-hard-jobs``
+        Undocumented
+
+``callback_managers_threads``
+    Undocumented. ``1`` is certainly a good default for a local server.
+
+``submitters_processes``
+    Undocumented. ``1`` is certainly a good default for a local server.
+
+``mongo_opt``
+    Quite self-explanatory. You can change the database name if you want multiple instances of in the iprobable case of conflict.
+
+``plugins``
+    A list of plugin modules together with configuration options.
+    See :ref:`plugin` for detailed information on plugins, ad each plugin for its configuration options.
+
+``allow_html``
+    This parameter accepts three options that define if and how HTML values in strings are treated.
+    This option applies globally on descriptions, titles and all strings directly displayed.
+    By default, all text is supposed to be in reStructuredText format but ``*IsHTML`` options are available in :ref:`course.json` and :ref:`task.json`.
+
+    ``false``
+        HTML is never allowed.
+
+    ``"tidy"``
+        HTML will be sanitized by the HTML Tidy library, to ensure that it is well-formed and will not impact the remaining of the document it is included in.
+
+    ``true``
+        HTML is always accepted, and never sanitized. (discouraged)
+
+.. _pre-built containers: https://registry.hub.docker.com/search?q=ingi
+.. _docker-py API: https://github.com/docker/docker-py/blob/master/docs/api.md#client-api
+
+
+.. _production:
 
 Using lighttpd (on CentOS 7.0)
 ------------------------------
@@ -128,7 +242,7 @@ We can then install lighttpd with fastcgi:
 ::
 
 	$ sudo yum install lighttpd lighttpd-fastcgi
-	
+
 Now put the INGInious' sources somewhere, like */var/www/INGInious*.
 
 First of all, we need to put the lighttpd user in the necessary groups, to allow it to launch new containers and to connect to mongodb:
@@ -148,7 +262,7 @@ Now we can configure lighttpd. First, the file */etc/lighttpd/lighttpd.conf*. Mo
 ::
 
 	server.document-root = "/var/www/INGInious"
-	
+
 Next, in module.conf, load theses modules:
 
 ::
@@ -157,18 +271,18 @@ Next, in module.conf, load theses modules:
 		"mod_access",
 		"mod_alias"
 	)
-	
+
 	include "conf.d/compress.conf"
-	
+
 	include "conf.d/fastcgi.conf"
-	
+
 You can then replace the content of fastcgi.conf with:
 
 ::
 
 	server.modules   += ( "mod_fastcgi" )
 	server.modules   += ( "mod_rewrite" )
-	
+
 	fastcgi.server = ( "/app_frontend.py" =>
 	(( "socket" => "/tmp/fastcgi.socket",
 	   "bin-path" => "/var/www/INGInious/app_frontend.py",
@@ -179,13 +293,13 @@ You can then replace the content of fastcgi.conf with:
 	  "check-local" => "disable"
 	))
 	)
-	
+
 	url.rewrite-once = (
 	  "^/favicon.ico$" => "/static/favicon.ico",
 	  "^/static/(.*)$" => "/static/$1",
 	  "^/(.*)$" => "/app_frontend.py/$1",
 	)
-	
+
 Finally, start the server:
 
 ::
