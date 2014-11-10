@@ -24,6 +24,7 @@ import web
 import common.base
 from frontend import submission_manager
 import frontend.base
+from frontend.database_updater import update_database
 from frontend.plugins.plugin_manager import PluginManager
 import frontend.session
 urls = (
@@ -51,6 +52,7 @@ def get_app(config_file):
     common.base.INGIniousConfiguration.load(config_file)
 
     frontend.base.init_database()
+    update_database()
     frontend.session.init(appli)
 
     def not_found():

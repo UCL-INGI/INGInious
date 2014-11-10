@@ -22,7 +22,6 @@ from datetime import datetime
 import json
 
 from bson.objectid import ObjectId
-import pymongo
 
 from backend.job_manager import JobManager
 from common.base import INGIniousConfiguration
@@ -40,18 +39,6 @@ def get_job_manager():
 
 def init_backend_interface(plugin_manager):
     """ inits everything that makes the backend working """
-
-    # Ensures some indexes
-    get_database().submissions.ensure_index([("username", pymongo.ASCENDING)])
-    get_database().submissions.ensure_index([("courseid", pymongo.ASCENDING)])
-    get_database().submissions.ensure_index([("courseid", pymongo.ASCENDING), ("taskid", pymongo.ASCENDING)])
-    get_database().submissions.ensure_index([("submitted_on", pymongo.DESCENDING)])  # sort speed
-
-    get_database().user_tasks.ensure_index([("username", pymongo.ASCENDING), ("courseid", pymongo.ASCENDING), ("taskid", pymongo.ASCENDING)], unique=True)
-    get_database().user_tasks.ensure_index([("username", pymongo.ASCENDING), ("courseid", pymongo.ASCENDING)])
-    get_database().user_tasks.ensure_index([("courseid", pymongo.ASCENDING), ("taskid", pymongo.ASCENDING)])
-    get_database().user_tasks.ensure_index([("courseid", pymongo.ASCENDING)])
-    get_database().user_tasks.ensure_index([("username", pymongo.ASCENDING)])
 
     # Updates the submissions that have a jobid with the status error, as the server restarted """
     get_database().submissions.update({'jobid': {"$exists": True}}, {"$unset": {'jobid': ""}, "$set": {'status': 'error', 'text': 'Internal error. Server restarted'}}, False, False, None, True)
