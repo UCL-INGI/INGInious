@@ -77,6 +77,14 @@ class AccessibleTime(object):
             return False
         return True
 
+    def is_always_accessible(self):
+        """ Returns true if the course/task is always accessible """
+        return self.val[0] is None and self.val[1] is None
+
+    def is_never_accessible(self):
+        """ Returns true if the course/task is never accessible """
+        return self.val[0] == 0 and self.val[1] == 0
+
     def get_std_start_date(self):
         """ If the date is custom, return the start datetime with the format %Y-%m-%d %H:%M:%S. Else, returns "". """
         first, _ = self.val

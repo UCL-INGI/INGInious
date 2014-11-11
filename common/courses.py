@@ -33,6 +33,13 @@ class Course(object):
     _task_class = common.tasks.Task
 
     @classmethod
+    def get_course_descriptor_path(cls, courseid):
+        """Returns the path to the json that describes the course 'courseid'"""
+        if not id_checker(courseid):
+            raise Exception("Course with invalid name: " + courseid)
+        return os.path.join(INGIniousConfiguration["tasks_directory"], courseid, "course.json")
+
+    @classmethod
     def get_all_courses(cls):
         """Returns a table containing courseid=>Course pairs."""
         files = [os.path.splitext(f)[0] for f in os.listdir(INGIniousConfiguration["tasks_directory"]) if os.path.isfile(os.path.join(INGIniousConfiguration["tasks_directory"], f, "course.json"))]
@@ -46,11 +53,14 @@ class Course(object):
 
     def __init__(self, courseid):
         """Constructor. courseid is the name of the the folder containing the file course.json"""
-        if not id_checker(courseid):
-            raise Exception("Course with invalid name: " + courseid)
-        self._content = json.load(open(os.path.join(INGIniousConfiguration["tasks_directory"], courseid, "course.json"), "r"))
+
+        self._content = json.load(open(self.get_course_descriptor_path(courseid), "r"))
         self._id = courseid
         self._tasks_cache = None
+
+    def get_original_content(self):
+        """ Return the original content of the json file describing this course """
+        return self._content
 
     def get_task(self, taskid):
         """ Return the class with name taskid """

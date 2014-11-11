@@ -50,10 +50,10 @@ $def ColumnF():
             <a class="list-group-item disabled submission-empty">No submissions</a>
     </div>
     $if User.get_username() in course.get_admins():
-        $if not course.is_open():
+        $if not course.is_open_to_non_admin():
             <div class="alert alert-warning" role="alert">
                 This course is currently invisible for students. 
-                You can change this by modifying the "accessible" option in the configuration of the course.
+                You can change this by modifying the "accessibility" option in the configuration of the course.
             </div>
         <a href="/admin/$course.get_id()" class="btn btn-primary btn-block">Manage course</a>
         <h3>Help</h3>
@@ -61,6 +61,8 @@ $def ColumnF():
             <li><a href="/static/doc/teacher_doc/task_tuto.html">How to create a task?</a></li>
             <li><a href="/static/doc/teacher_documentation.html">Documentation</a></li>
         </ul>
+    $else:
+        <a href="/?unregister_courseid=$course.get_id()">Unregister from this course</a>
 $var Column: $:ColumnF()
 
 $# Start content
@@ -71,10 +73,10 @@ $# Start content
 <h2>$course.get_name() - List of exercices</h2>
 <div class="list-group">
     $for taskid, task in course.get_tasks().iteritems()
-        $if task.is_open() or User.get_username() in course.get_admins():
+        $if task.is_open_to_user(User.get_username()):
             <a href="/course/$course.get_id()/$taskid" class="list-group-item 
                 $ status=task.get_user_status()
-                $if not task.is_open():
+                $if not task.is_open_to_non_admin():
                     disabled
                 $if status == 'failed':
                     list-group-item-danger
@@ -82,7 +84,7 @@ $# Start content
                     list-group-item-success
                 ">
                 $task.get_name()
-                $if not task.is_open():
+                $if not task.is_open_to_non_admin():
                     (task currently unavailable)
             </a>
 </div>

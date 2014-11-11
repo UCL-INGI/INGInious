@@ -19,9 +19,11 @@
 """ A course class with some modification for users """
 
 from collections import OrderedDict
+from datetime import datetime
 
 from common.courses import Course
 from frontend.accessible_time import AccessibleTime
+from frontend.base import get_database
 from frontend.custom.tasks import FrontendTask
 
 
@@ -41,6 +43,8 @@ class FrontendCourse(Course):
             self._name = self._content['name']
             self._admins = self._content['admins']
             self._accessible = AccessibleTime(self._content.get("accessible", None))
+            self._registration = AccessibleTime(self._content.get("registration", None))
+            self._registration_password = self._content.get('registration_password', None)
         else:
             raise Exception("Course has an invalid json description: " + courseid)
 
@@ -49,16 +53,68 @@ class FrontendCourse(Course):
         return self._name
 
     def get_admins(self):
-        """ Return a list containing the ids of this course """
+        """ Return a list containing the username of the administrators of this course """
         return self._admins
 
-    def is_open(self):
-        """ Return true if the course is open to students """
+    def is_open_to_non_admin(self):
+        """ Returns true if the course is accessible by users that are not administrator of this course """
         return self._accessible.is_open()
+
+    def is_open_to_user(self, username):
+        """ Returns true if the course is open to this user """
+        return (self._accessible.is_open() and self.is_user_registered(username)) or username in self.get_admins()
+
+    def is_registration_possible(self):
+        """ Returns true if users can register for this course """
+        return self._accessible.is_open() and self._registration.is_open()
+
+    def is_password_needed_for_registration(self):
+        """ Returns true if a password is needed for registration """
+        return self._registration_password is not None
+
+    def get_registration_password(self):
+        """ Returns the password needed for registration (None if there is no password) """
+        return self._registration_password
+
+    def register_user(self, username, password=None, force=False):
+        """ Register a user to the course. Returns True if the registration succeeded, False else. """
+        if not force:
+            if not self.is_registration_possible():
+                return False
+            if self.is_password_needed_for_registration() and self._registration_password != password:
+                return False
+        if self.is_open_to_user(username):
+            return False  # already registered?
+        get_database().registration.insert({"username": username, "courseid": self.get_id(), "date": datetime.now()})
+        return True
+
+    def unregister_user(self, username):
+        """ Unregister a user from this course """
+        get_database().registration.remove({"username": username, "courseid": self.get_id()})
+
+    def is_user_registered(self, username):
+        """ Returns True if the user is registered """
+        return (get_database().registration.find_one({"username": username, "courseid": self.get_id()}) is not None) or username in self.get_admins()
+
+    def get_registered_users(self, with_admins=True):
+        """ Get all the usernames that are registered to this course (in no particular order)"""
+        l = [entry['username'] for entry in list(get_database().registration.find({"courseid": self.get_id()}, {"username": True, "_id": False}))]
+        if with_admins:
+            return list(set(l + self.get_admins()))
+        else:
+            return l
+
+    def get_accessibility(self):
+        """ Return the AccessibleTime object associated with the accessibility of this course """
+        return self._accessible
+
+    def get_registration_accessibility(self):
+        """ Return the AccessibleTime object associated with the registration """
+        return self._registration
 
     def get_user_completion_percentage(self):
         """ Returns the percentage (integer) of completion of this course by the current user """
-        import frontend.user as User  # insert here to avoid initialisation of session
+        import frontend.user as User
         cache = User.get_data().get_course_data(self.get_id())
         if cache is None:
             return 0

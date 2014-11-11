@@ -35,7 +35,7 @@ class CoursePage(object):
         if User.is_logged_in():
             try:
                 course = FrontendCourse(courseid)
-                if not course.is_open() and User.get_username() not in course.get_admins():
+                if not course.is_open_to_user(User.get_username()):
                     return renderer.course_unavailable()
 
                 last_submissions = course.get_user_last_submissions()

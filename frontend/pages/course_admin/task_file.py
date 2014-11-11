@@ -1,3 +1,21 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (c) 2014 Université Catholique de Louvain.
+#
+# This file is part of INGInious.
+#
+# INGInious is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# INGInious is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public
+# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Send a zip file containing course data """
 from StringIO import StringIO
 import os.path
@@ -5,8 +23,7 @@ import zipfile
 import web
 from common.base import INGIniousConfiguration, id_checker
 from common.task_file_managers.tasks_file_manager import TaskFileManager
-from frontend.custom.courses import FrontendCourse
-import frontend.user as User
+from frontend.pages.course_admin.utils import get_course_and_check_rights
 
 
 def make_zipfile(output_filename, source_dir, exclude):
@@ -29,7 +46,7 @@ def make_zipfile(output_filename, source_dir, exclude):
                     zipf.write(filename, arcname)
 
 
-class AdminDownloadTaskFiles(object):
+class DownloadTaskFiles(object):
 
     """ Send a zip file containing course data """
 
@@ -40,12 +57,8 @@ class AdminDownloadTaskFiles(object):
         if not id_checker(courseid):
             raise Exception("Invalid task id")
 
-        try:
-            course = FrontendCourse(courseid)
-            if not User.is_logged_in() or User.get_username() not in course.get_admins():
-                raise web.notfound()
-        except:
-            raise web.notfound()
+        # Check rights
+        get_course_and_check_rights(courseid)
 
         exclude = ["task.{}".format(subclass.get_ext()) for subclass in TaskFileManager.__subclasses__()]
         dir_path = os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid)

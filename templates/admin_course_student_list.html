@@ -19,14 +19,21 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 
 $var title: $:course.get_name()
 
+$def ColumnF():
+    <div class="list-group">
+        <a href="/admin/${course.get_id()}/settings" class="list-group-item"><span class="glyphicon glyphicon-cog"></span> Course settings</a>
+        <a href="/admin/${course.get_id()}/students" class="list-group-item active"><span class="glyphicon glyphicon-user"></span> Students</a>
+        <a href="/admin/${course.get_id()}/tasks" class="list-group-item"><span class="glyphicon glyphicon-tasks"></span> Tasks</a>
+    </div>
+$var Column: $:ColumnF()
+
 <ol class="breadcrumb">
   <li><a href="/index">Home</a></li>
   <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
   <li><a href="/admin/$course.get_id()">Manage</a></li>
   <li class="active">Students</li>
 </ol>
-<h2>Statistics per student</h2>
-<h4><a href="/admin/${course.get_id()}/tasks">View tasks</a></h4>
+<h2>Students</h2>
 <table class="table">
     <tr>
         <th>student username</th>
@@ -34,13 +41,13 @@ $var title: $:course.get_name()
         <th># task done</th>
         <th>progression</th>
         <th>
-        	<a href="javascript:ask_to_download('/admin/${course.get_id()}?dl=course')" class="btn btn-danger btn-xs">Download all submissions</a>
+        	<a href="javascript:ask_to_download('/admin/${course.get_id()}/submissions?dl=course')" class="btn btn-danger btn-xs">Download all submissions</a>
         	<a href="/admin/${course.get_id()}?csv" class="btn btn-info btn-xs">CSV</a>
         </th>
     </tr>
     $for courseData in data:
-    	$ studentData=UserData(courseData["username"]).get_data()
-    	<tr>
+        $ studentData=UserData(courseData["username"]).get_data()
+        <tr>
     		<td>
     			$if studentData["realname"] != "":
     				<a href="/admin/${course.get_id()}/student/$courseData["username"]">$studentData["realname"]</a> 

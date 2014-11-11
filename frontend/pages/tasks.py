@@ -44,11 +44,11 @@ class TaskPage(object):
         if User.is_logged_in():
             try:
                 course = FrontendCourse(courseid)
-                if not course.is_open() and User.get_username() not in course.get_admins():
+                if not course.is_open_to_user(User.get_username()):
                     return renderer.course_unavailable()
 
                 task = course.get_task(taskid)
-                if not task.is_open() and User.get_username() not in course.get_admins():
+                if not task.is_open_to_user(User.get_username()):
                     return renderer.task_unavailable()
 
                 User.get_data().view_task(courseid, taskid)
@@ -89,11 +89,11 @@ class TaskPage(object):
         if User.is_logged_in():
             try:
                 course = FrontendCourse(courseid)
-                if not course.is_open() and User.get_username() not in course.get_admins():
+                if not course.is_open_to_user(User.get_username()):
                     return renderer.course_unavailable()
 
                 task = course.get_task(taskid)
-                if not task.is_open() and User.get_username() not in course.get_admins():
+                if not task.is_open_to_user(User.get_username()):
                     return renderer.task_unavailable()
 
                 User.get_data().view_task(courseid, taskid)
@@ -183,11 +183,11 @@ class TaskPageStaticDownload(object):
         if User.is_logged_in():
             try:
                 course = FrontendCourse(courseid)
-                if not course.is_open() and User.get_username() not in course.get_admins():
+                if not course.is_open_to_user(User.get_username()):
                     return renderer.course_unavailable()
 
                 task = course.get_task(taskid)
-                if not task.is_open() and User.get_username() not in course.get_admins():
+                if not task.is_open_to_user(User.get_username()):
                     return renderer.task_unavailable()
 
                 path_norm = posixpath.normpath(urllib.unquote(path))
