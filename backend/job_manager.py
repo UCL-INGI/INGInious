@@ -26,7 +26,7 @@ import uuid
 from backend._callback_manager import CallbackManager
 from backend._message_types import RUN_JOB, CLOSE
 import backend._pool_manager
-from hook_manager import HookManager
+from backend.hook_manager import HookManager
 
 
 def _init_manager():
