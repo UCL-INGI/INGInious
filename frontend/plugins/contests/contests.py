@@ -60,7 +60,7 @@ def get_contest_data(course):
                                                                   "start": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                                                                   "end": (datetime.now() + timedelta(hours=1)).strftime("%Y-%m-%d %H:%M:%S"),
                                                                   "blackout": 0,
-                                                                  "penalty": 30})
+                                                                  "penalty": 20})
 
 
 def save_contest_data(course, contest_data):
