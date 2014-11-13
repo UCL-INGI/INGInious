@@ -17,10 +17,13 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Classes modifying basic tasks, problems and boxes classes """
+from common.base import id_checker
 from common.parsable_text import ParsableText
+from common.task_file_managers.tasks_file_manager import TaskFileManager
 import common.tasks
 from frontend.accessible_time import AccessibleTime
 from frontend.custom.task_problems import DisplayableCodeProblem, DisplayableCodeSingleLineProblem, DisplayableMatchProblem, DisplayableMultipleChoiceProblem, DisplayableCodeFileProblem
+from frontend.plugins.plugin_manager import PluginManager
 
 
 class FrontendTask(common.tasks.Task):
@@ -36,6 +39,17 @@ class FrontendTask(common.tasks.Task):
         "match": DisplayableMatchProblem}
 
     def __init__(self, course, taskid, init_data=None):
+        # We load the descriptor of the task here to allow plugins to modify settings of the task before it is read by the Task constructor
+        if not id_checker(taskid):
+            raise Exception("Task with invalid id: " + course.get_id() + "/" + taskid)
+        if init_data is None:
+            try:
+                init_data = TaskFileManager.get_manager(course.get_id(), taskid).read()
+            except Exception as inst:
+                raise Exception("Error while reading task file: " + self._course.get_id() + "/" + self._taskid + " :\n" + str(inst))
+        PluginManager.get_instance().call_hook('modify_task_data', course=course, taskid=taskid, data=init_data)
+
+        # Now init the task
         common.tasks.Task.__init__(self, course, taskid, init_data)
 
         self._name = self._data.get('name', 'Task {}'.format(taskid))

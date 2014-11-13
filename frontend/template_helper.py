@@ -23,12 +23,20 @@ import frontend.pages.course_admin.utils
 from frontend.plugins.plugin_manager import PluginManager
 
 
+def generic_hook(name, **kwargs):
+    """ A generic hook that links the TemplateHelper with PluginManager """
+    entries = [entry for entry in PluginManager.get_instance().call_hook(name, **kwargs) if entry is not None]
+    return "\n".join(entries)
+
+
 class TemplateHelper(object):
 
     """ Class accessible from templates that calls function defined in the Python part of the code """
 
     _instance = None
-    _base_helpers = {"course_admin_menu": frontend.pages.course_admin.utils.get_menu}
+    _base_helpers = {"header_hook": (lambda **kwargs: generic_hook('header_html', **kwargs)),
+                     "course_menu": (lambda **kwargs: generic_hook('course_menu', **kwargs)),
+                     "course_admin_menu": frontend.pages.course_admin.utils.get_menu}
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:

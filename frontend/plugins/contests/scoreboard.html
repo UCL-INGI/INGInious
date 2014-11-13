@@ -1,0 +1,91 @@
+$def with (course, start, end, blackout, tasks, results, activity)
+
+$# Copyright (c) 2014 Université Catholique de Louvain.
+$#
+$# This file is part of INGInious.
+$#
+$# INGInious is free software: you can redistribute it and/or modify
+$# it under the terms of the GNU Affero General Public License as published
+$# by the Free Software Foundation, either version 3 of the License, or
+$# (at your option) any later version.
+$#
+$# INGInious is distributed in the hope that it will be useful,
+$# but WITHOUT ANY WARRANTY; without even the implied warranty of
+$# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+$# GNU Affero General Public License for more details.
+$#
+$# You should have received a copy of the GNU Affero General Public
+$# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
+
+$var title: $:course.get_name() - Scoreboard
+
+$if end > end.now():
+    <meta http-equiv="refresh" content="30" />
+
+<ol class="breadcrumb">
+  <li><a href="/index">Home</a></li>
+  <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
+  <li class="active">Scoreboard</li>
+</ol>
+
+<h2>$course.get_name()</h2>
+<div class="pull-right well">
+    Contest starts: $start.strftime('%d/%m/%Y %H:%M:%S')<br/>
+    Contest ends: $end.strftime('%d/%m/%Y %H:%M:%S')<br/>
+    <br/>
+    $if start > start.now():
+        <span class="contest_starting_time" starts-at="$start.strftime('%Y-%m-%d %H:%M:%S')"></span>
+    $else:
+        <span class="contest_remaining_time" ends-at="$end.strftime('%Y-%m-%d %H:%M:%S')"></span>
+        $if blackout != end:
+            <br/><span class="contest_blackout_time" blackout-at="$blackout.strftime('%Y-%m-%d %H:%M:%S')"></span>
+    $if end > end.now():
+        <br/>
+        <br/>
+        The scoreboard will refresh every 30 seconds.
+</div>
+<h3>Scoreboard</h3>
+$if start <= start.now():
+	<table class="contest_scoreboard">
+	    <tr>
+	        <th class="contest_rank">Rank</th>
+	        <th class="contest_contestant">Contestant</th>
+	        <th colspan="2" class="contest_score_header">Score</th>
+	        $for taskid in tasks:
+	            <th class="contest_task"><a href="/course/${course.get_id()}/$taskid">$taskid</a></th>
+	    </tr>
+	    $for username, data in results.iteritems():
+	        <tr>
+	            <td class="contest_rank">$data['displayed_rank']</td>
+	            <td class="contest_contestant">$data['name']</td>
+	            <td class="contest_score_task">$data['score'][0]</td>
+	            <td class="contest_score_time">$int(data['score'][1])</td>
+	            $for taskid in tasks:
+	                $if data['tasks'][taskid]['status'] == 'ACF':
+	                    <td class="contest_task contest_ac_first">${data['tasks'][taskid]['tries']}/$int(data['tasks'][taskid]['score'])</td>
+	                $elif data['tasks'][taskid]['status'] == 'AC':
+	                    <td class="contest_task contest_ac">${data['tasks'][taskid]['tries']}/$int(data['tasks'][taskid]['score'])</td>
+	                $elif data['tasks'][taskid]['status'] != 'NA':
+	                    <td class="contest_task contest_wa_tle">$data['tasks'][taskid]['tries']</td>
+	                $else:
+	                    <td class="contest_task contest_na">0</td>
+	        </tr>
+	</table>
+	<h3>Activity</h3>
+	<table class="table table-centered table-condensed table-bordered">
+	    <tr><th>Time</th><th>Contestant</th><th>Task</th><th>Result</th></tr>
+	    $for a in activity:
+	        <tr>
+	            <td>$a['when'].strftime("%d/%m/%Y %H:%M:%S")</td>
+	            <td>$a['user']</td>
+	            <td>$a['taskid']</td>
+	            <td>
+	                $if a['result']:
+	                    Succeeded
+	                $else:
+	                    Failed
+	            </td>
+	        </tr>
+	</table>
+$else:
+    <div class="alert alert-warning">Contest has not started yet.</div>

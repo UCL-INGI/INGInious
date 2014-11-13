@@ -1,0 +1,99 @@
+$def with (course, data, errors, saved)
+
+$# Copyright (c) 2014 Université Catholique de Louvain.
+$#
+$# This file is part of INGInious.
+$#
+$# INGInious is free software: you can redistribute it and/or modify
+$# it under the terms of the GNU Affero General Public License as published
+$# by the Free Software Foundation, either version 3 of the License, or
+$# (at your option) any later version.
+$#
+$# INGInious is distributed in the hope that it will be useful,
+$# but WITHOUT ANY WARRANTY; without even the implied warranty of
+$# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+$# GNU Affero General Public License for more details.
+$#
+$# You should have received a copy of the GNU Affero General Public
+$# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
+
+$var title: $:course.get_name() - Settings
+
+$var Column: $:template_helper.call('course_admin_menu',course=course,current='contest')
+
+<ol class="breadcrumb">
+  <li><a href="/index">Home</a></li>
+  <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
+  <li><a href="/admin/$course.get_id()">Manage</a></li>
+  <li class="active">Contest plugin</li>
+</ol>
+<h2>Contest settings</h2>
+$if errors is not None:
+    $for error in errors:
+        <div class="alert alert-danger" role="alert">$error</div>
+$elif saved:
+    <div class="alert alert-success" role="alert">Settings saved.</div>
+<p>This plugin allows you to perform algorithm contests between your students, in the same way as the contests from the ACM-ICPC.<br/>
+Most of the courses administrators will keep this plugin disabled.
+<br/><br/>
+If you enable this plugin, please take note that the start time of the contest will override the accessibility parameters of all your tasks.
+All your tasks will be hidden before the contest begins, and they all will be displayed when the contest starts.
+Tasks will never be hidden after the end of the contest, but newer submissions will not be taken into account.
+<br/><br/>
+You may want to configure the course such that:<br/>
+accessibility date of the course &lt; registration start date &lt; registration end date &lt; contest start &lt; contest end.<br/>
+</p>
+<form id="edit_contest_form" action="/admin/${course.get_id()}/contest" method="post" class="form-horizontal">
+    <div class="form-group">
+        <label for="enabled" class="col-sm-2 control-label">Enable contest plugin</label>
+        <div class="col-sm-10">
+            <div class="checkbox"><label>
+                <input type="checkbox" value="1" id="enabled" name="enabled"
+                    $if data['enabled']:
+                        checked="checked"
+                />&nbsp;
+            </label></div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="start" class="col-sm-2 control-label">Contest starts</label>
+        <div class="col-sm-10">
+            <div class='input-group date' id='start_picker'>
+                <input name="start" data-date-format="YYYY-MM-DD HH:mm:ss" value="${data['start']}" placeholder="2014-06-29 10:00:00" type='text' class="form-control" />
+                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+            </div>
+            <script type="text/javascript">
+                \$(function() {
+                    \$('#start_picker').datetimepicker({useSeconds: true,sideBySide: true});
+                });
+            </script>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="end" class="col-sm-2 control-label">Contest ends</label>
+        <div class="col-sm-10">
+            <div class='input-group date' id='end_picker'>
+                <input name="end" data-date-format="YYYY-MM-DD HH:mm:ss" value="${data['end']}" placeholder="2014-06-29 10:00:00" type='text' class="form-control" />
+                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+            </div>
+            <script type="text/javascript">
+                \$(function() {
+                    \$('#end_picker').datetimepicker({useSeconds: true,sideBySide: true});
+                });
+            </script>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="blackout" class="col-sm-2 control-label">Blackout duration (in hours)</label>
+        <div class="col-sm-10">
+             <input type="text" class="form-control" id="blackout" name="blackout" placeholder="0" value="$data['blackout']">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="penalty" class="col-sm-2 control-label">Penalty for wrong submissions (in minutes)</label>
+        <div class="col-sm-10">
+             <input type="text" class="form-control" id="penalty" name="penalty" placeholder="0" value="$data['penalty']">
+        </div>
+    </div>
+    <button class="btn btn-primary btn-block" type="submit"><span class="glyphicon glyphicon-download-alt"></span> Save changes</button>
+</form>

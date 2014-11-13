@@ -1,0 +1,63 @@
+.contest_scoreboard
+{
+    margin: auto;
+    border: 1px solid #ddd;
+}
+
+.contest_scoreboard th
+{
+    font-weight: bold;
+    border: none;
+    border-bottom: 3px solid #444;
+    vertical-align: bottom;
+}
+
+.contest_scoreboard th a
+{
+    color: black;
+}
+
+.contest_scoreboard td
+{
+    border-bottom: 1px solid #ddd;
+    vertical-align: middle;
+}
+
+.contest_scoreboard td, .contest_scoreboard th
+{
+    border-right: 1px solid #ddd;
+    width: 50px;
+    padding: 3px;
+    height: 50px;
+    text-align: center;
+}
+
+.contest_scoreboard .contest_rank
+{
+    border-left: 1px solid #ddd;
+}
+
+.contest_scoreboard .contest_score_header, .contest_scoreboard .contest_score_time
+{
+    border-right: 3px solid #444;
+}
+
+.contest_scoreboard .contest_score_task
+{
+    font-weight: bold;
+}
+
+.contest_scoreboard .contest_ac_first
+{
+    background-color: #1daa1d;
+}
+
+.contest_scoreboard .contest_ac
+{
+    background-color: #60e760;
+}
+
+.contest_scoreboard .contest_wa_tle
+{
+    background-color: #e87272;
+}

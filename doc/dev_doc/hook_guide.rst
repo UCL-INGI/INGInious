@@ -41,3 +41,9 @@ Each hook available in INGInious is described here, starting with its name and p
     Used to add links to the administration menu. This hook should return a tuple (link,name) 
     where link is the relative link from the index of the course administration.
     You can also return None.
+*modify_task_data* (*course*, *taskid*, *data*)
+    Allows to modify the json/rst data of a task before the initialisation of the task object.
+    Changes are not saved to disk.
+*course_menu* (*course*)
+    Allows to add HTML to the menu displayed on the course page. Course is the course object related to the page.
+    Should return HTML or None.
