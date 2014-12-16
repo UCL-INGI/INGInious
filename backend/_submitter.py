@@ -56,8 +56,6 @@ def submitter(jobid, inputdata, task_directory, limits, environment, debug, dock
         mem_limit = limits.get("memory", 100)
         if mem_limit < 20:
             mem_limit = 20
-        elif mem_limit > 500:
-            mem_limit = 500
 
         response = docker_connection.create_container(
             environment,
