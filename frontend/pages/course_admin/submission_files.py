@@ -130,7 +130,7 @@ class DownloadSubmissionFiles(object):
 
             web.header('Content-Type', 'application/x-gzip', unique=True)
             web.header('Content-Disposition', 'attachment; filename="' + filename + '"', unique=True)
-            return tmpfile.read()
+            return tmpfile
         except:
             raise web.notfound()
 
