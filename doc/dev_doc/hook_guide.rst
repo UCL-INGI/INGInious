@@ -34,3 +34,16 @@ Each hook available in INGInious is described here, starting with its name and p
 *submission_done* (*submission*, *job*)
 	Called when a submission has ended. The submissionid is contained in the dictionnary submission, under the field *_id*.
 	(submission_done is called after job_ended)
+*template_helper* ()
+    Adds a new helper to the instance of TemplateHelper. Should return a tuple (name,func) where name is the name that will
+    be indicated when calling the TemplateHelper.call method, and func is the function that will be called.
+*course_admin_menu* (*course*)
+    Used to add links to the administration menu. This hook should return a tuple (link,name) 
+    where link is the relative link from the index of the course administration.
+    You can also return None.
+*modify_task_data* (*course*, *taskid*, *data*)
+    Allows to modify the json/rst data of a task before the initialisation of the task object.
+    Changes are not saved to disk.
+*course_menu* (*course*)
+    Allows to add HTML to the menu displayed on the course page. Course is the course object related to the page.
+    Should return HTML or None.

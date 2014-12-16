@@ -60,6 +60,8 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 
 $if "header" in content:
     $:content.header
+    
+$:template_helper.call('header_hook')
 </head>
 
 <body role="document">

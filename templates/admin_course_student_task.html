@@ -20,13 +20,7 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 $ userData= UserData(username).get_data()
 $var title: $:task.get_name() - $:userData["realname"] - $:course.get_name()
 
-$def ColumnF():
-    <div class="list-group">
-        <a href="/admin/${course.get_id()}/settings" class="list-group-item"><span class="glyphicon glyphicon-cog"></span> Course settings</a>
-        <a href="/admin/${course.get_id()}/students" class="list-group-item active"><span class="glyphicon glyphicon-user"></span> Students</a>
-        <a href="/admin/${course.get_id()}/tasks" class="list-group-item"><span class="glyphicon glyphicon-tasks"></span> Tasks</a>
-    </div>
-$var Column: $:ColumnF()
+$var Column: $:template_helper.call('course_admin_menu',course=course,current='students')
 
 <ol class="breadcrumb">
   <li><a href="/index">Home</a></li>

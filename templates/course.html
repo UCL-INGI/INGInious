@@ -21,6 +21,7 @@ $var title: $:course.get_name()
 
 $# Left column content
 $def ColumnF():
+    $:template_helper.call('course_menu',course=course)
     <h3>Progress</h3>
     <div class="progress">
         $ completion=course.get_user_completion_percentage()

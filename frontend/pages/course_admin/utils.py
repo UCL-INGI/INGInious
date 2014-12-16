@@ -24,7 +24,10 @@ import codecs
 import csv
 
 import web
+
+from frontend.base import get_template_renderer
 from frontend.custom.courses import FrontendCourse
+from frontend.plugins.plugin_manager import PluginManager
 import frontend.user as User
 
 
@@ -119,3 +122,15 @@ def make_csv(data):
     web.header('Content-Type', 'text/csv; charset=utf-8')
     web.header('Content-disposition', 'attachment; filename=export.csv')
     return csv_string.read()
+
+
+def get_menu(course, current):
+    """ Returns the HTML of the menu used in the administration. ```current``` is the current page of section """
+    custom_renderer = get_template_renderer('templates/')
+    default_entries = [("settings", "<span class='glyphicon glyphicon-cog'></span> Course settings"),
+                       ("students", "<span class='glyphicon glyphicon-user'></span> Students"),
+                       ("tasks", "<span class='glyphicon glyphicon-tasks'></span> Tasks")]
+    # Hook should return a tuple (link,name) where link is the relative link from the index of the course administration.
+    additionnal_entries = [entry for entry in PluginManager.get_instance().call_hook('course_admin_menu', course=course) if entry is not None]
+
+    return custom_renderer.admin_course_menu(course, default_entries + additionnal_entries, current)

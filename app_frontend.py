@@ -27,6 +27,7 @@ import frontend.base
 from frontend.database_updater import update_database
 from frontend.plugins.plugin_manager import PluginManager
 import frontend.session
+from frontend.template_helper import TemplateHelper
 urls = (
     '/', 'frontend.pages.index.IndexPage',
     '/index', 'frontend.pages.index.IndexPage',
@@ -64,6 +65,9 @@ def get_app(config_file):
 
     # Plugin Manager is also a Hook Manager
     submission_manager.init_backend_interface(plugin_manager)
+
+    # Loads template_helper
+    TemplateHelper()
 
     # Loads plugins
     plugin_manager.load()

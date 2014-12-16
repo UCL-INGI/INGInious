@@ -16,7 +16,6 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
-from distutils.command.config import config
 """ Plugin Manager """
 import importlib
 

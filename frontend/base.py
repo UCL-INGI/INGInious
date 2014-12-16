@@ -28,8 +28,6 @@ def add_to_template_globals(name, value):
     add_to_template_globals.globals[name] = value
 add_to_template_globals.globals = {}
 
-# Instance of the template renderer
-
 
 def get_template_renderer(dir_path, base=None):
     """ Create a template renderer on templates in the directory specified.
