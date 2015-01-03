@@ -1,7 +1,7 @@
 FROM centos
 
 RUN \
-   yum -y install epel && \
+   yum -y install epel-release && \
    yum -y install git mongodb mongodb-server docker python-pip gcc python-devel python-devel openldap-devel && \
    pip install pymongo pytidylib docker-py sh web.py docutils simpleldap && \
    mkdir -p /data/db
