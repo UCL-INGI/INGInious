@@ -1,7 +1,7 @@
 FROM centos
 
 RUN \
-   rpm -ivh http://epel.mirror.nucleus.be/7/x86_64/e/epel-release-7-1.noarch.rpm && \
+   yum -y install epel && \
    yum -y install git mongodb mongodb-server docker python-pip gcc python-devel python-devel openldap-devel && \
    pip install pymongo pytidylib docker-py sh web.py docutils simpleldap && \
    mkdir -p /data/db
