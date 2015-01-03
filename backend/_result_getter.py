@@ -26,10 +26,17 @@ from backend._message_types import JOB_RESULT
 
 def result_getter(jobid, containerid, docker_config, output_queue):
     """ Gets the results from a container """
-    docker_connection = docker.Client(base_url=docker_config.get('server_url'))
-    stdout = str(docker_connection.logs(containerid, stdout=True, stderr=False))
-    stderr = str(docker_connection.logs(containerid, stdout=False, stderr=True))
-    if stderr != "":
-        print "STDERR: " + stderr
-    result = json.loads(stdout)
-    output_queue.put((JOB_RESULT, [jobid, result]))
+    try:
+        docker_connection = docker.Client(base_url=docker_config.get('server_url'))
+        stdout = str(docker_connection.logs(containerid, stdout=True, stderr=False))
+        stderr = str(docker_connection.logs(containerid, stdout=False, stderr=True))
+        if stderr != "":
+            print "STDERR: " + stderr
+
+        try:
+            result = json.loads(stdout)
+            output_queue.put((JOB_RESULT, [jobid, result]))
+        except:
+            output_queue.put((JOB_RESULT, [jobid, {"result": "crash", "text": "The container returned a badly formatted JSON. Please contact your course administrator."}]))
+    except:
+        output_queue.put((JOB_RESULT, [jobid, {"result": "crash", "text": "An error occured while contacting Docker. Please retry later."}]))
