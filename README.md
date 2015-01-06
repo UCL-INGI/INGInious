@@ -17,6 +17,8 @@ uses INGInious to correct students' code.
 Documentation
 -------------
 
+The documentation is available on Read the Docs: http://inginious.readthedocs.org/en/latest/index.html
+
 On Linux, run `make html` in the directory `/doc` to create a html version of the documentation.
 
 
