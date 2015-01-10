@@ -18,7 +18,7 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Classes modifying basic tasks, problems and boxes classes """
 from common.base import id_checker
-from common.parsable_text import ParsableText
+from frontend.parsable_text import ParsableText
 from common.task_file_managers.tasks_file_manager import TaskFileManager
 import common.tasks
 from frontend.accessible_time import AccessibleTime

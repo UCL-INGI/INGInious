@@ -18,12 +18,10 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Boxes for tasks' problems """
 from abc import ABCMeta, abstractmethod
-import os.path
 import re
 import sys
 
 from common.base import id_checker, INGIniousConfiguration
-from common.parsable_text import ParsableText
 
 
 class BasicBox(object):
@@ -83,7 +81,7 @@ class TextBox(BasicBox):
         BasicBox.__init__(self, problem, boxid, boxData)
         if "content" not in boxData:
             raise Exception("Box _id " + boxid + " with type=text do not have content.")
-        self._content = ParsableText(boxData['content'], "HTML" if "contentIsHTML" in boxData and boxData["contentIsHTML"] else "rst")
+        self._content = boxData['content']
 
 
 class FileBox(BasicBox):

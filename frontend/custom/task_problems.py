@@ -23,6 +23,7 @@ from random import shuffle
 
 import web
 
+from frontend.parsable_text import ParsableText
 from common.tasks_problems import BasicProblem, BasicCodeProblem, CodeProblem, CodeSingleLineProblem, MatchProblem, MultipleChoiceProblem, CodeFileProblem
 from frontend.custom.tasks_code_boxes import DisplayableInputBox, DisplayableMultilineBox, DisplayableTextBox, DisplayableFileBox
 
@@ -31,6 +32,10 @@ class DisplayableBasicProblem(BasicProblem):
 
     """Basic problem """
     __metaclass__ = ABCMeta
+
+    def __init__(self, task, problemid, content):
+        BasicProblem.__init__(self, task, problemid, content)
+        self._header = ParsableText(self._header, ("HTML" if "headerIsHTML" in content and content["headerIsHTML"] else "rst"))
 
     def __str__(self):
         """ get the html for this problem """
@@ -100,6 +105,13 @@ class DisplayableCodeFileProblem(CodeFileProblem, DisplayableBasicCodeProblem):
 class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableBasicProblem):
 
     """ A displayable multiple choice problem """
+
+    def __init__(self, task, problemid, content):
+        MultipleChoiceProblem.__init__(self, task, problemid, content)
+        DisplayableBasicProblem.__init__(self, task, problemid, content)
+
+        for choice in self._choices:
+            choice["text"] = ParsableText(choice['text'], 'HTML' if content["choices"][choice["index"]].get('textIsHTML', False) else 'rst')
 
     def show_input(self):
         """ Show multiple choice problems """
