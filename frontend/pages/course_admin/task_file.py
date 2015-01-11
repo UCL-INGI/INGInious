@@ -21,7 +21,7 @@ from StringIO import StringIO
 import os.path
 import zipfile
 import web
-from common.base import INGIniousConfiguration, id_checker
+from common.base import get_tasks_directory, id_checker
 from common.task_file_managers.tasks_file_manager import TaskFileManager
 from frontend.pages.course_admin.utils import get_course_and_check_rights
 
@@ -61,7 +61,7 @@ class DownloadTaskFiles(object):
         get_course_and_check_rights(courseid)
 
         exclude = ["task.{}".format(subclass.get_ext()) for subclass in TaskFileManager.__subclasses__()]
-        dir_path = os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid)
+        dir_path = os.path.join(get_tasks_directory(), courseid, taskid)
 
         stringio = StringIO()
         make_zipfile(stringio, dir_path, exclude)

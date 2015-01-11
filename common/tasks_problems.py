@@ -73,7 +73,7 @@ class BasicProblem(object):
         self._id = problemid
         self._task = task
         self._name = content['name'] if "name" in content else ""
-        self._header = self.content['header'] if "header" in content else ""
+        self._header = content['header'] if "header" in content else ""
 
 
 class MatchProblem(BasicProblem):

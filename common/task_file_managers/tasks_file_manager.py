@@ -21,7 +21,7 @@ from abc import ABCMeta, abstractmethod
 import codecs
 import os.path
 
-from common.base import INGIniousConfiguration
+from common.base import get_tasks_directory
 
 
 class TaskFileManager(object):
@@ -35,7 +35,7 @@ class TaskFileManager(object):
 
     def read(self):
         """ Read the file describing the task and returns a dict """
-        return self._get_content(codecs.open(os.path.join(INGIniousConfiguration["tasks_directory"], self._courseid, self._taskid, "task." + self.get_ext()), "r", 'utf-8').read())
+        return self._get_content(codecs.open(os.path.join(get_tasks_directory(), self._courseid, self._taskid, "task." + self.get_ext()), "r", 'utf-8').read())
 
     @abstractmethod
     def _get_content(self, content):
@@ -49,7 +49,7 @@ class TaskFileManager(object):
 
     def write(self, data):
         """ Write data to the task file """
-        with codecs.open(os.path.join(INGIniousConfiguration["tasks_directory"], self._courseid, self._taskid, "task." + self.get_ext()), "w", 'utf-8') as task_desc_file:
+        with codecs.open(os.path.join(get_tasks_directory(), self._courseid, self._taskid, "task." + self.get_ext()), "w", 'utf-8') as task_desc_file:
             task_desc_file.write(self._generate_content(data))
 
     @abstractmethod
@@ -63,13 +63,13 @@ class TaskFileManager(object):
         tasks = [
             task for task in os.listdir(
                 os.path.join(
-                    INGIniousConfiguration["tasks_directory"],
+                    get_tasks_directory(),
                     courseid)) if os.path.isdir(os.path.join(
-                        INGIniousConfiguration["tasks_directory"],
+                        get_tasks_directory(),
                         courseid,
                         task)) and cls._task_file_exists(
                 os.path.join(
-                    INGIniousConfiguration["tasks_directory"],
+                    get_tasks_directory(),
                     courseid,
                     task))]
         return tasks
@@ -86,7 +86,7 @@ class TaskFileManager(object):
     def get_manager(cls, courseid, taskid):
         """ Returns the appropriate task file manager for this task """
         for subclass in TaskFileManager.__subclasses__():
-            if os.path.isfile(os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid, "task.{}".format(subclass.get_ext()))):
+            if os.path.isfile(os.path.join(get_tasks_directory(), courseid, taskid, "task.{}".format(subclass.get_ext()))):
                 return subclass(courseid, taskid)
         return None
 
@@ -95,7 +95,7 @@ class TaskFileManager(object):
         """ Deletes all possibles task files in directory, to allow to change the format """
         for subclass in TaskFileManager.__subclasses__():
             try:
-                os.remove(os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid, "task.{}".format(subclass.get_ext())))
+                os.remove(os.path.join(get_tasks_directory(), courseid, taskid, "task.{}".format(subclass.get_ext())))
             except:
                 pass
 

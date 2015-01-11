@@ -25,10 +25,11 @@ from zipfile import ZipFile
 
 import web
 
-from common.base import INGIniousConfiguration, id_checker
+from common.base import id_checker, get_tasks_directory
 from common.task_file_managers.tasks_file_manager import TaskFileManager
 from frontend.accessible_time import AccessibleTime
 from frontend.base import renderer
+from frontend.configuration import INGIniousConfiguration
 from frontend.custom.courses import FrontendCourse
 from frontend.custom.tasks import FrontendTask
 from frontend.pages.course_admin.utils import get_course_and_check_rights
@@ -237,8 +238,8 @@ class CourseEditTask(object):
         except Exception as message:
             return json.dumps({"status": "error", "message": "Invalid data: {}".format(str(message))})
 
-        if not os.path.exists(os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid)):
-            os.mkdir(os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid))
+        if not os.path.exists(os.path.join(get_tasks_directory(), courseid, taskid)):
+            os.mkdir(os.path.join(get_tasks_directory(), courseid, taskid))
 
         if task_zip:
             try:
@@ -247,7 +248,7 @@ class CourseEditTask(object):
                 return json.dumps({"status": "error", "message": "Cannot read zip file. Files were not modified"})
 
             try:
-                zipfile.extractall(os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid))
+                zipfile.extractall(os.path.join(get_tasks_directory(), courseid, taskid))
             except Exception as message:
                 return json.dumps({"status": "error", "message": "There was a problem while extracting the zip archive. Some files may have been modified"})
 

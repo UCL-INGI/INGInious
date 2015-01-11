@@ -16,14 +16,20 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
-import os
-import unittest
-
-import app_frontend
+""" Configuration for the frontend. Initialize the common libraries. """
+import json
 import common.base
-import frontend
-import frontend.session
-import webtest
-if not os.path.basename(os.getcwd()) == 'doc':
-    app = app_frontend.get_app(os.path.dirname(os.path.realpath(__file__)) + "/configuration.json")
-    appt = webtest.TestApp(frontend.configuration.INGIniousConfiguration.get('tests', {}).get('host_url', app.wsgifunc()))
+
+
+class Configuration(dict):
+
+    """ Config class """
+
+    def load(self, path):
+        """ Load the config from a json file """
+        self.update(json.load(open(path, "r")))
+        common.base.init_common_lib(self["tasks_directory"],
+                                    self.get('allowed_file_extensions', [".c", ".cpp", ".java", ".oz", ".zip", ".tar.gz", ".tar.bz2", ".txt"]),
+                                    self.get('max_file_size', 1024 * 1024))
+
+INGIniousConfiguration = Configuration()

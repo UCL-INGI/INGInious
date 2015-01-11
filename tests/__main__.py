@@ -7,7 +7,7 @@ if __name__ == "__main__":
     
     testmodules = ['tests.load_sync', 'tests.load_async']
     
-    if not common.base.INGIniousConfiguration.get('tests',{}).get('host_url', ''):
+    if not frontend.configuration.INGIniousConfiguration.get('tests',{}).get('host_url', ''):
         modules = ['tests.common_courses',
             'tests.common_tasks',
             'tests.backend_jobs',

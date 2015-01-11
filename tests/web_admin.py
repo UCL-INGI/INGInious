@@ -201,7 +201,7 @@ class web_admin_submissions(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    if not common.base.INGIniousConfiguration.get('tests', {}).get('host_url', ''):
+    if not frontend.configuration.INGIniousConfiguration.get('tests', {}).get('host_url', ''):
         unittest.main()
     else:
         print "\033[31;1m-> web-admin: tests cannot be run remotely\033[0m"

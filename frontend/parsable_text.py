@@ -19,7 +19,7 @@
 """ Tools to parse text """
 from docutils import core
 
-from common.base import INGIniousConfiguration
+from frontend.configuration import INGIniousConfiguration
 
 
 class ParsableText(object):

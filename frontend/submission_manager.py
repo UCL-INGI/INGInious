@@ -24,9 +24,9 @@ import json
 from bson.objectid import ObjectId
 
 from backend.job_manager import JobManager
-from common.base import INGIniousConfiguration
-from frontend.parsable_text import ParsableText
 from frontend.base import get_database, get_gridfs
+from frontend.configuration import INGIniousConfiguration
+from frontend.parsable_text import ParsableText
 from frontend.plugins.plugin_manager import PluginManager
 import frontend.user as User
 from frontend.user_data import UserData
@@ -49,19 +49,10 @@ def init_backend_interface(plugin_manager):
         INGIniousConfiguration["docker_instances"],
         INGIniousConfiguration["containers"],
         INGIniousConfiguration["tasks_directory"],
-        INGIniousConfiguration.get(
-            "callback_managers_threads",
-            1),
-        INGIniousConfiguration.get(
-            "slow_pool_size",
-            4),
-        INGIniousConfiguration.get(
-            "fast_pool_size",
-            4),
-        INGIniousConfiguration.get(
-            "containers_hard",
-            []),
-        plugin_manager)
+        INGIniousConfiguration.get("callback_managers_threads", 1),
+        INGIniousConfiguration.get("slow_pool_size", 4),
+        INGIniousConfiguration.get("fast_pool_size", 4),
+        INGIniousConfiguration.get("containers_hard", []), plugin_manager)
 
 
 def get_submission(submissionid, user_check=True):
@@ -198,7 +189,7 @@ def get_user_last_submissions(query, limit):
     return list(cursor)
 
 
-def _parse_text(self, task, job_result):
+def _parse_text(task, job_result):
     """ Parses text """
     if "text" in job_result:
         job_result["text"] = ParsableText(job_result["text"], task.get_response_type()).parse()

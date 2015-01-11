@@ -21,7 +21,7 @@ from abc import ABCMeta, abstractmethod
 import re
 import sys
 
-from common.base import id_checker, INGIniousConfiguration
+from common.base import id_checker, get_allowed_file_extensions, get_max_file_size
 
 
 class BasicBox(object):
@@ -117,12 +117,8 @@ class FileBox(BasicBox):
 
     def __init__(self, problem, boxid, boxData):
         BasicBox.__init__(self, problem, boxid, boxData)
-        self._allowed_exts = boxData.get("allowed_exts", INGIniousConfiguration.get('allowed_file_extensions', None))
-        if self._allowed_exts is None:
-            self._allowed_exts = [".c", ".cpp", ".java", ".oz", ".zip", ".tar.gz", ".tar.bz2", ".txt"]
-        self._max_size = boxData.get("max_size", INGIniousConfiguration.get('max_file_size', None))
-        if self._max_size is None:
-            self._max_size = 1024 * 1024
+        self._allowed_exts = boxData.get("allowed_exts", get_allowed_file_extensions())
+        self._max_size = boxData.get("max_size", get_max_file_size())
 
 
 class InputBox(BasicBox):

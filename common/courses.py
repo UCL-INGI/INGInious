@@ -18,10 +18,9 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Contains the class Course and utility functions """
 import json
-import os
 import os.path
 
-from common.base import INGIniousConfiguration, id_checker
+from common.base import get_tasks_directory, id_checker
 from common.task_file_managers.tasks_file_manager import TaskFileManager
 import common.tasks
 
@@ -37,12 +36,12 @@ class Course(object):
         """Returns the path to the json that describes the course 'courseid'"""
         if not id_checker(courseid):
             raise Exception("Course with invalid name: " + courseid)
-        return os.path.join(INGIniousConfiguration["tasks_directory"], courseid, "course.json")
+        return os.path.join(get_tasks_directory(), courseid, "course.json")
 
     @classmethod
     def get_all_courses(cls):
         """Returns a table containing courseid=>Course pairs."""
-        files = [os.path.splitext(f)[0] for f in os.listdir(INGIniousConfiguration["tasks_directory"]) if os.path.isfile(os.path.join(INGIniousConfiguration["tasks_directory"], f, "course.json"))]
+        files = [os.path.splitext(f)[0] for f in os.listdir(get_tasks_directory()) if os.path.isfile(os.path.join(get_tasks_directory(), f, "course.json"))]
         output = {}
         for course in files:
             try:
@@ -72,7 +71,7 @@ class Course(object):
 
     def get_course_tasks_directory(self):
         """Return the complete path to the tasks directory of the course"""
-        return os.path.join(INGIniousConfiguration["tasks_directory"], self._id)
+        return os.path.join(get_tasks_directory(), self._id)
 
     def get_tasks(self):
         """Get all tasks in this course"""

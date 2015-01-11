@@ -17,8 +17,7 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Task """
-from os.path import join
-from common.base import INGIniousConfiguration, id_checker
+from common.base import id_checker
 from common.task_file_managers.tasks_file_manager import TaskFileManager
 from common.tasks_problems import CodeProblem, CodeSingleLineProblem, MultipleChoiceProblem, MatchProblem, CodeFileProblem
 

@@ -42,7 +42,7 @@ class CallbackManager(threading.Thread):
             task, callback, base_dict, statinfo = self._waiting_job_data[jobid]
             del self._waiting_job_data[jobid]
 
-            final_result = self._parse_text(task, self._merge_emul_result(base_dict, result))
+            final_result = self._merge_emul_result(base_dict, result)
 
             # Call the callback
             try:
