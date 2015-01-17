@@ -44,7 +44,7 @@ def init_common_lib(tasks_directory, allowed_file_extensions, max_file_size):
     """Inits the modules in the common package"""
     get_tasks_directory.tasks_directory = tasks_directory
     get_allowed_file_extensions.allowed_file_extensions = allowed_file_extensions
-    get_max_file_size.max_file_size = max_file_size
+    get_max_file_size.max_file_size = int(max_file_size) if max_file_size is not None else (1024 * 1024)
 
 
 def id_checker(id_to_test):

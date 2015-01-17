@@ -118,7 +118,7 @@ class FileBox(BasicBox):
     def __init__(self, problem, boxid, boxData):
         BasicBox.__init__(self, problem, boxid, boxData)
         self._allowed_exts = boxData.get("allowed_exts", get_allowed_file_extensions())
-        self._max_size = boxData.get("max_size", get_max_file_size())
+        self._max_size = boxData.get("max_size", get_max_file_size()) or get_max_file_size()
 
 
 class InputBox(BasicBox):

@@ -23,8 +23,8 @@ import json
 
 import web
 
-from frontend.parsable_text import ParsableText
 from common.tasks_code_boxes import TextBox, InputBox, MultilineBox, FileBox
+from frontend.parsable_text import ParsableText
 
 
 class DisplayableBox(object):
