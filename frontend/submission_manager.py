@@ -45,14 +45,7 @@ def init_backend_interface(plugin_manager):
     get_database().submissions.update({'jobid': {"$exists": True}}, {"$unset": {'jobid': ""}, "$set": {'status': 'error', 'text': 'Internal error. Server restarted'}}, False, False, None, True)
 
     # Create the job manager
-    get_job_manager.job_manager = JobManager(
-        INGIniousConfiguration["docker_instances"],
-        INGIniousConfiguration["containers"],
-        INGIniousConfiguration["tasks_directory"],
-        INGIniousConfiguration.get("callback_managers_threads", 1),
-        INGIniousConfiguration.get("slow_pool_size", 4),
-        INGIniousConfiguration.get("fast_pool_size", 4),
-        INGIniousConfiguration.get("containers_hard", []), plugin_manager)
+    get_job_manager.job_manager = JobManager(INGIniousConfiguration.get("agents", [{"host": "localhost", "port": 5001}]), plugin_manager)
 
 
 def get_submission(submissionid, user_check=True):
