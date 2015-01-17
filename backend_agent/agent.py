@@ -18,23 +18,20 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Agent, managing docker """
 
-import SocketServer
 import copy
 import json
 import logging
 import os.path
 from shutil import rmtree
 import thread
-import time
 
 import docker
-from mock import self
 import rpyc
 from rpyc.utils.server import ThreadedServer
 
+from backend_agent.cgroup_helper import CGroupTimeoutWatcher
 import common.base
 from common.courses import Course
-from common.tasks import Task
 
 
 class StudentContainerManagementService(rpyc.Service):
@@ -65,7 +62,7 @@ class StudentContainerManagementService(rpyc.Service):
 
 class Agent(object):
 
-    def __init__(self, master_port, image_aliases, task_folder="../tasks", docker_url="172.16.42.43:4243", tmp_dir="./agent_tmp", cgroup_location="/sys/fs/cgroups"):
+    def __init__(self, master_port, image_aliases, task_folder="./tasks", docker_url="172.16.42.43:4243", tmp_dir="./agent_tmp", cgroup_location="/sys/fs/cgroups"):
         logging.info("Starting agent")
         self.image_aliases = image_aliases
         common.base.init_common_lib(task_folder, [], 1)  # we do not need to upload file, so not needed here
@@ -79,12 +76,15 @@ class Agent(object):
         except:
             pass
 
+        print "Start cgroup helper"
+        self._timeout_watcher = CGroupTimeoutWatcher(docker_url)
+        self._timeout_watcher.start()
+
         print "Starting RPyC server - backend connection"
         self._backend_server = ThreadedServer(self._get_agent_backend_service(), port=master_port, protocol_config={"allow_public_attrs": True, 'allow_pickle': True})
-        #thread.start_new_thread(self._backend_server.start, ())
         self._backend_server.start()
 
-    def handle_job(self, job_id, course_id, task_id, inputdata, debug, callback_status):
+    def handle_job(self, job_id, course_id, task_id, inputdata, debug, _):
         print "Received request for jobid {}".format(job_id)
 
         # Deepcopy inputdata (to bypass "passage by reference" of RPyC)
@@ -92,7 +92,7 @@ class Agent(object):
 
         # Initialize connection to Docker
         try:
-            docker_connection = docker.Client(base_url=self.docker_url)
+            docker_connection = docker.Client(base_url=self.docker_url, version="1.14")
         except:
             print "Cannot connect to Docker!"
             return {'result': 'crash', 'text': 'Cannot connect to Docker'}
@@ -146,30 +146,35 @@ class Agent(object):
             if debug:
                 container_input["debug"] = True
             docker_connection.attach_socket(container_id, {'stdin': 1, 'stream': 1}).send(json.dumps(container_input) + "\n")
-        except:
-            print "Cannot start container!"
+        except Exception as e:
+            print "Cannot start container! {}".format(e)
             return {'result': 'crash', 'text': 'Cannot start container'}
 
         # Ask the "cgroup" thread to verify the timeout/memory limit
-        # TODO
+        self._timeout_watcher.add_container_timeout(container_id, limits.get("time", 30))
 
         # Wait for completion
+        error_timeout = False
         try:
-            docker_connection.wait(container_id)
+            return_value = docker_connection.wait(container_id, limits.get('hard_time', limits.get("time", 30) * 3))
+            if return_value == -1:
+                raise Exception('Timed out')
         except:
-            print "Cannot start container!"
-            return {'result': 'crash', 'text': 'An internal error occured while waiting for the container completion'}
+            print "Container timed out!"
+            error_timeout = True
 
         # Verify that everything went well
-        # TODO
-
-        # Get logs back
-        try:
-            stdout = str(docker_connection.logs(container_id, stdout=True, stderr=False))
-            result = json.loads(stdout)
-        except:
-            print "Cannot get back stdout of container!"
-            return {'result': 'crash', 'text': 'The grader did not return a readable output'}
+        error_timeout = self._timeout_watcher.container_had_error(container_id) or error_timeout
+        if error_timeout:
+            result = {"result": "timeout"}
+        else:
+            # Get logs back
+            try:
+                stdout = str(docker_connection.logs(container_id, stdout=True, stderr=False))
+                result = json.loads(stdout)
+            except:
+                print "Cannot get back stdout of container!"
+                result = {'result': 'crash', 'text': 'The grader did not return a readable output'}
 
         # Remove container
         thread.start_new_thread(docker_connection.remove_container, (container_id, True, False, True))
@@ -190,6 +195,3 @@ class Agent(object):
                 return handle_job(job_id, course_id, task_id, inputdata, debug, callback_status)
 
         return AgentService
-
-if __name__ == "__main__":
-    Agent(5001, {"default": "ingi/inginious-c-default", "sekexe": "ingi/inginious-c-sekexe"})

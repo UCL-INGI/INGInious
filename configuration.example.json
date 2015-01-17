@@ -6,14 +6,12 @@
     	"sekexe": "ingi/inginious-c-sekexe"
     },
     
-    "docker_instances": [
+    "agents": [
 		{
-			"server_url": "tcp://172.16.42.43:4243"
+			"host": "172.16.42.43",
+			"port": 5001
 		}
 	],
-    
-    "callback_managers_threads": 2,
-    "submitters_processes": 2,
     
     "mongo_opt": {"host": "localhost", "database":"INGInious"},
     
