@@ -20,12 +20,14 @@
 
 from Queue import PriorityQueue
 import math
-import multiprocessing
 import os.path
 import threading
 import time
 
 import docker
+from docker.utils import kwargs_from_env
+import multiprocessing
+
 from cgutils import cgroup
 
 
@@ -54,7 +56,7 @@ class CGroupTimeoutWatcher(threading.Thread):
 
     """ Watch the cgroups cpuacct and ask to stop containers when they use too many ressources """
 
-    def __init__(self, docker_url):
+    def __init__(self):
         threading.Thread.__init__(self)
 
         self._cpu_count = multiprocessing.cpu_count()
@@ -67,7 +69,6 @@ class CGroupTimeoutWatcher(threading.Thread):
         self._input_queue = PriorityQueue()
         self._container_errors = set()
 
-        self._docker_url = docker_url
         self.daemon = True
 
     def container_had_error(self, container_id):
@@ -77,9 +78,10 @@ class CGroupTimeoutWatcher(threading.Thread):
             return True
         return False
 
-    def add_container_timeout(self, container_id, max_time):
-        """ Add a container to watch for, with a timeout of max_time """
+    def add_container_timeout(self, container_id, max_time, max_time_hard):
+        """ Add a container to watch for, with a timeout of max_time (based on the CPU usage) and a timeout of max_time_hard (in realtime)"""
         self._input_queue.put((time.time(), container_id, max_time))
+        self._input_queue.put((time.time() + max_time_hard, container_id, 0))
 
     def run(self):
         while(True):
@@ -101,7 +103,7 @@ class CGroupTimeoutWatcher(threading.Thread):
                     self._input_queue.put((time.time() + minimum_remaining_time, container_id, max_time))
                 else:  # kill it (with fire!)
                     try:
-                        docker_connection = docker.Client(base_url=self._docker_url, version="1.14")
+                        docker_connection = docker.Client(**kwargs_from_env())
                         docker_connection.kill(container_id)
                     except:
                         pass

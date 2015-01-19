@@ -22,4 +22,4 @@
 from backend_agent.agent import Agent
 
 if __name__ == "__main__":
-    Agent(5001, {"default": "ingi/inginious-c-default", "sekexe": "ingi/inginious-c-sekexe"})
+    Agent(5001, {"default": "ingi/inginious-c-default", "sekexe": "ingi/inginious-c-sekexe"}, tmp_dir="/agent_tmp")
