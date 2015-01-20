@@ -32,7 +32,7 @@ from docker.utils import kwargs_from_env
 import rpyc
 from rpyc.utils.server import ThreadedServer
 
-from backend_agent.cgroup_helper import CGroupTimeoutWatcher
+from backend_agent.cgroup_helper import CGroupTimeoutWatcher, CGroupMemoryWatcher
 from backend_agent.rpyc_unix_server import UnixSocketServer
 import common.base
 from common.courses import Course
@@ -55,7 +55,9 @@ class Agent(object):
 
         print "Start cgroup helper"
         self._timeout_watcher = CGroupTimeoutWatcher()
+        self._memory_watcher = CGroupMemoryWatcher()
         self._timeout_watcher.start()
+        self._memory_watcher.start()
 
         # Init the internal job count, used to name the directories
         self._internal_job_count_lock = threading.Lock()
@@ -163,21 +165,27 @@ class Agent(object):
 
         # Ask the "cgroup" thread to verify the timeout/memory limit
         self._timeout_watcher.add_container_timeout(container_id, limits.get("time", 30), limits.get('hard_time', limits.get("time", 30) * 3))
+        self._memory_watcher.add_container_memory_limit(container_id, mem_limit)
 
         # Wait for completion
-        error_timeout = False
+        error_occured = False
         try:
             return_value = docker_connection.wait(container_id, limits.get('hard_time', limits.get("time", 30) * 4))
             if return_value == -1:
-                raise Exception('Timed out')
+                raise Exception('Container crashed!')
         except:
-            print "Container timed out!"
-            error_timeout = True
+            print "Container crashed!"
+            error_occured = True
 
         # Verify that everything went well
-        error_timeout = self._timeout_watcher.container_had_error(container_id) or error_timeout
+        error_timeout = self._timeout_watcher.container_had_error(container_id)
+        error_memory = self._memory_watcher.container_had_error(container_id)
         if error_timeout:
             result = {"result": "timeout"}
+        elif error_memory:
+            result = {"result": "overflow"}
+        elif error_occured:
+            result = {"result": "crash", "text": "An unknown error occurred while running the container"}
         else:
             # Get logs back
             try:
@@ -195,6 +203,9 @@ class Agent(object):
 
         # Remove subcontainers
         for i in container_set:
+            # Also deletes them from the timeout/memory watchers
+            self._timeout_watcher.container_had_error(container_id)
+            self._memory_watcher.container_had_error(container_id)
             thread.start_new_thread(docker_connection.remove_container, (i, True, False, True))
 
         # Delete folders
@@ -255,6 +266,7 @@ class Agent(object):
         container_set.add(container_id)
         # Ask the "cgroup" thread to verify the timeout/memory limit
         self._timeout_watcher.add_container_timeout(container_id, time_limit, min(time_limit * 4, hard_time_limit))
+        self._memory_watcher.add_container_memory_limit(container_id, mem_limit)
 
         print "New student container started"
         return container_id, stdout_err, None
@@ -296,13 +308,16 @@ class Agent(object):
         try:
             return_value = docker_connection.wait(container_id)
             if return_value == -1:
-                raise Exception('Timed out')
+                return_value = 254
+                raise Exception('Container crashed!')
         except:
-            return_value = 253
+            pass
 
         # Verify that everything went well
         if self._timeout_watcher.container_had_error(container_id):
             return_value = 253
+        if self._memory_watcher.container_had_error(container_id):
+            return_value = 252
 
         # Remove container
         thread.start_new_thread(docker_connection.remove_container, (container_id, True, False, True))
