@@ -124,7 +124,6 @@ class Agent(object):
             response = docker_connection.create_container(
                 environment,
                 stdin_open=True,
-                network_disabled=True,
                 volumes={'/ro/task': {}, '/sockets': {}, '/student': {}},
                 mem_limit=(mem_limit + 10) * 1024 * 1024  # add 10 mo of bonus, as we check the memory in the "cgroup" thread
             )
