@@ -25,7 +25,6 @@ import os.path
 from shutil import rmtree
 import thread
 import threading
-import traceback
 
 import docker
 from docker.utils import kwargs_from_env
@@ -40,20 +39,21 @@ from common.courses import Course
 
 class Agent(object):
 
-    def __init__(self, master_port, image_aliases, task_folder="./tasks", tmp_dir="./agent_tmp", cgroup_location="/sys/fs/cgroups"):
-        logging.info("Starting agent")
+    logger = logging.getLogger("agent")
+
+    def __init__(self, master_port, image_aliases, task_folder="./tasks", tmp_dir="./agent_tmp"):
+        self.logger.info("Starting agent")
         self.image_aliases = image_aliases
         common.base.init_common_lib(task_folder, [], 1)  # we do not need to upload file, so not needed here
         self.task_folder = task_folder
-        self.cgroup_location = cgroup_location
         self.tmp_dir = tmp_dir
 
         try:
             os.mkdir(tmp_dir)
-        except:
+        except OSError:
             pass
 
-        print "Start cgroup helper"
+        self.logger.debug("Start cgroup helper")
         self._timeout_watcher = CGroupTimeoutWatcher()
         self._memory_watcher = CGroupMemoryWatcher()
         self._timeout_watcher.start()
@@ -63,12 +63,12 @@ class Agent(object):
         self._internal_job_count_lock = threading.Lock()
         self._internal_job_count = 0
 
-        print "Starting RPyC server - backend connection"
+        self.logger.debug("Starting RPyC server - backend connection")
         self._backend_server = ThreadedServer(self._get_agent_backend_service(), port=master_port, protocol_config={"allow_public_attrs": True, 'allow_pickle': True})
         self._backend_server.start()
 
     def handle_job(self, job_id, course_id, task_id, inputdata, debug, _):
-        print "Received request for jobid {}".format(job_id)
+        self.logger.info("Received request for jobid %s", job_id)
 
         # Deepcopy inputdata (to bypass "passage by reference" of RPyC)
         inputdata = copy.deepcopy(inputdata)
@@ -78,20 +78,20 @@ class Agent(object):
         internal_job_id = self._internal_job_count
         self._internal_job_count += 1
         self._internal_job_count_lock.release()
-        print "Internal job count -> {}".format(internal_job_id)
+        self.logger.debug("New Internal job id -> %i", internal_job_id)
 
         # Initialize connection to Docker
         try:
             docker_connection = docker.Client(**kwargs_from_env())
         except:
-            print "Cannot connect to Docker!"
+            self.logger.warning("Cannot connect to Docker!")
             return {'result': 'crash', 'text': 'Cannot connect to Docker'}
 
         # Get back the task data (for the limits)
         try:
             task = Course(course_id).get_task(task_id)
         except:
-            print "Task unavailable on this agent!"
+            self.logger.warning("The task %s/%s unavailable on this agent!", course_id, task_id)
             return {'result': 'crash', 'text': 'Task unavailable on agent. Please contact your course administrator.'}
 
         limits = task.get_limits()
@@ -102,7 +102,7 @@ class Agent(object):
 
         environment = task.get_environment()
         if environment not in self.image_aliases:
-            print "Unknown environment {} (not in aliases)".format(environment)
+            self.logger.warning("Task %s/%s ask for an unknown environment %s (not in aliases)", course_id, task_id, environment)
             return {'result': 'crash', 'text': 'Unknown container. Please contact your course administrator.'}
         environment = self.image_aliases[environment]
 
@@ -157,8 +157,7 @@ class Agent(object):
                 container_input["debug"] = True
             docker_connection.attach_socket(container_id, {'stdin': 1, 'stream': 1}).send(json.dumps(container_input) + "\n")
         except Exception as e:
-            traceback.print_exc()
-            print "Cannot start container! {}".format(e)
+            self.logger.warning("Cannot start container! %s", str(e))
             rmtree(container_path)
             return {'result': 'crash', 'text': 'Cannot start container'}
 
@@ -173,7 +172,7 @@ class Agent(object):
             if return_value == -1:
                 raise Exception('Container crashed!')
         except:
-            print "Container crashed!"
+            self.logger.info("Container for job id %s crashed", job_id)
             error_occured = True
 
         # Verify that everything went well
@@ -191,7 +190,7 @@ class Agent(object):
                 stdout = str(docker_connection.logs(container_id, stdout=True, stderr=False))
                 result = json.loads(stdout)
             except:
-                print "Cannot get back stdout of container!"
+                self.logger.warning("Cannot get back stdout of container %s!", container_id)
                 result = {'result': 'crash', 'text': 'The grader did not return a readable output'}
 
         # Close RPyC server
@@ -226,11 +225,11 @@ class Agent(object):
         return AgentService
 
     def _create_new_student_container(self, container_name, command, memory_limit, time_limit, hard_time_limit, container_set, student_path):
-        print "Starting new student container... {} {} {} {} {}".format(container_name, command, memory_limit, time_limit, hard_time_limit)
+        self.logger.debug("Starting new student container... %s %s %s %s %s", container_name, command, memory_limit, time_limit, hard_time_limit)
         try:
             docker_connection = docker.Client(**kwargs_from_env())
         except:
-            print "Cannot connect to Docker!"
+            self.logger.warning("Cannot connect to Docker!")
             return None, None, "Cannot connect to Docker!"
 
         mem_limit = memory_limit or 100
@@ -238,7 +237,7 @@ class Agent(object):
             mem_limit = 20
 
         if container_name not in self.image_aliases:
-            print "Unknown environment {} (not in aliases)".format(container_name)
+            self.logger.info("Unknown environment %s (not in aliases)", container_name)
             return None, None, "Unknown environment {} (not in aliases)".format(container_name)
         environment = self.image_aliases[container_name]
 
@@ -258,8 +257,7 @@ class Agent(object):
 
             stdout_err = docker_connection.attach_socket(container_id, {'stdin': 0, 'stdout': 1, 'stderr': 1, 'stream': 1, 'logs': 1})
         except Exception as e:
-            traceback.print_exc()
-            print "Cannot start container! {}".format(e)
+            self.logger.warning("Cannot start container! %s", e)
             return None, None, "Cannot start container! {}".format(e)
 
         container_set.add(container_id)
@@ -267,39 +265,39 @@ class Agent(object):
         self._timeout_watcher.add_container_timeout(container_id, time_limit, min(time_limit * 4, hard_time_limit))
         self._memory_watcher.add_container_memory_limit(container_id, mem_limit)
 
-        print "New student container started"
+        self.logger.info("New student container started")
         return container_id, stdout_err, None
 
     def _student_container_signal(self, container_id, signalnum):
-        print "Sending signal {} to student container".format(str(signalnum))
+        self.logger.info("Sending signal %s to student container", str(signalnum))
         try:
             docker_connection = docker.Client(**kwargs_from_env())
         except:
-            print "Cannot connect to Docker!"
+            self.logger.warning("Cannot connect to Docker!")
             return False
 
         docker_connection.kill(container_id, signalnum)
         return True
 
     def _student_container_get_stdin(self, container_id):
-        print "Getting stdin of student container"
+        self.logger.info("Getting stdin of student container")
         try:
             docker_connection = docker.Client(**kwargs_from_env())
         except:
-            print "Cannot connect to Docker!"
+            self.logger.warning("Cannot connect to Docker!")
             return None
 
         stdin = docker_connection.attach_socket(container_id, {'stdin': 1, 'stderr': 0, 'stdout': 0, 'stream': 1})
-        print "Returning stdin of student container"
+        self.logger.info("Returning stdin of student container")
         return stdin
 
     def _student_container_close(self, container_id, container_set):
-        print "Closing student container"
+        self.logger.info("Closing student container")
 
         try:
             docker_connection = docker.Client(**kwargs_from_env())
         except:
-            print "Cannot connect to Docker!"
+            self.logger.warning("Cannot connect to Docker!")
             return 254
 
         # Wait for completion

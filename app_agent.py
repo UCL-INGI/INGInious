@@ -19,7 +19,17 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Starts an agent """
 
+import logging
+
 from backend_agent.agent import Agent
 
 if __name__ == "__main__":
+    # create logger
+    logger = logging.getLogger("agent")
+    logger.setLevel(logging.WARN)
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.WARN)
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
     Agent(5001, {"default": "ingi/inginious-c-default", "sekexe": "ingi/inginious-c-sekexe"}, tmp_dir="/agent_tmp")
