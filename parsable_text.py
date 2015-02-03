@@ -18,6 +18,7 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Tools to parse text """
 from docutils import core
+import cgi
 
 from common.base import INGIniousConfiguration
 
@@ -37,10 +38,13 @@ class ParsableText(object):
 
     def parse(self):
         """Returns parsed text"""
-        if self.mode == "HTML":
-            return self.html(self.content)
-        else:
-            return self.rst(self.content)
+        try:
+            if self.mode == "HTML":
+                return self.html(self.content)
+            else:
+                return self.rst(self.content)
+        except:
+            return "<b>Parsing failed: <pre>"+cgi.escape(self.content)+"</pre>"
 
     def __str__(self):
         """Returns parsed text"""
