@@ -44,7 +44,7 @@ class ParsableText(object):
             else:
                 return self.rst(self.content)
         except:
-            return "<b>Parsing failed: <pre>"+cgi.escape(self.content)+"</pre>"
+            return "<b>Parsing failed</b>: <pre>"+cgi.escape(self.content)+"</pre>"
 
     def __str__(self):
         """Returns parsed text"""
