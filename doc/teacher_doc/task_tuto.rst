@@ -8,7 +8,7 @@ Creating the task description
 
 The task description is a small JSON file describing everything that INGInious needs to know to verify the input of the student.
 
-Here is a simple task description. Put this file with the name *helloworld.task* in your course directory:
+Here is a simple task description. Put this file with the name *task.json* in a newly created *helloworld* folder in your course directory.
 
 ::
 
@@ -45,7 +45,7 @@ Most of the fields are self-explanatory. Some remarks:
 Creating the run file
 ---------------------
 
-Now create a new folder in your course directory, named *helloworld*. In this folder, you will put every file needed to test the input of the student.
+In your task folder, you will put every file needed to test the input of the student.
 
 Let's first create a template, where we will put the code of the student.
 
