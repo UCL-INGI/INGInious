@@ -118,6 +118,8 @@ class FrontendCourse(Course):
         cache = User.get_data().get_course_data(self.get_id())
         if cache is None:
             return 0
+        if cache["total_tasks"] == 0:
+            return 100
         return int(cache["task_succeeded"] * 100 / cache["total_tasks"])
 
     def get_user_last_submissions(self, limit=5):

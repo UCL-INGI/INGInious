@@ -86,7 +86,8 @@ class UserData(object):
         if users is not None:
             match["username"] = {"$in": users}
 
-        taskids = course.get_tasks().keys()
+        tasks = course.get_tasks()
+        taskids = tasks.keys()
         match["taskid"] = {"$in": taskids}
 
         data = get_database().user_tasks.aggregate(
@@ -101,14 +102,15 @@ class UserData(object):
                                         "$ne": [
                                             "$tried", 0]}, 1, 0]}}, "total_tries":{
                             "$sum": "$tried"}, "task_succeeded": {
-                                                "$sum": {
-                                                    "$cond": [
-                                                        "$succeeded", 1, 0]}}}}])
+                                                "$addToSet": { "$cond": ["$succeeded", "$taskid", False]}}}}])
+
         if data.get('ok', False):
             return_data = {}
             for result in data["result"]:
-                result["total_tasks"] = len(taskids)
                 username = result["_id"]
+                user_tasks = set([taskid for taskid, task in tasks.iteritems() if task.is_open_to_user(username)])
+                result["total_tasks"] = len(user_tasks)
+                result["task_succeeded"] = len(set(result["task_succeeded"]).intersection(user_tasks))
                 del result["_id"]
                 return_data[username] = result
             return return_data
