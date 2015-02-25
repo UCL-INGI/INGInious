@@ -110,7 +110,7 @@ and to provide configuration option in ``/configuration.json``.
 
 ::
 
-	$ git clone https://github.com/INGInious/INGInious.git
+	$ git clone https://github.com/UCL-INGI/INGInious.git
 	$ cd INGInious
 	$ cp configuration.example.json configuration.json
 
