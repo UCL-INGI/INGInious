@@ -42,6 +42,8 @@ $var Column: $:template_helper.call('course_admin_menu',course=course,current='t
     $for taskData in data:
         $ studentData=UserData(taskData["username"]).get_data()
     	<tr
+    	    $if taskData["tried"] == 0:
+                class="warning"
             $if taskData["tried"] != 0 and taskData["succeeded"]:
                 class="success"
             $elif taskData["tried"] != 0:
@@ -58,9 +60,9 @@ $var Column: $:template_helper.call('course_admin_menu',course=course,current='t
                 $if taskData["tried"] == 0:
                     Not attempted (viewed)
                 $elif taskData["succeeded"]:
-                    Succeeded
+                    Succeeded ($taskData["grade"]%)
                 $else:
-                    Failed
+                    Failed ($taskData["grade"]%)
             </td>
             <td>$taskData["tried"]</td>
     		<td>

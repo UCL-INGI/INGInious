@@ -29,6 +29,12 @@ $def ColumnF():
                 <td>$",".join(task.get_authors())</td>
             </tr>
         <tr>
+            <td>Deadline</td>
+            <td>
+                $task.get_deadline()
+            </td>
+        </tr>
+        <tr>
             <td>Status</td>
             <td id="task_status">
                 $if len(submissions) == 0:
@@ -52,6 +58,16 @@ $def ColumnF():
             </td>
         </tr>
         <tr>
+            <td>Grade</td>
+            <td>
+                <span id="task_grade">$task.get_user_grade()</span>%
+            </td>
+        </tr>
+        <tr>
+            <td>Grading weight</td>
+            <td>$task.get_grading_weight()</td>
+        </tr>
+        <tr>
             <td>Tries</td>
             <td id="task_tries">
                 ${len(submissions)}
@@ -65,7 +81,7 @@ $def ColumnF():
                 This course is currently invisible for students. 
                 You can change this by modifying the "accessible" option in the configuration of the course.
             </div>
-        $if not task.is_open_to_non_admin():
+        $if not task.is_visible_by_students():
             <div class="alert alert-warning" role="alert">
                 This task is currently invisible for students. 
                 You can change this by modifying the "accessible" option in the configuration of the task.
@@ -73,24 +89,26 @@ $def ColumnF():
         <a href="/admin/$course.get_id()/task/$task.get_id()" class="btn btn-primary btn-block">Statistics</a>
         <a href="/admin/$course.get_id()/edit/$task.get_id()" class="btn btn-primary btn-block">Edit task</a>
     <h3>Submissions</h3>
-    <div id="submissions" class="list-group">
-        $if submissions:
-            $for submission in submissions:
-                <a class="submission list-group-item 
-                    $if submission['status'] == 'done' and submission['result'] == 'success':
-                        list-group-item-success
-                    $elif submission['status'] == 'done' and submission['result'] == 'save':
-                        list-group-item-info
-                    $elif submission['status'] == 'waiting':
-                        list-group-item-warning
-                    $else:
-                        list-group-item-danger
-                    "
-                    data-submission-id="$submission['_id']">
-                    $submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S")
-                </a>
-        $else:
-            <a class="list-group-item disabled submission-empty">No submissions</a>
+    <div id="submissions_restrictsize">
+	    <div id="submissions" class="list-group">
+	        $if submissions:
+	            $for submission in submissions:
+	                <a class="submission list-group-item 
+	                    $if submission['status'] == 'done' and submission['result'] == 'success':
+	                        list-group-item-success
+	                    $elif submission['status'] == 'done' and submission['result'] == 'save':
+	                        list-group-item-info
+	                    $elif submission['status'] == 'waiting':
+	                        list-group-item-warning
+	                    $else:
+	                        list-group-item-danger
+	                    "
+	                    data-submission-id="$submission['_id']">
+	                    $submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S") - $submission["grade"]%
+	                </a>
+	        $else:
+	            <a class="list-group-item disabled submission-empty">No submissions</a>
+	    </div>
     </div>
 $var Column: $:ColumnF()
 
@@ -114,7 +132,7 @@ $if User.get_username() in course.get_admins():
                     </a>
                 </h4>
             </div>
-            <div id="collapse-debug" class="panel-collapse collapse in">
+            <div id="collapse-debug" class="panel-collapse collapse">
                 <div class="panel-body">
                     <div id="task_debug">
                         The raw data from the container will be displayed here, helping you to debug the task.<br/>
@@ -137,5 +155,8 @@ $if User.get_username() in course.get_admins():
         <div id="task_alert.$problem.get_id()" class="task_alert_problem"></div>
         $:problem.get_header()
         $:problem.show_input()
-    <button type="submit" class="btn btn-default btn-lg btn-block center-block" id="task-submit">Submit</button>
+    $if task.can_user_submit():
+        <button type="submit" class="btn btn-default btn-lg btn-block center-block" id="task-submit">Submit</button>
+    $else:
+        <button type="submit" class="btn btn-default btn-lg btn-block center-block" disabled="disabled">The deadline is over, you cannot submit anymore</button>
 </form>

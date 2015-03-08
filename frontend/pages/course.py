@@ -38,7 +38,7 @@ class CoursePage(object):
                 if not course.is_open_to_user(User.get_username()):
                     return renderer.course_unavailable()
 
-                last_submissions = course.get_user_last_submissions()
+                last_submissions = course.get_user_last_submissions(one_per_task=True)
                 except_free_last_submissions = []
                 for submission in last_submissions:
                     try:

@@ -33,7 +33,7 @@ $var Column: $:template_helper.call('course_admin_menu',course=course,current='s
         <th>student username</th>
         <th># task tried</th>
         <th># task done</th>
-        <th>progression</th>
+        <th>Current grade</th>
         <th>
         	<a href="javascript:ask_to_download('/admin/${course.get_id()}/submissions?dl=course')" class="btn btn-danger btn-xs">Download all submissions</a>
         	<a href="/admin/${course.get_id()}?csv" class="btn btn-info btn-xs">CSV</a>
@@ -53,7 +53,7 @@ $var Column: $:template_helper.call('course_admin_menu',course=course,current='s
     		<td>$courseData["task_succeeded"]</td>
     		<td>
     			<div class="progress">
-                    $ percentage=int(courseData["task_succeeded"]*100/len(course.get_tasks()))
+                    $ percentage=int(course.get_user_grade(courseData["username"]))
                     <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="$percentage" aria-valuemin="0" aria-valuemax="100" style="width: $percentage%">
                         <span>$percentage%</span>
                     </div>

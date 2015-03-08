@@ -49,16 +49,16 @@ $var Column: $:template_helper.call('course_admin_menu',course=course,current='s
             $elif data[taskid]["status"] == "failed":
                 class="danger"
         >
-    		<td><a href="/admin/${course.get_id()}/submissions?dl=student_task&username=${username}&task=${taskid}">$data[taskid]["name"]</a></td>
+    		<td><a href="/admin/${course.get_id()}/student/$username/$taskid">$data[taskid]["name"]</a></td>
     		<td>
                 $if data[taskid]["status"] == "notviewed":
                     Not viewed
                 $elif data[taskid]["status"] == "notattempted":
                     Not attempted (viewed)
                 $elif data[taskid]["status"] == "succeeded":
-                    Succeeded
+                    Succeeded ($data[taskid]["grade"]%)
                 $else:
-                    Failed
+                    Failed ($data[taskid]["grade"]%)
             </td>
             <td>$data[taskid]["submissions"]</td>
     		<td>

@@ -67,6 +67,9 @@ class FrontendTask(common.tasks.Task):
         else:
             self._author = []
 
+        # Grade weight
+        self._weight = float(self._data.get("weight", 1.0))
+
         # _accessible
         self._accessible = AccessibleTime(self._data.get("accessible", None))
 
@@ -89,13 +92,36 @@ class FrontendTask(common.tasks.Task):
         """ Get the position of this task in the course """
         return self._order
 
-    def is_open_to_non_admin(self):
-        """ Returns true if the task is accessible by users that are not administrator of the course """
-        return self.get_course().is_open_to_non_admin() and self._accessible.is_open()
+    def get_grading_weight(self):
+        """ Get the relative weight of this task in the grading """
+        return self._weight
 
-    def is_open_to_user(self, username):
-        """ Returns true if the task is open to this user """
+    def is_visible_by_students(self):
+        """ Returns true if the task is accessible by all students that are not administrator of the course """
+        return self.get_course().is_open_to_non_admin() and self._accessible.after_start()
+
+    def is_visible_by_user(self, username=None):
+        """ Returns true if the task is visible by the user """
+        if username is None:
+            import frontend.user as User
+            username = User.get_username()
+        return (self.get_course().is_open_to_user(username) and self._accessible.after_start()) or username in self.get_course().get_admins()
+
+    def can_user_submit(self, username=None):
+        """ returns true if the user can submit his work for this task """
+        if username is None:
+            import frontend.user as User
+            username = User.get_username()
         return (self.get_course().is_open_to_user(username) and self._accessible.is_open()) or username in self.get_course().get_admins()
+
+    def get_deadline(self):
+        """ Returns a string containing the deadline for this task """
+        if self._accessible.is_always_accessible():
+            return "No deadline"
+        elif self._accessible.is_never_accessible():
+            return "It's too late"
+        else:
+            return self._accessible.get_end_date().strftime("%d/%m/%Y %H:%M:%S")
 
     def get_user_status(self):
         """ Returns "succeeded" if the current user solved this task, "failed" if he failed, and "notattempted" if he did not try it yet """
@@ -106,6 +132,14 @@ class FrontendTask(common.tasks.Task):
         if task_cache["tried"] == 0:
             return "notattempted"
         return "succeeded" if task_cache["succeeded"] else "failed"
+
+    def get_user_grade(self):
+        """ Returns the grade (a floating-point number between 0 and 100) of the student """
+        import frontend.user as User  # insert here to avoid initialisation of session
+        task_cache = User.get_data().get_task_data(self.get_course_id(), self.get_id())
+        if task_cache is None:
+            return 0.0
+        return task_cache.get("grade", 0.0)
 
     def adapt_input_for_backend(self, input_data):
         """ Adapt the input from web.py for the backend """

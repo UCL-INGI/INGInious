@@ -48,7 +48,7 @@ class TaskPage(object):
                     return renderer.course_unavailable()
 
                 task = course.get_task(taskid)
-                if not task.is_open_to_user(User.get_username()):
+                if not task.is_visible_by_user(User.get_username()):
                     return renderer.task_unavailable()
 
                 User.get_data().view_task(courseid, taskid)
@@ -93,12 +93,16 @@ class TaskPage(object):
                     return renderer.course_unavailable()
 
                 task = course.get_task(taskid)
-                if not task.is_open_to_user(User.get_username()):
+                if not task.is_visible_by_user(User.get_username()):
                     return renderer.task_unavailable()
 
                 User.get_data().view_task(courseid, taskid)
                 userinput = web.input()
                 if "@action" in userinput and userinput["@action"] == "submit":
+                    # Verify rights
+                    if not task.can_user_submit(User.get_username()):
+                        return json.dumps({"status": "error", "text": "The deadline is over"})
+
                     # Reparse user input with array for multiple choices
                     init_var = self.list_multiple_multiple_choices_and_files(task)
                     userinput = task.adapt_input_for_backend(web.input(**init_var))
@@ -144,7 +148,13 @@ class TaskPage(object):
 
     def submission_to_json(self, data, debug, reloading=False):
         """ Converts a submission to json (keeps only needed fields) """
-        tojson = {'status': data['status'], 'result': data.get('result', 'crash'), 'id': str(data["_id"]), 'submitted_on': str(data['submitted_on'])}
+        tojson = {
+            'status': data['status'],
+            'result': data.get('result', 'crash'),
+            'id': str(data["_id"]),
+            'submitted_on': str(data['submitted_on']),
+            'grade': str(data["grade"])
+        }
 
         if reloading:
             # Set status='ok' because we are reloading an old submission.
@@ -187,7 +197,7 @@ class TaskPageStaticDownload(object):
                     return renderer.course_unavailable()
 
                 task = course.get_task(taskid)
-                if not task.is_open_to_user(User.get_username()):
+                if not task.is_visible_by_user(User.get_username()):
                     return renderer.task_unavailable()
 
                 path_norm = posixpath.normpath(urllib.unquote(path))

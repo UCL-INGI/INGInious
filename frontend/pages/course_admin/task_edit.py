@@ -201,6 +201,12 @@ class CourseEditTask(object):
                                             for key, val in sorted(problems.iteritems(), key=lambda x: int(x[1]['@order']))])
             data["limits"] = limits
 
+            # Weight
+            try:
+                data["weight"] = float(data["weight"])
+            except:
+                return json.dumps({"status": "error", "message": "Grade weight must be a floating-point number"})
+
             # Accessible
             if data["accessible"] == "custom":
                 data["accessible"] = "{}/{}".format(data["accessible_start"], data["accessible_end"])

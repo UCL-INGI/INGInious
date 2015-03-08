@@ -22,14 +22,14 @@ $var title: $:course.get_name()
 $# Left column content
 $def ColumnF():
     $:template_helper.call('course_menu',course=course)
-    <h3>Progress</h3>
+    <h3>Current grade</h3>
     <div class="progress">
-        $ completion=course.get_user_completion_percentage()
-        <div class="progress-bar progress-bar-success" aria-valuenow="$completion" aria-valuemin="0" aria-valuemax="100" style="width: $completion%">
-            $completion%
+        $ grade=course.get_user_grade()
+        <div class="progress-bar progress-bar-success" aria-valuenow="$int(grade)" aria-valuemin="0" aria-valuemax="100" style="width: $grade%">
+            $int(grade)%
         </div>
     </div>
-    <h3>Last submissions</h3>
+    <h3>Last tried exercises</h3>
     
     <div class="list-group">
         $if submissions:
@@ -71,21 +71,31 @@ $# Start content
   <li><a href="/index">Home</a></li>
   <li class="active">$course.get_name()</li>
 </ol>
-<h2>$course.get_name() - List of exercices</h2>
-<div class="list-group">
+<h2>$course.get_name() - List of exercises</h2>
+<div class="list-group" style="margin-left: 16px; margin-right: 16px;">
     $for taskid, task in course.get_tasks().iteritems()
-        $if task.is_open_to_user(User.get_username()):
-            <a href="/course/$course.get_id()/$taskid" class="list-group-item 
-                $ status=task.get_user_status()
-                $if not task.is_open_to_non_admin():
+        $if task.is_visible_by_user(User.get_username()):
+            $ status=task.get_user_status()
+            $ completion=task.get_user_grade()
+            <a href="/course/$course.get_id()/$taskid" class="row list-group-item 
+                $if not task.is_visible_by_students() or not task.can_user_submit():
                     disabled
-                $if status == 'failed':
-                    list-group-item-danger
-                $elif status == 'succeeded':
-                    list-group-item-success
                 ">
-                $task.get_name()
-                $if not task.is_open_to_non_admin():
-                    (task currently unavailable)
+                <div class="col-xs-12 col-md-7">
+                    $if status == "succeeded":
+                        <i style="color:#468847; position: absolute; left: -5px;" class="glyphicon glyphicon-ok"></i> 
+                    $task.get_name()
+                    $if not task.is_visible_by_students():
+                        - <b>(task hidden to students)</b>
+                    $if not task.can_user_submit():
+                        - <b>deadline reached</b>
+                </div>
+                <div class="col-xs-12 col-md-5">
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-success" aria-valuenow="$int(completion)" aria-valuemin="0" aria-valuemax="100" style="width: $completion%">
+                            $int(completion)%
+                        </div>
+                    </div>
+                </div>
             </a>
 </div>

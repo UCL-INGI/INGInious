@@ -79,7 +79,7 @@ class IndexPage(object):
                 pass
 
         # Display
-        last_submissions = get_user_last_submissions({}, 5)
+        last_submissions = get_user_last_submissions({}, 5, True)
         except_free_last_submissions = []
         for submission in last_submissions:
             try:

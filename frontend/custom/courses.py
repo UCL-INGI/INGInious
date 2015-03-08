@@ -25,6 +25,7 @@ from common.courses import Course
 from frontend.accessible_time import AccessibleTime
 from frontend.base import get_database
 from frontend.custom.tasks import FrontendTask
+from frontend.user_data import UserData
 
 
 class FrontendCourse(Course):
@@ -112,23 +113,46 @@ class FrontendCourse(Course):
         """ Return the AccessibleTime object associated with the registration """
         return self._registration
 
-    def get_user_completion_percentage(self):
-        """ Returns the percentage (integer) of completion of this course by the current user """
-        import frontend.user as User
-        cache = User.get_data().get_course_data(self.get_id())
+    def get_user_completion_percentage(self, username=None):
+        """ Returns the percentage (integer) of completion of this course by the current user (or username if it is not None)"""
+        if username is None:
+            import frontend.user as User
+            username = User.get_username()
+        cache = UserData(username).get_course_data(self.get_id())
         if cache is None:
             return 0
         if cache["total_tasks"] == 0:
             return 100
         return int(cache["task_succeeded"] * 100 / cache["total_tasks"])
 
-    def get_user_last_submissions(self, limit=5):
+    def get_user_grade(self, username=None):
+        """ Return the grade (a floating-point number between 0 and 100) of the user (if username is None, it uses the currently logged-in user) """
+        if username is None:
+            import frontend.user as User
+            username = User.get_username()
+        cache = UserData(username).get_course_data(self.get_id())
+        if cache is None:
+            return 0
+        total_weight = 0
+        grade = 0
+
+        for task_id, task in self.get_tasks().iteritems():
+            if task.is_visible_by_user(username):
+                total_weight += task.get_grading_weight()
+                grade += cache["task_grades"].get(task_id, 0.0) * task.get_grading_weight()
+
+        if total_weight == 0:
+            return 0
+
+        return grade / total_weight
+
+    def get_user_last_submissions(self, limit=5, one_per_task=False):
         """ Returns a given number (default 5) of submissions of task from this course """
         from frontend.submission_manager import get_user_last_submissions as extern_get_user_last_submissions
         task_ids = []
         for task_id in self.get_tasks():
             task_ids.append(task_id)
-        return extern_get_user_last_submissions({"courseid": self.get_id(), "taskid": {"$in": task_ids}}, limit)
+        return extern_get_user_last_submissions({"courseid": self.get_id(), "taskid": {"$in": task_ids}}, limit, one_per_task)
 
     def get_tasks(self):
         return OrderedDict(sorted(Course.get_tasks(self).items(), key=lambda t: t[1].get_order()))

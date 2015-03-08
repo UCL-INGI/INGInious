@@ -74,6 +74,10 @@ form#task.form-blur {
 form#task #task-submit {
   margin-top: 10px;
 }
+#submissions_restrictsize {
+  overflow: auto;
+  max-height: 211px;
+}
 #submissions .submission {
   cursor: pointer;
 }

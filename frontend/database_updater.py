@@ -58,4 +58,13 @@ def update_database():
                 print "There was an error while updating the database. Some users may have been unregistered from the course {}".format(r['_id'])
         db_version = 2
 
+    if db_version < 3:
+        print "Updating database to db_version 3"
+        # Add the grade for all the old submissions
+        get_database().submissions.update({}, {"$set": {"grade": 0.0}}, multi=True)
+        get_database().submissions.update({"result": "success"}, {"$set": {"grade": 100.0}}, multi=True)
+        get_database().user_tasks.update({}, {"$set": {"grade": 0.0}}, multi=True)
+        get_database().user_tasks.update({"succeeded": True}, {"$set": {"grade": 100.0}}, multi=True)
+        db_version = 3
+
     get_database().db_version.update({}, {"$set": {"db_version": db_version}}, upsert=True)

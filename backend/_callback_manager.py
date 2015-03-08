@@ -117,4 +117,22 @@ class CallbackManager(threading.Thread):
         elif emul_result["result"] == "crash":
             final_dict = origin_dict.copy()
             final_dict.update({"result": emul_result["result"], "text": "There was an internal error while running the tests"})
+
+        # Verify that the grade is present
+        if emul_result["result"] in ["success", "failed"]:
+            if "grade" not in final_dict:
+                final_dict["grade"] = 100.0 if emul_result["result"] == "success" else 0.0
+        else:
+            final_dict["grade"] = 0.0
+
+        try:
+            final_dict["grade"] = float(final_dict["grade"])
+        except:
+            final_dict["grade"] = 0.0
+
+        if final_dict["grade"] < 0:
+            final_dict["grade"] = 0
+        elif final_dict["grade"] > 200:  # allow bonuses
+            final_dict["grade"] = 200
+
         return final_dict

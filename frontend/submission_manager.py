@@ -22,6 +22,7 @@ from datetime import datetime
 import json
 
 from bson.objectid import ObjectId
+import pymongo
 
 from backend.job_manager import JobManager
 from common.base import INGIniousConfiguration
@@ -41,7 +42,9 @@ def init_backend_interface(plugin_manager):
     """ inits everything that makes the backend working """
 
     # Updates the submissions that have a jobid with the status error, as the server restarted """
-    get_database().submissions.update({'jobid': {"$exists": True}}, {"$unset": {'jobid': ""}, "$set": {'status': 'error', 'text': 'Internal error. Server restarted'}}, False, False, None, True)
+    get_database().submissions.update({'jobid': {"$exists": True}},
+                                      {"$unset": {'jobid': ""},
+                                       "$set": {'status': 'error', 'grade': 0.0, 'text': 'Internal error. Server restarted'}}, multi=True)
 
     # Create the job manager
     get_job_manager.job_manager = JobManager(
@@ -84,6 +87,7 @@ def job_done_callback(jobid, _, job):
     data = {
         "status": ("done" if job["result"] == "success" or job["result"] == "failed" else "error"),  # error only if error was made by INGInious
         "result": job["result"],
+        "grade": job["grade"],
         "text": job.get("text", None),
         "tests": job.get("tests", None),
         "problems": (job["problems"] if "problems" in job else {}),
@@ -184,12 +188,25 @@ def get_user_submissions(task):
     return list(cursor)
 
 
-def get_user_last_submissions(query, limit):
+def get_user_last_submissions(query, limit, one_per_task=False):
     """ Get last submissions of a user """
     if not User.is_logged_in():
         raise Exception("A user must be logged in to get his submissions")
     request = query.copy()
     request.update({"username": User.get_username()})
+
+    # We only want the last x task tried, modify the request
+    if one_per_task is True:
+        data = get_database().submissions.aggregate([
+            {"$match": request},
+            {"$sort": {"submitted_on": pymongo.DESCENDING}},
+            {"$group": {"_id": {"courseid": "$courseid", "taskid": "$taskid"}, "orig_id": {"$first": "$_id"}, "submitted_on": {"$first": "$submitted_on"}}},
+            {"$sort": {"submitted_on": pymongo.DESCENDING}},
+            {"$limit": limit}
+        ])
+        print data
+        request = {"_id": {"$in": [d["orig_id"] for d in data["result"]]}}
+
     cursor = get_database().submissions.find(request)
     cursor.sort([("submitted_on", -1)]).limit(limit)
     return list(cursor)

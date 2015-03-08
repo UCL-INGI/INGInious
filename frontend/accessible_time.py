@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Contains AccessibleTime, class that represents the period of time when a course/task is accessible """
+
 from datetime import datetime
 
 
@@ -63,6 +64,20 @@ class AccessibleTime(object):
                 pass
         raise Exception("Unknown format for " + date)
 
+    def before_start(self, when=None):
+        """ Returns True if the task/course is not yet accessible """
+        if when is None:
+            when = datetime.now()
+
+        if self.val[0] is None:
+            return False
+
+        return self.val[0] > when
+
+    def after_start(self, when=None):
+        """ Returns True if the task/course is or have been accessible in the past """
+        return not self.before_start(when)
+
     def is_open(self, when=None):
         """ Returns True if the course/task is still open """
         if when is None:
@@ -100,3 +115,15 @@ class AccessibleTime(object):
             return second.strftime("%Y-%m-%d %H:%M:%S")
         else:
             return ""
+
+    def get_start_date(self):
+        """ If the date is custom, returns a datetime object. If not, returns either True or False,
+            respectively if the end date is not set or if the task is always closed
+        """
+        return self.val[0]
+
+    def get_end_date(self):
+        """ If the date is custom, returns a datetime object. If not, returns either True or False,
+            respectively if the end date is not set or if the task is always closed
+        """
+        return self.val[1]

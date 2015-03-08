@@ -21,7 +21,7 @@ $var title: My profile
 
 $# Left column content
 $def ColumnF():
-    <h3>Last submissions</h3>
+    <h3>Last tried exercises</h3>
     
     <div class="list-group">
         $if submissions:
@@ -46,7 +46,7 @@ $var Column: $:ColumnF()
 
 $# Start content
 <h2>My courses</h2>
-<div class="list-group">
+<div class="list-group" style="margin-left: 16px; margin-right: 16px;">
 	$if len(open_courses) != 0:
         $for courseid in open_courses:
             <a href="course/$courseid" class="list-group-item row">
@@ -57,9 +57,9 @@ $# Start content
                 </div>
                 <div class="col-xs-12 col-md-5">
                     <div class="progress">
-                        $ completion=open_courses[courseid].get_user_completion_percentage()
-                        <div class="progress-bar progress-bar-success" aria-valuenow="$completion" aria-valuemin="0" aria-valuemax="100" style="width: $completion%">
-                            $completion%
+                        $ grade=open_courses[courseid].get_user_grade()
+                        <div class="progress-bar progress-bar-success" aria-valuenow="$int(grade)" aria-valuemin="0" aria-valuemax="100" style="width: $grade%">
+                            $int(grade)%
                         </div>
                     </div>
                 </div>

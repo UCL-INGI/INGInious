@@ -48,7 +48,7 @@ def get_course_and_check_rights(courseid, taskid=None):
         else:
             raise web.notfound()
     except:
-        web.notfound()
+        raise web.notfound()
 
 
 class UnicodeWriter(object):
@@ -86,6 +86,24 @@ class UnicodeWriter(object):
 
 def make_csv(data):
     """ Returns the content of a CSV file with the data of the dict/list data """
+    # Convert sub-dicts to news cols
+    for entry in data:
+        rval = entry
+        if isinstance(data, dict):
+            rval = data[entry]
+        todel = []
+        toadd = {}
+        for key, val in rval.iteritems():
+            if isinstance(val, dict):
+                for key2, val2 in val.iteritems():
+                    toadd[str(key) + "[" + str(key2) + "]"] = val2
+                todel.append(key)
+        for k in todel:
+            del rval[k]
+        for k, v in toadd.iteritems():
+            rval[k] = v
+
+    # Convert everything to CSV
     columns = set()
     output = [[]]
     if isinstance(data, dict):
@@ -97,6 +115,8 @@ def make_csv(data):
         for entry in data:
             for col in entry:
                 columns.add(col)
+
+    columns = sorted(columns)
 
     for col in columns:
         output[0].append(col)

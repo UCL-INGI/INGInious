@@ -138,39 +138,39 @@ class DownloadSubmissionFiles(object):
         """ Download all submissions for a course """
         submissions = list(get_database().submissions.find({"courseid": course.get_id(), "username": {"$in": course.get_registered_users()}, "status": {"$in": ["done", "error"]}}))
         if not include_old_submissions:
-            submissions = self._keep_last_submission(submissions)
+            submissions = self._keep_best_submission(submissions)
         return self.download_submission_set(submissions, '_'.join([course.get_id()]) + '.tgz', ['username', 'taskid'])
 
     def download_task(self, course, taskid, include_old_submissions=False):
         """ Download all submission for a task """
         submissions = list(get_database().submissions.find({"taskid": taskid, "courseid": course.get_id(), "username": {"$in": course.get_registered_users()}, "status": {"$in": ["done", "error"]}}))
         if not include_old_submissions:
-            submissions = self._keep_last_submission(submissions)
+            submissions = self._keep_best_submission(submissions)
         return self.download_submission_set(submissions, '_'.join([course.get_id(), taskid]) + '.tgz', ['username'])
 
     def download_student(self, course, username, include_old_submissions=False):
         """ Download all submissions for a user for a given course """
         submissions = list(get_database().submissions.find({"username": username, "courseid": course.get_id(), "status": {"$in": ["done", "error"]}}))
         if not include_old_submissions:
-            submissions = self._keep_last_submission(submissions)
+            submissions = self._keep_best_submission(submissions)
         return self.download_submission_set(submissions, '_'.join([username, course.get_id()]) + '.tgz', ['taskid'])
 
     def download_student_task(self, course, username, taskid, include_old_submissions=True):
         """ Download all submissions for a user for given task """
         submissions = list(get_database().submissions.find({"username": username, "courseid": course.get_id(), "taskid": taskid, "status": {"$in": ["done", "error"]}}))
         if not include_old_submissions:
-            submissions = self._keep_last_submission(submissions)
+            submissions = self._keep_best_submission(submissions)
         return self.download_submission_set(submissions, '_'.join([username, course.get_id(), taskid]) + '.tgz', [])
 
     def download_submission(self, subid, include_old_submissions=False):
         """ Download a specific submission """
         submissions = list(get_database().submissions.find({'_id': ObjectId(subid)}))
         if not include_old_submissions:
-            submissions = self._keep_last_submission(submissions)
+            submissions = self._keep_best_submission(submissions)
         return self.download_submission_set(submissions, subid + '.tgz', [])
 
-    def _keep_last_submission(self, submissions):
-        """ Internal command used to only keep the last valid submission, if any """
+    def _keep_best_submission(self, submissions):
+        """ Internal command used to only keep the best submission, if any """
         submissions.sort(key=lambda item: item['submitted_on'], reverse=True)
         tasks = {}
         for sub in submissions:
@@ -178,9 +178,8 @@ class DownloadSubmissionFiles(object):
                 tasks[sub["taskid"]] = {}
             if sub["username"] not in tasks[sub["taskid"]]:
                 tasks[sub["taskid"]][sub["username"]] = sub
-            elif tasks[sub["taskid"]][sub["username"]].get("result", "") != "success" and sub.get("result", "") == "success":
+            elif tasks[sub["taskid"]][sub["username"]].get("grade", 0.0) < sub.get("grade", 0.0):
                 tasks[sub["taskid"]][sub["username"]] = sub
-        print tasks
         final_subs = []
         for task in tasks.itervalues():
             for sub in task.itervalues():
