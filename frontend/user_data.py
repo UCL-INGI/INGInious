@@ -130,7 +130,8 @@ class UserData(object):
                                                            "courseid": courseid,
                                                            "taskid": taskid,
                                                            "tried": 0,
-                                                           "succeeded": False}},
+                                                           "succeeded": False,
+                                                           "grade": 0.0}},
                                          upsert=True)
 
     def update_stats(self, submission, job):
