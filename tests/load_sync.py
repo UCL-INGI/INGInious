@@ -26,11 +26,11 @@ import webtest
 
 from tests import *
 import app_frontend
-import backend
-import common.base
-import frontend
-import frontend.session
-import frontend.submission_manager
+import inginious.backend
+import inginious.common.base
+import inginious.frontend
+import inginious.frontend.session
+import inginious.frontend.submission_manager
 class SyncSubmitter(threading.Thread):
     """ Launch a sync submission """
 
@@ -68,7 +68,7 @@ class Watcher(threading.Thread):
 
 class load_sync(unittest.TestCase):
     def setUp(self):
-        self.jm = frontend.submission_manager.get_job_manager()
+        self.jm = inginious.frontend.submission_manager.get_job_manager()
         self.queue = Queue.Queue()
         self.thqueue = Queue.Queue()
         

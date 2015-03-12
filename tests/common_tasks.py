@@ -19,18 +19,18 @@
 import unittest
 
 from tests import *
-import common.base
-import common.courses
-import common.tasks
-import common.tasks_code_boxes
+import inginious.common.base
+import inginious.common.courses
+import inginious.common.tasks
+import inginious.common.tasks_code_boxes
 class common_tasks_basic(unittest.TestCase):
     def setUp(self):
         pass
     
     def test_task_loading(self):
         '''Tests if a course file loads correctly'''
-        print "\033[1m-> common-tasks: task loading\033[0m"
-        t = common.tasks.Task(common.courses.Course('test'), 'task1')
+        print "\033[1m-> inginious.common-tasks: task loading\033[0m"
+        t = inginious.common.tasks.Task(inginious.common.courses.Course('test'), 'task1')
         assert t.get_environment() == 'default'
         assert t.get_id() == 'task1'
         assert t.get_course_id() == 'test'
@@ -52,20 +52,20 @@ class common_tasks_problems(unittest.TestCase):
     
     def test_problem_types(self):
         '''Tests if problem types are correctly recognized'''
-        print "\033[1m-> common-tasks: problem types parsing\033[0m"
-        t = common.tasks.Task(common.courses.Course('test2'), 'task1')
+        print "\033[1m-> inginious.common-tasks: problem types parsing\033[0m"
+        t = inginious.common.tasks.Task(inginious.common.courses.Course('test2'), 'task1')
         assert t.get_problems()[0].get_type() == 'match'
         
-        t = common.tasks.Task(common.courses.Course('test2'), 'task2')
+        t = inginious.common.tasks.Task(inginious.common.courses.Course('test2'), 'task2')
         assert t.get_problems()[0].get_type() == 'match'
         
-        t = common.tasks.Task(common.courses.Course('test2'), 'task3')
+        t = inginious.common.tasks.Task(inginious.common.courses.Course('test2'), 'task3')
         assert t.get_problems()[0].get_type() == 'multiple-choice'
     
     def test_multiple_choice(self):
         '''Tests multiple choice problems methods'''
-        print "\033[1m-> common-tasks: multiple-choice parsing\033[0m"
-        p = common.tasks.Task(common.courses.Course('test2'), 'task3').get_problems()[0]
+        print "\033[1m-> inginious.common-tasks: multiple-choice parsing\033[0m"
+        p = inginious.common.tasks.Task(inginious.common.courses.Course('test2'), 'task3').get_problems()[0]
         assert p.allow_multiple()
         
         # Check correct and incorrect answer
@@ -79,8 +79,8 @@ class common_tasks_problems(unittest.TestCase):
     
     def test_match(self):
         '''Tests match problems methods'''
-        print "\033[1m-> common-tasks: match-problem loading\033[0m"
-        p = common.tasks.Task(common.courses.Course('test2'), 'task1').get_problems()[0]
+        print "\033[1m-> inginious.common-tasks: match-problem loading\033[0m"
+        p = inginious.common.tasks.Task(inginious.common.courses.Course('test2'), 'task1').get_problems()[0]
         
         # Check correct and incorrect answer
         assert p.check_answer({'unittest':'Answer 1'})[0]
@@ -93,8 +93,8 @@ class common_tasks_problems(unittest.TestCase):
     
     def test_code(self):
         '''Tests code problems methods'''
-        print "\033[1m-> common-tasks: code-problem parsing\033[0m"
-        p = common.tasks.Task(common.courses.Course('test'), 'task1').get_problems()[0]
+        print "\033[1m-> inginious.common-tasks: code-problem parsing\033[0m"
+        p = inginious.common.tasks.Task(inginious.common.courses.Course('test'), 'task1').get_problems()[0]
         
         # Check random form input
         assert p.input_is_consistent({'unittest/decimal':'10'})
@@ -110,14 +110,14 @@ class common_tasks_boxes(unittest.TestCase):
     
     def test_number_boxes(self):
         '''Tests if get_boxes returns the correct number of boxes'''
-        print "\033[1m-> common-tasks: problem boxes count\033[0m"
-        p = common.tasks.Task(common.courses.Course('test2'), 'task4').get_problems()[0]
+        print "\033[1m-> inginious.common-tasks: problem boxes count\033[0m"
+        p = inginious.common.tasks.Task(inginious.common.courses.Course('test2'), 'task4').get_problems()[0]
         assert len(p.get_boxes()) == 12
     
     def test_filebox(self):
         '''Tests filebox methods'''
-        print "\033[1m-> common-tasks: filebox problem type\033[0m"
-        p = common.tasks.Task(common.courses.Course('test2'), 'task4').get_problems()[0]
+        print "\033[1m-> inginious.common-tasks: filebox problem type\033[0m"
+        p = inginious.common.tasks.Task(inginious.common.courses.Course('test2'), 'task4').get_problems()[0]
         box = p.get_boxes()[11]
         assert box.get_type() == 'file'
         
@@ -128,8 +128,8 @@ class common_tasks_boxes(unittest.TestCase):
     
     def test_integer_inputbox(self):
         '''Tests integer inputbox methods'''
-        print "\033[1m-> common-tasks: integer box problem type\033[0m"
-        p = common.tasks.Task(common.courses.Course('test2'), 'task4').get_problems()[0]
+        print "\033[1m-> inginious.common-tasks: integer box problem type\033[0m"
+        p = inginious.common.tasks.Task(inginious.common.courses.Course('test2'), 'task4').get_problems()[0]
         box = p.get_boxes()[1]
         assert box.get_type() == 'input' and box._input_type =='integer'
         
@@ -141,8 +141,8 @@ class common_tasks_boxes(unittest.TestCase):
     
     def test_decimal_inputbox(self):
         '''Tests decimal inputbox methods'''
-        print "\033[1m-> common-tasks: decimal box problem type\033[0m"
-        p = common.tasks.Task(common.courses.Course('test2'), 'task4').get_problems()[0]
+        print "\033[1m-> inginious.common-tasks: decimal box problem type\033[0m"
+        p = inginious.common.tasks.Task(inginious.common.courses.Course('test2'), 'task4').get_problems()[0]
         box = p.get_boxes()[3]
         assert box.get_type() == 'input' and box._input_type =='decimal'
         
@@ -154,8 +154,8 @@ class common_tasks_boxes(unittest.TestCase):
     
     def test_text_inputbox(self):
         '''Tests text inputbox methods'''
-        print "\033[1m-> common-tasks: text-input box problem type\033[0m"
-        p = common.tasks.Task(common.courses.Course('test2'), 'task4').get_problems()[0]
+        print "\033[1m-> inginious.common-tasks: text-input box problem type\033[0m"
+        p = inginious.common.tasks.Task(inginious.common.courses.Course('test2'), 'task4').get_problems()[0]
         box = p.get_boxes()[5]
         assert box.get_type() == 'input' and box._input_type =='text'
         
@@ -167,8 +167,8 @@ class common_tasks_boxes(unittest.TestCase):
     
     def test_multiline_inputbox(self):
         '''Tests multiline inputbox methods'''
-        print "\033[1m-> common-tasks: multiline box problem type\033[0m"
-        p = common.tasks.Task(common.courses.Course('test2'), 'task4').get_problems()[0]
+        print "\033[1m-> inginious.common-tasks: multiline box problem type\033[0m"
+        p = inginious.common.tasks.Task(inginious.common.courses.Course('test2'), 'task4').get_problems()[0]
         box = p.get_boxes()[8]
         assert box.get_type() == 'multiline'
         
@@ -182,7 +182,7 @@ class common_tasks_boxes(unittest.TestCase):
         pass
 
 if __name__ == "__main__":
-    if not common.base.INGIniousConfiguration.get('tests',{}).get('host_url', ''):
+    if not inginious.common.base.INGIniousConfiguration.get('tests',{}).get('host_url', ''):
         unittest.main()
     else:
-        print "\033[31;1m-> common-tasks: tests cannot be run remotely\033[0m"
+        print "\033[31;1m-> inginious.common-tasks: tests cannot be run remotely\033[0m"

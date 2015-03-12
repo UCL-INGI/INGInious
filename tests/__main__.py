@@ -1,13 +1,13 @@
 import unittest
-import common
-import common.base
+import inginious.common
+import inginious.common.base
 from tests import *
 
 if __name__ == "__main__":
     
     testmodules = ['tests.load_sync', 'tests.load_async']
     
-    if not common.base.INGIniousConfiguration.get('tests',{}).get('host_url', ''):
+    if not inginious.common.base.INGIniousConfiguration.get('tests',{}).get('host_url', ''):
         modules = ['tests.common_courses',
             'tests.common_tasks',
             'tests.backend_jobs',

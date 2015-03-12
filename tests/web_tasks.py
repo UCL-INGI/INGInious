@@ -24,12 +24,12 @@ import webtest
 
 from tests import *
 import app_frontend
-import common.base
-import frontend
-import frontend.session
+import inginious.common.base
+import inginious.frontend
+import inginious.frontend.session
 class web_tasks(unittest.TestCase):
     def setUp(self):
-        frontend.session.init(app, {'loggedin':True, 'username':"test", "realname":"Test", "email":"mail@test.com"})
+        inginious.frontend.session.init(app, {'loggedin':True, 'username':"test", "realname":"Test", "email":"mail@test.com"})
         
     def test_basic_tasks_list(self):
         '''Tests if a basic course list is correct'''
@@ -98,7 +98,7 @@ class web_tasks(unittest.TestCase):
         pass
 
 if __name__ == "__main__":
-    if not common.base.INGIniousConfiguration.get('tests',{}).get('host_url', ''):
+    if not inginious.common.base.INGIniousConfiguration.get('tests',{}).get('host_url', ''):
         unittest.main()
     else:
         print "\033[31;1m-> web-tasks: tests cannot be run remotely\033[0m"

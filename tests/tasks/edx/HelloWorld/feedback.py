@@ -114,7 +114,7 @@ def mapLines(fun_name, err_msg):
 
     return new_line
 
-# This method takes the message and the status to return to the frontend and print the JSON containing these info.
+# This method takes the message and the status to return to the inginious.frontend and print the JSON containing these info.
 def JSON(message, status):
     global error
     correct = "true"

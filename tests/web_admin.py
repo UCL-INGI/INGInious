@@ -19,9 +19,9 @@
 import unittest
 
 import app_frontend
-import common.base
-import frontend
-import frontend.session
+import inginious.common.base
+import inginious.frontend
+import inginious.frontend.session
 from tests import *
 import webtest
 
@@ -34,14 +34,14 @@ class web_admin_access(unittest.TestCase):
     def test_no_access(self):
         '''Tests if access isn't granted to an unauthorized user'''
         print "\033[1m-> web-admin: authorized administration page access\033[0m"
-        frontend.session.init(app, {'loggedin': True, 'username': "testadmin2", "realname": "Test", "email": "mail@test.com"})
+        inginious.frontend.session.init(app, {'loggedin': True, 'username': "testadmin2", "realname": "Test", "email": "mail@test.com"})
         resp = appt.get('/admin/test2', status="*")
         self.assertEqual(resp.status_int, 404)
 
     def test_access(self):
         '''Tests if access is granted to an authorized user'''
         print "\033[1m-> web-admin: unauthorized administration page access\033[0m"
-        frontend.session.init(app, {'loggedin': True, 'username': "testadmin1", "realname": "Test", "email": "mail@test.com"})
+        inginious.frontend.session.init(app, {'loggedin': True, 'username': "testadmin1", "realname": "Test", "email": "mail@test.com"})
         resp = appt.get('/admin/test2', status="*")
         self.assertEqual(resp.status_int, 200)
 
@@ -52,7 +52,7 @@ class web_admin_access(unittest.TestCase):
 class web_admin_views(unittest.TestCase):
 
     def setUp(self):
-        frontend.session.init(app, {'loggedin': True, 'username': "testadmin1", "realname": "Test", "email": "mail@test.com"})
+        inginious.frontend.session.init(app, {'loggedin': True, 'username': "testadmin1", "realname": "Test", "email": "mail@test.com"})
 
     def test_course_student_view(self):
         '''Tests if student view displays correctly'''
@@ -95,7 +95,7 @@ class web_admin_views(unittest.TestCase):
 class web_admin_tasks(unittest.TestCase):
 
     def setUp(self):
-        frontend.session.init(app, {'loggedin': True, 'username': "testadmin1", "realname": "Test", "email": "mail@test.com"})
+        inginious.frontend.session.init(app, {'loggedin': True, 'username': "testadmin1", "realname": "Test", "email": "mail@test.com"})
 
     def test_student_list(self):
         '''Tests if student list displays correctly'''
@@ -125,7 +125,7 @@ class web_admin_tasks(unittest.TestCase):
 class web_admin_students(unittest.TestCase):
 
     def setUp(self):
-        frontend.session.init(app, {'loggedin': True, 'username': "testadmin1", "realname": "Test", "email": "mail@test.com"})
+        inginious.frontend.session.init(app, {'loggedin': True, 'username': "testadmin1", "realname": "Test", "email": "mail@test.com"})
 
     def test_task_list(self):
         '''Tests if task list displays correctly'''
@@ -167,7 +167,7 @@ class web_admin_students(unittest.TestCase):
 class web_admin_submissions(unittest.TestCase):
 
     def setUp(self):
-        frontend.session.init(app, {'loggedin': True, 'username': "testadmin1", "realname": "Test", "email": "mail@test.com"})
+        inginious.frontend.session.init(app, {'loggedin': True, 'username': "testadmin1", "realname": "Test", "email": "mail@test.com"})
 
     def test_submissions_list(self):
         '''Tests if the submissions list displays correctly'''
@@ -201,7 +201,7 @@ class web_admin_submissions(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    if not common.base.INGIniousConfiguration.get('tests', {}).get('host_url', ''):
+    if not inginious.common.base.INGIniousConfiguration.get('tests', {}).get('host_url', ''):
         unittest.main()
     else:
         print "\033[31;1m-> web-admin: tests cannot be run remotely\033[0m"

@@ -24,12 +24,12 @@ import webtest
 
 from tests import *
 import app_frontend
-import common.base
-import frontend
-import frontend.session
+import inginious.common.base
+import inginious.frontend
+import inginious.frontend.session
 class web_submissions(unittest.TestCase):
     def setUp(self):
-        frontend.session.init(app, {'loggedin':True, 'username':"test", "realname":"Test", "email":"mail@test.com"})
+        inginious.frontend.session.init(app, {'loggedin':True, 'username':"test", "realname":"Test", "email":"mail@test.com"})
 
     def test_code(self):
         ''' Tests submission and check of a code '''
@@ -103,7 +103,7 @@ class web_submissions(unittest.TestCase):
         pass
 
 if __name__ == "__main__":
-    if not common.base.INGIniousConfiguration.get('tests',{}).get('host_url', ''):
+    if not inginious.common.base.INGIniousConfiguration.get('tests',{}).get('host_url', ''):
         unittest.main()
     else:
         print "\033[31;1m-> web-submissions: tests cannot be run remotely\033[0m"
