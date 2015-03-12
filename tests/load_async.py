@@ -28,11 +28,11 @@ import webtest
 
 from tests import *
 import app_frontend
-import backend
-import common.base
-import frontend
-import frontend.session
-import frontend.submission_manager
+import inginious.backend
+import inginious.common.base
+import inginious.frontend
+import inginious.frontend.session
+import inginious.frontend.submission_manager
 
 
 class AsyncSubmitter(threading.Thread):
@@ -92,10 +92,10 @@ class Watcher(threading.Thread):
 class load_async(unittest.TestCase):
 
     def setUp(self):
-        frontend.session.init(app, {'loggedin': True, 'username': "test", "realname": "Test", "email": "mail@test.com"})
+        inginious.frontend.session.init(app, {'loggedin': True, 'username': "test", "realname": "Test", "email": "mail@test.com"})
         self.noth = 40
         self.inittime = time.time()
-        self.jm = frontend.submission_manager.get_job_manager()
+        self.jm = inginious.frontend.submission_manager.get_job_manager()
         self.queue = Queue.Queue()
         self.thqueue = Queue.Queue()
 

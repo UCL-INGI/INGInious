@@ -22,12 +22,12 @@ import webtest
 
 from tests import *
 import app_frontend
-import common.base
-import frontend
-import frontend.session
+import inginious.common.base
+import inginious.frontend
+import inginious.frontend.session
 class web_courses(unittest.TestCase):
     def setUp(self):
-        frontend.session.init(app, {'loggedin':True, 'username':"test", "realname":"Test", "email":"mail@test.com"})
+        inginious.frontend.session.init(app, {'loggedin':True, 'username':"test", "realname":"Test", "email":"mail@test.com"})
         
     def test_course_list(self):
         '''Tests if the course list is correct'''
@@ -41,7 +41,7 @@ class web_courses(unittest.TestCase):
     def test_course_admin(self):
         '''Tests accessibility to course administration'''
         print "\033[1m-> web-courses: course administration link visibility\033[0m"
-        frontend.session.init(app, {'loggedin':True, 'username':"testadmin2", "realname":"Test", "email":"mail@test.com"})
+        inginious.frontend.session.init(app, {'loggedin':True, 'username':"testadmin2", "realname":"Test", "email":"mail@test.com"})
         resp = appt.get('/course/test')
         resp.mustcontain('Statistics') #testadmin2 is an admin
         resp = appt.get('/course/test2')
@@ -51,7 +51,7 @@ class web_courses(unittest.TestCase):
         pass
 
 if __name__ == "__main__":
-    if not common.base.INGIniousConfiguration.get('tests',{}).get('host_url', ''):
+    if not inginious.common.base.INGIniousConfiguration.get('tests',{}).get('host_url', ''):
         unittest.main()
     else:
         print "\033[31;1m-> web-courses: tests cannot be run remotely\033[0m"

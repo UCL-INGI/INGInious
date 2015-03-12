@@ -22,12 +22,12 @@ import webtest
 
 from tests import *
 import app_frontend
-import common.base
-import frontend
-import frontend.session
+import inginious.common.base
+import inginious.frontend
+import inginious.frontend.session
 class web_login_session(unittest.TestCase):
     def setUp(self):
-        frontend.session.init(app, {'loggedin':True, 'username':"test", "realname":"Test", "email":"mail@test.com"})
+        inginious.frontend.session.init(app, {'loggedin':True, 'username':"test", "realname":"Test", "email":"mail@test.com"})
         
     def test_init(self):
         '''Tests if home page loads with a connected user'''
@@ -50,11 +50,11 @@ class web_login_nosession(unittest.TestCase):
     def setUp(self):
         
         # Loads tests credentials from config file
-        self.wrong_username = common.base.INGIniousConfiguration['tests']['wrong_username']
-        self.wrong_password = common.base.INGIniousConfiguration['tests']['wrong_password']
-        self.correct_username = common.base.INGIniousConfiguration['tests']['correct_username']
-        self.correct_password = common.base.INGIniousConfiguration['tests']['correct_password']
-        frontend.session.init(app, {'loggedin':False}) 
+        self.wrong_username = inginious.common.base.INGIniousConfiguration['tests']['wrong_username']
+        self.wrong_password = inginious.common.base.INGIniousConfiguration['tests']['wrong_password']
+        self.correct_username = inginious.common.base.INGIniousConfiguration['tests']['correct_username']
+        self.correct_password = inginious.common.base.INGIniousConfiguration['tests']['correct_password']
+        inginious.frontend.session.init(app, {'loggedin':False}) 
         
     def test_init(self):
         '''Tests if home page gives response and invites user to log'''
@@ -83,14 +83,14 @@ class web_login_nosession(unittest.TestCase):
         form['password'] = self.wrong_password
         resp = form.submit()
         self.assertEqual(resp.status_int,200)
-        self.assertEqual(frontend.user.is_logged_in(), False)
+        self.assertEqual(inginious.frontend.user.is_logged_in(), False)
         resp.mustcontain('Invalid login/password')
     
     def tearDown(self):
         pass
 
 if __name__ == "__main__":
-    if not common.base.INGIniousConfiguration.get('tests',{}).get('host_url', ''):
+    if not inginious.common.base.INGIniousConfiguration.get('tests',{}).get('host_url', ''):
         unittest.main()
     else:
         print "\033[31;1m-> web-login: tests cannot be run remotely\033[0m"
