@@ -41,21 +41,21 @@ class AccessibleTime(object):
             2014-07-16 / 2014-07-20 (...)
         """
         if val is None or val == "" or val is True:
-            self.val = [None, None]
+            self._val = [datetime.min, datetime.max]
         elif val == False:
-            self.val = [0, 0]
+            self._val = [datetime.max, datetime.max]
         else:  # str
             values = val.split("/")
             if len(values) == 1:
-                self.val = [self._parse_date(values[0].strip()), None]
+                self._val = [self._parse_date(values[0].strip(), datetime.min), datetime.max]
             else:
-                self.val = [self._parse_date(values[0].strip()), self._parse_date(values[1].strip())]
+                self._val = [self._parse_date(values[0].strip(), datetime.min), self._parse_date(values[1].strip(), datetime.max)]
 
     @classmethod
-    def _parse_date(cls, date):
+    def _parse_date(cls, date, default):
         """ Parse a valid date """
         if date == "":
-            return None
+            return default
 
         for format_type in ["%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M", "%Y-%m-%d %H", "%Y-%m-%d", "%d/%m/%Y %H:%M:%S", "%d/%m/%Y %H:%M", "%d/%m/%Y %H", "%d/%m/%Y"]:
             try:
@@ -69,10 +69,7 @@ class AccessibleTime(object):
         if when is None:
             when = datetime.now()
 
-        if self.val[0] is None:
-            return False
-
-        return self.val[0] > when
+        return self._val[0] > when
 
     def after_start(self, when=None):
         """ Returns True if the task/course is or have been accessible in the past """
@@ -83,47 +80,36 @@ class AccessibleTime(object):
         if when is None:
             when = datetime.now()
 
-        first, second = self.val
-        if first is not None and second is not None and first >= second:
-            return False
-        if first is not None and first > when:
-            return False
-        if second is not None and second < when:
-            return False
-        return True
+        return self._val[0] <= when and when <= self._val[1]
 
     def is_always_accessible(self):
         """ Returns true if the course/task is always accessible """
-        return self.val[0] is None and self.val[1] is None
+        return self._val[0] == datetime.min and self._val[1] == datetime.max
 
     def is_never_accessible(self):
         """ Returns true if the course/task is never accessible """
-        return self.val[0] == 0 and self.val[1] == 0
+        return self._val[0] == datetime.max and self._val[1] == datetime.max
 
     def get_std_start_date(self):
         """ If the date is custom, return the start datetime with the format %Y-%m-%d %H:%M:%S. Else, returns "". """
-        first, _ = self.val
-        if isinstance(first, datetime):
+        first, _ = self._val
+        if first != datetime.min and first != datetime.max:
             return first.strftime("%Y-%m-%d %H:%M:%S")
         else:
             return ""
 
     def get_std_end_date(self):
         """ If the date is custom, return the end datetime with the format %Y-%m-%d %H:%M:%S. Else, returns "". """
-        _, second = self.val
-        if isinstance(second, datetime):
+        _, second = self._val
+        if second != datetime.max:
             return second.strftime("%Y-%m-%d %H:%M:%S")
         else:
             return ""
 
     def get_start_date(self):
-        """ If the date is custom, returns a datetime object. If not, returns either True or False,
-            respectively if the end date is not set or if the task is always closed
-        """
-        return self.val[0]
+        """ Return a datetime object, representing the date when the task/course become accessible """
+        return self._val[0]
 
     def get_end_date(self):
-        """ If the date is custom, returns a datetime object. If not, returns either True or False,
-            respectively if the end date is not set or if the task is always closed
-        """
-        return self.val[1]
+        """ Return a datetime object, representing the deadline for accessibility """
+        return self._val[1]
