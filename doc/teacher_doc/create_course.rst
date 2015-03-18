@@ -99,15 +99,15 @@ There are other fields that are available in the frontend:
 ``registration``
     When this field is defined, users can only register to the course between the defined period.
     It takes the same arguments as ``accessible``.
- 
- ``registration_password``
+
+``registration_password``
     A password that is asked upon registration to the course. If empty or not defined, no password will be asked.
- 
- ``registration_ac``
+
+``registration_ac``
     Access control method. Can be "null" (anyone can register), "username" (filter by username), "realname" (filter by real name) or "email" (filter by email address).
     If AC is activated, the allowed values for the filter should be set in the ``registration_ac_list`` key.
- 
- ``registration_ac_list``
+
+``registration_ac_list``
     If AC is activated, ``registration_ac_list`` should contain a list of values for the filter.
 
 ``nofrontend``
