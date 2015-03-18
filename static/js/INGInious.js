@@ -148,7 +148,13 @@ function updateSubmission(id,result)
 	else nclass="list-group-item-danger";
 	$('#submissions .submission').each(function(){
 		if ($(this).attr('data-submission-id').trim() == id)
+		{
 			$(this).removeClass('list-group-item-warning').addClass(nclass);
+			grade = "0.0";
+			if(result["grade"])
+				grade = result["grade"];
+			$(this).text($(this).text() + " - " + grade+"%");
+		}
 	});
 }
 

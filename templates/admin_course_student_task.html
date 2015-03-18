@@ -56,7 +56,7 @@ $var Column: $:template_helper.call('course_admin_menu',course=course,current='s
                     Succeeded
                 $else:
                     Failed
-                ($submission["grade"]%)
+                ($submission.get("grade",0.0)%)
             </td>
             <td><a href="$submission['url']" class="btn btn-default btn-xs">Download</a></td>
     	</tr>

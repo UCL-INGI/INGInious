@@ -153,7 +153,7 @@ class TaskPage(object):
             'result': data.get('result', 'crash'),
             'id': str(data["_id"]),
             'submitted_on': str(data['submitted_on']),
-            'grade': str(data["grade"])
+            'grade': str(data.get("grade", 0.0))
         }
 
         if reloading:
