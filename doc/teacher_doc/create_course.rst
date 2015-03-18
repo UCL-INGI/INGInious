@@ -70,8 +70,9 @@ There are other fields that are available in the frontend:
 .. _accessible_field:
 
 ``accessible``
-    When this field is defined, the course is only available if within the defined period.
-    A course is always accessible to his admins, and is only hidden to normal users.
+    When this field is defined, the course is only visible if within the defined period.
+    A course is always accessible to its admins, and is only hidden to normal users, 
+    even if they are registered to the course.
     This field can contain theses values:
 
     ``true``
@@ -95,6 +96,19 @@ There are other fields that are available in the frontend:
             "/" # Always open
             "/ 2013-12-31 23:59:59" # closes one minute before "/ 2014-01-01"
 
+``registration``
+    When this field is defined, users can only register to the course between the defined period.
+    It takes the same arguments as ``accessible``.
+ 
+ ``registration_password``
+    A password that is asked upon registration to the course. If empty or not defined, no password will be asked.
+ 
+ ``registration_ac``
+    Access control method. Can be "null" (anyone can register), "username" (filter by username), "realname" (filter by real name) or "email" (filter by email address).
+    If AC is activated, the allowed values for the filter should be set in the ``registration_ac_list`` key.
+ 
+ ``registration_ac_list``
+    If AC is activated, ``registration_ac_list`` should contain a list of values for the filter.
 
 ``nofrontend``
         if this field is defined and set to ``true``, then the course won't be displayed on the frontend, but will still be available for the plugins.

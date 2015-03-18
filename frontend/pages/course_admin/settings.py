@@ -79,6 +79,13 @@ class CourseSettings(object):
             course_content['registration_password'] = data['registration_password']
             if course_content['registration_password'] == "":
                 course_content['registration_password'] = None
+
+            course_content['registration_ac'] = data['registration_ac']
+            if course_content['registration_ac'] not in ["None", "username", "realname", "email"]:
+                errors.append('Invalid ACL value')
+            if course_content['registration_ac'] == "None":
+                course_content['registration_ac'] = None
+            course_content['registration_ac_list'] = data['registration_ac_list'].split("\n")
         except:
             errors.append('User returned an invalid form.')
 

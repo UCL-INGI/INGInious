@@ -59,22 +59,24 @@ class IndexPage(object):
     def call_main(self):
         """ Display main page (only when logged) """
 
+        username = User.get_username()
+
         # Handle registration to a course
         user_input = web.input()
         registration_status = None
         if "register_courseid" in user_input and user_input["register_courseid"] != "":
             try:
                 course = FrontendCourse(user_input["register_courseid"])
-                if not course.is_registration_possible():
+                if not course.is_registration_possible(username):
                     registration_status = False
                 else:
-                    registration_status = course.register_user(User.get_username(), user_input.get("register_password", None))
+                    registration_status = course.register_user(username, user_input.get("register_password", None))
             except:
                 registration_status = False
         if "unregister_courseid" in user_input:
             try:
                 course = FrontendCourse(user_input["unregister_courseid"])
-                course.unregister_user(User.get_username())
+                course.unregister_user(username)
             except:
                 pass
 
@@ -90,10 +92,10 @@ class IndexPage(object):
 
         all_courses = FrontendCourse.get_all_courses()
 
-        open_courses = {courseid: course for courseid, course in all_courses.iteritems() if course.is_open_to_user(User.get_username())}
+        open_courses = {courseid: course for courseid, course in all_courses.iteritems() if course.is_open_to_user(username)}
         open_courses = OrderedDict(sorted(open_courses.iteritems(), key=lambda x: x[1].get_name()))
 
-        registerable_courses = {courseid: course for courseid, course in all_courses.iteritems() if not course.is_open_to_user(User.get_username()) and course.is_registration_possible()}
+        registerable_courses = {courseid: course for courseid, course in all_courses.iteritems() if not course.is_open_to_user(username) and course.is_registration_possible(username)}
         registerable_courses = OrderedDict(sorted(registerable_courses.iteritems(), key=lambda x: x[1].get_name()))
 
         return renderer.main(open_courses, registerable_courses, except_free_last_submissions, registration_status)

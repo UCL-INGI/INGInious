@@ -46,6 +46,10 @@ class FrontendCourse(Course):
             self._accessible = AccessibleTime(self._content.get("accessible", None))
             self._registration = AccessibleTime(self._content.get("registration", None))
             self._registration_password = self._content.get('registration_password', None)
+            self._registration_ac = self._content.get('registration_ac', None)
+            if self._registration_ac not in [None, "username", "realname", "email"]:
+                raise Exception("Course has an invalid value for registration_ac: " + courseid)
+            self._registration_ac_list = self._content.get('registration_ac_list', [])
         else:
             raise Exception("Course has an invalid json description: " + courseid)
 
@@ -65,9 +69,9 @@ class FrontendCourse(Course):
         """ Returns true if the course is open to this user """
         return (self._accessible.is_open() and self.is_user_registered(username)) or username in self.get_admins()
 
-    def is_registration_possible(self):
+    def is_registration_possible(self, username):
         """ Returns true if users can register for this course """
-        return self._accessible.is_open() and self._registration.is_open()
+        return self._accessible.is_open() and self._registration.is_open() and self.is_user_accepted_by_access_control(username)
 
     def is_password_needed_for_registration(self):
         """ Returns true if a password is needed for registration """
@@ -80,7 +84,7 @@ class FrontendCourse(Course):
     def register_user(self, username, password=None, force=False):
         """ Register a user to the course. Returns True if the registration succeeded, False else. """
         if not force:
-            if not self.is_registration_possible():
+            if not self.is_registration_possible(username):
                 return False
             if self.is_password_needed_for_registration() and self._registration_password != password:
                 return False
@@ -156,3 +160,23 @@ class FrontendCourse(Course):
 
     def get_tasks(self):
         return OrderedDict(sorted(Course.get_tasks(self).items(), key=lambda t: t[1].get_order()))
+
+    def get_access_control_method(self):
+        """ Returns either None, "username", "realname", or "email", depending on the method used to verify that users can register to the course """
+        return self._registration_ac
+
+    def get_access_control_list(self):
+        """ Returns the list of all users allowed by the AC list """
+        return self._registration_ac_list
+
+    def is_user_accepted_by_access_control(self, username):
+        """ Returns True if the user is allowed by the ACL """
+        if self.get_access_control_method() is None:
+            return True
+        elif self.get_access_control_method() == "username":
+            return username in self.get_access_control_list()
+        elif self.get_access_control_method() == "realname":
+            return UserData(username).get_data()["realname"] in self.get_access_control_list()
+        elif self.get_access_control_method() == "email":
+            return UserData(username).get_data()["email"] in self.get_access_control_list()
+        return False
