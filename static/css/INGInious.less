@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014 Université Catholique de Louvain.
+// Copyright (c) 2014-2015 Université Catholique de Louvain.
 //
 // This file is part of INGInious.
 //
