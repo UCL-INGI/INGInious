@@ -204,7 +204,6 @@ def get_user_last_submissions(query, limit, one_per_task=False):
             {"$sort": {"submitted_on": pymongo.DESCENDING}},
             {"$limit": limit}
         ])
-        print data
         request = {"_id": {"$in": [d["orig_id"] for d in data["result"]]}}
 
     cursor = get_database().submissions.find(request)
