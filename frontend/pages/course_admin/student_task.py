@@ -16,12 +16,15 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
+import json
+
 import pymongo
 import web
 
 from frontend.base import get_database
 from frontend.base import renderer
 from frontend.pages.course_admin.utils import make_csv, get_course_and_check_rights
+from frontend.submission_manager import get_submission
 
 
 class CourseStudentTaskPage(object):
@@ -44,3 +47,21 @@ class CourseStudentTaskPage(object):
         if "csv" in web.input():
             return make_csv(data)
         return renderer.admin_course_student_task(course, username, task, data)
+
+
+class SubmissionDownloadFeedback(object):
+
+    def GET(self, courseid, username, taskid, submissionid):
+        """ GET request """
+        course, task = get_course_and_check_rights(courseid, taskid)
+        return self.page(course, username, task, submissionid)
+
+    def page(self, course, username, task, submissionid):
+        submission = get_submission(submissionid, False)
+        print submission
+        if submission["username"] != username or submission["courseid"] != course.get_id() or submission["taskid"] != task.get_id():
+            return json.dumps({"status": "error", "text": "You do not have the rights to access to this submission"})
+        elif "jobid" in submission:
+            return json.dumps({"status": "ok", "text": "Submission is still running"})
+        else:
+            return json.dumps({"status": "ok", "data": submission}, default=str)

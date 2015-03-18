@@ -50,7 +50,7 @@ $var Column: $:template_helper.call('course_admin_menu',course=course,current='s
                 class="danger"
         >
     		<td>$submission["_id"]</td>
-            <td>$submission["submitted_on"]</td>
+            <td>$submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S")</td>
             <td>
                 $if succeeded:
                     Succeeded
@@ -58,6 +58,20 @@ $var Column: $:template_helper.call('course_admin_menu',course=course,current='s
                     Failed
                 ($submission.get("grade",0.0)%)
             </td>
-            <td><a href="$submission['url']" class="btn btn-default btn-xs">Download</a></td>
+            <td><a href="$submission['url']" class="btn btn-default btn-xs">Download</a> <a href="#" onclick="studio_get_feedback('$submission['_id']'); return false;" class="btn btn-default btn-xs">Show feedback</a></td>
     	</tr>
 </table>
+
+<div class="modal fade" id="modal_feedback" tabindex="-1" role="dialog" aria-labelledby="modal_feedback_label" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="modal_feedback_label">Feedback shown to the student</h4>
+			</div>
+			<div class="modal-body" id="modal_feedback_content">
+                Test
+			</div>
+		</div>
+	</div>
+</div>

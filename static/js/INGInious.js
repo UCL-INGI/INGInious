@@ -962,3 +962,46 @@ function studio_subproblem_delete(pid)
 		return;
 	well.detach();
 }
+
+/**
+ * Show the feedback for an old submission
+ */
+function studio_get_feedback(sid)
+{
+	if(loadingSomething)
+		return;
+	loadingSomething = true;
+    $('#modal_feedback_content').text('Loading...');
+    $('#modal_feedback').modal('show');
+    
+    jQuery.getJSON(document.location.pathname+'/'+sid)
+    .done(function(data)
+    {
+    	if(data['status'] == "ok")
+    	{
+    		output = "<h1>Result</h1>";
+    		output += data["data"]["result"] + " - " + data["data"]["grade"] + "%";
+    		output += "<hr/><h1>Feedback - top</h1>";
+    		output += data["data"]["text"];
+    		$.each(data["data"]["problems"],function(index, elem)
+    		{
+    			output += "<hr/><h1>Feedback - subproblem "+index+"</h1>";
+    			output += elem;
+    		});
+    		output += "<hr/><h1>Debug</h1>";
+    		output += "<div id='modal_feedback_debug'></div>";
+    		
+    		$('#modal_feedback_content').html(output);
+    		displayDebugInfoRecur(data["data"],$('#modal_feedback_debug'));
+    	}
+    	else
+    	{
+    		$('#modal_feedback_content').text('An error occured while retrieving the submission');
+    	}
+    	loadingSomething = false;
+    }).fail(function(data)
+    {
+    	$('#modal_feedback_content').text('An error occured while retrieving the submission');
+        loadingSomething = false;
+    });
+}
