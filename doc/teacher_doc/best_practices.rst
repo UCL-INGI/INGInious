@@ -1,6 +1,13 @@
 Best practices
 ==============
 
+Provide a test set for the student to test their code themselves, and grade the code with at least this set
+-----------------------------------------------------------------------------------------------------------
+
+This will allow the students to make sure that they submit properly. If a test set that is public works
+on the student's computer but does not work on INGInious, this is the sign of a greater problem.
+Give them a complete feedback on these public tests, but hide the rest to keep the difficulty of the task.
+
 Do not use the "file" subproblem type
 -------------------------------------
 
