@@ -16,9 +16,6 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
-import codecs
-import json
-
 import web
 
 from frontend.accessible_time import AccessibleTime

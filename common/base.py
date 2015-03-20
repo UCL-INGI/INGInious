@@ -30,7 +30,7 @@ class Configuration(dict):
     """ Config class """
 
     def load(self, path):
-        """ Load the config from a json file """
+        """ Load the config from a file """
         self.update(load_json_or_yaml(path))
 
 INGIniousConfiguration = Configuration()

@@ -51,7 +51,7 @@ class FrontendCourse(Course):
                 raise Exception("Course has an invalid value for registration_ac: " + courseid)
             self._registration_ac_list = self._content.get('registration_ac_list', [])
         else:
-            raise Exception("Course has an invalid json description: " + courseid)
+            raise Exception("Course has an invalid description: " + courseid)
 
     def get_name(self):
         """ Return the name of this course """

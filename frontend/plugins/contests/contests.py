@@ -18,11 +18,9 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ An algorithm contest plugin for INGInious. Based on the same principles than contests like ACM-ICPC. """
 
-import codecs
 from collections import OrderedDict
 import copy
 from datetime import datetime, timedelta
-import json
 
 import pymongo
 import web
