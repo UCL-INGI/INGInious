@@ -16,23 +16,22 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
-""" RST task file manager. DEPRECATED """
+""" YAML task file manager """
 
-from common.task_file_managers._dicttorst import dict2rst
-from common.task_file_managers._rsttodict import rst2dict
+import common.custom_yaml
 from common.task_file_managers.tasks_file_manager import TaskFileManager
 
 
-class TaskRSTFileManager(TaskFileManager):
+class TaskYAMLFileManager(TaskFileManager):
 
-    """ Read and write task descriptions in restructuredText """
+    """ Read and write task descriptions in YAML """
 
     def _get_content(self, content):
-        return rst2dict(content)
+        return common.custom_yaml.load(content)
 
     @classmethod
     def get_ext(cls):
-        return "rst"
+        return "yaml"
 
     def _generate_content(self, data):
-        return dict2rst(data)
+        return common.custom_yaml.dump(data)

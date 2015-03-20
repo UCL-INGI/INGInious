@@ -1,0 +1,17 @@
+accessible: 2015-03-01 15:05:47/2015-03-03 15:05:50
+author: Guillaume Derval
+context: In this task, you will have to write a python script that displays 'Hello
+    World!'.
+environment: default
+limits:
+    memory: '50'
+    time: '10'
+    output: '1000'
+name: Hello World!
+problems:
+    question1:
+        name: Let's print it
+        type: code
+        language: python
+        header: 'def func():'
+weight: 3.0

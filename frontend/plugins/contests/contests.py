@@ -56,19 +56,18 @@ def additional_headers():
 
 def get_contest_data(course):
     """ Returns the settings of the contest for this course """
-    return course.get_original_content().get('contest_settings', {"enabled": False,
-                                                                  "start": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                                                                  "end": (datetime.now() + timedelta(hours=1)).strftime("%Y-%m-%d %H:%M:%S"),
-                                                                  "blackout": 0,
-                                                                  "penalty": 20})
+    return course.get_course_descriptor_content(course.get_id()).get('contest_settings', {"enabled": False,
+                                                                                          "start": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                                                                          "end": (datetime.now() + timedelta(hours=1)).strftime("%Y-%m-%d %H:%M:%S"),
+                                                                                          "blackout": 0,
+                                                                                          "penalty": 20})
 
 
 def save_contest_data(course, contest_data):
     """ Saves updated contest data for the course """
-    course_content = course.get_original_content()
+    course_content = course.get_course_descriptor_content(course.get_id())
     course_content["contest_settings"] = contest_data
-    with codecs.open(course.get_course_descriptor_path(course.get_id()), "w", 'utf-8') as course_file:
-        course_file.write(json.dumps(course_content, sort_keys=False, indent=4, separators=(',', ': ')))
+    course.update_course_descriptor_content(course.get_id(), course_content)
 
 
 def course_menu(course):

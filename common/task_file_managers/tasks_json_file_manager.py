@@ -16,7 +16,7 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
-""" JSON task file manager """
+""" JSON task file manager. DEPRECATED """
 import collections
 import json
 

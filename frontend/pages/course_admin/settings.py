@@ -43,7 +43,7 @@ class CourseSettings(object):
         errors = []
         try:
             data = web.input()
-            course_content = json.load(open(course.get_course_descriptor_path(courseid), "r"))
+            course_content = course.get_course_descriptor_content(courseid)
             course_content['name'] = data['name']
             if course_content['name'] == "":
                 errors.append('Invalid name')
@@ -90,8 +90,7 @@ class CourseSettings(object):
             errors.append('User returned an invalid form.')
 
         if len(errors) == 0:
-            with codecs.open(course.get_course_descriptor_path(courseid), "w", 'utf-8') as course_file:
-                course_file.write(json.dumps(course_content, sort_keys=False, indent=4, separators=(',', ': ')))
+            course.update_course_descriptor_content(courseid, course_content)
             errors = None
             course = get_course_and_check_rights(courseid)  # don't forget to reload the modified course
 

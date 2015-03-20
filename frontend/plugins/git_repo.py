@@ -20,13 +20,14 @@
 import Queue
 import StringIO
 import base64
-import json
 import os.path
 import shutil
 import tarfile
 import threading
 
 from sh import git  # pylint: disable=no-name-in-module
+
+import common.custom_yaml
 
 
 class SubmissionGitSaver(threading.Thread):
@@ -80,13 +81,13 @@ class SubmissionGitSaver(threading.Thread):
         os.mkdir(dirname)
         # Now we can put the input, the output and the zip
         open(os.path.join(dirname, 'submitted_on'), "w+").write(str(submission["submitted_on"]))
-        open(os.path.join(dirname, 'input.json'), "w+").write(json.dumps(submission["input"]))
+        open(os.path.join(dirname, 'input.yaml'), "w+").write(common.custom_yaml.dump(submission["input"]))
         result_obj = {
             "result": job["result"],
             "text": (job["text"] if "text" in job else None),
             "problems": (job["problems"] if "problems" in job else {})
         }
-        open(os.path.join(dirname, 'result.json'), "w+").write(json.dumps(result_obj))
+        open(os.path.join(dirname, 'result.yaml'), "w+").write(common.custom_yaml.dump(result_obj))
         if "archive" in job:
             os.mkdir(os.path.join(dirname, 'output'))
             tar = tarfile.open(mode='r:gz', fileobj=StringIO.StringIO(base64.b64decode(job["archive"])))

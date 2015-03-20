@@ -18,10 +18,9 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Contains the class Course and utility functions """
 import json
-import os
 import os.path
 
-from common.base import INGIniousConfiguration, id_checker
+from common.base import INGIniousConfiguration, id_checker, load_json_or_yaml, write_json_or_yaml
 from common.task_file_managers.tasks_file_manager import TaskFileManager
 import common.tasks
 
@@ -33,16 +32,33 @@ class Course(object):
     _task_class = common.tasks.Task
 
     @classmethod
-    def get_course_descriptor_path(cls, courseid):
-        """Returns the path to the json that describes the course 'courseid'"""
+    def _get_course_descriptor_path(cls, courseid):
+        """Returns the path to the file that describes the course 'courseid'"""
         if not id_checker(courseid):
             raise Exception("Course with invalid name: " + courseid)
-        return os.path.join(INGIniousConfiguration["tasks_directory"], courseid, "course.json")
+        base_file = os.path.join(INGIniousConfiguration["tasks_directory"], courseid, "course")
+        if os.path.isfile(base_file + ".yaml"):
+            return base_file + ".yaml"
+        else:
+            return base_file + ".json"
+        return base_file + ".yaml"  # by default, YAML.
+
+    @classmethod
+    def get_course_descriptor_content(cls, courseid):
+        """ Returns the content of the dict that describes the course """
+        return load_json_or_yaml(cls._get_course_descriptor_path(courseid))
+
+    @classmethod
+    def update_course_descriptor_content(cls, courseid, content):
+        """ Updates the content of the dict that describes the course """
+        return write_json_or_yaml(cls._get_course_descriptor_path(courseid), content)
 
     @classmethod
     def get_all_courses(cls):
         """Returns a table containing courseid=>Course pairs."""
-        files = [os.path.splitext(f)[0] for f in os.listdir(INGIniousConfiguration["tasks_directory"]) if os.path.isfile(os.path.join(INGIniousConfiguration["tasks_directory"], f, "course.json"))]
+        files = [os.path.splitext(f)[0] for f in os.listdir(INGIniousConfiguration["tasks_directory"]) if
+                 os.path.isfile(os.path.join(INGIniousConfiguration["tasks_directory"], f, "course.yaml")) or
+                 os.path.isfile(os.path.join(INGIniousConfiguration["tasks_directory"], f, "course.json"))]
         output = {}
         for course in files:
             try:
@@ -53,14 +69,9 @@ class Course(object):
 
     def __init__(self, courseid):
         """Constructor. courseid is the name of the the folder containing the file course.json"""
-
-        self._content = json.load(open(self.get_course_descriptor_path(courseid), "r"))
+        self._content = self.get_course_descriptor_content(courseid)
         self._id = courseid
         self._tasks_cache = None
-
-    def get_original_content(self):
-        """ Return the original content of the json file describing this course """
-        return self._content
 
     def get_task(self, taskid):
         """ Return the class with name taskid """

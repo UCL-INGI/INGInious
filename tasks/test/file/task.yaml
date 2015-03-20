@@ -1,0 +1,18 @@
+accessible: true
+author: Guillaume Derval
+context: In this task, you will have to write simple file containing 'Hello World!'
+    and upload it.
+environment: default
+limits:
+    memory: '50'
+    time: '10'
+    output: '1000'
+name: Hello World in a file
+problems:
+    question1:
+        name: Upload your file here
+        type: code-file
+        header: 'NB: the file must have .txt as extension.'
+        allowed_exts:
+        - .txt
+weight: 1.0

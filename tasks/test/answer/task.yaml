@@ -1,0 +1,20 @@
+accessible: true
+author: Anthony Gégo
+context: |-
+    Let's calculate from scratch the answer to Life, the Universe, and Everything. It won't be surprising if we time out in this case, as it requires a 7.5-million-year long computation.
+
+    Yet, if you can provide the answer to the following question, you can drastically reduce the need time to obtain the answer.
+environment: default
+limits:
+    memory: '32'
+    output: '5210'
+    time: '10'
+name: Deep Thought Simulation
+order: 0
+problems:
+    q1:
+        language: ''
+        name: Which planet was created in this goal ?
+        type: code-single-line
+        header: 'Hint : we live on it.'
+weight: 1.0
