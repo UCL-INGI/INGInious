@@ -3,39 +3,29 @@ Task description files
 
 Inside a course folder (see `Creating a new course`) tasks must have
 (for example with *taskname* as task id) a folder named
-*taskname*, and, inside this folder, a file named *task.json*.
+*taskname*, and, inside this folder, a file named *task.yaml*.
 
-(Note: it is possible to create a file named *task.rst* instead of
-*task.json*. This file can then be writen in restructuredText. But this
-is not yet documented)
+*task.yaml* is a YAML file containing informations about the task.
 
-*task.json* is a JSON file containing informations about the task.
 ::
 
-	{
-		"author": "Your name",
-		"context": "The context of this task. Explain here what the students have to do.",
-		"order": 1,
-		"name": "The complete name of this task",
-		"accessible": true,
-		"problems":
-		{
-			"a_problem_id":
-			{
-				"name": "The title of this question",
-				"header": "A header for this question",
-				"type": "code",
-				"language": "c"
-			}
-		},
-		"limits":
-		{
-			"time": 30,
-			"memory": 32,
-			"output": 5210
-		},
-		"environment": "default"
-	}
+    author: Your name
+    context: |-
+        The context of this task. Explain here what the students have to do.
+    order: 1
+    name: The complete name of this task
+    accessible: true
+    problems:
+        a_problem_id:
+            name: The title of this question
+            header: A header for this question
+            type: code
+            language: c
+    limits
+        time: 30
+        memory: 128
+    environment: default
+
 
 -   *author*, *context*, *order*, *name*, *language* and *header* are only needed
     if you use the frontend.
@@ -82,14 +72,15 @@ Code problems
 sent to a container where a script made by the teaching team corrects it.
 
 Here is a simple example for a code problem
+
 ::
 
-	{
-		"type": "code",
-		"language": "c",
-		"header": "Hello dear student!",
-		"name": "A name"
-	}
+    type: code
+    language: c
+    header: |-
+        Hello dear student!
+        I'm a multiline header!
+    name: A name
 
 *header* and *language* are only needed when using the frontend and are not mandatory.
 This description typically displays on the frontend a box where student
@@ -102,14 +93,16 @@ Single code line problems
 `````````````````````````
 
 *"type":"code-single-line"* is simply a code box that allows a single line as input.
+
 ::
 
-	{
-		"type": "code-single-line",
-		"language": "c",
-		"header": "Hello dear student!",
-		"name": "Another problem"
-	}
+    type: code-single-line
+    language: c
+    header: |-
+        Hello dear student!
+        I'm another multiline header, parsed with *RST*!
+    name: Another problem
+
 
 Single line code problem input's are available in the *run* script (see :doc:`run_file`) directly with the
 id of the problem.
@@ -121,31 +114,21 @@ Advanced code problems are available:
 
 ::
 
-	{
-		"type": "code",
-		"header": "some text",
-		"name": "And again, another name",
-		"boxes":
-		{
-			"boxId1":
-			{
-				"type": "text",
-				"content": "Some additionnal text"
-			},
-			"boxId2":
-			{
-				"type": "input-text",
-				"maxChars": 10
-			},
-			"boxId3":
-			{
-				"type": "multiline",
-				"maxChars": 1000,
-				"lines": 8,
-				"language": "java"
-			}
-		}
-	}
+    type: code
+    header: some text
+    name: And again, another name
+    boxes:
+        boxId1:
+            type: text
+            content: Some additionnal text
+        boxId2:
+            type: input-text
+            maxChars: 10
+        boxId3:
+            type: multiline
+            maxChars: 1000
+            lines: 8
+            language: java
 
 *Boxes* are displayable (on the frontend) input fields that allows the student
 to fill more than one entry per problem. Different box types are available, all of them
@@ -163,12 +146,10 @@ returns if the student entered exactly the text given in the "answer" field.
 
 ::
 
-	{
-		"name": "The answer",
-		"type": "match",
-		"header": "some text describing this problem",
-		"answer": "42"
-	}
+    name: The answer
+    type: match
+    header: some text describing this problem
+    answer: 42
 
 Match problem input's are available in the *run* script (see :doc:`run_file`)
 directly with the id of the problem.
@@ -178,28 +159,20 @@ Multiple choice problems
 
 ::
 
-	{
-		"name": "An exercice",
-		"type": "multiple-choice",
-		"header": "The answer to life, the universe and any other things is",
-		"multiple": true,
-		"limit": 2,
-		"choices":
-		[
-			{
-				"text":"It is, of course, 42!",
-				"valid"=true
-			},
-			{
-				"text":"It should be *42*",
-				"valid"=true
-			},
-			{text:"43!"},
-			{text:"41?"},
-		]
-	}
+    name: An exercice
+    type: multiple-choice
+    header: The answer to life, the universe and any other things is
+    multiple: true,
+    limit: 2,
+    choices:
+      - text: It is, of course, 42!
+		  valid: true
+      - text: It should be *42*
+        valid: true
+		- text: 43!
+		- text: 41?
 
-Choices are described in the *choices* section of the JSON. Each choice must have
+Choices are described in the *choices* section of the YAML. Each choice must have
 a *text* field (on the frontend) that will be parsed in restructuredText. Valid choices
 must have a *"valid"=true* field.
 

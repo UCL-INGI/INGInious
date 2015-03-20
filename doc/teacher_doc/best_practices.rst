@@ -1,6 +1,12 @@
 Best practices
 ==============
 
+Use YAML with RST
+-----------------
+
+YAML with RST is the recommended way to create task descriptions. Old methods such as JSON+RST, 
+JSON+HTML and RST+RST are deprecated and will be dropped... one day.
+
 Provide a test set for the student to test their code themselves, and grade the code with at least this set
 -----------------------------------------------------------------------------------------------------------
 

@@ -7,7 +7,7 @@ A course is defined by a folder under the *tasks folder* (see :ref:`tasks folder
 
 .. _task directory: `
 
-To be valid, a course must contain a *course.json* file at its root.
+To be valid, a course must contain a *course.yaml* file at its root.
 The format of that file is defined below.
 It can also define several tasks in subfolders.
 
@@ -15,27 +15,27 @@ Here is an example of the content of a *tasks folder*::
 
     tasks/
         course_name_1/
-            course.json
+            course.yaml
             task_1/
-                task.json
+                task.yaml
                 run
                 ...
             task2/
-                task.rst
+                task.yaml
                 run
                 ...
         course_name_2/
-            course.json
+            course.yaml
             assignment1/
-                task.json
+                task.yaml
                 run
                 ...
             midterm/
-                task.rst
+                task.yaml
                 run
                 ...
             final/
-                task.json
+                task.yaml
                 run
                 ...
 
@@ -43,26 +43,25 @@ Most of the time (this is the case in INGI_) the teaching team do not have direc
 access to the *tasks* folder, but only to the folder of its courses.
 
 In the main *tasks* folder, each course (for example for the course with id *course_name*)
-must have a folder named *course_name*, and, inside this folder, a file called *course.json*.
+must have a folder named *course_name*, and, inside this folder, a file called *course.yaml*.
 
 
-.. _course.json:
+.. _course.yaml:
 
-course.json
+course.yaml
 ```````````
 
-*course.json* is a JSON file located at the root of a course folder
+*course.yaml* is a YAML file located at the root of a course folder
 and containing basic informations about the course.
-For exemple, here is what ``course.json`` may look like for a criminology course::
+For exemple, here is what ``course.yaml`` may look like for a criminology course::
 
-    {
-        "admins": ["holmes", "watson"],
-        "name": "Introduction to criminology",
-        "nameIsHTML": false
-    }
+    admins:
+      - holmes
+      - watson
+    name: Introduction to criminology
 
 Only username that are in the ``admins`` list are available to see all submissions and statistics.
-(A user is always able to see his own submissions)
+(a user is always able to see his own submissions)
 The ``admins`` is only needed when using the frontend.
 
 There are other fields that are available in the frontend:
