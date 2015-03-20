@@ -66,7 +66,8 @@ $var Column: $:ColumnF()
     <div class="form-group">
         <label for="context" class="col-sm-2 control-label">Context</label>
         <div class="col-sm-10">
-            <textarea rows="10" class="form-control" id="context" name="context" placeholder="A description of what the student will have to do in this task">${task_data.get('context','')}</textarea>
+            <div id="context" class="aceEditor" data-x-language="rst" data-x-lines="10" data-x-name="context">${task_data.get('context','')}</div>
+            <input type="hidden" name="context"/>
         </div>
     </div>
     $if contains_is_html:
@@ -245,7 +246,8 @@ $var Column: $:ColumnF()
             <div class="form-group">
                 <label for="header-PID" class="col-sm-2 control-label">Context</label>
                 <div class="col-sm-10">
-                    <textarea rows="10" class="form-control" id="header-PID" name="problem[PID][header]" placeholder="A description of what the student will have to do in this subproblem"></textarea>
+                    <div id="header-PID"></div>
+                    <input type="hidden" id="header-PID-content" name="problem[PID][header]"/>
                 </div>
             </div>
             $if contains_is_html:
@@ -303,7 +305,8 @@ $var Column: $:ColumnF()
             <div class="form-group">
                 <label for="header-PID" class="col-sm-2 control-label">Context</label>
                 <div class="col-sm-10">
-                    <textarea rows="10" class="form-control" id="header-PID" name="problem[PID][header]" placeholder="A description of what the student will have to do in this subproblem"></textarea>
+                    <div id="header-PID"></div>
+                    <input type="hidden" id="header-PID-content" name="problem[PID][header]"/>
                 </div>
             </div>
             $if contains_is_html:
@@ -368,7 +371,8 @@ $var Column: $:ColumnF()
             <div class="form-group">
                 <label for="header-PID" class="col-sm-2 control-label">Context</label>
                 <div class="col-sm-10">
-                    <textarea rows="10" class="form-control" id="header-PID" name="problem[PID][header]" placeholder="A description of what the student will have to do in this subproblem"></textarea>
+                    <div id="header-PID"></div>
+                    <input type="hidden" id="header-PID-content" name="problem[PID][header]"/>
                 </div>
             </div>
             $if contains_is_html:
@@ -418,7 +422,8 @@ $var Column: $:ColumnF()
             <div class="form-group">
                 <label for="header-PID" class="col-sm-2 control-label">Context</label>
                 <div class="col-sm-10">
-                    <textarea rows="10" class="form-control" id="header-PID" name="problem[PID][header]" placeholder="A description of what the student will have to do in this subproblem"></textarea>
+                    <div id="header-PID"></div>
+                    <input type="hidden" id="header-PID-content" name="problem[PID][header]"/>
                 </div>
             </div>
             $if contains_is_html:
@@ -523,7 +528,8 @@ $var Column: $:ColumnF()
             <div class="form-group">
                 <label for="header-PID" class="col-sm-2 control-label">Context</label>
                 <div class="col-sm-10">
-                    <textarea rows="10" class="form-control" id="header-PID" name="problem[PID][header]" placeholder="A description of what the student will have to do in this subproblem"></textarea>
+                    <div id="header-PID"></div>
+                    <input type="hidden" id="header-PID-content" name="problem[PID][header]"/>
                 </div>
             </div>
             $if contains_is_html:
@@ -536,9 +542,10 @@ $var Column: $:ColumnF()
                     </div>
                 </div>
             <div class="form-group">
-                <label for="custom-PID" class="col-sm-2 control-label">Custom data (JSON)</label>
+                <label for="custom-PID" class="col-sm-2 control-label">Custom data (YAML)</label>
                 <div class="col-sm-10">
-                    <textarea rows="10" class="form-control" id="custom-PID" name="problem[PID][custom]" placeholder="{}"></textarea>
+                    <div id="custom-PID"></div>
+                    <input type="hidden" id="custom-PID-content" name="problem[PID][custom]"/>
                 </div>
             </div>
             <div class="form-group">

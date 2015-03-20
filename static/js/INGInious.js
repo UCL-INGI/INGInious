@@ -30,7 +30,10 @@ $(function()
     
     $('.aceEditor').each(function(index,elem)
     {
-    	registerCodeEditor($(elem).attr('id'),$(elem).attr('data-x-language'),$(elem).attr('data-x-lines'));
+    	registerCodeEditor($(elem).attr('id'),
+    			$(elem).attr('data-x-language'),
+    			$(elem).attr('data-x-lines'),
+    			$(elem).attr('data-x-name') == "undefined" ? $(elem).attr('id') : $(elem).attr('data-x-name'));
     });
     
     //Start affix only if there the height of the sidebar is less than the height of the content
@@ -57,7 +60,7 @@ var codeEditors=[]
 var loadingSomething = false;
 
 //Register and init a code editor (ace)
-function registerCodeEditor(id,lang,lines)
+function registerCodeEditor(id,lang,lines, name)
 {
     var editor = ace.edit(id);
     if(lang != "plain")
@@ -76,13 +79,15 @@ function registerCodeEditor(id,lang,lines)
     editor.getSession().setTabSize(4);
     editor.setOptions({minLines: lines, maxLines: Infinity});
     
-    var textarea = jQuery('input[name="'+id+'"]');
+    var textarea = jQuery('input[name="'+name+'"]');
     editor.getSession().on("change", function()
     {
         textarea.val(editor.getSession().getValue());
     });
+    textarea.val(editor.getSession().getValue()); //init
     
     codeEditors.push(editor);
+    return editor;
 }
 
 //Blur task form
@@ -567,7 +572,7 @@ function loadInput(submissionid, input)
 	{
 		id = this.container.id;
 		if(id in input)
-			this.setValue(input[id]);
+			this.setValue(input[id],-1);
 		else
 			this.setValue("");
 	})
@@ -762,6 +767,17 @@ function studio_get_problem(pid)
 function studio_init_template(template,pid,problem)
 {
 	well = $(studio_get_problem(pid));
+	
+	//Default for every problem types
+	if("name" in problem)
+		$('#name-'+pid,well).val(problem["name"]);
+	header_editor = registerCodeEditor('header-'+pid, 'rst', 10, 'problem['+pid+'][header]')
+	if("header" in problem)
+		header_editor.setValue(problem["header"],-1);
+	if("headerIsHTML" in problem && problem["headerIsHTML"])
+		$('#headerIsHTML-'+pid,well).attr('checked', true);
+	
+	//Custom values for each problem type
 	switch(template)
 	{
 	case "#subproblem_code":
@@ -790,14 +806,7 @@ function studio_init_template(template,pid,problem)
  * @param problem
  */
 function studio_init_template_code(well, pid, problem)
-{
-	if("name" in problem)
-		$('#name-'+pid,well).val(problem["name"]);
-	if("header" in problem)
-		$('#header-'+pid,well).val(problem["header"]);
-	if("headerIsHTML" in problem && problem["headerIsHTML"])
-		$('#headerIsHTML-'+pid,well).attr('checked', true);
-	
+{	
 	if("language" in problem)
 		$('#language-'+pid,well).val(problem["language"]);
 	if("type" in problem)
@@ -812,13 +821,6 @@ function studio_init_template_code(well, pid, problem)
  */
 function studio_init_template_code_file(well, pid, problem)
 {
-	if("name" in problem)
-		$('#name-'+pid,well).val(problem["name"]);
-	if("header" in problem)
-		$('#header-'+pid,well).val(problem["header"]);
-	if("headerIsHTML" in problem && problem["headerIsHTML"])
-		$('#headerIsHTML-'+pid,well).attr('checked', true);
-	
 	if("max_size" in problem)
 		$('#maxsize-'+pid,well).val(problem["max_size"]);
 	if("allowed_exts" in problem)
@@ -833,16 +835,7 @@ function studio_init_template_code_file(well, pid, problem)
  */
 function studio_init_template_custom(well, pid, problem)
 {
-	if("name" in problem)
-		$('#name-'+pid,well).val(problem["name"]);
-	if("header" in problem)
-		$('#header-'+pid,well).val(problem["header"]);
-	if("headerIsHTML" in problem && problem["headerIsHTML"])
-		$('#headerIsHTML-'+pid,well).attr('checked', true);
-	
-	delete problem["name"];
-	delete problem["header"];
-	$('#custom-'+pid,well).val(JSON.stringify(problem))
+	registerCodeEditor('custom-'+pid, 'yaml', 10, 'problem['+pid+'][custom]').setValue(problem["custom"],-1);
 }
 
 /**
@@ -853,12 +846,6 @@ function studio_init_template_custom(well, pid, problem)
  */
 function studio_init_template_match(well, pid, problem)
 {
-	if("name" in problem)
-		$('#name-'+pid,well).val(problem["name"]);
-	if("header" in problem)
-		$('#header-'+pid,well).val(problem["header"]);
-	if("headerIsHTML" in problem && problem["headerIsHTML"])
-		$('#headerIsHTML-'+pid,well).attr('checked', true);
 	if("answer" in problem)
 		$('#answer-'+pid,well).val(problem["answer"]);
 }
@@ -871,12 +858,6 @@ function studio_init_template_match(well, pid, problem)
  */
 function studio_init_template_multiple_choice(well, pid, problem)
 {
-	if("name" in problem)
-		$('#name-'+pid,well).val(problem["name"]);
-	if("header" in problem)
-		$('#header-'+pid,well).val(problem["header"]);
-	if("headerIsHTML" in problem && problem["headerIsHTML"])
-		$('#headerIsHTML-'+pid,well).attr('checked', true);
 	if("limit" in problem)
 		$('#limit-'+pid,well).val(problem["limit"]);
 	else

@@ -18,6 +18,7 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Pages that allow editing of tasks """
 from collections import OrderedDict
+import copy
 import json
 import os.path
 import re
@@ -26,6 +27,7 @@ from zipfile import ZipFile
 import web
 
 from common.base import INGIniousConfiguration, id_checker
+import common.custom_yaml
 from common.task_file_managers.tasks_file_manager import TaskFileManager
 from frontend.accessible_time import AccessibleTime
 from frontend.base import renderer
@@ -59,6 +61,16 @@ class CourseEditTask(object):
         except:
             pass
         available_filetypes = TaskFileManager.get_available_file_managers().keys()
+
+        # custom problem-type:
+        for pid in task_data["problems"]:
+            problem = task_data["problems"][pid]
+            if (problem["type"] == "code" and "boxes" in problem) or problem["type"] not in ("code", "code-single-line", "code-file", "match", "multiple-choice"):
+                problem_copy = copy.deepcopy(problem)
+                del problem_copy["name"]
+                del problem_copy["header"]
+                del problem_copy["headerIsHTML"]
+                problem["custom"] = common.custom_yaml.dump(problem_copy)
 
         return renderer.admin_course_edit_task(
             course,
@@ -156,9 +168,9 @@ class CourseEditTask(object):
 
         if problem_content["type"] == "custom":
             try:
-                custom_content = json.loads(problem_content["custom"])
+                custom_content = common.custom_yaml.load(problem_content["custom"])
             except:
-                raise Exception("Invalid JSON in custom content")
+                raise Exception("Invalid YAML in custom content")
             problem_content.update(custom_content)
             del problem_content["custom"]
 
