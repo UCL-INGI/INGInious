@@ -181,9 +181,9 @@ function studio_init_template(template,pid,problem)
 	//Default for every problem types
 	if("name" in problem)
 		$('#name-'+pid,well).val(problem["name"]);
-	header_editor = registerCodeEditor('header-'+pid, 'rst', 10, 'problem['+pid+'][header]')
+	header_editor = registerCodeEditor($('#header-'+pid)[0], 'rst', 10);
 	if("header" in problem)
-		header_editor.setValue(problem["header"],-1);
+		header_editor.setValue(problem["header"]);
 	if("headerIsHTML" in problem && problem["headerIsHTML"])
 		$('#headerIsHTML-'+pid,well).attr('checked', true);
 	
@@ -245,7 +245,7 @@ function studio_init_template_code_file(well, pid, problem)
  */
 function studio_init_template_custom(well, pid, problem)
 {
-	registerCodeEditor('custom-'+pid, 'yaml', 10, 'problem['+pid+'][custom]').setValue(problem["custom"],-1);
+	registerCodeEditor($('#custom-'+pid)[0], 'yaml', 10).setValue(problem["custom"]);
 }
 
 /**
