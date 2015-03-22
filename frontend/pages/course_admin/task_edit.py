@@ -67,9 +67,9 @@ class CourseEditTask(object):
             problem = task_data["problems"][pid]
             if (problem["type"] == "code" and "boxes" in problem) or problem["type"] not in ("code", "code-single-line", "code-file", "match", "multiple-choice"):
                 problem_copy = copy.deepcopy(problem)
-                del problem_copy["name"]
-                del problem_copy["header"]
-                del problem_copy["headerIsHTML"]
+                for i in ["name", "header", "headerIsHTML"]:
+                    if i in problem_copy:
+                        del problem_copy[i]
                 problem["custom"] = common.custom_yaml.dump(problem_copy)
 
         return renderer.admin_course_edit_task(
