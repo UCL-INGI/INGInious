@@ -17,9 +17,8 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Task """
-from os.path import join
-from common.base import INGIniousConfiguration, id_checker
-from common.task_file_managers.tasks_file_manager import TaskFileManager
+from common.base import id_checker
+from common.task_file_managers.manage import get_task_file_manager
 from common.tasks_problems import CodeProblem, CodeSingleLineProblem, MultipleChoiceProblem, MatchProblem, CodeFileProblem
 
 
@@ -41,7 +40,7 @@ class Task(object):
 
         if init_data is None:
             try:
-                self._data = TaskFileManager.get_manager(self.get_course_id(), self.get_id()).read()
+                self._data = get_task_file_manager(self.get_course_id(), self.get_id()).read()
             except Exception as inst:
                 raise Exception("Error while reading task file: " + self._course.get_id() + "/" + self._taskid + " :\n" + str(inst))
         else:

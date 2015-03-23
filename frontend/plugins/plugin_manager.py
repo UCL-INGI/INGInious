@@ -20,6 +20,7 @@
 import importlib
 
 from backend.hook_manager import HookManager
+from common.task_file_managers.manage import add_custom_task_file_manager
 import frontend.base
 
 
@@ -60,6 +61,10 @@ class PluginManager(HookManager):
     def add_page(self, pattern, classname):
         """ Add a new page to the web application """
         self.app.add_mapping(pattern, classname)
+
+    def add_task_file_manager(self, task_file_manager):
+        """ Add a task file manager """
+        add_custom_task_file_manager(task_file_manager)
 
     def register_auth_method(self, name, input_to_display, callback):
         """

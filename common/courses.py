@@ -17,11 +17,10 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Contains the class Course and utility functions """
-import json
 import os.path
 
 from common.base import INGIniousConfiguration, id_checker, load_json_or_yaml, write_json_or_yaml
-from common.task_file_managers.tasks_file_manager import TaskFileManager
+from common.task_file_managers.manage import get_readable_tasks
 import common.tasks
 
 
@@ -88,7 +87,7 @@ class Course(object):
     def get_tasks(self):
         """Get all tasks in this course"""
         if self._tasks_cache is None:
-            tasks = TaskFileManager.get_tasks(self.get_id())
+            tasks = get_readable_tasks(self.get_id())
             output = {}
             for task in tasks:
                 try:
