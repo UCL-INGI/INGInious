@@ -16,14 +16,14 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
-""" JSON task file manager """
+""" JSON task file manager. """
 import collections
 import json
 
-from common.task_file_managers.tasks_file_manager import TaskFileManager
+from common.task_file_managers.abstract_manager import AbstractTaskFileManager
 
 
-class TaskJSONFileManager(TaskFileManager):
+class TaskJSONFileManager(AbstractTaskFileManager):
 
     """ Read and write task descriptions in JSON """
 
@@ -36,3 +36,16 @@ class TaskJSONFileManager(TaskFileManager):
 
     def _generate_content(self, data):
         return json.dumps(data, sort_keys=False, indent=4, separators=(',', ': '))
+
+
+def init(plugin_manager, _):
+    """
+        Init the plugin. Configuration:
+        ::
+
+            {
+                "plugin_module": "frontend.plugins.task_files_manager.json_manager"
+            }
+    """
+
+    plugin_manager.add_task_file_manager(TaskJSONFileManager)

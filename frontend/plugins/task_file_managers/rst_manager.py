@@ -16,14 +16,14 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
-""" RST task file manager """
+""" RST task file manager. """
 
-from common.task_file_managers._dicttorst import dict2rst
-from common.task_file_managers._rsttodict import rst2dict
-from common.task_file_managers.tasks_file_manager import TaskFileManager
+from common.task_file_managers.abstract_manager import AbstractTaskFileManager
+from frontend.plugins.task_file_managers._dicttorst import dict2rst
+from frontend.plugins.task_file_managers._rsttodict import rst2dict
 
 
-class TaskRSTFileManager(TaskFileManager):
+class TaskRSTFileManager(AbstractTaskFileManager):
 
     """ Read and write task descriptions in restructuredText """
 
@@ -36,3 +36,16 @@ class TaskRSTFileManager(TaskFileManager):
 
     def _generate_content(self, data):
         return dict2rst(data)
+
+
+def init(plugin_manager, _):
+    """
+        Init the plugin. Configuration:
+        ::
+
+            {
+                "plugin_module": "frontend.plugins.task_files_manager.json_manager"
+            }
+    """
+
+    plugin_manager.add_task_file_manager(TaskRSTFileManager)

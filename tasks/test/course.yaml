@@ -1,0 +1,11 @@
+name: '[LTEST0000] Test tasks : H2G2'
+admins:
+- test
+- test2
+accessible: true
+registration: true
+registration_password: null
+registration_ac: username
+registration_ac_list:
+- "test\r"
+- test2

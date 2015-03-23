@@ -19,7 +19,7 @@
 """ Classes modifying basic tasks, problems and boxes classes """
 from common.base import id_checker
 from common.parsable_text import ParsableText
-from common.task_file_managers.tasks_file_manager import TaskFileManager
+from common.task_file_managers.manage import get_task_file_manager
 import common.tasks
 from frontend.accessible_time import AccessibleTime
 from frontend.custom.task_problems import DisplayableCodeProblem, DisplayableCodeSingleLineProblem, DisplayableMatchProblem, DisplayableMultipleChoiceProblem, DisplayableCodeFileProblem
@@ -44,7 +44,7 @@ class FrontendTask(common.tasks.Task):
             raise Exception("Task with invalid id: " + course.get_id() + "/" + taskid)
         if init_data is None:
             try:
-                init_data = TaskFileManager.get_manager(course.get_id(), taskid).read()
+                init_data = get_task_file_manager(course.get_id(), taskid).read()
             except Exception as inst:
                 raise Exception("Error while reading task file: " + self._course.get_id() + "/" + self._taskid + " :\n" + str(inst))
         PluginManager.get_instance().call_hook('modify_task_data', course=course, taskid=taskid, data=init_data)

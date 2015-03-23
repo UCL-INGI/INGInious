@@ -17,17 +17,18 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
-import os
-import sys
+import difflib
+import getopt
 import glob
 import json
-import getopt
-import docker
-import difflib
-import common.base
-import common.tasks
-import common.courses
+import os
+import sys
 
+import docker
+
+import common.base
+import common.courses
+import common.tasks
 def run_task(task, inputdata):
     # Define memory limits
     mem_limit = task.get_limits()["memory"]
@@ -37,21 +38,32 @@ def run_task(task, inputdata):
         mem_limit = 500
 
     # Create container and fetch container id
-    response = dock.create_container('inginious/' + task.get_environment(), command='INGInious --debug', stdin_open=True, network_disabled=True, volumes={'/ro/task': {}}, mem_limit=mem_limit * 1024 * 1024)
+    response = dock.create_container(
+        'inginious/' +
+        task.get_environment(),
+        command='INGInious --debug',
+        stdin_open=True,
+        network_disabled=True,
+        volumes={
+            '/ro/task': {}},
+        mem_limit=mem_limit *
+        1024 *
+        1024)
     container_id = response["Id"]
-    
+
     # Start the container
     dock.start(container_id, binds={os.path.abspath(taskdir): {'ro': True, 'bind': '/ro/task'}})
     dock.attach_socket(container_id, {'stdin': 1, 'stream': 1}).send(json.dumps(inputdata) + "\n")
     dock.wait(container_id)
-    
+
     # Get the std outputs
     stdout = str(dock.logs(container_id, stdout=True, stderr=False))
     stderr = str(dock.logs(container_id, stdout=False, stderr=True))
-    
+
     # Delete used containers to avoid using too much disk space
     dock.remove_container(container_id, True, False, True)
-    return stdout,stderr
+    return stdout, stderr
+
 
 def usage():
     print "Usage : test_task [-v|--verbose]  course_id/task_id"
@@ -69,7 +81,7 @@ try:
     opts, args = getopt.getopt(sys.argv[1:], 'v', ['verbose'])
     if not args:
         usage()
-except getopt.GetoptError,e:
+except getopt.GetoptError as e:
     print e
     sys.exit(1)
 
@@ -87,68 +99,68 @@ taskid = ids[1]
 
 # Read configuration file to obtain tasks directory
 common.base.INGIniousConfiguration.load("./configuration.json")
-taskdir= common.base.INGIniousConfiguration['tasks_directory'] + '/' + courseid + '/' + taskid
+taskdir = common.base.INGIniousConfiguration['tasks_directory'] + '/' + courseid + '/' + taskid
 dock = docker.Client(base_url=common.base.INGIniousConfiguration.get("docker_instances")[0].get("server_url"))
 
-#Open the taskfile
+# Open the taskfile
 task = common.courses.Course(courseid).get_task(taskid)
 limits = task.get_limits()
 
 # List inputfiles
 inputfiles = glob.glob(taskdir + '/*.test')
 
-i=1
+i = 1
 for filename in inputfiles:
-    filename = os.path.basename(filename)    
-    print  '\x1b[34;1m[' + str(i) + '/' + str(len(inputfiles)) + ']' + " Testing input file : " + filename + '\033[0m'
-    
+    filename = os.path.basename(filename)
+    print '\x1b[34;1m[' + str(i) + '/' + str(len(inputfiles)) + ']' + " Testing input file : " + filename + '\033[0m'
+
     # Open the input file and merge with limits
     try:
         inputfile = open(taskdir + '/' + filename, 'r')
-    except IOError, e:
+    except IOError as e:
         print e
         exit(2)
-    data = json.load(inputfile)
+    data = common.custom_yaml.load(open(inputfile, "r"))
     data['limits'] = limits
-    
+
     # Run the task
-    stdout,stderr = run_task(task, data)
-    
+    stdout, stderr = run_task(task, data)
+
     if stderr:
-        print  '\x1b[31;1m' + stderr + '\033[0m'
-    
+        print '\x1b[31;1m' + stderr + '\033[0m'
+
     # Open freshly computed json
     result = json.loads(stdout.strip('\0\n '))
-    
+
     # Print stdout if verbose
     if verbose:
-        print  '\x1b[1m-> Complete standard output : \033[0m'
+        print '\x1b[1m-> Complete standard output : \033[0m'
         for line in result['stdout'].splitlines(1):
             print '\t' + line.strip('\n')
-    
+
     # Start the comparison
     noprob = True
-    
+
     if 'stderr' in result and result['stderr']:
         noprob = False
-        print  '\x1b[31;1m-> There was some error(s) during execution : \033[0m'
+        print '\x1b[31;1m-> There was some error(s) during execution : \033[0m'
         for line in result['stderr'].splitlines(1):
-            print  '\x1b[31;1m\t' + line.strip('\n') + '\033[0m'
+            print '\x1b[31;1m\t' + line.strip('\n') + '\033[0m'
 
     if 'stdout' in data and data['stdout']:
         if data['stdout'] != result['stdout']:
             noprob = False
             print "\033[1m-> Standard output doesn't match :\033[0m"
-            for line in difflib.unified_diff(data['stdout'].splitlines(1),result['stdout'].splitlines(1), fromfile='Expected', tofile='Actual'):
+            for line in difflib.unified_diff(data['stdout'].splitlines(1), result['stdout'].splitlines(1), fromfile='Expected', tofile='Actual'):
                 print '\t' + line.strip('\n')
-    
+
     if 'result' in data and data['result']:
         if data['result'] != result['result']:
             noprob = False
             print "\033[1m-> Result doesn't match :\033[0m"
             print "\t Expected result : " + data['result']
             print "\t Actual result : " + result['result']
-    
+
     if 'text' in data and data['text']:
         if not 'text' in result:
             noprob = False
@@ -159,7 +171,7 @@ for filename in inputfiles:
             print "\033[1m-> Global feedback doesn't match :\033[0m"
             print "\t Expected result : " + data['text']
             print "\t Actual result : " + result['text']
-    
+
     if 'problems' in data and data['problems']:
         if not 'problems' in result:
             noprob = False
@@ -168,14 +180,14 @@ for filename in inputfiles:
             for problem in data['problems']:
                 if not problem in result['problems']:
                     noprob = False
-                    print "\033[1m-> No feedback for problem id " +problem + " given \033[0m"
+                    print "\033[1m-> No feedback for problem id " + problem + " given \033[0m"
                     print "\t Expected result : " + data['problems'][problem]
                 elif data['problems'][problem].strip() != result['problems'][problem].strip():
                     noprob = False
-                    print "\033[1m-> Feedback for problem id " +problem + " doesn't match :\033[0m"
+                    print "\033[1m-> Feedback for problem id " + problem + " doesn't match :\033[0m"
                     print "\t Expected result : " + data['problems'][problem]
                     print "\t Actual result : " + result['problems'][problem]
-                
+
     if 'tests' in data and data['tests']:
         if not 'tests' in result:
             noprob = False
@@ -191,8 +203,8 @@ for filename in inputfiles:
                     print "\033[1m-> Test with tag '" + tag + "' failed :\033[0m"
                     print "\t Expected result : " + data['tests'][tag]
                     print "\t Actual result : " + result['tests'][tag]
-    
+
     if noprob:
         print "\033[32;1m-> All tests passed \033[0m"
-    
-    i = i+1
+
+    i = i + 1

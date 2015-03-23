@@ -22,7 +22,7 @@ import os.path
 import zipfile
 import web
 from common.base import INGIniousConfiguration, id_checker
-from common.task_file_managers.tasks_file_manager import TaskFileManager
+from common.task_file_managers.manage import get_available_task_file_managers
 from frontend.pages.course_admin.utils import get_course_and_check_rights
 
 
@@ -60,7 +60,7 @@ class DownloadTaskFiles(object):
         # Check rights
         get_course_and_check_rights(courseid)
 
-        exclude = ["task.{}".format(subclass.get_ext()) for subclass in TaskFileManager.__subclasses__()]
+        exclude = ["task.{}".format(ext) for ext in get_available_task_file_managers().keys()]
         dir_path = os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid)
 
         stringio = StringIO()

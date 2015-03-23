@@ -49,6 +49,7 @@ Defining a new unit test
 If you want to test your own assertions, you can use the tool
 *definetest* in your task code. This command must be called with the
 following syntax :
+
 ::
 
     definetest key value
@@ -58,24 +59,19 @@ you want to test at a given execution point. The *value* argument is of
 type string.
 
 Creating a new test file
-`````````````````````````
+````````````````````````
 Now you've defined some tags for which you want to assert the value
 correctness, you can define some test files. These must be written in
-JSON with the following syntax. It must be like this :
+YAML with the following syntax. It must be like this :
+
 ::
 
-    {
-            "input":
-            {
-                    "pid_1":"Answer to the problem with problem id pid_1",
-                    "pid_2":"Answer to the problem with problem id pid_2"
-            },
-	    "result":"success",
-            "tests":
-            {
-                    "answer":"42"
-            }
-    }
+    input:
+        pid_1:"Answer to the problem with problem id pid_1"
+        pid_2:"Answer to the problem with problem id pid_2"
+    result:"success"
+    tests:
+        answer:"42"
 
 In this example, *pid_1* and *pid_2* are two given problem id, which you
 defined in your task file. The value associated with theses keys are the
@@ -88,9 +84,9 @@ can be checked :
 - *result* : the result of the execution of your task
 - *text* : the general feedback given to the student
 - *stdout* : the standard output produced by the execution of your task
-- *problems* : a JSON entry containing pairs of problem identifiers and
+- *problems* : a YAML entry containing pairs of problem identifiers and
   expected feedback
-- *tests* : a JSON entry containing pairs of test tags and expected
+- *tests* : a YAML entry containing pairs of test tags and expected
   values
 
 Not specified fields won't be checked during the testing process. So if
@@ -102,7 +98,7 @@ Generated test files
 Tests files are automatically generated with each submission, and are
 included in the downloadable archive with the extension *.test*.
 This can avoid spending much time on writing them as they are
-JSON-formatted input/output internally used by INGInious.
+YAML-formatted input/output internally used by INGInious.
 This way, you can write the tests from the INGInious frontend, or even
 use the submissions made by students to improve you tests suite and/or
 to fix your bugs.
@@ -121,6 +117,7 @@ directory with extension *.test*. For instance, *test1.test* and
 Once your test files are written, you can launch the test with the
 command-line tool *test_task* from the INGInious distribution, with the
 following calling syntax :
+
 ::
     testtask [-v|--verbose] course_id/task_id
 

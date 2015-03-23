@@ -1,0 +1,17 @@
+accessible: true
+author: Guillaume Derval
+context: This tasks aims to test the frontend-integrated grader.
+environment: default
+limits:
+    memory: '100'
+    output: '2'
+    time: '30'
+name: Answer to Life, the Universe and Everything
+order: 3
+problems:
+    idFirstExercice:
+        type: match
+        header: The answer is 40+2
+        answer: '42'
+        name: ''
+weight: 1.0

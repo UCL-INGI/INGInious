@@ -19,6 +19,8 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Starts the frontend """
 
+import os.path
+
 import web
 
 import common.base
@@ -76,5 +78,10 @@ def get_app(config_file):
     return appli
 
 if __name__ == "__main__":
-    app = get_app("./configuration.json")
+    if os.path.isfile("./configuration.yaml"):
+        app = get_app("./configuration.yaml")
+    elif os.path.isfile("./configuration.json"):
+        app = get_app("./configuration.json")
+    else:
+        raise Exception("No configuration file found")
     app.run()

@@ -24,7 +24,7 @@ import os.path
 from common.base import INGIniousConfiguration
 
 
-class TaskFileManager(object):
+class AbstractTaskFileManager(object):
 
     """ Manages a type of task file """
     __metaclass__ = ABCMeta
@@ -56,50 +56,3 @@ class TaskFileManager(object):
     def _generate_content(self, data):
         """ Generate data (that will be written to the file) """
         pass
-
-    @classmethod
-    def get_tasks(cls, courseid):
-        """ Returns the list of all available tasks in a course """
-        tasks = [
-            task for task in os.listdir(
-                os.path.join(
-                    INGIniousConfiguration["tasks_directory"],
-                    courseid)) if os.path.isdir(os.path.join(
-                        INGIniousConfiguration["tasks_directory"],
-                        courseid,
-                        task)) and cls._task_file_exists(
-                os.path.join(
-                    INGIniousConfiguration["tasks_directory"],
-                    courseid,
-                    task))]
-        return tasks
-
-    @classmethod
-    def _task_file_exists(cls, directory):
-        """ Returns true if a task file exists in this directory """
-        for filename in ["task.{}".format(subclass.get_ext()) for subclass in TaskFileManager.__subclasses__()]:
-            if os.path.isfile(os.path.join(directory, filename)):
-                return True
-        return False
-
-    @classmethod
-    def get_manager(cls, courseid, taskid):
-        """ Returns the appropriate task file manager for this task """
-        for subclass in TaskFileManager.__subclasses__():
-            if os.path.isfile(os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid, "task.{}".format(subclass.get_ext()))):
-                return subclass(courseid, taskid)
-        return None
-
-    @classmethod
-    def delete_all_possible_task_files(cls, courseid, taskid):
-        """ Deletes all possibles task files in directory, to allow to change the format """
-        for subclass in TaskFileManager.__subclasses__():
-            try:
-                os.remove(os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid, "task.{}".format(subclass.get_ext())))
-            except:
-                pass
-
-    @classmethod
-    def get_available_file_managers(cls):
-        """ Get a dict with ext:class pairs """
-        return {f.get_ext(): f for f in TaskFileManager.__subclasses__()}

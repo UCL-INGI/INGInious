@@ -18,15 +18,14 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 import StringIO
 import base64
-import json
 import os.path
 import tarfile
 import tempfile
 import time
 
-from bson import json_util
 from bson.objectid import ObjectId
 import web
+import common.custom_yaml
 
 from frontend.base import get_database, get_gridfs
 from frontend.base import renderer
@@ -77,14 +76,14 @@ class DownloadSubmissionFiles(object):
                     elif sub_folder == 'username':
                         base_path = submission['username'] + '/' + base_path
 
-                submission_json = StringIO.StringIO(json.dumps(submission, default=json_util.default, indent=4, separators=(',', ': ')))
-                submission_json_fname = base_path + str(submission["_id"]) + '.test'
-                info = tarfile.TarInfo(name=submission_json_fname)
-                info.size = submission_json.len
+                submission_yaml = StringIO.StringIO(common.custom_yaml.dump(submission))
+                submission_yaml_fname = base_path + str(submission["_id"]) + '.test'
+                info = tarfile.TarInfo(name=submission_yaml_fname)
+                info.size = submission_yaml.len
                 info.mtime = time.mktime(submission["submitted_on"].timetuple())
 
                 # Add file in tar archive
-                tar.addfile(info, fileobj=submission_json)
+                tar.addfile(info, fileobj=submission_yaml)
 
                 # If there is an archive, add it too
                 if 'archive' in submission and submission['archive'] is not None and submission['archive'] != "":
@@ -131,7 +130,8 @@ class DownloadSubmissionFiles(object):
             web.header('Content-Type', 'application/x-gzip', unique=True)
             web.header('Content-Disposition', 'attachment; filename="' + filename + '"', unique=True)
             return tmpfile
-        except:
+        except Exception as e:
+            print e
             raise web.notfound()
 
     def download_course(self, course, include_old_submissions=False):

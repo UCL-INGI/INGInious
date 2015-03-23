@@ -1,0 +1,90 @@
+accessible: true
+author: Guillaume Derval
+context: tout à fait farfelu
+environment: default
+limits:
+    memory: '32'
+    output: '1024'
+    time: '60'
+name: Un titre d'énoncé farfelu
+problems:
+    idFirstExercice:
+        headerIsHTML: true
+        header: <p>The first exercice consists of blablabla</p>
+        type: code
+        name: The first exercice
+        language: java
+    idSecondExercice:
+        headerIsHTML: true
+        header: <p>The second exercice consists of blablabla</p>
+        name: The second exercice
+        type: code
+        boxes:
+            for-content:
+                language: python
+                lines: 5
+                maxChars: 1000
+                type: multiline
+            for1:
+                maxChars: 3
+                type: input-integer
+            for2:
+                maxChars: 10
+                type: input-decimal
+            for3:
+                maxChars: 10
+                type: input-text
+            text1:
+                content: <code>for(i=</code>
+                contentIsHTML: true
+                type: text
+            text2:
+                content: <code>; i <= </code>
+                contentIsHTML: true
+                type: text
+            text3:
+                content: <code>;</code>
+                contentIsHTML: true
+                type: text
+            text4:
+                content: <code>)</code>
+                contentIsHTML: true
+                type: text
+            text5:
+                content: <br/><code>{</code><br/>
+                contentIsHTML: true
+                type: text
+            text6:
+                content: <code>}</code>
+                contentIsHTML: true
+                type: text
+    idThirdExercice:
+        choices:
+        -   valid: true
+            text: It is, of course, 42!
+        -   textIsHTML: true
+            valid: true
+            text: It should be <b>42</b> (but in bold)
+        -   text: 43...
+        -   text: 41...
+        limit: 3
+        headerIsHTML: true
+        name: The third exercice
+        type: multiple-choice
+        header: <p>The answer to life, the universe and any other things is</p>
+        multiple: true
+    idFourthExercice:
+        choices:
+        -   valid: true
+            text: It is, of course, 42!
+        -   text: It should be <b>42</b> (but in bold)
+            textIsHTML: true
+            valid: true
+        -   text: 43...
+        -   text: 41...
+        name: The fourth exercice
+        header: <p>The answer to life, the universe and any other things is</p>
+        limit: 3
+        type: multiple-choice
+        headerIsHTML: true
+weight: 1.0

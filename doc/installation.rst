@@ -106,15 +106,15 @@ Installation of INGInious
 -------------------------
 
 The installation consist on cloning the github repository of INGInious
-and to provide configuration option in ``/configuration.json``.
+and to provide configuration option in ``/configuration.yaml``.
 
 ::
 
 	$ git clone https://github.com/UCL-INGI/INGInious.git
 	$ cd INGInious
-	$ cp configuration.example.json configuration.json
+	$ cp configuration.example.yaml configuration.yaml
 
-You should now review and tune configuration options in ``configuration.json`` according to `Configuring INGInious`_.
+You should now review and tune configuration options in ``configuration.yaml`` according to `Configuring INGInious`_.
 
 Finally, you can start a demo server with the following command.
 If you want a robust webserver for production, see :ref:`production`.
@@ -131,44 +131,30 @@ The server will be running on localhost:8080.
 Configuring INGInious
 ---------------------
 
-Configuring INGInious is done via a file named ``configuration.json``.
-To get you started, a file named ``configuration.example.json`` is provided.
+Configuring INGInious is done via a file named ``configuration.yaml``.
+To get you started, a file named ``configuration.example.yaml`` is provided.
 It content is :
 
 ::
 
-	{
-	    "tasks_directory": "./tasks",
-
-	    "containers": {
-			"default": "ingi/inginious-c-default",
-			"sekexe": "ingi/inginious-c-sekexe"
-	    },
-
-	    "docker_instances": [
-			{
-				"server_url": "tcp://172.16.42.43:4243"
-			}
-		],
-
-	    "callback_managers_threads": 2,
-	    "submitters_processes": 2,
-
-	    "mongo_opt": {"host": "localhost", "database":"INGInious"},
-
-	    "plugins": [
-	        {
-	            "plugin_module": "frontend.plugins.git_repo",
-	            "repo_directory": "./repo_submissions"
-	        },
-	        {
-	            "plugin_module": "frontend.plugins.auth.demo_auth",
-	            "users": {"test":"test"}
-	        }
-	    ],
-
-	    "allow_html": "tidy"
-	}
+    tasks_directory: ./tasks
+    containers:
+        default: ingi/inginious-c-default
+        sekexe: ingi/inginious-c-sekexe
+    docker_instances:
+      - server_url: "tcp://192.168.59.103:2375"
+    callback_managers_threads: 2
+    submitters_processes: 2
+    mongo_opt:
+        host: localhost
+        database: INGInious
+    plugins:
+      - plugin_module: frontend.plugins.git_repo
+        repo_directory: ./repo_submissions
+      - plugin_module: frontend.plugins.auth.demo_auth
+        users:
+            test: test
+    allow_html: tidy
 
 The different entries are :
 
@@ -239,6 +225,7 @@ This guide is made for CentOS 7.0.
 First, don't forget to enable EPEL_.
 
 We can then install lighttpd with fastcgi:
+
 ::
 
 	$ sudo yum install lighttpd lighttpd-fastcgi
@@ -246,6 +233,7 @@ We can then install lighttpd with fastcgi:
 Now put the INGInious' sources somewhere, like */var/www/INGInious*.
 
 First of all, we need to put the lighttpd user in the necessary groups, to allow it to launch new containers and to connect to mongodb:
+
 ::
 
 	$ usermod -aG docker lighttpd

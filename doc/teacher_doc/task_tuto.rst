@@ -6,34 +6,26 @@ In this document we will describe how to create a simple task, that checks that 
 Creating the task description
 -----------------------------
 
-The task description is a small JSON file describing everything that INGInious needs to know to verify the input of the student.
+The task description is a small YAML file describing everything that INGInious needs to know to verify the input of the student.
 
-Here is a simple task description. Put this file with the name *task.json* in a newly created *helloworld* folder in your course directory.
+Here is a simple task description. Put this file with the name *task.yaml* in a newly created *helloworld* folder in your course directory.
 
 ::
 
-	{
-		"author": "Guillaume Derval",
-		"name": "Hello World!",
-		"context": "In this task, you will have to write a python script that displays 'Hello World!'.",
-		"problems":
-		{
-			"question1":
-			{
-				"name": "Let's print it",
-				"header": "def func():",
-				"type": "code",
-				"language": "python"
-			}
-		},
-		"limits":
-		{
-			"time": 10,
-			"memory": 50,
-			"output": 1000
-		},
-		"environment": "default"
-	}
+    author: "Guillaume Derval"
+    name: "Hello World!"
+    context: "In this task, you will have to write a python script that displays 'Hello World!'."
+    problems:
+        question1:
+            name: "Let's print it"
+            header: "def func():"
+            type: "code"
+            language: "python"
+    limits:
+        time: 10
+        memory: 50
+        output: 1000
+    environment: "default"
 
 Most of the fields are self-explanatory. Some remarks:
 
