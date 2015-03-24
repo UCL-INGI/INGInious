@@ -12,19 +12,38 @@ List of hooks
 -------------
 
 Each hook available in INGInious is described here, starting with its name and parameters.
+*css*
+    Used to add CSS files in the header. 
+    Should return the path to a CSS file (relative to the root of INGInious).
+*course_admin_menu* (*course*)
+    Used to add links to the administration menu. This hook should return a tuple (link,name) 
+    where link is the relative link from the index of the course administration.
+    You can also return None.
+*course_menu* (*course*)
+    Allows to add HTML to the menu displayed on the course page. Course is the course object related to the page.
+    Should return HTML or None.
+*javascript_header*
+    Used to add Javascript files in the header. 
+    Should return the path to a Javascript file (relative to the root of INGInious).
+*javascript_footer*
+    Used to add Javascript files in the footer. 
+    Should return the path to a Javascript file (relative to the root of INGInious).
+*job_ended* (*jobid*, *task*, *statinfo*, *results*)
+   Called when a job has ended. *task* contains a Task object,
+   *statinfo* is a dictionnary containing various informations about the job.
+   *results* contains the results of the job.
 *job_manager_init_done* (*job_manager*)
 	Called when a JobManager instance is inited. *job_manager* is the instance that was inited.
 	This hooks cannot be used by the plugins, as the backend is inited before the plugins.
 *job_manager_exit* (*job_manager*)
 	Called when a JobManager received the exit signal, before the JobManager exits.
+*modify_task_data* (*course*, *taskid*, *data*)
+    Allows to modify the task description before the initialisation of the Task object.
+    Changes are not saved to disk.
 *new_job* (*jobid*, *task*, *statinfo*, *inputdata*)
 	Called when a job was just submitted. *task* contains a Task object,
 	*statinfo* is a dictionnary containing various informations about the job.
 	*inputdata* contains the answers that were submitted to INGInious.
-*job_ended* (*jobid*, *task*, *statinfo*, *results*)
-	Called when a job has ended. *task* contains a Task object,
-	*statinfo* is a dictionnary containing various informations about the job.
-	*results* contains the results of the job.
 *new_submission* (*submissionid*, *submission*, *jobid*, *inputdata*)
 	Called when a new submission is received.
 	*inputdata* contains the answers that were submitted to INGInious.
@@ -37,13 +56,3 @@ Each hook available in INGInious is described here, starting with its name and p
 *template_helper* ()
     Adds a new helper to the instance of TemplateHelper. Should return a tuple (name,func) where name is the name that will
     be indicated when calling the TemplateHelper.call method, and func is the function that will be called.
-*course_admin_menu* (*course*)
-    Used to add links to the administration menu. This hook should return a tuple (link,name) 
-    where link is the relative link from the index of the course administration.
-    You can also return None.
-*modify_task_data* (*course*, *taskid*, *data*)
-    Allows to modify the task description before the initialisation of the Task object.
-    Changes are not saved to disk.
-*course_menu* (*course*)
-    Allows to add HTML to the menu displayed on the course page. Course is the course object related to the page.
-    Should return HTML or None.
