@@ -92,15 +92,24 @@ function registerCodeEditor(textarea,lang,lines)
         styleActiveLine: true,
         matchBrackets: true,
         autoCloseBrackets: true,
-        gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+        gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter", "CodeMirror-lint-markers"],
         indentUnit: 4,
-        viewportMargin: Infinity
+        viewportMargin: Infinity,
+        lint: function(){return []}
     });
     editor.on("change", function(cm) { cm.save(); });
     editor.setSize(null, (21*lines)+"px");
     CodeMirror.autoLoadMode(editor, mode);
     codeEditors.push(editor);
     return editor;
+}
+
+//Task page: find an editor by problem id
+function getEditorForProblemId(problemId)
+{
+	for (idx in codeEditors)
+		if (codeEditors[idx].getTextArea().name == problemId)
+			return codeEditors[idx];
 }
 
 //Blur task form
