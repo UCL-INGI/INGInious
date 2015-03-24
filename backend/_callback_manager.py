@@ -73,55 +73,56 @@ class CallbackManager(threading.Thread):
                 for problem in origin_dict["problems"]:
                     if isinstance(origin_dict["problems"][problem], list):
                         origin_dict["problems"][problem] = "\n".join(origin_dict["problems"][problem])
-            return origin_dict
+            final_dict = origin_dict
+        # Else, merge the two dicts
+        else:
+            # Include stderr and stdout (for debug)
+            if "stderr" in emul_result:
+                origin_dict["stderr"] = emul_result["stderr"]
+            if "stdout" in emul_result:
+                origin_dict["stdout"] = emul_result["stdout"]
 
-        # Include stderr and stdout (for debug)
-        if "stderr" in emul_result:
-            origin_dict["stderr"] = emul_result["stderr"]
-        if "stdout" in emul_result:
-            origin_dict["stdout"] = emul_result["stdout"]
+            # Else merge everything
+            if emul_result['result'] not in ["error", "failed", "success", "timeout", "overflow", "crash"]:
+                emul_result['result'] = "error"
 
-        # Else merge everything
-        if emul_result['result'] not in ["error", "failed", "success", "timeout", "overflow", "crash"]:
-            emul_result['result'] = "error"
+            if emul_result["result"] not in ["error", "timeout", "overflow", "crash"]:
+                final_dict = emul_result
 
-        if emul_result["result"] not in ["error", "timeout", "overflow", "crash"]:
-            final_dict = emul_result
+                final_dict["result"] = "success" if origin_dict["result"] == "success" and final_dict["result"] == "success" else "failed"
+                if "text" in final_dict and "text" in origin_dict:
+                    final_dict["text"] = final_dict["text"] + "\n" + "\n".join(origin_dict["text"])
+                elif "text" not in final_dict and "text" in origin_dict:
+                    final_dict["text"] = "\n".join(origin_dict["text"])
 
-            final_dict["result"] = "success" if origin_dict["result"] == "success" and final_dict["result"] == "success" else "failed"
-            if "text" in final_dict and "text" in origin_dict:
-                final_dict["text"] = final_dict["text"] + "\n" + "\n".join(origin_dict["text"])
-            elif "text" not in final_dict and "text" in origin_dict:
-                final_dict["text"] = "\n".join(origin_dict["text"])
-
-            if "problems" in final_dict and "problems" in origin_dict:
-                for pid in origin_dict["problems"]:
-                    if pid in final_dict["problems"]:
-                        final_dict["problems"][pid] = final_dict["problems"][pid] + "\n" + origin_dict["problems"][pid]
-                    else:
-                        final_dict["problems"][pid] = origin_dict["problems"][pid]
-            elif "problems" not in final_dict and "problems" in origin_dict:
-                final_dict["problems"] = origin_dict["problems"]
-        elif emul_result["result"] in ["error", "timeout", "overflow", "crash"] and "text" in emul_result:
-            final_dict = origin_dict.copy()
-            final_dict.update({"result": emul_result["result"], "text": emul_result["text"]})
-        elif emul_result["result"] == "error":
-            final_dict = origin_dict.copy()
-            final_dict.update({"result": emul_result["result"], "text": "An unknown internal error occured"})
-        elif emul_result["result"] == "timeout":
-            final_dict = origin_dict.copy()
-            final_dict.update({"result": emul_result["result"], "text": "Your code took too much time to execute"})
-        elif emul_result["result"] == "overflow":
-            final_dict = origin_dict.copy()
-            final_dict.update({"result": emul_result["result"], "text": "Your code took too much memory or disk"})
-        elif emul_result["result"] == "crash":
-            final_dict = origin_dict.copy()
-            final_dict.update({"result": emul_result["result"], "text": "There was an internal error while running the tests"})
+                if "problems" in final_dict and "problems" in origin_dict:
+                    for pid in origin_dict["problems"]:
+                        if pid in final_dict["problems"]:
+                            final_dict["problems"][pid] = final_dict["problems"][pid] + "\n" + origin_dict["problems"][pid]
+                        else:
+                            final_dict["problems"][pid] = origin_dict["problems"][pid]
+                elif "problems" not in final_dict and "problems" in origin_dict:
+                    final_dict["problems"] = origin_dict["problems"]
+            elif emul_result["result"] in ["error", "timeout", "overflow", "crash"] and "text" in emul_result:
+                final_dict = origin_dict.copy()
+                final_dict.update({"result": emul_result["result"], "text": emul_result["text"]})
+            elif emul_result["result"] == "error":
+                final_dict = origin_dict.copy()
+                final_dict.update({"result": emul_result["result"], "text": "An unknown internal error occured"})
+            elif emul_result["result"] == "timeout":
+                final_dict = origin_dict.copy()
+                final_dict.update({"result": emul_result["result"], "text": "Your code took too much time to execute"})
+            elif emul_result["result"] == "overflow":
+                final_dict = origin_dict.copy()
+                final_dict.update({"result": emul_result["result"], "text": "Your code took too much memory or disk"})
+            elif emul_result["result"] == "crash":
+                final_dict = origin_dict.copy()
+                final_dict.update({"result": emul_result["result"], "text": "There was an internal error while running the tests"})
 
         # Verify that the grade is present
-        if emul_result["result"] in ["success", "failed"]:
+        if final_dict["result"] in ["success", "failed"]:
             if "grade" not in final_dict:
-                final_dict["grade"] = 100.0 if emul_result["result"] == "success" else 0.0
+                final_dict["grade"] = 100.0 if final_dict["result"] == "success" else 0.0
         else:
             final_dict["grade"] = 0.0
 

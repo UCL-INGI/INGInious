@@ -28,7 +28,7 @@ import web
 
 from common.base import INGIniousConfiguration, id_checker
 import common.custom_yaml
-from common.task_file_managers.tasks_file_manager import TaskFileManager
+from common.task_file_managers.manage import get_task_file_manager, get_available_task_file_managers, delete_all_possible_task_files
 from frontend.accessible_time import AccessibleTime
 from frontend.base import renderer
 from frontend.custom.courses import FrontendCourse
@@ -48,7 +48,7 @@ class CourseEditTask(object):
         course = get_course_and_check_rights(courseid)
 
         try:
-            task_data = TaskFileManager.get_manager(courseid, taskid).read()
+            task_data = get_task_file_manager(courseid, taskid).read()
         except:
             task_data = None
         if task_data is None:
@@ -57,19 +57,19 @@ class CourseEditTask(object):
 
         current_filetype = None
         try:
-            current_filetype = TaskFileManager.get_manager(courseid, taskid).get_ext()
+            current_filetype = get_task_file_manager(courseid, taskid).get_ext()
         except:
             pass
-        available_filetypes = TaskFileManager.get_available_file_managers().keys()
+        available_filetypes = get_available_task_file_managers().keys()
 
         # custom problem-type:
         for pid in task_data["problems"]:
             problem = task_data["problems"][pid]
             if (problem["type"] == "code" and "boxes" in problem) or problem["type"] not in ("code", "code-single-line", "code-file", "match", "multiple-choice"):
                 problem_copy = copy.deepcopy(problem)
-                del problem_copy["name"]
-                del problem_copy["header"]
-                del problem_copy["headerIsHTML"]
+                for i in ["name", "header", "headerIsHTML"]:
+                    if i in problem_copy:
+                        del problem_copy[i]
                 problem["custom"] = common.custom_yaml.dump(problem_copy)
 
         return renderer.admin_course_edit_task(
@@ -200,7 +200,7 @@ class CourseEditTask(object):
             del data["@action"]
 
             try:
-                file_manager = TaskFileManager.get_available_file_managers()[data["@filetype"]](courseid, taskid)
+                file_manager = get_available_task_file_managers()[data["@filetype"]](courseid, taskid)
             except Exception as inst:
                 return json.dumps({"status": "error", "message": "Invalid file type: {}".format(str(inst))})
             del data["@filetype"]
@@ -245,7 +245,7 @@ class CourseEditTask(object):
 
         # Get original data
         try:
-            orig_data = TaskFileManager.get_manager(courseid, taskid).read()
+            orig_data = get_task_file_manager(courseid, taskid).read()
             data["order"] = orig_data["order"]
         except:
             pass
@@ -269,7 +269,7 @@ class CourseEditTask(object):
             except Exception as message:
                 return json.dumps({"status": "error", "message": "There was a problem while extracting the zip archive. Some files may have been modified"})
 
-        TaskFileManager.delete_all_possible_task_files(courseid, taskid)
+        delete_all_possible_task_files(courseid, taskid)
         file_manager.write(data)
 
         return json.dumps({"status": "ok"})

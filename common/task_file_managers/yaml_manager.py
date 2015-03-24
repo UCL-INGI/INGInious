@@ -19,10 +19,10 @@
 """ YAML task file manager """
 
 import common.custom_yaml
-from common.task_file_managers.tasks_file_manager import TaskFileManager
+from common.task_file_managers.abstract_manager import AbstractTaskFileManager
 
 
-class TaskYAMLFileManager(TaskFileManager):
+class TaskYAMLFileManager(AbstractTaskFileManager):
 
     """ Read and write task descriptions in YAML """
 

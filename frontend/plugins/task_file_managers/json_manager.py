@@ -16,23 +16,36 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
-""" RST task file manager. DEPRECATED """
+""" JSON task file manager. """
+import collections
+import json
 
-from common.task_file_managers._dicttorst import dict2rst
-from common.task_file_managers._rsttodict import rst2dict
-from common.task_file_managers.tasks_file_manager import TaskFileManager
+from common.task_file_managers.abstract_manager import AbstractTaskFileManager
 
 
-class TaskRSTFileManager(TaskFileManager):
+class TaskJSONFileManager(AbstractTaskFileManager):
 
-    """ Read and write task descriptions in restructuredText """
+    """ Read and write task descriptions in JSON """
 
     def _get_content(self, content):
-        return rst2dict(content)
+        return json.loads(content, object_pairs_hook=collections.OrderedDict)
 
     @classmethod
     def get_ext(cls):
-        return "rst"
+        return "json"
 
     def _generate_content(self, data):
-        return dict2rst(data)
+        return json.dumps(data, sort_keys=False, indent=4, separators=(',', ': '))
+
+
+def init(plugin_manager, _):
+    """
+        Init the plugin. Configuration:
+        ::
+
+            {
+                "plugin_module": "frontend.plugins.task_files_manager.json_manager"
+            }
+    """
+
+    plugin_manager.add_task_file_manager(TaskJSONFileManager)

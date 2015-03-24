@@ -19,7 +19,7 @@
 from collections import OrderedDict
 import web
 
-from common.task_file_managers.tasks_file_manager import TaskFileManager
+from common.task_file_managers.manage import get_readable_tasks
 from frontend.base import get_database
 from frontend.base import renderer
 from frontend.pages.course_admin.utils import make_csv, get_course_and_check_rights
@@ -62,7 +62,7 @@ class CourseTaskListPage(object):
             ])["result"]
 
         # Load tasks and verify exceptions
-        files = TaskFileManager.get_tasks(course.get_id())
+        files = get_readable_tasks(course.get_id())
         output = {}
         errors = []
         for task in files:
