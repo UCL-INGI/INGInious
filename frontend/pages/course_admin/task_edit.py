@@ -63,7 +63,7 @@ class CourseEditTask(object):
         available_filetypes = get_available_task_file_managers().keys()
 
         # custom problem-type:
-        for pid in task_data["problems"]:
+        for pid in task_data.get("problems", {}):
             problem = task_data["problems"][pid]
             if (problem["type"] == "code" and "boxes" in problem) or problem["type"] not in ("code", "code-single-line", "code-file", "match", "multiple-choice"):
                 problem_copy = copy.deepcopy(problem)
