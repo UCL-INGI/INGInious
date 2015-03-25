@@ -48,6 +48,14 @@ $(function()
     			$('#register_password').attr('disabled','disabled')
     	});
     }
+    
+    //Fix a bug with codemirror and bootstrap tabs
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+    	target = $(e.target).attr("href");
+    	$(target + ' .CodeMirror').each(function(i, el) {
+    		el.CodeMirror.refresh();
+    	});
+    });
 });
 
 //Contains all code editors

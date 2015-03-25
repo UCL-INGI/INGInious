@@ -99,6 +99,9 @@ form#task #task-submit {
 #task_debug dd dl {
   margin-bottom: 0;
 }
+#edit_task_tabs {
+  margin-bottom: 15px;
+}
 /* Footer */
 html,
 body {

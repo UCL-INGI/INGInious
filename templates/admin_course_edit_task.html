@@ -21,15 +21,6 @@ $var title: Edit $taskid
 
 $def ColumnF():
     <div id="task_edit_submit_status"></div>
-    <button class="btn btn-primary btn-block" id="task_edit_submit_button" type="button" onclick="studio_submit()"><span class="glyphicon glyphicon-download-alt"></span> Submit</button>
-    <h4>Shortcuts</h4>
-    <div class="list-group">
-        <a href="#general_informations" class="list-group-item">General informations</a>
-        <a href="#virtual_machine_setup" class="list-group-item">Virtual machine setup</a>
-        <a href="#subproblems" class="list-group-item">Subproblems</a>
-        <a href="#new_subproblem" class="list-group-item">New subproblem</a>
-        <a href="#task_files" class="list-group-item">Task files</a>
-    </div>
     $:template_helper.call('course_admin_menu',course=course,current='tasks')
 $var Column: $:ColumnF()
 
@@ -43,184 +34,206 @@ $var Column: $:ColumnF()
 
 <h2>Edit task "$taskid"</h2>
 <form id="edit_task_form" action="/admin/${course.get_id()}/edit/$taskid" method="post" enctype="multipart/form-data" class="form-horizontal">
-    <h3 id="general_informations">General informations</h3>
     <input type="hidden" name="@action" value="edit_task"/>
-    <div class="form-group">
-        <label for="name" class="col-sm-2 control-label">Name</label>
-        <div class="col-sm-10">
-            <input type="text" class="form-control" id="name" name="name" placeholder="title for this task" value="${task_data.get('name','')}">
-        </div>
-    </div>
-    <div class="form-group">
-        <label for="name" class="col-sm-2 control-label">Filetype</label>
-        <div class="col-sm-10">
-            <select class="form-control" id="@filetype" name="@filetype">
-                $for type in available_filetypes:
-                    <option value="$type"
-                        $if type == current_filetype:
-                            selected="selected"
-                    >$type</option>
-            </select>
-        </div>
-    </div>
-    <div class="form-group">
-        <label for="context" class="col-sm-2 control-label">Context</label>
-        <div class="col-sm-10">
-            <textarea id="context" class="code-editor form-control" name="context" data-x-language="rst" data-x-lines="10">${task_data.get('context','')}</textarea>
-        </div>
-    </div>
-    $if contains_is_html:
-        <div class="form-group">
-            <label for="contextIsHTML" class="col-sm-2 control-label">Is context written in HTML instead of restructuredText?</label>
-            <div class="col-sm-10">
-                <div class="checkbox"><label>
-                    <input type="checkbox" id="contextIsHTML" name="contextIsHTML"
-                        $if task_data.get('contextIsHTML',False):
-                            checked="checked"
-                    />&nbsp;
-                </label></div>
-            </div>
-        </div>
-    <div class="form-group">
-        <label for="author" class="col-sm-2 control-label">Author</label>
-        <div class="col-sm-10">
-            $if isinstance(task_data.get('author',[]),list):
-                $ a=', '.join(task_data.get('author',[]))
-            $else:
-                $ a=task_data.get('author',[])
-            <input type="text" class="form-control" id="author" name="author" placeholder="Your name" value="$a"/>
-        </div>
-    </div>
-    <div class="form-group">
-        <label for="author" class="col-sm-2 control-label">Grade weight (in comparison to other tasks)</label>
-        <div class="col-sm-10">
-            <input type="text" class="form-control" id="weight" name="weight" placeholder="1.00" value="${task_data.get('weight',1.00)}">
-        </div>
-    </div>
-    <div class="form-group">
-        <label for="accessible" class="col-sm-2 control-label">Accessible</label>
-        <div class="col-sm-10">
-            <label>
-                <input type="radio" value="false" name="accessible"
-                    $if task_data.get('accessible',True) == False:
-                        checked="checked"
-                /> Never
-            </label><br/>
-            <label>
-                <input type="radio" value="true" name="accessible"
-                    $if task_data.get('accessible',True) == True:
-                        checked="checked"
-                /> Always
-            </label><br/>
-            <label>
-                <input type="radio" value="custom" name="accessible"
-                    $if task_data.get('accessible',True) not in [True, False]:
-                        checked="checked"
-                /> Custom:
-            </label>
-            $ at = AccessibleTime(task_data.get('accessible',True))
-            <div class="row">
-                <div class="col-xs-2 col-lg-2"><label class="control-label">From</label></div>
-                <div class="col-xs-10 col-lg-4">
-                    <div class='input-group date' id='accessible_start_picker'>
-                        <input name="accessible_start" data-date-format="YYYY-MM-DD HH:mm:ss" value="${at.get_std_start_date()}" placeholder="2014-06-29 10:00" type='text' class="form-control" />
-                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-                    </div>
-                </div>
-                <div class="col-xs-2 col-lg-2"><label class="control-label">To</label></div>
-                <div class="col-xs-10 col-lg-4">
-                    <div class='input-group date' id='accessible_end_picker'>
-                        <input name="accessible_end" data-date-format="YYYY-MM-DD HH:mm:ss" value="${at.get_std_end_date()}" placeholder="2014-06-29 10:00" type='text' class="form-control" />
-                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-                    </div>
-                </div>
-            </div>
-            <script type="text/javascript">
-                \$(function() {
-                    \$('#accessible_start_picker').datetimepicker({useSeconds: true,sideBySide: true});
-                    \$('#accessible_end_picker').datetimepicker({useSeconds: true,sideBySide: true});
-                });
-            </script>
-        </div>
-    </div>
-    <h3 id="virtual_machine_setup">Virtual machine setup</h3>
-    <div class="form-group">
-        <label for="limit-time" class="col-sm-2 control-label">Timeout limit (in seconds)</label>
-        <div class="col-sm-10">
-            <input type="number" class="form-control" id="limit-time" name="limits[time]" placeholder="30" value="${task_data.get('limits',{}).get('time',30)}"/>
-        </div>
-    </div>
-    <div class="form-group">
-        <label for="limit-memory" class="col-sm-2 control-label">Memory limit (in megabytes)</label>
-        <div class="col-sm-10">
-            <input type="number" class="form-control" id="limit-memory" name="limits[memory]" placeholder="30" value="${task_data.get('limits',{}).get('memory',100)}"/>
-        </div>
-    </div>
-    <div class="form-group">
-        <label for="limit-output" class="col-sm-2 control-label">Output limit (in megabytes)</label>
-        <div class="col-sm-10">
-            <input type="number" class="form-control" id="limit-output" name="limits[output]" placeholder="2" value="${task_data.get('limits',{}).get('output',2)}"/>
-        </div>
-    </div>
-    <div class="form-group">
-        <label for="environment" class="col-sm-2 control-label">Environment</label>
-        <div class="col-sm-10">
-            <select id="environment" class="form-control" name="environment">
-                $for env in environments:
-                    <option value="$env"
-                        $if env == task_data.get('environment'):
-                            selected="selected"
-                    >$env</option>
-            </select>
-        </div>
-    </div>
-    $if contains_is_html:
-        <div class="form-group">
-            <label for="responseIsHTML" class="col-sm-2 control-label">Are the task's responses written in HTML instead of restructuredText?</label>
-            <div class="col-sm-10">
-                <div class="checkbox"><label>
-                    <input type="checkbox" id="responseIsHTML" name="responseIsHTML"
-                        $if task_data.get('responseIsHTML',False):
-                            checked="checked"
-                    />&nbsp;
-                </label></div>
-            </div>
-        </div>
-    <h3 id="subproblems">Subproblems</h3>
-    <div class="row" id="new_subproblem">
-        <div class="form-group">
-            <label for="new_subproblem_pid" class="col-sm-2 control-label">New problem id</label>
-            <div class="col-sm-3">
-                <input type="text" class="form-control" id="new_subproblem_pid" value="" placeholder="new-problem-id"/>
-            </div>
-            <label for="new_subproblem_type" class="col-sm-2 control-label">problem type</label>
-            <div class="col-sm-3">
-                <select class="form-control" id="new_subproblem_type">
-                    <option value="subproblem_code">code</option>
-                    <option value="subproblem_code_file">file upload</option>
-                    <option value="subproblem_match">match</option>
-                    <option value="subproblem_multiple_choice">multiple choice</option>
-                    <option value="subproblem_custom">custom</option>
-                </select>
-            </div>
-            <div class="col-sm-2">
-                <button type="button" class="btn btn-primary btn-block" onclick="studio_create_new_subproblem()">Add subproblem</button>
-            </div>
-        </div>
-    </div>
-    <h3 id="task_files">Task files</h3>
-    <a href="/admin/${course.get_id()}/files/$taskid" class="btn btn-info center-block">Download existing files</a>
-    <br/>
-    <br/>
-    <p>
-        You can upload here a .zip file containing files for this task. <b>Files contained in this zip file will replace all existing files</b>.<br/>
-        <b>This action is irreversible.</b><br/>
-        <br/>
-        If you do not upload any file, no actions will be done and the existing files will be kept.
-    </p>
-    <p class="text-center">
-        <input type="file" name="task_file"/>
-    </p>
+    
+    <div role="tabpanel">
+        <ul class="nav nav-tabs" id="edit_task_tabs" role="tablist">
+			<li role="presentation" class="active"><a href="#tab_basic" aria-controls="basicinfo" role="tab" data-toggle="tab">Basic settings</a></li>
+			<li role="presentation"><a href="#tab_container" aria-controls="container" role="tab" data-toggle="tab">Container setup</a></li>
+			<li role="presentation"><a href="#tab_subproblems" aria-controls="subproblems" role="tab" data-toggle="tab">Subproblems</a></li>
+			<li role="presentation"><a href="#tab_files" aria-controls="files" role="tab" data-toggle="tab">Task files</a></li>
+        </ul>
+		<div class="tab-content">
+			<div role="tabpanel" class="tab-pane active" id="tab_basic">
+                <div class="form-group">
+			        <label for="name" class="col-sm-2 control-label">Name</label>
+			        <div class="col-sm-10">
+			            <input type="text" class="form-control" id="name" name="name" placeholder="title for this task" value="${task_data.get('name','')}">
+			        </div>
+			    </div>
+			    <div class="form-group">
+			        <label for="name" class="col-sm-2 control-label">Filetype</label>
+			        <div class="col-sm-10">
+			            <select class="form-control" id="@filetype" name="@filetype">
+			                $for type in available_filetypes:
+			                    <option value="$type"
+			                        $if type == current_filetype:
+			                            selected="selected"
+			                    >$type</option>
+			            </select>
+			        </div>
+			    </div>
+			    <div class="form-group">
+			        <label for="context" class="col-sm-2 control-label">Context</label>
+			        <div class="col-sm-10">
+			            <textarea id="context" class="code-editor form-control" name="context" data-x-language="rst" data-x-lines="10">${task_data.get('context','')}</textarea>
+			        </div>
+			    </div>
+			    $if contains_is_html:
+			        <div class="form-group">
+			            <label for="contextIsHTML" class="col-sm-2 control-label">Is context written in HTML instead of restructuredText?</label>
+			            <div class="col-sm-10">
+			                <div class="checkbox"><label>
+			                    <input type="checkbox" id="contextIsHTML" name="contextIsHTML"
+			                        $if task_data.get('contextIsHTML',False):
+			                            checked="checked"
+			                    />&nbsp;
+			                </label></div>
+			            </div>
+			        </div>
+			    <div class="form-group">
+			        <label for="author" class="col-sm-2 control-label">Author</label>
+			        <div class="col-sm-10">
+			            $if isinstance(task_data.get('author',[]),list):
+			                $ a=', '.join(task_data.get('author',[]))
+			            $else:
+			                $ a=task_data.get('author',[])
+			            <input type="text" class="form-control" id="author" name="author" placeholder="Your name" value="$a"/>
+			        </div>
+			    </div>
+			    <div class="form-group">
+			        <label for="author" class="col-sm-2 control-label">Grade weight (in comparison to other tasks)</label>
+			        <div class="col-sm-10">
+			            <input type="text" class="form-control" id="weight" name="weight" placeholder="1.00" value="${task_data.get('weight',1.00)}">
+			        </div>
+			    </div>
+			    <div class="form-group">
+			        <label for="accessible" class="col-sm-2 control-label">Accessible</label>
+			        <div class="col-sm-10">
+			            <label>
+			                <input type="radio" value="false" name="accessible"
+			                    $if task_data.get('accessible',True) == False:
+			                        checked="checked"
+			                /> Never
+			            </label><br/>
+			            <label>
+			                <input type="radio" value="true" name="accessible"
+			                    $if task_data.get('accessible',True) == True:
+			                        checked="checked"
+			                /> Always
+			            </label><br/>
+			            <label>
+			                <input type="radio" value="custom" name="accessible"
+			                    $if task_data.get('accessible',True) not in [True, False]:
+			                        checked="checked"
+			                /> Custom:
+			            </label>
+			            $ at = AccessibleTime(task_data.get('accessible',True))
+			            <div class="row">
+			                <div class="col-xs-2 col-lg-2"><label class="control-label">From</label></div>
+			                <div class="col-xs-10 col-lg-4">
+			                    <div class='input-group date' id='accessible_start_picker'>
+			                        <input name="accessible_start" data-date-format="YYYY-MM-DD HH:mm:ss" value="${at.get_std_start_date()}" placeholder="2014-06-29 10:00" type='text' class="form-control" />
+			                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+			                    </div>
+			                </div>
+			                <div class="col-xs-2 col-lg-2"><label class="control-label">To</label></div>
+			                <div class="col-xs-10 col-lg-4">
+			                    <div class='input-group date' id='accessible_end_picker'>
+			                        <input name="accessible_end" data-date-format="YYYY-MM-DD HH:mm:ss" value="${at.get_std_end_date()}" placeholder="2014-06-29 10:00" type='text' class="form-control" />
+			                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+			                    </div>
+			                </div>
+			            </div>
+			            <script type="text/javascript">
+			                \$(function() {
+			                    \$('#accessible_start_picker').datetimepicker({useSeconds: true,sideBySide: true});
+			                    \$('#accessible_end_picker').datetimepicker({useSeconds: true,sideBySide: true});
+			                });
+			            </script>
+			        </div>
+			    </div>
+			    <button class="btn btn-primary btn-block task_edit_submit_button" type="button" onclick="studio_submit()"><span class="glyphicon glyphicon-download-alt"></span> Update</button>
+			</div>
+			
+			<div role="tabpanel" class="tab-pane" id="tab_container">
+                <div class="form-group">
+			        <label for="limit-time" class="col-sm-2 control-label">Timeout limit (in seconds)</label>
+			        <div class="col-sm-10">
+			            <input type="number" class="form-control" id="limit-time" name="limits[time]" placeholder="30" value="${task_data.get('limits',{}).get('time',30)}"/>
+			        </div>
+			    </div>
+			    <div class="form-group">
+			        <label for="limit-memory" class="col-sm-2 control-label">Memory limit (in megabytes)</label>
+			        <div class="col-sm-10">
+			            <input type="number" class="form-control" id="limit-memory" name="limits[memory]" placeholder="30" value="${task_data.get('limits',{}).get('memory',100)}"/>
+			        </div>
+			    </div>
+			    <div class="form-group">
+			        <label for="limit-output" class="col-sm-2 control-label">Output limit (in megabytes)</label>
+			        <div class="col-sm-10">
+			            <input type="number" class="form-control" id="limit-output" name="limits[output]" placeholder="2" value="${task_data.get('limits',{}).get('output',2)}"/>
+			        </div>
+			    </div>
+			    <div class="form-group">
+			        <label for="environment" class="col-sm-2 control-label">Environment</label>
+			        <div class="col-sm-10">
+			            <select id="environment" class="form-control" name="environment">
+			                $for env in environments:
+			                    <option value="$env"
+			                        $if env == task_data.get('environment'):
+			                            selected="selected"
+			                    >$env</option>
+			            </select>
+			        </div>
+			    </div>
+			    $if contains_is_html:
+			        <div class="form-group">
+			            <label for="responseIsHTML" class="col-sm-2 control-label">Are the task's responses written in HTML instead of restructuredText?</label>
+			            <div class="col-sm-10">
+			                <div class="checkbox"><label>
+			                    <input type="checkbox" id="responseIsHTML" name="responseIsHTML"
+			                        $if task_data.get('responseIsHTML',False):
+			                            checked="checked"
+			                    />&nbsp;
+			                </label></div>
+			            </div>
+			        </div>
+			    <button class="btn btn-primary btn-block task_edit_submit_button" type="button" onclick="studio_submit()"><span class="glyphicon glyphicon-download-alt"></span> Update</button>
+			</div>
+			
+			<div role="tabpanel" class="tab-pane" id="tab_subproblems">
+                <div class="row" id="new_subproblem">
+			        <div class="form-group">
+			            <label for="new_subproblem_pid" class="col-sm-2 control-label">New problem id</label>
+			            <div class="col-sm-3">
+			                <input type="text" class="form-control" id="new_subproblem_pid" value="" placeholder="new-problem-id"/>
+			            </div>
+			            <label for="new_subproblem_type" class="col-sm-2 control-label">problem type</label>
+			            <div class="col-sm-3">
+			                <select class="form-control" id="new_subproblem_type">
+			                    <option value="subproblem_code">code</option>
+			                    <option value="subproblem_code_file">file upload</option>
+			                    <option value="subproblem_match">match</option>
+			                    <option value="subproblem_multiple_choice">multiple choice</option>
+			                    <option value="subproblem_custom">custom</option>
+			                </select>
+			            </div>
+			            <div class="col-sm-2">
+			                <button type="button" class="btn btn-primary btn-block" onclick="studio_create_new_subproblem()">Add subproblem</button>
+			            </div>
+			        </div>
+			    </div>
+			    <button class="btn btn-primary btn-block task_edit_submit_button" type="button" onclick="studio_submit()"><span class="glyphicon glyphicon-download-alt"></span> Update</button>
+			</div>
+			
+			<div role="tabpanel" class="tab-pane" id="tab_files">
+                <a href="/admin/${course.get_id()}/files/$taskid" class="btn btn-info center-block">Download existing files</a>
+			    <br/>
+			    <br/>
+			    <p>
+			        You can upload here a .zip file containing files for this task. <b>Files contained in this zip file will replace all existing files</b>.<br/>
+			        <b>This action is irreversible.</b><br/>
+			        <br/>
+			        If you do not upload any file, no actions will be done and the existing files will be kept.
+			    </p>
+			    <p class="text-center">
+			        <input type="file" name="task_file"/>
+			    </p>
+			    <button class="btn btn-primary btn-block task_edit_submit_button" type="button" onclick="studio_submit()"><span class="glyphicon glyphicon-download-alt"></span> Update</button>
+			</div>
+		</div>
+	</div>
 </form>
 
 

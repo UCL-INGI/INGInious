@@ -81,30 +81,30 @@ function studio_submit()
             if ("status" in data && data["status"] == "ok")
             {
             	studio_display_task_submit_message("Task saved.", "success", true);
-            	$('#task_edit_submit_button').attr('disabled', false);
+            	$('.task_edit_submit_button').attr('disabled', false);
             	studio_submitting = false;
             }
             else if ("message" in data)
             {
             	studio_display_task_submit_message(data["message"], "danger", true);
-            	$('#task_edit_submit_button').attr('disabled', false);
+            	$('.task_edit_submit_button').attr('disabled', false);
             	studio_submitting = false;
             }
             else
             {
             	studio_display_task_submit_message("An internal error occured", "danger", true);
-            	$('#task_edit_submit_button').attr('disabled', false);
+            	$('.task_edit_submit_button').attr('disabled', false);
             	studio_submitting = false;
             }
         },
     	error: function()
         {
     		studio_display_task_submit_message("An internal error occured", "danger", true);
-    		$('#task_edit_submit_button').attr('disabled', false);
+    		$('.task_edit_submit_button').attr('disabled', false);
     		studio_submitting = false;
         }
     });
-	$('#task_edit_submit_button').attr('disabled', true);
+	$('.task_edit_submit_button').attr('disabled', true);
 }
 
 /**
