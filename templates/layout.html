@@ -63,7 +63,9 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 
 $if "header" in content:
     $:content.header
-    
+
+$:template_helper.call('css')
+$:template_helper.call('javascript_header')
 $:template_helper.call('header_hook')
 </head>
 
@@ -127,5 +129,6 @@ $:template_helper.call('header_hook')
     <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript">google.load('visualization', '1.0', {'packages':['corechart']});</script>
+    $:template_helper.call('javascript_footer')
 </body>
 </html>

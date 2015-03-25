@@ -63,7 +63,7 @@ class DownloadSubmissionFiles(object):
             raise web.notfound(renderer.notfound("There's no submission that matches your request"))
         try:
             tmpfile = tempfile.TemporaryFile()
-            tar = tarfile.open(fileobj=tmpfile, mode='w:')
+            tar = tarfile.open(fileobj=tmpfile, mode='w:gz')
 
             for submission in submissions:
                 submission = get_input_from_submission(submission)

@@ -18,6 +18,8 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Helper for the templates """
 
+import web
+
 from frontend.base import add_to_template_globals
 import frontend.pages.course_admin.utils
 from frontend.plugins.plugin_manager import PluginManager
@@ -36,7 +38,11 @@ class TemplateHelper(object):
     _instance = None
     _base_helpers = {"header_hook": (lambda **kwargs: generic_hook('header_html', **kwargs)),
                      "course_menu": (lambda **kwargs: generic_hook('course_menu', **kwargs)),
+                     "javascript_header": (lambda **_: TemplateHelper._javascript_helper("header")),
+                     "javascript_footer": (lambda **_: TemplateHelper._javascript_helper("footer")),
+                     "css": (lambda **_: TemplateHelper._css_helper()),
                      "course_admin_menu": frontend.pages.course_admin.utils.get_menu}
+    WEB_CTX_KEY = "inginious_tpl_helper"
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
@@ -58,3 +64,44 @@ class TemplateHelper(object):
             return ""
         else:
             return helpers.get(name, None)(**kwargs)
+
+    def add_javascript(self, link, position="footer"):
+        """ Add a javascript file to load. Position can either be "header" or "footer" """
+        self._get_ctx()["javascript"][position].append(link)
+
+    def add_css(self, link):
+        """ Add a css file to load """
+        self._get_ctx()["css"].append(link)
+
+    @classmethod
+    def _javascript_helper(cls, position):
+        """ Add javascript links for the current page and for the plugins """
+        if position not in ["header", "footer"]:
+            position = "footer"
+
+        # Load javascript files from plugins
+        if position == "header":
+            entries = [entry for entry in PluginManager.get_instance().call_hook("javascript_header") if entry is not None]
+        else:
+            entries = [entry for entry in PluginManager.get_instance().call_hook("javascript_footer") if entry is not None]
+        # Load javascript for the current page
+        entries += cls.get_instance()._get_ctx()["javascript"][position]
+        entries = ["<script src='" + entry + "' type='text/javascript' charset='utf-8'></script>" for entry in entries]
+        return "\n".join(entries)
+
+    @classmethod
+    def _css_helper(cls):
+        """ Add CSS links for the current page and for the plugins """
+        entries = [entry for entry in PluginManager.get_instance().call_hook("css") if entry is not None]
+        # Load javascript for the current page
+        entries += cls.get_instance()._get_ctx()["css"]
+        entries = ["<link href='" + entry + "' rel='stylesheet'>" for entry in entries]
+        return "\n".join(entries)
+
+    def _get_ctx(self):
+        """ Get web.ctx object for the Template helper """
+        if self.WEB_CTX_KEY not in web.ctx:
+            web.ctx[self.WEB_CTX_KEY] = {
+                "javascript": {"footer": [], "header": []},
+                "css": []}
+        return web.ctx.get(self.WEB_CTX_KEY)
