@@ -92,6 +92,7 @@ function registerCodeEditor(textarea,lang,lines)
         styleActiveLine: true,
         matchBrackets: true,
         autoCloseBrackets: true,
+        lineWrapping: true,
         gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter", "CodeMirror-lint-markers"],
         indentUnit: 4,
         viewportMargin: Infinity,
