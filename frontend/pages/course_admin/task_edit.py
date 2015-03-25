@@ -105,7 +105,7 @@ class CourseEditTask(object):
                     insert_dict = insert_dict[i]
             for f in files:
                 # Do not follow symlinks and do not take into account task describers
-                if not os.path.islink(os.path.join(root, f)) and not (root == path and os.path.splitext(f)[0] == "task" and os.path.splitext(f)[1] in get_available_task_file_managers().keys()):
+                if not os.path.islink(os.path.join(root, f)) and not (root == path and os.path.splitext(f)[0] == "task" and os.path.splitext(f)[1][1:] in get_available_task_file_managers().keys()):
                     insert_dict[f] = None
 
         def recur_print(current, level, current_name):
