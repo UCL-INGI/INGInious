@@ -1,0 +1,332 @@
+$def with (contains_is_html)
+
+<!-- these divs are templates used by the javascript code to display problems -->
+<div id="subproblem_templates" style="display:none">
+    <div id="subproblem_code">
+        <div class="well row" id="subproblem_well_PID">
+            <input type="hidden" class="subproblem_order" name="problem[PID][@order]" value="ORDER"/>
+            <div class="form-group">
+                <label for="pid-PID" class="col-sm-2 control-label">Problem id</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="pid-PID" disabled="disabled" value="PID"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="name-PID" class="col-sm-2 control-label">Name</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="A title for this question"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="header-PID" class="col-sm-2 control-label">Context</label>
+                <div class="col-sm-10">
+                    <textarea id="header-PID" class="form-control" name="problem[PID][header]"></textarea>
+                </div>
+            </div>
+            $if contains_is_html:
+                <div class="form-group">
+                    <label for="headerIsHTML-PID" class="col-sm-2 control-label">Is context written in HTML instead of restructuredText?</label>
+                    <div class="col-sm-10">
+                        <div class="checkbox"><label>
+                            <input type="checkbox" id="headerIsHTML-PID" name="problem[PID][headerIsHTML]"/>&nbsp;
+                        </label></div>
+                    </div>
+                </div>
+            <div class="form-group">
+                <label for="language-PID" class="col-sm-2 control-label">Language</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="language-PID" name="problem[PID][language]" placeholder="Language used in this question (c/c++/java/python/oz/...)"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="type-PID" class="col-sm-2 control-label">Type</label>
+                <div class="col-sm-10">
+                    <select class="form-control" id="type-PID" name="problem[PID][type]">
+                        <option value="code">Multiline code</option>
+                        <option value="code-single-line">Single-line code</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-4">
+                    <button class="btn btn-danger btn-sm btn-block" type="button" onclick="studio_subproblem_delete('PID')"><span class="glyphicon glyphicon-remove-sign"></span> Delete subproblem</button>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_subproblem_up('PID')"><span class="glyphicon glyphicon-arrow-up"></span> Up</button>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_subproblem_down('PID')"><span class="glyphicon glyphicon-arrow-down"></span> Down</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="subproblem_code_file">
+        <div class="well row" id="subproblem_well_PID">
+            <input type="hidden" class="subproblem_order" name="problem[PID][@order]" value="ORDER"/>
+            <div class="form-group">
+                <label for="pid-PID" class="col-sm-2 control-label">Problem id</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="pid-PID" disabled="disabled" value="PID"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="name-PID" class="col-sm-2 control-label">Name</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="A title for this question"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="header-PID" class="col-sm-2 control-label">Context</label>
+                <div class="col-sm-10">
+                    <textarea id="header-PID" class="form-control" name="problem[PID][header]"></textarea>
+                </div>
+            </div>
+            $if contains_is_html:
+                <div class="form-group">
+                    <label for="headerIsHTML-PID" class="col-sm-2 control-label">Is context written in HTML instead of restructuredText?</label>
+                    <div class="col-sm-10">
+                        <div class="checkbox"><label>
+                            <input type="checkbox" id="headerIsHTML-PID" name="problem[PID][headerIsHTML]"/>&nbsp;
+                        </label></div>
+                    </div>
+                </div>
+            <div class="form-group">
+                <label for="extensions-PID" class="col-sm-2 control-label">Allowed file extensions (including the dot, separated by spaces)</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="extensions-PID" name="problem[PID][allowed_exts]" placeholder=".txt,.zip,.gz"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="maxsize-PID" class="col-sm-2 control-label">Maximum file size (in bytes)</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="maxsize-PID" name="problem[PID][max_size]" placeholder="1000000"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">Type</label>
+                <div class="col-sm-10">
+                    <select class="form-control" disabled="disabled">
+                        <option value="code-file">File upload</option>
+                    </select>
+                    <input type="hidden" name="problem[PID][type]" value="code-file"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-4">
+                    <button class="btn btn-danger btn-sm btn-block" type="button" onclick="studio_subproblem_delete('PID')"><span class="glyphicon glyphicon-remove-sign"></span> Delete subproblem</button>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_subproblem_up('PID')"><span class="glyphicon glyphicon-arrow-up"></span> Up</button>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_subproblem_down('PID')"><span class="glyphicon glyphicon-arrow-down"></span> Down</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="subproblem_match">
+        <div class="well row" id="subproblem_well_PID">
+            <input type="hidden" name="problem[PID][type]" value="match"/>
+            <input type="hidden" class="subproblem_order" name="problem[PID][@order]" value="ORDER"/>
+            <div class="form-group">
+                <label for="pid-PID" class="col-sm-2 control-label">Problem id</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="pid-PID" disabled="disabled" value="PID"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="name-PID" class="col-sm-2 control-label">Name</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="A title for this question"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="header-PID" class="col-sm-2 control-label">Context</label>
+                <div class="col-sm-10">
+                    <textarea id="header-PID" class="form-control" name="problem[PID][header]"></textarea>
+                </div>
+            </div>
+            $if contains_is_html:
+                <div class="form-group">
+                    <label for="headerIsHTML-PID" class="col-sm-2 control-label">Is context written in HTML instead of restructuredText?</label>
+                    <div class="col-sm-10">
+                        <div class="checkbox"><label>
+                            <input type="checkbox" id="headerIsHTML-PID" name="problem[PID][headerIsHTML]"/>&nbsp;
+                        </label></div>
+                    </div>
+                </div>
+            <div class="form-group">
+                <label for="answer-PID" class="col-sm-2 control-label">Answer</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="answer-PID" name="problem[PID][answer]" placeholder="Answer of this question"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-4">
+                    <button class="btn btn-danger btn-sm btn-block" type="button" onclick="studio_subproblem_delete('PID')"><span class="glyphicon glyphicon-remove-sign"></span> Delete subproblem</button>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_subproblem_up('PID')"><span class="glyphicon glyphicon-arrow-up"></span> Up</button>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_subproblem_down('PID')"><span class="glyphicon glyphicon-arrow-down"></span> Down</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="subproblem_multiple_choice">
+        <div class="well row" id="subproblem_well_PID">
+            <input type="hidden" name="problem[PID][type]" value="multiple-choice"/>
+            <input type="hidden" class="subproblem_order" name="problem[PID][@order]" value="ORDER"/>
+            <div class="form-group">
+                <label for="pid-PID" class="col-sm-2 control-label">Problem id</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="pid-PID" disabled="disabled" value="PID"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="name-PID" class="col-sm-2 control-label">Name</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="A title for this question"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="header-PID" class="col-sm-2 control-label">Context</label>
+                <div class="col-sm-10">
+                    <textarea id="header-PID" class="form-control" name="problem[PID][header]"></textarea>
+                </div>
+            </div>
+            $if contains_is_html:
+                <div class="form-group">
+                    <label for="headerIsHTML-PID" class="col-sm-2 control-label">Is context written in HTML instead of restructuredText?</label>
+                    <div class="col-sm-10">
+                        <div class="checkbox"><label>
+                            <input type="checkbox" id="headerIsHTML-PID" name="problem[PID][headerIsHTML]"/>&nbsp;
+                        </label></div>
+                    </div>
+                </div>
+            <div class="form-group">
+                <label for="multiple-PID" class="col-sm-2 control-label">Can select multiple answers</label>
+                <div class="col-sm-10">
+                    <div class="checkbox"><label>
+                        <input type="checkbox" id="multiple-PID" name="problem[PID][multiple]"/>&nbsp;
+                    </label></div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="centralize-PID" class="col-sm-2 control-label">Display error message at the top of the page instead of above this subproblem?</label>
+                <div class="col-sm-10">
+                    <div class="checkbox"><label>
+                        <input type="checkbox" id="centralize-PID" name="problem[PID][centralize]"/>&nbsp;
+                    </label></div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="limit-PID" class="col-sm-2 control-label">Number of choices to display (0 = all choices)</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="limit-PID" name="problem[PID][limit]" placeholder="0"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="choices-PID" class="col-sm-2 control-label">Choices</label>
+                <div class="col-sm-10">
+                    <table id="choices-PID" class="table table-condensed table-striped">
+                        <tr>
+                            <th>Choice</th>
+                            $if contains_is_html:
+                                <th>Is text written in HTML instead of RST?</th>
+                            <th>Valid?</th>
+                            <th></th>
+                        </tr>
+                        <tr id="add-choices-PID">
+                            <td colspan="3"><button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_create_choice('PID',{})"><span class="glyphicon glyphicon-add-sign"></span> Add new choice</button></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-4">
+                    <button class="btn btn-danger btn-sm btn-block" type="button" onclick="studio_subproblem_delete('PID')"><span class="glyphicon glyphicon-remove-sign"></span> Delete subproblem</button>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_subproblem_up('PID')"><span class="glyphicon glyphicon-arrow-up"></span> Up</button>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_subproblem_down('PID')"><span class="glyphicon glyphicon-arrow-down"></span> Down</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <table>
+        <tr id="subproblem_multiple_choice_choice">
+            <td>
+                <textarea class="form-control subproblem_multiple_choice_text" name="problem[PID][choices][CHOICE][text]" placeholder="The name of this choice"></textarea>
+            </td>
+            $if contains_is_html:
+                <td>
+                    <div class="checkbox"><label>
+                        <input type="checkbox" class="subproblem_multiple_choice_html" name="problem[PID][choices][CHOICE][textIsHTML]"/>&nbsp;
+                    </label></div>
+                </td>
+            <td>
+                <div class="checkbox"><label>
+                    <input type="checkbox" class="subproblem_multiple_choice_valid" name="problem[PID][choices][CHOICE][valid]"/>&nbsp;
+                </label></div>
+            </td>
+            <td>
+                <button class="btn btn-danger btn-sm btn-block" type="button" onclick="studio_delete_choice('PID',CHOICE)"><span class="glyphicon glyphicon-remove-sign"></span> Delete</button>
+            </td>
+        </tr>
+    </table>
+    <div id="subproblem_custom">
+        <div class="well row" id="subproblem_well_PID">
+            <input type="hidden" name="problem[PID][type]" value="custom"/>
+            <input type="hidden" class="subproblem_order" name="problem[PID][@order]" value="ORDER"/>
+            
+            <div class="form-group">
+                <label for="pid-PID" class="col-sm-2 control-label">Problem id</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="pid-PID" disabled="disabled" value="PID"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="name-PID" class="col-sm-2 control-label">Name</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="A title for this question"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="header-PID" class="col-sm-2 control-label">Context</label>
+                <div class="col-sm-10">
+                    <textarea id="header-PID" class="form-control" name="problem[PID][header]"></textarea>
+                </div>
+            </div>
+            $if contains_is_html:
+                <div class="form-group">
+                    <label for="headerIsHTML-PID" class="col-sm-2 control-label">Is context written in HTML instead of restructuredText?</label>
+                    <div class="col-sm-10">
+                        <div class="checkbox"><label>
+                            <input type="checkbox" id="headerIsHTML-PID" name="problem[PID][headerIsHTML]"/>&nbsp;
+                        </label></div>
+                    </div>
+                </div>
+            <div class="form-group">
+                <label for="custom-PID" class="col-sm-2 control-label">Custom data (YAML)</label>
+                <div class="col-sm-10">
+                    <textarea id="custom-PID" class="form-control" name="problem[PID][custom]"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-4">
+                    <button class="btn btn-danger btn-sm btn-block" type="button" onclick="studio_subproblem_delete('PID')"><span class="glyphicon glyphicon-remove-sign"></span> Delete subproblem</button>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_subproblem_up('PID')"><span class="glyphicon glyphicon-arrow-up"></span> Up</button>
+                </div>
+                <div class="col-sm-4">
+                    <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_subproblem_down('PID')"><span class="glyphicon glyphicon-arrow-down"></span> Down</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

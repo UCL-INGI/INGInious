@@ -1,0 +1,101 @@
+$def with (task_data,available_filetypes,AccessibleTime,current_filetype,contains_is_html)
+
+<div class="form-group">
+    <label for="name" class="col-sm-2 control-label">Name</label>
+    <div class="col-sm-10">
+        <input type="text" class="form-control" id="name" name="name" placeholder="title for this task" value="${task_data.get('name','')}">
+    </div>
+</div>
+<div class="form-group">
+    <label for="name" class="col-sm-2 control-label">Filetype</label>
+    <div class="col-sm-10">
+        <select class="form-control" id="@filetype" name="@filetype">
+            $for type in available_filetypes:
+                <option value="$type"
+                    $if type == current_filetype:
+                        selected="selected"
+                >$type</option>
+        </select>
+    </div>
+</div>
+<div class="form-group">
+    <label for="context" class="col-sm-2 control-label">Context</label>
+    <div class="col-sm-10">
+        <textarea id="context" class="code-editor form-control" name="context" data-x-language="rst" data-x-lines="10">${task_data.get('context','')}</textarea>
+    </div>
+</div>
+$if contains_is_html:
+    <div class="form-group">
+        <label for="contextIsHTML" class="col-sm-2 control-label">Is context written in HTML instead of restructuredText?</label>
+        <div class="col-sm-10">
+            <div class="checkbox"><label>
+                <input type="checkbox" id="contextIsHTML" name="contextIsHTML"
+                    $if task_data.get('contextIsHTML',False):
+                        checked="checked"
+                />&nbsp;
+            </label></div>
+        </div>
+    </div>
+<div class="form-group">
+    <label for="author" class="col-sm-2 control-label">Author</label>
+    <div class="col-sm-10">
+        $if isinstance(task_data.get('author',[]),list):
+            $ a=', '.join(task_data.get('author',[]))
+        $else:
+            $ a=task_data.get('author',[])
+        <input type="text" class="form-control" id="author" name="author" placeholder="Your name" value="$a"/>
+    </div>
+</div>
+<div class="form-group">
+    <label for="author" class="col-sm-2 control-label">Grade weight (in comparison to other tasks)</label>
+    <div class="col-sm-10">
+        <input type="text" class="form-control" id="weight" name="weight" placeholder="1.00" value="${task_data.get('weight',1.00)}">
+    </div>
+</div>
+<div class="form-group">
+    <label for="accessible" class="col-sm-2 control-label">Accessible</label>
+    <div class="col-sm-10">
+        <label>
+            <input type="radio" value="false" name="accessible"
+                $if task_data.get('accessible',True) == False:
+                    checked="checked"
+            /> Never
+        </label><br/>
+        <label>
+            <input type="radio" value="true" name="accessible"
+                $if task_data.get('accessible',True) == True:
+                    checked="checked"
+            /> Always
+        </label><br/>
+        <label>
+            <input type="radio" value="custom" name="accessible"
+                $if task_data.get('accessible',True) not in [True, False]:
+                    checked="checked"
+            /> Custom:
+        </label>
+        $ at = AccessibleTime(task_data.get('accessible',True))
+        <div class="row">
+            <div class="col-xs-2 col-lg-2"><label class="control-label">From</label></div>
+            <div class="col-xs-10 col-lg-4">
+                <div class='input-group date' id='accessible_start_picker'>
+                    <input name="accessible_start" data-date-format="YYYY-MM-DD HH:mm:ss" value="${at.get_std_start_date()}" placeholder="2014-06-29 10:00" type='text' class="form-control" />
+                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                </div>
+            </div>
+            <div class="col-xs-2 col-lg-2"><label class="control-label">To</label></div>
+            <div class="col-xs-10 col-lg-4">
+                <div class='input-group date' id='accessible_end_picker'>
+                    <input name="accessible_end" data-date-format="YYYY-MM-DD HH:mm:ss" value="${at.get_std_end_date()}" placeholder="2014-06-29 10:00" type='text' class="form-control" />
+                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript">
+            \$(function() {
+                \$('#accessible_start_picker').datetimepicker({useSeconds: true,sideBySide: true});
+                \$('#accessible_end_picker').datetimepicker({useSeconds: true,sideBySide: true});
+            });
+        </script>
+    </div>
+</div>
+<button class="btn btn-primary btn-block task_edit_submit_button" type="button" onclick="studio_submit()"><span class="glyphicon glyphicon-download-alt"></span> Update</button>

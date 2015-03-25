@@ -1,0 +1,50 @@
+$def with (file_list)
+
+<table class="table table-bordered table-condensed">
+    <tr>
+        <th class="col-sm-8">Path</th>
+        <th class="col-sm-1">Download</th>
+        <th class="col-sm-1">Edit</th>
+        <th class="col-sm-1">Move</th>
+        <th class="col-sm-1">Delete</th>
+    </tr>
+    <tr>
+        <td><span class="glyphicon glyphicon-folder-open"></span>&nbsp;/</td>
+        <td><a href="#" onclick="studio_task_edit_downloadfile('/'); return false;" class="btn btn-sm btn-primary btn-block" title="download"><span class="glyphicon glyphicon-cloud-download"></span></a></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+    $for level, is_directory, name, complete_name in file_list:
+        <tr data-x-path="$complete_name">
+            <td>
+                $for i in range(level+1):
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                $if is_directory:
+                    <span class="glyphicon glyphicon-folder-open"></span>&nbsp;
+                $name
+            </td>
+            <td>
+                <a href="#" onclick="studio_task_edit_downloadfile('$complete_name'); return false;" class="btn btn-sm btn-primary btn-block" title="download"><span class="glyphicon glyphicon-cloud-download"></span></a>
+            </td>
+            <td>
+                $if not is_directory:
+                    <a href="#" onclick="studio_task_edit_editfile('$complete_name'); return false;" class="btn btn-sm btn-primary btn-block" title="edit"><span class="glyphicon glyphicon-edit"></span></a>
+            </td>
+            <td>
+                <a href="#" onclick="studio_task_edit_renamefile('$complete_name'); return false;" class="btn btn-sm btn-info btn-block" title="rename"><span class="glyphicon glyphicon-transfer"></span></a>
+            </td>
+            <td>
+                $if not is_directory:
+                    <a href="#" onclick="studio_task_edit_deletefile('$complete_name',false); return false;" class="btn btn-sm btn-danger btn-block" title="delete"><span class="glyphicon glyphicon-trash"></span></a>
+                $else:
+                    <a href="#" onclick="studio_task_edit_deletefile('$complete_name',true); return false;" class="btn btn-sm btn-danger btn-block" title="delete"><span class="glyphicon glyphicon-trash"></span></a>
+            </td>
+        </tr>
+    <tr>
+        <th colspan="5" style="text-align:right">
+            <a href="#" onclick="studio_task_edit_newfile(); return false;" class="btn btn-sm btn-info">Create a new file</a>
+            <a href="#" onclick="studio_task_edit_upfile(); return false;" class="btn btn-sm btn-info">Upload a file</a>
+        </th>
+    </tr>                  
+</table>
