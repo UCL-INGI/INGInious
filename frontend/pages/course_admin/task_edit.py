@@ -72,7 +72,7 @@ class CourseEditTask(object):
                         del problem_copy[i]
                 problem["custom"] = common.custom_yaml.dump(problem_copy)
 
-        return renderer.admin_course_edit_task(
+        return renderer.course_admin.edit_task(
             course,
             taskid,
             task_data,

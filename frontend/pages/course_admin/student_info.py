@@ -57,4 +57,4 @@ class CourseStudentInfoPage(object):
                 result[taskdata["taskid"]]["grade"] = taskdata["grade"]
         if "csv" in web.input():
             return make_csv(result)
-        return renderer.admin_course_student(course, username, result)
+        return renderer.course_admin.student(course, username, result)

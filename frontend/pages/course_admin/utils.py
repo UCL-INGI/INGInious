@@ -153,4 +153,4 @@ def get_menu(course, current):
     # Hook should return a tuple (link,name) where link is the relative link from the index of the course administration.
     additionnal_entries = [entry for entry in PluginManager.get_instance().call_hook('course_admin_menu', course=course) if entry is not None]
 
-    return custom_renderer.admin_course_menu(course, default_entries + additionnal_entries, current)
+    return custom_renderer.course_admin.menu(course, default_entries + additionnal_entries, current)

@@ -45,26 +45,26 @@ $var Column: $:ColumnF()
         </ul>
 		<div class="tab-content">
 			<div role="tabpanel" class="tab-pane active" id="tab_basic">
-                $:include.admin_course_edit_tabs.basic(task_data,available_filetypes,AccessibleTime,current_filetype,contains_is_html)
+                $:include.course_admin.edit_tabs.basic(task_data,available_filetypes,AccessibleTime,current_filetype,contains_is_html)
 			</div>
 			
 			<div role="tabpanel" class="tab-pane" id="tab_container">
-                $:include.admin_course_edit_tabs.container(task_data,environments,contains_is_html)
+                $:include.course_admin.edit_tabs.container(task_data,environments,contains_is_html)
 			</div>
 			
 			<div role="tabpanel" class="tab-pane" id="tab_subproblems">
-				$:include.admin_course_edit_tabs.subproblems()
+				$:include.course_admin.edit_tabs.subproblems()
 			</div>
 			
 			<div role="tabpanel" class="tab-pane" id="tab_files">
-                $:include.admin_course_edit_tabs.files(file_list)
+                $:include.course_admin.edit_tabs.files(file_list)
 			</div>
 		</div>
 	</div>
 </form>
 
 <!-- Must be out of the form -->
-$:include.admin_course_edit_tabs.subproblem_templates(contains_is_html)
+$:include.course_admin.edit_tabs.subproblem_templates(contains_is_html)
 
 <!-- Init the javascript for the subproblem tab -->
 <script type="text/javascript">

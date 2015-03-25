@@ -84,4 +84,4 @@ class CourseTaskListPage(object):
                 result[entry["_id"]]["succeeded"] = entry["succeeded"]
         if "csv" in web.input():
             return make_csv(result)
-        return renderer.admin_course_task_list(course, result, errors)
+        return renderer.course_admin.task_list(course, result, errors)

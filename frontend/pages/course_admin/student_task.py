@@ -46,7 +46,7 @@ class CourseStudentTaskPage(object):
         data = [dict(f.items() + [("url", self.submission_url_generator(course, str(f["_id"])))]) for f in data]
         if "csv" in web.input():
             return make_csv(data)
-        return renderer.admin_course_student_task(course, username, task, data)
+        return renderer.course_admin.student_task(course, username, task, data)
 
 
 class SubmissionDownloadFeedback(object):
