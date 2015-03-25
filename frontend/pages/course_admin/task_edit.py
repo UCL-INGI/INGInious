@@ -84,7 +84,42 @@ class CourseEditTask(object):
             self.contains_is_html(task_data),
             current_filetype,
             available_filetypes,
-            AccessibleTime)
+            AccessibleTime,
+            self.get_task_filelist(courseid, taskid))
+
+    def get_task_filelist(self, courseid, taskid):
+        """ Returns a flattened version of all the files inside the task directory, excluding the files task.*.
+            It returns a list of tuples, of the type (Integer Level, Boolean IsDirectory, String Name, String CompleteName)
+        """
+        path = os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid)
+        if not os.path.exists(path):
+            return []
+        result_dict = {}
+        for root, _, files in os.walk(path):
+            rel_root = os.path.normpath(os.path.relpath(root, path))
+            insert_dict = result_dict
+            if rel_root != ".":
+                for i in rel_root.split(os.path.sep):
+                    if i not in insert_dict:
+                        insert_dict[i] = {}
+                    insert_dict = insert_dict[i]
+            for f in files:
+                # Do not follow symlinks and do not take into account task describers
+                if not os.path.islink(os.path.join(root, f)) and not (root == path and os.path.splitext(f)[0] == "task" and os.path.splitext(f)[1] in get_available_task_file_managers().keys()):
+                    insert_dict[f] = None
+
+        def recur_print(current, level, current_name):
+            iteritems = sorted(current.iteritems())
+            # First, the files
+            recur_print.flattened += [(level, False, f, os.path.join(current_name, f)) for f, t in iteritems if t is None]
+            # Then, the dirs
+            for name, sub in iteritems:
+                if sub is not None:
+                    recur_print.flattened.append((level, True, name, os.path.join(current_name, name)))
+                    recur_print(sub, level + 1, os.path.join(current_name, name))
+        recur_print.flattened = []
+        recur_print(result_dict, 0, '')
+        return recur_print.flattened
 
     @classmethod
     def contains_is_html(cls, data):
