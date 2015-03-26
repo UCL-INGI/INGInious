@@ -19,6 +19,7 @@
 """ Allow to create/edit/delete/move/download files associated to tasks """
 import mimetypes
 import os.path
+import shutil
 import tarfile
 import tempfile
 
@@ -26,6 +27,8 @@ import web
 
 from common.base import INGIniousConfiguration, id_checker
 from common.task_file_managers.manage import get_available_task_file_managers
+from frontend.base import get_template_renderer
+from frontend.custom.courses import FrontendCourse
 from frontend.pages.course_admin.utils import get_course_and_check_rights
 
 
@@ -43,20 +46,105 @@ class CourseTaskFiles(object):
         request = web.input()
         if request.get("action") == "download" and request.get('path') is not None:
             return self.action_download(courseid, taskid, request.get('path'))
+        elif request.get("action") == "delete" and request.get('path') is not None:
+            return self.action_delete(courseid, taskid, request.get('path'))
+        else:
+            return self.show_tab_file(courseid, taskid)
 
-    def action_download(self, courseid, taskid, path):
-        """ Download a file or a directory """
+    def show_tab_file(self, courseid, taskid, error=False):
+        """ Return the file tab """
+        return get_template_renderer('templates/').course_admin.edit_tabs.files(FrontendCourse(courseid), taskid, self.get_task_filelist(courseid, taskid))
+
+    @classmethod
+    def get_task_filelist(cls, courseid, taskid):
+        """ Returns a flattened version of all the files inside the task directory, excluding the files task.* and hidden files.
+            It returns a list of tuples, of the type (Integer Level, Boolean IsDirectory, String Name, String CompleteName)
+        """
+        path = os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid)
+        if not os.path.exists(path):
+            return []
+        result_dict = {}
+        for root, _, files in os.walk(path):
+            rel_root = os.path.normpath(os.path.relpath(root, path))
+            insert_dict = result_dict
+            if rel_root != ".":
+                hidden_dir = False
+                for i in rel_root.split(os.path.sep):
+                    if i.startswith("."):
+                        hidden_dir = True
+                        break
+                    if i not in insert_dict:
+                        insert_dict[i] = {}
+                    insert_dict = insert_dict[i]
+                if hidden_dir:
+                    continue
+            for f in files:
+                # Do not follow symlinks and do not take into account task describers
+                if not os.path.islink(
+                    os.path.join(
+                        root, f)) and not (
+                    root == path and os.path.splitext(f)[0] == "task" and os.path.splitext(f)[1][
+                        1:] in get_available_task_file_managers().keys()) and not f.startswith("."):
+                    insert_dict[f] = None
+
+        def recur_print(current, level, current_name):
+            iteritems = sorted(current.iteritems())
+            # First, the files
+            recur_print.flattened += [(level, False, f, os.path.join(current_name, f)) for f, t in iteritems if t is None]
+            # Then, the dirs
+            for name, sub in iteritems:
+                if sub is not None:
+                    recur_print.flattened.append((level, True, name, os.path.join(current_name, name)))
+                    recur_print(sub, level + 1, os.path.join(current_name, name))
+
+        recur_print.flattened = []
+        recur_print(result_dict, 0, '')
+        return recur_print.flattened
+
+    def verify_path(self, courseid, taskid, path):
+        """ Return the real wanted path (relative to the INGInious root) or None if the path is not valid/allowed """
+
         task_dir_path = os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid)
         # verify that the dir exists
         if not os.path.exists(task_dir_path):
-            raise web.notfound()
+            return None
         wanted_path = os.path.normpath(os.path.join(task_dir_path, path))
         rel_wanted_path = os.path.relpath(wanted_path, task_dir_path)  # normalized
         # verify that the path we want exists and is withing the directory we want
         if not os.path.exists(wanted_path) or os.path.islink(wanted_path) or rel_wanted_path.startswith('..'):
-            raise web.notfound()
+            return None
         # do not allow touching the task.* file
         if os.path.splitext(rel_wanted_path)[0] == "task" and os.path.splitext(rel_wanted_path)[1][1:] in get_available_task_file_managers().keys():
+            return None
+        # do not allow hidden dir/files
+        if rel_wanted_path != ".":
+            for i in rel_wanted_path.split(os.path.sep):
+                if i.startswith("."):
+                    return None
+        return wanted_path
+
+    def action_delete(self, courseid, taskid, path):
+        """ Delete a file or a directory """
+
+        wanted_path = self.verify_path(courseid, taskid, path)
+        if wanted_path is None:
+            return self.show_tab_file(courseid, taskid, True)
+
+        # special case: cannot delete current directory of the task
+        if "." == os.path.relpath(wanted_path, os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid)):
+            return self.show_tab_file(courseid, taskid, True)
+
+        if os.path.isdir(wanted_path):
+            shutil.rmtree(wanted_path)
+        else:
+            os.unlink(wanted_path)
+        return self.show_tab_file(courseid, taskid)
+
+    def action_download(self, courseid, taskid, path):
+        """ Download a file or a directory """
+
+        wanted_path = self.verify_path(courseid, taskid, path)
+        if wanted_path is None:
             raise web.notfound()
 
         # if the user want a dir:

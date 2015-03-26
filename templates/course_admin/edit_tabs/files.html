@@ -52,10 +52,7 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
                 <a href="#" onclick="studio_task_edit_renamefile('$complete_name'); return false;" class="btn btn-sm btn-info btn-block" title="rename"><span class="glyphicon glyphicon-transfer"></span></a>
             </td>
             <td>
-                $if not is_directory:
-                    <a href="#" onclick="studio_task_edit_deletefile('$complete_name',false); return false;" class="btn btn-sm btn-danger btn-block" title="delete"><span class="glyphicon glyphicon-trash"></span></a>
-                $else:
-                    <a href="#" onclick="studio_task_edit_deletefile('$complete_name',true); return false;" class="btn btn-sm btn-danger btn-block" title="delete"><span class="glyphicon glyphicon-trash"></span></a>
+                <a href="#" onclick="studio_task_file_delete('$complete_name'); return false;" class="btn btn-sm btn-danger btn-block" title="delete"><span class="glyphicon glyphicon-trash"></span></a>
             </td>
         </tr>
     <tr>

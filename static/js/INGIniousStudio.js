@@ -48,13 +48,34 @@ function studio_load(data)
 /**
  * Update the "files" tabs when editing a task
  */
-function studio_update_file_tabs()
+function studio_update_file_tabs(data, method)
 {
-	$("#tab_files").html('Loading');
-	jQuery.get( location.pathname+"?files", function(data)
-	{
-		  $("#tab_files").html(data);
+	if(data == undefined)
+		data = {};
+	if(method == undefined)
+		method = "GET";
+	
+	jQuery.ajax({
+		beforeSend: function()
+		{
+			$("#tab_files").html('Loading');
+		},
+		success: function(data)
+		{
+			$("#tab_files").html(data);
+		},
+		method: method,
+		data: data,
+		url: location.pathname+"/files"
 	});
+}
+
+/**
+ * Delete a file related to a task
+ */
+function studio_task_file_delete(path)
+{
+	studio_update_file_tabs({"action": "delete", "path":path});
 }
 
 /**
