@@ -1,4 +1,4 @@
-$def with (file_list)
+$def with (course,taskid,file_list)
 
 $# Copyright (c) 2014-2015 Université Catholique de Louvain.
 $#
@@ -27,7 +27,7 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
     </tr>
     <tr>
         <td><span class="glyphicon glyphicon-folder-open"></span>&nbsp;/</td>
-        <td><a href="#" onclick="studio_task_edit_downloadfile('/'); return false;" class="btn btn-sm btn-primary btn-block" title="download"><span class="glyphicon glyphicon-cloud-download"></span></a></td>
+        <td><a href="/admin/${course.get_id()}/edit/$taskid/files?action=download&path=." onclick="studio_task_edit_downloadfile('/'); return false;" class="btn btn-sm btn-primary btn-block" title="download"><span class="glyphicon glyphicon-cloud-download"></span></a></td>
         <td></td>
         <td></td>
         <td></td>
@@ -42,7 +42,7 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
                 $name
             </td>
             <td>
-                <a href="#" onclick="studio_task_edit_downloadfile('$complete_name'); return false;" class="btn btn-sm btn-primary btn-block" title="download"><span class="glyphicon glyphicon-cloud-download"></span></a>
+                <a href="/admin/${course.get_id()}/edit/$taskid/files?action=download&path=$complete_name" class="btn btn-sm btn-primary btn-block" title="download"><span class="glyphicon glyphicon-cloud-download"></span></a>
             </td>
             <td>
                 $if not is_directory:
