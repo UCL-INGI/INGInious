@@ -8,13 +8,13 @@
             <div class="modal-body">
                 <form id="task_upload_form" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="action" value="upload"/>
+                    <div class="form-group">
+                       <label for="upload-file" class="control-label">File:</label>
+                       <input type="file" id="upload-file" name="file" onchange="$$('#upload-file-path').val($$(this).val().split('\\').pop());"/>
+                    </div>
 					<div class="form-group">
 						<label for="upload-file-path" class="control-label">File path:</label>
 						<input type="text" class="form-control" id="upload-file-path" name="path" value="my_new_file.zip"/>
-					</div>
-					<div class="form-group">
-					   <label for="upload-file" class="control-label">File:</label>
-					   <input type="file" id="upload-file" name="file"/>
 					</div>
 				</form>
             </div>
