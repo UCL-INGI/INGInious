@@ -46,6 +46,18 @@ function studio_load(data)
 }
 
 /**
+ * Update the "files" tabs when editing a task
+ */
+function studio_update_file_tabs()
+{
+	$("#tab_files").html('Loading');
+	jQuery.get( location.pathname+"?files", function(data)
+	{
+		  $("#tab_files").html(data);
+	});
+}
+
+/**
  * Display a message indicating the status of a save action
  * @param type
  * @param message

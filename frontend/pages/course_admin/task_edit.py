@@ -30,7 +30,7 @@ from common.base import INGIniousConfiguration, id_checker
 import common.custom_yaml
 from common.task_file_managers.manage import get_task_file_manager, get_available_task_file_managers, delete_all_possible_task_files
 from frontend.accessible_time import AccessibleTime
-from frontend.base import renderer
+from frontend.base import renderer, get_template_renderer
 from frontend.custom.courses import FrontendCourse
 from frontend.custom.tasks import FrontendTask
 from frontend.pages.course_admin.utils import get_course_and_check_rights
@@ -72,20 +72,23 @@ class CourseEditTask(object):
                         del problem_copy[i]
                 problem["custom"] = common.custom_yaml.dump(problem_copy)
 
-        return renderer.course_admin.edit_task(
-            course,
-            taskid,
-            task_data,
-            environments,
-            json.dumps(
-                task_data.get(
-                    'problems',
-                    {})),
-            self.contains_is_html(task_data),
-            current_filetype,
-            available_filetypes,
-            AccessibleTime,
-            self.get_task_filelist(courseid, taskid))
+        if web.input().get('files') is not None:  # update the file tabs
+            return get_template_renderer('templates/').course_admin.edit_tabs.files(course, taskid, self.get_task_filelist(courseid, taskid))
+        else:  # return the complete page
+            return renderer.course_admin.edit_task(
+                course,
+                taskid,
+                task_data,
+                environments,
+                json.dumps(
+                    task_data.get(
+                        'problems',
+                        {})),
+                self.contains_is_html(task_data),
+                current_filetype,
+                available_filetypes,
+                AccessibleTime,
+                self.get_task_filelist(courseid, taskid))
 
     def get_task_filelist(self, courseid, taskid):
         """ Returns a flattened version of all the files inside the task directory, excluding the files task.*.
