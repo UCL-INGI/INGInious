@@ -75,6 +75,8 @@ function studio_update_file_tabs(data, method)
  */
 function studio_task_file_delete(path)
 {
+	if(!confirm("Are you sure you want to delete this?"))
+		return;
 	studio_update_file_tabs({"action": "delete", "path":path});
 }
 
