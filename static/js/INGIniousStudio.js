@@ -81,6 +81,26 @@ function studio_task_file_delete(path)
 }
 
 /**
+ * Rename/move a file related to a task
+ */
+function studio_task_file_rename(path)
+{
+	new_path = prompt("Enter the new path", path);
+	if(new_path != null)
+		studio_update_file_tabs({"action": "rename", "path":path, "new_path": new_path});
+}
+
+/**
+ * Create a file related to a task
+ */
+function studio_task_file_create()
+{
+	new_path = prompt("Enter the path to the file", "newfile.sh");
+	if(new_path != null)
+		studio_update_file_tabs({"action": "create", "path":new_path});
+}
+
+/**
  * Display a message indicating the status of a save action
  * @param type
  * @param message

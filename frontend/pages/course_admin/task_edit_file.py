@@ -48,6 +48,10 @@ class CourseTaskFiles(object):
             return self.action_download(courseid, taskid, request.get('path'))
         elif request.get("action") == "delete" and request.get('path') is not None:
             return self.action_delete(courseid, taskid, request.get('path'))
+        elif request.get("action") == "rename" and request.get('path') is not None and request.get('new_path') is not None:
+            return self.action_rename(courseid, taskid, request.get('path'), request.get('new_path'))
+        elif request.get("action") == "create" and request.get('path') is not None:
+            return self.action_create(courseid, taskid, request.get('path'))
         else:
             return self.show_tab_file(courseid, taskid)
 
@@ -101,7 +105,7 @@ class CourseTaskFiles(object):
         recur_print(result_dict, 0, '')
         return recur_print.flattened
 
-    def verify_path(self, courseid, taskid, path):
+    def verify_path(self, courseid, taskid, path, new_path=False):
         """ Return the real wanted path (relative to the INGInious root) or None if the path is not valid/allowed """
 
         task_dir_path = os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid)
@@ -111,7 +115,7 @@ class CourseTaskFiles(object):
         wanted_path = os.path.normpath(os.path.join(task_dir_path, path))
         rel_wanted_path = os.path.relpath(wanted_path, task_dir_path)  # normalized
         # verify that the path we want exists and is withing the directory we want
-        if not os.path.exists(wanted_path) or os.path.islink(wanted_path) or rel_wanted_path.startswith('..'):
+        if (new_path == os.path.exists(wanted_path)) or os.path.islink(wanted_path) or rel_wanted_path.startswith('..'):
             return None
         # do not allow touching the task.* file
         if os.path.splitext(rel_wanted_path)[0] == "task" and os.path.splitext(rel_wanted_path)[1][1:] in get_available_task_file_managers().keys():
@@ -123,16 +127,57 @@ class CourseTaskFiles(object):
                     return None
         return wanted_path
 
+    def action_create(self, courseid, taskid, path):
+        """ Delete a file or a directory """
+
+        want_directory = path.strip().endswith("/")
+
+        wanted_path = self.verify_path(courseid, taskid, path, True)
+        if wanted_path is None:
+            return self.show_tab_file(courseid, taskid, "Invalid new path")
+        curpath = os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid)
+        rel_path = os.path.relpath(wanted_path, curpath)
+
+        for i in rel_path.split(os.path.sep)[:-1]:
+            curpath = os.path.join(curpath, i)
+            if not os.path.exists(curpath):
+                os.mkdir(curpath)
+            if not os.path.isdir(curpath):
+                return self.show_tab_file(courseid, taskid, i + " is not a directory!")
+        if rel_path.split(os.path.sep)[-1] != "":
+            if want_directory:
+                os.mkdir(os.path.join(curpath, rel_path.split(os.path.sep)[-1]))
+            else:
+                open(os.path.join(curpath, rel_path.split(os.path.sep)[-1]), 'a')
+        return self.show_tab_file(courseid, taskid)
+
+    def action_rename(self, courseid, taskid, path, new_path):
+        """ Delete a file or a directory """
+
+        old_path = self.verify_path(courseid, taskid, path)
+        if old_path is None:
+            return self.show_tab_file(courseid, taskid, "Internal error")
+
+        wanted_path = self.verify_path(courseid, taskid, new_path, True)
+        if wanted_path is None:
+            return self.show_tab_file(courseid, taskid, "Invalid new path")
+
+        try:
+            shutil.move(old_path, wanted_path)
+            return self.show_tab_file(courseid, taskid)
+        except:
+            return self.show_tab_file(courseid, taskid, "An error occurred while moving the files")
+
     def action_delete(self, courseid, taskid, path):
         """ Delete a file or a directory """
 
         wanted_path = self.verify_path(courseid, taskid, path)
         if wanted_path is None:
-            return self.show_tab_file(courseid, taskid, True)
+            return self.show_tab_file(courseid, taskid, "Internal error")
 
         # special case: cannot delete current directory of the task
         if "." == os.path.relpath(wanted_path, os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid)):
-            return self.show_tab_file(courseid, taskid, True)
+            return self.show_tab_file(courseid, taskid, "Internal error")
 
         if os.path.isdir(wanted_path):
             shutil.rmtree(wanted_path)

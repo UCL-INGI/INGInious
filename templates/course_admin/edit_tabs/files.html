@@ -49,7 +49,7 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
                     <a href="#" onclick="studio_task_edit_editfile('$complete_name'); return false;" class="btn btn-sm btn-primary btn-block" title="edit"><span class="glyphicon glyphicon-edit"></span></a>
             </td>
             <td>
-                <a href="#" onclick="studio_task_edit_renamefile('$complete_name'); return false;" class="btn btn-sm btn-info btn-block" title="rename"><span class="glyphicon glyphicon-transfer"></span></a>
+                <a href="#" onclick="studio_task_file_rename('$complete_name'); return false;" class="btn btn-sm btn-info btn-block" title="rename"><span class="glyphicon glyphicon-transfer"></span></a>
             </td>
             <td>
                 <a href="#" onclick="studio_task_file_delete('$complete_name'); return false;" class="btn btn-sm btn-danger btn-block" title="delete"><span class="glyphicon glyphicon-trash"></span></a>
@@ -57,7 +57,7 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
         </tr>
     <tr>
         <th colspan="5" style="text-align:right">
-            <a href="#" onclick="studio_task_edit_newfile(); return false;" class="btn btn-sm btn-info">Create a new file</a>
+            <a href="#" onclick="studio_task_file_create(); return false;" class="btn btn-sm btn-info">Create a new file</a>
             <a href="#" onclick="studio_task_edit_upfile(); return false;" class="btn btn-sm btn-info">Upload a file</a>
         </th>
     </tr>                  
