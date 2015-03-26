@@ -101,6 +101,25 @@ function studio_task_file_create()
 }
 
 /**
+ * Upload a new file for a task
+ */
+function studio_task_file_upload()
+{
+	$('#modal_file_upload').modal('hide');
+	$('#task_upload_form').ajaxSubmit({
+		beforeSend: function()
+		{
+			$("#tab_files").html('Loading');
+		},
+		success: function(data)
+		{
+			$("#tab_files").html(data);
+		},
+		url: location.pathname+"/files"
+	});
+}
+
+/**
  * Display a message indicating the status of a save action
  * @param type
  * @param message

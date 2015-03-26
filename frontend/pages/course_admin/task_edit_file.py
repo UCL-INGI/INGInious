@@ -55,6 +55,19 @@ class CourseTaskFiles(object):
         else:
             return self.show_tab_file(courseid, taskid)
 
+    def POST(self, courseid, taskid):
+        """ Upload or modify a file """
+        if not id_checker(taskid):
+            raise Exception("Invalid task id")
+
+        get_course_and_check_rights(courseid)
+
+        request = web.input(file={})
+        if request.get("action") == "upload" and request.get('path') is not None and request.get('file') is not None:
+            return self.action_upload(courseid, taskid, request.get('path'), request.get('file'))
+        else:
+            return self.show_tab_file(courseid, taskid)
+
     def show_tab_file(self, courseid, taskid, error=False):
         """ Return the file tab """
         return get_template_renderer('templates/').course_admin.edit_tabs.files(FrontendCourse(courseid), taskid, self.get_task_filelist(courseid, taskid))
@@ -126,6 +139,28 @@ class CourseTaskFiles(object):
                 if i.startswith("."):
                     return None
         return wanted_path
+
+    def action_upload(self, courseid, taskid, path, fileobj):
+        """ Upload a file """
+
+        wanted_path = self.verify_path(courseid, taskid, path, True)
+        if wanted_path is None:
+            return self.show_tab_file(courseid, taskid, "Invalid new path")
+        curpath = os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid)
+        rel_path = os.path.relpath(wanted_path, curpath)
+
+        for i in rel_path.split(os.path.sep)[:-1]:
+            curpath = os.path.join(curpath, i)
+            if not os.path.exists(curpath):
+                os.mkdir(curpath)
+            if not os.path.isdir(curpath):
+                return self.show_tab_file(courseid, taskid, i + " is not a directory!")
+
+        try:
+            open(wanted_path, "w").write(fileobj.file.read())
+            return self.show_tab_file(courseid, taskid)
+        except:
+            return self.show_tab_file(courseid, taskid, "An error occurred while writing the file")
 
     def action_create(self, courseid, taskid, path):
         """ Delete a file or a directory """
