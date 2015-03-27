@@ -185,13 +185,25 @@ form#task
 
     a
     {
-        background-color: #ACF !important;
-
+        background-color: #3498db !important;
+        color: white;
+        
+        &:hover
+        {
+            background-color: #217dbb !important;
+        }
+        
         .close
         {
             font-size: 18px;
             margin-left: 5px;
         }
+    }
+    
+    &.active a, &.active a:hover
+    {
+        background-color: #3498db !important;
+        color: #2c3e50;
     }
 }
 

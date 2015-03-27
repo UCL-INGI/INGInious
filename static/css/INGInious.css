@@ -102,15 +102,24 @@ form#task #task-submit {
 #edit_task_tabs {
   margin-bottom: 15px;
 }
-.nav-tabs>li.studio_file_editor_tab {
-  float:right;
+.nav-tabs > li.studio_file_editor_tab {
+  float: right;
 }
-.nav-tabs>li.studio_file_editor_tab a {
-  background-color: #ACF !important;
+.nav-tabs > li.studio_file_editor_tab a {
+  background-color: #3498db !important;
+  color: white;
 }
-.nav-tabs>li.studio_file_editor_tab a .close {
+.nav-tabs > li.studio_file_editor_tab a:hover {
+  background-color: #217dbb !important;
+}
+.nav-tabs > li.studio_file_editor_tab a .close {
   font-size: 18px;
   margin-left: 5px;
+}
+.nav-tabs > li.studio_file_editor_tab.active a,
+.nav-tabs > li.studio_file_editor_tab.active a:hover {
+  background-color: #3498db !important;
+  color: #2c3e50;
 }
 /* Footer */
 html,
