@@ -43,7 +43,7 @@ $var Column: $:ColumnF()
 			<li role="presentation"><a href="#tab_subproblems" aria-controls="subproblems" role="tab" data-toggle="tab">Subproblems</a></li>
 			<li role="presentation"><a href="#tab_files" aria-controls="files" role="tab" data-toggle="tab">Task files</a></li>
         </ul>
-		<div class="tab-content">
+		<div id="edit_task_tabs_content" class="tab-content">
 			<div role="tabpanel" class="tab-pane active" id="tab_basic">
                 $:include.course_admin.edit_tabs.basic(task_data,available_filetypes,AccessibleTime,current_filetype,contains_is_html)
 			</div>

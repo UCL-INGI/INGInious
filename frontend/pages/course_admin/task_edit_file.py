@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Allow to create/edit/delete/move/download files associated to tasks """
+import codecs
+import json
 import mimetypes
 import os.path
 import shutil
@@ -52,6 +54,8 @@ class CourseTaskFiles(object):
             return self.action_rename(courseid, taskid, request.get('path'), request.get('new_path'))
         elif request.get("action") == "create" and request.get('path') is not None:
             return self.action_create(courseid, taskid, request.get('path'))
+        elif request.get("action") == "edit" and request.get('path') is not None:
+            return self.action_edit(courseid, taskid, request.get('path'))
         else:
             return self.show_tab_file(courseid, taskid)
 
@@ -65,6 +69,8 @@ class CourseTaskFiles(object):
         request = web.input(file={})
         if request.get("action") == "upload" and request.get('path') is not None and request.get('file') is not None:
             return self.action_upload(courseid, taskid, request.get('path'), request.get('file'))
+        elif request.get("action") == "edit_save" and request.get('path') is not None and request.get('content') is not None:
+            return self.action_edit_save(courseid, taskid, request.get('path'), request.get('content'))
         else:
             return self.show_tab_file(courseid, taskid)
 
@@ -139,6 +145,32 @@ class CourseTaskFiles(object):
                 if i.startswith("."):
                     return None
         return wanted_path
+
+    def action_edit(self, courseid, taskid, path):
+        """ Edit a file """
+        wanted_path = self.verify_path(courseid, taskid, path)
+        if wanted_path is None or not os.path.isfile(wanted_path):
+            return "Internal error"
+
+        content = open(wanted_path, 'r').read()
+        try:
+            content.decode('utf-8')
+            return json.dumps({"content": content})
+        except:
+            return json.dumps({"error": "not-readable"})
+
+    def action_edit_save(self, courseid, taskid, path, content):
+        """ Save an edited file """
+        wanted_path = self.verify_path(courseid, taskid, path)
+        if wanted_path is None or not os.path.isfile(wanted_path):
+            return "Internal error"
+
+        try:
+            with codecs.open(wanted_path, "w", "utf-8") as f:
+                f.write(content)
+            return json.dumps({"ok": True})
+        except:
+            return json.dumps({"error": True})
 
     def action_upload(self, courseid, taskid, path, fileobj):
         """ Upload a file """

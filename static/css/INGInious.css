@@ -102,6 +102,16 @@ form#task #task-submit {
 #edit_task_tabs {
   margin-bottom: 15px;
 }
+.nav-tabs>li.studio_file_editor_tab {
+  float:right;
+}
+.nav-tabs>li.studio_file_editor_tab a {
+  background-color: #ACF !important;
+}
+.nav-tabs>li.studio_file_editor_tab a .close {
+  font-size: 18px;
+  margin-left: 5px;
+}
 /* Footer */
 html,
 body {
