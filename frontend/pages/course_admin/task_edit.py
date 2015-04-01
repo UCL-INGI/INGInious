@@ -30,12 +30,11 @@ from common.base import INGIniousConfiguration, id_checker
 import common.custom_yaml
 from common.task_file_managers.manage import get_task_file_manager, get_available_task_file_managers, delete_all_possible_task_files
 from frontend.accessible_time import AccessibleTime
-from frontend.base import renderer
+from frontend.base import renderer, get_template_renderer
 from frontend.custom.courses import FrontendCourse
 from frontend.custom.tasks import FrontendTask
+from frontend.pages.course_admin.task_edit_file import CourseTaskFiles
 from frontend.pages.course_admin.utils import get_course_and_check_rights
-
-
 class CourseEditTask(object):
 
     """ Edit a task """
@@ -72,7 +71,7 @@ class CourseEditTask(object):
                         del problem_copy[i]
                 problem["custom"] = common.custom_yaml.dump(problem_copy)
 
-        return renderer.admin_course_edit_task(
+        return renderer.course_admin.edit_task(
             course,
             taskid,
             task_data,
@@ -84,7 +83,8 @@ class CourseEditTask(object):
             self.contains_is_html(task_data),
             current_filetype,
             available_filetypes,
-            AccessibleTime)
+            AccessibleTime,
+            CourseTaskFiles.get_task_filelist(courseid, taskid))
 
     @classmethod
     def contains_is_html(cls, data):

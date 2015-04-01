@@ -95,4 +95,4 @@ class CourseSettings(object):
 
     def page(self, course, errors=None, saved=False):
         """ Get all data and display the page """
-        return renderer.admin_course_settings(course, errors, saved)
+        return renderer.course_admin.settings(course, errors, saved)

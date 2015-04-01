@@ -28,12 +28,9 @@ $(function()
     }
     $('#submissions .submission').on('click', clickOnSubmission);
     
-    $('.aceEditor').each(function(index,elem)
+    $('.code-editor').each(function(index,elem)
     {
-    	registerCodeEditor($(elem).attr('id'),
-    			$(elem).attr('data-x-language'),
-    			$(elem).attr('data-x-lines'),
-    			$(elem).attr('data-x-name') == undefined ? $(elem).attr('id') : $(elem).attr('data-x-name'));
+        registerCodeEditor(elem, $(elem).attr('data-x-language'), $(elem).attr('data-x-lines'));
     });
     
     //Start affix only if there the height of the sidebar is less than the height of the content
@@ -51,6 +48,14 @@ $(function()
     			$('#register_password').attr('disabled','disabled')
     	});
     }
+    
+    //Fix a bug with codemirror and bootstrap tabs
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+    	target = $(e.target).attr("href");
+    	$(target + ' .CodeMirror').each(function(i, el) {
+    		el.CodeMirror.refresh();
+    	});
+    });
 });
 
 //Contains all code editors
@@ -60,41 +65,67 @@ var codeEditors=[]
 var loadingSomething = false;
 
 //Register and init a code editor (ace)
-function registerCodeEditor(id,lang,lines, name)
+function registerCodeEditor(textarea,lang,lines)
 {
-    var editor = ace.edit(id);
+    mode = lang;
     if(lang != "plain")
     {
-    	//fix some languages
-    	switch (lang.toLowerCase())
-    	{
-	    	case "c":
-	    	case "cpp":
-	    	case "c++":
-	    		lang = "c_cpp"
-	    		break;
-    	}
-        editor.getSession().setMode("ace/mode/"+lang);
+        //fix some languages
+        switch (lang.toLowerCase())
+        {
+            //clike handles all c-like languages
+            case "c": lang = "text/x-csrc"; mode = "clike"; break;
+            case "cpp":
+            case "c++": lang = "text/x-c++src"; mode = "clike"; break;
+            case "java": lang = "text/x-java"; mode = "clike"; break;
+            case "c#":
+            case "csharp": lang = "text/x-csharp"; mode = "clike"; break;
+            case "objective-c":
+            case "objectivec":
+            case "objc": lang = "text/x-objectivec"; mode = "clike"; break;
+            case "scala": lang = "text/x-scala"; mode = "clike"; break;
+            //python 2, python 3
+            case "python":
+            case "python2": lang = "text/x-python"; mode = "python"; break;
+            case "python3": lang = {name: "python", version: 3}; mode = "python"; break;
+        }
     }
-    editor.getSession().setTabSize(4);
-    editor.setOptions({minLines: lines, maxLines: Infinity});
     
-    var textarea = jQuery('input[name="'+name+'"]');
-    editor.getSession().on("change", function()
-    {
-        textarea.val(editor.getSession().getValue());
+    
+    CodeMirror.modeURL = "/static/js/codemirror/mode/%N/%N.js";
+    editor = CodeMirror.fromTextArea(textarea, {
+        lineNumbers: true,
+        mode: lang,
+        foldGutter: true,
+        styleActiveLine: true,
+        matchBrackets: true,
+        autoCloseBrackets: true,
+        lineWrapping: true,
+        gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter", "CodeMirror-lint-markers"],
+        indentUnit: 4,
+        viewportMargin: Infinity,
+        lint: function(){return []}
     });
-    textarea.val(editor.getSession().getValue()); //init
-    
+    editor.on("change", function(cm) { cm.save(); });
+    editor.setSize(null, (21*lines)+"px");
+    CodeMirror.autoLoadMode(editor, mode);
     codeEditors.push(editor);
     return editor;
+}
+
+//Task page: find an editor by problem id
+function getEditorForProblemId(problemId)
+{
+	for (idx in codeEditors)
+		if (codeEditors[idx].getTextArea().name == problemId)
+			return codeEditors[idx];
 }
 
 //Blur task form
 function blurTaskForm()
 {
     for (idx in codeEditors)
-        codeEditors[idx].setReadOnly(true);
+        codeEditors[idx].setOption("readOnly", true);
     $("form#task input, form#task button").attr("disabled","disabled");
     $("form#task").addClass('form-blur');
     loadingSomething = true;
@@ -102,7 +133,7 @@ function blurTaskForm()
 function unblurTaskForm()
 {
     for (idx in codeEditors)
-        codeEditors[idx].setReadOnly(false);
+        codeEditors[idx].setOption("readOnly", false);
     $("form#task input, form#task button").removeAttr("disabled");
     $("form#task").removeClass('form-blur');
     loadingSomething = false;
@@ -570,9 +601,9 @@ function loadInput(submissionid, input)
 	
 	$.each(codeEditors, function()
 	{
-		id = this.container.id;
-		if(id in input)
-			this.setValue(input[id],-1);
+		name = this.getTextArea().name;
+		if(name in input)
+			this.setValue(input[name],-1);
 		else
 			this.setValue("");
 	})

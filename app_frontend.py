@@ -45,7 +45,7 @@ urls = (
     '/admin/([^/]+)/tasks', 'frontend.pages.course_admin.task_list.CourseTaskListPage',
     '/admin/([^/]+)/task/([^/]+)', 'frontend.pages.course_admin.task_info.CourseTaskInfoPage',
     '/admin/([^/]+)/edit/([^/]+)', 'frontend.pages.course_admin.task_edit.CourseEditTask',
-    '/admin/([^/]+)/files/([^/]+)', 'frontend.pages.course_admin.task_file.DownloadTaskFiles',
+    '/admin/([^/]+)/edit/([^/]+)/files', 'frontend.pages.course_admin.task_edit_file.CourseTaskFiles',
     '/admin/([^/]+)/submissions', 'frontend.pages.course_admin.submission_files.DownloadSubmissionFiles'
 )
 

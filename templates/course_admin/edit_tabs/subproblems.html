@@ -1,0 +1,40 @@
+
+$# Copyright (c) 2014-2015 Université Catholique de Louvain.
+$#
+$# This file is part of INGInious.
+$#
+$# INGInious is free software: you can redistribute it and/or modify
+$# it under the terms of the GNU Affero General Public License as published
+$# by the Free Software Foundation, either version 3 of the License, or
+$# (at your option) any later version.
+$#
+$# INGInious is distributed in the hope that it will be useful,
+$# but WITHOUT ANY WARRANTY; without even the implied warranty of
+$# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+$# GNU Affero General Public License for more details.
+$#
+$# You should have received a copy of the GNU Affero General Public
+$# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
+
+<div class="row" id="new_subproblem">
+    <div class="form-group">
+        <label for="new_subproblem_pid" class="col-sm-2 control-label">New problem id</label>
+        <div class="col-sm-3">
+            <input type="text" class="form-control" id="new_subproblem_pid" value="" placeholder="new-problem-id"/>
+        </div>
+        <label for="new_subproblem_type" class="col-sm-2 control-label">problem type</label>
+        <div class="col-sm-3">
+            <select class="form-control" id="new_subproblem_type">
+                <option value="subproblem_code">code</option>
+                <option value="subproblem_code_file">file upload</option>
+                <option value="subproblem_match">match</option>
+                <option value="subproblem_multiple_choice">multiple choice</option>
+                <option value="subproblem_custom">custom</option>
+            </select>
+        </div>
+        <div class="col-sm-2">
+            <button type="button" class="btn btn-primary btn-block" onclick="studio_create_new_subproblem()">Add</button>
+        </div>
+    </div>
+</div>
+<button class="btn btn-primary btn-block task_edit_submit_button" type="button" onclick="studio_submit()"><span class="glyphicon glyphicon-download-alt"></span> Update</button>

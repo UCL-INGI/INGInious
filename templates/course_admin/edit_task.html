@@ -1,0 +1,74 @@
+$def with (course,taskid,task_data,environments,problemdump,contains_is_html,current_filetype,available_filetypes,AccessibleTime,file_list)
+
+$# Copyright (c) 2014-2015 Université Catholique de Louvain.
+$#
+$# This file is part of INGInious.
+$#
+$# INGInious is free software: you can redistribute it and/or modify
+$# it under the terms of the GNU Affero General Public License as published
+$# by the Free Software Foundation, either version 3 of the License, or
+$# (at your option) any later version.
+$#
+$# INGInious is distributed in the hope that it will be useful,
+$# but WITHOUT ANY WARRANTY; without even the implied warranty of
+$# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+$# GNU Affero General Public License for more details.
+$#
+$# You should have received a copy of the GNU Affero General Public
+$# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
+
+$var title: Edit $taskid
+
+$def ColumnF():
+    <div id="task_edit_submit_status"></div>
+    $:template_helper.call('course_admin_menu',course=course,current='tasks')
+$var Column: $:ColumnF()
+
+<ol class="breadcrumb">
+  <li><a href="/index">Home</a></li>
+  <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
+  <li><a href="/admin/$course.get_id()">Manage</a></li>
+  <li><a href="/admin/$course.get_id()/tasks">Tasks</a></li>
+  <li class="active">Edit task "$taskid"</li>
+</ol>
+
+<h2>Edit task "$taskid"</h2>
+<form id="edit_task_form" action="/admin/${course.get_id()}/edit/$taskid" method="post" enctype="multipart/form-data" class="form-horizontal">
+    <input type="hidden" name="@action" value="edit_task"/>
+    
+    <div role="tabpanel">
+        <ul class="nav nav-tabs" id="edit_task_tabs" role="tablist">
+			<li role="presentation" class="active"><a href="#tab_basic" aria-controls="basicinfo" role="tab" data-toggle="tab">Basic settings</a></li>
+			<li role="presentation"><a href="#tab_container" aria-controls="container" role="tab" data-toggle="tab">Container setup</a></li>
+			<li role="presentation"><a href="#tab_subproblems" aria-controls="subproblems" role="tab" data-toggle="tab">Subproblems</a></li>
+			<li role="presentation"><a href="#tab_files" aria-controls="files" role="tab" data-toggle="tab">Task files</a></li>
+        </ul>
+		<div id="edit_task_tabs_content" class="tab-content">
+			<div role="tabpanel" class="tab-pane active" id="tab_basic">
+                $:include.course_admin.edit_tabs.basic(task_data,available_filetypes,AccessibleTime,current_filetype,contains_is_html)
+			</div>
+			
+			<div role="tabpanel" class="tab-pane" id="tab_container">
+                $:include.course_admin.edit_tabs.container(task_data,environments,contains_is_html)
+			</div>
+			
+			<div role="tabpanel" class="tab-pane" id="tab_subproblems">
+				$:include.course_admin.edit_tabs.subproblems()
+			</div>
+			
+			<div role="tabpanel" class="tab-pane" id="tab_files">
+                $:include.course_admin.edit_tabs.files(course,taskid,file_list)
+			</div>
+		</div>
+	</div>
+</form>
+
+<!-- Must be out of the form -->
+$:include.course_admin.edit_tabs.subproblem_templates(contains_is_html)
+$:include.course_admin.edit_tabs.file_modals()
+
+<!-- Init the javascript for the subproblem tab -->
+<script type="text/javascript">
+    problem_data = $:{problemdump};
+    $$ (function(){ studio_load(problem_data); });
+</script>

@@ -36,6 +36,7 @@ def get_template_renderer(dir_path, base=None):
     return web.template.render(dir_path, globals=add_to_template_globals.globals, base=base)
 
 renderer = get_template_renderer('templates/', 'layout')
+add_to_template_globals.globals["include"] = get_template_renderer('templates/')
 
 
 def new_database_client():

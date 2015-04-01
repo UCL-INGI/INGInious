@@ -42,4 +42,4 @@ class CourseStudentListPage(object):
         data = [dict(f.items() + [("url", self.submission_url_generator(course, username)), ("username", username)]) for username, f in data.iteritems()]
         if "csv" in web.input():
             return make_csv(data)
-        return renderer.admin_course_student_list(course, data)
+        return renderer.course_admin.student_list(course, data)

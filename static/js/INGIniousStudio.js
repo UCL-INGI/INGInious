@@ -46,6 +46,210 @@ function studio_load(data)
 }
 
 /**
+ * Update the "files" tabs when editing a task
+ */
+function studio_update_file_tabs(data, method)
+{
+	if(data == undefined)
+		data = {};
+	if(method == undefined)
+		method = "GET";
+	
+	jQuery.ajax({
+		beforeSend: function()
+		{
+			$("#tab_files").html('Loading');
+		},
+		success: function(data)
+		{
+			$("#tab_files").html(data);
+		},
+		method: method,
+		data: data,
+		url: location.pathname+"/files"
+	});
+}
+
+/**
+ * Delete a file related to a task
+ */
+function studio_task_file_delete(path)
+{
+	if(!confirm("Are you sure you want to delete this?") || !studio_task_file_delete_tab(path))
+		return;
+	studio_update_file_tabs({"action": "delete", "path":path});
+}
+
+/**
+ * Rename/move a file related to a task
+ */
+function studio_task_file_rename(path)
+{
+	new_path = prompt("Enter the new path", path);
+	if(new_path != null && studio_task_file_delete_tab(path))
+		studio_update_file_tabs({"action": "rename", "path":path, "new_path": new_path});
+}
+
+/**
+ * Create a file related to a task
+ */
+function studio_task_file_create()
+{
+	new_path = prompt("Enter the path to the file", "newfile.sh");
+	if(new_path != null && studio_task_file_delete_tab(new_path))
+		studio_update_file_tabs({"action": "create", "path":new_path});
+}
+
+/**
+ * Upload a new file for a task
+ */
+function studio_task_file_upload()
+{
+	$('#modal_file_upload').modal('hide');
+	$('#task_upload_form').ajaxSubmit({
+		beforeSend: function()
+		{
+			$("#tab_files").html('Loading');
+		},
+		success: function(data)
+		{
+			$("#tab_files").html(data);
+		},
+		url: location.pathname+"/files"
+	});
+}
+
+//Stores data about opened tabs
+var studio_file_editor_tabs = {};
+
+/**
+ * Open a new tab for editing a file, if it does not exists yet
+ */
+function studio_task_file_open_tab(path)
+{
+	if(studio_file_editor_tabs[path] == undefined)
+	{
+		tab_id = "task_file_editor_"+Object.keys(studio_file_editor_tabs).length;
+		studio_file_editor_tabs[path] = tab_id;
+		
+		$('#edit_task_tabs').append('<li role="presentation" class="studio_file_editor_tab">'+
+				'<a href="#'+tab_id+'" aria-controls="editor" role="tab" data-toggle="tab">'+path+
+				' <button class="close" type="button"><span class="glyphicon glyphicon-remove"></span></button>'+
+				'</a></li>');
+		$('#edit_task_tabs a[href="#'+studio_file_editor_tabs[path]+'"] .close').click(function(){studio_task_file_delete_tab(path)});
+	
+		$('#edit_task_tabs_content').append('<div role="tabpanel" class="tab-pane" id="'+tab_id+'">Loading...</div>');
+		
+		jQuery.ajax({
+			success: function(data)
+			{
+				if(data["error"] != undefined)
+				{
+					$("#"+tab_id).html('INGInious can\'t read this file.');
+					return;
+				}
+				
+				$("#"+tab_id).html('<form>'+'<textarea id="'+tab_id+'_editor" class="form-control"></textarea>'+
+						'<button type="button" id="'+tab_id+'_button" class="btn btn-primary btn-block">Save</button></form>');
+				$("#"+tab_id+'_editor').val(data['content']);
+
+				//try to find the mode for the editor
+				mode = CodeMirror.findModeByFileName(path);
+				if(mode == undefined)
+				{
+					mode = "text/plain";
+					//verify if it is a UNIX executable file that starts with #!
+					if(data['content'].substring(0,2) == "#!")
+					{
+						app = data['content'].split("\n")[0].substring(2).trim();
+						//check in codemirror
+						for(m in CodeMirror.modeInfo)
+						{
+							if(app.indexOf(CodeMirror.modeInfo[m]['name'].toLowerCase()) != -1)
+							{
+								mode = CodeMirror.modeInfo[m]["mode"];
+								break;
+							}
+						}
+						
+						//else, check in our small hint-list
+						if(mode == "text/plain")
+						{
+							hintlist = {"bash":"shell","sh":"shell","zsh":"shell","python":"python","php":"php"};
+							for(m in hintlist)
+							{
+								if(app.indexOf(m) != -1)
+								{
+									mode = hintlist[m];
+									break;
+								}
+							}
+						}
+					}
+				}
+				else
+					mode = mode["mode"];
+				console.log(mode);
+				editor = registerCodeEditor($("#"+tab_id+'_editor')[0], mode, 20);
+				$("#"+tab_id+'_button').click(function()
+				{
+					jQuery.ajax({
+						success: function(data)
+						{
+							if("error" in data)
+								studio_display_task_submit_message("An error occurred while saving the file", "danger", true);
+							else
+							{
+								editor.markClean(); 
+								studio_display_task_submit_message("File saved.", "success", true);
+							}
+						},
+						url: location.pathname+"/files",
+						method: "POST",
+						dataType: "json",
+						data: {"path": path, "action": "edit_save", "content": editor.getValue()}
+					});
+				});
+			},
+			method: "GET",
+			dataType: "json",
+			data: {"path": path, "action": "edit"},
+			url: location.pathname+"/files"
+		});
+	}
+	$('#edit_task_tabs a[href="#'+studio_file_editor_tabs[path]+'"]').tab('show');
+}
+
+/**
+ * Delete an opened tab
+ */
+function studio_task_file_delete_tab(path)
+{
+	if(studio_file_editor_tabs[path] != undefined)
+	{
+		editorId = -1;
+		for(editor in codeEditors)
+		{
+			if(codeEditors[editor].getTextArea().id == studio_file_editor_tabs[path]+'_editor')
+			{
+				if(!codeEditors[editor].isClean() && !confirm('You have unsaved change to this file. Do you really want to close it?'))
+						return false;
+				editorId = editor;
+			}
+		}
+		if(editorId != -1)
+			codeEditors.splice(editorId,1);
+		if($('#edit_task_tabs a[href="#'+studio_file_editor_tabs[path]+'"]').parent().hasClass('active'))
+			$('#edit_task_tabs li:eq(3) a').tab('show');
+		$('#edit_task_tabs a[href="#'+studio_file_editor_tabs[path]+'"]').parent().remove();
+		$('#'+studio_file_editor_tabs[path]).remove();
+		delete studio_file_editor_tabs[path];
+		return true;
+	}
+	return true;
+}
+
+/**
  * Display a message indicating the status of a save action
  * @param type
  * @param message
@@ -81,30 +285,30 @@ function studio_submit()
             if ("status" in data && data["status"] == "ok")
             {
             	studio_display_task_submit_message("Task saved.", "success", true);
-            	$('#task_edit_submit_button').attr('disabled', false);
+            	$('.task_edit_submit_button').attr('disabled', false);
             	studio_submitting = false;
             }
             else if ("message" in data)
             {
             	studio_display_task_submit_message(data["message"], "danger", true);
-            	$('#task_edit_submit_button').attr('disabled', false);
+            	$('.task_edit_submit_button').attr('disabled', false);
             	studio_submitting = false;
             }
             else
             {
             	studio_display_task_submit_message("An internal error occured", "danger", true);
-            	$('#task_edit_submit_button').attr('disabled', false);
+            	$('.task_edit_submit_button').attr('disabled', false);
             	studio_submitting = false;
             }
         },
     	error: function()
         {
     		studio_display_task_submit_message("An internal error occured", "danger", true);
-    		$('#task_edit_submit_button').attr('disabled', false);
+    		$('.task_edit_submit_button').attr('disabled', false);
     		studio_submitting = false;
         }
     });
-	$('#task_edit_submit_button').attr('disabled', true);
+	$('.task_edit_submit_button').attr('disabled', true);
 }
 
 /**
@@ -181,9 +385,9 @@ function studio_init_template(template,pid,problem)
 	//Default for every problem types
 	if("name" in problem)
 		$('#name-'+pid,well).val(problem["name"]);
-	header_editor = registerCodeEditor('header-'+pid, 'rst', 10, 'problem['+pid+'][header]')
+	header_editor = registerCodeEditor($('#header-'+pid)[0], 'rst', 10);
 	if("header" in problem)
-		header_editor.setValue(problem["header"],-1);
+		header_editor.setValue(problem["header"]);
 	if("headerIsHTML" in problem && problem["headerIsHTML"])
 		$('#headerIsHTML-'+pid,well).attr('checked', true);
 	
@@ -245,7 +449,7 @@ function studio_init_template_code_file(well, pid, problem)
  */
 function studio_init_template_custom(well, pid, problem)
 {
-	registerCodeEditor('custom-'+pid, 'yaml', 10, 'problem['+pid+'][custom]').setValue(problem["custom"],-1);
+	registerCodeEditor($('#custom-'+pid)[0], 'yaml', 10).setValue(problem["custom"]);
 }
 
 /**
@@ -351,6 +555,12 @@ function studio_subproblem_delete(pid)
 	well = $(studio_get_problem(pid));
 	if(!confirm("Are you sure that you want to delete this subproblem?"))
 		return;
+	codeEditors_todelete = [];
+	for(i in codeEditors)
+		if(jQuery.contains(well[0], codeEditors[i].getTextArea()))
+			codeEditors_todelete.push(i);
+	for(i in codeEditors_todelete)
+		codeEditors.splice(i, 1);
 	well.detach();
 }
 
