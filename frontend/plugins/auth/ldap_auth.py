@@ -61,6 +61,10 @@ def init(plugin_manager, conf):
             login = login_data["login"]
             password = login_data["password"]
 
+            #do not send empty password to the LDAP
+            if password.rstrip() == "":
+                return False
+
             encryption = conf.get('encryption', "none")
             if encryption not in ["none", "ssl", "tls"]:
                 raise Exception("Unknown encryption method {}".format(encryption))
