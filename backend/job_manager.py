@@ -36,7 +36,7 @@ class JobManager(object):
 
     """ Manages jobs """
 
-    def __init__(self, agents, hook_manager=None):
+    def __init__(self, agents, hook_manager=None, is_testing=False):
         """
             Starts a job manager.
 
@@ -56,6 +56,8 @@ class JobManager(object):
 
         """
 
+        self._closed = False
+        self._is_testing = is_testing
         self._hook_manager = HookManager() if hook_manager is None else hook_manager
         self._agents = [None for _ in range(0, len(agents))]
         self._agents_thread = [None for _ in range(0, len(agents))]
@@ -72,6 +74,9 @@ class JobManager(object):
 
     def _try_agent_connection(self):
         """ Tries to connect to the agents that are not connected yet """
+        if self._closed:
+            return
+
         for entry, info in enumerate(self._agents_info):
             if self._agents[entry] is None:
                 try:
@@ -83,7 +88,9 @@ class JobManager(object):
                 else:
                     self._agents[entry] = conn
                     self._agents_thread[entry] = rpyc.BgServingThread(conn)
-        threading.Timer(10, self._try_agent_connection).start()
+
+        if not self._is_testing:
+            threading.Timer(10, self._try_agent_connection).start()
 
     def _select_agent(self):
         """ Select which agent should handle the next job.
@@ -248,6 +255,10 @@ class JobManager(object):
             final_dict["grade"] = 200
         return final_dict
 
+    def number_agents_available(self):
+        """ Returns the number of connected agents """
+        return len([entry for entry in self._agents if entry is not None])
+
     def get_waiting_jobs_count(self):
         """Returns the total number of waiting jobs in the Job Manager"""
         return len(self._running_job_data)
@@ -285,3 +296,17 @@ class JobManager(object):
             self._job_ended(jobid, None, None)
 
         return jobid
+
+    def close(self):
+        """ Close all connections to agents """
+        self._closed = True
+        for i, entry in enumerate(self._agents):
+            if entry is not None:
+                # Hack a bit BgServingThread to ensure it closes properly
+                thread = self._agents_thread[i]
+                thread._active = False
+                self._agents[i] = None
+                self._agents_thread[i] = None
+                entry.close()
+                thread._thread.join()
+                thread._conn = None

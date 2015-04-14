@@ -1,0 +1,16 @@
+accessible: true
+author: Guillaume Derval
+context: Task that is not given to the agent
+environment: default
+limits:
+    memory: 100
+    time: 30
+name: Test
+order: 0
+problems:
+    problem_id:
+        type: match
+        header: The answer is 1
+        answer: '1'
+        name: ''
+weight: 1.0
