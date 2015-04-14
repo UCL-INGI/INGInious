@@ -29,7 +29,7 @@ import common.custom_yaml
 def get_tasks_directory():
     """ Return the path to the directory containing the courses and the tasks """
     return get_tasks_directory.tasks_directory
-get_tasks_directory.tasks_directory = "trolol"
+get_tasks_directory.tasks_directory = "./tasks"
 
 
 def get_allowed_file_extensions():

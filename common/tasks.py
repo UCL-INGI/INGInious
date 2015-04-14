@@ -56,6 +56,7 @@ class Task(object):
         if "limits" in self._data:
             try:
                 self._limits['time'] = int(self._data["limits"].get("time", 20))
+                self._limits['hard_time'] = int(3 * self._data["limits"].get("hard_time", 60))
                 self._limits['memory'] = int(self._data["limits"].get("memory", 1024))
                 self._limits['disk'] = int(self._data["limits"].get("disk", 1024))
             except:

@@ -36,13 +36,11 @@ class Course(object):
         """Returns the path to the file that describes the course 'courseid'"""
         if not id_checker(courseid):
             raise Exception("Course with invalid name: " + courseid)
-        return os.path.join(get_tasks_directory(), courseid, "course.json")
         base_file = os.path.join(get_tasks_directory(), courseid, "course")
         if os.path.isfile(base_file + ".yaml"):
             return base_file + ".yaml"
         else:
             return base_file + ".json"
-        return base_file + ".yaml"  # by default, YAML.
 
     @classmethod
     def get_course_descriptor_content(cls, courseid):
@@ -64,8 +62,8 @@ class Course(object):
         for course in files:
             try:
                 output[course] = cls(course)
-            except:  # todo log the error
-                pass
+            except Exception as e:  # todo log the error
+                print e
         return output
 
     def __init__(self, courseid):

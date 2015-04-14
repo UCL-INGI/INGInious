@@ -7,5 +7,5 @@ registration: true
 registration_password: null
 registration_ac: username
 registration_ac_list:
-- "test\r"
+- test
 - test2

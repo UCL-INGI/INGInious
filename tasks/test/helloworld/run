@@ -4,7 +4,9 @@
 parsetemplate --output studentcode.py template.py 
 
 # Verify the output of the code...
-output=$(python studentcode.py)
+cp studentcode.py /student/studentcode.py
+
+output=$(run_student python /student/studentcode.py)
 if [ "$output" = "Hello World!" ]; then
 	# The student succeeded
 	feedback --result success --feedback "You solved this difficult task!"

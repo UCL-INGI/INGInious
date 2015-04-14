@@ -26,9 +26,9 @@ from backend_agent.agent import Agent
 if __name__ == "__main__":
     # create logger
     logger = logging.getLogger("agent")
-    logger.setLevel(logging.WARN)
+    logger.setLevel(logging.INFO)
     ch = logging.StreamHandler()
-    ch.setLevel(logging.WARN)
+    ch.setLevel(logging.INFO)
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     ch.setFormatter(formatter)
     logger.addHandler(ch)

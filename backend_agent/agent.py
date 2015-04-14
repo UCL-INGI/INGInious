@@ -118,6 +118,9 @@ class Agent(object):
         os.mkdir(container_path)
         os.mkdir(sockets_path)
         os.mkdir(student_path)
+        os.chmod(container_path, 0777)
+        os.chmod(sockets_path, 0777)
+        os.chmod(student_path, 0777)
 
         # Run the container
         try:
@@ -133,7 +136,7 @@ class Agent(object):
             container_set = set()
             student_container_management_service = self._get_agent_student_container_service(
                 container_set,
-                sockets_path,
+                student_path,
                 task.get_environment(),
                 limits.get("time", 30),
                 mem_limit)
@@ -148,8 +151,8 @@ class Agent(object):
             # Start the container
             docker_connection.start(container_id,
                                     binds={os.path.abspath(os.path.join(self.task_folder, task.get_course_id(), task.get_id())): {'ro': True, 'bind': '/ro/task'},
-                                           os.path.abspath(sockets_path): {'bind': '/sockets'},
-                                           os.path.abspath(student_path): {'bind': '/student'}})
+                                           os.path.abspath(sockets_path): {'ro': False, 'bind': '/sockets'},
+                                           os.path.abspath(student_path): {'ro': False, 'bind': '/student'}})
 
             # Send the input data
             container_input = {"input": inputdata, "limits": limits}
@@ -253,7 +256,7 @@ class Agent(object):
             container_id = response["Id"]
 
             # Start the container
-            docker_connection.start(container_id, binds={os.path.abspath(student_path): {'bind': '/student'}})
+            docker_connection.start(container_id, binds={os.path.abspath(student_path): {'ro': False, 'bind': '/student'}})
 
             stdout_err = docker_connection.attach_socket(container_id, {'stdin': 0, 'stdout': 1, 'stderr': 1, 'stream': 1, 'logs': 1})
         except Exception as e:

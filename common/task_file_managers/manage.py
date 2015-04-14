@@ -1,6 +1,6 @@
 import os.path
 
-from common.base import INGIniousConfiguration
+from common.base import get_tasks_directory
 from common.task_file_managers.yaml_manager import TaskYAMLFileManager
 
 _task_file_managers = [TaskYAMLFileManager]
@@ -9,9 +9,9 @@ _task_file_managers = [TaskYAMLFileManager]
 def get_readable_tasks(courseid):
     """ Returns the list of all available tasks in a course """
     tasks = [
-        task for task in os.listdir(os.path.join(INGIniousConfiguration["tasks_directory"], courseid))
-        if os.path.isdir(os.path.join(INGIniousConfiguration["tasks_directory"], courseid, task))
-        and _task_file_exists(os.path.join(INGIniousConfiguration["tasks_directory"], courseid, task))]
+        task for task in os.listdir(os.path.join(get_tasks_directory(), courseid))
+        if os.path.isdir(os.path.join(get_tasks_directory(), courseid, task))
+        and _task_file_exists(os.path.join(get_tasks_directory(), courseid, task))]
     return tasks
 
 
@@ -26,7 +26,7 @@ def _task_file_exists(directory):
 def get_task_file_manager(courseid, taskid):
     """ Returns the appropriate task file manager for this task """
     for ext, subclass in get_available_task_file_managers().iteritems():
-        if os.path.isfile(os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid, "task.{}".format(ext))):
+        if os.path.isfile(os.path.join(get_tasks_directory(), courseid, taskid, "task.{}".format(ext))):
             return subclass(courseid, taskid)
     return None
 
@@ -35,7 +35,7 @@ def delete_all_possible_task_files(courseid, taskid):
     """ Deletes all possibles task files in directory, to allow to change the format """
     for ext in get_available_task_file_managers().keys():
         try:
-            os.remove(os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid, "task.{}".format(ext)))
+            os.remove(os.path.join(get_tasks_directory(), courseid, taskid, "task.{}".format(ext)))
         except:
             pass
 

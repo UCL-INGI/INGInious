@@ -27,7 +27,7 @@ import tempfile
 
 import web
 
-from common.base import INGIniousConfiguration, id_checker
+from common.base import get_tasks_directory, id_checker
 from common.task_file_managers.manage import get_available_task_file_managers
 from frontend.base import get_template_renderer
 from frontend.custom.courses import FrontendCourse
@@ -83,7 +83,7 @@ class CourseTaskFiles(object):
         """ Returns a flattened version of all the files inside the task directory, excluding the files task.* and hidden files.
             It returns a list of tuples, of the type (Integer Level, Boolean IsDirectory, String Name, String CompleteName)
         """
-        path = os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid)
+        path = os.path.join(get_tasks_directory(), courseid, taskid)
         if not os.path.exists(path):
             return []
         result_dict = {}
@@ -127,7 +127,7 @@ class CourseTaskFiles(object):
     def verify_path(self, courseid, taskid, path, new_path=False):
         """ Return the real wanted path (relative to the INGInious root) or None if the path is not valid/allowed """
 
-        task_dir_path = os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid)
+        task_dir_path = os.path.join(get_tasks_directory(), courseid, taskid)
         # verify that the dir exists
         if not os.path.exists(task_dir_path):
             return None
@@ -178,7 +178,7 @@ class CourseTaskFiles(object):
         wanted_path = self.verify_path(courseid, taskid, path, True)
         if wanted_path is None:
             return self.show_tab_file(courseid, taskid, "Invalid new path")
-        curpath = os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid)
+        curpath = os.path.join(get_tasks_directory(), courseid, taskid)
         rel_path = os.path.relpath(wanted_path, curpath)
 
         for i in rel_path.split(os.path.sep)[:-1]:
@@ -202,7 +202,7 @@ class CourseTaskFiles(object):
         wanted_path = self.verify_path(courseid, taskid, path, True)
         if wanted_path is None:
             return self.show_tab_file(courseid, taskid, "Invalid new path")
-        curpath = os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid)
+        curpath = os.path.join(get_tasks_directory(), courseid, taskid)
         rel_path = os.path.relpath(wanted_path, curpath)
 
         for i in rel_path.split(os.path.sep)[:-1]:
@@ -243,7 +243,7 @@ class CourseTaskFiles(object):
             return self.show_tab_file(courseid, taskid, "Internal error")
 
         # special case: cannot delete current directory of the task
-        if "." == os.path.relpath(wanted_path, os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid)):
+        if "." == os.path.relpath(wanted_path, os.path.join(get_tasks_directory(), courseid, taskid)):
             return self.show_tab_file(courseid, taskid, "Internal error")
 
         if os.path.isdir(wanted_path):
