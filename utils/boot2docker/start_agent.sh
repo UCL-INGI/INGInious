@@ -1,5 +1,5 @@
 #! /bin/bash
-if ! boot2docker status > /dev/null
+if ! boot2docker ip > /dev/null 2> /dev/null
 then boot2docker up
 fi
 
