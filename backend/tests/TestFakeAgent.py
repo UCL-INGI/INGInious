@@ -3,6 +3,8 @@ from rpyc.utils.server import OneShotServer
 from abc import abstractmethod
 from backend.job_manager import JobManager
 import threading
+import os.path
+import common.base
 
 class FakeAgent(threading.Thread):
     """ A fake agent used for tests """
@@ -31,6 +33,10 @@ class FakeAgent(threading.Thread):
 
 class TestWithFakeAgent(object):
     def setUp(self):
+        common.base.init_common_lib(os.path.join(os.path.dirname(__file__), 'tasks'),
+                                    [".c", ".cpp", ".java", ".oz", ".zip", ".tar.gz", ".tar.bz2", ".txt"],
+                                    1024 * 1024)
+
         self.agent = FakeAgent(self.handle_job_func)
         self.job_manager = JobManager([{"host": "localhost", "port": 5002}])
         self.callback_done = threading.Event()
