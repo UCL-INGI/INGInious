@@ -18,12 +18,10 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Boxes for tasks' problems """
 from abc import ABCMeta, abstractmethod
-import os.path
 import re
 import sys
 
-from common.base import id_checker, INGIniousConfiguration
-from common.parsable_text import ParsableText
+from common.base import id_checker, get_allowed_file_extensions, get_max_file_size
 
 
 class BasicBox(object):
@@ -83,7 +81,7 @@ class TextBox(BasicBox):
         BasicBox.__init__(self, problem, boxid, boxData)
         if "content" not in boxData:
             raise Exception("Box _id " + boxid + " with type=text do not have content.")
-        self._content = ParsableText(boxData['content'], "HTML" if "contentIsHTML" in boxData and boxData["contentIsHTML"] else "rst")
+        self._content = boxData['content']
 
 
 class FileBox(BasicBox):
@@ -119,12 +117,8 @@ class FileBox(BasicBox):
 
     def __init__(self, problem, boxid, boxData):
         BasicBox.__init__(self, problem, boxid, boxData)
-        self._allowed_exts = boxData.get("allowed_exts", INGIniousConfiguration.get('allowed_file_extensions', None))
-        if self._allowed_exts is None:
-            self._allowed_exts = [".c", ".cpp", ".java", ".oz", ".zip", ".tar.gz", ".tar.bz2", ".txt"]
-        self._max_size = boxData.get("max_size", INGIniousConfiguration.get('max_file_size', None))
-        if self._max_size is None:
-            self._max_size = 1024 * 1024
+        self._allowed_exts = boxData.get("allowed_exts", get_allowed_file_extensions())
+        self._max_size = boxData.get("max_size", get_max_file_size()) or get_max_file_size()
 
 
 class InputBox(BasicBox):

@@ -23,9 +23,9 @@ import os.path
 
 import web
 
-import common.base
 from frontend import submission_manager
 import frontend.base
+import frontend.configuration
 from frontend.database_updater import update_database
 from frontend.plugins.plugin_manager import PluginManager
 import frontend.session
@@ -53,7 +53,7 @@ urls = (
 def get_app(config_file):
     """ Get the application. config_file is the path to the JSON configuration file """
     appli = web.application(urls, globals(), autoreload=False)
-    common.base.INGIniousConfiguration.load(config_file)
+    frontend.configuration.INGIniousConfiguration.load(config_file)
 
     frontend.base.init_database()
     update_database()
@@ -64,7 +64,7 @@ def get_app(config_file):
         return web.notfound(frontend.base.renderer.notfound('Page not found'))
     appli.notfound = not_found
 
-    plugin_manager = PluginManager(appli, common.base.INGIniousConfiguration.get("plugins", []))
+    plugin_manager = PluginManager(appli, frontend.configuration.INGIniousConfiguration.get("plugins", []))
 
     # Plugin Manager is also a Hook Manager
     submission_manager.init_backend_interface(plugin_manager)

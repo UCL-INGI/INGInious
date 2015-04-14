@@ -37,7 +37,7 @@ class frontend_tasks(unittest.TestCase):
     def setUp(self):
         # Droping database
         client = frontend.base.get_database().connection
-        client.drop_database(common.base.INGIniousConfiguration.get('mongo_opt', {}).get('database', 'INGIniousTest'))
+        client.drop_database(frontend.configuration.INGIniousConfiguration.get('mongo_opt', {}).get('database', 'INGIniousTest'))
         #Init test session
         frontend.session.init(app, {'loggedin':True, 'username':"test", "realname":"Test", "email":"mail@test.com"})
     
@@ -61,7 +61,7 @@ class frontend_tasks(unittest.TestCase):
         pass
 
 if __name__ == "__main__":
-    if not common.base.INGIniousConfiguration.get('tests',{}).get('host_url', ''):
+    if not frontend.configuration.INGIniousConfiguration.get('tests',{}).get('host_url', ''):
         unittest.main()
     else:
         print "\033[31;1m-> frontend-tasks: tests cannot be run remotely\033[0m"

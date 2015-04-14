@@ -50,10 +50,10 @@ class web_login_nosession(unittest.TestCase):
     def setUp(self):
         
         # Loads tests credentials from config file
-        self.wrong_username = common.base.INGIniousConfiguration['tests']['wrong_username']
-        self.wrong_password = common.base.INGIniousConfiguration['tests']['wrong_password']
-        self.correct_username = common.base.INGIniousConfiguration['tests']['correct_username']
-        self.correct_password = common.base.INGIniousConfiguration['tests']['correct_password']
+        self.wrong_username = frontend.configuration.INGIniousConfiguration['tests']['wrong_username']
+        self.wrong_password = frontend.configuration.INGIniousConfiguration['tests']['wrong_password']
+        self.correct_username = frontend.configuration.INGIniousConfiguration['tests']['correct_username']
+        self.correct_password = frontend.configuration.INGIniousConfiguration['tests']['correct_password']
         frontend.session.init(app, {'loggedin':False}) 
         
     def test_init(self):
@@ -90,7 +90,7 @@ class web_login_nosession(unittest.TestCase):
         pass
 
 if __name__ == "__main__":
-    if not common.base.INGIniousConfiguration.get('tests',{}).get('host_url', ''):
+    if not frontend.configuration.INGIniousConfiguration.get('tests',{}).get('host_url', ''):
         unittest.main()
     else:
         print "\033[31;1m-> web-login: tests cannot be run remotely\033[0m"

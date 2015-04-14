@@ -20,7 +20,7 @@
 from gridfs import GridFS
 from pymongo import MongoClient
 import web
-from common.base import INGIniousConfiguration
+from frontend.configuration import INGIniousConfiguration
 
 
 def add_to_template_globals(name, value):

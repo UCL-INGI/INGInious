@@ -16,22 +16,20 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
-""" Contains the function _event_reader, which returns when containers are done. """
+""" Configuration for the frontend. Initialize the common libraries. """
 import json
-
-import docker
-
-from backend._message_types import CONTAINER_DONE
+import common.base
 
 
-def event_reader(docker_instance_id, docker_config, output_queue):
-    """ Read the event stream of docker to detect containers that have done their work """
-    print "Event reader for instance {} started".format(docker_instance_id)
-    docker_connection = docker.Client(base_url=docker_config.get('server_url'))
-    for event in docker_connection.events():
-        try:
-            event = json.loads(event)
-            if event.get("status") == "die":
-                output_queue.put((CONTAINER_DONE, [docker_instance_id, event.get("id")]))
-        except:
-            print "Cannot read docker event {}".format(event)
+class Configuration(dict):
+
+    """ Config class """
+
+    def load(self, path):
+        """ Load the config from a json file """
+        self.update(json.load(open(path, "r")))
+        common.base.init_common_lib(self["tasks_directory"],
+                                    self.get('allowed_file_extensions', [".c", ".cpp", ".java", ".oz", ".zip", ".tar.gz", ".tar.bz2", ".txt"]),
+                                    self.get('max_file_size', 1024 * 1024))
+
+INGIniousConfiguration = Configuration()

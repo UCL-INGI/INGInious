@@ -21,7 +21,6 @@ from abc import ABCMeta, abstractmethod
 from random import shuffle
 
 from common.base import id_checker
-from common.parsable_text import ParsableText
 from common.tasks_code_boxes import InputBox, MultilineBox, TextBox, FileBox
 
 
@@ -74,7 +73,7 @@ class BasicProblem(object):
         self._id = problemid
         self._task = task
         self._name = content['name'] if "name" in content else ""
-        self._header = ParsableText((content['header'] if "header" in content else ""), ("HTML" if "headerIsHTML" in content and content["headerIsHTML"] else "rst"))
+        self._header = content['header'] if "header" in content else ""
 
 
 class MatchProblem(BasicProblem):
@@ -202,7 +201,7 @@ class MultipleChoiceProblem(BasicProblem):
             data = {"index": index}
             if "text" not in choice:
                 raise Exception("A choice in " + problemid + " does not have text")
-            data['text'] = ParsableText(choice['text'], 'HTML' if choice.get('textIsHTML', False) else 'rst')
+            data['text'] = choice["text"]
             if choice.get('valid', False):
                 data['valid'] = True
                 good_choices.append(data)

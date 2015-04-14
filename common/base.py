@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2014-2015 Université Catholique de Louvain.
+# Copyright (c) 2014 Université Catholique de Louvain.
 #
 # This file is part of INGInious.
 #
@@ -21,19 +21,34 @@ import codecs
 import json
 import os.path
 import re
-
 import common.custom_yaml
 
+# Configuration for common modules
 
-class Configuration(dict):
 
-    """ Config class """
+def get_tasks_directory():
+    """ Return the path to the directory containing the courses and the tasks """
+    return get_tasks_directory.tasks_directory
+get_tasks_directory.tasks_directory = "trolol"
 
-    def load(self, path):
-        """ Load the config from a file """
-        self.update(load_json_or_yaml(path))
 
-INGIniousConfiguration = Configuration()
+def get_allowed_file_extensions():
+    """ Returns a list containing the allowed file extensions (for file uploads) """
+    return get_allowed_file_extensions.allowed_file_extensions
+get_allowed_file_extensions.allowed_file_extensions = [".c", ".cpp", ".java", ".oz", ".zip", ".tar.gz", ".tar.bz2", ".txt"]
+
+
+def get_max_file_size():
+    """ Return the maximum file upload size """
+    return get_max_file_size.max_file_size
+get_max_file_size.max_file_size = 1024 * 1024
+
+
+def init_common_lib(tasks_directory, allowed_file_extensions, max_file_size):
+    """Inits the modules in the common package"""
+    get_tasks_directory.tasks_directory = tasks_directory
+    get_allowed_file_extensions.allowed_file_extensions = allowed_file_extensions
+    get_max_file_size.max_file_size = int(max_file_size) if max_file_size is not None else (1024 * 1024)
 
 
 def id_checker(id_to_test):

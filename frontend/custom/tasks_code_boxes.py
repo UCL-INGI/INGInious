@@ -24,6 +24,9 @@ import json
 import web
 
 from common.tasks_code_boxes import TextBox, InputBox, MultilineBox, FileBox
+from frontend.parsable_text import ParsableText
+
+
 class DisplayableBox(object):
 
     """ A basic interface for displayable boxes """
@@ -51,9 +54,15 @@ class DisplayableTextBox(TextBox, DisplayableBox):
 
     """ A displayable text box """
 
+    def __init__(self, problem, boxid, boxData):
+        TextBox.__init__(self, problem, boxid, boxData)
+        DisplayableBox.__init__(self)
+
+        self._content = ParsableText(self._content, "HTML" if "contentIsHTML" in boxData and boxData["contentIsHTML"] else "rst").parse()
+
     def show(self):
         """ Show TextBox """
-        return str(web.template.render('templates/tasks/').box_text(self._content.parse()))
+        return str(web.template.render('templates/tasks/').box_text(self._content))
 
 
 class DisplayableFileBox(FileBox, DisplayableBox):
