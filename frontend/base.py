@@ -21,7 +21,7 @@ from gridfs import GridFS
 from pymongo import MongoClient
 import web
 from frontend.configuration import INGIniousConfiguration
-
+import os
 
 def add_to_template_globals(name, value):
     """ Add a variable to will be accessible in the templates """
@@ -33,7 +33,8 @@ def get_template_renderer(dir_path, base=None):
     """ Create a template renderer on templates in the directory specified.
         *base* is the base layout name.
     """
-    return web.template.render(dir_path, globals=add_to_template_globals.globals, base=base)
+    base_dir_path = os.path.dirname(__file__)
+    return web.template.render(os.path.join(base_dir_path,dir_path), globals=add_to_template_globals.globals, base=base)
 
 renderer = get_template_renderer('templates/', 'layout')
 add_to_template_globals.globals["include"] = get_template_renderer('templates/')

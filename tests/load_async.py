@@ -18,18 +18,10 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 import Queue
 import json
-import json
 import threading
 import time
-import unittest
-import uuid
-
-import webtest
 
 from tests import *
-import app_frontend
-import backend
-import common.base
 import frontend
 import frontend.session
 import frontend.submission_manager

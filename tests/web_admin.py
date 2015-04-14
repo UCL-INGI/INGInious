@@ -16,14 +16,10 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
-import unittest
 
-import app_frontend
-import common.base
 import frontend
 import frontend.session
 from tests import *
-import webtest
 
 
 class web_admin_access(unittest.TestCase):

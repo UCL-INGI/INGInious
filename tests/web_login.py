@@ -16,13 +16,8 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
-import unittest
-
-import webtest
 
 from tests import *
-import app_frontend
-import common.base
 import frontend
 import frontend.session
 class web_login_session(unittest.TestCase):

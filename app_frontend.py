@@ -19,69 +19,13 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Starts the frontend """
 
-import os.path
-
-import web
-
-from frontend import submission_manager
-import frontend.base
-import frontend.configuration
-from frontend.database_updater import update_database
-from frontend.plugins.plugin_manager import PluginManager
-import frontend.session
-from frontend.template_helper import TemplateHelper
-urls = (
-    '/', 'frontend.pages.index.IndexPage',
-    '/index', 'frontend.pages.index.IndexPage',
-    '/course/([^/]+)', 'frontend.pages.course.CoursePage',
-    '/course/([^/]+)/([^/]+)', 'frontend.pages.tasks.TaskPage',
-    '/course/([^/]+)/([^/]+)/(.*)', 'frontend.pages.tasks.TaskPageStaticDownload',
-    '/admin/([^/]+)', 'frontend.pages.course_admin.settings.CourseSettings',
-    '/admin/([^/]+)/settings', 'frontend.pages.course_admin.settings.CourseSettings',
-    '/admin/([^/]+)/students', 'frontend.pages.course_admin.student_list.CourseStudentListPage',
-    '/admin/([^/]+)/student/([^/]+)', 'frontend.pages.course_admin.student_info.CourseStudentInfoPage',
-    '/admin/([^/]+)/student/([^/]+)/([^/]+)', 'frontend.pages.course_admin.student_task.CourseStudentTaskPage',
-    '/admin/([^/]+)/student/([^/]+)/([^/]+)/([^/]+)', 'frontend.pages.course_admin.student_task.SubmissionDownloadFeedback',
-    '/admin/([^/]+)/tasks', 'frontend.pages.course_admin.task_list.CourseTaskListPage',
-    '/admin/([^/]+)/task/([^/]+)', 'frontend.pages.course_admin.task_info.CourseTaskInfoPage',
-    '/admin/([^/]+)/edit/([^/]+)', 'frontend.pages.course_admin.task_edit.CourseEditTask',
-    '/admin/([^/]+)/edit/([^/]+)/files', 'frontend.pages.course_admin.task_edit_file.CourseTaskFiles',
-    '/admin/([^/]+)/submissions', 'frontend.pages.course_admin.submission_files.DownloadSubmissionFiles'
-)
-
-
-def get_app(config_file):
-    """ Get the application. config_file is the path to the JSON configuration file """
-    appli = web.application(urls, globals(), autoreload=False)
-    frontend.configuration.INGIniousConfiguration.load(config_file)
-
-    frontend.base.init_database()
-    update_database()
-    frontend.session.init(appli)
-
-    def not_found():
-        """ Display the error 404 page """
-        return web.notfound(frontend.base.renderer.notfound('Page not found'))
-    appli.notfound = not_found
-
-    plugin_manager = PluginManager(appli, frontend.configuration.INGIniousConfiguration.get("plugins", []))
-
-    # Plugin Manager is also a Hook Manager
-    submission_manager.init_backend_interface(plugin_manager)
-
-    # Loads template_helper
-    TemplateHelper()
-
-    # Loads plugins
-    plugin_manager.load()
-
-    return appli
+import frontend.app
+import os
 
 if __name__ == "__main__":
     if os.path.isfile("./configuration.yaml"):
-        app = get_app("./configuration.yaml")
+        frontend.app.start_app("./configuration.yaml")
     elif os.path.isfile("./configuration.json"):
-        app = get_app("./configuration.json")
+        frontend.app.start_app("./configuration.json")
     else:
         raise Exception("No configuration file found")
-    app.run()

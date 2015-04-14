@@ -18,15 +18,12 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 import json
 import time
-import unittest
-
-import webtest
 
 from tests import *
-import app_frontend
-import common.base
 import frontend
 import frontend.session
+
+
 class web_submissions(unittest.TestCase):
     def setUp(self):
         frontend.session.init(app, {'loggedin':True, 'username':"test", "realname":"Test", "email":"mail@test.com"})

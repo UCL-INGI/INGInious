@@ -17,15 +17,8 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 import time
-import unittest
-
-from pymongo import MongoClient
-import webtest
 
 from tests import *
-import app_frontend
-import common
-import common.base
 import frontend
 import frontend.base
 import frontend.custom

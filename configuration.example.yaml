@@ -38,8 +38,6 @@ mongo_opt:
 
 # Plugins that will be loaded by the frontend
 plugins:
-  - plugin_module: frontend.plugins.git_repo
-    repo_directory: ./repo_submissions
   - plugin_module: frontend.plugins.auth.demo_auth
     users:
         test: test

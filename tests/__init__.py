@@ -17,13 +17,11 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 import os
-import unittest
 
-import app_frontend
-import common.base
+from frontend import app
 import frontend
 import frontend.session
 import webtest
 if not os.path.basename(os.getcwd()) == 'doc':
-    app = app_frontend.get_app(os.path.dirname(os.path.realpath(__file__)) + "/configuration.json")
+    app = app.get_app(os.path.dirname(os.path.realpath(__file__)) + "/configuration.json")
     appt = webtest.TestApp(frontend.configuration.INGIniousConfiguration.get('tests', {}).get('host_url', app.wsgifunc()))
