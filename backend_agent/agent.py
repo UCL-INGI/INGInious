@@ -22,7 +22,7 @@ import copy
 import json
 import logging
 import os.path
-from shutil import rmtree
+from shutil import rmtree, copytree
 import thread
 import threading
 
@@ -107,9 +107,10 @@ class Agent(object):
         environment = self.image_aliases[environment]
 
         # Remove possibly existing older folder and creates the new ones
-        container_path = os.path.join(self.tmp_dir, str(internal_job_id))
-        sockets_path = os.path.join(self.tmp_dir, str(internal_job_id), 'sockets')
-        student_path = os.path.join(self.tmp_dir, str(internal_job_id), 'student')
+        container_path = os.path.join(self.tmp_dir, str(internal_job_id)) #tmp_dir/id/
+        task_path = os.path.join(container_path, 'task')  # tmp_dir/id/task/
+        sockets_path = os.path.join(container_path, 'sockets')  # tmp_dir/id/socket/
+        student_path = os.path.join(task_path, 'student') # tmp_dir/id/task/student/
         try:
             rmtree(container_path)
         except:
@@ -117,17 +118,22 @@ class Agent(object):
 
         os.mkdir(container_path)
         os.mkdir(sockets_path)
-        os.mkdir(student_path)
         os.chmod(container_path, 0777)
         os.chmod(sockets_path, 0777)
-        os.chmod(student_path, 0777)
+
+        copytree(os.path.join(self.task_folder, task.get_course_id(), task.get_id()), task_path)
+        os.chmod(task_path, 0777)
+
+        if not os.path.exists(student_path):
+            os.mkdir(student_path)
+            os.chmod(student_path, 0777)
 
         # Run the container
         try:
             response = docker_connection.create_container(
                 environment,
                 stdin_open=True,
-                volumes={'/ro/task': {}, '/sockets': {}, '/student': {}},
+                volumes={'/task': {}, '/sockets': {}},
                 mem_limit=(mem_limit + 10) * 1024 * 1024  # add 10 mo of bonus, as we check the memory in the "cgroup" thread
             )
             container_id = response["Id"]
@@ -150,9 +156,8 @@ class Agent(object):
 
             # Start the container
             docker_connection.start(container_id,
-                                    binds={os.path.abspath(os.path.join(self.task_folder, task.get_course_id(), task.get_id())): {'ro': True, 'bind': '/ro/task'},
-                                           os.path.abspath(sockets_path): {'ro': False, 'bind': '/sockets'},
-                                           os.path.abspath(student_path): {'ro': False, 'bind': '/student'}})
+                                    binds={os.path.abspath(task_path): {'ro': False, 'bind': '/task'},
+                                           os.path.abspath(sockets_path): {'ro': False, 'bind': '/sockets'}})
 
             # Send the input data
             container_input = {"input": inputdata, "limits": limits}
@@ -227,8 +232,10 @@ class Agent(object):
 
         return AgentService
 
-    def _create_new_student_container(self, container_name, command, memory_limit, time_limit, hard_time_limit, container_set, student_path):
-        self.logger.debug("Starting new student container... %s %s %s %s %s", container_name, command, memory_limit, time_limit, hard_time_limit)
+    def _create_new_student_container(self, container_name, working_dir, command, memory_limit, time_limit, hard_time_limit, container_set,
+                                      student_path):
+        self.logger.debug("Starting new student container... %s %s %s %s %s", container_name, working_dir, command, memory_limit, time_limit,
+                          hard_time_limit)
         try:
             docker_connection = docker.Client(**kwargs_from_env())
         except:
@@ -249,14 +256,15 @@ class Agent(object):
                 environment,
                 stdin_open=True,
                 network_disabled=True,
-                volumes={'/student': {}},
+                volumes={'/task/student': {}},
                 command=command,
+                working_dir=working_dir,
                 mem_limit=(mem_limit + 10) * 1024 * 1024  # add 10 mo of bonus, as we check the memory in the "cgroup" thread
             )
             container_id = response["Id"]
 
             # Start the container
-            docker_connection.start(container_id, binds={os.path.abspath(student_path): {'ro': False, 'bind': '/student'}})
+            docker_connection.start(container_id, binds={os.path.abspath(student_path): {'ro': False, 'bind': '/task/student'}})
 
             stdout_err = docker_connection.attach_socket(container_id, {'stdin': 0, 'stdout': 1, 'stderr': 1, 'stream': 1, 'logs': 1})
         except Exception as e:
@@ -334,7 +342,7 @@ class Agent(object):
 
         class StudentContainerManagementService(rpyc.Service):
 
-            def exposed_run(self, container_name, command, memory_limit, time_limit, hard_time_limit):
+            def exposed_run(self, container_name, working_dir, command, memory_limit, time_limit, hard_time_limit):
                 if container_name == "":
                     container_name = default_container
                 if memory_limit == 0:
@@ -343,7 +351,8 @@ class Agent(object):
                     time_limit = default_time
                 if hard_time_limit == 0:
                     hard_time_limit = 3 * time_limit
-                return create_new_student_container(str(container_name), str(command), int(memory_limit), int(time_limit), int(hard_time_limit), container_set, student_path)
+                return create_new_student_container(str(container_name), str(working_dir), str(command), int(memory_limit), int(time_limit),
+                                                    int(hard_time_limit), container_set, student_path)
 
             def exposed_signal(self, container_id, signalnum):
                 if container_id in container_set:
