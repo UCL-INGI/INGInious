@@ -116,10 +116,18 @@ class JobManager(object):
             async_run = rpyc.async(agent.root.new_job)
             result = async_run(str(jobid), str(task.get_course_id()), str(task.get_id()), dict(inputdata), debug, None)
             self._running_on_agent[agent_id].append(jobid)
-            result.add_callback(lambda r: self._job_ended(jobid, r.value, agent_id))
+            result.add_callback(lambda r: self._execute_job_callback(jobid, r, agent_id))
         except:
             self._agent_shutdown(agent_id)
             self._execute_job(jobid, task, inputdata, debug)
+
+    def _execute_job_callback(self, jobid, callback_return_val, agent_id):
+        """ Called when an agent is done with a job or raised an exception """
+        if callback_return_val.error:
+            print "Agent {} made an exception while running jobid {}".format(agent_id, jobid)
+            self._job_ended(jobid, {"result": "crash"}, agent_id)
+        else:
+            self._job_ended(jobid, callback_return_val.value, agent_id)
 
     def _get_rpyc_server(self, agent_id):
         """ Return a service associated with this JobManager instance """
@@ -290,7 +298,7 @@ class JobManager(object):
         self._running_job_data[jobid] = (task, callback, basedict, statinfo)
         self._hook_manager.call_hook("new_job", jobid=jobid, task=task, statinfo=statinfo, inputdata=inputdata)
 
-        if need_emul:  # Go through the whole process: sent everything to Agent
+        if need_emul:  # Go through the whole process: send everything to Agent
             self._execute_job(jobid, task, inputdata, debug)
         else:  # If we only have questions that do not need to be "runned", simply directly return the answer
             self._job_ended(jobid, None, None)
