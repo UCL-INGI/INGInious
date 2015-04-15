@@ -40,19 +40,22 @@ class TestWithFakeAgent(object):
         self.agent = FakeAgent(self.handle_job_func)
         self.job_manager = JobManager([{"host": "localhost", "port": 5002}])
         self.callback_done = threading.Event()
+        self.got_callback_result = None
         assert self.job_manager.number_agents_available() == 1
 
     @abstractmethod
     def handle_job_func(self, job_id, course_id, task_id, inputdata, debug, callback_status):
         pass
 
-    def default_callback(self, _, _2, _3):
+    def default_callback(self, _, _2, result):
+        self.got_callback_result = result
         self.callback_done.set()
 
     def wait_for_callback(self, timeout=10):
         self.callback_done.wait(timeout)
         if not self.callback_done.is_set():
             raise Exception("Callback never called")
+        return self.got_callback_result
 
     def tearDown(self):
         self.job_manager.close()
