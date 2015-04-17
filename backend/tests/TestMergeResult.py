@@ -1,7 +1,7 @@
-from backend.tests.TestFakeAgent import TestWithFakeAgent
+from backend.tests.TestJobManager import TestLocalJobManager
 from common.courses import Course
 
-class TestNotInAgent(TestWithFakeAgent):
+class TestNotInAgent(TestLocalJobManager):
     def handle_job_func(self, job_id, course_id, task_id, inputdata, debug, callback_status):
         self.was_in = True
         return {"result": "success"}
@@ -19,7 +19,7 @@ class TestNotInAgent(TestWithFakeAgent):
         assert self.was_in
 
 
-class TestMerge(TestWithFakeAgent):
+class TestMerge(TestLocalJobManager):
     def handle_job_func(self, job_id, course_id, task_id, inputdata, debug, callback_status):
         return self.result
 

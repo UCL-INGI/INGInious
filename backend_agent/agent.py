@@ -31,21 +31,18 @@ from docker.utils import kwargs_from_env
 import rpyc
 from rpyc.utils.server import ThreadedServer
 
-from backend_agent.cgroup_helper import CGroupTimeoutWatcher, CGroupMemoryWatcher
-from backend_agent.rpyc_unix_server import UnixSocketServer
+from backend_agent._rpyc_unix_server import UnixSocketServer
 import common.base
 from common.courses import Course
 
-
-class Agent(object):
-
+class SimpleAgent(object):
+    """ A simple agent that can only handle one request at a time. It should not be used directly """
     logger = logging.getLogger("agent")
 
-    def __init__(self, master_port, image_aliases, task_folder="./tasks", tmp_dir="./agent_tmp"):
+    def __init__(self, image_aliases, tmp_dir="./agent_tmp"):
+        from backend_agent._cgroup_helper import CGroupTimeoutWatcher, CGroupMemoryWatcher
         self.logger.info("Starting agent")
         self.image_aliases = image_aliases
-        common.base.init_common_lib(task_folder, [], 1)  # we do not need to upload file, so not needed here
-        self.task_folder = task_folder
         self.tmp_dir = tmp_dir
 
         try:
@@ -63,15 +60,16 @@ class Agent(object):
         self._internal_job_count_lock = threading.Lock()
         self._internal_job_count = 0
 
-        self.logger.debug("Starting RPyC server - backend connection")
-        self._backend_server = ThreadedServer(self._get_agent_backend_service(), port=master_port, protocol_config={"allow_public_attrs": True, 'allow_pickle': True})
-        self._backend_server.start()
-
-    def handle_job(self, job_id, course_id, task_id, inputdata, debug, _):
+    def handle_job(self, job_id, course_id, task_id, inputdata, debug, callback_status):
+        """ Creates, executes and returns the results of a new job
+        :param job_id: The distant job id
+        :param course_id: The course id of the linked task
+        :param task_id: The task id of the linked task
+        :param inputdata: Input data, given by the student (dict)
+        :param debug: A boolean, indicating if the job should be run in debug mode or not
+        :param callback_status: Not used, should be None.
+        """
         self.logger.info("Received request for jobid %s", job_id)
-
-        # Deepcopy inputdata (to bypass "passage by reference" of RPyC)
-        inputdata = copy.deepcopy(inputdata)
 
         # Get the internal job count
         self._internal_job_count_lock.acquire()
@@ -121,7 +119,7 @@ class Agent(object):
         os.chmod(container_path, 0777)
         os.chmod(sockets_path, 0777)
 
-        copytree(os.path.join(self.task_folder, task.get_course_id(), task.get_id()), task_path)
+        copytree(os.path.join(common.base.get_tasks_directory(), task.get_course_id(), task.get_id()), task_path)
         os.chmod(task_path, 0777)
 
         if not os.path.exists(student_path):
@@ -197,7 +195,8 @@ class Agent(object):
             try:
                 stdout = str(docker_connection.logs(container_id, stdout=True, stderr=False))
                 result = json.loads(stdout)
-            except:
+            except Exception as e:
+                print e
                 self.logger.warning("Cannot get back stdout of container %s!", container_id)
                 result = {'result': 'crash', 'text': 'The grader did not return a readable output'}
 
@@ -219,18 +218,6 @@ class Agent(object):
 
         # Return!
         return result
-
-    def _get_agent_backend_service(self):
-        """ Returns a RPyC service associated with this Agent """
-        handle_job = self.handle_job
-
-        class AgentService(rpyc.Service):
-
-            def exposed_new_job(self, job_id, course_id, task_id, inputdata, debug, callback_status):
-                """ Creates, executes and returns the results of a new job """
-                return handle_job(job_id, course_id, task_id, inputdata, debug, callback_status)
-
-        return AgentService
 
     def _create_new_student_container(self, container_name, working_dir, command, memory_limit, time_limit, hard_time_limit, container_set,
                                       student_path):
@@ -370,3 +357,64 @@ class Agent(object):
                 return None
 
         return StudentContainerManagementService
+
+
+class RemoteAgent(SimpleAgent):
+    """
+        An agent that can be called remotely via RPyC.
+        It can handle multiple requests at a time, but RPyC calls have to be made using the ```async``` function.
+    """
+
+    def __init__(self, master_port, image_aliases, tmp_dir="./agent_tmp"):
+        SimpleAgent.__init__(self, image_aliases, tmp_dir)
+        self.logger.debug("Starting RPyC server - backend connection")
+        self._backend_server = ThreadedServer(self._get_agent_backend_service(), port=master_port,
+            protocol_config={"allow_public_attrs": True, 'allow_pickle': True})
+        self._backend_server.start()
+
+    def _get_agent_backend_service(self):
+        """ Returns a RPyC service associated with this Agent """
+        handle_job = self.handle_job
+
+        class AgentService(rpyc.Service):
+            def exposed_new_job(self, job_id, course_id, task_id, inputdata, debug, callback_status):
+                """ Creates, executes and returns the results of a new job (in a separate thread, distant version)
+                :param job_id: The distant job id
+                :param course_id: The course id of the linked task
+                :param task_id: The task id of the linked task
+                :param inputdata: Input data, given by the student (dict)
+                :param debug: A boolean, indicating if the job should be run in debug mode or not
+                :param callback_status: Not used, should be None.
+                """
+
+                # Deepcopy inputdata (to bypass "passage by reference" of RPyC)
+                inputdata = copy.deepcopy(inputdata)
+
+                return handle_job(job_id, course_id, task_id, inputdata, debug, callback_status)
+
+        return AgentService
+
+class LocalAgent(SimpleAgent):
+    """ An agent made to be run locally (launched directly by the backend). It can handle multiple requests at a time. """
+
+    def new_job(self, job_id, course_id, task_id, inputdata, debug, callback_status, final_callback):
+        """ Creates, executes and returns the results of a new job (in a separate thread)
+        :param job_id: The distant job id
+        :param course_id: The course id of the linked task
+        :param task_id: The task id of the linked task
+        :param inputdata: Input data, given by the student (dict)
+        :param debug: A boolean, indicating if the job should be run in debug mode or not
+        :param callback_status: Not used, should be None.
+        :param final_callback: Callback function called when the job is done; one argument: the result.
+        """
+
+        t = threading.Thread(target=lambda: self._handle_job_threaded(job_id, course_id, task_id, inputdata, debug, callback_status, final_callback))
+        t.daemon = True
+        t.start()
+
+    def _handle_job_threaded(self, job_id, course_id, task_id, inputdata, debug, callback_status, final_callback):
+        try:
+            result = self.handle_job(job_id, course_id, task_id, inputdata, debug, callback_status)
+            final_callback(result)
+        except:
+            final_callback({"result":"crash"})

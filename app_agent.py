@@ -21,9 +21,12 @@
 
 import logging
 
-from backend_agent.agent import Agent
+from backend_agent.agent import RemoteAgent
+import common.base
 
 if __name__ == "__main__":
+    common.base.init_common_lib("./tasks", [], 1)  # we do not need to upload file, so not needed here
+
     # create logger
     logger = logging.getLogger("agent")
     logger.setLevel(logging.INFO)
@@ -32,4 +35,4 @@ if __name__ == "__main__":
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     ch.setFormatter(formatter)
     logger.addHandler(ch)
-    Agent(5001, {"default": "ingi/inginious-c-default", "sekexe": "ingi/inginious-c-sekexe"}, tmp_dir="/agent_tmp")
+    RemoteAgent(5001, {"default": "ingi/inginious-c-default", "sekexe": "ingi/inginious-c-sekexe"}, tmp_dir="/agent_tmp")

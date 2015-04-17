@@ -1,7 +1,7 @@
-from backend.tests.TestFakeAgent import TestWithFakeAgent
+from backend.tests.TestJobManager import TestWithFakeRemoteAgent
 from common.courses import Course
 
-class TestAgentCrash(TestWithFakeAgent):
+class TestRemoteAgentCrash(TestWithFakeRemoteAgent):
     def handle_job_func(self, job_id, course_id, task_id, inputdata, debug, callback_status):
         raise Exception("You shall not pass!")
 

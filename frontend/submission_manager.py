@@ -24,7 +24,7 @@ import json
 from bson.objectid import ObjectId
 import pymongo
 
-from backend.job_manager import JobManager
+from backend.job_managers.remote import RemoteJobManager
 from frontend.base import get_database, get_gridfs
 from frontend.configuration import INGIniousConfiguration
 from frontend.parsable_text import ParsableText
@@ -48,7 +48,7 @@ def init_backend_interface(plugin_manager):
                                        "$set": {'status': 'error', 'grade': 0.0, 'text': 'Internal error. Server restarted'}}, multi=True)
 
     # Create the job manager
-    get_job_manager.job_manager = JobManager(INGIniousConfiguration.get("agents", [{"host": "localhost", "port": 5001}]), plugin_manager)
+    get_job_manager.job_manager = RemoteJobManager(INGIniousConfiguration.get("agents", [{"host": "localhost", "port": 5001}]), plugin_manager)
 
 
 def get_submission(submissionid, user_check=True):
