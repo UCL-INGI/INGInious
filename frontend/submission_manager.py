@@ -24,7 +24,9 @@ import json
 from bson.objectid import ObjectId
 import pymongo
 
-from backend.job_managers.remote import RemoteJobManager
+from backend.job_managers.remote_agent import RemoteAgentJobManager
+from backend.job_managers.local import LocalJobManager
+
 from frontend.base import get_database, get_gridfs
 from frontend.configuration import INGIniousConfiguration
 from frontend.parsable_text import ParsableText
@@ -48,7 +50,16 @@ def init_backend_interface(plugin_manager):
                                        "$set": {'status': 'error', 'grade': 0.0, 'text': 'Internal error. Server restarted'}}, multi=True)
 
     # Create the job manager
-    get_job_manager.job_manager = RemoteJobManager(INGIniousConfiguration.get("agents", [{"host": "localhost", "port": 5001}]), plugin_manager)
+    backend_type = INGIniousConfiguration.get("backend", "local")
+    if backend_type == "local":
+        get_job_manager.job_manager = LocalJobManager(
+            INGIniousConfiguration.get('containers', {"default": "ingi/inginious-c-default","sekexe": "ingi/inginious-c-sekexe"}),
+            INGIniousConfiguration.get('local_agent_tmp_dir',"/tmp/inginious_agent"), plugin_manager)
+    elif backend_type == "remote":
+        get_job_manager.job_manager = RemoteAgentJobManager(
+            INGIniousConfiguration.get("agents", [{"host": "localhost", "port": 5001}]), plugin_manager)
+    else:
+        raise Exception("Unknown backend {}".format(backend_type))
 
 
 def get_submission(submissionid, user_check=True):

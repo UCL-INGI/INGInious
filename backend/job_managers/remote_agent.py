@@ -25,7 +25,7 @@ import rpyc
 from backend.job_managers.abstract import AbstractJobManager
 
 
-class RemoteJobManager(AbstractJobManager):
+class RemoteAgentJobManager(AbstractJobManager):
     """ A Job Manager that handles connections with distant Agents using RPyC """
     def __init__(self, agents, hook_manager=None, is_testing=False):
         """

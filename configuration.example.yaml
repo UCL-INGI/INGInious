@@ -12,24 +12,19 @@ containers:
     sekexe: ingi/inginious-c-sekexe
 
 ##############################################
-#        Part used only by the agents        #
-##############################################
-
-# Port on which the local agent will listen
-local_agent_port: 5001
-
-# Tmp folder used by the agent
-local_agent_tmp_dir: "/tmp/inginious_agent"
-
-##############################################
 #       Part used only by the frontend       #
 ##############################################
 
+# Backend
+# Can be "local" (run containers on the same machine)
+# Or "remote" (connect to distant and manually installed agents. This includes boot2docker)
+backend: local
+
 # List of the agents to which the backend will try
-# to connect
-agents:
-  - host: "192.168.59.103"
-    port: 5001
+# to connect (backend: remote only) (the default config below is the one for boot2docker on OS X)
+#agents:
+#  - host: "192.168.59.103"
+#    port: 5001
 
 # MongoDB options
 mongo_opt:
@@ -40,7 +35,18 @@ mongo_opt:
 plugins:
   - plugin_module: frontend.plugins.auth.demo_auth
     users:
+        # register the user "test" with the password "test"
         test: test
 
 # Allow HTML in tasks? can be true, false or "tidy" (to run HTMLTidy)
 allow_html: tidy
+
+##############################################
+#        Part used only by the agents        #
+##############################################
+
+# Tmp folder used by the agent
+local_agent_tmp_dir: "/tmp/inginious_agent"
+
+# Port on which the local agent will listen (only for backend:remote)
+#local_agent_port: 5001
