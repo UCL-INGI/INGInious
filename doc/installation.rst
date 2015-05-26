@@ -49,7 +49,7 @@ Don't forget to enable EPEL_.
 ::
 
 	$ sudo yum install git mongodb mongodb-server docker python-pip gcc python-devel
-	$ sudo pip install pymongo pytidylib docker-py sh web.py docutils simpleldap
+	$ sudo pip install pymongo pytidylib docker-py sh web.py docutils simpleldap pyyaml python-ldap
 
 Some remarks:
 
@@ -215,6 +215,16 @@ The different entries are :
 
 
 .. _production:
+
+Downloading basic containers
+----------------------------
+
+Use this command to pull the default container of INGInious. Lots of other containers are available: `pre-built containers`_.
+
+::
+
+	$ docker pull ingi/inginious-c-default
+	
 
 Using lighttpd (on CentOS 7.0)
 ------------------------------
