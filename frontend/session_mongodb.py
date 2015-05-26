@@ -111,15 +111,15 @@ class MongoStore(Store):
         sess = self.collection.find_one({_id: sessionid})
         if not sess:
             raise KeyError(sessionid)
-        self.collection.update({_id: sessionid}, {'$set': {_atime: time()}}, safe=True)
+        self.collection.update({_id: sessionid}, {'$set': {_atime: time()}})
         return self.decode(sess[_data])
 
     def __setitem__(self, sessionid, sessiondict):
         data = self.encode(sessiondict)
-        self.collection.save({_id: sessionid, _data: data, _atime: time()}, safe=True)
+        self.collection.save({_id: sessionid, _data: data, _atime: time()})
 
     def __delitem__(self, sessionid):
-        self.collection.remove({_id: sessionid}, safe=True)
+        self.collection.remove({_id: sessionid})
 
     def cleanup(self, timeout):
         '''

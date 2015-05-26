@@ -40,7 +40,7 @@ class CourseTaskListPage(object):
 
     def page(self, course):
         """ Get all data and display the page """
-        data = get_database().user_tasks.aggregate(
+        data = list(get_database().user_tasks.aggregate(
             [
                 {
                     "$match":
@@ -59,7 +59,7 @@ class CourseTaskListPage(object):
                         "succeeded": {"$sum": {"$cond": ["$succeeded", 1, 0]}}
                     }
                 }
-            ])["result"]
+            ]))
 
         # Load tasks and verify exceptions
         files = get_readable_tasks(course.get_id())
