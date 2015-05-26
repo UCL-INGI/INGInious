@@ -1,0 +1,23 @@
+accessible: true
+author: Guillaume Derval
+context: |-
+    A simple test task that asks you to write a simple "Hello World!" in C#.
+
+    Remember that you need to pull the needed docker image:
+
+    ::
+
+        $ docker pull ingi/inginious-c-mono
+environment: mono
+limits:
+    memory: '100'
+    time: '30'
+    output: '2'
+name: C# Hello World
+problems:
+    p1:
+        type: code
+        header: Write a simple class with a method Main that prints "Hello World!"
+        name: ''
+        language: csharp
+weight: 1.0
