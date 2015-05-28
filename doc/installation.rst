@@ -27,6 +27,7 @@ The frontend needs:
 - PyTidyLib_
 - Python's SH_ lib
 - Web.py_
+- Many other pip packages for plugins (see later for the full list of pip packages needed)
 
 .. _Docker: https://www.docker.com
 .. _Docker-py: https://github.com/dotcloud/docker-py
@@ -49,7 +50,7 @@ Don't forget to enable EPEL_.
 ::
 
 	$ sudo yum install git mongodb mongodb-server docker python-pip gcc python-devel
-	$ sudo pip install pymongo pytidylib docker-py sh web.py docutils simpleldap pyyaml python-ldap
+	$ sudo pip install pymongo pytidylib docker-py sh web.py docutils simpleldap pyyaml python-ldap pytidylib
 
 Some remarks:
 
