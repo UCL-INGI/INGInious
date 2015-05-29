@@ -27,7 +27,8 @@ The frontend needs:
 - PyTidyLib_
 - Python's SH_ lib
 - Web.py_
-- Many other pip packages for plugins (see later for the full list of pip packages needed)
+- Simple-LDAP_
+- PyYAML_
 
 .. _Docker: https://www.docker.com
 .. _Docker-py: https://github.com/dotcloud/docker-py
@@ -38,6 +39,9 @@ The frontend needs:
 .. _PyTidyLib: http://countergram.com/open-source/pytidylib/docs/index.html
 .. _SH: http://amoffat.github.io/sh/
 .. _Web.py: http://webpy.org/
+.. _Simple-LDAP: https://pypi.python.org/pypi/simpleldap/0.8
+.. _PyYAML: https://pypi.python.org/pypi/PyYAML/3.11
+
 
 Installation of the dependencies
 --------------------------------
@@ -49,18 +53,18 @@ Don't forget to enable EPEL_.
 
 ::
 
-	$ sudo yum install git mongodb mongodb-server docker python-pip gcc python-devel
-	$ sudo pip install pymongo pytidylib docker-py sh web.py docutils simpleldap pyyaml python-ldap pytidylib
+	$ sudo yum install git mongodb mongodb-server docker python-pip gcc python-devel libtidy
+	$ sudo pip install pymongo pytidylib docker-py sh web.py docutils simpleldap pyyaml
 
 Some remarks:
 
 - GCC and python-devel are not needed, but allows pymongo to compile C extensions which result in speed improvements.
 
-- python-ldap is only needed if you use the ldap authentication plugin
+- simpleldap is only needed if you use the ldap authentication plugin
 
 - (python-)sh and git are dependencies of the submission_repo plugin
 
-- libtidy and pytidylib are only needed if you use htmltidy to check tasks' output
+- libtidy and pytidylib are only needed if you use htmltidy to check tasks' output or if you use the edX plugin
 
 .. _EPEL: https://fedoraproject.org/wiki/EPEL
 
@@ -94,7 +98,7 @@ local directory flawlessly.
 	$ brew install python
 	$ sudo curl https://raw.githubusercontent.com/noplay/docker-osx/1.0.0/docker-osx > /usr/local/bin/docker-osx
 	$ sudo chmod +x /usr/local/bin/docker-osx
-	$ sudo pip install pymongo pytidylib docker-py sh web.py docutils
+	$ sudo pip install pymongo pytidylib docker-py sh web.py docutils simpleldap pyyaml
 
 Follow the instruction of brew to enable mongodb.
 Each time you have to run INGInious, don't forget to start docker-osx by running
@@ -141,7 +145,7 @@ It content is :
     tasks_directory: ./tasks
     containers:
         default: ingi/inginious-c-default
-        sekexe: ingi/inginious-c-sekexe
+        cpp: ingi/inginious-c-cpp
     docker_instances:
       - server_url: "tcp://192.168.59.103:2375"
     callback_managers_threads: 2
@@ -150,8 +154,6 @@ It content is :
         host: localhost
         database: INGInious
     plugins:
-      - plugin_module: frontend.plugins.git_repo
-        repo_directory: ./repo_submissions
       - plugin_module: frontend.plugins.auth.demo_auth
         users:
             test: test
@@ -195,12 +197,12 @@ The different entries are :
 
 ``plugins``
     A list of plugin modules together with configuration options.
-    See :ref:`plugin` for detailed information on plugins, ad each plugin for its configuration options.
+    See :ref:`plugins` for detailed information on available plugins, including their configuration.
 
 ``allow_html``
     This parameter accepts three options that define if and how HTML values in strings are treated.
     This option applies globally on descriptions, titles and all strings directly displayed.
-    By default, all text is supposed to be in reStructuredText format but ``*IsHTML`` options are available in :ref:`course.json` and :ref:`task.json`.
+    By default, all text is supposed to be in reStructuredText format but ``*IsHTML`` options are available in :ref:`course.yaml` and :ref:`task.yaml`.
 
     ``false``
         HTML is never allowed.
@@ -211,7 +213,7 @@ The different entries are :
     ``true``
         HTML is always accepted, and never sanitized. (discouraged)
 
-.. _pre-built containers: https://registry.hub.docker.com/search?q=ingi
+.. _pre-built containers: https://registry.hub.docker.com/search?q=ingi%2Finginious-c-*&searchfield=
 .. _docker-py API: https://github.com/docker/docker-py/blob/master/docs/api.md#client-api
 
 
@@ -225,7 +227,9 @@ Use this command to pull the default container of INGInious. Lots of other conta
 ::
 
 	$ docker pull ingi/inginious-c-default
+	$ docker pull ingi/inginious-c-cpp
 	
+If you pull/create additionnal containers, do not forget to add them in the configuration of INGInious.
 
 Using lighttpd (on CentOS 7.0)
 ------------------------------
@@ -305,3 +309,70 @@ Finally, start the server:
 
 	$ sudo chkconfig lighttpd on
 	$ sudo service lighttpd start
+
+.. _plugins:
+
+Plugins
+-------
+
+This section presents a short overview of the main plugins available. All the plugins are located in the folder frontend/plugins, and provide extensive documentation in their "init" method.
+
+Auth plugins
+````````````
+You need at least one auth plugin activated. For now, two are provided by default: auth.demo_auth and auth.ldap_auth.
+
+demo_auth
+!!!!!!!!!
+
+Provides a simple authentification method, mainly for demo purposes, with username/password pairs stored directly in the config file.
+
+Example of configuration:
+::
+	plugins:
+	  - plugin_module: frontend.plugins.auth.demo_auth
+    	    users:
+                username1: "password1"
+                username2: "password2"
+                username3: "password3"
+                
+ldap_auth
+!!!!!!!!!
+
+Uses an LDAP server for authenticating users.
+
+Example of configuration:
+::
+	plugins:
+	  - plugin_module: frontend.plugins.auth.ldap_auth
+            host: "your.ldap.server.com"
+            encryption": "ssl" #can be tls or none 
+            base_dn: "ou=People,dc=info,dc=ucl,dc=ac,dc=be"
+            request: "uid={}",
+            prefix: "",
+            name: "INGI Login",
+            require_cert: true
+
+Most of the parameters are self-explaining, but:
+
+``request``
+	is the request made to the LDAP server to search the user to authentify. "{}" is replaced by the username indicated by the user.
+``prefix``
+	a prefix that will be added in the internal username used in INGInious. Useful if you have multiple auth methods with usernames used in more than one method.
+	
+edX plugin
+``````````
+
+Provides a *passive* grader for edX XQueue. More information is available on the :doc:`edX <./teacher_doc/edX>` page in this documentation.
+Here is an example of configuration:
+::
+	plugins:
+	  - plugin_module: frontend.plugins.edx,
+            courseid: "LouvainX",
+            page_pattern: "/grader"
+
+``courseid``
+	courseid is the id of the course that you want to provide to edX.
+	(Please note that you can have multiple instances of the edX plugin, allowing you to use it for more than one course)
+``page_pattern``:
+	pages that will lead to the edX grader. Can be a simple string or a regex. Note that if you use multiple edX plugin instances,
+	page_patterns have to be unique.
