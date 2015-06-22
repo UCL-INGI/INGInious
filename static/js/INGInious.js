@@ -187,8 +187,10 @@ function displayNewSubmission(id)
 }
 
 //Updates a loading submission
-function updateSubmission(id,result)
+function updateSubmission(id,result,grade)
 {
+    grade = grade || "0.0";
+
 	nclass = "";
 	if(result == "success") nclass="list-group-item-success";
 	else if(result == "save") nclass="list-group-item-save";
@@ -197,9 +199,6 @@ function updateSubmission(id,result)
 		if ($(this).attr('data-submission-id').trim() == id)
 		{
 			$(this).removeClass('list-group-item-warning').addClass(nclass);
-			grade = "0.0";
-			if(result["grade"])
-				grade = result["grade"];
 			$(this).text($(this).text() + " - " + grade+"%");
 		}
 	});
@@ -291,35 +290,35 @@ function waitForSubmission(submissionid)
                 if(data['result'] == "failed")
                 {
                     displayTaskStudentErrorAlert(data);
-                    updateSubmission(submissionid,data['result']);
+                    updateSubmission(submissionid,data['result'], data["grade"]);
                     updateTaskStatus("Wrong answer", data["grade"]);
                     unblurTaskForm();
                 }
                 else if(data['result'] == "success")
                 {
                     displayTaskStudentSuccessAlert(data);
-                    updateSubmission(submissionid,data['result']);
+                    updateSubmission(submissionid,data['result'], data["grade"]);
                     updateTaskStatus("Succeeded", data["grade"]);
                     unblurTaskForm();
                 }
                 else if(data['result'] == "timeout")
                 {
                     displayTimeOutAlert();
-                    updateSubmission(submissionid,data['result']);
+                    updateSubmission(submissionid,data['result'], data["grade"]);
                     updateTaskStatus("Wrong answer", data["grade"]);
                     unblurTaskForm();
                 }
                 else if(data['result'] == "overflow")
                 {
                     displayOverflowAlert();
-                    updateSubmission(submissionid,data['result']);
+                    updateSubmission(submissionid,data['result'], data["grade"]);
                     updateTaskStatus("Wrong answer", data["grade"]);
                     unblurTaskForm();
                 }
                 else // == "error"
                 {
                     displayTaskErrorAlert(data);
-                    updateSubmission(submissionid,data['result']);
+                    updateSubmission(submissionid,data['result'], data["grade"]);
                     updateTaskStatus("Wrong answer", data["grade"]);
                     unblurTaskForm();
                 }
@@ -327,7 +326,7 @@ function waitForSubmission(submissionid)
             else
             {
                 displayTaskErrorAlert("");
-                updateSubmission(submissionid,"error");
+                updateSubmission(submissionid,"error","0.0");
                 updateTaskStatus("Wrong answer", 0);
                 unblurTaskForm();
             }
@@ -335,7 +334,7 @@ function waitForSubmission(submissionid)
         .fail(function()
         {
             displayTaskErrorAlert("");
-            updateSubmission(submissionid,"error");
+            updateSubmission(submissionid,"error","0.0");
             updateTaskStatus("Wrong answer", 0);
             unblurTaskForm();
         });
