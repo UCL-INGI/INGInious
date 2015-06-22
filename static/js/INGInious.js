@@ -90,7 +90,7 @@ function registerCodeEditor(textarea,lang,lines)
             case "python3": lang = {name: "python", version: 3}; mode = "python"; break;
         }
     }
-    
+
     
     CodeMirror.modeURL = "/static/js/codemirror/mode/%N/%N.js";
     editor = CodeMirror.fromTextArea(textarea, {
@@ -106,8 +106,19 @@ function registerCodeEditor(textarea,lang,lines)
         viewportMargin: Infinity,
         lint: function(){return []}
     });
+
     editor.on("change", function(cm) { cm.save(); });
-    editor.setSize(null, (21*lines)+"px");
+
+    min_editor_height = (21 * lines);
+    editor.on("viewportChange", function(cm)
+    {
+        if (cm.getScrollInfo()["height"] > min_editor_height)
+            editor.setSize(null, "auto");
+        else
+            editor.setSize(null, min_editor_height + "px");
+    });
+    editor.setSize(null, min_editor_height + "px");
+
     CodeMirror.autoLoadMode(editor, mode);
     codeEditors.push(editor);
     return editor;
