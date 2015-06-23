@@ -146,7 +146,7 @@ class CodeSingleLineProblem(BasicCodeProblem):
 
     def __init__(self, task, problemid, content):
         BasicCodeProblem.__init__(self, task, problemid, content)
-        self._boxes = [self._create_box("", {"type": "input-text"})]
+        self._boxes = [self._create_box("", {"type": "input-text", "optional": content.get("optional", False)})]
 
     def get_type(self):
         return "code-single-line"
@@ -178,9 +178,10 @@ class CodeProblem(BasicCodeProblem):
                 self._boxes.append(self._create_box(boxid, box_content))
         else:
             if "language" in content:
-                self._boxes = [self._create_box("", {"type": "multiline", "language": content["language"]})]
+                self._boxes = [self._create_box("", {"type": "multiline", "language": content["language"],
+                                                     "optional": content.get("optional", False)})]
             else:
-                self._boxes = [self._create_box("", {"type": "multiline"})]
+                self._boxes = [self._create_box("", {"type": "multiline", "optional": content.get("optional", False)})]
 
     def get_type(self):
         return "code"

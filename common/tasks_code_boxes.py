@@ -138,7 +138,10 @@ class InputBox(BasicBox):
         # do not allow empty answers
         try:
             if len(taskInput[self.get_complete_id()]) == 0:
-                return False
+                if self._optional:
+                    taskInput[self.get_complete_id()] = self._default_value
+                else:
+                    return False
         except:
             return False
 
@@ -159,12 +162,17 @@ class InputBox(BasicBox):
         BasicBox.__init__(self, problem, boxid, boxData)
         if boxData["type"] == "input-text":
             self._input_type = "text"
+            self._default_value = ""
         elif boxData["type"] == "input-integer":
             self._input_type = "integer"
+            self._default_value = "0"
         elif boxData["type"] == "input-decimal":
             self._input_type = "decimal"
+            self._default_value = "0.0"
         else:
             raise Exception("No such box type " + boxData["type"] + " in box " + boxid)
+
+        self._optional = boxData.get("optional", False)
 
         if "maxChars" in boxData and isinstance(boxData['maxChars'], (int, long)) and boxData['maxChars'] > 0:
             self._max_chars = boxData['maxChars']
@@ -188,7 +196,10 @@ class MultilineBox(BasicBox):
             return False
         # do not allow empty answers
         if len(taskInput[self.get_complete_id()]) == 0:
-            return False
+            if self._optional:
+                taskInput[self.get_complete_id()] = ""
+            else:
+                return False
         return True
 
     def __init__(self, problem, boxid, boxData):
@@ -199,6 +210,8 @@ class MultilineBox(BasicBox):
             raise Exception("Invalid maxChars value in box " + boxid)
         else:
             self._max_chars = 0
+
+        self._optional = boxData.get("optional", False)
 
         if "lines" in boxData and isinstance(boxData['lines'], (int, long)) and boxData['lines'] > 0:
             self._lines = boxData['lines']

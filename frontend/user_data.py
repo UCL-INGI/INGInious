@@ -90,7 +90,7 @@ class UserData(object):
         taskids = tasks.keys()
         match["taskid"] = {"$in": taskids}
 
-        data = get_database().user_tasks.aggregate(
+        data = list(get_database().user_tasks.aggregate(
             [
                 {"$match": match},
                 {"$group": {
@@ -100,10 +100,10 @@ class UserData(object):
                     "task_succeeded": {"$addToSet": {"$cond": ["$succeeded", "$taskid", False]}},
                     "task_grades": {"$addToSet": {"taskid": "$taskid", "grade": "$grade"}}
                 }}
-            ])
-        if data.get('ok', False):
+            ]))
+        if len(data) != 0:
             return_data = {}
-            for result in data["result"]:
+            for result in data:
                 username = result["_id"]
                 user_tasks = set([taskid for taskid, task in tasks.iteritems() if task.is_visible_by_user(username)])
                 result["total_tasks"] = len(user_tasks)

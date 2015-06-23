@@ -1,0 +1,24 @@
+#! /bin/bash
+
+# Put the input of the student inside test.cs
+getinput p1 > test.cs
+
+# Compile test.cs
+mcs test.cs &> compilation.log
+if [ $? -ne 0 ]; then
+	printf 'There was an error while compiling you code\n\n::\n\n' > temp.log
+	#TODO: we should provide a simpler way to create complicated feedback messages
+	cat compilation.log | awk '{printf "\t%s\n", $0}' >> temp.log
+	feedback --result failed --feedback "$(<temp.log)"
+	exit 0
+fi
+
+# Verify the output of the code...
+output=$(mono test.exe)
+if [ "$output" = "Hello World!" ]; then
+	# The student succeeded
+	feedback --result success --feedback "You solved this difficult task!"
+else
+	# The student failed
+	feedback --result failed --feedback "Your output is $output"
+fi

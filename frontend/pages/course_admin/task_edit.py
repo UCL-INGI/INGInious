@@ -132,14 +132,10 @@ class CourseEditTask(object):
         """ Parses a problem, modifying some data """
         del problem_content["@order"]
 
-        if "headerIsHTML" in problem_content:
-            problem_content["headerIsHTML"] = True
-
-        if "multiple" in problem_content:
-            problem_content["multiple"] = True
-
-        if "centralize" in problem_content:
-            problem_content["centralize"] = True
+        # store boolean fields as booleans
+        for field in ["headerIsHTML", "optional", "multiple", "centralize"]:
+            if field in problem_content:
+                problem_content[field] = True
 
         if "choices" in problem_content:
             problem_content["choices"] = [val for _, val in sorted(problem_content["choices"].iteritems(), key=lambda x: int(x[0]))]

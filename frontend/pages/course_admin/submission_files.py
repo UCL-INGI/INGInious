@@ -76,7 +76,7 @@ class DownloadSubmissionFiles(object):
                     elif sub_folder == 'username':
                         base_path = submission['username'] + '/' + base_path
 
-                submission_yaml = StringIO.StringIO(common.custom_yaml.dump(submission))
+                submission_yaml = StringIO.StringIO(common.custom_yaml.dump(submission).encode('utf-8'))
                 submission_yaml_fname = base_path + str(submission["_id"]) + '.test'
                 info = tarfile.TarInfo(name=submission_yaml_fname)
                 info.size = submission_yaml.len

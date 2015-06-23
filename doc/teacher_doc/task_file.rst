@@ -93,10 +93,13 @@ Here is a simple example for a code problem
         Hello dear student!
         I'm a multiline header!
     name: A name
+    optional: false
 
 *header* and *language* are only needed when using the frontend and are not mandatory.
 This description typically displays on the frontend a box where student
 can put their code.
+
+*optional* is an optional field, that defaults to false, that indicates if this problem is mandatory or not.
 
 Code problem input's are available in the *run* script (see :doc:`run_file`) directly with the
 id of the problem.
@@ -114,6 +117,7 @@ Single code line problems
         Hello dear student!
         I'm another multiline header, parsed with *RST*!
     name: Another problem
+    optional: false
 
 
 Single line code problem input's are available in the *run* script (see :doc:`run_file`) directly with the
@@ -136,6 +140,7 @@ Advanced code problems are available:
         boxId2:
             type: input-text
             maxChars: 10
+            optional: true
         boxId3:
             type: multiline
             maxChars: 1000
@@ -145,7 +150,8 @@ Advanced code problems are available:
 *Boxes* are displayable (on the frontend) input fields that allows the student
 to fill more than one entry per problem. Different box types are available, all of them
 are demonstrated above. Every configuration in the boxes (*maxChars*,*lines*,*language*)
-is not mandatory, except *content* if the box type is *text*.
+is not mandatory, except *content* if the box type is *text*, and the field *optional* (default to false),
+that indicates if the box is mandatory or not.
 
 In the *run* file (see :doc:`run_file`), boxes input are available with the name
 *problem_id/box_id*
