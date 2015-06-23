@@ -135,7 +135,8 @@ class SimpleAgent(object):
                 environment,
                 stdin_open=True,
                 volumes={'/task': {}, '/sockets': {}},
-                mem_limit=(mem_limit + 10) * 1024 * 1024  # add 10 mo of bonus, as we check the memory in the "cgroup" thread
+                mem_limit=(mem_limit + 10) * 1024 * 1024,  # add 10 mo of bonus, as we check the memory in the "cgroup" thread
+                memswap_limit=-1 #disable swap
             )
             container_id = response["Id"]
 
@@ -249,7 +250,8 @@ class SimpleAgent(object):
                 volumes={'/task/student': {}},
                 command=command,
                 working_dir=working_dir,
-                mem_limit=(mem_limit + 10) * 1024 * 1024  # add 10 mo of bonus, as we check the memory in the "cgroup" thread
+                mem_limit=(mem_limit + 10) * 1024 * 1024,  # add 10 mo of bonus, as we check the memory in the "cgroup" thread
+                memswap_limit=-1  # disable swap
             )
             container_id = response["Id"]
 
