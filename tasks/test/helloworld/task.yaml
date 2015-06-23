@@ -11,7 +11,7 @@ name: Hello World!
 problems:
     question1:
         name: Let's print it
-        type: code
         language: python
         header: 'def func():'
+        type: code
 weight: 3.0

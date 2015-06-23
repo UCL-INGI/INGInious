@@ -134,6 +134,9 @@ class CourseEditTask(object):
         if "headerIsHTML" in problem_content:
             problem_content["headerIsHTML"] = True
 
+        if "optional" in problem_content:
+            problem_content["optional"] = True
+
         if "multiple" in problem_content:
             problem_content["multiple"] = True
 

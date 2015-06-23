@@ -251,13 +251,21 @@ function studio_task_file_delete_tab(path)
 
 /**
  * Display a message indicating the status of a save action
- * @param type
- * @param message
  */
 function studio_display_task_submit_message(content, type, dismissible)
 {
-	code = getAlertCode(content,type,dismissible)
+	code = getAlertCode(content,type,dismissible);
 	$('#task_edit_submit_status').html(code);
+
+
+	if(dismissible)
+	{
+		window.setTimeout(function () {
+			$("#task_edit_submit_status").children().fadeTo(1000, 0).slideUp(1000, function () {
+				$(this).remove();
+			});
+		}, 2000);
+	}
 }
 
 /**
@@ -425,6 +433,8 @@ function studio_init_template_code(well, pid, problem)
 		$('#language-'+pid,well).val(problem["language"]);
 	if("type" in problem)
 		$('#type-'+pid,well).val(problem["type"]);
+	if ("optional" in problem && problem["optional"])
+		$('#optional-' + pid, well).attr('checked', true);
 }
 
 /**
