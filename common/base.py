@@ -20,6 +20,7 @@
 import codecs
 import json
 import os.path
+import hashlib
 import re
 import common.custom_yaml
 
@@ -73,3 +74,39 @@ def write_json_or_yaml(file_path, content):
 
     with codecs.open(file_path, "w", "utf-8") as f:
         f.write(o)
+
+def directory_content_with_hash(directory):
+    """
+    :param directory: directory in which the function list the files
+    :return: dict in the form {file: (hash of the file, stat of the file)}
+    """
+    output = {}
+    for root, directories, filenames in os.walk(directory):
+        for filename in filenames:
+            p = os.path.join(root, filename)
+            hasher = hashlib.md5()
+            with open(p, 'rb') as f:
+                buf = f.read(65536)
+                while len(buf) > 0:
+                    hasher.update(buf)
+                    buf = f.read(65536)
+            file_stat = os.stat(p)
+            output[os.path.relpath(p, directory)] = (hasher.hexdigest(), file_stat.st_mode)
+    return output
+
+def directory_compare_from_hash(from_directory, to_directory):
+    """
+    :param from_directory: dict in the form {file: (hash of the file, stat of the file)} from directory_content_with_hash
+    :param to_directory: dict in the form {file: (hash of the file, stat of the file)} from directory_content_with_hash
+    :return: a tuple containing two list: the files that should be uploaded to "to_directory" and the files that should be removed from
+    "to_directory"
+    """
+    to_upload = []
+    to_delete = []
+    for path, (hash, stat) in from_directory.iteritems():
+        if not path in to_directory or to_directory[path] != (hash, stat):
+            to_upload.append(path)
+    for path in to_directory:
+        if path not in from_directory:
+            to_delete.append(path)
+    return (to_upload, to_delete)

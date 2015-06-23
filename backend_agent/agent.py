@@ -25,6 +25,8 @@ import os.path
 from shutil import rmtree, copytree
 import thread
 import threading
+import tarfile
+import tempfile
 
 import docker
 from docker.utils import kwargs_from_env
@@ -89,8 +91,9 @@ class SimpleAgent(object):
         try:
             task = Course(course_id).get_task(task_id)
         except:
-            self.logger.warning("The task %s/%s unavailable on this agent!", course_id, task_id)
-            return {'result': 'crash', 'text': 'Task unavailable on agent. Please contact your course administrator.'}
+            self.logger.warning("Task %s/%s unavailable on this agent", course_id, task_id)
+            return {'result': 'crash', 'text': 'Task unavailable on agent. Please retry later, the agents should synchronize soon. If the error '
+                                               'persists, please contact your course administrator.'}
 
         limits = task.get_limits()
 
@@ -375,6 +378,7 @@ class RemoteAgent(SimpleAgent):
     def _get_agent_backend_service(self):
         """ Returns a RPyC service associated with this Agent """
         handle_job = self.handle_job
+        logger = self.logger
 
         class AgentService(rpyc.Service):
             def exposed_new_job(self, job_id, course_id, task_id, inputdata, debug, callback_status):
@@ -392,6 +396,54 @@ class RemoteAgent(SimpleAgent):
 
                 return handle_job(job_id, course_id, task_id, inputdata, debug, callback_status)
 
+            def exposed_get_task_directory_hashes(self):
+                """ Get the list of files from the local task directory
+                :return: a dict in the form {path: (hash of the file, stat of the file)} containing all the files from the local task directory, with their hash
+                """
+                logger.info("Getting the list of files from the local task directory for the backend")
+                return common.base.directory_content_with_hash(common.base.get_tasks_directory())
+
+            def exposed_update_task_directory(self, remote_tar_file, to_delete):
+                """ Updates the local task directory
+                :param tarfile: a compressed tar file that contains files that needs to be updated on this agent
+                :param to_delete: a list of path to file to delete on this agent
+                """
+                logger.info("Updating task directory...")
+                # Copy the remote tar archive locally
+                tmpfile = tempfile.TemporaryFile()
+                tmpfile.write(remote_tar_file.read())
+                tmpfile.seek(0)
+                tar = tarfile.open(fileobj=tmpfile, mode='r:gz')
+
+                # Verify security of the tar archive
+                bd = os.path.abspath(common.base.get_tasks_directory())
+                for n in tar.getnames():
+                    if not os.path.abspath(os.path.join(bd, n)).startswith(bd):
+                        logger.error("Tar file given by the backend is invalid!")
+                        return
+
+
+                # Verify security of the list of file to delete
+                for n in to_delete:
+                    if not os.path.abspath(os.path.join(bd, n)).startswith(bd):
+                        logger.error("Delete file list given by the backend is invalid!")
+                        return
+
+                # Extract the tar file
+                tar.extractall(common.base.get_tasks_directory())
+                tar.close()
+                tmpfile.close()
+
+                # Delete unneeded files
+                for n in to_delete:
+                    c_path = os.path.join(common.base.get_tasks_directory(), n)
+                    if os.path.exists(c_path):
+                        if os.path.isdir(c_path):
+                            rmtree(c_path)
+                        else:
+                            os.unlink(c_path)
+
+                logger.info("Task directory updated")
         return AgentService
 
 class LocalAgent(SimpleAgent):

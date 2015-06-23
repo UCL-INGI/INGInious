@@ -21,9 +21,12 @@
 import threading
 
 import rpyc
+import tempfile
+import tarfile
 
 from backend.job_managers.abstract import AbstractJobManager
-
+from common.base import directory_compare_from_hash, get_tasks_directory, directory_content_with_hash
+import os
 
 class RemoteAgentJobManager(AbstractJobManager):
     """ A Job Manager that handles connections with distant Agents using RPyC """
@@ -51,6 +54,12 @@ class RemoteAgentJobManager(AbstractJobManager):
         self._agents = [None for _ in range(0, len(agents))]
         self._agents_thread = [None for _ in range(0, len(agents))]
         self._agents_info = agents
+
+        # init the synchronization of task directories
+        self._last_content_in_task_directory = directory_content_with_hash(get_tasks_directory())
+        threading.Timer(60, self._try_synchronize_task_dir).start()
+
+        # connect to agents
         self._try_agent_connection()
 
         self._next_agent = 0
@@ -73,9 +82,58 @@ class RemoteAgentJobManager(AbstractJobManager):
                 else:
                     self._agents[entry] = conn
                     self._agents_thread[entry] = rpyc.BgServingThread(conn)
+                    self._synchronize_task_dir(self._agents[entry])
 
         if not self._is_testing:
             threading.Timer(10, self._try_agent_connection).start()
+
+    def _try_synchronize_task_dir(self):
+        """ Check if the remote tasks dirs (on the remote agents) should be updated """
+        if self._closed:
+            return
+
+        current_content_in_task_directory = directory_content_with_hash(get_tasks_directory())
+        changed, deleted = directory_compare_from_hash(current_content_in_task_directory,self._last_content_in_task_directory)
+        if len(changed) != 0 or len(deleted) != 0:
+            self._last_content_in_task_directory = current_content_in_task_directory
+            for agent in self._agents:
+                if agent is not None:
+                    self._synchronize_task_dir(agent)
+
+        if not self._is_testing:
+            threading.Timer(60, self._try_synchronize_task_dir).start()
+
+    def _synchronize_task_dir(self, agent):
+        """ Synchronizes the task directory with the remote agent. Steps are:
+            - Get list of (path, file hash) for the main task directory (p1)
+            - Ask agent for a list of all files in their task directory (p1)
+            - Find differences for each agents (p2)
+            - Create an archive with differences (p2)
+            - Send it to each agent (p2)
+            - Agents updates their directory
+        """
+        local_td = self._last_content_in_task_directory
+        async_get_file_list = rpyc.async(agent.root.get_task_directory_hashes)
+        async_get_file_list().add_callback(lambda r: self._synchronize_task_dir_p2(agent, local_td, r.value))
+
+    def _synchronize_task_dir_p2(self, agent, local_td, remote_td):
+        to_update, to_delete = directory_compare_from_hash(local_td, remote_td)
+        tmpfile = tempfile.TemporaryFile()
+        tar = tarfile.open(fileobj=tmpfile, mode='w:gz')
+        for path in to_update:
+            # be a little safe about what the agent returns...
+            if os.path.relpath(os.path.join(get_tasks_directory(), path), get_tasks_directory()) == path and ".." not in path:
+                tar.add(arcname=path, name=os.path.join(get_tasks_directory(), path))
+            else:
+                print "Agent returned non-safe file path: "+path
+        tar.close()
+        tmpfile.flush()
+        tmpfile.seek(0)
+
+        # sync the agent
+        async_update = rpyc.async(agent.root.update_task_directory)
+        # do not forget to close the file
+        async_update(tmpfile, to_delete).add_callback(lambda r: tmpfile.close())
 
     def _select_agent(self):
         """ Select which agent should handle the next job.
@@ -94,7 +152,8 @@ class RemoteAgentJobManager(AbstractJobManager):
         if agent_id is None:
             self._job_ended(jobid,
                             {'result': 'crash',
-                             'text': 'There are not any agent available for grading. Please retry later. If this error persists, please contact the course administrator.'},
+                             'text': 'There are not any agent available for grading. Please retry later. '
+                                     'If this error persists, please contact the course administrator.'},
                             None)
             return
         try:

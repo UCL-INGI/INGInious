@@ -25,7 +25,7 @@ from backend_agent.agent import RemoteAgent
 import common.base
 
 if __name__ == "__main__":
-    common.base.init_common_lib("./tasks", [], 1)  # we do not need to upload file, so not needed here
+    common.base.init_common_lib("./sync_tasks", [], 1)  # we do not need to upload file, so not needed here
 
     # create logger
     logger = logging.getLogger("agent")
