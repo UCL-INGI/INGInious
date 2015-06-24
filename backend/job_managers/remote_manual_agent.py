@@ -28,7 +28,7 @@ from backend.job_managers.abstract import AbstractJobManager
 from common.base import directory_compare_from_hash, get_tasks_directory, directory_content_with_hash
 import os
 
-class RemoteAgentJobManager(AbstractJobManager):
+class RemoteManualAgentJobManager(AbstractJobManager):
     """ A Job Manager that handles connections with distant Agents using RPyC """
     def __init__(self, agents, hook_manager=None, is_testing=False):
         """

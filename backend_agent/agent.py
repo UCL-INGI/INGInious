@@ -148,10 +148,16 @@ class SimpleAgent(object):
                 task.get_environment(),
                 limits.get("time", 30),
                 mem_limit)
+
+            # Small workaround for error "AF_UNIX path too long" when the agent is launched inside a container. Resolve all symlinks to reduce the
+            # path length.
+            smaller_path_to_socket = os.path.realpath(os.path.join(sockets_path, 'INGInious.sock'))
+
             student_container_management = UnixSocketServer(
                 student_container_management_service,
-                socket_path=os.path.join(sockets_path, 'INGInious.sock'),
+                socket_path=smaller_path_to_socket,
                 protocol_config={"allow_public_attrs": True, 'allow_pickle': True})
+
             student_container_management_thread = threading.Thread(target=student_container_management.start)
             student_container_management_thread.daemon = True
             student_container_management_thread.start()

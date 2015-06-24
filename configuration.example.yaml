@@ -1,6 +1,35 @@
-##############################################
-# Part common to the frontend and the agents #
-##############################################
+# Backend
+# Can be:
+# - "local" (run containers on the same machine)
+# - "remote" (connect to distant docker daemon and auto start agents) (choose this if you use boot2docker)
+# - "remote_manual" (connect to distant and manually installed agents)
+backend: remote
+
+# List of remote docker daemon to which the backend will try
+# to connect (backend: remote only) (the default config below is the one for boot2docker on OS X)
+docker_daemons:
+
+  - remote_host: "192.168.59.103" ##host of the docker daemon *from the frontend*
+    remote_docker_port: 2375 ##port of the distant docker daemon *from the frontend*
+    remote_agent_port: 63456 ##A mandatory port used by the backend and the agent that will be automatically started. Needs to be available on the
+                             ##remote host, and to be open in the firewall.
+    ##does the remote docker requires tls? Defaults to false
+    #use_tls: false
+    ##link to the docker daemon *from the host that runs the docker daemon*. Defaults to:
+    #local_location: "unix:///var/run/docker.sock"
+    ##path to the cgroups "mount" *from the host that runs the docker daemon*. Defaults to:
+    #cgroups_location: "/sys/fs/cgroup"
+
+# List of remote agents to which the backend will try
+# to connect (backend: remote_manual only) (the default config below is the one for boot2docker on OS X)
+#agents:
+#  - host: "192.168.59.103"
+#    port: 5001
+
+# MongoDB options
+mongo_opt:
+    host: localhost
+    database: INGInious
 
 # Location of the task directory
 tasks_directory: ./tasks
@@ -11,26 +40,6 @@ containers:
     default: ingi/inginious-c-default
     sekexe: ingi/inginious-c-sekexe
 
-##############################################
-#       Part used only by the frontend       #
-##############################################
-
-# Backend
-# Can be "local" (run containers on the same machine)
-# Or "remote" (connect to distant and manually installed agents. This includes boot2docker)
-backend: local
-
-# List of the agents to which the backend will try
-# to connect (backend: remote only) (the default config below is the one for boot2docker on OS X)
-#agents:
-#  - host: "192.168.59.103"
-#    port: 5001
-
-# MongoDB options
-mongo_opt:
-    host: localhost
-    database: INGInious
-
 # Plugins that will be loaded by the frontend
 plugins:
   - plugin_module: frontend.plugins.auth.demo_auth
@@ -40,13 +49,3 @@ plugins:
 
 # Allow HTML in tasks? can be true, false or "tidy" (to run HTMLTidy)
 allow_html: tidy
-
-##############################################
-#        Part used only by the agents        #
-##############################################
-
-# Tmp folder used by the agent
-local_agent_tmp_dir: "/tmp/inginious_agent"
-
-# Port on which the local agent will listen (only for backend:remote)
-#local_agent_port: 5001
