@@ -58,10 +58,15 @@ def init_backend_interface(plugin_manager):
             INGIniousConfiguration.get('containers', {"default": "ingi/inginious-c-default","sekexe": "ingi/inginious-c-sekexe"}),
             INGIniousConfiguration.get('local_agent_tmp_dir',"/tmp/inginious_agent"), plugin_manager)
     elif backend_type == "remote":
-        get_job_manager.job_manager = RemoteDockerJobManager(INGIniousConfiguration.get("docker_daemons", []), plugin_manager)
+        get_job_manager.job_manager = RemoteDockerJobManager(INGIniousConfiguration.get("docker_daemons", []),
+                                                             INGIniousConfiguration.get('containers', {"default": "ingi/inginious-c-default",
+                                                                                                       "sekexe": "ingi/inginious-c-sekexe"}),
+                                                             plugin_manager)
     elif backend_type == "remote_manual":
         get_job_manager.job_manager = RemoteManualAgentJobManager(
-            INGIniousConfiguration.get("agents", [{"host": "localhost", "port": 5001}]), plugin_manager)
+            INGIniousConfiguration.get("agents", [{"host": "localhost", "port": 5001}]),
+            INGIniousConfiguration.get('containers', {"default": "ingi/inginious-c-default", "sekexe": "ingi/inginious-c-sekexe"}),
+            plugin_manager)
     else:
         raise Exception("Unknown backend {}".format(backend_type))
 

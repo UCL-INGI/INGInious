@@ -63,4 +63,4 @@ if __name__ == "__main__":
     os.makedirs(base)
     os.symlink("/agent_volume", mounted_dir)
 
-    RemoteAgent(int(os.environ["AGENT_PORT"]), {"default": "ingi/inginious-c-default", "sekexe": "ingi/inginious-c-sekexe"}, tmp_dir=mounted_dir)
+    RemoteAgent(int(os.environ["AGENT_PORT"]), mounted_dir)

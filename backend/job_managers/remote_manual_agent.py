@@ -30,13 +30,13 @@ import os
 
 class RemoteManualAgentJobManager(AbstractJobManager):
     """ A Job Manager that handles connections with distant Agents using RPyC """
-    def __init__(self, agents, hook_manager=None, is_testing=False):
+    def __init__(self, agents, image_aliases, hook_manager=None, is_testing=False):
         """
             Starts the job manager.
 
             Arguments:
 
-            *agents*
+            :param agents:
                 A list of dictionaries containing information about distant backend agents:
                 ::
 
@@ -44,13 +44,11 @@ class RemoteManualAgentJobManager(AbstractJobManager):
                         'host': "the host of the agent",
                         'port': "the port on which the agent listens"
                     }
-
-            *hook_manager*
-                An instance of HookManager. If no instance is given, a new one will be created.
-
+            :param image_aliases: a dict of image aliases, like {"default": "ingi/inginious-c-default"}.
+            :param hook_manager: An instance of HookManager. If no instance is given(None), a new one will be created.
         """
 
-        AbstractJobManager.__init__(self, hook_manager, is_testing)
+        AbstractJobManager.__init__(self, image_aliases, hook_manager, is_testing)
         self._agents = [None for _ in range(0, len(agents))]
         self._agents_thread = [None for _ in range(0, len(agents))]
         self._agents_info = agents
@@ -82,10 +80,16 @@ class RemoteManualAgentJobManager(AbstractJobManager):
                 else:
                     self._agents[entry] = conn
                     self._agents_thread[entry] = rpyc.BgServingThread(conn)
+                    self._synchronize_image_aliases(self._agents[entry])
                     self._synchronize_task_dir(self._agents[entry])
 
         if not self._is_testing:
             threading.Timer(10, self._try_agent_connection).start()
+
+    def _synchronize_image_aliases(self, agent):
+        """ Update the list of image aliases on the remote agent """
+        update_image_aliases = rpyc.async(agent.root.update_image_aliases)
+        update_image_aliases(self._image_aliases).wait()
 
     def _try_synchronize_task_dir(self):
         """ Check if the remote tasks dirs (on the remote agents) should be updated """

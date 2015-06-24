@@ -35,14 +35,16 @@ class AbstractJobManager(object):
 
     """ Manages jobs """
 
-    def __init__(self, hook_manager=None, is_testing=False):
+    def __init__(self, image_aliases, hook_manager=None, is_testing=False):
         """
         Starts a job manager.
+        :param image_aliases: a dict of image aliases, like {"default": "ingi/inginious-c-default"}.
         :param hook_manager: An instance of HookManager. If no instance is given(None), a new one will be created.
         """
 
         self._closed = False
         self._is_testing = is_testing
+        self._image_aliases = image_aliases
         self._hook_manager = HookManager() if hook_manager is None else hook_manager
         self._running_job_data = {}
 

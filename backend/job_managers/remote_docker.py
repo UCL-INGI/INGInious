@@ -22,18 +22,16 @@ from backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
 import docker
 import docker.utils
 
-AGENT_CONTAINER_VERSION="0.1"
+AGENT_CONTAINER_VERSION="0.2"
 
 class RemoteDockerJobManager(RemoteManualAgentJobManager):
     """ A Job Manager that automatically launch Agents on distant Docker daemons """
 
-    def __init__(self, docker_daemons, hook_manager=None, is_testing=False):
+    def __init__(self, docker_daemons, image_aliases, hook_manager=None, is_testing=False):
         """
             Starts the job manager.
 
-            Arguments:
-
-            *docker_daemons*:
+            :param docker_daemons:
                 a list of dict representing docker daemons.
 
                 { "remote_host": "192.168.59.103", ## host of the docker daemon *from the frontend*
@@ -47,10 +45,8 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
                   ##path to the cgroups "mount" *from the host that runs the docker daemon*. Defaults to:
                   #"cgroups_location": "/sys/fs/cgroup"
                 }
-
-            *hook_manager*
-                An instance of HookManager. If no instance is given, a new one will be created.
-
+            :param image_aliases: a dict of image aliases, like {"default": "ingi/inginious-c-default"}.
+            :param hook_manager: An instance of HookManager. If no instance is given(None), a new one will be created.
         """
         agents = []
 
@@ -130,4 +126,4 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
 
             agents.append({"host": daemon['remote_host'], "port": daemon.get("remote_agent_port", 63456)})
 
-        RemoteManualAgentJobManager.__init__(self, agents, hook_manager, is_testing)
+        RemoteManualAgentJobManager.__init__(self, agents, image_aliases, hook_manager, is_testing)

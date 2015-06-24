@@ -38,13 +38,16 @@ import common.base
 from common.courses import Course
 
 class SimpleAgent(object):
-    """ A simple agent that can only handle one request at a time. It should not be used directly """
+    """
+        A simple agent that can only handle one request at a time. It should not be used directly.
+        The field self.image_aliases should be filled by subclasses
+    """
     logger = logging.getLogger("agent")
 
-    def __init__(self, image_aliases, tmp_dir="./agent_tmp"):
+    def __init__(self, tmp_dir="./agent_tmp"):
         from backend_agent._cgroup_helper import CGroupTimeoutWatcher, CGroupMemoryWatcher
         self.logger.info("Starting agent")
-        self.image_aliases = image_aliases
+        self.image_aliases = []
         self.tmp_dir = tmp_dir
 
         try:
@@ -376,19 +379,33 @@ class RemoteAgent(SimpleAgent):
         It can handle multiple requests at a time, but RPyC calls have to be made using the ```async``` function.
     """
 
-    def __init__(self, master_port, image_aliases, tmp_dir="./agent_tmp"):
-        SimpleAgent.__init__(self, image_aliases, tmp_dir)
+    def __init__(self, port, tmp_dir="./agent_tmp"):
+        SimpleAgent.__init__(self, tmp_dir)
         self.logger.debug("Starting RPyC server - backend connection")
-        self._backend_server = ThreadedServer(self._get_agent_backend_service(), port=master_port,
+        self._backend_server = ThreadedServer(self._get_agent_backend_service(), port=port,
             protocol_config={"allow_public_attrs": True, 'allow_pickle': True})
         self._backend_server.start()
+
+    def _update_image_aliases(self, image_aliases):
+        """ Updates the image aliases list """
+        self.image_aliases = image_aliases
 
     def _get_agent_backend_service(self):
         """ Returns a RPyC service associated with this Agent """
         handle_job = self.handle_job
+        update_image_aliases = self._update_image_aliases
         logger = self.logger
 
         class AgentService(rpyc.Service):
+            def __init__(self, conn):
+                logger.info("Backend connected")
+                rpyc.Service.__init__(self, conn)
+
+            def exposed_update_image_aliases(self, image_aliases):
+                """ Updates the image aliases """
+                logger.info("Updating image aliases...")
+                update_image_aliases(copy.deepcopy(image_aliases))
+
             def exposed_new_job(self, job_id, course_id, task_id, inputdata, debug, callback_status):
                 """ Creates, executes and returns the results of a new job (in a separate thread, distant version)
                 :param job_id: The distant job id
@@ -456,6 +473,10 @@ class RemoteAgent(SimpleAgent):
 
 class LocalAgent(SimpleAgent):
     """ An agent made to be run locally (launched directly by the backend). It can handle multiple requests at a time. """
+
+    def __init__(self, image_aliases, tmp_dir="./agent_tmp"):
+        SimpleAgent.__init__(self, tmp_dir)
+        self.image_aliases = image_aliases
 
     def new_job(self, job_id, course_id, task_id, inputdata, debug, callback_status, final_callback):
         """ Creates, executes and returns the results of a new job (in a separate thread)

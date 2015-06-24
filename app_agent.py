@@ -35,4 +35,4 @@ if __name__ == "__main__":
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     ch.setFormatter(formatter)
     logger.addHandler(ch)
-    RemoteAgent(5001, {"default": "ingi/inginious-c-default", "sekexe": "ingi/inginious-c-sekexe"}, tmp_dir="/agent_tmp")
+    RemoteAgent(5001, "/agent_tmp")
