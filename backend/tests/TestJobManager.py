@@ -1,7 +1,7 @@
 import threading
 import os.path
 
-from backend.job_managers.remote_agent import RemoteAgentJobManager
+from backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
 from backend.job_managers.local import LocalJobManager
 import common.base
 from abc import abstractmethod
@@ -39,11 +39,11 @@ class TestJobManager(object):
 
 class TestRemoteJobManager(TestJobManager):
     def setUp_job_manager(self):
-        self.job_manager = RemoteAgentJobManager([{"host": "localhost", "port": 5002}])
+        self.job_manager = RemoteManualAgentJobManager([{"host": "localhost", "port": 5002}], {"default": "ingi/inginious-c-default"})
 
 class TestLocalJobManager(TestJobManager):
     def setUp_job_manager(self):
-        self.job_manager = LocalJobManager([], agent_class=get_fake_local_agent(self.handle_job_func))
+        self.job_manager = LocalJobManager({"default": "inginious-c-default"}, agent_class=get_fake_local_agent(self.handle_job_func))
 
     @abstractmethod
     def handle_job_func(self, job_id, course_id, task_id, inputdata, debug, callback_status):

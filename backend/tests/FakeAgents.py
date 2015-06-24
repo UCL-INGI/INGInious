@@ -40,6 +40,15 @@ class FakeRemoteAgent(threading.Thread):
         """ Returns a RPyC service associated with this Agent """
         handle_job = self.handle_job_func
         class AgentService(rpyc.Service):
+            def exposed_update_image_aliases(self, image_aliases):
+                pass
+
+            def exposed_get_task_directory_hashes(self):
+                return []
+
+            def exposed_update_task_directory(self, remote_tar_file, to_delete):
+                pass
+
             def exposed_new_job(self, job_id, course_id, task_id, inputdata, debug, callback_status):
                 """ Creates, executes and returns the results of a new job """
                 return handle_job(job_id, course_id, task_id, inputdata, debug, callback_status)
