@@ -20,12 +20,26 @@
 """ Starts an agent """
 
 import logging
-
+import os
 from backend_agent.agent import RemoteAgent
 import common.base
+import argparse
 
 if __name__ == "__main__":
-    common.base.init_common_lib("./sync_tasks", [], 1)  # we do not need to upload file, so not needed here
+    parser = argparse.ArgumentParser()
+    parser.add_argument("port", help="Port to listen to", type=int)
+    parser.add_argument("--dir", help="Path to a directory where the agent can store information, such as caches. Defaults to ./agent_data",
+                        default="./agent_data")
+    args = parser.parse_args()
+
+    if not os.path.exists(args.dir):
+        os.makedirs(args.dir)
+    if not os.path.exists(os.path.join(args.dir, 'tasks')):
+        os.makedirs(os.path.join(args.dir, 'tasks'))
+    if not os.path.exists(os.path.join(args.dir, 'tmp')):
+        os.makedirs(os.path.join(args.dir, 'tmp'))
+
+    common.base.init_common_lib(os.path.join(args.dir, 'tasks'), [], 1) # we do not need to upload file, so not needed here
 
     # create logger
     logger = logging.getLogger("agent")
@@ -35,4 +49,5 @@ if __name__ == "__main__":
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     ch.setFormatter(formatter)
     logger.addHandler(ch)
-    RemoteAgent(5001, "/agent_tmp")
+
+    RemoteAgent(args.port, os.path.join(args.dir, 'tmp'))
