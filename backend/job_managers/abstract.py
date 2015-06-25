@@ -88,7 +88,8 @@ class AbstractJobManager(object):
 
         self._hook_manager.call_hook("job_ended", jobid=jobid, task=task, statinfo=statinfo, result=final_result)
 
-    def _merge_results(self, origin_dict, emul_result):
+    @classmethod
+    def _merge_results(cls, origin_dict, emul_result):
         """ Merge the results of the multiple-choice (and other special problem types) questions with the returned results of the containers """
 
         # If no docker job was run, returns directly the original response dict, but without lists
@@ -131,18 +132,15 @@ class AbstractJobManager(object):
             elif emul_result["result"] in ["error", "timeout", "overflow", "crash"] and "text" in emul_result:
                 final_dict = origin_dict.copy()
                 final_dict.update({"result": emul_result["result"], "text": emul_result["text"]})
-            elif emul_result["result"] == "error":
+            else:
                 final_dict = origin_dict.copy()
-                final_dict.update({"result": emul_result["result"], "text": "An unknown internal error occured"})
-            elif emul_result["result"] == "timeout":
-                final_dict = origin_dict.copy()
-                final_dict.update({"result": emul_result["result"], "text": "Your code took too much time to execute"})
-            elif emul_result["result"] == "overflow":
-                final_dict = origin_dict.copy()
-                final_dict.update({"result": emul_result["result"], "text": "Your code took too much memory or disk"})
-            else:# emul_result["result"] == "crash":
-                final_dict = origin_dict.copy()
-                final_dict.update({"result": emul_result["result"], "text": "There was an internal error while running the tests"})
+                error_messages = {
+                    "error": "An unknown internal error occured",
+                    "timeout": "Your code took too much time to execute",
+                    "overflow": "Your code took too much memory or disk"
+                }
+                other_message = "There was an internal error while running the tests"
+                final_dict.update({"result": emul_result["result"], "text": error_messages.get(emul_result["result"], other_message)})
 
         # Verify that the grade is present
         if final_dict["result"] in ["success", "failed"]:
@@ -157,9 +155,10 @@ class AbstractJobManager(object):
             final_dict["grade"] = 0.0
 
         if final_dict["grade"] < 0:
-            final_dict["grade"] = 0
+            final_dict["grade"] = 0.0
         elif final_dict["grade"] > 200:  # allow bonuses
-            final_dict["grade"] = 200
+            final_dict["grade"] = 200.0
+
         return final_dict
 
     def get_waiting_jobs_count(self):
