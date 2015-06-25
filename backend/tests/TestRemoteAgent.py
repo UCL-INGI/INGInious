@@ -23,3 +23,22 @@ class TestRemoteAgentOK(TestWithFakeRemoteAgent):
         time.sleep(5)
         assert self.to_delete == ["todelete"]
         assert len(self.remote_tar_file) > 300
+
+class TestRemoteAgentNoSync(TestWithFakeRemoteAgent):
+    error = False
+
+    def get_task_directory_hashes_func(self):
+        return None
+
+    def update_task_directory_func(self, remote_tar_file, to_delete):
+        self.error = True
+        assert False
+
+    def test_nosync(self):
+        # give a little time to allow everything to connect...
+        time.sleep(2)
+        assert not self.error
+        # If this, runs, it's ok!
+        self.job_manager.new_job(Course('test').get_task('do_run'), {"problem_1": "1"}, self.default_callback)
+        result = self.wait_for_callback()
+        assert "result" in result and result["result"] == "success"

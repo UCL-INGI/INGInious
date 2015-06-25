@@ -18,7 +18,7 @@ class TestRemoteAgentAliasUpdateCrash(TestWithFakeRemoteAgent):
         raise Exception("Pass, you shall not.")
 
     def test_exception_alias(self):
-        time.sleep(2)
+        time.sleep(2) # allow the exception to propagate through the different thread linked via RPyC
         #If this, runs, it's ok!
         self.job_manager.new_job(Course('test').get_task('do_run'), {"problem_1": "1"}, self.default_callback)
         result = self.wait_for_callback()
@@ -30,7 +30,7 @@ class TestRemoteAgentTaskUpdateCrash1(TestWithFakeRemoteAgent):
         raise Exception(".")
 
     def test_exception_task_1(self):
-        time.sleep(2)
+        time.sleep(2) # allow the exception to propagate through the different thread linked via RPyC
         # If this, runs, it's ok!
         self.job_manager.new_job(Course('test').get_task('do_run'), {"problem_1": "1"}, self.default_callback)
         result = self.wait_for_callback()
@@ -42,7 +42,7 @@ class TestRemoteAgentTaskUpdateCrash2(TestWithFakeRemoteAgent):
         raise Exception(".")
 
     def test_exception_task_2(self):
-        time.sleep(10)
+        time.sleep(5) #allow the exception to propagate through the different thread linked via RPyC
         # If this, runs, it's ok!
         self.job_manager.new_job(Course('test').get_task('do_run'), {"problem_1": "1"}, self.default_callback)
         result = self.wait_for_callback()
