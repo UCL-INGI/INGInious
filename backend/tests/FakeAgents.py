@@ -1,6 +1,7 @@
 import rpyc
 from rpyc.utils.server import OneShotServer
 import threading
+import copy
 
 def get_fake_local_agent(handle_job_func):
     class FakeLocalAgent(object):
@@ -23,31 +24,45 @@ def get_fake_local_agent(handle_job_func):
 
 class FakeRemoteAgent(threading.Thread):
     """ A fake agent used for tests of the RPyC interface """
-    def __init__(self, handle_job_func):
+    def __init__(self, port, handle_job_func,
+                 update_image_aliases_func=(lambda aliases: ""),
+                 get_task_directory_hashes_func=(lambda: []),
+                 update_task_directory_func=(lambda remote_tar_file, to_delete: "")):
         threading.Thread.__init__(self)
+        self.port = port
         self.handle_job_func = handle_job_func
+        self.update_image_aliases_func = update_image_aliases_func
+        self.get_task_directory_hashes_func = get_task_directory_hashes_func
+        self.update_task_directory_func = update_task_directory_func
         self.start()
 
     def run(self):
         try:
-            self._backend_server = OneShotServer(self._get_agent_backend_service(), port=5002,
-                protocol_config={"allow_public_attrs": True, 'allow_pickle': True})
+            self._backend_server = OneShotServer(self._get_agent_backend_service(), port=self.port,
+                                                 protocol_config={"allow_public_attrs": True, 'allow_pickle': True})
             self._backend_server.start()
         except EOFError:
             pass
 
+    def close(self):
+        self._backend_server.close()
+
     def _get_agent_backend_service(self):
         """ Returns a RPyC service associated with this Agent """
         handle_job = self.handle_job_func
+        update_image_aliases_func = self.update_image_aliases_func
+        get_task_directory_hashes_func = self.get_task_directory_hashes_func
+        update_task_directory_func = self.update_task_directory_func
+
         class AgentService(rpyc.Service):
             def exposed_update_image_aliases(self, image_aliases):
-                pass
+                update_image_aliases_func(image_aliases)
 
             def exposed_get_task_directory_hashes(self):
-                return []
+                return get_task_directory_hashes_func()
 
             def exposed_update_task_directory(self, remote_tar_file, to_delete):
-                pass
+                update_task_directory_func(remote_tar_file.read(), copy.deepcopy(to_delete))
 
             def exposed_new_job(self, job_id, course_id, task_id, inputdata, debug, callback_status):
                 """ Creates, executes and returns the results of a new job """

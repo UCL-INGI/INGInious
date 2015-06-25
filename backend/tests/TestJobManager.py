@@ -1,5 +1,6 @@
 import threading
 import os.path
+import copy
 
 from backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
 from backend.job_managers.local import LocalJobManager
@@ -36,10 +37,26 @@ class TestJobManager(object):
     def tearDown(self):
         self.job_manager.close()
 
+def get_test_port():
+    """
+    :return: a unique port for this series of tests
+    """
+    get_test_port.current_port = get_test_port.current_port+1
+    return get_test_port.current_port
+
+
+get_test_port.current_port = 61000
 
 class TestRemoteJobManager(TestJobManager):
+    port = None
+
+    def _get_port(self):
+        if not self.port:
+            self.port = get_test_port()
+        return self.port
+
     def setUp_job_manager(self):
-        self.job_manager = RemoteManualAgentJobManager([{"host": "localhost", "port": 5002}], {"default": "ingi/inginious-c-default"})
+        self.job_manager = RemoteManualAgentJobManager([{"host": "localhost", "port": self._get_port()}], {"default": "ingi/inginious-c-default"})
 
 class TestLocalJobManager(TestJobManager):
     def setUp_job_manager(self):
@@ -51,12 +68,29 @@ class TestLocalJobManager(TestJobManager):
 
 class TestWithFakeRemoteAgent(TestRemoteJobManager):
     def setUp(self):
-        self.agent = FakeRemoteAgent(self.handle_job_func)
+        self.agent = FakeRemoteAgent(self._get_port(),
+                                     self.handle_job_func,
+                                     self.update_image_aliases_func,
+                                     self.get_task_directory_hashes_func,
+                                     self.update_task_directory_func)
         TestJobManager.setUp(self)
 
-    @abstractmethod
+    def tearDown(self):
+        self.agent.close()
+        TestJobManager.tearDown(self)
+
     def handle_job_func(self, job_id, course_id, task_id, inputdata, debug, callback_status):
+        return {"result": "success", "grade": 100.0}
+
+    def update_image_aliases_func(self, image_aliases):
         pass
+
+    def get_task_directory_hashes_func(self):
+        return {}
+
+    def update_task_directory_func(self, remote_tar_file, to_delete):
+        pass
+
 
 class TestAgentConnection(TestWithFakeRemoteAgent):
     def handle_job_func(self, job_id, course_id, task_id, inputdata, debug, callback_status):
