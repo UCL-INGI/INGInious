@@ -56,11 +56,21 @@ class TestRemoteJobManager(TestJobManager):
         return self.port
 
     def setUp_job_manager(self):
-        self.job_manager = RemoteManualAgentJobManager([{"host": "localhost", "port": self._get_port()}], {"default": "ingi/inginious-c-default"})
+        self.job_manager = RemoteManualAgentJobManager([{"host": "localhost", "port": self._get_port()}],
+                                                       {"default": "ingi/inginious-c-default"},
+                                                       hook_manager=self.generate_hook_manager())
+
+    def generate_hook_manager(self):
+        return None
 
 class TestLocalJobManager(TestJobManager):
     def setUp_job_manager(self):
-        self.job_manager = LocalJobManager({"default": "inginious-c-default"}, agent_class=get_fake_local_agent(self.handle_job_func))
+        self.job_manager = LocalJobManager({"default": "inginious-c-default"},
+                                           hook_manager=self.generate_hook_manager(),
+                                           agent_class=get_fake_local_agent(self.handle_job_func))
+
+    def generate_hook_manager(self):
+        return None
 
     @abstractmethod
     def handle_job_func(self, job_id, course_id, task_id, inputdata, debug, callback_status):
