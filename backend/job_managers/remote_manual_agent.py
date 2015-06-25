@@ -20,6 +20,7 @@
 
 import threading
 
+import copy
 import rpyc
 import tempfile
 import tarfile
@@ -118,9 +119,15 @@ class RemoteManualAgentJobManager(AbstractJobManager):
         """
         local_td = self._last_content_in_task_directory
         async_get_file_list = rpyc.async(agent.root.get_task_directory_hashes)
-        async_get_file_list().add_callback(lambda r: self._synchronize_task_dir_p2(agent, local_td, r.value))
+        async_get_file_list().add_callback(lambda r: self._synchronize_task_dir_p2(agent, local_td, r))
 
-    def _synchronize_task_dir_p2(self, agent, local_td, remote_td):
+    def _synchronize_task_dir_p2(self, agent, local_td, async_value_remote_td):
+        try:
+            remote_td = copy.deepcopy(async_value_remote_td.value)
+        except:
+            print "An error occured while retrieving list of files in the task dir from remote agent"
+            return
+
         to_update, to_delete = directory_compare_from_hash(local_td, remote_td)
         tmpfile = tempfile.TemporaryFile()
         tar = tarfile.open(fileobj=tmpfile, mode='w:gz')
@@ -181,7 +188,7 @@ class RemoteManualAgentJobManager(AbstractJobManager):
             print "Agent {} made an exception while running jobid {}".format(agent_id, jobid)
             self._job_ended(jobid, {"result": "crash"}, agent_id)
         else:
-            self._job_ended(jobid, callback_return_val.value, agent_id)
+            self._job_ended(jobid, copy.deepcopy(callback_return_val.value), agent_id)
 
     def _get_rpyc_server(self, agent_id):
         """ Return a service associated with this JobManager instance """
