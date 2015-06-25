@@ -379,8 +379,9 @@ class RemoteAgent(SimpleAgent):
         It can handle multiple requests at a time, but RPyC calls have to be made using the ```async``` function.
     """
 
-    def __init__(self, port, tmp_dir="./agent_tmp"):
+    def __init__(self, port, tmp_dir="./agent_tmp", sync_enabled=True):
         SimpleAgent.__init__(self, tmp_dir)
+        self.sync_enabled=sync_enabled
         self.logger.debug("Starting RPyC server - backend connection")
         self._backend_server = ThreadedServer(self._get_agent_backend_service(), port=port,
             protocol_config={"allow_public_attrs": True, 'allow_pickle': True})
@@ -394,6 +395,7 @@ class RemoteAgent(SimpleAgent):
         """ Returns a RPyC service associated with this Agent """
         handle_job = self.handle_job
         update_image_aliases = self._update_image_aliases
+        sync_enabled = self.sync_enabled
         logger = self.logger
 
         class AgentService(rpyc.Service):
@@ -423,52 +425,61 @@ class RemoteAgent(SimpleAgent):
 
             def exposed_get_task_directory_hashes(self):
                 """ Get the list of files from the local task directory
-                :return: a dict in the form {path: (hash of the file, stat of the file)} containing all the files from the local task directory, with their hash
+                :return: a dict in the form {path: (hash of the file, stat of the file)} containing all the files
+                         from the local task directory, with their hash, or None if sync is disabled.
                 """
-                logger.info("Getting the list of files from the local task directory for the backend")
-                return common.base.directory_content_with_hash(common.base.get_tasks_directory())
+                if sync_enabled:
+                    logger.info("Getting the list of files from the local task directory for the backend.")
+                    return common.base.directory_content_with_hash(common.base.get_tasks_directory())
+                else:
+                    logger.info("Warning the backend that sync is disabled.")
+                    return None
 
             def exposed_update_task_directory(self, remote_tar_file, to_delete):
                 """ Updates the local task directory
                 :param tarfile: a compressed tar file that contains files that needs to be updated on this agent
                 :param to_delete: a list of path to file to delete on this agent
                 """
-                logger.info("Updating task directory...")
-                # Copy the remote tar archive locally
-                tmpfile = tempfile.TemporaryFile()
-                tmpfile.write(remote_tar_file.read())
-                tmpfile.seek(0)
-                tar = tarfile.open(fileobj=tmpfile, mode='r:gz')
+                if sync_enabled:
+                    logger.info("Updating task directory...")
+                    # Copy the remote tar archive locally
+                    tmpfile = tempfile.TemporaryFile()
+                    tmpfile.write(remote_tar_file.read())
+                    tmpfile.seek(0)
+                    tar = tarfile.open(fileobj=tmpfile, mode='r:gz')
 
-                # Verify security of the tar archive
-                bd = os.path.abspath(common.base.get_tasks_directory())
-                for n in tar.getnames():
-                    if not os.path.abspath(os.path.join(bd, n)).startswith(bd):
-                        logger.error("Tar file given by the backend is invalid!")
-                        return
+                    # Verify security of the tar archive
+                    bd = os.path.abspath(common.base.get_tasks_directory())
+                    for n in tar.getnames():
+                        if not os.path.abspath(os.path.join(bd, n)).startswith(bd):
+                            logger.error("Tar file given by the backend is invalid!")
+                            return
 
 
-                # Verify security of the list of file to delete
-                for n in to_delete:
-                    if not os.path.abspath(os.path.join(bd, n)).startswith(bd):
-                        logger.error("Delete file list given by the backend is invalid!")
-                        return
+                    # Verify security of the list of file to delete
+                    for n in to_delete:
+                        if not os.path.abspath(os.path.join(bd, n)).startswith(bd):
+                            logger.error("Delete file list given by the backend is invalid!")
+                            return
 
-                # Extract the tar file
-                tar.extractall(common.base.get_tasks_directory())
-                tar.close()
-                tmpfile.close()
+                    # Extract the tar file
+                    tar.extractall(common.base.get_tasks_directory())
+                    tar.close()
+                    tmpfile.close()
 
-                # Delete unneeded files
-                for n in to_delete:
-                    c_path = os.path.join(common.base.get_tasks_directory(), n)
-                    if os.path.exists(c_path):
-                        if os.path.isdir(c_path):
-                            rmtree(c_path)
-                        else:
-                            os.unlink(c_path)
+                    # Delete unneeded files
+                    for n in to_delete:
+                        c_path = os.path.join(common.base.get_tasks_directory(), n)
+                        if os.path.exists(c_path):
+                            if os.path.isdir(c_path):
+                                rmtree(c_path)
+                            else:
+                                os.unlink(c_path)
 
-                logger.info("Task directory updated")
+                    logger.info("Task directory updated")
+                else:
+                    logger.warning("Backend tried to sync tasks files while sync is disabled!")
+
         return AgentService
 
 class LocalAgent(SimpleAgent):

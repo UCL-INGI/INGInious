@@ -122,10 +122,14 @@ class RemoteManualAgentJobManager(AbstractJobManager):
         async_get_file_list().add_callback(lambda r: self._synchronize_task_dir_p2(agent, local_td, r))
 
     def _synchronize_task_dir_p2(self, agent, local_td, async_value_remote_td):
+        """ Synchronizes the task directory with the remote agent, part 2 """
         try:
             remote_td = copy.deepcopy(async_value_remote_td.value)
         except:
             print "An error occured while retrieving list of files in the task dir from remote agent"
+            return
+
+        if remote_td is None:  # sync disabled for this Agent
             return
 
         to_update, to_delete = directory_compare_from_hash(local_td, remote_td)
