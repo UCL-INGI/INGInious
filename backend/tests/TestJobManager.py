@@ -58,7 +58,8 @@ class TestRemoteJobManager(TestJobManager):
     def setUp_job_manager(self):
         self.job_manager = RemoteManualAgentJobManager([{"host": "localhost", "port": self._get_port()}],
                                                        {"default": "ingi/inginious-c-default"},
-                                                       hook_manager=self.generate_hook_manager())
+                                                       self.generate_hook_manager(),
+                                                       True)
 
     def generate_hook_manager(self):
         return None

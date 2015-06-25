@@ -11,7 +11,11 @@ class TestRemoteAgentOK(TestWithFakeRemoteAgent):
 
     def update_task_directory_func(self, remote_tar_file, to_delete):
         self.remote_tar_file = remote_tar_file
-        self.to_delete = to_delete
+        self.nb_calls = self.nb_calls+1
+        if self.nb_calls == 1:
+            self.to_delete1 = to_delete
+        elif self.nb_calls == 2:
+            self.to_delete2 = to_delete
 
     def test_job(self):
         self.job_manager.new_job(Course('test').get_task('do_run'), {"problem_1": "1"}, self.default_callback)
@@ -19,9 +23,14 @@ class TestRemoteAgentOK(TestWithFakeRemoteAgent):
         assert "result" in result and result["result"] == "success"
 
     def test_update_task_directory(self):
-        # give a little time to allow everything to connect, compressing the files, ...
-        time.sleep(5)
-        assert self.to_delete == ["todelete"]
+        self.nb_calls = 0
+        self.to_delete1 = []
+        self.to_delete2 = []
+        self.job_manager._last_content_in_task_directory = {}
+        time.sleep(5)  # give a little time to allow everything to connect, compressing the files, ...
+        assert self.nb_calls == 2
+        assert self.to_delete1 == ["todelete"]
+        assert self.to_delete2 == ["todelete"]
         assert len(self.remote_tar_file) > 300
 
 class TestRemoteAgentNoSync(TestWithFakeRemoteAgent):
