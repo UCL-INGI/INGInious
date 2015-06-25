@@ -27,6 +27,33 @@ AGENT_CONTAINER_VERSION="0.2"
 class RemoteDockerJobManager(RemoteManualAgentJobManager):
     """ A Job Manager that automatically launch Agents on distant Docker daemons """
 
+    @classmethod
+    def is_agent_valid_and_started(cls, docker_connection):
+        try:
+            container_data = docker_connection.inspect_container("inginious-agent")
+            if container_data["Config"]["Labels"]["agent-version"] != AGENT_CONTAINER_VERSION:
+                # kill the container
+                docker_connection.kill("inginious-agent")
+                docker_connection.remove_container("inginious-agent", force=True)
+            elif container_data["State"]["Running"] is False:
+                # remove the container and restart it
+                docker_connection.remove_container("inginious-agent", force=True)
+            else:
+                return True
+        except:
+            pass
+        return False
+
+    @classmethod
+    def is_agent_image_update_needed(cls, docker_connection):
+        try:
+            image_data = docker_connection.inspect_image("ingi/inginious-agent")
+            if image_data["Config"]["Labels"]["agent-version"] != AGENT_CONTAINER_VERSION:
+                return True
+        except:
+            return True
+        return False
+
     def __init__(self, docker_daemons, image_aliases, hook_manager=None, is_testing=False):
         """
             Starts the job manager.
@@ -55,46 +82,17 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
                 "use_tls",False))
 
             # Verify if the container is available and at the right version
-            container_already_started = False
-            try:
-                container_data = docker_connection.inspect_container("inginious-agent")
-                if container_data["Config"]["Labels"]["agent-version"] != AGENT_CONTAINER_VERSION:
-                    #kill the container
-                    docker_connection.kill("inginious-agent")
-                    docker_connection.remove_container("inginious-agent", force=True)
-                elif container_data["State"]["Running"] is False:
-                    # remove the container and restart it
-                    docker_connection.remove_container("inginious-agent", force=True)
-                else:
-                    container_already_started = True
-            except:
-                pass
+            if not self.is_agent_valid_and_started(docker_connection):
 
-            if not container_already_started:
                 # Verify that the image ingi/inginious-agent exists and is up-to-date
-                need_download = False
-                try:
-                    image_data = docker_connection.inspect_image("ingi/inginious-agent")
-                    if image_data["Config"]["Labels"]["agent-version"] != AGENT_CONTAINER_VERSION:
-                        print "Container image ingi/inginious-agent is not up-to-date. Updating it."
-                        need_download = True
-                except:
-                    print "Container image ingi/inginious-agent is not available on the remote docker daemon. Downloading it."
-                    need_download = True
-
-                # Download the container image...
-                if need_download:
+                if self.is_agent_image_update_needed(docker_connection):
                     docker_connection.pull("ingi/inginious-agent")
 
                     # Verify again that the image is ok
-                    try:
-                        image_data = docker_connection.inspect_image("ingi/inginious-agent")
-                        if image_data["Config"]["Labels"]["agent-version"] != AGENT_CONTAINER_VERSION:
-                            raise Exception("Invalid version")
-                    except:
-                        print "The downloaded image ingi/inginious-agent is not at the same version as this instance of INGInious. Please update" \
-                              " INGInious or pull manually a valid version of the container image ingi/inginious-agent."
-                        exit(1)
+                    if self.is_agent_image_update_needed(docker_connection):
+                        raise Exception("The downloaded image ingi/inginious-agent is not at the same version as this instance of INGInious. " \
+                                        "Please update  INGInious or pull manually a valid version of the container image ingi/inginious-agent.")
+
 
                 docker_local_location = daemon.get("local_location", "unix:///var/run/docker.sock")
                 environment = {"AGENT_CONTAINER_NAME": "inginious-agent", "AGENT_PORT": daemon.get("remote_agent_port", 63456)}

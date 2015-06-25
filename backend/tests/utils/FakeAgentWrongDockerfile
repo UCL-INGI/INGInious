@@ -1,0 +1,6 @@
+# A (really) fake agent container that only contains the needed values for being recognized by Boot2docker
+FROM centos
+
+CMD ["/bin/sleep", "10"]
+
+LABEL agent-version=0.wrongversion
