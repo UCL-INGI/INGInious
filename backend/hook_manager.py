@@ -26,10 +26,17 @@ class HookManager(object):
     def __init__(self):
         self.hooks = {}
 
+    def _exception_free_callback(self, callback, *args, **kwargs):
+        """ A wrapper that remove all exceptions raised from hooks """
+        try:
+            callback(*args, **kwargs)
+        except Exception as e:
+            print "An exception occured while calling a hook! "+str(e)
+
     def add_hook(self, name, callback):
         """ Add a new hook that can be called with the call_hook function """
         hook_list = self.hooks.get(name, [])
-        hook_list.append(callback)
+        hook_list.append(lambda *args, **kwargs: self._exception_free_callback(callback, *args, **kwargs))
         self.hooks[name] = hook_list
 
     def call_hook(self, name, **kwargs):
