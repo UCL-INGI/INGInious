@@ -60,7 +60,9 @@ if __name__ == "__main__":
         exit(1)
 
     base = os.path.abspath(os.path.join(mounted_dir, "../"))
-    os.makedirs(base)
-    os.symlink("/agent_volume", mounted_dir)
+    if not os.path.exists(base):
+        os.makedirs(base)
+    if not os.path.exists(mounted_dir):
+        os.symlink("/agent_volume", mounted_dir)
 
     RemoteAgent(int(os.environ["AGENT_PORT"]), mounted_dir, True)
