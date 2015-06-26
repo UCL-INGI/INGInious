@@ -243,6 +243,8 @@ Use this command to pull the default container of INGInious. Lots of other conta
 	
 If you pull/create additionnal containers, do not forget to add them in the configuration of INGInious.
 
+.. _lighttpd:
+
 Using lighttpd (on CentOS 7.0)
 ------------------------------
 
@@ -303,7 +305,8 @@ You can then replace the content of fastcgi.conf with:
 	   "bin-path" => "/var/www/INGInious/app_frontend.py",
 	   "max-procs" => 1,
 	  "bin-environment" => (
-	    "REAL_SCRIPT_NAME" => ""
+	    "REAL_SCRIPT_NAME" => "",
+	    "DOCKER_HOST" => "tcp://192.168.59.103:2375"
 	  ),
 	  "check-local" => "disable"
 	))
@@ -314,6 +317,12 @@ You can then replace the content of fastcgi.conf with:
 	  "^/static/(.*)$" => "/static/$1",
 	  "^/(.*)$" => "/app_frontend.py/$1",
 	)
+
+Please note that the ``DOCKER_HOST`` env variable is only needed if you use the ``backend=local`` option. It should reflect your current
+configuration. To know the value to set, start a terminal that has access to the docker daemon (the terminal should be able to run ``docker info``)
+, and write ``$ echo $DOCKER_HOST``. If it returns nothing, just drop the line ``"DOCKER_HOST" => "tcp://192.168.59.103:2375"`` from the
+configuration of Lighttpd. Else, put the value return by the command in the configuration. It is possible that may need to do the same for the env
+variable ``DOCKER_CERT_PATH`` and ``DOCKER_TLS_VERIFY`` too.
 
 Finally, start the server:
 
