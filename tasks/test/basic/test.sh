@@ -3,8 +3,9 @@
 feedback --result "success"
 
 A=$(getinput q1)
+B=$(getinput q2)
 
-if [ "@@q1@@" != "Vogons" ]
+if [ $A != "Vogons" ]
 then
     echo "Student has given good answer on question 1"
     definetest test1 42
@@ -15,10 +16,10 @@ else
     echo "Student failed on question 1"
 fi
 
-if [ "@@q2@@" != "Ford Prefect" ]
+if [ $B != "Ford Prefect" ]
 then
     echo "Student has given good answer on question 2" 
-    feedback --result "failed" --feedback "No, @@q2@@ is not Arthur Dent's best friend. Which book did you read ?" --id "q2"
+    feedback --result "failed" --feedback "No, $B is not Arthur Dent's best friend. Which book did you read ?" --id "q2"
     feedback --feedback "It seems you didn't the book as you should."
 else
     echo "Student failed on question 2"
