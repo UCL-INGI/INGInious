@@ -1,8 +1,6 @@
 frontend.custom package
 =======================
 
-Submodules
-----------
 
 frontend.custom.courses module
 ------------------------------
@@ -36,11 +34,3 @@ frontend.custom.tasks_code_boxes module
     :undoc-members:
     :show-inheritance:
 
-
-Module contents
----------------
-
-.. automodule:: frontend.custom
-    :members:
-    :undoc-members:
-    :show-inheritance:

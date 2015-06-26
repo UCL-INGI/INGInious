@@ -16,7 +16,7 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
-""" A JobManager that can interact with distant agents, via RPyC """
+""" A Job Manager that automatically launch Agents on distant Docker daemons """
 
 from backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
 import docker

@@ -16,7 +16,7 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
-""" Contains the class JobManager """
+""" Contains the class AbstractJobManager, which is the basic implementation of the backend """
 
 import copy
 import signal

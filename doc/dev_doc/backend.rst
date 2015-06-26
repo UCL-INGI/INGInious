@@ -10,86 +10,75 @@ When a job is submitted to an object of the class JobManager, the following proc
 
 #.	If the job need to be launched in a container:
 
-	#.	A new docker instance is selected. The docker instance with the less running jobs is chosen.
+	#.	An :doc:`agent` is selected. Currently, it is done using a round-robin, but it should evolve soon.
 
-	#.	The job is then sent to a process pool, which runs the *submitter* function.
-		The submitter function is in charge of connecting to the chosen docker instance and to run a new container instance.
-		It then put the container id of the newly created container in the wait queue of the chosen docker instance.
+    #.  The job is sent to the agent
 
-	#.	The queue is read by processes called *waiters*. One or more *waiter* is associated with each docker instance. A *waiter*
-		is in charge of emptying the wait queue and to periodically verify that a container has ended.
-		When a container has done its work, the *waiter* get the results from the docker instance, and push it in the callback queue (internally called the *done queue*)
+    #.  The agent starts a *grading container*, that can start itself zero, one or more *student containers*, at will;
 
-	Else
+    #.  Once the *grading container* is done, the agent get back the grading information...
 
-	#.	The job is put in the callback queue
+    #.  ... and send it to the backend.
 
-#.	The callback queue is then read by threads (which are run inside the JobManager's process) called *callback managers*.
-	They are in charge of calling the callbacks functions given when submitting the job.
-	It is important that callback are made inside the JobManager's process. This allow users of the JobManager object to use non-pickable callback functions, such as bound functions.
-	(this allows to be more flexible).
+    #.  The backend then merge the results of local (multiple-choice questions, ...) and remote grading
 
-#.	If the job was launched in a container, the callback manager also start the function *deleter* in the process pool, which deletes the container.
+#.  The result is given back to the caller via a callback function.
 
-Submodules
-----------
+backend.job_managers.abstract module
+------------------------------------
 
-backend.job_manager module
+.. automodule:: backend.job_managers.abstract
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+backend.job_managers.local module
 ---------------------------------
 
-.. automodule:: backend.job_manager
+.. automodule:: backend.job_managers.local
     :members:
     :undoc-members:
     :show-inheritance:
 
-backend.job_manager_sync module
----------------------------------
+backend.job_managers.remote_docker module
+-----------------------------------------
 
-.. automodule:: backend.job_manager_sync
+.. automodule:: backend.job_managers.remote_docker
     :members:
     :undoc-members:
     :show-inheritance:
 
-backend.job_manager_buffer module
----------------------------------
+backend.job_managers.remote_manual_agent module
+-----------------------------------------------
 
-.. automodule:: backend.job_manager_buffer
+.. automodule:: backend.job_managers.remote_manual_agent
     :members:
     :undoc-members:
     :show-inheritance:
 
-Utilities for the class JobManager
-----------------------------------
+backend.hook_manager module
+---------------------------
 
-backend._submitter module
-`````````````````````````
-
-.. automodule:: backend._submitter
+.. automodule:: backend.hook_manager
     :members:
     :undoc-members:
     :show-inheritance:
 
-backend._waiter module
-``````````````````````
+Utilities to handle job managers
+--------------------------------
 
-.. automodule:: backend._waiter
+backend.helpers.job_manager_sync module
+```````````````````````````````````````
+
+.. automodule:: backend.helpers.job_manager_sync
     :members:
     :undoc-members:
     :show-inheritance:
 
-backend._callback_manager module
-````````````````````````````````
+backend.helpers.job_manager_buffer module
+`````````````````````````````````````````
 
-.. automodule:: backend._callback_manager
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: backend
+.. automodule:: backend.helpers.job_manager_buffer
     :members:
     :undoc-members:
     :show-inheritance:

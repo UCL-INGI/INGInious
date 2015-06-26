@@ -1,5 +1,5 @@
 frontend.plugins package
-======================
+========================
 
 This packages contains some working plugins as example.
 
@@ -9,11 +9,21 @@ current PluginManager_ object and the configuration assigned to this plugin
 
 The class PluginManager_ provides some useful methods to interact with the frontend.
 
-Submodules
-----------
+.. _PluginManager:
+
+frontend.plugins.plugin_manager module
+--------------------------------------
+
+.. automodule:: frontend.plugins.plugin_manager
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Plugins
+-------
 
 frontend.plugins.demo_page module
-----------------------------------
+`````````````````````````````````
 
 .. automodule:: frontend.plugins.demo_page
     :members:
@@ -21,7 +31,7 @@ frontend.plugins.demo_page module
     :show-inheritance:
 
 frontend.plugins.edx module
-----------------------------
+```````````````````````````
 
 .. automodule:: frontend.plugins.edx
     :members:
@@ -29,35 +39,63 @@ frontend.plugins.edx module
     :show-inheritance:
 
 frontend.plugins.git_repo module
----------------------------------
+````````````````````````````````
 
 .. automodule:: frontend.plugins.git_repo
     :members:
     :undoc-members:
     :show-inheritance:
 
-.. _PluginManager:
-
-frontend.plugins.plugin_manager module
----------------------------------------
-
-.. automodule:: frontend.plugins.plugin_manager
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 frontend.plugins.simple_grader module
---------------------------------------
+`````````````````````````````````````
 
 .. automodule:: frontend.plugins.simple_grader
     :members:
     :undoc-members:
     :show-inheritance:
 
-Module contents
----------------
+frontend.plugins.contests.constests module
+``````````````````````````````````````````
 
-.. automodule:: frontend.plugins
+.. automodule:: frontend.plugins.contests.contests
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Auth plugins
+------------
+
+frontend.plugins.auth.demo_auth module
+``````````````````````````````````````
+
+.. automodule:: frontend.plugins.auth.demo_auth
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+frontend.plugins.auth.ldap_auth module
+``````````````````````````````````````
+
+.. automodule:: frontend.plugins.auth.ldap_auth
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Task files managers
+-------------------
+
+frontend.plugins.task_file_managers.json_manager module
+```````````````````````````````````````````````````````
+
+.. automodule:: frontend.plugins.task_file_managers.json_manager
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+frontend.plugins.task_file_managers.rst_manager module
+``````````````````````````````````````````````````````
+
+.. automodule:: frontend.plugins.task_file_managers.rst_manager
     :members:
     :undoc-members:
     :show-inheritance:

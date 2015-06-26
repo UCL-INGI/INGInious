@@ -98,8 +98,7 @@ def directory_compare_from_hash(from_directory, to_directory):
     """
     :param from_directory: dict in the form {file: (hash of the file, stat of the file)} from directory_content_with_hash
     :param to_directory: dict in the form {file: (hash of the file, stat of the file)} from directory_content_with_hash
-    :return: a tuple containing two list: the files that should be uploaded to "to_directory" and the files that should be removed from
-    "to_directory"
+    :return: a tuple containing two list: the files that should be uploaded to "to_directory" and the files that should be removed from "to_directory"
     """
     to_upload = []
     to_delete = []
