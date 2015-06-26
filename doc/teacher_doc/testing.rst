@@ -14,13 +14,13 @@ Boot2Docker. docker-osx
 - Build all the containers you need by using the command
   ::
 
-  	sudo docker build -t inginious/containerfolder containerfolder
+    sudo docker build -t inginious/containerfolder containerfolder
 
   Take care of the dependencies between the containers.
 - Now that your container are built, you can now start one:
   ::
 
-  	sudo docker run -v ~/taskDirectory:/ro/task -t -i inginious/youcontainer /bin/bash
+    sudo docker run -v ~/taskDirectory:/ro/task -t -i inginious/youcontainer /bin/bash
 
   Where *~/taskDirectory* is the folder containing your task data.
 - You can then play inside the container. You have all powers inside the

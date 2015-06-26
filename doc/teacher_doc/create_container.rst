@@ -23,7 +23,7 @@ As easily seen, this Dockerfile creates a new container image that can launch PH
 The syntax of these Dockerfiles is extensively described on the website of Docker_, 
 but we will detail here the most important things to know.
 
-Each Dockerfile used on INGInious most begin with ```FROM    inginious/ingi-c-default```.
+Each Dockerfile used on INGInious must begin with ```FROM    inginious/ingi-c-default```.
 This indicates that you take as base for your new image the default image provided with INGInious.
 This default image is itself based on CentOS 7, and uses *yum* (*rpm*) as package manager. 
 It is already provided with Python and basic commands, and with all the files needed by INGInious to work.
@@ -62,7 +62,8 @@ Once you have Docker up and running, it is very simple to create a container ima
     $ docker build -t my_container_image ./
 
 Docker will then launch a container and run the Dockerfile on it, then will save the state of the disk, that is, in fact, the container image.
-It can then be used in INGInious as ```my_container_image```. You have to update the file ```configuration.yaml``` to authorize the usage of the new image.
+It can then be used in INGInious as ```my_container_image```. You have to update the file ```configuration.yaml``` to authorize the usage of the
+new image (see :ref:`config`).
 
 You can also enter directly in the container image to test it in the command line:
 

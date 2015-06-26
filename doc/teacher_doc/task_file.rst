@@ -1,3 +1,5 @@
+.. _task.yaml:
+
 Task description files
 ======================
 
@@ -184,11 +186,11 @@ Multiple choice problems
     limit: 2,
     choices:
       - text: It is, of course, 42!
-		  valid: true
+        valid: true
       - text: It should be *42*
         valid: true
-		- text: 43!
-		- text: 41?
+        - text: 43!
+        - text: 41?
 
 Choices are described in the *choices* section of the YAML. Each choice must have
 a *text* field (on the frontend) that will be parsed in restructuredText. Valid choices

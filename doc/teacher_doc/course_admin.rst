@@ -1,6 +1,8 @@
 Course administration
 =====================
 
+NOTE: this page is old and needs a complete rewrite.
+
 As a course administrator, you can simply access its management
 page by clicking on "Manage" in the task list page the course.
 
@@ -23,7 +25,7 @@ The administration page gives you several global list views :
 - All the students who tried a given task, if they succeded it, and the
   number of submissions they did. You can show these information by
   clicking "View student list" on the main administration page or by
-  clicking "Satistics" on the task page.
+  clicking "Statistics" on the task page.
 - All the tasks tried by a given student, if (s)he succeded it and the
   number of submissions (s)he did. These information can be displayed by
   clicking "View" in the students list of a course.

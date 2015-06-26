@@ -5,7 +5,7 @@ Use YAML with RST
 -----------------
 
 YAML with RST is the recommended way to create task descriptions. Old methods such as JSON+RST, 
-JSON+HTML and RST+RST are deprecated and will be dropped... one day.
+JSON+HTML and RST+RST are deprecated and were dropped. If you really want to use them, these parsing methods are still available as plugins.
 
 Provide a test set for the student to test their code themselves, and grade the code with at least this set
 -----------------------------------------------------------------------------------------------------------
@@ -75,10 +75,16 @@ For example, if 2014-05-11 is the date where the task became unavailable::
 Do not put the student's code directly in your tests
 ----------------------------------------------------
 
-Inserting student's code direclty in your tests is dangerous,
+Inserting student's code directly in your tests is dangerous,
 because the student could make syntax errors that would display the code of your tests.
 
 It is better to put all the student's functions in a single template file, which one you will import in you test files.
+
+Use student container
+---------------------
+
+To be completely secure, run anything you do not trust inside a separate *student container*.
+Students may want to interfere with the normal work of your grading script to get better grades...
 
 Make small tests
 ----------------
