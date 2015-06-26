@@ -84,6 +84,9 @@ def get_app(config_file):
     # Loads plugins
     plugin_manager.load()
 
+    # Start the backend
+    submission_manager.start_backend_interface()
+
     return appli
 
 

@@ -44,6 +44,7 @@ class TestDockerJobManager(object):
             "remote_docker_port": 2375,
             "remote_agent_port": 63456
         }], {"default": "ingi/inginious-c-default"}, is_testing=True)
+        self.job_manager.start()
 
     def build_fake_agent(self, dockerfile="FakeAgentDockerfile"):
         dockerfile_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)),"utils/"))

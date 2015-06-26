@@ -70,6 +70,9 @@ def init_backend_interface(plugin_manager):
     else:
         raise Exception("Unknown backend {}".format(backend_type))
 
+def start_backend_interface():
+    """ Starts the backend interface. Should be called after the initialisation of the plugin manager. """
+    get_job_manager().start()
 
 def get_submission(submissionid, user_check=True):
     """ Get a submission from the database """

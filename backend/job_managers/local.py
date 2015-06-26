@@ -29,6 +29,9 @@ class LocalJobManager(AbstractJobManager):
         AbstractJobManager.__init__(self, image_aliases, hook_manager, is_testing)
         self._agent = agent_class(image_aliases, agent_tmp_dir)
 
+    def start(self):
+        pass
+
     def _execute_job(self, jobid, task, inputdata, debug):
         self._agent.new_job(jobid, task.get_course_id(), task.get_id(), inputdata, debug, None, lambda result: self._job_ended(jobid, result))
 

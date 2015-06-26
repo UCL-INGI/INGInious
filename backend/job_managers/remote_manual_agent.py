@@ -59,15 +59,16 @@ class RemoteManualAgentJobManager(AbstractJobManager):
         self._agents_thread = [None for _ in range(0, len(agents))]
         self._agents_info = agents
 
-        # init the synchronization of task directories
-        self._last_content_in_task_directory = directory_content_with_hash(get_tasks_directory())
-        threading.Timer((60 if not is_testing else 2), self._try_synchronize_task_dir).start()
-
-        # connect to agents #temp workaround: we need the plugins to be loaded, so wait a bit before the first try.
-        threading.Timer(2, self._try_agent_connection).start()
-
         self._next_agent = 0
         self._running_on_agent = [[] for _ in range(0, len(agents))]
+
+    def start(self):
+        # init the synchronization of task directories
+        self._last_content_in_task_directory = directory_content_with_hash(get_tasks_directory())
+        threading.Timer((60 if not self._is_testing else 2), self._try_synchronize_task_dir).start()
+
+        # connect to agents
+        self._try_agent_connection()
 
     def _try_agent_connection(self):
         """ Tries to connect to the agents that are not connected yet """

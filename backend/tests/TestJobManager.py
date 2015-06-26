@@ -60,6 +60,7 @@ class TestRemoteJobManager(TestJobManager):
                                                        {"default": "ingi/inginious-c-default"},
                                                        self.generate_hook_manager(),
                                                        True)
+        self.job_manager.start()
 
     def generate_hook_manager(self):
         return None
@@ -69,6 +70,7 @@ class TestLocalJobManager(TestJobManager):
         self.job_manager = LocalJobManager({"default": "inginious-c-default"},
                                            hook_manager=self.generate_hook_manager(),
                                            agent_class=get_fake_local_agent(self.handle_job_func))
+        self.job_manager.start()
 
     def generate_hook_manager(self):
         return None
