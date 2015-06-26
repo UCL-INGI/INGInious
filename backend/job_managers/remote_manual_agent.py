@@ -26,7 +26,12 @@ import tempfile
 import tarfile
 
 from backend.job_managers.abstract import AbstractJobManager
-from common.base import directory_compare_from_hash, get_tasks_directory, directory_content_with_hash
+from common.base import directory_compare_from_hash, get_tasks_directory, directory_content_with_hash, hash_file
+from common.task_file_managers.manage import get_available_task_file_managers, get_task_file_manager
+from common.task_file_managers.yaml_manager import TaskYAMLFileManager
+from StringIO import StringIO
+import re
+
 import os
 
 class RemoteManualAgentJobManager(AbstractJobManager):
@@ -58,8 +63,8 @@ class RemoteManualAgentJobManager(AbstractJobManager):
         self._last_content_in_task_directory = directory_content_with_hash(get_tasks_directory())
         threading.Timer((60 if not is_testing else 2), self._try_synchronize_task_dir).start()
 
-        # connect to agents
-        self._try_agent_connection()
+        # connect to agents #temp workaround: we need the plugins to be loaded, so wait a bit before the first try.
+        threading.Timer(2, self._try_agent_connection).start()
 
         self._next_agent = 0
         self._running_on_agent = [[] for _ in range(0, len(agents))]
@@ -118,10 +123,36 @@ class RemoteManualAgentJobManager(AbstractJobManager):
             - Agents updates their directory
         """
         local_td = self._last_content_in_task_directory
-        async_get_file_list = rpyc.async(agent.root.get_task_directory_hashes)
-        async_get_file_list().add_callback(lambda r: self._synchronize_task_dir_p2(agent, local_td, r))
 
-    def _synchronize_task_dir_p2(self, agent, local_td, async_value_remote_td):
+        # As agent only supports task.yaml files as descriptors (and not exotic things like task.rst...), we have to ensure that we convert and send
+        # task.yaml files to it.
+        task_files_to_convert = ["task."+ext for ext in get_available_task_file_managers()]
+        task_files_to_convert.remove("task.yaml")
+
+        new_local_td = {}
+        generated_yaml_content = {}
+        for file_path, data in local_td.iteritems():
+            match = re.match(r'^([a-zA-Z0-9_\-]+)/([a-zA-Z0-9_\-]+)/(task.[a-z0-9]+)$', file_path)
+            if match is not None and match.group(3) in task_files_to_convert:
+                try:
+                    path_to_file, _ = os.path.split(file_path)
+                    courseid, taskid = match.group(1), match.group(2)
+                    content = get_task_file_manager(courseid, taskid).read()
+                    yaml_content = StringIO(TaskYAMLFileManager(match.group(1), match.group(2))._generate_content(content).encode('utf-8'))
+                    new_local_td[os.path.join(path_to_file,"task.yaml")] = (hash_file(yaml_content), 0o777)
+                    yaml_content.seek(0)
+                    generated_yaml_content[os.path.join(path_to_file, "task.yaml")] = yaml_content
+                except Exception as e:
+                    raise
+                    print "Cannot convert {} to a yaml file for the agent!".format(file_path)
+                    new_local_td[file_path] = data
+            else:
+                new_local_td[file_path] = data
+
+        async_get_file_list = rpyc.async(agent.root.get_task_directory_hashes)
+        async_get_file_list().add_callback(lambda r: self._synchronize_task_dir_p2(agent, new_local_td, generated_yaml_content, r))
+
+    def _synchronize_task_dir_p2(self, agent, local_td, generated_files, async_value_remote_td):
         """ Synchronizes the task directory with the remote agent, part 2 """
         try:
             remote_td = copy.deepcopy(async_value_remote_td.value)
@@ -138,7 +169,13 @@ class RemoteManualAgentJobManager(AbstractJobManager):
         for path in to_update:
             # be a little safe about what the agent returns...
             if os.path.relpath(os.path.join(get_tasks_directory(), path), get_tasks_directory()) == path and ".." not in path:
-                tar.add(arcname=path, name=os.path.join(get_tasks_directory(), path))
+                if path in generated_files: # the file do not really exists on disk, it was generated
+                    info = tarfile.TarInfo(name=path)
+                    info.size = generated_files[path].len
+                    info.mode = 0o777
+                    tar.addfile(tarinfo=info, fileobj=generated_files[path])
+                else: #the file really exists on disk
+                    tar.add(arcname=path, name=os.path.join(get_tasks_directory(), path))
             else:
                 print "Agent returned non-safe file path: "+path
         tar.close()

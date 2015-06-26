@@ -75,6 +75,18 @@ def write_json_or_yaml(file_path, content):
     with codecs.open(file_path, "w", "utf-8") as f:
         f.write(o)
 
+def hash_file(fileobj):
+    """
+    :param fileobj: a file object
+    :return: a hash of the file content
+    """
+    hasher = hashlib.md5()
+    buf = fileobj.read(65536)
+    while len(buf) > 0:
+        hasher.update(buf)
+        buf = fileobj.read(65536)
+    return hasher.hexdigest()
+
 def directory_content_with_hash(directory):
     """
     :param directory: directory in which the function list the files
@@ -84,14 +96,9 @@ def directory_content_with_hash(directory):
     for root, directories, filenames in os.walk(directory):
         for filename in filenames:
             p = os.path.join(root, filename)
-            hasher = hashlib.md5()
-            with open(p, 'rb') as f:
-                buf = f.read(65536)
-                while len(buf) > 0:
-                    hasher.update(buf)
-                    buf = f.read(65536)
             file_stat = os.stat(p)
-            output[os.path.relpath(p, directory)] = (hasher.hexdigest(), file_stat.st_mode)
+            with open(p, 'rb') as f:
+                output[os.path.relpath(p, directory)] = (hash_file(f), file_stat.st_mode)
     return output
 
 def directory_compare_from_hash(from_directory, to_directory):
