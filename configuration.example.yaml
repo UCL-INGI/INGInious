@@ -49,3 +49,6 @@ plugins:
 
 # Allow HTML in tasks? can be true, false or "tidy" (to run HTMLTidy)
 allow_html: tidy
+
+# Disable INGInious?
+maintenance: false

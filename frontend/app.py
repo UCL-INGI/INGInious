@@ -51,11 +51,18 @@ urls = (
     '/admin/([^/]+)/submissions', 'frontend.pages.course_admin.submission_files.DownloadSubmissionFiles'
 )
 
+urls_maintenance = (
+    '/.*', 'frontend.pages.maintenance.MaintenancePage'
+)
 
 def get_app(config_file):
     """ Get the application. config_file is the path to the configuration file """
-    appli = web.application(urls, globals(), autoreload=False)
     frontend.configuration.INGIniousConfiguration.load(config_file)
+    if frontend.configuration.INGIniousConfiguration.get("maintenance", False):
+        appli = web.application(urls_maintenance, globals(), autoreload=False)
+        return appli
+
+    appli = web.application(urls, globals(), autoreload=False)
 
     frontend.base.init_database()
     update_database()
