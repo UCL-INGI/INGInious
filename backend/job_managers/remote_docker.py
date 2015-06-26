@@ -120,7 +120,7 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
                 container_id = response["Id"]
 
                 # Start the container
-                docker_connection.start(container_id, network_mode="host", binds=binds, restart_policy="always")
+                docker_connection.start(container_id, network_mode="host", binds=binds, restart_policy={"Name":"always"})
 
             agents.append({"host": daemon['remote_host'], "port": daemon.get("remote_agent_port", 63456)})
 
