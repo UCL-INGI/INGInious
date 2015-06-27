@@ -11,3 +11,4 @@ dump
 doc/_*
 tasks
 !tests/tasks
+!*/tests/tasks

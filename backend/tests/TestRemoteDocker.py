@@ -15,7 +15,7 @@ class TestDockerJobManager(object):
         if not TEST_DOCKER_JOB_MANAGER:
             raise SkipTest("Testing the Docker Job Manager is disabled.")
 
-        self.docker_connection = docker.Client(base_url="tcp://192.168.59.103:2375")
+        self.docker_connection = docker.Client(base_url="tcp://localhost:2375")
 
         # Force the removal of all containers/images linked to this test
         try:
@@ -40,7 +40,7 @@ class TestDockerJobManager(object):
 
     def start_manager(self):
         self.job_manager = RemoteDockerJobManager([{
-            "remote_host": "192.168.59.103",
+            "remote_host": "localhost",
             "remote_docker_port": 2375,
             "remote_agent_port": 63456
         }], {"default": "ingi/inginious-c-default"}, is_testing=True)
