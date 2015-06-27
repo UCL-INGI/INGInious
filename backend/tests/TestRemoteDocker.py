@@ -3,19 +3,24 @@
 # If it don't work as-is on your arch, you can simply disable the TEST_DOCKER_JOB_MANAGER
 # flag and trust the code, or you can modify the config in the test to make it run.
 
-TEST_DOCKER_JOB_MANAGER = True
-
 from backend.job_managers.remote_docker import RemoteDockerJobManager
 from nose.plugins.skip import SkipTest
 import docker
 import os
 
+TEST_DOCKER_JOB_MANAGER = os.environ.get("TEST_DOCKER_JOB_MANAGER", None)
+
 class TestDockerJobManager(object):
     def setUp(self):
-        if not TEST_DOCKER_JOB_MANAGER:
-            raise SkipTest("Testing the Docker Job Manager is disabled.")
 
-        self.docker_connection = docker.Client(base_url="tcp://localhost:2375")
+        if TEST_DOCKER_JOB_MANAGER is None:
+            raise SkipTest("Testing the Docker Job Manager is disabled.")
+        elif TEST_DOCKER_JOB_MANAGER == "boot2docker":
+            self.docker_connection = docker.Client(base_url="tcp://192.168.59.103:2375")
+        elif TEST_DOCKER_JOB_MANAGER == "travis":
+            self.docker_connection = docker.Client(base_url="tcp://localhost:2375")
+        else:
+            raise Exception("Unknown method for testing the Docker Job Manager!")
 
         # Force the removal of all containers/images linked to this test
         try:
@@ -39,11 +44,18 @@ class TestDockerJobManager(object):
         pass
 
     def start_manager(self):
-        self.job_manager = RemoteDockerJobManager([{
-            "remote_host": "localhost",
-            "remote_docker_port": 2375,
-            "remote_agent_port": 63456
-        }], {"default": "ingi/inginious-c-default"}, is_testing=True)
+        if TEST_DOCKER_JOB_MANAGER == "boot2docker":
+            self.job_manager = RemoteDockerJobManager([{
+                "remote_host": "192.168.59.103",
+                "remote_docker_port": 2375,
+                "remote_agent_port": 63456
+            }], {"default": "ingi/inginious-c-default"}, is_testing=True)
+        elif TEST_DOCKER_JOB_MANAGER == "travis":
+            self.job_manager = RemoteDockerJobManager([{
+                "remote_host": "localhost",
+                "remote_docker_port": 2375,
+                "remote_agent_port": 63456
+            }], {"default": "ingi/inginious-c-default"}, is_testing=True)
         self.job_manager.start()
 
     def build_fake_agent(self, dockerfile="FakeAgentDockerfile"):
