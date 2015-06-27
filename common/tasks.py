@@ -59,6 +59,9 @@ class Task(object):
                 self._limits['hard_time'] = int(3 * self._data["limits"].get("hard_time", 60))
                 self._limits['memory'] = int(self._data["limits"].get("memory", 1024))
                 self._limits['disk'] = int(self._data["limits"].get("disk", 1024))
+
+                if self._limits['time'] <= 0 or self._limits['hard_time'] <= 0 or self._limits['memory'] <= 0 or self._limits['disk'] <= 0:
+                    raise Exception("Invalid limit")
             except:
                 raise Exception("Invalid limit")
 
@@ -108,11 +111,12 @@ class Task(object):
 
     def check_answer(self, task_input):
         """
-            Verify the answers in task_input. Returns four values
+            Verify the answers in task_input. Returns five values
             1st: True the input is **currently** valid. (may become invalid after running the code), False else
             2nd: True if the input needs to be run in the VM, False else
             3rd: Main message, as a list (that can be join with \n or <br/> for example)
             4th: Problem specific message, as a dictionnary
+            5th: Number of errors in the multiple choices
         """
         valid = True
         need_launch = False

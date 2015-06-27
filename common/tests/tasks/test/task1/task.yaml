@@ -1,0 +1,19 @@
+environment: "default"
+author: "Test User"
+name: "Task 1"
+context: "Here should go some introductory text."
+accessibility: false
+limits:
+    time: 60               
+    memory: 32             
+    disk: 100              
+    output: 1024            
+problems:
+    unittest:
+        name: "Question 1"
+        type: "code"
+        header: "Header 1"
+        boxes:
+            decimal:
+                type: "input-decimal"
+                maxChars: 10

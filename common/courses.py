@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Contains the class Course and utility functions """
-import json
 import os.path
 
 from common.base import get_tasks_directory, id_checker, load_json_or_yaml, write_json_or_yaml

@@ -1,0 +1,16 @@
+environment: "default"
+author: ["Test User"]
+name: "Task 1"
+context: "Here should go some introductory text."
+accessible: null
+limits:
+    time: 60
+    memory: 32
+    disk: 100
+    output: 1024
+problems:
+    unittest:
+        name: "Question 1"
+        type: "match"
+        header: "Header 1"
+        answer: "Answer 1"

@@ -88,4 +88,8 @@ def dump(data, stream=None, **kwds):
     OrderedDumper.add_representer(None, _default_representer)
 
     s = original_yaml.dump(data, stream, OrderedDumper, encoding='utf-8', allow_unicode=True, default_flow_style=False, indent=4, **kwds)
-    return s.decode('utf-8')
+
+    if s is not None:
+        return s.decode('utf-8')
+    else:
+        return

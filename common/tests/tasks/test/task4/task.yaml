@@ -1,0 +1,16 @@
+environment: "default"
+author: ["Test User"]
+name: "Task 4"
+context: "Here should go some introductory text."
+accessibility: true
+limits:
+    time: 60               
+    memory: 32             
+    disk: 100              
+    output: 1024
+problems:
+    unittest:
+        name: "Question 4" 
+        type: "code"
+        header: "Header 4"
+        language: "java"
