@@ -141,7 +141,8 @@ class SimpleAgent(object):
             response = docker_connection.create_container(
                 environment,
                 stdin_open=True,
-                volumes={'/task': {}, '/sockets': {}}
+                volumes={'/task': {}, '/sockets': {}},
+                network_disabled=True
             )
             container_id = response["Id"]
 
