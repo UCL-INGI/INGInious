@@ -236,7 +236,7 @@ class SimpleAgent(object):
 
     def _create_new_student_container(self, container_name, working_dir, command, memory_limit, time_limit, hard_time_limit, container_set,
                                       student_path):
-        self.logger.debug("Starting new student container... %s %s %s %s %s", container_name, working_dir, command, memory_limit, time_limit,
+        self.logger.debug("Starting new student container... %s %s %s %s %s %s", container_name, working_dir, command, memory_limit, time_limit,
                           hard_time_limit)
         try:
             docker_connection = docker.Client(**kwargs_from_env())

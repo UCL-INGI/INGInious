@@ -69,8 +69,9 @@ class UnixSocketServer(object):
     """
 
     def __init__(self, service, socket_path,
-                 backlog=10, authenticator=None, protocol_config={},
+                 backlog=10, authenticator=None, protocol_config=None,
                  logger=None, listener_timeout=0.5):
+        protocol_config = protocol_config or []
         self.active = False
         self._closed = False
         self.service = service
