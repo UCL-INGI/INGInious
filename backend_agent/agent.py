@@ -139,9 +139,7 @@ class SimpleAgent(object):
             response = docker_connection.create_container(
                 environment,
                 stdin_open=True,
-                volumes={'/task': {}, '/sockets': {}},
-                mem_limit=(mem_limit + 10) * 1024 * 1024,  # add 10 mo of bonus, as we check the memory in the "cgroup" thread
-                memswap_limit=-1  # disable swap
+                volumes={'/task': {}, '/sockets': {}}
             )
             container_id = response["Id"]
 
@@ -170,7 +168,10 @@ class SimpleAgent(object):
             # Start the container
             docker_connection.start(container_id,
                                     binds={os.path.abspath(task_path): {'ro': False, 'bind': '/task'},
-                                           os.path.abspath(sockets_path): {'ro': False, 'bind': '/sockets'}})
+                                           os.path.abspath(sockets_path): {'ro': False, 'bind': '/sockets'}},
+                                    mem_limit=(mem_limit + 10) * 1024 * 1024,  # add 10 mo of bonus, as we check the memory in the "cgroup" thread
+                                    memswap_limit=-1  # disable swap
+                                    )
 
             # Send the input data
             container_input = {"input": inputdata, "limits": limits}
@@ -260,14 +261,16 @@ class SimpleAgent(object):
                 network_disabled=True,
                 volumes={'/task/student': {}},
                 command=command,
-                working_dir=working_dir,
-                mem_limit=(mem_limit + 10) * 1024 * 1024,  # add 10 mo of bonus, as we check the memory in the "cgroup" thread
-                memswap_limit=-1  # disable swap
+                working_dir=working_dir
             )
             container_id = response["Id"]
 
             # Start the container
-            docker_connection.start(container_id, binds={os.path.abspath(student_path): {'ro': False, 'bind': '/task/student'}})
+            docker_connection.start(container_id,
+                                    binds={os.path.abspath(student_path): {'ro': False, 'bind': '/task/student'}},
+                                    mem_limit=(mem_limit + 10) * 1024 * 1024,  # add 10 mo of bonus, as we check the memory in the "cgroup" thread
+                                    memswap_limit=-1  # disable swap
+                                    )
 
             stdout_err = docker_connection.attach_socket(container_id, {'stdin': 0, 'stdout': 1, 'stderr': 1, 'stream': 1, 'logs': 1})
         except Exception as e:
