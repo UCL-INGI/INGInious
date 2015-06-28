@@ -4,10 +4,17 @@ RUN \
     yum -y update && \
     yum -y install epel-release && \
     yum -y install docker python-pip gcc python-devel && \
-    pip install pytidylib docker-py docutils rpyc cgroup-utils
+    pip install pytidylib docutils rpyc cgroup-utils pyyaml
 
-RUN pip install pyyaml
-
+# temp workaround for Docker 1.7 (TODO: revert me!)
+RUN \
+    yum -y install git && \
+    git clone https://github.com/GuillaumeDerval/docker-py.git /docker-py && \
+    cd /docker-py && \
+    pip install . && \
+    cd .. && \
+    rm -Rf /docker-py
+    
 VOLUME /agent_volume
 VOLUME /sys/fs/cgroup
 
