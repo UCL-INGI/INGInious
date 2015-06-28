@@ -30,8 +30,8 @@ import rpyc
 
 from backend.job_managers.abstract import AbstractJobManager
 from common.base import directory_compare_from_hash, get_tasks_directory, directory_content_with_hash, hash_file
+import common.custom_yaml
 from common.task_file_managers.manage import get_available_task_file_managers, get_task_file_manager
-from common.task_file_managers.yaml_manager import TaskYAMLFileManager
 
 
 class RemoteManualAgentJobManager(AbstractJobManager):
@@ -62,6 +62,8 @@ class RemoteManualAgentJobManager(AbstractJobManager):
 
         self._next_agent = 0
         self._running_on_agent = [[] for _ in range(0, len(agents))]
+
+        self._last_content_in_task_directory = None
 
     def start(self):
         # init the synchronization of task directories
@@ -140,12 +142,11 @@ class RemoteManualAgentJobManager(AbstractJobManager):
                     path_to_file, _ = os.path.split(file_path)
                     courseid, taskid = match.group(1), match.group(2)
                     content = get_task_file_manager(courseid, taskid).read()
-                    yaml_content = StringIO(TaskYAMLFileManager(match.group(1), match.group(2))._generate_content(content).encode('utf-8'))
+                    yaml_content = StringIO(common.custom_yaml.dump(content).encode('utf-8'))
                     new_local_td[os.path.join(path_to_file, "task.yaml")] = (hash_file(yaml_content), 0o777)
                     yaml_content.seek(0)
                     generated_yaml_content[os.path.join(path_to_file, "task.yaml")] = yaml_content
-                except Exception as e:
-                    raise
+                except:
                     print "Cannot convert {} to a yaml file for the agent!".format(file_path)
                     new_local_td[file_path] = data
             else:
@@ -204,11 +205,11 @@ class RemoteManualAgentJobManager(AbstractJobManager):
         """ Chooses an agent and executes a job on it """
         agent_id = self._select_agent()
         if agent_id is None:
-            self._job_ended(jobid,
-                            {'result': 'crash',
-                             'text': 'There are not any agent available for grading. Please retry later. '
-                                     'If this error persists, please contact the course administrator.'},
-                            None)
+            self._agent_job_ended(jobid,
+                                  {'result': 'crash',
+                                   'text': 'There are not any agent available for grading. Please retry later. '
+                                           'If this error persists, please contact the course administrator.'},
+                                  None)
             return
         try:
             agent = self._agents[agent_id]
@@ -220,7 +221,8 @@ class RemoteManualAgentJobManager(AbstractJobManager):
             self._agent_shutdown(agent_id)
             self._execute_job(jobid, task, inputdata, debug)
 
-    def _job_ended(self, jobid, result, agent_id=None):
+    def _agent_job_ended(self, jobid, result, agent_id=None):
+        """ Custom _job_ended with more infos """
         if agent_id is not None:
             self._running_on_agent[agent_id].remove(jobid)
         AbstractJobManager._job_ended(self, jobid, result)
@@ -229,9 +231,9 @@ class RemoteManualAgentJobManager(AbstractJobManager):
         """ Called when an agent is done with a job or raised an exception """
         if callback_return_val.error:
             print "Agent {} made an exception while running jobid {}".format(agent_id, jobid)
-            self._job_ended(jobid, {"result": "crash"}, agent_id)
+            self._agent_job_ended(jobid, {"result": "crash"}, agent_id)
         else:
-            self._job_ended(jobid, copy.deepcopy(callback_return_val.value), agent_id)
+            self._agent_job_ended(jobid, copy.deepcopy(callback_return_val.value), agent_id)
 
     def _get_rpyc_server(self, agent_id):
         """ Return a service associated with this JobManager instance """
@@ -260,7 +262,8 @@ class RemoteManualAgentJobManager(AbstractJobManager):
         """ Close a connection to an agent (failure/...) """
 
         # delete jobs that were running on this agent
-        map(lambda jid: self._job_ended(jid, {'result': 'crash', 'text': 'Remote agent shutdown'}, agent_id), self._running_on_agent[agent_id])
+        for jid in self._running_on_agent[agent_id]:
+            self._agent_job_ended(jid, {'result': 'crash', 'text': 'Remote agent shutdown'}, agent_id)
 
         try:
             self._agents[agent_id] = None
@@ -280,9 +283,9 @@ class RemoteManualAgentJobManager(AbstractJobManager):
             if entry is not None:
                 # Hack a bit BgServingThread to ensure it closes properly
                 thread = self._agents_thread[i]
-                thread._active = False
+                thread._active = False  # pylint: disable=W0212
                 self._agents[i] = None
                 self._agents_thread[i] = None
                 entry.close()
-                thread._thread.join()
-                thread._conn = None
+                thread._thread.join()  # pylint: disable=W0212
+                thread._conn = None  # pylint: disable=W0212

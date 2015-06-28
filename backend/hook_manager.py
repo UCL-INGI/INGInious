@@ -40,4 +40,4 @@ class HookManager(object):
 
     def call_hook(self, name, **kwargs):
         """ Call all hooks registered with this name. Returns a list of the returns values of the hooks (in the order the hooks were added)"""
-        return map(lambda x: x(**kwargs), self.hooks.get(name, []))
+        return [x(**kwargs) for x in self.hooks.get(name, [])]

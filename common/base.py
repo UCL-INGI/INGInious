@@ -103,7 +103,7 @@ def directory_content_with_hash(directory):
     :return: dict in the form {file: (hash of the file, stat of the file)}
     """
     output = {}
-    for root, directories, filenames in os.walk(directory):
+    for root, _, filenames in os.walk(directory):
         for filename in filenames:
             p = os.path.join(root, filename)
             file_stat = os.stat(p)
@@ -120,8 +120,8 @@ def directory_compare_from_hash(from_directory, to_directory):
     """
     to_upload = []
     to_delete = []
-    for path, (hash, stat) in from_directory.iteritems():
-        if not path in to_directory or to_directory[path] != (hash, stat):
+    for path, (filehash, stat) in from_directory.iteritems():
+        if not path in to_directory or to_directory[path] != (filehash, stat):
             to_upload.append(path)
     for path in to_directory:
         if path not in from_directory:

@@ -184,8 +184,7 @@ class UnixSocketServer(object):
             config = dict(self.protocol_config, credentials=credentials,
                           endpoints=(sock.getsockname(), addrinfo), logger=self.logger)
             conn = Connection(self.service, Channel(SocketStream(sock)),
-                              config=config, _lazy=True)
-            conn._init_service()
+                              config=config)
             conn.serve_all()
         finally:
             pass
