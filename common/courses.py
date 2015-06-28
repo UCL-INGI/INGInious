@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2014-2015 Université Catholique de Louvain.
+# Copyright (c) 2014 Université Catholique de Louvain.
 #
 # This file is part of INGInious.
 #
@@ -19,13 +19,12 @@
 """ Contains the class Course and utility functions """
 import os.path
 
-from common.base import INGIniousConfiguration, id_checker, load_json_or_yaml, write_json_or_yaml
+from common.base import get_tasks_directory, id_checker, load_json_or_yaml, write_json_or_yaml
 from common.task_file_managers.manage import get_readable_tasks
 import common.tasks
 
 
 class Course(object):
-
     """ Represents a course """
 
     _task_class = common.tasks.Task
@@ -35,12 +34,11 @@ class Course(object):
         """Returns the path to the file that describes the course 'courseid'"""
         if not id_checker(courseid):
             raise Exception("Course with invalid name: " + courseid)
-        base_file = os.path.join(INGIniousConfiguration["tasks_directory"], courseid, "course")
+        base_file = os.path.join(get_tasks_directory(), courseid, "course")
         if os.path.isfile(base_file + ".yaml"):
             return base_file + ".yaml"
         else:
             return base_file + ".json"
-        return base_file + ".yaml"  # by default, YAML.
 
     @classmethod
     def get_course_descriptor_content(cls, courseid):
@@ -55,15 +53,15 @@ class Course(object):
     @classmethod
     def get_all_courses(cls):
         """Returns a table containing courseid=>Course pairs."""
-        files = [os.path.splitext(f)[0] for f in os.listdir(INGIniousConfiguration["tasks_directory"]) if
-                 os.path.isfile(os.path.join(INGIniousConfiguration["tasks_directory"], f, "course.yaml")) or
-                 os.path.isfile(os.path.join(INGIniousConfiguration["tasks_directory"], f, "course.json"))]
+        files = [os.path.splitext(f)[0] for f in os.listdir(get_tasks_directory()) if
+                 os.path.isfile(os.path.join(get_tasks_directory(), f, "course.yaml")) or
+                 os.path.isfile(os.path.join(get_tasks_directory(), f, "course.json"))]
         output = {}
         for course in files:
             try:
                 output[course] = cls(course)
-            except:  # todo log the error
-                pass
+            except Exception as e:  # todo log the error
+                print e
         return output
 
     def __init__(self, courseid):
@@ -82,7 +80,7 @@ class Course(object):
 
     def get_course_tasks_directory(self):
         """Return the complete path to the tasks directory of the course"""
-        return os.path.join(INGIniousConfiguration["tasks_directory"], self._id)
+        return os.path.join(get_tasks_directory(), self._id)
 
     def get_tasks(self):
         """Get all tasks in this course"""

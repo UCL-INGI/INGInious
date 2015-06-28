@@ -1,3 +1,5 @@
+.. _task.yaml:
+
 Task description files
 ======================
 
@@ -55,9 +57,21 @@ Inside a course folder (see `Creating a new course`) tasks must have
     at least one problem. Problem types are described in the following section
     `Problem types`_. Each problem must have an id which is alphanumeric and unique.
 
--   *environment* is the name of the Docker container in which the student's code will run.
+-   *limits* contains the limits that will be applied on the grading container. ```time```
+    is the CPU timeout in seconds, and ```hard_time``` is the timeout in real time. 
+    
+    By default, ```hard_time``` is defined to be to 3*```time```. This can leads to problems
+    when INGInious is under heavy load, but allow to detect processes that do too much system
+    interruptions (sleep calls or IO)
+    
+    ```memory``` is the maximum memory allowed to the container.
+    
+    Please note that the limits of the student containers (container that you start inside
+    the grading container) will use these limits by default.
+    
+-   *environment* is the name of the Docker container in which the grading code will run.
     This field is only needed if there is code to correct; a multiple-choice question does
-    not need it.
+    not need it. This environment will be used by default for the student containers.
 
 .. [#] There are some options about using HTML instead of restructuredText, but they
        are purposely not documented :-)
@@ -172,11 +186,11 @@ Multiple choice problems
     limit: 2,
     choices:
       - text: It is, of course, 42!
-		  valid: true
+        valid: true
       - text: It should be *42*
         valid: true
-		- text: 43!
-		- text: 41?
+        - text: 43!
+        - text: 41?
 
 Choices are described in the *choices* section of the YAML. Each choice must have
 a *text* field (on the frontend) that will be parsed in restructuredText. Valid choices

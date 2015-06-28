@@ -26,7 +26,8 @@ from zipfile import ZipFile
 
 import web
 
-from common.base import INGIniousConfiguration, id_checker
+from frontend.configuration import INGIniousConfiguration
+from common.base import id_checker, get_tasks_directory
 import common.custom_yaml
 from common.task_file_managers.manage import get_task_file_manager, get_available_task_file_managers, delete_all_possible_task_files
 from frontend.accessible_time import AccessibleTime
@@ -208,6 +209,8 @@ class CourseEditTask(object):
             data["problems"] = OrderedDict([(key, self.parse_problem(val))
                                             for key, val in sorted(problems.iteritems(), key=lambda x: int(x[1]['@order']))])
             data["limits"] = limits
+            if "hard_time" in data["limits"] and data["limits"]["hard_time"] == "":
+                del data["limits"]["hard_time"]
 
             # Weight
             try:
@@ -251,8 +254,8 @@ class CourseEditTask(object):
         except Exception as message:
             return json.dumps({"status": "error", "message": "Invalid data: {}".format(str(message))})
 
-        if not os.path.exists(os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid)):
-            os.mkdir(os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid))
+        if not os.path.exists(os.path.join(get_tasks_directory(), courseid, taskid)):
+            os.mkdir(os.path.join(get_tasks_directory(), courseid, taskid))
 
         if task_zip:
             try:
@@ -261,7 +264,7 @@ class CourseEditTask(object):
                 return json.dumps({"status": "error", "message": "Cannot read zip file. Files were not modified"})
 
             try:
-                zipfile.extractall(os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid))
+                zipfile.extractall(os.path.join(get_tasks_directory(), courseid, taskid))
             except Exception as message:
                 return json.dumps({"status": "error", "message": "There was a problem while extracting the zip archive. Some files may have been modified"})
 

@@ -5,7 +5,7 @@ context: In this task, you will have to write a python script that displays 'Hel
 environment: default
 limits:
     memory: '50'
-    time: '10'
+    time: '12'
     output: '1000'
 name: Hello World!
 problems:

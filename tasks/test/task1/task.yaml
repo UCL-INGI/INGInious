@@ -4,14 +4,14 @@ context: Here should go some introductory text.
 environment: default
 limits:
     memory: '32'
-    time: '60'
+    time: '30'
     output: '1024'
 name: Task 1
 problems:
     unittest:
+        type: code
         name: Question 1
         header: Header 1
-        type: code
         boxes:
             decimal:
                 maxChars: 10

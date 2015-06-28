@@ -21,11 +21,10 @@ from abc import ABCMeta, abstractmethod
 import codecs
 import os.path
 
-from common.base import INGIniousConfiguration
+from common.base import get_tasks_directory
 
 
 class AbstractTaskFileManager(object):
-
     """ Manages a type of task file """
     __metaclass__ = ABCMeta
 
@@ -35,7 +34,8 @@ class AbstractTaskFileManager(object):
 
     def read(self):
         """ Read the file describing the task and returns a dict """
-        return self._get_content(codecs.open(os.path.join(INGIniousConfiguration["tasks_directory"], self._courseid, self._taskid, "task." + self.get_ext()), "r", 'utf-8').read())
+        return self._get_content(codecs.open(os.path.join(get_tasks_directory(), self._courseid, self._taskid, "task." + self.get_ext()), "r",
+                                             'utf-8').read())
 
     @abstractmethod
     def _get_content(self, content):
@@ -49,7 +49,7 @@ class AbstractTaskFileManager(object):
 
     def write(self, data):
         """ Write data to the task file """
-        with codecs.open(os.path.join(INGIniousConfiguration["tasks_directory"], self._courseid, self._taskid, "task." + self.get_ext()), "w", 'utf-8') as task_desc_file:
+        with codecs.open(os.path.join(get_tasks_directory(), self._courseid, self._taskid, "task." + self.get_ext()), "w", 'utf-8') as task_desc_file:
             task_desc_file.write(self._generate_content(data))
 
     @abstractmethod

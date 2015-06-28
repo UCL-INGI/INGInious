@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2014-2015 Université Catholique de Louvain.
+# Copyright (c) 2014 Université Catholique de Louvain.
 #
 # This file is part of INGInious.
 #
@@ -23,7 +23,6 @@ from common.tasks_problems import CodeProblem, CodeSingleLineProblem, MultipleCh
 
 
 class Task(object):
-
     """ Contains the data for a task """
 
     def __init__(self, course, taskid, init_data=None):
@@ -48,7 +47,7 @@ class Task(object):
 
         self._environment = self._data.get('environment', None)
 
-        #Response is HTML
+        # Response is HTML
         self._response_is_html = self._data.get("responseIsHTML", False)
 
         # Limits
@@ -56,8 +55,12 @@ class Task(object):
         if "limits" in self._data:
             try:
                 self._limits['time'] = int(self._data["limits"].get("time", 20))
+                self._limits['hard_time'] = int(3 * self._data["limits"].get("hard_time", 60))
                 self._limits['memory'] = int(self._data["limits"].get("memory", 1024))
                 self._limits['disk'] = int(self._data["limits"].get("disk", 1024))
+
+                if self._limits['time'] <= 0 or self._limits['hard_time'] <= 0 or self._limits['memory'] <= 0 or self._limits['disk'] <= 0:
+                    raise Exception("Invalid limit")
             except:
                 raise Exception("Invalid limit")
 
@@ -107,11 +110,12 @@ class Task(object):
 
     def check_answer(self, task_input):
         """
-            Verify the answers in task_input. Returns four values
+            Verify the answers in task_input. Returns five values
             1st: True the input is **currently** valid. (may become invalid after running the code), False else
             2nd: True if the input needs to be run in the VM, False else
             3rd: Main message, as a list (that can be join with \n or <br/> for example)
             4th: Problem specific message, as a dictionnary
+            5th: Number of errors in the multiple choices
         """
         valid = True
         need_launch = False
@@ -131,7 +135,8 @@ class Task(object):
             multiple_choice_error_count += problem_mc_error_count
         return valid, need_launch, main_message, problem_messages, multiple_choice_error_count
 
-    _problem_types = {"code": CodeProblem, "code-single-line": CodeSingleLineProblem, "code-file": CodeFileProblem, "multiple-choice": MultipleChoiceProblem, "match": MatchProblem}
+    _problem_types = {"code": CodeProblem, "code-single-line": CodeSingleLineProblem, "code-file": CodeFileProblem,
+                      "multiple-choice": MultipleChoiceProblem, "match": MatchProblem}
 
     def _create_task_problem(self, task, problemid, problem_content):
         """Creates a new instance of the right class for a given problem."""

@@ -13,8 +13,10 @@ if [ $? -ne 0 ]; then
 	exit 0
 fi
 
+mv test.exe student/test.exe
+
 # Verify the output of the code...
-output=$(mono test.exe)
+output=$(run_student mono student/test.exe)
 if [ "$output" = "Hello World!" ]; then
 	# The student succeeded
 	feedback --result success --feedback "You solved this difficult task!"

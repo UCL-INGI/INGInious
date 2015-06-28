@@ -1,0 +1,3 @@
+name: "Unit test 1"
+admins: ["testadmin1","testadmin2"]
+accessible true

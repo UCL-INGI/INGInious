@@ -13,10 +13,11 @@ Dependencies
 
 The backend needs:
 
-- Docker_ 0.11+
 - Python_ 2.7+
-- Docker-py_
-- Docutils
+- RPyC_
+- Docker_ 1.6+  (if you use the "local" or "remote" backend)
+- Docker-py_    (if you use the "local" or "remote" backend)
+- cgroup-utils_ (if you are on Linux and use the "local" backend)
 
 The frontend needs:
 
@@ -25,10 +26,19 @@ The frontend needs:
 - pymongo_
 - HTMLTidy_
 - PyTidyLib_
+- Docutils
 - Python's SH_ lib
 - Web.py_
 - Simple-LDAP_
 - PyYAML_
+
+The agents needs (note that the agent is most of time directly launched by the backend, so you won't need to install dependencies manually):
+
+- Python_ 2.7+
+- RPyC_
+- Docker_ 1.6+
+- Docker-py_
+- cgroup-utils_
 
 .. _Docker: https://www.docker.com
 .. _Docker-py: https://github.com/dotcloud/docker-py
@@ -41,7 +51,8 @@ The frontend needs:
 .. _Web.py: http://webpy.org/
 .. _Simple-LDAP: https://pypi.python.org/pypi/simpleldap/0.8
 .. _PyYAML: https://pypi.python.org/pypi/PyYAML/3.11
-
+.. _cgroup-utils: https://pypi.python.org/pypi/cgroup-utils/0.6
+.. _RPyC: https://rpyc.readthedocs.org/en/latest/
 
 Installation of the dependencies
 --------------------------------
@@ -54,7 +65,7 @@ Don't forget to enable EPEL_.
 ::
 
 	$ sudo yum install git mongodb mongodb-server docker python-pip gcc python-devel libtidy
-	$ sudo pip install pymongo pytidylib docker-py sh web.py docutils simpleldap pyyaml
+	$ sudo pip install pymongo pytidylib docker-py sh web.py docutils simpleldap pyyaml rpyc cgroup-utils
 
 Some remarks:
 
@@ -98,7 +109,7 @@ local directory flawlessly.
 	$ brew install python
 	$ sudo curl https://raw.githubusercontent.com/noplay/docker-osx/1.0.0/docker-osx > /usr/local/bin/docker-osx
 	$ sudo chmod +x /usr/local/bin/docker-osx
-	$ sudo pip install pymongo pytidylib docker-py sh web.py docutils simpleldap pyyaml
+	$ sudo pip install pymongo pytidylib docker-py sh web.py docutils simpleldap pyyaml rpyc
 
 Follow the instruction of brew to enable mongodb.
 Each time you have to run INGInious, don't forget to start docker-osx by running
@@ -131,7 +142,7 @@ If you want a robust webserver for production, see :ref:`production`.
 The server will be running on localhost:8080.
 
 
-.. _tasks folder:
+.. _config:
 
 Configuring INGInious
 ---------------------
@@ -146,10 +157,13 @@ It content is :
     containers:
         default: ingi/inginious-c-default
         cpp: ingi/inginious-c-cpp
-    docker_instances:
-      - server_url: "tcp://192.168.59.103:2375"
-    callback_managers_threads: 2
-    submitters_processes: 2
+    backend: local
+    # .. or ..
+    #backend: remote
+    #docker_daemons:
+    #  - remote_host: "192.168.59.103"
+    #    remote_docker_port: 2375
+    #    remote_agent_port: 63456
     mongo_opt:
         host: localhost
         database: INGInious
@@ -171,29 +185,27 @@ The different entries are :
     The key will be used in the task definition to identify the container, and the value must be a valid Docker container identifier.
     The some `pre-built containers`_ are available on Docker's hub.
 
+``backend`` and ``docker_daemons``
+	``backend`` is the type of backend you want to use. Three backends are available
 
-``docker_instances``
-    A list of dictionnaries containing the configuration of docker instances.
-    Allowed entries are :
+	- ``local``, that should be used when the frontend is used on the same machine as the Docker daemon. This is the case if you followed this
+	  tutorial and use CentOS or any other Linux distribution.
 
-    ``server_url``
-        The *base_url* of a docker instance. If you run a local instance, you will probably want to change the default value to ``'unix://var/run/docker.sock'``.
-        See `docker-py API`_ for detailed information.
+	  In ``local`` mode, INGInious uses the same environment variables as the Docker client to connect to the daemon. It means that if you can use
+	  any Docker client command, like ``docker info``, INGInious should run flawlessly.
 
-    ``max_concurent_jobs``
-        Undocumented
+	- ``remote``, that should be used when the frontend and the Docker daemons are not on the same server. This includes advanced configurations
+	  for scalability (see :doc:`../dev_doc/understand_inginious`) and usage on OS X (as the Docker daemon is run in a virtual machine).
 
-    ``max_concurent-hard-jobs``
-        Undocumented
+	  This settings requires an additional one, ``docker_daemons``. It is simply a list of distant docker daemons. Each docker daemon is defined by
+	  three things: its hostname, its port and an additional port used to comminicate with the backend. **All these ports should be available from
+	  the backend!**. Very specific configuration details are possible; please read carefully the ``configuration.example.yaml`` for more information.
 
-``callback_managers_threads``
-    Undocumented. ``1`` is certainly a good default for a local server.
-
-``submitters_processes``
-    Undocumented. ``1`` is certainly a good default for a local server.
+	  The configuration for ``docker_daemons`` shown above is the one for boot2docker.
+	- ``remote_manual``, that should never be used directly (it's for debugging purposes).
 
 ``mongo_opt``
-    Quite self-explanatory. You can change the database name if you want multiple instances of in the iprobable case of conflict.
+    Quite self-explanatory. You can change the database name if you want multiple instances of in the improbable case of conflict.
 
 ``plugins``
     A list of plugin modules together with configuration options.
@@ -230,6 +242,8 @@ Use this command to pull the default container of INGInious. Lots of other conta
 	$ docker pull ingi/inginious-c-cpp
 	
 If you pull/create additionnal containers, do not forget to add them in the configuration of INGInious.
+
+.. _lighttpd:
 
 Using lighttpd (on CentOS 7.0)
 ------------------------------
@@ -291,7 +305,8 @@ You can then replace the content of fastcgi.conf with:
 	   "bin-path" => "/var/www/INGInious/app_frontend.py",
 	   "max-procs" => 1,
 	  "bin-environment" => (
-	    "REAL_SCRIPT_NAME" => ""
+	    "REAL_SCRIPT_NAME" => "",
+	    "DOCKER_HOST" => "tcp://192.168.59.103:2375"
 	  ),
 	  "check-local" => "disable"
 	))
@@ -302,6 +317,12 @@ You can then replace the content of fastcgi.conf with:
 	  "^/static/(.*)$" => "/static/$1",
 	  "^/(.*)$" => "/app_frontend.py/$1",
 	)
+
+Please note that the ``DOCKER_HOST`` env variable is only needed if you use the ``backend=local`` option. It should reflect your current
+configuration. To know the value to set, start a terminal that has access to the docker daemon (the terminal should be able to run ``docker info``)
+, and write ``$ echo $DOCKER_HOST``. If it returns nothing, just drop the line ``"DOCKER_HOST" => "tcp://192.168.59.103:2375"`` from the
+configuration of Lighttpd. Else, put the value return by the command in the configuration. It is possible that may need to do the same for the env
+variable ``DOCKER_CERT_PATH`` and ``DOCKER_TLS_VERIFY`` too.
 
 Finally, start the server:
 

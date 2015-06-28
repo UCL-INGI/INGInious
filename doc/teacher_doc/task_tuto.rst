@@ -43,7 +43,7 @@ Let's first create a template, where we will put the code of the student.
 
 ::
 
-	def func():
+    def func():
 	@	@question1@@
 
 	func()
@@ -61,7 +61,7 @@ Now we can create the file called *run*. *run* will be the script that is launch
 	parsetemplate --output studentcode.py template.py
 
 	# Verify the output of the code...
-	output=$(python studentcode.py)
+	output=$(run_student python studentcode.py)
 	if [ "$output" = "Hello World!" ]; then
 		# The student succeeded
 		feedback --result success --feedback "You solved this difficult task!"
@@ -70,7 +70,12 @@ Now we can create the file called *run*. *run* will be the script that is launch
 		feedback --result failed --feedback "Your output is $output"
 	fi
 
-Here we use two commands provided by INGInious, parsetemplate and feedback. The code is commented and should be self-explanatory :-)
+Here we use three commands provided by INGInious, *parsetemplate*, *run_student* and *feedback*. The code is self-explanatory;
+just notice the usage of *run_student* that ask INGInious (precisely the agent) to start a new *student container* and run inside the command
+*python studentcode.py*.
+
+Please note that the *run_student* command is fully configurable: you can change the environment on which you run the task, define new timeouts,
+memory limits, ... See :ref:`run_student` for more details.
 
 Put this content at the path helloworld/run and don't forget to give it the execution rights:
 

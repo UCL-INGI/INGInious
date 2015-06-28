@@ -24,9 +24,14 @@ import json
 from bson.objectid import ObjectId
 import pymongo
 
-from backend.job_manager import JobManager
-from common.base import INGIniousConfiguration
+
+from backend.job_managers.local import LocalJobManager
+from backend.job_managers.remote_docker import RemoteDockerJobManager
+from backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
+
 from frontend.base import get_database, get_gridfs
+from frontend.configuration import INGIniousConfiguration
+from frontend.parsable_text import ParsableText
 from frontend.plugins.plugin_manager import PluginManager
 import frontend.user as User
 from frontend.user_data import UserData
@@ -47,24 +52,27 @@ def init_backend_interface(plugin_manager):
                                        "$set": {'status': 'error', 'grade': 0.0, 'text': 'Internal error. Server restarted'}}, multi=True)
 
     # Create the job manager
-    get_job_manager.job_manager = JobManager(
-        INGIniousConfiguration["docker_instances"],
-        INGIniousConfiguration["containers"],
-        INGIniousConfiguration["tasks_directory"],
-        INGIniousConfiguration.get(
-            "callback_managers_threads",
-            1),
-        INGIniousConfiguration.get(
-            "slow_pool_size",
-            4),
-        INGIniousConfiguration.get(
-            "fast_pool_size",
-            4),
-        INGIniousConfiguration.get(
-            "containers_hard",
-            []),
-        plugin_manager)
+    backend_type = INGIniousConfiguration.get("backend", "local")
+    if backend_type == "local":
+        get_job_manager.job_manager = LocalJobManager(
+            INGIniousConfiguration.get('containers', {"default": "ingi/inginious-c-default","sekexe": "ingi/inginious-c-sekexe"}),
+            INGIniousConfiguration.get('local_agent_tmp_dir',"/tmp/inginious_agent"), plugin_manager)
+    elif backend_type == "remote":
+        get_job_manager.job_manager = RemoteDockerJobManager(INGIniousConfiguration.get("docker_daemons", []),
+                                                             INGIniousConfiguration.get('containers', {"default": "ingi/inginious-c-default",
+                                                                                                       "sekexe": "ingi/inginious-c-sekexe"}),
+                                                             plugin_manager)
+    elif backend_type == "remote_manual":
+        get_job_manager.job_manager = RemoteManualAgentJobManager(
+            INGIniousConfiguration.get("agents", [{"host": "localhost", "port": 5001}]),
+            INGIniousConfiguration.get('containers', {"default": "ingi/inginious-c-default", "sekexe": "ingi/inginious-c-sekexe"}),
+            plugin_manager)
+    else:
+        raise Exception("Unknown backend {}".format(backend_type))
 
+def start_backend_interface():
+    """ Starts the backend interface. Should be called after the initialisation of the plugin manager. """
+    get_job_manager().start()
 
 def get_submission(submissionid, user_check=True):
     """ Get a submission from the database """
@@ -79,10 +87,12 @@ def get_submission_from_jobid(jobid):
     return get_database().submissions.find_one({'jobid': jobid})
 
 
-def job_done_callback(jobid, _, job):
+def job_done_callback(jobid, task, job):
     """ Callback called by JobManager when a job is done. Updates the submission in the database with the data returned after the completion of the job """
     submission = get_submission_from_jobid(jobid)
     submission = get_input_from_submission(submission)
+
+    job = _parse_text(task, job)
 
     data = {
         "status": ("done" if job["result"] == "success" or job["result"] == "failed" else "error"),  # error only if error was made by INGInious
@@ -209,3 +219,13 @@ def get_user_last_submissions(query, limit, one_per_task=False):
     cursor = get_database().submissions.find(request)
     cursor.sort([("submitted_on", -1)]).limit(limit)
     return list(cursor)
+
+
+def _parse_text(task, job_result):
+    """ Parses text """
+    if "text" in job_result:
+        job_result["text"] = ParsableText(job_result["text"], task.get_response_type()).parse()
+    if "problems" in job_result:
+        for problem in job_result["problems"]:
+            job_result["problems"][problem] = ParsableText(job_result["problems"][problem], task.get_response_type()).parse()
+    return job_result

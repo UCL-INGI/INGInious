@@ -166,7 +166,7 @@ class ContestScoreboard(object):
                 results[user]["rank"] = current_rank
                 results[user]["displayed_rank"] = ""
 
-        return get_template_renderer('frontend/plugins/contests', '../../../templates/layout').scoreboard(course, start, end, blackout, tasks, results, activity)
+        return get_template_renderer('plugins/contests', '../../templates/layout').scoreboard(course, start, end, blackout, tasks, results, activity)
     # except:
     #        raise web.notfound()
 
@@ -179,7 +179,7 @@ class ContestAdmin(object):
         """ GET request: simply display the form """
         course = get_course_and_check_rights(courseid)
         contest_data = get_contest_data(course)
-        return get_template_renderer('frontend/plugins/contests', '../../../templates/layout').admin(course, contest_data, None, False)
+        return get_template_renderer('plugins/contests', '../../templates/layout').admin(course, contest_data, None, False)
 
     def POST(self, courseid):
         """ POST request: update the settings """
@@ -225,9 +225,9 @@ class ContestAdmin(object):
 
         if len(errors) == 0:
             save_contest_data(course, contest_data)
-            return get_template_renderer('frontend/plugins/contests', '../../../templates/layout').admin(course, contest_data, None, True)
+            return get_template_renderer('plugins/contests', '../../templates/layout').admin(course, contest_data, None, True)
         else:
-            return get_template_renderer('frontend/plugins/contests', '../../../templates/layout').admin(course, contest_data, errors, False)
+            return get_template_renderer('plugins/contests', '../../templates/layout').admin(course, contest_data, errors, False)
 
 
 def init(plugin_manager, config):

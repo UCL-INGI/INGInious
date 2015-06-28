@@ -26,7 +26,7 @@ import urllib
 
 import web
 
-from common.base import INGIniousConfiguration
+from common.base import get_tasks_directory
 from common.tasks_code_boxes import FileBox
 from common.tasks_problems import MultipleChoiceProblem, BasicCodeProblem
 from frontend.base import renderer
@@ -201,7 +201,7 @@ class TaskPageStaticDownload(object):
                     return renderer.task_unavailable()
 
                 path_norm = posixpath.normpath(urllib.unquote(path))
-                public_folder_path = os.path.normpath(os.path.realpath(os.path.join(INGIniousConfiguration["tasks_directory"], courseid, taskid, "public")))
+                public_folder_path = os.path.normpath(os.path.realpath(os.path.join(get_tasks_directory(), courseid, taskid, "public")))
                 file_path = os.path.normpath(os.path.realpath(os.path.join(public_folder_path, path_norm)))
 
                 # Verify that we are still inside the public directory

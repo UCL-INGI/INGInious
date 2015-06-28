@@ -1,0 +1,35 @@
+accessible: true
+author: Guillaume Derval
+context: MCQ task that is not given to the agent
+environment: default
+limits:
+    memory: 100
+    time: 30
+name: Test MCQ
+order: 0
+problems:
+    mcq1:
+        choices:
+          - valid: true
+            text: 1
+          - valid: true
+            text: 2
+          - text: 3
+          - text: 4
+        name: MCQ 1
+        header: ...
+        limit: 3
+        type: multiple-choice
+    mcq2:
+        choices:
+          - valid: true
+            text: 1
+          - valid: true
+            text: 2
+          - text: 3
+          - text: 4
+        name: MCQ 2
+        header: ...
+        limit: 3
+        type: multiple-choice
+weight: 1.0

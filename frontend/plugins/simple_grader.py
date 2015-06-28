@@ -22,8 +22,8 @@ import re
 
 import web
 
-from backend.job_manager_buffer import JobManagerBuffer
-from backend.job_manager_sync import JobManagerSync
+from backend.helpers.job_manager_buffer import JobManagerBuffer
+from backend.helpers.job_manager_sync import JobManagerSync
 from common.courses import Course
 import frontend.submission_manager
 

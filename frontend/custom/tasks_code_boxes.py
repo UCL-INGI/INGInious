@@ -21,9 +21,12 @@ from abc import ABCMeta, abstractmethod
 import base64
 import json
 
-import web
 
 from common.tasks_code_boxes import TextBox, InputBox, MultilineBox, FileBox
+from frontend.base import get_template_renderer
+from frontend.parsable_text import ParsableText
+
+
 class DisplayableBox(object):
 
     """ A basic interface for displayable boxes """
@@ -51,9 +54,15 @@ class DisplayableTextBox(TextBox, DisplayableBox):
 
     """ A displayable text box """
 
+    def __init__(self, problem, boxid, boxData):
+        TextBox.__init__(self, problem, boxid, boxData)
+        DisplayableBox.__init__(self)
+
+        self._content = ParsableText(self._content, "HTML" if "contentIsHTML" in boxData and boxData["contentIsHTML"] else "rst").parse()
+
     def show(self):
         """ Show TextBox """
-        return str(web.template.render('templates/tasks/').box_text(self._content.parse()))
+        return str(get_template_renderer('templates/tasks/').box_text(self._content))
 
 
 class DisplayableFileBox(FileBox, DisplayableBox):
@@ -69,7 +78,7 @@ class DisplayableFileBox(FileBox, DisplayableBox):
 
     def show(self):
         """ Show FileBox """
-        return str(web.template.render('templates/tasks/').box_file(self.get_complete_id(), self._max_size, self._allowed_exts, json))
+        return str(get_template_renderer('templates/tasks/').box_file(self.get_complete_id(), self._max_size, self._allowed_exts, json))
 
 
 class DisplayableInputBox(InputBox, DisplayableBox):
@@ -78,7 +87,7 @@ class DisplayableInputBox(InputBox, DisplayableBox):
 
     def show(self):
         """ Show InputBox """
-        return str(web.template.render('templates/tasks/').box_input(self.get_complete_id(), self._input_type, self._max_chars))
+        return str(get_template_renderer('templates/tasks/').box_input(self.get_complete_id(), self._input_type, self._max_chars))
 
 
 class DisplayableMultilineBox(MultilineBox, DisplayableBox):
@@ -87,4 +96,4 @@ class DisplayableMultilineBox(MultilineBox, DisplayableBox):
 
     def show(self):
         """ Show MultilineBox """
-        return str(web.template.render('templates/tasks/').box_multiline(self.get_complete_id(), self._lines, self._max_chars, self._language))
+        return str(get_template_renderer('templates/tasks/').box_multiline(self.get_complete_id(), self._lines, self._max_chars, self._language))

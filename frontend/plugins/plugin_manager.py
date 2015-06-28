@@ -35,7 +35,7 @@ class PluginManager(HookManager):
             cls._instance = super(PluginManager, cls).__new__(
                 cls, *args, **kwargs)
         else:
-            raise Exception("You should not instanciate PluginManager more than once")
+            raise Exception("You should not instantiate PluginManager more than once")
         return cls._instance
 
     def __init__(self, app, config):

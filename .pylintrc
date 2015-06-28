@@ -37,7 +37,7 @@ load-plugins=
 # --enable=similarities". If you want to run only the classes checker, but have
 # no Warning level messages displayed, use"--disable=all --enable=classes
 # --disable=W"
-disable=R0201,R0903,R0911,R0913,R0922
+disable=R0201,R0903,R0911,R0913,R0922,W0704,W0703,W0702
 
 
 [REPORTS]
@@ -228,7 +228,7 @@ ignored-modules=
 
 # List of classes names for which member attributes should not be checked
 # (useful for classes with attributes dynamically set).
-ignored-classes=SQLObject
+ignored-classes=SQLObject,_socketobject
 
 # When zope mode is activated, add a predefined set of Zope acquired attributes
 # to generated-members.

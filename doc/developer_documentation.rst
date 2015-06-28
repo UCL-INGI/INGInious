@@ -21,4 +21,5 @@ Code documentation
    dev_doc/frontend
    dev_doc/common
    dev_doc/backend
-   dev_doc/tests
+   dev_doc/agent
+   dev_doc/app_agent
