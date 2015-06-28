@@ -26,9 +26,11 @@ from shutil import rmtree, copytree
 import thread
 import threading
 import tarfile
+
 import tempfile
 
 import docker
+
 from docker.utils import kwargs_from_env
 import rpyc
 from rpyc.utils.server import ThreadedServer
@@ -171,8 +173,8 @@ class SimpleAgent(object):
                                            os.path.abspath(sockets_path): {'ro': False, 'bind': '/sockets'}},
                                     mem_limit=mem_limit * 1024 * 1024,
                                     memswap_limit=mem_limit * 1024 * 1024,  # disable swap
-                                    oom_kill_disable = True
-            )
+                                    oom_kill_disable=True
+                                    )
 
             # Send the input data
             container_input = {"input": inputdata, "limits": limits}
