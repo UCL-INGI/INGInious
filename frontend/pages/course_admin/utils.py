@@ -52,7 +52,6 @@ def get_course_and_check_rights(courseid, taskid=None):
 
 
 class UnicodeWriter(object):
-
     """
     A CSV writer which will write rows to CSV file "f",
     which is encoded in the given encoding.

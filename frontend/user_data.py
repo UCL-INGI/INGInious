@@ -21,7 +21,6 @@ from frontend.base import get_database, add_to_template_globals
 
 
 class UserData(object):
-
     """ Allow to get and to modify _data stored in database for a particular user.
         These data are only used as statistics.
             userdata
@@ -81,6 +80,7 @@ class UserData(object):
             Please note that only the task already seen at least one time will be present in the dict task_grades.
         """
         from frontend.custom.courses import FrontendCourse
+
         course = FrontendCourse(courseid)
         match = {"courseid": courseid}
         if users is not None:
@@ -96,7 +96,7 @@ class UserData(object):
                 {"$group": {
                     "_id": "$username",
                     "task_tried": {"$sum": {"$cond": [{"$ne": ["$tried", 0]}, 1, 0]}},
-                    "total_tries":{"$sum": "$tried"},
+                    "total_tries": {"$sum": "$tried"},
                     "task_succeeded": {"$addToSet": {"$cond": ["$succeeded", "$taskid", False]}},
                     "task_grades": {"$addToSet": {"taskid": "$taskid", "grade": "$grade"}}
                 }}
@@ -172,5 +172,6 @@ class UserData(object):
                                                   {"$set": {"grade": job["grade"]}})
 
         self._update_cache()
+
 
 add_to_template_globals("UserData", UserData)

@@ -28,7 +28,6 @@ from frontend.submission_manager import get_submission
 
 
 class CourseStudentTaskPage(object):
-
     """ List information about a task done by a student """
 
     def GET(self, courseid, username, taskid):
@@ -42,7 +41,8 @@ class CourseStudentTaskPage(object):
 
     def page(self, course, username, task):
         """ Get all data and display the page """
-        data = list(get_database().submissions.find({"username": username, "courseid": course.get_id(), "taskid": task.get_id()}).sort([("submitted_on", pymongo.DESCENDING)]))
+        data = list(get_database().submissions.find({"username": username, "courseid": course.get_id(), "taskid": task.get_id()}).sort(
+            [("submitted_on", pymongo.DESCENDING)]))
         data = [dict(f.items() + [("url", self.submission_url_generator(course, str(f["_id"])))]) for f in data]
         if "csv" in web.input():
             return make_csv(data)
@@ -50,7 +50,6 @@ class CourseStudentTaskPage(object):
 
 
 class SubmissionDownloadFeedback(object):
-
     def GET(self, courseid, username, taskid, submissionid):
         """ GET request """
         course, task = get_course_and_check_rights(courseid, taskid)

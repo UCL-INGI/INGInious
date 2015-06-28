@@ -24,7 +24,6 @@ from common.task_file_managers.abstract_manager import AbstractTaskFileManager
 
 
 class TaskJSONFileManager(AbstractTaskFileManager):
-
     """ Read and write task descriptions in JSON """
 
     def _get_content(self, content):

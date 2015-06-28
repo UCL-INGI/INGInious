@@ -24,7 +24,6 @@ from frontend.user_data import UserData
 
 
 class CourseStudentListPage(object):
-
     """ Course administration page: list of registered students """
 
     def GET(self, courseid):
@@ -39,7 +38,8 @@ class CourseStudentListPage(object):
     def page(self, course):
         """ Get all data and display the page """
         data = UserData.get_course_data_for_users(course.get_id(), course.get_registered_users())
-        data = [dict(f.items() + [("url", self.submission_url_generator(course, username)), ("username", username)]) for username, f in data.iteritems()]
+        data = [dict(f.items() + [("url", self.submission_url_generator(course, username)), ("username", username)]) for username, f in
+                data.iteritems()]
         if "csv" in web.input():
             return make_csv(data)
         return renderer.course_admin.student_list(course, data)

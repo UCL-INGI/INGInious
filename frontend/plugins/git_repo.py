@@ -31,7 +31,6 @@ import common.custom_yaml
 
 
 class SubmissionGitSaver(threading.Thread):
-
     """
         Thread class that saves results from submission in the git repo.
         It must be a thread as a git commit can take some time and because we extract archives returned by Job Manager.

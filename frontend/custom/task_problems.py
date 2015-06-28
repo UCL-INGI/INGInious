@@ -23,12 +23,12 @@ from random import shuffle
 
 from frontend.base import get_template_renderer
 from frontend.parsable_text import ParsableText
-from common.tasks_problems import BasicProblem, BasicCodeProblem, CodeProblem, CodeSingleLineProblem, MatchProblem, MultipleChoiceProblem, CodeFileProblem
+from common.tasks_problems import BasicProblem, BasicCodeProblem, CodeProblem, CodeSingleLineProblem, MatchProblem, MultipleChoiceProblem, \
+    CodeFileProblem
 from frontend.custom.tasks_code_boxes import DisplayableInputBox, DisplayableMultilineBox, DisplayableTextBox, DisplayableFileBox
 
 
 class DisplayableBasicProblem(BasicProblem):
-
     """Basic problem """
     __metaclass__ = ABCMeta
 
@@ -55,7 +55,6 @@ class DisplayableBasicProblem(BasicProblem):
 
 
 class DisplayableBasicCodeProblem(BasicCodeProblem, DisplayableBasicProblem):
-
     """ A basic class to display all BasicCodeProblem derivatives """
 
     @abstractmethod
@@ -84,25 +83,21 @@ class DisplayableBasicCodeProblem(BasicCodeProblem, DisplayableBasicProblem):
 
 
 class DisplayableCodeSingleLineProblem(CodeSingleLineProblem, DisplayableBasicCodeProblem):
-
     """ A displayable single code line problem """
     pass
 
 
 class DisplayableCodeProblem(CodeProblem, DisplayableBasicCodeProblem):
-
     """ A displayable code problem """
     pass
 
 
 class DisplayableCodeFileProblem(CodeFileProblem, DisplayableBasicCodeProblem):
-
     """ A displayable code problem """
     pass
 
 
 class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableBasicProblem):
-
     """ A displayable multiple choice problem """
 
     def __init__(self, task, problemid, content):
@@ -149,7 +144,6 @@ class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableBasicPr
 
 
 class DisplayableMatchProblem(MatchProblem, DisplayableBasicProblem):
-
     """ A displayable match problem """
 
     def show_input(self):

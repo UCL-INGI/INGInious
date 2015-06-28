@@ -25,8 +25,8 @@ import time
 
 from bson.objectid import ObjectId
 import web
-import common.custom_yaml
 
+import common.custom_yaml
 from frontend.base import get_database, get_gridfs
 from frontend.base import renderer
 from frontend.pages.course_admin.utils import get_course_and_check_rights
@@ -34,7 +34,6 @@ from frontend.submission_manager import get_input_from_submission
 
 
 class DownloadSubmissionFiles(object):
-
     """ List informations about all tasks """
 
     def GET(self, courseid):
@@ -136,14 +135,17 @@ class DownloadSubmissionFiles(object):
 
     def download_course(self, course, include_old_submissions=False):
         """ Download all submissions for a course """
-        submissions = list(get_database().submissions.find({"courseid": course.get_id(), "username": {"$in": course.get_registered_users()}, "status": {"$in": ["done", "error"]}}))
+        submissions = list(get_database().submissions.find(
+            {"courseid": course.get_id(), "username": {"$in": course.get_registered_users()}, "status": {"$in": ["done", "error"]}}))
         if not include_old_submissions:
             submissions = self._keep_best_submission(submissions)
         return self.download_submission_set(submissions, '_'.join([course.get_id()]) + '.tgz', ['username', 'taskid'])
 
     def download_task(self, course, taskid, include_old_submissions=False):
         """ Download all submission for a task """
-        submissions = list(get_database().submissions.find({"taskid": taskid, "courseid": course.get_id(), "username": {"$in": course.get_registered_users()}, "status": {"$in": ["done", "error"]}}))
+        submissions = list(get_database().submissions.find(
+            {"taskid": taskid, "courseid": course.get_id(), "username": {"$in": course.get_registered_users()},
+             "status": {"$in": ["done", "error"]}}))
         if not include_old_submissions:
             submissions = self._keep_best_submission(submissions)
         return self.download_submission_set(submissions, '_'.join([course.get_id(), taskid]) + '.tgz', ['username'])
@@ -157,7 +159,8 @@ class DownloadSubmissionFiles(object):
 
     def download_student_task(self, course, username, taskid, include_old_submissions=True):
         """ Download all submissions for a user for given task """
-        submissions = list(get_database().submissions.find({"username": username, "courseid": course.get_id(), "taskid": taskid, "status": {"$in": ["done", "error"]}}))
+        submissions = list(get_database().submissions.find(
+            {"username": username, "courseid": course.get_id(), "taskid": taskid, "status": {"$in": ["done", "error"]}}))
         if not include_old_submissions:
             submissions = self._keep_best_submission(submissions)
         return self.download_submission_set(submissions, '_'.join([username, course.get_id(), taskid]) + '.tgz', [])

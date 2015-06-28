@@ -24,17 +24,16 @@ import json
 from bson.objectid import ObjectId
 import pymongo
 
-
 from backend.job_managers.local import LocalJobManager
 from backend.job_managers.remote_docker import RemoteDockerJobManager
 from backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
-
 from frontend.base import get_database, get_gridfs
 from frontend.configuration import INGIniousConfiguration
 from frontend.parsable_text import ParsableText
 from frontend.plugins.plugin_manager import PluginManager
 import frontend.user as User
 from frontend.user_data import UserData
+
 job_managers = []
 
 
@@ -55,8 +54,8 @@ def init_backend_interface(plugin_manager):
     backend_type = INGIniousConfiguration.get("backend", "local")
     if backend_type == "local":
         get_job_manager.job_manager = LocalJobManager(
-            INGIniousConfiguration.get('containers', {"default": "ingi/inginious-c-default","sekexe": "ingi/inginious-c-sekexe"}),
-            INGIniousConfiguration.get('local_agent_tmp_dir',"/tmp/inginious_agent"), plugin_manager)
+            INGIniousConfiguration.get('containers', {"default": "ingi/inginious-c-default", "sekexe": "ingi/inginious-c-sekexe"}),
+            INGIniousConfiguration.get('local_agent_tmp_dir', "/tmp/inginious_agent"), plugin_manager)
     elif backend_type == "remote":
         get_job_manager.job_manager = RemoteDockerJobManager(INGIniousConfiguration.get("docker_daemons", []),
                                                              INGIniousConfiguration.get('containers', {"default": "ingi/inginious-c-default",
@@ -70,9 +69,11 @@ def init_backend_interface(plugin_manager):
     else:
         raise Exception("Unknown backend {}".format(backend_type))
 
+
 def start_backend_interface():
     """ Starts the backend interface. Should be called after the initialisation of the plugin manager. """
     get_job_manager().start()
+
 
 def get_submission(submissionid, user_check=True):
     """ Get a submission from the database """
@@ -210,7 +211,8 @@ def get_user_last_submissions(query, limit, one_per_task=False):
         data = get_database().submissions.aggregate([
             {"$match": request},
             {"$sort": {"submitted_on": pymongo.DESCENDING}},
-            {"$group": {"_id": {"courseid": "$courseid", "taskid": "$taskid"}, "orig_id": {"$first": "$_id"}, "submitted_on": {"$first": "$submitted_on"}}},
+            {"$group": {"_id": {"courseid": "$courseid", "taskid": "$taskid"}, "orig_id": {"$first": "$_id"},
+                        "submitted_on": {"$first": "$submitted_on"}}},
             {"$sort": {"submitted_on": pymongo.DESCENDING}},
             {"$limit": limit}
         ])

@@ -20,7 +20,6 @@
 
 
 class DemoPage(object):
-
     """ A simple demo page showing how to add a new page """
 
     def GET(self):

@@ -31,13 +31,14 @@ from common.base import id_checker, get_tasks_directory
 import common.custom_yaml
 from common.task_file_managers.manage import get_task_file_manager, get_available_task_file_managers, delete_all_possible_task_files
 from frontend.accessible_time import AccessibleTime
-from frontend.base import renderer, get_template_renderer
+from frontend.base import renderer
 from frontend.custom.courses import FrontendCourse
 from frontend.custom.tasks import FrontendTask
 from frontend.pages.course_admin.task_edit_file import CourseTaskFiles
 from frontend.pages.course_admin.utils import get_course_and_check_rights
-class CourseEditTask(object):
 
+
+class CourseEditTask(object):
     """ Edit a task """
 
     def GET(self, courseid, taskid):
@@ -65,7 +66,8 @@ class CourseEditTask(object):
         # custom problem-type:
         for pid in task_data.get("problems", {}):
             problem = task_data["problems"][pid]
-            if (problem["type"] == "code" and "boxes" in problem) or problem["type"] not in ("code", "code-single-line", "code-file", "match", "multiple-choice"):
+            if (problem["type"] == "code" and "boxes" in problem) or problem["type"] not in (
+            "code", "code-single-line", "code-file", "match", "multiple-choice"):
                 problem_copy = copy.deepcopy(problem)
                 for i in ["name", "header", "headerIsHTML"]:
                     if i in problem_copy:
@@ -266,7 +268,8 @@ class CourseEditTask(object):
             try:
                 zipfile.extractall(os.path.join(get_tasks_directory(), courseid, taskid))
             except Exception as message:
-                return json.dumps({"status": "error", "message": "There was a problem while extracting the zip archive. Some files may have been modified"})
+                return json.dumps(
+                    {"status": "error", "message": "There was a problem while extracting the zip archive. Some files may have been modified"})
 
         delete_all_possible_task_files(courseid, taskid)
         file_manager.write(data)

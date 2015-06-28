@@ -17,15 +17,20 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Basic dependencies for the frontend """
+import os
+
 from gridfs import GridFS
 from pymongo import MongoClient
 import web
+
 from frontend.configuration import INGIniousConfiguration
-import os
+
 
 def add_to_template_globals(name, value):
     """ Add a variable to will be accessible in the templates """
     add_to_template_globals.globals[name] = value
+
+
 add_to_template_globals.globals = {}
 
 
@@ -34,7 +39,8 @@ def get_template_renderer(dir_path, base=None):
         *base* is the base layout name.
     """
     base_dir_path = os.path.dirname(__file__)
-    return web.template.render(os.path.join(base_dir_path,dir_path), globals=add_to_template_globals.globals, base=base)
+    return web.template.render(os.path.join(base_dir_path, dir_path), globals=add_to_template_globals.globals, base=base)
+
 
 renderer = get_template_renderer('templates/', 'layout')
 add_to_template_globals.globals["include"] = get_template_renderer('templates/')

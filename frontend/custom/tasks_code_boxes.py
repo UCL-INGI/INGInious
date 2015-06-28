@@ -21,14 +21,12 @@ from abc import ABCMeta, abstractmethod
 import base64
 import json
 
-
 from common.tasks_code_boxes import TextBox, InputBox, MultilineBox, FileBox
 from frontend.base import get_template_renderer
 from frontend.parsable_text import ParsableText
 
 
 class DisplayableBox(object):
-
     """ A basic interface for displayable boxes """
     __metaclass__ = ABCMeta
 
@@ -51,7 +49,6 @@ class DisplayableBox(object):
 
 
 class DisplayableTextBox(TextBox, DisplayableBox):
-
     """ A displayable text box """
 
     def __init__(self, problem, boxid, boxData):
@@ -66,12 +63,12 @@ class DisplayableTextBox(TextBox, DisplayableBox):
 
 
 class DisplayableFileBox(FileBox, DisplayableBox):
-
     """ A displayable file box """
 
     def adapt_input_for_backend(self, input_data):
         try:
-            input_data[self.get_complete_id()] = {"filename": input_data[self.get_complete_id()].filename, "value": base64.b64encode(input_data[self.get_complete_id()].value)}
+            input_data[self.get_complete_id()] = {"filename": input_data[self.get_complete_id()].filename,
+                                                  "value": base64.b64encode(input_data[self.get_complete_id()].value)}
         except:
             input_data[self.get_complete_id()] = {}
         return input_data
@@ -82,7 +79,6 @@ class DisplayableFileBox(FileBox, DisplayableBox):
 
 
 class DisplayableInputBox(InputBox, DisplayableBox):
-
     """ A displayable input box """
 
     def show(self):
@@ -91,7 +87,6 @@ class DisplayableInputBox(InputBox, DisplayableBox):
 
 
 class DisplayableMultilineBox(MultilineBox, DisplayableBox):
-
     """ A displayable multiline box """
 
     def show(self):

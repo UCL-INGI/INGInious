@@ -28,7 +28,6 @@ import frontend.user as User
 
 
 class IndexPage(object):
-
     """ Index page """
 
     def GET(self):
@@ -95,7 +94,8 @@ class IndexPage(object):
         open_courses = {courseid: course for courseid, course in all_courses.iteritems() if course.is_open_to_user(username)}
         open_courses = OrderedDict(sorted(open_courses.iteritems(), key=lambda x: x[1].get_name()))
 
-        registerable_courses = {courseid: course for courseid, course in all_courses.iteritems() if not course.is_open_to_user(username) and course.is_registration_possible(username)}
+        registerable_courses = {courseid: course for courseid, course in all_courses.iteritems() if
+                                not course.is_open_to_user(username) and course.is_registration_possible(username)}
         registerable_courses = OrderedDict(sorted(registerable_courses.iteritems(), key=lambda x: x[1].get_name()))
 
         return renderer.main(open_courses, registerable_courses, except_free_last_submissions, registration_status)

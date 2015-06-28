@@ -18,6 +18,7 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Updates the database """
 import pymongo
+
 from frontend.base import get_database
 from frontend.custom.courses import FrontendCourse
 
@@ -37,7 +38,8 @@ def update_database():
         get_database().submissions.ensure_index([("courseid", pymongo.ASCENDING), ("taskid", pymongo.ASCENDING)])
         get_database().submissions.ensure_index([("submitted_on", pymongo.DESCENDING)])  # sort speed
 
-        get_database().user_tasks.ensure_index([("username", pymongo.ASCENDING), ("courseid", pymongo.ASCENDING), ("taskid", pymongo.ASCENDING)], unique=True)
+        get_database().user_tasks.ensure_index([("username", pymongo.ASCENDING), ("courseid", pymongo.ASCENDING), ("taskid", pymongo.ASCENDING)],
+                                               unique=True)
         get_database().user_tasks.ensure_index([("username", pymongo.ASCENDING), ("courseid", pymongo.ASCENDING)])
         get_database().user_tasks.ensure_index([("courseid", pymongo.ASCENDING), ("taskid", pymongo.ASCENDING)])
         get_database().user_tasks.ensure_index([("courseid", pymongo.ASCENDING)])

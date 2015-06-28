@@ -32,7 +32,6 @@ def generic_hook(name, **kwargs):
 
 
 class TemplateHelper(object):
-
     """ Class accessible from templates that calls function defined in the Python part of the code """
 
     _instance = None

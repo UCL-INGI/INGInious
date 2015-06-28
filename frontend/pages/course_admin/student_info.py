@@ -26,7 +26,6 @@ from frontend.pages.course_admin.utils import make_csv, get_course_and_check_rig
 
 
 class CourseStudentInfoPage(object):
-
     """ List information about a student """
 
     def GET(self, courseid, username):
@@ -44,7 +43,8 @@ class CourseStudentInfoPage(object):
         tasks = course.get_tasks()
         result = OrderedDict()
         for taskid in tasks:
-            result[taskid] = {"name": tasks[taskid].get_name(), "submissions": 0, "status": "notviewed", "url": self.submission_url_generator(course, username, taskid)}
+            result[taskid] = {"name": tasks[taskid].get_name(), "submissions": 0, "status": "notviewed",
+                              "url": self.submission_url_generator(course, username, taskid)}
         for taskdata in data:
             if taskdata["taskid"] in result:
                 result[taskdata["taskid"]]["submissions"] = taskdata["tried"]

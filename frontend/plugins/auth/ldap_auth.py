@@ -19,6 +19,7 @@
 """ LDAP plugin """
 
 import simpleldap
+
 import frontend.user
 
 
@@ -61,7 +62,7 @@ def init(plugin_manager, conf):
             login = login_data["login"]
             password = login_data["password"]
 
-            #do not send empty password to the LDAP
+            # do not send empty password to the LDAP
             if password.rstrip() == "":
                 return False
 
@@ -96,4 +97,5 @@ def init(plugin_manager, conf):
         except:
             return False
 
-    plugin_manager.register_auth_method(conf.get('name', 'LDAP Login'), {"login": {"type": "text", "placeholder": "Login"}, "password": {"type": "password", "placeholder": "Password"}}, connect)
+    plugin_manager.register_auth_method(conf.get('name', 'LDAP Login'), {"login": {"type": "text", "placeholder": "Login"},
+                                                                         "password": {"type": "password", "placeholder": "Password"}}, connect)

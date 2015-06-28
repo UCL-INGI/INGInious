@@ -273,13 +273,11 @@ class StructureError(Exception):
 
 
 class Type(object):
-
     def validate(self, question):
         pass
 
 
 class Code(Type):
-
     def validate(self, question):
         for box in question.traverse(Box):
             if not box.type:
@@ -293,14 +291,12 @@ class CodeSingleLine(Type):
 
 
 class Match(Type):
-
     def validate(self, question):
         if not question.answer:
             raise StructureError('A match type question must have an answer option.')
 
 
 class MultipleChoice(Type):
-
     def validate(self, question):
         for choice in question.traverse(Choice):
             if not choice.text or len(choice.text) == 0:
@@ -308,7 +304,6 @@ class MultipleChoice(Type):
 
 
 class UnknownType(Type):
-
     def validate(self, question):
         raise StructureError('Unknown type for the question directive.')
 

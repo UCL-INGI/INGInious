@@ -21,7 +21,6 @@ import common.base
 
 
 class Configuration(dict):
-
     """ Config class """
 
     def load(self, path):
@@ -30,5 +29,6 @@ class Configuration(dict):
         common.base.init_common_lib(self["tasks_directory"],
                                     self.get('allowed_file_extensions', [".c", ".cpp", ".java", ".oz", ".zip", ".tar.gz", ".tar.bz2", ".txt"]),
                                     self.get('max_file_size', 1024 * 1024))
+
 
 INGIniousConfiguration = Configuration()

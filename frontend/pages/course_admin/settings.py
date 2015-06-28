@@ -25,7 +25,6 @@ import frontend.user as User
 
 
 class CourseSettings(object):
-
     """ Couse settings """
 
     def GET(self, courseid):

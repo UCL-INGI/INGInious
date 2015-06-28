@@ -21,7 +21,6 @@ import frontend.submission_manager
 
 
 class JobManagerTest(object):
-
     """ Returns stats about the job manager for distant tests """
 
     def GET(self):

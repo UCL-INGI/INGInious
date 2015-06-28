@@ -27,6 +27,7 @@ from time import time
 
 from bson.binary import Binary
 from web.session import Store
+
 valid_key_types = set((str, unicode))
 atomic_types = set((bool, int, long, float, str, unicode, type(None),
                     _pattern_type, datetime))
@@ -79,7 +80,6 @@ def needs_encode(obj):
                    for (k, v) in obj.iteritems())
     return True
 
-
 #: field name used for id
 _id = '_id'
 #: field name used for accessed time
@@ -89,7 +89,6 @@ _data = 'data'
 
 
 class MongoStore(Store):
-
     """ Allow to store web.py sessions in MongoDB """
 
     def __init__(self, database, collection_name='sessions'):
@@ -129,6 +128,8 @@ class MongoStore(Store):
         cutoff = time() - timeout
         self.collection.remove({_atime: {'$lt': cutoff}})
 
+
 if __name__ == '__main__':
     import doctest
+
     doctest.testmod(optionflags=doctest.ELLIPSIS)

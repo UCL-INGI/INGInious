@@ -17,9 +17,9 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Maintenance page """
-import web
 
 from frontend.base import get_template_renderer
+
 
 class MaintenancePage(object):
     """ Maintenance page """

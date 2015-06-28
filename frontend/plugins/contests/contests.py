@@ -56,7 +56,8 @@ def get_contest_data(course):
     """ Returns the settings of the contest for this course """
     return course.get_course_descriptor_content(course.get_id()).get('contest_settings', {"enabled": False,
                                                                                           "start": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                                                                                          "end": (datetime.now() + timedelta(hours=1)).strftime("%Y-%m-%d %H:%M:%S"),
+                                                                                          "end": (datetime.now() + timedelta(hours=1)).strftime(
+                                                                                              "%Y-%m-%d %H:%M:%S"),
                                                                                           "blackout": 0,
                                                                                           "penalty": 20})
 
@@ -81,7 +82,6 @@ def course_menu(course):
 
 
 class ContestScoreboard(object):
-
     """ Displays the scoreboard of the contest """
 
     def GET(self, courseid):
@@ -127,7 +127,8 @@ class ContestScoreboard(object):
                         status["status"] = "AC"
                     status["tries"] += 1
                     status["time"] = submission['submitted_on']
-                    status["score"] = ((submission['submitted_on'] + (timedelta(minutes=contest_data["penalty"]) * (status["tries"] - 1))) - start).total_seconds() / 60
+                    status["score"] = ((submission['submitted_on'] + (
+                    timedelta(minutes=contest_data["penalty"]) * (status["tries"] - 1))) - start).total_seconds() / 60
                 elif submission['result'] == "failed":
                     status["status"] = "WA"
                     status["tries"] += 1
@@ -167,12 +168,11 @@ class ContestScoreboard(object):
                 results[user]["displayed_rank"] = ""
 
         return get_template_renderer('plugins/contests', '../../templates/layout').scoreboard(course, start, end, blackout, tasks, results, activity)
-    # except:
-    #        raise web.notfound()
+        # except:
+        #        raise web.notfound()
 
 
 class ContestAdmin(object):
-
     """ Contest settings for a course """
 
     def GET(self, courseid):

@@ -36,7 +36,6 @@ import frontend.user as User
 
 
 class TaskPage(object):
-
     """ Display a task (and allow to reload old submission/file uploaded during a submission) """
 
     def GET(self, courseid, taskid):
@@ -185,7 +184,6 @@ class TaskPage(object):
 
 
 class TaskPageStaticDownload(object):
-
     """ Allow to download files stored in the task folder """
 
     def GET(self, courseid, taskid, path):

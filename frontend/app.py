@@ -19,6 +19,8 @@
 """ Starts the frontend """
 
 import os.path
+import posixpath
+import urllib
 
 import web
 
@@ -29,8 +31,6 @@ from frontend.database_updater import update_database
 from frontend.plugins.plugin_manager import PluginManager
 import frontend.session
 from frontend.template_helper import TemplateHelper
-import posixpath
-import urllib
 
 urls = (
     '/', 'frontend.pages.index.IndexPage',
@@ -55,6 +55,7 @@ urls_maintenance = (
     '/.*', 'frontend.pages.maintenance.MaintenancePage'
 )
 
+
 def get_app(config_file):
     """ Get the application. config_file is the path to the configuration file """
     frontend.configuration.INGIniousConfiguration.load(config_file)
@@ -71,6 +72,7 @@ def get_app(config_file):
     def not_found():
         """ Display the error 404 page """
         return web.notfound(frontend.base.renderer.notfound('Page not found'))
+
     appli.notfound = not_found
 
     plugin_manager = PluginManager(appli, frontend.configuration.INGIniousConfiguration.get("plugins", []))
@@ -113,6 +115,7 @@ class StaticMiddleware:
         if path.endswith("/"):
             path2 += "/"
         return path2
+
 
 def start_app(config_file, app=None):
     """ Get and start the application. config_file is the path to the configuration file"""

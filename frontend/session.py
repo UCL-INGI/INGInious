@@ -23,6 +23,8 @@ import web
 
 from frontend.base import get_database
 from frontend.session_mongodb import MongoStore
+
+
 def get_session():
     """ Returns the current session """
     return get_session.session
@@ -42,10 +44,12 @@ def init(app, session_test=None):
     else:
         get_session.session = AttrDict(copy.deepcopy(session_test))
 
+
 class AttrDict(dict):
     '''
         Used to fake a ThreadedDict for sessions
     '''
+
     def __init__(self, *args, **kwargs):
         super(AttrDict, self).__init__(*args, **kwargs)
         self.__dict__ = self

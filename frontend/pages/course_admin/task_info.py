@@ -24,7 +24,6 @@ from frontend.pages.course_admin.utils import make_csv, get_course_and_check_rig
 
 
 class CourseTaskInfoPage(object):
-
     """ List informations about a task """
 
     def GET(self, courseid, taskid):
@@ -38,7 +37,8 @@ class CourseTaskInfoPage(object):
 
     def page(self, course, task):
         """ Get all data and display the page """
-        data = list(get_database().user_tasks.find({"courseid": course.get_id(), "taskid": task.get_id(), "username": {"$in": course.get_registered_users()}}))
+        data = list(get_database().user_tasks.find(
+            {"courseid": course.get_id(), "taskid": task.get_id(), "username": {"$in": course.get_registered_users()}}))
         data = [dict(f.items() + [("url", self.submission_url_generator(course, task, f))]) for f in data]
         if "csv" in web.input():
             return make_csv(data)

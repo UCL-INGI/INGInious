@@ -29,7 +29,6 @@ from frontend.user_data import UserData
 
 
 class FrontendCourse(Course):
-
     """ A course with some modification for users """
 
     _task_class = FrontendTask
@@ -121,6 +120,7 @@ class FrontendCourse(Course):
         """ Returns the percentage (integer) of completion of this course by the current user (or username if it is not None)"""
         if username is None:
             import frontend.user as User
+
             username = User.get_username()
         cache = UserData(username).get_course_data(self.get_id())
         if cache is None:
@@ -133,6 +133,7 @@ class FrontendCourse(Course):
         """ Return the grade (a floating-point number between 0 and 100) of the user (if username is None, it uses the currently logged-in user) """
         if username is None:
             import frontend.user as User
+
             username = User.get_username()
         cache = UserData(username).get_course_data(self.get_id())
         if cache is None:
@@ -153,6 +154,7 @@ class FrontendCourse(Course):
     def get_user_last_submissions(self, limit=5, one_per_task=False):
         """ Returns a given number (default 5) of submissions of task from this course """
         from frontend.submission_manager import get_user_last_submissions as extern_get_user_last_submissions
+
         task_ids = []
         for task_id in self.get_tasks():
             task_ids.append(task_id)

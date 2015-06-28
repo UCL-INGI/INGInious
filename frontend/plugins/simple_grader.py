@@ -160,7 +160,7 @@ def init(plugin_manager, config):
 
         def POST(self):
             """ POST request """
-            web.header('Access-Control-Allow-Origin','*')
+            web.header('Access-Control-Allow-Origin', '*')
             web.header('Content-Type', 'application/json')
             post_input = web.input()
 
@@ -178,7 +178,7 @@ def init(plugin_manager, config):
 
                 if not task.input_is_consistent(task_input):
                     return json.dumps({"status": "error", "status_message": "Input is not consistent with the task"})
-                
+
                 if post_input.get("async") is None:
                     # New sync job
                     try:

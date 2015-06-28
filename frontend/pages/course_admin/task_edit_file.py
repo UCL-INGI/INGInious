@@ -35,7 +35,6 @@ from frontend.pages.course_admin.utils import get_course_and_check_rights
 
 
 class CourseTaskFiles(object):
-
     """ Edit a task """
 
     def GET(self, courseid, taskid):
@@ -76,7 +75,8 @@ class CourseTaskFiles(object):
 
     def show_tab_file(self, courseid, taskid, error=False):
         """ Return the file tab """
-        return get_template_renderer('templates/').course_admin.edit_tabs.files(FrontendCourse(courseid), taskid, self.get_task_filelist(courseid, taskid))
+        return get_template_renderer('templates/').course_admin.edit_tabs.files(FrontendCourse(courseid), taskid,
+                                                                                self.get_task_filelist(courseid, taskid))
 
     @classmethod
     def get_task_filelist(cls, courseid, taskid):
@@ -104,10 +104,11 @@ class CourseTaskFiles(object):
             for f in files:
                 # Do not follow symlinks and do not take into account task describers
                 if not os.path.islink(
-                    os.path.join(
-                        root, f)) and not (
-                    root == path and os.path.splitext(f)[0] == "task" and os.path.splitext(f)[1][
-                        1:] in get_available_task_file_managers().keys()) and not f.startswith("."):
+                        os.path.join(
+                            root, f)) and not (
+                                    root == path and os.path.splitext(f)[0] == "task" and os.path.splitext(f)[1][
+                                                                                          1:] in get_available_task_file_managers().keys()) and not f.startswith(
+                    "."):
                     insert_dict[f] = None
 
         def recur_print(current, level, current_name):

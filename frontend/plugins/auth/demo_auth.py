@@ -51,4 +51,5 @@ def init(plugin_manager, conf):
         else:
             return False
 
-    plugin_manager.register_auth_method(conf.get('name', 'Demo'), {"login": {"type": "text", "placeholder": "Login"}, "password": {"type": "password", "placeholder": "Password"}}, connect)
+    plugin_manager.register_auth_method(conf.get('name', 'Demo'), {"login": {"type": "text", "placeholder": "Login"},
+                                                                   "password": {"type": "password", "placeholder": "Password"}}, connect)

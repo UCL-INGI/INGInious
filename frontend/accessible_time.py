@@ -22,7 +22,6 @@ from datetime import datetime
 
 
 class AccessibleTime(object):
-
     """ represents the period of time when a course/task is accessible """
 
     def __init__(self, val=None):
@@ -57,7 +56,8 @@ class AccessibleTime(object):
         if date == "":
             return default
 
-        for format_type in ["%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M", "%Y-%m-%d %H", "%Y-%m-%d", "%d/%m/%Y %H:%M:%S", "%d/%m/%Y %H:%M", "%d/%m/%Y %H", "%d/%m/%Y"]:
+        for format_type in ["%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M", "%Y-%m-%d %H", "%Y-%m-%d", "%d/%m/%Y %H:%M:%S", "%d/%m/%Y %H:%M", "%d/%m/%Y %H",
+                            "%d/%m/%Y"]:
             try:
                 return datetime.strptime(date, format_type)
             except ValueError:

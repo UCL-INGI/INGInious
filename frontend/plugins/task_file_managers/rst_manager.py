@@ -24,7 +24,6 @@ from frontend.plugins.task_file_managers._rsttodict import rst2dict
 
 
 class TaskRSTFileManager(AbstractTaskFileManager):
-
     """ Read and write task descriptions in restructuredText """
 
     def _get_content(self, content):

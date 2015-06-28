@@ -25,7 +25,6 @@ import frontend.base
 
 
 class PluginManager(HookManager):
-
     """ Registers an manage plugins """
 
     _instance = None

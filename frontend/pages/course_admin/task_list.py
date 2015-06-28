@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 from collections import OrderedDict
+
 import web
 
 from common.task_file_managers.manage import get_readable_tasks
@@ -26,7 +27,6 @@ from frontend.pages.course_admin.utils import make_csv, get_course_and_check_rig
 
 
 class CourseTaskListPage(object):
-
     """ List informations about all tasks """
 
     def GET(self, courseid):
@@ -44,20 +44,20 @@ class CourseTaskListPage(object):
             [
                 {
                     "$match":
-                    {
-                        "courseid": course.get_id(),
-                        "username": {"$in": course.get_registered_users()}
-                    }
+                        {
+                            "courseid": course.get_id(),
+                            "username": {"$in": course.get_registered_users()}
+                        }
                 },
                 {
                     "$group":
-                    {
-                        "_id": "$taskid",
-                        "viewed": {"$sum": 1},
-                        "attempted": {"$sum": {"$cond": [{"$ne": ["$tried", 0]}, 1, 0]}},
-                        "attempts":{"$sum": "$tried"},
-                        "succeeded": {"$sum": {"$cond": ["$succeeded", 1, 0]}}
-                    }
+                        {
+                            "_id": "$taskid",
+                            "viewed": {"$sum": 1},
+                            "attempted": {"$sum": {"$cond": [{"$ne": ["$tried", 0]}, 1, 0]}},
+                            "attempts": {"$sum": "$tried"},
+                            "succeeded": {"$sum": {"$cond": ["$succeeded", 1, 0]}}
+                        }
                 }
             ]))
 
@@ -75,7 +75,8 @@ class CourseTaskListPage(object):
         # Now load additionnal informations
         result = OrderedDict()
         for taskid in tasks:
-            result[taskid] = {"name": tasks[taskid].get_name(), "viewed": 0, "attempted": 0, "attempts": 0, "succeeded": 0, "url": self.submission_url_generator(course, taskid)}
+            result[taskid] = {"name": tasks[taskid].get_name(), "viewed": 0, "attempted": 0, "attempts": 0, "succeeded": 0,
+                              "url": self.submission_url_generator(course, taskid)}
         for entry in data:
             if entry["_id"] in result:
                 result[entry["_id"]]["viewed"] = entry["viewed"]

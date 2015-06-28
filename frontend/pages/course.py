@@ -26,7 +26,6 @@ import frontend.user as User
 
 
 class CoursePage(object):
-
     """ Course page """
 
     def GET(self, courseid):

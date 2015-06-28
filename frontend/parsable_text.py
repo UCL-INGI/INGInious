@@ -17,14 +17,14 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Tools to parse text """
-from docutils import core
 import cgi
+
+from docutils import core
 
 from frontend.configuration import INGIniousConfiguration
 
 
 class ParsableText(object):
-
     """Allow to parse a string with different parsers"""
 
     def __init__(self, content, mode="rst"):
@@ -44,7 +44,7 @@ class ParsableText(object):
             else:
                 return self.rst(self.content)
         except:
-            return "<b>Parsing failed</b>: <pre>"+cgi.escape(self.content)+"</pre>"
+            return "<b>Parsing failed</b>: <pre>" + cgi.escape(self.content) + "</pre>"
 
     def __str__(self):
         """Returns parsed text"""
@@ -60,6 +60,7 @@ class ParsableText(object):
             raise Exception("HTML is not allowed")
         elif INGIniousConfiguration["allow_html"] == "tidy":
             import tidylib
+
             out, dummy = tidylib.tidy_fragment(string)
             return out
         else:

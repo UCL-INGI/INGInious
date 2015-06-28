@@ -21,13 +21,13 @@ from common.base import id_checker
 from common.task_file_managers.manage import get_task_file_manager
 import common.tasks
 from frontend.accessible_time import AccessibleTime
-from frontend.custom.task_problems import DisplayableCodeProblem, DisplayableCodeSingleLineProblem, DisplayableMatchProblem, DisplayableMultipleChoiceProblem, DisplayableCodeFileProblem
+from frontend.custom.task_problems import DisplayableCodeProblem, DisplayableCodeSingleLineProblem, DisplayableMatchProblem, \
+    DisplayableMultipleChoiceProblem, DisplayableCodeFileProblem
 from frontend.parsable_text import ParsableText
 from frontend.plugins.plugin_manager import PluginManager
 
 
 class FrontendTask(common.tasks.Task):
-
     """ A task that stores additionnal context informations """
 
     # Redefine _problem_types with displayable ones
@@ -104,6 +104,7 @@ class FrontendTask(common.tasks.Task):
         """ Returns true if the task is visible by the user """
         if username is None:
             import frontend.user as User
+
             username = User.get_username()
         return (self.get_course().is_open_to_user(username) and self._accessible.after_start()) or username in self.get_course().get_admins()
 
@@ -111,6 +112,7 @@ class FrontendTask(common.tasks.Task):
         """ returns true if the user can submit his work for this task """
         if username is None:
             import frontend.user as User
+
             username = User.get_username()
         return (self.get_course().is_open_to_user(username) and self._accessible.is_open()) or username in self.get_course().get_admins()
 
@@ -126,6 +128,7 @@ class FrontendTask(common.tasks.Task):
     def get_user_status(self):
         """ Returns "succeeded" if the current user solved this task, "failed" if he failed, and "notattempted" if he did not try it yet """
         import frontend.user as User  # insert here to avoid initialisation of session
+
         task_cache = User.get_data().get_task_data(self.get_course_id(), self.get_id())
         if task_cache is None:
             return "notviewed"
@@ -136,6 +139,7 @@ class FrontendTask(common.tasks.Task):
     def get_user_grade(self):
         """ Returns the grade (a floating-point number between 0 and 100) of the student """
         import frontend.user as User  # insert here to avoid initialisation of session
+
         task_cache = User.get_data().get_task_data(self.get_course_id(), self.get_id())
         if task_cache is None:
             return 0.0

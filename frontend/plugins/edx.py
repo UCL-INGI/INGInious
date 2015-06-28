@@ -24,6 +24,8 @@ import web
 from backend.helpers.job_manager_sync import JobManagerSync
 from common.courses import Course
 import frontend.submission_manager
+
+
 def init(plugin_manager, config):
     """
         Init the edx plugin.
@@ -111,7 +113,8 @@ def init(plugin_manager, config):
                     score = job_return["score"]
 
                 import tidylib
-                out, dummy = tidylib.tidy_fragment(text,options={'output-xhtml':1,'enclose-block-text':1,'enclose-text':1})
+
+                out, dummy = tidylib.tidy_fragment(text, options={'output-xhtml': 1, 'enclose-block-text': 1, 'enclose-text': 1})
                 return json.dumps({"correct": (True if (job_return["result"] == "success") else None), "score": score, "msg": out})
             except:
                 return json.dumps({"correct": None, "score": 0, "msg": "<p>Internal grader error: error converting submission result</p>"})
