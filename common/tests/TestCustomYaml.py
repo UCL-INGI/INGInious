@@ -1,8 +1,10 @@
-import common.custom_yaml as yaml
 import tempfile
 import shutil
 import os
 from collections import OrderedDict
+
+import common.custom_yaml as yaml
+
 
 class TestCustomLoad(object):
     def setUp(self):
@@ -12,7 +14,7 @@ class TestCustomLoad(object):
         shutil.rmtree(self.dir_path)
 
     def test_load_ordereddict(self):
-        open(os.path.join(self.dir_path, "input.yaml"),"w").write("""
+        open(os.path.join(self.dir_path, "input.yaml"), "w").write("""
         the: a
         order: z
         of: b
@@ -23,7 +25,7 @@ class TestCustomLoad(object):
         """)
         loaded = yaml.load(open(os.path.join(self.dir_path, "input.yaml"), "r"))
         assert type(loaded) == OrderedDict
-        assert loaded.keys() == ["the","order","of","the_","keys","is","important"]
+        assert loaded.keys() == ["the", "order", "of", "the_", "keys", "is", "important"]
 
     def test_load_string(self):
         loaded = yaml.load("""
@@ -38,6 +40,7 @@ class TestCustomLoad(object):
         assert type(loaded) == OrderedDict
         assert loaded.keys() == ["the", "order", "of", "the_", "keys", "is", "important"]
 
+
 class TestCustomWrite(object):
     def setUp(self):
         self.dir_path = tempfile.mkdtemp()
@@ -46,7 +49,7 @@ class TestCustomWrite(object):
         shutil.rmtree(self.dir_path)
 
     def test_write_ordereddict(self):
-        d = OrderedDict([("the","a"),("order","z"),("is", "b"),("important", "y")])
+        d = OrderedDict([("the", "a"), ("order", "z"), ("is", "b"), ("important", "y")])
         yaml.dump(d, open(os.path.join(self.dir_path, "output.yaml"), "w"))
 
         loaded = yaml.load(open(os.path.join(self.dir_path, "output.yaml"), "r"))

@@ -25,7 +25,6 @@ import common.tasks
 
 
 class Course(object):
-
     """ Represents a course """
 
     _task_class = common.tasks.Task

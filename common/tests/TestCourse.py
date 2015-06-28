@@ -16,11 +16,13 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
-import common.base
-import common.courses
 import os
 import tempfile
 import shutil
+
+import common.base
+import common.courses
+
 
 class TestCourse(object):
     def setUp(self):
@@ -36,7 +38,7 @@ class TestCourse(object):
         assert c._content['accessible'] == True
         assert c._content['admins'] == ['testadmin1', 'testadmin2']
         assert c._content['name'] == 'Unit test 1'
-        
+
         c = common.courses.Course('test2')
         assert c.get_id() == 'test2'
         assert c._content['accessible'] == '1970-01-01/2033-01-01'
@@ -75,7 +77,7 @@ class TestCourse(object):
         assert 'test' in c
         assert 'test2' in c
         assert 'test3' in c
-    
+
     def test_tasks_loading(self):
         '''Tests loading tasks from the get_tasks method'''
         print "\033[1m-> common-courses: course tasks loading\033[0m"
@@ -90,6 +92,7 @@ class TestCourse(object):
         c = common.courses.Course('test3')
         t = c.get_tasks()
         assert t == {}
+
 
 class TestCourseWrite(object):
     """ Test the course update function """
@@ -108,11 +111,11 @@ class TestCourseWrite(object):
 
     def test_course_update(self):
         os.mkdir(os.path.join(self.dir_path, "test"))
-        open(os.path.join(self.dir_path, "test", "course.yaml"),"w").write("""
+        open(os.path.join(self.dir_path, "test", "course.yaml"), "w").write("""
 name: "a"
 admins: ["a"]
 accessible: "1970-01-01/2033-01-01"
         """)
-        assert common.courses.Course.get_course_descriptor_content("test") == {"name":"a","admins":["a"],"accessible": "1970-01-01/2033-01-01"}
+        assert common.courses.Course.get_course_descriptor_content("test") == {"name": "a", "admins": ["a"], "accessible": "1970-01-01/2033-01-01"}
         common.courses.Course.update_course_descriptor_content("test", {"name": "b", "admins": ["b"], "accessible": "1970-01-01/2030-01-01"})
         assert common.courses.Course.get_course_descriptor_content("test") == {"name": "b", "admins": ["b"], "accessible": "1970-01-01/2030-01-01"}

@@ -37,6 +37,7 @@ from backend_agent._rpyc_unix_server import UnixSocketServer
 import common.base
 from common.courses import Course
 
+
 class SimpleAgent(object):
     """
         A simple agent that can only handle one request at a time. It should not be used directly.
@@ -46,6 +47,7 @@ class SimpleAgent(object):
 
     def __init__(self, tmp_dir="./agent_tmp"):
         from backend_agent._cgroup_helper import CGroupTimeoutWatcher, CGroupMemoryWatcher
+
         self.logger.info("Starting agent")
         self.image_aliases = []
         self.tmp_dir = tmp_dir
@@ -111,10 +113,10 @@ class SimpleAgent(object):
         environment = self.image_aliases[environment]
 
         # Remove possibly existing older folder and creates the new ones
-        container_path = os.path.join(self.tmp_dir, str(internal_job_id)) #tmp_dir/id/
+        container_path = os.path.join(self.tmp_dir, str(internal_job_id))  # tmp_dir/id/
         task_path = os.path.join(container_path, 'task')  # tmp_dir/id/task/
         sockets_path = os.path.join(container_path, 'sockets')  # tmp_dir/id/socket/
-        student_path = os.path.join(task_path, 'student') # tmp_dir/id/task/student/
+        student_path = os.path.join(task_path, 'student')  # tmp_dir/id/task/student/
         try:
             rmtree(container_path)
         except:
@@ -139,7 +141,7 @@ class SimpleAgent(object):
                 stdin_open=True,
                 volumes={'/task': {}, '/sockets': {}},
                 mem_limit=(mem_limit + 10) * 1024 * 1024,  # add 10 mo of bonus, as we check the memory in the "cgroup" thread
-                memswap_limit=-1 #disable swap
+                memswap_limit=-1  # disable swap
             )
             container_id = response["Id"]
 
@@ -381,10 +383,10 @@ class RemoteAgent(SimpleAgent):
 
     def __init__(self, port, tmp_dir="./agent_tmp", sync_enabled=True):
         SimpleAgent.__init__(self, tmp_dir)
-        self.sync_enabled=sync_enabled
+        self.sync_enabled = sync_enabled
         self.logger.debug("Starting RPyC server - backend connection")
         self._backend_server = ThreadedServer(self._get_agent_backend_service(), port=port,
-            protocol_config={"allow_public_attrs": True, 'allow_pickle': True})
+                                              protocol_config={"allow_public_attrs": True, 'allow_pickle': True})
         self._backend_server.start()
 
     def _update_image_aliases(self, image_aliases):
@@ -482,6 +484,7 @@ class RemoteAgent(SimpleAgent):
 
         return AgentService
 
+
 class LocalAgent(SimpleAgent):
     """ An agent made to be run locally (launched directly by the backend). It can handle multiple requests at a time. """
 
@@ -509,4 +512,4 @@ class LocalAgent(SimpleAgent):
             result = self.handle_job(job_id, course_id, task_id, inputdata, debug, callback_status)
             final_callback(result)
         except:
-            final_callback({"result":"crash"})
+            final_callback({"result": "crash"})

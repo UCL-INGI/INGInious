@@ -31,6 +31,7 @@ def load(stream):
 
         Safe version.
     """
+
     class OrderedLoader(original_yaml.SafeLoader):
         pass
 

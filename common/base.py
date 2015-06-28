@@ -22,7 +22,9 @@ import json
 import os.path
 import hashlib
 import re
+
 import common.custom_yaml
+
 
 # Configuration for common modules
 
@@ -30,18 +32,24 @@ import common.custom_yaml
 def get_tasks_directory():
     """ Return the path to the directory containing the courses and the tasks """
     return get_tasks_directory.tasks_directory
+
+
 get_tasks_directory.tasks_directory = "./tasks"
 
 
 def get_allowed_file_extensions():
     """ Returns a list containing the allowed file extensions (for file uploads) """
     return get_allowed_file_extensions.allowed_file_extensions
+
+
 get_allowed_file_extensions.allowed_file_extensions = [".c", ".cpp", ".java", ".oz", ".zip", ".tar.gz", ".tar.bz2", ".txt"]
 
 
 def get_max_file_size():
     """ Return the maximum file upload size """
     return get_max_file_size.max_file_size
+
+
 get_max_file_size.max_file_size = 1024 * 1024
 
 
@@ -75,6 +83,7 @@ def write_json_or_yaml(file_path, content):
     with codecs.open(file_path, "w", "utf-8") as f:
         f.write(o)
 
+
 def hash_file(fileobj):
     """
     :param fileobj: a file object
@@ -86,6 +95,7 @@ def hash_file(fileobj):
         hasher.update(buf)
         buf = fileobj.read(65536)
     return hasher.hexdigest()
+
 
 def directory_content_with_hash(directory):
     """
@@ -100,6 +110,7 @@ def directory_content_with_hash(directory):
             with open(p, 'rb') as f:
                 output[os.path.relpath(p, directory)] = (hash_file(f), file_stat.st_mode)
     return output
+
 
 def directory_compare_from_hash(from_directory, to_directory):
     """

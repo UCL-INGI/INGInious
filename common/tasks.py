@@ -23,7 +23,6 @@ from common.tasks_problems import CodeProblem, CodeSingleLineProblem, MultipleCh
 
 
 class Task(object):
-
     """ Contains the data for a task """
 
     def __init__(self, course, taskid, init_data=None):
@@ -48,7 +47,7 @@ class Task(object):
 
         self._environment = self._data.get('environment', None)
 
-        #Response is HTML
+        # Response is HTML
         self._response_is_html = self._data.get("responseIsHTML", False)
 
         # Limits
@@ -136,7 +135,8 @@ class Task(object):
             multiple_choice_error_count += problem_mc_error_count
         return valid, need_launch, main_message, problem_messages, multiple_choice_error_count
 
-    _problem_types = {"code": CodeProblem, "code-single-line": CodeSingleLineProblem, "code-file": CodeFileProblem, "multiple-choice": MultipleChoiceProblem, "match": MatchProblem}
+    _problem_types = {"code": CodeProblem, "code-single-line": CodeSingleLineProblem, "code-file": CodeFileProblem,
+                      "multiple-choice": MultipleChoiceProblem, "match": MatchProblem}
 
     def _create_task_problem(self, task, problemid, problem_content):
         """Creates a new instance of the right class for a given problem."""

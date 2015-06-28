@@ -25,7 +25,6 @@ from common.base import id_checker, get_allowed_file_extensions, get_max_file_si
 
 
 class BasicBox(object):
-
     """ A basic abstract problem box. A box is a small input for a problem. A problem can contain multiple boxes """
     __metaclass__ = ABCMeta
 
@@ -67,7 +66,6 @@ class BasicBox(object):
 
 
 class TextBox(BasicBox):
-
     """Text box. Simply shows text."""
 
     def get_type(self):
@@ -85,7 +83,6 @@ class TextBox(BasicBox):
 
 
 class FileBox(BasicBox):
-
     """
         File box. Allow to send a file to the backend.
         The input for this box must be a dictionnary, containing two keys:
@@ -122,7 +119,6 @@ class FileBox(BasicBox):
 
 
 class InputBox(BasicBox):
-
     """ Input box. Displays an input object """
 
     def get_type(self):
@@ -183,7 +179,6 @@ class InputBox(BasicBox):
 
 
 class MultilineBox(BasicBox):
-
     """ Multiline Box """
 
     def get_type(self):

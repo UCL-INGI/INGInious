@@ -25,7 +25,6 @@ from common.tasks_code_boxes import InputBox, MultilineBox, TextBox, FileBox
 
 
 class BasicProblem(object):
-
     """Basic problem """
     __metaclass__ = ABCMeta
 
@@ -77,7 +76,6 @@ class BasicProblem(object):
 
 
 class MatchProblem(BasicProblem):
-
     """Display an input box and check that the content is correct"""
 
     def __init__(self, task, problemid, content):
@@ -100,7 +98,6 @@ class MatchProblem(BasicProblem):
 
 
 class BasicCodeProblem(BasicProblem):
-
     """Basic problem with code input. Do all the job with the backend"""
 
     def __init__(self, task, problemid, content):
@@ -123,7 +120,8 @@ class BasicCodeProblem(BasicProblem):
                 return False
         return True
 
-    _box_types = {"input-text": InputBox, "input-decimal": InputBox, "input-integer": InputBox, "multiline": MultilineBox, "text": TextBox, "file": FileBox}
+    _box_types = {"input-text": InputBox, "input-decimal": InputBox, "input-integer": InputBox, "multiline": MultilineBox, "text": TextBox,
+                  "file": FileBox}
 
     def _create_box(self, boxid, box_content):
         """ Create adequate box """
@@ -141,7 +139,6 @@ class BasicCodeProblem(BasicProblem):
 
 
 class CodeSingleLineProblem(BasicCodeProblem):
-
     """Code problem with a single line of input"""
 
     def __init__(self, task, problemid, content):
@@ -153,19 +150,18 @@ class CodeSingleLineProblem(BasicCodeProblem):
 
 
 class CodeFileProblem(BasicCodeProblem):
-
     """Code problem which allow to test a file"""
 
     def __init__(self, task, problemid, content):
         BasicCodeProblem.__init__(self, task, problemid, content)
-        self._boxes = [self._create_box("", {"type": "file", "max_size": content.get("max_size", None), "allowed_exts": content.get("allowed_exts", None)})]
+        self._boxes = [
+            self._create_box("", {"type": "file", "max_size": content.get("max_size", None), "allowed_exts": content.get("allowed_exts", None)})]
 
     def get_type(self):
         return "code-file"
 
 
 class CodeProblem(BasicCodeProblem):
-
     """Code problem"""
 
     def __init__(self, task, problemid, content):
@@ -188,7 +184,6 @@ class CodeProblem(BasicCodeProblem):
 
 
 class MultipleChoiceProblem(BasicProblem):
-
     """Multiple choice problems"""
 
     def __init__(self, task, problemid, content):

@@ -52,7 +52,6 @@ from rpyc.utils.authenticators import AuthenticationError
 
 
 class UnixSocketServer(object):
-
     """A (simple) RPyC server that uses UNIX Sockets
 
     :param service: the :class:`service <service.Service>` to expose
@@ -182,7 +181,7 @@ class UnixSocketServer(object):
         addrinfo = sock.getpeername()
         try:
             config = dict(self.protocol_config, credentials=credentials,
-                          endpoints=(sock.getsockname(), addrinfo), logger = self.logger)
+                          endpoints=(sock.getsockname(), addrinfo), logger=self.logger)
             conn = Connection(self.service, Channel(SocketStream(sock)),
                               config=config, _lazy=True)
             conn._init_service()

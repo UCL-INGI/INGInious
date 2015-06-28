@@ -23,7 +23,6 @@ from common.task_file_managers.abstract_manager import AbstractTaskFileManager
 
 
 class TaskYAMLFileManager(AbstractTaskFileManager):
-
     """ Read and write task descriptions in YAML """
 
     def _get_content(self, content):

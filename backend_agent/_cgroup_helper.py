@@ -30,7 +30,7 @@ import time
 import docker
 from docker.utils import kwargs_from_env
 
-from cgutils import cgroup, linux
+from cgutils import cgroup
 
 
 def _recursive_find_docker_group(cg):
@@ -55,7 +55,6 @@ def get_cgroups_docker():
 
 
 class CGroupMemoryWatcher(threading.Thread):
-
     """ Watch for cgroups events on memory """
 
     logger = logging.getLogger("agent.memory")
@@ -123,10 +122,11 @@ class CGroupMemoryWatcher(threading.Thread):
         return int(cgroup.get_cgroup(os.path.join(self._docker_memory, container_id)).get_stats()['memsw.max_usage_in_bytes'])
 
     def run(self):
-        while(True):
+        while (True):
             # Get a list with all the eventfd
             with self._containers_running_lock:
-                to_select = [self._update_pipe[0]] + [d["eventlistener"].event_fd for d in self._containers_running.values() if d["eventlistener"] is not None]
+                to_select = [self._update_pipe[0]] + [d["eventlistener"].event_fd for d in self._containers_running.values() if
+                                                      d["eventlistener"] is not None]
 
             # Run the select() system call on all the eventfd.
             rlist, _, xlist = select.select(to_select, [], [])
@@ -153,8 +153,8 @@ class CGroupMemoryWatcher(threading.Thread):
                     container_ids = [
                         (container_id,
                          d["eventlistener"].event_fd,
-                            d["max_memory"]) for container_id,
-                        d in self._containers_running.iteritems() if (
+                         d["max_memory"]) for container_id,
+                                              d in self._containers_running.iteritems() if (
                             d["eventlistener"] is not None and d["eventlistener"].event_fd in rlist)]
                     for container_id, event_fd, max_memory in container_ids:
                         # we have to read everything
@@ -169,7 +169,8 @@ class CGroupMemoryWatcher(threading.Thread):
                             pass
                         to_kill = mem_usage > max_memory
                         if to_kill:
-                            self.logger.info("Deleting container %s as it exhausted its memory limit: %f/%f. Killing it.", container_id, mem_usage, max_memory)
+                            self.logger.info("Deleting container %s as it exhausted its memory limit: %f/%f. Killing it.", container_id, mem_usage,
+                                             max_memory)
                             self._containers_running[container_id]["eventlistener"] = None
                             self._containers_running[container_id]["killed"] = True
                             containers_to_kill.add(container_id)
@@ -183,7 +184,6 @@ class CGroupMemoryWatcher(threading.Thread):
 
 
 class CGroupTimeoutWatcher(threading.Thread):
-
     """ Watch the cgroups cpuacct and ask to stop containers when they use too many ressources """
 
     logger = logging.getLogger("agent.timeout")
@@ -225,7 +225,7 @@ class CGroupTimeoutWatcher(threading.Thread):
         self._input_queue.put((time.time() + max_time_hard, container_id, 0))
 
     def run(self):
-        while(True):
+        while (True):
             ltime, container_id, max_time = self._input_queue.get()
             time_diff = ltime - time.time()
             if time_diff > 0:  # we still have to wait

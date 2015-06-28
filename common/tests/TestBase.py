@@ -1,24 +1,28 @@
-from common.base import directory_compare_from_hash, directory_content_with_hash, get_allowed_file_extensions, get_max_file_size, hash_file, \
-    id_checker, get_tasks_directory, load_json_or_yaml, init_common_lib, write_json_or_yaml
-
 import os
 import tempfile
 import shutil
 import copy
 
+from common.base import directory_compare_from_hash, directory_content_with_hash, get_allowed_file_extensions, get_max_file_size, hash_file, \
+    id_checker, get_tasks_directory, load_json_or_yaml, init_common_lib, write_json_or_yaml
+
+
 class TestBaseInit(object):
     """ Test the initialisation of the common lib """
+
     def test_init(self):
         """ Test the initialisation of the common lib """
         init_common_lib(os.path.join(os.path.dirname(__file__), 'tasks'),
-                                    [".c"],
-                                    1024 * 1024)
+                        [".c"],
+                        1024 * 1024)
         assert os.path.abspath(get_tasks_directory()) == os.path.abspath(os.path.join(os.path.dirname(__file__), 'tasks'))
         assert get_allowed_file_extensions() == [".c"]
         assert get_max_file_size() == 1024 * 1024
 
+
 class TestIdChecker(object):
     """ Test the id checker """
+
     def test_id_checker_valid_1(self):
         assert id_checker("azertyuiopZERTYUIO65456_5-a") is True
 
@@ -31,6 +35,7 @@ class TestIdChecker(object):
     def test_id_checker_invalid_3(self):
         assert id_checker("test/test") is False
 
+
 class TestJSONYAMLReaderWriter(object):
     """ Test the functions load_json_or_yaml and write_json_or_yaml """
 
@@ -41,7 +46,7 @@ class TestJSONYAMLReaderWriter(object):
         shutil.rmtree(self.dir_path)
 
     def test_json_read(self):
-        open(os.path.join(self.dir_path, "input.json"),"w").write('{"key1":"data1","key2":{"key3":[1,2]}}')
+        open(os.path.join(self.dir_path, "input.json"), "w").write('{"key1":"data1","key2":{"key3":[1,2]}}')
         assert load_json_or_yaml(os.path.join(self.dir_path, "input.json")) == {'key1': 'data1', 'key2': {'key3': [1, 2]}}
 
     def test_json_write(self):
@@ -61,6 +66,7 @@ class TestJSONYAMLReaderWriter(object):
     def test_yaml_write(self):
         write_json_or_yaml(os.path.join(self.dir_path, "output.yaml"), {'key1': 'data1', 'key2': {'key3': [1, 2]}})
         assert load_json_or_yaml(os.path.join(self.dir_path, "output.yaml")) == {'key1': 'data1', 'key2': {'key3': [1, 2]}}
+
 
 class TestDirectoryHash(object):
     """ Test all the functions that involves file hash """
