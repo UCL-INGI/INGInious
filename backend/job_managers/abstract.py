@@ -20,19 +20,19 @@
 
 import copy
 import signal
-import threading
 import time
 import uuid
 from abc import abstractmethod
 
 from backend.hook_manager import HookManager
+
+
 def _init_manager():
     """ Makes the manager ignore SIGINT """
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
 
 class AbstractJobManager(object):
-
     """ Manages jobs """
 
     def __init__(self, image_aliases, hook_manager=None, is_testing=False):

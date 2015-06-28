@@ -20,7 +20,6 @@
 
 
 class HookManager(object):
-
     """ Registers an manages hooks. Hooks are callback functions called when the backend does a specific action. """
 
     def __init__(self):
@@ -31,7 +30,7 @@ class HookManager(object):
         try:
             callback(*args, **kwargs)
         except Exception as e:
-            print "An exception occured while calling a hook! "+str(e)
+            print "An exception occured while calling a hook! " + str(e)
 
     def add_hook(self, name, callback):
         """ Add a new hook that can be called with the call_hook function """

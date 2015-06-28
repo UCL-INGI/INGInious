@@ -1,12 +1,12 @@
 import threading
 import os.path
-import copy
+from abc import abstractmethod
 
 from backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
 from backend.job_managers.local import LocalJobManager
 import common.base
-from abc import abstractmethod
 from backend.tests.FakeAgents import get_fake_local_agent, FakeRemoteAgent
+
 
 class TestJobManager(object):
     def __init__(self, job_manager_class=LocalJobManager):
@@ -37,15 +37,17 @@ class TestJobManager(object):
     def tearDown(self):
         self.job_manager.close()
 
+
 def get_test_port():
     """
     :return: a unique port for this series of tests
     """
-    get_test_port.current_port = get_test_port.current_port+1
+    get_test_port.current_port = get_test_port.current_port + 1
     return get_test_port.current_port
 
 
 get_test_port.current_port = 61000
+
 
 class TestRemoteJobManager(TestJobManager):
     port = None
@@ -65,6 +67,7 @@ class TestRemoteJobManager(TestJobManager):
     def generate_hook_manager(self):
         return None
 
+
 class TestLocalJobManager(TestJobManager):
     def setUp_job_manager(self):
         self.job_manager = LocalJobManager({"default": "inginious-c-default"},
@@ -78,6 +81,7 @@ class TestLocalJobManager(TestJobManager):
     @abstractmethod
     def handle_job_func(self, job_id, course_id, task_id, inputdata, debug, callback_status):
         pass
+
 
 class TestWithFakeRemoteAgent(TestRemoteJobManager):
     def setUp(self):

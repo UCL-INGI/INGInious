@@ -2,6 +2,7 @@ from backend.tests.TestJobManager import TestLocalJobManager
 from common.courses import Course
 from backend.hook_manager import HookManager
 
+
 class TestHook(TestLocalJobManager):
     def handle_job_func(self, job_id, course_id, task_id, inputdata, debug, callback_status):
         return {"result": "success"}
@@ -38,7 +39,7 @@ class TestHookNoCrash(TestLocalJobManager):
         self.wait_for_callback()
         assert self.got_callback_result["result"] == "success"
 
-        #Twice to verify it still works after the first exception ;-)
+        # Twice to verify it still works after the first exception ;-)
         self.job_manager.new_job(Course('test').get_task('no_run'), {"problem_id": "1"}, self.default_callback)
         self.wait_for_callback()
         assert self.got_callback_result["result"] == "success"

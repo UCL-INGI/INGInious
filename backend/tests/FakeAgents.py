@@ -1,16 +1,20 @@
-import rpyc
-from rpyc.utils.server import OneShotServer
 import threading
 import copy
+
+import rpyc
+from rpyc.utils.server import OneShotServer
+
 
 def get_fake_local_agent(handle_job_func):
     class FakeLocalAgent(object):
         """ A fake agent used for tests of the local interface"""
+
         def __init__(self, _, _2):
             self.handle_job_func = handle_job_func
 
         def new_job(self, job_id, course_id, task_id, inputdata, debug, callback_status, final_callback):
-            t = threading.Thread(target=lambda: self._handle_job_threaded(job_id, course_id, task_id, inputdata, debug, callback_status, final_callback))
+            t = threading.Thread(
+                target=lambda: self._handle_job_threaded(job_id, course_id, task_id, inputdata, debug, callback_status, final_callback))
             t.daemon = True
             t.start()
 
@@ -20,10 +24,13 @@ def get_fake_local_agent(handle_job_func):
                 final_callback(result)
             except:
                 final_callback({"result": "crash"})
+
     return FakeLocalAgent
+
 
 class FakeRemoteAgent(threading.Thread):
     """ A fake agent used for tests of the RPyC interface """
+
     def __init__(self, port, handle_job_func,
                  update_image_aliases_func=(lambda aliases: ""),
                  get_task_directory_hashes_func=(lambda: []),

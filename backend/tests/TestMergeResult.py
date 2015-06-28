@@ -2,6 +2,7 @@ from backend.tests.TestJobManager import TestLocalJobManager
 from backend.job_managers.abstract import AbstractJobManager
 from common.courses import Course
 
+
 class TestNotInAgent(TestLocalJobManager):
     def handle_job_func(self, job_id, course_id, task_id, inputdata, debug, callback_status):
         self.was_in = True
@@ -19,9 +20,10 @@ class TestNotInAgent(TestLocalJobManager):
         self.wait_for_callback()
         assert self.was_in
 
+
 class TestManualMerge(object):
     def test_norun_merge_list(self):
-        res = AbstractJobManager._merge_results({"result": "success", "problems":{"id1": ["a", "a"]}, "text":["b","b"]}, None)
+        res = AbstractJobManager._merge_results({"result": "success", "problems": {"id1": ["a", "a"]}, "text": ["b", "b"]}, None)
         assert res["problems"]["id1"] == "a\na"
         assert res["text"] == "b\nb"
 
@@ -38,7 +40,7 @@ class TestManualMerge(object):
         assert res["grade"] == 0
 
     def test_std_out_err(self):
-        res = AbstractJobManager._merge_results({"result": "success"},{"result": "success", "stdout":"a", "stderr":"b"})
+        res = AbstractJobManager._merge_results({"result": "success"}, {"result": "success", "stdout": "a", "stderr": "b"})
         assert res["stdout"] == "a"
         assert res["stderr"] == "b"
 
@@ -47,12 +49,13 @@ class TestManualMerge(object):
         assert res["result"] == "error"
 
     def test_merge_text_problem(self):
-        res = AbstractJobManager._merge_results({"result": "success", "problems":{"id":"a"}}, {"result": "success", "problems": {"id": "b"}})
+        res = AbstractJobManager._merge_results({"result": "success", "problems": {"id": "a"}}, {"result": "success", "problems": {"id": "b"}})
         assert res["problems"]["id"] == "b\na"
 
     def test_merge_text_global(self):
-        res = AbstractJobManager._merge_results({"result": "success", "text": "a"}, {"result": "success", "text":"b"})
+        res = AbstractJobManager._merge_results({"result": "success", "text": "a"}, {"result": "success", "text": "b"})
         assert res["text"] == "b\na"
+
 
 class TestAutoMerge(TestLocalJobManager):
     def handle_job_func(self, job_id, course_id, task_id, inputdata, debug, callback_status):
@@ -77,7 +80,7 @@ class TestAutoMerge(TestLocalJobManager):
         assert "result" in result and result["result"] == "success"
 
     def test_merge_text(self):
-        self.result = {"result": "success", "problems":{"problem_1":'a'}}
+        self.result = {"result": "success", "problems": {"problem_1": 'a'}}
         self.job_manager.new_job(Course('test').get_task('do_both'), {"problem_1": "1", "problem_2": "1"}, self.default_callback)
         result = self.wait_for_callback()
         assert "result" in result and result["result"] == "success"
@@ -87,7 +90,7 @@ class TestAutoMerge(TestLocalJobManager):
         assert result["problems"]["problem_2"] == "Correct answer"
 
     def test_grade_no_run_success(self):
-        self.result = {"result": "failed"} #should not be checked!
+        self.result = {"result": "failed"}  # should not be checked!
         self.job_manager.new_job(Course('test').get_task('no_run'), {"problem_id": "1"}, self.default_callback)
         result = self.wait_for_callback()
         assert "grade" in result and result["grade"] == 100.0

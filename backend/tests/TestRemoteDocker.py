@@ -3,12 +3,15 @@
 # If it don't work as-is on your arch, you can simply disable the TEST_DOCKER_JOB_MANAGER
 # flag and trust the code, or you can modify the config in the test to make it run.
 
-from backend.job_managers.remote_docker import RemoteDockerJobManager
-from nose.plugins.skip import SkipTest
-import docker
 import os
 
+from nose.plugins.skip import SkipTest
+import docker
+
+from backend.job_managers.remote_docker import RemoteDockerJobManager
+
 TEST_DOCKER_JOB_MANAGER = os.environ.get("TEST_DOCKER_JOB_MANAGER", None)
+
 
 class TestDockerJobManager(object):
     def setUp(self):
@@ -59,7 +62,7 @@ class TestDockerJobManager(object):
         self.job_manager.start()
 
     def build_fake_agent(self, dockerfile="FakeAgentDockerfile"):
-        dockerfile_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)),"utils/"))
+        dockerfile_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "utils/"))
         print [line for line in self.docker_connection.build(dockerfile_dir, dockerfile=dockerfile, rm=True, tag="ingi/inginious-agent")]
 
     def start_fake_agent(self):
@@ -74,7 +77,7 @@ class TestDockerJobManager(object):
         self.docker_connection.start(container_id)
 
     def tearDown(self):
-        #sanitize a bit Docker...
+        # sanitize a bit Docker...
         if self.job_manager is not None:
             self.job_manager.close()
 
@@ -87,6 +90,7 @@ class TestDockerJobManager(object):
             self.docker_connection.remove_image("ingi/inginious-agent", force=True)
         except:
             pass
+
 
 class TestDockerJobManagerNoUpdateNeeded(TestDockerJobManager):
     def setUpDocker(self):
@@ -111,6 +115,7 @@ class TestDockerJobManagerNoImage(TestDockerJobManager):
     def test_agent_no_image(self):
         assert RemoteDockerJobManager.is_agent_image_update_needed(self.docker_connection) is True
 
+
 class TestDockerJobManagerAgentAlreadyStarted(TestDockerJobManager):
     def setUpDocker(self):
         self.build_fake_agent("FakeAgentDockerfile")
@@ -129,6 +134,7 @@ class TestDockerJobManagerAgentAlreadyStartedButDead(TestDockerJobManager):
     def test_agent_already_started_but_dead(self):
         assert RemoteDockerJobManager.is_agent_valid_and_started(self.docker_connection) is False
 
+
 class TestDockerJobManagerInvalidAgentAlreadyStarted(TestDockerJobManager):
     def setUpDocker(self):
         self.build_fake_agent("FakeAgentWrongDockerfile")
@@ -137,12 +143,14 @@ class TestDockerJobManagerInvalidAgentAlreadyStarted(TestDockerJobManager):
     def test_invalid_agent_already_started(self):
         assert RemoteDockerJobManager.is_agent_valid_and_started(self.docker_connection) is False
 
+
 class TestDockerJobManagerNoAgentStarted(TestDockerJobManager):
     def setUpDocker(self):
         pass
 
     def test_invalid_agent_already_started(self):
         assert RemoteDockerJobManager.is_agent_valid_and_started(self.docker_connection) is False
+
 
 class TestDockerJobManagerRun(TestDockerJobManager):
     def setUpDocker(self):

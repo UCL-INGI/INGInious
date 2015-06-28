@@ -1,10 +1,10 @@
+import time
+
 from backend.helpers.job_manager_buffer import JobManagerBuffer
 from backend.helpers.job_manager_sync import JobManagerSync
-
 from backend.tests.TestJobManager import TestLocalJobManager
 from common.courses import Course
 
-import time
 
 class TestSync(TestLocalJobManager):
     def handle_job_func(self, job_id, course_id, task_id, inputdata, debug, callback_status):
@@ -14,6 +14,7 @@ class TestSync(TestLocalJobManager):
         jbs = JobManagerSync(self.job_manager)
         result = jbs.new_job(Course('test').get_task('do_run'), {"problem_id": "0"})
         assert "result" in result and result["result"] == "success"
+
 
 class TestBuffer(TestLocalJobManager):
     def handle_job_func(self, job_id, course_id, task_id, inputdata, debug, callback_status):

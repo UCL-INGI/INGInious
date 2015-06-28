@@ -19,23 +19,24 @@
 """ A JobManager that can interact with distant agents, via RPyC """
 
 import threading
-
 import copy
-import rpyc
 import tempfile
 import tarfile
+from StringIO import StringIO
+import re
+import os
+
+import rpyc
 
 from backend.job_managers.abstract import AbstractJobManager
 from common.base import directory_compare_from_hash, get_tasks_directory, directory_content_with_hash, hash_file
 from common.task_file_managers.manage import get_available_task_file_managers, get_task_file_manager
 from common.task_file_managers.yaml_manager import TaskYAMLFileManager
-from StringIO import StringIO
-import re
 
-import os
 
 class RemoteManualAgentJobManager(AbstractJobManager):
     """ A Job Manager that handles connections with distant Agents using RPyC """
+
     def __init__(self, agents, image_aliases, hook_manager=None, is_testing=False):
         """
             Starts the job manager.
@@ -104,7 +105,7 @@ class RemoteManualAgentJobManager(AbstractJobManager):
             return
 
         current_content_in_task_directory = directory_content_with_hash(get_tasks_directory())
-        changed, deleted = directory_compare_from_hash(current_content_in_task_directory,self._last_content_in_task_directory)
+        changed, deleted = directory_compare_from_hash(current_content_in_task_directory, self._last_content_in_task_directory)
         if len(changed) != 0 or len(deleted) != 0:
             self._last_content_in_task_directory = current_content_in_task_directory
             for agent in self._agents:
@@ -127,7 +128,7 @@ class RemoteManualAgentJobManager(AbstractJobManager):
 
         # As agent only supports task.yaml files as descriptors (and not exotic things like task.rst...), we have to ensure that we convert and send
         # task.yaml files to it.
-        task_files_to_convert = ["task."+ext for ext in get_available_task_file_managers()]
+        task_files_to_convert = ["task." + ext for ext in get_available_task_file_managers()]
         task_files_to_convert.remove("task.yaml")
 
         new_local_td = {}
@@ -140,7 +141,7 @@ class RemoteManualAgentJobManager(AbstractJobManager):
                     courseid, taskid = match.group(1), match.group(2)
                     content = get_task_file_manager(courseid, taskid).read()
                     yaml_content = StringIO(TaskYAMLFileManager(match.group(1), match.group(2))._generate_content(content).encode('utf-8'))
-                    new_local_td[os.path.join(path_to_file,"task.yaml")] = (hash_file(yaml_content), 0o777)
+                    new_local_td[os.path.join(path_to_file, "task.yaml")] = (hash_file(yaml_content), 0o777)
                     yaml_content.seek(0)
                     generated_yaml_content[os.path.join(path_to_file, "task.yaml")] = yaml_content
                 except Exception as e:
@@ -170,15 +171,15 @@ class RemoteManualAgentJobManager(AbstractJobManager):
         for path in to_update:
             # be a little safe about what the agent returns...
             if os.path.relpath(os.path.join(get_tasks_directory(), path), get_tasks_directory()) == path and ".." not in path:
-                if path in generated_files: # the file do not really exists on disk, it was generated
+                if path in generated_files:  # the file do not really exists on disk, it was generated
                     info = tarfile.TarInfo(name=path)
                     info.size = generated_files[path].len
                     info.mode = 0o777
                     tar.addfile(tarinfo=info, fileobj=generated_files[path])
-                else: #the file really exists on disk
+                else:  # the file really exists on disk
                     tar.add(arcname=path, name=os.path.join(get_tasks_directory(), path))
             else:
-                print "Agent returned non-safe file path: "+path
+                print "Agent returned non-safe file path: " + path
         tar.close()
         tmpfile.flush()
         tmpfile.seek(0)

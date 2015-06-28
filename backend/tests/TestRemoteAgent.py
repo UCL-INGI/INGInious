@@ -1,6 +1,8 @@
+import time
+
 from backend.tests.TestJobManager import TestWithFakeRemoteAgent
 from common.courses import Course
-import time
+
 
 class TestRemoteAgentOK(TestWithFakeRemoteAgent):
     def handle_job_func(self, job_id, course_id, task_id, inputdata, debug, callback_status):
@@ -11,7 +13,7 @@ class TestRemoteAgentOK(TestWithFakeRemoteAgent):
 
     def update_task_directory_func(self, remote_tar_file, to_delete):
         self.remote_tar_file = remote_tar_file
-        self.nb_calls = self.nb_calls+1
+        self.nb_calls = self.nb_calls + 1
         if self.nb_calls == 1:
             self.to_delete1 = to_delete
         elif self.nb_calls == 2:
@@ -32,6 +34,7 @@ class TestRemoteAgentOK(TestWithFakeRemoteAgent):
         assert self.to_delete1 == ["todelete"]
         assert self.to_delete2 == ["todelete"]
         assert len(self.remote_tar_file) > 300
+
 
 class TestRemoteAgentNoSync(TestWithFakeRemoteAgent):
     error = False

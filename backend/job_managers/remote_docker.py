@@ -18,11 +18,13 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ A Job Manager that automatically launch Agents on distant Docker daemons """
 
-from backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
 import docker
 import docker.utils
 
-AGENT_CONTAINER_VERSION="0.2"
+from backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
+
+AGENT_CONTAINER_VERSION = "0.2"
+
 
 class RemoteDockerJobManager(RemoteManualAgentJobManager):
     """ A Job Manager that automatically launch Agents on distant Docker daemons """
@@ -78,8 +80,9 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
         agents = []
 
         for daemon in docker_daemons:
-            docker_connection = docker.Client(base_url="tcp://"+daemon['remote_host']+":"+str(int(daemon["remote_docker_port"])), tls=daemon.get(
-                "use_tls",False))
+            docker_connection = docker.Client(base_url="tcp://" + daemon['remote_host'] + ":" + str(int(daemon["remote_docker_port"])),
+                                              tls=daemon.get(
+                                                  "use_tls", False))
 
             # Verify if the container is available and at the right version
             if not self.is_agent_valid_and_started(docker_connection):
@@ -92,7 +95,6 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
                     if self.is_agent_image_update_needed(docker_connection):
                         raise Exception("The downloaded image ingi/inginious-agent is not at the same version as this instance of INGInious. " \
                                         "Please update  INGInious or pull manually a valid version of the container image ingi/inginious-agent.")
-
 
                 docker_local_location = daemon.get("local_location", "unix:///var/run/docker.sock")
                 environment = {"AGENT_CONTAINER_NAME": "inginious-agent", "AGENT_PORT": daemon.get("remote_agent_port", 63456)}
@@ -108,7 +110,7 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
                     if daemon.get("use_tls", False):
                         environment["DOCKER_TLS_VERIFY"] = "on"
                 else:
-                    raise Exception("Unknown protocol for local docker daemon: "+ docker_local_location)
+                    raise Exception("Unknown protocol for local docker daemon: " + docker_local_location)
 
                 response = docker_connection.create_container(
                     "ingi/inginious-agent",
@@ -120,7 +122,7 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
                 container_id = response["Id"]
 
                 # Start the container
-                docker_connection.start(container_id, network_mode="host", binds=binds, restart_policy={"Name":"always"})
+                docker_connection.start(container_id, network_mode="host", binds=binds, restart_policy={"Name": "always"})
 
             agents.append({"host": daemon['remote_host'], "port": daemon.get("remote_agent_port", 63456)})
 

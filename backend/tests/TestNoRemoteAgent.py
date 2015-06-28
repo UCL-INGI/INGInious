@@ -1,8 +1,8 @@
 from backend.tests.TestJobManager import TestRemoteJobManager
 from common.courses import Course
 
-class TestNoRemoteAgent(TestRemoteJobManager):
 
+class TestNoRemoteAgent(TestRemoteJobManager):
     def test_no_agent(self):
         assert self.job_manager.number_agents_available() == 0
 
