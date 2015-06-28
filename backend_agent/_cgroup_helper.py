@@ -86,7 +86,7 @@ class CGroupMemoryWatcher(threading.Thread):
 
         cg = cgroup.get_cgroup(os.path.join(self._docker_memory, container_id))
         with self._containers_running_lock:
-            self._containers_running[container_id] = {"eventlistener": cgroup.EventListener(cg, 'memory.memsw.usage_in_bytes'),
+            self._containers_running[container_id] = {"eventlistener": cgroup.EventListener(cg, 'memory.oom_control'),#'memory.memsw.usage_in_bytes'),
                                                       "killed": False,
                                                       "max_memory": max_memory * 1024 * 1024}
             self._containers_running[container_id]["eventlistener"].register([max_memory * 1024 * 1024])
@@ -160,15 +160,13 @@ class CGroupMemoryWatcher(threading.Thread):
                         # we have to read everything
                         os.read(event_fd, 64 / 8)
 
-                        # Verify current max_memory
-
-                        mem_usage = 0
+                        mem_usage = -1
                         try:
                             mem_usage = self._get_max_memory_usage(container_id)
                         except:
                             pass
-                        to_kill = mem_usage > max_memory
-                        if to_kill:
+
+                        if mem_usage != -1:
                             self.logger.info("Deleting container %s as it exhausted its memory limit: %f/%f. Killing it.", container_id, mem_usage,
                                              max_memory)
                             self._containers_running[container_id]["eventlistener"] = None
@@ -237,14 +235,16 @@ class CGroupTimeoutWatcher(threading.Thread):
                 except:
                     continue  # container has closed
 
-                self.logger.debug("Current time usage: %f. Max: %f", (usage / (10 ** 9)), max_time)
+                self.logger.debug("Current time usage: %f. Max: %f.", (usage / (10 ** 9)), max_time)
 
                 if (usage / (10 ** 9)) < max_time:  # retry
                     minimum_remaining_time = math.ceil((max_time - (usage / (10 ** 9))) / self._cpu_count)
+                    self.logger.debug("Minimum wait: %f.", minimum_remaining_time)
                     self._input_queue.put((time.time() + minimum_remaining_time, container_id, max_time))
                 else:  # kill it (with fire!)
+                    self.logger.info("Killing container %s due to timeout", container_id)
+                    self._container_errors.add(container_id)
                     try:
-                        self.logger.info("Killing container %s due to timeout", container_id)
                         docker_connection = docker.Client(**kwargs_from_env())
                         docker_connection.kill(container_id)
                     except:

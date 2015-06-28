@@ -169,9 +169,10 @@ class SimpleAgent(object):
             docker_connection.start(container_id,
                                     binds={os.path.abspath(task_path): {'ro': False, 'bind': '/task'},
                                            os.path.abspath(sockets_path): {'ro': False, 'bind': '/sockets'}},
-                                    mem_limit=(mem_limit + 10) * 1024 * 1024,  # add 10 mo of bonus, as we check the memory in the "cgroup" thread
-                                    memswap_limit=-1  # disable swap
-                                    )
+                                    mem_limit=mem_limit * 1024 * 1024,
+                                    memswap_limit=mem_limit * 1024 * 1024,  # disable swap
+                                    oom_kill_disable = True
+            )
 
             # Send the input data
             container_input = {"input": inputdata, "limits": limits}
@@ -268,8 +269,9 @@ class SimpleAgent(object):
             # Start the container
             docker_connection.start(container_id,
                                     binds={os.path.abspath(student_path): {'ro': False, 'bind': '/task/student'}},
-                                    mem_limit=(mem_limit + 10) * 1024 * 1024,  # add 10 mo of bonus, as we check the memory in the "cgroup" thread
-                                    memswap_limit=-1  # disable swap
+                                    mem_limit=mem_limit * 1024 * 1024,  # add 10 mo of bonus, as we check the memory in the "cgroup" thread
+                                    memswap_limit=mem_limit * 1024 * 1024,  # disable swap
+                                    oom_kill_disable=True
                                     )
 
             stdout_err = docker_connection.attach_socket(container_id, {'stdin': 0, 'stdout': 1, 'stderr': 1, 'stream': 1, 'logs': 1})
