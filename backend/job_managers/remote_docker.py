@@ -89,7 +89,9 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
 
                 # Verify that the image ingi/inginious-agent exists and is up-to-date
                 if self.is_agent_image_update_needed(docker_connection):
-                    docker_connection.pull("ingi/inginious-agent")
+                    print "Pulling the image ingi/inginious-agent. Please wait, this can take some time..."
+                    for line in docker_connection.pull("ingi/inginious-agent", stream=True):
+                        print line
 
                     # Verify again that the image is ok
                     if self.is_agent_image_update_needed(docker_connection):
