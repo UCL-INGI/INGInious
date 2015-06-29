@@ -8,6 +8,7 @@ import os
 from nose.plugins.skip import SkipTest
 import docker
 
+import common.base
 from backend.job_managers.remote_docker import RemoteDockerJobManager
 
 TEST_DOCKER_JOB_MANAGER = os.environ.get("TEST_DOCKER_JOB_MANAGER", None)
@@ -35,6 +36,8 @@ class TestDockerJobManager(object):
             self.docker_connection.remove_image("ingi/inginious-agent", force=True)
         except:
             pass
+
+        common.base.get_tasks_directory.tasks_directory = os.path.join(os.path.dirname(__file__), 'tasks')
 
         self.setUpDocker()
         self.job_manager = None
