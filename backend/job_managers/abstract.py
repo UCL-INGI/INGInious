@@ -88,9 +88,6 @@ class AbstractJobManager(object):
         # Deletes from data structures
         del self._running_job_data[jobid]
 
-        # Deepcopy result (to bypass RPyC "reference")
-        result = copy.deepcopy(result)
-
         # Merge the results with the one of the multiple-choice questions
         final_result = self._merge_results(base_dict, result)
 
@@ -116,9 +113,6 @@ class AbstractJobManager(object):
 
         # Deletes from data structures
         del self._running_job_data[jobid]
-
-        # Deepcopy result (to bypass RPyC "reference")
-        result = copy.deepcopy(result)
 
         # Call the callback
         try:
