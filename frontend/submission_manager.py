@@ -27,6 +27,7 @@ import pymongo
 from backend.job_managers.local import LocalJobManager
 from backend.job_managers.remote_docker import RemoteDockerJobManager
 from backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
+from common.courses import Course
 from frontend.base import get_database, get_gridfs
 from frontend.configuration import INGIniousConfiguration
 from frontend.parsable_text import ParsableText
@@ -120,7 +121,12 @@ def job_done_callback(jobid, task, job):
         }
     )
 
-    UserData(submission["username"]).update_stats(submission, job)
+    if "group" in submission:
+        group = get_database().groups.find_one({"_id": submission["group"]})
+        for username in group["users"]:
+            UserData(username).update_stats(submission, job)
+    else:
+        UserData(submission["username"]).update_stats(submission, job)
 
     PluginManager.get_instance().call_hook("submission_done", submission=submission, job=job)
 
@@ -138,7 +144,6 @@ def add_job(task, inputdata, debug=False):
     jobid = get_job_manager().new_job_id()
 
     obj = {
-        "username": username,
         "courseid": task.get_course_id(),
         "taskid": task.get_id(),
         "input": get_gridfs().put(
@@ -146,6 +151,13 @@ def add_job(task, inputdata, debug=False):
         "status": "waiting",
         "jobid": jobid,
         "submitted_on": datetime.now()}
+
+    if Course.get_course_descriptor_content(task.get_course_id()).get("groups", False):
+        group = get_database().groups.find_one({"course_id": task.get_course_id(), "users": username})
+        obj.update({"group": group["_id"]})
+    else:
+        obj.update({"username": username})
+
     submissionid = get_database().submissions.insert(obj)
 
     PluginManager.get_instance().call_hook("new_submission", submissionid=submissionid, submission=obj, jobid=jobid, inputdata=inputdata)
@@ -187,14 +199,23 @@ def user_is_submission_owner(submission):
     """ Returns true if the current user is the owner of this jobid, false else """
     if not User.is_logged_in():
         raise Exception("A user must be logged in to verify if he owns a jobid")
-    return submission["username"] == User.get_username()
+
+    if "group" in submission:
+        return get_database().groups.find({"_id": submission["group"], "users": User.get_username()}).count() > 0
+    else:
+        return submission["username"] == User.get_username()
 
 
 def get_user_submissions(task):
     """ Get all the user's submissions for a given task """
     if not User.is_logged_in():
         raise Exception("A user must be logged in to get his submissions")
-    cursor = get_database().submissions.find({"username": User.get_username(), "taskid": task.get_id(), "courseid": task.get_course_id()})
+
+    if Course.get_course_descriptor_content(task.get_course_id()).get("groups", False):
+        group = get_database().groups.find_one({"course_id": task.get_course_id(), "users": User.get_username()})
+        cursor = get_database().submissions.find({"group": group["_id"], "taskid": task.get_id(), "courseid": task.get_course_id()})
+    else:
+        cursor = get_database().submissions.find({"username": User.get_username(), "taskid": task.get_id(), "courseid": task.get_course_id()})
     cursor.sort([("submitted_on", -1)])
     return list(cursor)
 
@@ -204,7 +225,9 @@ def get_user_last_submissions(query, limit, one_per_task=False):
     if not User.is_logged_in():
         raise Exception("A user must be logged in to get his submissions")
     request = query.copy()
-    request.update({"username": User.get_username()})
+    request.update({"$or": [
+        {"username": User.get_username()},
+        {"group": {"$in": [g["_id"] for g in get_database().groups.find({"users": User.get_username()})]}}]})
 
     # We only want the last x task tried, modify the request
     if one_per_task is True:
