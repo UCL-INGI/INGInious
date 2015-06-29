@@ -19,16 +19,16 @@ $# License along with INGInious.  If not, see
 <http://www.gnu.org/licenses/>.
 
 <input
-        $if type== "text":
-type="text"
-$elif type == "integer":
-type="number"
-$elif type == "decimal":
-type="number"
-name="$inputId"
-value=""
-class="monospace form-control form-inline"
-$if maxChars != 0:
-maxlength="$maxChars"
-style="width:${maxChars+1}em"
+    $if type== "text":
+        type="text"
+    $elif type == "integer":
+        type="number"
+    $elif type == "decimal":
+        type="number"
+    name="$inputId"
+    value=""
+    class="monospace form-control form-inline"
+    $if maxChars != 0:
+        maxlength="$maxChars"
+    style="width:${maxChars+1}em"
 />
