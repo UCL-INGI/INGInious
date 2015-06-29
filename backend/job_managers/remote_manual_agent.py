@@ -68,7 +68,7 @@ class RemoteManualAgentJobManager(AbstractJobManager):
     def start(self):
         # init the synchronization of task directories
         self._last_content_in_task_directory = directory_content_with_hash(get_tasks_directory())
-        threading.Timer((60 if not self._is_testing else 2), self._try_synchronize_task_dir).start()
+        threading.Timer((30 if not self._is_testing else 2), self._try_synchronize_task_dir).start()
 
         # connect to agents
         self._try_agent_connection()
@@ -115,7 +115,7 @@ class RemoteManualAgentJobManager(AbstractJobManager):
                     self._synchronize_task_dir(agent)
 
         if not self._is_testing:
-            threading.Timer(60, self._try_synchronize_task_dir).start()
+            threading.Timer(30, self._try_synchronize_task_dir).start()
 
     def _synchronize_task_dir(self, agent):
         """ Synchronizes the task directory with the remote agent. Steps are:
