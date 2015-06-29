@@ -20,6 +20,7 @@
 import threading
 import os.path
 from abc import abstractmethod
+import time
 
 from backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
 from backend.job_managers.local import LocalJobManager
@@ -110,6 +111,12 @@ class TestWithFakeRemoteAgent(TestRemoteJobManager):
                                      self.get_task_directory_hashes_func,
                                      self.update_task_directory_func)
         TestJobManager.setUp(self)
+
+        wait = 0
+        while self.job_manager.number_agents_available() != 1 and wait < 3:
+            time.sleep(30)
+            wait += 1
+        assert self.job_manager.number_agents_available() == 1
 
     def tearDown(self):
         self.agent.close()
