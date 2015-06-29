@@ -51,7 +51,7 @@ def update_database():
         print "Updating database to db_version 2"
         # Register users that submitted some tasks to the related courses
         data = get_database().user_tasks.aggregate([{"$group": {"_id": "$courseid", "usernames": {"$addToSet": "$username"}}}])
-        for r in list(data):
+        for r in list(data["result"]):
             try:
                 course = FrontendCourse(r['_id'])
                 for u in r['usernames']:
