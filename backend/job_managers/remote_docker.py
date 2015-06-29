@@ -68,6 +68,7 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
                   "remote_agent_port": 63456 ## a mandatory port used by the backend and the agent that will be automatically started. Needs to be
                                              ## available on the remote host, and to be open in the firewall.
                   ##does the docker daemon requires tls? Defaults to false
+                  ##parameter can be set to true or path to the certificates
                   #use_tls: false
                   ##link to the docker daemon *from the host that runs the docker daemon*. Defaults to:
                   #"local_location": "unix:///var/run/docker.sock"
@@ -80,9 +81,17 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
         agents = []
 
         for daemon in docker_daemons:
-            docker_connection = docker.Client(base_url="tcp://" + daemon['remote_host'] + ":" + str(int(daemon["remote_docker_port"])),
-                                              tls=daemon.get(
-                                                  "use_tls", False))
+            if daemon.get("use_tls", False):
+                if isinstance(daemon["use_tls"], basestring):
+                    tls_config = docker.tls.TLSConfig(
+                        client_cert=(daemon["use_tls"] + '/cert.pem', daemon["use_tls"] + '/key.pem'),
+                        verify=daemon["use_tls"] + '/ca.pem'
+                    )
+                else:
+                    tls_config = True
+                docker_connection = docker.Client(base_url="https://" + daemon['remote_host'] + ":" + str(int(daemon["remote_docker_port"])), tls=tls_config)
+            else:
+                docker_connection = docker.Client(base_url="http://" + daemon['remote_host'] + ":" + str(int(daemon["remote_docker_port"])), tls=False)
 
             # Verify if the container is available and at the right version
             if not self.is_agent_valid_and_started(docker_connection):

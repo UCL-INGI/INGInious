@@ -181,7 +181,7 @@ The different entries are :
     (see :ref:`task`)
 
 ``containers``
-    A ditionnary of docker's container names.
+    A dictionary of docker's container names.
     The key will be used in the task definition to identify the container, and the value must be a valid Docker container identifier.
     The some `pre-built containers`_ are available on Docker's hub.
 
@@ -198,7 +198,7 @@ The different entries are :
 	  for scalability (see :doc:`../dev_doc/understand_inginious`) and usage on OS X (as the Docker daemon is run in a virtual machine).
 
 	  This settings requires an additional one, ``docker_daemons``. It is simply a list of distant docker daemons. Each docker daemon is defined by
-	  three things: its hostname, its port and an additional port used to comminicate with the backend. **All these ports should be available from
+	  three things: its hostname, its port and an additional port used to communicate with the backend. **All these ports should be available from
 	  the backend!**. Very specific configuration details are possible; please read carefully the ``configuration.example.yaml`` for more information.
 
 	  The configuration for ``docker_daemons`` shown above is the one for boot2docker.
