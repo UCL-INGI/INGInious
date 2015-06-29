@@ -38,7 +38,7 @@ class DownloadSubmissionFiles(object):
 
     def GET(self, courseid):
         """ GET request """
-        course = get_course_and_check_rights(courseid)
+        course, _ = get_course_and_check_rights(courseid)
         user_input = web.input()
         if "dl" in user_input:
             include_old_submissions = "include_all" in user_input

@@ -177,13 +177,13 @@ class ContestAdmin(object):
 
     def GET(self, courseid):
         """ GET request: simply display the form """
-        course = get_course_and_check_rights(courseid)
+        course, _ = get_course_and_check_rights(courseid, allow_all_staff=False)
         contest_data = get_contest_data(course)
         return get_template_renderer('plugins/contests', '../../templates/layout').admin(course, contest_data, None, False)
 
     def POST(self, courseid):
         """ POST request: update the settings """
-        course = get_course_and_check_rights(courseid)
+        course, _ = get_course_and_check_rights(courseid, allow_all_staff=False)
         contest_data = get_contest_data(course)
 
         new_data = web.input()

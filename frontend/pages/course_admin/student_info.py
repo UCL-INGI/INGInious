@@ -30,7 +30,7 @@ class CourseStudentInfoPage(object):
 
     def GET(self, courseid, username):
         """ GET request """
-        course = get_course_and_check_rights(courseid)
+        course, _ = get_course_and_check_rights(courseid)
         return self.page(course, username)
 
     def submission_url_generator(self, course, username, taskid):

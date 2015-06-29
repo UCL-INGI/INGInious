@@ -31,18 +31,28 @@ from frontend.plugins.plugin_manager import PluginManager
 import frontend.user as User
 
 
-def get_course_and_check_rights(courseid, taskid=None):
-    """ Return the course with id, and verify the rights of the user to administer it.
+def get_course_and_check_rights(courseid, taskid=None, allow_all_staff=True):
+    """ Returns the course with id ```courseid``` and the task with id ```taskid```, and verify the rights of the user.
         Raise web.notfound() when there is no such course of if the users has not enough rights.
-        If taskid is not None, also returns tyhe tuple (course, task). """
+
+        :param courseid: the course on which to check rights
+        :param taskid: If not None, returns also the task with id ```taskid```
+        :param allow_all_staff: allow admins AND tutors to see the page. If false, all only admins.
+        :returns (Course, Task)
+    """
+
     try:
         if User.is_logged_in():
             course = FrontendCourse(courseid)
-            if User.get_username() not in course.get_admins():
-                raise web.notfound()
+            if allow_all_staff:
+                if User.get_username() not in course.get_staff():
+                    raise web.notfound()
+            else:
+                if User.get_username() not in course.get_admins():
+                    raise web.notfound()
 
             if taskid is None:
-                return course
+                return (course, None)
             else:
                 return (course, course.get_task(taskid))
         else:
@@ -146,10 +156,30 @@ def make_csv(data):
 def get_menu(course, current):
     """ Returns the HTML of the menu used in the administration. ```current``` is the current page of section """
     custom_renderer = get_template_renderer('templates/')
-    default_entries = [("settings", "<span class='glyphicon glyphicon-cog'></span> Course settings"),
-                       ("students", "<span class='glyphicon glyphicon-user'></span> Students"),
-                       ("tasks", "<span class='glyphicon glyphicon-tasks'></span> Tasks")]
+
+    default_entries = []
+    if User.get_username() in course.get_admins():
+        default_entries += [("settings", "<span class='glyphicon glyphicon-cog'></span> Course settings")]
+    default_entries += [("students", "<span class='glyphicon glyphicon-user'></span> Students"),
+                        ("tasks", "<span class='glyphicon glyphicon-tasks'></span> Tasks")]
+
     # Hook should return a tuple (link,name) where link is the relative link from the index of the course administration.
     additionnal_entries = [entry for entry in PluginManager.get_instance().call_hook('course_admin_menu', course=course) if entry is not None]
 
     return custom_renderer.course_admin.menu(course, default_entries + additionnal_entries, current)
+
+
+class CourseRedirect(object):
+    """ Redirect admins to /settings and tutors to /task """
+
+    def GET(self, courseid):
+        """ GET request """
+        course, _ = get_course_and_check_rights(courseid)
+        if User.get_username() in course.get_tutors():
+            raise web.seeother('/admin/{}/tasks'.format(courseid))
+        else:
+            raise web.seeother('/admin/{}/settings'.format(courseid))
+
+    def POST(self, courseid):
+        """ POST request """
+        return self.GET(courseid)

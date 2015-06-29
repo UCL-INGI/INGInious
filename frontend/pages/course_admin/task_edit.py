@@ -46,7 +46,7 @@ class CourseEditTask(object):
         if not id_checker(taskid):
             raise Exception("Invalid task id")
 
-        course = get_course_and_check_rights(courseid)
+        course, _ = get_course_and_check_rights(courseid, allow_all_staff=False)
 
         try:
             task_data = get_task_file_manager(courseid, taskid).read()
@@ -180,7 +180,7 @@ class CourseEditTask(object):
         if not id_checker(taskid) or not id_checker(courseid):
             raise Exception("Invalid course/task id")
 
-        course = get_course_and_check_rights(courseid)
+        course, _ = get_course_and_check_rights(courseid, allow_all_staff=False)
 
         # Parse content
         try:

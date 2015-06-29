@@ -74,9 +74,9 @@ $def ColumnF():
             </td>
         </tr>
     </table>
-    $if User.get_username() in course.get_admins():
+    $if User.get_username() in course.get_staff():
         <h3>Administration</h3>
-        $if not course.is_open_to_non_admin():
+        $if not course.is_open_to_non_staff():
             <div class="alert alert-warning" role="alert">
                 This course is currently invisible for students. 
                 You can change this by modifying the "accessible" option in the configuration of the course.
@@ -87,7 +87,8 @@ $def ColumnF():
                 You can change this by modifying the "accessible" option in the configuration of the task.
             </div>
         <a href="/admin/$course.get_id()/task/$task.get_id()" class="btn btn-primary btn-block">Statistics</a>
-        <a href="/admin/$course.get_id()/edit/$task.get_id()" class="btn btn-primary btn-block">Edit task</a>
+        $if User.get_username() in course.get_admins():
+            <a href="/admin/$course.get_id()/edit/$task.get_id()" class="btn btn-primary btn-block">Edit task</a>
     <h3>Submissions</h3>
     <div id="submissions_restrictsize">
 	    <div id="submissions" class="list-group">

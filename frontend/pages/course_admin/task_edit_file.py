@@ -42,7 +42,7 @@ class CourseTaskFiles(object):
         if not id_checker(taskid):
             raise Exception("Invalid task id")
 
-        get_course_and_check_rights(courseid)
+        get_course_and_check_rights(courseid, allow_all_staff=False)
 
         request = web.input()
         if request.get("action") == "download" and request.get('path') is not None:
@@ -63,7 +63,7 @@ class CourseTaskFiles(object):
         if not id_checker(taskid):
             raise Exception("Invalid task id")
 
-        get_course_and_check_rights(courseid)
+        get_course_and_check_rights(courseid, allow_all_staff=False)
 
         request = web.input(file={})
         if request.get("action") == "upload" and request.get('path') is not None and request.get('file') is not None:

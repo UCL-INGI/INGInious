@@ -26,6 +26,7 @@ from frontend.accessible_time import AccessibleTime
 from frontend.base import get_database
 from frontend.custom.tasks import FrontendTask
 from frontend.user_data import UserData
+from frontend.configuration import INGIniousConfiguration
 
 
 class FrontendCourse(Course):
@@ -42,6 +43,7 @@ class FrontendCourse(Course):
         if "name" in self._content and "admins" in self._content and isinstance(self._content["admins"], list):
             self._name = self._content['name']
             self._admins = self._content['admins']
+            self._tutors = self._content.get('tutors', [])
             self._accessible = AccessibleTime(self._content.get("accessible", None))
             self._registration = AccessibleTime(self._content.get("registration", None))
             self._registration_password = self._content.get('registration_password', None)
@@ -56,17 +58,28 @@ class FrontendCourse(Course):
         """ Return the name of this course """
         return self._name
 
-    def get_admins(self):
-        """ Return a list containing the username of the administrators of this course """
-        return self._admins
+    def get_staff(self, with_superadmin=True):
+        """ Returns a list containing the usernames of all the staff users """
+        return list(set(self.get_tutors() + self.get_admins(with_superadmin)))
 
-    def is_open_to_non_admin(self):
+    def get_admins(self, with_superadmin=True):
+        """ Returns a list containing the usernames of the administrators of this course """
+        if with_superadmin:
+            return list(set(self._admins + INGIniousConfiguration.get('superadmins', [])))
+        else:
+            return self._admins
+
+    def get_tutors(self):
+        """ Returns a list containing the usernames of the tutors assigned to this course """
+        return self._tutors
+
+    def is_open_to_non_staff(self):
         """ Returns true if the course is accessible by users that are not administrator of this course """
         return self._accessible.is_open()
 
     def is_open_to_user(self, username):
         """ Returns true if the course is open to this user """
-        return (self._accessible.is_open() and self.is_user_registered(username)) or username in self.get_admins()
+        return (self._accessible.is_open() and self.is_user_registered(username)) or username in self.get_staff()
 
     def is_registration_possible(self, username):
         """ Returns true if users can register for this course """
@@ -98,13 +111,13 @@ class FrontendCourse(Course):
 
     def is_user_registered(self, username):
         """ Returns True if the user is registered """
-        return (get_database().registration.find_one({"username": username, "courseid": self.get_id()}) is not None) or username in self.get_admins()
+        return (get_database().registration.find_one({"username": username, "courseid": self.get_id()}) is not None) or username in self.get_staff()
 
     def get_registered_users(self, with_admins=True):
         """ Get all the usernames that are registered to this course (in no particular order)"""
         l = [entry['username'] for entry in list(get_database().registration.find({"courseid": self.get_id()}, {"username": True, "_id": False}))]
         if with_admins:
-            return list(set(l + self.get_admins()))
+            return list(set(l + self.get_staff()))
         else:
             return l
 

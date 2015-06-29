@@ -98,7 +98,7 @@ class FrontendTask(common.tasks.Task):
 
     def is_visible_by_students(self):
         """ Returns true if the task is accessible by all students that are not administrator of the course """
-        return self.get_course().is_open_to_non_admin() and self._accessible.after_start()
+        return self.get_course().is_open_to_non_staff() and self._accessible.after_start()
 
     def is_visible_by_user(self, username=None):
         """ Returns true if the task is visible by the user """
@@ -106,7 +106,7 @@ class FrontendTask(common.tasks.Task):
             import frontend.user as User
 
             username = User.get_username()
-        return (self.get_course().is_open_to_user(username) and self._accessible.after_start()) or username in self.get_course().get_admins()
+        return (self.get_course().is_open_to_user(username) and self._accessible.after_start()) or username in self.get_course().get_staff()
 
     def can_user_submit(self, username=None):
         """ returns true if the user can submit his work for this task """
@@ -114,7 +114,7 @@ class FrontendTask(common.tasks.Task):
             import frontend.user as User
 
             username = User.get_username()
-        return (self.get_course().is_open_to_user(username) and self._accessible.is_open()) or username in self.get_course().get_admins()
+        return (self.get_course().is_open_to_user(username) and self._accessible.is_open()) or username in self.get_course().get_staff()
 
     def get_deadline(self):
         """ Returns a string containing the deadline for this task """

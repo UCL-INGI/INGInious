@@ -29,14 +29,15 @@ class CourseSettings(object):
 
     def GET(self, courseid):
         """ GET request """
-        course = get_course_and_check_rights(courseid)
+        course, _ = get_course_and_check_rights(courseid, allow_all_staff=False)
         return self.page(course)
 
     def POST(self, courseid):
         """ POST request """
-        course = get_course_and_check_rights(courseid)
+        course, _ = get_course_and_check_rights(courseid, allow_all_staff=False)
 
         errors = []
+        course_content = {}
         try:
             data = web.input()
             course_content = course.get_course_descriptor_content(courseid)
@@ -46,7 +47,9 @@ class CourseSettings(object):
             course_content['admins'] = data['admins'].split(',')
             if User.get_username() not in course_content['admins']:
                 errors.append('You cannot remove yourself from the administrators of this course')
-            course_content['admins'] = data['admins'].split(',')
+            course_content['tutors'] = data['tutors'].split(',')
+            if len(course_content['tutors']) == 1 and course_content['tutors'][0].strip() == "":
+                course_content['tutors'] = []
 
             if data["accessible"] == "custom":
                 course_content['accessible'] = "{}/{}".format(data["accessible_start"], data["accessible_end"])
@@ -88,7 +91,7 @@ class CourseSettings(object):
         if len(errors) == 0:
             course.update_course_descriptor_content(courseid, course_content)
             errors = None
-            course = get_course_and_check_rights(courseid)  # don't forget to reload the modified course
+            course, _ = get_course_and_check_rights(courseid, allow_all_staff=False)  # don't forget to reload the modified course
 
         return self.page(course, errors, errors is None)
 

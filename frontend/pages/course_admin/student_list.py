@@ -28,7 +28,7 @@ class CourseStudentListPage(object):
 
     def GET(self, courseid):
         """ GET request """
-        course = get_course_and_check_rights(courseid)
+        course, _ = get_course_and_check_rights(courseid)
         return self.page(course)
 
     def submission_url_generator(self, course, username):

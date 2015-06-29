@@ -50,18 +50,19 @@ $def ColumnF():
         $else:
             <a class="list-group-item disabled submission-empty">No submissions</a>
     </div>
-    $if User.get_username() in course.get_admins():
-        $if not course.is_open_to_non_admin():
+    $if User.get_username() in course.get_staff():
+        $if not course.is_open_to_non_staff():
             <div class="alert alert-warning" role="alert">
                 This course is currently invisible for students. 
                 You can change this by modifying the "accessibility" option in the configuration of the course.
             </div>
         <a href="/admin/$course.get_id()" class="btn btn-primary btn-block">Manage course</a>
-        <h3>Help</h3>
-        <ul>
-            <li><a href="http://inginious.readthedocs.org/en/latest/teacher_doc/task_tuto.html">How to create a task?</a></li>
-            <li><a href="http://inginious.readthedocs.org/en/latest/teacher_documentation.html">Documentation</a></li>
-        </ul>
+        $if User.get_username() in course.get_admins():
+            <h3>Help</h3>
+            <ul>
+                <li><a href="http://inginious.readthedocs.org/en/latest/teacher_doc/task_tuto.html">How to create a task?</a></li>
+                <li><a href="http://inginious.readthedocs.org/en/latest/teacher_documentation.html">Documentation</a></li>
+            </ul>
     $else:
         <a href="/?unregister_courseid=$course.get_id()">Unregister from this course</a>
 $var Column: $:ColumnF()
