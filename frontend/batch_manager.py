@@ -16,4 +16,5 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
-""" Job managers: send jobs to agent and manage the queues """
+""" Manages batch containers """
+

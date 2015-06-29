@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ JobManagerTest plugin """
-import frontend.submission_manager
+import frontend.backend_interface
 
 
 class JobManagerTest(object):
@@ -25,7 +25,7 @@ class JobManagerTest(object):
 
     def GET(self):
         """ GET request """
-        return str(frontend.submission_manager.get_job_manager().get_waiting_jobs_count())
+        return str(frontend.backend_interface.get_job_manager().get_waiting_jobs_count())
 
 
 def init(plugin_manager, _):

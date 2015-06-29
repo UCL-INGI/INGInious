@@ -89,9 +89,11 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
                     )
                 else:
                     tls_config = True
-                docker_connection = docker.Client(base_url="https://" + daemon['remote_host'] + ":" + str(int(daemon["remote_docker_port"])), tls=tls_config)
+                docker_connection = docker.Client(base_url="https://" + daemon['remote_host'] + ":" + str(int(daemon["remote_docker_port"])),
+                                                  tls=tls_config)
             else:
-                docker_connection = docker.Client(base_url="http://" + daemon['remote_host'] + ":" + str(int(daemon["remote_docker_port"])), tls=False)
+                docker_connection = docker.Client(base_url="http://" + daemon['remote_host'] + ":" + str(int(daemon["remote_docker_port"])),
+                                                  tls=False)
 
             # Verify if the container is available and at the right version
             if not self.is_agent_valid_and_started(docker_connection):

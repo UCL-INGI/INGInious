@@ -68,7 +68,7 @@ class RemoteManualAgentJobManager(AbstractJobManager):
     def start(self):
         # init the synchronization of task directories
         self._last_content_in_task_directory = directory_content_with_hash(get_tasks_directory())
-        threading.Timer((60 if not self._is_testing else 2), self._try_synchronize_task_dir).start()
+        threading.Timer((30 if not self._is_testing else 2), self._try_synchronize_task_dir).start()
 
         # connect to agents
         self._try_agent_connection()
@@ -115,7 +115,7 @@ class RemoteManualAgentJobManager(AbstractJobManager):
                     self._synchronize_task_dir(agent)
 
         if not self._is_testing:
-            threading.Timer(60, self._try_synchronize_task_dir).start()
+            threading.Timer(30, self._try_synchronize_task_dir).start()
 
     def _synchronize_task_dir(self, agent):
         """ Synchronizes the task directory with the remote agent. Steps are:
@@ -221,11 +221,38 @@ class RemoteManualAgentJobManager(AbstractJobManager):
             self._agent_shutdown(agent_id)
             self._execute_job(jobid, task, inputdata, debug)
 
+    def _execute_custom_job(self, jobid, container_name, inputdata):
+        """ Chooses an agent and executes a job on it """
+        agent_id = self._select_agent()
+        if agent_id is None:
+            self._agent_custom_job_ended(jobid,
+                                         {'retval': -1,
+                                          'text': 'There are not any agent available for running this job. '
+                                                  'Please retry later. If this error persists, please contact the course administrator.'},
+                                         None)
+            return
+
+        try:
+            agent = self._agents[agent_id]
+            async_run = rpyc.async(agent.root.create_custom_container)
+            result = async_run(str(jobid), str(container_name), inputdata)
+            self._running_on_agent[agent_id].append(jobid)
+            result.add_callback(lambda r: self._execute_custom_job_callback(jobid, r, agent_id))
+        except:
+            self._agent_shutdown(agent_id)
+            self._execute_custom_job(jobid, container_name, inputdata)
+
     def _agent_job_ended(self, jobid, result, agent_id=None):
         """ Custom _job_ended with more infos """
         if agent_id is not None:
             self._running_on_agent[agent_id].remove(jobid)
         AbstractJobManager._job_ended(self, jobid, result)
+
+    def _agent_custom_job_ended(self, jobid, result, agent_id=None):
+        """ Custom _job_ended with more infos """
+        if agent_id is not None:
+            self._running_on_agent[agent_id].remove(jobid)
+        AbstractJobManager._custom_job_ended(self, jobid, result)
 
     def _execute_job_callback(self, jobid, callback_return_val, agent_id):
         """ Called when an agent is done with a job or raised an exception """
@@ -234,6 +261,25 @@ class RemoteManualAgentJobManager(AbstractJobManager):
             self._agent_job_ended(jobid, {"result": "crash"}, agent_id)
         else:
             self._agent_job_ended(jobid, copy.deepcopy(callback_return_val.value), agent_id)
+
+    def _execute_custom_job_callback(self, jobid, callback_return_val, agent_id):
+        """ Called when an agent is done with a job or raised an exception """
+        if callback_return_val.error:
+            print "Agent {} made an exception while running jobid {}".format(agent_id, jobid)
+            self._agent_custom_job_ended(jobid, {"retval": -1, "stderr": "An error occured in the agent"}, agent_id)
+        else:
+            val = callback_return_val.value
+            if "file" in val:
+                f = val["file"]
+                del val["file"]
+                val = copy.deepcopy(val)
+                tmpfile = tempfile.TemporaryFile()
+                tmpfile.write(f.read())
+                tmpfile.seek(0)
+                val["file"] = tmpfile
+            else:
+                val = copy.deepcopy(val)
+            self._agent_custom_job_ended(jobid, val, agent_id)
 
     def _get_rpyc_server(self, agent_id):
         """ Return a service associated with this JobManager instance """

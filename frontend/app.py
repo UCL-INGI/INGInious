@@ -18,13 +18,12 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Starts the frontend """
 
-import os.path
 import posixpath
 import urllib
 
 import web
 
-from frontend import submission_manager
+from frontend import backend_interface
 import frontend.base
 import frontend.configuration
 from frontend.database_updater import update_database
@@ -78,7 +77,7 @@ def get_app(config_file):
     plugin_manager = PluginManager(appli, frontend.configuration.INGIniousConfiguration.get("plugins", []))
 
     # Plugin Manager is also a Hook Manager
-    submission_manager.init_backend_interface(plugin_manager)
+    backend_interface.init(plugin_manager)
 
     # Loads template_helper
     TemplateHelper()
@@ -87,7 +86,7 @@ def get_app(config_file):
     plugin_manager.load()
 
     # Start the backend
-    submission_manager.start_backend_interface()
+    backend_interface.start()
 
     return appli
 
@@ -117,15 +116,15 @@ class StaticMiddleware:
         return path2
 
 
-def start_app(config_file, app=None):
+def start_app(config_file, hostname="localhost", port=8080, app=None):
     """ Get and start the application. config_file is the path to the configuration file"""
     if app is None:
         app = get_app(config_file)
     wsgifunc = app.wsgifunc()
     wsgifunc = StaticMiddleware(wsgifunc)
     wsgifunc = web.httpserver.LogMiddleware(wsgifunc)
-    server = web.httpserver.WSGIServer(("localhost", 8080), wsgifunc)
-    print "http://%s:%d/" % ("localhost", 8080)
+    server = web.httpserver.WSGIServer((hostname, port), wsgifunc)
+    print "http://%s:%d/" % (hostname, port)
     try:
         server.start()
     except KeyboardInterrupt:

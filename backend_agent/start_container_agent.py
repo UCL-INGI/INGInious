@@ -28,7 +28,7 @@ import logging
 import docker
 from docker.utils import kwargs_from_env
 
-from backend_agent.agent import RemoteAgent
+from backend_agent.remote_agent import RemoteAgent
 import common.base
 
 if __name__ == "__main__":

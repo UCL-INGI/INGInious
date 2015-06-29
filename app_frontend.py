@@ -21,11 +21,22 @@
 
 import frontend.app
 import os
+import argparse
 
 if __name__ == "__main__":
-    if os.path.isfile("./configuration.yaml"):
-        frontend.app.start_app("./configuration.yaml")
-    elif os.path.isfile("./configuration.json"):
-        frontend.app.start_app("./configuration.json")
-    else:
-        raise Exception("No configuration file found")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", help="Path to configuration file. By default: configuration.yaml or configuration.json")
+    parser.add_argument("--host", help="Host to bind to", default="localhost")
+    parser.add_argument("--port", help="Port to listen to", type=int, default=8080)
+    args = parser.parse_args()
+
+    config = None
+    if args.config is None:
+        if os.path.isfile("./configuration.yaml"):
+            config = "./configuration.yaml"
+        elif os.path.isfile("./configuration.json"):
+            config = "./configuration.json"
+        else:
+            raise Exception("No configuration file found")
+
+    frontend.app.start_app(config, hostname=args.host, port=args.port)

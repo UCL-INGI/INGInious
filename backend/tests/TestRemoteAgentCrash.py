@@ -1,4 +1,23 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (c) 2014-2015 Université Catholique de Louvain.
+#
+# This file is part of INGInious.
+#
+# INGInious is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# INGInious is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public
+# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Theses tests checks that the backend is bad-agent-proof """
+
 import time
 
 from backend.tests.TestJobManager import TestWithFakeRemoteAgent
@@ -45,7 +64,9 @@ class TestRemoteAgentTaskUpdateCrash2(TestWithFakeRemoteAgent):
 
     def test_exception_task_2(self):
         time.sleep(5)  # allow the exception to propagate through the different thread linked via RPyC
+
         # If this, runs, it's ok!
         self.job_manager.new_job(Course('test').get_task('do_run'), {"problem_1": "1"}, self.default_callback)
         result = self.wait_for_callback()
-        assert "result" in result and result["result"] == "success"
+        assert "result" in result
+        assert result["result"] == "success"
