@@ -45,9 +45,28 @@ class LocalAgent(SimpleAgent):
         t.daemon = True
         t.start()
 
+    def new_custom_job(self, job_id, container_name, input_data, callback):
+        """ Creates, executes and returns the results of a custom container.
+            The return value of a custom container is always a compressed(gz) tar file.
+        :param job_id: The distant job id
+        :param container_name: The container image to launch
+        :param input_data: Input (.tgz file) to be mounted (unarchived) on /input
+        :param callback: the callback that will be called when the custom job is done
+        """
+        t = threading.Thread(target=lambda: self._create_custom_container_threaded(job_id, container_name, input_data, callback))
+        t.daemon = True
+        t.start()
+
     def _handle_job_threaded(self, job_id, course_id, task_id, inputdata, debug, callback_status, final_callback):
         try:
             result = self.handle_job(job_id, course_id, task_id, inputdata, debug, callback_status)
             final_callback(result)
         except:
             final_callback({"result": "crash"})
+
+    def _create_custom_container_threaded(self, job_id, container_name, input_data, callback):
+        try:
+            result = self.create_custom_container(job_id, container_name, input_data)
+            callback(result)
+        except:
+            callback({"retval": -1, "stderr": "Unknown error"})

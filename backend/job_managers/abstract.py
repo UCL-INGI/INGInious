@@ -47,6 +47,7 @@ class AbstractJobManager(object):
         self._image_aliases = image_aliases
         self._hook_manager = HookManager() if hook_manager is None else hook_manager
         self._running_job_data = {}
+        self._running_custom_job_data = {}
 
         print "Job Manager initialization done"
         self._hook_manager.call_hook("job_manager_init_done", job_manager=self)
@@ -63,7 +64,15 @@ class AbstractJobManager(object):
         :param task:  The Task instance linked to the job to run
         :param inputdata: Input given by the student
         :param debug: Boolean indicating if the job should be run with the debug status
-        :return:
+        """
+        pass
+
+    @abstractmethod
+    def _execute_custom_job(self, jobid, container_name, inputdata):
+        """ Executes a custom job in the specified Docker container, then calls self._custom_job_ended with the result.
+        :param jobid: The job id
+        :param container_name:  The name of the container to run
+        :param inputdata: tgz file
         """
         pass
 
@@ -92,6 +101,32 @@ class AbstractJobManager(object):
             print "JobManager failed to call the callback function for jobid {}: {}".format(jobid, repr(e))
 
         self._hook_manager.call_hook("job_ended", jobid=jobid, task=task, statinfo=statinfo, result=final_result)
+
+    def _custom_job_ended(self, jobid, result):
+        """ Called when a custom job is done. results is a dictionnary, containing:
+
+            - {"retval":0, "stdout": "...", "stderr":"...", "file":"..."}
+                if everything went well. (where file is a tgz file containing the content of the /output folder from the container)
+            - {"retval":"...", "stdout": "...", "stderr":"..."}
+                if the container crashed (retval is an int != 0)
+            - {"retval":-1, "stderr": "the error message"}
+                if the container failed to start
+        """
+        container_name, callback, _, statinfo = self._running_custom_job_data[jobid]
+
+        # Deletes from data structures
+        del self._running_job_data[jobid]
+
+        # Deepcopy result (to bypass RPyC "reference")
+        result = copy.deepcopy(result)
+
+        # Call the callback
+        try:
+            callback(jobid, result)
+        except Exception as e:
+            print "JobManager failed to call the callback function for jobid {}: {}".format(jobid, repr(e))
+
+        self._hook_manager.call_hook("custom_job_ended", jobid=jobid, statinfo=statinfo, result=result)
 
     @classmethod
     def _merge_results(cls, origin_dict, emul_result):
@@ -170,6 +205,10 @@ class AbstractJobManager(object):
         """Returns the total number of waiting jobs in the Job Manager"""
         return len(self._running_job_data)
 
+    def get_waiting_custom_jobs_count(self):
+        """Returns the total number of waiting jobs in the Job Manager"""
+        return len(self._running_custom_job_data)
+
     def new_job_id(self):
         """ Returns a new job id. The job id is unique and should be passed to the new_job function """
         return uuid.uuid4()
@@ -201,5 +240,21 @@ class AbstractJobManager(object):
             self._execute_job(jobid, task, inputdata, debug)
         else:  # If we only have questions that do not need to be "runned", simply directly return the answer
             self._job_ended(jobid, None)
+
+        return jobid
+
+    def new_custom_job(self, container_name, inputdata, callback, launcher_name="Unknown", jobid=None):
+        """ Add a new custom job. callback is a function that will be called asynchronously in the job manager's process.
+            inputdata is a tgz file.
+        """
+        if jobid is None:
+            jobid = self.new_job_id()
+
+        # Compute some informations that will be useful for statistics
+        statinfo = {"launched": time.time(), "launcher_name": launcher_name}
+        self._running_custom_job_data[jobid] = (container_name, callback, inputdata, statinfo)
+        self._hook_manager.call_hook("new_custom_job", jobid=jobid, statinfo=statinfo, inputdata=inputdata)
+
+        self._execute_custom_job(jobid, container_name, inputdata)
 
         return jobid

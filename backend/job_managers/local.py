@@ -36,5 +36,8 @@ class LocalJobManager(AbstractJobManager):
     def _execute_job(self, jobid, task, inputdata, debug):
         self._agent.new_job(jobid, task.get_course_id(), task.get_id(), inputdata, debug, None, lambda result: self._job_ended(jobid, result))
 
+    def _execute_custom_job(self, jobid, container_name, inputdata):
+        self._agent.new_custom_job(jobid, container_name, inputdata, lambda result: self._custom_job_ended(jobid, result))
+
     def close(self):
         pass
