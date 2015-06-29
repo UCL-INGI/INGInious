@@ -118,6 +118,24 @@ Each time you have to run INGInious, don't forget to start docker-osx by running
 
 	$ docker-osx start
 
+
+Windows 7+
+``````````
+
+Download and install python_, boot2docker_ and mongodb_. Then proceed to the installation of the following Python
+plugins :
+
+.. _python: https://www.python.org/
+.. _boot2docker: http://boot2docker.io/
+.. _mongodb: https://www.mongodb.org/
+
+::
+
+    C:\> pip install pymongo pytidylib docker-py pbs web.py docutils simpleldap pyyaml rpyc
+
+Boot2docker and MongoDB must be running to run INGInious. To run MongoDB as a service, please refer to th appropriate
+documentation.
+
 Installation of INGInious
 -------------------------
 

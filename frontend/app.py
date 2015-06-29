@@ -105,7 +105,7 @@ class StaticMiddleware:
         path = self.normpath(path)
 
         if path.startswith(self.prefix):
-            environ["PATH_INFO"] = os.path.join(self.root_path, web.lstrips(path, self.prefix))
+            environ["PATH_INFO"] = self.root_path + "/" + web.lstrips(path, self.prefix)
             return web.httpserver.StaticApp(environ, start_response)
         else:
             return self.app(environ, start_response)
