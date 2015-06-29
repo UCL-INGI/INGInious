@@ -86,7 +86,8 @@ class CGroupMemoryWatcher(threading.Thread):
 
         cg = cgroup.get_cgroup(os.path.join(self._docker_memory, container_id))
         with self._containers_running_lock:
-            self._containers_running[container_id] = {"eventlistener": cgroup.EventListener(cg, 'memory.oom_control'),#'memory.memsw.usage_in_bytes'),
+            self._containers_running[container_id] = {"eventlistener": cgroup.EventListener(cg, 'memory.oom_control'),
+                                                      # 'memory.memsw.usage_in_bytes'),
                                                       "killed": False,
                                                       "max_memory": max_memory * 1024 * 1024}
             self._containers_running[container_id]["eventlistener"].register([max_memory * 1024 * 1024])

@@ -24,6 +24,8 @@ import os.path
 from shutil import rmtree, copytree
 import thread
 import threading
+import tempfile
+import tarfile
 
 import docker
 from docker.utils import kwargs_from_env
@@ -32,8 +34,7 @@ import rpyc
 from backend_agent._rpyc_unix_server import UnixSocketServer
 import common.base
 from common.courses import Course
-import tempfile
-import tarfile
+
 
 class SimpleAgent(object):
     """
@@ -171,7 +172,7 @@ class SimpleAgent(object):
         try:
             tmpfile = tempfile.TemporaryFile()
             tar = tarfile.open(fileobj=tmpfile, mode='w:gz')
-            tar.add(output_path,'/',True)
+            tar.add(output_path, '/', True)
             tar.close()
             tmpfile.flush()
             tmpfile.seek(0)

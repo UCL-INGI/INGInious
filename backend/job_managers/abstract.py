@@ -18,7 +18,6 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Contains the class AbstractJobManager, which is the basic implementation of the backend """
 
-import copy
 import signal
 import time
 import uuid
