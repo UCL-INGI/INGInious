@@ -19,12 +19,12 @@ $# License along with INGInious.  If not, see
 <http://www.gnu.org/licenses/>.
 
 $def sizeof_fmt(num):
-$ num=float(num)
-$for x in ['bytes','KB','MB','GB']:
-$if -1024 < num < 1024:
-$return "%3.1f%s" % (num, x)
-$ num /= 1024.0
-$return "%3.1f%s" % (num, 'TB')
+  $num=float(num)
+  $for x in ['bytes','KB','MB','GB']:
+    $if -1024 < num < 1024:
+      $return "%3.1f%s" % (num, x)
+    $num /= 1024.0
+  $return "%3.1f%s" % (num, 'TB')
 
 <a href="" id="download-input-file-$inputId" style="display:none; margin-bottom: 10px;" class="btn btn-info btn-block">Click here to download the file
     you submitted previously</a>
