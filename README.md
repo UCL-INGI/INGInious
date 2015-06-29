@@ -3,6 +3,7 @@ INGInious
 
 [![Build Status](https://travis-ci.org/UCL-INGI/INGInious.svg?branch=master)](https://travis-ci.org/UCL-INGI/INGInious)
 [![Code Health](https://landscape.io/github/UCL-INGI/INGInious/master/landscape.svg?style=flat)](https://landscape.io/github/UCL-INGI/INGInious/master)
+[![Documentation Status](https://readthedocs.org/projects/inginious/badge/?version=latest)](https://readthedocs.org/projects/inginious/?badge=latest)
 [![Join the chat at https://gitter.im/UCL-INGI/INGInious](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/UCL-INGI/INGInious?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 <img align="right" src="frontend/static/images/logo.png" alt="logo">
