@@ -16,24 +16,18 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
-""" Agent, managing docker """
+""" Agent, managing docker (abstract agent) """
 
-import copy
 import json
 import logging
 import os.path
 from shutil import rmtree, copytree
 import thread
 import threading
-import tarfile
-
-import tempfile
 
 import docker
-
 from docker.utils import kwargs_from_env
 import rpyc
-from rpyc.utils.server import ThreadedServer
 
 from backend_agent._rpyc_unix_server import UnixSocketServer
 import common.base
@@ -381,143 +375,3 @@ class SimpleAgent(object):
                 return None
 
         return StudentContainerManagementService
-
-
-class RemoteAgent(SimpleAgent):
-    """
-        An agent that can be called remotely via RPyC.
-        It can handle multiple requests at a time, but RPyC calls have to be made using the ```async``` function.
-    """
-
-    def __init__(self, port, tmp_dir="./agent_tmp", sync_enabled=True):
-        SimpleAgent.__init__(self, tmp_dir)
-        self.sync_enabled = sync_enabled
-        self.logger.debug("Starting RPyC server - backend connection")
-        self._backend_server = ThreadedServer(self._get_agent_backend_service(), port=port,
-                                              protocol_config={"allow_public_attrs": True, 'allow_pickle': True})
-        self._backend_server.start()
-
-    def _update_image_aliases(self, image_aliases):
-        """ Updates the image aliases list """
-        self.image_aliases = image_aliases
-
-    def _get_agent_backend_service(self):
-        """ Returns a RPyC service associated with this Agent """
-        handle_job = self.handle_job
-        update_image_aliases = self._update_image_aliases
-        sync_enabled = self.sync_enabled
-        logger = self.logger
-
-        class AgentService(rpyc.Service):
-            def __init__(self, conn):
-                logger.info("Backend connected")
-                rpyc.Service.__init__(self, conn)
-
-            def exposed_update_image_aliases(self, image_aliases):
-                """ Updates the image aliases """
-                logger.info("Updating image aliases...")
-                update_image_aliases(copy.deepcopy(image_aliases))
-
-            def exposed_new_job(self, job_id, course_id, task_id, inputdata, debug, callback_status):
-                """ Creates, executes and returns the results of a new job (in a separate thread, distant version)
-                :param job_id: The distant job id
-                :param course_id: The course id of the linked task
-                :param task_id: The task id of the linked task
-                :param inputdata: Input data, given by the student (dict)
-                :param debug: A boolean, indicating if the job should be run in debug mode or not
-                :param callback_status: Not used, should be None.
-                """
-
-                # Deepcopy inputdata (to bypass "passage by reference" of RPyC)
-                inputdata = copy.deepcopy(inputdata)
-
-                return handle_job(job_id, course_id, task_id, inputdata, debug, callback_status)
-
-            def exposed_get_task_directory_hashes(self):
-                """ Get the list of files from the local task directory
-                :return: a dict in the form {path: (hash of the file, stat of the file)} containing all the files
-                         from the local task directory, with their hash, or None if sync is disabled.
-                """
-                if sync_enabled:
-                    logger.info("Getting the list of files from the local task directory for the backend.")
-                    return common.base.directory_content_with_hash(common.base.get_tasks_directory())
-                else:
-                    logger.info("Warning the backend that sync is disabled.")
-                    return None
-
-            def exposed_update_task_directory(self, remote_tar_file, to_delete):
-                """ Updates the local task directory
-                :param tarfile: a compressed tar file that contains files that needs to be updated on this agent
-                :param to_delete: a list of path to file to delete on this agent
-                """
-                if sync_enabled:
-                    logger.info("Updating task directory...")
-                    # Copy the remote tar archive locally
-                    tmpfile = tempfile.TemporaryFile()
-                    tmpfile.write(remote_tar_file.read())
-                    tmpfile.seek(0)
-                    tar = tarfile.open(fileobj=tmpfile, mode='r:gz')
-
-                    # Verify security of the tar archive
-                    bd = os.path.abspath(common.base.get_tasks_directory())
-                    for n in tar.getnames():
-                        if not os.path.abspath(os.path.join(bd, n)).startswith(bd):
-                            logger.error("Tar file given by the backend is invalid!")
-                            return
-
-
-                    # Verify security of the list of file to delete
-                    for n in to_delete:
-                        if not os.path.abspath(os.path.join(bd, n)).startswith(bd):
-                            logger.error("Delete file list given by the backend is invalid!")
-                            return
-
-                    # Extract the tar file
-                    tar.extractall(common.base.get_tasks_directory())
-                    tar.close()
-                    tmpfile.close()
-
-                    # Delete unneeded files
-                    for n in to_delete:
-                        c_path = os.path.join(common.base.get_tasks_directory(), n)
-                        if os.path.exists(c_path):
-                            if os.path.isdir(c_path):
-                                rmtree(c_path)
-                            else:
-                                os.unlink(c_path)
-
-                    logger.info("Task directory updated")
-                else:
-                    logger.warning("Backend tried to sync tasks files while sync is disabled!")
-
-        return AgentService
-
-
-class LocalAgent(SimpleAgent):
-    """ An agent made to be run locally (launched directly by the backend). It can handle multiple requests at a time. """
-
-    def __init__(self, image_aliases, tmp_dir="./agent_tmp"):
-        SimpleAgent.__init__(self, tmp_dir)
-        self.image_aliases = image_aliases
-
-    def new_job(self, job_id, course_id, task_id, inputdata, debug, callback_status, final_callback):
-        """ Creates, executes and returns the results of a new job (in a separate thread)
-        :param job_id: The distant job id
-        :param course_id: The course id of the linked task
-        :param task_id: The task id of the linked task
-        :param inputdata: Input data, given by the student (dict)
-        :param debug: A boolean, indicating if the job should be run in debug mode or not
-        :param callback_status: Not used, should be None.
-        :param final_callback: Callback function called when the job is done; one argument: the result.
-        """
-
-        t = threading.Thread(target=lambda: self._handle_job_threaded(job_id, course_id, task_id, inputdata, debug, callback_status, final_callback))
-        t.daemon = True
-        t.start()
-
-    def _handle_job_threaded(self, job_id, course_id, task_id, inputdata, debug, callback_status, final_callback):
-        try:
-            result = self.handle_job(job_id, course_id, task_id, inputdata, debug, callback_status)
-            final_callback(result)
-        except:
-            final_callback({"result": "crash"})

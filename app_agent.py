@@ -21,7 +21,7 @@
 
 import logging
 import os
-from backend_agent.agent import RemoteAgent
+from backend_agent.remote_agent import RemoteAgent
 import common.base
 import argparse
 
