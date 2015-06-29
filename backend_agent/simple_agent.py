@@ -32,7 +32,8 @@ import rpyc
 from backend_agent._rpyc_unix_server import UnixSocketServer
 import common.base
 from common.courses import Course
-
+import tempfile
+import tarfile
 
 class SimpleAgent(object):
     """
@@ -63,6 +64,123 @@ class SimpleAgent(object):
         self._internal_job_count_lock = threading.Lock()
         self._internal_job_count = 0
 
+    def _get_new_internal_job_id(self):
+        """ Get a new internal job id """
+        self._internal_job_count_lock.acquire()
+        internal_job_id = self._internal_job_count
+        self._internal_job_count += 1
+        self._internal_job_count_lock.release()
+        return internal_job_id
+
+    def create_custom_container(self, job_id, container_name, input_data):
+        """ Creates, executes and returns the results of a custom container.
+            The return value of a custom container is always a compressed(gz) tar file.
+        :param job_id: The distant job id
+        :param container_name: The container image to launch
+        :param input_data: Input (.tgz file) to be mounted (unarchived) on /input
+        :return: a dict, containing either:
+            - {"retval":0, "stdout": "...", "stderr":"...", "file":"..."}
+                if everything went well. (where file is a tgz file containing the content of the /output folder from the container)
+            - {"retval":"...", "stdout": "...", "stderr":"..."}
+                if the container crashed (retval is an int != 0)
+            - {"retval":-1, "stderr": "the error message"}
+                if the container failed to start
+        """
+        self.logger.info("Received request for jobid %s (custom container)", job_id)
+        internal_job_id = self._get_new_internal_job_id()
+        self.logger.debug("New Internal job id -> %i", internal_job_id)
+
+        # Initialize connection to Docker
+        try:
+            docker_connection = docker.Client(**kwargs_from_env())
+        except:
+            self.logger.warning("Cannot connect to Docker!")
+            return {'retval': -1, "stderr": "Failed to connect to Docker"}
+
+        container_path = os.path.join(self.tmp_dir, str(internal_job_id))  # tmp_dir/id/
+        input_path = os.path.join(container_path, 'input')  # tmp_dir/id/input/
+        output_path = os.path.join(container_path, 'output')  # tmp_dir/id/output/
+        try:
+            rmtree(container_path)
+        except:
+            pass
+
+        os.mkdir(container_path)
+        os.mkdir(input_path)
+        os.mkdir(output_path)
+        os.chmod(container_path, 0777)
+        os.chmod(input_path, 0777)
+        os.chmod(output_path, 0777)
+
+        try:
+            tar = tarfile.open(fileobj=input_data, mode='r:gz')
+            for n in tar.names:
+                if not os.path.abspath(os.path.join(input_path, n)).startswith(input_path):
+                    raise Exception("Invalid paths!")
+            tar.extractall(input_path)
+        except:
+            rmtree(container_path)
+            return {'retval': -1, "stderr": 'Invalid tgz for input'}
+
+        # Run the container
+        try:
+            response = docker_connection.create_container(
+                container_name,
+                volumes={'/input': {}, '/output': {}}
+            )
+            container_id = response["Id"]
+
+            # Start the container
+            docker_connection.start(container_id,
+                                    binds={os.path.abspath(input_path): {'ro': False, 'bind': '/input'},
+                                           os.path.abspath(output_path): {'ro': False, 'bind': '/output'}})
+        except Exception as e:
+            self.logger.warning("Cannot start container! %s", str(e))
+            rmtree(container_path)
+            return {'retval': -1, "stderr": 'Cannot start container'}
+
+        # Wait for completion
+        return_value = -1
+        try:
+            return_value = docker_connection.wait(container_id)
+        except:
+            self.logger.info("Container for job id %s crashed", job_id)
+
+        # If docker cannot do anything...
+        if return_value == -1:
+            rmtree(container_path)
+            return {'retval': -1, "stderr": 'Container crashed at startup'}
+
+        # Get logs back
+        stdout = ""
+        stderr = ""
+        try:
+            stdout = str(docker_connection.logs(container_id, stdout=True, stderr=False))
+            stderr = str(docker_connection.logs(container_id, stdout=True, stderr=False))
+        except:
+            self.logger.warning("Cannot get back stdout of container %s!", container_id)
+            rmtree(container_path)
+            return {'retval': -1, "stderr": 'Cannot retrieve stdout/stderr from container'}
+
+        # If something went wrong, we can return now
+        if return_value != 0:
+            rmtree(container_path)
+            return {'retval': return_value, "stdout": stdout, "stderr": stderr}
+
+        # Else, we can tgz the files in /output
+        try:
+            tmpfile = tempfile.TemporaryFile()
+            tar = tarfile.open(fileobj=tmpfile, mode='w:gz')
+            tar.add(output_path,'/',True)
+            tar.close()
+            tmpfile.flush()
+            tmpfile.seek(0)
+        except:
+            rmtree(container_path)
+            return {'retval': -1, "stderr": 'The agent was unable to archive the /output directory'}
+
+        return {'retval': return_value, "stdout": stdout, "stderr": stderr, "file": tmpfile}
+
     def handle_job(self, job_id, course_id, task_id, inputdata, debug, callback_status):
         """ Creates, executes and returns the results of a new job
         :param job_id: The distant job id
@@ -73,12 +191,7 @@ class SimpleAgent(object):
         :param callback_status: Not used, should be None.
         """
         self.logger.info("Received request for jobid %s", job_id)
-
-        # Get the internal job count
-        self._internal_job_count_lock.acquire()
-        internal_job_id = self._internal_job_count
-        self._internal_job_count += 1
-        self._internal_job_count_lock.release()
+        internal_job_id = self._get_new_internal_job_id()
         self.logger.debug("New Internal job id -> %i", internal_job_id)
 
         # Initialize connection to Docker
@@ -168,8 +281,7 @@ class SimpleAgent(object):
                                            os.path.abspath(sockets_path): {'ro': False, 'bind': '/sockets'}},
                                     mem_limit=mem_limit * 1024 * 1024,
                                     memswap_limit=mem_limit * 1024 * 1024,  # disable swap
-                                    oom_kill_disable=True
-                                    )
+                                    oom_kill_disable=True)
 
             # Send the input data
             container_input = {"input": inputdata, "limits": limits}
