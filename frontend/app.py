@@ -23,7 +23,7 @@ import urllib
 
 import web
 
-from frontend import submission_manager
+from frontend import backend_interface
 import frontend.base
 import frontend.configuration
 from frontend.database_updater import update_database
@@ -77,7 +77,7 @@ def get_app(config_file):
     plugin_manager = PluginManager(appli, frontend.configuration.INGIniousConfiguration.get("plugins", []))
 
     # Plugin Manager is also a Hook Manager
-    submission_manager.init_backend_interface(plugin_manager)
+    backend_interface.init(plugin_manager)
 
     # Loads template_helper
     TemplateHelper()
@@ -86,7 +86,7 @@ def get_app(config_file):
     plugin_manager.load()
 
     # Start the backend
-    submission_manager.start_backend_interface()
+    backend_interface.start()
 
     return appli
 

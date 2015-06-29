@@ -25,7 +25,7 @@ import web
 from backend.helpers.job_manager_buffer import JobManagerBuffer
 from backend.helpers.job_manager_sync import JobManagerSync
 from common.courses import Course
-import frontend.submission_manager
+import frontend.backend_interface
 
 
 def init(plugin_manager, config):
@@ -129,8 +129,8 @@ def init(plugin_manager, config):
     page_pattern = config.get('page_pattern', '/external')
     return_fields = re.compile(config.get('return_fields', '^(result|text|problems)$'))
 
-    job_manager_buffer = JobManagerBuffer(frontend.submission_manager.get_job_manager())
-    job_manager_sync = JobManagerSync(frontend.submission_manager.get_job_manager())
+    job_manager_buffer = JobManagerBuffer(frontend.backend_interface.get_job_manager())
+    job_manager_sync = JobManagerSync(frontend.backend_interface.get_job_manager())
 
     class ExternalGrader(object):
 
