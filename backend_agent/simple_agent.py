@@ -115,7 +115,7 @@ class SimpleAgent(object):
 
         try:
             tar = tarfile.open(fileobj=input_data, mode='r:gz')
-            for n in tar.names:
+            for n in tar.getnames():
                 if not os.path.abspath(os.path.join(input_path, n)).startswith(input_path):
                     raise Exception("Invalid paths!")
             tar.extractall(input_path)

@@ -18,7 +18,6 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Starts the frontend """
 
-import os.path
 import posixpath
 import urllib
 

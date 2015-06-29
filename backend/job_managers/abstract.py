@@ -111,7 +111,7 @@ class AbstractJobManager(object):
         container_name, callback, _, statinfo = self._running_custom_job_data[jobid]
 
         # Deletes from data structures
-        del self._running_job_data[jobid]
+        del self._running_custom_job_data[jobid]
 
         # Call the callback
         try:

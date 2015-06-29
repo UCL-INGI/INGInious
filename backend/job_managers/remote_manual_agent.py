@@ -268,7 +268,18 @@ class RemoteManualAgentJobManager(AbstractJobManager):
             print "Agent {} made an exception while running jobid {}".format(agent_id, jobid)
             self._agent_custom_job_ended(jobid, {"retval": -1, "stderr": "An error occured in the agent"}, agent_id)
         else:
-            self._agent_custom_job_ended(jobid, copy.deepcopy(callback_return_val.value), agent_id)
+            val = callback_return_val.value
+            if "file" in val:
+                f = val["file"]
+                del val["file"]
+                val = copy.deepcopy(val)
+                tmpfile = tempfile.TemporaryFile()
+                tmpfile.write(f.read())
+                tmpfile.seek(0)
+                val["file"] = tmpfile
+            else:
+                val = copy.deepcopy(val)
+            self._agent_custom_job_ended(jobid, val, agent_id)
 
     def _get_rpyc_server(self, agent_id):
         """ Return a service associated with this JobManager instance """
