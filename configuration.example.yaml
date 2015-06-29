@@ -14,6 +14,7 @@ docker_daemons:
     remote_agent_port: 63456 ##A mandatory port used by the backend and the agent that will be automatically started. Needs to be available on the
                              ##remote host, and to be open in the firewall.
     ##does the remote docker requires tls? Defaults to false
+    ##parameter can be set to true or path to the certificates
     #use_tls: false
     ##link to the docker daemon *from the host that runs the docker daemon*. Defaults to:
     #local_location: "unix:///var/run/docker.sock"
