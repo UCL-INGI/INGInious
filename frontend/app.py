@@ -117,15 +117,15 @@ class StaticMiddleware:
         return path2
 
 
-def start_app(config_file, app=None):
+def start_app(config_file, hostname="localhost", port=8080, app=None):
     """ Get and start the application. config_file is the path to the configuration file"""
     if app is None:
         app = get_app(config_file)
     wsgifunc = app.wsgifunc()
     wsgifunc = StaticMiddleware(wsgifunc)
     wsgifunc = web.httpserver.LogMiddleware(wsgifunc)
-    server = web.httpserver.WSGIServer(("localhost", 8080), wsgifunc)
-    print "http://%s:%d/" % ("localhost", 8080)
+    server = web.httpserver.WSGIServer((hostname, port), wsgifunc)
+    print "http://%s:%d/" % (hostname, port)
     try:
         server.start()
     except KeyboardInterrupt:
