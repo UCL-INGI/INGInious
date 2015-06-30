@@ -17,12 +17,11 @@
 // License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 
 /* Mixins */
-.blur(@size)
-{
-    -webkit-filter: blur(@size); 
-    -moz-filter: blur(@size); 
-    -o-filter: blur(@size); 
-    -ms-filter: blur(@size); 
+.blur(@size) {
+    -webkit-filter: blur(@size);
+    -moz-filter: blur(@size);
+    -o-filter: blur(@size);
+    -ms-filter: blur(@size);
     filter: blur(@size);
 }
 
@@ -31,25 +30,24 @@
 
 .navbar-brand
 {
-	font-family: 'Yanone Kaffeesatz', sans-serif;
-	font-weight: 300;
-	font-size: 32px;
-	
-	img
-	{
-		height: 50px;
-		margin-top: -15px;
-		vertical-align: top;
-	}
+    font-family: 'Yanone Kaffeesatz', sans-serif;
+    font-weight: 300;
+    font-size: 32px;
+
+    img
+    {
+        height: 50px;
+        margin-top: -15px;
+        vertical-align: top;
+    }
 }
 
-.transition(@transition)
-{
-    -webkit-transition: @transition;  
-    -moz-transition:    @transition;
-    -ms-transition:     @transition; 
-    -o-transition:      @transition;  
-    transition:         @transition;
+.transition(@transition) {
+    -webkit-transition: @transition;
+    -moz-transition: @transition;
+    -ms-transition: @transition;
+    -o-transition: @transition;
+    transition: @transition;
 }
 
 /*Fixes for bootstrap*/
@@ -62,28 +60,28 @@
 
 .table td.td-collapse
 {
-	padding: 0;
-	border:none;
-	
-	background-color: #f9f9f9;
-	
-	> div
-	{
-		border-top: 1px solid #dddddd;
-		border-left: 1px solid black;
-		padding-left: 50px;
-		padding-right: 0px;
-		table.table
-		{
-			margin-top: 0px;
-			margin-bottom: 10px;
-		}
-	}
+    padding: 0;
+    border: none;
+
+    background-color: #f9f9f9;
+
+    > div
+    {
+        border-top: 1px solid #dddddd;
+        border-left: 1px solid black;
+        padding-left: 50px;
+        padding-right: 0px;
+        table.table
+        {
+            margin-top: 0px;
+            margin-bottom: 10px;
+        }
+    }
 }
 
 .progress-bar[aria-valuenow]
 {
-	min-width: 30px;
+    min-width: 30px;
 }
 
 /* Other */
@@ -95,7 +93,7 @@
 label p
 {
     margin: 0;
-    padding :0;
+    padding: 0;
 }
 
 input.monospace
@@ -105,32 +103,32 @@ input.monospace
 
 #sidebar
 {
-	&.affix
-	{
-		right: 0;
-		top: 0;
-		padding-right: 30px;
-		padding-left: 7px;
-	}
-	
-	@media screen and (max-width: 768px)
-	{
-		position:static !important;
-	}
+    &.affix
+    {
+        right: 0;
+        top: 0;
+        padding-right: 30px;
+        padding-left: 7px;
+    }
+
+    @media screen and (max-width: 768px)
+    {
+        position: static !important;
+    }
 }
 
 form#task
 {
     .transition(all 0.3s ease-in-out);
-    
+
     &.form-blur
     {
-    	.blur(5px);
+        .blur(5px);
     }
-    
+
     #task-submit
     {
-    	margin-top: 10px;
+        margin-top: 10px;
     }
 }
 
@@ -142,36 +140,36 @@ form#task
 
 #submissions .submission
 {
-	cursor: pointer;
+    cursor: pointer;
 }
 
 .index-logo
 {
-	position: absolute; 
-	right: 0;
-	img
-	{
-		width: 100%;
-		max-width: 300px;
-	}
+    position: absolute;
+    right: 0;
+    img
+    {
+        width: 100%;
+        max-width: 300px;
+    }
 }
 
 #task_debug
 {
-	dd
-	{
-		border-left: 1px solid #ccc;
-		padding-left: 20px;
-		min-height: 20px;
-		
-		text-overflow: ellipsis;
-		overflow: hidden;
-		
-		dl
-		{
-			margin-bottom: 0;
-		}
-	}
+    dd
+    {
+        border-left: 1px solid #cccccc;
+        padding-left: 20px;
+        min-height: 20px;
+
+        text-overflow: ellipsis;
+        overflow: hidden;
+
+        dl
+        {
+            margin-bottom: 0;
+        }
+    }
 }
 
 #edit_task_tabs
@@ -179,27 +177,27 @@ form#task
     margin-bottom: 15px;
 }
 
-.nav-tabs>li.studio_file_editor_tab
+.nav-tabs > li.studio_file_editor_tab
 {
-    float:right;
+    float: right;
 
     a
     {
         background-color: #3498db !important;
         color: white;
-        
+
         &:hover
         {
             background-color: #217dbb !important;
         }
-        
+
         .close
         {
             font-size: 18px;
             margin-left: 5px;
         }
     }
-    
+
     &.active a, &.active a:hover
     {
         background-color: #3498db !important;
@@ -207,26 +205,38 @@ form#task
     }
 }
 
+#batch_table
+{
+    tr td
+    {
+        vertical-align: middle;
+    }
+    .batch-status-icon
+    {
+        text-align: center;
+    }
+}
+
 /* Footer */
 html, body
 {
-	height: 100%;
+    height: 100%;
 }
 
 #wrapper
 {
-	min-height: 100%;
-	height: auto !important;
-	height: 100%;
-	margin: 0 auto -81px;
+    min-height: 100%;
+    height: auto !important;
+    height: 100%;
+    margin: 0 auto -81px;
 }
 
 #footer, .footer_push
 {
-	padding-top:21px;
-	height: 81px;
-	.navbar
-	{
-		margin-bottom: 0;
-	}
+    padding-top: 21px;
+    height: 81px;
+    .navbar
+    {
+        margin-bottom: 0;
+    }
 }

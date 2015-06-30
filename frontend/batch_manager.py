@@ -26,6 +26,7 @@ from frontend.submission_manager import get_submission_archive
 import os
 import tempfile
 import tarfile
+from datetime import datetime
 
 def _get_course_data(course):
     """ Returns a file-like object to a tgz archive of the course files """
@@ -34,6 +35,7 @@ def _get_course_data(course):
     tar = tarfile.open(fileobj=tmpfile, mode='w:gz')
     tar.add(dir_path,"/",True)
     tar.close()
+    tmpfile.seek(0)
     return tmpfile
 
 def _get_submissions_data(course):
@@ -62,6 +64,24 @@ def get_batch_container_metadata(container_name):
         raise Exception("This batch container is not allowed to be started")
 
     return get_job_manager().get_batch_container_metadata(container_name)
+
+def get_all_batch_containers_metadata():
+    """
+        Returns the arguments needed for all batch containers.
+        :returns: a dict, containing as keys the container image names, and as value tuples in the form
+            ("container title",
+             "container description in restructuredtext",
+             {"key":
+                {
+                 "type:" "file", #or "text",
+                 "path": "path/to/file/inside/input/dir", #not mandatory in file, by default "key"
+                 "name": "name of the field", #not mandatory in file, default "key"
+                 "description": "a short description of what this field is used for" #not mandatory, default ""
+                }
+             }
+            )
+    """
+    return {container_name:get_batch_container_metadata(container_name) for container_name in INGIniousConfiguration.get("batch_containers", [])}
 
 def add_batch_job(course, container_name, inputdata, launcher_name=None, skip_permission=False):
     """
@@ -94,18 +114,18 @@ def add_batch_job(course, container_name, inputdata, launcher_name=None, skip_pe
     if "submissions" in container_args and container_args["submissions"]["type"] == "file" and "submissions" not in inputdata:
         inputdata["submissions"] = _get_submissions_data(course)
 
-    obj = {"courseid": course.get_id(), 'container_name': container_name}
+    obj = {"courseid": course.get_id(), 'container_name': container_name, "submitted_on": datetime.now()}
 
     batch_job_id = get_database().batch_jobs.insert(obj)
 
     launcher_name = launcher_name or "plugin"
 
-    get_job_manager().new_batch_job(container_name, inputdata, lambda r: batch_job_done_callback(batch_job_id, r),
+    get_job_manager().new_batch_job(container_name, inputdata, lambda r: _batch_job_done_callback(batch_job_id, r),
                                     launcher_name="Frontend - {}".format(launcher_name))
 
     return batch_job_id
 
-def batch_job_done_callback(batch_job_id, result):
+def _batch_job_done_callback(batch_job_id, result):
     """ Called when the batch job with id jobid has finished.
         result is a dictionnary, containing:
 
@@ -126,3 +146,33 @@ def batch_job_done_callback(batch_job_id, result):
         {"_id": batch_job_id},
         {"$set": {"result": result}}
     )
+
+def get_batch_job_status(batch_job_id):
+    """ Returns the batch job with id batch_job_id Batch jobs are dicts in the form
+        {"courseid": "...", "container_name": "..."} if the job is still ongoing, and
+        {"courseid": "...", "container_name": "...", "results": {}} if the job is done.
+        the dict result can be either:
+
+        - {"retval":0, "stdout": "...", "stderr":"...", "file":"..."}
+            if everything went well. (file is an gridfs id to a tgz file)
+        - {"retval":"...", "stdout": "...", "stderr":"..."}
+            if the container crashed (retval is an int != 0)
+        - {"retval":-1, "stderr": "the error message"}
+            if the container failed to start
+    """
+    return get_database().batch_jobs.find({"_id": batch_job_id})
+
+def get_all_batch_jobs_for_course(course_id):
+    """ Returns all the batch jobs for the course course id. Batch jobs are dicts in the form
+        {"courseid": "...", "container_name": "...", "submitted_on":"..."} if the job is still ongoing, and
+        {"courseid": "...", "container_name": "...", "submitted_on":"...", "results": {}} if the job is done.
+        the dict result can be either:
+
+        - {"retval":0, "stdout": "...", "stderr":"...", "file":"..."}
+            if everything went well. (file is an gridfs id to a tgz file)
+        - {"retval":"...", "stdout": "...", "stderr":"..."}
+            if the container crashed (retval is an int != 0)
+        - {"retval":-1, "stderr": "the error message"}
+            if the container failed to start
+    """
+    return get_database().batch_jobs.find({"courseid": course_id})

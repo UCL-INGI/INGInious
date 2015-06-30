@@ -1,0 +1,80 @@
+$def with (course, operations, available_containers)
+
+$# Copyright (c) 2014-2015 Université Catholique de Louvain.
+$#
+$# This file is part of INGInious.
+$#
+$# INGInious is free software: you can redistribute it and/or modify
+$# it under the terms of the GNU Affero General Public License as published
+$# by the Free Software Foundation, either version 3 of the License, or
+$# (at your option) any later version.
+$#
+$# INGInious is distributed in the hope that it will be useful,
+$# but WITHOUT ANY WARRANTY; without even the implied warranty of
+$# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+$# GNU Affero General Public License for more details.
+$#
+$# You should have received a copy of the GNU Affero General Public
+$# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
+
+$var title: $:course.get_name() - Batch operations
+
+$var Column: $:template_helper.call('course_admin_menu',course=course,current='batch')
+
+<ol class="breadcrumb">
+    <li><a href="/index">Home</a></li>
+    <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
+    <li><a href="/admin/$course.get_id()">Manage</a></li>
+    <li class="active">Batch operations</li>
+</ol>
+
+<h2>Batch operations</h2>
+
+<h3>Batch jobs</h3>
+<table class="table table-bordered" id="batch_table">
+    <tr>
+        <th>Container name</th>
+        <th>Date</th>
+        <th colspan="3">Status</th>
+    </tr>
+    $for op in operations:
+        <tr>
+            <td>$available_containers.get(op['container_name'], (op['container_name'],))[0]</td>
+            <td>$op['submitted_on'].strftime("%d/%m/%Y %H:%M:%S")</td>
+
+            $if op['status'] == 'ok':
+                <td class="batch-status-icon text-success">
+                    <i class="glyphicon glyphicon-ok"></i>
+                </td>
+                <td>
+                    <a href="/course/$course.get_id()/batch/summary/$op['bid']" class="btn btn-success btn-block btn-sm">view results</a>
+                </td>
+                <td>
+                    <a href="/course/$course.get_id()/batch/download/$op['bid']" class="btn btn-success btn-block btn-sm">download results</a>
+                </td>
+            $elif op['status'] == 'ko':
+                <td class="batch-status-icon text-danger">
+                    <i class="glyphicon glyphicon-remove"></i>
+                </td>
+                <td colspan="2">
+                    <a href="/course/$course.get_id()/batch/summary/$op['bid']" class="btn btn-danger btn-block btn-sm">Error - view results</a>
+                </td>
+            $else:
+                <td class="batch-status-icon">
+                    <i class="glyphicon glyphicon-refresh"></i>
+                </td>
+                <td colspan="2">
+                    <a href="#" class="btn btn-warning btn-block btn-sm btn-disabled" disabled="disabled">In progress</a>
+                </td>
+        </tr>
+</table>
+
+$if User.get_username() in course.get_staff():
+    <h3>Start a new batch job</h3>
+    <div class="list-group">
+        $for key, val in available_containers.iteritems():
+            <a href="/course/$course.get_id()/batch/new/$key" class="list-group-item">
+                <h4 class="list-group-item-heading">$val[0]</h4>
+                <p class="list-group-item-text">$val[1]</p>
+            </a>
+    </div>

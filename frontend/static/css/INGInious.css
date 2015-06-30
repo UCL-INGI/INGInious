@@ -1,6 +1,6 @@
-@import url(//fonts.googleapis.com/css?family=Yanone+Kaffeesatz:300);
 /* Mixins */
 /* Fonts */
+@import url(//fonts.googleapis.com/css?family=Yanone+Kaffeesatz:300);
 .navbar-brand {
   font-family: 'Yanone Kaffeesatz', sans-serif;
   font-weight: 300;
@@ -90,7 +90,7 @@ form#task #task-submit {
   max-width: 300px;
 }
 #task_debug dd {
-  border-left: 1px solid #ccc;
+  border-left: 1px solid #cccccc;
   padding-left: 20px;
   min-height: 20px;
   text-overflow: ellipsis;
@@ -120,6 +120,12 @@ form#task #task-submit {
 .nav-tabs > li.studio_file_editor_tab.active a:hover {
   background-color: #3498db !important;
   color: #2c3e50;
+}
+#batch_table tr td {
+  vertical-align: middle;
+}
+#batch_table .batch-status-icon {
+  text-align: center;
 }
 /* Footer */
 html,

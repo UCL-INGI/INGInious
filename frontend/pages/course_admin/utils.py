@@ -159,7 +159,8 @@ def get_menu(course, current):
 
     default_entries = []
     if User.get_username() in course.get_admins():
-        default_entries += [("settings", "<span class='glyphicon glyphicon-cog'></span> Course settings")]
+        default_entries += [("settings", "<span class='glyphicon glyphicon-cog'></span> Course settings"),
+                            ("batch", "<i class='fa fa-rocket'></i> Batch operations")]
     default_entries += [("students", "<span class='glyphicon glyphicon-user'></span> Students"),
                         ("tasks", "<span class='glyphicon glyphicon-tasks'></span> Tasks")]
 

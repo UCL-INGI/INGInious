@@ -39,6 +39,7 @@ urls = (
     '/course/([^/]+)/([^/]+)/(.*)', 'frontend.pages.tasks.TaskPageStaticDownload',
     '/admin/([^/]+)', 'frontend.pages.course_admin.utils.CourseRedirect',
     '/admin/([^/]+)/settings', 'frontend.pages.course_admin.settings.CourseSettings',
+    '/admin/([^/]+)/batch', 'frontend.pages.course_admin.batch.CourseBatchOperations',
     '/admin/([^/]+)/students', 'frontend.pages.course_admin.student_list.CourseStudentListPage',
     '/admin/([^/]+)/student/([^/]+)', 'frontend.pages.course_admin.student_info.CourseStudentInfoPage',
     '/admin/([^/]+)/student/([^/]+)/([^/]+)', 'frontend.pages.course_admin.student_task.CourseStudentTaskPage',
