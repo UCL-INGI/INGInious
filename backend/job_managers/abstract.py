@@ -22,9 +22,11 @@ import signal
 import time
 import uuid
 from abc import abstractmethod
-
+import tempfile
+import tarfile
 from backend.hook_manager import HookManager
-
+import StringIO
+import os
 
 def _init_manager():
     """ Makes the manager ignore SIGINT """
@@ -274,15 +276,43 @@ class AbstractJobManager(object):
 
     def new_batch_job(self, container_name, inputdata, callback, launcher_name="Unknown"):
         """ Add a new batch job. callback is a function that will be called asynchronously in the job manager's process.
-            inputdata is a tgz file.
+            inputdata is a dict containing all the keys of get_batch_container_args(container_name).
+            The values associated are file-like objects for "file" types and  strings for "text" types.
         """
         jobid = self._new_job_id()
+
+        # Verify inputdata
+        batch_args = self.get_batch_container_args(container_name)
+        if set(inputdata.keys()) != set(batch_args.keys()):
+            raise Exception("Invalid keys for inputdata")
+        for key in batch_args:
+            if batch_args[key]["type"] == "text" and not isinstance(inputdata[key],basestring):
+                raise Exception("Invalid value for inputdata: the value for key {} should be a string".format(key))
+            elif batch_args[key]["type"] == "file" and isinstance(inputdata[key], basestring):
+                raise Exception("Invalid value for inputdata: the value for key {} should be a file object".format(key))
 
         # Compute some informations that will be useful for statistics
         statinfo = {"launched": time.time(), "launcher_name": launcher_name}
         self._running_batch_job_data[jobid] = (container_name, callback, inputdata, statinfo)
+
         self._hook_manager.call_hook("new_batch_job", jobid=jobid, statinfo=statinfo, inputdata=inputdata)
 
-        self._execute_batch_job(jobid, container_name, inputdata)
+        # Compress everything
+        tmpfile = tempfile.TemporaryFile()
+        tar = tarfile.open(fileobj=tmpfile, mode='w:gz')
+        for key, val in inputdata.iteritems():
+            info = tarfile.TarInfo(name=batch_args[key]["path"])
+            info.mode = 0o777
+            fileobj=None
+            if isinstance(val, basestring):
+                fileobj=StringIO.StringIO(val)
+                info.size = fileobj.len
+            else:
+                fileobj=val
+                info.size = os.fstat(fileobj.fileno()).st_size
+            tar.addfile(tarinfo=info, fileobj=fileobj)
+        tar.close()
+
+        self._execute_batch_job(jobid, container_name, tmpfile)
 
         return jobid
