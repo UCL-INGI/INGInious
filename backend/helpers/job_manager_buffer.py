@@ -18,6 +18,7 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Contains the JobManagerBuffer, which creates a buffer for a JobManager """
 
+import uuid
 
 class JobManagerBuffer(object):
     """ A buffer for a JobManager """
@@ -29,26 +30,26 @@ class JobManagerBuffer(object):
 
     def new_job(self, task, inputdata, launcher_name="Unknown", debug=False):
         """ Runs a new job. It works exactly like the JobManager class, instead that there is no callback """
-        jobid = self._job_manager.new_job_id()
-        self._waiting_jobs.append(str(jobid))
-        self._job_manager.new_job(task, inputdata, self._callback, launcher_name, jobid, debug)
-        return jobid
+        bjobid = uuid.uuid4()
+        self._waiting_jobs.append(str(bjobid))
+        self._job_manager.new_job(task, inputdata, lambda r: self._callback(bjobid, r), launcher_name, debug)
+        return bjobid
 
-    def _callback(self, jobid, _, result):
+    def _callback(self, bjobid, result):
         """ Callback for self._job_manager.new_job """
-        self._jobs_done[str(jobid)] = result
-        self._waiting_jobs.remove(str(jobid))
+        self._jobs_done[str(bjobid)] = result
+        self._waiting_jobs.remove(str(bjobid))
 
-    def is_waiting(self, jobid):
+    def is_waiting(self, bjobid):
         """ Return true if the job is in queue """
-        return str(jobid) in self._waiting_jobs
+        return str(bjobid) in self._waiting_jobs
 
-    def is_done(self, jobid):
+    def is_done(self, bjobid):
         """ Return true if the job is done """
-        return str(jobid) in self._jobs_done
+        return str(bjobid) in self._jobs_done
 
-    def get_result(self, jobid):
+    def get_result(self, bjobid):
         """ Get the result of task. Must only be called ONCE, AFTER the task is done (after a successfull call to is_done). """
-        result = self._jobs_done[str(jobid)]
-        del self._jobs_done[str(jobid)]
+        result = self._jobs_done[str(bjobid)]
+        del self._jobs_done[str(bjobid)]
         return result

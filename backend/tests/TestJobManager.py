@@ -44,7 +44,7 @@ class TestJobManager(object):
         self.callback_done = threading.Event()
         self.got_callback_result = None
 
-    def default_callback(self, _, _2, result):
+    def default_callback(self, result):
         self.got_callback_result = result
         self.callback_done.set()
 

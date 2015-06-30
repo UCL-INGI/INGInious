@@ -39,15 +39,9 @@ def get_submission(submissionid, user_check=True):
         return None
     return sub
 
-
-def get_submission_from_jobid(jobid):
-    """ Get a waiting submission from its jobid """
-    return get_database().submissions.find_one({'jobid': jobid})
-
-
-def job_done_callback(jobid, task, job):
+def job_done_callback(submissionid, task, job):
     """ Callback called by JobManager when a job is done. Updates the submission in the database with the data returned after the completion of the job """
-    submission = get_submission_from_jobid(jobid)
+    submission = get_submission(submissionid, False)
     submission = get_input_from_submission(submission)
 
     job = _parse_text(task, job)
@@ -97,15 +91,12 @@ def add_job(task, inputdata, debug=False):
 
     username = User.get_username()
 
-    jobid = get_job_manager().new_job_id()
-
     obj = {
         "courseid": task.get_course_id(),
         "taskid": task.get_id(),
         "input": get_gridfs().put(
             json.dumps(inputdata)),
         "status": "waiting",
-        "jobid": jobid,
         "submitted_on": datetime.now()}
 
     if Course.get_course_descriptor_content(task.get_course_id()).get("groups", False):
@@ -116,9 +107,9 @@ def add_job(task, inputdata, debug=False):
 
     submissionid = get_database().submissions.insert(obj)
 
-    PluginManager.get_instance().call_hook("new_submission", submissionid=submissionid, submission=obj, jobid=jobid, inputdata=inputdata)
+    PluginManager.get_instance().call_hook("new_submission", submissionid=submissionid, submission=obj, inputdata=inputdata)
 
-    get_job_manager().new_job(task, inputdata, job_done_callback, "Frontend - {}".format(username), jobid, debug)
+    get_job_manager().new_job(task, inputdata, (lambda job: job_done_callback(submissionid, task, job)), "Frontend - {}".format(username), debug)
 
     return submissionid
 

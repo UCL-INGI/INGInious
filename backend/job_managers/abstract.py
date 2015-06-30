@@ -129,7 +129,7 @@ class AbstractJobManager(object):
 
         # Call the callback
         try:
-            callback(jobid, task, final_result)
+            callback(final_result)
         except Exception as e:
             print "JobManager failed to call the callback function for jobid {}: {}".format(jobid, repr(e))
 
@@ -152,7 +152,7 @@ class AbstractJobManager(object):
 
         # Call the callback
         try:
-            callback(jobid, result)
+            callback(result)
         except Exception as e:
             print "JobManager failed to call the callback function for jobid {}: {}".format(jobid, repr(e))
 
@@ -239,14 +239,13 @@ class AbstractJobManager(object):
         """Returns the total number of waiting jobs in the Job Manager"""
         return len(self._running_batch_job_data)
 
-    def new_job_id(self):
+    def _new_job_id(self):
         """ Returns a new job id. The job id is unique and should be passed to the new_job function """
         return uuid.uuid4()
 
-    def new_job(self, task, inputdata, callback, launcher_name="Unknown", jobid=None, debug=False):
+    def new_job(self, task, inputdata, callback, launcher_name="Unknown", debug=False):
         """ Add a new job. callback is a function that will be called asynchronously in the job manager's process. """
-        if jobid is None:
-            jobid = self.new_job_id()
+        jobid = self._new_job_id()
 
         # Base dictionary with output
         basedict = {"task": task, "input": inputdata}
@@ -273,12 +272,11 @@ class AbstractJobManager(object):
 
         return jobid
 
-    def new_batch_job(self, container_name, inputdata, callback, launcher_name="Unknown", jobid=None):
+    def new_batch_job(self, container_name, inputdata, callback, launcher_name="Unknown"):
         """ Add a new batch job. callback is a function that will be called asynchronously in the job manager's process.
             inputdata is a tgz file.
         """
-        if jobid is None:
-            jobid = self.new_job_id()
+        jobid = self._new_job_id()
 
         # Compute some informations that will be useful for statistics
         statinfo = {"launched": time.time(), "launcher_name": launcher_name}

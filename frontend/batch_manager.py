@@ -26,8 +26,6 @@ from frontend.base import get_database, get_gridfs
 def add_batch_job(course, container_name, inputdata, launcher_name=None, skip_permission=False):
     """ Add a job in the queue and returns a batch job id """
 
-    jobid = get_job_manager().new_job_id()
-
     if not skip_permission:
         if not User.is_logged_in():
             raise Exception("A user must be logged in to submit an object")
@@ -52,10 +50,11 @@ def add_batch_job(course, container_name, inputdata, launcher_name=None, skip_pe
 
     launcher_name = launcher_name or "plugin"
 
-    get_job_manager().new_batch_job(container_name, inputdata, batch_job_done_callback, launcher_name="Frontend - {}".format(launcher_name), jobid=None)
+    get_job_manager().new_batch_job(container_name, inputdata, lambda r: batch_job_done_callback(batch_job_id, r),
+                                    launcher_name="Frontend - {}".format(launcher_name))
 
     return batch_job_id
 
-def batch_job_done_callback(jobid, result):
+def batch_job_done_callback(batch_job_id, result):
     """ Called when the batch job with id jobid has finished. result is a file-like object pointing to a tar.gz file """
     pass
