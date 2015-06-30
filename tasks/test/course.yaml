@@ -5,3 +5,8 @@ admins:
 accessible: true
 registration: true
 registration_password: null
+groups: true
+tutors: []
+registration_ac: null
+registration_ac_list:
+- ''

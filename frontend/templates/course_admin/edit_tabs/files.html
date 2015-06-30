@@ -26,8 +26,8 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
         <th class="col-sm-1">Delete</th>
     </tr>
     <tr>
-        <td><span class="glyphicon glyphicon-folder-open"></span>&nbsp;/</td>
-        <td><a href="/admin/${course.get_id()}/edit/$taskid/files?action=download&path=." onclick="studio_task_edit_downloadfile('/'); return false;" class="btn btn-sm btn-primary btn-block" title="download"><span class="glyphicon glyphicon-cloud-download"></span></a></td>
+        <td><span class="fa fa-folder-open"></span>&nbsp;/</td>
+        <td><a href="/admin/${course.get_id()}/edit/$taskid/files?action=download&path=." onclick="studio_task_edit_downloadfile('/'); return false;" class="btn btn-sm btn-primary btn-block" title="download"><span class="fa fa-cloud-download"></span></a></td>
         <td></td>
         <td></td>
         <td></td>
@@ -38,21 +38,21 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
                 $for i in range(level+1):
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 $if is_directory:
-                    <span class="glyphicon glyphicon-folder-open"></span>&nbsp;
+                    <span class="fa fa-folder-open"></span>&nbsp;
                 $name
             </td>
             <td>
-                <a href="/admin/${course.get_id()}/edit/$taskid/files?action=download&path=$complete_name" class="btn btn-sm btn-primary btn-block" title="download"><span class="glyphicon glyphicon-cloud-download"></span></a>
+                <a href="/admin/${course.get_id()}/edit/$taskid/files?action=download&path=$complete_name" class="btn btn-sm btn-primary btn-block" title="download"><span class="fa fa-cloud-download"></span></a>
             </td>
             <td>
                 $if not is_directory:
-                    <a href="#" onclick="studio_task_file_open_tab('$complete_name'); return false;" class="btn btn-sm btn-warning btn-block" title="edit"><span class="glyphicon glyphicon-edit"></span></a>
+                    <a href="#" onclick="studio_task_file_open_tab('$complete_name'); return false;" class="btn btn-sm btn-warning btn-block" title="edit"><span class="fa fa-edit"></span></a>
             </td>
             <td>
-                <a href="#" onclick="studio_task_file_rename('$complete_name'); return false;" class="btn btn-sm btn-info btn-block" title="rename"><span class="glyphicon glyphicon-transfer"></span></a>
+                <a href="#" onclick="studio_task_file_rename('$complete_name'); return false;" class="btn btn-sm btn-info btn-block" title="rename"><span class="fa fa-exchange"></span></a>
             </td>
             <td>
-                <a href="#" onclick="studio_task_file_delete('$complete_name'); return false;" class="btn btn-sm btn-danger btn-block" title="delete"><span class="glyphicon glyphicon-trash"></span></a>
+                <a href="#" onclick="studio_task_file_delete('$complete_name'); return false;" class="btn btn-sm btn-danger btn-block" title="delete"><span class="fa fa-trash"></span></a>
             </td>
         </tr>
     <tr>

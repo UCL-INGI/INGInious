@@ -51,6 +51,11 @@ class CourseSettings(object):
             if len(course_content['tutors']) == 1 and course_content['tutors'][0].strip() == "":
                 course_content['tutors'] = []
 
+            if data["groups"] == "true":
+                course_content['groups'] = True
+            else:
+                course_content['groups'] = False
+
             if data["accessible"] == "custom":
                 course_content['accessible'] = "{}/{}".format(data["accessible_start"], data["accessible_end"])
             elif data["accessible"] == "true":

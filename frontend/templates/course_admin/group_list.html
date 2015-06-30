@@ -1,0 +1,62 @@
+$def with (course,data)
+
+$# Copyright (c) 2014-2015 Université Catholique de Louvain.
+$#
+$# This file is part of INGInious.
+$#
+$# INGInious is free software: you can redistribute it and/or modify
+$# it under the terms of the GNU Affero General Public License as published
+$# by the Free Software Foundation, either version 3 of the License, or
+$# (at your option) any later version.
+$#
+$# INGInious is distributed in the hope that it will be useful,
+$# but WITHOUT ANY WARRANTY; without even the implied warranty of
+$# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+$# GNU Affero General Public License for more details.
+$#
+$# You should have received a copy of the GNU Affero General Public
+$# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
+
+$var title: $:course.get_name()
+
+$var Column: $:template_helper.call('course_admin_menu',course=course,current='groups')
+
+<ol class="breadcrumb">
+  <li><a href="/index">Home</a></li>
+  <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
+  <li><a href="/admin/$course.get_id()">Manage</a></li>
+  <li class="active">Groups</li>
+</ol>
+<h2>Groups</h2>
+<table class="table">
+    <tr>
+        <th>Group description</th>
+        <th># task tried</th>
+        <th># task done</th>
+        <th>Current grade</th>
+        <th>
+        	<a href="javascript:ask_to_download('/admin/${course.get_id()}/submissions?dl=course')" class="btn btn-danger btn-xs">Download all submissions</a>
+        	<a href="/admin/${course.get_id()}?csv" class="btn btn-info btn-xs">CSV</a>
+        </th>
+    </tr>
+    $for group_data in data:
+        <tr>
+    		<td>
+                <a href="/admin/${course.get_id()}/group/$group_data["group_id"]">$group_data["description"]</a>
+    		</td>
+    		<td>$group_data["task_tried"]</td>
+    		<td>$group_data["task_succeeded"]</td>
+    		<td>
+    			<div class="progress">
+                    $ percentage=int(course.get_user_grade(group_data["first_user"]))
+                    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="$percentage" aria-valuemin="0" aria-valuemax="100" style="width: $percentage%">
+                        <span>$percentage%</span>
+                    </div>
+                </div>
+    		</td>
+    		<td>
+    			<a href="/admin/${course.get_id()}/group/$group_data["group_id"]" class="btn btn-default btn-xs">View</a>
+    			<a href="javascript:ask_to_download('$group_data['url']')" class="btn btn-default btn-xs">Download submissions</a>
+    		</td>
+    	</tr>
+</table>

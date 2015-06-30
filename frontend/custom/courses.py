@@ -51,6 +51,7 @@ class FrontendCourse(Course):
             if self._registration_ac not in [None, "username", "realname", "email"]:
                 raise Exception("Course has an invalid value for registration_ac: " + courseid)
             self._registration_ac_list = self._content.get('registration_ac_list', [])
+            self._groups = self._content.get("groups", False)
         else:
             raise Exception("Course has an invalid description: " + courseid)
 
@@ -183,6 +184,10 @@ class FrontendCourse(Course):
     def get_access_control_list(self):
         """ Returns the list of all users allowed by the AC list """
         return self._registration_ac_list
+
+    def is_group_course(self):
+        """ Returns True if the course submissions are made by groups """
+        return self._groups
 
     def is_user_accepted_by_access_control(self, username):
         """ Returns True if the user is allowed by the ACL """

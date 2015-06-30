@@ -159,9 +159,14 @@ def get_menu(course, current):
 
     default_entries = []
     if User.get_username() in course.get_admins():
-        default_entries += [("settings", "<span class='glyphicon glyphicon-cog'></span> Course settings")]
-    default_entries += [("students", "<span class='glyphicon glyphicon-user'></span> Students"),
-                        ("tasks", "<span class='glyphicon glyphicon-tasks'></span> Tasks")]
+        default_entries += [("settings", "<span class='fa fa-cog'></span> Course settings")]
+
+    default_entries += [("students", "<span class='fa fa-user'></span> Students")]
+
+    if course.is_group_course():
+        default_entries += [("groups", "<span class='fa fa-users'></span> Groups")]
+
+    default_entries += [("tasks", "<span class='fa fa-tasks'></span> Tasks")]
 
     # Hook should return a tuple (link,name) where link is the relative link from the index of the course administration.
     additionnal_entries = [entry for entry in PluginManager.get_instance().call_hook('course_admin_menu', course=course) if entry is not None]

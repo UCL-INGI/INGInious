@@ -43,6 +43,7 @@ urls = (
     '/admin/([^/]+)/student/([^/]+)', 'frontend.pages.course_admin.student_info.CourseStudentInfoPage',
     '/admin/([^/]+)/student/([^/]+)/([^/]+)', 'frontend.pages.course_admin.student_task.CourseStudentTaskPage',
     '/admin/([^/]+)/student/([^/]+)/([^/]+)/([^/]+)', 'frontend.pages.course_admin.student_task.SubmissionDownloadFeedback',
+    '/admin/([^/]+)/groups', 'frontend.pages.course_admin.group_list.CourseGroupListPage',
     '/admin/([^/]+)/tasks', 'frontend.pages.course_admin.task_list.CourseTaskListPage',
     '/admin/([^/]+)/task/([^/]+)', 'frontend.pages.course_admin.task_info.CourseTaskInfoPage',
     '/admin/([^/]+)/edit/([^/]+)', 'frontend.pages.course_admin.task_edit.CourseEditTask',
