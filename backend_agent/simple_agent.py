@@ -128,7 +128,8 @@ class SimpleAgent(object):
             The return value of a batch job is always a compressed(gz) tar file.
         :param job_id: The distant job id
         :param container_name: The container image to launch
-        :param input_data: Input (.tgz file) to be mounted (unarchived) on /input
+        :param input_data: a dict containing all the keys of get_batch_container_args(container_name).
+            The values associated are file-like objects for "file" types and  strings for "text" types.
         :return: a dict, containing either:
             - {"retval":0, "stdout": "...", "stderr":"...", "file":"..."}
                 if everything went well. (where file is a tgz file containing the content of the /output folder from the container)
@@ -168,14 +169,18 @@ class SimpleAgent(object):
         os.chmod(output_path, 0777)
 
         try:
-            tar = tarfile.open(fileobj=input_data, mode='r:gz')
-            file_list = tar.getnames()
-            for n in file_list:
-                if not os.path.abspath(os.path.join(input_path, n)).startswith(input_path):
-                    raise Exception("Invalid paths!")
-            if set(file_list) != set([batch_args[key]["path"] for key in batch_args]):
-                raise Exception("Invalid content of the tgz")
-            tar.extractall(input_path)
+            if set(input_data.keys()) != set(batch_args.keys()):
+                raise Exception("Invalid keys for inputdata")
+
+            for key in batch_args:
+                if batch_args[key]["type"] == "text":
+                    if not isinstance(input_data[key], basestring):
+                        raise Exception("Invalid value for inputdata: the value for key {} should be a string".format(key))
+                    open(os.path.join(input_path, batch_args[key]["path"]),'w').write(input_data[key])
+                elif batch_args[key]["type"] == "file":
+                    if isinstance(input_data[key], basestring):
+                        raise Exception("Invalid value for inputdata: the value for key {} should be a file object".format(key))
+                    open(os.path.join(input_path, batch_args[key]["path"]), 'w').write(input_data[key].read())
         except:
             rmtree(container_path)
             return {'retval': -1, "stderr": 'Invalid tgz for input'}

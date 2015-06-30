@@ -297,22 +297,6 @@ class AbstractJobManager(object):
 
         self._hook_manager.call_hook("new_batch_job", jobid=jobid, statinfo=statinfo, inputdata=inputdata)
 
-        # Compress everything
-        tmpfile = tempfile.TemporaryFile()
-        tar = tarfile.open(fileobj=tmpfile, mode='w:gz')
-        for key, val in inputdata.iteritems():
-            info = tarfile.TarInfo(name=batch_args[key]["path"])
-            info.mode = 0o777
-            fileobj=None
-            if isinstance(val, basestring):
-                fileobj=StringIO.StringIO(val)
-                info.size = fileobj.len
-            else:
-                fileobj=val
-                info.size = os.fstat(fileobj.fileno()).st_size
-            tar.addfile(tarinfo=info, fileobj=fileobj)
-        tar.close()
-
-        self._execute_batch_job(jobid, container_name, tmpfile)
+        self._execute_batch_job(jobid, container_name, inputdata)
 
         return jobid

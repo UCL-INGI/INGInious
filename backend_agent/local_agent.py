@@ -50,7 +50,8 @@ class LocalAgent(SimpleAgent):
             The return value of a batch container is always a compressed(gz) tar file.
         :param job_id: The distant job id
         :param container_name: The container image to launch
-        :param input_data: Input (.tgz file) to be mounted (unarchived) on /input
+        :param input_data: inputdata is a dict containing all the keys of get_batch_container_args(container_name).
+            The values associated are file-like objects for "file" types and  strings for "text" types.
         :param callback: the callback that will be called when the batch job is done
         """
         t = threading.Thread(target=lambda: self._handle_batch_job_threaded(job_id, container_name, input_data, callback))

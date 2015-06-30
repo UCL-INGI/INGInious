@@ -73,7 +73,7 @@ class RemoteAgent(SimpleAgent):
                     The return value of a batch job is always a compressed(gz) tar file.
                 :param job_id: The distant job id
                 :param container_name: The container image to launch
-                :param input_data: Input (.tgz file) to be mounted (unarchived) on /input
+                :param input_data: Input (.tgz file) as made in remote_manual_agent
                 :return: a dict, containing either:
                     - {"retval":0, "stdout": "...", "stderr":"...", "file":"..."}
                         if everything went well. (where file is a tgz file containing the content of the /output folder from the container)
@@ -88,7 +88,19 @@ class RemoteAgent(SimpleAgent):
                 tmpfile.write(input_data.read())
                 tmpfile.seek(0)
 
-                return handle_batch_job(job_id, container_name, tmpfile)
+                # Unarchive input_data
+                batch_args = handle_get_batch_container_args(container_name)
+                input_data = {}
+                tar = tarfile.open(fileobj=tmpfile, mode='r:gz')
+                for n in tar.getnames():
+                    if n in batch_args and batch_args[n]["type"] == "file":
+                        input_data[n] = tar.extractfile(n)
+                    elif n in batch_args and batch_args[n]["type"] == "text":
+                        input_data[n] = tar.extractfile(n).read()
+                    else:
+                        logger.warning("Unknown key %s for batch container %s!", n, container_name)
+
+                return handle_batch_job(job_id, container_name, input_data)
 
             def exposed_get_batch_container_args(self, container_name):
                 """
