@@ -35,7 +35,11 @@ from common.task_file_managers.manage import get_available_task_file_managers, g
 
 
 class RemoteManualAgentJobManager(AbstractJobManager):
-    """ A Job Manager that handles connections with distant Agents using RPyC """
+    """
+        A Job Manager that handles connections with distant Agents using RPyC.
+        This job manager makes the assumption that everything is configured correctly on all agents; all remote docker have the same version of the
+        container images, etc.
+    """
 
     def __init__(self, agents, image_aliases, hook_manager=None, is_testing=False):
         """
@@ -223,6 +227,22 @@ class RemoteManualAgentJobManager(AbstractJobManager):
 
     def _execute_batch_job(self, jobid, container_name, inputdata):
         """ Chooses an agent and executes a job on it """
+
+        # Compress inputdata before sending it to the agent
+        tmpfile = tempfile.TemporaryFile()
+        tar = tarfile.open(fileobj=tmpfile, mode='w:gz')
+        for key, val in inputdata.iteritems():
+            info = tarfile.TarInfo(name=key)
+            info.mode = 0o777
+            if isinstance(val, basestring):
+                fileobj = StringIO.StringIO(val)
+                info.size = fileobj.len
+            else:
+                fileobj = val
+                info.size = os.fstat(fileobj.fileno()).st_size
+            tar.addfile(tarinfo=info, fileobj=fileobj)
+        tar.close()
+
         agent_id = self._select_agent()
         if agent_id is None:
             self._agent_batch_job_ended(jobid,
@@ -235,20 +255,20 @@ class RemoteManualAgentJobManager(AbstractJobManager):
         try:
             agent = self._agents[agent_id]
             async_run = rpyc.async(agent.root.handle_batch_job)
-            result = async_run(str(jobid), str(container_name), inputdata)
+            result = async_run(str(jobid), str(container_name), tmpfile)
             self._running_on_agent[agent_id].append(jobid)
             result.add_callback(lambda r: self._execute_batch_job_callback(jobid, r, agent_id))
         except:
             self._agent_shutdown(agent_id)
             self._execute_batch_job(jobid, container_name, inputdata)
 
-    def _get_batch_container_args_from_agent(self, container_name):
+    def _get_batch_container_metadata_from_agent(self, container_name):
         agent_id = self._select_agent()
         if agent_id is None:
             return None
         try:
             agent = self._agents[agent_id]
-            async_run = rpyc.async(agent.root.get_batch_container_args)
+            async_run = rpyc.async(agent.root.get_batch_container_metadata)
             result = async_run(str(container_name))
             result.wait()
             return copy.deepcopy(result.value)

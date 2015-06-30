@@ -20,6 +20,7 @@
 
 import collections
 import re
+from abc import abstractmethod
 
 from docutils import core, nodes
 from docutils.parsers.rst import Parser, Directive, directives
@@ -53,11 +54,12 @@ class Choice(nodes.General, nodes.Element):
 class BaseDirective(Directive):
     has_content = True
 
-    # This has to be replaced in subclasses
-    node_class = None
+    @abstractmethod
+    def get_node(self):
+        return None
 
     def run(self):
-        node = self.node_class()
+        node = self.get_node()
         self.state.nested_parse(self.content, self.content_offset, node)
         return [node]
 
@@ -72,13 +74,14 @@ class QuestionDirective(BaseDirective):
         'limit': int
     }
 
-    node_class = Question
+    def get_node(self):
+        return Question()
 
     def run(self):
-        node = super(type(self), self).run()[0]
+        node = BaseDirective.run(self)[0]
         node.id = self.arguments[0]
         node.header = '\n'.join(self.content)
-        match = re.search('\.\.[ \t]+(positive|negative|box)::', node.header)
+        match = re.search(r'\.\.[ \t]+(positive|negative|box)::', node.header)
         if match:
             node.header = node.header[:match.start()].strip()
         else:
@@ -127,13 +130,13 @@ class NegativeDirective(PosNegDirective):
 
 
 class TitleParser(Parser):
-    symbols = '[!"#$%&\'()*+,-./:;<=>?@[\]^_`{|}~]'
+    symbols = r'[!"#$%&\'()*+,-./:;<=>?@[\]^_`{|}~]'
     context = None
 
     def parse(self, inputstring, document):
-        pattern = ('(?:' + TitleParser.symbols + '+\s)?.+\s' + TitleParser.symbols
-                   + '+\s+(?:(?::.+:.*\s)*)((?:.*\s)*?)(?:'
-                   + TitleParser.symbols + '+\s)?.+\s' + TitleParser.symbols + '+')
+        pattern = (r'(?:' + TitleParser.symbols + r'+\s)?.+\s' + TitleParser.symbols
+                   + r'+\s+(?:(?::.+:.*\s)*)((?:.*\s)*?)(?:'
+                   + TitleParser.symbols + r'+\s)?.+\s' + TitleParser.symbols + r'+')
         self.context = re.search(pattern, inputstring).group(1).strip('\n\r')
         Parser(self).parse(inputstring, document)
 
@@ -179,8 +182,8 @@ class Writer(UnfilteredWriter):
         if len(questions) == 0:
             raise StructureError('There must be at least one question in your document.')
         for question in questions:
-            type = get_type(question.type)
-            type.validate(question)
+            qtype = get_type(question.type)
+            qtype.validate(question)
 
     def docinfo(self):
         docinfo = self.document.next_node(nodes.docinfo)
@@ -188,7 +191,7 @@ class Writer(UnfilteredWriter):
             return
         author = docinfo.next_node(nodes.author)
         if author:
-            self.output['author'] = map(lambda s: s.strip(), author.astext().split(','))
+            self.output['author'] = [s.strip() for s in author.astext().split(',')]
             if len(self.output['author']) == 1:
                 self.output['author'] = self.output['author'][0]
         self.output['limits'] = {}
@@ -229,9 +232,9 @@ class Writer(UnfilteredWriter):
 
     def process_boxes(self, question, infos):
         boxes = collections.OrderedDict()
-        id = 1
+        bid = 1
         for box in question.traverse(Box):
-            boxId = 'boxId' + unicode(id)
+            boxId = 'boxId' + unicode(bid)
             boxes[boxId] = {}
             for option in BoxDirective.option_spec:
                 value = getattr(box, option)
@@ -241,7 +244,7 @@ class Writer(UnfilteredWriter):
                     boxes[boxId][option] = value
                 if box.content:
                     boxes[boxId]['content'] = box.content
-            id += 1
+            bid += 1
         if len(boxes) > 0:
             infos['boxes'] = boxes
 
@@ -256,14 +259,14 @@ class Writer(UnfilteredWriter):
             infos['choices'] = choices
 
 
-def get_type(type):
-    if type == 'code':
+def get_type(ttype):
+    if ttype == 'code':
         return Code()
-    if type == 'code-single-line':
+    if ttype == 'code-single-line':
         return CodeSingleLine()
-    if type == 'match':
+    if ttype == 'match':
         return Match()
-    if type == "multiple-choice":
+    if ttype == "multiple-choice":
         return MultipleChoice()
     return UnknownType()
 

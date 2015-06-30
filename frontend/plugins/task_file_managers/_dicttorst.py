@@ -54,11 +54,11 @@ def dict2rst(dict_obj):
     if 'context' in dict_obj:
         rst += dict_obj['context'] + '\n\n'
     if 'problems' in dict_obj:
-        for id, problem in dict_obj['problems'].items():
+        for pid, problem in dict_obj['problems'].items():
             if 'name' in problem:
                 rst += problem['name'] + '\n'
                 rst += '-' * len(problem['name']) + '\n\n'
-            rst += '.. question:: ' + id + '\n'
+            rst += '.. question:: ' + pid + '\n'
             for option in question_options:
                 if option in problem:
                     rst += '\t:' + option + ': ' + str(problem[option]) + '\n'
@@ -66,8 +66,8 @@ def dict2rst(dict_obj):
             if 'header' in problem:
                 rst += tabularize(problem['header']) + '\n\n'
             if 'boxes' in problem:
-                for id, box in problem['boxes'].items():
-                    rst += '\t.. box:: ' + id + '\n'
+                for pid, box in problem['boxes'].items():
+                    rst += '\t.. box:: ' + pid + '\n'
                     for option in box_options:
                         if option in box:
                             rst += '\t\t:' + option + ': ' + str(box[option]) + '\n'
@@ -87,4 +87,4 @@ def dict2rst(dict_obj):
 
 
 def tabularize(string, n=1):
-    return '\n'.join(map(lambda s: '\t' * n + s, string.split('\n')))
+    return '\n'.join(['\t' * n + s for s in string.split('\n')])

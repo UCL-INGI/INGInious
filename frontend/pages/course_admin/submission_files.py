@@ -16,22 +16,13 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
-import StringIO
-import base64
-import os.path
-import tarfile
-import tempfile
-import time
-
 from bson.objectid import ObjectId
 import web
 
-import common.custom_yaml
-from frontend.base import get_database, get_gridfs
+from frontend.base import get_database
 from frontend.base import renderer
 from frontend.pages.course_admin.utils import get_course_and_check_rights
-from frontend.submission_manager import get_input_from_submission
-
+from frontend.submission_manager import get_submission_archive
 
 class DownloadSubmissionFiles(object):
     """ List informations about all tasks """
@@ -61,74 +52,9 @@ class DownloadSubmissionFiles(object):
         if len(submissions) == 0:
             raise web.notfound(renderer.notfound("There's no submission that matches your request"))
         try:
-            tmpfile = tempfile.TemporaryFile()
-            tar = tarfile.open(fileobj=tmpfile, mode='w:gz')
-
-            for submission in submissions:
-                submission = get_input_from_submission(submission)
-
-                # Compute base path in the tar file
-                base_path = "/"
-                for sub_folder in sub_folders:
-                    if sub_folder == 'taskid':
-                        base_path = submission['taskid'] + '/' + base_path
-                    elif sub_folder == 'username':
-                        base_path = submission['username'] + '/' + base_path
-
-                submission_yaml = StringIO.StringIO(common.custom_yaml.dump(submission).encode('utf-8'))
-                submission_yaml_fname = base_path + str(submission["_id"]) + '.test'
-                info = tarfile.TarInfo(name=submission_yaml_fname)
-                info.size = submission_yaml.len
-                info.mtime = time.mktime(submission["submitted_on"].timetuple())
-
-                # Add file in tar archive
-                tar.addfile(info, fileobj=submission_yaml)
-
-                # If there is an archive, add it too
-                if 'archive' in submission and submission['archive'] is not None and submission['archive'] != "":
-                    subfile = get_gridfs().get(submission['archive'])
-                    taskfname = base_path + str(submission["_id"]) + '.tgz'
-
-                    # Generate file info
-                    info = tarfile.TarInfo(name=taskfname)
-                    info.size = subfile.length
-                    info.mtime = time.mktime(submission["submitted_on"].timetuple())
-
-                    # Add file in tar archive
-                    tar.addfile(info, fileobj=subfile)
-
-                # If there files that were uploaded by the student, add them
-                if submission['input'] is not None:
-                    for pid, problem in submission['input'].iteritems():
-                        # If problem is a dict, it is a file (from the specification of the problems)
-                        if isinstance(problem, dict):
-                            # Get the extension (match extensions with more than one dot too)
-                            DOUBLE_EXTENSIONS = ['.tar.gz', '.tar.bz2', '.tar.bz', '.tar.xz']
-                            if not problem['filename'].endswith(tuple(DOUBLE_EXTENSIONS)):
-                                _, ext = os.path.splitext(problem['filename'])
-                            else:
-                                for t_ext in DOUBLE_EXTENSIONS:
-                                    if problem['filename'].endswith(t_ext):
-                                        ext = t_ext
-
-                            subfile = StringIO.StringIO(base64.b64decode(problem['value']))
-                            taskfname = base_path + str(submission["_id"]) + '_uploaded_files/' + pid + ext
-
-                            # Generate file info
-                            info = tarfile.TarInfo(name=taskfname)
-                            info.size = subfile.len
-                            info.mtime = time.mktime(submission["submitted_on"].timetuple())
-
-                            # Add file in tar archive
-                            tar.addfile(info, fileobj=subfile)
-
-            # Close tarfile and put tempfile cursor at 0
-            tar.close()
-            tmpfile.seek(0)
-
             web.header('Content-Type', 'application/x-gzip', unique=True)
             web.header('Content-Disposition', 'attachment; filename="' + filename + '"', unique=True)
-            return tmpfile
+            return get_submission_archive(submissions, sub_folders)
         except Exception as e:
             print e
             raise web.notfound()

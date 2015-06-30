@@ -32,6 +32,13 @@ from frontend.plugins.plugin_manager import PluginManager
 import frontend.user as User
 from frontend.user_data import UserData
 
+import time
+import os.path
+import common.custom_yaml
+import tarfile
+import StringIO
+import tempfile
+
 def get_submission(submissionid, user_check=True):
     """ Get a submission from the database """
     sub = get_database().submissions.find_one({'_id': ObjectId(submissionid)})
@@ -39,15 +46,9 @@ def get_submission(submissionid, user_check=True):
         return None
     return sub
 
-
-def get_submission_from_jobid(jobid):
-    """ Get a waiting submission from its jobid """
-    return get_database().submissions.find_one({'jobid': jobid})
-
-
-def job_done_callback(jobid, task, job):
+def job_done_callback(submissionid, task, job):
     """ Callback called by JobManager when a job is done. Updates the submission in the database with the data returned after the completion of the job """
-    submission = get_submission_from_jobid(jobid)
+    submission = get_submission(submissionid, False)
     submission = get_input_from_submission(submission)
 
     job = _parse_text(task, job)
@@ -71,10 +72,7 @@ def job_done_callback(jobid, task, job):
     # Save submission to database
     get_database().submissions.update(
         {"_id": submission["_id"]},
-        {
-            "$unset": {"jobid": ""},
-            "$set": data
-        }
+        {"$set": data}
     )
 
     if "group" in submission:
@@ -97,15 +95,12 @@ def add_job(task, inputdata, debug=False):
 
     username = User.get_username()
 
-    jobid = get_job_manager().new_job_id()
-
     obj = {
         "courseid": task.get_course_id(),
         "taskid": task.get_id(),
         "input": get_gridfs().put(
             json.dumps(inputdata)),
         "status": "waiting",
-        "jobid": jobid,
         "submitted_on": datetime.now()}
 
     if Course.get_course_descriptor_content(task.get_course_id()).get("groups", False):
@@ -116,9 +111,9 @@ def add_job(task, inputdata, debug=False):
 
     submissionid = get_database().submissions.insert(obj)
 
-    PluginManager.get_instance().call_hook("new_submission", submissionid=submissionid, submission=obj, jobid=jobid, inputdata=inputdata)
+    PluginManager.get_instance().call_hook("new_submission", submissionid=submissionid, submission=obj, inputdata=inputdata)
 
-    get_job_manager().new_job(task, inputdata, job_done_callback, "Frontend - {}".format(username), jobid, debug)
+    get_job_manager().new_job(task, inputdata, (lambda job: job_done_callback(submissionid, task, job)), "Frontend - {}".format(username), debug)
 
     return submissionid
 
@@ -210,3 +205,80 @@ def _parse_text(task, job_result):
         for problem in job_result["problems"]:
             job_result["problems"][problem] = ParsableText(job_result["problems"][problem], task.get_response_type()).parse()
     return job_result
+
+def get_submission_archive(submissions, sub_folders):
+    """
+    :param submissions: a list of submissions
+    :param sub_folders: possible values:
+        []: put all submissions in /
+        ['taskid']: put all submissions for each task in a different directory /taskid/
+        ['username']: put all submissions for each user in a different directory /username/
+        ['taskid','username']: /taskid/username/
+        ['username','taskid']: /username/taskid/
+    :return: a file-like object containing a tgz archive of all the submissions
+    """
+    tmpfile = tempfile.TemporaryFile()
+    tar = tarfile.open(fileobj=tmpfile, mode='w:gz')
+
+    for submission in submissions:
+        submission = get_input_from_submission(submission)
+
+        # Compute base path in the tar file
+        base_path = "/"
+        for sub_folder in sub_folders:
+            if sub_folder == 'taskid':
+                base_path = submission['taskid'] + '/' + base_path
+            elif sub_folder == 'username':
+                base_path = submission['username'] + '/' + base_path
+
+        submission_yaml = StringIO.StringIO(common.custom_yaml.dump(submission).encode('utf-8'))
+        submission_yaml_fname = base_path + str(submission["_id"]) + '.test'
+        info = tarfile.TarInfo(name=submission_yaml_fname)
+        info.size = submission_yaml.len
+        info.mtime = time.mktime(submission["submitted_on"].timetuple())
+
+        # Add file in tar archive
+        tar.addfile(info, fileobj=submission_yaml)
+
+        # If there is an archive, add it too
+        if 'archive' in submission and submission['archive'] is not None and submission['archive'] != "":
+            subfile = get_gridfs().get(submission['archive'])
+            taskfname = base_path + str(submission["_id"]) + '.tgz'
+
+            # Generate file info
+            info = tarfile.TarInfo(name=taskfname)
+            info.size = subfile.length
+            info.mtime = time.mktime(submission["submitted_on"].timetuple())
+
+            # Add file in tar archive
+            tar.addfile(info, fileobj=subfile)
+
+        # If there files that were uploaded by the student, add them
+        if submission['input'] is not None:
+            for pid, problem in submission['input'].iteritems():
+                # If problem is a dict, it is a file (from the specification of the problems)
+                if isinstance(problem, dict):
+                    # Get the extension (match extensions with more than one dot too)
+                    DOUBLE_EXTENSIONS = ['.tar.gz', '.tar.bz2', '.tar.bz', '.tar.xz']
+                    if not problem['filename'].endswith(tuple(DOUBLE_EXTENSIONS)):
+                        _, ext = os.path.splitext(problem['filename'])
+                    else:
+                        for t_ext in DOUBLE_EXTENSIONS:
+                            if problem['filename'].endswith(t_ext):
+                                ext = t_ext
+
+                    subfile = StringIO.StringIO(base64.b64decode(problem['value']))
+                    taskfname = base_path + str(submission["_id"]) + '_uploaded_files/' + pid + ext
+
+                    # Generate file info
+                    info = tarfile.TarInfo(name=taskfname)
+                    info.size = subfile.len
+                    info.mtime = time.mktime(submission["submitted_on"].timetuple())
+
+                    # Add file in tar archive
+                    tar.addfile(info, fileobj=subfile)
+
+    # Close tarfile and put tempfile cursor at 0
+    tar.close()
+    tmpfile.seek(0)
+    return tmpfile

@@ -22,9 +22,11 @@ import signal
 import time
 import uuid
 from abc import abstractmethod
-
+import tempfile
+import tarfile
 from backend.hook_manager import HookManager
-
+import StringIO
+import os
 
 def _init_manager():
     """ Makes the manager ignore SIGINT """
@@ -77,38 +79,44 @@ class AbstractJobManager(object):
         pass
 
     @abstractmethod
-    def _get_batch_container_args_from_agent(self, container_name):
+    def _get_batch_container_metadata_from_agent(self, container_name):
         """
             Returns the arguments needed by a particular batch container.
             :returns: a dict in the form
-                {"key":
+                ("container title",
+                 "container description in restructuredtext",
+                 {"key":
                     {
                      "type:" "file", #or "text",
                      "path": "path/to/file/inside/input/dir", #not mandatory in file, by default "key"
                      "name": "name of the field", #not mandatory in file, default "key"
                      "description": "a short description of what this field is used for" #not mandatory, default ""
                     }
-                }
+                 }
+                )
         """
         pass
 
-    def get_batch_container_args(self, container_name):
+    def get_batch_container_metadata(self, container_name):
         """
             Returns the arguments needed by a particular batch container (cached version)
             :returns: a dict in the form
-                {"key":
+                ("container title",
+                 "container description in restructuredtext",
+                 {"key":
                     {
                      "type:" "file", #or "text",
                      "path": "path/to/file/inside/input/dir", #not mandatory in file, by default "key"
                      "name": "name of the field", #not mandatory in file, default "key"
                      "description": "a short description of what this field is used for" #not mandatory, default ""
                     }
-                }
+                 }
+                )
         """
         if container_name not in self._batch_container_args:
-            ret = self._get_batch_container_args_from_agent(container_name)
-            if ret is None:
-                return None
+            ret = self._get_batch_container_metadata_from_agent(container_name)
+            if ret == (None, None, None):
+                return ret
             self._batch_container_args[container_name] = ret
         return self._batch_container_args[container_name]
 
@@ -129,7 +137,7 @@ class AbstractJobManager(object):
 
         # Call the callback
         try:
-            callback(jobid, task, final_result)
+            callback(final_result)
         except Exception as e:
             print "JobManager failed to call the callback function for jobid {}: {}".format(jobid, repr(e))
 
@@ -152,7 +160,7 @@ class AbstractJobManager(object):
 
         # Call the callback
         try:
-            callback(jobid, result)
+            callback(result)
         except Exception as e:
             print "JobManager failed to call the callback function for jobid {}: {}".format(jobid, repr(e))
 
@@ -239,14 +247,13 @@ class AbstractJobManager(object):
         """Returns the total number of waiting jobs in the Job Manager"""
         return len(self._running_batch_job_data)
 
-    def new_job_id(self):
+    def _new_job_id(self):
         """ Returns a new job id. The job id is unique and should be passed to the new_job function """
         return uuid.uuid4()
 
-    def new_job(self, task, inputdata, callback, launcher_name="Unknown", jobid=None, debug=False):
+    def new_job(self, task, inputdata, callback, launcher_name="Unknown", debug=False):
         """ Add a new job. callback is a function that will be called asynchronously in the job manager's process. """
-        if jobid is None:
-            jobid = self.new_job_id()
+        jobid = self._new_job_id()
 
         # Base dictionary with output
         basedict = {"task": task, "input": inputdata}
@@ -273,16 +280,27 @@ class AbstractJobManager(object):
 
         return jobid
 
-    def new_batch_job(self, container_name, inputdata, callback, launcher_name="Unknown", jobid=None):
+    def new_batch_job(self, container_name, inputdata, callback, launcher_name="Unknown"):
         """ Add a new batch job. callback is a function that will be called asynchronously in the job manager's process.
-            inputdata is a tgz file.
+            inputdata is a dict containing all the keys of get_batch_container_metadata(container_name)[2].
+            The values associated are file-like objects for "file" types and  strings for "text" types.
         """
-        if jobid is None:
-            jobid = self.new_job_id()
+        jobid = self._new_job_id()
+
+        # Verify inputdata
+        batch_args = self.get_batch_container_metadata(container_name)[2]
+        if set(inputdata.keys()) != set(batch_args.keys()):
+            raise Exception("Invalid keys for inputdata")
+        for key in batch_args:
+            if batch_args[key]["type"] == "text" and not isinstance(inputdata[key],basestring):
+                raise Exception("Invalid value for inputdata: the value for key {} should be a string".format(key))
+            elif batch_args[key]["type"] == "file" and isinstance(inputdata[key], basestring):
+                raise Exception("Invalid value for inputdata: the value for key {} should be a file object".format(key))
 
         # Compute some informations that will be useful for statistics
         statinfo = {"launched": time.time(), "launcher_name": launcher_name}
         self._running_batch_job_data[jobid] = (container_name, callback, inputdata, statinfo)
+
         self._hook_manager.call_hook("new_batch_job", jobid=jobid, statinfo=statinfo, inputdata=inputdata)
 
         self._execute_batch_job(jobid, container_name, inputdata)

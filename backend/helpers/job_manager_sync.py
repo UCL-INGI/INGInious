@@ -33,13 +33,12 @@ class JobManagerSync(object):
         """
         job_semaphore = threading.Semaphore(0)
 
-        def manage_output(dummy1_, dummy2_, job):
+        def manage_output(job):
             """ Manages the output of this job """
-            print "RETURN JOB"
-            manage_output.jobReturn = job
+            manage_output.job_return = job
             job_semaphore.release()
 
-        self._job_manager.new_job(task, inputdata, manage_output, launcher_name, None, debug)
+        self._job_manager.new_job(task, inputdata, manage_output, launcher_name, debug)
         job_semaphore.acquire()
-        job_return = manage_output.jobReturn
+        job_return = manage_output.job_return
         return job_return

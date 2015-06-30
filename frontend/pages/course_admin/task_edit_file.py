@@ -73,7 +73,7 @@ class CourseTaskFiles(object):
         else:
             return self.show_tab_file(courseid, taskid)
 
-    def show_tab_file(self, courseid, taskid, error=False):
+    def show_tab_file(self, courseid, taskid, _error=False):
         """ Return the file tab """
         return get_template_renderer('templates/').course_admin.edit_tabs.files(FrontendCourse(courseid), taskid,
                                                                                 self.get_task_filelist(courseid, taskid))
