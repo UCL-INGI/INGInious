@@ -148,7 +148,7 @@ class SimpleAgent(object):
             self.logger.warning("Cannot connect to Docker!")
             return {'retval': -1, "stderr": "Failed to connect to Docker"}
 
-        batch_args = self.get_batch_container_args(container_name, docker_connection)
+        batch_args = self.handle_get_batch_container_args(container_name, docker_connection)
         if batch_args is None:
             return {'retval': -1, "stderr": "Inspecting the batch container image failed"}
 
