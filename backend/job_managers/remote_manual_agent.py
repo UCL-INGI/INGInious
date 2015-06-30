@@ -35,7 +35,11 @@ from common.task_file_managers.manage import get_available_task_file_managers, g
 
 
 class RemoteManualAgentJobManager(AbstractJobManager):
-    """ A Job Manager that handles connections with distant Agents using RPyC """
+    """
+        A Job Manager that handles connections with distant Agents using RPyC.
+        This job manager makes the assumption that everything is configured correctly on all agents; all remote docker have the same version of the
+        container images, etc.
+    """
 
     def __init__(self, agents, image_aliases, hook_manager=None, is_testing=False):
         """
