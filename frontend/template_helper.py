@@ -35,12 +35,7 @@ class TemplateHelper(object):
     """ Class accessible from templates that calls function defined in the Python part of the code """
 
     _instance = None
-    _base_helpers = {"header_hook": (lambda **kwargs: generic_hook('header_html', **kwargs)),
-                     "course_menu": (lambda **kwargs: generic_hook('course_menu', **kwargs)),
-                     "javascript_header": (lambda **_: TemplateHelper._javascript_helper("header")),
-                     "javascript_footer": (lambda **_: TemplateHelper._javascript_helper("footer")),
-                     "css": (lambda **_: TemplateHelper._css_helper()),
-                     "course_admin_menu": frontend.pages.course_admin.utils.get_menu}
+    _base_helpers = {}  # see __init__
     WEB_CTX_KEY = "inginious_tpl_helper"
 
     def __new__(cls, *args, **kwargs):
@@ -51,6 +46,14 @@ class TemplateHelper(object):
         else:
             raise Exception("You should not instanciate PluginManager more than once")
         return cls._instance
+
+    def __init__(self):
+        self._base_helpers = {"header_hook": (lambda **kwargs: generic_hook('header_html', **kwargs)),
+                              "course_menu": (lambda **kwargs: generic_hook('course_menu', **kwargs)),
+                              "javascript_header": (lambda **_: TemplateHelper._javascript_helper("header")),
+                              "javascript_footer": (lambda **_: TemplateHelper._javascript_helper("footer")),
+                              "css": (lambda **_: TemplateHelper._css_helper()),
+                              "course_admin_menu": frontend.pages.course_admin.utils.get_menu}
 
     @classmethod
     def get_instance(cls):
