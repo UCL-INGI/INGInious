@@ -51,7 +51,8 @@ class RemoteAgent(SimpleAgent):
 
     def _get_agent_backend_service(self):
         """ Returns a RPyC service associated with this Agent """
-        create_custom_container = self.create_custom_container
+        handle_batch_job = self.handle_batch_job
+        handle_get_batch_container_args = self.handle_get_batch_container_args
         handle_job = self.handle_job
         update_image_aliases = self._update_image_aliases
         sync_enabled = self.sync_enabled
@@ -67,9 +68,9 @@ class RemoteAgent(SimpleAgent):
                 logger.info("Updating image aliases...")
                 update_image_aliases(copy.deepcopy(image_aliases))
 
-            def exposed_create_custom_container(self, job_id, container_name, input_data):
-                """ Creates, executes and returns the results of a custom container.
-                    The return value of a custom container is always a compressed(gz) tar file.
+            def exposed_new_batch_job(self, job_id, container_name, input_data):
+                """ Creates, executes and returns the results of a batch job.
+                    The return value of a batch job is always a compressed(gz) tar file.
                 :param job_id: The distant job id
                 :param container_name: The container image to launch
                 :param input_data: Input (.tgz file) to be mounted (unarchived) on /input
@@ -87,7 +88,22 @@ class RemoteAgent(SimpleAgent):
                 tmpfile.write(input_data.read())
                 tmpfile.seek(0)
 
-                return create_custom_container(job_id, container_name, tmpfile)
+                return handle_batch_job(job_id, container_name, tmpfile)
+
+            def exposed_get_batch_container_args(self, container_name):
+                """
+                    Returns the arguments needed by a particular batch container.
+                    :returns: a dict in the form
+                        {"key":
+                            {
+                             "type:" "file", #or "text",
+                             "path": "path/to/file/inside/input/dir", #not mandatory in file, by default "key"
+                             "name": "name of the field", #not mandatory in file, default "key"
+                             "description": "a short description of what this field is used for" #not mandatory, default ""
+                            }
+                        }
+                """
+                return handle_get_batch_container_args(container_name)
 
             def exposed_new_job(self, job_id, course_id, task_id, inputdata, debug, callback_status):
                 """ Creates, executes and returns the results of a new job (in a separate thread, distant version)

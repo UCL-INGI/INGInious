@@ -26,6 +26,7 @@ import thread
 import threading
 import tempfile
 import tarfile
+import re
 
 import docker
 from docker.utils import kwargs_from_env
@@ -73,9 +74,58 @@ class SimpleAgent(object):
         self._internal_job_count_lock.release()
         return internal_job_id
 
-    def create_custom_container(self, job_id, container_name, input_data):
-        """ Creates, executes and returns the results of a custom container.
-            The return value of a custom container is always a compressed(gz) tar file.
+    def handle_get_batch_container_args(self, container_name, docker_connection=None):
+        """
+            Returns the arguments needed by a particular batch container.
+            :returns: a dict in the form
+                {"key":
+                    {
+                     "type:" "file", #or "text",
+                     "path": "path/to/file/inside/input/dir", #not mandatory in file, by default "key"
+                     "name": "name of the field", #not mandatory in file, default "key"
+                     "description": "a short description of what this field is used for" #not mandatory, default ""
+                    }
+                }
+        """
+
+        try:
+            docker_connection = docker_connection or docker.Client(**kwargs_from_env())
+            data = docker_connection.inspect_image(container_name)["ContainerConfig"]["Labels"]
+        except:
+            self.logger.warning("Cannot inspect container {}".format(container_name))
+            return None
+
+        if not "org.inginious.batch" in data:
+            self.logger.warning("Container {} is not a batch container".format(container_name))
+            return None
+
+        # Find valids keys
+        args = {}
+        for label in data:
+            match = re.match(r"^org\.inginious\.batch\.([a-zA-Z0-9\-_]+)$", label)
+            if match and data[label] in ["file", "text"]:
+                args[match.group(1)] = {"type": data[label]}
+
+        # Parse additional metadata for the keys
+        for label in data:
+            match = re.match(r"^org\.inginious\.batch\.([a-zA-Z0-9\-_]+)\.(name|description|path)$", label)
+            if match and match.group(1) in args:
+                if match.group(2) in ["name","description"]:
+                    args[match.group(1)][match.group(2)] = data[label]
+                elif match.group(2) == "path" and re.match(r"^[a-zA-Z\-_\./]+$",data[label]) and ".." not in data[label]:
+                    args[match.group(1)]["path"] = data[label]
+
+        # Add all the unknown metadata
+        for key in args:
+            if "name" not in args[key]: args[key]["name"] = key
+            if "path" not in args[key]: args[key]["path"] = key
+            if "description" not in args[key]: args[key]["description"] = ""
+
+        return args
+
+    def handle_batch_job(self, job_id, container_name, input_data):
+        """ Creates, executes and returns the results of a batch job.
+            The return value of a batch job is always a compressed(gz) tar file.
         :param job_id: The distant job id
         :param container_name: The container image to launch
         :param input_data: Input (.tgz file) to be mounted (unarchived) on /input
@@ -87,7 +137,7 @@ class SimpleAgent(object):
             - {"retval":-1, "stderr": "the error message"}
                 if the container failed to start
         """
-        self.logger.info("Received request for jobid %s (custom container)", job_id)
+        self.logger.info("Received request for jobid %s (batch job)", job_id)
         internal_job_id = self._get_new_internal_job_id()
         self.logger.debug("New Internal job id -> %i", internal_job_id)
 
@@ -97,6 +147,10 @@ class SimpleAgent(object):
         except:
             self.logger.warning("Cannot connect to Docker!")
             return {'retval': -1, "stderr": "Failed to connect to Docker"}
+
+        batch_args = self.get_batch_container_args(container_name, docker_connection)
+        if batch_args is None:
+            return {'retval': -1, "stderr": "Inspecting the batch container image failed"}
 
         container_path = os.path.join(self.tmp_dir, str(internal_job_id))  # tmp_dir/id/
         input_path = os.path.join(container_path, 'input')  # tmp_dir/id/input/
@@ -115,9 +169,12 @@ class SimpleAgent(object):
 
         try:
             tar = tarfile.open(fileobj=input_data, mode='r:gz')
-            for n in tar.getnames():
+            file_list = tar.getnames()
+            for n in file_list:
                 if not os.path.abspath(os.path.join(input_path, n)).startswith(input_path):
                     raise Exception("Invalid paths!")
+            if set(file_list) != set([batch_args[key]["path"] for key in batch_args]):
+                raise Exception("Invalid content of the tgz")
             tar.extractall(input_path)
         except:
             rmtree(container_path)

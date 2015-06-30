@@ -46,7 +46,8 @@ class AbstractJobManager(object):
         self._image_aliases = image_aliases
         self._hook_manager = HookManager() if hook_manager is None else hook_manager
         self._running_job_data = {}
-        self._running_custom_job_data = {}
+        self._running_batch_job_data = {}
+        self._batch_container_args = {}
 
         print "Job Manager initialization done"
         self._hook_manager.call_hook("job_manager_init_done", job_manager=self)
@@ -67,13 +68,49 @@ class AbstractJobManager(object):
         pass
 
     @abstractmethod
-    def _execute_custom_job(self, jobid, container_name, inputdata):
-        """ Executes a custom job in the specified Docker container, then calls self._custom_job_ended with the result.
+    def _execute_batch_job(self, jobid, container_name, inputdata):
+        """ Executes a batch job in the specified Docker container, then calls self._batch_job_ended with the result.
         :param jobid: The job id
         :param container_name:  The name of the container to run
         :param inputdata: tgz file
         """
         pass
+
+    @abstractmethod
+    def _get_batch_container_args_from_agent(self, container_name):
+        """
+            Returns the arguments needed by a particular batch container.
+            :returns: a dict in the form
+                {"key":
+                    {
+                     "type:" "file", #or "text",
+                     "path": "path/to/file/inside/input/dir", #not mandatory in file, by default "key"
+                     "name": "name of the field", #not mandatory in file, default "key"
+                     "description": "a short description of what this field is used for" #not mandatory, default ""
+                    }
+                }
+        """
+        pass
+
+    def get_batch_container_args(self, container_name):
+        """
+            Returns the arguments needed by a particular batch container (cached version)
+            :returns: a dict in the form
+                {"key":
+                    {
+                     "type:" "file", #or "text",
+                     "path": "path/to/file/inside/input/dir", #not mandatory in file, by default "key"
+                     "name": "name of the field", #not mandatory in file, default "key"
+                     "description": "a short description of what this field is used for" #not mandatory, default ""
+                    }
+                }
+        """
+        if container_name not in self._batch_container_args:
+            ret = self._get_batch_container_args_from_agent(container_name)
+            if ret is None:
+                return None
+            self._batch_container_args[container_name] = ret
+        return self._batch_container_args[container_name]
 
     @abstractmethod
     def close(self):
@@ -98,8 +135,8 @@ class AbstractJobManager(object):
 
         self._hook_manager.call_hook("job_ended", jobid=jobid, task=task, statinfo=statinfo, result=final_result)
 
-    def _custom_job_ended(self, jobid, result):
-        """ Called when a custom job is done. results is a dictionnary, containing:
+    def _batch_job_ended(self, jobid, result):
+        """ Called when a batch job is done. results is a dictionnary, containing:
 
             - {"retval":0, "stdout": "...", "stderr":"...", "file":"..."}
                 if everything went well. (where file is a tgz file containing the content of the /output folder from the container)
@@ -108,10 +145,10 @@ class AbstractJobManager(object):
             - {"retval":-1, "stderr": "the error message"}
                 if the container failed to start
         """
-        container_name, callback, _, statinfo = self._running_custom_job_data[jobid]
+        container_name, callback, _, statinfo = self._running_batch_job_data[jobid]
 
         # Deletes from data structures
-        del self._running_custom_job_data[jobid]
+        del self._running_batch_job_data[jobid]
 
         # Call the callback
         try:
@@ -119,7 +156,7 @@ class AbstractJobManager(object):
         except Exception as e:
             print "JobManager failed to call the callback function for jobid {}: {}".format(jobid, repr(e))
 
-        self._hook_manager.call_hook("custom_job_ended", jobid=jobid, statinfo=statinfo, result=result)
+        self._hook_manager.call_hook("batch_job_ended", jobid=jobid, statinfo=statinfo, result=result)
 
     @classmethod
     def _merge_results(cls, origin_dict, emul_result):
@@ -198,9 +235,9 @@ class AbstractJobManager(object):
         """Returns the total number of waiting jobs in the Job Manager"""
         return len(self._running_job_data)
 
-    def get_waiting_custom_jobs_count(self):
+    def get_waiting_batch_jobs_count(self):
         """Returns the total number of waiting jobs in the Job Manager"""
-        return len(self._running_custom_job_data)
+        return len(self._running_batch_job_data)
 
     def new_job_id(self):
         """ Returns a new job id. The job id is unique and should be passed to the new_job function """
@@ -236,8 +273,8 @@ class AbstractJobManager(object):
 
         return jobid
 
-    def new_custom_job(self, container_name, inputdata, callback, launcher_name="Unknown", jobid=None):
-        """ Add a new custom job. callback is a function that will be called asynchronously in the job manager's process.
+    def new_batch_job(self, container_name, inputdata, callback, launcher_name="Unknown", jobid=None):
+        """ Add a new batch job. callback is a function that will be called asynchronously in the job manager's process.
             inputdata is a tgz file.
         """
         if jobid is None:
@@ -245,9 +282,9 @@ class AbstractJobManager(object):
 
         # Compute some informations that will be useful for statistics
         statinfo = {"launched": time.time(), "launcher_name": launcher_name}
-        self._running_custom_job_data[jobid] = (container_name, callback, inputdata, statinfo)
-        self._hook_manager.call_hook("new_custom_job", jobid=jobid, statinfo=statinfo, inputdata=inputdata)
+        self._running_batch_job_data[jobid] = (container_name, callback, inputdata, statinfo)
+        self._hook_manager.call_hook("new_batch_job", jobid=jobid, statinfo=statinfo, inputdata=inputdata)
 
-        self._execute_custom_job(jobid, container_name, inputdata)
+        self._execute_batch_job(jobid, container_name, inputdata)
 
         return jobid
