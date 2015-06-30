@@ -31,12 +31,12 @@ from frontend.pages.course_admin.utils import get_course_and_check_rights
 from frontend.user_data import UserData
 
 
-def add_admin_menu(course):
+def add_admin_menu(_course):
     """ Add a menu for the contest settings in the administration """
     return ('contest', '<span class="glyphicon glyphicon-tower"></span> Contest plugin')
 
 
-def modify_task_data(course, taskid, data):
+def modify_task_data(course, _taskid, data):
     """ Modify the availability of tasks during contests """
     contest_data = get_contest_data(course)
     if contest_data['enabled']:
@@ -230,7 +230,7 @@ class ContestAdmin(object):
             return get_template_renderer('plugins/contests', '../../templates/layout').admin(course, contest_data, errors, False)
 
 
-def init(plugin_manager, config):
+def init(plugin_manager, _config):
     """
         Init the contest plugin.
         Available configuration:

@@ -92,11 +92,11 @@ class SimpleAgent(object):
             docker_connection = docker_connection or docker.Client(**kwargs_from_env())
             data = docker_connection.inspect_image(container_name)["ContainerConfig"]["Labels"]
         except:
-            self.logger.warning("Cannot inspect container {}".format(container_name))
+            self.logger.warning("Cannot inspect container %s", container_name)
             return None
 
         if not "org.inginious.batch" in data:
-            self.logger.warning("Container {} is not a batch container".format(container_name))
+            self.logger.warning("Container %s is not a batch container", container_name)
             return None
 
         # Find valids keys
@@ -239,14 +239,14 @@ class SimpleAgent(object):
 
         return {'retval': return_value, "stdout": stdout, "stderr": stderr, "file": tmpfile}
 
-    def handle_job(self, job_id, course_id, task_id, inputdata, debug, callback_status):
+    def handle_job(self, job_id, course_id, task_id, inputdata, debug, _callback_status):
         """ Creates, executes and returns the results of a new job
         :param job_id: The distant job id
         :param course_id: The course id of the linked task
         :param task_id: The task id of the linked task
         :param inputdata: Input data, given by the student (dict)
         :param debug: A boolean, indicating if the job should be run in debug mode or not
-        :param callback_status: Not used, should be None.
+        :param _callback_status: Not used, should be None.
         """
         self.logger.info("Received request for jobid %s", job_id)
         internal_job_id = self._get_new_internal_job_id()

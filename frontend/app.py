@@ -91,7 +91,7 @@ def get_app(config_file):
     return appli
 
 
-class StaticMiddleware:
+class StaticMiddleware(object):
     """ WSGI middleware for serving static files. """
 
     def __init__(self, app, prefix='/static/', root_path='frontend/static'):

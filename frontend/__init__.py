@@ -17,4 +17,3 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Package that implements a frontend for INGInious """
-import frontend.custom.tasks

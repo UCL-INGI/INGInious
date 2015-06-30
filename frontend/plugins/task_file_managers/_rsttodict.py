@@ -182,8 +182,8 @@ class Writer(UnfilteredWriter):
         if len(questions) == 0:
             raise StructureError('There must be at least one question in your document.')
         for question in questions:
-            type = get_type(question.type)
-            type.validate(question)
+            qtype = get_type(question.type)
+            qtype.validate(question)
 
     def docinfo(self):
         docinfo = self.document.next_node(nodes.docinfo)
@@ -191,7 +191,7 @@ class Writer(UnfilteredWriter):
             return
         author = docinfo.next_node(nodes.author)
         if author:
-            self.output['author'] = map(lambda s: s.strip(), author.astext().split(','))
+            self.output['author'] = [s.strip() for s in author.astext().split(',')]
             if len(self.output['author']) == 1:
                 self.output['author'] = self.output['author'][0]
         self.output['limits'] = {}
@@ -232,9 +232,9 @@ class Writer(UnfilteredWriter):
 
     def process_boxes(self, question, infos):
         boxes = collections.OrderedDict()
-        id = 1
+        bid = 1
         for box in question.traverse(Box):
-            boxId = 'boxId' + unicode(id)
+            boxId = 'boxId' + unicode(bid)
             boxes[boxId] = {}
             for option in BoxDirective.option_spec:
                 value = getattr(box, option)
@@ -244,7 +244,7 @@ class Writer(UnfilteredWriter):
                     boxes[boxId][option] = value
                 if box.content:
                     boxes[boxId]['content'] = box.content
-            id += 1
+            bid += 1
         if len(boxes) > 0:
             infos['boxes'] = boxes
 
@@ -259,14 +259,14 @@ class Writer(UnfilteredWriter):
             infos['choices'] = choices
 
 
-def get_type(type):
-    if type == 'code':
+def get_type(ttype):
+    if ttype == 'code':
         return Code()
-    if type == 'code-single-line':
+    if ttype == 'code-single-line':
         return CodeSingleLine()
-    if type == 'match':
+    if ttype == 'match':
         return Match()
-    if type == "multiple-choice":
+    if ttype == "multiple-choice":
         return MultipleChoice()
     return UnknownType()
 
