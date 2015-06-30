@@ -1,4 +1,4 @@
-$def with (course,data)
+$def with (course,data,error,newgroup)
 
 $# Copyright (c) 2014-2015 Université Catholique de Louvain.
 $#
@@ -28,6 +28,10 @@ $var Column: $:template_helper.call('course_admin_menu',course=course,current='g
   <li class="active">Groups</li>
 </ol>
 <h2>Groups</h2>
+$if error:
+    <div class="alert alert-danger" role="alert">$error</div>
+$elif newgroup:
+    <div class="alert alert-success" role="alert">New group created.</div>
 <table class="table">
     <tr>
         <th>Group description</th>
@@ -48,15 +52,21 @@ $var Column: $:template_helper.call('course_admin_menu',course=course,current='g
     		<td>$group_data["task_succeeded"]</td>
     		<td>
     			<div class="progress">
-                    $ percentage=int(course.get_user_grade(group_data["first_user"]))
-                    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="$percentage" aria-valuemin="0" aria-valuemax="100" style="width: $percentage%">
-                        <span>$percentage%</span>
+                    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="$group_data['percentage']" aria-valuemin="0" aria-valuemax="100" style="width: $group_data['percentage']%">
+                        <span>$group_data["percentage"]%</span>
                     </div>
                 </div>
     		</td>
     		<td>
-    			<a href="/admin/${course.get_id()}/group/$group_data["group_id"]" class="btn btn-default btn-xs">View</a>
+                <a href="/admin/${course.get_id()}/group/$group_data['group_id']/edit" class="btn btn-primary btn-xs">Edit group</a>
+    			<a href="/admin/${course.get_id()}/group/$group_data['group_id']" class="btn btn-default btn-xs">View</a>
     			<a href="javascript:ask_to_download('$group_data['url']')" class="btn btn-default btn-xs">Download submissions</a>
     		</td>
     	</tr>
+    <tr>
+        <form method="post">
+            <td colspan="4"><input type="text" class="form-control" name="group_description" placeholder="New group description"/></td>
+            <td><button type="submit" class="btn btn-info btn-block">Create new group</button></td>
+        </form>
+    </tr>
 </table>

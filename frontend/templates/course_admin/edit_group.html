@@ -1,0 +1,117 @@
+$def with (course,course_stud_list,course_tut_list,group,error,post)
+
+$# Copyright (c) 2014-2015 Université Catholique de Louvain.
+$#
+$# This file is part of INGInious.
+$#
+$# INGInious is free software: you can redistribute it and/or modify
+$# it under the terms of the GNU Affero General Public License as published
+$# by the Free Software Foundation, either version 3 of the License, or
+$# (at your option) any later version.
+$#
+$# INGInious is distributed in the hope that it will be useful,
+$# but WITHOUT ANY WARRANTY; without even the implied warranty of
+$# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+$# GNU Affero General Public License for more details.
+$#
+$# You should have received a copy of the GNU Affero General Public
+$# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
+
+$var title: Edit $group["description"]
+
+$def ColumnF():
+    <div id="group_edit_submit_status"></div>
+    $:template_helper.call('course_admin_menu',course=course,current='groups')
+$var Column: $:ColumnF()
+
+<ol class="breadcrumb">
+  <li><a href="/index">Home</a></li>
+  <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
+  <li><a href="/admin/$course.get_id()">Manage</a></li>
+  <li><a href="/admin/$course.get_id()/groups">Groups</a></li>
+  <li class="active">Edit group $group["description"]</li>
+</ol>
+
+<h2>Edit group $group["description"]</h2>
+$if error:
+    <div class="alert alert-danger" role="alert">$error</div>
+$elif post:
+    <div class="alert alert-success" role="alert">Group updated.</div>
+<form method="post" class="form-horizontal">
+    <br/>
+    <div class="form-group">
+        <label for="name" class="col-sm-2 control-label">Group description</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="description" name="description" placeholder="Group description" value="$group['description']">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="name" class="col-sm-2 control-label">Student list</label>
+        <div class="col-sm-10">
+            <div class="list-group" id="student_list">
+            $for user in group["users"]:
+                $ user_data=UserData(user).get_data()
+                <div class="list-group-item" id="student_list_$user">
+                    $user ($user_data["realname"])
+                    <div class="pull-right"><i onclick="javascript:group_remove_user('student', '$user')" class="fa fa-trash-o fa-lg"></i></div>
+                    <input type="hidden" name="group_student" value="$user">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-md-8">
+                    <select type="text" class="form-control" id="student_username" name="student_username">
+                        $for student in course_stud_list:
+                            $ student_data=UserData(student).get_data()
+                            $if student not in group["users"]:
+                                <option value="$student">$student ($student_data['realname'])</option>
+                    </select>
+                </div>
+                <div class="col-xs-12 col-md-4">
+                    <button type="button" onclick="javascript:group_add_user('student', $$('#student_username').val(), $$('#student_username').text())" class="form-control btn btn-block btn-primary">Add student</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="form-group">
+        <label for="name" class="col-sm-2 control-label">Tutor list</label>
+        <div class="col-sm-10">
+            <div class="list-group" id="tutor_list">
+            $for user in group["tutors"]:
+                $ user_data=UserData(user).get_data()
+                <div class="list-group-item" id="tutor_list_$user">
+                    $user ($user_data["realname"])
+                    <div class="pull-right"><i onclick="javascript:group_remove_user('tutor', '$user')" class="fa fa-trash-o fa-lg"></i></div>
+                    <input type="hidden" name="group_tutor" value="$user">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-md-8">
+                    <select type="text" class="form-control" id="student_username" name="student_username">
+                        $for tutor in course_tut_list:
+                            $ tutor_data=UserData(tutor).get_data()
+                            $if tutor not in group["tutors"]:
+                                <option value="$tutor">$tutor ($tutor_data['realname'])</option>
+                    </select>
+                </div>
+                <div class="col-xs-12 col-md-4">
+                    <button type="button" onclick="javascript:group_add_user('tutor', $$('#tutor_username').val(), $$('#tutor_username').text())" class="form-control btn btn-block btn-primary">Add tutor</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button class="btn btn-primary btn-block task_edit_submit_button" type="submit"><span class="fa fa-download"></span> Update</button>
+</form>
+
+<!-- Init the javascript for the subproblem tab -->
+<script type="text/javascript">
+    function group_add_user(type, username, complete_name) {
+        $$("#" + type + "_list").append('<div class="list-group-item" id="' + type + '_list_' + username + '">' + complete_name +
+                '<div class="pull-right"><i onclick="javascript:group_remove_user(\'' + type + '\', \'' + username +
+                '\')" class="fa fa-trash-o fa-lg"></i></div><input type="hidden" name="group_' + type + '" value="' + username + '"></div>');
+    }
+
+    function group_remove_user(type, username) {
+        $$('#' + type + "_list_" + username).remove();
+    }
+</script>
