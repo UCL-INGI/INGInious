@@ -74,7 +74,7 @@ class SimpleAgent(object):
         self._internal_job_count_lock.release()
         return internal_job_id
 
-    def get_batch_container_args(self, container_name):
+    def handle_get_batch_container_args(self, container_name, docker_connection=None):
         """
             Returns the arguments needed by a particular batch container.
             :returns: a dict in the form
@@ -88,14 +88,8 @@ class SimpleAgent(object):
                 }
         """
 
-        # Initialize connection to Docker
         try:
-            docker_connection = docker.Client(**kwargs_from_env())
-        except:
-            self.logger.warning("Cannot connect to Docker!")
-            return None
-
-        try:
+            docker_connection = docker_connection or docker.Client(**kwargs_from_env())
             data = docker_connection.inspect_image(container_name)["ContainerConfig"]["Labels"]
         except:
             self.logger.warning("Cannot inspect container {}".format(container_name))
@@ -154,6 +148,10 @@ class SimpleAgent(object):
             self.logger.warning("Cannot connect to Docker!")
             return {'retval': -1, "stderr": "Failed to connect to Docker"}
 
+        batch_args = self.get_batch_container_args(container_name, docker_connection)
+        if batch_args is None:
+            return {'retval': -1, "stderr": "Inspecting the batch container image failed"}
+
         container_path = os.path.join(self.tmp_dir, str(internal_job_id))  # tmp_dir/id/
         input_path = os.path.join(container_path, 'input')  # tmp_dir/id/input/
         output_path = os.path.join(container_path, 'output')  # tmp_dir/id/output/
@@ -171,9 +169,12 @@ class SimpleAgent(object):
 
         try:
             tar = tarfile.open(fileobj=input_data, mode='r:gz')
-            for n in tar.getnames():
+            file_list = tar.getnames()
+            for n in file_list:
                 if not os.path.abspath(os.path.join(input_path, n)).startswith(input_path):
                     raise Exception("Invalid paths!")
+            if set(file_list) != set([batch_args[key]["path"] for key in batch_args]):
+                raise Exception("Invalid content of the tgz")
             tar.extractall(input_path)
         except:
             rmtree(container_path)

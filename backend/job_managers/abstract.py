@@ -47,6 +47,7 @@ class AbstractJobManager(object):
         self._hook_manager = HookManager() if hook_manager is None else hook_manager
         self._running_job_data = {}
         self._running_batch_job_data = {}
+        self._batch_container_args = {}
 
         print "Job Manager initialization done"
         self._hook_manager.call_hook("job_manager_init_done", job_manager=self)
@@ -74,6 +75,42 @@ class AbstractJobManager(object):
         :param inputdata: tgz file
         """
         pass
+
+    @abstractmethod
+    def _get_batch_container_args_from_agent(self, container_name):
+        """
+            Returns the arguments needed by a particular batch container.
+            :returns: a dict in the form
+                {"key":
+                    {
+                     "type:" "file", #or "text",
+                     "path": "path/to/file/inside/input/dir", #not mandatory in file, by default "key"
+                     "name": "name of the field", #not mandatory in file, default "key"
+                     "description": "a short description of what this field is used for" #not mandatory, default ""
+                    }
+                }
+        """
+        pass
+
+    def get_batch_container_args(self, container_name):
+        """
+            Returns the arguments needed by a particular batch container (cached version)
+            :returns: a dict in the form
+                {"key":
+                    {
+                     "type:" "file", #or "text",
+                     "path": "path/to/file/inside/input/dir", #not mandatory in file, by default "key"
+                     "name": "name of the field", #not mandatory in file, default "key"
+                     "description": "a short description of what this field is used for" #not mandatory, default ""
+                    }
+                }
+        """
+        if container_name not in self._batch_container_args:
+            ret = self._get_batch_container_args_from_agent(container_name)
+            if ret is None:
+                return None
+            self._batch_container_args[container_name] = ret
+        return self._batch_container_args[container_name]
 
     @abstractmethod
     def close(self):

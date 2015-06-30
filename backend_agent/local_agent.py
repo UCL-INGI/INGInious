@@ -57,6 +57,21 @@ class LocalAgent(SimpleAgent):
         t.daemon = True
         t.start()
 
+    def get_batch_container_args(self, container_name):
+        """
+            Returns the arguments needed by a particular batch container.
+            :returns: a dict in the form
+                {"key":
+                    {
+                     "type:" "file", #or "text",
+                     "path": "path/to/file/inside/input/dir", #not mandatory in file, by default "key"
+                     "name": "name of the field", #not mandatory in file, default "key"
+                     "description": "a short description of what this field is used for" #not mandatory, default ""
+                    }
+                }
+        """
+        return self.handle_get_batch_container_args(container_name)
+
     def _handle_job_threaded(self, job_id, course_id, task_id, inputdata, debug, callback_status, final_callback):
         try:
             result = self.handle_job(job_id, course_id, task_id, inputdata, debug, callback_status)

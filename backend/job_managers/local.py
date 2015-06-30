@@ -39,5 +39,8 @@ class LocalJobManager(AbstractJobManager):
     def _execute_batch_job(self, jobid, container_name, inputdata):
         self._agent.new_batch_job(jobid, container_name, inputdata, lambda result: self._batch_job_ended(jobid, result))
 
+    def _get_batch_container_args_from_agent(self, container_name):
+        return self._agent.get_batch_container_args(container_name)
+
     def close(self):
         pass
