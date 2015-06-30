@@ -235,26 +235,29 @@ class RemoteManualAgentJobManager(AbstractJobManager):
             info = tarfile.TarInfo(name=key)
             info.mode = 0o777
             if isinstance(val, basestring):
-                fileobj = StringIO.StringIO(val)
+                fileobj = StringIO(val)
                 info.size = fileobj.len
+                tar.addfile(tarinfo=info, fileobj=fileobj)
             else:
                 fileobj = val
                 info.size = os.fstat(fileobj.fileno()).st_size
-            tar.addfile(tarinfo=info, fileobj=fileobj)
+                fileobj.seek(0)
+                tar.addfile(tarinfo=info, fileobj=fileobj)
         tar.close()
+        tmpfile.seek(0)
 
         agent_id = self._select_agent()
         if agent_id is None:
             self._agent_batch_job_ended(jobid,
                                          {'retval': -1,
-                                          'text': 'There are not any agent available for running this job. '
+                                          'stderr': 'There are not any agent available for running this job. '
                                                   'Please retry later. If this error persists, please contact the course administrator.'},
                                          None)
             return
 
         try:
             agent = self._agents[agent_id]
-            async_run = rpyc.async(agent.root.handle_batch_job)
+            async_run = rpyc.async(agent.root.new_batch_job)
             result = async_run(str(jobid), str(container_name), tmpfile)
             self._running_on_agent[agent_id].append(jobid)
             result.add_callback(lambda r: self._execute_batch_job_callback(jobid, r, agent_id))
@@ -265,7 +268,7 @@ class RemoteManualAgentJobManager(AbstractJobManager):
     def _get_batch_container_metadata_from_agent(self, container_name):
         agent_id = self._select_agent()
         if agent_id is None:
-            return None
+            return (None, None, None)
         try:
             agent = self._agents[agent_id]
             async_run = rpyc.async(agent.root.get_batch_container_metadata)
@@ -273,7 +276,7 @@ class RemoteManualAgentJobManager(AbstractJobManager):
             result.wait()
             return copy.deepcopy(result.value)
         except:
-            return None
+            return (None, None, None)
 
     def _agent_job_ended(self, jobid, result, agent_id=None):
         """ Custom _job_ended with more infos """

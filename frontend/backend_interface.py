@@ -32,10 +32,14 @@ get_job_manager.job_manager = None
 def init(plugin_manager):
     """ inits everything that makes the backend working """
 
-    # Updates the submissions that have a jobid with the status error, as the server restarted """
-    get_database().submissions.update({'jobid': {"$exists": True}},
+    # Updates the submissions that are waiting with the status error, as the server restarted
+    get_database().submissions.update({'status': 'waiting'},
                                       {"$unset": {'jobid': ""},
                                        "$set": {'status': 'error', 'grade': 0.0, 'text': 'Internal error. Server restarted'}}, multi=True)
+
+    # Updates all batch job still running
+    get_database().batch_jobs.update({'result':{'$exists':False}},
+                                     {"$set": {"result": {"retval": -1, "stderr": "Internal error. Server restarted"}}}, multi=True)
 
     # Create the job manager
     backend_type = INGIniousConfiguration.get("backend", "local")

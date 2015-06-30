@@ -46,7 +46,7 @@ def get_submission(submissionid, user_check=True):
         return None
     return sub
 
-def job_done_callback(submissionid, task, job):
+def _job_done_callback(submissionid, task, job):
     """ Callback called by JobManager when a job is done. Updates the submission in the database with the data returned after the completion of the job """
     submission = get_submission(submissionid, False)
     submission = get_input_from_submission(submission)
@@ -113,7 +113,7 @@ def add_job(task, inputdata, debug=False):
 
     PluginManager.get_instance().call_hook("new_submission", submissionid=submissionid, submission=obj, inputdata=inputdata)
 
-    get_job_manager().new_job(task, inputdata, (lambda job: job_done_callback(submissionid, task, job)), "Frontend - {}".format(username), debug)
+    get_job_manager().new_job(task, inputdata, (lambda job: _job_done_callback(submissionid, task, job)), "Frontend - {}".format(username), debug)
 
     return submissionid
 
