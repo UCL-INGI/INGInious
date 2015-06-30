@@ -79,38 +79,44 @@ class AbstractJobManager(object):
         pass
 
     @abstractmethod
-    def _get_batch_container_args_from_agent(self, container_name):
+    def _get_batch_container_metadata_from_agent(self, container_name):
         """
             Returns the arguments needed by a particular batch container.
             :returns: a dict in the form
-                {"key":
+                ("container title",
+                 "container description in restructuredtext",
+                 {"key":
                     {
                      "type:" "file", #or "text",
                      "path": "path/to/file/inside/input/dir", #not mandatory in file, by default "key"
                      "name": "name of the field", #not mandatory in file, default "key"
                      "description": "a short description of what this field is used for" #not mandatory, default ""
                     }
-                }
+                 }
+                )
         """
         pass
 
-    def get_batch_container_args(self, container_name):
+    def get_batch_container_metadata(self, container_name):
         """
             Returns the arguments needed by a particular batch container (cached version)
             :returns: a dict in the form
-                {"key":
+                ("container title",
+                 "container description in restructuredtext",
+                 {"key":
                     {
                      "type:" "file", #or "text",
                      "path": "path/to/file/inside/input/dir", #not mandatory in file, by default "key"
                      "name": "name of the field", #not mandatory in file, default "key"
                      "description": "a short description of what this field is used for" #not mandatory, default ""
                     }
-                }
+                 }
+                )
         """
         if container_name not in self._batch_container_args:
-            ret = self._get_batch_container_args_from_agent(container_name)
-            if ret is None:
-                return None
+            ret = self._get_batch_container_metadata_from_agent(container_name)
+            if ret == (None, None, None):
+                return ret
             self._batch_container_args[container_name] = ret
         return self._batch_container_args[container_name]
 
@@ -276,13 +282,13 @@ class AbstractJobManager(object):
 
     def new_batch_job(self, container_name, inputdata, callback, launcher_name="Unknown"):
         """ Add a new batch job. callback is a function that will be called asynchronously in the job manager's process.
-            inputdata is a dict containing all the keys of get_batch_container_args(container_name).
+            inputdata is a dict containing all the keys of get_batch_container_metadata(container_name)[2].
             The values associated are file-like objects for "file" types and  strings for "text" types.
         """
         jobid = self._new_job_id()
 
         # Verify inputdata
-        batch_args = self.get_batch_container_args(container_name)
+        batch_args = self.get_batch_container_metadata(container_name)[2]
         if set(inputdata.keys()) != set(batch_args.keys()):
             raise Exception("Invalid keys for inputdata")
         for key in batch_args:

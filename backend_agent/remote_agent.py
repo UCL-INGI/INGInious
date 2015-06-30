@@ -52,7 +52,7 @@ class RemoteAgent(SimpleAgent):
     def _get_agent_backend_service(self):
         """ Returns a RPyC service associated with this Agent """
         handle_batch_job = self.handle_batch_job
-        handle_get_batch_container_args = self.handle_get_batch_container_args
+        handle_get_batch_container_metadata = self.handle_get_batch_container_metadata
         handle_job = self.handle_job
         update_image_aliases = self._update_image_aliases
         sync_enabled = self.sync_enabled
@@ -89,7 +89,7 @@ class RemoteAgent(SimpleAgent):
                 tmpfile.seek(0)
 
                 # Unarchive input_data
-                batch_args = handle_get_batch_container_args(container_name)
+                batch_args = handle_get_batch_container_metadata(container_name)[2]
                 input_data = {}
                 tar = tarfile.open(fileobj=tmpfile, mode='r:gz')
                 for n in tar.getnames():
@@ -102,20 +102,23 @@ class RemoteAgent(SimpleAgent):
 
                 return handle_batch_job(job_id, container_name, input_data)
 
-            def exposed_get_batch_container_args(self, container_name):
+            def exposed_get_batch_container_metadata(self, container_name):
                 """
                     Returns the arguments needed by a particular batch container.
-                    :returns: a dict in the form
-                        {"key":
+                    :returns: a tuple, in the form
+                        ("container title",
+                         "container description in restructuredtext",
+                         {"key":
                             {
                              "type:" "file", #or "text",
                              "path": "path/to/file/inside/input/dir", #not mandatory in file, by default "key"
                              "name": "name of the field", #not mandatory in file, default "key"
                              "description": "a short description of what this field is used for" #not mandatory, default ""
                             }
-                        }
+                         }
+                        )
                 """
-                return handle_get_batch_container_args(container_name)
+                return handle_get_batch_container_metadata(container_name)
 
             def exposed_new_job(self, job_id, course_id, task_id, inputdata, debug, callback_status):
                 """ Creates, executes and returns the results of a new job (in a separate thread, distant version)

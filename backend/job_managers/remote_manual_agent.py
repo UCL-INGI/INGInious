@@ -262,13 +262,13 @@ class RemoteManualAgentJobManager(AbstractJobManager):
             self._agent_shutdown(agent_id)
             self._execute_batch_job(jobid, container_name, inputdata)
 
-    def _get_batch_container_args_from_agent(self, container_name):
+    def _get_batch_container_metadata_from_agent(self, container_name):
         agent_id = self._select_agent()
         if agent_id is None:
             return None
         try:
             agent = self._agents[agent_id]
-            async_run = rpyc.async(agent.root.get_batch_container_args)
+            async_run = rpyc.async(agent.root.get_batch_container_metadata)
             result = async_run(str(container_name))
             result.wait()
             return copy.deepcopy(result.value)

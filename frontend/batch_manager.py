@@ -42,29 +42,32 @@ def _get_submissions_data(course):
         {"courseid": course.get_id(), "username": {"$in": course.get_registered_users()}, "status": {"$in": ["done", "error"]}}))
     return get_submission_archive(submissions, ['username', 'taskid'])
 
-def get_batch_container_args(container_name):
+def get_batch_container_metadata(container_name):
     """
         Returns the arguments needed by a particular batch container.
-        :returns: a dict in the form
-            {"key":
+        :returns: a tuple in the form
+            ("container title",
+             "container description in restructuredtext",
+             {"key":
                 {
                  "type:" "file", #or "text",
                  "path": "path/to/file/inside/input/dir", #not mandatory in file, by default "key"
                  "name": "name of the field", #not mandatory in file, default "key"
                  "description": "a short description of what this field is used for" #not mandatory, default ""
                 }
-            }
+             }
+            )
     """
     if container_name not in INGIniousConfiguration.get("batch_containers", []):
         raise Exception("This batch container is not allowed to be started")
 
-    return get_job_manager().get_batch_container_args(container_name)
+    return get_job_manager().get_batch_container_metadata(container_name)
 
 def add_batch_job(course, container_name, inputdata, launcher_name=None, skip_permission=False):
     """
         Add a job in the queue and returns a batch job id.
-        inputdata is a dict containing all the keys of get_batch_container_args(container_name) BUT the keys "course" and "submission" IF their type
-        is "file". (the content of the course and the submission will be automatically included by this function.)
+        inputdata is a dict containing all the keys of get_batch_container_metadata(container_name)[2] BUT the keys "course" and "submission" IF their
+        type is "file". (the content of the course and the submission will be automatically included by this function.)
         The values associated are file-like objects for "file" types and  strings for "text" types.
     """
 
@@ -81,7 +84,7 @@ def add_batch_job(course, container_name, inputdata, launcher_name=None, skip_pe
     if container_name not in INGIniousConfiguration.get("batch_containers", []):
         raise Exception("This batch container is not allowed to be started")
 
-    container_args = get_job_manager().get_batch_container_args(container_name)
+    container_args = get_job_manager().get_batch_container_metadata(container_name)[2]
     if container_args is None:
         raise Exception("This batch container is not available")
 

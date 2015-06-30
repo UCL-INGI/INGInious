@@ -50,7 +50,7 @@ class LocalAgent(SimpleAgent):
             The return value of a batch container is always a compressed(gz) tar file.
         :param job_id: The distant job id
         :param container_name: The container image to launch
-        :param input_data: inputdata is a dict containing all the keys of get_batch_container_args(container_name).
+        :param input_data: inputdata is a dict containing all the keys of get_batch_container_metadata(container_name)[2].
             The values associated are file-like objects for "file" types and  strings for "text" types.
         :param callback: the callback that will be called when the batch job is done
         """
@@ -58,20 +58,23 @@ class LocalAgent(SimpleAgent):
         t.daemon = True
         t.start()
 
-    def get_batch_container_args(self, container_name):
+    def get_batch_container_metadata(self, container_name):
         """
             Returns the arguments needed by a particular batch container.
-            :returns: a dict in the form
-                {"key":
+            :returns: a tuple, in the form
+                ("container title",
+                 "container description in restructuredtext",
+                 {"key":
                     {
                      "type:" "file", #or "text",
                      "path": "path/to/file/inside/input/dir", #not mandatory in file, by default "key"
                      "name": "name of the field", #not mandatory in file, default "key"
                      "description": "a short description of what this field is used for" #not mandatory, default ""
                     }
-                }
+                 }
+                )
         """
-        return self.handle_get_batch_container_args(container_name)
+        return self.handle_get_batch_container_metadata(container_name)
 
     def _handle_job_threaded(self, job_id, course_id, task_id, inputdata, debug, callback_status, final_callback):
         try:

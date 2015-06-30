@@ -74,18 +74,21 @@ class SimpleAgent(object):
         self._internal_job_count_lock.release()
         return internal_job_id
 
-    def handle_get_batch_container_args(self, container_name, docker_connection=None):
+    def handle_get_batch_container_metadata(self, container_name, docker_connection=None):
         """
-            Returns the arguments needed by a particular batch container.
-            :returns: a dict in the form
-                {"key":
+            Returns the arguments needed by a particular batch container and its description
+            :returns: a tuple, in the form
+                ("container title",
+                 "container description in restructuredtext",
+                 {"key":
                     {
                      "type:" "file", #or "text",
                      "path": "path/to/file/inside/input/dir", #not mandatory in file, by default "key"
                      "name": "name of the field", #not mandatory in file, default "key"
                      "description": "a short description of what this field is used for" #not mandatory, default ""
                     }
-                }
+                 }
+                )
         """
 
         try:
@@ -93,22 +96,25 @@ class SimpleAgent(object):
             data = docker_connection.inspect_image(container_name)["ContainerConfig"]["Labels"]
         except:
             self.logger.warning("Cannot inspect container %s", container_name)
-            return None
+            return None, None, None
 
         if not "org.inginious.batch" in data:
             self.logger.warning("Container %s is not a batch container", container_name)
-            return None
+            return None, None, None
+
+        title = data["org.inginious.batch.title"] if "org.inginious.batch.title" in data else container_name
+        description = data["org.inginious.batch.description"] if "org.inginious.batch.description" in data else ""
 
         # Find valids keys
         args = {}
         for label in data:
-            match = re.match(r"^org\.inginious\.batch\.([a-zA-Z0-9\-_]+)$", label)
+            match = re.match(r"^org\.inginious\.batch\.args\.([a-zA-Z0-9\-_]+)$", label)
             if match and data[label] in ["file", "text"]:
                 args[match.group(1)] = {"type": data[label]}
 
         # Parse additional metadata for the keys
         for label in data:
-            match = re.match(r"^org\.inginious\.batch\.([a-zA-Z0-9\-_]+)\.(name|description|path)$", label)
+            match = re.match(r"^org\.inginious\.batch\.args\.([a-zA-Z0-9\-_]+)\.(name|description|path)$", label)
             if match and match.group(1) in args:
                 if match.group(2) in ["name","description"]:
                     args[match.group(1)][match.group(2)] = data[label]
@@ -121,14 +127,14 @@ class SimpleAgent(object):
             if "path" not in args[key]: args[key]["path"] = key
             if "description" not in args[key]: args[key]["description"] = ""
 
-        return args
+        return (title, description, args)
 
     def handle_batch_job(self, job_id, container_name, input_data):
         """ Creates, executes and returns the results of a batch job.
             The return value of a batch job is always a compressed(gz) tar file.
         :param job_id: The distant job id
         :param container_name: The container image to launch
-        :param input_data: a dict containing all the keys of get_batch_container_args(container_name).
+        :param input_data: a dict containing all the keys of get_batch_container_metadata(container_name)[2].
             The values associated are file-like objects for "file" types and  strings for "text" types.
         :return: a dict, containing either:
             - {"retval":0, "stdout": "...", "stderr":"...", "file":"..."}
@@ -149,7 +155,7 @@ class SimpleAgent(object):
             self.logger.warning("Cannot connect to Docker!")
             return {'retval': -1, "stderr": "Failed to connect to Docker"}
 
-        batch_args = self.handle_get_batch_container_args(container_name, docker_connection)
+        batch_args = self.handle_get_batch_container_metadata(container_name, docker_connection)[2]
         if batch_args is None:
             return {'retval': -1, "stderr": "Inspecting the batch container image failed"}
 
