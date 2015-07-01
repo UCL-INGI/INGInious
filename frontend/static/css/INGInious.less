@@ -117,21 +117,45 @@ input.monospace
     font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
-#sidebar
+.navbar
 {
-    &.affix
-    {
-        right: 0;
-        top: 0;
-        padding-right: 30px;
-        padding-left: 7px;
-    }
+    -webkit-backface-visibility: hidden;
+}
 
-    @media screen and (max-width: 768px)
+#main_container
+{
+    #sidebar
     {
-        position: static !important;
+        height: 100%;
+
+        #sidebar_inner
+        {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .affix
+        {
+            top: 0;
+        }
+
+        .affix-bottom
+        {
+            position: relative;
+        }
+
+        .affix-top
+        {
+            position: relative;
+        }
+
+        @media screen and (max-width: 768px)
+        {
+            position: static !important;
+        }
     }
 }
+
 
 form#task
 {
