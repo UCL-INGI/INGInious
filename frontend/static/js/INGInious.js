@@ -64,7 +64,14 @@ $(function()
 
     //Enable tooltips
     $(function () {
-        $('[data-toggle="tooltip"]').tooltip()
+        //Fix for button groups
+        all_needed_tooltips = $('[data-toggle="tooltip"]');
+        all_btn_groups = $('.btn-group .btn[data-toggle="tooltip"]');
+
+        not_btn_groups = all_needed_tooltips.not(all_btn_groups);
+
+        not_btn_groups.tooltip();
+        all_btn_groups.tooltip({'container':'body'});
     })
 });
 
