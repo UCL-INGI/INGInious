@@ -35,11 +35,20 @@ $(function()
     
     //Start affix only if there the height of the sidebar is less than the height of the content
     if($('#sidebar').height() < $('#content').height()) {
-        update_size = function() {$('#sidebar_inner').width($('#sidebar').width());};
-        update_size();
+        start_affix = function(){
+            $('#sidebar_affix').affix({offset: {top: 65, bottom: 61}});
+        };
+        update_size = function(){
+            $('#sidebar_affix').width($('#sidebar').width());
+            //if($('#sidebar_inner').height() >= $('#content').height() && $('#sidebar_inner').data("bs.affix") != undefined)
+            //    $("#sidebar_inner").removeClass("affix affix-top affix-bottom").removeData("bs.affix");
+            //else if($('#sidebar_inner').height() < $('#content').height() && $('#sidebar_inner').data("bs.affix") == undefined)
+            //    start_affix();
+        };
         $(window).scroll(update_size);
         $(window).resize(update_size);
-        $('#sidebar_inner').affix({offset: {top: "1px", bottom: "1px"}});
+        update_size();
+        start_affix();
     }
     
     //Registration form, disable the password field when not needed

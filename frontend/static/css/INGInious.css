@@ -58,14 +58,27 @@ label p {
 input.monospace {
   font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
 }
-#sidebar.affix {
-  right: 0;
+.navbar {
+  -webkit-backface-visibility: hidden;
+}
+#main_container #sidebar {
+  height: 100%;
+}
+#main_container #sidebar #sidebar_inner {
+  position: relative;
+  overflow: hidden;
+}
+#main_container #sidebar .affix {
   top: 0;
-  padding-right: 30px;
-  padding-left: 7px;
+}
+#main_container #sidebar .affix-bottom {
+  position: relative;
+}
+#main_container #sidebar .affix-top {
+  position: relative;
 }
 @media screen and (max-width: 768px) {
-  #sidebar {
+  #main_container #sidebar {
     position: static !important;
   }
 }
