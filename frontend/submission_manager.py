@@ -24,7 +24,7 @@ import json
 from bson.objectid import ObjectId
 import pymongo
 
-from common.courses import Course
+from frontend.custom.courses import FrontendCourse
 from frontend.backend_interface import get_job_manager
 from frontend.base import get_database, get_gridfs
 from frontend.parsable_text import ParsableText
@@ -75,12 +75,8 @@ def _job_done_callback(submissionid, task, job):
         {"$set": data}
     )
 
-    if "group" in submission:
-        group = get_database().groups.find_one({"_id": submission["group"]})
-        for username in group["users"]:
-            UserData(username).update_stats(submission, job)
-    else:
-        UserData(submission["username"]).update_stats(submission, job)
+    for username in submission["username"]:
+        UserData(username).update_stats(submission, job)
 
     PluginManager.get_instance().call_hook("submission_done", submission=submission, job=job)
 
@@ -94,6 +90,7 @@ def add_job(task, inputdata, debug=False):
         raise Exception("A user must be logged in to submit an object")
 
     username = User.get_username()
+    course = FrontendCourse(task.get_course_id())
 
     obj = {
         "courseid": task.get_course_id(),
@@ -103,11 +100,11 @@ def add_job(task, inputdata, debug=False):
         "status": "waiting",
         "submitted_on": datetime.now()}
 
-    if Course.get_course_descriptor_content(task.get_course_id()).get("groups", False):
+    if course.is_group_course() and username not in course.get_staff(True):
         group = get_database().groups.find_one({"course_id": task.get_course_id(), "users": username})
-        obj.update({"group": group["_id"]})
+        obj.update({"username": group["users"]})
     else:
-        obj.update({"username": username})
+        obj.update({"username": [username]})
 
     submissionid = get_database().submissions.insert(obj)
 
@@ -151,10 +148,7 @@ def user_is_submission_owner(submission):
     if not User.is_logged_in():
         raise Exception("A user must be logged in to verify if he owns a jobid")
 
-    if "group" in submission:
-        return get_database().groups.find({"_id": submission["group"], "users": User.get_username()}).count() > 0
-    else:
-        return submission["username"] == User.get_username()
+    return User.get_username() in submission["username"]
 
 
 def get_user_submissions(task):
@@ -162,11 +156,9 @@ def get_user_submissions(task):
     if not User.is_logged_in():
         raise Exception("A user must be logged in to get his submissions")
 
-    if Course.get_course_descriptor_content(task.get_course_id()).get("groups", False):
-        group = get_database().groups.find_one({"course_id": task.get_course_id(), "users": User.get_username()})
-        cursor = get_database().submissions.find({"group": group["_id"], "taskid": task.get_id(), "courseid": task.get_course_id()})
-    else:
-        cursor = get_database().submissions.find({"username": User.get_username(), "taskid": task.get_id(), "courseid": task.get_course_id()})
+    course = FrontendCourse(task.get_course_id())
+
+    cursor = get_database().submissions.find({"username": User.get_username(), "taskid": task.get_id(), "courseid": task.get_course_id()})
     cursor.sort([("submitted_on", -1)])
     return list(cursor)
 
@@ -176,9 +168,7 @@ def get_user_last_submissions(query, limit, one_per_task=False):
     if not User.is_logged_in():
         raise Exception("A user must be logged in to get his submissions")
     request = query.copy()
-    request.update({"$or": [
-        {"username": User.get_username()},
-        {"group": {"$in": [g["_id"] for g in get_database().groups.find({"users": User.get_username()})]}}]})
+    request.update({"username": User.get_username()})
 
     # We only want the last x task tried, modify the request
     if one_per_task is True:
