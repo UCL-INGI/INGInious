@@ -67,7 +67,7 @@ $elif post:
                     </select>
                 </div>
                 <div class="col-xs-12 col-md-4">
-                    <button type="button" onclick="javascript:group_add_user('student', $$('#student_username').val(), $$('#student_username').text())" class="form-control btn btn-block btn-primary">Add student</button>
+                    <button type="button" onclick="javascript:group_add_user('student', $$('#student_username').val(), $$('#student_username option:selected').text())" class="form-control btn btn-block btn-primary">Add student</button>
                 </div>
             </div>
         </div>
@@ -87,7 +87,7 @@ $elif post:
             </div>
             <div class="row">
                 <div class="col-xs-12 col-md-8">
-                    <select type="text" class="form-control" id="student_username" name="student_username">
+                    <select type="text" class="form-control" id="tutor_username" name="tutor_username">
                         $for tutor in course_tut_list:
                             $ tutor_data=UserData(tutor).get_data()
                             $if tutor not in group["tutors"]:
@@ -95,7 +95,7 @@ $elif post:
                     </select>
                 </div>
                 <div class="col-xs-12 col-md-4">
-                    <button type="button" onclick="javascript:group_add_user('tutor', $$('#tutor_username').val(), $$('#tutor_username').text())" class="form-control btn btn-block btn-primary">Add tutor</button>
+                    <button type="button" onclick="javascript:group_add_user('tutor', $$('#tutor_username').val(), $$('#tutor_username option:selected').text())" class="form-control btn btn-block btn-primary">Add tutor</button>
                 </div>
             </div>
         </div>
@@ -103,15 +103,32 @@ $elif post:
     <button class="btn btn-primary btn-block task_edit_submit_button" type="submit"><span class="fa fa-download"></span> Update</button>
 </form>
 
-<!-- Init the javascript for the subproblem tab -->
+<!-- Javascript for managing student/tutor lists -->
 <script type="text/javascript">
     function group_add_user(type, username, complete_name) {
+        // Add entry in user list for user
         $$("#" + type + "_list").append('<div class="list-group-item" id="' + type + '_list_' + username + '">' + complete_name +
                 '<div class="pull-right"><i onclick="javascript:group_remove_user(\'' + type + '\', \'' + username +
                 '\')" class="fa fa-trash-o fa-lg"></i></div><input type="hidden" name="group_' + type + '" value="' + username + '"></div>');
+
+        // Remove uuser from select list and disable select if empty
+        $$("#" + type + "_username option[value='"+ username +"']").remove();
+        if(!$$("#" + type + "_username").val())
+            $$("#" + type + "_username").prop("disabled", true);
     }
 
     function group_remove_user(type, username) {
+        // Put user back to select list
+        $$("#" + type + "_username").append('<option name="'+ type + '_username" value="'+ username +'"]>' + $$('#' + type + "_list_" + username).text() + '</option>');
+        $$("#" + type + "_username").prop("disabled", false);
+
+        // Remove user from user list
         $$('#' + type + "_list_" + username).remove();
     }
+
+    if(!$$("#student_username").val())
+        $$("#student_username").prop("disabled", true);
+    if(!$$("#tutor_username").val())
+        $$("#tutor_username").prop("disabled", true);
+
 </script>

@@ -21,7 +21,7 @@
 import web
 from frontend.base import renderer
 from frontend.pages.course_admin.utils import get_course_and_check_rights
-
+from pymongo import ReturnDocument
 from frontend.base import get_database
 from bson.objectid import ObjectId
 
@@ -46,16 +46,20 @@ class CourseEditGroup(object):
         course_stud_list = course.get_registered_users(True)
         course_tut_list = course.get_staff(False)
 
-        group = get_database().groups.find_one({"_id": ObjectId(groupid), "course_id": courseid})
-
-        if not group:
-            raise web.notfound()
-
         error = ""
         try:
-            data = web.input()
-            if not data['description']:
+            data = web.input(group_tutor=[],group_student=[])
+            data["group_tutor"] = [tutor for tutor in data["group_tutor"] if tutor in course_tut_list]
+            data["group_student"] = [student for student in data["group_student"] if student in course_stud_list]
+            if data['description']:
+                group = get_database().groups.find_one_and_update(
+                    {"_id": ObjectId(groupid)},
+                    {"$set": {"description": data["description"],
+                              "users": data["group_student"], "tutors": data["group_tutor"]}},
+                    return_document=ReturnDocument.AFTER)
+            else:
                 error = 'No group description given.'
+
         except:
             error = 'User returned an invalid form.'
 
