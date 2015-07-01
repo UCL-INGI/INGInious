@@ -1,4 +1,4 @@
-$def with (course,user_data,user_list)
+$def with (course,user_data,user_list,groupid)
 
 $# Copyright (c) 2014-2015 Université Catholique de Louvain.
 $#
@@ -24,12 +24,20 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
         <th># task done</th>
         <th>Current grade</th>
         <th>
-            <div class="btn-group" role="group">
-                <a href="javascript:ask_to_download('/admin/${course.get_id()}/submissions?dl=course')" class="btn btn-danger btn-xs" title="Download
-                   all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                <a href="/admin/${course.get_id()}?csv" class="btn btn-info btn-xs" title="Download
-                   CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
-            </div>
+            $if course.is_group_course():
+                <div class="btn-group" role="group">
+                    <a href="javascript:ask_to_download('/admin/${course.get_id()}/submissions?dl=course&groupid=$groupid')" class="btn btn-danger btn-xs" title="Download
+                       all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                    <a href="/admin/${course.get_id()}/group/$groupid?csv" class="btn btn-info btn-xs" title="Download
+                       CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
+                </div>
+            $else:
+                <div class="btn-group" role="group">
+                    <a href="javascript:ask_to_download('/admin/${course.get_id()}/submissions?dl=course')" class="btn btn-danger btn-xs" title="Download
+                       all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                    <a href="/admin/${course.get_id()}?csv" class="btn btn-info btn-xs" title="Download
+                       CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
+                </div>
         </th>
     </tr>
 

@@ -43,7 +43,7 @@ class TaskPage(object):
         if User.is_logged_in():
             try:
                 course = FrontendCourse(courseid)
-                if not course.is_open_to_user(User.get_username()):
+                if not course.is_open_to_user(User.get_username(), course.is_group_course()):
                     return renderer.course_unavailable()
 
                 task = course.get_task(taskid)
@@ -88,7 +88,7 @@ class TaskPage(object):
         if User.is_logged_in():
             try:
                 course = FrontendCourse(courseid)
-                if not course.is_open_to_user(User.get_username()):
+                if not course.is_open_to_user(User.get_username(), course.is_group_course()):
                     return renderer.course_unavailable()
 
                 task = course.get_task(taskid)
@@ -191,7 +191,7 @@ class TaskPageStaticDownload(object):
         if User.is_logged_in():
             try:
                 course = FrontendCourse(courseid)
-                if not course.is_open_to_user(User.get_username()):
+                if not course.is_open_to_user(User.get_username(), course.is_group_course()):
                     return renderer.course_unavailable()
 
                 task = course.get_task(taskid)

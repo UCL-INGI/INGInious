@@ -78,9 +78,9 @@ class FrontendCourse(Course):
         """ Returns true if the course is accessible by users that are not administrator of this course """
         return self._accessible.is_open()
 
-    def is_open_to_user(self, username):
+    def is_open_to_user(self, username, check_group=False):
         """ Returns true if the course is open to this user """
-        return (self._accessible.is_open() and self.is_user_registered(username)) or username in self.get_staff()
+        return (self._accessible.is_open() and self.is_user_registered(username, check_group)) or username in self.get_staff()
 
     def is_registration_possible(self, username):
         """ Returns true if users can register for this course """
@@ -110,9 +110,13 @@ class FrontendCourse(Course):
         """ Unregister a user from this course """
         get_database().registration.remove({"username": username, "courseid": self.get_id()})
 
-    def is_user_registered(self, username):
+    def is_user_registered(self, username, check_group=False):
         """ Returns True if the user is registered """
-        return (get_database().registration.find_one({"username": username, "courseid": self.get_id()}) is not None) or username in self.get_staff()
+        has_group = (not check_group) or \
+                    (get_database().groups.find_one({"users": username, "course_id": self.get_id()}) is not None)
+
+        return (get_database().registration.find_one({"username": username, "courseid": self.get_id()}) is not None)\
+               and has_group or username in self.get_staff()
 
     def get_registered_users(self, with_admins=True):
         """ Get all the usernames that are registered to this course (in no particular order)"""
