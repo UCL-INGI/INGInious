@@ -48,7 +48,8 @@ class CourseGroupListPage(object):
             if not data['group_description']:
                 error = 'No group description given.'
             else:
-                get_database().groups.insert({"course_id": courseid, "users": [], "tutors" : [], "description": data['group_description']})
+                get_database().groups.insert({"course_id": courseid, "users": [], "tutors": [], "size": 2,
+                                              "description": data['group_description']})
         except:
             error = 'User returned an invalid form.'
 
