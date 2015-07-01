@@ -12,24 +12,24 @@ Input, output, and metadata
 
 A batch container is fully described by its metadata. The metadata of the container image contains its title, description, and its arguments.
 
-An argument is itself composed of a ```key```, a ```name```, a ```path``` and a ```type```. For starting a batch job, the user has to fill in all the
-arguments, that will be mounted in the container in the folder ```/input/path```, where ```path``` is the one you indicated to describe the argument.
-The ```name``` part of the argument is only used for displaying, and the ```key``` is used for internal purposes only (besides a little exception,
+An argument is itself composed of a ``key``, a ``name``, a ``path`` and a ``type``. For starting a batch job, the user has to fill in all the
+arguments, that will be mounted in the container in the folder ``/input/path``, where ``path`` is the one you indicated to describe the argument.
+The ``name`` part of the argument is only used for displaying, and the ``key`` is used for internal purposes only (besides a little exception,
 see below)
 
-There are two types of arguments: ```file``` and ```text```. As you can guess, the difference is simply that while the ```file``` type take a file
-as input, ```text``` takes a single line of text. Both (even ```text```) are still mounted in the folder ```/input/...``` as said earlier.
+There are two types of arguments: ``file`` and ``text``. As you can guess, the difference is simply that while the ``file`` type take a file
+as input, ``text`` takes a single line of text. Both (even ``text``) are still mounted in the folder ``/input/...`` as said earlier.
 
-The return value of a working batch container script should always be 0. In this case, the content of the ```/output/``` will be stored in the
+The return value of a working batch container script should always be 0. In this case, the content of the ``/output/`` will be stored in the
 database and made available for the staff of the course.
 
 Taking course data and submissions as input
 -------------------------------------------
 
 In order to receive the course data (the content of the folder of the course) and/or all the submissions made from the course, you simply have to
-create an argument with type ```file``` and ```key``` respectively equal to ```course``` or ```submissions```.
+create an argument with type ``file`` and ``key`` respectively equal to ``course`` or ``submissions``.
 
-The file mounted on the given path will then be a ```.tar.gz``` archive.
+The file mounted on the given path will then be a ``.tar.gz`` archive.
 
 Indicating metadata in the Dockerfile
 -------------------------------------
@@ -73,12 +73,12 @@ Here is an example of how to include metadata in the Dockerfile:
 
 As you can see:
 
-- All batch containers must have a line ```LABEL org.inginious.batch=1``` in their Dockerfile
-- Args types are indicated via the lines ```LABEL org.inginious.batch.args.KEY=TYPE```, where ```KEY``` and ```TYPE``` are of course the type and
-the key name of the argument.
-- Args names are indicated via the lines ```LABEL org.inginious.batch.args.KEY.name="THE NAME"```
-- Args path are indicated via the lines ```LABEL org.inginious.batch.args.KEY.path="THE/PATH/INSIDE/SLASH/INPUT"```
-- Args descriptions are indicated via the lines ```LABEL org.inginious.batch.args.KEY.description="THE DESCRIPTION"```
+- All batch containers must have a line ``LABEL org.inginious.batch=1`` in their Dockerfile
+- Args types are indicated via the lines ``LABEL org.inginious.batch.args.KEY=TYPE``, where ``KEY`` and ``TYPE`` are of course the type and
+  the key name of the argument.
+- Args names are indicated via the lines ``LABEL org.inginious.batch.args.KEY.name="THE NAME"``
+- Args path are indicated via the lines ``LABEL org.inginious.batch.args.KEY.path="THE/PATH/INSIDE/SLASH/INPUT"``
+- Args descriptions are indicated via the lines ``LABEL org.inginious.batch.args.KEY.description="THE DESCRIPTION"``
 
 Example
 -------
