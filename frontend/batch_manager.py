@@ -27,6 +27,7 @@ import os
 import tempfile
 import tarfile
 from datetime import datetime
+from bson.objectid import ObjectId
 
 def _get_course_data(course):
     """ Returns a file-like object to a tgz archive of the course files """
@@ -160,7 +161,7 @@ def get_batch_job_status(batch_job_id):
         - {"retval":-1, "stderr": "the error message"}
             if the container failed to start
     """
-    return get_database().batch_jobs.find({"_id": batch_job_id})
+    return get_database().batch_jobs.find_one({"_id": ObjectId(batch_job_id)})
 
 def get_all_batch_jobs_for_course(course_id):
     """ Returns all the batch jobs for the course course id. Batch jobs are dicts in the form
@@ -175,4 +176,4 @@ def get_all_batch_jobs_for_course(course_id):
         - {"retval":-1, "stderr": "the error message"}
             if the container failed to start
     """
-    return get_database().batch_jobs.find({"courseid": course_id})
+    return list(get_database().batch_jobs.find({"courseid": course_id}))
