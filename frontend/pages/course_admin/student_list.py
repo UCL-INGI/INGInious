@@ -19,6 +19,7 @@
 import web
 
 from frontend.base import renderer
+from frontend.base import get_database
 from frontend.pages.course_admin.utils import make_csv, get_course_and_check_rights
 from frontend.user_data import UserData
 
@@ -31,15 +32,44 @@ class CourseStudentListPage(object):
         course, _ = get_course_and_check_rights(courseid)
         return self.page(course)
 
+    def POST(self, courseid):
+        """ POST request """
+        course, _ = get_course_and_check_rights(courseid)
+
+        if not course.is_group_course():
+            raise web.notfound()
+
+        error = ""
+        try:
+            data = web.input()
+            if not data['group_description']:
+                error = 'No group description given.'
+            else:
+                get_database().groups.insert({"course_id": courseid, "users": [], "tutors": [], "size": 2,
+                                              "description": data['group_description']})
+        except:
+            error = 'User returned an invalid form.'
+
+        return self.page(course, error, True)
+
     def submission_url_generator(self, course, username):
         """ Generates a submission url """
         return "/admin/" + course.get_id() + "/submissions?dl=student&username=" + username
 
-    def page(self, course):
+    def page(self, course, error="", post=False):
         """ Get all data and display the page """
-        data = UserData.get_course_data_for_users(course.get_id(), course.get_registered_users())
-        data = [dict(f.items() + [("url", self.submission_url_generator(course, username)), ("username", username)]) for username, f in
-                data.iteritems()]
+        groups = []
+        if course.is_group_course():
+            groups = get_database().groups.find({"course_id": course.get_id()})
+        groups = sorted(groups, key=lambda item : item["description"])
+
+        user_data = UserData.get_course_data_for_users(course.get_id(), course.get_registered_users())
+        for user in user_data.keys():
+            user_data[user]["url"] = self.submission_url_generator(course, user)
+
+        users_csv = [dict(f.items() + [("username", username)]) for username, f in user_data.iteritems()]
+
         if "csv" in web.input():
-            return make_csv(data)
-        return renderer.course_admin.student_list(course, data)
+            return make_csv(users_csv)
+
+        return renderer.course_admin.student_list(course, user_data, groups, error, post)

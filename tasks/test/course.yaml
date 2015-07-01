@@ -1,11 +1,10 @@
 name: '[LTEST0000] Test tasks : H2G2'
 admins:
-- test1
 - test2
 accessible: true
 registration: true
 registration_password: null
-groups: true
+groups: false
 tutors: []
 registration_ac: null
 registration_ac_list:
