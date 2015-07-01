@@ -24,13 +24,16 @@ $def ColumnF():
     $:template_helper.call('course_admin_menu',course=course,current='tasks')
 $var Column: $:ColumnF()
 
-<ol class="breadcrumb">
-  <li><a href="/index">Home</a></li>
-  <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
-  <li><a href="/admin/$course.get_id()">Manage</a></li>
-  <li><a href="/admin/$course.get_id()/tasks">Tasks</a></li>
-  <li class="active">Edit task "$taskid"</li>
-</ol>
+$def NavbarF():
+    <ol class="nav navbar-nav nav-breadcrumb">
+        <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
+        <li><a href="/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+            <i class="fa fa-user-secret"></i></a></li>
+        <li><a href="/admin/$course.get_id()/tasks" title="Tasks" data-toggle="tooltip" data-placement="bottom">
+            <i class="fa fa-tasks"></i></a></li>
+        <li class="active"><a href="#">Edit task "$taskid" <span class="sr-only">(current)</span></a></li>
+    </ol>
+$var Navbar: $:NavbarF()
 
 <h2>Edit task "$taskid"</h2>
 <form id="edit_task_form" action="/admin/${course.get_id()}/edit/$taskid" method="post" enctype="multipart/form-data" class="form-horizontal">
@@ -38,10 +41,14 @@ $var Column: $:ColumnF()
     
     <div role="tabpanel">
         <ul class="nav nav-tabs" id="edit_task_tabs" role="tablist">
-			<li role="presentation" class="active"><a href="#tab_basic" aria-controls="basicinfo" role="tab" data-toggle="tab">Basic settings</a></li>
-			<li role="presentation"><a href="#tab_container" aria-controls="container" role="tab" data-toggle="tab">Container setup</a></li>
-			<li role="presentation"><a href="#tab_subproblems" aria-controls="subproblems" role="tab" data-toggle="tab">Subproblems</a></li>
-			<li role="presentation"><a href="#tab_files" aria-controls="files" role="tab" data-toggle="tab">Task files</a></li>
+			<li role="presentation" class="active"><a href="#tab_basic" aria-controls="basicinfo" role="tab" data-toggle="tab"><i class="fa
+                fa-cog fa-fw"></i>&nbsp; Basic settings</a></li>
+			<li role="presentation"><a href="#tab_container" aria-controls="container" role="tab" data-toggle="tab"><i class="fa
+                fa-cube fa-fw"></i>&nbsp; Container setup</a></li>
+			<li role="presentation"><a href="#tab_subproblems" aria-controls="subproblems" role="tab" data-toggle="tab"><i class="fa
+                fa-list-ul fa-fw"></i>&nbsp; Subproblems</a></li>
+			<li role="presentation"><a href="#tab_files" aria-controls="files" role="tab" data-toggle="tab"><i class="fa
+                fa-edit fa-fw"></i>&nbsp; Task files</a></li>
         </ul>
 		<div id="edit_task_tabs_content" class="tab-content">
 			<div role="tabpanel" class="tab-pane active" id="tab_basic">

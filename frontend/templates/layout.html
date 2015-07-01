@@ -83,13 +83,18 @@ $:template_helper.call('header_hook')
                             class="icon-bar"></span> <span class="icon-bar"></span> <span
                             class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="/index"><img src="/static/icons/favicon-96x96.png" alt="logo"/>INGInious</a>
+                    <a class="navbar-brand" href="/index"><img src="/static/images/header.png" alt="logo"/> INGInious</a>
                 </div>
                 <div class="collapse navbar-collapse">
-                    $if "navbar" in content:
-                        $:content.navbar
+                    $if "Navbar" in content:
+                        $:content.Navbar
                     $if User.is_logged_in():
-                        <p class="navbar-text navbar-right">Logged in as $User.get_realname() - <a href="/index?logoff" class="navbar-link">Log off</a></p>
+                        <div class="navbar-right">
+                            <ul class="nav navbar-nav">
+                                <li><p class="navbar-text">Logged in as $User.get_realname()</p></li>
+                                <li><a href="/index?logoff" class="navbar-link"><i class="fa fa-sign-out"></i> Log off</a></li>
+                            </ul>
+                        </div>
                 </div>
             </div>
         </div>
@@ -104,8 +109,10 @@ $:template_helper.call('header_hook')
             </div>
             $if "Column" in content:
             	<div id="sidebar" class="col-xs-12 col-sm-4 col-lg-3">
-                    $:content.Column
-                    <div class="footer_push"></div>
+                    <div id="sidebar_inner">
+                        $:content.Column
+                        <div class="footer_push"></div>
+                    </div>
                 </div>    
         </div>
     </div>
@@ -114,7 +121,13 @@ $:template_helper.call('header_hook')
             <div class="container-fluid">
                 <div class="navbar-header" style="width: 100%">
                     <p class="navbar-text">&copy; 2014-2015 Université Catholique de Louvain</p>
-                    <p class="navbar-text navbar-right"><a href="https://github.com/UCL-INGI/INGInious">INGInious is distributed under AGPL license</a></p>
+                    <div class="navbar-right">
+                        <p class="navbar-text">
+                            <a href="https://github.com/UCL-INGI/INGInious" class="navbar-link">
+                                INGInious is distributed under AGPL license
+                            </a>
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>

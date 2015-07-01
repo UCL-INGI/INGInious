@@ -21,13 +21,17 @@ $var title: $:group["description"] - $:course.get_name()
 
 $var Column: $:template_helper.call('course_admin_menu',course=course,current='groups')
 
-<ol class="breadcrumb">
-  <li><a href="/index">Home</a></li>
-  <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
-  <li><a href="/admin/$course.get_id()">Manage</a></li>
-  <li><a href="/admin/$course.get_id()/groups">Groups</a></li>
-  <li class="active">Group - $group["description"]</li>
-</ol>
+$def NavbarF():
+    <ol class="nav navbar-nav nav-breadcrumb">
+        <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
+        <li><a href="/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+            <i class="fa fa-user-secret"></i></a></li>
+        <li><a href="/admin/$course.get_id()/groups" title="Groups" data-toggle="tooltip" data-placement="bottom">
+            <i class='fa fa-users'></i></a></li>
+        <li class="active"><a href="#">Group - $group["description"] <span class="sr-only">(current)</span></a></li>
+    </ol>
+$var Navbar: $:NavbarF()
+
 <h2>Statistics for group $group["description"]</h2>
 <table class="table">
     <tr>

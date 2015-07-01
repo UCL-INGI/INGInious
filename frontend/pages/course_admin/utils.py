@@ -159,15 +159,15 @@ def get_menu(course, current):
 
     default_entries = []
     if User.get_username() in course.get_admins():
-        default_entries += [("settings", "<span class='fa fa-cog'></span> Course settings"),
-                            ("batch", "<i class='fa fa-rocket'></i> Batch operations")]
+        default_entries += [("settings", "<i class='fa fa-cog fa-fw'></i>&nbsp; Course settings"),
+                            ("batch", "<i class='fa fa-rocket fa-fw'></i>&nbsp; Batch operations")]
 
-    default_entries += [("students", "<span class='fa fa-user'></span> Students")]
+    default_entries += [("students", "<i class='fa fa-user fa-fw'></i>&nbsp; Students")]
 
     if course.is_group_course():
-        default_entries += [("groups", "<span class='fa fa-users'></span> Groups")]
+        default_entries += [("groups", "<i class='fa fa-users fa-fw'></i>&nbsp; Groups")]
 
-    default_entries += [("tasks", "<span class='fa fa-tasks'></span> Tasks")]
+    default_entries += [("tasks", "<i class='fa fa-tasks fa-fw'></i>&nbsp; Tasks")]
 
     # Hook should return a tuple (link,name) where link is the relative link from the index of the course administration.
     additionnal_entries = [entry for entry in PluginManager.get_instance().call_hook('course_admin_menu', course=course) if entry is not None]

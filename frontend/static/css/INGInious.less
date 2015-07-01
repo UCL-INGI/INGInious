@@ -28,17 +28,23 @@
 /* Fonts */
 @import url(//fonts.googleapis.com/css?family=Yanone+Kaffeesatz:300);
 
+.container-fluid
+{
+    max-width: 1200px;
+}
+
 .navbar-brand
 {
     font-family: 'Yanone Kaffeesatz', sans-serif;
     font-weight: 300;
-    font-size: 32px;
+    font-size: 25px;
 
     img
     {
-        height: 50px;
-        margin-top: -15px;
+        height: 45px;
+        margin-top: -12px;
         vertical-align: top;
+        display: inline;
     }
 }
 
@@ -135,7 +141,7 @@ form#task
 #submissions_restrictsize
 {
     overflow: auto;
-    max-height: 211px;
+    max-height: 223px;
 }
 
 #submissions .submission
@@ -177,32 +183,11 @@ form#task
     margin-bottom: 15px;
 }
 
-.nav-tabs > li.studio_file_editor_tab
+.nav-tabs > li.studio_file_editor_tab a .closetab
 {
-    float: right;
-
-    a
-    {
-        background-color: #3498db !important;
-        color: white;
-
-        &:hover
-        {
-            background-color: #217dbb !important;
-        }
-
-        .close
-        {
-            font-size: 18px;
-            margin-left: 5px;
-        }
-    }
-
-    &.active a, &.active a:hover
-    {
-        background-color: #3498db !important;
-        color: #2c3e50;
-    }
+    color: #008cba;
+    border: none;
+    background-color: transparent;
 }
 
 #batch_table
@@ -214,6 +199,51 @@ form#task
     .batch-status-icon
     {
         text-align: center;
+    }
+}
+
+.list-group.list-group-progress
+{
+    line-height: 22px;
+
+    *
+    {
+        line-height: 22px;
+    }
+}
+
+.nav-breadcrumb
+{
+    li
+    {
+        max-width: 250px;
+        @media screen and (max-width: 1024px)
+        {
+            max-width: 150px;
+        }
+        @media screen and (max-width: 800px)
+        {
+            max-width: 120px;
+        }
+
+
+        a
+        {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        &:after
+        {
+
+            font: normal normal normal 24px/1 FontAwesome;
+            content: "\f105";
+            position: absolute;
+            left: -3px;
+            top: 10px;
+            color: rgba(255, 255, 255, 0.5);
+        }
     }
 }
 
@@ -233,7 +263,7 @@ html, body
 
 #footer, .footer_push
 {
-    padding-top: 21px;
+    padding-top: 36px;
     height: 81px;
     .navbar
     {

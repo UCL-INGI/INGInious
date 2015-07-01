@@ -22,13 +22,17 @@ $var title: $:userData["realname"] - $:course.get_name()
 
 $var Column: $:template_helper.call('course_admin_menu',course=course,current='students')
 
-<ol class="breadcrumb">
-  <li><a href="/index">Home</a></li>
-  <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
-  <li><a href="/admin/$course.get_id()">Manage</a></li>
-  <li><a href="/admin/$course.get_id()/students">Students</a></li>
-  <li class="active">Student - $userData["realname"]</li>
-</ol>
+$def NavbarF():
+    <ol class="nav navbar-nav nav-breadcrumb">
+        <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
+        <li><a href="/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+            <i class="fa fa-user-secret"></i></a></li>
+        <li><a href="/admin/$course.get_id()/students" title="Students" data-toggle="tooltip" data-placement="bottom">
+            <i class="fa fa-user"></i></a></li>
+        <li class="active"><a href="#">$userData["realname"] <span class="sr-only">(current)</span></a></li>
+    </ol>
+$var Navbar: $:NavbarF()
+
 <h2>Statistics for student $userData["realname"] ($username)</h2>
 <table class="table">
     <tr>
@@ -36,8 +40,13 @@ $var Column: $:template_helper.call('course_admin_menu',course=course,current='s
         <th>status</th>
         <th># submissions</th>
         <th>
-            <a href="javascript:ask_to_download('/admin/${course.get_id()}/submissions?dl=student&username=$username')" class="btn btn-danger btn-xs">Download all submissions</a>
-            <a href="/admin/${course.get_id()}/student/${username}?csv" class="btn btn-info btn-xs">CSV</a>
+            <div class="btn-group" role="group">
+                <a href="javascript:ask_to_download('/admin/${course.get_id()}/submissions?dl=student&username=$username')"
+                   class="btn btn-danger btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa
+                   fa-download"></i></a>
+                <a href="/admin/${course.get_id()}/student/${username}?csv" class="btn btn-info btn-xs" title="Download
+                   CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
+            </div>
         </th>
     </tr>
     $for taskid in data:
@@ -62,8 +71,12 @@ $var Column: $:template_helper.call('course_admin_menu',course=course,current='s
             </td>
             <td>$data[taskid]["submissions"]</td>
     		<td>
-    			<a href="/admin/${course.get_id()}/student/$username/$taskid" class="btn btn-default btn-xs">View submissions</a>
-    			<a href="javascript:ask_to_download('$data[taskid]['url']')" class="btn btn-default btn-xs">Download submissions</a>
+                <div class="btn-group" role="group">
+    			    <a href="/admin/${course.get_id()}/student/$username/$taskid" class="btn btn-default btn-xs" title="View submissions"
+                       data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
+                    <a href="javascript:ask_to_download('$data[taskid]['url']')" class="btn btn-default btn-xs" title="Download submissions"
+                       data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                </div>
     		</td>
     	</tr>
 </table>

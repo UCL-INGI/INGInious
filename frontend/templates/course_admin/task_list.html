@@ -21,12 +21,15 @@ $var title: $:course.get_name()
 
 $var Column: $:template_helper.call('course_admin_menu',course=course,current='tasks')
 
-<ol class="breadcrumb">
-  <li><a href="/index">Home</a></li>
-  <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
-  <li><a href="/admin/$course.get_id()">Manage</a></li>
-  <li class="active">Tasks</li>
-</ol>
+$def NavbarF():
+    <ol class="nav navbar-nav nav-breadcrumb">
+        <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
+        <li><a href="/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+            <i class="fa fa-user-secret"></i></a></li>
+        <li class="active"><a href="#"><i class="fa fa-tasks"></i> Tasks <span class="sr-only">(current)</span></a></li>
+    </ol>
+$var Navbar: $:NavbarF()
+
 <h2>Tasks</h2>
 <table class="table">
     <tr>
@@ -36,8 +39,12 @@ $var Column: $:template_helper.call('course_admin_menu',course=course,current='t
         <th># student succeeded</th>
         <th># attempts</th>
         <th>
-        	<a href="javascript:ask_to_download('/admin/${course.get_id()}/submissions?dl=course')" class="btn btn-danger btn-xs">Download all submissions</a>
-            <a href="/admin/${course.get_id()}/tasks?csv" class="btn btn-info btn-xs">CSV</a>
+            <div class="btn-group" role="group">
+                <a href="javascript:ask_to_download('/admin/${course.get_id()}/submissions?dl=course')" class="btn btn-danger btn-xs" title="Download
+                   all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                <a href="/admin/${course.get_id()}/tasks?csv" class="btn btn-info btn-xs" title="Download
+                   CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
+            </div>
         </th>
     </tr>
     $for taskid in data:
@@ -50,9 +57,14 @@ $var Column: $:template_helper.call('course_admin_menu',course=course,current='t
             <td>$data[taskid]["succeeded"]</td>
             <td>$data[taskid]["attempts"]</td>
     		<td>
-                <a href="/admin/${course.get_id()}/edit/$taskid" class="btn btn-primary btn-xs">Edit task</a>
-    			<a href="/admin/${course.get_id()}/task/$taskid" class="btn btn-default btn-xs">View student list</a>
-    			<a href="javascript:ask_to_download('$data[taskid]['url']')" class="btn btn-default btn-xs">Download submissions</a>
+                <div class="btn-group" role="group">
+                    <a href="/admin/${course.get_id()}/edit/$taskid" class="btn btn-primary btn-xs" title="Edit task" data-toggle="tooltip"
+                       data-placement="bottom"><i class="fa fa-edit"></i></a>
+                    <a href="/admin/${course.get_id()}/task/$taskid" class="btn btn-default btn-xs" title="View student results" data-toggle="tooltip"
+                       data-placement="bottom"><i class="fa fa-users"></i></a>
+                    <a href="javascript:ask_to_download('$data[taskid]['url']')" class="btn btn-default btn-xs" title="Download submissions"
+                       data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                </div>
     		</td>
     	</tr>
     <tr>

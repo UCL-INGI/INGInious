@@ -1,15 +1,19 @@
 /* Mixins */
 /* Fonts */
 @import url(//fonts.googleapis.com/css?family=Yanone+Kaffeesatz:300);
+.container-fluid {
+  max-width: 1200px;
+}
 .navbar-brand {
   font-family: 'Yanone Kaffeesatz', sans-serif;
   font-weight: 300;
-  font-size: 32px;
+  font-size: 25px;
 }
 .navbar-brand img {
-  height: 50px;
-  margin-top: -15px;
+  height: 45px;
+  margin-top: -12px;
   vertical-align: top;
+  display: inline;
 }
 /*Fixes for bootstrap*/
 .form-inline.form-control {
@@ -76,7 +80,7 @@ form#task #task-submit {
 }
 #submissions_restrictsize {
   overflow: auto;
-  max-height: 211px;
+  max-height: 223px;
 }
 #submissions .submission {
   cursor: pointer;
@@ -102,30 +106,48 @@ form#task #task-submit {
 #edit_task_tabs {
   margin-bottom: 15px;
 }
-.nav-tabs > li.studio_file_editor_tab {
-  float: right;
-}
-.nav-tabs > li.studio_file_editor_tab a {
-  background-color: #3498db !important;
-  color: white;
-}
-.nav-tabs > li.studio_file_editor_tab a:hover {
-  background-color: #217dbb !important;
-}
-.nav-tabs > li.studio_file_editor_tab a .close {
-  font-size: 18px;
-  margin-left: 5px;
-}
-.nav-tabs > li.studio_file_editor_tab.active a,
-.nav-tabs > li.studio_file_editor_tab.active a:hover {
-  background-color: #3498db !important;
-  color: #2c3e50;
+.nav-tabs > li.studio_file_editor_tab a .closetab {
+  color: #008cba;
+  border: none;
+  background-color: transparent;
 }
 #batch_table tr td {
   vertical-align: middle;
 }
 #batch_table .batch-status-icon {
   text-align: center;
+}
+.list-group.list-group-progress {
+  line-height: 22px;
+}
+.list-group.list-group-progress * {
+  line-height: 22px;
+}
+.nav-breadcrumb li {
+  max-width: 250px;
+}
+@media screen and (max-width: 1024px) {
+  .nav-breadcrumb li {
+    max-width: 150px;
+  }
+}
+@media screen and (max-width: 800px) {
+  .nav-breadcrumb li {
+    max-width: 120px;
+  }
+}
+.nav-breadcrumb li a {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nav-breadcrumb li:after {
+  font: normal normal normal 24px/1 FontAwesome;
+  content: "\f105";
+  position: absolute;
+  left: -3px;
+  top: 10px;
+  color: rgba(255, 255, 255, 0.5);
 }
 /* Footer */
 html,
@@ -140,7 +162,7 @@ body {
 }
 #footer,
 .footer_push {
-  padding-top: 21px;
+  padding-top: 36px;
   height: 81px;
 }
 #footer .navbar,

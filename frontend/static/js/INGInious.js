@@ -34,8 +34,13 @@ $(function()
     });
     
     //Start affix only if there the height of the sidebar is less than the height of the content
-    if($('#sidebar').height() < $('#content').height())
-    	$('#sidebar').affix({offset:{top:83,bottom:1}});
+    if($('#sidebar').height() < $('#content').height()) {
+        update_size = function() {$('#sidebar_inner').width($('#sidebar').width());};
+        update_size();
+        $(window).scroll(update_size);
+        $(window).resize(update_size);
+        $('#sidebar_inner').affix({offset: {top: "1px", bottom: "1px"}});
+    }
     
     //Registration form, disable the password field when not needed
     if($('#register_courseid'))
@@ -56,6 +61,11 @@ $(function()
     		el.CodeMirror.refresh();
     	});
     });
+
+    //Enable tooltips
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    })
 });
 
 //Contains all code editors

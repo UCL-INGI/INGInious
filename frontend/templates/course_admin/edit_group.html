@@ -24,13 +24,16 @@ $def ColumnF():
     $:template_helper.call('course_admin_menu',course=course,current='groups')
 $var Column: $:ColumnF()
 
-<ol class="breadcrumb">
-  <li><a href="/index">Home</a></li>
-  <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
-  <li><a href="/admin/$course.get_id()">Manage</a></li>
-  <li><a href="/admin/$course.get_id()/groups">Groups</a></li>
-  <li class="active">Edit group $group["description"]</li>
-</ol>
+$def NavbarF():
+    <ol class="nav navbar-nav nav-breadcrumb">
+        <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
+        <li><a href="/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+            <i class="fa fa-user-secret"></i></a></li>
+        <li><a href="/admin/$course.get_id()/groups" title="Groups" data-toggle="tooltip" data-placement="bottom">
+            <i class='fa fa-users'></i></a></li>
+        <li class="active"><a href="#">Edit group $group["description"] <span class="sr-only">(current)</span></a></li>
+    </ol>
+$var Navbar: $:NavbarF()
 
 <h2>Edit group $group["description"]</h2>
 $if error:
@@ -100,7 +103,7 @@ $elif post:
             </div>
         </div>
     </div>
-    <button class="btn btn-primary btn-block task_edit_submit_button" type="submit"><span class="fa fa-download"></span> Update</button>
+    <button class="btn btn-primary btn-block task_edit_submit_button" type="submit"><i class="fa fa-download"></i> Update</button>
 </form>
 
 <!-- Init the javascript for the subproblem tab -->

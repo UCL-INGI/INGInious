@@ -46,7 +46,7 @@ $var Column: $:ColumnF()
 
 $# Start content
 <h2>My courses</h2>
-<div class="list-group" style="margin-left: 16px; margin-right: 16px;">
+<div class="list-group list-group-progress" style="margin-left: 16px; margin-right: 16px;">
 	$if len(open_courses) != 0:
         $for courseid in open_courses:
             <a href="course/$courseid" class="list-group-item row">

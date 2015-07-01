@@ -132,13 +132,13 @@ function studio_task_file_open_tab(path)
 		tab_id = "task_file_editor_"+Object.keys(studio_file_editor_tabs).length;
 		studio_file_editor_tabs[path] = tab_id;
 		
-		$('#edit_task_tabs').append('<li role="presentation" class="studio_file_editor_tab">'+
-				'<a href="#'+tab_id+'" aria-controls="editor" role="tab" data-toggle="tab">'+path+
-				' <button class="close" type="button"><span class="glyphicon glyphicon-remove"></span></button>'+
+		$('#edit_file_tabs').append('<li role="presentation" class="studio_file_editor_tab">'+
+				'<a href="#'+tab_id+'" aria-controls="editor" role="tab" data-toggle="tab"><i class="fa fa-file-code-o"></i>&nbsp; '+path+
+				' <button class="closetab" type="button"><i class="fa fa-remove"></i></button>'+
 				'</a></li>');
-		$('#edit_task_tabs a[href="#'+studio_file_editor_tabs[path]+'"] .close').click(function(){studio_task_file_delete_tab(path)});
+		$('#edit_file_tabs a[href="#'+studio_file_editor_tabs[path]+'"] .closetab').click(function(){studio_task_file_delete_tab(path)});
 	
-		$('#edit_task_tabs_content').append('<div role="tabpanel" class="tab-pane" id="'+tab_id+'">Loading...</div>');
+		$('#edit_file_tabs_content').append('<div role="tabpanel" class="tab-pane" id="'+tab_id+'">Loading...</div>');
 		
 		jQuery.ajax({
 			success: function(data)
@@ -217,7 +217,7 @@ function studio_task_file_open_tab(path)
 			url: location.pathname+"/files"
 		});
 	}
-	$('#edit_task_tabs a[href="#'+studio_file_editor_tabs[path]+'"]').tab('show');
+	$('#edit_file_tabs a[href="#'+studio_file_editor_tabs[path]+'"]').tab('show');
 }
 
 /**
@@ -239,9 +239,9 @@ function studio_task_file_delete_tab(path)
 		}
 		if(editorId != -1)
 			codeEditors.splice(editorId,1);
-		if($('#edit_task_tabs a[href="#'+studio_file_editor_tabs[path]+'"]').parent().hasClass('active'))
-			$('#edit_task_tabs li:eq(3) a').tab('show');
-		$('#edit_task_tabs a[href="#'+studio_file_editor_tabs[path]+'"]').parent().remove();
+		if($('#edit_file_tabs a[href="#'+studio_file_editor_tabs[path]+'"]').parent().hasClass('active'))
+			$('#edit_file_tabs li:eq(0) a').tab('show');
+		$('#edit_file_tabs a[href="#'+studio_file_editor_tabs[path]+'"]').parent().remove();
 		$('#'+studio_file_editor_tabs[path]).remove();
 		delete studio_file_editor_tabs[path];
 		return true;

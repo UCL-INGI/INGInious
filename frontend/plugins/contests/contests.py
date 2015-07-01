@@ -33,7 +33,7 @@ from frontend.user_data import UserData
 
 def add_admin_menu(_course):
     """ Add a menu for the contest settings in the administration """
-    return ('contest', '<span class="glyphicon glyphicon-tower"></span> Contest plugin')
+    return ('contest', '<i class="fa fa-trophy fa-fw"></i>&nbsp; Contest plugin')
 
 
 def modify_task_data(course, _taskid, data):

@@ -21,12 +21,14 @@ $var title: $:course.get_name() - Batch operations
 
 $var Column: $:template_helper.call('course_admin_menu',course=course,current='batch')
 
-<ol class="breadcrumb">
-    <li><a href="/index">Home</a></li>
-    <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
-    <li><a href="/admin/$course.get_id()">Manage</a></li>
-    <li class="active">Batch operations</li>
-</ol>
+$def NavbarF():
+    <ol class="nav navbar-nav nav-breadcrumb">
+        <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
+        <li><a href="/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+            <i class="fa fa-user-secret"></i></a></li>
+        <li class="active"><a href="#"><i class="fa fa-rocket"></i> Batch operations <span class="sr-only">(current)</span></a></li>
+    </ol>
+$var Navbar: $:NavbarF()
 
 <h2>Batch operations</h2>
 
@@ -44,7 +46,7 @@ $var Column: $:template_helper.call('course_admin_menu',course=course,current='b
 
             $if op['status'] == 'ok':
                 <td class="batch-status-icon text-success">
-                    <i class="glyphicon glyphicon-ok"></i>
+                    <i class="fa fa-check"></i>
                 </td>
                 <td>
                     <a href="/course/$course.get_id()/batch/summary/$op['bid']" class="btn btn-success btn-block btn-sm">view results</a>
@@ -54,14 +56,14 @@ $var Column: $:template_helper.call('course_admin_menu',course=course,current='b
                 </td>
             $elif op['status'] == 'ko':
                 <td class="batch-status-icon text-danger">
-                    <i class="glyphicon glyphicon-remove"></i>
+                    <i class="fa fa-remove"></i>
                 </td>
                 <td colspan="2">
                     <a href="/course/$course.get_id()/batch/summary/$op['bid']" class="btn btn-danger btn-block btn-sm">Error - view results</a>
                 </td>
             $else:
                 <td class="batch-status-icon">
-                    <i class="glyphicon glyphicon-refresh"></i>
+                    <i class="fa fa-refresh"></i>
                 </td>
                 <td colspan="2">
                     <a href="#" class="btn btn-warning btn-block btn-sm btn-disabled" disabled="disabled">In progress</a>

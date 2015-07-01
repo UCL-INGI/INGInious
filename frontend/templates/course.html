@@ -56,24 +56,24 @@ $def ColumnF():
                 This course is currently invisible for students. 
                 You can change this by modifying the "accessibility" option in the configuration of the course.
             </div>
-        <a href="/admin/$course.get_id()" class="btn btn-primary btn-block">Manage course</a>
-        $if User.get_username() in course.get_admins():
-            <h3>Help</h3>
-            <ul>
-                <li><a href="http://inginious.readthedocs.org/en/latest/teacher_doc/task_tuto.html">How to create a task?</a></li>
-                <li><a href="http://inginious.readthedocs.org/en/latest/teacher_documentation.html">Documentation</a></li>
-            </ul>
+        <div class="list-group">
+            <a class="list-group-item list-group-item-info" href="/admin/$course.get_id()">
+                <i class="fa fa-user-secret fa-fw"></i>&nbsp; Course administration
+            </a>
+        </div>
     $else:
         <a href="/?unregister_courseid=$course.get_id()">Unregister from this course</a>
 $var Column: $:ColumnF()
 
+$def NavbarF():
+    <ol class="nav navbar-nav nav-breadcrumb">
+        <li class="active"><a href="#">$course.get_name() <span class="sr-only">(current)</span></a></li>
+    </ol>
+$var Navbar: $:NavbarF()
+
 $# Start content
-<ol class="breadcrumb">
-  <li><a href="/index">Home</a></li>
-  <li class="active">$course.get_name()</li>
-</ol>
 <h2>$course.get_name() - List of exercises</h2>
-<div class="list-group" style="margin-left: 16px; margin-right: 16px;">
+<div class="list-group list-group-progress" style="margin-left: 16px; margin-right: 16px;">
     $for taskid, task in course.get_tasks().iteritems()
         $if task.is_visible_by_user(User.get_username()):
             $ status=task.get_user_status()
@@ -84,7 +84,7 @@ $# Start content
                 ">
                 <div class="col-xs-12 col-md-7">
                     $if status == "succeeded":
-                        <i style="color:#468847; position: absolute; left: -5px;" class="fa fa-ok"></i>
+                        <i style="color:#468847; position: absolute; left: -5px;" class="fa fa-check"></i>
                     $task.get_name()
                     $if not task.is_visible_by_students():
                         - <b>(task hidden to students)</b>

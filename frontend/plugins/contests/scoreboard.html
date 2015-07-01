@@ -19,14 +19,15 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 
 $var title: $:course.get_name() - Scoreboard
 
+$def NavbarF():
+<ol class="nav navbar-nav nav-breadcrumb">
+    <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
+    <li class="active"><a href="#"><i class="fa fa-trophy"></i> Scoreboard <span class="sr-only">(current)</span></a></li>
+</ol>
+$var Navbar: $:NavbarF()
+
 $if end > end.now():
     <meta http-equiv="refresh" content="30" />
-
-<ol class="breadcrumb">
-  <li><a href="/index">Home</a></li>
-  <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
-  <li class="active">Scoreboard</li>
-</ol>
 
 <h2>$course.get_name()</h2>
 <div class="pull-right well">
