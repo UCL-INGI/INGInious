@@ -40,6 +40,7 @@ urls = (
     '/admin/([^/]+)', 'frontend.pages.course_admin.utils.CourseRedirect',
     '/admin/([^/]+)/settings', 'frontend.pages.course_admin.settings.CourseSettings',
     '/admin/([^/]+)/batch', 'frontend.pages.course_admin.batch.CourseBatchOperations',
+    '/admin/([^/]+)/batch/create/(.+)', 'frontend.pages.course_admin.batch.CourseBatchJobCreate',
     '/admin/([^/]+)/batch/summary/([^/]+)', 'frontend.pages.course_admin.batch.CourseBatchJobSummary',
     '/admin/([^/]+)/batch/download/([^/]+)', 'frontend.pages.course_admin.batch.CourseBatchJobDownload',
     '/admin/([^/]+)/batch/download/([^/]+)(/.*)', 'frontend.pages.course_admin.batch.CourseBatchJobDownload',

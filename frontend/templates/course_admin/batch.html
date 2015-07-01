@@ -54,6 +54,9 @@ $var Navbar: $:NavbarF()
                            data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search fa-fw"></i></a>
                         <a href="/admin/$course.get_id()/batch/download/$op['bid']" class="btn btn-info btn-xs" title="Download results"
                            data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download fa-fw"></i></a>
+                        <a href="/admin/$course.get_id()/batch?drop=$op['bid']" class="btn btn-danger btn-xs" title="Delete"
+                           data-toggle="tooltip" data-placement="bottom"
+                           onclick="return confirm('You are sure you want to delete this batch job?');"><i class="fa fa-remove fa-fw"></i></a>
                     </div>
                 </td>
             $elif op['status'] == 'ko':
@@ -62,12 +65,15 @@ $var Navbar: $:NavbarF()
                 </td>
                 <td>
                     <div class="btn-group">
-                        <a href="/admin/$course.get_id()/batch/summary/$op['bid']" class="btn btn-danger btn-xs" title="View results"
+                        <a href="/admin/$course.get_id()/batch/summary/$op['bid']" class="btn btn-warning btn-xs" title="View results"
                            data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search fa-fw"></i></a>
+                        <a href="/admin/$course.get_id()/batch?drop=$op['bid']" class="btn btn-danger btn-xs" title="Delete"
+                           data-toggle="tooltip" data-placement="bottom"
+                           onclick="return confirm('You are sure you want to delete this batch job?');"><i class="fa fa-remove fa-fw"></i></a>
                     </div>
                 </td>
             $else:
-                <td class="batch-status-icon" title="Job is still running" data-toggle="tooltip" data-placement="bottom">
+                <td class="batch-status-icon text-info" title="Job is still running" data-toggle="tooltip" data-placement="bottom">
                     <i class="fa fa-refresh fa-spin"></i>
                 </td>
                 <td></td>
@@ -78,7 +84,7 @@ $if User.get_username() in course.get_staff():
     <h3>Start a new batch job</h3>
     <div class="list-group">
         $for key, val in available_containers.iteritems():
-            <a href="/course/$course.get_id()/batch/new/$key" class="list-group-item">
+            <a href="/admin/$course.get_id()/batch/create/$key" class="list-group-item">
                 <h4 class="list-group-item-heading">$val[0]</h4>
                 <p class="list-group-item-text">$val[1]</p>
             </a>

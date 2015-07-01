@@ -20,7 +20,7 @@
 from frontend.base import renderer
 from frontend.pages.course_admin.utils import get_course_and_check_rights
 from frontend.batch_manager import get_all_batch_containers_metadata, add_batch_job, get_all_batch_jobs_for_course, get_batch_job_status, \
-    get_batch_container_metadata
+    get_batch_container_metadata, drop_batch_job
 import web
 from frontend.base import get_gridfs
 import tarfile
@@ -35,7 +35,14 @@ class CourseBatchOperations(object):
         """ GET request """
 
         course, _ = get_course_and_check_rights(courseid)
-        #add_batch_job(course, "ingi/inginious-b-test", {"text": "something"})
+
+        web_input = web.input()
+        if "drop" in web_input: # delete an old batch job
+            try:
+                drop_batch_job(web_input["drop"])
+            except:
+                pass
+
         operations = []
         for entry in list(get_all_batch_jobs_for_course(courseid)):
             ne = {"container_name": entry["container_name"],
@@ -50,6 +57,67 @@ class CourseBatchOperations(object):
 
         return renderer.course_admin.batch(course, operations, get_all_batch_containers_metadata())
 
+class CourseBatchJobCreate(object):
+    """ Creates new batch jobs """
+    def GET(self, courseid, container_name):
+        """ GET request """
+        course, container_title, container_description, container_args = self.get_basic_info(courseid, container_name)
+        return self.page(course, container_name, container_title, container_description, container_args)
+
+    def POST(self, courseid, container_name):
+        """ POST request """
+        course, container_title, container_description, container_args = self.get_basic_info(courseid, container_name)
+        errors = []
+
+        # Verify that we have the right keys
+        try:
+            file_args = {key: {} for key in container_args if key != "submissions" and key != "course" and container_args[key]["type"] == "file"}
+            batch_input = web.input(**file_args)
+            for key in container_args:
+                if (key != "submissions" and key != "course") or container_args[key]["type"] != "file":
+                    if key not in batch_input:
+                        raise Exception("It lacks a field")
+                    if container_args[key]["type"] == "file":
+                        batch_input[key] = batch_input[key].file
+        except:
+            raise
+            errors.append("Please fill all the fields.")
+
+        if len(errors) == 0:
+            try:
+                add_batch_job(course, container_name, batch_input)
+            except:
+                errors.append("An error occured while starting the job")
+
+        if len(errors) == 0:
+            raise web.seeother('/admin/{}/batch'.format(courseid))
+        else:
+            return self.page(course, container_name, container_title, container_description, container_args, errors)
+
+    def get_basic_info(self, courseid, container_name):
+        course, _ = get_course_and_check_rights(courseid, allow_all_staff=False)
+        try:
+            metadata = get_batch_container_metadata(container_name)
+            if metadata == (None, None, None):
+                raise Exception("Container not found")
+        except:
+            raise web.notfound()
+
+        container_title = metadata[0]
+        container_description = metadata[1]
+
+        container_args = dict(metadata[2])  # copy it
+
+        return course, container_title, container_description, container_args
+
+    def page(self, course, container_name, container_title, container_description, container_args, error=None):
+
+        if "submissions" in container_args and container_args["submissions"]["type"] == "file":
+            del container_args["submissions"]
+        if "course" in container_args and container_args["course"]["type"] == "file":
+            del container_args["course"]
+
+        return renderer.course_admin.batch_create(course, container_name, container_title, container_description, container_args, error)
 
 class CourseBatchJobDownload(object):
     """ Get the file of a batch job """
@@ -129,7 +197,7 @@ class CourseBatchJobSummary(object):
 
         try:
             container_metadata = get_batch_container_metadata(container_name)
-            if container_metadata is not None:
+            if container_metadata == (None, None, None):
                 container_title = container_metadata[0]
                 container_description = container_metadata[1]
         except:

@@ -177,3 +177,12 @@ def get_all_batch_jobs_for_course(course_id):
             if the container failed to start
     """
     return list(get_database().batch_jobs.find({"courseid": course_id}))
+
+def drop_batch_job(batch_job_id):
+    """ Delete a **finished** batch job from the database """
+    job = get_database().batch_jobs.find_one({"_id": ObjectId(batch_job_id)})
+    if "result" not in job:
+        raise Exception("Batch job is still running, cannot delete it")
+    get_database().batch_jobs.remove({"_id": ObjectId(batch_job_id)})
+    if "file" in job["result"]:
+        get_gridfs().delete(job["result"]["file"])
