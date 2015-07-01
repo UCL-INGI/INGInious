@@ -49,11 +49,17 @@ $# Start content
 <div class="list-group list-group-progress" style="margin-left: 16px; margin-right: 16px;">
 	$if len(open_courses) != 0:
         $for courseid in open_courses:
-            <a href="course/$courseid" class="list-group-item row">
+                $if not open_courses[courseid].is_user_registered(User.get_username(), open_courses[courseid].is_group_course()):
+                    <a class="list-group-item row disabled">
+                $else:
+                    <a href="course/$courseid" class="list-group-item row">
+
                 <div class="col-xs-12 col-md-7">
                     $open_courses[courseid].get_name()
                     $if not open_courses[courseid].is_open_to_non_staff():
                         - <b>course not shown to students</b>
+                    $if not open_courses[courseid].is_user_registered(User.get_username(), open_courses[courseid].is_group_course()):
+                        - <b>waiting for group attribution</b>
                 </div>
                 <div class="col-xs-12 col-md-5">
                     <div class="progress">

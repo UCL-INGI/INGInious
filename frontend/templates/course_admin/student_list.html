@@ -59,7 +59,7 @@ $if course.is_group_course():
                 </div>
                 <div id="collapse_$group['_id']" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_$group['_id']">
                     <div class="panel-body">
-                        $:include.course_admin.student_list_table(course,users,group["users"])
+                        $:include.course_admin.student_list_table(course,users,group["users"],group["_id"])
                     </div>
                 </div>
             </div>
@@ -74,5 +74,5 @@ $if course.is_group_course():
     </div>
 $else:
     <h2>Students</h2>
-    $:include.course_admin.student_list_table(course,users,course.get_registered_users())
+    $:include.course_admin.student_list_table(course,users,course.get_registered_users(False),'')
 

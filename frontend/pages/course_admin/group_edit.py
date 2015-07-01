@@ -66,7 +66,7 @@ class CourseEditGroup(object):
             data = web.input(group_tutor=[], group_student=[])
             if "delete" in data:
                 get_database().groups.remove({"_id": ObjectId(groupid)})
-                raise web.seeother("/admin/"+courseid+"/groups")
+                raise web.seeother("/admin/"+courseid+"/students")
             else:
                 data["group_tutor"] = [tutor for tutor in data["group_tutor"] if tutor in tutor_list]
                 data["group_student"] = [student for student in data["group_student"] if student in student_list]

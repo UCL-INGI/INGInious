@@ -25,7 +25,7 @@ from frontend.user_data import UserData
 
 
 class CourseStudentListPage(object):
-    """ Course administration page: list of registered students """
+    """ Course administration page: list of registered students or groups """
 
     def GET(self, courseid):
         """ GET request """
@@ -63,7 +63,7 @@ class CourseStudentListPage(object):
             groups = get_database().groups.find({"course_id": course.get_id()})
         groups = sorted(groups, key=lambda item : item["description"])
 
-        user_data = UserData.get_course_data_for_users(course.get_id(), course.get_registered_users())
+        user_data = UserData.get_course_data_for_users(course.get_id(), course.get_registered_users(False))
         for user in user_data.keys():
             user_data[user]["url"] = self.submission_url_generator(course, user)
 
