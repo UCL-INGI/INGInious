@@ -40,10 +40,6 @@ $(function()
         };
         update_size = function(){
             $('#sidebar_affix').width($('#sidebar').width());
-            //if($('#sidebar_inner').height() >= $('#content').height() && $('#sidebar_inner').data("bs.affix") != undefined)
-            //    $("#sidebar_inner").removeClass("affix affix-top affix-bottom").removeData("bs.affix");
-            //else if($('#sidebar_inner').height() < $('#content').height() && $('#sidebar_inner').data("bs.affix") == undefined)
-            //    start_affix();
         };
         $(window).scroll(update_size);
         $(window).resize(update_size);
@@ -75,12 +71,12 @@ $(function()
     $(function () {
         //Fix for button groups
         all_needed_tooltips = $('[data-toggle="tooltip"]');
-        all_btn_groups = $('.btn-group .btn[data-toggle="tooltip"]');
+        all_exceptions = $('.btn-group .btn[data-toggle="tooltip"], td[data-toggle="tooltip"]');
 
-        not_btn_groups = all_needed_tooltips.not(all_btn_groups);
+        not_exceptions = all_needed_tooltips.not(all_exceptions);
 
-        not_btn_groups.tooltip();
-        all_btn_groups.tooltip({'container':'body'});
+        not_exceptions.tooltip();
+        all_exceptions.tooltip({'container':'body'});
     })
 });
 

@@ -20,32 +20,27 @@ problems:
         name: The second exercice
         type: code
         boxes:
-            for-content:
-                language: python
-                lines: 5
-                maxChars: 1000
-                type: multiline
-            for1:
-                maxChars: 3
-                type: input-integer
-            for2:
-                maxChars: 10
-                type: input-decimal
-            for3:
-                maxChars: 10
-                type: input-text
             text1:
                 content: <code>for(i=</code>
                 contentIsHTML: true
                 type: text
+            for1:
+                maxChars: 3
+                type: input-integer
             text2:
                 content: <code>; i <= </code>
                 contentIsHTML: true
                 type: text
+            for2:
+                maxChars: 10
+                type: input-decimal
             text3:
                 content: <code>;</code>
                 contentIsHTML: true
                 type: text
+            for3:
+                maxChars: 10
+                type: input-text
             text4:
                 content: <code>)</code>
                 contentIsHTML: true
@@ -54,6 +49,11 @@ problems:
                 content: <br/><code>{</code><br/>
                 contentIsHTML: true
                 type: text
+            for-content:
+                language: python
+                lines: 5
+                maxChars: 1000
+                type: multiline
             text6:
                 content: <code>}</code>
                 contentIsHTML: true
