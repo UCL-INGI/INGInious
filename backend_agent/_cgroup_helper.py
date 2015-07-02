@@ -32,27 +32,18 @@ from docker.utils import kwargs_from_env
 
 from cgutils import cgroup
 
-
-def _recursive_find_docker_group(cg):
-    """ Recursively search for the docker subgroup in the group given """
-    if cg.name == "docker":
-        return cg
-    for child in cg.childs:
-        g = _recursive_find_docker_group(child)
-        if g is not None:
-            return g
-    return None
-
-
-def get_cgroups_docker():
-    """ Returns the two groups of docker (with the subsytems cpuacct et memory) """
-    cpuacct = cgroup.scan_cgroups('cpuacct')
-    memory = cgroup.scan_cgroups('memory')
-    d_cpuacct = _recursive_find_docker_group(cpuacct)
-    d_memory = _recursive_find_docker_group(memory)
-
-    return d_cpuacct, d_memory
-
+def get_container_cgroup(cgroupname, container):
+    def recur(cg):
+        if cg.name == container or cg.name == "docker-{}.scope".format(container):
+            return cg
+        else:
+            for child in cg.childs:
+                g = recur(child)
+                if g is not None:
+                    return g
+        return None
+    cgroup_obj = cgroup.scan_cgroups(cgroupname)
+    return recur(cgroup_obj)
 
 class CGroupMemoryWatcher(threading.Thread):
     """ Watch for cgroups events on memory """
@@ -62,29 +53,16 @@ class CGroupMemoryWatcher(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
 
-        self._docker_memory = None
-
         self._update_pipe = os.pipe()
         self._containers_running = {}
         self._containers_running_lock = threading.Lock()
 
         self.daemon = True
 
-    def _init_cgroups(self):
-        """ Init the cgroups. Should be done AFTER the first container started """
-        _, self._docker_memory = get_cgroups_docker()
-        if self._docker_memory is None:
-            raise Exception("Cannot find the docker cgroups!")
-        self._docker_memory = self._docker_memory.fullpath
-
     def add_container_memory_limit(self, container_id, max_memory):
         """ Creates a watcher over the memory used by container_id """
 
-        # Verify that everything is initialised
-        if self._docker_memory is None:
-            self._init_cgroups()
-
-        cg = cgroup.get_cgroup(os.path.join(self._docker_memory, container_id))
+        cg = get_container_cgroup("memory", container_id)
         with self._containers_running_lock:
             self._containers_running[container_id] = {"eventlistener": cgroup.EventListener(cg, 'memory.oom_control'),
                                                       # 'memory.memsw.usage_in_bytes'),
@@ -120,7 +98,7 @@ class CGroupMemoryWatcher(threading.Thread):
 
     def _get_max_memory_usage(self, container_id):
         """ Return the maximum memory usage of the container, in bytes """
-        return int(cgroup.get_cgroup(os.path.join(self._docker_memory, container_id)).get_stats()['memsw.max_usage_in_bytes'])
+        return int(get_container_cgroup("memory", container_id).get_stats()['memsw.max_usage_in_bytes'])
 
     def run(self):
         while (True):
@@ -192,19 +170,10 @@ class CGroupTimeoutWatcher(threading.Thread):
 
         self._cpu_count = multiprocessing.cpu_count()
 
-        self._docker_cpuacct = None
-
         self._input_queue = PriorityQueue()
         self._container_errors = set()
 
         self.daemon = True
-
-    def _init_cgroups(self):
-        """ Init the cgroups. Should be done AFTER the first container started """
-        self._docker_cpuacct, _ = get_cgroups_docker()
-        if self._docker_cpuacct is None:
-            raise Exception("Cannot find the docker cgroups!")
-        self._docker_cpuacct = self._docker_cpuacct.fullpath
 
     def container_had_error(self, container_id):
         """ Returns True if the container was killed due to a timeout """
@@ -215,11 +184,6 @@ class CGroupTimeoutWatcher(threading.Thread):
 
     def add_container_timeout(self, container_id, max_time, max_time_hard):
         """ Add a container to watch for, with a timeout of max_time (based on the CPU usage) and a timeout of max_time_hard (in realtime)"""
-
-        # Verify that everything is initialised
-        if self._docker_cpuacct is None:
-            self._init_cgroups()
-
         self._input_queue.put((time.time(), container_id, max_time))
         self._input_queue.put((time.time() + max_time_hard, container_id, 0))
 
@@ -232,7 +196,7 @@ class CGroupTimeoutWatcher(threading.Thread):
                 time.sleep(min(time_diff, 5))  # wait maximum for 5 seconds
             else:
                 try:
-                    usage = float(cgroup.get_cgroup(os.path.join(self._docker_cpuacct, container_id)).get_stats()['usage'])
+                    usage = float(get_container_cgroup("cpuacct", container_id).get_stats()['usage'])
                 except:
                     continue  # container has closed
 

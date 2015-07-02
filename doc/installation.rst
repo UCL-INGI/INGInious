@@ -331,8 +331,8 @@ You can then replace the content of fastcgi.conf with:
 	)
 
 	url.rewrite-once = (
-	  "^/favicon.ico$" => "/static/favicon.ico",
-	  "^/static/(.*)$" => "/static/$1",
+	  "^/favicon.ico$" => "/frontend/static/favicon.ico",
+	  "^/static/(.*)$" => "/frontend/static/$1",
 	  "^/(.*)$" => "/app_frontend.py/$1",
 	)
 

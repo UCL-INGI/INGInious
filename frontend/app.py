@@ -29,6 +29,8 @@ import frontend.configuration
 from frontend.database_updater import update_database
 from frontend.plugins.plugin_manager import PluginManager
 import frontend.session
+import os
+import sys
 from frontend.template_helper import TemplateHelper
 
 urls = (
@@ -54,7 +56,8 @@ urls = (
     '/admin/([^/]+)/task/([^/]+)', 'frontend.pages.course_admin.task_info.CourseTaskInfoPage',
     '/admin/([^/]+)/edit/([^/]+)', 'frontend.pages.course_admin.task_edit.CourseEditTask',
     '/admin/([^/]+)/edit/([^/]+)/files', 'frontend.pages.course_admin.task_edit_file.CourseTaskFiles',
-    '/admin/([^/]+)/submissions', 'frontend.pages.course_admin.submission_files.DownloadSubmissionFiles'
+    '/admin/([^/]+)/submissions', 'frontend.pages.course_admin.submission_files.DownloadSubmissionFiles',
+
 )
 
 urls_maintenance = (
@@ -123,14 +126,31 @@ class StaticMiddleware(object):
         return path2
 
 
+def runfcgi(func, addr=('localhost', 8000)):
+    """Runs a WSGI function as a FastCGI server."""
+    import flup.server.fcgi as flups
+
+    return flups.WSGIServer(func, multiplexed=True, bindAddress=addr, debug=False).run()
+
 def start_app(config_file, hostname="localhost", port=8080, app=None):
-    """ Get and start the application. config_file is the path to the configuration file"""
+    """
+        Get and start the application. config_file is the path to the configuration file.
+    """
     if app is None:
         app = get_app(config_file)
-    wsgifunc = app.wsgifunc()
-    wsgifunc = StaticMiddleware(wsgifunc)
-    wsgifunc = web.httpserver.LogMiddleware(wsgifunc)
-    server = web.httpserver.WSGIServer((hostname, port), wsgifunc)
+
+    func = app.wsgifunc()
+
+    if os.environ.has_key('SERVER_SOFTWARE'):  # cgi
+        os.environ['FCGI_FORCE_CGI'] = 'Y'
+
+    if (os.environ.has_key('PHP_FCGI_CHILDREN')  # lighttpd fastcgi
+        or os.environ.has_key('SERVER_SOFTWARE')):
+        return runfcgi(func, None)
+
+    func = StaticMiddleware(func)
+    func = web.httpserver.LogMiddleware(func)
+    server = web.httpserver.WSGIServer((hostname, port), func)
     print "http://%s:%d/" % (hostname, port)
     try:
         server.start()
