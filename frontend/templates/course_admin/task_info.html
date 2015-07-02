@@ -42,7 +42,7 @@ $if course.is_group_course():
                         <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapse_$group['_id']" aria-expanded="false" aria-controls="collapse_$group['_id']">
                             $group["description"]
                         </a>
-                        $if group['_id'] is not None:
+                        $if group['_id'] is not 0:
                             <div class="pull-right">
                                 <a class="fa fa-pencil-square-o" href="/admin/$course.get_id()/group/$group['_id']" data-toggle="tooltip" title="Edit group"></a>
                             </div>
