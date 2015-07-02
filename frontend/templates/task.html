@@ -98,6 +98,10 @@ $def ColumnF():
                     <i class="fa fa-wrench fa-fw"></i>&nbsp; Debug informations
                 </a>
         </div>
+    $elif course.is_group_course():
+        <h3>Current group</h3>
+        <a href="/group/$course.get_id()">$course.get_user_group(User.get_username())["description"]</a>
+
     <h3>Submissions</h3>
     <div id="submissions_restrictsize">
 	    <div id="submissions" class="list-group">

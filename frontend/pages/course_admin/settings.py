@@ -56,6 +56,11 @@ class CourseSettings(object):
             else:
                 course_content['groups'] = False
 
+            if data["groups_student_choice"] == "true":
+                course_content['groups_student_choice'] = True
+            else:
+                course_content['groups_student_choice'] = False
+
             if data["accessible"] == "custom":
                 course_content['accessible'] = "{}/{}".format(data["accessible_start"], data["accessible_end"])
             elif data["accessible"] == "true":

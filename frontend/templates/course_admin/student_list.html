@@ -74,5 +74,5 @@ $if course.is_group_course():
     </div>
 $else:
     <h2>Students</h2>
-    $:include.course_admin.student_list_table(course,users,course.get_registered_users(False),'')
+    $:include.course_admin.student_list_table(course,users,course.get_registered_users(False))
 

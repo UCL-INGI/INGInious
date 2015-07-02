@@ -34,7 +34,10 @@ class CoursePage(object):
         if User.is_logged_in():
             try:
                 course = FrontendCourse(courseid)
-                if not course.is_open_to_user(User.get_username(), course.is_group_course()):
+                registration_uncomplete = not course.is_open_to_user(User.get_username(), course.is_group_course())
+                if registration_uncomplete and course.can_students_choose_group():
+                    raise web.seeother("/group/"+courseid)
+                elif registration_uncomplete:
                     return renderer.course_unavailable()
 
                 last_submissions = course.get_user_last_submissions(one_per_task=True)
@@ -45,6 +48,7 @@ class CoursePage(object):
                         except_free_last_submissions.append(submission)
                     except:
                         pass
+
                 return renderer.course(course, except_free_last_submissions)
             except:
                 if web.config.debug:

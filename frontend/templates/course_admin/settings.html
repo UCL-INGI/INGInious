@@ -75,6 +75,23 @@ $elif saved:
         </div>
     </div>
     <div class="form-group">
+        <label for="groups_student_choice" class="col-sm-2 control-label">Group attribution</label>
+        <div class="col-sm-10">
+            <label>
+                <input type="radio" value="false" name="groups_student_choice" id="groups_student_choice"
+                    $if not course.can_students_choose_group():
+                        checked="checked"
+                /> Staff attributes groups to students
+            </label><br/>
+            <label>
+                <input type="radio" value="true" name="groups_student_choice"
+                    $if course.can_students_choose_group():
+                        checked="checked"
+                /> Students can choose their groups at registration time
+            </label>
+        </div>
+    </div>
+    <div class="form-group">
         <label for="accessible" class="col-sm-2 control-label">Accessibility</label>
         <div class="col-sm-10">
             <label>
