@@ -131,6 +131,8 @@ form#task #task-submit {
   color: #008cba;
   border: none;
   background-color: transparent;
+  margin: 0;
+  padding: 0;
 }
 #batch_table tr td {
   vertical-align: middle;
