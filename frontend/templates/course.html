@@ -29,6 +29,10 @@ $def ColumnF():
             $int(grade)%
         </div>
     </div>
+    $if course.is_group_course() and User.get_username() not in course.get_staff():
+        <h3>Current group</h3>
+        <a href="/group/$course.get_id()">$course.get_user_group(User.get_username())["description"]</a>
+
     <h3>Last tried exercises</h3>
     
     <div class="list-group">

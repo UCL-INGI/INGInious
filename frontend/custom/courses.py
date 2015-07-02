@@ -52,6 +52,7 @@ class FrontendCourse(Course):
                 raise Exception("Course has an invalid value for registration_ac: " + courseid)
             self._registration_ac_list = self._content.get('registration_ac_list', [])
             self._groups = self._content.get("groups", False)
+            self._groups_student_choice = self._content.get("groups_student_choice", False)
         else:
             raise Exception("Course has an invalid description: " + courseid)
 
@@ -109,6 +110,8 @@ class FrontendCourse(Course):
     def unregister_user(self, username):
         """ Unregister a user from this course """
         get_database().registration.remove({"username": username, "courseid": self.get_id()})
+        if self.is_group_course():
+            get_database().groups.update({"course_id": self.get_id(), "users": username}, {"$pull":{"users": username}})
 
     def is_user_registered(self, username, check_group=False):
         """ Returns True if the user is registered """
@@ -189,9 +192,17 @@ class FrontendCourse(Course):
         """ Returns the list of all users allowed by the AC list """
         return self._registration_ac_list
 
+    def get_user_group(self, username):
+        """ Returns the group whose username belongs to """
+        return get_database().groups.find_one({"course_id": self.get_id(), "users": username})
+
     def is_group_course(self):
         """ Returns True if the course submissions are made by groups """
         return self._groups
+
+    def can_students_choose_group(self):
+        """ Returns True if the students can choose their groups """
+        return self._groups_student_choice
 
     def is_user_accepted_by_access_control(self, username):
         """ Returns True if the user is allowed by the ACL """
