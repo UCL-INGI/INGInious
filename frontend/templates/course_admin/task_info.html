@@ -1,4 +1,4 @@
-$def with (course,task,data)
+$def with (course,task,data,groups)
 
 $# Copyright (c) 2014-2015 Université Catholique de Louvain.
 $#
@@ -32,54 +32,29 @@ $def NavbarF():
     </ol>
 $var Navbar: $:NavbarF()
 
-<h2>Student results for task "$task.get_name()"</h2>
-<table class="table">
-    <tr>
-        <th>student</th>
-        <th>status</th>
-        <th># submissions</th>
-        <th>
-            <div class="btn-group" role="group">
-                <a href="javascript:ask_to_download('/admin/${course.get_id()}/submissions?dl=task&task=$task.get_id()')" class="btn btn-danger
-                    btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                <a href="/admin/${course.get_id()}/task/${task.get_id()}?csv" class="btn btn-info btn-xs" title="Download CSV"
-                   data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
-            </div>
-        </th>
-    </tr>
-    $for taskData in data:
-        $ studentData=UserData(taskData["username"]).get_data()
-    	<tr
-    	    $if taskData["tried"] == 0:
-                class="warning"
-            $if taskData["tried"] != 0 and taskData["succeeded"]:
-                class="success"
-            $elif taskData["tried"] != 0:
-                class="danger"
-        >
-    		<td>
-                $if studentData["realname"] != "":
-                    <a href="/admin/${course.get_id()}/student/$taskData["username"]">$studentData["realname"]</a> 
-                    (<a href="/admin/${course.get_id()}/student/$taskData["username"]">$studentData["_id"]</a> - <a href='mailto:$studentData["email"]'>email</a>)
-                $else:
-                    $studentData["_id"]
-            </td>
-    		<td>
-                $if taskData["tried"] == 0:
-                    Not attempted (viewed)
-                $elif taskData["succeeded"]:
-                    Succeeded ($taskData["grade"]%)
-                $else:
-                    Failed ($taskData["grade"]%)
-            </td>
-            <td>$taskData["tried"]</td>
-    		<td>
-                <div class="btn-group" role="group">
-                    <a href="/admin/${course.get_id()}/student/${taskData['username']}/$task.get_id()" class="btn btn-default btn-xs" title="View
-                       submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
-                    <a href="javascript:ask_to_download('$taskData['url']')" class="btn btn-default btn-xs" title="Download
-                       submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+$if course.is_group_course():
+    <h2>Group results for task "$task.get_name()"</h2>
+        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+        $for group in groups:
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="heading_$group['_id']">
+                    <h4 class="panel-title">
+                        <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapse_$group['_id']" aria-expanded="false" aria-controls="collapse_$group['_id']">
+                            $group["description"]
+                        </a>
+                        $if group['_id'] is not None:
+                            <div class="pull-right">
+                                <a class="fa fa-pencil-square-o" href="/admin/$course.get_id()/group/$group['_id']" data-toggle="tooltip" title="Edit group"></a>
+                            </div>
+                    </h4>
                 </div>
-    		</td>
-    	</tr>
-</table>
+                <div id="collapse_$group['_id']" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_$group['_id']">
+                    <div class="panel-body">
+                        $:include.course_admin.task_info_table(course,task,data,group["users"],group["_id"])
+                    </div>
+                </div>
+            </div>
+    </div>
+$else:
+    <h2>Student results for task "$task.get_name()"</h2>
+    $:include.course_admin.task_info_table(course,task,data,course.get_registered_users())

@@ -37,9 +37,23 @@ class CourseTaskInfoPage(object):
 
     def page(self, course, task):
         """ Get all data and display the page """
-        data = list(get_database().user_tasks.find(
-            {"courseid": course.get_id(), "taskid": task.get_id(), "username": {"$in": course.get_registered_users()}}))
-        data = [dict(f.items() + [("url", self.submission_url_generator(course, task, f))]) for f in data]
+
+        groups = []
+        if course.is_group_course():
+            groups = get_database().groups.find({"course_id": course.get_id()})
+        groups = sorted(groups, key=lambda item: item["description"])
+
+        groups.insert(0, {"_id": 0, "users": course.get_staff(), "description": "Course staff", "tutors": {}})
+
+        results = list(get_database().user_tasks.find({"courseid": course.get_id(), "taskid": task.get_id(),
+                                                  "username": {"$in": course.get_registered_users()}}))
+        data = {}
+        for user in results:
+            user["url"] = self.submission_url_generator(course, task, user)
+            data[user["username"]] = user
+
+        user_csv = [dict(data[key].items()) for key in data.keys()]
         if "csv" in web.input():
-            return make_csv(data)
-        return renderer.course_admin.task_info(course, task, data)
+            return make_csv(user_csv)
+
+        return renderer.course_admin.task_info(course, task, data, groups)

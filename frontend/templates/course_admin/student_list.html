@@ -52,9 +52,10 @@ $if course.is_group_course():
                         <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapse_$group['_id']" aria-expanded="false" aria-controls="collapse_$group['_id']">
                             $group["description"]
                         </a>
-                        <div class="pull-right">
-                            <a class="fa fa-pencil-square-o" href="/admin/$course.get_id()/group/$group['_id']"></a>
-                        </div>
+                        $if group['_id'] is not None:
+                            <div class="pull-right">
+                                <a class="fa fa-pencil-square-o" href="/admin/$course.get_id()/group/$group['_id']" data-toggle="tooltip" title="Edit group"></a>
+                            </div>
                     </h4>
                 </div>
                 <div id="collapse_$group['_id']" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_$group['_id']">
@@ -74,5 +75,5 @@ $if course.is_group_course():
     </div>
 $else:
     <h2>Students</h2>
-    $:include.course_admin.student_list_table(course,users,course.get_registered_users(False))
+    $:include.course_admin.student_list_table(course,users,course.get_registered_users())
 
