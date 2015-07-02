@@ -27,8 +27,7 @@ import json
 import time
 from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
-import docker
-from docker.utils import kwargs_from_env
+import shutil
 
 sys.path.append(os.path.join(os.path.abspath(os.path.dirname(os.path.realpath(__file__))),'..','..'))
 import common.custom_yaml as yaml
@@ -58,6 +57,28 @@ def update_output_yaml(test_dir):
     f = open(os.path.join(test_dir, "feedback.yaml"), "w")
     if os.path.exists(os.path.join(test_dir, 'output', "__feedback.json")):
         yaml.dump(json.load(open(os.path.join(test_dir, 'output', "__feedback.json"), 'r')), stream=f)
+
+def observer_process(parent_pid, test_dir, problem_ids):
+    observers = []
+
+    # Observer for input
+    observer = Observer()
+    observer.schedule(WatchDogProxy(lambda: update_input_json(test_dir, problem_ids)), path=os.path.join(test_dir, "input"))
+    observer.start()
+    observers.append(observer)
+
+    # Observer for output
+    observer = Observer()
+    observer.schedule(WatchDogProxy(lambda: update_output_yaml(test_dir)), path=os.path.join(test_dir, "output"))
+    observer.start()
+    observers.append(observer)
+
+    try:
+        while check_pid(parent_pid):
+            time.sleep(1)
+    except KeyboardInterrupt:
+        [observer.stop() for observer in observers]
+    [observer.join() for observer in observers]
 
 class WatchDogProxy(PatternMatchingEventHandler, object):
     patterns = ["*"]
@@ -94,6 +115,22 @@ if __name__ == "__main__":
 
     for folder in ["input", "output", "tests", ".internal", ".internal/input"]:
         os.mkdir(os.path.join(test_dir, folder))
+
+    shutil.copytree(args.task, os.path.join(test_dir, "task"))
+    if not os.path.exists(os.path.join(test_dir, "task", "student")):
+        os.mkdir(os.path.join(test_dir, "task", "student"))
+
+    run_student = open(os.path.join(test_dir, '.internal', 'run_student'), 'w')
+    run_student.write('#! /bin/bash\n')
+    run_student.write("echo 'The run_student command is not available inside the task tester.'\n")
+    run_student.write("echo 'You can either re-run the command without prefixing it with run_student or start manually another container, "
+                      "with the following command:'\n")
+    run_student.write("echo '$ docker run -ti --rm -v "+
+                      os.path.abspath(os.path.join(test_dir, "task", "student"))+
+                      ":/student CONTAINER_NAME YOUR_COMMAND'\n")
+    run_student.close()
+
+    os.chmod(os.path.join(test_dir, '.internal', 'run_student'), 0o777)
 
     problem_ids = {}
     try:
@@ -140,42 +177,26 @@ if __name__ == "__main__":
 
     pid = os.fork()
     if pid == 0:
-        observers = []
+        observer_process(parent_pid, test_dir, problem_ids)
+        exit(0)
 
-        # Observer for input
-        observer = Observer()
-        observer.schedule(WatchDogProxy(lambda: update_input_json(test_dir, problem_ids)), path=os.path.join(test_dir, "input"))
-        observer.start()
-        observers.append(observer)
-
-        # Observer for output
-        observer = Observer()
-        observer.schedule(WatchDogProxy(lambda: update_output_yaml(test_dir)), path=os.path.join(test_dir, "output"))
-        observer.start()
-        observers.append(observer)
-
-        try:
-            while check_pid(parent_pid):
-                time.sleep(1)
-        except KeyboardInterrupt:
-            [observer.stop() for observer in observers]
-        [observer.join() for observer in observers]
-    else:
-        os.execlp('docker',
-                  'docker',
-                  'run',
-                  '-t',
-                  '-i',
-                  '--rm',
-                  '-v',
-                  os.path.abspath(os.path.join(test_dir, ".internal", "input")) + ":/.__input",
-                  '-v',
-                  os.path.abspath(os.path.join(test_dir, "output")) + ":/.__output",
-                  '-v',
-                  os.path.abspath(os.path.join(test_dir, "tests")) + ":/.__tests",
-                  '-v',
-                  os.path.abspath(args.task)+":/task",
-                  '-w',
-                  '/task',
-                  args.container,
-                  '/bin/bash')
+    os.execlp('docker',
+              'docker',
+              'run',
+              '-t',
+              '-i',
+              '--rm',
+              '-v',
+              os.path.abspath(os.path.join(test_dir, ".internal", "input")) + ":/.__input",
+              '-v',
+              os.path.abspath(os.path.join(test_dir, "output")) + ":/.__output",
+              '-v',
+              os.path.abspath(os.path.join(test_dir, "tests")) + ":/.__tests",
+              '-v',
+              os.path.abspath(os.path.join(test_dir, "task"))+":/task",
+              '-v',
+              os.path.abspath(os.path.join(test_dir, ".internal", "run_student")) + ":/bin/run_student",
+              '-w',
+              '/task',
+              args.container,
+              '/bin/bash')
