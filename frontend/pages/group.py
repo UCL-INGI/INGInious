@@ -39,7 +39,9 @@ class GroupPage(object):
                 course = FrontendCourse(courseid)
                 registration_uncomplete = not course.is_open_to_user(User.get_username(), course.is_group_course())
                 error = ""
-                if registration_uncomplete and not course.can_students_choose_group():
+                if not course.is_group_course() or User.get_username() in course.get_staff(True):
+                    raise web.notfound()
+                elif registration_uncomplete and not course.can_students_choose_group():
                     return renderer.course_unavailable()
                 elif "register_group" in web.input():
                     try:

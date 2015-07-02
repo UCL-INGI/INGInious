@@ -61,9 +61,11 @@ class CourseStudentListPage(object):
         groups = []
         if course.is_group_course():
             groups = get_database().groups.find({"course_id": course.get_id()})
-        groups = sorted(groups, key=lambda item : item["description"])
+        groups = sorted(groups, key=lambda item: item["description"])
 
-        user_data = UserData.get_course_data_for_users(course.get_id(), course.get_registered_users(False))
+        groups.insert(0, {"_id": 0, "users": course.get_staff(), "description": "Course staff", "tutors": {}})
+
+        user_data = UserData.get_course_data_for_users(course.get_id(), course.get_registered_users())
         for user in user_data.keys():
             user_data[user]["url"] = self.submission_url_generator(course, user)
 

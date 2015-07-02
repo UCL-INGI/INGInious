@@ -123,6 +123,7 @@ class UserData(object):
     def view_task(self, courseid, taskid):
         """ Set in the database that the user has viewed this task """
         # Insert a new entry if no one exists
+
         get_database().user_tasks.update({"username": self.username,
                                           "courseid": courseid,
                                           "taskid": taskid},
