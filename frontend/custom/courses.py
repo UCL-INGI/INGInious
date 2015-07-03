@@ -75,6 +75,10 @@ class FrontendCourse(Course):
         """ Returns a list containing the usernames of the tutors assigned to this course """
         return self._tutors
 
+    def get_groups(self):
+        """ Returns a list of the course groups"""
+        return list(get_database().groups.find({"course_id": self.get_id()}))
+
     def is_open_to_non_staff(self):
         """ Returns true if the course is accessible by users that are not administrator of this course """
         return self._accessible.is_open()
