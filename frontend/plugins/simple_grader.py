@@ -30,7 +30,8 @@ import frontend.backend_interface
 
 def init(plugin_manager, config):
     """
-        Init the external grader plugin.
+        Init the external grader plugin. This simple grader allows only anonymous requests, and submissions are not stored in database.
+
         Available configuration:
         ::
 

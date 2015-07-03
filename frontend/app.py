@@ -57,7 +57,15 @@ urls = (
     '/admin/([^/]+)/edit/([^/]+)', 'frontend.pages.course_admin.task_edit.CourseEditTask',
     '/admin/([^/]+)/edit/([^/]+)/files', 'frontend.pages.course_admin.task_edit_file.CourseTaskFiles',
     '/admin/([^/]+)/submissions', 'frontend.pages.course_admin.submission_files.DownloadSubmissionFiles',
-
+    '/api/v0/auth_methods', 'frontend.pages.api.auth_methods.APIAuthMethods',
+    '/api/v0/authentication', 'frontend.pages.api.authentication.APIAuthentication',
+    '/api/v0/courses', 'frontend.pages.api.courses.APICourses',
+    '/api/v0/courses/([a-zA-Z_\-\.0-9]+)', 'frontend.pages.api.courses.APICourses',
+    '/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks', 'frontend.pages.api.tasks.APITasks',
+    '/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)', 'frontend.pages.api.tasks.APITasks',
+    '/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)/submissions', 'frontend.pages.api.submissions.APISubmissions',
+    '/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)/submissions/([a-zA-Z_\-\.0-9]+)',
+        'frontend.pages.api.submissions.APISubmissionSingle',
 )
 
 urls_maintenance = (
