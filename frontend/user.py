@@ -49,7 +49,7 @@ def get_realname():
 
 
 def is_logged_in():
-    """" Returns if the user is logged in or not """
+    """ Returns if the user is logged in or not """
     return "loggedin" in get_session() and get_session().loggedin
 
 
@@ -73,5 +73,5 @@ def connect_user_internal(username, email, realname):
 
 
 def connect(auth_method_id, login_data):
-    """ Connect throught plugins """
+    """ Connect through plugins """
     return PluginManager.get_instance().get_auth_method_callback(auth_method_id)(login_data)

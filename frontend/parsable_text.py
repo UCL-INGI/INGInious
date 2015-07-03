@@ -36,6 +36,10 @@ class ParsableText(object):
         self.content = content
         self.mode = mode
 
+    def original_content(self):
+        """ Returns the original content """
+        return self.content
+
     def parse(self):
         """Returns parsed text"""
         try:

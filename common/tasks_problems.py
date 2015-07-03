@@ -65,6 +65,10 @@ class BasicProblem(object):
         """ Get the header of this problem """
         return self._header
 
+    def get_original_content(self):
+        """ Get a dict fully describing this sub-problem """
+        return dict(self._original_content)
+
     def __init__(self, task, problemid, content):
         if not id_checker(problemid):
             raise Exception("Invalid problem _id: " + problemid)
@@ -73,6 +77,7 @@ class BasicProblem(object):
         self._task = task
         self._name = content['name'] if "name" in content else ""
         self._header = content['header'] if "header" in content else ""
+        self._original_content = content
 
 
 class MatchProblem(BasicProblem):
