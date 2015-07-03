@@ -1,4 +1,4 @@
-$def with (course,task,data,groups)
+$def with (course,task,individual_data,group_data={})
 
 $# Copyright (c) 2014-2015 Université Catholique de Louvain.
 $#
@@ -32,29 +32,23 @@ $def NavbarF():
     </ol>
 $var Navbar: $:NavbarF()
 
+<h2>Results for task "$task.get_name()"</h2>
 $if course.is_group_course():
-    <h2>Group results for task "$task.get_name()"</h2>
-        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-        $for group in groups:
-            <div class="panel panel-default">
-                <div class="panel-heading" role="tab" id="heading_$group['_id']">
-                    <h4 class="panel-title">
-                        <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapse_$group['_id']" aria-expanded="false" aria-controls="collapse_$group['_id']">
-                            $group["description"]
-                        </a>
-                        $if group['_id'] is not 0:
-                            <div class="pull-right">
-                                <a class="fa fa-pencil-square-o" href="/admin/$course.get_id()/group/$group['_id']" data-toggle="tooltip" title="Edit group"></a>
-                            </div>
-                    </h4>
-                </div>
-                <div id="collapse_$group['_id']" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_$group['_id']">
-                    <div class="panel-body">
-                        $:include.course_admin.task_info_table(course,task,data,group["users"],group["_id"])
+        <div role="tabpanel">
+            <ul class="nav nav-tabs" id="edit_task_tabs" role="tablist">
+                            <li role="presentation" class="active"><a href="#tab_indiv" aria-controls="basicinfo" role="tab" data-toggle="tab"><i class="fa
+                    fa-user fa-fw"></i>&nbsp; Individual results</a></li>
+                            <li role="presentation"><a href="#tab_group" aria-controls="container" role="tab" data-toggle="tab"><i class="fa
+                    fa-users fa-fw"></i>&nbsp; Group results</a></li>
+            </ul>
+            <div id="edit_task_tabs_content" class="tab-content">
+                    <div role="tabpanel" class="tab-pane active" id="tab_indiv">
+                        $:include.course_admin.task_info_table(course,task,individual_data)
                     </div>
-                </div>
+                    <div role="tabpanel" class="tab-pane" id="tab_group">
+                        $:include.course_admin.task_info_table(course,task,group_data,True)
+                    </div>
             </div>
-    </div>
+        </div>
 $else:
-    <h2>Student results for task "$task.get_name()"</h2>
-    $:include.course_admin.task_info_table(course,task,data,course.get_registered_users())
+        $:include.course_admin.task_info_table(course,task,individual_data)

@@ -1,4 +1,4 @@
-$def with (course,users,groups,error,post)
+$def with (course,user_data,error,post)
 
 $# Copyright (c) 2014-2015 Université Catholique de Louvain.
 $#
@@ -28,52 +28,62 @@ $def NavbarF():
             <i class="fa fa-user-secret"></i></a></li>
         <li class="active">
             <a href="#">
-                $if course.is_group_course():
-                    <i class="fa fa-group"></i> Groups <span class="sr-only">(current)</span>
-                $else:
-                    <i class="fa fa-user"></i> Students <span class="sr-only">(current)</span>
+                <i class="fa fa-user"></i> Students <span class="sr-only">(current)</span>
             </a>
         </li>
     </ol>
 $var Navbar: $:NavbarF()
 
-$if course.is_group_course():
-    <h2>Groups</h2>
-        $if error:
-            <div class="alert alert-danger" role="alert">$error</div>
-        $elif post:
-            <div class="alert alert-success" role="alert">New group created.</div>
+<h2>Students</h2>
+<table class="table">
+    <tr>
+        <th>Student</th>
+        <th># task tried</th>
+        <th># task done</th>
+        <th>Current grade</th>
+        <th>
+            <div class="btn-group" role="group">
+                <a href="javascript:ask_to_download('/admin/${course.get_id()}/submissions?dl=course')" class="btn btn-danger btn-xs" title="Download
+                   all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                <a href="/admin/${course.get_id()}?csv" class="btn btn-info btn-xs" title="Download
+                   CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
+            </div>
+        </th>
+    </tr>
 
-        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-        $for group in groups:
-            <div class="panel panel-default">
-                <div class="panel-heading" role="tab" id="heading_$group['_id']">
-                    <h4 class="panel-title">
-                        <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapse_$group['_id']" aria-expanded="false" aria-controls="collapse_$group['_id']">
-                            $group["description"]
-                        </a>
-                        $if group['_id'] is not 0:
-                            <div class="pull-right">
-                                <a class="fa fa-pencil-square-o" href="/admin/$course.get_id()/group/$group['_id']" data-toggle="tooltip" title="Edit group"></a>
-                            </div>
-                    </h4>
-                </div>
-                <div id="collapse_$group['_id']" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_$group['_id']">
-                    <div class="panel-body">
-                        $:include.course_admin.student_list_table(course,users,group["users"],group["_id"])
+    $for username in course.get_registered_users():
+        $ studentData=UserData(username).get_data()
+        <tr>
+            <td>
+                $if studentData["realname"] != "":
+                    <a href="/admin/${course.get_id()}/student/$username">$studentData["realname"]</a>
+                    (<a href="/admin/${course.get_id()}/student/$username">$studentData["_id"]</a> - <a href='mailto:$studentData["email"]'>email</a>)
+                $else:
+                    $studentData["_id"]
+            </td>
+            $if username in user_data:
+                <td>$user_data[username]["task_tried"]</td>
+                <td>$user_data[username]["task_succeeded"]</td>
+            $else:
+                <td>0</td>
+                <td>0</td>
+            <td>
+                <div class="progress">
+                    $ percentage=int(course.get_user_grade(username))
+                    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="$percentage" aria-valuemin="0" aria-valuemax="100" style="width: $percentage%">
+                        <span>$percentage%</span>
                     </div>
                 </div>
-            </div>
-    </div>
-    <div class="row">
-        <form class=form-horizontal" method="post">
-            <div class="form-group">
-                <div class="col-sm-8"><input type="text" class="form-control" name="group_description" placeholder="New group description"/></div>
-                <div class="col-sm-4"><button type="submit" class="btn btn-info btn-block">Create new group</button></div>
-            </div>
-        </form>
-    </div>
-$else:
-    <h2>Students</h2>
-    $:include.course_admin.student_list_table(course,users,course.get_registered_users())
+            </td>
+            <td>
+                $if username in user_data:
+                    <div class="btn-group" role="group">
+                        <a href="/admin/${course.get_id()}/student/$username" class="btn btn-default btn-xs" title="View submissions"
+                           data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
+                        <a href="javascript:ask_to_download('$user_data[username]['url']')" class="btn btn-default btn-xs" title="Download submissions"
+                           data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                    </div>
+            </td>
+        </tr>
+</table>
 

@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 import web
-
+from collections import OrderedDict
 from frontend.base import get_database
 from frontend.base import renderer
 from frontend.pages.course_admin.utils import make_csv, get_course_and_check_rights
@@ -31,29 +31,61 @@ class CourseTaskInfoPage(object):
         course, task = get_course_and_check_rights(courseid, taskid)
         return self.page(course, task)
 
-    def submission_url_generator(self, course, task, task_data):
+    def individual_submission_url_generator(self, course, task, task_data):
         """ Generates a submission url """
         return "/admin/" + course.get_id() + "/submissions?dl=student_task&username=" + task_data['username'] + "&task=" + task.get_id()
 
+    def group_submission_url_generator(self, course, task, group):
+        """ Generates a submission url """
+        return "/admin/" + course.get_id() + "/submissions?dl=group_task&groupid=" + str(group['_id']) + "&task=" + task.get_id()
+
     def page(self, course, task):
         """ Get all data and display the page """
-
-        groups = []
-        if course.is_group_course():
-            groups = get_database().groups.find({"course_id": course.get_id()})
-        groups = sorted(groups, key=lambda item: item["description"])
-
-        groups.insert(0, {"_id": 0, "users": course.get_staff(), "description": "Course staff", "tutors": {}})
-
-        results = list(get_database().user_tasks.find({"courseid": course.get_id(), "taskid": task.get_id(),
+        individual_results = list(get_database().user_tasks.find({"courseid": course.get_id(), "taskid": task.get_id(),
                                                   "username": {"$in": course.get_registered_users()}}))
-        data = {}
-        for user in results:
-            user["url"] = self.submission_url_generator(course, task, user)
-            data[user["username"]] = user
 
-        user_csv = [dict(data[key].items()) for key in data.keys()]
-        if "csv" in web.input():
-            return make_csv(user_csv)
+        individual_data = dict([(user["username"],
+                                 dict(user.items() +
+                                      [("url", self.individual_submission_url_generator(course, task, user))]))
+                                for user in individual_results])
 
-        return renderer.course_admin.task_info(course, task, data, groups)
+        if course.is_group_course():
+            groups = list(get_database().groups.find({"course_id": course.get_id()}).sort("description"))
+            group_data = list(get_database().submissions.aggregate(
+                [
+                    {
+                        "$match":
+                            {
+                                "courseid": course.get_id(),
+                                "taskid": task.get_id()
+                            }
+                    },
+                    {
+                        "$group":
+                            {
+                                "_id": "$groupid",
+                                "tried": {"$sum": 1},
+                                "succeeded": {"$sum": {"$cond": [{"$eq": ["$result", "success"]}, 1, 0]}},
+                                "grade": {"$max": "$grade"}
+                            }
+                    }
+                ]))
+
+            result = OrderedDict([(group['_id'],
+                            {"name": group["description"], "tried": 0,
+                             "succeeded": 0, "status": "notviewed",
+                             "url": self.group_submission_url_generator(course, task, group)})
+                           for group in groups])
+
+            for group in group_data:
+                if group['_id'] in result:
+                    result[group['_id']].update(group)
+
+            return renderer.course_admin.task_info(course, task, individual_data, result)
+
+        else:
+            user_csv = [dict(individual_data[key].items()) for key in individual_data.keys()]
+            if "csv" in web.input():
+                return make_csv(user_csv)
+
+            return renderer.course_admin.task_info(course, task, individual_data)

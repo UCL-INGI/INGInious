@@ -25,32 +25,12 @@ from frontend.user_data import UserData
 
 
 class CourseStudentListPage(object):
-    """ Course administration page: list of registered students or groups """
+    """ Course administration page: list of registered students """
 
     def GET(self, courseid):
         """ GET request """
         course, _ = get_course_and_check_rights(courseid)
         return self.page(course)
-
-    def POST(self, courseid):
-        """ POST request """
-        course, _ = get_course_and_check_rights(courseid)
-
-        if not course.is_group_course():
-            raise web.notfound()
-
-        error = ""
-        try:
-            data = web.input()
-            if not data['group_description']:
-                error = 'No group description given.'
-            else:
-                get_database().groups.insert({"course_id": courseid, "users": [], "tutors": [], "size": 2,
-                                              "description": data['group_description']})
-        except:
-            error = 'User returned an invalid form.'
-
-        return self.page(course, error, True)
 
     def submission_url_generator(self, course, username):
         """ Generates a submission url """
@@ -74,4 +54,4 @@ class CourseStudentListPage(object):
         if "csv" in web.input():
             return make_csv(users_csv)
 
-        return renderer.course_admin.student_list(course, user_data, groups, error, post)
+        return renderer.course_admin.student_list(course, user_data, error, post)
