@@ -68,6 +68,12 @@ input.monospace {
   position: relative;
   overflow: hidden;
 }
+@media screen and (max-width: 768px) {
+  #main_container #sidebar #sidebar_affix {
+    position: static !important;
+    margin-bottom: 60px;
+  }
+}
 #main_container #sidebar .affix {
   top: 0;
 }
@@ -76,11 +82,6 @@ input.monospace {
 }
 #main_container #sidebar .affix-top {
   position: relative;
-}
-@media screen and (max-width: 768px) {
-  #main_container #sidebar {
-    position: static !important;
-  }
 }
 form#task {
   -webkit-transition: all 0.3s ease-in-out;

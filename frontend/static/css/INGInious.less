@@ -134,6 +134,15 @@ input.monospace
             overflow: hidden;
         }
 
+        #sidebar_affix
+        {
+            @media screen and (max-width: 768px)
+            {
+                position: static !important;
+                margin-bottom: 60px;
+            }
+        }
+
         .affix
         {
             top: 0;
@@ -149,10 +158,7 @@ input.monospace
             position: relative;
         }
 
-        @media screen and (max-width: 768px)
-        {
-            position: static !important;
-        }
+
     }
 }
 
