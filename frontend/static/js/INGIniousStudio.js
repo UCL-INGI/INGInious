@@ -121,6 +121,7 @@ function studio_task_file_upload()
 
 //Stores data about opened tabs
 var studio_file_editor_tabs = {};
+var studio_file_editor_tabs_next_id = 0;
 
 /**
  * Open a new tab for editing a file, if it does not exists yet
@@ -129,7 +130,8 @@ function studio_task_file_open_tab(path)
 {
 	if(studio_file_editor_tabs[path] == undefined)
 	{
-		tab_id = "task_file_editor_"+Object.keys(studio_file_editor_tabs).length;
+		tab_id = "task_file_editor_"+ studio_file_editor_tabs_next_id;
+        studio_file_editor_tabs_next_id += 1;
 		studio_file_editor_tabs[path] = tab_id;
 		
 		$('#edit_file_tabs').append('<li role="presentation" class="studio_file_editor_tab">'+

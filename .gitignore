@@ -13,3 +13,4 @@ tasks
 !tests/tasks
 !*/tests/tasks
 !frontend/templates/tasks
+utils/task_tester/tests/
