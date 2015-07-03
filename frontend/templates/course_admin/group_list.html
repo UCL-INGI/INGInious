@@ -58,7 +58,7 @@ $var Navbar: $:NavbarF()
     $for group in groups:
     	<tr>
     		<td>
-    			<a href="/admin/${course.get_id()}/edit/group/$group['_id']">$group["description"]</a>
+    			<a href="/admin/${course.get_id()}/group/$group['_id']">$group["description"]</a>
     		</td>
             <td>$len(group['users']) / $group['size']</td>
             $if group["_id"] in data:

@@ -1,0 +1,82 @@
+$def with (course,group,data)
+
+$# Copyright (c) 2014-2015 Université Catholique de Louvain.
+$#
+$# This file is part of INGInious.
+$#
+$# INGInious is free software: you can redistribute it and/or modify
+$# it under the terms of the GNU Affero General Public License as published
+$# by the Free Software Foundation, either version 3 of the License, or
+$# (at your option) any later version.
+$#
+$# INGInious is distributed in the hope that it will be useful,
+$# but WITHOUT ANY WARRANTY; without even the implied warranty of
+$# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+$# GNU Affero General Public License for more details.
+$#
+$# You should have received a copy of the GNU Affero General Public
+$# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
+
+$var title: $:group["description"] - $:course.get_name()
+
+$var Column: $:template_helper.call('course_admin_menu',course=course,current='groups')
+
+$def NavbarF():
+    <ol class="nav navbar-nav nav-breadcrumb">
+        <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
+        <li><a href="/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+            <i class="fa fa-user-secret"></i></a></li>
+        <li><a href="/admin/$course.get_id()/groups" title="Groups" data-toggle="tooltip" data-placement="bottom">
+            <i class="fa fa-group"></i></a></li>
+
+        <li class="active"><a href="#">$group["description"] <span class="sr-only">(current)</span></a></li>
+    </ol>
+$var Navbar: $:NavbarF()
+
+<h2>Statistics for group $group["description"]</h2>
+<table class="table">
+    <tr>
+        <th>Task</th>
+        <th>Status</th>
+        <th># submissions</th>
+        <th>
+            <div class="btn-group" role="group">
+                <a href="javascript:ask_to_download('/admin/${course.get_id()}/submissions?dl=group&groupid=$group['_id']')"
+                   class="btn btn-danger btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa
+                   fa-download"></i></a>
+                <a href="/admin/${course.get_id()}/group/${group['_id']}?csv" class="btn btn-info btn-xs" title="Download
+                   CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
+            </div>
+        </th>
+    </tr>
+    $for taskid in data:
+    	<tr
+            $if data[taskid]["status"] == "notattempted":
+                class="warning"
+            $elif data[taskid]["status"] == "succeeded":
+                class="success"
+            $elif data[taskid]["status"] == "failed":
+                class="danger"
+        >
+    		<td><a href="/admin/${course.get_id()}/group/$group['_id']/$taskid">$data[taskid]["name"]</a></td>
+    		<td>
+                $if data[taskid]["status"] == "notviewed":
+                    Not viewed
+                $elif data[taskid]["status"] == "notattempted":
+                    Not attempted (viewed)
+                $elif data[taskid]["status"] == "succeeded":
+                    Succeeded ($data[taskid]["grade"]%)
+                $else:
+                    Failed ($data[taskid]["grade"]%)
+            </td>
+            <td>$data[taskid]["submissions"]</td>
+    		<td>
+                <div class="btn-group" role="group">
+    			    <a href="/admin/${course.get_id()}/group/$group['_id']/$taskid" class="btn btn-default btn-xs" title="View submissions"
+                       data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
+                    <a href="javascript:ask_to_download('$data[taskid]['url']')" class="btn btn-default btn-xs" title="Download submissions"
+                       data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                </div>
+    		</td>
+    	</tr>
+</table>
