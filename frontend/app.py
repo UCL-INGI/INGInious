@@ -51,11 +51,12 @@ urls = (
     '/admin/([^/]+)/student/([^/]+)', 'frontend.pages.course_admin.student_info.CourseStudentInfoPage',
     '/admin/([^/]+)/student/([^/]+)/([^/]+)', 'frontend.pages.course_admin.student_task.CourseStudentTaskPage',
     '/admin/([^/]+)/student/([^/]+)/([^/]+)/([^/]+)', 'frontend.pages.course_admin.student_task.SubmissionDownloadFeedback',
-    '/admin/([^/]+)/group/([^/]+)', 'frontend.pages.course_admin.group_edit.CourseEditGroup',
+    '/admin/([^/]+)/groups', 'frontend.pages.course_admin.group_list.CourseGroupListPage',
     '/admin/([^/]+)/tasks', 'frontend.pages.course_admin.task_list.CourseTaskListPage',
     '/admin/([^/]+)/task/([^/]+)', 'frontend.pages.course_admin.task_info.CourseTaskInfoPage',
-    '/admin/([^/]+)/edit/([^/]+)', 'frontend.pages.course_admin.task_edit.CourseEditTask',
-    '/admin/([^/]+)/edit/([^/]+)/files', 'frontend.pages.course_admin.task_edit_file.CourseTaskFiles',
+    '/admin/([^/]+)/edit/group/([^/]+)', 'frontend.pages.course_admin.group_edit.CourseEditGroup',
+    '/admin/([^/]+)/edit/task/([^/]+)', 'frontend.pages.course_admin.task_edit.CourseEditTask',
+    '/admin/([^/]+)/edit/task/([^/]+)/files', 'frontend.pages.course_admin.task_edit_file.CourseTaskFiles',
     '/admin/([^/]+)/submissions', 'frontend.pages.course_admin.submission_files.DownloadSubmissionFiles',
 
 )

@@ -162,8 +162,10 @@ def get_menu(course, current):
         default_entries += [("settings", "<i class='fa fa-cog fa-fw'></i>&nbsp; Course settings"),
                             ("batch", "<i class='fa fa-rocket fa-fw'></i>&nbsp; Batch operations")]
 
-    default_entries += [("students", "<i class='fa " + ("fa-group" if course.is_group_course() else "fa-user")
-                         + " fa-fw'></i>&nbsp; " + ("Groups" if course.is_group_course() else "Students"))]
+    default_entries += [("students", "<i class='fa fa-user fa-fw'></i>&nbsp; Students")]
+
+    if course.is_group_course():
+        default_entries += [("groups", "<i class='fa fa-group fa-fw'></i>&nbsp; Groups")]
 
     default_entries += [("tasks", "<i class='fa fa-tasks fa-fw'></i>&nbsp; Tasks")]
 

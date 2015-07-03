@@ -102,7 +102,7 @@ def add_job(task, inputdata, debug=False):
 
     if course.is_group_course() and username not in course.get_staff(True):
         group = get_database().groups.find_one({"course_id": task.get_course_id(), "users": username})
-        obj.update({"username": group["users"]})
+        obj.update({"username": group["users"], "groupid": group["_id"]})
     else:
         obj.update({"username": [username]})
 
@@ -149,7 +149,6 @@ def user_is_submission_owner(submission):
         raise Exception("A user must be logged in to verify if he owns a jobid")
 
     return User.get_username() in submission["username"]
-
 
 def get_user_submissions(task):
     """ Get all the user's submissions for a given task """

@@ -58,10 +58,13 @@ $var Navbar: $:NavbarF()
             <td>$data[taskid]["attempts"]</td>
     		<td>
                 <div class="btn-group" role="group">
-                    <a href="/admin/${course.get_id()}/edit/$taskid" class="btn btn-primary btn-xs" title="Edit task" data-toggle="tooltip"
+                    <a href="/admin/${course.get_id()}/edit/task/$taskid" class="btn btn-primary btn-xs" title="Edit task" data-toggle="tooltip"
                        data-placement="bottom"><i class="fa fa-edit"></i></a>
                     <a href="/admin/${course.get_id()}/task/$taskid" class="btn btn-default btn-xs" title="View student results" data-toggle="tooltip"
-                       data-placement="bottom"><i class="fa fa-users"></i></a>
+                       data-placement="bottom"><i class="fa fa-user"></i></a>
+                    $if course.is_group_course():
+                        <a href="/admin/${course.get_id()}/task/$taskid" class="btn btn-default btn-xs" title="View group results" data-toggle="tooltip"
+                           data-placement="bottom"><i class="fa fa-users"></i></a>
                     <a href="javascript:ask_to_download('$data[taskid]['url']')" class="btn btn-default btn-xs" title="Download submissions"
                        data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
                 </div>

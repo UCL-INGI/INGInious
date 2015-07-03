@@ -1,0 +1,92 @@
+$def with (course,groups,data,error,post)
+
+$# Copyright (c) 2014-2015 Université Catholique de Louvain.
+$#
+$# This file is part of INGInious.
+$#
+$# INGInious is free software: you can redistribute it and/or modify
+$# it under the terms of the GNU Affero General Public License as published
+$# by the Free Software Foundation, either version 3 of the License, or
+$# (at your option) any later version.
+$#
+$# INGInious is distributed in the hope that it will be useful,
+$# but WITHOUT ANY WARRANTY; without even the implied warranty of
+$# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+$# GNU Affero General Public License for more details.
+$#
+$# You should have received a copy of the GNU Affero General Public
+$# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
+
+$var title: $:course.get_name()
+
+$var Column: $:template_helper.call('course_admin_menu',course=course,current='groups')
+
+$def NavbarF():
+    <ol class="nav navbar-nav nav-breadcrumb">
+        <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
+        <li><a href="/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+            <i class="fa fa-user-secret"></i></a></li>
+        <li class="active">
+            <a href="#">
+                <i class="fa fa-group"></i> Groups <span class="sr-only">(current)</span>
+            </a>
+        </li>
+    </ol>
+$var Navbar: $:NavbarF()
+
+<h2>Groups</h2>
+    $if error:
+        <div class="alert alert-danger" role="alert">$error</div>
+    $elif post:
+        <div class="alert alert-success" role="alert">New group created.</div>
+
+<table class="table">
+    <tr>
+        <th>Group description</th>
+        <th>Students</th>
+        <th># task tried</th>
+        <th># task done</th>
+        <th>
+            <div class="btn-group" role="group">
+                <a href="javascript:ask_to_download('/admin/${course.get_id()}/submissions?dl=course')" class="btn btn-danger btn-xs" title="Download
+                   all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                <a href="/admin/${course.get_id()}/tasks?csv" class="btn btn-info btn-xs" title="Download
+                   CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
+            </div>
+        </th>
+    </tr>
+    $for group in groups:
+    	<tr>
+    		<td>
+    			<a href="/admin/${course.get_id()}/edit/group/$group['_id']">$group["description"]</a>
+    		</td>
+            <td>$len(group['users']) / $group['size']</td>
+            $if group["_id"] in data:
+                <td>$data[group["_id"]]["tried"]</td>
+                <td>$data[group["_id"]]["done"]</td>
+            $else:
+                <td>0</td>
+                <td>0</td>
+            <td>
+                <div class="btn-group" role="group">
+                    <a href="/admin/${course.get_id()}/edit/group/$group['_id']" class="btn btn-primary btn-xs" title="Edit group" data-toggle="tooltip"
+                       data-placement="bottom"><i class="fa fa-edit"></i></a>
+                    <a href="/admin/${course.get_id()}/group/$group['_id']" class="btn btn-default btn-xs" title="View submissions" data-toggle="tooltip"
+                       data-placement="bottom"><i class="fa fa-search"></i></a>
+                    <a href="javascript:ask_to_download('')" class="btn btn-default btn-xs" title="Download submissions"
+                       data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                </div>
+    		</td>
+    	</tr>
+</table>
+
+<div class="row">
+    <form class=form-horizontal" method="post">
+        <div class="form-group">
+            <div class="col-sm-8"><input type="text" class="form-control" name="group_description" placeholder="New group description"/></div>
+            <div class="col-sm-4"><button type="submit" class="btn btn-info btn-block">Create new group</button></div>
+        </div>
+    </form>
+</div>
+
+
