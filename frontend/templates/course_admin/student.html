@@ -27,12 +27,8 @@ $def NavbarF():
         <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
         <li><a href="/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-user-secret"></i></a></li>
-            $if course.is_group_course():
-                <li><a href="/admin/$course.get_id()/students" title="Groups" data-toggle="tooltip" data-placement="bottom">
-                <i class="fa fa-group"></i></a></li>
-            $else:
-            <li><a href="/admin/$course.get_id()/students" title="Students" data-toggle="tooltip" data-placement="bottom">
-                <i class="fa fa-user"></i></a></li>
+        <li><a href="/admin/$course.get_id()/students" title="Students" data-toggle="tooltip" data-placement="bottom">
+            <i class="fa fa-user"></i></a></li>
 
         <li class="active"><a href="#">$userData["realname"] <span class="sr-only">(current)</span></a></li>
     </ol>
@@ -54,32 +50,32 @@ $var Navbar: $:NavbarF()
             </div>
         </th>
     </tr>
-    $for taskid in data:
+    $for task in data:
     	<tr
-            $if data[taskid]["status"] == "notattempted":
+            $if task["status"] == "notattempted":
                 class="warning"
-            $elif data[taskid]["status"] == "succeeded":
+            $elif task["status"] == "succeeded":
                 class="success"
-            $elif data[taskid]["status"] == "failed":
+            $elif task["status"] == "failed":
                 class="danger"
         >
-    		<td><a href="/admin/${course.get_id()}/student/$username/$taskid">$data[taskid]["name"]</a></td>
+    		<td><a href="/admin/${course.get_id()}/student/$username/$task['taskid']">$task["name"]</a></td>
     		<td>
-                $if data[taskid]["status"] == "notviewed":
+                $if task["status"] == "notviewed":
                     Not viewed
-                $elif data[taskid]["status"] == "notattempted":
+                $elif task["status"] == "notattempted":
                     Not attempted (viewed)
-                $elif data[taskid]["status"] == "succeeded":
-                    Succeeded ($data[taskid]["grade"]%)
+                $elif task["status"] == "succeeded":
+                    Succeeded ($task["grade"]%)
                 $else:
-                    Failed ($data[taskid]["grade"]%)
+                    Failed ($task["grade"]%)
             </td>
-            <td>$data[taskid]["submissions"]</td>
+            <td>$task["tried"]</td>
     		<td>
                 <div class="btn-group" role="group">
-    			    <a href="/admin/${course.get_id()}/student/$username/$taskid" class="btn btn-default btn-xs" title="View submissions"
+    			    <a href="/admin/${course.get_id()}/student/$username/$task['taskid']" class="btn btn-default btn-xs" title="View submissions"
                        data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
-                    <a href="javascript:ask_to_download('$data[taskid]['url']')" class="btn btn-default btn-xs" title="Download submissions"
+                    <a href="javascript:ask_to_download('$task['url']')" class="btn btn-default btn-xs" title="Download submissions"
                        data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
                 </div>
     		</td>

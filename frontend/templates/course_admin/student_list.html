@@ -37,52 +37,47 @@ $var Navbar: $:NavbarF()
 <h2>Students</h2>
 <table class="table">
     <tr>
-        <th>Student</th>
+        <th>student</th>
         <th># task tried</th>
         <th># task done</th>
-        <th>Current grade</th>
+        <th>current grade</th>
         <th>
             <div class="btn-group" role="group">
                 <a href="javascript:ask_to_download('/admin/${course.get_id()}/submissions?dl=course')" class="btn btn-danger btn-xs" title="Download
                    all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                <a href="/admin/${course.get_id()}?csv" class="btn btn-info btn-xs" title="Download
+                <a href="/admin/${course.get_id()}/students?csv" class="btn btn-info btn-xs" title="Download
                    CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
             </div>
         </th>
     </tr>
 
-    $for username in course.get_registered_users():
-        $ studentData=UserData(username).get_data()
+    $for user in user_data:
+        $ studentData=UserData(user["username"]).get_data()
         <tr>
             <td>
                 $if studentData["realname"] != "":
-                    <a href="/admin/${course.get_id()}/student/$username">$studentData["realname"]</a>
-                    (<a href="/admin/${course.get_id()}/student/$username">$studentData["_id"]</a> - <a href='mailto:$studentData["email"]'>email</a>)
+                    <a href="/admin/${course.get_id()}/student/$user["username"]">$studentData["realname"]</a>
+                    (<a href="/admin/${course.get_id()}/student/$user["username"]">$studentData["_id"]</a> - <a href='mailto:$studentData["email"]'>email</a>)
                 $else:
                     $studentData["_id"]
             </td>
-            $if username in user_data:
-                <td>$user_data[username]["task_tried"]</td>
-                <td>$user_data[username]["task_succeeded"]</td>
-            $else:
-                <td>0</td>
-                <td>0</td>
+            <td>$user["task_tried"]</td>
+            <td>$user["task_succeeded"]</td>
             <td>
                 <div class="progress">
-                    $ percentage=int(course.get_user_grade(username))
+                    $ percentage=int(course.get_user_grade(user["username"]))
                     <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="$percentage" aria-valuemin="0" aria-valuemax="100" style="width: $percentage%">
                         <span>$percentage%</span>
                     </div>
                 </div>
             </td>
             <td>
-                $if username in user_data:
-                    <div class="btn-group" role="group">
-                        <a href="/admin/${course.get_id()}/student/$username" class="btn btn-default btn-xs" title="View submissions"
-                           data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
-                        <a href="javascript:ask_to_download('$user_data[username]['url']')" class="btn btn-default btn-xs" title="Download submissions"
-                           data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                    </div>
+                <div class="btn-group" role="group">
+                    <a href="/admin/${course.get_id()}/student/$user["username"]" class="btn btn-default btn-xs" title="View submissions"
+                       data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
+                    <a href="javascript:ask_to_download('$user['url']')" class="btn btn-default btn-xs" title="Download submissions"
+                       data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                </div>
             </td>
         </tr>
 </table>
