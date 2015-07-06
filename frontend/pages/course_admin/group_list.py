@@ -55,10 +55,13 @@ class CourseGroupListPage(object):
 
         return self.page(course, error, True)
 
+    def submission_url_generator(self, course, groupid):
+        """ Generates a submission url """
+        return "/admin/" + course.get_id() + "/submissions?dl=group&groupid=" + str(groupid)
+
     def page(self, course, error="", post=False):
         """ Get all data and display the page """
-        groups = course.get_groups()
-        groups = dict([(group['_id'], dict(group.items() + [("tried", 0), ("done", 0)])) for group in groups])
+        groups = dict([(group['_id'], dict(group.items() + [("tried", 0), ("done", 0), ("url", self.submission_url_generator(course, group['_id']))])) for group in course.get_groups()])
 
         data = list(get_database().submissions.aggregate(
             [

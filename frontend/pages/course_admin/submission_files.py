@@ -40,8 +40,12 @@ class DownloadSubmissionFiles(object):
                 return self.download_student_task(course, user_input['username'], user_input['task'], include_old_submissions)
             elif user_input['dl'] == 'student':
                 return self.download_student(course, user_input['username'], include_old_submissions)
+            elif user_input['dl'] == 'group_task':
+                return self.download_group_task(course, user_input['groupid'], user_input['task'], include_old_submissions)
+            elif user_input['dl'] == 'group':
+                return self.download_group(course, user_input['groupid'], include_old_submissions)
             elif user_input['dl'] == 'course':
-                return self.download_course(course, include_old_submissions)
+                return self.download_course(course, user_input['groupby'], include_old_submissions)
             elif user_input['dl'] == 'task':
                 return self.download_task(course, user_input['task'], include_old_submissions)
         else:
@@ -59,13 +63,13 @@ class DownloadSubmissionFiles(object):
             print e
             raise web.notfound()
 
-    def download_course(self, course, include_old_submissions=False):
+    def download_course(self, course, groupby, include_old_submissions=False):
         """ Download all submissions for a course """
         submissions = list(get_database().submissions.find(
             {"courseid": course.get_id(), "username": {"$in": course.get_registered_users()}, "status": {"$in": ["done", "error"]}}))
         if not include_old_submissions:
             submissions = self._keep_best_submission(submissions)
-        return self.download_submission_set(submissions, '_'.join([course.get_id()]) + '.tgz', ['username', 'taskid'])
+        return self.download_submission_set(submissions, '_'.join([course.get_id()]) + '.tgz', [groupby, 'taskid'])
 
     def download_task(self, course, taskid, include_old_submissions=False):
         """ Download all submission for a task """
@@ -83,6 +87,13 @@ class DownloadSubmissionFiles(object):
             submissions = self._keep_best_submission(submissions)
         return self.download_submission_set(submissions, '_'.join([username, course.get_id()]) + '.tgz', ['taskid'])
 
+    def download_group(self, course, groupid, include_old_submissions=False):
+        """ Download all submissions for a group for a given course """
+        submissions = list(get_database().submissions.find({"groupid": ObjectId(groupid), "courseid": course.get_id(), "status": {"$in": ["done", "error"]}}))
+        if not include_old_submissions:
+            submissions = self._keep_best_submission(submissions)
+        return self.download_submission_set(submissions, '_'.join([groupid, course.get_id()]) + '.tgz', ['taskid'])
+
     def download_student_task(self, course, username, taskid, include_old_submissions=True):
         """ Download all submissions for a user for given task """
         submissions = list(get_database().submissions.find(
@@ -90,6 +101,14 @@ class DownloadSubmissionFiles(object):
         if not include_old_submissions:
             submissions = self._keep_best_submission(submissions)
         return self.download_submission_set(submissions, '_'.join([username, course.get_id(), taskid]) + '.tgz', [])
+
+    def download_group_task(self, course, groupid, taskid, include_old_submissions=True):
+        """ Download all submissions for a user for given task """
+        submissions = list(get_database().submissions.find(
+            {"groupid": ObjectId(groupid), "courseid": course.get_id(), "taskid": taskid, "status": {"$in": ["done", "error"]}}))
+        if not include_old_submissions:
+            submissions = self._keep_best_submission(submissions)
+        return self.download_submission_set(submissions, '_'.join([groupid, course.get_id(), taskid]) + '.tgz', [])
 
     def download_submission(self, subid, include_old_submissions=False):
         """ Download a specific submission """
@@ -105,10 +124,11 @@ class DownloadSubmissionFiles(object):
         for sub in submissions:
             if sub["taskid"] not in tasks:
                 tasks[sub["taskid"]] = {}
-            if sub["username"] not in tasks[sub["taskid"]]:
-                tasks[sub["taskid"]][sub["username"]] = sub
-            elif tasks[sub["taskid"]][sub["username"]].get("grade", 0.0) < sub.get("grade", 0.0):
-                tasks[sub["taskid"]][sub["username"]] = sub
+            for username in sub["username"]:
+                if username not in tasks[sub["taskid"]]:
+                    tasks[sub["taskid"]][username] = sub
+                elif tasks[sub["taskid"]][username].get("grade", 0.0) < sub.get("grade", 0.0):
+                    tasks[sub["taskid"]][username] = sub
         final_subs = []
         for task in tasks.itervalues():
             for sub in task.itervalues():
