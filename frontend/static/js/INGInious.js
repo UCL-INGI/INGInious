@@ -15,18 +15,20 @@
 //
 // You should have received a copy of the GNU Affero General Public
 // License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
+"use strict";
 
 $(function()
 {
-    $('form#task').on('submit', function(){submitTask(); return false;});
-    if($('form#task').attr("data-wait-submission"))
+    var task_form = $('form#task');
+    task_form.on('submit', function(){submitTask(); return false;});
+    if(task_form.attr("data-wait-submission"))
     {
     	blurTaskForm();
         resetAlerts();
         displayTaskLoadingAlert();
-    	waitForSubmission($('form#task').attr("data-wait-submission"));
+    	waitForSubmission(task_form.attr("data-wait-submission"));
     }
-    $('#submissions .submission').on('click', clickOnSubmission);
+    $('#submissions').find('.submission').on('click', clickOnSubmission);
     
     $('.code-editor').each(function(index,elem)
     {
@@ -35,10 +37,10 @@ $(function()
     
     //Start affix only if there the height of the sidebar is less than the height of the content
     if($('#sidebar').height() < $('#content').height()) {
-        start_affix = function(){
+        var start_affix = function(){
             $('#sidebar_affix').affix({offset: {top: 65, bottom: 61}});
         };
-        update_size = function(){
+        var update_size = function(){
             $('#sidebar_affix').width($('#sidebar').width());
         };
         $(window).scroll(update_size);
@@ -48,12 +50,13 @@ $(function()
     }
     
     //Registration form, disable the password field when not needed
-    if($('#register_courseid'))
+    var register_courseid = $('#register_courseid');
+    if(register_courseid)
     {
-    	$('#register_courseid').change(function()
+        register_courseid.change(function()
     	{
-    		if($('#register_courseid option[value="'+$('#register_courseid').val()+'"]').attr('data-password') == 1)
-    			$('#register_password').removeAttr('disabled')
+    		if($('option[value="'+register_courseid.val()+'"]', register_courseid).attr('data-password') == 1)
+    			$('#register_password').removeAttr('disabled');
     		else
     			$('#register_password').attr('disabled','disabled')
     	});
@@ -61,7 +64,7 @@ $(function()
     
     //Fix a bug with codemirror and bootstrap tabs
     $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
-    	target = $(e.target).attr("href");
+    	var target = $(e.target).attr("href");
     	$(target + ' .CodeMirror').each(function(i, el) {
     		el.CodeMirror.refresh();
     	});
@@ -70,10 +73,10 @@ $(function()
     //Enable tooltips
     $(function () {
         //Fix for button groups
-        all_needed_tooltips = $('[data-toggle="tooltip"]');
-        all_exceptions = $('.btn-group .btn[data-toggle="tooltip"], td[data-toggle="tooltip"]');
+        var all_needed_tooltips = $('[data-toggle="tooltip"]');
+        var all_exceptions = $('.btn-group .btn[data-toggle="tooltip"], td[data-toggle="tooltip"]');
 
-        not_exceptions = all_needed_tooltips.not(all_exceptions);
+        var not_exceptions = all_needed_tooltips.not(all_exceptions);
 
         not_exceptions.tooltip();
         all_exceptions.tooltip({'container':'body'});
@@ -81,7 +84,7 @@ $(function()
 });
 
 //Contains all code editors
-var codeEditors=[]
+var codeEditors=[];
 
 //True if loading something
 var loadingSomething = false;
@@ -89,7 +92,7 @@ var loadingSomething = false;
 //Register and init a code editor (ace)
 function registerCodeEditor(textarea,lang,lines)
 {
-    mode = lang;
+    var mode = lang;
     if(lang != "plain")
     {
         //fix some languages
@@ -115,7 +118,7 @@ function registerCodeEditor(textarea,lang,lines)
 
     
     CodeMirror.modeURL = "/static/js/codemirror/mode/%N/%N.js";
-    editor = CodeMirror.fromTextArea(textarea, {
+    var editor = CodeMirror.fromTextArea(textarea, {
         lineNumbers: true,
         mode: lang,
         foldGutter: true,
@@ -131,7 +134,7 @@ function registerCodeEditor(textarea,lang,lines)
 
     editor.on("change", function(cm) { cm.save(); });
 
-    min_editor_height = (21 * lines);
+    var min_editor_height = (21 * lines);
     editor.on("viewportChange", function(cm)
     {
         if (cm.getScrollInfo()["height"] > min_editor_height)
@@ -149,26 +152,33 @@ function registerCodeEditor(textarea,lang,lines)
 //Task page: find an editor by problem id
 function getEditorForProblemId(problemId)
 {
-	for (idx in codeEditors)
-		if (codeEditors[idx].getTextArea().name == problemId)
-			return codeEditors[idx];
+    var found = null;
+    $.each(codeEditors, function(idx, editor){
+        if(!found && editor.getTextArea().name == problemId)
+            found = editor;
+    });
+    return found;
 }
 
 //Blur task form
 function blurTaskForm()
 {
-    for (idx in codeEditors)
-        codeEditors[idx].setOption("readOnly", true);
-    $("form#task input, form#task button").attr("disabled","disabled");
-    $("form#task").addClass('form-blur');
+    $.each(codeEditors, function(idx, editor){
+       editor.setOption("readOnly", true);
+    });
+    var task_form = $('form#task');
+    $("input, button", task_form).attr("disabled","disabled");
+    task_form.addClass('form-blur');
     loadingSomething = true;
 }
 function unblurTaskForm()
 {
-    for (idx in codeEditors)
-        codeEditors[idx].setOption("readOnly", false);
-    $("form#task input, form#task button").removeAttr("disabled");
-    $("form#task").removeClass('form-blur');
+    $.each(codeEditors, function (idx, editor) {
+        editor.setOption("readOnly", false);
+    });
+    var task_form = $('form#task');
+    $("input, button", task_form).removeAttr("disabled");
+    task_form.removeClass('form-blur');
     loadingSomething = false;
 }
 
@@ -182,27 +192,32 @@ function resetAlerts()
 //Increment tries count
 function incrementTries()
 {
-	$('#task_tries').text(parseInt($('#task_tries').text())+1);
+    var ttries = $('#task_tries');
+    ttries.text(parseInt(ttries.text())+1);
 }
 
 //Update task status
 function updateTaskStatus(newStatus, grade)
 {
-	currentStatus = $('#task_status').text().trim();
-	currentGrade = parseFloat($('#task_grade').text().trim());
-	
-	if(currentGrade < grade)
-		$('#task_grade').text(grade);
+    var task_status = $('#task_status');
+    var task_grade = $('#task_grade');
+
+	var currentStatus = task_status.text().trim();
+	var currentGrade = parseFloat(task_grade.text().trim());
+
 	if(currentStatus != "Succeeded")
-		$('#task_status').text(newStatus);
+        task_status.text(newStatus);
+    if (currentGrade < grade)
+        task_grade.text(grade);
 }
 
 //Creates a new submission (left column)
 function displayNewSubmission(id)
 {
-	$('#submissions .submission-empty').remove();
-	
-	$('#submissions').prepend($('<a></a>')
+    var submissions = $('#submissions');
+    submissions.find('.submission-empty').remove();
+
+    submissions.prepend($('<a></a>')
 			.addClass('submission').addClass('list-group-item')
 			.addClass('list-group-item-warning')
 			.attr('data-submission-id',id).text(getDateTime()).on('click',clickOnSubmission))
@@ -213,11 +228,11 @@ function updateSubmission(id,result,grade)
 {
     grade = grade || "0.0";
 
-	nclass = "";
+	var nclass = "";
 	if(result == "success") nclass="list-group-item-success";
 	else if(result == "save") nclass="list-group-item-save";
 	else nclass="list-group-item-danger";
-	$('#submissions .submission').each(function(){
+	$('#submissions').find('.submission').each(function(){
 		if ($(this).attr('data-submission-id').trim() == id)
 		{
 			$(this).removeClass('list-group-item-warning').addClass(nclass);
@@ -262,7 +277,6 @@ function submitTask()
             if ("status" in data && data["status"] == "ok" && "submissionid" in data)
             {
             	incrementTries();
-                submissionid = data['submissionid'];
                 displayNewSubmission(data['submissionid']);
                 waitForSubmission(data['submissionid']);
             }
@@ -392,78 +406,83 @@ function displayDebugInfoRecur(info,box)
 //Displays a loading alert in task form
 function displayTaskLoadingAlert()
 {
-    $('#task_alert').html(getAlertCode("<b>Verifying your answers...</b>","info",false));
+    var task_alert = $('#task_alert');
+    task_alert.html(getAlertCode("<b>Verifying your answers...</b>","info",false));
     $('html, body').animate(
     {
-        scrollTop: $("#task_alert").offset().top-100
+        scrollTop: task_alert.offset().top-100
     }, 200);
 }
 
 //Displays a loading input alert in task form
 function displayTaskInputLoadingAlert()
 {
-	$('#task_alert').html(getAlertCode("<b>Loading your submission...</b>","info",false));
+    var task_alert = $('#task_alert');
+    task_alert.html(getAlertCode("<b>Loading your submission...</b>","info",false));
     $('html, body').animate(
     {
-        scrollTop: $("#task_alert").offset().top-100
+        scrollTop: task_alert.offset().top-100
     }, 200);
 }
 
 //Displays a loading input alert in task form
 function displayTaskInputErrorAlert()
 {
-	$('#task_alert').html(getAlertCode("<b>Unable to load this submission</b>","danger",false));
+    var task_alert = $('#task_alert');
+    task_alert.html(getAlertCode("<b>Unable to load this submission</b>","danger",false));
     $('html, body').animate(
     {
-        scrollTop: $("#task_alert").offset().top-100
+        scrollTop: task_alert.offset().top-100
     }, 200);
 }
 
 //Displays a loading input alert in task form
 function displayTaskInputDoneAlert()
 {
-	$('#task_alert').html(getAlertCode("<b>Submission loaded</b>","success",false));
+    var task_alert = $('#task_alert');
+    task_alert.html(getAlertCode("<b>Submission loaded</b>","success",false));
     $('html, body').animate(
     {
-        scrollTop: $("#task_alert").offset().top-100
+        scrollTop: task_alert.offset().top-100
     }, 200);
 }
 
 //Displays an overflow error alert in task form
 function displayOverflowAlert(content)
 {
-    msg = "<b>Your submission made an overflow.</b>";
-    $('#task_alert').html(getAlertCode(msg,"warning",true));
+    var msg = "<b>Your submission made an overflow.</b>";
+    var task_alert = $('#task_alert');
+    task_alert.html(getAlertCode(msg,"warning",true));
     $('html, body').animate(
     {
-        scrollTop: $("#task_alert").offset().top-100
+        scrollTop: task_alert.offset().top-100
     }, 200);
 }
 
 //Displays a timeout error alert in task form
 function displayTimeOutAlert(content)
 {
-    msg = "<b>Your submission timed out.</b>";
-    $('#task_alert').html(getAlertCode(msg,"warning",true));
+    var msg = "<b>Your submission timed out.</b>";
+    var task_alert = $('#task_alert');
+    task_alert.html(getAlertCode(msg,"warning",true));
     $('html, body').animate(
     {
-        scrollTop: $("#task_alert").offset().top-100
+        scrollTop: task_alert.offset().top-100
     }, 200);
 }
 
 //Displays an internal error alert in task form
 function displayTaskErrorAlert(content)
 {
-    msg = "<b>An internal error occured. Please retry later.</b>";
+    var msg = "<b>An internal error occured. Please retry later.</b>";
     if(content != "")
-    {
         msg += "<br />Please send an email to the course administrator. Information : " + content.text;
-    }
-    
-    $('#task_alert').html(getAlertCode(msg,"danger",true));
+
+    var task_alert = $('#task_alert');
+    task_alert.html(getAlertCode(msg,"danger",true));
     $('html, body').animate(
     {
-        scrollTop: $("#task_alert").offset().top-100
+        scrollTop: task_alert.offset().top-100
     }, 200);
 }
 
@@ -472,19 +491,20 @@ function displayTaskStudentAlertWithProblems(content, topEmpty, topPrefix, prefi
 {
 	resetAlerts();
 	
-	firstPos = -1;
-	
+	var firstPos = -1;
+    var task_alert = $('#task_alert');
+
 	if("text" in content && content.text != "")
 	{
-        $('#task_alert').html(getAlertCode(topPrefix+content.text,type,true));
-		firstPos = $("#task_alert").offset().top;
+        task_alert.html(getAlertCode(topPrefix+content.text,type,true));
+		firstPos = task_alert.offset().top;
 	}
 	
 	if("problems" in content)
 	{
 		$(".task_alert_problem").each(function(key, elem)
 		{
-			problemid = elem.id.substr(11); //skip "task_alert."
+			var problemid = elem.id.substr(11); //skip "task_alert."
 			if(problemid in content.problems)
 			{
 				$(elem).html(getAlertCode(prefix+content.problems[problemid],type,true));
@@ -496,8 +516,8 @@ function displayTaskStudentAlertWithProblems(content, topEmpty, topPrefix, prefi
 	
 	if(firstPos == -1 || (alwaysShowTop && !("text" in content && content.text != "")))
 	{
-		$('#task_alert').html(getAlertCode(topEmpty,type,true));
-		firstPos = $("#task_alert").offset().top;
+        task_alert.html(getAlertCode(topEmpty,type,true));
+		firstPos = task_alert.offset().top;
 	}
 	
     $('html, body').animate(
@@ -531,7 +551,7 @@ function displayTaskStudentSuccessAlert(content)
 //dismissible is a boolean
 function getAlertCode(content,type,dismissible)
 {
-    a = '<div class="alert fade in ';
+    var a = '<div class="alert fade in ';
     if(dismissible)
         a += 'alert-dismissible ';
     a += 'alert-'+type+'" role="alert">';
@@ -561,14 +581,13 @@ function loadOldSubmissionInput(id)
     		unblurTaskForm();
     		loadOldFeedback(data);
     		loadInput(id, data['input']);
-    		//displayTaskInputDoneAlert();
     	}
     	else
     	{
     		displayTaskInputErrorAlert();
             unblurTaskForm();
     	}
-    }).fail(function(data)
+    }).fail(function()
     {
     	displayTaskInputErrorAlert();
         unblurTaskForm();
@@ -606,7 +625,7 @@ function loadInput(submissionid, input)
 		if($(this).attr('type') == "hidden") //do not try to change @action
 			return;
 		
-		id = $(this).attr('name')
+		var id = $(this).attr('name');
 		
 		if(id in input)
 		{
@@ -621,8 +640,9 @@ function loadInput(submissionid, input)
 			else if($(this).attr('type') == 'file')
 			{
 				//display the download button associated with this file
-				$('#download-input-file-'+id).attr('href',$('form#task').attr("action")+"?submissionid="+submissionid+"&questionid="+id);
-				$('#download-input-file-'+id).css('display','block');
+                var input_file = $('#download-input-file-' + id);
+                input_file.attr('href',$('form#task').attr("action")+"?submissionid="+submissionid+"&questionid="+id);
+                input_file.css('display','block');
 			}
 		}
 		else if($(this).attr('type') == "checkbox" || $(this).attr('type') == "radio")
@@ -633,7 +653,7 @@ function loadInput(submissionid, input)
 	
 	$.each(codeEditors, function()
 	{
-		name = this.getTextArea().name;
+		var name = this.getTextArea().name;
 		if(name in input)
 			this.setValue(input[name],-1);
 		else
@@ -644,7 +664,7 @@ function loadInput(submissionid, input)
 //Ask user if (s/)he wants to download all the submissions or only the last ones
 function ask_to_download(link)
 {
-	box = '<div class="modal fade" id="downloadModal" tabindex="-1" role="dialog" aria-labelledby="downloadLabel" aria-hidden="true">'+
+	var box = '<div class="modal fade" id="downloadModal" tabindex="-1" role="dialog" aria-labelledby="downloadLabel" aria-hidden="true">'+
 			'<div class="modal-dialog">'+
     			'<div class="modal-content">'+
       				'<div class="modal-header">'+
@@ -660,8 +680,9 @@ function ask_to_download(link)
 			'</div>'+
 		'</div>';
 	$(document.body).append(box);
-	$("#downloadModal").on('hidden.bs.modal', function () {
+    var modal = $("#downloadModal")
+    modal.on('hidden.bs.modal', function () {
 		$(this).remove();
 	});
-	$('#downloadModal').modal('show');
+    modal.modal('show');
 }

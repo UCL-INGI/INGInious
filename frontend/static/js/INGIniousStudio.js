@@ -15,19 +15,20 @@
 //
 // You should have received a copy of the GNU Affero General Public
 // License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
-
+"use strict";
 
 /**
  * Redirect to the studio to create a new task
  */
 function studio_create_new_task()
 {
-	if(!$('#new_task_id').val().match(/^[a-zA-Z0-9\._\-]+$/))
+    var task_id = $('#new_task_id');
+	if(!task_id.val().match(/^[a-zA-Z0-9\._\-]+$/))
 	{
 		alert('Task id should only contain alphanumeric characters (in addition to ".", "_" and "-").');
 		return;
 	}
-	window.location.href=window.location.href+"/../edit/"+$('#new_task_id').val()
+	window.location.href = window.location.href + "/../edit/"+ task_id.val()
 }
 
 /**
@@ -37,7 +38,7 @@ function studio_load(data)
 {
 	jQuery.each(data, function(pid, problem)
 	{
-		template = studio_get_template_for_problem(problem);
+		var template = studio_get_template_for_problem(problem);
 		studio_create_from_template(template, pid);
 		studio_init_template(template,pid,problem);
 	});
@@ -85,7 +86,7 @@ function studio_task_file_delete(path)
  */
 function studio_task_file_rename(path)
 {
-	new_path = prompt("Enter the new path", path);
+	var new_path = prompt("Enter the new path", path);
 	if(new_path != null && studio_task_file_delete_tab(path))
 		studio_update_file_tabs({"action": "rename", "path":path, "new_path": new_path});
 }
@@ -95,7 +96,7 @@ function studio_task_file_rename(path)
  */
 function studio_task_file_create()
 {
-	new_path = prompt("Enter the path to the file", "newfile.sh");
+	var new_path = prompt("Enter the path to the file", "newfile.sh");
 	if(new_path != null && studio_task_file_delete_tab(new_path))
 		studio_update_file_tabs({"action": "create", "path":new_path});
 }
@@ -130,69 +131,68 @@ function studio_task_file_open_tab(path)
 {
 	if(studio_file_editor_tabs[path] == undefined)
 	{
-		tab_id = "task_file_editor_"+ studio_file_editor_tabs_next_id;
+		var tab_id = "task_file_editor_"+ studio_file_editor_tabs_next_id;
         studio_file_editor_tabs_next_id += 1;
 		studio_file_editor_tabs[path] = tab_id;
-		
-		$('#edit_file_tabs').append('<li role="presentation" class="studio_file_editor_tab">'+
+
+        var edit_file_tabs = $('#edit_file_tabs');
+        edit_file_tabs.append('<li role="presentation" class="studio_file_editor_tab">'+
 				'<a href="#'+tab_id+'" aria-controls="editor" role="tab" data-toggle="tab"><i class="fa fa-file-code-o"></i>&nbsp; '+path+
 				' <button class="closetab" type="button"><i class="fa fa-remove"></i></button>'+
 				'</a></li>');
-		$('#edit_file_tabs a[href="#'+studio_file_editor_tabs[path]+'"] .closetab').click(function(){studio_task_file_delete_tab(path)});
+		$('a[href="#'+studio_file_editor_tabs[path]+'"] .closetab', edit_file_tabs).click(function(){studio_task_file_delete_tab(path)});
 	
 		$('#edit_file_tabs_content').append('<div role="tabpanel" class="tab-pane" id="'+tab_id+'">Loading...</div>');
 		
 		jQuery.ajax({
 			success: function(data)
 			{
+                var newtab = $("#" + tab_id);
 				if(data["error"] != undefined)
 				{
-					$("#"+tab_id).html('INGInious can\'t read this file.');
+                    newtab.html('INGInious can\'t read this file.');
 					return;
 				}
-				
-				$("#"+tab_id).html('<form>'+'<textarea id="'+tab_id+'_editor" class="form-control"></textarea>'+
+
+                newtab.html('<form>'+'<textarea id="'+tab_id+'_editor" class="form-control"></textarea>'+
 						'<button type="button" id="'+tab_id+'_button" class="btn btn-primary btn-block">Save</button></form>');
-				$("#"+tab_id+'_editor').val(data['content']);
+
+                var newtab_editor = $("#" + tab_id + '_editor');
+                newtab_editor.val(data['content']);
 
 				//try to find the mode for the editor
-				mode = CodeMirror.findModeByFileName(path);
+				var mode = CodeMirror.findModeByFileName(path);
 				if(mode == undefined)
 				{
 					mode = "text/plain";
 					//verify if it is a UNIX executable file that starts with #!
 					if(data['content'].substring(0,2) == "#!")
 					{
-						app = data['content'].split("\n")[0].substring(2).trim();
+						var app = data['content'].split("\n")[0].substring(2).trim();
+
 						//check in codemirror
-						for(m in CodeMirror.modeInfo)
-						{
-							if(app.indexOf(CodeMirror.modeInfo[m]['name'].toLowerCase()) != -1)
-							{
-								mode = CodeMirror.modeInfo[m]["mode"];
-								break;
-							}
-						}
+                        $.each(CodeMirror.modeInfo, function(key, val)
+                        {
+                            if (app.indexOf(val['name'].toLowerCase()) != -1)
+                                mode = val["mode"];
+                        });
 						
 						//else, check in our small hint-list
 						if(mode == "text/plain")
 						{
-							hintlist = {"bash":"shell","sh":"shell","zsh":"shell","python":"python","php":"php"};
-							for(m in hintlist)
-							{
-								if(app.indexOf(m) != -1)
-								{
-									mode = hintlist[m];
-									break;
-								}
-							}
+							var hintlist = {"bash":"shell","sh":"shell","zsh":"shell","python":"python","php":"php"};
+                            $.each(hintlist, function(key, val)
+                            {
+                                if (app.indexOf(key) != -1)
+                                    mode = val;
+                            });
 						}
 					}
 				}
 				else
 					mode = mode["mode"];
-				console.log(mode);
-				editor = registerCodeEditor($("#"+tab_id+'_editor')[0], mode, 20);
+
+				var editor = registerCodeEditor(newtab_editor[0], mode, 20);
 				$("#"+tab_id+'_button').click(function()
 				{
 					jQuery.ajax({
@@ -219,7 +219,7 @@ function studio_task_file_open_tab(path)
 			url: location.pathname+"/files"
 		});
 	}
-	$('#edit_file_tabs a[href="#'+studio_file_editor_tabs[path]+'"]').tab('show');
+	$('a[href="#'+studio_file_editor_tabs[path]+'"]', edit_file_tabs).tab('show');
 }
 
 /**
@@ -229,24 +229,24 @@ function studio_task_file_delete_tab(path)
 {
 	if(studio_file_editor_tabs[path] != undefined)
 	{
-		editorId = -1;
-		for(editor in codeEditors)
-		{
-			if(codeEditors[editor].getTextArea().id == studio_file_editor_tabs[path]+'_editor')
-			{
-				if(!codeEditors[editor].isClean() && !confirm('You have unsaved change to this file. Do you really want to close it?'))
-						return false;
-				editorId = editor;
-			}
-		}
+		var editorId = -1;
+        $.each(codeEditors, function(idx, editor)
+        {
+            if (editor.getTextArea().id == studio_file_editor_tabs[path] + '_editor') {
+                if (!editor.isClean() && !confirm('You have unsaved change to this file. Do you really want to close it?'))
+                    return false;
+                editorId = idx;
+            }
+        });
 		if(editorId != -1)
 			codeEditors.splice(editorId,1);
-		if($('#edit_file_tabs a[href="#'+studio_file_editor_tabs[path]+'"]').parent().hasClass('active'))
-			$('#edit_file_tabs li:eq(0) a').tab('show');
-		$('#edit_file_tabs a[href="#'+studio_file_editor_tabs[path]+'"]').parent().remove();
+
+        var edit_file_tabs = $('#edit_file_tabs');
+		if($('a[href="#'+studio_file_editor_tabs[path]+'"]', edit_file_tabs).parent().hasClass('active'))
+			$('li:eq(0) a', edit_file_tabs).tab('show');
+		$('a[href="#'+studio_file_editor_tabs[path]+'"]', edit_file_tabs).parent().remove();
 		$('#'+studio_file_editor_tabs[path]).remove();
 		delete studio_file_editor_tabs[path];
-		return true;
 	}
 	return true;
 }
@@ -256,9 +256,8 @@ function studio_task_file_delete_tab(path)
  */
 function studio_display_task_submit_message(content, type, dismissible)
 {
-	code = getAlertCode(content,type,dismissible);
+	var code = getAlertCode(content,type,dismissible);
 	$('#task_edit_submit_status').html(code);
-
 
 	if(dismissible)
 	{
@@ -273,7 +272,7 @@ function studio_display_task_submit_message(content, type, dismissible)
 /**
  * Submit the form
  */
-studio_submitting = false;
+var studio_submitting = false;
 function studio_submit()
 {
 	if(studio_submitting)
@@ -337,8 +336,6 @@ function studio_get_template_for_problem(problem)
 		return "#subproblem_match";
 	else if(problem["type"] == "multiple-choice")
 		return "#subproblem_multiple_choice";
-	else
-		return "#subproblem_custom";
 	return "#subproblem_custom";
 }
 
@@ -347,19 +344,20 @@ function studio_get_template_for_problem(problem)
  */
 function studio_create_new_subproblem()
 {
-	if(!$('#new_subproblem_pid').val().match(/^[a-zA-Z0-9\._\-]+$/))
+    var new_subproblem_pid = $('#new_subproblem_pid');
+	if(!new_subproblem_pid.val().match(/^[a-zA-Z0-9\._\-]+$/))
 	{
 		alert('Problem id should only contain alphanumeric characters (in addition to ".", "_" and "-").');
 		return;
 	}
 	
-	if($(studio_get_problem($('#new_subproblem_pid').val())).length != 0)
+	if($(studio_get_problem(new_subproblem_pid.val())).length != 0)
 	{
 		alert('This problem id is already used.');
 		return;
 	}
 	
-	studio_create_from_template('#'+$('#new_subproblem_type').val(),$('#new_subproblem_pid').val())
+	studio_create_from_template('#'+$('#new_subproblem_type').val(), new_subproblem_pid.val())
 }
 
 /**
@@ -369,7 +367,7 @@ function studio_create_new_subproblem()
  */
 function studio_create_from_template(template, pid)
 {
-	tpl = $(template).html().replace(/PID/g,pid);
+	var tpl = $(template).html().replace(/PID/g,pid);
 	$('#new_subproblem').before(tpl);
 }
 
@@ -390,12 +388,12 @@ function studio_get_problem(pid)
  */
 function studio_init_template(template,pid,problem)
 {
-	well = $(studio_get_problem(pid));
+	var well = $(studio_get_problem(pid));
 	
 	//Default for every problem types
 	if("name" in problem)
 		$('#name-'+pid,well).val(problem["name"]);
-	header_editor = registerCodeEditor($('#header-'+pid)[0], 'rst', 10);
+	var header_editor = registerCodeEditor($('#header-'+pid)[0], 'rst', 10);
 	if("header" in problem)
 		header_editor.setValue(problem["header"]);
 	if("headerIsHTML" in problem && problem["headerIsHTML"])
@@ -420,7 +418,6 @@ function studio_init_template(template,pid,problem)
 		studio_init_template_multiple_choice(well, pid, problem);
 		break;
 	}
-	return;
 }
 
 /**
@@ -505,21 +502,21 @@ function studio_init_template_multiple_choice(well, pid, problem)
  */
 function studio_create_choice(pid, choice_data)
 {
-	well = $(studio_get_problem(pid));
+	var well = $(studio_get_problem(pid));
 	
-	index = 0;
+	var index = 0;
 	while($('#choice-'+index+'-'+pid).length != 0)
 		index++;
 	
-	row = $("#subproblem_multiple_choice_choice").html()
-	new_row_content = row.replace(/PID/g,pid).replace(/CHOICE/g,index);
-	new_row = $("<tr></tr>").attr('id','choice-'+index+'-'+pid).html(new_row_content);
+	var row = $("#subproblem_multiple_choice_choice").html();
+	var new_row_content = row.replace(/PID/g,pid).replace(/CHOICE/g,index);
+	var new_row = $("<tr></tr>").attr('id','choice-'+index+'-'+pid).html(new_row_content);
 	$("#add-choices-"+pid,well).before(new_row);
 	
 	if("text" in choice_data)
 		$(".subproblem_multiple_choice_text", new_row).val(choice_data["text"]);
 	if("textIsHTML" in choice_data && choice_data["textIsHTML"] == true)
-		$(".subproblem_multiple_choice_html", new_row).attr('checked', true)
+		$(".subproblem_multiple_choice_html", new_row).attr('checked', true);
 	if("valid" in choice_data && choice_data["valid"] == true)
 		$(".subproblem_multiple_choice_valid", new_row).attr('checked', true)
 }
@@ -540,8 +537,8 @@ function studio_delete_choice(pid,choice)
  */
 function studio_subproblem_up(pid)
 {
-	well = $(studio_get_problem(pid));
-	prev = well.prev(".well.row");
+	var well = $(studio_get_problem(pid));
+	var prev = well.prev(".well.row");
 	if(prev.length)
 		well.detach().insertBefore(prev);
 }
@@ -552,8 +549,8 @@ function studio_subproblem_up(pid)
  */
 function studio_subproblem_down(pid)
 {
-	well = $(studio_get_problem(pid));
-	next = well.next(".well.row");
+	var well = $(studio_get_problem(pid));
+	var next = well.next(".well.row");
 	if(next.length)
 		well.detach().insertAfter(next);
 }
@@ -564,21 +561,25 @@ function studio_subproblem_down(pid)
  */
 function studio_subproblem_delete(pid)
 {
-	well = $(studio_get_problem(pid));
+	var well = $(studio_get_problem(pid));
 	if(!confirm("Are you sure that you want to delete this subproblem?"))
 		return;
-	codeEditors_todelete = [];
-	for(i in codeEditors)
-		if(jQuery.contains(well[0], codeEditors[i].getTextArea()))
-			codeEditors_todelete.push(i);
-	for(i in codeEditors_todelete)
-		codeEditors.splice(i, 1);
+	var codeEditors_todelete = [];
+    $.each(codeEditors, function(i, editor)
+    {
+        if (jQuery.contains(well[0], editor.getTextArea()))
+            codeEditors_todelete.push(i);
+    });
+    $.each(codeEditors_todelete, function (_, editor_idx) {
+        codeEditors.splice(editor_idx, 1);
+    });
 	well.detach();
 }
 
 /**
- * Show the feedback for an old submission
+ * Shows the feedback for an old submission
  */
+var loadingSomething = false;
 function studio_get_feedback(sid)
 {
 	if(loadingSomething)
@@ -587,12 +588,11 @@ function studio_get_feedback(sid)
     $('#modal_feedback_content').text('Loading...');
     $('#modal_feedback').modal('show');
     
-    jQuery.getJSON(document.location.pathname+'/'+sid)
-    .done(function(data)
+    $.getJSON(document.location.pathname+'/'+sid).done(function(data)
     {
     	if(data['status'] == "ok")
     	{
-    		output = "<h1>Result</h1>";
+    		var output = "<h1>Result</h1>";
     		output += data["data"]["result"] + " - " + data["data"]["grade"] + "%";
     		output += "<hr/><h1>Feedback - top</h1>";
     		output += data["data"]["text"];
@@ -612,7 +612,7 @@ function studio_get_feedback(sid)
     		$('#modal_feedback_content').text('An error occured while retrieving the submission');
     	}
     	loadingSomething = false;
-    }).fail(function(data)
+    }).fail(function()
     {
     	$('#modal_feedback_content').text('An error occured while retrieving the submission');
         loadingSomething = false;
