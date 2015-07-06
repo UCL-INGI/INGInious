@@ -18,6 +18,7 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 import web
 
+from collections import OrderedDict
 from frontend.base import renderer
 from frontend.base import get_database
 from frontend.pages.course_admin.utils import make_csv, get_course_and_check_rights
@@ -61,7 +62,7 @@ class CourseGroupListPage(object):
 
     def page(self, course, error="", post=False):
         """ Get all data and display the page """
-        groups = dict([(group['_id'], dict(group.items() + [("tried", 0), ("done", 0), ("url", self.submission_url_generator(course, group['_id']))])) for group in course.get_groups()])
+        groups = OrderedDict([(group['_id'], dict(group.items() + [("tried", 0), ("done", 0), ("url", self.submission_url_generator(course, group['_id']))])) for group in course.get_groups()])
 
         data = list(get_database().submissions.aggregate(
             [
@@ -73,21 +74,20 @@ class CourseGroupListPage(object):
                         }
                 },
                 {
+#,
                     "$group":
                         {
-                            "_id": "$groupid",
-                            "tried": {"$sum": 1},
+                            "_id": {"groupid": "$groupid", "taskid": "$taskid"},
                             "done": {"$sum": {"$cond": [{"$eq": ["$result", "success"]}, 1, 0]}}
                         }
                 }
             ]))
 
         for group in data:
-           groups[group["_id"]].update(group)
-
-        data = sorted(groups.values(), key=lambda x: x["description"])
+            groups[group["_id"]["groupid"]]["tried"] += 1
+            groups[group["_id"]["groupid"]]["done"] += 1 if group["done"] else 0
 
         if "csv" in web.input():
             return make_csv(data)
 
-        return renderer.course_admin.group_list(course, data, error, post)
+        return renderer.course_admin.group_list(course, groups.values(), error, post)

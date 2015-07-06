@@ -42,12 +42,12 @@ class CourseTaskInfoPage(object):
     def page(self, course, task):
         """ Get all data and display the page """
         user_list = course.get_registered_users()
-        users = list(get_database().users.find({"_id": {"$in": user_list}}))
+        users = list(get_database().users.find({"_id": {"$in": user_list}}).sort("realname"))
 
         individual_results = list(get_database().user_tasks.find({"courseid": course.get_id(), "taskid": task.get_id(),
                                                   "username": {"$in": user_list}}))
 
-        individual_data = dict([(user["_id"], {"username": user["_id"], "realname": user["realname"], "email": user["email"],
+        individual_data = OrderedDict([(user["_id"], {"username": user["_id"], "realname": user["realname"], "email": user["email"],
                                         "url": self.individual_submission_url_generator(course, task, user["_id"]),
                                         "tried":0, "grade": 0, "status": "notviewed"}) for user in users])
 
@@ -82,7 +82,7 @@ class CourseTaskInfoPage(object):
                     }
                 ]))
 
-            group_data = dict([(group['_id'], {"_id": group['_id'], "description": group['description'],
+            group_data = OrderedDict([(group['_id'], {"_id": group['_id'], "description": group['description'],
                                             "url": self.group_submission_url_generator(course, task, group),
                                             "tried":0, "grade": 0, "status": "notviewed"}) for group in course.get_groups()])
 
