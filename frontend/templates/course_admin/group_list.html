@@ -1,4 +1,4 @@
-$def with (course,groups,data,error,post)
+$def with (course,data,error,post)
 
 $# Copyright (c) 2014-2015 Université Catholique de Louvain.
 $#
@@ -50,23 +50,19 @@ $var Navbar: $:NavbarF()
             <div class="btn-group" role="group">
                 <a href="javascript:ask_to_download('/admin/${course.get_id()}/submissions?dl=course')" class="btn btn-danger btn-xs" title="Download
                    all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                <a href="/admin/${course.get_id()}/tasks?csv" class="btn btn-info btn-xs" title="Download
+                <a href="/admin/${course.get_id()}/groups?csv" class="btn btn-info btn-xs" title="Download
                    CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
             </div>
         </th>
     </tr>
-    $for group in groups:
+    $for group in data:
     	<tr>
     		<td>
     			<a href="/admin/${course.get_id()}/group/$group['_id']">$group["description"]</a>
     		</td>
             <td>$len(group['users']) / $group['size']</td>
-            $if group["_id"] in data:
-                <td>$data[group["_id"]]["tried"]</td>
-                <td>$data[group["_id"]]["done"]</td>
-            $else:
-                <td>0</td>
-                <td>0</td>
+            <td>$group["tried"]</td>
+            <td>$group["done"]</td>
             <td>
                 <div class="btn-group" role="group">
                     <a href="/admin/${course.get_id()}/edit/group/$group['_id']" class="btn btn-primary btn-xs" title="Edit group" data-toggle="tooltip"

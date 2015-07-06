@@ -19,7 +19,6 @@
 import web
 
 from frontend.base import renderer
-from frontend.base import get_database
 from frontend.pages.course_admin.utils import make_csv, get_course_and_check_rights
 from frontend.user_data import UserData
 
@@ -38,20 +37,18 @@ class CourseStudentListPage(object):
 
     def page(self, course, error="", post=False):
         """ Get all data and display the page """
-        groups = []
-        if course.is_group_course():
-            groups = get_database().groups.find({"course_id": course.get_id()})
-        groups = sorted(groups, key=lambda item: item["description"])
+        users = course.get_registered_users()
+        user_data = dict([(username, dict([
+            ("username", username), ("total_tasks", 0), ("task_grades", {"answer": 0, "match": 0}),
+            ("task_succeeded", 0), ("task_tried", 0), ("total_tries", 0),
+            ("url", self.submission_url_generator(course, username))])) for username in users])
 
-        groups.insert(0, {"_id": 0, "users": course.get_staff(), "description": "Course staff", "tutors": {}})
+        for (username, user) in UserData.get_course_data_for_users(course.get_id(), users).iteritems():
+            user_data[username].update(user)
 
-        user_data = UserData.get_course_data_for_users(course.get_id(), course.get_registered_users())
-        for user in user_data.keys():
-            user_data[user]["url"] = self.submission_url_generator(course, user)
-
-        users_csv = [dict(f.items() + [("username", username)]) for username, f in user_data.iteritems()]
+        user_data = sorted(user_data.values(), key=lambda x: x["username"])
 
         if "csv" in web.input():
-            return make_csv(users_csv)
+            return make_csv(user_data)
 
         return renderer.course_admin.student_list(course, user_data, error, post)

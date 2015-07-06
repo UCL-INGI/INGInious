@@ -58,6 +58,7 @@ class CourseGroupListPage(object):
     def page(self, course, error="", post=False):
         """ Get all data and display the page """
         groups = list(get_database().groups.find({"course_id": course.get_id()}).sort("description"))
+        groups = dict([(group['_id'], dict(group.items() + [("tried", 0), ("done", 0)])) for group in groups])
 
         data = list(get_database().submissions.aggregate(
             [
@@ -65,7 +66,7 @@ class CourseGroupListPage(object):
                     "$match":
                         {
                             "courseid": course.get_id(),
-                            "groupid": {"$in": [group["_id"] for group in groups]}
+                            "groupid": {"$in": groups.keys()}
                         }
                 },
                 {
@@ -78,6 +79,12 @@ class CourseGroupListPage(object):
                 }
             ]))
 
-        data = dict([(result["_id"], result) for result in data])
+        for group in data:
+           groups[group["_id"]].update(group)
 
-        return renderer.course_admin.group_list(course, groups, data, error, post)
+        data = sorted(groups.values(), key=lambda x: x["description"])
+
+        if "csv" in web.input():
+            return make_csv(data)
+
+        return renderer.course_admin.group_list(course, data, error, post)

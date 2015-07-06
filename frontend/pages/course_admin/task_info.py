@@ -45,12 +45,10 @@ class CourseTaskInfoPage(object):
                                                   "username": {"$in": course.get_registered_users()}}))
 
         individual_data = dict([(user["username"],
-                                 dict(user.items() +
-                                      [("url", self.individual_submission_url_generator(course, task, user))]))
-                                for user in individual_results])
+                                 dict(user.items() + [("url", self.individual_submission_url_generator(course, task, user))])
+                                 ) for user in individual_results])
 
         if course.is_group_course():
-            groups = list(get_database().groups.find({"course_id": course.get_id()}).sort("description"))
             group_data = list(get_database().submissions.aggregate(
                 [
                     {
@@ -71,17 +69,11 @@ class CourseTaskInfoPage(object):
                     }
                 ]))
 
-            result = OrderedDict([(group['_id'],
-                            {"name": group["description"], "tried": 0,
-                             "succeeded": 0, "status": "notviewed",
-                             "url": self.group_submission_url_generator(course, task, group)})
-                           for group in groups])
+            group_data = OrderedDict([(group['_id'],
+                                       dict(group.items() + [("url", self.group_submission_url_generator(course, task, group))])
+                                       ) for group in group_data])
 
-            for group in group_data:
-                if group['_id'] in result:
-                    result[group['_id']].update(group)
-
-            return renderer.course_admin.task_info(course, task, individual_data, result)
+            return renderer.course_admin.task_info(course, task, individual_data, group_data)
 
         else:
             user_csv = [dict(individual_data[key].items()) for key in individual_data.keys()]
