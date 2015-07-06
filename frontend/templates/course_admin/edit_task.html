@@ -36,7 +36,7 @@ $def NavbarF():
 $var Navbar: $:NavbarF()
 
 <h2>Edit task "$taskid"</h2>
-<form id="edit_task_form" action="/admin/${course.get_id()}/edit/$taskid" method="post" enctype="multipart/form-data" class="form-horizontal">
+<form id="edit_task_form" method="post" enctype="multipart/form-data" class="form-horizontal">
     <input type="hidden" name="@action" value="edit_task"/>
     
     <div role="tabpanel">
