@@ -49,10 +49,20 @@ class FrontendTask(common.tasks.Task):
                 raise Exception("Error while reading task file: " + course.get_id() + "/" + taskid + " :\n" + str(inst))
         PluginManager.get_instance().call_hook('modify_task_data', course=course, taskid=taskid, data=init_data)
 
+        # The following instance variable will be declared by self._load_from_data, itself called by common.tasks.Task.__init__.
+        self._name = None
+        self._context = None
+        self._author = None
+        self._weight = None
+        self._accessible = None
+        self._order = None
         # Now init the task
         common.tasks.Task.__init__(self, course, taskid, init_data)
 
-        self._name = self._data.get('name', 'Task {}'.format(taskid))
+    def _load_from_data(self):
+        common.tasks.Task._load_from_data(self)
+
+        self._name = self._data.get('name', 'Task {}'.format(self.get_id()))
 
         self._context = ParsableText(self._data.get('context', ""), "HTML" if self._data.get("contextIsHTML", False) else "rst")
 

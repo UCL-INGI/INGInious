@@ -100,6 +100,9 @@ form#task.form-blur {
 form#task #task-submit {
   margin-top: 10px;
 }
+form#task label {
+  display: block;
+}
 #submissions_restrictsize {
   overflow: auto;
   max-height: 223px;

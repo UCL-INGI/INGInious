@@ -36,6 +36,10 @@ class FrontendCourse(Course):
 
     def __init__(self, courseid):
         Course.__init__(self, courseid)
+        #self.reload() will be called by Course.__init__.
+
+    def reload(self):
+        Course.reload(self)
 
         if self._content.get('nofrontend', False):
             raise Exception("That course is not allowed to be displayed directly in the frontend")
@@ -49,12 +53,12 @@ class FrontendCourse(Course):
             self._registration_password = self._content.get('registration_password', None)
             self._registration_ac = self._content.get('registration_ac', None)
             if self._registration_ac not in [None, "username", "realname", "email"]:
-                raise Exception("Course has an invalid value for registration_ac: " + courseid)
+                raise Exception("Course has an invalid value for registration_ac: " + self.get_id())
             self._registration_ac_list = self._content.get('registration_ac_list', [])
             self._groups = self._content.get("groups", False)
             self._groups_student_choice = self._content.get("groups_student_choice", False)
         else:
-            raise Exception("Course has an invalid description: " + courseid)
+            raise Exception("Course has an invalid description: " + self.get_id())
 
     def get_name(self):
         """ Return the name of this course """
