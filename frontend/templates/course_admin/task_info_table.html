@@ -81,7 +81,6 @@ $else:
             </th>
         </tr>
         $for user in data:
-            $ studentData=UserData(user["username"]).get_data()
             <tr
                 $if user["status"] == "notattempted":
                     class="warning"
@@ -91,11 +90,11 @@ $else:
                     class="danger"
             >
                 <td>
-                    $if studentData["realname"] != "":
-                        <a href="/admin/${course.get_id()}/student/$user">$studentData["realname"]</a>
-                        (<a href="/admin/${course.get_id()}/student/$user">$studentData["_id"]</a> - <a href='mailto:$studentData["email"]'>email</a>)
+                    $if user["realname"] != "":
+                        <a href="/admin/${course.get_id()}/student/$user['username']">$user["realname"]</a>
+                        (<a href="/admin/${course.get_id()}/student/$user['username']">$user["username"]</a> - <a href='mailto:$user["email"]'>email</a>)
                     $else:
-                        $studentData["_id"]
+                        <a href="/admin/${course.get_id()}/student/$user['username']">$user["username"]</a>
                 </td>
                 <td>
                     $if user["status"] == "notviewed":

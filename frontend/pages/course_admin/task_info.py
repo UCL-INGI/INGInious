@@ -41,11 +41,15 @@ class CourseTaskInfoPage(object):
 
     def page(self, course, task):
         """ Get all data and display the page """
-        individual_results = list(get_database().user_tasks.find({"courseid": course.get_id(), "taskid": task.get_id(),
-                                                  "username": {"$in": course.get_registered_users()}}))
+        user_list = course.get_registered_users()
+        users = list(get_database().users.find({"_id": {"$in": user_list}}))
 
-        individual_data = dict([(user, {"username": user, "url": self.individual_submission_url_generator(course, task, user),
-                                        "tried":0, "grade": 0, "status": "notviewed"}) for user in course.get_registered_users()])
+        individual_results = list(get_database().user_tasks.find({"courseid": course.get_id(), "taskid": task.get_id(),
+                                                  "username": {"$in": user_list}}))
+
+        individual_data = dict([(user["_id"], {"username": user["_id"], "realname": user["realname"], "email": user["email"],
+                                        "url": self.individual_submission_url_generator(course, task, user["_id"]),
+                                        "tried":0, "grade": 0, "status": "notviewed"}) for user in users])
 
         for user in individual_results:
             individual_data[user["username"]]["tried"] = user["tried"]

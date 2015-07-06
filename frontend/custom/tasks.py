@@ -106,6 +106,10 @@ class FrontendTask(common.tasks.Task):
         """ Get the relative weight of this task in the grading """
         return self._weight
 
+    def get_accessible_time(self):
+        """  Get the accessible time of this task """
+        return self._accessible
+
     def is_visible_by_students(self):
         """ Returns true if the task is accessible by all students that are not administrator of the course """
         return self.get_course().is_open_to_non_staff() and self._accessible.after_start()
