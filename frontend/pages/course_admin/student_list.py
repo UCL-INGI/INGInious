@@ -18,6 +18,7 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 import web
 
+from collections import OrderedDict
 from frontend.base import renderer
 from frontend.base import get_database
 from frontend.pages.course_admin.utils import make_csv, get_course_and_check_rights
@@ -39,9 +40,9 @@ class CourseStudentListPage(object):
     def page(self, course, error="", post=False):
         """ Get all data and display the page """
         user_list = course.get_registered_users()
-        users = list(get_database().users.find({"_id": {"$in": user_list}}))
+        users = list(get_database().users.find({"_id": {"$in": user_list}}).sort("realname"))
 
-        user_data = dict([(user["_id"], {
+        user_data = OrderedDict([(user["_id"], {
             "username": user["_id"], "realname": user["realname"], "email": user["email"], "total_tasks": 0,
             "task_grades": {"answer": 0, "match": 0}, "task_succeeded": 0, "task_tried": 0, "total_tries": 0,
             "grade": 0, "url": self.submission_url_generator(course, user["_id"])}) for user in users])
@@ -49,9 +50,7 @@ class CourseStudentListPage(object):
         for user in UserData.get_course_data_for_users(course.get_id(), user_list):
             user_data[user["_id"]].update(user)
 
-        user_data = sorted(user_data.values(), key=lambda x: x["realname"])
-
         if "csv" in web.input():
             return make_csv(user_data)
 
-        return renderer.course_admin.student_list(course, user_data, error, post)
+        return renderer.course_admin.student_list(course, user_data.values(), error, post)
