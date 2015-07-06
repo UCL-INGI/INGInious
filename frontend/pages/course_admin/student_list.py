@@ -19,6 +19,7 @@
 import web
 
 from frontend.base import renderer
+from frontend.base import get_database
 from frontend.pages.course_admin.utils import make_csv, get_course_and_check_rights
 from frontend.user_data import UserData
 
@@ -37,14 +38,16 @@ class CourseStudentListPage(object):
 
     def page(self, course, error="", post=False):
         """ Get all data and display the page """
-        users = course.get_registered_users()
-        user_data = dict([(username, dict([
-            ("username", username), ("total_tasks", 0), ("task_grades", {"answer": 0, "match": 0}),
-            ("task_succeeded", 0), ("task_tried", 0), ("total_tries", 0),
-            ("url", self.submission_url_generator(course, username))])) for username in users])
+        user_list = course.get_registered_users()
+        users = list(get_database().users.find({"_id": {"$in": user_list}}))
 
-        for (username, user) in UserData.get_course_data_for_users(course.get_id(), users).iteritems():
-            user_data[username].update(user)
+        user_data = dict([(user["_id"], {
+            "username": user["_id"], "realname": user["realname"], "email": user["email"], "total_tasks": 0,
+            "task_grades": {"answer": 0, "match": 0}, "task_succeeded": 0, "task_tried": 0, "total_tries": 0,
+            "grade": 0, "url": self.submission_url_generator(course, user["_id"])}) for user in users])
+
+        for user in UserData.get_course_data_for_users(course.get_id(), user_list):
+            user_data[user["_id"]].update(user)
 
         if "csv" in web.input():
             return make_csv(user_data)

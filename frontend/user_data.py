@@ -63,10 +63,8 @@ class UserData(object):
 
     def get_course_data(self, courseid):
         """ Returns data of this user for a specific course."""
-        return self.get_course_data_for_users(
-            courseid, [
-                self.username]).get(
-            self.username, None)
+        data = self.get_course_data_for_users(courseid, [self.username])
+        return data[0] if len(data) > 0 else {}
 
     @classmethod
     def get_course_data_for_users(cls, courseid, users=None):
@@ -87,8 +85,7 @@ class UserData(object):
             match["username"] = {"$in": users}
 
         tasks = course.get_tasks()
-        taskids = tasks.keys()
-        match["taskid"] = {"$in": taskids}
+        match["taskid"] = {"$in": tasks.keys()}
 
         data = list(get_database().user_tasks.aggregate(
             [
@@ -101,19 +98,24 @@ class UserData(object):
                     "task_grades": {"$addToSet": {"taskid": "$taskid", "grade": "$grade"}}
                 }}
             ]))
-        if len(data) != 0:
-            return_data = {}
-            for result in data:
-                username = result["_id"]
-                user_tasks = set([taskid for taskid, task in tasks.iteritems() if task.is_visible_by_user(username)])
-                result["total_tasks"] = len(user_tasks)
-                result["task_succeeded"] = len(set(result["task_succeeded"]).intersection(user_tasks))
-                result["task_grades"] = {dg["taskid"]: dg["grade"] for dg in result["task_grades"] if dg["taskid"] in user_tasks}
-                del result["_id"]
-                return_data[username] = result
-            return return_data
-        else:
-            return {}
+
+        user_tasks = [taskid for taskid, task in tasks.iteritems() if task.get_accessible_time().after_start()]
+
+        for result in data:
+            result["total_tasks"] = len(user_tasks)
+            result["task_succeeded"] = len(set(result["task_succeeded"]).intersection(user_tasks))
+            result["task_grades"] = {dg["taskid"]: dg["grade"] for dg in result["task_grades"] if dg["taskid"] in user_tasks}
+
+            total_weight = 0
+            grade = 0
+
+            for task_id in user_tasks:
+                total_weight += tasks[task_id].get_grading_weight()
+                grade += result["task_grades"].get(task_id, 0.0) * tasks[task_id].get_grading_weight()
+
+            result["grade"] = int(grade / total_weight) if total_weight > 0 else 0
+
+        return data
 
     def get_task_data(self, courseid, taskid):
         """ Returns data of this user for a specific task """

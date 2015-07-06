@@ -52,22 +52,20 @@ $var Navbar: $:NavbarF()
     </tr>
 
     $for user in user_data:
-        $ studentData=UserData(user["username"]).get_data()
         <tr>
             <td>
-                $if studentData["realname"] != "":
-                    <a href="/admin/${course.get_id()}/student/$user["username"]">$studentData["realname"]</a>
-                    (<a href="/admin/${course.get_id()}/student/$user["username"]">$studentData["_id"]</a> - <a href='mailto:$studentData["email"]'>email</a>)
+                $if user["realname"] != "":
+                    <a href="/admin/${course.get_id()}/student/$user["username"]">$user["realname"]</a>
+                    (<a href="/admin/${course.get_id()}/student/$user["username"]">$user["username"]</a> - <a href='mailto:$user["email"]'>email</a>)
                 $else:
-                    $studentData["_id"]
+                    <a href="/admin/${course.get_id()}/student/$user["username"]">$user["username"]</a>
             </td>
             <td>$user["task_tried"]</td>
             <td>$user["task_succeeded"]</td>
             <td>
                 <div class="progress">
-                    $ percentage=int(course.get_user_grade(user["username"]))
-                    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="$percentage" aria-valuemin="0" aria-valuemax="100" style="width: $percentage%">
-                        <span>$percentage%</span>
+                    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="$user['grade']" aria-valuemin="0" aria-valuemax="100" style="width: $user['grade']%">
+                        <span>$user["grade"]%</span>
                     </div>
                 </div>
             </td>
