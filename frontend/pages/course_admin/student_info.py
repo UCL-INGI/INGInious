@@ -42,11 +42,13 @@ class CourseStudentInfoPage(object):
         data = list(get_database().user_tasks.find({"username": username, "courseid": course.get_id()}))
 
         tasks = course.get_tasks()
-        result = dict([(taskid, {"taskid": taskid, "name": tasks[taskid].get_name(), "tried": 0, "status": "notviewed",
-                              "grade": 0, "url": self.submission_url_generator(course, username, taskid)}) for taskid in tasks])
+        result = dict([(taskid, {"taskid": taskid, "name": tasks[taskid].get_name(),
+                                 "tried": 0, "status": "notviewed", "grade": 0,
+                                 "url": self.submission_url_generator(course, username, taskid)}) for taskid in tasks])
 
         for taskdata in data:
             if taskdata["taskid"] in result:
+                result[taskdata["taskid"]]["tried"] = taskdata["tried"]
                 if taskdata["tried"] == 0:
                     result[taskdata["taskid"]]["status"] = "notattempted"
                 elif taskdata["succeeded"]:
@@ -55,8 +57,6 @@ class CourseStudentInfoPage(object):
                     result[taskdata["taskid"]]["status"] = "failed"
                 result[taskdata["taskid"]]["grade"] = taskdata["grade"]
 
-        result = sorted(result.values(), key=lambda x: x["name"])
-
         if "csv" in web.input():
             return make_csv(result)
-        return renderer.course_admin.student(course, username, result)
+        return renderer.course_admin.student(course, username, result.values())

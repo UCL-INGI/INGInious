@@ -61,13 +61,12 @@ class CourseGroupInfoPage(object):
             ]))
 
         tasks = course.get_tasks()
-        result = OrderedDict()
-        for taskid in tasks:
-            result[taskid] = {"name": tasks[taskid].get_name(), "submissions": 0, "status": "notviewed",
-                              "url": self.submission_url_generator(course, groupid, taskid)}
+        result = dict([(taskid, {"taskid": taskid, "name": tasks[taskid].get_name(), "tried": 0, "status": "notviewed",
+                              "grade": 0, "url": self.submission_url_generator(course, groupid, taskid)}) for taskid in tasks])
+        
         for taskdata in data:
             if taskdata["_id"] in result:
-                result[taskdata["_id"]]["submissions"] = taskdata["tried"]
+                result[taskdata["_id"]]["tried"] = taskdata["tried"]
                 if taskdata["tried"] == 0:
                     result[taskdata["_id"]]["status"] = "notattempted"
                 elif taskdata["succeeded"]:
@@ -75,9 +74,10 @@ class CourseGroupInfoPage(object):
                 else:
                     result[taskdata["_id"]]["status"] = "failed"
                 result[taskdata["_id"]]["grade"] = taskdata["grade"]
+
         if "csv" in web.input():
             return make_csv(result)
 
         group = get_database().groups.find_one({"_id": ObjectId(groupid)})
 
-        return renderer.course_admin.group(course, group, result)
+        return renderer.course_admin.group(course, group, result.values())

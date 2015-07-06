@@ -57,7 +57,7 @@ class CourseGroupListPage(object):
 
     def page(self, course, error="", post=False):
         """ Get all data and display the page """
-        groups = list(get_database().groups.find({"course_id": course.get_id()}).sort("description"))
+        groups = course.get_groups()
         groups = dict([(group['_id'], dict(group.items() + [("tried", 0), ("done", 0)])) for group in groups])
 
         data = list(get_database().submissions.aggregate(
