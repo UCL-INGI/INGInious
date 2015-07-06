@@ -27,43 +27,41 @@ $if groups:
                 <div class="btn-group" role="group">
                     <a href="javascript:ask_to_download('/admin/${course.get_id()}/submissions?dl=task&task=$task.get_id()')" class="btn btn-danger
                         btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                    <a href="/admin/${course.get_id()}/task/${task.get_id()}?csv" class="btn btn-info btn-xs" title="Download CSV"
+                    <a href="/admin/${course.get_id()}/task/${task.get_id()}?csv=groups" class="btn btn-info btn-xs" title="Download CSV"
                        data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
                 </div>
             </th>
         </tr>
-        $for group in course.get_groups():
+        $for group in data:
             <tr
-                $if group['_id'] in data:
-                    $if data[group['_id']]["tried"] == 0:
-                        class="warning"
-                    $elif data[group['_id']]["tried"] != 0 and data[group['_id']]["succeeded"]:
-                        class="success"
-                    $elif data[group['_id']]["tried"] != 0:
-                        class="danger"
+                $if group["status"] == "notattempted":
+                    class="warning"
+                $elif group["status"] == "succeeded":
+                    class="success"
+                $elif group["status"] == "failed":
+                    class="danger"
             >
                 <td>
                     <a href="/admin/${course.get_id()}/group/$group['_id']">$group['description']</a>
                 </td>
                 <td>
-                    $if not group['_id'] in data:
+                    $if group["status"] == "notviewed":
                         Not viewed
-                    $elif data[group['_id']]["tried"] == 0:
+                    $elif group["status"] == "notattempted":
                         Not attempted (viewed)
-                    $elif data[group['_id']]["succeeded"]:
-                        Succeeded ($data[group['_id']]["grade"]%)
+                    $elif group["status"] == "succeeded":
+                        Succeeded ($group["grade"]%)
                     $else:
-                        Failed ($data[group['_id']]["grade"]%)
+                        Failed ($group["grade"]%)
                 </td>
-                <td>$(data[group['_id']]["tried"] if group['_id'] in data else 0) </td>
+                <td>$group["tried"] </td>
                 <td>
-                    $if group['_id'] in data and not data[group['_id']]["tried"] == 0:
-                        <div class="btn-group" role="group">
-                            <a href="/admin/${course.get_id()}/group/$group['_id']/$task.get_id()" class="btn btn-default btn-xs" title="View
-                               submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
-                            <a href="javascript:ask_to_download('$data[group['_id']]['url']')" class="btn btn-default btn-xs" title="Download
-                               submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                        </div>
+                    <div class="btn-group" role="group">
+                        <a href="/admin/${course.get_id()}/group/$group['_id']/$task.get_id()" class="btn btn-default btn-xs" title="View
+                           submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
+                        <a href="javascript:ask_to_download('$group['url']')" class="btn btn-default btn-xs" title="Download
+                           submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                    </div>
                 </td>
             </tr>
     </table>
@@ -77,21 +75,20 @@ $else:
                 <div class="btn-group" role="group">
                     <a href="javascript:ask_to_download('/admin/${course.get_id()}/submissions?dl=task&task=$task.get_id()')" class="btn btn-danger
                         btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                    <a href="/admin/${course.get_id()}/task/${task.get_id()}?csv" class="btn btn-info btn-xs" title="Download CSV"
+                    <a href="/admin/${course.get_id()}/task/${task.get_id()}?csv=students" class="btn btn-info btn-xs" title="Download CSV"
                        data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
                 </div>
             </th>
         </tr>
-        $for user in course.get_registered_users():
-            $ studentData=UserData(user).get_data()
+        $for user in data:
+            $ studentData=UserData(user["username"]).get_data()
             <tr
-                $if user in data:
-                    $if data[user]["tried"] == 0:
-                        class="warning"
-                    $elif data[user]["tried"] != 0 and data[user]["succeeded"]:
-                        class="success"
-                    $elif data[user]["tried"] != 0:
-                        class="danger"
+                $if user["status"] == "notattempted":
+                    class="warning"
+                $elif user["status"] == "succeeded":
+                    class="success"
+                $elif user["status"] == "failed":
+                    class="danger"
             >
                 <td>
                     $if studentData["realname"] != "":
@@ -101,24 +98,23 @@ $else:
                         $studentData["_id"]
                 </td>
                 <td>
-                    $if not user in data:
+                    $if user["status"] == "notviewed":
                         Not viewed
-                    $elif data[user]["tried"] == 0:
+                    $elif user["status"] == "notattempted":
                         Not attempted (viewed)
-                    $elif data[user]["succeeded"]:
-                        Succeeded ($data[user]["grade"]%)
+                    $elif user["status"] == "succeeded":
+                        Succeeded ($user["grade"]%)
                     $else:
-                        Failed ($data[user]["grade"]%)
+                        Failed ($user["grade"]%)
                 </td>
-                <td>$(data[user]["tried"] if user in data else 0) </td>
+                <td>$user["tried"] </td>
                 <td>
-                    $if user in data and not data[user]["tried"] == 0:
-                        <div class="btn-group" role="group">
-                            <a href="/admin/${course.get_id()}/student/$user/$task.get_id()" class="btn btn-default btn-xs" title="View
-                               submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
-                            <a href="javascript:ask_to_download('$data[user]['url']')" class="btn btn-default btn-xs" title="Download
-                               submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                        </div>
+                    <div class="btn-group" role="group">
+                        <a href="/admin/${course.get_id()}/student/$user['username']/$task.get_id()" class="btn btn-default btn-xs" title="View
+                           submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
+                        <a href="javascript:ask_to_download('$user['url']')" class="btn btn-default btn-xs" title="Download
+                           submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                    </div>
                 </td>
             </tr>
     </table>

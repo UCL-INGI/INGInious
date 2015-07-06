@@ -46,9 +46,7 @@ class CourseStudentListPage(object):
         for (username, user) in UserData.get_course_data_for_users(course.get_id(), users).iteritems():
             user_data[username].update(user)
 
-        user_data = sorted(user_data.values(), key=lambda x: x["username"])
-
         if "csv" in web.input():
             return make_csv(user_data)
 
-        return renderer.course_admin.student_list(course, user_data, error, post)
+        return renderer.course_admin.student_list(course, user_data.values(), error, post)

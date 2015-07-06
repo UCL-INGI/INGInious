@@ -33,7 +33,7 @@ class CourseTaskInfoPage(object):
 
     def individual_submission_url_generator(self, course, task, task_data):
         """ Generates a submission url """
-        return "/admin/" + course.get_id() + "/submissions?dl=student_task&username=" + task_data['username'] + "&task=" + task.get_id()
+        return "/admin/" + course.get_id() + "/submissions?dl=student_task&username=" + task_data + "&task=" + task.get_id()
 
     def group_submission_url_generator(self, course, task, group):
         """ Generates a submission url """
@@ -44,12 +44,21 @@ class CourseTaskInfoPage(object):
         individual_results = list(get_database().user_tasks.find({"courseid": course.get_id(), "taskid": task.get_id(),
                                                   "username": {"$in": course.get_registered_users()}}))
 
-        individual_data = dict([(user["username"],
-                                 dict(user.items() + [("url", self.individual_submission_url_generator(course, task, user))])
-                                 ) for user in individual_results])
+        individual_data = dict([(user, {"username": user, "url": self.individual_submission_url_generator(course, task, user),
+                                        "tried":0, "grade": 0, "status": "notviewed"}) for user in course.get_registered_users()])
+
+        for user in individual_results:
+            individual_data[user["username"]]["tried"] = user["tried"]
+            if user["tried"] == 0:
+                individual_data[user["username"]]["status"] = "notattempted"
+            elif user["succeeded"]:
+                individual_data[user["username"]]["status"] = "succeeded"
+            else:
+                individual_data[user["username"]]["status"] = "failed"
+            individual_data[user["username"]]["grade"] = user["grade"]
 
         if course.is_group_course():
-            group_data = list(get_database().submissions.aggregate(
+            group_results = list(get_database().submissions.aggregate(
                 [
                     {
                         "$match":
@@ -69,15 +78,31 @@ class CourseTaskInfoPage(object):
                     }
                 ]))
 
-            group_data = OrderedDict([(group['_id'],
-                                       dict(group.items() + [("url", self.group_submission_url_generator(course, task, group))])
-                                       ) for group in group_data])
+            group_data = dict([(group['_id'], {"_id": group['_id'], "description": group['description'],
+                                            "url": self.group_submission_url_generator(course, task, group),
+                                            "tried":0, "grade": 0, "status": "notviewed"}) for group in course.get_groups()])
 
-            return renderer.course_admin.task_info(course, task, individual_data, group_data)
+            for group in group_results:
+                if group['_id'] is not None:
+                    group_data[group["_id"]]["tried"] = group["tried"]
+                    if group["tried"] == 0:
+                        group_data[group["_id"]]["status"] = "notattempted"
+                    elif group["succeeded"]:
+                        group_data[group["_id"]]["status"] = "succeeded"
+                    else:
+                        group_data[group["_id"]]["status"] = "failed"
+                    group_data[group["_id"]]["grade"] = group["grade"]
+
+            if "csv" in web.input() and web.input()["csv"] == "students":
+                return make_csv(individual_data.values())
+            elif "csv" in web.input() and web.input()["csv"] == "groups":
+                return make_csv(group_data.values())
+
+            return renderer.course_admin.task_info(course, task, individual_data.values(), group_data.values())
 
         else:
-            user_csv = [dict(individual_data[key].items()) for key in individual_data.keys()]
-            if "csv" in web.input():
-                return make_csv(user_csv)
 
-            return renderer.course_admin.task_info(course, task, individual_data)
+            if "csv" in web.input():
+                return make_csv(individual_data.values())
+
+            return renderer.course_admin.task_info(course, task, individual_data.values())

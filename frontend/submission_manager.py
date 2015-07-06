@@ -212,60 +212,72 @@ def get_submission_archive(submissions, sub_folders):
     for submission in submissions:
         submission = get_input_from_submission(submission)
 
-        # Compute base path in the tar file
-        base_path = "/"
-        for sub_folder in sub_folders:
-            if sub_folder == 'taskid':
-                base_path = submission['taskid'] + '/' + base_path
-            elif sub_folder == 'username':
-                base_path = submission['username'] + '/' + base_path
+        # Considering multiple single submissions for each user
+        for username in submission["username"]:
+            # Compute base path in the tar file
+            base_path = "/"
+            for sub_folder in sub_folders:
+                if sub_folder == 'taskid':
+                    base_path = submission['taskid'] + base_path
+                elif sub_folder == 'username':
+                    base_path = '_' + username + base_path
+                    base_path = base_path[1:]
+                elif sub_folder == 'group':
+                    base_path = (str(submission["groupid"]) if "groupid" in submission else username) + base_path
 
-        submission_yaml = StringIO.StringIO(common.custom_yaml.dump(submission).encode('utf-8'))
-        submission_yaml_fname = base_path + str(submission["_id"]) + '.test'
-        info = tarfile.TarInfo(name=submission_yaml_fname)
-        info.size = submission_yaml.len
-        info.mtime = time.mktime(submission["submitted_on"].timetuple())
+                base_path = '/' + base_path
+            base_path = base_path[1:]
 
-        # Add file in tar archive
-        tar.addfile(info, fileobj=submission_yaml)
+            submission_yaml = StringIO.StringIO(common.custom_yaml.dump(submission).encode('utf-8'))
+            submission_yaml_fname = base_path + str(submission["_id"]) + '.test'
 
-        # If there is an archive, add it too
-        if 'archive' in submission and submission['archive'] is not None and submission['archive'] != "":
-            subfile = get_gridfs().get(submission['archive'])
-            taskfname = base_path + str(submission["_id"]) + '.tgz'
+            # Avoid putting two times the same submission on the same place
+            if submission_yaml_fname not in tar.getnames():
 
-            # Generate file info
-            info = tarfile.TarInfo(name=taskfname)
-            info.size = subfile.length
-            info.mtime = time.mktime(submission["submitted_on"].timetuple())
+                info = tarfile.TarInfo(name=submission_yaml_fname)
+                info.size = submission_yaml.len
+                info.mtime = time.mktime(submission["submitted_on"].timetuple())
 
-            # Add file in tar archive
-            tar.addfile(info, fileobj=subfile)
+                # Add file in tar archive
+                tar.addfile(info, fileobj=submission_yaml)
 
-        # If there files that were uploaded by the student, add them
-        if submission['input'] is not None:
-            for pid, problem in submission['input'].iteritems():
-                # If problem is a dict, it is a file (from the specification of the problems)
-                if isinstance(problem, dict):
-                    # Get the extension (match extensions with more than one dot too)
-                    DOUBLE_EXTENSIONS = ['.tar.gz', '.tar.bz2', '.tar.bz', '.tar.xz']
-                    if not problem['filename'].endswith(tuple(DOUBLE_EXTENSIONS)):
-                        _, ext = os.path.splitext(problem['filename'])
-                    else:
-                        for t_ext in DOUBLE_EXTENSIONS:
-                            if problem['filename'].endswith(t_ext):
-                                ext = t_ext
-
-                    subfile = StringIO.StringIO(base64.b64decode(problem['value']))
-                    taskfname = base_path + str(submission["_id"]) + '_uploaded_files/' + pid + ext
+                # If there is an archive, add it too
+                if 'archive' in submission and submission['archive'] is not None and submission['archive'] != "":
+                    subfile = get_gridfs().get(submission['archive'])
+                    taskfname = base_path + str(submission["_id"]) + '.tgz'
 
                     # Generate file info
                     info = tarfile.TarInfo(name=taskfname)
-                    info.size = subfile.len
+                    info.size = subfile.length
                     info.mtime = time.mktime(submission["submitted_on"].timetuple())
 
                     # Add file in tar archive
                     tar.addfile(info, fileobj=subfile)
+
+                # If there files that were uploaded by the student, add them
+                if submission['input'] is not None:
+                    for pid, problem in submission['input'].iteritems():
+                        # If problem is a dict, it is a file (from the specification of the problems)
+                        if isinstance(problem, dict):
+                            # Get the extension (match extensions with more than one dot too)
+                            DOUBLE_EXTENSIONS = ['.tar.gz', '.tar.bz2', '.tar.bz', '.tar.xz']
+                            if not problem['filename'].endswith(tuple(DOUBLE_EXTENSIONS)):
+                                _, ext = os.path.splitext(problem['filename'])
+                            else:
+                                for t_ext in DOUBLE_EXTENSIONS:
+                                    if problem['filename'].endswith(t_ext):
+                                        ext = t_ext
+
+                            subfile = StringIO.StringIO(base64.b64decode(problem['value']))
+                            taskfname = base_path + str(submission["_id"]) + '_uploaded_files/' + pid + ext
+
+                            # Generate file info
+                            info = tarfile.TarInfo(name=taskfname)
+                            info.size = subfile.len
+                            info.mtime = time.mktime(submission["submitted_on"].timetuple())
+
+                            # Add file in tar archive
+                            tar.addfile(info, fileobj=subfile)
 
     # Close tarfile and put tempfile cursor at 0
     tar.close()
