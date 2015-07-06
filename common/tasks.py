@@ -20,9 +20,11 @@
 from common.base import id_checker
 from common.task_file_managers.manage import get_task_file_manager
 from common.tasks_problems import CodeProblem, CodeSingleLineProblem, MultipleChoiceProblem, MatchProblem, CodeFileProblem
+from common.cached_object import CachedClass
+from common.base import get_tasks_directory
+import os.path
 
-
-class Task(object):
+class Task(CachedClass):
     """ Contains the data for a task """
 
     def __init__(self, course, taskid, init_data=None):
@@ -45,6 +47,16 @@ class Task(object):
         else:
             self._data = init_data
 
+        self._environment = None
+        self._response_is_html = None
+        self._limits = None
+        self._problems = None
+        self._load_from_data() #init all the variables above
+
+    def _load_from_data(self):
+        """
+            Load data from _data
+        """
         self._environment = self._data.get('environment', None)
 
         # Response is HTML
@@ -72,6 +84,16 @@ class Task(object):
 
         for problemid in self._data['problems']:
             self._problems.append(self._create_task_problem(self, problemid, self._data['problems'][problemid]))
+
+    def reload(self, update_data=True):
+        """
+            reloads the object from disk
+        """
+        try:
+            self._data = get_task_file_manager(self.get_course_id(), self.get_id()).read()
+        except Exception as inst:
+            raise Exception("Error while reading task file: " + self._course.get_id() + "/" + self._taskid + " :\n" + str(inst))
+        self._load_from_data()
 
     def input_is_consistent(self, task_input):
         """ Check if an input for a task is consistent. Return true if this is case, false else """
@@ -167,3 +189,20 @@ class Task(object):
     def add_problem_types(cls, problem_type_dict):
         """ add new problem types """
         cls._problem_types.update(problem_type_dict)
+
+    @classmethod
+    def _get_cache_key(cls, course, taskid, init_data=None):
+        """
+            Returns a key to be used to cache an object. *args and **kwargs are the ones passed to the normal constructor.
+            Returning None make the current object not being cached.
+            This probably needs to be overriden
+        """
+        if init_data is not None:
+            return None
+        else:
+            return course.get_id(), taskid
+
+    def _file_cache_check(self):
+        """ Returns the path to check for updates """
+        ext = get_task_file_manager(self.get_course_id(), self.get_id()).get_ext()
+        return os.path.join(get_tasks_directory(), self.get_course_id(), self.get_id(), "task." + ext)

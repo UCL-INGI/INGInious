@@ -18,13 +18,15 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Contains the class Course and utility functions """
 import os.path
+import os
 
 from common.base import get_tasks_directory, id_checker, load_json_or_yaml, write_json_or_yaml
 from common.task_file_managers.manage import get_readable_tasks
+from common.cached_object import CachedClass
 import common.tasks
 
 
-class Course(object):
+class Course(CachedClass):
     """ Represents a course """
 
     _task_class = common.tasks.Task
@@ -66,9 +68,12 @@ class Course(object):
 
     def __init__(self, courseid):
         """Constructor. courseid is the name of the the folder containing the file course.json"""
-        self._content = self.get_course_descriptor_content(courseid)
         self._id = courseid
-        self._tasks_cache = None
+        self._content = None
+        self.reload() #init all the variables above
+
+    def reload(self):
+        self._content = self.get_course_descriptor_content(self._id)
 
     def get_task(self, taskid):
         """ Return the class with name taskid """
@@ -84,13 +89,19 @@ class Course(object):
 
     def get_tasks(self):
         """Get all tasks in this course"""
-        if self._tasks_cache is None:
-            tasks = get_readable_tasks(self.get_id())
-            output = {}
-            for task in tasks:
-                try:
-                    output[task] = self.get_task(task)
-                except:
-                    pass
-            self._tasks_cache = output
-        return self._tasks_cache
+        tasks = get_readable_tasks(self.get_id())
+        output = {}
+        for task in tasks:
+            try:
+                output[task] = self.get_task(task)
+            except:
+                pass
+        return output
+
+    @classmethod
+    def _get_cache_key(cls, courseid):
+        return courseid
+
+    def _file_cache_check(self):
+        """ Returns the path to check for updates """
+        return self._get_course_descriptor_path(self.get_id())
