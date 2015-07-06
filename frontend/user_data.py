@@ -64,7 +64,7 @@ class UserData(object):
     def get_course_data(self, courseid):
         """ Returns data of this user for a specific course."""
         data = self.get_course_data_for_users(courseid, [self.username])
-        return data[0] if len(data) > 0 else {}
+        return data[0] if len(data) > 0 else None
 
     @classmethod
     def get_course_data_for_users(cls, courseid, users=None):
