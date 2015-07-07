@@ -102,10 +102,14 @@ Activating group work
 
 Group work can be enabled and disabled during the period of the course.
 Statistics will be kept. However, these group statistics are only
-available when group work is enabled.
+available when group work is enabled. To enable group work in the course
+settings, switch the submission mode to "Per groups" in the course
+settings.
 
-To enable group work in the course settings, switch the submission
-mode to "Per groups" in the course settings (see also course_).
+Groups can be formed by the course administrators or by the students
+at the registration time. This option can be set in the course settings.
+If the option is set, students will be asked to select a group among
+the remaining non-full groups at the registration time.
 
 Group creation/edition
 ``````````````````````
