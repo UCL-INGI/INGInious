@@ -13,6 +13,5 @@ Contents:
    teacher_doc/testing
    teacher_doc/create_container
    teacher_doc/course_admin
-   teacher_doc/groups
    teacher_doc/edX
    teacher_doc/batch_containers
