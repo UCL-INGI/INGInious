@@ -17,7 +17,7 @@ $#
 $# You should have received a copy of the GNU Affero General Public
 $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 
-$var title: $:course.get_name()
+$var title:  $:course.get_name()
 
 $# Left column content
 $def ColumnF():
@@ -63,19 +63,29 @@ $def ColumnF():
             </a>
         </div>
     $else:
-        <a href="/?unregister_courseid=$course.get_id()">Unregister from this course</a>
+        <div class="list-group">
+            <a class="list-group-item list-group-item-info" href="/?unregister_courseid=$course.get_id()">
+                <i class="fa fa-ban fa-fw"></i>&nbsp; Unregister from this course
+            </a>
+        </div>
 $var Column: $:ColumnF()
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
         <li><a  href="/course/$course.get_id()">$course.get_name()</a></li>
-        <li class="active"><a href="#"><i class="fa fa-group"></i> My Group <span class="sr-only">(current)</span></a></li>
+        <li class="active"><a href="#"><i class="fa fa-group"></i>
+            $if group is None:
+                Register for a group
+            $else:
+                $group["description"]
+            <span class="sr-only">(current)</span></a>
+        </li>
     </ol>
 $var Navbar: $:NavbarF()
 
 $# Start content
-<h2>$course.get_name() - Groups</h2>
 $if group is None:
+        <h2>$course.get_name() - Groups</h2>
         <h3>Register in a group</h3>
         $if error:
             <div class="alert alert-danger" role="alert">$error</div>
@@ -111,7 +121,7 @@ $if group is None:
                     </div>
             </div>
 $else:
-        <h3>$group["description"]</h3>
+        <h2>$course.get_name() - $group["description"]</h2>
         <h3>Students</h3>
         <div class="list-group">
             $for user in group["users"]:

@@ -67,14 +67,14 @@ class GroupPage(object):
                         pass
 
                 group = course.get_user_group(User.get_username())
-                available_groups = get_database().groups.find({"course_id": courseid,
-                                                               "$where": "this.users.length < this.size"})
+                available_groups = list(get_database().groups.find({"course_id": courseid,
+                                                               "$where": "this.users.length < this.size"}))
 
                 users = {}
                 for user in get_database().users.find({"_id": {"$in": course.get_registered_users(True)}}):
                     users[user["_id"]] = user
 
-                return renderer.group(course, except_free_last_submissions, group, list(available_groups), users, error)
+                return renderer.group(course, except_free_last_submissions, group, available_groups, users, error)
             except:
                 if web.config.debug:
                     raise

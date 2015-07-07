@@ -99,8 +99,11 @@ $def ColumnF():
                 </a>
         </div>
     $elif course.is_group_course():
-        <h3>Current group</h3>
-        <a href="/group/$course.get_id()">$course.get_user_group(User.get_username())["description"]</a>
+        <div class="list-group">
+            <a class="list-group-item list-group-item-info" href="/group/$course.get_id()">
+                <i class="fa fa-group fa-fw"></i>&nbsp; $course.get_user_group(User.get_username())["description"]
+            </a>
+        </div>
 
     <h3>Submissions</h3>
     <div id="submissions_restrictsize">
