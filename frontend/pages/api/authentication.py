@@ -31,12 +31,12 @@ class APIAuthentication(APIPage):
 
     def API_GET(self):
         """
-            Returns {"status": "not authenticated"} or {"status": "authenticated", "username": "your_username"} (always 200 OK)
+            Returns {"authenticated": false} or {"authenticated": true, "username": "your_username"} (always 200 OK)
         """
         if User.is_logged_in():
-            return 200, {"status": "authenticated", "username": User.get_username()}
+            return 200, {"authenticated": True, "username": User.get_username()}
         else:
-            return 200, {"status": "not authenticated"}
+            return 200, {"authenticated": False}
 
     def API_POST(self):
         """
