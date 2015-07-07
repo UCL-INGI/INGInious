@@ -111,36 +111,37 @@ class ContestScoreboard(object):
         # Compute stats for each submission
         task_succeeded = {taskid: False for taskid in tasks}
         for submission in db_results:
-            if submission['taskid'] not in tasks:
-                continue
-            if submission['username'] not in users:
-                continue
-            status = results[submission['username']]["tasks"][submission['taskid']]
-            if status["status"] == "AC" or status["status"] == "ACF":
-                continue
-            else:
-                if submission['result'] == "success":
-                    if not task_succeeded[submission['taskid']]:
-                        status["status"] = "ACF"
-                        task_succeeded[submission['taskid']] = True
-                    else:
-                        status["status"] = "AC"
-                    status["tries"] += 1
-                    status["time"] = submission['submitted_on']
-                    status["score"] = ((submission['submitted_on'] + (
-                    timedelta(minutes=contest_data["penalty"]) * (status["tries"] - 1))) - start).total_seconds() / 60
-                elif submission['result'] == "failed":
-                    status["status"] = "WA"
-                    status["tries"] += 1
-                elif submission['result'] == "timeout":
-                    status["status"] = "TLE"
-                    status["tries"] += 1
-                else:  # other internal error
+            for username in submission["username"]:
+                if submission['taskid'] not in tasks:
                     continue
-                activity.append({"user": results[submission['username']]["name"],
-                                 "when": submission['submitted_on'],
-                                 "result": (status["status"] == 'AC' or status["status"] == 'ACF'),
-                                 "taskid": submission['taskid']})
+                if username not in users:
+                    continue
+                status = results[username]["tasks"][submission['taskid']]
+                if status["status"] == "AC" or status["status"] == "ACF":
+                    continue
+                else:
+                    if submission['result'] == "success":
+                        if not task_succeeded[submission['taskid']]:
+                            status["status"] = "ACF"
+                            task_succeeded[submission['taskid']] = True
+                        else:
+                            status["status"] = "AC"
+                        status["tries"] += 1
+                        status["time"] = submission['submitted_on']
+                        status["score"] = ((submission['submitted_on'] + (
+                        timedelta(minutes=contest_data["penalty"]) * (status["tries"] - 1))) - start).total_seconds() / 60
+                    elif submission['result'] == "failed":
+                        status["status"] = "WA"
+                        status["tries"] += 1
+                    elif submission['result'] == "timeout":
+                        status["status"] = "TLE"
+                        status["tries"] += 1
+                    else:  # other internal error
+                        continue
+                    activity.append({"user": results[username]["name"],
+                                     "when": submission['submitted_on'],
+                                     "result": (status["status"] == 'AC' or status["status"] == 'ACF'),
+                                     "taskid": submission['taskid']})
         activity.reverse()
         # Compute current score
         for user in results:
