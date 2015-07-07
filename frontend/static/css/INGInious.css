@@ -176,6 +176,19 @@ form#task label {
   top: 10px;
   color: rgba(255, 255, 255, 0.5);
 }
+.panel {
+  position: relative;
+}
+.panel .panel-heading {
+  overflow: visible;
+}
+.panel .panel-heading .btn-group,
+.panel .download-tabs-user-group {
+  position: absolute;
+  right: 10px;
+  top: 28px;
+  z-index: 1000;
+}
 /* Footer */
 html,
 body {
@@ -195,4 +208,17 @@ body {
 #footer .navbar,
 .footer_push .navbar {
   margin-bottom: 0;
+}
+/* Checked list group */
+ul.checked-list-box {
+  max-height: 315px;
+  overflow-y: scroll;
+  margin: 0;
+}
+ul.checked-list-box .state-icon {
+  left: -5px;
+}
+ul.checked-list-box .list-group-item-primary {
+  color: #ffffff;
+  background-color: #428bca;
 }

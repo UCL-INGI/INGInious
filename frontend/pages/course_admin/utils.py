@@ -167,7 +167,8 @@ def get_menu(course, current):
     if course.is_group_course():
         default_entries += [("groups", "<i class='fa fa-group fa-fw'></i>&nbsp; Groups")]
 
-    default_entries += [("tasks", "<i class='fa fa-tasks fa-fw'></i>&nbsp; Tasks")]
+    default_entries += [("tasks", "<i class='fa fa-tasks fa-fw'></i>&nbsp; Tasks"),
+                        ("download", "<i class='fa fa-download fa-fw'></i>&nbsp; Download submissions")]
 
     # Hook should return a tuple (link,name) where link is the relative link from the index of the course administration.
     additionnal_entries = [entry for entry in PluginManager.get_instance().call_hook('course_admin_menu', course=course) if entry is not None]

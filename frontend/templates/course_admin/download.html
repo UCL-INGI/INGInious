@@ -1,0 +1,168 @@
+$def with (course, tasks, user_data, group_data, tutored_groups, tutored_users, checked_tasks, checked_users, checked_groups, valid_formats, chosen_format, show_groups)
+
+$# Copyright (c) 2014-2015 Université Catholique de Louvain.
+$#
+$# This file is part of INGInious.
+$#
+$# INGInious is free software: you can redistribute it and/or modify
+$# it under the terms of the GNU Affero General Public License as published
+$# by the Free Software Foundation, either version 3 of the License, or
+$# (at your option) any later version.
+$#
+$# INGInious is distributed in the hope that it will be useful,
+$# but WITHOUT ANY WARRANTY; without even the implied warranty of
+$# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+$# GNU Affero General Public License for more details.
+$#
+$# You should have received a copy of the GNU Affero General Public
+$# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
+
+$var title: $:course.get_name() - Download submissions
+
+$var Column: $:template_helper.call('course_admin_menu',course=course,current='download')
+
+$def NavbarF():
+    <ol class="nav navbar-nav nav-breadcrumb">
+        <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
+        <li><a href="/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+            <i class="fa fa-user-secret"></i></a></li>
+        <li class="active"><a href="#"><i class="fa fa-download"></i> Download submissions <span class="sr-only">(current)</span></a></li>
+    </ol>
+$var Navbar: $:NavbarF()
+
+<h2>Download submissions</h2>
+
+<form method="post" action="/admin/$course.get_id()/download">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Tasks to download submissions from
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary btn-xs" onclick="download_page_select(true, this)">Select all</button>
+                <button type="button" class="btn btn-primary btn-xs" onclick="download_page_select(false, this)">Deselect all</button>
+            </div>
+        </div>
+        <ul class="list-group checked-list-box">
+            $for taskid, taskname in tasks.iteritems():
+                <li class="list-group-item" data-value="$taskid" data-name="tasks"
+                    $if taskid in checked_tasks:
+                        data-checked="true"
+                >$taskname</li>
+        </ul>
+    </div>
+
+
+    $if show_groups:
+        <input type="hidden" name="filter_type" id="filter_type" value="groups"/>
+    $else:
+        <input type="hidden" name="filter_type" id="filter_type" value="users"/>
+
+    <div class="panel" id="panel-download-user-group">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation"
+                $if not show_groups:
+                    class="active"
+            >
+                <a href="#user_filter" aria-controls="user_filter" role="tab" data-toggle="tab">Select users</a>
+            </li>
+            <li role="presentation"
+                $if show_groups:
+                    class="active"
+            >
+                <a href="#group_filter" aria-controls="group_filter" role="tab" data-toggle="tab">Select groups</a>
+            </li>
+        </ul>
+        <div class="btn-group download-tabs-user-group">
+            <button type="button" class="btn btn-primary btn-xs" onclick="download_page_select(true, this)">Select all</button>
+            <button type="button" class="btn btn-primary btn-xs" onclick="download_page_select(false, this)">Deselect all</button>
+            $if len(tutored_users) != 0 or len(tutored_groups) != 0:
+                <button type="button" class="btn btn-primary btn-xs" onclick="download_page_select_tutor(this,
+                            ['$'\',\''.join(tutored_users)'],
+                            ['$'\',\''.join(tutored_groups)'])">Tutored only</button>
+        </div>
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane
+                $if not show_groups:
+                    active
+            " id="user_filter">
+                $if len(user_data) == 0:
+                    <div class="alert alert-warning">Not any user to display</div>
+                $else:
+                    <ul class="list-group checked-list-box">
+                        $for userid, username in user_data.iteritems():
+                        <li class="list-group-item" data-value="$userid" data-name="users"
+                            $if userid in checked_users:
+                                data-checked="true"
+                        >$username</li>
+                    </ul>
+            </div>
+            <div role="tabpanel" class="tab-pane
+                $if show_groups:
+                    active
+            " id="group_filter">
+                $if len(group_data) == 0:
+                    <div class="alert alert-warning">Not any group to display</div>
+                $else:
+                    <ul class="list-group checked-list-box">
+                        $for groupid, groupname in group_data.iteritems():
+                        <li class="list-group-item" data-value="$groupid" data-name="groups"
+                            $if groupid in checked_groups:
+                                data-checked="true"
+                        >$groupname</li>
+                    </ul>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        $$(function(){
+            $$('#panel-download-user-group').find('a[data-toggle="tab"]').on('shown.bs.tab', function(e)
+            {
+                if($$(e.target).attr('href') == "#group_filter") $$('#filter_type').val('groups');
+                else $$('#filter_type').val('users');
+            });
+        });
+    </script>
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Other options
+        </div>
+        <div class="panel-body">
+            <div class="form-group">
+                <label for="folder_format" class="col-sm-2 control-label">Folder format</label>
+                <div class="col-sm-10">
+                    <ul class="list-unstyled">
+                        $for entry in valid_formats:
+                            <li><label><input type="radio" name="format" value="$entry"
+                                              $if chosen_format == entry:
+                                                checked="checked"
+                                    /> $entry</label></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="folder_format" class="col-sm-2 control-label">Type</label>
+
+                <div class="col-sm-10">
+                    <ul class="list-unstyled">
+                        <li>
+                            <label>
+                                <input type="radio" name="type" value="single" checked="checked"/>
+                                Download the best submission for each task/user/group
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                <input type="radio" name="type" value="all"/>
+                                Download all the submissions
+                            </label>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-default btn-lg btn-block center-block">
+        <i class="fa fa-download fa-fw"></i>&nbsp; Download
+    </button>
+</form>

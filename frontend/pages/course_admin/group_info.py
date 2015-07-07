@@ -39,7 +39,7 @@ class CourseGroupInfoPage(object):
 
     def submission_url_generator(self, course, groupid, taskid):
         """ Generates a submission url """
-        return "/admin/" + course.get_id() + "/submissions?dl=group_task&task=" + taskid + "&groupid=" + groupid
+        return "/admin/" + course.get_id() + "/download?format=taskid%2Fgroup&tasks="+taskid+"&groups="+str(groupid)
 
     def page(self, course, groupid):
         """ Get all data and display the page """

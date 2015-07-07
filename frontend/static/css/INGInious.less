@@ -294,6 +294,24 @@ form#task
     }
 }
 
+.panel
+{
+    position: relative;
+
+    .panel-heading
+    {
+        overflow: visible;
+    }
+
+    .panel-heading .btn-group, .download-tabs-user-group
+    {
+        position: absolute;
+        right: 10px;
+        top: 28px;
+        z-index: 1000;
+    }
+}
+
 /* Footer */
 html, body
 {
@@ -315,5 +333,25 @@ html, body
     .navbar
     {
         margin-bottom: 0;
+    }
+}
+
+/* Checked list group */
+ul.checked-list-box
+{
+    max-height: 315px;
+    overflow-y: scroll;
+    margin: 0;
+
+    .state-icon
+    {
+        left: -5px;
+    }
+
+    .list-group-item-primary
+    {
+        color: rgb(255, 255, 255);
+        background-color: rgb(66, 139, 202);
+
     }
 }

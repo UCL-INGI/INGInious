@@ -34,11 +34,11 @@ class CourseTaskInfoPage(object):
 
     def individual_submission_url_generator(self, course, task, task_data):
         """ Generates a submission url """
-        return "/admin/" + course.get_id() + "/submissions?dl=student_task&username=" + task_data + "&task=" + task.get_id()
+        return "/admin/" + course.get_id() + "/download?dl=taskid%2Fusername&users=" + task_data + "&tasks=" + task.get_id()
 
     def group_submission_url_generator(self, course, task, group):
         """ Generates a submission url """
-        return "/admin/" + course.get_id() + "/submissions?dl=group_task&groupid=" + str(group['_id']) + "&task=" + task.get_id()
+        return "/admin/" + course.get_id() + "/download?dl=taskid%2Fgroup&groups=" + str(group['_id']) + "&tasks=" + task.get_id()
 
     def page(self, course, task):
         """ Get all data and display the page """

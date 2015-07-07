@@ -36,7 +36,7 @@ class CourseTaskListPage(object):
 
     def submission_url_generator(self, course, taskid):
         """ Generates a submission url """
-        return "/admin/" + course.get_id() + "/submissions?dl=task&task=" + taskid
+        return "/admin/" + course.get_id() + "/download?format=taskid%2Fusername&tasks=" + taskid
 
     def page(self, course):
         """ Get all data and display the page """

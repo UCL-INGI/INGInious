@@ -703,30 +703,3 @@ function loadInput(submissionid, input)
             this.setValue("");
     })
 }
-
-//Ask user if (s/)he wants to download all the submissions or only the last ones
-function ask_to_download(link)
-{
-    var box = '<div class="modal fade" id="downloadModal" tabindex="-1" role="dialog" aria-labelledby="downloadLabel" aria-hidden="true">' +
-        '<div class="modal-dialog">' +
-        '<div class="modal-content">' +
-        '<div class="modal-header">' +
-        '<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>' +
-        '<h4 class="modal-title" id="downloadLabel">Do you want to download every submissions?</h4>' +
-        '</div>' +
-        '<div class="modal-footer">' +
-        '<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>' +
-        '<a href="' + link + '" type="button" class="btn btn-primary">Only the last valid submission</button>' +
-        '<a href="' + link + '&include_all=1" type="button" class="btn btn-info">All submissions</button>' +
-        '</div>' +
-        '</div>' +
-        '</div>' +
-        '</div>';
-    $(document.body).append(box);
-    var modal = $("#downloadModal")
-    modal.on('hidden.bs.modal', function()
-    {
-        $(this).remove();
-    });
-    modal.modal('show');
-}
