@@ -32,7 +32,10 @@ class CourseGroupInfoPage(object):
     def GET(self, courseid, groupid):
         """ GET request """
         course, _ = get_course_and_check_rights(courseid)
-        return self.page(course, groupid)
+        if not course.is_group_course():
+            raise web.notfound()
+        else:
+            return self.page(course, groupid)
 
     def submission_url_generator(self, course, groupid, taskid):
         """ Generates a submission url """

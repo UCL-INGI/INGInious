@@ -603,16 +603,16 @@ function studio_get_feedback(sid)
     {
         if(data['status'] == "ok")
         {
-            var output = "<h1>Result</h1>";
+            var output = "<h4><b>Result</b></h4>";
             output += data["data"]["result"] + " - " + data["data"]["grade"] + "%";
-            output += "<hr/><h1>Feedback - top</h1>";
+            output += "<hr/><h4><b>Feedback - top</b></h4>";
             output += data["data"]["text"];
             $.each(data["data"]["problems"], function(index, elem)
             {
-                output += "<hr/><h1>Feedback - subproblem " + index + "</h1>";
+                output += "<hr/><h4><b>Feedback - subproblem " + index + "</b></h4>";
                 output += elem;
             });
-            output += "<hr/><h1>Debug</h1>";
+            output += "<hr/><h4><b>Debug</b></h4>";
             output += "<div id='modal_feedback_debug'></div>";
 
             $('#modal_feedback_content').html(output);

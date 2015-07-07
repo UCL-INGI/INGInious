@@ -57,7 +57,7 @@ class SubmissionDownloadFeedback(object):
 
     def page(self, course, username, task, submissionid):
         submission = get_submission(submissionid, False)
-        if submission["username"] != username or submission["courseid"] != course.get_id() or submission["taskid"] != task.get_id():
+        if username not in submission["username"] or submission["courseid"] != course.get_id() or submission["taskid"] != task.get_id():
             return json.dumps({"status": "error", "text": "You do not have the rights to access to this submission"})
         elif "jobid" in submission:
             return json.dumps({"status": "ok", "text": "Submission is still running"})

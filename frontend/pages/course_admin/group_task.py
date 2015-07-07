@@ -33,7 +33,10 @@ class CourseGroupTaskPage(object):
     def GET(self, courseid, groupid, taskid):
         """ GET request """
         course, task = get_course_and_check_rights(courseid, taskid)
-        return self.page(course, groupid, task)
+        if not course.is_group_course():
+            raise web.notfound()
+        else:
+            return self.page(course, groupid, task)
 
     def submission_url_generator(self, course, submissionid):
         """ Generates a submission url """
@@ -55,7 +58,11 @@ class SubmissionDownloadFeedback(object):
     def GET(self, courseid, groupid, taskid, submissionid):
         """ GET request """
         course, task = get_course_and_check_rights(courseid, taskid)
-        return self.page(course, groupid, task, submissionid)
+
+        if not course.is_group_course():
+            raise web.notfound()
+        else:
+            return self.page(course, groupid, task, submissionid)
 
     def page(self, course, groupid, task, submissionid):
         submission = get_submission(submissionid, False)
