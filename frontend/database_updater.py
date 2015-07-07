@@ -69,4 +69,11 @@ def update_database():
         get_database().user_tasks.update({"succeeded": True}, {"$set": {"grade": 100.0}}, multi=True)
         db_version = 3
 
+    if db_version < 4:
+        submissions = get_database().submissions.find({"$where": "!Array.isArray(this.username)"})
+        for submission in submissions:
+            submission["username"] = [submission["username"]]
+            get_database().submissions.save(submission)
+        db_version = 4
+
     get_database().db_version.update({}, {"$set": {"db_version": db_version}}, upsert=True)

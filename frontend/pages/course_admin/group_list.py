@@ -23,6 +23,7 @@ from frontend.base import renderer
 from frontend.base import get_database
 from frontend.pages.course_admin.utils import make_csv, get_course_and_check_rights
 from frontend.user_data import UserData
+import frontend.user as User
 
 
 class CourseGroupListPage(object):
@@ -62,6 +63,19 @@ class CourseGroupListPage(object):
 
     def page(self, course, error="", post=False):
         """ Get all data and display the page """
+        grouped_users = list(get_database().groups.aggregate([
+            {"$match": {"course_id": course.get_id()}},
+            {"$unwind": "$users"},
+            {"$group":
+                {
+                    "_id": "$course_id",
+                    "user_list": {"$push": "$users"}
+                }
+            }]))
+
+        ungrouped_users = len(set(course.get_registered_users(False)) -
+                              set(grouped_users[0]["user_list"] if len(grouped_users) > 0 else []))
+
         groups = OrderedDict([(group['_id'], dict(group.items() + [("tried", 0), ("done", 0), ("url", self.submission_url_generator(course, group['_id']))])) for group in course.get_groups()])
 
         data = list(get_database().submissions.aggregate(
@@ -74,7 +88,6 @@ class CourseGroupListPage(object):
                         }
                 },
                 {
-#,
                     "$group":
                         {
                             "_id": {"groupid": "$groupid", "taskid": "$taskid"},
@@ -87,7 +100,15 @@ class CourseGroupListPage(object):
             groups[group["_id"]["groupid"]]["tried"] += 1
             groups[group["_id"]["groupid"]]["done"] += 1 if group["done"] else 0
 
+        my_groups = []
+        other_groups = []
+        for group in groups.values():
+            if User.get_username() in group["tutors"]:
+                my_groups.append(group)
+            else:
+                other_groups.append(group)
+
         if "csv" in web.input():
             return make_csv(data)
 
-        return renderer.course_admin.group_list(course, groups.values(), error, post)
+        return renderer.course_admin.group_list(course, [my_groups, other_groups], ungrouped_users, error, post)

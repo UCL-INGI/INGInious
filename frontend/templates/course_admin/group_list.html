@@ -1,4 +1,4 @@
-$def with (course,data,error,post)
+$def with (course,data,ungrouped_users,error,post)
 
 $# Copyright (c) 2014-2015 Université Catholique de Louvain.
 $#
@@ -40,6 +40,9 @@ $var Navbar: $:NavbarF()
     $elif post:
         <div class="alert alert-success" role="alert">New group created.</div>
 
+    $if ungrouped_users > 0 and User.get_username() in course.get_admins(True):
+        <div class="alert alert-warning" role="alert">$ungrouped_users of your registered students have no assigned groups.</div>
+
 <table class="table">
     <tr>
         <th>Group description</th>
@@ -55,25 +58,30 @@ $var Navbar: $:NavbarF()
             </div>
         </th>
     </tr>
-    $for group in data:
-    	<tr>
-    		<td>
-    			<a href="/admin/${course.get_id()}/group/$group['_id']">$group["description"]</a>
-    		</td>
-            <td>$len(group['users']) / $group['size']</td>
-            <td>$group["tried"]</td>
-            <td>$group["done"]</td>
-            <td>
-                <div class="btn-group" role="group">
-                    <a href="/admin/${course.get_id()}/edit/group/$group['_id']" class="btn btn-primary btn-xs" title="Edit group" data-toggle="tooltip"
-                       data-placement="bottom"><i class="fa fa-edit"></i></a>
-                    <a href="/admin/${course.get_id()}/group/$group['_id']" class="btn btn-default btn-xs" title="View submissions" data-toggle="tooltip"
-                       data-placement="bottom"><i class="fa fa-search"></i></a>
-                    <a href="javascript:ask_to_download('$group['url']')" class="btn btn-default btn-xs" title="Download submissions"
-                       data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                </div>
-    		</td>
-    	</tr>
+    $ text = ["My groups","Other groups"]
+    $for ind in range(0,2):
+        <tr>
+            <th colspan="5">$text[ind]</th>
+        </tr>
+        $for group in data[ind]:
+            <tr>
+                <td>
+                    <a href="/admin/${course.get_id()}/group/$group['_id']">$group["description"]</a>
+                </td>
+                <td>$len(group['users']) / $group['size']</td>
+                <td>$group["tried"]</td>
+                <td>$group["done"]</td>
+                <td>
+                    <div class="btn-group" role="group">
+                        <a href="/admin/${course.get_id()}/edit/group/$group['_id']" class="btn btn-primary btn-xs" title="Edit group" data-toggle="tooltip"
+                           data-placement="bottom"><i class="fa fa-edit"></i></a>
+                        <a href="/admin/${course.get_id()}/group/$group['_id']" class="btn btn-default btn-xs" title="View submissions" data-toggle="tooltip"
+                           data-placement="bottom"><i class="fa fa-search"></i></a>
+                        <a href="javascript:ask_to_download('$group['url']')" class="btn btn-default btn-xs" title="Download submissions"
+                           data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                    </div>
+                </td>
+            </tr>
 </table>
 
 <div class="row">

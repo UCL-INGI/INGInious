@@ -85,8 +85,7 @@ $var Navbar: $:NavbarF()
 
 $# Start content
 $if group is None:
-        <h2>$course.get_name() - Groups</h2>
-        <h3>Register in a group</h3>
+        <h2>$course.get_name() - Register in a group</h2>
         $if error:
             <div class="alert alert-danger" role="alert">$error</div>
 
