@@ -21,6 +21,7 @@ from collections import OrderedDict
 from frontend.base import get_database
 from frontend.base import renderer
 from frontend.pages.course_admin.utils import make_csv, get_course_and_check_rights
+import frontend.user as User
 
 
 class CourseTaskInfoPage(object):
@@ -84,7 +85,8 @@ class CourseTaskInfoPage(object):
 
             group_data = OrderedDict([(group['_id'], {"_id": group['_id'], "description": group['description'],
                                             "url": self.group_submission_url_generator(course, task, group),
-                                            "tried":0, "grade": 0, "status": "notviewed"}) for group in course.get_groups()])
+                                            "tried":0, "grade": 0, "status": "notviewed",
+                                            "tutors": group["tutors"]}) for group in course.get_groups()])
 
             for group in group_results:
                 if group['_id'] is not None:
@@ -97,12 +99,19 @@ class CourseTaskInfoPage(object):
                         group_data[group["_id"]]["status"] = "failed"
                     group_data[group["_id"]]["grade"] = group["grade"]
 
+            my_groups, other_groups = [], []
+            for group in group_data.values():
+                if User.get_username() in group["tutors"]:
+                    my_groups.append(group)
+                else:
+                    other_groups.append(group)
+
             if "csv" in web.input() and web.input()["csv"] == "students":
                 return make_csv(individual_data.values())
             elif "csv" in web.input() and web.input()["csv"] == "groups":
                 return make_csv(group_data.values())
 
-            return renderer.course_admin.task_info(course, task, individual_data.values(), group_data.values())
+            return renderer.course_admin.task_info(course, task, individual_data.values(), [my_groups, other_groups])
 
         else:
 

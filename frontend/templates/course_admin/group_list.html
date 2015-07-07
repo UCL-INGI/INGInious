@@ -60,28 +60,30 @@ $var Navbar: $:NavbarF()
     </tr>
     $ text = ["My groups","Other groups"]
     $for ind in range(0,2):
-        <tr>
-            <th colspan="5">$text[ind]</th>
-        </tr>
-        $for group in data[ind]:
-            <tr>
-                <td>
-                    <a href="/admin/${course.get_id()}/group/$group['_id']">$group["description"]</a>
-                </td>
-                <td>$len(group['users']) / $group['size']</td>
-                <td>$group["tried"]</td>
-                <td>$group["done"]</td>
-                <td>
-                    <div class="btn-group" role="group">
-                        <a href="/admin/${course.get_id()}/edit/group/$group['_id']" class="btn btn-primary btn-xs" title="Edit group" data-toggle="tooltip"
-                           data-placement="bottom"><i class="fa fa-edit"></i></a>
-                        <a href="/admin/${course.get_id()}/group/$group['_id']" class="btn btn-default btn-xs" title="View submissions" data-toggle="tooltip"
-                           data-placement="bottom"><i class="fa fa-search"></i></a>
-                        <a href="javascript:ask_to_download('$group['url']')" class="btn btn-default btn-xs" title="Download submissions"
-                           data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                    </div>
-                </td>
-            </tr>
+        $if len(data[ind]) > 0:
+            $if len(data[0]) > 0 and len(data[1]) > 0:
+                <tr>
+                    <th colspan="5">$text[ind]</th>
+                </tr>
+            $for group in data[ind]:
+                <tr>
+                    <td>
+                        <a href="/admin/${course.get_id()}/group/$group['_id']">$group["description"]</a>
+                    </td>
+                    <td>$len(group['users']) / $group['size']</td>
+                    <td>$group["tried"]</td>
+                    <td>$group["done"]</td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a href="/admin/${course.get_id()}/edit/group/$group['_id']" class="btn btn-primary btn-xs" title="Edit group" data-toggle="tooltip"
+                               data-placement="bottom"><i class="fa fa-edit"></i></a>
+                            <a href="/admin/${course.get_id()}/group/$group['_id']" class="btn btn-default btn-xs" title="View submissions" data-toggle="tooltip"
+                               data-placement="bottom"><i class="fa fa-search"></i></a>
+                            <a href="javascript:ask_to_download('$group['url']')" class="btn btn-default btn-xs" title="Download submissions"
+                               data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                        </div>
+                    </td>
+                </tr>
 </table>
 
 <div class="row">

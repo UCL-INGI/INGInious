@@ -47,7 +47,7 @@ class DownloadSubmissionFiles(object):
             elif user_input['dl'] == 'course':
                 return self.download_course(course, user_input['groupby'], include_old_submissions)
             elif user_input['dl'] == 'task':
-                return self.download_task(course, user_input['task'], include_old_submissions)
+                return self.download_task(course, user_input['task'], user_input['groupby'], include_old_submissions)
         else:
             raise web.notfound()
 
@@ -71,14 +71,14 @@ class DownloadSubmissionFiles(object):
             submissions = self._keep_best_submission(submissions)
         return self.download_submission_set(submissions, '_'.join([course.get_id()]) + '.tgz', [groupby, 'taskid'])
 
-    def download_task(self, course, taskid, include_old_submissions=False):
+    def download_task(self, course, taskid, groupby, include_old_submissions=False):
         """ Download all submission for a task """
         submissions = list(get_database().submissions.find(
             {"taskid": taskid, "courseid": course.get_id(), "username": {"$in": course.get_registered_users()},
              "status": {"$in": ["done", "error"]}}))
         if not include_old_submissions:
             submissions = self._keep_best_submission(submissions)
-        return self.download_submission_set(submissions, '_'.join([course.get_id(), taskid]) + '.tgz', ['username'])
+        return self.download_submission_set(submissions, '_'.join([course.get_id(), taskid]) + '.tgz', [groupby])
 
     def download_student(self, course, username, include_old_submissions=False):
         """ Download all submissions for a user for a given course """

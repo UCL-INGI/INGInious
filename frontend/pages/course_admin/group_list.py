@@ -100,8 +100,7 @@ class CourseGroupListPage(object):
             groups[group["_id"]["groupid"]]["tried"] += 1
             groups[group["_id"]["groupid"]]["done"] += 1 if group["done"] else 0
 
-        my_groups = []
-        other_groups = []
+        my_groups, other_groups = [], []
         for group in groups.values():
             if User.get_username() in group["tutors"]:
                 my_groups.append(group)
