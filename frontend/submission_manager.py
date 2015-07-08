@@ -195,6 +195,25 @@ def _parse_text(task, job_result):
             job_result["problems"][problem] = ParsableText(job_result["problems"][problem], task.get_response_type()).parse()
     return job_result
 
+
+def keep_best_submission(submissions):
+    """ Command used to only keep the best submission, if any """
+    submissions.sort(key=lambda item: item['submitted_on'], reverse=True)
+    tasks = {}
+    for sub in submissions:
+        if sub["taskid"] not in tasks:
+            tasks[sub["taskid"]] = {}
+        for username in sub["username"]:
+            if username not in tasks[sub["taskid"]]:
+                tasks[sub["taskid"]][username] = sub
+            elif tasks[sub["taskid"]][username].get("grade", 0.0) < sub.get("grade", 0.0):
+                tasks[sub["taskid"]][username] = sub
+    final_subs = []
+    for task in tasks.itervalues():
+        for sub in task.itervalues():
+            final_subs.append(sub)
+    return final_subs
+
 def get_submission_archive(submissions, sub_folders):
     """
     :param submissions: a list of submissions

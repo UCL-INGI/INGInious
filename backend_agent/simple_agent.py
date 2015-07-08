@@ -85,7 +85,9 @@ class SimpleAgent(object):
                      "type:" "file", #or "text",
                      "path": "path/to/file/inside/input/dir", #not mandatory in file, by default "key"
                      "name": "name of the field", #not mandatory in file, default "key"
-                     "description": "a short description of what this field is used for" #not mandatory, default ""
+                     "description": "a short description of what this field is used for", #not mandatory, default ""
+                     "custom_key1": "custom_value1",
+                     ...
                     }
                  }
                 )
@@ -114,12 +116,15 @@ class SimpleAgent(object):
 
         # Parse additional metadata for the keys
         for label in data:
-            match = re.match(r"^org\.inginious\.batch\.args\.([a-zA-Z0-9\-_]+)\.(name|description|path)$", label)
+            match = re.match(r"^org\.inginious\.batch\.args\.([a-zA-Z0-9\-_]+)\.([a-zA-Z0-9\-_]+)$", label)
             if match and match.group(1) in args:
                 if match.group(2) in ["name","description"]:
                     args[match.group(1)][match.group(2)] = data[label]
-                elif match.group(2) == "path" and re.match(r"^[a-zA-Z\-_\./]+$",data[label]) and ".." not in data[label]:
-                    args[match.group(1)]["path"] = data[label]
+                elif match.group(2) == "path":
+                    if re.match(r"^[a-zA-Z\-_\./]+$",data[label]) and ".." not in data[label]:
+                        args[match.group(1)]["path"] = data[label]
+                else:
+                    args[match.group(1)][match.group(2)] = data[label]
 
         # Add all the unknown metadata
         for key in args:

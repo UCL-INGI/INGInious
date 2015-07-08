@@ -240,7 +240,8 @@ class RemoteManualAgentJobManager(AbstractJobManager):
                 tar.addfile(tarinfo=info, fileobj=fileobj)
             else:
                 fileobj = val
-                info.size = os.fstat(fileobj.fileno()).st_size
+                fileobj.seek(0, 2)
+                info.size = fileobj.tell()
                 fileobj.seek(0)
                 tar.addfile(tarinfo=info, fileobj=fileobj)
         tar.close()

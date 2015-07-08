@@ -90,7 +90,9 @@ class AbstractJobManager(object):
                      "type:" "file", #or "text",
                      "path": "path/to/file/inside/input/dir", #not mandatory in file, by default "key"
                      "name": "name of the field", #not mandatory in file, default "key"
-                     "description": "a short description of what this field is used for" #not mandatory, default ""
+                     "description": "a short description of what this field is used for", #not mandatory, default ""
+                     "custom_key1": "custom_value1",
+                     ...
                     }
                  }
                 )
@@ -108,7 +110,9 @@ class AbstractJobManager(object):
                      "type:" "file", #or "text",
                      "path": "path/to/file/inside/input/dir", #not mandatory in file, by default "key"
                      "name": "name of the field", #not mandatory in file, default "key"
-                     "description": "a short description of what this field is used for" #not mandatory, default ""
+                     "description": "a short description of what this field is used for", #not mandatory, default ""
+                     "custom_key1": "custom_value1",
+                     ...
                     }
                  }
                 )

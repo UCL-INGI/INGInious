@@ -22,7 +22,7 @@ from frontend.pages.course_admin.utils import get_course_and_check_rights
 from frontend.base import get_database
 import frontend.user as User
 from collections import OrderedDict
-from frontend.submission_manager import get_submission_archive
+from frontend.submission_manager import get_submission_archive, keep_best_submission
 from bson.objectid import ObjectId
 from common.base import id_checker
 import web
@@ -42,24 +42,6 @@ class CourseDownloadSubmissions(object):
         for i in usernames:
             if not id_checker(i):
                 raise web.notfound()
-
-    def _keep_best_submission(self, submissions):
-        """ Internal command used to only keep the best submission, if any """
-        submissions.sort(key=lambda item: item['submitted_on'], reverse=True)
-        tasks = {}
-        for sub in submissions:
-            if sub["taskid"] not in tasks:
-                tasks[sub["taskid"]] = {}
-            for username in sub["username"]:
-                if username not in tasks[sub["taskid"]]:
-                    tasks[sub["taskid"]][username] = sub
-                elif tasks[sub["taskid"]][username].get("grade", 0.0) < sub.get("grade", 0.0):
-                    tasks[sub["taskid"]][username] = sub
-        final_subs = []
-        for task in tasks.itervalues():
-            for sub in task.itervalues():
-                final_subs.append(sub)
-        return final_subs
 
     def POST(self, courseid):
         """ GET request """
@@ -88,7 +70,7 @@ class CourseDownloadSubmissions(object):
                                                                 "courseid": course.get_id(),
                                                                 "status": {"$in": ["done", "error"]}}))
         if user_input.type == "single":
-            submissions = self._keep_best_submission(submissions)
+            submissions = keep_best_submission(submissions)
 
         web.header('Content-Type', 'application/x-gzip', unique=True)
         web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)
