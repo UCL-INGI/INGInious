@@ -19,6 +19,15 @@
 
 $(function()
 {
+    //Init CodeMirror
+    CodeMirror.modeURL = "/static/js/codemirror/mode/%N/%N.js";
+    colorizeStaticCode();
+    $('.code-editor').each(function(index, elem)
+    {
+        registerCodeEditor(elem, $(elem).attr('data-x-language'), $(elem).attr('data-x-lines'));
+    });
+
+    //Init the task form, if we are on the task submission page
     var task_form = $('form#task');
     task_form.on('submit', function()
     {
@@ -33,11 +42,6 @@ $(function()
         waitForSubmission(task_form.attr("data-wait-submission"));
     }
     $('#submissions').find('.submission').on('click', clickOnSubmission);
-
-    $('.code-editor').each(function(index, elem)
-    {
-        registerCodeEditor(elem, $(elem).attr('data-x-language'), $(elem).attr('data-x-lines'));
-    });
 
     //Start affix only if there the height of the sidebar is less than the height of the content
     if($('#sidebar').height() < $('#content').height())
@@ -99,61 +103,43 @@ var codeEditors = [];
 //True if loading something
 var loadingSomething = false;
 
+//Run CodeMirror on static code
+function colorizeStaticCode()
+{
+    $('.code.literal-block').each(function()
+    {
+        var classes = $(this).attr('class').split(' ');
+        var mode = undefined;
+        $.each(classes, function(idx, elem) {
+            if(elem != "code" && elem != "literal-block")
+            {
+                var nmode = CodeMirror.findModeByName(elem);
+                if (nmode != undefined)
+                    mode = nmode;
+            }
+        });
+        if(mode != undefined)
+        {
+            var elem = this
+
+            CodeMirror.requireMode(mode['mode'], function()
+            {
+                CodeMirror.colorize($(elem), mode["mime"]);
+            });
+        }
+    });
+}
+
 //Register and init a code editor (ace)
 function registerCodeEditor(textarea, lang, lines)
 {
-    var mode = lang;
-    if(lang != "plain")
-    {
-        //fix some languages
-        switch(lang.toLowerCase())
-        {
-            //clike handles all c-like languages
-            case "c":
-                lang = "text/x-csrc";
-                mode = "clike";
-                break;
-            case "cpp":
-            case "c++":
-                lang = "text/x-c++src";
-                mode = "clike";
-                break;
-            case "java":
-                lang = "text/x-java";
-                mode = "clike";
-                break;
-            case "c#":
-            case "csharp":
-                lang = "text/x-csharp";
-                mode = "clike";
-                break;
-            case "objective-c":
-            case "objectivec":
-            case "objc":
-                lang = "text/x-objectivec";
-                mode = "clike";
-                break;
-            case "scala":
-                lang = "text/x-scala";
-                mode = "clike";
-                break;
-            //python 2, python 3
-            case "python":
-            case "python2":
-                lang = "text/x-python";
-                mode = "python";
-                break;
-            case "python3":
-                lang = {name: "python", version: 3};
-                mode = "python";
-                break;
-        }
-    }
+    var mode = CodeMirror.findModeByName(lang);
+    if(mode == undefined)
+        mode = {"mode": "plain", "mime": "text/plain"};
 
-    CodeMirror.modeURL = "/static/js/codemirror/mode/%N/%N.js";
     var editor = CodeMirror.fromTextArea(textarea, {
         lineNumbers:       true,
-        mode:              lang,
+        mode:              mode["mime"],
         foldGutter:        true,
         styleActiveLine:   true,
         matchBrackets:     true,
@@ -183,7 +169,8 @@ function registerCodeEditor(textarea, lang, lines)
     });
     editor.setSize(null, min_editor_height + "px");
 
-    CodeMirror.autoLoadMode(editor, mode);
+    if(mode["mode"] != "plain")
+        CodeMirror.autoLoadMode(editor, mode["mode"]);
     codeEditors.push(editor);
     return editor;
 }

@@ -189,6 +189,9 @@ form#task label {
   top: 28px;
   z-index: 1000;
 }
+.panel .panel-body .CodeMirror {
+  margin: 10px -15px -15px;
+}
 /* Footer */
 html,
 body {
@@ -221,4 +224,9 @@ ul.checked-list-box .state-icon {
 ul.checked-list-box .list-group-item-primary {
   color: #ffffff;
   background-color: #428bca;
+}
+/* Codemirror */
+.line-error {
+  background: #fbc2c4 !important;
+  color: #8a1f11 !important;
 }
