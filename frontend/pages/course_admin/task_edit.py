@@ -147,6 +147,10 @@ class CourseEditTask(object):
                 if "textIsHTML" in choice:
                     choice["textIsHTML"] = True
 
+        for message in ["error_message", "success_message"]:
+            if message in problem_content and problem_content[message].strip() == "":
+                del problem_content[message]
+
         if "limit" in problem_content:
             try:
                 problem_content["limit"] = int(problem_content["limit"])

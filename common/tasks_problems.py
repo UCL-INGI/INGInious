@@ -222,6 +222,9 @@ class MultipleChoiceProblem(BasicProblem):
 
         self._centralize = content.get("centralize", False)
 
+        self._error_message = content.get("error_message", None)
+        self._success_message = content.get("success_message", None)
+
         self._choices = good_choices + bad_choices
         shuffle(self._choices)
 
@@ -270,8 +273,8 @@ class MultipleChoiceProblem(BasicProblem):
         else:
             valid = self.get_choice_with_index(int(taskInput[self.get_id()]))["valid"]
         if not valid:
-            if self._centralize:
-                return False, None, None, 1
+            if self._centralize or self._error_message is not None:
+                return False, None, self._error_message, 1
             else:
                 return False, None, "Wrong answer. Make sure to select all the valid possibilities" if self._multiple else "Wrong answer", 1
-        return True, None, None, 0
+        return True, None, self._success_message, 0

@@ -499,6 +499,17 @@ function studio_init_template_multiple_choice(well, pid, problem)
         $('#multiple-' + pid, well).attr('checked', true);
     if("centralize" in problem && problem["centralize"])
         $('#centralize-' + pid, well).attr('checked', true);
+
+    var success_message = "";
+    var error_message = "";
+    if("success_message" in problem)
+        success_message = problem["success_message"];
+    if("error_message" in problem)
+        error_message = problem["error_message"];
+
+    registerCodeEditor($('#success_message-' + pid)[0], 'rst', 3).setValue(success_message);
+    registerCodeEditor($('#error_message-' + pid)[0], 'rst', 3).setValue(error_message);
+
     jQuery.each(problem["choices"], function(index, elem)
     {
         studio_create_choice(pid, elem);

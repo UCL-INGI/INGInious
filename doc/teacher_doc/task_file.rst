@@ -182,8 +182,10 @@ Multiple choice problems
     name: An exercice
     type: multiple-choice
     header: The answer to life, the universe and any other things is
-    multiple: true,
-    limit: 2,
+    multiple: true
+    limit: 2
+    error_message: "Wrong answer. Don't panic, and read Hitchhiker's Guide to the Galaxy."
+    success_message: "You're right! But don't forget to always take your towel with you."
     choices:
       - text: It is, of course, 42!
         valid: true
@@ -192,15 +194,19 @@ Multiple choice problems
         - text: 43!
         - text: 41?
 
-Choices are described in the *choices* section of the YAML. Each choice must have
-a *text* field (on the frontend) that will be parsed in restructuredText. Valid choices
-must have a *"valid"=true* field.
+Choices are described in the ``choices`` section of the YAML. Each choice must have
+a ``text`` field (on the frontend) that will be parsed in restructuredText. Valid choices
+must have a ``valid: true`` field.
 
-*multiple* indicates if the student may (or not) select more than one response.
+``multiple`` indicates if the student may (or not) select more than one response.
 
-Choices are chosen randomly in the list. If the *limit* field is set, the number of
+Choices are chosen randomly in the list. If the ``limit`` field is set, the number of
 choices taken equals to the limit. There is always a valid answer in the chosen choices.
 
-Multiple choice problem input's are available in the *run* script (see :doc:`run_file`)
+``error_message`` and ``success_message`` are messages that will be displayed on error/success.
+They are parsed in RST and are not mandatory.
+
+Multiple choice problem input's are available in the ``run`` script (see :doc:`run_file`)
 directly with the id of the problem. The input can be either an array of
-integer if *multiple* is true or an integer. Choices are numbered sequentially from 0.
+integer if ``multiple`` is true or an integer. Choices are numbered sequentially from 0.
+
