@@ -70,7 +70,7 @@ class APICourses(APIAuthenticatedPage):
                     "require_password": course.is_password_needed_for_registration(),
                     "is_registered": course.is_open_to_user(User.get_username())
                 }
-                if course.is_open_to_user(User.get_username()):
+                if course.is_open_to_user(User.get_username(), course.is_group_course()):
                     data["tasks"] = {taskid: task.get_name() for taskid, task in course.get_tasks().iteritems()}
                     data["grade"] = course.get_user_grade()
                 output[courseid] = data
