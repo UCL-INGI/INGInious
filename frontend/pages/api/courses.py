@@ -53,7 +53,7 @@ class APICourses(APIAuthenticatedPage):
 
             If you use the endpoint /api/v0/courses/the_course_id, this dict will contain one entry or the page will return 404 Not Found.
         """
-        output = {}
+        output = []
 
         if courseid is None:
             courses = FrontendCourse.get_all_courses()
@@ -66,13 +66,14 @@ class APICourses(APIAuthenticatedPage):
         for courseid, course in courses.iteritems():
             if course.is_open_to_user(User.get_username()) or course.is_registration_possible(User.get_username()):
                 data = {
+                    "id": courseid,
                     "name": course.get_name(),
                     "require_password": course.is_password_needed_for_registration(),
                     "is_registered": course.is_open_to_user(User.get_username())
                 }
-                if course.is_open_to_user(User.get_username()):
+                if course.is_open_to_user(User.get_username(), course.is_group_course()):
                     data["tasks"] = {taskid: task.get_name() for taskid, task in course.get_tasks().iteritems()}
                     data["grade"] = course.get_user_grade()
-                output[courseid] = data
+                output.append(data)
 
         return 200, output

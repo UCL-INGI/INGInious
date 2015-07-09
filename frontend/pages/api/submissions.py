@@ -56,10 +56,11 @@ def _get_submissions(courseid, taskid, submissionid=None):
         if submissions[0]["taskid"] != task.get_id() or submissions[0]["courseid"] != course.get_id():
             raise APINotFound("Submission not found")
 
-    output = {}
+    output = []
 
     for submission in submissions:
         data = {
+            "id": str(submission["_id"]),
             "submitted_on": str(submission["submitted_on"]),
             "status": submission["status"],
             "input": get_input_from_submission(submission, True),
@@ -70,7 +71,7 @@ def _get_submissions(courseid, taskid, submissionid=None):
             data["feedback"] = submission.get("text", "")
             data["problems_feedback"] = submission.get("problems", {})
 
-        output[str(submission["_id"])] = data
+        output.append(data)
 
     return 200, output
 
@@ -162,7 +163,7 @@ class APISubmissions(APIAuthenticatedPage):
         except:
             raise APINotFound("Course not found")
 
-        if not course.is_open_to_user(User.get_username()):
+        if not course.is_open_to_user(User.get_username(), course.is_group_course()):
             raise APIForbidden("You are not registered to this course")
 
         try:

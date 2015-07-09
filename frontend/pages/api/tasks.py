@@ -78,7 +78,7 @@ class APITasks(APIAuthenticatedPage):
         except:
             raise APINotFound("Course not found")
 
-        if not course.is_open_to_user(User.get_username()):
+        if not course.is_open_to_user(User.get_username(), course.is_group_course()):
             raise APIForbidden("You are not registered to this course")
 
         if taskid is None:
@@ -89,9 +89,10 @@ class APITasks(APIAuthenticatedPage):
             except:
                 raise APINotFound("Task not found")
 
-        output = {}
+        output = []
         for taskid, task in tasks.iteritems():
             data = {
+                "id": taskid,
                 "name": task.get_name(),
                 "authors": task.get_authors(),
                 "deadline": task.get_deadline(),
@@ -111,6 +112,6 @@ class APITasks(APIAuthenticatedPage):
                 pcontent = self._check_for_parsable_text(pcontent)
                 data["problems"][problem.get_id()] = pcontent
 
-            output[taskid] = data
+            output.append(data)
 
         return 200, output

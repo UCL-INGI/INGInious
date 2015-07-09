@@ -39,17 +39,19 @@ class CoursePage(object):
                     raise web.seeother("/group/"+courseid)
                 elif registration_uncomplete:
                     return renderer.course_unavailable()
+                else:
+                    last_submissions = course.get_user_last_submissions(one_per_task=True)
+                    except_free_last_submissions = []
+                    for submission in last_submissions:
+                        try:
+                            submission["task"] = course.get_task(submission['taskid'])
+                            except_free_last_submissions.append(submission)
+                        except:
+                            pass
 
-                last_submissions = course.get_user_last_submissions(one_per_task=True)
-                except_free_last_submissions = []
-                for submission in last_submissions:
-                    try:
-                        submission["task"] = course.get_task(submission['taskid'])
-                        except_free_last_submissions.append(submission)
-                    except:
-                        pass
-
-                return renderer.course(course, except_free_last_submissions)
+                    return renderer.course(course, except_free_last_submissions)
+            except web.seeother:
+                raise
             except:
                 if web.config.debug:
                     raise

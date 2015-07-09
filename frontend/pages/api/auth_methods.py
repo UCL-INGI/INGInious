@@ -31,7 +31,10 @@ class APIAuthMethods(APIPage):
         """
             Returns all the auth methods available. (200 OK)
 
-            Response: dict of auth methods, the key being the id of the auth method. The value of the dict is an auth method, represented by:
+            Response: list of auth methods. The value of the dict is an auth method, represented by:
+
+            id
+                id of the auth method
 
             name
                 the name of the authentication method, typically displayed by the frontend
@@ -46,11 +49,12 @@ class APIAuthMethods(APIPage):
                 type
                     text or password
         """
-        to_display = {}
+        to_display = []
         for key, val in enumerate(PluginManager.get_instance().get_all_authentication_methods()):
-            to_display[key] = {
+            to_display.append({
+                "id": key,
                 "name": val["name"],
-                "input": {ik: {"name": iv["placeholder"], "type": iv["type"]} for ik, iv in val["input"].iteritems()}
-            }
+                "input": [{"id": ik, "name": iv["placeholder"], "type": iv["type"]} for ik, iv in val["input"].iteritems()]
+            })
 
         return 200, to_display
