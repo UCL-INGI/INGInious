@@ -54,7 +54,7 @@ class APIAuthMethods(APIPage):
             to_display.append({
                 "id": key,
                 "name": val["name"],
-                "input": {ik: {"name": iv["placeholder"], "type": iv["type"]} for ik, iv in val["input"].iteritems()}
+                "input": [{"id": ik, "name": iv["placeholder"], "type": iv["type"]} for ik, iv in val["input"].iteritems()]
             })
 
         return 200, to_display
