@@ -146,7 +146,7 @@ class RemoteAgent(SimpleAgent):
                         retval = handle_job(job_id, course_id, task_id, inputdata, debug, callback_status)
                         callback_return(retval)
                     except Exception as e:
-                        callback_return({"status": "crash", "text": "An error occured in the Agent: {}".format(str(e))})
+                        callback_return({"result": "crash", "text": "An error occured in the Agent: {}".format(str(e))})
 
                 threading.Thread(target=_threaded_execute).start()
 

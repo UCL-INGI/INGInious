@@ -90,8 +90,13 @@ class FakeRemoteAgent(threading.Thread):
             def exposed_update_task_directory(self, remote_tar_file, to_delete):
                 update_task_directory_func(remote_tar_file.read(), copy.deepcopy(to_delete))
 
-            def exposed_new_job(self, job_id, course_id, task_id, inputdata, debug, callback_status):
+            def exposed_new_job(self, job_id, course_id, task_id, inputdata, debug, callback_status, callback_return):
                 """ Creates, executes and returns the results of a new job """
-                return handle_job(job_id, course_id, task_id, inputdata, debug, callback_status)
+                try:
+                    retval = handle_job(job_id, course_id, task_id, inputdata, debug, callback_status)
+                except Exception as e:
+                    callback_return({"result": "crash", "text": "An error occured in the Agent: {}".format(str(e))})
+                    return
+                callback_return(retval)
 
         return AgentService
