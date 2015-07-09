@@ -86,6 +86,6 @@ $if User.get_username() in course.get_staff():
         $for key, val in available_containers.iteritems():
             <a href="/admin/$course.get_id()/batch/create/$key" class="list-group-item">
                 <h4 class="list-group-item-heading">$val[0]</h4>
-                <p class="list-group-item-text">$val[1]</p>
+                <p class="list-group-item-text">$:val[1]</p>
             </a>
     </div>

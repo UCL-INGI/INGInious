@@ -48,7 +48,7 @@ $if errors is not None:
         $if container_description != "":
             <tr>
                 <th>Container description</th>
-                <td>$container_description</td>
+                <td>$:container_description</td>
             </tr>
         <tr>
             <th>Container image name</th>
@@ -69,7 +69,7 @@ $if errors is not None:
             </tr>
             $if val.get("description") is not None:
                 <tr>
-                    <td>$val["description"]</td>
+                    <td>$:val["description"]</td>
                 </tr>
         <tr>
             <td colspan="2">

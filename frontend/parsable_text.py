@@ -19,9 +19,49 @@
 """ Tools to parse text """
 import cgi
 
-from docutils import core
-
+from docutils import core, nodes
+from docutils.writers import html4css1
 from frontend.configuration import INGIniousConfiguration
+
+class _CustomHTMLWriter(html4css1.Writer, object):
+    """ A custom HTML writer that fixes some defaults of docutils... """
+
+    def __init__(self):
+        html4css1.Writer.__init__(self)
+        self.translator_class = self._CustomHTMLTranslator
+
+    class _CustomHTMLTranslator(html4css1.HTMLTranslator, object):
+        """ A custom HTML translator """
+        def visit_literal(self, node):
+            """ A custom version of visit_literal that uses the balise <code> instead of <tt>. """
+            # special case: "code" role
+            classes = node.get('classes', [])
+            if 'code' in classes:
+                # filter 'code' from class arguments
+                node['classes'] = [cls for cls in classes if cls != 'code']
+                self.body.append(self.starttag(node, 'code', ''))
+                return
+            self.body.append(
+                self.starttag(node, 'code', '', CLASS='docutils literal'))
+            text = node.astext()
+            for token in self.words_and_spaces.findall(text):
+                if token.strip():
+                    # Protect text like "--an-option" and the regular expression
+                    # ``[+]?(\d+(\.\d*)?|\.\d+)`` from bad line wrapping
+                    if self.sollbruchstelle.search(token):
+                        self.body.append('<span class="pre">%s</span>'
+                                         % self.encode(token))
+                    else:
+                        self.body.append(self.encode(token))
+                elif token in ('\n', ' '):
+                    # Allow breaks at whitespace:
+                    self.body.append(token)
+                else:
+                    # Protect runs of multiple spaces; the last space can wrap:
+                    self.body.append('&nbsp;' * (len(token) - 1) + ' ')
+            self.body.append('</code>')
+            # Content already processed:
+            raise nodes.SkipNode
 
 
 class ParsableText(object):
@@ -73,5 +113,5 @@ class ParsableText(object):
     def rst(self, string):
         """Parses reStructuredText"""
         overrides = {'initial_header_level': 3, 'doctitle_xform': False}
-        parts = core.publish_parts(source=string, writer_name='html', settings_overrides=overrides)
+        parts = core.publish_parts(source=string, writer=_CustomHTMLWriter(), settings_overrides=overrides)
         return parts['body_pre_docinfo'] + parts['fragment']

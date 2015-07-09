@@ -23,9 +23,11 @@ from frontend.backend_interface import get_job_manager
 from frontend.configuration import INGIniousConfiguration
 from frontend.base import get_database, get_gridfs
 from frontend.submission_manager import get_submission_archive, keep_best_submission
+from frontend.parsable_text import ParsableText
 import os
 import tempfile
 import tarfile
+import copy
 from datetime import datetime
 from bson.objectid import ObjectId
 
@@ -68,7 +70,13 @@ def get_batch_container_metadata(container_name):
     if container_name not in INGIniousConfiguration.get("batch_containers", []):
         raise Exception("This batch container is not allowed to be started")
 
-    return get_job_manager().get_batch_container_metadata(container_name)
+    metadata = copy.deepcopy(get_job_manager().get_batch_container_metadata(container_name))
+    if metadata != (None, None, None):
+        for key, val in metadata[2].iteritems():
+            if "description" in val:
+                val["description"] = ParsableText(val["description"].replace('\\n', '\n').replace('\\t', '\t'), 'rst').parse()
+        metadata = (metadata[0], ParsableText(metadata[1].replace('\\n', '\n').replace('\\t', '\t'), 'rst').parse(), metadata[2])
+    return metadata
 
 def get_all_batch_containers_metadata():
     """
