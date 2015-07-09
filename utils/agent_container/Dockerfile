@@ -29,4 +29,4 @@ RUN \
 WORKDIR /agent
 CMD ["/agent/backend_agent/start_container_agent.py"]
 
-LABEL agent-version=0.2
+LABEL agent-version=0.3
