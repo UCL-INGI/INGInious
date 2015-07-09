@@ -73,22 +73,25 @@ class ParsableText(object):
             raise Exception("Unknown text parser: " + mode)
         if mode == "HTML" and ("allow_html" not in INGIniousConfiguration or INGIniousConfiguration["allow_html"] == False):
             raise Exception("HTML is not allowed")
-        self.content = content
-        self.mode = mode
+        self._content = content
+        self._parsed = None
+        self._mode = mode
 
     def original_content(self):
         """ Returns the original content """
-        return self.content
+        return self._content
 
     def parse(self):
         """Returns parsed text"""
-        try:
-            if self.mode == "HTML":
-                return self.html(self.content)
-            else:
-                return self.rst(self.content)
-        except:
-            return "<b>Parsing failed</b>: <pre>" + cgi.escape(self.content) + "</pre>"
+        if self._parsed is None:
+            try:
+                if self._mode == "HTML":
+                    self._parsed = self.html(self._content)
+                else:
+                    self._parsed = self.rst(self._content)
+            except:
+                self._parsed = "<b>Parsing failed</b>: <pre>" + cgi.escape(self._content) + "</pre>"
+        return self._parsed
 
     def __str__(self):
         """Returns parsed text"""

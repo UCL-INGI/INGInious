@@ -33,8 +33,8 @@ class DisplayableBasicProblem(BasicProblem):
     __metaclass__ = ABCMeta
 
     def __init__(self, task, problemid, content):
-        BasicProblem.__init__(self, task, problemid, content)
-        self._header = ParsableText(self._header, ("HTML" if "headerIsHTML" in content and content["headerIsHTML"] else "rst"))
+        super(DisplayableBasicProblem, self).__init__(task, problemid, content)
+        self._header = ParsableText(self._header, "rst")
 
     def __str__(self):
         """ get the html for this problem """
@@ -56,6 +56,9 @@ class DisplayableBasicProblem(BasicProblem):
 
 class DisplayableBasicCodeProblem(BasicCodeProblem, DisplayableBasicProblem):
     """ A basic class to display all BasicCodeProblem derivatives """
+
+    def __init__(self, task, problemid, content):
+        super(DisplayableBasicCodeProblem, self).__init__(task, problemid, content)
 
     @abstractmethod
     def get_type(self):
@@ -84,28 +87,33 @@ class DisplayableBasicCodeProblem(BasicCodeProblem, DisplayableBasicProblem):
 
 class DisplayableCodeSingleLineProblem(CodeSingleLineProblem, DisplayableBasicCodeProblem):
     """ A displayable single code line problem """
-    pass
+
+    def __init__(self, task, problemid, content):
+        super(DisplayableCodeSingleLineProblem, self).__init__(task, problemid, content)
 
 
 class DisplayableCodeProblem(CodeProblem, DisplayableBasicCodeProblem):
     """ A displayable code problem """
-    pass
+
+    def __init__(self, task, problemid, content):
+        super(DisplayableCodeProblem, self).__init__(task, problemid, content)
 
 
 class DisplayableCodeFileProblem(CodeFileProblem, DisplayableBasicCodeProblem):
     """ A displayable code problem """
-    pass
+
+    def __init__(self, task, problemid, content):
+        super(DisplayableCodeFileProblem, self).__init__(task, problemid, content)
 
 
 class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableBasicProblem):
     """ A displayable multiple choice problem """
 
     def __init__(self, task, problemid, content):
-        MultipleChoiceProblem.__init__(self, task, problemid, content)
-        DisplayableBasicProblem.__init__(self, task, problemid, content)
+        super(DisplayableMultipleChoiceProblem, self).__init__(task, problemid, content)
 
         for choice in self._choices:
-            choice["text"] = ParsableText(choice['text'], 'HTML' if content["choices"][choice["index"]].get('textIsHTML', False) else 'rst')
+            choice["text"] = ParsableText(choice['text'], 'rst')
 
     def show_input(self):
         """ Show multiple choice problems """
@@ -145,6 +153,9 @@ class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableBasicPr
 
 class DisplayableMatchProblem(MatchProblem, DisplayableBasicProblem):
     """ A displayable match problem """
+
+    def __init__(self, task, problemid, content):
+        super(DisplayableMatchProblem, self).__init__(task, problemid, content)
 
     def show_input(self):
         """ Show MatchProblem """

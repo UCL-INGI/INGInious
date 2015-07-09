@@ -28,6 +28,8 @@ import os
 
 import rpyc
 
+from rpyc import BgServingThread
+
 from backend.job_managers.abstract import AbstractJobManager
 from common.base import directory_compare_from_hash, get_tasks_directory, directory_content_with_hash, hash_file
 import common.custom_yaml
@@ -93,7 +95,7 @@ class RemoteManualAgentJobManager(AbstractJobManager):
                     print "Cannot connect to agent {}-{}".format(info['host'], info['port'])
                 else:
                     self._agents[entry] = conn
-                    self._agents_thread[entry] = rpyc.BgServingThread(conn)
+                    self._agents_thread[entry] = BgServingThread(conn)
                     self._synchronize_image_aliases(self._agents[entry])
                     self._synchronize_task_dir(self._agents[entry])
 
@@ -218,9 +220,9 @@ class RemoteManualAgentJobManager(AbstractJobManager):
         try:
             agent = self._agents[agent_id]
             async_run = rpyc.async(agent.root.new_job)
-            result = async_run(str(jobid), str(task.get_course_id()), str(task.get_id()), dict(inputdata), debug, None)
             self._running_on_agent[agent_id].append(jobid)
-            result.add_callback(lambda r: self._execute_job_callback(jobid, r, agent_id))
+            async_run(str(jobid), str(task.get_course_id()), str(task.get_id()), dict(inputdata), debug, None,
+                      lambda r: self._execute_job_callback(jobid, r, agent_id))
         except:
             self._agent_shutdown(agent_id)
             self._execute_job(jobid, task, inputdata, debug)
@@ -259,9 +261,8 @@ class RemoteManualAgentJobManager(AbstractJobManager):
         try:
             agent = self._agents[agent_id]
             async_run = rpyc.async(agent.root.new_batch_job)
-            result = async_run(str(jobid), str(container_name), tmpfile)
             self._running_on_agent[agent_id].append(jobid)
-            result.add_callback(lambda r: self._execute_batch_job_callback(jobid, r, agent_id))
+            async_run(str(jobid), str(container_name), tmpfile, lambda r: self._execute_batch_job_callback(jobid, r, agent_id))
         except:
             self._agent_shutdown(agent_id)
             self._execute_batch_job(jobid, container_name, inputdata)
@@ -293,30 +294,21 @@ class RemoteManualAgentJobManager(AbstractJobManager):
 
     def _execute_job_callback(self, jobid, callback_return_val, agent_id):
         """ Called when an agent is done with a job or raised an exception """
-        if callback_return_val.error:
-            print "Agent {} made an exception while running jobid {}".format(agent_id, jobid)
-            self._agent_job_ended(jobid, {"result": "crash"}, agent_id)
-        else:
-            self._agent_job_ended(jobid, copy.deepcopy(callback_return_val.value), agent_id)
+        self._agent_job_ended(jobid, copy.deepcopy(callback_return_val), agent_id)
 
-    def _execute_batch_job_callback(self, jobid, callback_return_val, agent_id):
+    def _execute_batch_job_callback(self, jobid, val, agent_id):
         """ Called when an agent is done with a job or raised an exception """
-        if callback_return_val.error:
-            print "Agent {} made an exception while running jobid {}".format(agent_id, jobid)
-            self._agent_batch_job_ended(jobid, {"retval": -1, "stderr": "An error occured in the agent"}, agent_id)
+        if "file" in val:
+            f = val["file"]
+            del val["file"]
+            val = copy.deepcopy(val)
+            tmpfile = tempfile.TemporaryFile()
+            tmpfile.write(f.read())
+            tmpfile.seek(0)
+            val["file"] = tmpfile
         else:
-            val = callback_return_val.value
-            if "file" in val:
-                f = val["file"]
-                del val["file"]
-                val = copy.deepcopy(val)
-                tmpfile = tempfile.TemporaryFile()
-                tmpfile.write(f.read())
-                tmpfile.seek(0)
-                val["file"] = tmpfile
-            else:
-                val = copy.deepcopy(val)
-            self._agent_batch_job_ended(jobid, val, agent_id)
+            val = copy.deepcopy(val)
+        self._agent_batch_job_ended(jobid, val, agent_id)
 
     def _get_rpyc_server(self, agent_id):
         """ Return a service associated with this JobManager instance """

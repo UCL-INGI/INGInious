@@ -23,7 +23,7 @@ import docker.utils
 
 from backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
 
-AGENT_CONTAINER_VERSION = "0.2"
+AGENT_CONTAINER_VERSION = "0.3"
 
 
 class RemoteDockerJobManager(RemoteManualAgentJobManager):

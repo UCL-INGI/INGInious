@@ -64,7 +64,7 @@ class FrontendTask(common.tasks.Task):
 
         self._name = self._data.get('name', 'Task {}'.format(self.get_id()))
 
-        self._context = ParsableText(self._data.get('context', ""), "HTML" if self._data.get("contextIsHTML", False) else "rst")
+        self._context = ParsableText(self._data.get('context', ""), "rst")
 
         # Authors
         if isinstance(self._data.get('author'), basestring):  # verify if author is a string

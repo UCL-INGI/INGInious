@@ -69,7 +69,7 @@ class CourseEditTask(object):
             if (problem["type"] == "code" and "boxes" in problem) or problem["type"] not in (
             "code", "code-single-line", "code-file", "match", "multiple-choice"):
                 problem_copy = copy.deepcopy(problem)
-                for i in ["name", "header", "headerIsHTML"]:
+                for i in ["name", "header"]:
                     if i in problem_copy:
                         del problem_copy[i]
                 problem["custom"] = common.custom_yaml.dump(problem_copy)
@@ -135,7 +135,7 @@ class CourseEditTask(object):
         del problem_content["@order"]
 
         # store boolean fields as booleans
-        for field in ["headerIsHTML", "optional", "multiple", "centralize"]:
+        for field in ["optional", "multiple", "centralize"]:
             if field in problem_content:
                 problem_content[field] = True
 
@@ -144,8 +144,6 @@ class CourseEditTask(object):
             for choice in problem_content["choices"]:
                 if "valid" in choice:
                     choice["valid"] = True
-                if "textIsHTML" in choice:
-                    choice["textIsHTML"] = True
 
         for message in ["error_message", "success_message"]:
             if message in problem_content and problem_content[message].strip() == "":
@@ -237,8 +235,6 @@ class CourseEditTask(object):
             # Checkboxes
             if data.get("responseIsHTML"):
                 data["responseIsHTML"] = True
-            if data.get("contextIsHTML"):
-                data["contextIsHTML"] = True
         except Exception as message:
             return json.dumps({"status": "error", "message": "Your browser returned an invalid form ({})".format(str(message))})
 

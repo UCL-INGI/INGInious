@@ -26,4 +26,4 @@ ADD backend_agent /agent/backend_agent
 WORKDIR /agent
 CMD ["/agent/backend_agent/start_container_agent.py"]
 
-LABEL agent-version=0.2
+LABEL agent-version=0.3

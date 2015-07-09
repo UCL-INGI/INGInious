@@ -29,7 +29,7 @@ from rpyc.utils.server import ThreadedServer
 
 import common.base
 from backend_agent.simple_agent import SimpleAgent
-
+import threading
 
 class RemoteAgent(SimpleAgent):
     """
@@ -68,7 +68,7 @@ class RemoteAgent(SimpleAgent):
                 logger.info("Updating image aliases...")
                 update_image_aliases(copy.deepcopy(image_aliases))
 
-            def exposed_new_batch_job(self, job_id, container_name, input_data):
+            def exposed_new_batch_job(self, job_id, container_name, input_data, callback):
                 """ Creates, executes and returns the results of a batch job.
                     The return value of a batch job is always a compressed(gz) tar file.
                 :param job_id: The distant job id
@@ -100,7 +100,14 @@ class RemoteAgent(SimpleAgent):
                     else:
                         logger.warning("Unknown key %s for batch container %s!", n, container_name)
 
-                return handle_batch_job(job_id, container_name, input_data)
+                def _threaded_execute():
+                    try:
+                        retval = handle_batch_job(job_id, container_name, input_data)
+                        callback(retval)
+                    except Exception as e:
+                        callback({"retval": -1, "stderr": str(e)})
+
+                threading.Thread(target=_threaded_execute).start()
 
             def exposed_get_batch_container_metadata(self, container_name):
                 """
@@ -120,7 +127,7 @@ class RemoteAgent(SimpleAgent):
                 """
                 return handle_get_batch_container_metadata(container_name)
 
-            def exposed_new_job(self, job_id, course_id, task_id, inputdata, debug, callback_status):
+            def exposed_new_job(self, job_id, course_id, task_id, inputdata, debug, callback_status, callback_return):
                 """ Creates, executes and returns the results of a new job (in a separate thread, distant version)
                 :param job_id: The distant job id
                 :param course_id: The course id of the linked task
@@ -128,12 +135,20 @@ class RemoteAgent(SimpleAgent):
                 :param inputdata: Input data, given by the student (dict)
                 :param debug: A boolean, indicating if the job should be run in debug mode or not
                 :param callback_status: Not used, should be None.
+                :param callback_return: The callback on the remote server that will be called with the return value
                 """
 
                 # Deepcopy inputdata (to bypass "passage by reference" of RPyC)
                 inputdata = copy.deepcopy(inputdata)
 
-                return handle_job(job_id, course_id, task_id, inputdata, debug, callback_status)
+                def _threaded_execute():
+                    try:
+                        retval = handle_job(job_id, course_id, task_id, inputdata, debug, callback_status)
+                        callback_return(retval)
+                    except Exception as e:
+                        callback_return({"status": "crash", "text": "An error occured in the Agent: {}".format(str(e))})
+
+                threading.Thread(target=_threaded_execute).start()
 
             def exposed_get_task_directory_hashes(self):
                 """ Get the list of files from the local task directory

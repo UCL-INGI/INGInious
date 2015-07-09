@@ -76,7 +76,7 @@ class TextBox(BasicBox):
         return True
 
     def __init__(self, problem, boxid, boxData):
-        BasicBox.__init__(self, problem, boxid, boxData)
+        super(TextBox, self).__init__(problem, boxid, boxData)
         if "content" not in boxData:
             raise Exception("Box _id " + boxid + " with type=text do not have content.")
         self._content = boxData['content']
@@ -113,7 +113,7 @@ class FileBox(BasicBox):
         return True
 
     def __init__(self, problem, boxid, boxData):
-        BasicBox.__init__(self, problem, boxid, boxData)
+        super(FileBox, self).__init__(problem, boxid, boxData)
         self._allowed_exts = boxData.get("allowed_exts", get_allowed_file_extensions())
         self._max_size = boxData.get("max_size", get_max_file_size()) or get_max_file_size()
 
@@ -155,7 +155,7 @@ class InputBox(BasicBox):
         return True
 
     def __init__(self, problem, boxid, boxData):
-        BasicBox.__init__(self, problem, boxid, boxData)
+        super(InputBox, self).__init__(problem, boxid, boxData)
         if boxData["type"] == "input-text":
             self._input_type = "text"
             self._default_value = ""
@@ -198,7 +198,7 @@ class MultilineBox(BasicBox):
         return True
 
     def __init__(self, problem, boxid, boxData):
-        BasicBox.__init__(self, problem, boxid, boxData)
+        super(MultilineBox, self).__init__(problem, boxid, boxData)
         if "maxChars" in boxData and isinstance(boxData['maxChars'], (int, long)) and boxData['maxChars'] > 0:
             self._max_chars = boxData['maxChars']
         elif "maxChars" in boxData:
