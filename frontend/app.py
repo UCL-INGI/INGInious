@@ -60,7 +60,7 @@ urls = (
     '/admin/([^/]+)/edit/group/([^/]+)', 'frontend.pages.course_admin.group_edit.CourseEditGroup',
     '/admin/([^/]+)/edit/task/([^/]+)', 'frontend.pages.course_admin.task_edit.CourseEditTask',
     '/admin/([^/]+)/edit/task/([^/]+)/files', 'frontend.pages.course_admin.task_edit_file.CourseTaskFiles',
-    '/admin/([^/]+)/submissions', 'frontend.pages.course_admin.submission_files.DownloadSubmissionFiles',
+    '/admin/([^/]+)/download', 'frontend.pages.course_admin.download.CourseDownloadSubmissions',
     '/api/v0/auth_methods', 'frontend.pages.api.auth_methods.APIAuthMethods',
     '/api/v0/authentication', 'frontend.pages.api.authentication.APIAuthentication',
     '/api/v0/courses', 'frontend.pages.api.courses.APICourses',

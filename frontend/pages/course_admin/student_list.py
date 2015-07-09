@@ -35,7 +35,7 @@ class CourseStudentListPage(object):
 
     def submission_url_generator(self, course, username):
         """ Generates a submission url """
-        return "/admin/" + course.get_id() + "/submissions?dl=student&username=" + username
+        return "/admin/" + course.get_id() + "/download?format=taskid%2Fusername&users=" + username
 
     def page(self, course, error="", post=False):
         """ Get all data and display the page """

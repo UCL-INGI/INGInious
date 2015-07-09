@@ -499,6 +499,17 @@ function studio_init_template_multiple_choice(well, pid, problem)
         $('#multiple-' + pid, well).attr('checked', true);
     if("centralize" in problem && problem["centralize"])
         $('#centralize-' + pid, well).attr('checked', true);
+
+    var success_message = "";
+    var error_message = "";
+    if("success_message" in problem)
+        success_message = problem["success_message"];
+    if("error_message" in problem)
+        error_message = problem["error_message"];
+
+    registerCodeEditor($('#success_message-' + pid)[0], 'rst', 3).setValue(success_message);
+    registerCodeEditor($('#error_message-' + pid)[0], 'rst', 3).setValue(error_message);
+
     jQuery.each(problem["choices"], function(index, elem)
     {
         studio_create_choice(pid, elem);
@@ -628,4 +639,34 @@ function studio_get_feedback(sid)
         $('#modal_feedback_content').text('An error occured while retrieving the submission');
         loadingSomething = false;
     });
+}
+
+/**
+ * Select/deselect all the checkboxes of a panel
+ * @param select: boolean indicating if we should select or deselect
+ * @param panel_member: a child of the panel in which is the list
+ */
+function download_page_select(select, panel_member)
+{
+    panel_member = $(panel_member);
+    while(!panel_member.hasClass('panel'))
+        panel_member = panel_member.parent();
+    $('input[type="checkbox"]', panel_member).prop('checked', select);
+    $('input[type="checkbox"]', panel_member).trigger('change');
+}
+
+/**
+ * Select/deselect all the checkboxes of the panel depending on a list of users and groups tutored.
+ * @param panel_member: a child of the panel in which is the list
+ * @param users: a list of usernames
+ * @param groups: a list of group ids
+ */
+function download_page_select_tutor(panel_member, users, groups)
+{
+    panel_member = $(panel_member);
+    while(!panel_member.hasClass('panel'))
+        panel_member = panel_member.parent();
+    $('input[name="groups"]', panel_member).each(function() { $(this).prop('checked', $.inArray($(this).val(),groups) != -1); });
+    $('input[name="users"]', panel_member).each(function() { $(this).prop('checked', $.inArray($(this).val(), users) != -1); });
+    $('input[type="checkbox"]', panel_member).trigger('change');
 }

@@ -29,7 +29,7 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
         <select class="form-control" id="@filetype" name="@filetype">
             $for type in available_filetypes:
                 <option value="$type"
-                    $if type == current_filetype:
+                    $if type == current_filetype or (current_filetype is None and type == "yaml"):
                         selected="selected"
                 >$type</option>
         </select>

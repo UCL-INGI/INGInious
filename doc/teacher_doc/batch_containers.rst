@@ -31,6 +31,23 @@ create an argument with type ``file`` and ``key`` respectively equal to ``course
 
 The file mounted on the given path will then be a ``.tar.gz`` archive.
 
+For the ``submissions``, two additionnal metaparameters can be defined:
+
+``folder_format``
+    Indicates how submissions will be stored in the tgz. Correct values are
+
+    - ``taskid/username``
+    - ``taskid/group``
+    - ``username/taskid``
+    - ``group/taskid``
+    - ``taskid``
+    - ``group``
+    - ``username``
+    - and more generally, any combination of ``username``, ``group`` and ``taskid`` separated by ``/``.
+
+``best_only``
+    Indicates if the archive should contains all the submissions or only the best ones. Valid (boolean) values are ``"0"`` and ``"1"``.
+
 Indicating metadata in the Dockerfile
 -------------------------------------
 
@@ -58,6 +75,8 @@ Here is an example of how to include metadata in the Dockerfile:
     LABEL org.inginious.batch.args.submissions.name="Submissions"
     LABEL org.inginious.batch.args.submissions.path="submissions.tgz"
     LABEL org.inginious.batch.args.submissions.description="All submissions made by students"
+    LABEL org.inginious.batch.args.submissions.folder_format="taskid/username"
+    LABEL org.inginious.batch.args.submissions.best_only="1"
 
     # Text
     LABEL org.inginious.batch.args.text=text

@@ -41,7 +41,7 @@ $var Navbar: $:NavbarF()
         <th># submissions</th>
         <th>
             <div class="btn-group" role="group">
-                <a href="javascript:ask_to_download('/admin/${course.get_id()}/submissions?dl=group&groupid=$group['_id']')"
+                <a href="/admin/${course.get_id()}/download?format=taskid%2Fgroup&groups=$group['_id']"
                    class="btn btn-danger btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa
                    fa-download"></i></a>
                 <a href="/admin/${course.get_id()}/group/${group['_id']}?csv" class="btn btn-info btn-xs" title="Download
@@ -74,7 +74,7 @@ $var Navbar: $:NavbarF()
                 <div class="btn-group" role="group">
     			    <a href="/admin/${course.get_id()}/group/$group['_id']/$task['taskid']" class="btn btn-default btn-xs" title="View submissions"
                        data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
-                    <a href="javascript:ask_to_download('$task['url']')" class="btn btn-default btn-xs" title="Download submissions"
+                    <a href="$task['url']" class="btn btn-default btn-xs" title="Download submissions"
                        data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
                 </div>
     		</td>

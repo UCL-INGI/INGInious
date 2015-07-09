@@ -25,7 +25,7 @@ $if groups:
             <th># submissions</th>
             <th>
                 <div class="btn-group" role="group">
-                    <a href="javascript:ask_to_download('/admin/${course.get_id()}/submissions?dl=task&task=$task.get_id()&groupby=group')" class="btn btn-danger
+                    <a href="/admin/${course.get_id()}/download?format=taskid%2Fgroup&tasks=$task.get_id()" class="btn btn-danger
                         btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
                     <a href="/admin/${course.get_id()}/task/${task.get_id()}?csv=groups" class="btn btn-info btn-xs" title="Download CSV"
                        data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
@@ -66,7 +66,7 @@ $if groups:
                         <div class="btn-group" role="group">
                             <a href="/admin/${course.get_id()}/group/$group['_id']/$task.get_id()" class="btn btn-default btn-xs" title="View
                                submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
-                            <a href="javascript:ask_to_download('$group['url']')" class="btn btn-default btn-xs" title="Download
+                            <a href="$group['url']" class="btn btn-default btn-xs" title="Download
                                submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
                         </div>
                     </td>
@@ -80,7 +80,7 @@ $else:
             <th># submissions</th>
             <th>
                 <div class="btn-group" role="group">
-                    <a href="javascript:ask_to_download('/admin/${course.get_id()}/submissions?dl=task&task=$task.get_id()&groupby=username')" class="btn btn-danger
+                    <a href="/admin/${course.get_id()}/download?format=taskid%2Fusername&tasks=$task.get_id()" class="btn btn-danger
                         btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
                     <a href="/admin/${course.get_id()}/task/${task.get_id()}?csv=students" class="btn btn-info btn-xs" title="Download CSV"
                        data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
@@ -118,7 +118,7 @@ $else:
                     <div class="btn-group" role="group">
                         <a href="/admin/${course.get_id()}/student/$user['username']/$task.get_id()" class="btn btn-default btn-xs" title="View
                            submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
-                        <a href="javascript:ask_to_download('$user['url']')" class="btn btn-default btn-xs" title="Download
+                        <a href="$user['url']" class="btn btn-default btn-xs" title="Download
                            submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
                     </div>
                 </td>

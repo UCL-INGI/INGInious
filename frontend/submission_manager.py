@@ -195,6 +195,25 @@ def _parse_text(task, job_result):
             job_result["problems"][problem] = ParsableText(job_result["problems"][problem], task.get_response_type()).parse()
     return job_result
 
+
+def keep_best_submission(submissions):
+    """ Command used to only keep the best submission, if any """
+    submissions.sort(key=lambda item: item['submitted_on'], reverse=True)
+    tasks = {}
+    for sub in submissions:
+        if sub["taskid"] not in tasks:
+            tasks[sub["taskid"]] = {}
+        for username in sub["username"]:
+            if username not in tasks[sub["taskid"]]:
+                tasks[sub["taskid"]][username] = sub
+            elif tasks[sub["taskid"]][username].get("grade", 0.0) < sub.get("grade", 0.0):
+                tasks[sub["taskid"]][username] = sub
+    final_subs = []
+    for task in tasks.itervalues():
+        for sub in task.itervalues():
+            final_subs.append(sub)
+    return final_subs
+
 def get_submission_archive(submissions, sub_folders):
     """
     :param submissions: a list of submissions
@@ -229,7 +248,7 @@ def get_submission_archive(submissions, sub_folders):
             base_path = base_path[1:]
 
             submission_yaml = StringIO.StringIO(common.custom_yaml.dump(submission).encode('utf-8'))
-            submission_yaml_fname = base_path + str(submission["_id"]) + '.test'
+            submission_yaml_fname = base_path + str(submission["_id"]) + '/submission.test'
 
             # Avoid putting two times the same submission on the same place
             if submission_yaml_fname not in tar.getnames():
@@ -244,15 +263,15 @@ def get_submission_archive(submissions, sub_folders):
                 # If there is an archive, add it too
                 if 'archive' in submission and submission['archive'] is not None and submission['archive'] != "":
                     subfile = get_gridfs().get(submission['archive'])
-                    taskfname = base_path + str(submission["_id"]) + '.tgz'
+                    subtar = tarfile.open(fileobj=subfile, mode="r:gz")
 
-                    # Generate file info
-                    info = tarfile.TarInfo(name=taskfname)
-                    info.size = subfile.length
-                    info.mtime = time.mktime(submission["submitted_on"].timetuple())
+                    for member in subtar.getmembers():
+                        subtarfile = subtar.extractfile(member)
+                        member.name = base_path + str(submission["_id"]) + "/archive/" + member.name
+                        tar.addfile(member, subtarfile)
 
-                    # Add file in tar archive
-                    tar.addfile(info, fileobj=subfile)
+                    subtar.close()
+                    subfile.close()
 
                 # If there files that were uploaded by the student, add them
                 if submission['input'] is not None:
@@ -269,7 +288,7 @@ def get_submission_archive(submissions, sub_folders):
                                         ext = t_ext
 
                             subfile = StringIO.StringIO(base64.b64decode(problem['value']))
-                            taskfname = base_path + str(submission["_id"]) + '_uploaded_files/' + pid + ext
+                            taskfname = base_path + str(submission["_id"]) + '/uploaded_files/' + pid + ext
 
                             # Generate file info
                             info = tarfile.TarInfo(name=taskfname)

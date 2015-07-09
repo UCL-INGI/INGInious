@@ -22,10 +22,12 @@ import frontend.user as User
 from frontend.backend_interface import get_job_manager
 from frontend.configuration import INGIniousConfiguration
 from frontend.base import get_database, get_gridfs
-from frontend.submission_manager import get_submission_archive
+from frontend.submission_manager import get_submission_archive, keep_best_submission
+from frontend.parsable_text import ParsableText
 import os
 import tempfile
 import tarfile
+import copy
 from datetime import datetime
 from bson.objectid import ObjectId
 
@@ -39,11 +41,13 @@ def _get_course_data(course):
     tmpfile.seek(0)
     return tmpfile
 
-def _get_submissions_data(course):
+def _get_submissions_data(course, folders, best_only):
     """ Returns a file-like object to a tgz archive containing all the submissions made by the students for the course """
     submissions = list(get_database().submissions.find(
         {"courseid": course.get_id(), "username": {"$in": course.get_registered_users()}, "status": {"$in": ["done", "error"]}}))
-    return get_submission_archive(submissions, ['username', 'taskid'])
+    if best_only != "0":
+        submissions = keep_best_submission(submissions)
+    return get_submission_archive(submissions, list(reversed(folders.split('/'))))
 
 def get_batch_container_metadata(container_name):
     """
@@ -56,7 +60,9 @@ def get_batch_container_metadata(container_name):
                  "type:" "file", #or "text",
                  "path": "path/to/file/inside/input/dir", #not mandatory in file, by default "key"
                  "name": "name of the field", #not mandatory in file, default "key"
-                 "description": "a short description of what this field is used for" #not mandatory, default ""
+                 "description": "a short description of what this field is used for", #not mandatory, default ""
+                 "custom_key1": "custom_value1",
+                 ...
                 }
              }
             )
@@ -64,7 +70,13 @@ def get_batch_container_metadata(container_name):
     if container_name not in INGIniousConfiguration.get("batch_containers", []):
         raise Exception("This batch container is not allowed to be started")
 
-    return get_job_manager().get_batch_container_metadata(container_name)
+    metadata = copy.deepcopy(get_job_manager().get_batch_container_metadata(container_name))
+    if metadata != (None, None, None):
+        for key, val in metadata[2].iteritems():
+            if "description" in val:
+                val["description"] = ParsableText(val["description"].replace('\\n', '\n').replace('\\t', '\t'), 'rst').parse()
+        metadata = (metadata[0], ParsableText(metadata[1].replace('\\n', '\n').replace('\\t', '\t'), 'rst').parse(), metadata[2])
+    return metadata
 
 def get_all_batch_containers_metadata():
     """
@@ -77,7 +89,9 @@ def get_all_batch_containers_metadata():
                  "type:" "file", #or "text",
                  "path": "path/to/file/inside/input/dir", #not mandatory in file, by default "key"
                  "name": "name of the field", #not mandatory in file, default "key"
-                 "description": "a short description of what this field is used for" #not mandatory, default ""
+                 "description": "a short description of what this field is used for", #not mandatory, default ""
+                 "custom_key1": "custom_value1",
+                 ...
                 }
              }
             )
@@ -113,7 +127,9 @@ def add_batch_job(course, container_name, inputdata, launcher_name=None, skip_pe
     if "course" in container_args and container_args["course"]["type"] == "file" and "course" not in inputdata:
         inputdata["course"] = _get_course_data(course)
     if "submissions" in container_args and container_args["submissions"]["type"] == "file" and "submissions" not in inputdata:
-        inputdata["submissions"] = _get_submissions_data(course)
+        inputdata["submissions"] = _get_submissions_data(course,
+                                                         container_args["submissions"].get('folder_format', 'taskid/username'),
+                                                         container_args["submissions"].get('best_only', "0"))
 
     obj = {"courseid": course.get_id(), 'container_name': container_name, "submitted_on": datetime.now()}
 

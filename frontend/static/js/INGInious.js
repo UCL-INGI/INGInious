@@ -19,6 +19,14 @@
 
 $(function()
 {
+    //Init CodeMirror
+    colorizeStaticCode();
+    $('.code-editor').each(function(index, elem)
+    {
+        registerCodeEditor(elem, $(elem).attr('data-x-language'), $(elem).attr('data-x-lines'));
+    });
+
+    //Init the task form, if we are on the task submission page
     var task_form = $('form#task');
     task_form.on('submit', function()
     {
@@ -33,11 +41,6 @@ $(function()
         waitForSubmission(task_form.attr("data-wait-submission"));
     }
     $('#submissions').find('.submission').on('click', clickOnSubmission);
-
-    $('.code-editor').each(function(index, elem)
-    {
-        registerCodeEditor(elem, $(elem).attr('data-x-language'), $(elem).attr('data-x-lines'));
-    });
 
     //Start affix only if there the height of the sidebar is less than the height of the content
     if($('#sidebar').height() < $('#content').height())
@@ -99,61 +102,45 @@ var codeEditors = [];
 //True if loading something
 var loadingSomething = false;
 
+//Run CodeMirror on static code
+function colorizeStaticCode()
+{
+    CodeMirror.modeURL = "/static/js/codemirror/mode/%N/%N.js";
+    $('.code.literal-block').each(function()
+    {
+        var classes = $(this).attr('class').split(' ');
+        var mode = undefined;
+        $.each(classes, function(idx, elem) {
+            if(elem != "code" && elem != "literal-block")
+            {
+                var nmode = CodeMirror.findModeByName(elem);
+                if (nmode != undefined)
+                    mode = nmode;
+            }
+        });
+        if(mode != undefined)
+        {
+            var elem = this
+
+            CodeMirror.requireMode(mode['mode'], function()
+            {
+                CodeMirror.colorize($(elem), mode["mime"]);
+            });
+        }
+    });
+}
+
 //Register and init a code editor (ace)
 function registerCodeEditor(textarea, lang, lines)
 {
-    var mode = lang;
-    if(lang != "plain")
-    {
-        //fix some languages
-        switch(lang.toLowerCase())
-        {
-            //clike handles all c-like languages
-            case "c":
-                lang = "text/x-csrc";
-                mode = "clike";
-                break;
-            case "cpp":
-            case "c++":
-                lang = "text/x-c++src";
-                mode = "clike";
-                break;
-            case "java":
-                lang = "text/x-java";
-                mode = "clike";
-                break;
-            case "c#":
-            case "csharp":
-                lang = "text/x-csharp";
-                mode = "clike";
-                break;
-            case "objective-c":
-            case "objectivec":
-            case "objc":
-                lang = "text/x-objectivec";
-                mode = "clike";
-                break;
-            case "scala":
-                lang = "text/x-scala";
-                mode = "clike";
-                break;
-            //python 2, python 3
-            case "python":
-            case "python2":
-                lang = "text/x-python";
-                mode = "python";
-                break;
-            case "python3":
-                lang = {name: "python", version: 3};
-                mode = "python";
-                break;
-        }
-    }
-
     CodeMirror.modeURL = "/static/js/codemirror/mode/%N/%N.js";
+    var mode = CodeMirror.findModeByName(lang);
+    if(mode == undefined)
+        mode = {"mode": "plain", "mime": "text/plain"};
+
     var editor = CodeMirror.fromTextArea(textarea, {
         lineNumbers:       true,
-        mode:              lang,
+        mode:              mode["mime"],
         foldGutter:        true,
         styleActiveLine:   true,
         matchBrackets:     true,
@@ -183,7 +170,8 @@ function registerCodeEditor(textarea, lang, lines)
     });
     editor.setSize(null, min_editor_height + "px");
 
-    CodeMirror.autoLoadMode(editor, mode);
+    if(mode["mode"] != "plain")
+        CodeMirror.autoLoadMode(editor, mode["mode"]);
     codeEditors.push(editor);
     return editor;
 }
@@ -702,31 +690,4 @@ function loadInput(submissionid, input)
         else
             this.setValue("");
     })
-}
-
-//Ask user if (s/)he wants to download all the submissions or only the last ones
-function ask_to_download(link)
-{
-    var box = '<div class="modal fade" id="downloadModal" tabindex="-1" role="dialog" aria-labelledby="downloadLabel" aria-hidden="true">' +
-        '<div class="modal-dialog">' +
-        '<div class="modal-content">' +
-        '<div class="modal-header">' +
-        '<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>' +
-        '<h4 class="modal-title" id="downloadLabel">Do you want to download every submissions?</h4>' +
-        '</div>' +
-        '<div class="modal-footer">' +
-        '<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>' +
-        '<a href="' + link + '" type="button" class="btn btn-primary">Only the last valid submission</button>' +
-        '<a href="' + link + '&include_all=1" type="button" class="btn btn-info">All submissions</button>' +
-        '</div>' +
-        '</div>' +
-        '</div>' +
-        '</div>';
-    $(document.body).append(box);
-    var modal = $("#downloadModal")
-    modal.on('hidden.bs.modal', function()
-    {
-        $(this).remove();
-    });
-    modal.modal('show');
 }
