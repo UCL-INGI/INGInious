@@ -53,13 +53,13 @@ class SimpleAgent(object):
 
         # Delete tmp_dir, and recreate-it again
         try:
-            os.mkdir(tmp_dir)
-        except OSError:
+            rmtree(tmp_dir)
+        except:
             pass
 
         try:
-            rmtree(tmp_dir)
-        except:
+            os.mkdir(tmp_dir)
+        except OSError:
             pass
 
         self.logger.debug("Start cgroup helper")
