@@ -100,17 +100,18 @@ class APITasks(APIAuthenticatedPage):
                 "grade": task.get_user_grade(),
                 "grade_weight": task.get_grading_weight(),
                 "context": task.get_context().original_content(),
-                "problems": OrderedDict()
+                "problems": []
             }
 
             for problem in task.get_problems():
                 pcontent = problem.get_original_content()
+                pcontent["id"] = problem.get_id()
                 if pcontent["type"] == "match":
                     del pcontent["answer"]
                 if pcontent["type"] == "multiple-choice":
                     pcontent["choices"] = {key: val["text"] for key, val in enumerate(pcontent["choices"])}
                 pcontent = self._check_for_parsable_text(pcontent)
-                data["problems"][problem.get_id()] = pcontent
+                data["problems"].append(pcontent)
 
             output.append(data)
 
