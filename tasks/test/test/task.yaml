@@ -9,45 +9,71 @@ limits:
 name: Un titre d'énoncé farfelu
 problems:
     idFirstExercice:
-        headerIsHTML: true
-        header: <p>The first exercice consists of blablabla</p>
+        header: |+
+            .. raw:: html
+
+                <p>
+                  The first exercice consists of blablabla
+                </p>
+
         type: code
         name: The first exercice
         language: java
     idSecondExercice:
-        headerIsHTML: true
-        header: <p>The second exercice consists of blablabla</p>
+        header: |+
+            .. raw:: html
+
+                <p>
+                  The second exercice consists of blablabla
+                </p>
+
         name: The second exercice
         type: code
         boxes:
             text1:
-                content: <code>for(i=</code>
-                contentIsHTML: true
+                content: |+
+                    .. raw:: html
+
+                        <code>for(i=</code>
+
                 type: text
             for1:
                 maxChars: 3
                 type: input-integer
             text2:
-                content: <code>; i <= </code>
-                contentIsHTML: true
+                content: |+
+                    .. raw:: html
+
+                        <code>; i &lt;=</code>
+
                 type: text
             for2:
                 maxChars: 10
                 type: input-decimal
             text3:
-                content: <code>;</code>
-                contentIsHTML: true
+                content: |+
+                    .. raw:: html
+
+                        <code>;</code>
+
                 type: text
             for3:
                 maxChars: 10
                 type: input-text
             text4:
-                content: <code>)</code>
-                contentIsHTML: true
+                content: |+
+                    .. raw:: html
+
+                        <code>)</code>
+
                 type: text
             text5:
-                content: <br/><code>{</code><br/>
-                contentIsHTML: true
+                content: |+
+                    .. raw:: html
+
+                        <br>
+                        <code>{</code><br>
+
                 type: text
             for-content:
                 language: python
@@ -55,36 +81,56 @@ problems:
                 maxChars: 1000
                 type: multiline
             text6:
-                content: <code>}</code>
-                contentIsHTML: true
+                content: |+
+                    .. raw:: html
+
+                        <code>}</code>
+
                 type: text
     idThirdExercice:
         choices:
         -   valid: true
             text: It is, of course, 42!
-        -   textIsHTML: true
-            valid: true
-            text: It should be <b>42</b> (but in bold)
+        -   valid: true
+            text: |+
+                .. raw:: html
+
+                    It should be <b>42</b> (but in bold)
+
         -   text: 43...
         -   text: 41...
         limit: 3
-        headerIsHTML: true
         name: The third exercice
         type: multiple-choice
-        header: <p>The answer to life, the universe and any other things is</p>
+        error_message: '``You failed!!!``...'
+        header: |+
+            .. raw:: html
+
+                <p>
+                  The answer to life, the universe and any other things is
+                </p>
+
         multiple: true
     idFourthExercice:
         choices:
         -   valid: true
             text: It is, of course, 42!
-        -   text: It should be <b>42</b> (but in bold)
-            textIsHTML: true
+        -   text: |+
+                .. raw:: html
+
+                    It should be <b>42</b> (but in bold)
+
             valid: true
         -   text: 43...
         -   text: 41...
         name: The fourth exercice
-        header: <p>The answer to life, the universe and any other things is</p>
+        header: |+
+            .. raw:: html
+
+                <p>
+                  The answer to life, the universe and any other things is
+                </p>
+
         limit: 3
         type: multiple-choice
-        headerIsHTML: true
 weight: 1.0

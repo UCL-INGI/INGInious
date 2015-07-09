@@ -406,8 +406,6 @@ function studio_init_template(template, pid, problem)
     var header_editor = registerCodeEditor($('#header-' + pid)[0], 'rst', 10);
     if("header" in problem)
         header_editor.setValue(problem["header"]);
-    if("headerIsHTML" in problem && problem["headerIsHTML"])
-        $('#headerIsHTML-' + pid, well).attr('checked', true);
 
     //Custom values for each problem type
     switch(template)
@@ -536,8 +534,6 @@ function studio_create_choice(pid, choice_data)
 
     if("text" in choice_data)
         $(".subproblem_multiple_choice_text", new_row).val(choice_data["text"]);
-    if("textIsHTML" in choice_data && choice_data["textIsHTML"] == true)
-        $(".subproblem_multiple_choice_html", new_row).attr('checked', true);
     if("valid" in choice_data && choice_data["valid"] == true)
         $(".subproblem_multiple_choice_valid", new_row).attr('checked', true)
 }

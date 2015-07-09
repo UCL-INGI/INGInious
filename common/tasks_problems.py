@@ -84,7 +84,7 @@ class MatchProblem(BasicProblem):
     """Display an input box and check that the content is correct"""
 
     def __init__(self, task, problemid, content):
-        BasicProblem.__init__(self, task, problemid, content)
+        super(MatchProblem, self).__init__(task, problemid, content)
         if not "answer" in content:
             raise Exception("There is no answer in this problem with type==match")
         self._answer = str(content["answer"])
@@ -106,7 +106,7 @@ class BasicCodeProblem(BasicProblem):
     """Basic problem with code input. Do all the job with the backend"""
 
     def __init__(self, task, problemid, content):
-        BasicProblem.__init__(self, task, problemid, content)
+        super(BasicCodeProblem, self).__init__(task, problemid, content)
         self._boxes = []
         if task.get_environment() is None:
             raise Exception("Environment undefined, but there is a problem with type=code or type=code-single-line")
@@ -147,7 +147,7 @@ class CodeSingleLineProblem(BasicCodeProblem):
     """Code problem with a single line of input"""
 
     def __init__(self, task, problemid, content):
-        BasicCodeProblem.__init__(self, task, problemid, content)
+        super(CodeSingleLineProblem, self).__init__(task, problemid, content)
         self._boxes = [self._create_box("", {"type": "input-text", "optional": content.get("optional", False)})]
 
     def get_type(self):
@@ -158,7 +158,7 @@ class CodeFileProblem(BasicCodeProblem):
     """Code problem which allow to test a file"""
 
     def __init__(self, task, problemid, content):
-        BasicCodeProblem.__init__(self, task, problemid, content)
+        super(CodeFileProblem, self).__init__(task, problemid, content)
         self._boxes = [
             self._create_box("", {"type": "file", "max_size": content.get("max_size", None), "allowed_exts": content.get("allowed_exts", None)})]
 
@@ -170,7 +170,7 @@ class CodeProblem(BasicCodeProblem):
     """Code problem"""
 
     def __init__(self, task, problemid, content):
-        BasicCodeProblem.__init__(self, task, problemid, content)
+        super(CodeProblem, self).__init__(task, problemid, content)
         if "boxes" in content:
             self._boxes = []
             for boxid, box_content in content['boxes'].iteritems():
@@ -192,7 +192,7 @@ class MultipleChoiceProblem(BasicProblem):
     """Multiple choice problems"""
 
     def __init__(self, task, problemid, content):
-        BasicProblem.__init__(self, task, problemid, content)
+        super(MultipleChoiceProblem, self).__init__(task, problemid, content)
         self._multiple = content.get("multiple", False)
         if "choices" not in content or not isinstance(content['choices'], list):
             raise Exception("Multiple choice problem " + problemid + " does not have choices or choices are not an array")

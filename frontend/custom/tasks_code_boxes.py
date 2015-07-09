@@ -30,6 +30,9 @@ class DisplayableBox(object):
     """ A basic interface for displayable boxes """
     __metaclass__ = ABCMeta
 
+    def __init__(self, problem, boxid, boxData):
+        pass
+
     def __str__(self):
         """ Get the html to show this box """
         return self.show()
@@ -52,10 +55,9 @@ class DisplayableTextBox(TextBox, DisplayableBox):
     """ A displayable text box """
 
     def __init__(self, problem, boxid, boxData):
-        TextBox.__init__(self, problem, boxid, boxData)
-        DisplayableBox.__init__(self)
+        super(DisplayableTextBox, self).__init__(problem, boxid, boxData)
 
-        self._content = ParsableText(self._content, "HTML" if "contentIsHTML" in boxData and boxData["contentIsHTML"] else "rst").parse()
+        self._content = ParsableText(self._content, "rst")
 
     def show(self):
         """ Show TextBox """
@@ -64,6 +66,9 @@ class DisplayableTextBox(TextBox, DisplayableBox):
 
 class DisplayableFileBox(FileBox, DisplayableBox):
     """ A displayable file box """
+
+    def __init__(self, problem, boxid, boxData):
+        super(DisplayableFileBox, self).__init__(problem, boxid, boxData)
 
     def adapt_input_for_backend(self, input_data):
         try:
@@ -81,6 +86,9 @@ class DisplayableFileBox(FileBox, DisplayableBox):
 class DisplayableInputBox(InputBox, DisplayableBox):
     """ A displayable input box """
 
+    def __init__(self, problem, boxid, boxData):
+        super(DisplayableInputBox, self).__init__(problem, boxid, boxData)
+
     def show(self):
         """ Show InputBox """
         return str(get_template_renderer('templates/tasks/').box_input(self.get_complete_id(), self._input_type, self._max_chars))
@@ -88,6 +96,9 @@ class DisplayableInputBox(InputBox, DisplayableBox):
 
 class DisplayableMultilineBox(MultilineBox, DisplayableBox):
     """ A displayable multiline box """
+
+    def __init__(self, problem, boxid, boxData):
+        super(DisplayableMultilineBox, self).__init__(problem, boxid, boxData)
 
     def show(self):
         """ Show MultilineBox """
