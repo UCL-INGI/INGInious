@@ -18,12 +18,10 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Tasks """
 
-from collections import OrderedDict
-
 from frontend.pages.api._api_page import APIAuthenticatedPage, APINotFound, APIForbidden
 from frontend.custom.courses import FrontendCourse
 import frontend.user as User
-from frontend.parsable_text import ParsableText
+from common_frontend.parsable_text import ParsableText
 
 
 class APITasks(APIAuthenticatedPage):

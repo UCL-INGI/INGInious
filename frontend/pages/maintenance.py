@@ -18,7 +18,7 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Maintenance page """
 
-from frontend.base import get_template_renderer
+from frontend.templates import get_template_renderer
 
 
 class MaintenancePage(object):

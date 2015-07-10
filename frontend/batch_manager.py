@@ -18,19 +18,22 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Manages batch containers """
 
-import frontend.user as User
-from frontend.backend_interface import get_job_manager
-from frontend.configuration import INGIniousConfiguration
-from frontend.base import get_database, get_gridfs
-from frontend.submission_manager import get_submission_archive, keep_best_submission
-from frontend.parsable_text import ParsableText
 import os
 import tempfile
 import tarfile
 import copy
 from datetime import datetime
+
 from bson.objectid import ObjectId
 import web
+
+import frontend.user as User
+from common_frontend.backend_interface import get_job_manager
+from common_frontend.configuration import INGIniousConfiguration
+from common_frontend.database import get_database, get_gridfs
+from frontend.submission_manager import get_submission_archive, keep_best_submission
+from common_frontend.parsable_text import ParsableText
+
 
 def _get_course_data(course):
     """ Returns a file-like object to a tgz archive of the course files """

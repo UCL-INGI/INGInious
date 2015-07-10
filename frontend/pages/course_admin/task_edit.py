@@ -26,12 +26,12 @@ from zipfile import ZipFile
 
 import web
 
-from frontend.configuration import INGIniousConfiguration
+from common_frontend.configuration import INGIniousConfiguration
 from common.base import id_checker, get_tasks_directory
 import common.custom_yaml
 from common.task_file_managers.manage import get_task_file_manager, get_available_task_file_managers, delete_all_possible_task_files
 from frontend.accessible_time import AccessibleTime
-from frontend.base import renderer
+from frontend.templates import renderer
 from frontend.custom.courses import FrontendCourse
 from frontend.custom.tasks import FrontendTask
 from frontend.pages.course_admin.task_edit_file import CourseTaskFiles

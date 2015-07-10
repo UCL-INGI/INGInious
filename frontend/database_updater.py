@@ -19,7 +19,7 @@
 """ Updates the database """
 import pymongo
 
-from frontend.base import get_database
+from common_frontend.database import get_database
 from frontend.custom.courses import FrontendCourse
 
 

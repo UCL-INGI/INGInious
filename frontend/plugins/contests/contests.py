@@ -25,7 +25,8 @@ from datetime import datetime, timedelta
 import pymongo
 import web
 
-from frontend.base import get_template_renderer, get_database
+from frontend.templates import get_template_renderer
+from common_frontend.database import get_database
 from frontend.custom.courses import FrontendCourse
 from frontend.pages.course_admin.utils import get_course_and_check_rights
 from frontend.user_data import UserData

@@ -16,20 +16,32 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
-""" Helper for the templates """
-
+""" Basic dependencies for the frontend """
+import os
 import web
-
-from frontend.base import add_to_template_globals
-import frontend.pages.course_admin.utils
+import frontend.pages
 from frontend.plugins.plugin_manager import PluginManager
 
+def add_to_template_globals(name, value):
+    """ Add a variable to will be accessible in the templates """
+    add_to_template_globals.globals[name] = value
+
+add_to_template_globals.globals = {}
+
+def get_template_renderer(dir_path, base=None):
+    """ Create a template renderer on templates in the directory specified.
+        *base* is the base layout name.
+    """
+    base_dir_path = os.path.dirname(__file__)
+    return web.template.render(os.path.join(base_dir_path, dir_path), globals=add_to_template_globals.globals, base=base)
+
+renderer = get_template_renderer('templates/', 'layout')
+add_to_template_globals.globals["include"] = get_template_renderer('templates/')
 
 def generic_hook(name, **kwargs):
     """ A generic hook that links the TemplateHelper with PluginManager """
     entries = [entry for entry in PluginManager.get_instance().call_hook(name, **kwargs) if entry is not None]
     return "\n".join(entries)
-
 
 class TemplateHelper(object):
     """ Class accessible from templates that calls function defined in the Python part of the code """

@@ -17,9 +17,9 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 
-from frontend.base import renderer
+from frontend.templates import renderer
 from frontend.pages.course_admin.utils import get_course_and_check_rights
-from frontend.base import get_database
+from common_frontend.database import get_database
 import frontend.user as User
 from collections import OrderedDict
 from frontend.submission_manager import get_submission_archive, keep_best_submission

@@ -20,24 +20,24 @@
 import base64
 from datetime import datetime
 import json
+import time
+import os.path
+import tarfile
+import StringIO
+import tempfile
 
 from bson.objectid import ObjectId
 import pymongo
 
 from frontend.custom.courses import FrontendCourse
-from frontend.backend_interface import get_job_manager
-from frontend.base import get_database, get_gridfs
-from frontend.parsable_text import ParsableText
+from common_frontend.backend_interface import get_job_manager
+from common_frontend.database import get_database, get_gridfs
+from common_frontend.parsable_text import ParsableText
 from frontend.plugins.plugin_manager import PluginManager
 import frontend.user as User
 from frontend.user_data import UserData
-
-import time
-import os.path
 import common.custom_yaml
-import tarfile
-import StringIO
-import tempfile
+
 
 def get_submission(submissionid, user_check=True):
     """ Get a submission from the database """

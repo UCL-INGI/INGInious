@@ -21,8 +21,8 @@
 from abc import ABCMeta, abstractmethod
 from random import shuffle
 
-from frontend.base import get_template_renderer
-from frontend.parsable_text import ParsableText
+from frontend.templates import get_template_renderer
+from common_frontend.parsable_text import ParsableText
 from common.tasks_problems import BasicProblem, BasicCodeProblem, CodeProblem, CodeSingleLineProblem, MatchProblem, MultipleChoiceProblem, \
     CodeFileProblem
 from frontend.custom.tasks_code_boxes import DisplayableInputBox, DisplayableMultilineBox, DisplayableTextBox, DisplayableFileBox

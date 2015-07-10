@@ -23,7 +23,7 @@ import common.tasks
 from frontend.accessible_time import AccessibleTime
 from frontend.custom.task_problems import DisplayableCodeProblem, DisplayableCodeSingleLineProblem, DisplayableMatchProblem, \
     DisplayableMultipleChoiceProblem, DisplayableCodeFileProblem
-from frontend.parsable_text import ParsableText
+from common_frontend.parsable_text import ParsableText
 from frontend.plugins.plugin_manager import PluginManager
 
 

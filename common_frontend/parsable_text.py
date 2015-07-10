@@ -21,7 +21,8 @@ import cgi
 
 from docutils import core, nodes
 from docutils.writers import html4css1
-from frontend.configuration import INGIniousConfiguration
+
+from common_frontend.configuration import INGIniousConfiguration
 
 class _CustomHTMLWriter(html4css1.Writer, object):
     """ A custom HTML writer that fixes some defaults of docutils... """

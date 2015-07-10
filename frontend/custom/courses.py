@@ -23,10 +23,10 @@ from datetime import datetime
 
 from common.courses import Course
 from frontend.accessible_time import AccessibleTime
-from frontend.base import get_database
+from common_frontend.database import get_database
 from frontend.custom.tasks import FrontendTask
 from frontend.user_data import UserData
-from frontend.configuration import INGIniousConfiguration
+from common_frontend.configuration import INGIniousConfiguration
 
 
 class FrontendCourse(Course):

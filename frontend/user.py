@@ -20,11 +20,11 @@
 import sys
 
 from frontend.plugins.plugin_manager import PluginManager
-from frontend.session import get_session
+from common_frontend.session import get_session
 from frontend.user_data import UserData
-import frontend.base
+import frontend.templates
 # Add this module to the templates
-frontend.base.add_to_template_globals("User", sys.modules[__name__])
+frontend.templates.add_to_template_globals("User", sys.modules[__name__])
 
 
 def get_data():

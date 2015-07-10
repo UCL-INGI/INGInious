@@ -20,18 +20,18 @@
 
 import posixpath
 import urllib
+import os
 
 import web
 
-from frontend import backend_interface
-import frontend.base
-import frontend.configuration
+import common_frontend.database
+from common_frontend import backend_interface
+import frontend.templates
+import common_frontend.configuration
 from frontend.database_updater import update_database
 from frontend.plugins.plugin_manager import PluginManager
-import frontend.session
-import os
-import sys
-from frontend.template_helper import TemplateHelper
+import common_frontend.session
+from frontend.templates import TemplateHelper
 
 urls = (
     '/', 'frontend.pages.index.IndexPage',
@@ -79,24 +79,24 @@ urls_maintenance = (
 
 def get_app(config_file):
     """ Get the application. config_file is the path to the configuration file """
-    frontend.configuration.INGIniousConfiguration.load(config_file)
-    if frontend.configuration.INGIniousConfiguration.get("maintenance", False):
+    common_frontend.configuration.INGIniousConfiguration.load(config_file)
+    if common_frontend.configuration.INGIniousConfiguration.get("maintenance", False):
         appli = web.application(urls_maintenance, globals(), autoreload=False)
         return appli
 
     appli = web.application(urls, globals(), autoreload=False)
 
-    frontend.base.init_database()
+    common_frontend.database.init_database()
     update_database()
-    frontend.session.init(appli)
+    common_frontend.session.init(appli)
 
     def not_found():
         """ Display the error 404 page """
-        return web.notfound(frontend.base.renderer.notfound('Page not found'))
+        return web.notfound(frontend.templates.renderer.notfound('Page not found'))
 
     appli.notfound = not_found
 
-    plugin_manager = PluginManager(appli, frontend.configuration.INGIniousConfiguration.get("plugins", []))
+    plugin_manager = PluginManager(appli, common_frontend.configuration.INGIniousConfiguration.get("plugins", []))
 
     # Plugin Manager is also a Hook Manager
     backend_interface.init(plugin_manager)
@@ -111,8 +111,8 @@ def get_app(config_file):
     backend_interface.start()
 
     # Configure Web.py
-    if "smtp" in frontend.configuration.INGIniousConfiguration:
-        config_smtp = frontend.configuration.INGIniousConfiguration["smtp"]
+    if "smtp" in common_frontend.configuration.INGIniousConfiguration:
+        config_smtp = common_frontend.configuration.INGIniousConfiguration["smtp"]
         web.config.smtp_server = config_smtp["host"]
         web.config.smtp_port = int(config_smtp["port"])
         web.config.smtp_starttls = bool(config_smtp["starttls"])

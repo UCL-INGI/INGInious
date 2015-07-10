@@ -19,10 +19,10 @@
 """ Pages that allow editing of tasks """
 
 import web
-from frontend.base import renderer
+from frontend.templates import renderer
 from frontend.pages.course_admin.utils import get_course_and_check_rights
 from pymongo import ReturnDocument
-from frontend.base import get_database
+from common_frontend.database import get_database
 from bson.objectid import ObjectId
 
 class CourseEditGroup(object):

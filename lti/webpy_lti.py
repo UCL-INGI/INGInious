@@ -16,19 +16,5 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
-""" JobManagerTest plugin """
-import common_frontend.backend_interface
-
-
-class JobManagerTest(object):
-    """ Returns stats about the job manager for distant tests """
-
-    def GET(self):
-        """ GET request """
-        return str(common_frontend.backend_interface.get_job_manager().get_waiting_jobs_count())
-
-
-def init(plugin_manager, _):
-    """ Init the plugin """
-    plugin_manager.add_page("/tests/stats", "frontend.plugins.job_manager_test.JobManagerTest")
-    print "Started JobManagerTest plugin"
+""" Tools for using PyLTI with web.py. Mostly taken from the implementation in pylti.flask """
+#TODO

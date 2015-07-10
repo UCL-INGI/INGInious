@@ -21,8 +21,8 @@ from collections import OrderedDict
 import web
 
 from common.task_file_managers.manage import get_readable_tasks
-from frontend.base import get_database
-from frontend.base import renderer
+from common_frontend.database import get_database
+from frontend.templates import renderer
 from frontend.pages.course_admin.utils import make_csv, get_course_and_check_rights
 
 

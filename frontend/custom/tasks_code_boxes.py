@@ -22,8 +22,8 @@ import base64
 import json
 
 from common.tasks_code_boxes import TextBox, InputBox, MultilineBox, FileBox
-from frontend.base import get_template_renderer
-from frontend.parsable_text import ParsableText
+from frontend.templates import get_template_renderer
+from common_frontend.parsable_text import ParsableText
 
 
 class DisplayableBox(object):

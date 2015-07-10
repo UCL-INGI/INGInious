@@ -29,7 +29,7 @@ import web
 
 from common.base import get_tasks_directory, id_checker
 from common.task_file_managers.manage import get_available_task_file_managers
-from frontend.base import get_template_renderer
+from frontend.templates import get_template_renderer
 from frontend.custom.courses import FrontendCourse
 from frontend.pages.course_admin.utils import get_course_and_check_rights
 

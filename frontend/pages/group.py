@@ -21,9 +21,9 @@ from collections import OrderedDict
 
 import web
 
-from frontend.base import renderer
+from frontend.templates import renderer
 from frontend.custom.courses import FrontendCourse
-from frontend.base import get_database
+from common_frontend.database import get_database
 from bson.objectid import ObjectId
 from bson.errors import InvalidId
 import frontend.user as User

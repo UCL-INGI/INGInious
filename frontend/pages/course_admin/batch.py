@@ -17,12 +17,12 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 
-from frontend.base import renderer
+from frontend.templates import renderer
 from frontend.pages.course_admin.utils import get_course_and_check_rights
 from frontend.batch_manager import get_all_batch_containers_metadata, add_batch_job, get_all_batch_jobs_for_course, get_batch_job_status, \
     get_batch_container_metadata, drop_batch_job
 import web
-from frontend.base import get_gridfs
+from common_frontend.database import get_gridfs
 import tarfile
 import mimetypes
 import urllib

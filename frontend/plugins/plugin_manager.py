@@ -21,7 +21,7 @@ import importlib
 
 from backend.hook_manager import HookManager
 from common.task_file_managers.manage import add_custom_task_file_manager
-import frontend.base
+import frontend.templates
 
 
 class PluginManager(HookManager):
@@ -44,7 +44,7 @@ class PluginManager(HookManager):
         self.authentication = []
         self._config = config
 
-        frontend.base.add_to_template_globals("PluginManager", self)
+        frontend.templates.add_to_template_globals("PluginManager", self)
 
     def load(self):
         """ Loads the plugin manager. Must be done after the initialisation of the backend """

@@ -19,8 +19,8 @@
 import web
 
 from collections import OrderedDict
-from frontend.base import renderer
-from frontend.base import get_database
+from frontend.templates import renderer
+from common_frontend.database import get_database
 from frontend.pages.course_admin.utils import make_csv, get_course_and_check_rights
 from frontend.user_data import UserData
 import frontend.user as User

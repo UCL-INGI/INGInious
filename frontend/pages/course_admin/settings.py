@@ -19,7 +19,7 @@
 import web
 
 from frontend.accessible_time import AccessibleTime
-from frontend.base import renderer
+from frontend.templates import renderer
 from frontend.pages.course_admin.utils import get_course_and_check_rights
 import frontend.user as User
 

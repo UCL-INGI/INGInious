@@ -21,8 +21,8 @@
 from backend.job_managers.local import LocalJobManager
 from backend.job_managers.remote_docker import RemoteDockerJobManager
 from backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
-from frontend.base import get_database
-from frontend.configuration import INGIniousConfiguration
+from common_frontend.database import get_database
+from common_frontend.configuration import INGIniousConfiguration
 
 def get_job_manager():
     """ Get the JobManager. Should only be used by very specific plugins """

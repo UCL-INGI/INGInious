@@ -21,7 +21,7 @@ from collections import OrderedDict
 
 import web
 
-from frontend.base import renderer
+from frontend.templates import renderer
 from frontend.custom.courses import FrontendCourse
 from frontend.submission_manager import get_user_last_submissions
 import frontend.user as User

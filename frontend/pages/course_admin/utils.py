@@ -25,7 +25,7 @@ import csv
 
 import web
 
-from frontend.base import get_template_renderer
+from frontend.templates import get_template_renderer
 from frontend.custom.courses import FrontendCourse
 from frontend.plugins.plugin_manager import PluginManager
 import frontend.user as User

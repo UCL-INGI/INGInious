@@ -21,8 +21,8 @@ import copy
 
 import web
 
-from frontend.base import get_database
-from frontend.session_mongodb import MongoStore
+from common_frontend.database import get_database
+from common_frontend.session_mongodb import MongoStore
 
 
 def get_session():

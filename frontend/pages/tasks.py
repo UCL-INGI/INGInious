@@ -29,7 +29,7 @@ import web
 from common.base import get_tasks_directory
 from common.tasks_code_boxes import FileBox
 from common.tasks_problems import MultipleChoiceProblem, BasicCodeProblem
-from frontend.base import renderer
+from frontend.templates import renderer
 from frontend.custom.courses import FrontendCourse
 import frontend.submission_manager as submission_manager
 import frontend.user as User
