@@ -153,7 +153,7 @@ class AbstractJobManager(object):
             - {"retval":0, "stdout": "...", "stderr":"...", "file":"..."}
                 if everything went well. (where file is a tgz file containing the content of the /output folder from the container)
             - {"retval":"...", "stdout": "...", "stderr":"..."}
-                if the container crashed (retval is an int != 0)
+                if the container crashed (retval is an int != 0) (can also contain file, but not mandatory)
             - {"retval":-1, "stderr": "the error message"}
                 if the container failed to start
         """

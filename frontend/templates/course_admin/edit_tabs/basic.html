@@ -23,18 +23,21 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
         <input type="text" class="form-control" id="name" name="name" placeholder="title for this task" value="${task_data.get('name','')}">
     </div>
 </div>
-<div class="form-group">
-    <label for="name" class="col-sm-2 control-label">Filetype</label>
-    <div class="col-sm-10">
-        <select class="form-control" id="@filetype" name="@filetype">
-            $for type in available_filetypes:
-                <option value="$type"
-                    $if type == current_filetype or (current_filetype is None and type == "yaml"):
-                        selected="selected"
-                >$type</option>
-        </select>
+$if len(available_filetypes) != 1:
+    <div class="form-group">
+        <label for="name" class="col-sm-2 control-label">Filetype</label>
+        <div class="col-sm-10">
+            <select class="form-control" id="@filetype" name="@filetype">
+                $for type in available_filetypes:
+                    <option value="$type"
+                        $if type == current_filetype or (current_filetype is None and type == "yaml"):
+                            selected="selected"
+                    >$type</option>
+            </select>
+        </div>
     </div>
-</div>
+$else:
+    <input type="hidden" id="@filetype" name="@filetype" value="$available_filetypes[0]"/>
 <div class="form-group">
     <label for="context" class="col-sm-2 control-label">Context</label>
     <div class="col-sm-10">

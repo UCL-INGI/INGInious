@@ -26,7 +26,10 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
         type="number"
     name="$inputId"
     value=""
-    class="monospace form-control form-inline"
+    $if "/" in inputId:
+        class="monospace form-control form-inline"
+    $else:
+        class="monospace form-control"
     $if maxChars != 0:
         maxlength="$maxChars"
         style="width:${maxChars+1}em"

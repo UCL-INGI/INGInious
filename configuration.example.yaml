@@ -57,3 +57,11 @@ superadmins:
 
 # Disable INGInious?
 maintenance: false
+
+smtp:
+    sendername: 'INGInious <no-reply@inginious.org>'
+    host: 'smtp.gmail.com'
+    port: 587
+    username: 'configme@gmail.com'
+    password: 'secret'
+    starttls: True

@@ -47,6 +47,11 @@ def get_realname():
         return None
     return get_session().realname
 
+def get_email():
+    """ Returns the email of the current user. Returns None if no user is logged in """
+    if not is_logged_in():
+        return None
+    return get_session().email
 
 def is_logged_in():
     """ Returns if the user is logged in or not """

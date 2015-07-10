@@ -78,7 +78,7 @@ class RemoteAgent(SimpleAgent):
                     - {"retval":0, "stdout": "...", "stderr":"...", "file":"..."}
                         if everything went well. (where file is a tgz file containing the content of the /output folder from the container)
                     - {"retval":"...", "stdout": "...", "stderr":"..."}
-                        if the container crashed (retval is an int != 0)
+                        if the container crashed (retval is an int != 0) (can also contain file, but not mandatory)
                     - {"retval":-1, "stderr": "the error message"}
                         if the container failed to start
                 """
@@ -146,7 +146,7 @@ class RemoteAgent(SimpleAgent):
                         retval = handle_job(job_id, course_id, task_id, inputdata, debug, callback_status)
                         callback_return(retval)
                     except Exception as e:
-                        callback_return({"status": "crash", "text": "An error occured in the Agent: {}".format(str(e))})
+                        callback_return({"result": "crash", "text": "An error occured in the Agent: {}".format(str(e))})
 
                 threading.Thread(target=_threaded_execute).start()
 

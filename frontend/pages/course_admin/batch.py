@@ -27,6 +27,7 @@ import tarfile
 import mimetypes
 import urllib
 import tempfile
+import frontend.user as User
 
 class CourseBatchOperations(object):
     """ Batch operation management """
@@ -80,12 +81,11 @@ class CourseBatchJobCreate(object):
                     if container_args[key]["type"] == "file":
                         batch_input[key] = batch_input[key].file
         except:
-            raise
             errors.append("Please fill all the fields.")
 
         if len(errors) == 0:
             try:
-                add_batch_job(course, container_name, batch_input)
+                add_batch_job(course, container_name, batch_input, User.get_email())
             except:
                 errors.append("An error occured while starting the job")
 
