@@ -295,4 +295,8 @@ class MultipleChoiceProblem(BasicProblem):
 
         if self._success_message is not None:
             msgs = [self._success_message] + msgs
-        return True, None, "\n\n".join(msgs), 0
+
+        if len(msgs) != 0:
+            return True, None, "\n\n".join(msgs), 0
+        else:
+            return True, None, None, 0
