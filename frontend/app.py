@@ -110,6 +110,14 @@ def get_app(config_file):
     # Start the backend
     backend_interface.start()
 
+    # Configure Web.py
+    if "smtp" in frontend.configuration.INGIniousConfiguration:
+        config_smtp = frontend.configuration.INGIniousConfiguration["smtp"]
+        web.config.smtp_server = config_smtp["host"]
+        web.config.smtp_port = int(config_smtp["port"])
+        web.config.smtp_starttls = bool(config_smtp["starttls"])
+        web.config.smtp_username = config_smtp["username"]
+        web.config.smtp_password = config_smtp["password"]
     return appli
 
 

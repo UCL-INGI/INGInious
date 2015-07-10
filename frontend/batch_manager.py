@@ -30,6 +30,7 @@ import tarfile
 import copy
 from datetime import datetime
 from bson.objectid import ObjectId
+import web
 
 def _get_course_data(course):
     """ Returns a file-like object to a tgz archive of the course files """
@@ -98,7 +99,7 @@ def get_all_batch_containers_metadata():
     """
     return {container_name:get_batch_container_metadata(container_name) for container_name in INGIniousConfiguration.get("batch_containers", [])}
 
-def add_batch_job(course, container_name, inputdata, launcher_name=None, skip_permission=False):
+def add_batch_job(course, container_name, inputdata, launcher_name=None, skip_permission=False, send_mail=None):
     """
         Add a job in the queue and returns a batch job id.
         inputdata is a dict containing all the keys of get_batch_container_metadata(container_name)[2] BUT the keys "course" and "submission" IF their
@@ -137,12 +138,12 @@ def add_batch_job(course, container_name, inputdata, launcher_name=None, skip_pe
 
     launcher_name = launcher_name or "plugin"
 
-    get_job_manager().new_batch_job(container_name, inputdata, lambda r: _batch_job_done_callback(batch_job_id, r),
+    get_job_manager().new_batch_job(container_name, inputdata, lambda r: _batch_job_done_callback(batch_job_id, r, send_mail),
                                     launcher_name="Frontend - {}".format(launcher_name))
 
     return batch_job_id
 
-def _batch_job_done_callback(batch_job_id, result):
+def _batch_job_done_callback(batch_job_id, result, send_mail=None):
     """ Called when the batch job with id jobid has finished.
         result is a dictionnary, containing:
 
@@ -164,6 +165,17 @@ def _batch_job_done_callback(batch_job_id, result):
         {"$set": {"result": result}}
     )
 
+    # Send a mail to user
+    if send_mail is not None and "smtp" in INGIniousConfiguration and "sendername" in INGIniousConfiguration["smtp"]:
+        try:
+            web.sendmail(INGIniousConfiguration["smtp"]["sendername"], send_mail, "Batch job {} finished".format(batch_job_id),
+                         """This is an automated message.
+
+The batch job you launched on INGInious is done. You can see the results on the "batch operation" page of your course
+administration.""")
+        except Exception as e:
+            print "Cannot send mail: "+str(e)
+
 def get_batch_job_status(batch_job_id):
     """ Returns the batch job with id batch_job_id Batch jobs are dicts in the form
         {"courseid": "...", "container_name": "..."} if the job is still ongoing, and
@@ -173,7 +185,7 @@ def get_batch_job_status(batch_job_id):
         - {"retval":0, "stdout": "...", "stderr":"...", "file":"..."}
             if everything went well. (file is an gridfs id to a tgz file)
         - {"retval":"...", "stdout": "...", "stderr":"..."}
-            if the container crashed (retval is an int != 0)
+            if the container crashed (retval is an int != 0) (can also contain file, but not mandatory)
         - {"retval":-1, "stderr": "the error message"}
             if the container failed to start
     """
@@ -188,7 +200,7 @@ def get_all_batch_jobs_for_course(course_id):
         - {"retval":0, "stdout": "...", "stderr":"...", "file":"..."}
             if everything went well. (file is an gridfs id to a tgz file)
         - {"retval":"...", "stdout": "...", "stderr":"..."}
-            if the container crashed (retval is an int != 0)
+            if the container crashed (retval is an int != 0) (can also contain file, but not mandatory)
         - {"retval":-1, "stderr": "the error message"}
             if the container failed to start
     """

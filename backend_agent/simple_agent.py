@@ -151,7 +151,7 @@ class SimpleAgent(object):
             - {"retval":0, "stdout": "...", "stderr":"...", "file":"..."}
                 if everything went well. (where file is a tgz file containing the content of the /output folder from the container)
             - {"retval":"...", "stdout": "...", "stderr":"..."}
-                if the container crashed (retval is an int != 0)
+                if the container crashed (retval is an int != 0) (can also contain file, but not mandatory)
             - {"retval":-1, "stderr": "the error message"}
                 if the container failed to start
         """
@@ -242,12 +242,7 @@ class SimpleAgent(object):
             rmtree(container_path)
             return {'retval': -1, "stderr": 'Cannot retrieve stdout/stderr from container'}
 
-        # If something went wrong, we can return now
-        if return_value != 0:
-            rmtree(container_path)
-            return {'retval': return_value, "stdout": stdout, "stderr": stderr}
-
-        # Else, we can tgz the files in /output
+        # Tgz the files in /output
         try:
             tmpfile = tempfile.TemporaryFile()
             tar = tarfile.open(fileobj=tmpfile, mode='w:gz')
