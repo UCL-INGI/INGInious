@@ -17,4 +17,9 @@ $#
 $# You should have received a copy of the GNU Affero General Public
 $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 
-<textarea name="$inputId" class="code-editor form-control" data-x-language="$language" data-x-lines="$lines"></textarea>
+<textarea name="$inputId"
+          $if "/" in inputId:
+              class="code-editor form-control"
+          $else:
+              class="code-editor form-control single"
+          data-x-language="$language" data-x-lines="$lines"></textarea>

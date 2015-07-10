@@ -218,22 +218,15 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
                         <textarea id="error_message-PID" class="form-control" name="problem[PID][error_message]"></textarea>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="choices-PID" class="col-sm-2 control-label">Choices</label>
-                    <div class="col-sm-10">
-                        <table id="choices-PID" class="table table-condensed table-striped">
-                            <tr>
-                                <th>Choice</th>
-                                $if contains_is_html:
-                                    <th>Is text written in HTML instead of RST?</th>
-                                <th>Valid?</th>
-                                <th></th>
-                            </tr>
-                            <tr id="add-choices-PID">
-                                <td colspan="3"><button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_create_choice('PID',{})"><i class="fa fa-add-sign"></i> Add new choice</button></td>
-                            </tr>
-                        </table>
+                <div class="col-sm-12">
+                    <h4 style="text-align: center">Choices</h4>
+                    <div id="choices-PID">
+
                     </div>
+                    <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_create_choice('PID',{})">
+                        <i class="fa fa-add-sign"></i> Add new choice
+                    </button>
+                    <div style="height:30px"></div>
                 </div>
                 <div class="form-group">
                     <div class="col-sm-4">
@@ -249,21 +242,27 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
             </div>
         </div>
     </div>
-    <table>
-        <tr id="subproblem_multiple_choice_choice">
-            <td>
-                <textarea class="form-control subproblem_multiple_choice_text" name="problem[PID][choices][CHOICE][text]" placeholder="The name of this choice"></textarea>
-            </td>
-            <td>
-                <div class="checkbox"><label>
-                    <input type="checkbox" class="subproblem_multiple_choice_valid" name="problem[PID][choices][CHOICE][valid]"/>&nbsp;
-                </label></div>
-            </td>
-            <td>
-                <button class="btn btn-danger btn-sm btn-block" type="button" onclick="studio_delete_choice('PID',CHOICE)"><i class="fa fa-remove-sign"></i> Delete</button>
-            </td>
-        </tr>
-    </table>
+    <div id="subproblem_multiple_choice_choice">
+        <div class="panel panel-primary">
+            <textarea class="form-control subproblem_multiple_choice_text" name="problem[PID][choices][CHOICE][text]"
+                      placeholder="The name of this choice"></textarea>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div data-toggle="buttons">
+                        <label class="btn btn-success btn-xs btn-block">
+                            <input type="checkbox" class="subproblem_multiple_choice_valid" name="problem[PID][choices][CHOICE][valid]"/>
+                            Valid ?
+                        </label>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <button class="btn btn-danger btn-xs btn-block" type="button" onclick="studio_delete_choice('PID',CHOICE)">
+                        <i class="fa fa-remove"></i> Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="subproblem_custom">
         <div class="panel panel-default" id="subproblem_well_PID">
             <div class="panel-heading">Problem id: <span id="pid-PID">PID</span></div>

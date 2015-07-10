@@ -505,8 +505,8 @@ function studio_init_template_multiple_choice(well, pid, problem)
     if("error_message" in problem)
         error_message = problem["error_message"];
 
-    registerCodeEditor($('#success_message-' + pid)[0], 'rst', 3).setValue(success_message);
-    registerCodeEditor($('#error_message-' + pid)[0], 'rst', 3).setValue(error_message);
+    registerCodeEditor($('#success_message-' + pid)[0], 'rst', 1).setValue(success_message);
+    registerCodeEditor($('#error_message-' + pid)[0], 'rst', 1).setValue(error_message);
 
     jQuery.each(problem["choices"], function(index, elem)
     {
@@ -529,13 +529,18 @@ function studio_create_choice(pid, choice_data)
 
     var row = $("#subproblem_multiple_choice_choice").html();
     var new_row_content = row.replace(/PID/g, pid).replace(/CHOICE/g, index);
-    var new_row = $("<tr></tr>").attr('id', 'choice-' + index + '-' + pid).html(new_row_content);
-    $("#add-choices-" + pid, well).before(new_row);
+    var new_row = $("<div></div>").attr('id', 'choice-' + index + '-' + pid).html(new_row_content);
+    $("#choices-" + pid, well).append(new_row);
+
+    var editor = registerCodeEditor($(".subproblem_multiple_choice_text", new_row)[0], 'rst', 1);
 
     if("text" in choice_data)
-        $(".subproblem_multiple_choice_text", new_row).val(choice_data["text"]);
+        editor.setValue(choice_data["text"]);
     if("valid" in choice_data && choice_data["valid"] == true)
-        $(".subproblem_multiple_choice_valid", new_row).attr('checked', true)
+    {
+        $(".subproblem_multiple_choice_valid", new_row).trigger('click');
+        $(".subproblem_multiple_choice_valid", new_row).attr('checked', true);
+    }
 }
 
 /**

@@ -189,8 +189,33 @@ form#task label {
   top: 28px;
   z-index: 1000;
 }
-.panel .panel-body .CodeMirror {
+.panel .panel-body .CodeMirror.single {
   margin: 10px -15px -15px;
+}
+div[data-toggle="buttons"] label {
+  color: #ffffff;
+  background-color: #f04124;
+  border-color: #ea2f10;
+}
+div[data-toggle="buttons"] label:before {
+  display: inline-block;
+  font: normal normal normal 14px/1 FontAwesome;
+  font-size: inherit;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transform: translate(0, 0);
+  content: "\f00d";
+  width: 1.28571429em;
+  text-align: center;
+}
+div[data-toggle="buttons"] label.active {
+  color: #ffffff;
+  background-color: #43ac6a;
+  border-color: #3c9a5f;
+}
+div[data-toggle="buttons"] label.active:before {
+  content: "\f00c";
 }
 /* Footer */
 html,

@@ -311,10 +311,48 @@ form#task
         z-index: 1000;
     }
 
-    .panel-body .CodeMirror
+    .panel-body .CodeMirror.single
     {
         margin: 10px -15px -15px;
     }
+}
+
+div[data-toggle="buttons"] label
+{
+    color: #ffffff;
+    background-color: #f04124;
+    border-color: #ea2f10;
+
+    &:before
+    {
+        display: inline-block;
+        font: normal normal normal 14px/1 FontAwesome;
+        font-size: inherit;
+        text-rendering: auto;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        transform: translate(0, 0);
+        content: "\f00d";
+        width: 1.28571429em;
+        text-align: center;
+    }
+
+    &.active
+    {
+        color: #ffffff;
+        background-color: #43ac6a;
+        border-color: #3c9a5f;
+
+        &:before
+        {
+            content: "\f00c";
+        }
+    }
+
+}
+label.active:before
+{
+
 }
 
 /* Footer */

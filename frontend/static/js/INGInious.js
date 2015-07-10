@@ -138,6 +138,8 @@ function registerCodeEditor(textarea, lang, lines)
     if(mode == undefined)
         mode = {"mode": "plain", "mime": "text/plain"};
 
+    var is_single = $(textarea).hasClass('single');
+
     var editor = CodeMirror.fromTextArea(textarea, {
         lineNumbers:       true,
         mode:              mode["mime"],
@@ -146,7 +148,7 @@ function registerCodeEditor(textarea, lang, lines)
         matchBrackets:     true,
         autoCloseBrackets: true,
         lineWrapping:      true,
-        gutters:           ["CodeMirror-linenumbers", "CodeMirror-foldgutter", "CodeMirror-lint-markers"],
+        gutters:           ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
         indentUnit:        4,
         viewportMargin:    Infinity,
         lint:              function()
@@ -154,6 +156,9 @@ function registerCodeEditor(textarea, lang, lines)
                                return []
                            }
     });
+
+    if(is_single)
+        $(editor.getWrapperElement()).addClass('single');
 
     editor.on("change", function(cm)
     {
