@@ -208,14 +208,16 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
                     <label for="success_message-PID" class="col-sm-2 control-label">Success message</label>
 
                     <div class="col-sm-10">
-                        <textarea id="success_message-PID" class="form-control" name="problem[PID][success_message]"></textarea>
+                        <textarea id="success_message-PID" class="form-control" name="problem[PID][success_message]"
+                                  placeholder="An optionnal success message"></textarea>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="error_message-PID" class="col-sm-2 control-label">Error message</label>
 
                     <div class="col-sm-10">
-                        <textarea id="error_message-PID" class="form-control" name="problem[PID][error_message]"></textarea>
+                        <textarea id="error_message-PID" class="form-control" name="problem[PID][error_message]"
+                                  placeholder="An optionnal error message"></textarea>
                     </div>
                 </div>
                 <div class="col-sm-12">
@@ -244,21 +246,36 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
     </div>
     <div id="subproblem_multiple_choice_choice">
         <div class="panel panel-primary">
-            <textarea class="form-control subproblem_multiple_choice_text" name="problem[PID][choices][CHOICE][text]"
-                      placeholder="The name of this choice"></textarea>
-            <div class="row">
-                <div class="col-sm-6">
-                    <div data-toggle="buttons">
-                        <label class="btn btn-success btn-xs btn-block">
-                            <input type="checkbox" class="subproblem_multiple_choice_valid" name="problem[PID][choices][CHOICE][valid]"/>
-                            Valid ?
-                        </label>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="form-group">
+                        <label for="choice-PID-CHOICE" class="col-sm-2 control-label">Content</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control subproblem_multiple_choice_text" name="problem[PID][choices][CHOICE][text]"
+                                      placeholder="The name of this choice" id=choice-PID-CHOICE"></textarea>
+                        </div>
                     </div>
-                </div>
-                <div class="col-sm-6">
-                    <button class="btn btn-danger btn-xs btn-block" type="button" onclick="studio_delete_choice('PID',CHOICE)">
-                        <i class="fa fa-remove"></i> Delete
-                    </button>
+                    <div class="form-group">
+                        <label for="choice-feedback-PID-CHOICE" class="col-sm-2 control-label">Feedback message (displayed when selected)</label>
+
+                        <div class="col-sm-10">
+                            <textarea class="form-control subproblem_multiple_choice_feedback" name="problem[PID][choices][CHOICE][feedback]"
+                                      placeholder="An optionnal feedback message" id="choice-feedback-PID-CHOICE"></textarea>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div data-toggle="buttons">
+                            <label class="btn btn-success btn-xs btn-block">
+                                <input type="checkbox" class="subproblem_multiple_choice_valid" name="problem[PID][choices][CHOICE][valid]"/>
+                                Valid ?
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <button class="btn btn-danger btn-xs btn-block" type="button" onclick="studio_delete_choice('PID',CHOICE)">
+                            <i class="fa fa-remove"></i> Delete
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

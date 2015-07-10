@@ -144,6 +144,8 @@ class CourseEditTask(object):
             for choice in problem_content["choices"]:
                 if "valid" in choice:
                     choice["valid"] = True
+                if "feedback" in choice and choice["feedback"].strip() == "":
+                    del choice["feedback"]
 
         for message in ["error_message", "success_message"]:
             if message in problem_content and problem_content[message].strip() == "":

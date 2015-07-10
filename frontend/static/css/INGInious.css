@@ -251,7 +251,6 @@ ul.checked-list-box .list-group-item-primary {
   background-color: #428bca;
 }
 /* Codemirror */
-.line-error {
-  background: #fbc2c4 !important;
-  color: #8a1f11 !important;
+.CodeMirror-placeholder {
+  color: #aaaaaa !important;
 }

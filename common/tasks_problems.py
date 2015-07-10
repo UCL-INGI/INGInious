@@ -203,6 +203,7 @@ class MultipleChoiceProblem(BasicProblem):
             if "text" not in choice:
                 raise Exception("A choice in " + problemid + " does not have text")
             data['text'] = choice["text"]
+            data['feedback'] = choice.get('feedback')
             if choice.get('valid', False):
                 data['valid'] = True
                 good_choices.append(data)
@@ -264,17 +265,30 @@ class MultipleChoiceProblem(BasicProblem):
 
     def check_answer(self, taskInput):
         valid = True
+        msgs = []
         if self._multiple:
             for choice in self._choices:
                 if choice["valid"] and not choice["index"] in taskInput[self.get_id()] and not str(choice["index"]) in taskInput[self.get_id()]:
                     valid = False
                 elif not choice["valid"] and (choice["index"] in taskInput[self.get_id()] or str(choice["index"]) in taskInput[self.get_id()]):
                     valid = False
+            for i in taskInput[self.get_id()]:
+                msgs.append(self.get_choice_with_index(int(i))["feedback"])
         else:
             valid = self.get_choice_with_index(int(taskInput[self.get_id()]))["valid"]
+            msgs.append(self.get_choice_with_index(int(taskInput[self.get_id()]))["feedback"])
+
         if not valid:
-            if self._centralize or self._error_message is not None:
-                return False, None, self._error_message, 1
+            if self._error_message is not None:
+                msgs = [self._error_message] + msgs
+            elif not self._centralize:
+                msgs = ["Wrong answer. Make sure to select all the valid possibilities" if self._multiple else "Wrong answer"] + msgs
+
+            if len(msgs) != 0:
+                return False, None, "\n\n".join(msgs), 1
             else:
-                return False, None, "Wrong answer. Make sure to select all the valid possibilities" if self._multiple else "Wrong answer", 1
-        return True, None, self._success_message, 0
+                return False, None, None, 1
+
+        if self._success_message is not None:
+            msgs = [self._success_message] + msgs
+        return True, None, "\n\n".join(msgs), 0

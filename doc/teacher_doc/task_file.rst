@@ -191,12 +191,15 @@ Multiple choice problems
         valid: true
       - text: It should be *42*
         valid: true
-        - text: 43!
-        - text: 41?
+      - text: 43!
+        feedback: "43 isn't the answer. Maybe can you try to substract one?"
+      - text: 41?
+        feedback: "41 isn't the answer. Maybe can you try to add one?"
 
 Choices are described in the ``choices`` section of the YAML. Each choice must have
 a ``text`` field (on the frontend) that will be parsed in restructuredText. Valid choices
-must have a ``valid: true`` field.
+must have a ``valid: true`` field. The field ``feedback`` is a message that will be displayed
+when the student check the choice.
 
 ``multiple`` indicates if the student may (or not) select more than one response.
 

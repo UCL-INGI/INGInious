@@ -533,9 +533,13 @@ function studio_create_choice(pid, choice_data)
     $("#choices-" + pid, well).append(new_row);
 
     var editor = registerCodeEditor($(".subproblem_multiple_choice_text", new_row)[0], 'rst', 1);
+    var editor_feedback = registerCodeEditor($(".subproblem_multiple_choice_feedback", new_row)[0], 'rst', 1);
 
     if("text" in choice_data)
         editor.setValue(choice_data["text"]);
+    if("feedback" in choice_data)
+        editor_feedback.setValue(choice_data["feedback"]);
+
     if("valid" in choice_data && choice_data["valid"] == true)
     {
         $(".subproblem_multiple_choice_valid", new_row).trigger('click');
