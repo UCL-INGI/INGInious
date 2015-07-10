@@ -273,7 +273,9 @@ class MultipleChoiceProblem(BasicProblem):
                 elif not choice["valid"] and (choice["index"] in taskInput[self.get_id()] or str(choice["index"]) in taskInput[self.get_id()]):
                     valid = False
             for i in taskInput[self.get_id()]:
-                msgs.append(self.get_choice_with_index(int(i))["feedback"])
+                feedback = self.get_choice_with_index(int(i))["feedback"]
+                if feedback is not None:
+                    msgs.append(feedback)
         else:
             valid = self.get_choice_with_index(int(taskInput[self.get_id()]))["valid"]
             msgs.append(self.get_choice_with_index(int(taskInput[self.get_id()]))["feedback"])
