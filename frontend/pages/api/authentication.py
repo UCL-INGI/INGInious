@@ -70,7 +70,7 @@ class APIAuthentication(APIPage):
 
         try:
             if User.connect(auth_method_id, dict(user_input)):
-                return 200, {"status": "success"}
+                return 200, {"status": "success", "username": User.get_username()}
         except:
             pass
         return 403, {"status": "error"}
