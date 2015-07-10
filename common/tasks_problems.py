@@ -277,8 +277,10 @@ class MultipleChoiceProblem(BasicProblem):
                 if feedback is not None:
                     msgs.append(feedback)
         else:
-            valid = self.get_choice_with_index(int(taskInput[self.get_id()]))["valid"]
-            msgs.append(self.get_choice_with_index(int(taskInput[self.get_id()]))["feedback"])
+            choice = self.get_choice_with_index(int(taskInput[self.get_id()]))
+            valid = choice["valid"]
+            if choice["feedback"] is not None:
+                msgs.append(choice["feedback"])
 
         if not valid:
             if self._error_message is not None:
