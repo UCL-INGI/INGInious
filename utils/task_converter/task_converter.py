@@ -25,8 +25,8 @@ sys.path.append(os.path.join(os.path.abspath(os.path.dirname(os.path.realpath(__
 
 from common.task_file_managers.manage import add_custom_task_file_manager, delete_all_possible_task_files, get_task_file_manager
 from common.task_file_managers.yaml_manager import TaskYAMLFileManager
-import frontend.plugins.task_file_managers.json_manager
-import frontend.plugins.task_file_managers.rst_manager
+import webapp.plugins.task_file_managers.json_manager
+import webapp.plugins.task_file_managers.rst_manager
 import common.base
 from common.courses import Course
 import argparse
@@ -71,8 +71,8 @@ if __name__ == "__main__":
 
     # Init common
     common.base.init_common_lib(args.tasks, [], 1)  # we do not need to upload file, so not needed here
-    add_custom_task_file_manager(frontend.plugins.task_file_managers.json_manager.TaskJSONFileManager)
-    add_custom_task_file_manager(frontend.plugins.task_file_managers.rst_manager.TaskRSTFileManager)
+    add_custom_task_file_manager(webapp.plugins.task_file_managers.json_manager.TaskJSONFileManager)
+    add_custom_task_file_manager(webapp.plugins.task_file_managers.rst_manager.TaskRSTFileManager)
 
     courses = Course.get_all_courses()
     for courseid, course in courses.iteritems():

@@ -63,8 +63,8 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
             :param docker_daemons:
                 a list of dict representing docker daemons.
 
-                { "remote_host": "192.168.59.103", ## host of the docker daemon *from the frontend*
-                  "remote_docker_port": 2375, ## port of the distant docker daemon *from the frontend*
+                { "remote_host": "192.168.59.103", ## host of the docker daemon *from the webapp*
+                  "remote_docker_port": 2375, ## port of the distant docker daemon *from the webapp*
                   "remote_agent_port": 63456 ## a mandatory port used by the backend and the agent that will be automatically started. Needs to be
                                              ## available on the remote host, and to be open in the firewall.
                   ##does the docker daemon requires tls? Defaults to false

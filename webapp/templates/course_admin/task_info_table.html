@@ -1,0 +1,126 @@
+$def with (course,task,data,groups=False)
+
+$# Copyright (c) 2014-2015 Université Catholique de Louvain.
+$#
+$# This file is part of INGInious.
+$#
+$# INGInious is free software: you can redistribute it and/or modify
+$# it under the terms of the GNU Affero General Public License as published
+$# by the Free Software Foundation, either version 3 of the License, or
+$# (at your option) any later version.
+$#
+$# INGInious is distributed in the hope that it will be useful,
+$# but WITHOUT ANY WARRANTY; without even the implied warranty of
+$# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+$# GNU Affero General Public License for more details.
+$#
+$# You should have received a copy of the GNU Affero General Public
+$# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
+
+$if groups:
+    <table class="table">
+        <tr>
+            <th>Group description</th>
+            <th>Status</th>
+            <th># submissions</th>
+            <th>
+                <div class="btn-group" role="group">
+                    <a href="/admin/${course.get_id()}/download?format=taskid%2Fgroup&tasks=$task.get_id()" class="btn btn-danger
+                        btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                    <a href="/admin/${course.get_id()}/task/${task.get_id()}?csv=groups" class="btn btn-info btn-xs" title="Download CSV"
+                       data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
+                </div>
+            </th>
+        </tr>
+        $ text = ["My groups","Other groups"]
+        $for ind in range(0,2):
+            $if len(data[ind]) > 0:
+                $if len(data[0]) > 0 and len(data[1]) > 0:
+                    <tr>
+                        <th colspan="5">$text[ind]</th>
+                    </tr>
+            $for group in data[ind]:
+                <tr
+                    $if group["status"] == "notattempted":
+                        class="warning"
+                    $elif group["status"] == "succeeded":
+                        class="success"
+                    $elif group["status"] == "failed":
+                        class="danger"
+                >
+                    <td>
+                        <a href="/admin/${course.get_id()}/group/$group['_id']">$group['description']</a>
+                    </td>
+                    <td>
+                        $if group["status"] == "notviewed":
+                            Not viewed
+                        $elif group["status"] == "notattempted":
+                            Not attempted (viewed)
+                        $elif group["status"] == "succeeded":
+                            Succeeded ($group["grade"]%)
+                        $else:
+                            Failed ($group["grade"]%)
+                    </td>
+                    <td>$group["tried"] </td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a href="/admin/${course.get_id()}/group/$group['_id']/$task.get_id()" class="btn btn-default btn-xs" title="View
+                               submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
+                            <a href="$group['url']" class="btn btn-default btn-xs" title="Download
+                               submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                        </div>
+                    </td>
+                </tr>
+    </table>
+$else:
+    <table class="table">
+        <tr>
+            <th>Student</th>
+            <th>Status</th>
+            <th># submissions</th>
+            <th>
+                <div class="btn-group" role="group">
+                    <a href="/admin/${course.get_id()}/download?format=taskid%2Fusername&tasks=$task.get_id()" class="btn btn-danger
+                        btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                    <a href="/admin/${course.get_id()}/task/${task.get_id()}?csv=students" class="btn btn-info btn-xs" title="Download CSV"
+                       data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
+                </div>
+            </th>
+        </tr>
+        $for user in data:
+            <tr
+                $if user["status"] == "notattempted":
+                    class="warning"
+                $elif user["status"] == "succeeded":
+                    class="success"
+                $elif user["status"] == "failed":
+                    class="danger"
+            >
+                <td>
+                    $if user["realname"] != "":
+                        <a href="/admin/${course.get_id()}/student/$user['username']">$user["realname"]</a>
+                        (<a href="/admin/${course.get_id()}/student/$user['username']">$user["username"]</a> - <a href='mailto:$user["email"]'>email</a>)
+                    $else:
+                        <a href="/admin/${course.get_id()}/student/$user['username']">$user["username"]</a>
+                </td>
+                <td>
+                    $if user["status"] == "notviewed":
+                        Not viewed
+                    $elif user["status"] == "notattempted":
+                        Not attempted (viewed)
+                    $elif user["status"] == "succeeded":
+                        Succeeded ($user["grade"]%)
+                    $else:
+                        Failed ($user["grade"]%)
+                </td>
+                <td>$user["tried"] </td>
+                <td>
+                    <div class="btn-group" role="group">
+                        <a href="/admin/${course.get_id()}/student/$user['username']/$task.get_id()" class="btn btn-default btn-xs" title="View
+                           submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
+                        <a href="$user['url']" class="btn btn-default btn-xs" title="Download
+                           submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                    </div>
+                </td>
+            </tr>
+    </table>

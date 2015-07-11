@@ -16,19 +16,18 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
-""" Configuration for the webapp. Initialize the common libraries. """
-import common.base
+""" A demo plugin that adds a page """
 
 
-class Configuration(dict):
-    """ Config class """
+class DemoPage(object):
+    """ A simple demo page showing how to add a new page """
 
-    def load(self, path):
-        """ Load the config from a json file """
-        self.update(common.base.load_json_or_yaml(path))
-        common.base.init_common_lib(self["tasks_directory"],
-                                    self.get('allowed_file_extensions', [".c", ".cpp", ".java", ".oz", ".zip", ".tar.gz", ".tar.bz2", ".txt"]),
-                                    self.get('max_file_size', 1024 * 1024))
+    def GET(self):
+        """ GET request """
+        return "This is a test page :-)"
 
 
-INGIniousConfiguration = Configuration()
+def init(plugin_manager, _):
+    """ Init the plugin """
+    plugin_manager.add_page("/test", "webapp.plugins.demo_page.DemoPage")
+    print "Started Demo Page"

@@ -16,19 +16,19 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
-""" Configuration for the webapp. Initialize the common libraries. """
-import common.base
+""" JobManagerTest plugin """
+import common_frontend.backend_interface
 
 
-class Configuration(dict):
-    """ Config class """
+class JobManagerTest(object):
+    """ Returns stats about the job manager for distant tests """
 
-    def load(self, path):
-        """ Load the config from a json file """
-        self.update(common.base.load_json_or_yaml(path))
-        common.base.init_common_lib(self["tasks_directory"],
-                                    self.get('allowed_file_extensions', [".c", ".cpp", ".java", ".oz", ".zip", ".tar.gz", ".tar.bz2", ".txt"]),
-                                    self.get('max_file_size', 1024 * 1024))
+    def GET(self):
+        """ GET request """
+        return str(common_frontend.backend_interface.get_job_manager().get_waiting_jobs_count())
 
 
-INGIniousConfiguration = Configuration()
+def init(plugin_manager, _):
+    """ Init the plugin """
+    plugin_manager.add_page("/tests/stats", "webapp.plugins.job_manager_test.JobManagerTest")
+    print "Started JobManagerTest plugin"

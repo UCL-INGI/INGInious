@@ -16,19 +16,20 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
-""" Configuration for the webapp. Initialize the common libraries. """
-import common.base
+""" Maintenance page """
+
+from webapp.templates import get_template_renderer
 
 
-class Configuration(dict):
-    """ Config class """
+class MaintenancePage(object):
+    """ Maintenance page """
 
-    def load(self, path):
-        """ Load the config from a json file """
-        self.update(common.base.load_json_or_yaml(path))
-        common.base.init_common_lib(self["tasks_directory"],
-                                    self.get('allowed_file_extensions', [".c", ".cpp", ".java", ".oz", ".zip", ".tar.gz", ".tar.bz2", ".txt"]),
-                                    self.get('max_file_size', 1024 * 1024))
+    renderer = get_template_renderer('templates/')
 
+    def GET(self):
+        """ GET request """
+        return self.renderer.maintenance()
 
-INGIniousConfiguration = Configuration()
+    def POST(self):
+        """ POST request """
+        return self.renderer.maintenance()
