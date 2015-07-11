@@ -16,20 +16,14 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
-""" Maintenance page """
+""" Singleton pattern. From http://python-3-patterns-idioms-test.readthedocs.org/en/latest/Metaprogramming.html """
+from abc import ABCMeta
 
-from common_frontend.templates import get_custom_template_renderer
+class Singleton(ABCMeta):
+    """ Metaclass for the Singleton pattern that support abstract Singleton classes """
+    instance = None
 
-
-class MaintenancePage(object):
-    """ Maintenance page """
-
-    renderer = get_custom_template_renderer('frontend/templates/')
-
-    def GET(self):
-        """ GET request """
-        return self.renderer.maintenance()
-
-    def POST(self):
-        """ POST request """
-        return self.renderer.maintenance()
+    def __call__(cls, *args, **kwargs):
+        if not cls.instance:
+            cls.instance = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls.instance

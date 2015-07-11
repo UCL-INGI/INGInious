@@ -17,15 +17,18 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 
-from webapp.templates import renderer
+from collections import OrderedDict
+
+from bson.objectid import ObjectId
+import web
+
+from common_frontend.templates import get_renderer
 from webapp.pages.course_admin.utils import get_course_and_check_rights
 from common_frontend.database import get_database
 import webapp.user as User
-from collections import OrderedDict
 from webapp.submission_manager import get_submission_archive, keep_best_submission
-from bson.objectid import ObjectId
 from common.base import id_checker
-import web
+
 
 class CourseDownloadSubmissions(object):
     """ Batch operation management """
@@ -130,7 +133,7 @@ class CourseDownloadSubmissions(object):
             if "group" in chosen_format:
                 show_groups = True
 
-        return renderer.course_admin.download(course,
+        return get_renderer().course_admin.download(course,
                                               tasks, user_data, group_data,
                                               tutored_groups, tutored_users,
                                               checked_tasks, checked_users, checked_groups,

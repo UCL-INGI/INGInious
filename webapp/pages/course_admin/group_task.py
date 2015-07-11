@@ -20,12 +20,12 @@ import json
 
 import pymongo
 import web
+from bson.objectid import ObjectId
 
 from common_frontend.database import get_database
-from webapp.templates import renderer
+from common_frontend.templates import get_renderer
 from webapp.pages.course_admin.utils import make_csv, get_course_and_check_rights
 from webapp.submission_manager import get_submission
-from bson.objectid import ObjectId
 
 class CourseGroupTaskPage(object):
     """ List information about a task done by a student """
@@ -51,7 +51,7 @@ class CourseGroupTaskPage(object):
             return make_csv(data)
 
         group = get_database().groups.find_one({"_id": ObjectId(groupid)})
-        return renderer.course_admin.group_task(course, group, task, data)
+        return get_renderer.course_admin.group_task(course, group, task, data)
 
 
 class SubmissionDownloadFeedback(object):

@@ -26,12 +26,13 @@ import web
 
 import common_frontend.database
 from common_frontend import backend_interface
-import webapp.templates
+import common_frontend.templates
 import common_frontend.configuration
 from webapp.database_updater import update_database
-from webapp.plugins.plugin_manager import PluginManager
+from common_frontend.plugin_manager import PluginManager
+import common_frontend.templates
 import common_frontend.session
-from webapp.templates import TemplateHelper
+import webapp.pages.course_admin.utils
 
 urls = (
     '/', 'webapp.pages.index.IndexPage',
@@ -92,7 +93,7 @@ def get_app(config_file):
 
     def not_found():
         """ Display the error 404 page """
-        return web.notfound(webapp.templates.renderer.notfound('Page not found'))
+        return web.notfound(common_frontend.templates.get_renderer().notfound('Page not found'))
 
     appli.notfound = not_found
 
@@ -101,8 +102,9 @@ def get_app(config_file):
     # Plugin Manager is also a Hook Manager
     backend_interface.init(plugin_manager)
 
-    # Loads template_helper
-    TemplateHelper()
+    # Init templates
+    common_frontend.templates.init_renderer('webapp/templates', 'layout')
+    common_frontend.templates.TemplateHelper().add_other("course_admin_menu", webapp.pages.course_admin.utils.get_menu)
 
     # Loads plugins
     plugin_manager.load()

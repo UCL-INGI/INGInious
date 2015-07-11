@@ -22,7 +22,7 @@ import web
 
 from common.task_file_managers.manage import get_readable_tasks
 from common_frontend.database import get_database
-from webapp.templates import renderer
+from common_frontend.templates import get_renderer
 from webapp.pages.course_admin.utils import make_csv, get_course_and_check_rights
 
 
@@ -85,4 +85,4 @@ class CourseTaskListPage(object):
                 result[entry["_id"]]["succeeded"] = entry["succeeded"]
         if "csv" in web.input():
             return make_csv(result)
-        return renderer.course_admin.task_list(course, result, errors)
+        return get_renderer().course_admin.task_list(course, result, errors)

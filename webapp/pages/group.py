@@ -17,15 +17,14 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Index page """
-from collections import OrderedDict
 
 import web
-
-from webapp.templates import renderer
-from webapp.custom.courses import FrontendCourse
-from common_frontend.database import get_database
 from bson.objectid import ObjectId
 from bson.errors import InvalidId
+
+from common_frontend.templates import get_renderer
+from webapp.custom.courses import FrontendCourse
+from common_frontend.database import get_database
 import webapp.user as User
 
 class GroupPage(object):
@@ -42,7 +41,7 @@ class GroupPage(object):
                 if not course.is_group_course() or User.get_username() in course.get_staff(True):
                     raise web.notfound()
                 elif registration_uncomplete and not course.can_students_choose_group():
-                    return renderer.course_unavailable()
+                    return get_renderer().course_unavailable()
                 elif "register_group" in web.input():
                     try:
                         groupid = web.input()["register_group"]
@@ -74,11 +73,11 @@ class GroupPage(object):
                 for user in get_database().users.find({"_id": {"$in": course.get_registered_users(True)}}):
                     users[user["_id"]] = user
 
-                return renderer.group(course, except_free_last_submissions, group, available_groups, users, error)
+                return get_renderer().group(course, except_free_last_submissions, group, available_groups, users, error)
             except:
                 if web.config.debug:
                     raise
                 else:
                     raise web.notfound()
         else:
-            return renderer.index(False)
+            return get_renderer().index(False)

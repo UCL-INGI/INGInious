@@ -24,7 +24,7 @@ from webapp.accessible_time import AccessibleTime
 from webapp.custom.task_problems import DisplayableCodeProblem, DisplayableCodeSingleLineProblem, DisplayableMatchProblem, \
     DisplayableMultipleChoiceProblem, DisplayableCodeFileProblem
 from common_frontend.parsable_text import ParsableText
-from webapp.plugins.plugin_manager import PluginManager
+from common_frontend.plugin_manager import PluginManager
 
 
 class FrontendTask(common.tasks.Task):
@@ -47,7 +47,7 @@ class FrontendTask(common.tasks.Task):
                 init_data = get_task_file_manager(course.get_id(), taskid).read()
             except Exception as inst:
                 raise Exception("Error while reading task file: " + course.get_id() + "/" + taskid + " :\n" + str(inst))
-        PluginManager.get_instance().call_hook('modify_task_data', course=course, taskid=taskid, data=init_data)
+        PluginManager().call_hook('modify_task_data', course=course, taskid=taskid, data=init_data)
 
         # The following instance variable will be declared by self._load_from_data, itself called by common.tasks.Task.__init__.
         self._name = None

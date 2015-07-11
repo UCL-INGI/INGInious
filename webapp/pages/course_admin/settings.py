@@ -19,7 +19,7 @@
 import web
 
 from webapp.accessible_time import AccessibleTime
-from webapp.templates import renderer
+from common_frontend.templates import get_renderer
 from webapp.pages.course_admin.utils import get_course_and_check_rights
 import webapp.user as User
 
@@ -107,4 +107,4 @@ class CourseSettings(object):
 
     def page(self, course, errors=None, saved=False):
         """ Get all data and display the page """
-        return renderer.course_admin.settings(course, errors, saved)
+        return get_renderer().course_admin.settings(course, errors, saved)

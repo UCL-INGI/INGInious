@@ -17,17 +17,20 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 
-from webapp.templates import renderer
-from webapp.pages.course_admin.utils import get_course_and_check_rights
-from webapp.batch_manager import get_all_batch_containers_metadata, add_batch_job, get_all_batch_jobs_for_course, get_batch_job_status, \
-    get_batch_container_metadata, drop_batch_job
-import web
-from common_frontend.database import get_gridfs
 import tarfile
 import mimetypes
 import urllib
 import tempfile
+
+import web
+
+from common_frontend.templates import get_renderer
+from webapp.pages.course_admin.utils import get_course_and_check_rights
+from webapp.batch_manager import get_all_batch_containers_metadata, add_batch_job, get_all_batch_jobs_for_course, get_batch_job_status, \
+    get_batch_container_metadata, drop_batch_job
+from common_frontend.database import get_gridfs
 import webapp.user as User
+
 
 class CourseBatchOperations(object):
     """ Batch operation management """
@@ -56,7 +59,7 @@ class CourseBatchOperations(object):
             operations.append(ne)
         operations = sorted(operations, key= (lambda o: o["submitted_on"]), reverse=True)
 
-        return renderer.course_admin.batch(course, operations, get_all_batch_containers_metadata())
+        return get_renderer().course_admin.batch(course, operations, get_all_batch_containers_metadata())
 
 class CourseBatchJobCreate(object):
     """ Creates new batch jobs """
@@ -117,7 +120,7 @@ class CourseBatchJobCreate(object):
         if "course" in container_args and container_args["course"]["type"] == "file":
             del container_args["course"]
 
-        return renderer.course_admin.batch_create(course, container_name, container_title, container_description, container_args, error)
+        return get_renderer().course_admin.batch_create(course, container_name, container_title, container_description, container_args, error)
 
 class CourseBatchJobDownload(object):
     """ Get the file of a batch job """
@@ -220,5 +223,5 @@ class CourseBatchJobSummary(object):
                 finally:
                     f.close()
 
-        return renderer.course_admin.batch_summary(course, bid, done, container_name, container_title, container_description, submitted_on,
+        return get_renderer().course_admin.batch_summary(course, bid, done, container_name, container_title, container_description, submitted_on,
                                                    retval, stdout, stderr, file_list)

@@ -22,7 +22,7 @@ import base64
 import json
 
 from common.tasks_code_boxes import TextBox, InputBox, MultilineBox, FileBox
-from webapp.templates import get_template_renderer
+from common_frontend.templates import get_renderer
 from common_frontend.parsable_text import ParsableText
 
 
@@ -61,7 +61,7 @@ class DisplayableTextBox(TextBox, DisplayableBox):
 
     def show(self):
         """ Show TextBox """
-        return str(get_template_renderer('templates/tasks/').box_text(self._content))
+        return str(get_renderer(False).tasks.box_text(self._content))
 
 
 class DisplayableFileBox(FileBox, DisplayableBox):
@@ -80,7 +80,7 @@ class DisplayableFileBox(FileBox, DisplayableBox):
 
     def show(self):
         """ Show FileBox """
-        return str(get_template_renderer('templates/tasks/').box_file(self.get_complete_id(), self._max_size, self._allowed_exts, json))
+        return str(get_renderer(False).tasks.box_file(self.get_complete_id(), self._max_size, self._allowed_exts, json))
 
 
 class DisplayableInputBox(InputBox, DisplayableBox):
@@ -91,7 +91,7 @@ class DisplayableInputBox(InputBox, DisplayableBox):
 
     def show(self):
         """ Show InputBox """
-        return str(get_template_renderer('templates/tasks/').box_input(self.get_complete_id(), self._input_type, self._max_chars))
+        return str(get_renderer(False).tasks.box_input(self.get_complete_id(), self._input_type, self._max_chars))
 
 
 class DisplayableMultilineBox(MultilineBox, DisplayableBox):
@@ -102,4 +102,4 @@ class DisplayableMultilineBox(MultilineBox, DisplayableBox):
 
     def show(self):
         """ Show MultilineBox """
-        return str(get_template_renderer('templates/tasks/').box_multiline(self.get_complete_id(), self._lines, self._max_chars, self._language))
+        return str(get_renderer(False).tasks.box_multiline(self.get_complete_id(), self._lines, self._max_chars, self._language))

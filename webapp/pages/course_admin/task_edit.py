@@ -31,7 +31,7 @@ from common.base import id_checker, get_tasks_directory
 import common.custom_yaml
 from common.task_file_managers.manage import get_task_file_manager, get_available_task_file_managers, delete_all_possible_task_files
 from webapp.accessible_time import AccessibleTime
-from webapp.templates import renderer
+from common_frontend.templates import get_renderer
 from webapp.custom.courses import FrontendCourse
 from webapp.custom.tasks import FrontendTask
 from webapp.pages.course_admin.task_edit_file import CourseTaskFiles
@@ -74,7 +74,7 @@ class CourseEditTask(object):
                         del problem_copy[i]
                 problem["custom"] = common.custom_yaml.dump(problem_copy)
 
-        return renderer.course_admin.edit_task(
+        return get_renderer().course_admin.edit_task(
             course,
             taskid,
             task_data,

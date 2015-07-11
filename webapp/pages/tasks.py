@@ -29,7 +29,7 @@ import web
 from common.base import get_tasks_directory
 from common.tasks_code_boxes import FileBox
 from common.tasks_problems import MultipleChoiceProblem, BasicCodeProblem
-from webapp.templates import renderer
+from common_frontend.templates import get_renderer
 from webapp.custom.courses import FrontendCourse
 import webapp.submission_manager as submission_manager
 import webapp.user as User
@@ -44,11 +44,11 @@ class TaskPage(object):
             try:
                 course = FrontendCourse(courseid)
                 if not course.is_open_to_user(User.get_username(), course.is_group_course()):
-                    return renderer.course_unavailable()
+                    return get_renderer().course_unavailable()
 
                 task = course.get_task(taskid)
                 if not task.is_visible_by_user(User.get_username()):
-                    return renderer.task_unavailable()
+                    return get_renderer().task_unavailable()
 
                 User.get_data().view_task(courseid, taskid)
 
@@ -74,14 +74,14 @@ class TaskPage(object):
                         return sinput[userinput["questionid"]]
                 else:
                     # Display the task itself
-                    return renderer.task(course, task, submission_manager.get_user_submissions(task))
+                    return get_renderer().task(course, task, submission_manager.get_user_submissions(task))
             except:
                 if web.config.debug:
                     raise
                 else:
                     raise web.notfound()
         else:
-            return renderer.index(False)
+            return get_renderer().index(False)
 
     def POST(self, courseid, taskid):
         """ POST a new submission """
@@ -89,11 +89,11 @@ class TaskPage(object):
             try:
                 course = FrontendCourse(courseid)
                 if not course.is_open_to_user(User.get_username(), course.is_group_course()):
-                    return renderer.course_unavailable()
+                    return get_renderer().course_unavailable()
 
                 task = course.get_task(taskid)
                 if not task.is_visible_by_user(User.get_username()):
-                    return renderer.task_unavailable()
+                    return get_renderer().task_unavailable()
 
                 User.get_data().view_task(courseid, taskid)
                 userinput = web.input()
@@ -143,7 +143,7 @@ class TaskPage(object):
                 else:
                     raise web.notfound()
         else:
-            return renderer.index(False)
+            return get_renderer().index(False)
 
     def submission_to_json(self, data, debug, reloading=False):
         """ Converts a submission to json (keeps only needed fields) """
@@ -192,11 +192,11 @@ class TaskPageStaticDownload(object):
             try:
                 course = FrontendCourse(courseid)
                 if not course.is_open_to_user(User.get_username(), course.is_group_course()):
-                    return renderer.course_unavailable()
+                    return get_renderer().course_unavailable()
 
                 task = course.get_task(taskid)
                 if not task.is_visible_by_user(User.get_username()):
-                    return renderer.task_unavailable()
+                    return get_renderer().task_unavailable()
 
                 path_norm = posixpath.normpath(urllib.unquote(path))
                 public_folder_path = os.path.normpath(os.path.realpath(os.path.join(get_tasks_directory(), courseid, taskid, "public")))
@@ -220,4 +220,4 @@ class TaskPageStaticDownload(object):
                 else:
                     raise web.notfound()
         else:
-            return renderer.index(False)
+            return get_renderer().index(False)

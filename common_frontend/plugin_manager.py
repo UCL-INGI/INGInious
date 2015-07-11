@@ -21,41 +21,32 @@ import importlib
 
 from backend.hook_manager import HookManager
 from common.task_file_managers.manage import add_custom_task_file_manager
-import webapp.templates
+from common.singleton import Singleton
+import common_frontend.templates
 
 
 class PluginManager(HookManager):
-    """ Registers an manage plugins """
+    """ Registers an manage plugins. Singleton class. """
 
-    _instance = None
+    __metaclass__ = Singleton
 
-    def __new__(cls, *args, **kwargs):
-        if not cls._instance:
-            cls._instance = super(PluginManager, cls).__new__(
-                cls, *args, **kwargs)
-        else:
-            raise Exception("You should not instantiate PluginManager more than once")
-        return cls._instance
+    def __init__(self, app=None, config=None):
+        if app is None or config is None:
+            raise Exception("Plugin Manager should be initialized before call")
 
-    def __init__(self, app, config):
         HookManager.__init__(self)
         self.app = app
         self.plugins = []
         self.authentication = []
         self._config = config
 
-        webapp.templates.add_to_template_globals("PluginManager", self)
+        common_frontend.templates.add_to_template_globals("PluginManager", self)
 
     def load(self):
         """ Loads the plugin manager. Must be done after the initialisation of the backend """
         for entry in self._config:
             module = importlib.import_module(entry["plugin_module"])
             self.plugins.append(module.init(self, entry))
-
-    @classmethod
-    def get_instance(cls):
-        """ get the instance of PluginManager """
-        return cls._instance
 
     def add_page(self, pattern, classname):
         """ Add a new page to the web application """

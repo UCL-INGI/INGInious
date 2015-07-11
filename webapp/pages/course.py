@@ -19,7 +19,7 @@
 """ Course page """
 import web
 
-from webapp.templates import renderer
+from common_frontend.templates import get_renderer
 from webapp.custom.courses import FrontendCourse
 import webapp.user as User
 # Course page
@@ -38,7 +38,7 @@ class CoursePage(object):
                 if registration_uncomplete and course.can_students_choose_group():
                     raise web.seeother("/group/"+courseid)
                 elif registration_uncomplete:
-                    return renderer.course_unavailable()
+                    return get_renderer().course_unavailable()
                 else:
                     last_submissions = course.get_user_last_submissions(one_per_task=True)
                     except_free_last_submissions = []
@@ -49,7 +49,7 @@ class CoursePage(object):
                         except:
                             pass
 
-                    return renderer.course(course, except_free_last_submissions)
+                    return get_renderer().course(course, except_free_last_submissions)
             except web.seeother:
                 raise
             except:
@@ -58,4 +58,4 @@ class CoursePage(object):
                 else:
                     raise web.notfound()
         else:
-            return renderer.index(False)
+            return get_renderer().index(False)

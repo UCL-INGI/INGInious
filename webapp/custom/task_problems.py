@@ -21,7 +21,7 @@
 from abc import ABCMeta, abstractmethod
 from random import shuffle
 
-from webapp.templates import get_template_renderer
+from common_frontend.templates import get_renderer
 from common_frontend.parsable_text import ParsableText
 from common.tasks_problems import BasicProblem, BasicCodeProblem, CodeProblem, CodeSingleLineProblem, MatchProblem, MultipleChoiceProblem, \
     CodeFileProblem
@@ -148,7 +148,7 @@ class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableBasicPr
                 if entry['valid']:
                     found_valid = True
         shuffle(choices)
-        return str(get_template_renderer('templates/tasks/').multiplechoice(self.get_id(), self._multiple, choices))
+        return str(get_renderer(False).tasks.multiplechoice(self.get_id(), self._multiple, choices))
 
 
 class DisplayableMatchProblem(MatchProblem, DisplayableBasicProblem):
@@ -159,4 +159,4 @@ class DisplayableMatchProblem(MatchProblem, DisplayableBasicProblem):
 
     def show_input(self):
         """ Show MatchProblem """
-        return str(get_template_renderer('templates/tasks/').match(self.get_id()))
+        return str(get_renderer(False).tasks.match(self.get_id()))

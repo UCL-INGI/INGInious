@@ -19,11 +19,13 @@
 """ Pages that allow editing of tasks """
 
 import web
-from webapp.templates import renderer
-from webapp.pages.course_admin.utils import get_course_and_check_rights
 from pymongo import ReturnDocument
-from common_frontend.database import get_database
 from bson.objectid import ObjectId
+
+from common_frontend.templates import get_renderer
+from webapp.pages.course_admin.utils import get_course_and_check_rights
+from common_frontend.database import get_database
+
 
 class CourseEditGroup(object):
     """ Edit a task """
@@ -51,7 +53,7 @@ class CourseEditGroup(object):
         group = get_database().groups.find_one({"_id": ObjectId(groupid), "course_id": courseid})
 
         if group:
-            return renderer.course_admin.edit_group(course, student_list, tutor_list, group, "", False)
+            return get_renderer().course_admin.edit_group(course, student_list, tutor_list, group, "", False)
         else:
             raise web.notfound()
 
@@ -84,4 +86,4 @@ class CourseEditGroup(object):
         except:
             error = 'User returned an invalid form.'
 
-        return renderer.course_admin.edit_group(course, student_list, tutor_list, group, error, True)
+        return get_renderer().course_admin.edit_group(course, student_list, tutor_list, group, error, True)

@@ -16,10 +16,11 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
+from collections import OrderedDict
+
 import web
 
-from collections import OrderedDict
-from webapp.templates import renderer
+from common_frontend.templates import get_renderer
 from common_frontend.database import get_database
 from webapp.pages.course_admin.utils import make_csv, get_course_and_check_rights
 from webapp.user_data import UserData
@@ -53,4 +54,4 @@ class CourseStudentListPage(object):
         if "csv" in web.input():
             return make_csv(user_data)
 
-        return renderer.course_admin.student_list(course, user_data.values(), error, post)
+        return get_renderer().course_admin.student_list(course, user_data.values(), error, post)

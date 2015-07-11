@@ -19,12 +19,12 @@
 """ Manages users' sessions """
 import sys
 
-from webapp.plugins.plugin_manager import PluginManager
+from common_frontend.plugin_manager import PluginManager
 from common_frontend.session import get_session
 from webapp.user_data import UserData
-import webapp.templates
+import common_frontend.templates
 # Add this module to the templates
-webapp.templates.add_to_template_globals("User", sys.modules[__name__])
+common_frontend.templates.add_to_template_globals("User", sys.modules[__name__])
 
 
 def get_data():
@@ -79,4 +79,4 @@ def connect_user_internal(username, email, realname):
 
 def connect(auth_method_id, login_data):
     """ Connect through plugins """
-    return PluginManager.get_instance().get_auth_method_callback(auth_method_id)(login_data)
+    return PluginManager().get_auth_method_callback(auth_method_id)(login_data)

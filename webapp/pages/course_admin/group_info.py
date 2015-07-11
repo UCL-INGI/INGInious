@@ -16,14 +16,13 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
-from collections import OrderedDict
 
 import web
+from bson.objectid import ObjectId
 
 from common_frontend.database import get_database
-from webapp.templates import renderer
+from common_frontend.templates import get_renderer
 from webapp.pages.course_admin.utils import make_csv, get_course_and_check_rights
-from bson.objectid import ObjectId
 
 
 class CourseGroupInfoPage(object):
@@ -83,4 +82,4 @@ class CourseGroupInfoPage(object):
 
         group = get_database().groups.find_one({"_id": ObjectId(groupid)})
 
-        return renderer.course_admin.group(course, group, result.values())
+        return get_renderer().course_admin.group(course, group, result.values())

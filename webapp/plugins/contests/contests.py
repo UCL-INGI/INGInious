@@ -25,7 +25,7 @@ from datetime import datetime, timedelta
 import pymongo
 import web
 
-from webapp.templates import get_template_renderer
+from common_frontend.templates import get_custom_template_renderer
 from common_frontend.database import get_database
 from webapp.custom.courses import FrontendCourse
 from webapp.pages.course_admin.utils import get_course_and_check_rights
@@ -77,7 +77,7 @@ def course_menu(course):
         start = datetime.strptime(contest_data['start'], "%Y-%m-%d %H:%M:%S")
         end = datetime.strptime(contest_data['end'], "%Y-%m-%d %H:%M:%S")
         blackout = end - timedelta(hours=contest_data['blackout'])
-        return str(get_template_renderer('webapp/plugins/contests').course_menu(course, start, end, blackout))
+        return str(get_custom_template_renderer('webapp/plugins/contests').course_menu(course, start, end, blackout))
     else:
         return None
 
@@ -86,7 +86,6 @@ class ContestScoreboard(object):
     """ Displays the scoreboard of the contest """
 
     def GET(self, courseid):
-        # try:
         course = FrontendCourse(courseid)
         contest_data = get_contest_data(course)
         if not contest_data['enabled']:
@@ -169,9 +168,8 @@ class ContestScoreboard(object):
                 results[user]["rank"] = current_rank
                 results[user]["displayed_rank"] = ""
 
-        return get_template_renderer('plugins/contests', '../../templates/layout').scoreboard(course, start, end, blackout, tasks, results, activity)
-        # except:
-        #        raise web.notfound()
+        return get_custom_template_renderer('webapp/plugins/contests', '../../templates/layout').scoreboard(course, start, end, blackout, tasks,
+                                                                                                          results, activity)
 
 
 class ContestAdmin(object):
@@ -181,7 +179,7 @@ class ContestAdmin(object):
         """ GET request: simply display the form """
         course, _ = get_course_and_check_rights(courseid, allow_all_staff=False)
         contest_data = get_contest_data(course)
-        return get_template_renderer('plugins/contests', '../../templates/layout').admin(course, contest_data, None, False)
+        return get_custom_template_renderer('webapp/plugins/contests', '../../templates/layout').admin(course, contest_data, None, False)
 
     def POST(self, courseid):
         """ POST request: update the settings """
@@ -227,9 +225,9 @@ class ContestAdmin(object):
 
         if len(errors) == 0:
             save_contest_data(course, contest_data)
-            return get_template_renderer('plugins/contests', '../../templates/layout').admin(course, contest_data, None, True)
+            return get_custom_template_renderer('webapp/plugins/contests', '../../templates/layout').admin(course, contest_data, None, True)
         else:
-            return get_template_renderer('plugins/contests', '../../templates/layout').admin(course, contest_data, errors, False)
+            return get_custom_template_renderer('webapp/plugins/contests', '../../templates/layout').admin(course, contest_data, errors, False)
 
 
 def init(plugin_manager, _config):

@@ -29,16 +29,15 @@ import tempfile
 from bson.objectid import ObjectId
 import pymongo
 
-
 from common_frontend.backend_interface import get_job_manager
 from common_frontend.database import get_database, get_gridfs
 from common_frontend.parsable_text import ParsableText
 import common.custom_yaml
-
-from webapp.plugins.plugin_manager import PluginManager
+from common_frontend.plugin_manager import PluginManager
 import webapp.user as User
 from webapp.user_data import UserData
 from webapp.custom.courses import FrontendCourse
+
 
 def get_submission(submissionid, user_check=True):
     """ Get a submission from the database """
@@ -79,7 +78,7 @@ def _job_done_callback(submissionid, task, job):
     for username in submission["username"]:
         UserData(username).update_stats(submission, job)
 
-    PluginManager.get_instance().call_hook("submission_done", submission=submission, job=job)
+    PluginManager().call_hook("submission_done", submission=submission, job=job)
 
 
 def add_job(task, inputdata, debug=False):
@@ -109,7 +108,7 @@ def add_job(task, inputdata, debug=False):
 
     submissionid = get_database().submissions.insert(obj)
 
-    PluginManager.get_instance().call_hook("new_submission", submissionid=submissionid, submission=obj, inputdata=inputdata)
+    PluginManager().call_hook("new_submission", submissionid=submissionid, submission=obj, inputdata=inputdata)
 
     get_job_manager().new_job(task, inputdata, (lambda job: _job_done_callback(submissionid, task, job)), "Frontend - {}".format(username), debug)
 

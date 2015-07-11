@@ -25,9 +25,9 @@ import csv
 
 import web
 
-from webapp.templates import get_template_renderer
+from common_frontend.templates import get_renderer
 from webapp.custom.courses import FrontendCourse
-from webapp.plugins.plugin_manager import PluginManager
+from common_frontend.plugin_manager import PluginManager
 import webapp.user as User
 
 
@@ -155,8 +155,6 @@ def make_csv(data):
 
 def get_menu(course, current):
     """ Returns the HTML of the menu used in the administration. ```current``` is the current page of section """
-    custom_renderer = get_template_renderer('templates/')
-
     default_entries = []
     if User.get_username() in course.get_admins():
         default_entries += [("settings", "<i class='fa fa-cog fa-fw'></i>&nbsp; Course settings"),
@@ -171,9 +169,9 @@ def get_menu(course, current):
                         ("download", "<i class='fa fa-download fa-fw'></i>&nbsp; Download submissions")]
 
     # Hook should return a tuple (link,name) where link is the relative link from the index of the course administration.
-    additionnal_entries = [entry for entry in PluginManager.get_instance().call_hook('course_admin_menu', course=course) if entry is not None]
+    additionnal_entries = [entry for entry in PluginManager().call_hook('course_admin_menu', course=course) if entry is not None]
 
-    return custom_renderer.course_admin.menu(course, default_entries + additionnal_entries, current)
+    return get_renderer(False).course_admin.menu(course, default_entries + additionnal_entries, current)
 
 
 class CourseRedirect(object):

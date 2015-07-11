@@ -22,7 +22,7 @@ import pymongo
 import web
 
 from common_frontend.database import get_database
-from webapp.templates import renderer
+from common_frontend.templates import get_renderer
 from webapp.pages.course_admin.utils import make_csv, get_course_and_check_rights
 from webapp.submission_manager import get_submission
 
@@ -46,7 +46,7 @@ class CourseStudentTaskPage(object):
         data = [dict(f.items() + [("url", self.submission_url_generator(course, str(f["_id"])))]) for f in data]
         if "csv" in web.input():
             return make_csv(data)
-        return renderer.course_admin.student_task(course, username, task, data)
+        return get_renderer().course_admin.student_task(course, username, task, data)
 
 
 class SubmissionDownloadFeedback(object):

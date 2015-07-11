@@ -21,7 +21,7 @@ from collections import OrderedDict
 
 import web
 
-from webapp.templates import renderer
+from common_frontend.templates import get_renderer
 from webapp.custom.courses import FrontendCourse
 from webapp.submission_manager import get_user_last_submissions
 import webapp.user as User
@@ -36,11 +36,11 @@ class IndexPage(object):
             user_input = web.input()
             if "logoff" in user_input:
                 User.disconnect()
-                return renderer.index(False)
+                return get_renderer().index(False)
             else:
                 return self.call_main()
         else:
-            return renderer.index(False)
+            return get_renderer().index(False)
 
     def POST(self):
         """ POST request: login """
@@ -49,11 +49,11 @@ class IndexPage(object):
             if User.connect(int(user_input["@authid"]), user_input):
                 return self.call_main()
             else:
-                return renderer.index(True)
+                return get_renderer().index(True)
         elif User.is_logged_in():  # register for a course
             return self.call_main()
         else:
-            return renderer.index(False)
+            return get_renderer().index(False)
 
     def call_main(self):
         """ Display main page (only when logged) """
@@ -101,4 +101,4 @@ class IndexPage(object):
                                 not course.is_open_to_user(username) and course.is_registration_possible(username)}
         registerable_courses = OrderedDict(sorted(registerable_courses.iteritems(), key=lambda x: x[1].get_name()))
 
-        return renderer.main(open_courses, registerable_courses, except_free_last_submissions, registration_status)
+        return get_renderer().main(open_courses, registerable_courses, except_free_last_submissions, registration_status)
