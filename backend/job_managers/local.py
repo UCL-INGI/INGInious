@@ -26,9 +26,9 @@ from backend_agent.local_agent import LocalAgent
 class LocalJobManager(AbstractJobManager):
     """ A Job Manager that starts and use a local agent """
 
-    def __init__(self, image_aliases, agent_tmp_dir="./agent_tmp", hook_manager=None, is_testing=False, agent_class=LocalAgent):
+    def __init__(self, image_aliases, task_directory, agent_tmp_dir="./agent_tmp", hook_manager=None, is_testing=False, agent_class=LocalAgent):
         AbstractJobManager.__init__(self, image_aliases, hook_manager, is_testing)
-        self._agent = agent_class(image_aliases, agent_tmp_dir)
+        self._agent = agent_class(image_aliases, task_directory, agent_tmp_dir)
 
     def start(self):
         pass

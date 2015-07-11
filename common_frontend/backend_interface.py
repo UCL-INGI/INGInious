@@ -23,6 +23,7 @@ from backend.job_managers.remote_docker import RemoteDockerJobManager
 from backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
 from common_frontend.database import get_database
 from common_frontend.configuration import INGIniousConfiguration
+import common.base
 
 def get_job_manager():
     """ Get the JobManager. Should only be used by very specific plugins """
@@ -46,6 +47,7 @@ def init(plugin_manager):
     if backend_type == "local":
         get_job_manager.job_manager = LocalJobManager(
             INGIniousConfiguration.get('containers', {"default": "ingi/inginious-c-default", "sekexe": "ingi/inginious-c-sekexe"}),
+            common.base.get_tasks_directory(),
             INGIniousConfiguration.get('local_agent_tmp_dir', "/tmp/inginious_agent"), plugin_manager)
     elif backend_type == "remote":
         get_job_manager.job_manager = RemoteDockerJobManager(INGIniousConfiguration.get("docker_daemons", []),
@@ -56,6 +58,7 @@ def init(plugin_manager):
         get_job_manager.job_manager = RemoteManualAgentJobManager(
             INGIniousConfiguration.get("agents", [{"host": "localhost", "port": 5001}]),
             INGIniousConfiguration.get('containers', {"default": "ingi/inginious-c-default", "sekexe": "ingi/inginious-c-sekexe"}),
+            common.base.get_task_directory(),
             plugin_manager)
     else:
         raise Exception("Unknown backend {}".format(backend_type))

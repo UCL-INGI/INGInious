@@ -80,6 +80,7 @@ class TestRemoteJobManager(TestJobManager):
     def setUp_job_manager(self):
         self.job_manager = RemoteManualAgentJobManager([{"host": "localhost", "port": self._get_port()}],
                                                        {"default": "ingi/inginious-c-default"},
+                                                       os.path.join(os.path.dirname(__file__), 'tasks'),
                                                        self.generate_hook_manager(),
                                                        True)
         self.job_manager.start()
@@ -91,6 +92,7 @@ class TestRemoteJobManager(TestJobManager):
 class TestLocalJobManager(TestJobManager):
     def setUp_job_manager(self):
         self.job_manager = LocalJobManager({"default": "inginious-c-default"},
+                                           os.path.join(os.path.dirname(__file__), 'tasks'),
                                            hook_manager=self.generate_hook_manager(),
                                            agent_class=get_fake_local_agent(self.handle_job_func))
         self.job_manager.start()

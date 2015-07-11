@@ -59,4 +59,4 @@ if __name__ == "__main__":
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
-    RemoteAgent(args.port, os.path.join(args.dir, 'tmp'), sync_enabled)
+    RemoteAgent(args.port, taskdir, os.path.join(args.dir, 'tmp'), sync_enabled)

@@ -56,7 +56,7 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
             return True
         return False
 
-    def __init__(self, docker_daemons, image_aliases, hook_manager=None, is_testing=False):
+    def __init__(self, docker_daemons, image_aliases, task_directory, hook_manager=None, is_testing=False):
         """
             Starts the job manager.
 
@@ -139,4 +139,4 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
 
             agents.append({"host": daemon['remote_host'], "port": daemon.get("remote_agent_port", 63456)})
 
-        RemoteManualAgentJobManager.__init__(self, agents, image_aliases, hook_manager, is_testing)
+        RemoteManualAgentJobManager.__init__(self, agents, image_aliases, task_directory, hook_manager, is_testing)

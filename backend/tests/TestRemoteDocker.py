@@ -71,13 +71,13 @@ class TestDockerJobManager(object):
                 "remote_host": "192.168.59.103",
                 "remote_docker_port": 2375,
                 "remote_agent_port": 63456
-            }], {"default": "ingi/inginious-c-default"}, is_testing=True)
+            }], {"default": "ingi/inginious-c-default"}, "./tasks", is_testing=True)
         elif TEST_DOCKER_JOB_MANAGER == "travis":
             self.job_manager = RemoteDockerJobManager([{
                 "remote_host": "localhost",
                 "remote_docker_port": 2375,
                 "remote_agent_port": 63456
-            }], {"default": "ingi/inginious-c-default"}, is_testing=True)
+            }], {"default": "ingi/inginious-c-default"}, "./tasks", is_testing=True)
         self.job_manager.start()
 
     def build_fake_agent(self, dockerfile="FakeAgentDockerfile"):

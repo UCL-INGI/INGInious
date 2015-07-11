@@ -30,12 +30,12 @@ class PluginManager(HookManager):
 
     __metaclass__ = Singleton
 
-    def __init__(self, app=None, config=None):
-        if app is None or config is None:
+    def __init__(self, webpy_app=None, config=None):
+        if webpy_app is None or config is None:
             raise Exception("Plugin Manager should be initialized before call")
 
         HookManager.__init__(self)
-        self.app = app
+        self.app = webpy_app
         self.plugins = []
         self.authentication = []
         self._config = config

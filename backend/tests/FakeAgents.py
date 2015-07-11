@@ -28,7 +28,7 @@ def get_fake_local_agent(handle_job_func):
     class FakeLocalAgent(object):
         """ A fake agent used for tests of the local interface"""
 
-        def __init__(self, _, _2):
+        def __init__(self, _, _2, _3):
             self.handle_job_func = handle_job_func
 
         def new_job(self, job_id, course_id, task_id, inputdata, debug, callback_status, final_callback):

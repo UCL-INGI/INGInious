@@ -31,7 +31,7 @@ import rpyc
 from rpyc import BgServingThread
 
 from backend.job_managers.abstract import AbstractJobManager
-from common.base import directory_compare_from_hash, get_tasks_directory, directory_content_with_hash, hash_file
+from common.base import directory_compare_from_hash, directory_content_with_hash, hash_file
 import common.custom_yaml
 from common.task_file_managers.manage import get_available_task_file_managers, get_task_file_manager
 
@@ -43,7 +43,7 @@ class RemoteManualAgentJobManager(AbstractJobManager):
         container images, etc.
     """
 
-    def __init__(self, agents, image_aliases, hook_manager=None, is_testing=False):
+    def __init__(self, agents, image_aliases, task_directory, hook_manager=None, is_testing=False):
         """
             Starts the job manager.
 
@@ -62,6 +62,9 @@ class RemoteManualAgentJobManager(AbstractJobManager):
         """
 
         AbstractJobManager.__init__(self, image_aliases, hook_manager, is_testing)
+
+        self._task_directory = task_directory
+
         self._agents = [None for _ in range(0, len(agents))]
         self._agents_thread = [None for _ in range(0, len(agents))]
         self._agents_info = agents
@@ -73,7 +76,7 @@ class RemoteManualAgentJobManager(AbstractJobManager):
 
     def start(self):
         # init the synchronization of task directories
-        self._last_content_in_task_directory = directory_content_with_hash(get_tasks_directory())
+        self._last_content_in_task_directory = directory_content_with_hash(self._task_directory)
         threading.Timer((30 if not self._is_testing else 2), self._try_synchronize_task_dir).start()
 
         # connect to agents
@@ -112,7 +115,7 @@ class RemoteManualAgentJobManager(AbstractJobManager):
         if self._closed:
             return
 
-        current_content_in_task_directory = directory_content_with_hash(get_tasks_directory())
+        current_content_in_task_directory = directory_content_with_hash(self._task_directory)
         changed, deleted = directory_compare_from_hash(current_content_in_task_directory, self._last_content_in_task_directory)
         if len(changed) != 0 or len(deleted) != 0:
             self._last_content_in_task_directory = current_content_in_task_directory
@@ -177,14 +180,14 @@ class RemoteManualAgentJobManager(AbstractJobManager):
         tar = tarfile.open(fileobj=tmpfile, mode='w:gz')
         for path in to_update:
             # be a little safe about what the agent returns...
-            if os.path.relpath(os.path.join(get_tasks_directory(), path), get_tasks_directory()) == path and ".." not in path:
+            if os.path.relpath(os.path.join(self._task_directory, path), self._task_directory) == path and ".." not in path:
                 if path in generated_files:  # the file do not really exists on disk, it was generated
                     info = tarfile.TarInfo(name=path)
                     info.size = generated_files[path].len
                     info.mode = 0o777
                     tar.addfile(tarinfo=info, fileobj=generated_files[path])
                 else:  # the file really exists on disk
-                    tar.add(arcname=path, name=os.path.join(get_tasks_directory(), path))
+                    tar.add(arcname=path, name=os.path.join(self._task_directory, path))
             else:
                 print "Agent returned non-safe file path: " + path
         tar.close()

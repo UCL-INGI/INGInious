@@ -66,4 +66,4 @@ if __name__ == "__main__":
     if not os.path.exists(mounted_dir):
         os.symlink("/agent_volume", mounted_dir)
 
-    RemoteAgent(int(os.environ["AGENT_PORT"]), mounted_dir, True)
+    RemoteAgent(int(os.environ["AGENT_PORT"]), "./tasks", mounted_dir, True)
