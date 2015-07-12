@@ -19,7 +19,6 @@
 """ Courses """
 
 from webapp.pages.api._api_page import APIAuthenticatedPage, APINotFound
-from webapp.custom.courses import FrontendCourse
 import webapp.user as User
 
 
@@ -56,10 +55,10 @@ class APICourses(APIAuthenticatedPage):
         output = []
 
         if courseid is None:
-            courses = FrontendCourse.get_all_courses()
+            courses = self.course_factory.get_all_courses()
         else:
             try:
-                courses = {courseid: FrontendCourse(courseid)}
+                courses = {courseid: self.course_factory.get_course(courseid)}
             except:
                 raise APINotFound("Course not found")
 

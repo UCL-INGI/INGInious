@@ -23,14 +23,13 @@ from bson.objectid import ObjectId
 import web
 
 from common_frontend.templates import get_renderer
-from webapp.pages.course_admin.utils import get_course_and_check_rights
+from webapp.pages.course_admin.utils import INGIniousAdminPage
 from common_frontend.database import get_database
 import webapp.user as User
 from webapp.submission_manager import get_submission_archive, keep_best_submission
 from common.base import id_checker
 
-
-class CourseDownloadSubmissions(object):
+class CourseDownloadSubmissions(INGIniousAdminPage):
     """ Batch operation management """
 
     valid_formats = formats = [
@@ -48,7 +47,7 @@ class CourseDownloadSubmissions(object):
 
     def POST(self, courseid):
         """ GET request """
-        course, _ = get_course_and_check_rights(courseid)
+        course, _ = self.get_course_and_check_rights(courseid)
 
         user_input = web.input(tasks=[], groups=[], users=[])
 
@@ -81,7 +80,7 @@ class CourseDownloadSubmissions(object):
 
     def GET(self, courseid):
         """ GET request """
-        course, _ = get_course_and_check_rights(courseid)
+        course, _ = self.get_course_and_check_rights(courseid)
         user_input = web.input()
 
         # First, check for a particular submission

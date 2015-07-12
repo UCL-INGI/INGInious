@@ -24,39 +24,19 @@ from common.cached_object import CachedClass
 from common.base import get_tasks_directory
 import os.path
 
-class Task(CachedClass):
+class Task(object):
     """ Contains the data for a task """
 
-    def __init__(self, course, taskid, init_data=None):
+    def __init__(self, course, taskid, content):
         """
-            Init the task. course is a Course object, taskid the task id, and init_data is a dictionnary containing the data needed to initialize the Task object.
+            Init the task. course is a Course object, taskid the task id, and content is a dictionnary containing the data needed to initialize the Task object.
             If init_data is None, the data will be taken from the course tasks' directory.
         """
-
-        if not id_checker(taskid):
-            raise Exception("Task with invalid id: " + course.get_id() + "/" + taskid)
-
         self._course = course
         self._taskid = taskid
 
-        if init_data is None:
-            try:
-                self._data = get_task_file_manager(self.get_course_id(), self.get_id()).read()
-            except Exception as inst:
-                raise Exception("Error while reading task file: " + self._course.get_id() + "/" + self._taskid + " :\n" + str(inst))
-        else:
-            self._data = init_data
+        self._data = content
 
-        self._environment = None
-        self._response_is_html = None
-        self._limits = None
-        self._problems = None
-        self._load_from_data() #init all the variables above
-
-    def _load_from_data(self):
-        """
-            Load data from _data
-        """
         self._environment = self._data.get('environment', None)
 
         # Response is HTML
@@ -84,16 +64,6 @@ class Task(CachedClass):
 
         for problemid in self._data['problems']:
             self._problems.append(self._create_task_problem(self, problemid, self._data['problems'][problemid]))
-
-    def reload(self, update_data=True):
-        """
-            reloads the object from disk
-        """
-        try:
-            self._data = get_task_file_manager(self.get_course_id(), self.get_id()).read()
-        except Exception as inst:
-            raise Exception("Error while reading task file: " + self._course.get_id() + "/" + self._taskid + " :\n" + str(inst))
-        self._load_from_data()
 
     def input_is_consistent(self, task_input):
         """ Check if an input for a task is consistent. Return true if this is case, false else """
@@ -189,20 +159,3 @@ class Task(CachedClass):
     def add_problem_types(cls, problem_type_dict):
         """ add new problem types """
         cls._problem_types.update(problem_type_dict)
-
-    @classmethod
-    def _get_cache_key(cls, course, taskid, init_data=None):
-        """
-            Returns a key to be used to cache an object. *args and **kwargs are the ones passed to the normal constructor.
-            Returning None make the current object not being cached.
-            This probably needs to be overriden
-        """
-        if init_data is not None:
-            return None
-        else:
-            return course.get_id(), taskid
-
-    def _file_cache_check(self):
-        """ Returns the path to check for updates """
-        ext = get_task_file_manager(self.get_course_id(), self.get_id()).get_ext()
-        return os.path.join(get_tasks_directory(), self.get_course_id(), self.get_id(), "task." + ext)

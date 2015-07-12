@@ -22,15 +22,14 @@ from bson.objectid import ObjectId
 
 from common_frontend.database import get_database
 from common_frontend.templates import get_renderer
-from webapp.pages.course_admin.utils import make_csv, get_course_and_check_rights
+from webapp.pages.course_admin.utils import make_csv, INGIniousAdminPage
 
-
-class CourseGroupInfoPage(object):
+class CourseGroupInfoPage(INGIniousAdminPage):
     """ List information about a group """
 
     def GET(self, courseid, groupid):
         """ GET request """
-        course, _ = get_course_and_check_rights(courseid)
+        course, _ = self.get_course_and_check_rights(courseid)
         if not course.is_group_course():
             raise web.notfound()
         else:

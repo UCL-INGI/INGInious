@@ -23,11 +23,11 @@ from pymongo import ReturnDocument
 from bson.objectid import ObjectId
 
 from common_frontend.templates import get_renderer
-from webapp.pages.course_admin.utils import get_course_and_check_rights
+from webapp.pages.course_admin.utils import INGIniousAdminPage
 from common_frontend.database import get_database
+from webapp.pages.utils import INGIniousPage
 
-
-class CourseEditGroup(object):
+class CourseEditGroup(INGIniousAdminPage):
     """ Edit a task """
 
     def get_user_lists(self, course, groupid):
@@ -47,7 +47,7 @@ class CourseEditGroup(object):
 
     def GET(self, courseid, groupid):
         """ Edit a group """
-        course, _ = get_course_and_check_rights(courseid, allow_all_staff=False)
+        course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         student_list, tutor_list = self.get_user_lists(course, groupid)
 
         group = get_database().groups.find_one({"_id": ObjectId(groupid), "course_id": courseid})
@@ -59,7 +59,7 @@ class CourseEditGroup(object):
 
     def POST(self, courseid, groupid):
         """ Edit a group """
-        course, _ = get_course_and_check_rights(courseid, allow_all_staff=False)
+        course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         student_list, tutor_list = self.get_user_lists(course, groupid)
         group = get_database().groups.find_one({"_id": ObjectId(groupid), "course_id": courseid})
 

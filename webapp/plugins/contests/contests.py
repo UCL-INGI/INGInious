@@ -27,8 +27,8 @@ import web
 
 from common_frontend.templates import get_custom_template_renderer
 from common_frontend.database import get_database
-from webapp.custom.courses import FrontendCourse
-from webapp.pages.course_admin.utils import get_course_and_check_rights
+from webapp.pages.utils import INGIniousPage
+from webapp.pages.course_admin.utils import INGIniousAdminPage
 from webapp.user_data import UserData
 
 
@@ -82,11 +82,11 @@ def course_menu(course):
         return None
 
 
-class ContestScoreboard(object):
+class ContestScoreboard(INGIniousPage):
     """ Displays the scoreboard of the contest """
 
     def GET(self, courseid):
-        course = FrontendCourse(courseid)
+        course = self.course_factory.get_course(courseid)
         contest_data = get_contest_data(course)
         if not contest_data['enabled']:
             raise web.notfound()
@@ -172,18 +172,18 @@ class ContestScoreboard(object):
                                                                                                           results, activity)
 
 
-class ContestAdmin(object):
+class ContestAdmin(INGIniousAdminPage):
     """ Contest settings for a course """
 
     def GET(self, courseid):
         """ GET request: simply display the form """
-        course, _ = get_course_and_check_rights(courseid, allow_all_staff=False)
+        course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         contest_data = get_contest_data(course)
         return get_custom_template_renderer('webapp/plugins/contests', '../../templates/layout').admin(course, contest_data, None, False)
 
     def POST(self, courseid):
         """ POST request: update the settings """
-        course, _ = get_course_and_check_rights(courseid, allow_all_staff=False)
+        course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         contest_data = get_contest_data(course)
 
         new_data = web.input()
@@ -230,7 +230,7 @@ class ContestAdmin(object):
             return get_custom_template_renderer('webapp/plugins/contests', '../../templates/layout').admin(course, contest_data, errors, False)
 
 
-def init(plugin_manager, _config):
+def init(plugin_manager, course_factory, _config):
     """
         Init the contest plugin.
         Available configuration:

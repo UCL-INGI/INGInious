@@ -22,11 +22,10 @@ import json
 import web
 
 from backend.helpers.job_manager_sync import JobManagerSync
-from common.courses import Course
 import common_frontend.backend_interface
+from webapp.pages.utils import INGIniousPage
 
-
-def init(plugin_manager, config):
+def init(plugin_manager, course_factory, config):
     """
         Init the edx plugin.
         Available configuration:
@@ -40,12 +39,12 @@ def init(plugin_manager, config):
 
     """
     courseid = config.get('courseid', 'edx')
-    course = Course(courseid)
+    course = course_factory.get_course(courseid)
     page_pattern = config.get('page_pattern', '/edx')
 
     job_manager_sync = JobManagerSync(common_frontend.backend_interface.get_job_manager())
 
-    class EDX(object):
+    class EDX(INGIniousPage):
 
         """ Manages job from EDX """
 

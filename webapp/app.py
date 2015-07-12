@@ -30,48 +30,52 @@ import common_frontend.templates
 import common_frontend.configuration
 from webapp.database_updater import update_database
 from common_frontend.plugin_manager import PluginManager
+from common.course_factory import CourseFactory
 import common_frontend.templates
 import common_frontend.session
 import webapp.pages.course_admin.utils
+from webapp.custom.tasks import FrontendTask
+from webapp.custom.courses import FrontendCourse
+from webapp.pages.utils import webpy_fake_class_creator
 
-urls = (
-    '/', 'webapp.pages.index.IndexPage',
-    '/index', 'webapp.pages.index.IndexPage',
-    '/course/([^/]+)', 'webapp.pages.course.CoursePage',
-    '/course/([^/]+)/([^/]+)', 'webapp.pages.tasks.TaskPage',
-    '/course/([^/]+)/([^/]+)/(.*)', 'webapp.pages.tasks.TaskPageStaticDownload',
-    '/group/([^/]+)', 'webapp.pages.group.GroupPage',
-    '/admin/([^/]+)', 'webapp.pages.course_admin.utils.CourseRedirect',
-    '/admin/([^/]+)/settings', 'webapp.pages.course_admin.settings.CourseSettings',
-    '/admin/([^/]+)/batch', 'webapp.pages.course_admin.batch.CourseBatchOperations',
-    '/admin/([^/]+)/batch/create/(.+)', 'webapp.pages.course_admin.batch.CourseBatchJobCreate',
-    '/admin/([^/]+)/batch/summary/([^/]+)', 'webapp.pages.course_admin.batch.CourseBatchJobSummary',
-    '/admin/([^/]+)/batch/download/([^/]+)', 'webapp.pages.course_admin.batch.CourseBatchJobDownload',
-    '/admin/([^/]+)/batch/download/([^/]+)(/.*)', 'webapp.pages.course_admin.batch.CourseBatchJobDownload',
-    '/admin/([^/]+)/students', 'webapp.pages.course_admin.student_list.CourseStudentListPage',
-    '/admin/([^/]+)/student/([^/]+)', 'webapp.pages.course_admin.student_info.CourseStudentInfoPage',
-    '/admin/([^/]+)/student/([^/]+)/([^/]+)', 'webapp.pages.course_admin.student_task.CourseStudentTaskPage',
-    '/admin/([^/]+)/student/([^/]+)/([^/]+)/([^/]+)', 'webapp.pages.course_admin.student_task.SubmissionDownloadFeedback',
-    '/admin/([^/]+)/groups', 'webapp.pages.course_admin.group_list.CourseGroupListPage',
-    '/admin/([^/]+)/group/([^/]+)', 'webapp.pages.course_admin.group_info.CourseGroupInfoPage',
-    '/admin/([^/]+)/group/([^/]+)/([^/]+)', 'webapp.pages.course_admin.group_task.CourseGroupTaskPage',
-    '/admin/([^/]+)/group/([^/]+)/([^/]+)/([^/]+)', 'webapp.pages.course_admin.group_task.SubmissionDownloadFeedback',
-    '/admin/([^/]+)/tasks', 'webapp.pages.course_admin.task_list.CourseTaskListPage',
-    '/admin/([^/]+)/task/([^/]+)', 'webapp.pages.course_admin.task_info.CourseTaskInfoPage',
-    '/admin/([^/]+)/edit/group/([^/]+)', 'webapp.pages.course_admin.group_edit.CourseEditGroup',
-    '/admin/([^/]+)/edit/task/([^/]+)', 'webapp.pages.course_admin.task_edit.CourseEditTask',
-    '/admin/([^/]+)/edit/task/([^/]+)/files', 'webapp.pages.course_admin.task_edit_file.CourseTaskFiles',
-    '/admin/([^/]+)/download', 'webapp.pages.course_admin.download.CourseDownloadSubmissions',
-    '/api/v0/auth_methods', 'webapp.pages.api.auth_methods.APIAuthMethods',
-    '/api/v0/authentication', 'webapp.pages.api.authentication.APIAuthentication',
-    '/api/v0/courses', 'webapp.pages.api.courses.APICourses',
-    '/api/v0/courses/([a-zA-Z_\-\.0-9]+)', 'webapp.pages.api.courses.APICourses',
-    '/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks', 'webapp.pages.api.tasks.APITasks',
-    '/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)', 'webapp.pages.api.tasks.APITasks',
-    '/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)/submissions', 'webapp.pages.api.submissions.APISubmissions',
-    '/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)/submissions/([a-zA-Z_\-\.0-9]+)',
+urls = {
+    '/': 'webapp.pages.index.IndexPage',
+    '/index': 'webapp.pages.index.IndexPage',
+    '/course/([^/]+)': 'webapp.pages.course.CoursePage',
+    '/course/([^/]+)/([^/]+)': 'webapp.pages.tasks.TaskPage',
+    '/course/([^/]+)/([^/]+)/(.*)': 'webapp.pages.tasks.TaskPageStaticDownload',
+    '/group/([^/]+)': 'webapp.pages.group.GroupPage',
+    '/admin/([^/]+)': 'webapp.pages.course_admin.utils.CourseRedirect',
+    '/admin/([^/]+)/settings': 'webapp.pages.course_admin.settings.CourseSettings',
+    '/admin/([^/]+)/batch': 'webapp.pages.course_admin.batch.CourseBatchOperations',
+    '/admin/([^/]+)/batch/create/(.+)': 'webapp.pages.course_admin.batch.CourseBatchJobCreate',
+    '/admin/([^/]+)/batch/summary/([^/]+)': 'webapp.pages.course_admin.batch.CourseBatchJobSummary',
+    '/admin/([^/]+)/batch/download/([^/]+)': 'webapp.pages.course_admin.batch.CourseBatchJobDownload',
+    '/admin/([^/]+)/batch/download/([^/]+)(/.*)': 'webapp.pages.course_admin.batch.CourseBatchJobDownload',
+    '/admin/([^/]+)/students': 'webapp.pages.course_admin.student_list.CourseStudentListPage',
+    '/admin/([^/]+)/student/([^/]+)': 'webapp.pages.course_admin.student_info.CourseStudentInfoPage',
+    '/admin/([^/]+)/student/([^/]+)/([^/]+)': 'webapp.pages.course_admin.student_task.CourseStudentTaskPage',
+    '/admin/([^/]+)/student/([^/]+)/([^/]+)/([^/]+)': 'webapp.pages.course_admin.student_task.SubmissionDownloadFeedback',
+    '/admin/([^/]+)/groups': 'webapp.pages.course_admin.group_list.CourseGroupListPage',
+    '/admin/([^/]+)/group/([^/]+)': 'webapp.pages.course_admin.group_info.CourseGroupInfoPage',
+    '/admin/([^/]+)/group/([^/]+)/([^/]+)': 'webapp.pages.course_admin.group_task.CourseGroupTaskPage',
+    '/admin/([^/]+)/group/([^/]+)/([^/]+)/([^/]+)': 'webapp.pages.course_admin.group_task.SubmissionDownloadFeedback',
+    '/admin/([^/]+)/tasks': 'webapp.pages.course_admin.task_list.CourseTaskListPage',
+    '/admin/([^/]+)/task/([^/]+)': 'webapp.pages.course_admin.task_info.CourseTaskInfoPage',
+    '/admin/([^/]+)/edit/group/([^/]+)': 'webapp.pages.course_admin.group_edit.CourseEditGroup',
+    '/admin/([^/]+)/edit/task/([^/]+)': 'webapp.pages.course_admin.task_edit.CourseEditTask',
+    '/admin/([^/]+)/edit/task/([^/]+)/files': 'webapp.pages.course_admin.task_edit_file.CourseTaskFiles',
+    '/admin/([^/]+)/download': 'webapp.pages.course_admin.download.CourseDownloadSubmissions',
+    '/api/v0/auth_methods': 'webapp.pages.api.auth_methods.APIAuthMethods',
+    '/api/v0/authentication': 'webapp.pages.api.authentication.APIAuthentication',
+    '/api/v0/courses': 'webapp.pages.api.courses.APICourses',
+    '/api/v0/courses/([a-zA-Z_\-\.0-9]+)': 'webapp.pages.api.courses.APICourses',
+    '/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks': 'webapp.pages.api.tasks.APITasks',
+    '/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)': 'webapp.pages.api.tasks.APITasks',
+    '/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)/submissions': 'webapp.pages.api.submissions.APISubmissions',
+    '/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)/submissions/([a-zA-Z_\-\.0-9]+)':
         'webapp.pages.api.submissions.APISubmissionSingle',
-)
+}
 
 urls_maintenance = (
     '/.*', 'webapp.pages.maintenance.MaintenancePage'
@@ -85,10 +89,12 @@ def get_app(config_file):
         appli = web.application(urls_maintenance, globals(), autoreload=False)
         return appli
 
-    appli = web.application(urls, globals(), autoreload=False)
+    appli = web.application((), globals(), autoreload=False)
+
+    course_factory = CourseFactory(common_frontend.configuration.INGIniousConfiguration["tasks_directory"], FrontendCourse, FrontendTask)
 
     common_frontend.database.init_database()
-    update_database()
+    update_database(course_factory)
     common_frontend.session.init(appli)
 
     def not_found():
@@ -97,7 +103,7 @@ def get_app(config_file):
 
     appli.notfound = not_found
 
-    plugin_manager = PluginManager(appli, common_frontend.configuration.INGIniousConfiguration.get("plugins", []))
+    plugin_manager = PluginManager(appli, course_factory, common_frontend.configuration.INGIniousConfiguration.get("plugins", []))
 
     # Plugin Manager is also a Hook Manager
     backend_interface.init(plugin_manager)
@@ -105,6 +111,12 @@ def get_app(config_file):
     # Init templates
     common_frontend.templates.init_renderer('webapp/templates', 'layout')
     common_frontend.templates.TemplateHelper().add_other("course_admin_menu", webapp.pages.course_admin.utils.get_menu)
+
+    # Init the mapping of the app
+    fixed_urls = dict(urls)
+    for key, val in fixed_urls.iteritems():
+        fixed_urls[key] = webpy_fake_class_creator(val, plugin_manager, course_factory)
+    appli.init_mapping([item for sublist in fixed_urls.iteritems() for item in sublist])
 
     # Loads plugins
     plugin_manager.load()

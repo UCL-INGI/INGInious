@@ -20,10 +20,13 @@
 import pymongo
 
 from common_frontend.database import get_database
-from webapp.custom.courses import FrontendCourse
 
+def update_database(course_factory):
+    """
+    Checks the database version and update the db if necessary
+    :param course_factory: the course factory
+    """
 
-def update_database():
     db_version = get_database().db_version.find_one({})
     if db_version is None:
         db_version = 0
@@ -53,7 +56,7 @@ def update_database():
         data = get_database().user_tasks.aggregate([{"$group": {"_id": "$courseid", "usernames": {"$addToSet": "$username"}}}])
         for r in list(data):
             try:
-                course = FrontendCourse(r['_id'])
+                course = course_factory.get_course(r['_id'])
                 for u in r['usernames']:
                     course.register_user(u, force=True)
             except:

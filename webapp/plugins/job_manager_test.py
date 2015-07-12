@@ -28,7 +28,7 @@ class JobManagerTest(object):
         return str(common_frontend.backend_interface.get_job_manager().get_waiting_jobs_count())
 
 
-def init(plugin_manager, _):
+def init(plugin_manager, _, _2):
     """ Init the plugin """
     plugin_manager.add_page("/tests/stats", "webapp.plugins.job_manager_test.JobManagerTest")
     print "Started JobManagerTest plugin"

@@ -28,7 +28,7 @@ from common.task_file_managers.yaml_manager import TaskYAMLFileManager
 import webapp.plugins.task_file_managers.json_manager
 import webapp.plugins.task_file_managers.rst_manager
 import common.base
-from common.courses import Course
+from common.course_factory import CourseFactory
 import argparse
 import tidylib
 
@@ -74,7 +74,7 @@ if __name__ == "__main__":
     add_custom_task_file_manager(webapp.plugins.task_file_managers.json_manager.TaskJSONFileManager)
     add_custom_task_file_manager(webapp.plugins.task_file_managers.rst_manager.TaskRSTFileManager)
 
-    courses = Course.get_all_courses()
+    courses = CourseFactory(args.tasks).get_all_courses()
     for courseid, course in courses.iteritems():
         for taskid, task in course.get_tasks().iteritems():
             data = get_task_file_manager(courseid, taskid).read()

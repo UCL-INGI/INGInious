@@ -37,7 +37,7 @@ class TaskRSTFileManager(AbstractTaskFileManager):
         return dict2rst(data)
 
 
-def init(plugin_manager, _):
+def init(plugin_manager, _, _2):
     """
         Init the plugin. Configuration:
         ::

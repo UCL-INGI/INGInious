@@ -24,15 +24,15 @@ from bson.objectid import ObjectId
 
 from common_frontend.database import get_database
 from common_frontend.templates import get_renderer
-from webapp.pages.course_admin.utils import make_csv, get_course_and_check_rights
+from webapp.pages.course_admin.utils import make_csv, INGIniousAdminPage
 from webapp.submission_manager import get_submission
 
-class CourseGroupTaskPage(object):
+class CourseGroupTaskPage(INGIniousAdminPage):
     """ List information about a task done by a student """
 
     def GET(self, courseid, groupid, taskid):
         """ GET request """
-        course, task = get_course_and_check_rights(courseid, taskid)
+        course, task = self.get_course_and_check_rights(courseid, taskid)
         if not course.is_group_course():
             raise web.notfound()
         else:
@@ -54,10 +54,10 @@ class CourseGroupTaskPage(object):
         return get_renderer.course_admin.group_task(course, group, task, data)
 
 
-class SubmissionDownloadFeedback(object):
+class SubmissionDownloadFeedback(INGIniousAdminPage):
     def GET(self, courseid, groupid, taskid, submissionid):
         """ GET request """
-        course, task = get_course_and_check_rights(courseid, taskid)
+        course, task = self.get_course_and_check_rights(courseid, taskid)
 
         if not course.is_group_course():
             raise web.notfound()

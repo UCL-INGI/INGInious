@@ -20,12 +20,10 @@
 import web
 
 from common_frontend.templates import get_renderer
-from webapp.custom.courses import FrontendCourse
 import webapp.user as User
-# Course page
+from webapp.pages.utils import INGIniousPage
 
-
-class CoursePage(object):
+class CoursePage(INGIniousPage):
     """ Course page """
 
     def GET(self, courseid):
@@ -33,7 +31,7 @@ class CoursePage(object):
 
         if User.is_logged_in():
             try:
-                course = FrontendCourse(courseid)
+                course = self.course_factory.get_course(courseid)
                 registration_uncomplete = not course.is_open_to_user(User.get_username(), course.is_group_course())
                 if registration_uncomplete and course.can_students_choose_group():
                     raise web.seeother("/group/"+courseid)

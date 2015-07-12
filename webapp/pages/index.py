@@ -22,12 +22,11 @@ from collections import OrderedDict
 import web
 
 from common_frontend.templates import get_renderer
-from webapp.custom.courses import FrontendCourse
 from webapp.submission_manager import get_user_last_submissions
 import webapp.user as User
+from webapp.pages.utils import INGIniousPage
 
-
-class IndexPage(object):
+class IndexPage(INGIniousPage):
     """ Index page """
 
     def GET(self):
@@ -65,7 +64,7 @@ class IndexPage(object):
         registration_status = None
         if "register_courseid" in user_input and user_input["register_courseid"] != "":
             try:
-                course = FrontendCourse(user_input["register_courseid"])
+                course = self.course_factory.get_course(user_input["register_courseid"])
                 if not course.is_registration_possible(username):
                     registration_status = False
                 else:
@@ -77,7 +76,7 @@ class IndexPage(object):
                 registration_status = False
         if "unregister_courseid" in user_input:
             try:
-                course = FrontendCourse(user_input["unregister_courseid"])
+                course = self.course_factory.get_course(user_input["unregister_courseid"])
                 course.unregister_user(username)
             except:
                 pass
@@ -87,12 +86,12 @@ class IndexPage(object):
         except_free_last_submissions = []
         for submission in last_submissions:
             try:
-                submission["task"] = FrontendCourse(submission['courseid']).get_task(submission['taskid'])
+                submission["task"] = self.course_factory.get_course(submission['courseid']).get_task(submission['taskid'])
                 except_free_last_submissions.append(submission)
             except:
                 pass
 
-        all_courses = FrontendCourse.get_all_courses()
+        all_courses = self.course_factory.get_all_courses()
 
         open_courses = {courseid: course for courseid, course in all_courses.iteritems() if course.is_open_to_user(username)}
         open_courses = OrderedDict(sorted(open_courses.iteritems(), key=lambda x: x[1].get_name()))

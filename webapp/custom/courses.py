@@ -32,14 +32,8 @@ from common_frontend.configuration import INGIniousConfiguration
 class FrontendCourse(Course):
     """ A course with some modification for users """
 
-    _task_class = FrontendTask
-
-    def __init__(self, courseid):
-        Course.__init__(self, courseid)
-        #self.reload() will be called by Course.__init__.
-
-    def reload(self):
-        Course.reload(self)
+    def __init__(self, courseid, content, task_factory):
+        Course.__init__(self, courseid, content, task_factory)
 
         if self._content.get('nofrontend', False):
             raise Exception("That course is not allowed to be displayed directly in the webapp")
@@ -151,7 +145,7 @@ class FrontendCourse(Course):
             import webapp.user as User
 
             username = User.get_username()
-        cache = UserData(username).get_course_data(self.get_id())
+        cache = UserData(username).get_course_data(self)
         if cache is None:
             return 0
         if cache["total_tasks"] == 0:
@@ -164,7 +158,7 @@ class FrontendCourse(Course):
             import webapp.user as User
 
             username = User.get_username()
-        cache = UserData(username).get_course_data(self.get_id())
+        cache = UserData(username).get_course_data(self)
         if cache is None:
             return 0
         total_weight = 0

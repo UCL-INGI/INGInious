@@ -16,16 +16,23 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
+""" Some type of exceptions used by parts of INGInious """
 
-from backend.tests.TestJobManager import TestRemoteJobManager
-from common.courses import Course
+class InvalidNameException(Exception):
+    pass
 
 
-class TestNoRemoteAgent(TestRemoteJobManager):
-    def test_no_agent(self):
-        assert self.job_manager.number_agents_available() == 0
+class CourseNotFoundException(Exception):
+    pass
 
-    def test_run_job(self):
-        self.job_manager.new_job(self.course_factory.get_task('test', 'do_run'), {"problem_1": "1"}, self.default_callback)
-        result = self.wait_for_callback()
-        assert "result" in result and result["result"] == "crash"
+
+class TaskNotFoundException(Exception):
+    pass
+
+
+class CourseUnreadableException(Exception):
+    pass
+
+
+class TaskUnreadableException(Exception):
+    pass

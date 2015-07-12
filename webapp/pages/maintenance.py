@@ -19,9 +19,9 @@
 """ Maintenance page """
 
 from common_frontend.templates import get_custom_template_renderer
+from webapp.pages.utils import INGIniousPage
 
-
-class MaintenancePage(object):
+class MaintenancePage(INGIniousPage):
     """ Maintenance page """
 
     renderer = get_custom_template_renderer('frontend/templates/')

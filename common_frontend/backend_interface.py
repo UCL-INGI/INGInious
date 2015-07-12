@@ -53,12 +53,13 @@ def init(plugin_manager):
         get_job_manager.job_manager = RemoteDockerJobManager(INGIniousConfiguration.get("docker_daemons", []),
                                                              INGIniousConfiguration.get('containers', {"default": "ingi/inginious-c-default",
                                                                                                        "sekexe": "ingi/inginious-c-sekexe"}),
+                                                             common.base.get_tasks_directory(),
                                                              plugin_manager)
     elif backend_type == "remote_manual":
         get_job_manager.job_manager = RemoteManualAgentJobManager(
             INGIniousConfiguration.get("agents", [{"host": "localhost", "port": 5001}]),
             INGIniousConfiguration.get('containers', {"default": "ingi/inginious-c-default", "sekexe": "ingi/inginious-c-sekexe"}),
-            common.base.get_task_directory(),
+            common.base.get_tasks_directory(),
             plugin_manager)
     else:
         raise Exception("Unknown backend {}".format(backend_type))

@@ -38,29 +38,13 @@ class FrontendTask(common.tasks.Task):
         "multiple-choice": DisplayableMultipleChoiceProblem,
         "match": DisplayableMatchProblem}
 
-    def __init__(self, course, taskid, init_data=None):
+    def __init__(self, course, taskid, content):
         # We load the descriptor of the task here to allow plugins to modify settings of the task before it is read by the Task constructor
         if not id_checker(taskid):
             raise Exception("Task with invalid id: " + course.get_id() + "/" + taskid)
-        if init_data is None:
-            try:
-                init_data = get_task_file_manager(course.get_id(), taskid).read()
-            except Exception as inst:
-                raise Exception("Error while reading task file: " + course.get_id() + "/" + taskid + " :\n" + str(inst))
-        PluginManager().call_hook('modify_task_data', course=course, taskid=taskid, data=init_data)
+        PluginManager().call_hook('modify_task_data', course=course, taskid=taskid, data=content)
 
-        # The following instance variable will be declared by self._load_from_data, itself called by common.tasks.Task.__init__.
-        self._name = None
-        self._context = None
-        self._author = None
-        self._weight = None
-        self._accessible = None
-        self._order = None
-        # Now init the task
-        common.tasks.Task.__init__(self, course, taskid, init_data)
-
-    def _load_from_data(self):
-        common.tasks.Task._load_from_data(self)
+        common.tasks.Task.__init__(self, course, taskid, content)
 
         self._name = self._data.get('name', 'Task {}'.format(self.get_id()))
 

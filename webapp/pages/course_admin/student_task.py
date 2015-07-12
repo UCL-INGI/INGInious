@@ -23,16 +23,15 @@ import web
 
 from common_frontend.database import get_database
 from common_frontend.templates import get_renderer
-from webapp.pages.course_admin.utils import make_csv, get_course_and_check_rights
+from webapp.pages.course_admin.utils import make_csv, INGIniousAdminPage
 from webapp.submission_manager import get_submission
 
-
-class CourseStudentTaskPage(object):
+class CourseStudentTaskPage(INGIniousAdminPage):
     """ List information about a task done by a student """
 
     def GET(self, courseid, username, taskid):
         """ GET request """
-        course, task = get_course_and_check_rights(courseid, taskid)
+        course, task = self.get_course_and_check_rights(courseid, taskid)
         return self.page(course, username, task)
 
     def submission_url_generator(self, course, submissionid):
@@ -49,10 +48,10 @@ class CourseStudentTaskPage(object):
         return get_renderer().course_admin.student_task(course, username, task, data)
 
 
-class SubmissionDownloadFeedback(object):
+class SubmissionDownloadFeedback(INGIniousAdminPage):
     def GET(self, courseid, username, taskid, submissionid):
         """ GET request """
-        course, task = get_course_and_check_rights(courseid, taskid)
+        course, task = self.get_course_and_check_rights(courseid, taskid)
         return self.page(course, username, task, submissionid)
 
     def page(self, course, username, task, submissionid):

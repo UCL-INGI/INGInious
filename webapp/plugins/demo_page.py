@@ -27,7 +27,7 @@ class DemoPage(object):
         return "This is a test page :-)"
 
 
-def init(plugin_manager, _):
+def init(plugin_manager, _, _2):
     """ Init the plugin """
     plugin_manager.add_page("/test", "webapp.plugins.demo_page.DemoPage")
     print "Started Demo Page"

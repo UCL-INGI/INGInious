@@ -30,19 +30,18 @@ from common.base import get_tasks_directory
 from common.tasks_code_boxes import FileBox
 from common.tasks_problems import MultipleChoiceProblem, BasicCodeProblem
 from common_frontend.templates import get_renderer
-from webapp.custom.courses import FrontendCourse
 import webapp.submission_manager as submission_manager
 import webapp.user as User
+from webapp.pages.utils import INGIniousPage
 
-
-class TaskPage(object):
+class TaskPage(INGIniousPage):
     """ Display a task (and allow to reload old submission/file uploaded during a submission) """
 
     def GET(self, courseid, taskid):
         """ GET request """
         if User.is_logged_in():
             try:
-                course = FrontendCourse(courseid)
+                course = self.course_factory.get_course(courseid)
                 if not course.is_open_to_user(User.get_username(), course.is_group_course()):
                     return get_renderer().course_unavailable()
 
@@ -87,7 +86,7 @@ class TaskPage(object):
         """ POST a new submission """
         if User.is_logged_in():
             try:
-                course = FrontendCourse(courseid)
+                course = self.course_factory.get_course(courseid)
                 if not course.is_open_to_user(User.get_username(), course.is_group_course()):
                     return get_renderer().course_unavailable()
 
@@ -183,14 +182,14 @@ class TaskPage(object):
         return output
 
 
-class TaskPageStaticDownload(object):
+class TaskPageStaticDownload(INGIniousPage):
     """ Allow to download files stored in the task folder """
 
     def GET(self, courseid, taskid, path):
         """ GET request """
         if User.is_logged_in():
             try:
-                course = FrontendCourse(courseid)
+                course = self.course_factory.get_course(courseid)
                 if not course.is_open_to_user(User.get_username(), course.is_group_course()):
                     return get_renderer().course_unavailable()
 

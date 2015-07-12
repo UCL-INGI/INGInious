@@ -26,39 +26,43 @@ import csv
 import web
 
 from common_frontend.templates import get_renderer
-from webapp.custom.courses import FrontendCourse
 from common_frontend.plugin_manager import PluginManager
 import webapp.user as User
+from webapp.pages.utils import INGIniousPage
 
-
-def get_course_and_check_rights(courseid, taskid=None, allow_all_staff=True):
-    """ Returns the course with id ```courseid``` and the task with id ```taskid```, and verify the rights of the user.
-        Raise web.notfound() when there is no such course of if the users has not enough rights.
-
-        :param courseid: the course on which to check rights
-        :param taskid: If not None, returns also the task with id ```taskid```
-        :param allow_all_staff: allow admins AND tutors to see the page. If false, all only admins.
-        :returns (Course, Task)
+class INGIniousAdminPage(INGIniousPage):
+    """
+    An improved version of INGIniousPage that checks rights for the administration
     """
 
-    try:
-        if User.is_logged_in():
-            course = FrontendCourse(courseid)
-            if allow_all_staff:
-                if User.get_username() not in course.get_staff():
-                    raise web.notfound()
-            else:
-                if User.get_username() not in course.get_admins():
-                    raise web.notfound()
+    def get_course_and_check_rights(self, courseid, taskid=None, allow_all_staff=True):
+        """ Returns the course with id ```courseid``` and the task with id ```taskid```, and verify the rights of the user.
+            Raise web.notfound() when there is no such course of if the users has not enough rights.
 
-            if taskid is None:
-                return (course, None)
+            :param courseid: the course on which to check rights
+            :param taskid: If not None, returns also the task with id ```taskid```
+            :param allow_all_staff: allow admins AND tutors to see the page. If false, all only admins.
+            :returns (Course, Task)
+        """
+
+        try:
+            if User.is_logged_in():
+                course = self.course_factory.get_course(courseid)
+                if allow_all_staff:
+                    if User.get_username() not in course.get_staff():
+                        raise web.notfound()
+                else:
+                    if User.get_username() not in course.get_admins():
+                        raise web.notfound()
+
+                if taskid is None:
+                    return (course, None)
+                else:
+                    return (course, course.get_task(taskid))
             else:
-                return (course, course.get_task(taskid))
-        else:
+                raise web.notfound()
+        except:
             raise web.notfound()
-    except:
-        raise web.notfound()
 
 
 class UnicodeWriter(object):
@@ -174,12 +178,12 @@ def get_menu(course, current):
     return get_renderer(False).course_admin.menu(course, default_entries + additionnal_entries, current)
 
 
-class CourseRedirect(object):
+class CourseRedirect(INGIniousAdminPage):
     """ Redirect admins to /settings and tutors to /task """
 
     def GET(self, courseid):
         """ GET request """
-        course, _ = get_course_and_check_rights(courseid)
+        course, _ = self.get_course_and_check_rights(courseid)
         if User.get_username() in course.get_tutors():
             raise web.seeother('/admin/{}/tasks'.format(courseid))
         else:

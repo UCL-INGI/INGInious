@@ -21,15 +21,14 @@ import web
 
 from common_frontend.database import get_database
 from common_frontend.templates import get_renderer
-from webapp.pages.course_admin.utils import make_csv, get_course_and_check_rights
+from webapp.pages.course_admin.utils import make_csv, INGIniousAdminPage
 
-
-class CourseStudentInfoPage(object):
+class CourseStudentInfoPage(INGIniousAdminPage):
     """ List information about a student """
 
     def GET(self, courseid, username):
         """ GET request """
-        course, _ = get_course_and_check_rights(courseid)
+        course, _ = self.get_course_and_check_rights(courseid)
         return self.page(course, username)
 
     def submission_url_generator(self, course, username, taskid):

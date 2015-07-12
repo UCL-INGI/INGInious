@@ -24,9 +24,9 @@ import web
 
 import webapp.user as User
 import common.custom_yaml as yaml
+from webapp.pages.utils import INGIniousPage
 
-
-class APIPage(object):
+class APIPage(INGIniousPage):
     """ Generic handler for all API pages """
 
     def GET(self, *args, **kwargs):

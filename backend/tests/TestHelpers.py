@@ -31,7 +31,7 @@ class TestSync(TestLocalJobManager):
 
     def test_sync(self):
         jbs = JobManagerSync(self.job_manager)
-        result = jbs.new_job(Course('test').get_task('do_run'), {"problem_id": "0"})
+        result = jbs.new_job(self.course_factory.get_task('test', 'do_run'), {"problem_id": "0"})
         assert "result" in result and result["result"] == "success"
 
 
@@ -42,14 +42,14 @@ class TestBuffer(TestLocalJobManager):
 
     def test_is_waiting(self):
         jbb = JobManagerBuffer(self.job_manager)
-        jobid1 = jbb.new_job(Course('test').get_task('do_run'), {"problem_id": "0"})
+        jobid1 = jbb.new_job(self.course_factory.get_task('test', 'do_run'), {"problem_id": "0"})
         assert jbb.is_waiting(jobid1)
         time.sleep(2)
         assert jbb.get_result(jobid1)["result"] == "success"
 
     def test_is_done(self):
         jbb = JobManagerBuffer(self.job_manager)
-        jobid1 = jbb.new_job(Course('test').get_task('do_run'), {"problem_id": "0"})
+        jobid1 = jbb.new_job(self.course_factory.get_task('test', 'do_run'), {"problem_id": "0"})
         time.sleep(2)
         assert jbb.is_done(jobid1)
         assert jbb.get_result(jobid1)["result"] == "success"

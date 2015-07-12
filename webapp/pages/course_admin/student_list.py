@@ -22,16 +22,15 @@ import web
 
 from common_frontend.templates import get_renderer
 from common_frontend.database import get_database
-from webapp.pages.course_admin.utils import make_csv, get_course_and_check_rights
+from webapp.pages.course_admin.utils import make_csv, INGIniousAdminPage
 from webapp.user_data import UserData
 
-
-class CourseStudentListPage(object):
+class CourseStudentListPage(INGIniousAdminPage):
     """ Course administration page: list of registered students """
 
     def GET(self, courseid):
         """ GET request """
-        course, _ = get_course_and_check_rights(courseid)
+        course, _ = self.get_course_and_check_rights(courseid)
         return self.page(course)
 
     def submission_url_generator(self, course, username):
@@ -48,7 +47,7 @@ class CourseStudentListPage(object):
             "task_grades": {"answer": 0, "match": 0}, "task_succeeded": 0, "task_tried": 0, "total_tries": 0,
             "grade": 0, "url": self.submission_url_generator(course, user["_id"])}) for user in users])
 
-        for user in UserData.get_course_data_for_users(course.get_id(), user_list):
+        for user in UserData.get_course_data_for_users(course, user_list):
             user_data[user["_id"]].update(user)
 
         if "csv" in web.input():

@@ -62,13 +62,13 @@ class UserData(object):
         """ Returns data of this user """
         return self._data
 
-    def get_course_data(self, courseid):
+    def get_course_data(self, course):
         """ Returns data of this user for a specific course."""
-        data = self.get_course_data_for_users(courseid, [self.username])
+        data = self.get_course_data_for_users(course, [self.username])
         return data[0] if len(data) > 0 else None
 
     @classmethod
-    def get_course_data_for_users(cls, courseid, users=None):
+    def get_course_data_for_users(cls, course, users=None):
         """
             Returns data of users for a specific course. users is a list of username. If users is none, data from all users will be returned.
 
@@ -78,10 +78,8 @@ class UserData(object):
 
             Please note that only the task already seen at least one time will be present in the dict task_grades.
         """
-        from webapp.custom.courses import FrontendCourse
 
-        course = FrontendCourse(courseid)
-        match = {"courseid": courseid}
+        match = {"courseid": course.get_id()}
         if users is not None:
             match["username"] = {"$in": users}
 

@@ -32,13 +32,11 @@ import common.custom_yaml
 from common.task_file_managers.manage import get_task_file_manager, get_available_task_file_managers, delete_all_possible_task_files
 from webapp.accessible_time import AccessibleTime
 from common_frontend.templates import get_renderer
-from webapp.custom.courses import FrontendCourse
 from webapp.custom.tasks import FrontendTask
 from webapp.pages.course_admin.task_edit_file import CourseTaskFiles
-from webapp.pages.course_admin.utils import get_course_and_check_rights
+from webapp.pages.course_admin.utils import INGIniousAdminPage
 
-
-class CourseEditTask(object):
+class CourseEditTask(INGIniousAdminPage):
     """ Edit a task """
 
     def GET(self, courseid, taskid):
@@ -46,7 +44,7 @@ class CourseEditTask(object):
         if not id_checker(taskid):
             raise Exception("Invalid task id")
 
-        course, _ = get_course_and_check_rights(courseid, allow_all_staff=False)
+        course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
 
         try:
             task_data = get_task_file_manager(courseid, taskid).read()
@@ -184,7 +182,7 @@ class CourseEditTask(object):
         if not id_checker(taskid) or not id_checker(courseid):
             raise Exception("Invalid course/task id")
 
-        course, _ = get_course_and_check_rights(courseid, allow_all_staff=False)
+        course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
 
         # Parse content
         try:
@@ -242,7 +240,7 @@ class CourseEditTask(object):
 
         # Get the course
         try:
-            course = FrontendCourse(courseid)
+            course = self.course_factory.get_course(courseid)
         except:
             return json.dumps({"status": "error", "message": "Error while reading course's informations"})
 

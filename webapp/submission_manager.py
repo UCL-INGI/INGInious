@@ -36,7 +36,6 @@ import common.custom_yaml
 from common_frontend.plugin_manager import PluginManager
 import webapp.user as User
 from webapp.user_data import UserData
-from webapp.custom.courses import FrontendCourse
 
 
 def get_submission(submissionid, user_check=True):
@@ -90,7 +89,7 @@ def add_job(task, inputdata, debug=False):
         raise Exception("A user must be logged in to submit an object")
 
     username = User.get_username()
-    course = FrontendCourse(task.get_course_id())
+    course = task.get_course()
 
     obj = {
         "courseid": task.get_course_id(),

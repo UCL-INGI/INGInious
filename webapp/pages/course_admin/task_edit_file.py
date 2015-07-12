@@ -30,11 +30,9 @@ import web
 from common.base import get_tasks_directory, id_checker
 from common.task_file_managers.manage import get_available_task_file_managers
 from common_frontend.templates import get_renderer
-from webapp.custom.courses import FrontendCourse
-from webapp.pages.course_admin.utils import get_course_and_check_rights
+from webapp.pages.course_admin.utils import INGIniousAdminPage
 
-
-class CourseTaskFiles(object):
+class CourseTaskFiles(INGIniousAdminPage):
     """ Edit a task """
 
     def GET(self, courseid, taskid):
@@ -42,7 +40,7 @@ class CourseTaskFiles(object):
         if not id_checker(taskid):
             raise Exception("Invalid task id")
 
-        get_course_and_check_rights(courseid, allow_all_staff=False)
+        self.get_course_and_check_rights(courseid, allow_all_staff=False)
 
         request = web.input()
         if request.get("action") == "download" and request.get('path') is not None:
@@ -63,7 +61,7 @@ class CourseTaskFiles(object):
         if not id_checker(taskid):
             raise Exception("Invalid task id")
 
-        get_course_and_check_rights(courseid, allow_all_staff=False)
+        self.get_course_and_check_rights(courseid, allow_all_staff=False)
 
         request = web.input(file={})
         if request.get("action") == "upload" and request.get('path') is not None and request.get('file') is not None:
@@ -75,7 +73,8 @@ class CourseTaskFiles(object):
 
     def show_tab_file(self, courseid, taskid, _error=False):
         """ Return the file tab """
-        return get_renderer(False).course_admin.edit_tabs.files(FrontendCourse(courseid), taskid, self.get_task_filelist(courseid, taskid))
+        return get_renderer(False).course_admin.edit_tabs.files(self.course_factory.get_course(courseid),
+                                                                taskid, self.get_task_filelist(courseid, taskid))
 
     @classmethod
     def get_task_filelist(cls, courseid, taskid):

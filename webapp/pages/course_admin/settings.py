@@ -20,21 +20,20 @@ import web
 
 from webapp.accessible_time import AccessibleTime
 from common_frontend.templates import get_renderer
-from webapp.pages.course_admin.utils import get_course_and_check_rights
+from webapp.pages.course_admin.utils import INGIniousAdminPage
 import webapp.user as User
 
-
-class CourseSettings(object):
+class CourseSettings(INGIniousAdminPage):
     """ Couse settings """
 
     def GET(self, courseid):
         """ GET request """
-        course, _ = get_course_and_check_rights(courseid, allow_all_staff=False)
+        course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         return self.page(course)
 
     def POST(self, courseid):
         """ POST request """
-        course, _ = get_course_and_check_rights(courseid, allow_all_staff=False)
+        course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
 
         errors = []
         course_content = {}
@@ -101,7 +100,7 @@ class CourseSettings(object):
         if len(errors) == 0:
             course.update_course_descriptor_content(courseid, course_content)
             errors = None
-            course, _ = get_course_and_check_rights(courseid, allow_all_staff=False)  # don't forget to reload the modified course
+            course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)  # don't forget to reload the modified course
 
         return self.page(course, errors, errors is None)
 

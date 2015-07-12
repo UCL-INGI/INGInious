@@ -19,7 +19,6 @@
 """ Tasks """
 
 from webapp.pages.api._api_page import APIAuthenticatedPage, APINotFound, APIForbidden
-from webapp.custom.courses import FrontendCourse
 import webapp.user as User
 from common_frontend.parsable_text import ParsableText
 
@@ -72,7 +71,7 @@ class APITasks(APIAuthenticatedPage):
         """
 
         try:
-            course = FrontendCourse(courseid)
+            course = self.course_factory.get_course(courseid)
         except:
             raise APINotFound("Course not found")
 

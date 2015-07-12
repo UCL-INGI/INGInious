@@ -25,20 +25,19 @@ import tempfile
 import web
 
 from common_frontend.templates import get_renderer
-from webapp.pages.course_admin.utils import get_course_and_check_rights
+from webapp.pages.course_admin.utils import INGIniousAdminPage
 from webapp.batch_manager import get_all_batch_containers_metadata, add_batch_job, get_all_batch_jobs_for_course, get_batch_job_status, \
     get_batch_container_metadata, drop_batch_job
 from common_frontend.database import get_gridfs
 import webapp.user as User
 
-
-class CourseBatchOperations(object):
+class CourseBatchOperations(INGIniousAdminPage):
     """ Batch operation management """
 
     def GET(self, courseid):
         """ GET request """
 
-        course, _ = get_course_and_check_rights(courseid)
+        course, _ = self.get_course_and_check_rights(courseid)
 
         web_input = web.input()
         if "drop" in web_input: # delete an old batch job
@@ -61,7 +60,7 @@ class CourseBatchOperations(object):
 
         return get_renderer().course_admin.batch(course, operations, get_all_batch_containers_metadata())
 
-class CourseBatchJobCreate(object):
+class CourseBatchJobCreate(INGIniousAdminPage):
     """ Creates new batch jobs """
     def GET(self, courseid, container_name):
         """ GET request """
@@ -98,7 +97,7 @@ class CourseBatchJobCreate(object):
             return self.page(course, container_name, container_title, container_description, container_args, errors)
 
     def get_basic_info(self, courseid, container_name):
-        course, _ = get_course_and_check_rights(courseid, allow_all_staff=False)
+        course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         try:
             metadata = get_batch_container_metadata(container_name)
             if metadata == (None, None, None):
@@ -122,13 +121,13 @@ class CourseBatchJobCreate(object):
 
         return get_renderer().course_admin.batch_create(course, container_name, container_title, container_description, container_args, error)
 
-class CourseBatchJobDownload(object):
+class CourseBatchJobDownload(INGIniousAdminPage):
     """ Get the file of a batch job """
 
     def GET(self, courseid, bid, path=""):
         """ GET request """
 
-        course, _ = get_course_and_check_rights(courseid)
+        course, _ = self.get_course_and_check_rights(courseid)
         batch_job = get_batch_job_status(bid)
 
         if batch_job is None:
@@ -175,13 +174,13 @@ class CourseBatchJobDownload(object):
                 web.header('Content-Type', mime_type[0])
                 return to_dl
 
-class CourseBatchJobSummary(object):
+class CourseBatchJobSummary(INGIniousAdminPage):
     """ Get the summary of a batch job """
 
     def GET(self, courseid, bid):
         """ GET request """
 
-        course, _ = get_course_and_check_rights(courseid)
+        course, _ = self.get_course_and_check_rights(courseid)
         batch_job = get_batch_job_status(bid)
 
         if batch_job is None:

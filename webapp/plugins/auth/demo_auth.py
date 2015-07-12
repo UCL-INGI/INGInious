@@ -21,7 +21,7 @@
 import webapp.user
 
 
-def init(plugin_manager, conf):
+def init(plugin_manager, _, conf):
     """
         A simple authentication that uses password stored in plain-text in the config.
 

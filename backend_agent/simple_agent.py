@@ -31,10 +31,9 @@ import re
 import docker
 from docker.utils import kwargs_from_env
 import rpyc
+from common.course_factory import CourseFactory
 
 from backend_agent._rpyc_unix_server import UnixSocketServer
-import common.base
-from common.courses import Course
 
 
 class SimpleAgent(object):
@@ -51,6 +50,7 @@ class SimpleAgent(object):
         self.image_aliases = []
         self.tmp_dir = tmp_dir
         self.task_directory = task_directory
+        self.course_factory = CourseFactory(task_directory)
 
         # Delete tmp_dir, and recreate-it again
         try:
@@ -279,7 +279,7 @@ class SimpleAgent(object):
 
         # Get back the task data (for the limits)
         try:
-            task = Course(course_id).get_task(task_id)
+            task = self.course_factory.get_task(course_id, task_id)
         except:
             self.logger.warning("Task %s/%s unavailable on this agent", course_id, task_id)
             return {'result': 'crash', 'text': 'Task unavailable on agent. Please retry later, the agents should synchronize soon. If the error '

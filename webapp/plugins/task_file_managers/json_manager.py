@@ -37,7 +37,7 @@ class TaskJSONFileManager(AbstractTaskFileManager):
         return json.dumps(data, sort_keys=False, indent=4, separators=(',', ': '))
 
 
-def init(plugin_manager, _):
+def init(plugin_manager, _, _2):
     """
         Init the plugin. Configuration:
         ::

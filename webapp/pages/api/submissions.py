@@ -21,20 +21,19 @@
 import web
 
 from webapp.pages.api._api_page import APIAuthenticatedPage, APINotFound, APIForbidden, APIInvalidArguments
-from webapp.custom.courses import FrontendCourse
 import webapp.user as User
 from webapp.submission_manager import get_user_submissions, get_submission, get_input_from_submission, add_job
 from common.tasks_code_boxes import FileBox
 from common.tasks_problems import MultipleChoiceProblem, BasicCodeProblem
 
 
-def _get_submissions(courseid, taskid, submissionid=None):
+def _get_submissions(course_factory, courseid, taskid, submissionid=None):
     """
         Helper for the GET methods of the two following classes
     """
 
     try:
-        course = FrontendCourse(courseid)
+        course = course_factory.get_course(courseid)
     except:
         raise APINotFound("Course not found")
 
@@ -108,7 +107,7 @@ class APISubmissionSingle(APIAuthenticatedPage):
             If you use the endpoint /api/v0/courses/the_course_id/tasks/the_task_id/submissions/submissionid,
             this dict will contain one entry or the page will return 404 Not Found.
         """
-        return _get_submissions(courseid, taskid, submissionid)
+        return _get_submissions(self.course_factory, courseid, taskid, submissionid)
 
 
 class APISubmissions(APIAuthenticatedPage):
@@ -143,7 +142,7 @@ class APISubmissions(APIAuthenticatedPage):
             If you use the endpoint /api/v0/courses/the_course_id/tasks/the_task_id/submissions/submissionid,
             this dict will contain one entry or the page will return 404 Not Found.
         """
-        return _get_submissions(courseid, taskid)
+        return _get_submissions(self.course_factory, courseid, taskid)
 
     def API_POST(self, courseid, taskid):
         """
@@ -159,7 +158,7 @@ class APISubmissions(APIAuthenticatedPage):
         """
 
         try:
-            course = FrontendCourse(courseid)
+            course = self.course_factory.get_course(courseid)
         except:
             raise APINotFound("Course not found")
 

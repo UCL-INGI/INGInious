@@ -24,6 +24,7 @@ import time
 
 from backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
 from backend.job_managers.local import LocalJobManager
+from common.course_factory import CourseFactory
 import common.base
 from backend.tests.FakeAgents import get_fake_local_agent, FakeRemoteAgent
 
@@ -40,6 +41,7 @@ class TestJobManager(object):
         common.base.init_common_lib(os.path.join(os.path.dirname(__file__), 'tasks'),
                                     [".c", ".cpp", ".java", ".oz", ".zip", ".tar.gz", ".tar.bz2", ".txt"],
                                     1024 * 1024)
+        self.course_factory = CourseFactory(os.path.join(os.path.dirname(__file__), 'tasks'))
         self.setUp_job_manager()
         self.callback_done = threading.Event()
         self.got_callback_result = None

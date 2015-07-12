@@ -23,11 +23,11 @@ from bson.objectid import ObjectId
 from bson.errors import InvalidId
 
 from common_frontend.templates import get_renderer
-from webapp.custom.courses import FrontendCourse
 from common_frontend.database import get_database
 import webapp.user as User
+from webapp.pages.utils import INGIniousPage
 
-class GroupPage(object):
+class GroupPage(INGIniousPage):
     """ Course page """
 
     def GET(self, courseid):
@@ -35,7 +35,7 @@ class GroupPage(object):
 
         if User.is_logged_in():
             try:
-                course = FrontendCourse(courseid)
+                course = self.course_factory.get_course(courseid)
                 registration_uncomplete = not course.is_open_to_user(User.get_username(), course.is_group_course())
                 error = ""
                 if not course.is_group_course() or User.get_username() in course.get_staff(True):

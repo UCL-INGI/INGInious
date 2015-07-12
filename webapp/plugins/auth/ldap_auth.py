@@ -23,7 +23,7 @@ import simpleldap
 import webapp.user
 
 
-def init(plugin_manager, conf):
+def init(plugin_manager, _, conf):
     """
         Allow to connect through a LDAP service
 
