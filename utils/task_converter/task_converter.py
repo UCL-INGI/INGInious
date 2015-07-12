@@ -67,8 +67,6 @@ if __name__ == "__main__":
         print "Please select at least one of --delete-html and --yaml-convert. See task_converter.py --help"
         exit(1)
 
-    # Init common
-    common.base.init_common_lib(args.tasks, [], 1)  # we do not need to upload file, so not needed here
     course_factory, task_factory = create_factories(args.tasks)
 
     task_factory.add_custom_task_file_manager(webapp.plugins.task_file_readers.json_reader.TaskJSONFileReader)

@@ -26,9 +26,6 @@ from common.exceptions import InvalidNameException, TaskUnreadableException
 
 class test_tasks_basic(object):
     def setUp(self):
-        common.base.init_common_lib(os.path.join(os.path.dirname(__file__), 'tasks'),
-                                    [".c", ".cpp", ".java", ".oz", ".zip", ".tar.gz", ".tar.bz2", ".txt"],
-                                    1024 * 1024)
         self.course_factory, _ = create_factories(os.path.join(os.path.dirname(__file__), 'tasks'))
 
     def test_task_loading(self):
@@ -64,7 +61,8 @@ class test_tasks_basic(object):
     def test_invalid_limits_1(self):
         try:
             t = common.tasks.Task(self.course_factory.get_course('test3'), 'invalid_task',
-                                  {"environment": "default", "limits": {"time": "a string!"}})
+                                  {"environment": "default", "limits": {"time": "a string!"}},
+                                  'fake_path')
             a = t.get_limits()
             print a
         except Exception as e:
@@ -74,7 +72,8 @@ class test_tasks_basic(object):
 
     def test_invalid_limits_2(self):
         try:
-            common.tasks.Task(self.course_factory.get_course('test3'), 'invalid_task', {"environment": "default", "limits": {"time": -1}})
+            common.tasks.Task(self.course_factory.get_course('test3'), 'invalid_task',
+                              {"environment": "default", "limits": {"time": -1}}, 'fake_path')
         except Exception as e:
             assert str(e) == "Invalid limit"
             return
@@ -82,7 +81,7 @@ class test_tasks_basic(object):
 
     def test_no_problems(self):
         try:
-            common.tasks.Task(self.course_factory.get_course('test3'), 'invalid_task', {"environment": "default"})
+            common.tasks.Task(self.course_factory.get_course('test3'), 'invalid_task', {"environment": "default"}, 'fake_path')
         except Exception as e:
             assert str(e) == "Tasks must have some problems descriptions"
             return
@@ -98,12 +97,12 @@ class test_tasks_basic(object):
     def test_input_consistent_valid(self):
         c = self.course_factory.get_course("test")
         t = c.get_task("task1")
-        assert t.input_is_consistent({"unittest/decimal": "10"}) is True
+        assert t.input_is_consistent({"unittest/decimal": "10"}, [], 0) is True
 
     def test_input_consistent_invalid(self):
         c = self.course_factory.get_course("test")
         t = c.get_task("task1")
-        assert t.input_is_consistent({"unittest/decimal": "something"}) is False
+        assert t.input_is_consistent({"unittest/decimal": "something"}, [], 0) is False
 
     def test_check_answer_1(self):
         c = self.course_factory.get_course("test")
@@ -132,9 +131,6 @@ class test_tasks_basic(object):
 
 class test_tasks_problems(object):
     def setUp(self):
-        common.base.init_common_lib(os.path.join(os.path.dirname(__file__), 'tasks'),
-                                    [".c", ".cpp", ".java", ".oz", ".zip", ".tar.gz", ".tar.bz2", ".txt"],
-                                    1024 * 1024)
         self.course_factory, _ = create_factories(os.path.join(os.path.dirname(__file__), 'tasks'))
 
     def test_problem_types(self):
@@ -160,9 +156,9 @@ class test_tasks_problems(object):
         assert not p.check_answer({'unittest': [0, 1, 2]})[0]
 
         # Check random form input
-        assert p.input_is_consistent({'unittest': [0, 1]})
-        assert not p.input_is_consistent('test')
-        assert not p.input_is_consistent((10, 42))
+        assert p.input_is_consistent({'unittest': [0, 1]}, [], 0)
+        assert not p.input_is_consistent('test', [], 0)
+        assert not p.input_is_consistent((10, 42), [], 0)
 
     def test_match(self):
         '''Tests match problems methods'''
@@ -174,9 +170,9 @@ class test_tasks_problems(object):
         assert not p.check_answer({'unittest': 'Wrong answer'})[0]
 
         # Check random form input
-        assert p.input_is_consistent({'unittest': 'Answer'})
-        assert not p.input_is_consistent('test')
-        assert not p.input_is_consistent((10, 42))
+        assert p.input_is_consistent({'unittest': 'Answer'}, [], 0)
+        assert not p.input_is_consistent('test', [], 0)
+        assert not p.input_is_consistent((10, 42), [], 0)
 
     def test_code(self):
         '''Tests code problems methods'''
@@ -184,16 +180,13 @@ class test_tasks_problems(object):
         p = self.course_factory.get_task('test', 'task1').get_problems()[0]
 
         # Check random form input
-        assert p.input_is_consistent({'unittest/decimal': '10'})
-        assert not p.input_is_consistent('test')
-        assert not p.input_is_consistent({'unittest': '10'})
+        assert p.input_is_consistent({'unittest/decimal': '10'}, [], 0)
+        assert not p.input_is_consistent('test', [], 0)
+        assert not p.input_is_consistent({'unittest': '10'}, [], 0)
 
 
 class test_tasks_boxes(object):
     def setUp(self):
-        common.base.init_common_lib(os.path.join(os.path.dirname(__file__), 'tasks'),
-                                    [".c", ".cpp", ".java", ".oz", ".zip", ".tar.gz", ".tar.bz2", ".txt"],
-                                    1024 * 1024)
         self.course_factory, _ = create_factories(os.path.join(os.path.dirname(__file__), 'tasks'))
 
     def test_number_boxes(self):
@@ -210,9 +203,11 @@ class test_tasks_boxes(object):
         assert box.get_type() == 'file'
 
         # Check random form input
-        assert box.input_is_consistent({"unittest/file1": {"filename": "test.txt", "value": "test"}})
-        assert not box.input_is_consistent({"unittest/file1": {"filename": "test.txt", "content": "test"}})
-        assert not box.input_is_consistent("test")
+        assert box.input_is_consistent({"unittest/file1": {"filename": "test.txt", "value": "test"}}, [".txt"], 100)
+        assert not box.input_is_consistent({"unittest/file1": {"filename": "test.txt", "value": "test"}}, [".nottxt"], 100)
+        assert not box.input_is_consistent({"unittest/file1": {"filename": "test.txt", "value": "test"}}, [".txt"], 1)
+        assert not box.input_is_consistent({"unittest/file1": {"filename": "test.txt", "content": "test"}}, [".txt"], 100)
+        assert not box.input_is_consistent({"unittest/file1": "text"}, [".txt"], 100)
 
     def test_integer_inputbox(self):
         '''Tests integer inputbox methods'''
@@ -222,10 +217,10 @@ class test_tasks_boxes(object):
         assert box.get_type() == 'input' and box._input_type == 'integer'
 
         # Check random form input
-        assert box.input_is_consistent({"unittest/int1": "42"})
-        assert not box.input_is_consistent({"unittest/int1": "test"})
-        assert not box.input_is_consistent("ddd")
-        assert not box.input_is_consistent(42)
+        assert box.input_is_consistent({"unittest/int1": "42"}, [], 0)
+        assert not box.input_is_consistent({"unittest/int1": "test"}, [], 0)
+        assert not box.input_is_consistent("ddd", [], 0)
+        assert not box.input_is_consistent(42, [], 0)
 
     def test_decimal_inputbox(self):
         '''Tests decimal inputbox methods'''
@@ -235,10 +230,10 @@ class test_tasks_boxes(object):
         assert box.get_type() == 'input' and box._input_type == 'decimal'
 
         # Check random form input
-        assert box.input_is_consistent({"unittest/decimal1": "42.3"})
-        assert not box.input_is_consistent({"unittest/decimal1": "test"})
-        assert not box.input_is_consistent("ddd")
-        assert not box.input_is_consistent(42)
+        assert box.input_is_consistent({"unittest/decimal1": "42.3"}, [], 0)
+        assert not box.input_is_consistent({"unittest/decimal1": "test"}, [], 0)
+        assert not box.input_is_consistent("ddd", [], 0)
+        assert not box.input_is_consistent(42, [], 0)
 
     def test_text_inputbox(self):
         '''Tests text inputbox methods'''
@@ -248,10 +243,10 @@ class test_tasks_boxes(object):
         assert box.get_type() == 'input' and box._input_type == 'text'
 
         # Check random form input
-        assert box.input_is_consistent({"unittest/text1": "42.3"})
-        assert box.input_is_consistent({"unittest/text1": "test"})
-        assert not box.input_is_consistent("ddd")
-        assert not box.input_is_consistent(42)
+        assert box.input_is_consistent({"unittest/text1": "42.3"}, [], 0)
+        assert box.input_is_consistent({"unittest/text1": "test"}, [], 0)
+        assert not box.input_is_consistent("ddd", [], 0)
+        assert not box.input_is_consistent(42, [], 0)
 
     def test_multiline_inputbox(self):
         '''Tests multiline inputbox methods'''
@@ -261,7 +256,7 @@ class test_tasks_boxes(object):
         assert box.get_type() == 'multiline'
 
         # Check random form input
-        assert box.input_is_consistent({"unittest/code1": "42.3"})
-        assert box.input_is_consistent({"unittest/code1": "test"})
-        assert not box.input_is_consistent("ddd")
-        assert not box.input_is_consistent(42)
+        assert box.input_is_consistent({"unittest/code1": "42.3"}, [], 0)
+        assert box.input_is_consistent({"unittest/code1": "test"}, [], 0)
+        assert not box.input_is_consistent("ddd", [], 0)
+        assert not box.input_is_consistent(42, [], 0)

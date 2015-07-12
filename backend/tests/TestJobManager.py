@@ -38,9 +38,6 @@ class TestJobManager(object):
         pass
 
     def setUp(self):
-        common.base.init_common_lib(os.path.join(os.path.dirname(__file__), 'tasks'),
-                                    [".c", ".cpp", ".java", ".oz", ".zip", ".tar.gz", ".tar.bz2", ".txt"],
-                                    1024 * 1024)
         self.course_factory, self.task_factory = create_factories(os.path.join(os.path.dirname(__file__), 'tasks'))
         self.setUp_job_manager()
         self.callback_done = threading.Event()

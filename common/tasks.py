@@ -23,13 +23,14 @@ from common.tasks_problems import CodeProblem, CodeSingleLineProblem, MultipleCh
 class Task(object):
     """ Contains the data for a task """
 
-    def __init__(self, course, taskid, content, task_problem_types=None):
+    def __init__(self, course, taskid, content, directory_path, task_problem_types=None):
         """
             Init the task. course is a Course object, taskid the task id, and content is a dictionnary containing the data needed to initialize the Task object.
             If init_data is None, the data will be taken from the course tasks' directory.
         """
         self._course = course
         self._taskid = taskid
+        self._directory_path = directory_path
 
         task_problem_types = task_problem_types or {"code": CodeProblem, "code-single-line": CodeSingleLineProblem, "code-file": CodeFileProblem,
                                                     "multiple-choice": MultipleChoiceProblem, "match": MatchProblem}
@@ -64,10 +65,10 @@ class Task(object):
         for problemid in self._data['problems']:
             self._problems.append(self._create_task_problem(problemid, self._data['problems'][problemid], task_problem_types))
 
-    def input_is_consistent(self, task_input):
+    def input_is_consistent(self, task_input, default_allowed_extension, default_max_size):
         """ Check if an input for a task is consistent. Return true if this is case, false else """
         for problem in self._problems:
-            if not problem.input_is_consistent(task_input):
+            if not problem.input_is_consistent(task_input, default_allowed_extension, default_max_size):
                 return False
         return True
 
@@ -98,6 +99,10 @@ class Task(object):
     def get_response_type(self):
         """ Returns the method used to parse the output of the task: HTML or rst """
         return "HTML" if self._response_is_html else "rst"
+
+    def get_directory_path(self):
+        """ Returns the path to the directory containing the files related to the task """
+        return self._directory_path
 
     def check_answer(self, task_input):
         """

@@ -21,22 +21,7 @@ import tempfile
 import shutil
 import copy
 
-from common.base import directory_compare_from_hash, directory_content_with_hash, get_allowed_file_extensions, get_max_file_size, hash_file, \
-    id_checker, get_tasks_directory, load_json_or_yaml, init_common_lib, write_json_or_yaml
-
-
-class TestBaseInit(object):
-    """ Test the initialisation of the common lib """
-
-    def test_init(self):
-        """ Test the initialisation of the common lib """
-        init_common_lib(os.path.join(os.path.dirname(__file__), 'tasks'),
-                        [".c"],
-                        1024 * 1024)
-        assert os.path.abspath(get_tasks_directory()) == os.path.abspath(os.path.join(os.path.dirname(__file__), 'tasks'))
-        assert get_allowed_file_extensions() == [".c"]
-        assert get_max_file_size() == 1024 * 1024
-
+from common.base import directory_compare_from_hash, directory_content_with_hash, hash_file, id_checker, load_json_or_yaml, write_json_or_yaml
 
 class TestIdChecker(object):
     """ Test the id checker """

@@ -80,6 +80,19 @@ class TaskFactory(object):
         _, descriptor_ext, _2 = self._get_task_descriptor_info(courseid, taskid)
         return descriptor_ext
 
+    def get_directory_path(self, courseid, taskid):
+        """
+        :param courseid: the course id of the course
+        :param taskid: the task id of the task
+        :raise InvalidNameException
+        :return: The path to the directory that contains the files related to the task
+        """
+        if not id_checker(courseid):
+            raise InvalidNameException("Course with invalid name: " + courseid)
+        if not id_checker(taskid):
+            raise InvalidNameException("Task with invalid name: " + taskid)
+        return os.path.join(self._tasks_directory, courseid, taskid)
+
     def update_task_descriptor_content(self, courseid, taskid, content, force_extension=None):
         """
         Update the task descriptor with the dict in content
@@ -204,4 +217,5 @@ class TaskFactory(object):
                 task_content = descriptor_reader.load(fd.read())
         except Exception as e:
             raise TaskUnreadableException(str(e))
-        self._cache[(course.get_id(), taskid)] = (self._task_class(course, taskid, task_content), os.stat(path_to_descriptor).st_mtime)
+        task = self._task_class(course, taskid, task_content, self.get_directory_path(course.get_id(), taskid))
+        self._cache[(course.get_id(), taskid)] = (task, os.stat(path_to_descriptor).st_mtime)

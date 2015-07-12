@@ -95,7 +95,6 @@ class CourseSettings(INGIniousAdminPage):
                 course_content['registration_ac'] = None
             course_content['registration_ac_list'] = data['registration_ac_list'].split("\n")
         except:
-            raise
             errors.append('User returned an invalid form.')
 
         if len(errors) == 0:

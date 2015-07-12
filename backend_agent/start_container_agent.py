@@ -33,7 +33,6 @@ from backend_agent.remote_agent import RemoteAgent
 import common.base
 
 if __name__ == "__main__":
-    common.base.init_common_lib("./tasks", [], 1)  # we do not need to upload file, so not needed here
     course_factory, task_factory = create_factories("./tasks")
 
     # create logger

@@ -26,9 +26,10 @@ class Configuration(dict):
     def load(self, path):
         """ Load the config from a json file """
         self.update(common.base.load_json_or_yaml(path))
-        common.base.init_common_lib(self["tasks_directory"],
-                                    self.get('allowed_file_extensions', [".c", ".cpp", ".java", ".oz", ".zip", ".tar.gz", ".tar.bz2", ".txt"]),
-                                    self.get('max_file_size', 1024 * 1024))
+        if not 'allowed_file_extensions' in self:
+            self['allowed_file_extensions'] = [".c", ".cpp", ".java", ".oz", ".zip", ".tar.gz", ".tar.bz2", ".txt"]
+        if not 'max_file_size' in self:
+            self['max_file_size'] = 1024 * 1024
 
 
 INGIniousConfiguration = Configuration()

@@ -23,14 +23,13 @@ from backend.job_managers.remote_docker import RemoteDockerJobManager
 from backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
 from common_frontend.database import get_database
 from common_frontend.configuration import INGIniousConfiguration
-import common.base
 
 def get_job_manager():
     """ Get the JobManager. Should only be used by very specific plugins """
     return get_job_manager.job_manager
 get_job_manager.job_manager = None
 
-def init(plugin_manager, course_factory, task_factory):
+def init(plugin_manager, task_directory, course_factory, task_factory):
     """ inits everything that makes the backend working """
 
     # Updates the submissions that are waiting with the status error, as the server restarted
@@ -47,7 +46,7 @@ def init(plugin_manager, course_factory, task_factory):
     if backend_type == "local":
         get_job_manager.job_manager = LocalJobManager(
             INGIniousConfiguration.get('containers', {"default": "ingi/inginious-c-default", "sekexe": "ingi/inginious-c-sekexe"}),
-            common.base.get_tasks_directory(),
+            task_directory,
             course_factory,
             task_factory,
             INGIniousConfiguration.get('local_agent_tmp_dir', "/tmp/inginious_agent"), plugin_manager)
@@ -55,7 +54,7 @@ def init(plugin_manager, course_factory, task_factory):
         get_job_manager.job_manager = RemoteDockerJobManager(INGIniousConfiguration.get("docker_daemons", []),
                                                              INGIniousConfiguration.get('containers', {"default": "ingi/inginious-c-default",
                                                                                                        "sekexe": "ingi/inginious-c-sekexe"}),
-                                                             common.base.get_tasks_directory(),
+                                                             task_directory,
                                                              course_factory,
                                                              task_factory,
                                                              plugin_manager)
@@ -63,7 +62,7 @@ def init(plugin_manager, course_factory, task_factory):
         get_job_manager.job_manager = RemoteManualAgentJobManager(
             INGIniousConfiguration.get("agents", [{"host": "localhost", "port": 5001}]),
             INGIniousConfiguration.get('containers', {"default": "ingi/inginious-c-default", "sekexe": "ingi/inginious-c-sekexe"}),
-            common.base.get_tasks_directory(),
+            task_directory,
             course_factory,
             task_factory,
             plugin_manager)

@@ -21,7 +21,7 @@ from abc import ABCMeta, abstractmethod
 import re
 import sys
 
-from common.base import id_checker, get_allowed_file_extensions, get_max_file_size
+from common.base import id_checker
 
 
 class BasicBox(object):
@@ -41,7 +41,7 @@ class BasicBox(object):
         """ Return the _id of this box """
         return self._id
 
-    def input_is_consistent(self, task_input):
+    def input_is_consistent(self, task_input, default_allowed_extension, default_max_size):
         """ Check if an input for this box is consistent. Return true if this is case, false else """
         try:
             return self.get_complete_id() in task_input
@@ -71,7 +71,7 @@ class TextBox(BasicBox):
     def get_type(self):
         return "text"
 
-    def input_is_consistent(self, task_input):
+    def input_is_consistent(self, task_input, default_allowed_extension, default_max_size):
         # do not call input_is_consistent from BasicBox.
         return True
 
@@ -98,15 +98,15 @@ class FileBox(BasicBox):
     def get_type(self):
         return "file"
 
-    def input_is_consistent(self, taskInput):
-        if not BasicBox.input_is_consistent(self, taskInput):
+    def input_is_consistent(self, taskInput, default_allowed_extension, default_max_size):
+        if not BasicBox.input_is_consistent(self, taskInput, default_allowed_extension, default_max_size):
             return False
 
         try:
-            if not taskInput[self.get_complete_id()]["filename"].endswith(tuple(self._allowed_exts)):
+            if not taskInput[self.get_complete_id()]["filename"].endswith(tuple(self._allowed_exts or default_allowed_extension)):
                 return False
 
-            if sys.getsizeof(taskInput[self.get_complete_id()]["value"]) > self._max_size:
+            if sys.getsizeof(taskInput[self.get_complete_id()]["value"]) > (self._max_size or default_max_size):
                 return False
         except:
             return False
@@ -114,8 +114,8 @@ class FileBox(BasicBox):
 
     def __init__(self, problem, boxid, boxData):
         super(FileBox, self).__init__(problem, boxid, boxData)
-        self._allowed_exts = boxData.get("allowed_exts", get_allowed_file_extensions())
-        self._max_size = boxData.get("max_size", get_max_file_size()) or get_max_file_size()
+        self._allowed_exts = boxData.get("allowed_exts", None)
+        self._max_size = boxData.get("max_size", None)
 
 
 class InputBox(BasicBox):
@@ -124,8 +124,8 @@ class InputBox(BasicBox):
     def get_type(self):
         return "input"
 
-    def input_is_consistent(self, taskInput):
-        if not BasicBox.input_is_consistent(self, taskInput):
+    def input_is_consistent(self, taskInput, default_allowed_extension, default_max_size):
+        if not BasicBox.input_is_consistent(self, taskInput, default_allowed_extension, default_max_size):
             return False
 
         if self._max_chars != 0 and len(taskInput[self.get_complete_id()]) > self._max_chars:
@@ -184,8 +184,8 @@ class MultilineBox(BasicBox):
     def get_type(self):
         return "multiline"
 
-    def input_is_consistent(self, taskInput):
-        if not BasicBox.input_is_consistent(self, taskInput):
+    def input_is_consistent(self, taskInput, default_allowed_extension, default_max_size):
+        if not BasicBox.input_is_consistent(self, taskInput, default_allowed_extension, default_max_size):
             return False
         if self._max_chars != 0 and len(taskInput[self.get_complete_id()]) > self._max_chars:
             return False

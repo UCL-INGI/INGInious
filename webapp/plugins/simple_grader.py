@@ -25,6 +25,7 @@ import web
 from backend.helpers.job_manager_buffer import JobManagerBuffer
 from backend.helpers.job_manager_sync import JobManagerSync
 import common_frontend.backend_interface
+from common_frontend.configuration import INGIniousConfiguration
 from webapp.pages.utils import INGIniousPage
 
 
@@ -177,7 +178,9 @@ def init(plugin_manager, course_factory, config):
                 except:
                     return json.dumps({"status": "error", "status_message": "Cannot open task"})
 
-                if not task.input_is_consistent(task_input):
+                if not task.input_is_consistent(task_input,
+                                                INGIniousConfiguration["allowed_file_extensions"],
+                                                INGIniousConfiguration["max_file_size"]):
                     return json.dumps({"status": "error", "status_message": "Input is not consistent with the task"})
 
                 if post_input.get("async") is None:

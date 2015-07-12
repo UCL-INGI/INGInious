@@ -26,9 +26,6 @@ from common.course_factory import create_factories
 
 class TestCourse(object):
     def setUp(self):
-        common.base.init_common_lib(os.path.join(os.path.dirname(__file__), 'tasks'),
-                                    [".c", ".cpp", ".java", ".oz", ".zip", ".tar.gz", ".tar.bz2", ".txt"],
-                                    1024 * 1024)
         self.course_factory, _ = create_factories(os.path.join(os.path.dirname(__file__), 'tasks'))
 
     def test_course_loading(self):
@@ -96,16 +93,10 @@ class TestCourseWrite(object):
 
     def setUp(self):
         self.dir_path = tempfile.mkdtemp()
-        common.base.init_common_lib(self.dir_path,
-                                    [".c", ".cpp", ".java", ".oz", ".zip", ".tar.gz", ".tar.bz2", ".txt"],
-                                    1024 * 1024)
         self.course_factory, _ = create_factories(self.dir_path)
 
     def tearDown(self):
         shutil.rmtree(self.dir_path)
-        common.base.init_common_lib(os.path.join(os.path.dirname(__file__), 'tasks'),
-                                    [".c", ".cpp", ".java", ".oz", ".zip", ".tar.gz", ".tar.bz2", ".txt"],
-                                    1024 * 1024)
 
     def test_course_update(self):
         os.mkdir(os.path.join(self.dir_path, "test"))

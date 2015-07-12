@@ -27,7 +27,7 @@ from zipfile import ZipFile
 import web
 
 from common_frontend.configuration import INGIniousConfiguration
-from common.base import id_checker, get_tasks_directory
+from common.base import id_checker
 import common.custom_yaml
 from webapp.accessible_time import AccessibleTime
 from common_frontend.templates import get_renderer
@@ -249,13 +249,14 @@ class CourseEditTask(INGIniousAdminPage):
         except:
             pass
 
+        directory_path = self.task_factory.get_directory_path(courseid, taskid)
         try:
-            FrontendTask(course, taskid, data)
+            FrontendTask(course, taskid, data, directory_path)
         except Exception as message:
             return json.dumps({"status": "error", "message": "Invalid data: {}".format(str(message))})
 
-        if not os.path.exists(os.path.join(get_tasks_directory(), courseid, taskid)):
-            os.mkdir(os.path.join(get_tasks_directory(), courseid, taskid))
+        if not os.path.exists(directory_path):
+            os.mkdir(directory_path)
 
         if task_zip:
             try:
@@ -264,7 +265,7 @@ class CourseEditTask(INGIniousAdminPage):
                 return json.dumps({"status": "error", "message": "Cannot read zip file. Files were not modified"})
 
             try:
-                zipfile.extractall(os.path.join(get_tasks_directory(), courseid, taskid))
+                zipfile.extractall(directory_path)
             except Exception as message:
                 return json.dumps(
                     {"status": "error", "message": "There was a problem while extracting the zip archive. Some files may have been modified"})

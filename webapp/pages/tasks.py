@@ -26,13 +26,13 @@ import urllib
 
 import web
 
-from common.base import get_tasks_directory
 from common.tasks_code_boxes import FileBox
 from common.tasks_problems import MultipleChoiceProblem, BasicCodeProblem
 from common_frontend.templates import get_renderer
 import webapp.submission_manager as submission_manager
 import webapp.user as User
 from webapp.pages.utils import INGIniousPage
+from common_frontend.configuration import INGIniousConfiguration
 
 class TaskPage(INGIniousPage):
     """ Display a task (and allow to reload old submission/file uploaded during a submission) """
@@ -105,7 +105,9 @@ class TaskPage(INGIniousPage):
                     init_var = self.list_multiple_multiple_choices_and_files(task)
                     userinput = task.adapt_input_for_backend(web.input(**init_var))
 
-                    if not task.input_is_consistent(userinput):
+                    if not task.input_is_consistent(userinput,
+                                                    INGIniousConfiguration["allowed_file_extensions"],
+                                                    INGIniousConfiguration["max_file_size"]):
                         web.header('Content-Type', 'application/json')
                         return json.dumps({"status": "error", "text": "Please answer to all the questions. Your responses were not tested."})
                     del userinput['@action']
@@ -198,7 +200,7 @@ class TaskPageStaticDownload(INGIniousPage):
                     return get_renderer().task_unavailable()
 
                 path_norm = posixpath.normpath(urllib.unquote(path))
-                public_folder_path = os.path.normpath(os.path.realpath(os.path.join(get_tasks_directory(), courseid, taskid, "public")))
+                public_folder_path = os.path.normpath(os.path.realpath(task.get_directory_path(), "public"))
                 file_path = os.path.normpath(os.path.realpath(os.path.join(public_folder_path, path_norm)))
 
                 # Verify that we are still inside the public directory

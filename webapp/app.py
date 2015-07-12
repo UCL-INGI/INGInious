@@ -89,10 +89,11 @@ def get_app(config_file):
         appli = web.application(urls_maintenance, globals(), autoreload=False)
         return appli
 
+    task_directory = common_frontend.configuration.INGIniousConfiguration["tasks_directory"]
+
     appli = web.application((), globals(), autoreload=False)
 
-    course_factory, task_factory = create_factories(common_frontend.configuration.INGIniousConfiguration["tasks_directory"], FrontendCourse,
-                                                    FrontendTask)
+    course_factory, task_factory = create_factories(task_directory, FrontendCourse, FrontendTask)
 
     common_frontend.database.init_database()
     update_database(course_factory)
@@ -107,7 +108,7 @@ def get_app(config_file):
     plugin_manager = PluginManager(appli, course_factory, task_factory, common_frontend.configuration.INGIniousConfiguration.get("plugins", []))
 
     # Plugin Manager is also a Hook Manager
-    backend_interface.init(plugin_manager, course_factory, task_factory)
+    backend_interface.init(plugin_manager, task_directory, course_factory, task_factory)
 
     # Init templates
     common_frontend.templates.init_renderer('webapp/templates', 'layout')

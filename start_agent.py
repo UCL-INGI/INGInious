@@ -49,7 +49,6 @@ if __name__ == "__main__":
     if not os.path.exists(taskdir):
         os.makedirs(taskdir)
 
-    common.base.init_common_lib(taskdir, [], 1) # we do not need to upload file, so not needed here
     course_factory, task_factory = create_factories(taskdir)
 
     # create logger

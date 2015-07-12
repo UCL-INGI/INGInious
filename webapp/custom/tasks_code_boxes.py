@@ -24,7 +24,7 @@ import json
 from common.tasks_code_boxes import TextBox, InputBox, MultilineBox, FileBox
 from common_frontend.templates import get_renderer
 from common_frontend.parsable_text import ParsableText
-
+from common_frontend.configuration import INGIniousConfiguration
 
 class DisplayableBox(object):
     """ A basic interface for displayable boxes """
@@ -80,7 +80,10 @@ class DisplayableFileBox(FileBox, DisplayableBox):
 
     def show(self):
         """ Show FileBox """
-        return str(get_renderer(False).tasks.box_file(self.get_complete_id(), self._max_size, self._allowed_exts, json))
+        return str(get_renderer(False).tasks.box_file(self.get_complete_id(),
+                                                      (self._max_size or INGIniousConfiguration["max_file_size"]),
+                                                      (self._allowed_exts or INGIniousConfiguration["allowed_file_extensions"]),
+                                                      json))
 
 
 class DisplayableInputBox(InputBox, DisplayableBox):

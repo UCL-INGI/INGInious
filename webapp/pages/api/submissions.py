@@ -25,7 +25,7 @@ import webapp.user as User
 from webapp.submission_manager import get_user_submissions, get_submission, get_input_from_submission, add_job
 from common.tasks_code_boxes import FileBox
 from common.tasks_problems import MultipleChoiceProblem, BasicCodeProblem
-
+from common_frontend.configuration import INGIniousConfiguration
 
 def _get_submissions(course_factory, courseid, taskid, submissionid=None):
     """
@@ -179,7 +179,9 @@ class APISubmissions(APIAuthenticatedPage):
         init_var = self.list_multiple_multiple_choices_and_files(task)
         user_input = task.adapt_input_for_backend(web.input(**init_var))
 
-        if not task.input_is_consistent(user_input):
+        if not task.input_is_consistent(user_input,
+                                        INGIniousConfiguration["allowed_file_extensions"],
+                                        INGIniousConfiguration["max_file_size"]):
             raise APIInvalidArguments()
 
         # Get debug info if the current user is an admin

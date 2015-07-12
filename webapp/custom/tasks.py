@@ -29,7 +29,7 @@ from common_frontend.plugin_manager import PluginManager
 class FrontendTask(common.tasks.Task):
     """ A task that stores additionnal context informations """
 
-    def __init__(self, course, taskid, content, task_problem_types = None):
+    def __init__(self, course, taskid, content, directory_path, task_problem_types = None):
         # We load the descriptor of the task here to allow plugins to modify settings of the task before it is read by the Task constructor
         if not id_checker(taskid):
             raise Exception("Task with invalid id: " + course.get_id() + "/" + taskid)
@@ -42,7 +42,7 @@ class FrontendTask(common.tasks.Task):
             "multiple-choice": DisplayableMultipleChoiceProblem,
             "match": DisplayableMatchProblem}
 
-        common.tasks.Task.__init__(self, course, taskid, content, task_problem_types)
+        common.tasks.Task.__init__(self, course, taskid, content, directory_path, task_problem_types)
 
         self._name = self._data.get('name', 'Task {}'.format(self.get_id()))
 
