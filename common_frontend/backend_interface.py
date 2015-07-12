@@ -30,7 +30,7 @@ def get_job_manager():
     return get_job_manager.job_manager
 get_job_manager.job_manager = None
 
-def init(plugin_manager):
+def init(plugin_manager, course_factory, task_factory):
     """ inits everything that makes the backend working """
 
     # Updates the submissions that are waiting with the status error, as the server restarted
@@ -48,18 +48,24 @@ def init(plugin_manager):
         get_job_manager.job_manager = LocalJobManager(
             INGIniousConfiguration.get('containers', {"default": "ingi/inginious-c-default", "sekexe": "ingi/inginious-c-sekexe"}),
             common.base.get_tasks_directory(),
+            course_factory,
+            task_factory,
             INGIniousConfiguration.get('local_agent_tmp_dir', "/tmp/inginious_agent"), plugin_manager)
     elif backend_type == "remote":
         get_job_manager.job_manager = RemoteDockerJobManager(INGIniousConfiguration.get("docker_daemons", []),
                                                              INGIniousConfiguration.get('containers', {"default": "ingi/inginious-c-default",
                                                                                                        "sekexe": "ingi/inginious-c-sekexe"}),
                                                              common.base.get_tasks_directory(),
+                                                             course_factory,
+                                                             task_factory,
                                                              plugin_manager)
     elif backend_type == "remote_manual":
         get_job_manager.job_manager = RemoteManualAgentJobManager(
             INGIniousConfiguration.get("agents", [{"host": "localhost", "port": 5001}]),
             INGIniousConfiguration.get('containers', {"default": "ingi/inginious-c-default", "sekexe": "ingi/inginious-c-sekexe"}),
             common.base.get_tasks_directory(),
+            course_factory,
+            task_factory,
             plugin_manager)
     else:
         raise Exception("Unknown backend {}".format(backend_type))

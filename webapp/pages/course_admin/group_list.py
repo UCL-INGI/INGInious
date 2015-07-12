@@ -110,4 +110,4 @@ class CourseGroupListPage(INGIniousAdminPage):
         if "csv" in web.input():
             return make_csv(data)
 
-        return get_renderer.course_admin.group_list(course, [my_groups, other_groups], ungrouped_users, error, post)
+        return get_renderer().course_admin.group_list(course, [my_groups, other_groups], ungrouped_users, error, post)

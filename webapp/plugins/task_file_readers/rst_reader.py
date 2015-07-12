@@ -18,22 +18,22 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ RST task file manager. """
 
-from common.task_file_managers.abstract_manager import AbstractTaskFileManager
-from webapp.plugins.task_file_managers._dicttorst import dict2rst
-from webapp.plugins.task_file_managers._rsttodict import rst2dict
+from common.task_file_readers.abstract_reader import AbstractTaskFileReader
+from webapp.plugins.task_file_readers._dicttorst import dict2rst
+from webapp.plugins.task_file_readers._rsttodict import rst2dict
 
 
-class TaskRSTFileManager(AbstractTaskFileManager):
+class TaskRSTFileReader(AbstractTaskFileReader):
     """ Read and write task descriptions in restructuredText """
 
-    def _get_content(self, content):
+    def load(self, content):
         return rst2dict(content)
 
     @classmethod
     def get_ext(cls):
         return "rst"
 
-    def _generate_content(self, data):
+    def dump(self, data):
         return dict2rst(data)
 
 
@@ -47,4 +47,4 @@ def init(plugin_manager, _, _2):
             }
     """
 
-    plugin_manager.add_task_file_manager(TaskRSTFileManager)
+    plugin_manager.add_task_file_manager(TaskRSTFileReader())

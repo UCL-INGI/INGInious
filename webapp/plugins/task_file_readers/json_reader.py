@@ -16,21 +16,35 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
-""" YAML task file manager """
+""" JSON task file manager. """
+import collections
+import json
 
-import common.custom_yaml
-from common.task_file_managers.abstract_manager import AbstractTaskFileManager
+from common.task_file_readers.abstract_reader import AbstractTaskFileReader
 
 
-class TaskYAMLFileManager(AbstractTaskFileManager):
-    """ Read and write task descriptions in YAML """
+class TaskJSONFileReader(AbstractTaskFileReader):
+    """ Read and write task descriptions in JSON """
 
-    def _get_content(self, content):
-        return common.custom_yaml.load(content)
+    def load(self, content):
+        return json.loads(content, object_pairs_hook=collections.OrderedDict)
 
     @classmethod
     def get_ext(cls):
-        return "yaml"
+        return "json"
 
-    def _generate_content(self, data):
-        return common.custom_yaml.dump(data)
+    def dump(self, data):
+        return json.dumps(data, sort_keys=False, indent=4, separators=(',', ': '))
+
+
+def init(plugin_manager, _, _2):
+    """
+        Init the plugin. Configuration:
+        ::
+
+            {
+                "plugin_module": "webapp.plugins.task_files_manager.json_manager"
+            }
+    """
+
+    plugin_manager.add_task_file_manager(TaskJSONFileReader())

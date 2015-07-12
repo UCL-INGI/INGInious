@@ -22,6 +22,7 @@
 import logging
 import os
 from backend_agent.remote_agent import RemoteAgent
+from common.course_factory import create_factories
 import common.base
 import argparse
 
@@ -49,6 +50,7 @@ if __name__ == "__main__":
         os.makedirs(taskdir)
 
     common.base.init_common_lib(taskdir, [], 1) # we do not need to upload file, so not needed here
+    course_factory, task_factory = create_factories(taskdir)
 
     # create logger
     logger = logging.getLogger("agent")
@@ -59,4 +61,4 @@ if __name__ == "__main__":
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
-    RemoteAgent(args.port, taskdir, os.path.join(args.dir, 'tmp'), sync_enabled)
+    RemoteAgent(args.port, taskdir, course_factory, task_factory, os.path.join(args.dir, 'tmp'), sync_enabled)

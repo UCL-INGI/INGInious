@@ -18,22 +18,21 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Task """
 from common.base import id_checker
-from common.task_file_managers.manage import get_task_file_manager
 from common.tasks_problems import CodeProblem, CodeSingleLineProblem, MultipleChoiceProblem, MatchProblem, CodeFileProblem
-from common.cached_object import CachedClass
-from common.base import get_tasks_directory
-import os.path
 
 class Task(object):
     """ Contains the data for a task """
 
-    def __init__(self, course, taskid, content):
+    def __init__(self, course, taskid, content, task_problem_types=None):
         """
             Init the task. course is a Course object, taskid the task id, and content is a dictionnary containing the data needed to initialize the Task object.
             If init_data is None, the data will be taken from the course tasks' directory.
         """
         self._course = course
         self._taskid = taskid
+
+        task_problem_types = task_problem_types or {"code": CodeProblem, "code-single-line": CodeSingleLineProblem, "code-file": CodeFileProblem,
+                                                    "multiple-choice": MultipleChoiceProblem, "match": MatchProblem}
 
         self._data = content
 
@@ -63,7 +62,7 @@ class Task(object):
         self._problems = []
 
         for problemid in self._data['problems']:
-            self._problems.append(self._create_task_problem(self, problemid, self._data['problems'][problemid]))
+            self._problems.append(self._create_task_problem(problemid, self._data['problems'][problemid], task_problem_types))
 
     def input_is_consistent(self, task_input):
         """ Check if an input for a task is consistent. Return true if this is case, false else """
@@ -127,35 +126,12 @@ class Task(object):
             multiple_choice_error_count += problem_mc_error_count
         return valid, need_launch, main_message, problem_messages, multiple_choice_error_count
 
-    _problem_types = {"code": CodeProblem, "code-single-line": CodeSingleLineProblem, "code-file": CodeFileProblem,
-                      "multiple-choice": MultipleChoiceProblem, "match": MatchProblem}
-
-    def _create_task_problem(self, task, problemid, problem_content):
+    def _create_task_problem(self, problemid, problem_content, task_problem_types):
         """Creates a new instance of the right class for a given problem."""
         # Basic checks
         if not id_checker(problemid):
             raise Exception("Invalid problem _id: " + problemid)
-        if problem_content.get('type', "") not in self._problem_types:
+        if problem_content.get('type', "") not in task_problem_types:
             raise Exception("Invalid type for problem " + problemid)
 
-        return self._problem_types.get(problem_content.get('type', ""))(task, problemid, problem_content)
-
-    @classmethod
-    def add_problem_type(cls, problem_type, problem_class):
-        """ add a new problem type """
-        cls._problem_types[problem_type] = problem_class
-
-    @classmethod
-    def remove_problem_type(cls, problem_type):
-        """ delete a problem type """
-        del cls._problem_types[problem_type]
-
-    @classmethod
-    def remove_problem_types(cls):
-        """ delete all problem types """
-        cls._problem_types = {}
-
-    @classmethod
-    def add_problem_types(cls, problem_type_dict):
-        """ add new problem types """
-        cls._problem_types.update(problem_type_dict)
+        return task_problem_types.get(problem_content.get('type', ""))(self, problemid, problem_content)

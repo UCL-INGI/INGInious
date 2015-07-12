@@ -19,18 +19,19 @@
 """ Factory for loading courses from disk """
 
 from common.courses import Course
-from common.tasks import Task
-from common.task_factory import TaskFactory
 from common.base import id_checker, load_json_or_yaml, write_json_or_yaml
+from common.task_factory import TaskFactory
+from common.tasks import Task
 import os
 from common.exceptions import InvalidNameException, CourseNotFoundException, CourseUnreadableException
+
 
 class CourseFactory(object):
     """ Load courses from disk """
 
-    def __init__(self, tasks_directory, course_class=Course, task_class=Task):
+    def __init__(self, tasks_directory, task_factory, course_class=Course):
         self._tasks_directory = tasks_directory
-        self._task_factory = TaskFactory(tasks_directory, task_class)
+        self._task_factory = task_factory
         self._course_class = course_class
         self._cache = {}
 
@@ -133,3 +134,14 @@ class CourseFactory(object):
         except Exception as e:
             raise CourseUnreadableException(str(e))
         self._cache[courseid] = (self._course_class(courseid, course_descriptor, self._task_factory), os.stat(path_to_descriptor).st_mtime)
+
+def create_factories(task_directory, course_class=Course, task_class=Task):
+    """
+    Shorthand for creating Factories
+    :param task_directory:
+    :param course_class:
+    :param task_class:
+    :return: a tuple with two objects: the first being of type CourseFactory, the second of type TaskFactory
+    """
+    task_factory = TaskFactory(task_directory, task_class)
+    return CourseFactory(task_directory, task_factory, course_class), task_factory

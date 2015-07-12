@@ -28,7 +28,6 @@ import tempfile
 import web
 
 from common.base import get_tasks_directory, id_checker
-from common.task_file_managers.manage import get_available_task_file_managers
 from common_frontend.templates import get_renderer
 from webapp.pages.course_admin.utils import INGIniousAdminPage
 
@@ -74,10 +73,10 @@ class CourseTaskFiles(INGIniousAdminPage):
     def show_tab_file(self, courseid, taskid, _error=False):
         """ Return the file tab """
         return get_renderer(False).course_admin.edit_tabs.files(self.course_factory.get_course(courseid),
-                                                                taskid, self.get_task_filelist(courseid, taskid))
+                                                                taskid, self.get_task_filelist(self.task_factory, courseid, taskid))
 
     @classmethod
-    def get_task_filelist(cls, courseid, taskid):
+    def get_task_filelist(cls, task_factory, courseid, taskid):
         """ Returns a flattened version of all the files inside the task directory, excluding the files task.* and hidden files.
             It returns a list of tuples, of the type (Integer Level, Boolean IsDirectory, String Name, String CompleteName)
         """
@@ -101,12 +100,10 @@ class CourseTaskFiles(INGIniousAdminPage):
                     continue
             for f in files:
                 # Do not follow symlinks and do not take into account task describers
-                if not os.path.islink(
-                        os.path.join(
-                            root, f)) and not (
-                                    root == path and os.path.splitext(f)[0] == "task" and os.path.splitext(f)[1][
-                                                                                          1:] in get_available_task_file_managers().keys()) and not f.startswith(
-                    "."):
+                if not os.path.islink(os.path.join(root, f)) and \
+                        not (root == path and os.path.splitext(f)[0] == "task"
+                             and os.path.splitext(f)[1][1:] in task_factory.get_available_task_file_extensions()) \
+                        and not f.startswith("."):
                     insert_dict[f] = None
 
         def recur_print(current, level, current_name):
@@ -136,7 +133,8 @@ class CourseTaskFiles(INGIniousAdminPage):
         if (new_path == os.path.exists(wanted_path)) or os.path.islink(wanted_path) or rel_wanted_path.startswith('..'):
             return None
         # do not allow touching the task.* file
-        if os.path.splitext(rel_wanted_path)[0] == "task" and os.path.splitext(rel_wanted_path)[1][1:] in get_available_task_file_managers().keys():
+        if os.path.splitext(rel_wanted_path)[0] == "task" and os.path.splitext(rel_wanted_path)[1][1:] in \
+                self.task_factory.get_available_task_file_extensions():
             return None
         # do not allow hidden dir/files
         if rel_wanted_path != ".":

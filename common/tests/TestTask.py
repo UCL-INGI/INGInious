@@ -21,7 +21,7 @@ import common.courses
 import common.tasks
 import common.tasks_code_boxes
 import os
-from common.course_factory import CourseFactory
+from common.course_factory import create_factories
 from common.exceptions import InvalidNameException, TaskUnreadableException
 
 class test_tasks_basic(object):
@@ -29,7 +29,7 @@ class test_tasks_basic(object):
         common.base.init_common_lib(os.path.join(os.path.dirname(__file__), 'tasks'),
                                     [".c", ".cpp", ".java", ".oz", ".zip", ".tar.gz", ".tar.bz2", ".txt"],
                                     1024 * 1024)
-        self.course_factory = CourseFactory(os.path.join(os.path.dirname(__file__), 'tasks'))
+        self.course_factory, _ = create_factories(os.path.join(os.path.dirname(__file__), 'tasks'))
 
     def test_task_loading(self):
         '''Tests if a course file loads correctly'''
@@ -135,7 +135,7 @@ class test_tasks_problems(object):
         common.base.init_common_lib(os.path.join(os.path.dirname(__file__), 'tasks'),
                                     [".c", ".cpp", ".java", ".oz", ".zip", ".tar.gz", ".tar.bz2", ".txt"],
                                     1024 * 1024)
-        self.course_factory = CourseFactory(os.path.join(os.path.dirname(__file__), 'tasks'))
+        self.course_factory, _ = create_factories(os.path.join(os.path.dirname(__file__), 'tasks'))
 
     def test_problem_types(self):
         '''Tests if problem types are correctly recognized'''
@@ -194,7 +194,7 @@ class test_tasks_boxes(object):
         common.base.init_common_lib(os.path.join(os.path.dirname(__file__), 'tasks'),
                                     [".c", ".cpp", ".java", ".oz", ".zip", ".tar.gz", ".tar.bz2", ".txt"],
                                     1024 * 1024)
-        self.course_factory = CourseFactory(os.path.join(os.path.dirname(__file__), 'tasks'))
+        self.course_factory, _ = create_factories(os.path.join(os.path.dirname(__file__), 'tasks'))
 
     def test_number_boxes(self):
         '''Tests if get_boxes returns the correct number of boxes'''

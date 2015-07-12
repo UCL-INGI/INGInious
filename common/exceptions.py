@@ -36,3 +36,6 @@ class CourseUnreadableException(Exception):
 
 class TaskUnreadableException(Exception):
     pass
+
+class TaskReaderNotFoundException(Exception):
+    pass

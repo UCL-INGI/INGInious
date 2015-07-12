@@ -39,7 +39,7 @@ class CourseSettings(INGIniousAdminPage):
         course_content = {}
         try:
             data = web.input()
-            course_content = course.get_course_descriptor_content(courseid)
+            course_content = self.course_factory.get_course_descriptor_content(courseid)
             course_content['name'] = data['name']
             if course_content['name'] == "":
                 errors.append('Invalid name')
@@ -95,10 +95,11 @@ class CourseSettings(INGIniousAdminPage):
                 course_content['registration_ac'] = None
             course_content['registration_ac_list'] = data['registration_ac_list'].split("\n")
         except:
+            raise
             errors.append('User returned an invalid form.')
 
         if len(errors) == 0:
-            course.update_course_descriptor_content(courseid, course_content)
+            self.course_factory.update_course_descriptor_content(courseid, course_content)
             errors = None
             course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)  # don't forget to reload the modified course
 

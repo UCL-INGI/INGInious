@@ -20,7 +20,6 @@ from collections import OrderedDict
 
 import web
 
-from common.task_file_managers.manage import get_readable_tasks
 from common_frontend.database import get_database
 from common_frontend.templates import get_renderer
 from webapp.pages.course_admin.utils import make_csv, INGIniousAdminPage
@@ -61,7 +60,7 @@ class CourseTaskListPage(INGIniousAdminPage):
             ]))
 
         # Load tasks and verify exceptions
-        files = get_readable_tasks(course.get_id())
+        files = self.task_factory.get_readable_tasks(course)
         output = {}
         errors = []
         for task in files:

@@ -33,7 +33,6 @@ from rpyc import BgServingThread
 from backend.job_managers.abstract import AbstractJobManager
 from common.base import directory_compare_from_hash, directory_content_with_hash, hash_file
 import common.custom_yaml
-from common.task_file_managers.manage import get_available_task_file_managers, get_task_file_manager
 
 
 class RemoteManualAgentJobManager(AbstractJobManager):
@@ -43,7 +42,7 @@ class RemoteManualAgentJobManager(AbstractJobManager):
         container images, etc.
     """
 
-    def __init__(self, agents, image_aliases, task_directory, hook_manager=None, is_testing=False):
+    def __init__(self, agents, image_aliases, task_directory, course_factory, task_factory, hook_manager=None, is_testing=False):
         """
             Starts the job manager.
 
@@ -57,6 +56,9 @@ class RemoteManualAgentJobManager(AbstractJobManager):
                         'host': "the host of the agent",
                         'port': "the port on which the agent listens"
                     }
+            :param task_directory: the task directory
+            :param course_factory: a CourseFactory object
+            :param task_factory: a TaskFactory object, possibly with specific task files managers attached
             :param image_aliases: a dict of image aliases, like {"default": "ingi/inginious-c-default"}.
             :param hook_manager: An instance of HookManager. If no instance is given(None), a new one will be created.
         """
@@ -68,6 +70,9 @@ class RemoteManualAgentJobManager(AbstractJobManager):
         self._agents = [None for _ in range(0, len(agents))]
         self._agents_thread = [None for _ in range(0, len(agents))]
         self._agents_info = agents
+
+        self._course_factory = course_factory
+        self._task_factory = task_factory
 
         self._next_agent = 0
         self._running_on_agent = [[] for _ in range(0, len(agents))]
@@ -139,7 +144,7 @@ class RemoteManualAgentJobManager(AbstractJobManager):
 
         # As agent only supports task.yaml files as descriptors (and not exotic things like task.rst...), we have to ensure that we convert and send
         # task.yaml files to it.
-        task_files_to_convert = ["task." + ext for ext in get_available_task_file_managers()]
+        task_files_to_convert = ["task." + ext for ext in self._task_factory.get_available_task_file_extensions()]
         task_files_to_convert.remove("task.yaml")
 
         new_local_td = {}
@@ -150,7 +155,7 @@ class RemoteManualAgentJobManager(AbstractJobManager):
                 try:
                     path_to_file, _ = os.path.split(file_path)
                     courseid, taskid = match.group(1), match.group(2)
-                    content = get_task_file_manager(courseid, taskid).read()
+                    content = self._task_factory.get_task_descriptor_content(courseid, taskid)
                     yaml_content = StringIO(common.custom_yaml.dump(content).encode('utf-8'))
                     new_local_td[os.path.join(path_to_file, "task.yaml")] = (hash_file(yaml_content), 0o777)
                     yaml_content.seek(0)

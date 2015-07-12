@@ -31,7 +31,7 @@ import re
 import docker
 from docker.utils import kwargs_from_env
 import rpyc
-from common.course_factory import CourseFactory
+from common.course_factory import create_factories
 
 from backend_agent._rpyc_unix_server import UnixSocketServer
 
@@ -43,14 +43,15 @@ class SimpleAgent(object):
     """
     logger = logging.getLogger("agent")
 
-    def __init__(self, task_directory, tmp_dir="./agent_tmp"):
+    def __init__(self, task_directory, course_factory, task_factory, tmp_dir="./agent_tmp"):
         from backend_agent._cgroup_helper import CGroupTimeoutWatcher, CGroupMemoryWatcher
 
         self.logger.info("Starting agent")
         self.image_aliases = []
         self.tmp_dir = tmp_dir
         self.task_directory = task_directory
-        self.course_factory = CourseFactory(task_directory)
+        self.course_factory = course_factory
+        self.task_factory = task_factory
 
         # Delete tmp_dir, and recreate-it again
         try:

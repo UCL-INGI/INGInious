@@ -18,28 +18,15 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Task file managers """
 from abc import ABCMeta, abstractmethod
-import codecs
-import os.path
-
-from common.base import get_tasks_directory
 
 
-class AbstractTaskFileManager(object):
+class AbstractTaskFileReader(object):
     """ Manages a type of task file """
     __metaclass__ = ABCMeta
 
-    def __init__(self, courseid, taskid):
-        self._courseid = courseid
-        self._taskid = taskid
-
-    def read(self):
-        """ Read the file describing the task and returns a dict """
-        return self._get_content(codecs.open(os.path.join(get_tasks_directory(), self._courseid, self._taskid, "task." + self.get_ext()), "r",
-                                             'utf-8').read())
-
     @abstractmethod
-    def _get_content(self, content):
-        """ Read the file describing the task and returns a dict """
+    def load(self, file_content):
+        """ Parses file_content and returns a dict describing a task """
         pass
 
     @abstractmethod
@@ -47,12 +34,7 @@ class AbstractTaskFileManager(object):
         """ Returns the task file extension. Must be @classmethod! """
         pass
 
-    def write(self, data):
-        """ Write data to the task file """
-        with codecs.open(os.path.join(get_tasks_directory(), self._courseid, self._taskid, "task." + self.get_ext()), "w", 'utf-8') as task_desc_file:
-            task_desc_file.write(self._generate_content(data))
-
     @abstractmethod
-    def _generate_content(self, data):
-        """ Generate data (that will be written to the file) """
+    def dump(self, descriptor):
+        """ Dump descriptor and returns the content that should be written to the task file"""
         pass

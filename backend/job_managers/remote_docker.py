@@ -56,7 +56,7 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
             return True
         return False
 
-    def __init__(self, docker_daemons, image_aliases, task_directory, hook_manager=None, is_testing=False):
+    def __init__(self, docker_daemons, image_aliases, task_directory, course_factory, task_factory, hook_manager=None, is_testing=False):
         """
             Starts the job manager.
 
@@ -75,6 +75,9 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
                   ##path to the cgroups "mount" *from the host that runs the docker daemon*. Defaults to:
                   #"cgroups_location": "/sys/fs/cgroup"
                 }
+            :param task_directory: the task directory
+            :param course_factory: a CourseFactory object
+            :param task_factory: a TaskFactory object, possibly with specific task files managers attached
             :param image_aliases: a dict of image aliases, like {"default": "ingi/inginious-c-default"}.
             :param hook_manager: An instance of HookManager. If no instance is given(None), a new one will be created.
         """
@@ -139,4 +142,4 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
 
             agents.append({"host": daemon['remote_host'], "port": daemon.get("remote_agent_port", 63456)})
 
-        RemoteManualAgentJobManager.__init__(self, agents, image_aliases, task_directory, hook_manager, is_testing)
+        RemoteManualAgentJobManager.__init__(self, agents, image_aliases, task_directory, course_factory, task_factory, hook_manager, is_testing)

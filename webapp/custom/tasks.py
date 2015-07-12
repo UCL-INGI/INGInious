@@ -18,7 +18,6 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Classes modifying basic tasks, problems and boxes classes """
 from common.base import id_checker
-from common.task_file_managers.manage import get_task_file_manager
 import common.tasks
 from webapp.accessible_time import AccessibleTime
 from webapp.custom.task_problems import DisplayableCodeProblem, DisplayableCodeSingleLineProblem, DisplayableMatchProblem, \
@@ -30,21 +29,20 @@ from common_frontend.plugin_manager import PluginManager
 class FrontendTask(common.tasks.Task):
     """ A task that stores additionnal context informations """
 
-    # Redefine _problem_types with displayable ones
-    _problem_types = {
-        "code": DisplayableCodeProblem,
-        "code-file": DisplayableCodeFileProblem,
-        "code-single-line": DisplayableCodeSingleLineProblem,
-        "multiple-choice": DisplayableMultipleChoiceProblem,
-        "match": DisplayableMatchProblem}
-
-    def __init__(self, course, taskid, content):
+    def __init__(self, course, taskid, content, task_problem_types = None):
         # We load the descriptor of the task here to allow plugins to modify settings of the task before it is read by the Task constructor
         if not id_checker(taskid):
             raise Exception("Task with invalid id: " + course.get_id() + "/" + taskid)
         PluginManager().call_hook('modify_task_data', course=course, taskid=taskid, data=content)
 
-        common.tasks.Task.__init__(self, course, taskid, content)
+        task_problem_types = task_problem_types or {
+            "code": DisplayableCodeProblem,
+            "code-file": DisplayableCodeFileProblem,
+            "code-single-line": DisplayableCodeSingleLineProblem,
+            "multiple-choice": DisplayableMultipleChoiceProblem,
+            "match": DisplayableMatchProblem}
+
+        common.tasks.Task.__init__(self, course, taskid, content, task_problem_types)
 
         self._name = self._data.get('name', 'Task {}'.format(self.get_id()))
 

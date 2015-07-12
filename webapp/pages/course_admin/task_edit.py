@@ -29,7 +29,6 @@ import web
 from common_frontend.configuration import INGIniousConfiguration
 from common.base import id_checker, get_tasks_directory
 import common.custom_yaml
-from common.task_file_managers.manage import get_task_file_manager, get_available_task_file_managers, delete_all_possible_task_files
 from webapp.accessible_time import AccessibleTime
 from common_frontend.templates import get_renderer
 from webapp.custom.tasks import FrontendTask
@@ -47,7 +46,7 @@ class CourseEditTask(INGIniousAdminPage):
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
 
         try:
-            task_data = get_task_file_manager(courseid, taskid).read()
+            task_data = self.task_factory.get_task_descriptor_content(courseid, taskid)
         except:
             task_data = None
         if task_data is None:
@@ -56,10 +55,10 @@ class CourseEditTask(INGIniousAdminPage):
 
         current_filetype = None
         try:
-            current_filetype = get_task_file_manager(courseid, taskid).get_ext()
+            current_filetype = self.task_factory.get_task_descriptor_extension(courseid, taskid)
         except:
             pass
-        available_filetypes = get_available_task_file_managers().keys()
+        available_filetypes = self.task_factory.get_available_task_file_extensions()
 
         # custom problem-type:
         for pid in task_data.get("problems", {}):
@@ -85,7 +84,7 @@ class CourseEditTask(INGIniousAdminPage):
             current_filetype,
             available_filetypes,
             AccessibleTime,
-            CourseTaskFiles.get_task_filelist(courseid, taskid))
+            CourseTaskFiles.get_task_filelist(self.task_factory, courseid, taskid))
 
     @classmethod
     def contains_is_html(cls, data):
@@ -200,10 +199,9 @@ class CourseEditTask(INGIniousAdminPage):
             data = {key: val for key, val in data.iteritems() if not key.startswith("problem") and not key.startswith("limits")}
             del data["@action"]
 
-            try:
-                file_manager = get_available_task_file_managers()[data["@filetype"]](courseid, taskid)
-            except Exception as inst:
-                return json.dumps({"status": "error", "message": "Invalid file type: {}".format(str(inst))})
+            if data["@filetype"] not in self.task_factory.get_available_task_file_extensions():
+                return json.dumps({"status": "error", "message": "Invalid file type: {}".format(str(data["@filetype"]))})
+            file_ext = data["@filetype"]
             del data["@filetype"]
 
             if problems is None:
@@ -246,7 +244,7 @@ class CourseEditTask(INGIniousAdminPage):
 
         # Get original data
         try:
-            orig_data = get_task_file_manager(courseid, taskid).read()
+            orig_data = self.task_factory.get_task_descriptor_content(courseid, taskid)
             data["order"] = orig_data["order"]
         except:
             pass
@@ -271,7 +269,7 @@ class CourseEditTask(INGIniousAdminPage):
                 return json.dumps(
                     {"status": "error", "message": "There was a problem while extracting the zip archive. Some files may have been modified"})
 
-        delete_all_possible_task_files(courseid, taskid)
-        file_manager.write(data)
+        self.task_factory.delete_all_possible_task_files(courseid, taskid)
+        self.task_factory.update_task_descriptor_content(courseid, taskid, data, force_extension=file_ext)
 
         return json.dumps({"status": "ok"})

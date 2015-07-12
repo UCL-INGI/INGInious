@@ -25,23 +25,25 @@ class INGIniousPage(object):
     Contains references to the PluginManager, the CourseFactory, and the SubmissionManager
     """
 
-    def __init__(self, plugin_manager, course_factory):
+    def __init__(self, plugin_manager, course_factory, task_factory):
         self.plugin_manager = plugin_manager
         self.course_factory = course_factory
+        self.task_factory = task_factory
 
 
-def webpy_fake_class_creator(inginious_page_cls, plugin_manager, course_factory):
+def webpy_fake_class_creator(inginious_page_cls, plugin_manager, course_factory, task_factory):
     """
     :param inginious_page_cls: path to a class inheriting from INGIniousPage
     :param plugin_manager:
     :param course_factory:
+    :param task_factory:
     :return: a fake Class that proxies everything to an instance of the INGIniousPage
     """
     mod, cls = inginious_page_cls.rsplit('.', 1)
     mod = __import__(mod, None, None, [''])
     cls = getattr(mod, cls)
 
-    obj = cls(plugin_manager, course_factory)
+    obj = cls(plugin_manager, course_factory, task_factory)
 
     class WebPyFakeMetaClass(type):
         """

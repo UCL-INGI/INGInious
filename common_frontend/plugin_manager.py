@@ -20,7 +20,6 @@
 import importlib
 
 from backend.hook_manager import HookManager
-from common.task_file_managers.manage import add_custom_task_file_manager
 from common.singleton import Singleton
 import common_frontend.templates
 
@@ -30,8 +29,8 @@ class PluginManager(HookManager):
 
     __metaclass__ = Singleton
 
-    def __init__(self, webpy_app=None, course_factory=None, config=None):
-        if webpy_app is None or course_factory is None or config is None:
+    def __init__(self, webpy_app=None, course_factory=None, task_factory = None, config=None):
+        if webpy_app is None or course_factory is None or task_factory is None or config is None:
             raise Exception("Plugin Manager should be initialized before call")
 
         HookManager.__init__(self)
@@ -40,6 +39,7 @@ class PluginManager(HookManager):
         self.authentication = []
         self._config = config
         self._course_factory = course_factory
+        self._task_factory = task_factory
 
         common_frontend.templates.add_to_template_globals("PluginManager", self)
 
@@ -55,7 +55,7 @@ class PluginManager(HookManager):
 
     def add_task_file_manager(self, task_file_manager):
         """ Add a task file manager """
-        add_custom_task_file_manager(task_file_manager)
+        self._task_factory.add_custom_task_file_manager(task_file_manager)
 
     def register_auth_method(self, name, input_to_display, callback):
         """
