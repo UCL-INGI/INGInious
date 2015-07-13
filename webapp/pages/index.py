@@ -22,7 +22,6 @@ from collections import OrderedDict
 import web
 
 from common_frontend.templates import get_renderer
-from webapp.submission_manager import get_user_last_submissions
 import webapp.user as User
 from webapp.pages.utils import INGIniousPage
 
@@ -82,7 +81,7 @@ class IndexPage(INGIniousPage):
                 pass
 
         # Display
-        last_submissions = get_user_last_submissions({}, 5, True)
+        last_submissions = self.submission_manager.get_user_last_submissions({}, 5, True)
         except_free_last_submissions = []
         for submission in last_submissions:
             try:

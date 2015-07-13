@@ -17,18 +17,17 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ JobManagerTest plugin """
-import common_frontend.backend_interface
+from webapp.pages.utils import INGIniousPage
 
-
-class JobManagerTest(object):
-    """ Returns stats about the job manager for distant tests """
-
-    def GET(self):
-        """ GET request """
-        return str(common_frontend.backend_interface.get_job_manager().get_waiting_jobs_count())
-
-
-def init(plugin_manager, _, _2):
+def init(plugin_manager, _, job_manager, _3):
     """ Init the plugin """
-    plugin_manager.add_page("/tests/stats", "webapp.plugins.job_manager_test.JobManagerTest")
+
+    class JobManagerTest(INGIniousPage):
+        """ Returns stats about the job manager for distant tests """
+
+        def GET(self):
+            """ GET request """
+            return str(job_manager.get_waiting_jobs_count())
+
+    plugin_manager.add_page("/tests/stats", JobManagerTest)
     print "Started JobManagerTest plugin"

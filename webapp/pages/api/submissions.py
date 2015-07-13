@@ -22,12 +22,11 @@ import web
 
 from webapp.pages.api._api_page import APIAuthenticatedPage, APINotFound, APIForbidden, APIInvalidArguments
 import webapp.user as User
-from webapp.submission_manager import get_user_submissions, get_submission, get_input_from_submission, add_job
 from common.tasks_code_boxes import FileBox
 from common.tasks_problems import MultipleChoiceProblem, BasicCodeProblem
 from common_frontend.configuration import INGIniousConfiguration
 
-def _get_submissions(course_factory, courseid, taskid, submissionid=None):
+def _get_submissions(course_factory, submission_manager, courseid, taskid, submissionid=None):
     """
         Helper for the GET methods of the two following classes
     """
@@ -46,10 +45,10 @@ def _get_submissions(course_factory, courseid, taskid, submissionid=None):
         raise APINotFound("Task not found")
 
     if submissionid is None:
-        submissions = get_user_submissions(task)
+        submissions = submission_manager.get_user_submissions(task)
     else:
         try:
-            submissions = [get_submission(submissionid)]
+            submissions = [submission_manager.get_submission(submissionid)]
         except:
             raise APINotFound("Submission not found")
         if submissions[0]["taskid"] != task.get_id() or submissions[0]["courseid"] != course.get_id():
@@ -62,7 +61,7 @@ def _get_submissions(course_factory, courseid, taskid, submissionid=None):
             "id": str(submission["_id"]),
             "submitted_on": str(submission["submitted_on"]),
             "status": submission["status"],
-            "input": get_input_from_submission(submission, True),
+            "input": submission_manager.get_input_from_submission(submission, True),
             "grade": submission["grade"]
         }
         if submission["status"] == "done":
@@ -107,7 +106,7 @@ class APISubmissionSingle(APIAuthenticatedPage):
             If you use the endpoint /api/v0/courses/the_course_id/tasks/the_task_id/submissions/submissionid,
             this dict will contain one entry or the page will return 404 Not Found.
         """
-        return _get_submissions(self.course_factory, courseid, taskid, submissionid)
+        return _get_submissions(self.course_factory, self.submission_manager, courseid, taskid, submissionid)
 
 
 class APISubmissions(APIAuthenticatedPage):
@@ -142,7 +141,7 @@ class APISubmissions(APIAuthenticatedPage):
             If you use the endpoint /api/v0/courses/the_course_id/tasks/the_task_id/submissions/submissionid,
             this dict will contain one entry or the page will return 404 Not Found.
         """
-        return _get_submissions(self.course_factory, courseid, taskid)
+        return _get_submissions(self.course_factory, self.submission_manager, courseid, taskid)
 
     def API_POST(self, courseid, taskid):
         """
@@ -188,7 +187,7 @@ class APISubmissions(APIAuthenticatedPage):
         debug = User.get_username() in course.get_admins()
 
         # Start the submission
-        submissionid = add_job(task, user_input, debug)
+        submissionid = self.submission_manager.add_job(task, user_input, debug)
 
         return 200, {"submissionid": str(submissionid)}
 

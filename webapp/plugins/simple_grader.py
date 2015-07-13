@@ -29,7 +29,7 @@ from common_frontend.configuration import INGIniousConfiguration
 from webapp.pages.utils import INGIniousPage
 
 
-def init(plugin_manager, course_factory, config):
+def init(plugin_manager, course_factory, job_manager, config):
     """
         Init the external grader plugin. This simple grader allows only anonymous requests, and submissions are not stored in database.
 
@@ -131,8 +131,8 @@ def init(plugin_manager, course_factory, config):
     page_pattern = config.get('page_pattern', '/external')
     return_fields = re.compile(config.get('return_fields', '^(result|text|problems)$'))
 
-    job_manager_buffer = JobManagerBuffer(common_frontend.backend_interface.get_job_manager())
-    job_manager_sync = JobManagerSync(common_frontend.backend_interface.get_job_manager())
+    job_manager_buffer = JobManagerBuffer(job_manager)
+    job_manager_sync = JobManagerSync(job_manager)
 
     class ExternalGrader(INGIniousPage):
 

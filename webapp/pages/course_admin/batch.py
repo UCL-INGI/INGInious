@@ -26,8 +26,6 @@ import web
 
 from common_frontend.templates import get_renderer
 from webapp.pages.course_admin.utils import INGIniousAdminPage
-from webapp.batch_manager import get_all_batch_containers_metadata, add_batch_job, get_all_batch_jobs_for_course, get_batch_job_status, \
-    get_batch_container_metadata, drop_batch_job
 from common_frontend.database import get_gridfs
 import webapp.user as User
 
@@ -42,12 +40,12 @@ class CourseBatchOperations(INGIniousAdminPage):
         web_input = web.input()
         if "drop" in web_input: # delete an old batch job
             try:
-                drop_batch_job(web_input["drop"])
+                self.batch_manager.drop_batch_job(web_input["drop"])
             except:
                 pass
 
         operations = []
-        for entry in list(get_all_batch_jobs_for_course(courseid)):
+        for entry in list(self.batch_manager.get_all_batch_jobs_for_course(courseid)):
             ne = {"container_name": entry["container_name"],
                   "bid": str(entry["_id"]),
                   "submitted_on": entry["submitted_on"]}
@@ -58,7 +56,7 @@ class CourseBatchOperations(INGIniousAdminPage):
             operations.append(ne)
         operations = sorted(operations, key= (lambda o: o["submitted_on"]), reverse=True)
 
-        return get_renderer().course_admin.batch(course, operations, get_all_batch_containers_metadata())
+        return get_renderer().course_admin.batch(course, operations, self.batch_manager.get_all_batch_containers_metadata())
 
 class CourseBatchJobCreate(INGIniousAdminPage):
     """ Creates new batch jobs """
@@ -87,7 +85,7 @@ class CourseBatchJobCreate(INGIniousAdminPage):
 
         if len(errors) == 0:
             try:
-                add_batch_job(course, container_name, batch_input, User.get_email())
+                self.batch_manager.add_batch_job(course, container_name, batch_input, User.get_email())
             except:
                 errors.append("An error occured while starting the job")
 
@@ -99,7 +97,7 @@ class CourseBatchJobCreate(INGIniousAdminPage):
     def get_basic_info(self, courseid, container_name):
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         try:
-            metadata = get_batch_container_metadata(container_name)
+            metadata = self.batch_manager.get_batch_container_metadata(container_name)
             if metadata == (None, None, None):
                 raise Exception("Container not found")
         except:
@@ -128,7 +126,7 @@ class CourseBatchJobDownload(INGIniousAdminPage):
         """ GET request """
 
         course, _ = self.get_course_and_check_rights(courseid)
-        batch_job = get_batch_job_status(bid)
+        batch_job = self.batch_manager.get_batch_job_status(bid)
 
         if batch_job is None:
             raise web.notfound()
@@ -181,7 +179,7 @@ class CourseBatchJobSummary(INGIniousAdminPage):
         """ GET request """
 
         course, _ = self.get_course_and_check_rights(courseid)
-        batch_job = get_batch_job_status(bid)
+        batch_job = self.batch_manager.get_batch_job_status(bid)
 
         if batch_job is None:
             raise web.notfound()
@@ -198,7 +196,7 @@ class CourseBatchJobSummary(INGIniousAdminPage):
         stderr = ""
 
         try:
-            container_metadata = get_batch_container_metadata(container_name)
+            container_metadata = self.batch_manager.get_batch_container_metadata(container_name)
             if container_metadata == (None, None, None):
                 container_title = container_metadata[0]
                 container_description = container_metadata[1]

@@ -29,7 +29,6 @@ import web
 from common.tasks_code_boxes import FileBox
 from common.tasks_problems import MultipleChoiceProblem, BasicCodeProblem
 from common_frontend.templates import get_renderer
-import webapp.submission_manager as submission_manager
 import webapp.user as User
 from webapp.pages.utils import INGIniousPage
 from common_frontend.configuration import INGIniousConfiguration
@@ -54,10 +53,10 @@ class TaskPage(INGIniousPage):
                 userinput = web.input()
                 if "submissionid" in userinput and "questionid" in userinput:
                     # Download a previously submitted file
-                    submission = submission_manager.get_submission(userinput["submissionid"], True)
+                    submission = self.submission_manager.get_submission(userinput["submissionid"], True)
                     if submission is None:
                         raise web.notfound()
-                    sinput = submission_manager.get_input_from_submission(submission, True)
+                    sinput = self.submission_manager.get_input_from_submission(submission, True)
                     if userinput["questionid"] not in sinput:
                         raise web.notfound()
 
@@ -73,7 +72,7 @@ class TaskPage(INGIniousPage):
                         return sinput[userinput["questionid"]]
                 else:
                     # Display the task itself
-                    return get_renderer().task(course, task, submission_manager.get_user_submissions(task))
+                    return get_renderer().task(course, task, self.submission_manager.get_user_submissions(task))
             except:
                 if web.config.debug:
                     raise
@@ -116,22 +115,22 @@ class TaskPage(INGIniousPage):
                     debug = User.get_username() in course.get_admins()
 
                     # Start the submission
-                    submissionid = submission_manager.add_job(task, userinput, debug)
+                    submissionid = self.submission_manager.add_job(task, userinput, debug)
 
                     web.header('Content-Type', 'application/json')
                     return json.dumps({"status": "ok", "submissionid": str(submissionid)})
                 elif "@action" in userinput and userinput["@action"] == "check" and "submissionid" in userinput:
-                    if submission_manager.is_done(userinput['submissionid']):
+                    if self.submission_manager.is_done(userinput['submissionid']):
                         web.header('Content-Type', 'application/json')
-                        result = submission_manager.get_submission(userinput['submissionid'])
-                        result = submission_manager.get_input_from_submission(result)
+                        result = self.submission_manager.get_submission(userinput['submissionid'])
+                        result = self.submission_manager.get_input_from_submission(result)
                         return self.submission_to_json(result, User.get_username() in course.get_admins())
                     else:
                         web.header('Content-Type', 'application/json')
                         return json.dumps({'status': "waiting"})
                 elif "@action" in userinput and userinput["@action"] == "load_submission_input" and "submissionid" in userinput:
-                    submission = submission_manager.get_submission(userinput["submissionid"])
-                    submission = submission_manager.get_input_from_submission(submission)
+                    submission = self.submission_manager.get_submission(userinput["submissionid"])
+                    submission = self.submission_manager.get_input_from_submission(submission)
                     if not submission:
                         raise web.notfound()
                     web.header('Content-Type', 'application/json')

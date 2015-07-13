@@ -174,15 +174,6 @@ class FrontendCourse(Course):
 
         return grade / total_weight
 
-    def get_user_last_submissions(self, limit=5, one_per_task=False):
-        """ Returns a given number (default 5) of submissions of task from this course """
-        from webapp.submission_manager import get_user_last_submissions as extern_get_user_last_submissions
-
-        task_ids = []
-        for task_id in self.get_tasks():
-            task_ids.append(task_id)
-        return extern_get_user_last_submissions({"courseid": self.get_id(), "taskid": {"$in": task_ids}}, limit, one_per_task)
-
     def get_tasks(self):
         return OrderedDict(sorted(Course.get_tasks(self).items(), key=lambda t: t[1].get_order()))
 

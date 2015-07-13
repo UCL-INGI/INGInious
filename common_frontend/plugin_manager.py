@@ -43,11 +43,11 @@ class PluginManager(HookManager):
 
         common_frontend.templates.add_to_template_globals("PluginManager", self)
 
-    def load(self):
-        """ Loads the plugin manager. Must be done after the initialisation of the backend """
+    def load(self, job_manager):
+        """ Loads the plugin manager. Must be done after the initialisation of the job_manager """
         for entry in self._config:
             module = importlib.import_module(entry["plugin_module"])
-            self.plugins.append(module.init(self, self._course_factory, entry))
+            self.plugins.append(module.init(self, self._course_factory, job_manager, entry))
 
     def add_page(self, pattern, classname):
         """ Add a new page to the web application """

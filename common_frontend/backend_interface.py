@@ -21,55 +21,42 @@
 from backend.job_managers.local import LocalJobManager
 from backend.job_managers.remote_docker import RemoteDockerJobManager
 from backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
-from common_frontend.database import get_database
-from common_frontend.configuration import INGIniousConfiguration
 
-def get_job_manager():
-    """ Get the JobManager. Should only be used by very specific plugins """
-    return get_job_manager.job_manager
-get_job_manager.job_manager = None
-
-def init(plugin_manager, task_directory, course_factory, task_factory):
-    """ inits everything that makes the backend working """
+def create_job_manager(configuration, plugin_manager, database, task_directory, course_factory, task_factory):
+    """ Creates a new backend job manager from the configuration """
 
     # Updates the submissions that are waiting with the status error, as the server restarted
-    get_database().submissions.update({'status': 'waiting'},
-                                      {"$unset": {'jobid': ""},
-                                       "$set": {'status': 'error', 'grade': 0.0, 'text': 'Internal error. Server restarted'}}, multi=True)
+    database.submissions.update({'status': 'waiting'},
+                                {"$unset": {'jobid': ""},
+                                "$set": {'status': 'error', 'grade': 0.0, 'text': 'Internal error. Server restarted'}}, multi=True)
 
     # Updates all batch job still running
-    get_database().batch_jobs.update({'result':{'$exists':False}},
-                                     {"$set": {"result": {"retval": -1, "stderr": "Internal error. Server restarted"}}}, multi=True)
+    database.batch_jobs.update({'result':{'$exists':False}},
+                               {"$set": {"result": {"retval": -1, "stderr": "Internal error. Server restarted"}}}, multi=True)
 
     # Create the job manager
-    backend_type = INGIniousConfiguration.get("backend", "local")
+    backend_type = configuration.get("backend", "local")
     if backend_type == "local":
-        get_job_manager.job_manager = LocalJobManager(
-            INGIniousConfiguration.get('containers', {"default": "ingi/inginious-c-default", "sekexe": "ingi/inginious-c-sekexe"}),
-            task_directory,
-            course_factory,
-            task_factory,
-            INGIniousConfiguration.get('local_agent_tmp_dir', "/tmp/inginious_agent"), plugin_manager)
+        return LocalJobManager(configuration.get('containers', {"default": "ingi/inginious-c-default", "sekexe": "ingi/inginious-c-sekexe"}),
+                               task_directory,
+                               course_factory,
+                               task_factory,
+                               configuration.get('local_agent_tmp_dir', "/tmp/inginious_agent"), plugin_manager)
     elif backend_type == "remote":
-        get_job_manager.job_manager = RemoteDockerJobManager(INGIniousConfiguration.get("docker_daemons", []),
-                                                             INGIniousConfiguration.get('containers', {"default": "ingi/inginious-c-default",
-                                                                                                       "sekexe": "ingi/inginious-c-sekexe"}),
-                                                             task_directory,
-                                                             course_factory,
-                                                             task_factory,
-                                                             plugin_manager)
+        return RemoteDockerJobManager(configuration.get("docker_daemons", []),
+                                      configuration.get('containers',
+                                                        {"default": "ingi/inginious-c-default","sekexe": "ingi/inginious-c-sekexe"}),
+                                      task_directory,
+                                      course_factory,
+                                      task_factory,
+                                      plugin_manager)
     elif backend_type == "remote_manual":
-        get_job_manager.job_manager = RemoteManualAgentJobManager(
-            INGIniousConfiguration.get("agents", [{"host": "localhost", "port": 5001}]),
-            INGIniousConfiguration.get('containers', {"default": "ingi/inginious-c-default", "sekexe": "ingi/inginious-c-sekexe"}),
+        return RemoteManualAgentJobManager(
+            configuration.get("agents", [{"host": "localhost", "port": 5001}]),
+            configuration.get('containers', {"default": "ingi/inginious-c-default", "sekexe": "ingi/inginious-c-sekexe"}),
             task_directory,
             course_factory,
             task_factory,
             plugin_manager)
     else:
         raise Exception("Unknown backend {}".format(backend_type))
-
-
-def start():
-    """ Starts the backend interface. Should be called after the initialisation of the plugin manager. """
-    get_job_manager().start()

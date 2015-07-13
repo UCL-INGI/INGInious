@@ -26,7 +26,6 @@ from common_frontend.templates import get_renderer
 from webapp.pages.course_admin.utils import INGIniousAdminPage
 from common_frontend.database import get_database
 import webapp.user as User
-from webapp.submission_manager import get_submission_archive, keep_best_submission
 from common.base import id_checker
 
 class CourseDownloadSubmissions(INGIniousAdminPage):
@@ -72,11 +71,11 @@ class CourseDownloadSubmissions(INGIniousAdminPage):
                                                                 "courseid": course.get_id(),
                                                                 "status": {"$in": ["done", "error"]}}))
         if user_input.type == "single":
-            submissions = keep_best_submission(submissions)
+            submissions = self.submission_manager.keep_best_submission(submissions)
 
         web.header('Content-Type', 'application/x-gzip', unique=True)
         web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)
-        return get_submission_archive(submissions, list(reversed(user_input.format.split('/'))))
+        return self.submission_manager.get_submission_archive(submissions, list(reversed(user_input.format.split('/'))))
 
     def GET(self, courseid):
         """ GET request """
@@ -93,7 +92,7 @@ class CourseDownloadSubmissions(INGIniousAdminPage):
 
             web.header('Content-Type', 'application/x-gzip', unique=True)
             web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)
-            return get_submission_archive(submissions, [])
+            return self.submission_manager.get_submission_archive(submissions, [])
 
         # Else, display the complete page
         tasks = {taskid: task.get_name() for taskid, task in course.get_tasks().iteritems()}

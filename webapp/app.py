@@ -27,7 +27,7 @@ import web
 import common_frontend.database
 from common_frontend import backend_interface
 import common_frontend.templates
-import common_frontend.configuration
+from common_frontend.configuration import INGIniousConfiguration
 from webapp.database_updater import update_database
 from common_frontend.plugin_manager import PluginManager
 from common.course_factory import create_factories
@@ -36,7 +36,9 @@ import common_frontend.session
 import webapp.pages.course_admin.utils
 from webapp.custom.tasks import FrontendTask
 from webapp.custom.courses import FrontendCourse
-from webapp.pages.utils import webpy_fake_class_creator
+from webapp.pages.utils import WebPyFakeMapping
+from webapp.submission_manager import SubmissionManager
+from webapp.batch_manager import BatchManager
 
 urls = {
     '/': 'webapp.pages.index.IndexPage',
@@ -84,12 +86,12 @@ urls_maintenance = (
 
 def get_app(config_file):
     """ Get the application. config_file is the path to the configuration file """
-    common_frontend.configuration.INGIniousConfiguration.load(config_file)
-    if common_frontend.configuration.INGIniousConfiguration.get("maintenance", False):
+    INGIniousConfiguration.load(config_file)
+    if INGIniousConfiguration.get("maintenance", False):
         appli = web.application(urls_maintenance, globals(), autoreload=False)
         return appli
 
-    task_directory = common_frontend.configuration.INGIniousConfiguration["tasks_directory"]
+    task_directory = INGIniousConfiguration["tasks_directory"]
 
     appli = web.application((), globals(), autoreload=False)
 
@@ -105,35 +107,31 @@ def get_app(config_file):
 
     appli.notfound = not_found
 
-    plugin_manager = PluginManager(appli, course_factory, task_factory, common_frontend.configuration.INGIniousConfiguration.get("plugins", []))
+    plugin_manager = PluginManager(appli, course_factory, task_factory, INGIniousConfiguration.get("plugins", []))
 
     # Plugin Manager is also a Hook Manager
-    backend_interface.init(plugin_manager, task_directory, course_factory, task_factory)
-
+    job_manager = backend_interface.create_job_manager(INGIniousConfiguration, plugin_manager,
+                                                       common_frontend.database.get_database(),
+                                                       task_directory, course_factory, task_factory)
+    submission_manager = SubmissionManager(job_manager, common_frontend.database.get_database(),
+                                           common_frontend.database.get_gridfs(), plugin_manager)
+    batch_manager = BatchManager(job_manager, common_frontend.database.get_database(),
+                                 common_frontend.database.get_gridfs(), submission_manager, task_directory,
+                                 INGIniousConfiguration.get('batch_containers', []),
+                                 INGIniousConfiguration.get('smtp', None))
     # Init templates
     common_frontend.templates.init_renderer('webapp/templates', 'layout')
     common_frontend.templates.TemplateHelper().add_other("course_admin_menu", webapp.pages.course_admin.utils.get_menu)
 
     # Init the mapping of the app
-    fixed_urls = dict(urls)
-    for key, val in fixed_urls.iteritems():
-        fixed_urls[key] = webpy_fake_class_creator(val, plugin_manager, course_factory, task_factory)
-    appli.init_mapping([item for sublist in fixed_urls.iteritems() for item in sublist])
+    appli.mapping = WebPyFakeMapping(plugin_manager, course_factory, task_factory, submission_manager, batch_manager, dict(urls))
 
     # Loads plugins
-    plugin_manager.load()
+    plugin_manager.load(job_manager)
 
     # Start the backend
-    backend_interface.start()
+    job_manager.start()
 
-    # Configure Web.py
-    if "smtp" in common_frontend.configuration.INGIniousConfiguration:
-        config_smtp = common_frontend.configuration.INGIniousConfiguration["smtp"]
-        web.config.smtp_server = config_smtp["host"]
-        web.config.smtp_port = int(config_smtp["port"])
-        web.config.smtp_starttls = bool(config_smtp["starttls"])
-        web.config.smtp_username = config_smtp["username"]
-        web.config.smtp_password = config_smtp["password"]
     return appli
 
 

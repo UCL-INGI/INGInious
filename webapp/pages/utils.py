@@ -25,25 +25,32 @@ class INGIniousPage(object):
     Contains references to the PluginManager, the CourseFactory, and the SubmissionManager
     """
 
-    def __init__(self, plugin_manager, course_factory, task_factory):
+    def __init__(self, plugin_manager, course_factory, task_factory, submission_manager, batch_manager):
         self.plugin_manager = plugin_manager
         self.course_factory = course_factory
         self.task_factory = task_factory
+        self.submission_manager = submission_manager
+        self.batch_manager = batch_manager
 
 
-def webpy_fake_class_creator(inginious_page_cls, plugin_manager, course_factory, task_factory):
+def _webpy_fake_class_creator(inginious_page_cls, plugin_manager, course_factory, task_factory, submission_manager, batch_manager):
     """
-    :param inginious_page_cls: path to a class inheriting from INGIniousPage
+    :param inginious_page_cls: path to a class inheriting from INGIniousPage, or directly the "class object"
     :param plugin_manager:
     :param course_factory:
     :param task_factory:
+    :param submission_manager:
+    :param batch_manager:
     :return: a fake Class that proxies everything to an instance of the INGIniousPage
     """
-    mod, cls = inginious_page_cls.rsplit('.', 1)
-    mod = __import__(mod, None, None, [''])
-    cls = getattr(mod, cls)
+    if isinstance(inginious_page_cls, basestring):
+        mod, cls = inginious_page_cls.rsplit('.', 1)
+        mod = __import__(mod, None, None, [''])
+        cls = getattr(mod, cls)
+    else:
+        cls = inginious_page_cls
 
-    obj = cls(plugin_manager, course_factory, task_factory)
+    obj = cls(plugin_manager, course_factory, task_factory, submission_manager, batch_manager)
 
     class WebPyFakeMetaClass(type):
         """
@@ -62,3 +69,27 @@ def webpy_fake_class_creator(inginious_page_cls, plugin_manager, course_factory,
             return getattr(obj, name)
 
     return WebPyFakeClass
+
+
+class WebPyFakeMapping(object):
+    """
+        A "fake" mapping class for web.py that init the classes it contains automatically. Allow to avoid global state
+    """
+    def __init__(self, plugin_manager, course_factory, task_factory, submission_manager, batch_manager, urls):
+        self.dict = {}
+        self.plugin_manager = plugin_manager
+        self.course_factory = course_factory
+        self.task_factory = task_factory
+        self.submission_manager = submission_manager
+        self.batch_manager = batch_manager
+
+        for pattern, classname in urls.iteritems():
+            self.append((pattern, classname))
+
+    def append(self, what):
+        pattern, classname = what
+        self.dict[pattern] = _webpy_fake_class_creator(classname, self.plugin_manager, self.course_factory,
+                                                       self.task_factory, self.submission_manager, self.batch_manager)
+
+    def __iter__(self):
+        return self.dict.iteritems().__iter__()

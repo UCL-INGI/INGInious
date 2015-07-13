@@ -38,7 +38,7 @@ class CoursePage(INGIniousPage):
                 elif registration_uncomplete:
                     return get_renderer().course_unavailable()
                 else:
-                    last_submissions = course.get_user_last_submissions(one_per_task=True)
+                    last_submissions = self.submission_manager.get_user_last_submissions_for_course(course,one_per_task=True)
                     except_free_last_submissions = []
                     for submission in last_submissions:
                         try:

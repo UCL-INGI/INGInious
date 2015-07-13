@@ -230,7 +230,7 @@ class ContestAdmin(INGIniousAdminPage):
             return get_custom_template_renderer('webapp/plugins/contests', '../../templates/layout').admin(course, contest_data, errors, False)
 
 
-def init(plugin_manager, course_factory, _config):
+def init(plugin_manager, course_factory, job_manager, _config):
     """
         Init the contest plugin.
         Available configuration:

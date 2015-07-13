@@ -26,7 +26,7 @@ import common_frontend.backend_interface
 from webapp.pages.utils import INGIniousPage
 from common_frontend.configuration import INGIniousConfiguration
 
-def init(plugin_manager, course_factory, config):
+def init(plugin_manager, course_factory, job_manager, config):
     """
         Init the edx plugin.
         Available configuration:
@@ -43,7 +43,7 @@ def init(plugin_manager, course_factory, config):
     course = course_factory.get_course(courseid)
     page_pattern = config.get('page_pattern', '/edx')
 
-    job_manager_sync = JobManagerSync(common_frontend.backend_interface.get_job_manager())
+    job_manager_sync = JobManagerSync(job_manager)
 
     class EDX(INGIniousPage):
 

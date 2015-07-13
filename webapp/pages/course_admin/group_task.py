@@ -25,7 +25,6 @@ from bson.objectid import ObjectId
 from common_frontend.database import get_database
 from common_frontend.templates import get_renderer
 from webapp.pages.course_admin.utils import make_csv, INGIniousAdminPage
-from webapp.submission_manager import get_submission
 
 class CourseGroupTaskPage(INGIniousAdminPage):
     """ List information about a task done by a student """
@@ -65,7 +64,7 @@ class SubmissionDownloadFeedback(INGIniousAdminPage):
             return self.page(course, groupid, task, submissionid)
 
     def page(self, course, groupid, task, submissionid):
-        submission = get_submission(submissionid, False)
+        submission = self.submission_manager.get_submission(submissionid, False)
         if submission["groupid"] != ObjectId(groupid) or submission["courseid"] != course.get_id() or submission["taskid"] != task.get_id():
             return json.dumps({"status": "error", "text": "You do not have the rights to access to this submission"})
         elif "jobid" in submission:

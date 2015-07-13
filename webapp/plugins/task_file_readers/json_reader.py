@@ -37,7 +37,7 @@ class TaskJSONFileReader(AbstractTaskFileReader):
         return json.dumps(data, sort_keys=False, indent=4, separators=(',', ': '))
 
 
-def init(plugin_manager, _, _2):
+def init(plugin_manager, _, _2, _3):
     """
         Init the plugin. Configuration:
         ::
