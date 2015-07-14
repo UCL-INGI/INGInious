@@ -21,7 +21,7 @@ $var title: Edit $group["description"]
 
 $def ColumnF():
     <div id="group_edit_submit_status"></div>
-    $:template_helper.call('course_admin_menu',course=course,current='groups')
+    $:template_helper.call('course_admin_menu',username=user_manager.session_username(),course=course,current='groups')
 $var Column: $:ColumnF()
 
 $def NavbarF():
@@ -62,9 +62,8 @@ $elif post:
         <div class="col-sm-10">
             <div class="list-group" id="student_list">
             $for user in group["users"]:
-                $ user_data=UserData(user).get_data()
                 <div class="list-group-item" id="student_list_$user">
-                    $user ($user_data["realname"])
+                    $user ($user_manager.get_user_realname(user))
                     <div class="pull-right"><i onclick="javascript:group_remove_user('student', '$user')" class="fa fa-trash-o fa-lg"></i></div>
                     <input type="hidden" name="group_student" value="$user">
                 </div>
@@ -73,9 +72,8 @@ $elif post:
                 <div class="col-xs-12 col-md-8">
                     <select type="text" class="form-control" id="student_username" name="student_username">
                         $for student in course_stud_list:
-                            $ student_data=UserData(student).get_data()
                             $if student not in group["users"]:
-                                <option value="$student">$student ($student_data['realname'])</option>
+                                <option value="$student">$student ($($user_manager.get_user_realname(student)))</option>
                     </select>
                 </div>
                 <div class="col-xs-12 col-md-4">
@@ -90,9 +88,8 @@ $elif post:
         <div class="col-sm-10">
             <div class="list-group" id="tutor_list">
             $for user in group["tutors"]:
-                $ user_data=UserData(user).get_data()
                 <div class="list-group-item" id="tutor_list_$user">
-                    $user ($user_data["realname"])
+                    $user ($user_manager.get_user_realname(user))
                     <div class="pull-right"><i onclick="javascript:group_remove_user('tutor', '$user')" class="fa fa-trash-o fa-lg"></i></div>
                     <input type="hidden" name="group_tutor" value="$user">
                 </div>
@@ -101,9 +98,8 @@ $elif post:
                 <div class="col-xs-12 col-md-8">
                     <select type="text" class="form-control" id="tutor_username" name="tutor_username">
                         $for tutor in course_tut_list:
-                            $ tutor_data=UserData(tutor).get_data()
                             $if tutor not in group["tutors"]:
-                                <option value="$tutor">$tutor ($tutor_data['realname'])</option>
+                                <option value="$tutor">$tutor ($user_manager.get_user_realname(tutor))</option>
                     </select>
                 </div>
                 <div class="col-xs-12 col-md-4">

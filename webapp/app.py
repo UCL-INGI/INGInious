@@ -24,21 +24,21 @@ import os
 
 import web
 
-import common_frontend.database
 from common_frontend import backend_interface
-import common_frontend.templates
 from common_frontend.configuration import INGIniousConfiguration
 from webapp.database_updater import update_database
 from common_frontend.plugin_manager import PluginManager
 from common.course_factory import create_factories
-import common_frontend.templates
-import common_frontend.session
 import webapp.pages.course_admin.utils
 from webapp.custom.tasks import FrontendTask
 from webapp.custom.courses import FrontendCourse
 from webapp.pages.utils import WebPyFakeMapping
 from webapp.submission_manager import SubmissionManager
 from webapp.batch_manager import BatchManager
+from common_frontend.templates import TemplateHelper
+from common_frontend.database import new_database_client, new_gridfs_client
+from webapp.user_manager import UserManager
+from common_frontend.session_mongodb import MongoStore
 
 urls = {
     '/': 'webapp.pages.index.IndexPage',
@@ -95,36 +95,42 @@ def get_app(config_file):
 
     appli = web.application((), globals(), autoreload=False)
 
+    # Init the different parts of the app
     course_factory, task_factory = create_factories(task_directory, FrontendCourse, FrontendTask)
 
-    common_frontend.database.init_database()
-    update_database(course_factory)
-    common_frontend.session.init(appli)
+    database = new_database_client()
+    gridfs = new_gridfs_client(database)
 
-    def not_found():
-        """ Display the error 404 page """
-        return web.notfound(common_frontend.templates.get_renderer().notfound('Page not found'))
+    user_manager = UserManager(web.session.Session(appli, MongoStore(database, 'sessions')), database)
 
-    appli.notfound = not_found
+    update_database(database, gridfs, course_factory, user_manager)
 
-    plugin_manager = PluginManager(appli, course_factory, task_factory, INGIniousConfiguration.get("plugins", []))
+    plugin_manager = PluginManager(appli, course_factory, task_factory, user_manager, INGIniousConfiguration.get("plugins", []))
 
-    # Plugin Manager is also a Hook Manager
     job_manager = backend_interface.create_job_manager(INGIniousConfiguration, plugin_manager,
-                                                       common_frontend.database.get_database(),
+                                                       database,
                                                        task_directory, course_factory, task_factory)
-    submission_manager = SubmissionManager(job_manager, common_frontend.database.get_database(),
-                                           common_frontend.database.get_gridfs(), plugin_manager)
-    batch_manager = BatchManager(job_manager, common_frontend.database.get_database(),
-                                 common_frontend.database.get_gridfs(), submission_manager, task_directory,
-                                 INGIniousConfiguration.get('batch_containers', []),
+
+    submission_manager = SubmissionManager(job_manager, user_manager, database, gridfs, plugin_manager)
+
+    batch_manager = BatchManager(job_manager, database, gridfs, submission_manager, user_manager,
+                                 task_directory, INGIniousConfiguration.get('batch_containers', []),
                                  INGIniousConfiguration.get('smtp', None))
-    # Init templates
-    common_frontend.templates.init_renderer('webapp/templates', 'layout')
-    common_frontend.templates.TemplateHelper().add_other("course_admin_menu", webapp.pages.course_admin.utils.get_menu)
+
+    template_helper = TemplateHelper(plugin_manager, 'webapp/templates', 'layout')
+    template_helper.add_to_template_globals("user_manager", user_manager)
+    template_helper.add_other("course_admin_menu",
+                              lambda username, course, current: webapp.pages.course_admin.utils.get_menu(username, course, current,
+                                                                                                         template_helper.get_renderer(False),
+                                                                                                         plugin_manager))
+
+    appli.notfound = lambda: web.notfound(template_helper.get_renderer().notfound('Page not found'))
 
     # Init the mapping of the app
-    appli.mapping = WebPyFakeMapping(plugin_manager, course_factory, task_factory, submission_manager, batch_manager, dict(urls))
+    appli.mapping = WebPyFakeMapping(dict(urls), plugin_manager,
+                                     course_factory, task_factory,
+                                     submission_manager, batch_manager, user_manager,
+                                     template_helper, database, gridfs)
 
     # Loads plugins
     plugin_manager.load(job_manager)

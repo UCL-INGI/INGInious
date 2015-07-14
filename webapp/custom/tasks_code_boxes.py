@@ -22,7 +22,6 @@ import base64
 import json
 
 from common.tasks_code_boxes import TextBox, InputBox, MultilineBox, FileBox
-from common_frontend.templates import get_renderer
 from common_frontend.parsable_text import ParsableText
 from common_frontend.configuration import INGIniousConfiguration
 
@@ -33,20 +32,12 @@ class DisplayableBox(object):
     def __init__(self, problem, boxid, boxData):
         pass
 
-    def __str__(self):
-        """ Get the html to show this box """
-        return self.show()
-
-    def __unicode__(self):
-        """ Get the html to show this box """
-        return self.show()
-
     def adapt_input_for_backend(self, input_data):
         """ Adapt the input from web.py for the backend """
         return input_data
 
     @abstractmethod
-    def show(self):
+    def show(self, renderer):
         """ Get the html to show this box """
         pass
 
@@ -59,9 +50,9 @@ class DisplayableTextBox(TextBox, DisplayableBox):
 
         self._content = ParsableText(self._content, "rst")
 
-    def show(self):
+    def show(self, renderer):
         """ Show TextBox """
-        return str(get_renderer(False).tasks.box_text(self._content))
+        return str(renderer.tasks.box_text(self._content))
 
 
 class DisplayableFileBox(FileBox, DisplayableBox):
@@ -78,12 +69,12 @@ class DisplayableFileBox(FileBox, DisplayableBox):
             input_data[self.get_complete_id()] = {}
         return input_data
 
-    def show(self):
+    def show(self, renderer):
         """ Show FileBox """
-        return str(get_renderer(False).tasks.box_file(self.get_complete_id(),
-                                                      (self._max_size or INGIniousConfiguration["max_file_size"]),
-                                                      (self._allowed_exts or INGIniousConfiguration["allowed_file_extensions"]),
-                                                      json))
+        return str(renderer.tasks.box_file(self.get_complete_id(),
+                                           (self._max_size or INGIniousConfiguration["max_file_size"]),
+                                           (self._allowed_exts or INGIniousConfiguration["allowed_file_extensions"]),
+                                           json))
 
 
 class DisplayableInputBox(InputBox, DisplayableBox):
@@ -92,9 +83,9 @@ class DisplayableInputBox(InputBox, DisplayableBox):
     def __init__(self, problem, boxid, boxData):
         super(DisplayableInputBox, self).__init__(problem, boxid, boxData)
 
-    def show(self):
+    def show(self, renderer):
         """ Show InputBox """
-        return str(get_renderer(False).tasks.box_input(self.get_complete_id(), self._input_type, self._max_chars))
+        return str(renderer.tasks.box_input(self.get_complete_id(), self._input_type, self._max_chars))
 
 
 class DisplayableMultilineBox(MultilineBox, DisplayableBox):
@@ -103,6 +94,6 @@ class DisplayableMultilineBox(MultilineBox, DisplayableBox):
     def __init__(self, problem, boxid, boxData):
         super(DisplayableMultilineBox, self).__init__(problem, boxid, boxData)
 
-    def show(self):
+    def show(self, renderer):
         """ Show MultilineBox """
-        return str(get_renderer(False).tasks.box_multiline(self.get_complete_id(), self._lines, self._max_chars, self._language))
+        return str(renderer.tasks.box_multiline(self.get_complete_id(), self._lines, self._max_chars, self._language))

@@ -31,14 +31,13 @@ import pymongo
 
 from common_frontend.parsable_text import ParsableText
 import common.custom_yaml
-import webapp.user as User
-from webapp.user_data import UserData
 
 class SubmissionManager(object):
     """ Manages submissions. Communicates with the database and the job manager. """
 
-    def __init__(self, job_manager, database, gridfs, plugin_manager):
+    def __init__(self, job_manager, user_manager, database, gridfs, plugin_manager):
         self._job_manager = job_manager
+        self._user_manager = user_manager
         self._database = database
         self._gridfs = gridfs
         self._plugin_manager = plugin_manager
@@ -80,7 +79,7 @@ class SubmissionManager(object):
         )
 
         for username in submission["username"]:
-            UserData(username).update_stats(submission, job)
+            self._user_manager.update_user_stats(username, submission, job)
 
         self._plugin_manager.call_hook("submission_done", submission=submission, job=job)
 
@@ -90,10 +89,10 @@ class SubmissionManager(object):
             task is a Task instance and inputdata is the input as a dictionary
             If debug is true, more debug data will be saved
         """
-        if not User.is_logged_in():
+        if not self._user_manager.session_logged_in():
             raise Exception("A user must be logged in to submit an object")
 
-        username = User.get_username()
+        username = self._user_manager.session_username()
         course = task.get_course()
 
         obj = {
@@ -152,26 +151,27 @@ class SubmissionManager(object):
 
     def user_is_submission_owner(self, submission):
         """ Returns true if the current user is the owner of this jobid, false else """
-        if not User.is_logged_in():
+        if not self._user_manager.session_logged_in():
             raise Exception("A user must be logged in to verify if he owns a jobid")
 
-        return User.get_username() in submission["username"]
+        return self._user_manager.session_username() in submission["username"]
 
     def get_user_submissions(self, task):
         """ Get all the user's submissions for a given task """
-        if not User.is_logged_in():
+        if not self._user_manager.session_logged_in():
             raise Exception("A user must be logged in to get his submissions")
 
-        cursor = self._database.submissions.find({"username": User.get_username(), "taskid": task.get_id(), "courseid": task.get_course_id()})
+        cursor = self._database.submissions.find({"username": self._user_manager.session_username(),
+                                                  "taskid": task.get_id(), "courseid": task.get_course_id()})
         cursor.sort([("submitted_on", -1)])
         return list(cursor)
 
     def get_user_last_submissions(self, query, limit, one_per_task=False):
         """ Get last submissions of a user """
-        if not User.is_logged_in():
+        if not self._user_manager.session_logged_in():
             raise Exception("A user must be logged in to get his submissions")
         request = query.copy()
-        request.update({"username": User.get_username()})
+        request.update({"username": self._user_manager.session_username()})
 
         # We only want the last x task tried, modify the request
         if one_per_task is True:

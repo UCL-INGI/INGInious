@@ -22,9 +22,6 @@ import web
 from bson.objectid import ObjectId
 from bson.errors import InvalidId
 
-from common_frontend.templates import get_renderer
-from common_frontend.database import get_database
-import webapp.user as User
 from webapp.pages.utils import INGIniousPage
 
 class GroupPage(INGIniousPage):
@@ -33,22 +30,22 @@ class GroupPage(INGIniousPage):
     def GET(self, courseid):
         """ GET request """
 
-        if User.is_logged_in():
+        if self.user_manager.session_logged_in():
             try:
                 course = self.course_factory.get_course(courseid)
-                registration_uncomplete = not course.is_open_to_user(User.get_username(), course.is_group_course())
+                registration_uncomplete = not self.user_manager.course_is_open_to_user(course)
                 error = ""
-                if not course.is_group_course() or User.get_username() in course.get_staff(True):
+                if not course.is_group_course() or self.user_manager.session_username() in course.get_staff(True):
                     raise web.notfound()
                 elif registration_uncomplete and not course.can_students_choose_group():
-                    return get_renderer().course_unavailable()
+                    return self.template_helper.get_renderer().course_unavailable()
                 elif "register_group" in web.input():
                     try:
                         groupid = web.input()["register_group"]
-                        group = get_database().groups.find_one_and_update({"_id": ObjectId(groupid),
+                        group = self.database.groups.find_one_and_update({"_id": ObjectId(groupid),
                                                                            "course_id": courseid,
                                                                            "$where": "this.users.length < this.size"},
-                                                                          {"$push": {"users": User.get_username()}})
+                                                                          {"$push": {"users": self.user_manager.session_username()}})
                         if group:
                             raise web.seeother("/course/" + courseid)
                         else:
@@ -65,19 +62,19 @@ class GroupPage(INGIniousPage):
                     except:
                         pass
 
-                group = course.get_user_group(User.get_username())
-                available_groups = list(get_database().groups.find({"course_id": courseid,
+                group = self.user_manager.get_course_user_group(course)
+                available_groups = list(self.database.groups.find({"course_id": courseid,
                                                                "$where": "this.users.length < this.size"}))
 
                 users = {}
-                for user in get_database().users.find({"_id": {"$in": course.get_registered_users(True)}}):
+                for user in self.database.users.find({"_id": {"$in": self.user_manager.get_course_registered_users(course)}}):
                     users[user["_id"]] = user
 
-                return get_renderer().group(course, except_free_last_submissions, group, available_groups, users, error)
+                return self.template_helper.get_renderer().group(course, except_free_last_submissions, group, available_groups, users, error)
             except:
                 if web.config.debug:
                     raise
                 else:
                     raise web.notfound()
         else:
-            return get_renderer().index(False)
+            return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_inputs(), False)

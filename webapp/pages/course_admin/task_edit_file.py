@@ -28,7 +28,6 @@ import tempfile
 import web
 
 from common.base import id_checker
-from common_frontend.templates import get_renderer
 from webapp.pages.course_admin.utils import INGIniousAdminPage
 
 class CourseTaskFiles(INGIniousAdminPage):
@@ -72,8 +71,9 @@ class CourseTaskFiles(INGIniousAdminPage):
 
     def show_tab_file(self, courseid, taskid, _error=False):
         """ Return the file tab """
-        return get_renderer(False).course_admin.edit_tabs.files(self.course_factory.get_course(courseid),
-                                                                taskid, self.get_task_filelist(self.task_factory, courseid, taskid))
+        return self.template_helper.get_renderer(False).course_admin.edit_tabs.files(self.course_factory.get_course(courseid),
+                                                                                     taskid,
+                                                                                     self.get_task_filelist(self.task_factory, courseid, taskid))
 
     @classmethod
     def get_task_filelist(cls, task_factory, courseid, taskid):

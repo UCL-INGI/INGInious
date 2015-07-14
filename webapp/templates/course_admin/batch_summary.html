@@ -19,7 +19,7 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 
 $var title: $:course.get_name() - Batch operations - Summary of job $bid
 
-$var Column: $:template_helper.call('course_admin_menu',course=course,current='batch')
+$var Column: $:template_helper.call('course_admin_menu',username=user_manager.session_username(),course=course,current='batch')
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
@@ -54,7 +54,7 @@ $var Navbar: $:NavbarF()
                     Container returned an error
             </td>
         </tr>
-        $if User.get_username() in course.get_staff():
+        $if user_manager.session_username() in course.get_staff():
             <tr>
                 <th>Return value</th>
                 <td>$retval</td>

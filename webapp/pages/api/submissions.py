@@ -21,12 +21,11 @@
 import web
 
 from webapp.pages.api._api_page import APIAuthenticatedPage, APINotFound, APIForbidden, APIInvalidArguments
-import webapp.user as User
 from common.tasks_code_boxes import FileBox
 from common.tasks_problems import MultipleChoiceProblem, BasicCodeProblem
 from common_frontend.configuration import INGIniousConfiguration
 
-def _get_submissions(course_factory, submission_manager, courseid, taskid, submissionid=None):
+def _get_submissions(course_factory, submission_manager, user_manager, courseid, taskid, submissionid=None):
     """
         Helper for the GET methods of the two following classes
     """
@@ -36,7 +35,7 @@ def _get_submissions(course_factory, submission_manager, courseid, taskid, submi
     except:
         raise APINotFound("Course not found")
 
-    if not course.is_open_to_user(User.get_username()):
+    if not user_manager.course_is_open_to_user(course):
         raise APIForbidden("You are not registered to this course")
 
     try:
@@ -106,7 +105,7 @@ class APISubmissionSingle(APIAuthenticatedPage):
             If you use the endpoint /api/v0/courses/the_course_id/tasks/the_task_id/submissions/submissionid,
             this dict will contain one entry or the page will return 404 Not Found.
         """
-        return _get_submissions(self.course_factory, self.submission_manager, courseid, taskid, submissionid)
+        return _get_submissions(self.course_factory, self.submission_manager, self.user_manager, courseid, taskid, submissionid)
 
 
 class APISubmissions(APIAuthenticatedPage):
@@ -141,7 +140,7 @@ class APISubmissions(APIAuthenticatedPage):
             If you use the endpoint /api/v0/courses/the_course_id/tasks/the_task_id/submissions/submissionid,
             this dict will contain one entry or the page will return 404 Not Found.
         """
-        return _get_submissions(self.course_factory, self.submission_manager, courseid, taskid)
+        return _get_submissions(self.course_factory, self.submission_manager, self.user_manager, courseid, taskid)
 
     def API_POST(self, courseid, taskid):
         """
@@ -161,7 +160,9 @@ class APISubmissions(APIAuthenticatedPage):
         except:
             raise APINotFound("Course not found")
 
-        if not course.is_open_to_user(User.get_username(), course.is_group_course()):
+        username = self.user_manager.session_username()
+
+        if not self.user_manager.course_is_open_to_user(course, username):
             raise APIForbidden("You are not registered to this course")
 
         try:
@@ -169,10 +170,10 @@ class APISubmissions(APIAuthenticatedPage):
         except:
             raise APINotFound("Task not found")
 
-        User.get_data().view_task(courseid, taskid)
+        self.user_manager.user_saw_task(username, courseid, taskid)
 
         # Verify rights
-        if not task.can_user_submit(User.get_username()):
+        if not self.user_manager.task_can_user_submit(task, username):
             raise APIForbidden("Deadline reached")
 
         init_var = self.list_multiple_multiple_choices_and_files(task)
@@ -184,7 +185,7 @@ class APISubmissions(APIAuthenticatedPage):
             raise APIInvalidArguments()
 
         # Get debug info if the current user is an admin
-        debug = User.get_username() in course.get_admins()
+        debug = username in course.get_admins()
 
         # Start the submission
         submissionid = self.submission_manager.add_job(task, user_input, debug)

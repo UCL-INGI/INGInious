@@ -21,7 +21,6 @@
 from abc import ABCMeta, abstractmethod
 from random import shuffle
 
-from common_frontend.templates import get_renderer
 from common_frontend.parsable_text import ParsableText
 from common.tasks_problems import BasicProblem, BasicCodeProblem, CodeProblem, CodeSingleLineProblem, MatchProblem, MultipleChoiceProblem, \
     CodeFileProblem
@@ -36,20 +35,12 @@ class DisplayableBasicProblem(BasicProblem):
         super(DisplayableBasicProblem, self).__init__(task, problemid, content)
         self._header = ParsableText(self._header, "rst")
 
-    def __str__(self):
-        """ get the html for this problem """
-        return self.show_input()
-
-    def __unicode__(self):
-        """ get the html for this problem """
-        return self.show_input()
-
     def adapt_input_for_backend(self, input_data):
         """ Adapt the input from web.py for the backend """
         return input_data
 
     @abstractmethod
-    def show_input(self):
+    def show_input(self, renderer):
         """ get the html for this problem """
         pass
 
@@ -77,11 +68,11 @@ class DisplayableBasicCodeProblem(BasicCodeProblem, DisplayableBasicProblem):
             input_data = box.adapt_input_for_backend(input_data)
         return input_data
 
-    def show_input(self):
+    def show_input(self, renderer):
         """ Show BasicCodeProblem and derivatives """
         output = ""
         for box in self._boxes:
-            output += box.show()
+            output += box.show(renderer)
         return output
 
 
@@ -115,7 +106,7 @@ class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableBasicPr
         for choice in self._choices:
             choice["text"] = ParsableText(choice['text'], 'rst')
 
-    def show_input(self):
+    def show_input(self, renderer):
         """ Show multiple choice problems """
         choices = []
         limit = self._limit
@@ -148,7 +139,7 @@ class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableBasicPr
                 if entry['valid']:
                     found_valid = True
         shuffle(choices)
-        return str(get_renderer(False).tasks.multiplechoice(self.get_id(), self._multiple, choices))
+        return str(renderer.tasks.multiplechoice(self.get_id(), self._multiple, choices))
 
 
 class DisplayableMatchProblem(MatchProblem, DisplayableBasicProblem):
@@ -157,6 +148,6 @@ class DisplayableMatchProblem(MatchProblem, DisplayableBasicProblem):
     def __init__(self, task, problemid, content):
         super(DisplayableMatchProblem, self).__init__(task, problemid, content)
 
-    def show_input(self):
+    def show_input(self, renderer):
         """ Show MatchProblem """
-        return str(get_renderer(False).tasks.match(self.get_id()))
+        return str(renderer.tasks.match(self.get_id()))

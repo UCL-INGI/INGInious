@@ -88,10 +88,10 @@ $:template_helper.call('header_hook')
                 <div class="collapse navbar-collapse">
                     $if "Navbar" in content:
                         $:content.Navbar
-                    $if User.is_logged_in():
+                    $if user_manager.session_logged_in():
                         <div class="navbar-right">
                             <ul class="nav navbar-nav">
-                                <li><p class="navbar-text">Logged in as $User.get_realname()</p></li>
+                                <li><p class="navbar-text">Logged in as $user_manager.session_realname()</p></li>
                                 <li><a href="/index?logoff" class="navbar-link"><i class="fa fa-sign-out"></i> Log off</a></li>
                             </ul>
                         </div>

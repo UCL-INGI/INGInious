@@ -19,7 +19,7 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 
 $var title: $:course.get_name()
 
-$var Column: $:template_helper.call('course_admin_menu',course=course,current='groups')
+$var Column: $:template_helper.call('course_admin_menu',username=user_manager.session_username(),course=course,current='groups')
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
@@ -40,7 +40,7 @@ $var Navbar: $:NavbarF()
     $elif post:
         <div class="alert alert-success" role="alert">New group created.</div>
 
-    $if ungrouped_users > 0 and User.get_username() in course.get_admins(True):
+    $if ungrouped_users > 0 and user_manager.session_username() in course.get_admins(True):
         <div class="alert alert-warning" role="alert">$ungrouped_users of your registered students have no assigned groups.</div>
 
 <table class="table">

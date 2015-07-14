@@ -19,15 +19,13 @@
 """ Updates the database """
 import pymongo
 
-from common_frontend.database import get_database
-
-def update_database(course_factory):
+def update_database(database, gridfs, course_factory, user_manager):
     """
     Checks the database version and update the db if necessary
     :param course_factory: the course factory
     """
 
-    db_version = get_database().db_version.find_one({})
+    db_version = database.db_version.find_one({})
     if db_version is None:
         db_version = 0
     else:
@@ -36,29 +34,29 @@ def update_database(course_factory):
     if db_version < 1:
         print "Updating database to db_version 1"
         # Init the database
-        get_database().submissions.ensure_index([("username", pymongo.ASCENDING)])
-        get_database().submissions.ensure_index([("courseid", pymongo.ASCENDING)])
-        get_database().submissions.ensure_index([("courseid", pymongo.ASCENDING), ("taskid", pymongo.ASCENDING)])
-        get_database().submissions.ensure_index([("submitted_on", pymongo.DESCENDING)])  # sort speed
+        database.submissions.ensure_index([("username", pymongo.ASCENDING)])
+        database.submissions.ensure_index([("courseid", pymongo.ASCENDING)])
+        database.submissions.ensure_index([("courseid", pymongo.ASCENDING), ("taskid", pymongo.ASCENDING)])
+        database.submissions.ensure_index([("submitted_on", pymongo.DESCENDING)])  # sort speed
 
-        get_database().user_tasks.ensure_index([("username", pymongo.ASCENDING), ("courseid", pymongo.ASCENDING), ("taskid", pymongo.ASCENDING)],
+        database.user_tasks.ensure_index([("username", pymongo.ASCENDING), ("courseid", pymongo.ASCENDING), ("taskid", pymongo.ASCENDING)],
                                                unique=True)
-        get_database().user_tasks.ensure_index([("username", pymongo.ASCENDING), ("courseid", pymongo.ASCENDING)])
-        get_database().user_tasks.ensure_index([("courseid", pymongo.ASCENDING), ("taskid", pymongo.ASCENDING)])
-        get_database().user_tasks.ensure_index([("courseid", pymongo.ASCENDING)])
-        get_database().user_tasks.ensure_index([("username", pymongo.ASCENDING)])
+        database.user_tasks.ensure_index([("username", pymongo.ASCENDING), ("courseid", pymongo.ASCENDING)])
+        database.user_tasks.ensure_index([("courseid", pymongo.ASCENDING), ("taskid", pymongo.ASCENDING)])
+        database.user_tasks.ensure_index([("courseid", pymongo.ASCENDING)])
+        database.user_tasks.ensure_index([("username", pymongo.ASCENDING)])
 
         db_version = 1
 
     if db_version < 2:
         print "Updating database to db_version 2"
         # Register users that submitted some tasks to the related courses
-        data = get_database().user_tasks.aggregate([{"$group": {"_id": "$courseid", "usernames": {"$addToSet": "$username"}}}])
+        data = database.user_tasks.aggregate([{"$group": {"_id": "$courseid", "usernames": {"$addToSet": "$username"}}}])
         for r in list(data):
             try:
                 course = course_factory.get_course(r['_id'])
                 for u in r['usernames']:
-                    course.register_user(u, force=True)
+                    user_manager.course_register_user(course, u, force=True)
             except:
                 print "There was an error while updating the database. Some users may have been unregistered from the course {}".format(r['_id'])
         db_version = 2
@@ -66,17 +64,17 @@ def update_database(course_factory):
     if db_version < 3:
         print "Updating database to db_version 3"
         # Add the grade for all the old submissions
-        get_database().submissions.update({}, {"$set": {"grade": 0.0}}, multi=True)
-        get_database().submissions.update({"result": "success"}, {"$set": {"grade": 100.0}}, multi=True)
-        get_database().user_tasks.update({}, {"$set": {"grade": 0.0}}, multi=True)
-        get_database().user_tasks.update({"succeeded": True}, {"$set": {"grade": 100.0}}, multi=True)
+        database.submissions.update({}, {"$set": {"grade": 0.0}}, multi=True)
+        database.submissions.update({"result": "success"}, {"$set": {"grade": 100.0}}, multi=True)
+        database.user_tasks.update({}, {"$set": {"grade": 0.0}}, multi=True)
+        database.user_tasks.update({"succeeded": True}, {"$set": {"grade": 100.0}}, multi=True)
         db_version = 3
 
     if db_version < 4:
-        submissions = get_database().submissions.find({"$where": "!Array.isArray(this.username)"})
+        submissions = database.submissions.find({"$where": "!Array.isArray(this.username)"})
         for submission in submissions:
             submission["username"] = [submission["username"]]
-            get_database().submissions.save(submission)
+            database.submissions.save(submission)
         db_version = 4
 
-    get_database().db_version.update({}, {"$set": {"db_version": db_version}}, upsert=True)
+    database.db_version.update({}, {"$set": {"db_version": db_version}}, upsert=True)

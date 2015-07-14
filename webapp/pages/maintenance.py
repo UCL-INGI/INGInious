@@ -18,18 +18,17 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Maintenance page """
 
-from common_frontend.templates import get_custom_template_renderer
 from webapp.pages.utils import INGIniousPage
 
 class MaintenancePage(INGIniousPage):
     """ Maintenance page """
 
-    renderer = get_custom_template_renderer('frontend/templates/')
-
     def GET(self):
         """ GET request """
-        return self.renderer.maintenance()
+        renderer = self.template_helper.get_custom_template_renderer('frontend/templates/')
+        return renderer.maintenance()
 
     def POST(self):
         """ POST request """
-        return self.renderer.maintenance()
+        renderer = self.template_helper.get_custom_template_renderer('frontend/templates/')
+        return renderer.maintenance()

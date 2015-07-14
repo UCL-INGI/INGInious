@@ -25,11 +25,8 @@ from datetime import datetime, timedelta
 import pymongo
 import web
 
-from common_frontend.templates import get_custom_template_renderer
-from common_frontend.database import get_database
 from webapp.pages.utils import INGIniousPage
 from webapp.pages.course_admin.utils import INGIniousAdminPage
-from webapp.user_data import UserData
 
 
 def add_admin_menu(_course):
@@ -70,14 +67,14 @@ def save_contest_data(course, contest_data):
     course.update_course_descriptor_content(course.get_id(), course_content)
 
 
-def course_menu(course):
+def course_menu(course, template_helper):
     """ Displays some informations about the contest on the course page"""
     contest_data = get_contest_data(course)
     if contest_data['enabled']:
         start = datetime.strptime(contest_data['start'], "%Y-%m-%d %H:%M:%S")
         end = datetime.strptime(contest_data['end'], "%Y-%m-%d %H:%M:%S")
         blackout = end - timedelta(hours=contest_data['blackout'])
-        return str(get_custom_template_renderer('webapp/plugins/contests').course_menu(course, start, end, blackout))
+        return str(template_helper.get_custom_template_renderer('webapp/plugins/contests').course_menu(course, start, end, blackout))
     else:
         return None
 
@@ -94,10 +91,10 @@ class ContestScoreboard(INGIniousPage):
         end = datetime.strptime(contest_data['end'], "%Y-%m-%d %H:%M:%S")
         blackout = end - timedelta(hours=contest_data['blackout'])
 
-        users = course.get_registered_users(True)
+        users = self.user_manager.get_course_registered_users(course)
         tasks = course.get_tasks().keys()
 
-        db_results = get_database().submissions.find({
+        db_results = self.database.submissions.find({
             "username": {"$in": users},
             "courseid": courseid,
             "submitted_on": {"$gte": start, "$lt": blackout},
@@ -105,7 +102,7 @@ class ContestScoreboard(INGIniousPage):
             {"username": True, "_id": False, "taskid": True, "result": True, "submitted_on": True}).sort([("submitted_on", pymongo.ASCENDING)])
 
         task_status = {taskid: {"status": "NA", "tries": 0} for taskid in tasks}
-        results = {username: {"name": UserData(username).get_data()['realname'], "tasks": copy.deepcopy(task_status)} for username in users}
+        results = {username: {"name": self.user_manager.get_user_realname(username), "tasks": copy.deepcopy(task_status)} for username in users}
         activity = []
 
         # Compute stats for each submission
@@ -168,8 +165,8 @@ class ContestScoreboard(INGIniousPage):
                 results[user]["rank"] = current_rank
                 results[user]["displayed_rank"] = ""
 
-        return get_custom_template_renderer('webapp/plugins/contests', '../../templates/layout').scoreboard(course, start, end, blackout, tasks,
-                                                                                                          results, activity)
+        return self.template_helper.get_custom_template_renderer('webapp/plugins/contests', '../../templates/layout').\
+            scoreboard(course, start, end, blackout, tasks, results, activity)
 
 
 class ContestAdmin(INGIniousAdminPage):
@@ -179,7 +176,8 @@ class ContestAdmin(INGIniousAdminPage):
         """ GET request: simply display the form """
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         contest_data = get_contest_data(course)
-        return get_custom_template_renderer('webapp/plugins/contests', '../../templates/layout').admin(course, contest_data, None, False)
+        return self.template_helper.get_custom_template_renderer('webapp/plugins/contests', '../../templates/layout').\
+            admin(course, contest_data, None, False)
 
     def POST(self, courseid):
         """ POST request: update the settings """
@@ -225,9 +223,11 @@ class ContestAdmin(INGIniousAdminPage):
 
         if len(errors) == 0:
             save_contest_data(course, contest_data)
-            return get_custom_template_renderer('webapp/plugins/contests', '../../templates/layout').admin(course, contest_data, None, True)
+            return self.template_helper.get_custom_template_renderer('webapp/plugins/contests', '../../templates/layout').\
+                admin(course, contest_data, None, True)
         else:
-            return get_custom_template_renderer('webapp/plugins/contests', '../../templates/layout').admin(course, contest_data, errors, False)
+            return self.template_helper.get_custom_template_renderer('webapp/plugins/contests', '../../templates/layout').\
+                admin(course, contest_data, errors, False)
 
 
 def init(plugin_manager, course_factory, job_manager, _config):

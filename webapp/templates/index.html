@@ -1,4 +1,4 @@
-$def with (error)
+$def with (auth_methods, error)
 
 $# Copyright (c) 2014-2015 Université Catholique de Louvain.
 $#
@@ -34,18 +34,18 @@ $# Start content
                     Invalid login/password
                 </div>
             
-            $if len(PluginManager.get_all_authentication_methods()) > 1:
+            $if len(auth_methods) > 1:
                 <ul class="nav nav-tabs nav-justified" role="tablist">
-                    $for authid, auth_method in enumerate(PluginManager.get_all_authentication_methods()):
+                    $for authid, (name, _) in auth_methods.iteritems():
                         <li 
                             $if authid == 0:
                                 class="active"
-                        ><a href="#login-$authid" role="tab" data-toggle="tab">$auth_method["name"]</a></li>
+                        ><a href="#login-$authid" role="tab" data-toggle="tab">$name</a></li>
                 </ul>
             
             <!-- Tab panes -->
             <div class="tab-content">
-                $for authid, auth_method in enumerate(PluginManager.get_all_authentication_methods()):
+                $for authid, (_, input) in auth_methods.iteritems():
                     <div class="tab-pane fade
                         $if authid == 0:
                             in active
@@ -53,7 +53,7 @@ $# Start content
                         <p>
                             <form role="form" action="/index" method="post">
                                 <input type="hidden" name="@authid" value="$authid"/>
-                                $for name, data in auth_method["input"].iteritems():
+                                $for name, data in input.iteritems():
                                     $if data["type"] == "password":
                                         $ type="password"
                                     $else:

@@ -19,7 +19,6 @@
 """ Tasks """
 
 from webapp.pages.api._api_page import APIAuthenticatedPage, APINotFound, APIForbidden
-import webapp.user as User
 from common_frontend.parsable_text import ParsableText
 
 
@@ -75,7 +74,7 @@ class APITasks(APIAuthenticatedPage):
         except:
             raise APINotFound("Course not found")
 
-        if not course.is_open_to_user(User.get_username(), course.is_group_course()):
+        if not self.user_manager.course_is_open_to_user(course):
             raise APIForbidden("You are not registered to this course")
 
         if taskid is None:
@@ -93,8 +92,8 @@ class APITasks(APIAuthenticatedPage):
                 "name": task.get_name(),
                 "authors": task.get_authors(),
                 "deadline": task.get_deadline(),
-                "status": task.get_user_status(),
-                "grade": task.get_user_grade(),
+                "status": self.user_manager.get_task_status(task),
+                "grade": self.user_manager.get_task_grade(task),
                 "grade_weight": task.get_grading_weight(),
                 "context": task.get_context().original_content(),
                 "problems": []

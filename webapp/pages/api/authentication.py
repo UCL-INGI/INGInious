@@ -21,8 +21,6 @@
 import web
 
 from webapp.pages.api._api_page import APIPage, APIInvalidArguments
-import webapp.user as User
-
 
 class APIAuthentication(APIPage):
     """
@@ -33,8 +31,8 @@ class APIAuthentication(APIPage):
         """
             Returns {"authenticated": false} or {"authenticated": true, "username": "your_username"} (always 200 OK)
         """
-        if User.is_logged_in():
-            return 200, {"authenticated": True, "username": User.get_username()}
+        if self.user_manager.session_logged_in():
+            return 200, {"authenticated": True, "username": self.user_manager.session_username()}
         else:
             return 200, {"authenticated": False}
 
@@ -69,8 +67,8 @@ class APIAuthentication(APIPage):
         del user_input["auth_method_id"]
 
         try:
-            if User.connect(auth_method_id, dict(user_input)):
-                return 200, {"status": "success", "username": User.get_username()}
+            if self.user_manager.auth_user(int(auth_method_id), dict(user_input)):
+                return 200, {"status": "success", "username": self.user_manager.session_username()}
         except:
             pass
         return 403, {"status": "error"}

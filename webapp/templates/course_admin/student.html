@@ -17,10 +17,10 @@ $#
 $# You should have received a copy of the GNU Affero General Public
 $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 
-$ userData= UserData(username).get_data()
-$var title: $:userData["realname"] - $:course.get_name()
+$ user_realname= user_manager.get_user_realname(username)
+$var title: $:user_realname - $:course.get_name()
 
-$var Column: $:template_helper.call('course_admin_menu',course=course,current='students')
+$var Column: $:template_helper.call('course_admin_menu',username=user_manager.session_username(),course=course,current='students')
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
@@ -30,11 +30,11 @@ $def NavbarF():
         <li><a href="/admin/$course.get_id()/students" title="Students" data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-user"></i></a></li>
 
-        <li class="active"><a href="#">$userData["realname"] <span class="sr-only">(current)</span></a></li>
+        <li class="active"><a href="#">$user_realname <span class="sr-only">(current)</span></a></li>
     </ol>
 $var Navbar: $:NavbarF()
 
-<h2>Statistics for student $userData["realname"] ($username)</h2>
+<h2>Statistics for student $user_realname ($username)</h2>
 <table class="table">
     <tr>
         <th>task</th>

@@ -20,10 +20,7 @@ from collections import OrderedDict
 
 import web
 
-from common_frontend.database import get_database
-from common_frontend.templates import get_renderer
 from webapp.pages.course_admin.utils import make_csv, INGIniousAdminPage
-import webapp.user as User
 
 class CourseTaskInfoPage(INGIniousAdminPage):
     """ List informations about a task """
@@ -43,10 +40,10 @@ class CourseTaskInfoPage(INGIniousAdminPage):
 
     def page(self, course, task):
         """ Get all data and display the page """
-        user_list = course.get_registered_users()
-        users = list(get_database().users.find({"_id": {"$in": user_list}}).sort("realname"))
+        user_list = self.user_manager.get_course_registered_users(course)
+        users = list(self.database.users.find({"_id": {"$in": user_list}}).sort("realname"))
 
-        individual_results = list(get_database().user_tasks.find({"courseid": course.get_id(), "taskid": task.get_id(),
+        individual_results = list(self.database.user_tasks.find({"courseid": course.get_id(), "taskid": task.get_id(),
                                                   "username": {"$in": user_list}}))
 
         individual_data = OrderedDict([(user["_id"], {"username": user["_id"], "realname": user["realname"], "email": user["email"],
@@ -64,7 +61,7 @@ class CourseTaskInfoPage(INGIniousAdminPage):
             individual_data[user["username"]]["grade"] = user["grade"]
 
         if course.is_group_course():
-            group_results = list(get_database().submissions.aggregate(
+            group_results = list(self.database.submissions.aggregate(
                 [
                     {
                         "$match":
@@ -87,7 +84,7 @@ class CourseTaskInfoPage(INGIniousAdminPage):
             group_data = OrderedDict([(group['_id'], {"_id": group['_id'], "description": group['description'],
                                             "url": self.group_submission_url_generator(course, task, group),
                                             "tried":0, "grade": 0, "status": "notviewed",
-                                            "tutors": group["tutors"]}) for group in course.get_groups()])
+                                            "tutors": group["tutors"]}) for group in self.user_manager.get_course_groups(course)])
 
             for group in group_results:
                 if group['_id'] is not None:
@@ -102,7 +99,7 @@ class CourseTaskInfoPage(INGIniousAdminPage):
 
             my_groups, other_groups = [], []
             for group in group_data.values():
-                if User.get_username() in group["tutors"]:
+                if self.user_manager.session_username() in group["tutors"]:
                     my_groups.append(group)
                 else:
                     other_groups.append(group)
@@ -112,11 +109,11 @@ class CourseTaskInfoPage(INGIniousAdminPage):
             elif "csv" in web.input() and web.input()["csv"] == "groups":
                 return make_csv(group_data.values())
 
-            return get_renderer().course_admin.task_info(course, task, individual_data.values(), [my_groups, other_groups])
+            return self.template_helper.get_renderer().course_admin.task_info(course, task, individual_data.values(), [my_groups, other_groups])
 
         else:
 
             if "csv" in web.input():
                 return make_csv(individual_data.values())
 
-            return get_renderer().course_admin.task_info(course, task, individual_data.values())
+            return self.template_helper.get_renderer().course_admin.task_info(course, task, individual_data.values())

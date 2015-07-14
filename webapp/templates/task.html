@@ -60,7 +60,7 @@ $def ColumnF():
         <tr>
             <td>Grade</td>
             <td>
-                <span id="task_grade">$task.get_user_grade()</span>%
+                <span id="task_grade">$user_manager.get_task_grade(task)</span>%
             </td>
         </tr>
         <tr>
@@ -74,7 +74,7 @@ $def ColumnF():
             </td>
         </tr>
     </table>
-    $if User.get_username() in course.get_staff():
+    $if user_manager.session_username() in course.get_staff():
         <h3>Administration</h3>
         $if not course.is_open_to_non_staff():
             <div class="alert alert-warning" role="alert">
@@ -90,7 +90,7 @@ $def ColumnF():
             <a class="list-group-item list-group-item-info" href="/admin/$course.get_id()/task/$task.get_id()">
                 <i class="fa fa-tasks fa-fw"></i>&nbsp; View submissions
             </a>
-            $if User.get_username() in course.get_admins():
+            $if user_manager.session_username() in course.get_admins():
                 <a class="list-group-item list-group-item-info" href="/admin/$course.get_id()/edit/task/$task.get_id()">
                     <i class="fa fa-edit fa-fw"></i>&nbsp; Edit task
                 </a>
@@ -101,7 +101,7 @@ $def ColumnF():
     $elif course.is_group_course():
         <div class="list-group">
             <a class="list-group-item list-group-item-info" href="/group/$course.get_id()">
-                <i class="fa fa-group fa-fw"></i>&nbsp; $course.get_user_group(User.get_username())["description"]
+                <i class="fa fa-group fa-fw"></i>&nbsp; $user_manager.get_course_user_group(course)["description"]
             </a>
         </div>
 
@@ -141,7 +141,7 @@ $# Start content
 $:task.get_context()
 <hr/>
 <div id="task_alert"></div>
-$if User.get_username() in course.get_admins():
+$if user_manager.session_username() in course.get_admins():
     <div class="modal fade" id="modal-debug">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -181,10 +181,10 @@ $if User.get_username() in course.get_admins():
             <div class="panel-body">
                 <div id="task_alert.$problem.get_id()" class="task_alert_problem"></div>
                 $:problem.get_header()
-                $:problem.show_input()
+                $:problem.show_input(template_helper.get_renderer(False))
             </div>
         </div>
-    $if task.can_user_submit():
+    $if user_manager.task_can_user_submit(task):
         <button type="submit" class="btn btn-default btn-lg btn-block center-block" id="task-submit">Submit</button>
     $else:
         <button type="submit" class="btn btn-default btn-lg btn-block center-block" disabled="disabled">The deadline is over, you cannot submit anymore</button>

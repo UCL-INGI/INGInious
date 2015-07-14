@@ -19,9 +19,99 @@
 """ LDAP plugin """
 
 import simpleldap
+from webapp.user_manager import AuthMethod
 
-import webapp.user
 
+class LdapAuthMethod(AuthMethod):
+    """
+    LDAP auth method
+    """
+
+    def __init__(self, name, host, port, encryption, require_cert, base_dn, request, prefix):
+        encryption = self._encryption
+        if encryption not in ["none", "ssl", "tls"]:
+            raise Exception("Unknown encryption method {}".format(encryption))
+        if encryption == "none":
+            encryption = None
+
+        port = self._port
+        if port == 0:
+            port = None
+
+        self._name = name
+        self._host = host
+        self._port = port
+        self._encryption = encryption
+        self._require_cert = require_cert
+        self._base_dn = base_dn
+        self._request = request
+        self._prefix = prefix
+
+    def get_name(self):
+        return self._name
+
+    def auth(self, login_data):
+        try:
+            # Get configuration
+            login = login_data["login"]
+            password = login_data["password"]
+
+            # do not send empty password to the LDAP
+            if password.rstrip() == "":
+                return False
+
+            # Connect to the ldap
+            conn = simpleldap.Connection(self._host, port=self._port, encryption=self._encryption,
+                                         require_cert=self._require_cert, search_defaults={"base_dn": self._base_dn})
+            request = self._request.format(login)
+            user_data = conn.get(request)
+            if conn.authenticate(user_data.dn, password):
+                email = user_data["mail"][0]
+                username = self._prefix + login
+                realname = user_data["cn"][0]
+
+                return (username, realname, email)
+            else:
+                return None
+        except:
+            return None
+
+    def needed_input(self):
+        return {"login": {"type": "text", "placeholder": "Login"}, "password": {"type": "password", "placeholder": "Password"}}
+
+    def should_cache(self):
+        return True
+
+    def get_users_info(self, usernames):
+        """
+        :param usernames: a list of usernames
+        :return: a dict containing key/pairs {username: (realname, email)} if the user is available with this auth method,
+            {username: None} else
+        """
+        retval = {username: None for username in usernames}
+
+        # Connect to the ldap
+        try:
+            conn = simpleldap.Connection(self._host, port=self._port, encryption=self._encryption,
+                                         require_cert=self._require_cert, search_defaults={"base_dn": self._base_dn})
+        except:
+            return retval
+
+        # Search for users
+        for username in usernames:
+            if username.startswith(self._prefix):
+                try:
+                    login = username[len(self._prefix):]
+                    request = self._request.format(login)
+                    user_data = conn.get(request)
+                    email = user_data["mail"][0]
+                    realname = user_data["cn"][0]
+
+                    retval[username] = (email, realname)
+                except:
+                    pass
+
+        return retval
 
 def init(plugin_manager, _, _2, conf):
     """
@@ -55,47 +145,12 @@ def init(plugin_manager, _, _2, conf):
             true if a certificate is needed.
     """
 
-    def connect(login_data):
-        """ Connect throught LDAP """
-        try:
-            # Get configuration
-            login = login_data["login"]
-            password = login_data["password"]
-
-            # do not send empty password to the LDAP
-            if password.rstrip() == "":
-                return False
-
-            encryption = conf.get('encryption', "none")
-            if encryption not in ["none", "ssl", "tls"]:
-                raise Exception("Unknown encryption method {}".format(encryption))
-            if encryption == "none":
-                encryption = None
-
-            host = conf.get('host', "ldap.test.be")
-            port = conf.get('port', 0)
-            if port == 0:
-                port = None
-
-            base_dn = conf.get('base_dn', '')
-
-            require_cert = conf.get('require_cert', True)
-
-            # Connect to the ldap
-            conn = simpleldap.Connection(host, port=port, encryption=encryption, require_cert=require_cert, search_defaults={"base_dn": base_dn})
-            request = conf.get('request', "uid={},ou=People").format(login)
-            user_data = conn.get(request)
-            if conn.authenticate(user_data.dn, password):
-                email = user_data["mail"][0]
-                username = conf.get('prefix', '') + user_data["uid"][0]
-                realname = user_data["cn"][0]
-
-                webapp.user.connect_user_internal(username, email, realname)
-                return True
-            else:
-                return False
-        except:
-            return False
-
-    plugin_manager.register_auth_method(conf.get('name', 'LDAP Login'), {"login": {"type": "text", "placeholder": "Login"},
-                                                                         "password": {"type": "password", "placeholder": "Password"}}, connect)
+    obj = LdapAuthMethod(conf.get('name', 'LDAP Login'),
+                         conf.get('host', "ldap.test.be"),
+                         conf.get('port', 0),
+                         conf.get('encryption', "none"),
+                         conf.get('require_cert', True),
+                         conf.get('base_dn', ''),
+                         conf.get('request', "uid={},ou=People"),
+                         conf.get('prefix', ''))
+    plugin_manager.register_auth_method(obj)

@@ -25,22 +25,36 @@ class INGIniousPage(object):
     Contains references to the PluginManager, the CourseFactory, and the SubmissionManager
     """
 
-    def __init__(self, plugin_manager, course_factory, task_factory, submission_manager, batch_manager):
+    def __init__(self, plugin_manager, course_factory, task_factory, submission_manager, batch_manager, user_manager, template_helper, database,
+                 gridfs):
+        """
+        Init the page
+        :type plugin_manager: common_frontend.plugin_manager.PluginManager
+        :type course_factory: common.course_factory.CourseFactory
+        :type task_factory: common.task_factory.TaskFactory
+        :type submission_manager: webapp.submission_manager.SubmissionManager
+        :type batch_manager: webapp.batch_manager.BatchManager
+        :type user_manager: webapp.user_manager.UserManager
+        :type template_helper: webapp.template_helper.TemplateHelper
+        :type database: pymongo.database.Database
+        :type gridfs: gridfs.GridFS
+        """
         self.plugin_manager = plugin_manager
         self.course_factory = course_factory
         self.task_factory = task_factory
         self.submission_manager = submission_manager
         self.batch_manager = batch_manager
+        self.user_manager = user_manager
+        self.template_helper = template_helper
+        self.database = database
+        self.gridfs = gridfs
 
 
-def _webpy_fake_class_creator(inginious_page_cls, plugin_manager, course_factory, task_factory, submission_manager, batch_manager):
+def _webpy_fake_class_creator(inginious_page_cls, *args, **kwargs):
     """
     :param inginious_page_cls: path to a class inheriting from INGIniousPage, or directly the "class object"
-    :param plugin_manager:
-    :param course_factory:
-    :param task_factory:
-    :param submission_manager:
-    :param batch_manager:
+    :param args: args to be sent to the constructor of the classes
+    :param kwargs: kwargs to be sent to the constructor of the classes
     :return: a fake Class that proxies everything to an instance of the INGIniousPage
     """
     if isinstance(inginious_page_cls, basestring):
@@ -50,7 +64,7 @@ def _webpy_fake_class_creator(inginious_page_cls, plugin_manager, course_factory
     else:
         cls = inginious_page_cls
 
-    obj = cls(plugin_manager, course_factory, task_factory, submission_manager, batch_manager)
+    obj = cls(*args, **kwargs)
 
     class WebPyFakeMetaClass(type):
         """
@@ -75,21 +89,22 @@ class WebPyFakeMapping(object):
     """
         A "fake" mapping class for web.py that init the classes it contains automatically. Allow to avoid global state
     """
-    def __init__(self, plugin_manager, course_factory, task_factory, submission_manager, batch_manager, urls):
+    def __init__(self, urls, *args, **kwargs):
+        """
+        :param urls: Basic dict of pattern/classname pairs
+        :param args: args to be sent to the constructor of the classes
+        :param kwargs: kwargs to be sent to the constructor of the classes
+        """
         self.dict = {}
-        self.plugin_manager = plugin_manager
-        self.course_factory = course_factory
-        self.task_factory = task_factory
-        self.submission_manager = submission_manager
-        self.batch_manager = batch_manager
+        self.args = args
+        self.kwargs = kwargs
 
         for pattern, classname in urls.iteritems():
             self.append((pattern, classname))
 
     def append(self, what):
         pattern, classname = what
-        self.dict[pattern] = _webpy_fake_class_creator(classname, self.plugin_manager, self.course_factory,
-                                                       self.task_factory, self.submission_manager, self.batch_manager)
+        self.dict[pattern] = _webpy_fake_class_creator(classname, *self.args, **self.kwargs)
 
     def __iter__(self):
         return self.dict.iteritems().__iter__()

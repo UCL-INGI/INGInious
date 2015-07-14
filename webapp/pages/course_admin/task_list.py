@@ -20,8 +20,6 @@ from collections import OrderedDict
 
 import web
 
-from common_frontend.database import get_database
-from common_frontend.templates import get_renderer
 from webapp.pages.course_admin.utils import make_csv, INGIniousAdminPage
 
 class CourseTaskListPage(INGIniousAdminPage):
@@ -38,13 +36,13 @@ class CourseTaskListPage(INGIniousAdminPage):
 
     def page(self, course):
         """ Get all data and display the page """
-        data = list(get_database().user_tasks.aggregate(
+        data = list(self.database.user_tasks.aggregate(
             [
                 {
                     "$match":
                         {
                             "courseid": course.get_id(),
-                            "username": {"$in": course.get_registered_users()}
+                            "username": {"$in": self.user_manager.get_course_registered_users(course)}
                         }
                 },
                 {
@@ -83,4 +81,4 @@ class CourseTaskListPage(INGIniousAdminPage):
                 result[entry["_id"]]["succeeded"] = entry["succeeded"]
         if "csv" in web.input():
             return make_csv(result)
-        return get_renderer().course_admin.task_list(course, result, errors)
+        return self.template_helper.get_renderer().course_admin.task_list(course, result, errors)

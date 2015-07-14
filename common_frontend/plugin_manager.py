@@ -29,19 +29,17 @@ class PluginManager(HookManager):
 
     __metaclass__ = Singleton
 
-    def __init__(self, webpy_app=None, course_factory=None, task_factory = None, config=None):
-        if webpy_app is None or course_factory is None or task_factory is None or config is None:
+    def __init__(self, webpy_app=None, course_factory=None, task_factory = None, user_manager = None, config=None):
+        if webpy_app is None or course_factory is None or task_factory is None or user_manager is None or config is None:
             raise Exception("Plugin Manager should be initialized before call")
 
         HookManager.__init__(self)
         self.app = webpy_app
         self.plugins = []
-        self.authentication = []
         self._config = config
         self._course_factory = course_factory
         self._task_factory = task_factory
-
-        common_frontend.templates.add_to_template_globals("PluginManager", self)
+        self._user_manager = user_manager
 
     def load(self, job_manager):
         """ Loads the plugin manager. Must be done after the initialisation of the job_manager """
@@ -57,7 +55,7 @@ class PluginManager(HookManager):
         """ Add a task file manager """
         self._task_factory.add_custom_task_file_manager(task_file_manager)
 
-    def register_auth_method(self, name, input_to_display, callback):
+    def register_auth_method(self, auth_method):
         """
             Register a new authentication method
 
@@ -65,34 +63,6 @@ class PluginManager(HookManager):
                 the name of the authentication method, typically displayed by the webapp
 
             input_to_display
-                a dictionary containing as key the name of the input (in the HTML sense of name), and, as value,
-                a dictionary containing two fields:
 
-                placeholder
-                    the placeholder for the input
-
-                type
-                    text or password
         """
-        self.authentication.append({"name": name, "input": input_to_display, "callback": callback})
-
-    def get_all_authentication_methods(self):
-        """
-            Return an array of dict containing the following key-value pairs:
-
-            name
-                The name of the authentication method
-
-            input
-                the inputs to be displayed, as described in the register_auth_method method
-
-            callback
-                the callback function
-
-            The key of the dict in the array is the auth_method_id of this method
-        """
-        return self.authentication
-
-    def get_auth_method_callback(self, auth_method_id):
-        """ Returns the callback method of a auth type by it's id """
-        return self.authentication[auth_method_id]["callback"]
+        self._user_manager.register_auth_method(auth_method)

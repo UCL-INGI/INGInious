@@ -19,8 +19,6 @@
 
 import web
 
-from common_frontend.database import get_database
-from common_frontend.templates import get_renderer
 from webapp.pages.course_admin.utils import make_csv, INGIniousAdminPage
 
 class CourseStudentInfoPage(INGIniousAdminPage):
@@ -37,7 +35,7 @@ class CourseStudentInfoPage(INGIniousAdminPage):
 
     def page(self, course, username):
         """ Get all data and display the page """
-        data = list(get_database().user_tasks.find({"username": username, "courseid": course.get_id()}))
+        data = list(self.database.user_tasks.find({"username": username, "courseid": course.get_id()}))
 
         tasks = course.get_tasks()
         result = dict([(taskid, {"taskid": taskid, "name": tasks[taskid].get_name(),
@@ -57,4 +55,4 @@ class CourseStudentInfoPage(INGIniousAdminPage):
 
         if "csv" in web.input():
             return make_csv(result)
-        return get_renderer().course_admin.student(course, username, result.values())
+        return self.template_helper.get_renderer().course_admin.student(course, username, result.values())

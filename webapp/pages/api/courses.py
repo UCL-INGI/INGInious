@@ -19,8 +19,6 @@
 """ Courses """
 
 from webapp.pages.api._api_page import APIAuthenticatedPage, APINotFound
-import webapp.user as User
-
 
 class APICourses(APIAuthenticatedPage):
     """
@@ -62,17 +60,21 @@ class APICourses(APIAuthenticatedPage):
             except:
                 raise APINotFound("Course not found")
 
+        username = self.user_manager.session_username()
+        realname = self.user_manager.session_realname()
+        email = self.user_manager.session_email()
+
         for courseid, course in courses.iteritems():
-            if course.is_open_to_user(User.get_username()) or course.is_registration_possible(User.get_username()):
+            if self.user_manager.course_is_open_to_user(course, username, False) or course.is_registration_possible(username, realname, email):
                 data = {
                     "id": courseid,
                     "name": course.get_name(),
                     "require_password": course.is_password_needed_for_registration(),
-                    "is_registered": course.is_open_to_user(User.get_username())
+                    "is_registered": self.user_manager.course_is_open_to_user(course, username, False)
                 }
-                if course.is_open_to_user(User.get_username(), course.is_group_course()):
+                if self.user_manager.course_is_open_to_user(course, username):
                     data["tasks"] = {taskid: task.get_name() for taskid, task in course.get_tasks().iteritems()}
-                    data["grade"] = course.get_user_grade()
+                    data["grade"] = self.user_manager.get_course_grade(course)
                 output.append(data)
 
         return 200, output

@@ -24,10 +24,7 @@ import tempfile
 
 import web
 
-from common_frontend.templates import get_renderer
 from webapp.pages.course_admin.utils import INGIniousAdminPage
-from common_frontend.database import get_gridfs
-import webapp.user as User
 
 class CourseBatchOperations(INGIniousAdminPage):
     """ Batch operation management """
@@ -56,7 +53,7 @@ class CourseBatchOperations(INGIniousAdminPage):
             operations.append(ne)
         operations = sorted(operations, key= (lambda o: o["submitted_on"]), reverse=True)
 
-        return get_renderer().course_admin.batch(course, operations, self.batch_manager.get_all_batch_containers_metadata())
+        return self.template_helper.get_renderer().course_admin.batch(course, operations, self.batch_manager.get_all_batch_containers_metadata())
 
 class CourseBatchJobCreate(INGIniousAdminPage):
     """ Creates new batch jobs """
@@ -85,7 +82,9 @@ class CourseBatchJobCreate(INGIniousAdminPage):
 
         if len(errors) == 0:
             try:
-                self.batch_manager.add_batch_job(course, container_name, batch_input, User.get_email())
+                self.batch_manager.add_batch_job(course, container_name, batch_input,
+                                                 self.user_manager.session_username(),
+                                                 self.user_manager.session_email())
             except:
                 errors.append("An error occured while starting the job")
 
@@ -117,7 +116,7 @@ class CourseBatchJobCreate(INGIniousAdminPage):
         if "course" in container_args and container_args["course"]["type"] == "file":
             del container_args["course"]
 
-        return get_renderer().course_admin.batch_create(course, container_name, container_title, container_description, container_args, error)
+        return self.template_helper.get_renderer().course_admin.batch_create(course, container_name, container_title, container_description, container_args, error)
 
 class CourseBatchJobDownload(INGIniousAdminPage):
     """ Get the file of a batch job """
@@ -134,7 +133,7 @@ class CourseBatchJobDownload(INGIniousAdminPage):
         if "result" not in batch_job or "file" not in batch_job["result"]:
             raise web.notfound()
 
-        f = get_gridfs().get(batch_job["result"]["file"])
+        f = self.gridfs.get(batch_job["result"]["file"])
 
         #hack for index.html:
         if path == "/":
@@ -210,7 +209,7 @@ class CourseBatchJobSummary(INGIniousAdminPage):
             stderr = batch_job["result"].get("stderr", "")
 
             if "file" in batch_job["result"]:
-                f = get_gridfs().get(batch_job["result"]["file"])
+                f = self.gridfs.get(batch_job["result"]["file"])
                 try:
                     tar = tarfile.open(fileobj=f,mode='r:gz')
                     file_list = set(tar.getnames()) - set([''])
@@ -220,5 +219,5 @@ class CourseBatchJobSummary(INGIniousAdminPage):
                 finally:
                     f.close()
 
-        return get_renderer().course_admin.batch_summary(course, bid, done, container_name, container_title, container_description, submitted_on,
-                                                   retval, stdout, stderr, file_list)
+        return self.template_helper.get_renderer().course_admin.batch_summary(course, bid, done, container_name, container_title,
+                                                                              container_description, submitted_on, retval, stdout, stderr, file_list)

@@ -21,10 +21,10 @@ $var title: $:course.get_name()
 
 $# Left column content
 $def ColumnF():
-    $:template_helper.call('course_menu',course=course)
+    $:template_helper.call('course_menu', course=course, template_helper=template_helper)
     <h3>Current grade</h3>
     <div class="progress">
-        $ grade=course.get_user_grade()
+        $ grade=user_manager.get_course_grade(course)
         <div class="progress-bar progress-bar-success" aria-valuenow="$int(grade)" aria-valuemin="0" aria-valuemax="100" style="width: $grade%">
             $int(grade)%
         </div>
@@ -51,7 +51,7 @@ $def ColumnF():
         $else:
             <a class="list-group-item disabled submission-empty">No submissions</a>
     </div>
-    $if User.get_username() in course.get_staff():
+    $if user_manager.session_username() in course.get_staff():
         $if not course.is_open_to_non_staff():
             <div class="alert alert-warning" role="alert">
                 This course is currently invisible for students. 
@@ -64,9 +64,9 @@ $def ColumnF():
         </div>
     $else:
         <div class="list-group">
-            $if course.is_group_course() and User.get_username() not in course.get_staff():
+            $if course.is_group_course() and user_manager.session_username() not in course.get_staff():
                 <a class="list-group-item list-group-item-info" href="/group/$course.get_id()">
-                    <i class="fa fa-group fa-fw"></i>&nbsp; $course.get_user_group(User.get_username())["description"]
+                    <i class="fa fa-group fa-fw"></i>&nbsp; $user_manager.get_course_user_group(course)["description"]
                 </a>
             <a class="list-group-item list-group-item-info" href="/?unregister_courseid=$course.get_id()">
                 <i class="fa fa-ban fa-fw"></i>&nbsp; Unregister from this course
@@ -84,11 +84,11 @@ $# Start content
 <h2>$course.get_name() - List of exercises</h2>
 <div class="list-group list-group-progress" style="margin-left: 16px; margin-right: 16px;">
     $for taskid, task in course.get_tasks().iteritems()
-        $if task.is_visible_by_user(User.get_username()):
-            $ status=task.get_user_status()
-            $ completion=task.get_user_grade()
+        $if user_manager.task_is_visible_by_user(task):
+            $ status=user_manager.get_task_status(task)
+            $ completion=user_manager.get_task_grade(task)
             <a href="/course/$course.get_id()/$taskid" class="row list-group-item 
-                $if not task.is_visible_by_students() or not task.can_user_submit():
+                $if not task.is_visible_by_students() or not user_manager.task_can_user_submit(task):
                     disabled
                 ">
                 <div class="col-xs-12 col-md-7">
@@ -97,7 +97,7 @@ $# Start content
                     $task.get_name()
                     $if not task.is_visible_by_students():
                         - <b>(task hidden to students)</b>
-                    $if not task.can_user_submit():
+                    $if not user_manager.task_can_user_submit(task):
                         - <b>deadline reached</b>
                 </div>
                 <div class="col-xs-12 col-md-5">

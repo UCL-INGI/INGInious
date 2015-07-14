@@ -22,20 +22,17 @@ import web
 from pymongo import ReturnDocument
 from bson.objectid import ObjectId
 
-from common_frontend.templates import get_renderer
 from webapp.pages.course_admin.utils import INGIniousAdminPage
-from common_frontend.database import get_database
-from webapp.pages.utils import INGIniousPage
 
 class CourseEditGroup(INGIniousAdminPage):
     """ Edit a task """
 
     def get_user_lists(self, course, groupid):
         """ Get the available student and tutor lists for group edition"""
-        student_list, tutor_list = course.get_registered_users(False), course.get_staff(False)
+        student_list, tutor_list = self.user_manager.get_course_registered_users(course, False), course.get_staff(False)
 
         # Remove grouped users from the accessible list for the group
-        grouped_users = get_database().groups.aggregate([
+        grouped_users = self.database.groups.aggregate([
             {"$match": {"_id": {"$ne": ObjectId(groupid)}}},
             {"$group": {"_id": "$_id", "gusers": {"$addToSet": "$users"}}}])
 
@@ -50,10 +47,10 @@ class CourseEditGroup(INGIniousAdminPage):
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         student_list, tutor_list = self.get_user_lists(course, groupid)
 
-        group = get_database().groups.find_one({"_id": ObjectId(groupid), "course_id": courseid})
+        group = self.database.groups.find_one({"_id": ObjectId(groupid), "course_id": courseid})
 
         if group:
-            return get_renderer().course_admin.edit_group(course, student_list, tutor_list, group, "", False)
+            return self.template_helper.get_renderer().course_admin.edit_group(course, student_list, tutor_list, group, "", False)
         else:
             raise web.notfound()
 
@@ -61,13 +58,13 @@ class CourseEditGroup(INGIniousAdminPage):
         """ Edit a group """
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         student_list, tutor_list = self.get_user_lists(course, groupid)
-        group = get_database().groups.find_one({"_id": ObjectId(groupid), "course_id": courseid})
+        group = self.database.groups.find_one({"_id": ObjectId(groupid), "course_id": courseid})
 
         error = ""
         try:
             data = web.input(group_tutor=[], group_student=[])
             if "delete" in data:
-                get_database().groups.remove({"_id": ObjectId(groupid)})
+                self.database.groups.remove({"_id": ObjectId(groupid)})
                 raise web.seeother("/admin/"+courseid+"/groups")
             else:
                 data["group_tutor"] = [tutor for tutor in data["group_tutor"] if tutor in tutor_list]
@@ -76,7 +73,7 @@ class CourseEditGroup(INGIniousAdminPage):
                 if len(data["group_student"]) > int(data['size']):
                     error = 'Too many students for given group size.'
                 elif data['description']:
-                    group = get_database().groups.find_one_and_update(
+                    group = self.database.groups.find_one_and_update(
                         {"_id": ObjectId(groupid)},
                         {"$set": {"description": data["description"],
                                   "users": data["group_student"], "tutors": data["group_tutor"],
@@ -86,4 +83,4 @@ class CourseEditGroup(INGIniousAdminPage):
         except:
             error = 'User returned an invalid form.'
 
-        return get_renderer().course_admin.edit_group(course, student_list, tutor_list, group, error, True)
+        return self.template_helper.get_renderer().course_admin.edit_group(course, student_list, tutor_list, group, error, True)

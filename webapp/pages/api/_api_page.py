@@ -22,7 +22,6 @@ import json
 
 import web
 
-import webapp.user as User
 import common.custom_yaml as yaml
 from webapp.pages.utils import INGIniousPage
 
@@ -121,7 +120,7 @@ class APIAuthenticatedPage(APIPage):
 
     def _verify_authentication(self, handler, args, kwargs):
         """ Verify that the user is authenticated """
-        if not User.is_logged_in():
+        if not self.user_manager.session_logged_in():
             raise APIForbidden()
         return handler(*args, **kwargs)
 

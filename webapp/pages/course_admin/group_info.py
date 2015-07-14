@@ -20,8 +20,6 @@
 import web
 from bson.objectid import ObjectId
 
-from common_frontend.database import get_database
-from common_frontend.templates import get_renderer
 from webapp.pages.course_admin.utils import make_csv, INGIniousAdminPage
 
 class CourseGroupInfoPage(INGIniousAdminPage):
@@ -41,7 +39,7 @@ class CourseGroupInfoPage(INGIniousAdminPage):
 
     def page(self, course, groupid):
         """ Get all data and display the page """
-        data = list(get_database().submissions.aggregate(
+        data = list(self.database.submissions.aggregate(
             [
                 {
                     "$match":
@@ -79,6 +77,6 @@ class CourseGroupInfoPage(INGIniousAdminPage):
         if "csv" in web.input():
             return make_csv(result)
 
-        group = get_database().groups.find_one({"_id": ObjectId(groupid)})
+        group = self.database.groups.find_one({"_id": ObjectId(groupid)})
 
-        return get_renderer().course_admin.group(course, group, result.values())
+        return self.template_helper.get_renderer().course_admin.group(course, group, result.values())

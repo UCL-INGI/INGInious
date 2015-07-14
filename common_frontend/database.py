@@ -22,7 +22,6 @@ from pymongo import MongoClient
 
 from common_frontend.configuration import INGIniousConfiguration
 
-
 def new_database_client():
     """ Creates a new MongoClient instance for INGINious """
     config = {'host': INGIniousConfiguration.get('mongo_opt', {}).get('host', 'localhost')}
@@ -33,19 +32,3 @@ def new_database_client():
 def new_gridfs_client(mongo_database):
     """ Creates a new link to the GridFS of the given database """
     return GridFS(mongo_database)
-
-
-def get_database():
-    """ Returns an access to the database """
-    return get_database.database
-
-
-def get_gridfs():
-    """ Returns an access to gridfs """
-    return get_gridfs.gridfs
-
-
-def init_database():
-    """ Init the db clients"""
-    get_database.database = new_database_client()
-    get_gridfs.gridfs = new_gridfs_client(get_database())

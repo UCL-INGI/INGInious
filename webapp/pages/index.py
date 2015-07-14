@@ -21,8 +21,6 @@ from collections import OrderedDict
 
 import web
 
-from common_frontend.templates import get_renderer
-import webapp.user as User
 from webapp.pages.utils import INGIniousPage
 
 class IndexPage(INGIniousPage):
@@ -30,33 +28,38 @@ class IndexPage(INGIniousPage):
 
     def GET(self):
         """ GET request """
-        if User.is_logged_in():
+        if self.user_manager.session_logged_in():
             user_input = web.input()
             if "logoff" in user_input:
-                User.disconnect()
-                return get_renderer().index(False)
+                self.user_manager.disconnect_user()
+                return self.call_index(False)
             else:
                 return self.call_main()
         else:
-            return get_renderer().index(False)
+            return self.call_index(False)
 
     def POST(self):
         """ POST request: login """
         user_input = web.input()
         if "@authid" in user_input:  # connect
-            if User.connect(int(user_input["@authid"]), user_input):
+            if self.user_manager.auth_user(int(user_input["@authid"]), user_input):
                 return self.call_main()
             else:
-                return get_renderer().index(True)
-        elif User.is_logged_in():  # register for a course
+                return self.call_index(True)
+        elif self.user_manager.session_logged_in():  # register for a course
             return self.call_main()
         else:
-            return get_renderer().index(False)
+            return self.call_index(False)
+
+    def call_index(self, error):
+        return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_inputs(), error)
 
     def call_main(self):
         """ Display main page (only when logged) """
 
-        username = User.get_username()
+        username = self.user_manager.session_username()
+        realname = self.user_manager.session_realname()
+        email = self.user_manager.session_email()
 
         # Handle registration to a course
         user_input = web.input()
@@ -64,10 +67,10 @@ class IndexPage(INGIniousPage):
         if "register_courseid" in user_input and user_input["register_courseid"] != "":
             try:
                 course = self.course_factory.get_course(user_input["register_courseid"])
-                if not course.is_registration_possible(username):
+                if not course.is_registration_possible(username, realname, email):
                     registration_status = False
                 else:
-                    registration_status = course.register_user(username, user_input.get("register_password", None))
+                    registration_status = self.user_manager.course_register_user(course, username, user_input.get("register_password", None))
 
                 if course.is_group_course() and course.can_students_choose_group():
                     raise web.seeother("/group/"+course.get_id())
@@ -76,7 +79,7 @@ class IndexPage(INGIniousPage):
         if "unregister_courseid" in user_input:
             try:
                 course = self.course_factory.get_course(user_input["unregister_courseid"])
-                course.unregister_user(username)
+                self.user_manager.course_unregister_user(course, username)
             except:
                 pass
 
@@ -92,11 +95,14 @@ class IndexPage(INGIniousPage):
 
         all_courses = self.course_factory.get_all_courses()
 
-        open_courses = {courseid: course for courseid, course in all_courses.iteritems() if course.is_open_to_user(username)}
+        open_courses = {courseid: course for courseid, course in all_courses.iteritems()
+                        if self.user_manager.course_is_open_to_user(course, username, False)}
         open_courses = OrderedDict(sorted(open_courses.iteritems(), key=lambda x: x[1].get_name()))
 
         registerable_courses = {courseid: course for courseid, course in all_courses.iteritems() if
-                                not course.is_open_to_user(username) and course.is_registration_possible(username)}
+                                not self.user_manager.course_is_open_to_user(course, username, False) and
+                                course.is_registration_possible(username, realname, email)}
+
         registerable_courses = OrderedDict(sorted(registerable_courses.iteritems(), key=lambda x: x[1].get_name()))
 
-        return get_renderer().main(open_courses, registerable_courses, except_free_last_submissions, registration_status)
+        return self.template_helper.get_renderer().main(open_courses, registerable_courses, except_free_last_submissions, registration_status)

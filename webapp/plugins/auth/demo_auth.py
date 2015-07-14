@@ -18,8 +18,45 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Demo auth """
 
-import webapp.user
+from webapp.user_manager import AuthMethod
 
+class DemoAuthMethod(AuthMethod):
+    """
+    An example auth method
+    """
+    def __init__(self, name, users):
+        self._name = name
+        self._users = users
+
+    def get_name(self):
+        return self._name
+
+    def auth(self, login_data):
+        login = login_data["login"]
+        password = login_data["password"]
+
+        if self._users.get(login) == password:
+            return (login, login, "{}@inginious.org".format(login))
+        else:
+            return None
+
+    def needed_input(self):
+        return {"login": {"type": "text", "placeholder": "Login"}, "password": {"type": "password", "placeholder": "Password"}}
+
+    def should_cache(self):
+        return False
+
+    def get_users_info(self, usernames):
+        """
+        :param usernames: a list of usernames
+        :return: a dict containing key/pairs {username: (realname, email)} if the user is available with this auth method,
+            {username: None} else
+        """
+        retval = {username: None for username in usernames}
+        for username in retval:
+            if username in self._users:
+                retval[username] = (username, "{}@inginious.org".format(username))
+        return retval
 
 def init(plugin_manager, _, _2, conf):
     """
@@ -40,16 +77,4 @@ def init(plugin_manager, _, _2, conf):
             }
     """
 
-    def connect(login_data):
-        """ Connect the user """
-        login = login_data["login"]
-        password = login_data["password"]
-
-        if conf.get('users', {}).get(login) == password:
-            webapp.user.connect_user_internal(login, "{}@inginious".format(login), login)
-            return True
-        else:
-            return False
-
-    plugin_manager.register_auth_method(conf.get('name', 'Demo'), {"login": {"type": "text", "placeholder": "Login"},
-                                                                   "password": {"type": "password", "placeholder": "Password"}}, connect)
+    plugin_manager.register_auth_method(DemoAuthMethod(conf.get('name', 'Demo'), conf.get('users', {})))

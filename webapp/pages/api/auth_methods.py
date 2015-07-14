@@ -19,7 +19,6 @@
 """ Auth methods """
 
 from webapp.pages.api._api_page import APIPage
-from common_frontend.plugin_manager import PluginManager
 
 
 class APIAuthMethods(APIPage):
@@ -50,11 +49,11 @@ class APIAuthMethods(APIPage):
                     text or password
         """
         to_display = []
-        for key, val in enumerate(PluginManager().get_all_authentication_methods()):
+        for key, (name, input) in self.user_manager.get_auth_methods_inputs().iteritems():
             to_display.append({
                 "id": key,
-                "name": val["name"],
-                "input": [{"id": ik, "name": iv["placeholder"], "type": iv["type"]} for ik, iv in val["input"].iteritems()]
+                "name": name,
+                "input": [{"id": ik, "name": iv["placeholder"], "type": iv["type"]} for ik, iv in input.iteritems()]
             })
 
         return 200, to_display

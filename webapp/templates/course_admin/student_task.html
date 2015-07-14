@@ -17,10 +17,10 @@ $#
 $# You should have received a copy of the GNU Affero General Public
 $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 
-$ userData= UserData(username).get_data()
-$var title: $:task.get_name() - $:userData["realname"] - $:course.get_name()
+$ user_realname= user_manager.get_user_realname(username)
+$var title: $:task.get_name() - $:user_realname - $:course.get_name()
 
-$var Column: $:template_helper.call('course_admin_menu',course=course,current='students')
+$var Column: $:template_helper.call('course_admin_menu',username=user_manager.session_username(),course=course,current='students')
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
@@ -33,12 +33,12 @@ $def NavbarF():
             $else:
             <li><a href="/admin/$course.get_id()/students" title="Students" data-toggle="tooltip" data-placement="bottom">
                 <i class="fa fa-user"></i></a></li>
-        <li><a href="/admin/$course.get_id()/student/$username">$userData["realname"]</a></li>
+        <li><a href="/admin/$course.get_id()/student/$username">$user_realname</a></li>
         <li class="active"><a href="#">$:task.get_name() <span class="sr-only">(current)</span></a></li>
     </ol>
 $var Navbar: $:NavbarF()
 
-<h2>Submissions for the task "$:task.get_name()" - $userData["realname"] ($username)</h2>
+<h2>Submissions for the task "$:task.get_name()" - $user_realname ($username)</h2>
 <table class="table">
     <tr>
         <th>id</th>

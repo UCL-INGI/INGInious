@@ -21,10 +21,10 @@ $var title:  $:course.get_name()
 
 $# Left column content
 $def ColumnF():
-    $:template_helper.call('course_menu',course=course)
+    $:template_helper.call('course_menu',course=course, template_helper=template_helper)
     <h3>Current grade</h3>
     <div class="progress">
-        $ grade=course.get_user_grade()
+        $ grade=user_manager.get_course_grade(course)
         <div class="progress-bar progress-bar-success" aria-valuenow="$int(grade)" aria-valuemin="0" aria-valuemax="100" style="width: $grade%">
             $int(grade)%
         </div>
@@ -51,7 +51,7 @@ $def ColumnF():
         $else:
             <a class="list-group-item disabled submission-empty">No submissions</a>
     </div>
-    $if User.get_username() in course.get_staff():
+    $if user_manager.session_username() in course.get_staff():
         $if not course.is_open_to_non_staff():
             <div class="alert alert-warning" role="alert">
                 This course is currently invisible for students. 

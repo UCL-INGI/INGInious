@@ -22,10 +22,7 @@ from collections import OrderedDict
 from bson.objectid import ObjectId
 import web
 
-from common_frontend.templates import get_renderer
 from webapp.pages.course_admin.utils import INGIniousAdminPage
-from common_frontend.database import get_database
-import webapp.user as User
 from common.base import id_checker
 
 class CourseDownloadSubmissions(INGIniousAdminPage):
@@ -60,13 +57,13 @@ class CourseDownloadSubmissions(INGIniousAdminPage):
 
         if user_input.filter_type == "users":
             self._validate_list(user_input.users)
-            submissions = list(get_database().submissions.find({"username": {"$in": user_input.users},
+            submissions = list(self.database.submissions.find({"username": {"$in": user_input.users},
                                                                 "taskid": {"$in": user_input.tasks},
                                                                 "courseid": course.get_id(),
                                                                 "status": {"$in": ["done", "error"]}}))
         else:
             self._validate_list(user_input.groups)
-            submissions = list(get_database().submissions.find({"groupid": {"$in": [ObjectId(gid) for gid in user_input.groups]},
+            submissions = list(self.database.submissions.find({"groupid": {"$in": [ObjectId(gid) for gid in user_input.groups]},
                                                                 "taskid": {"$in": user_input.tasks},
                                                                 "courseid": course.get_id(),
                                                                 "status": {"$in": ["done", "error"]}}))
@@ -84,7 +81,7 @@ class CourseDownloadSubmissions(INGIniousAdminPage):
 
         # First, check for a particular submission
         if "submission" in user_input:
-            submissions = list(get_database().submissions.find({"_id": ObjectId(user_input.submission),
+            submissions = list(self.database.submissions.find({"_id": ObjectId(user_input.submission),
                                                                 "courseid": course.get_id(),
                                                                 "status": {"$in": ["done", "error"]}}))
             if len(submissions) != 1:
@@ -97,14 +94,14 @@ class CourseDownloadSubmissions(INGIniousAdminPage):
         # Else, display the complete page
         tasks = {taskid: task.get_name() for taskid, task in course.get_tasks().iteritems()}
 
-        user_list = course.get_registered_users()
-        users = list(get_database().users.find({"_id": {"$in": user_list}}).sort("realname"))
+        user_list = self.user_manager.get_course_registered_users(course)
+        users = list(self.database.users.find({"_id": {"$in": user_list}}).sort("realname"))
         user_data = OrderedDict([(user["_id"], user["realname"]) for user in users])
 
-        groups = course.get_groups()
+        groups = self.user_manager.get_course_groups(course)
         group_data = OrderedDict([(group["_id"], group["description"]) for group in groups])
-        tutored_groups = [group["_id"] for group in groups if User.get_username() in group["tutors"]]
-        tutored_users = [username for group in groups if User.get_username() in group["tutors"] for username in group["users"]]
+        tutored_groups = [group["_id"] for group in groups if self.user_manager.session_username() in group["tutors"]]
+        tutored_users = [username for group in groups if self.user_manager.session_username() in group["tutors"] for username in group["users"]]
 
         checked_tasks = tasks.keys()
         checked_users = user_data.keys()
@@ -131,9 +128,9 @@ class CourseDownloadSubmissions(INGIniousAdminPage):
             if "group" in chosen_format:
                 show_groups = True
 
-        return get_renderer().course_admin.download(course,
-                                              tasks, user_data, group_data,
-                                              tutored_groups, tutored_users,
-                                              checked_tasks, checked_users, checked_groups,
-                                              self.valid_formats, chosen_format,
-                                              show_groups)
+        return self.template_helper.get_renderer().course_admin.download(course,
+                                                                        tasks, user_data, group_data,
+                                                                        tutored_groups, tutored_users,
+                                                                        checked_tasks, checked_users, checked_groups,
+                                                                        self.valid_formats, chosen_format,
+                                                                        show_groups)

@@ -20,11 +20,7 @@ from collections import OrderedDict
 
 import web
 
-from common_frontend.templates import get_renderer
-from common_frontend.database import get_database
 from webapp.pages.course_admin.utils import make_csv, INGIniousAdminPage
-import webapp.user as User
-from webapp.pages.utils import INGIniousPage
 
 class CourseGroupListPage(INGIniousAdminPage):
     """ Course administration page: list of groups """
@@ -50,7 +46,7 @@ class CourseGroupListPage(INGIniousAdminPage):
             if not data['group_description']:
                 error = 'No group description given.'
             else:
-                get_database().groups.insert({"course_id": courseid, "users": [], "tutors": [], "size": 2,
+                self.database.groups.insert({"course_id": courseid, "users": [], "tutors": [], "size": 2,
                                               "description": data['group_description']})
         except:
             error = 'User returned an invalid form.'
@@ -63,7 +59,7 @@ class CourseGroupListPage(INGIniousAdminPage):
 
     def page(self, course, error="", post=False):
         """ Get all data and display the page """
-        grouped_users = list(get_database().groups.aggregate([
+        grouped_users = list(self.database.groups.aggregate([
             {"$match": {"course_id": course.get_id()}},
             {"$unwind": "$users"},
             {"$group":
@@ -73,12 +69,19 @@ class CourseGroupListPage(INGIniousAdminPage):
                 }
             }]))
 
-        ungrouped_users = len(set(course.get_registered_users(False)) -
+        ungrouped_users = len(set(self.user_manager.get_course_registered_users(course, False)) -
                               set(grouped_users[0]["user_list"] if len(grouped_users) > 0 else []))
 
-        groups = OrderedDict([(group['_id'], dict(group.items() + [("tried", 0), ("done", 0), ("url", self.submission_url_generator(course, group['_id']))])) for group in course.get_groups()])
+        groups = OrderedDict([(group['_id'],
+                               dict(group.items() +
+                                    [("tried", 0),
+                                     ("done", 0),
+                                     ("url", self.submission_url_generator(course, group['_id']))
+                                     ]
+                                    )
+                               ) for group in self.user_manager.get_course_groups(course)])
 
-        data = list(get_database().submissions.aggregate(
+        data = list(self.database.submissions.aggregate(
             [
                 {
                     "$match":
@@ -102,7 +105,7 @@ class CourseGroupListPage(INGIniousAdminPage):
 
         my_groups, other_groups = [], []
         for group in groups.values():
-            if User.get_username() in group["tutors"]:
+            if self.user_manager.session_username() in group["tutors"]:
                 my_groups.append(group)
             else:
                 other_groups.append(group)
@@ -110,4 +113,4 @@ class CourseGroupListPage(INGIniousAdminPage):
         if "csv" in web.input():
             return make_csv(data)
 
-        return get_renderer().course_admin.group_list(course, [my_groups, other_groups], ungrouped_users, error, post)
+        return self.template_helper.get_renderer().course_admin.group_list(course, [my_groups, other_groups], ungrouped_users, error, post)

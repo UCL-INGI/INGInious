@@ -25,9 +25,6 @@ import csv
 
 import web
 
-from common_frontend.templates import get_renderer
-from common_frontend.plugin_manager import PluginManager
-import webapp.user as User
 from webapp.pages.utils import INGIniousPage
 
 class INGIniousAdminPage(INGIniousPage):
@@ -46,13 +43,13 @@ class INGIniousAdminPage(INGIniousPage):
         """
 
         try:
-            if User.is_logged_in():
+            if self.user_manager.session_logged_in():
                 course = self.course_factory.get_course(courseid)
                 if allow_all_staff:
-                    if User.get_username() not in course.get_staff():
+                    if self.user_manager.session_username() not in course.get_staff():
                         raise web.notfound()
                 else:
-                    if User.get_username() not in course.get_admins():
+                    if self.user_manager.session_username() not in course.get_admins():
                         raise web.notfound()
 
                 if taskid is None:
@@ -157,10 +154,10 @@ def make_csv(data):
     return csv_string.read()
 
 
-def get_menu(course, current):
+def get_menu(username, course, current, renderer, plugin_manager):
     """ Returns the HTML of the menu used in the administration. ```current``` is the current page of section """
     default_entries = []
-    if User.get_username() in course.get_admins():
+    if username in course.get_admins():
         default_entries += [("settings", "<i class='fa fa-cog fa-fw'></i>&nbsp; Course settings"),
                             ("batch", "<i class='fa fa-rocket fa-fw'></i>&nbsp; Batch operations")]
 
@@ -173,9 +170,9 @@ def get_menu(course, current):
                         ("download", "<i class='fa fa-download fa-fw'></i>&nbsp; Download submissions")]
 
     # Hook should return a tuple (link,name) where link is the relative link from the index of the course administration.
-    additionnal_entries = [entry for entry in PluginManager().call_hook('course_admin_menu', course=course) if entry is not None]
+    additionnal_entries = [entry for entry in plugin_manager.call_hook('course_admin_menu', course=course) if entry is not None]
 
-    return get_renderer(False).course_admin.menu(course, default_entries + additionnal_entries, current)
+    return renderer.course_admin.menu(course, default_entries + additionnal_entries, current)
 
 
 class CourseRedirect(INGIniousAdminPage):
@@ -184,7 +181,7 @@ class CourseRedirect(INGIniousAdminPage):
     def GET(self, courseid):
         """ GET request """
         course, _ = self.get_course_and_check_rights(courseid)
-        if User.get_username() in course.get_tutors():
+        if self.user_manager.session_username() in course.get_tutors():
             raise web.seeother('/admin/{}/tasks'.format(courseid))
         else:
             raise web.seeother('/admin/{}/settings'.format(courseid))

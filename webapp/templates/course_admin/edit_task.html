@@ -21,7 +21,7 @@ $var title: Edit $taskid
 
 $def ColumnF():
     <div id="task_edit_submit_status"></div>
-    $:template_helper.call('course_admin_menu',course=course,current='tasks')
+    $:template_helper.call('course_admin_menu',username=user_manager.session_username(),course=course,current='tasks')
 $var Column: $:ColumnF()
 
 $def NavbarF():

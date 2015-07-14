@@ -49,7 +49,7 @@ $# Start content
 <div class="list-group list-group-progress" style="margin-left: 16px; margin-right: 16px;">
 	$if len(open_courses) != 0:
         $for courseid in open_courses:
-                $if not open_courses[courseid].is_user_registered(User.get_username(), open_courses[courseid].is_group_course()) and not open_courses[courseid].can_students_choose_group():
+                $if not user_manager.course_is_user_registered(open_courses[courseid]) and not open_courses[courseid].can_students_choose_group():
                     <div class="list-group-item row disabled">
                 $else:
                     <a href="course/$courseid" class="list-group-item row">
@@ -58,18 +58,18 @@ $# Start content
                     $open_courses[courseid].get_name()
                     $if not open_courses[courseid].is_open_to_non_staff():
                         - <b>course not shown to students</b>
-                    $if not open_courses[courseid].is_user_registered(User.get_username(), open_courses[courseid].is_group_course()) and not open_courses[courseid].can_students_choose_group():
+                    $if not user_manager.course_is_user_registered(open_courses[courseid]) and not open_courses[courseid].can_students_choose_group():
                         - <b>waiting for group attribution (<a  href="/?unregister_courseid=$courseid">unregister</a>)</b>
                 </div>
                 <div class="col-xs-12 col-md-5">
                     <div class="progress">
-                        $ grade=open_courses[courseid].get_user_grade()
+                        $ grade=user_manager.get_course_grade(open_courses[courseid])
                         <div class="progress-bar progress-bar-success" aria-valuenow="$int(grade)" aria-valuemin="0" aria-valuemax="100" style="width: $grade%">
                             $int(grade)%
                         </div>
                     </div>
                 </div>
-                $if not open_courses[courseid].is_user_registered(User.get_username(), open_courses[courseid].is_group_course()) and not open_courses[courseid].can_students_choose_group():
+                $if not user_manager.course_is_user_registered(open_courses[courseid]) and not open_courses[courseid].can_students_choose_group():
                     </div>
                 $else:
                     </a>

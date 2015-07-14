@@ -27,18 +27,18 @@ from datetime import datetime
 from bson.objectid import ObjectId
 import web
 
-import webapp.user as User
 from common_frontend.parsable_text import ParsableText
 
 class BatchManager(object):
     """
         Manages batch jobs. Store them in DB and communicates with the backend to start them.
     """
-    def __init__(self, job_manager, database, gridfs, submission_manager, task_directory, batch_containers, smtp_config):
+    def __init__(self, job_manager, database, gridfs, submission_manager, user_manager, task_directory, batch_containers, smtp_config):
         self._job_manager = job_manager
         self._database = database
         self._gridfs = gridfs
         self._submission_manager = submission_manager
+        self._user_manager = user_manager
         self._task_directory = task_directory
         self._batch_container = batch_containers
         self._smtp_config = smtp_config
@@ -55,8 +55,10 @@ class BatchManager(object):
 
     def _get_submissions_data(self, course, folders, best_only):
         """ Returns a file-like object to a tgz archive containing all the submissions made by the students for the course """
+        users = self._user_manager.get_course_registered_users(course)
+
         submissions = list(self._database.submissions.find(
-            {"courseid": course.get_id(), "username": {"$in": course.get_registered_users()}, "status": {"$in": ["done", "error"]}}))
+            {"courseid": course.get_id(), "username": {"$in": users}, "status": {"$in": ["done", "error"]}}))
         if best_only != "0":
             submissions = self._submission_manager.keep_best_submission(submissions)
         return self._submission_manager.get_submission_archive(submissions, list(reversed(folders.split('/'))))
@@ -112,23 +114,13 @@ class BatchManager(object):
 
 
 
-    def add_batch_job(self, course, container_name, inputdata, launcher_name=None, skip_permission=False, send_mail=None):
+    def add_batch_job(self, course, container_name, inputdata, launcher_name=None, send_mail=None):
         """
             Add a job in the queue and returns a batch job id.
             inputdata is a dict containing all the keys of get_batch_container_metadata(container_name)[2] BUT the keys "course" and "submission" IF their
             type is "file". (the content of the course and the submission will be automatically included by this function.)
             The values associated are file-like objects for "file" types and  strings for "text" types.
         """
-
-        if not skip_permission:
-            if not User.is_logged_in():
-                raise Exception("A user must be logged in to submit an object")
-
-            username = User.get_username()
-            launcher_name = launcher_name or username
-
-            if username not in course.get_admins():
-                raise Exception("The user must be an administrator to start a batch job")
 
         if container_name not in self._batch_container:
             raise Exception("This batch container is not allowed to be started")

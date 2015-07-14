@@ -19,9 +19,7 @@
 import web
 
 from webapp.accessible_time import AccessibleTime
-from common_frontend.templates import get_renderer
 from webapp.pages.course_admin.utils import INGIniousAdminPage
-import webapp.user as User
 
 class CourseSettings(INGIniousAdminPage):
     """ Couse settings """
@@ -44,7 +42,7 @@ class CourseSettings(INGIniousAdminPage):
             if course_content['name'] == "":
                 errors.append('Invalid name')
             course_content['admins'] = data['admins'].split(',')
-            if User.get_username() not in course_content['admins']:
+            if self.user_manager.session_username() not in course_content['admins']:
                 errors.append('You cannot remove yourself from the administrators of this course')
             course_content['tutors'] = data['tutors'].split(',')
             if len(course_content['tutors']) == 1 and course_content['tutors'][0].strip() == "":
@@ -106,4 +104,4 @@ class CourseSettings(INGIniousAdminPage):
 
     def page(self, course, errors=None, saved=False):
         """ Get all data and display the page """
-        return get_renderer().course_admin.settings(course, errors, saved)
+        return self.template_helper.get_renderer().course_admin.settings(course, errors, saved)

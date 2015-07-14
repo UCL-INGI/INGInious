@@ -30,7 +30,6 @@ from common_frontend.configuration import INGIniousConfiguration
 from common.base import id_checker
 import common.custom_yaml
 from webapp.accessible_time import AccessibleTime
-from common_frontend.templates import get_renderer
 from webapp.custom.tasks import FrontendTask
 from webapp.pages.course_admin.task_edit_file import CourseTaskFiles
 from webapp.pages.course_admin.utils import INGIniousAdminPage
@@ -71,7 +70,7 @@ class CourseEditTask(INGIniousAdminPage):
                         del problem_copy[i]
                 problem["custom"] = common.custom_yaml.dump(problem_copy)
 
-        return get_renderer().course_admin.edit_task(
+        return self.template_helper.get_renderer().course_admin.edit_task(
             course,
             taskid,
             task_data,

@@ -19,8 +19,6 @@
 """ Course page """
 import web
 
-from common_frontend.templates import get_renderer
-import webapp.user as User
 from webapp.pages.utils import INGIniousPage
 
 class CoursePage(INGIniousPage):
@@ -29,14 +27,14 @@ class CoursePage(INGIniousPage):
     def GET(self, courseid):
         """ GET request """
 
-        if User.is_logged_in():
+        if self.user_manager.session_logged_in():
             try:
                 course = self.course_factory.get_course(courseid)
-                registration_uncomplete = not course.is_open_to_user(User.get_username(), course.is_group_course())
+                registration_uncomplete = not self.user_manager.course_is_open_to_user(course)
                 if registration_uncomplete and course.can_students_choose_group():
                     raise web.seeother("/group/"+courseid)
                 elif registration_uncomplete:
-                    return get_renderer().course_unavailable()
+                    return self.template_helper.get_renderer().course_unavailable()
                 else:
                     last_submissions = self.submission_manager.get_user_last_submissions_for_course(course,one_per_task=True)
                     except_free_last_submissions = []
@@ -47,7 +45,7 @@ class CoursePage(INGIniousPage):
                         except:
                             pass
 
-                    return get_renderer().course(course, except_free_last_submissions)
+                    return self.template_helper.get_renderer().course(course, except_free_last_submissions)
             except web.seeother:
                 raise
             except:
@@ -56,4 +54,4 @@ class CoursePage(INGIniousPage):
                 else:
                     raise web.notfound()
         else:
-            return get_renderer().index(False)
+            return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_inputs(), False)

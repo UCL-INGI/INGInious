@@ -21,8 +21,6 @@ import json
 import pymongo
 import web
 
-from common_frontend.database import get_database
-from common_frontend.templates import get_renderer
 from webapp.pages.course_admin.utils import make_csv, INGIniousAdminPage
 
 class CourseStudentTaskPage(INGIniousAdminPage):
@@ -39,12 +37,12 @@ class CourseStudentTaskPage(INGIniousAdminPage):
 
     def page(self, course, username, task):
         """ Get all data and display the page """
-        data = list(get_database().submissions.find({"username": username, "courseid": course.get_id(), "taskid": task.get_id()}).sort(
+        data = list(self.database.submissions.find({"username": username, "courseid": course.get_id(), "taskid": task.get_id()}).sort(
             [("submitted_on", pymongo.DESCENDING)]))
         data = [dict(f.items() + [("url", self.submission_url_generator(course, str(f["_id"])))]) for f in data]
         if "csv" in web.input():
             return make_csv(data)
-        return get_renderer().course_admin.student_task(course, username, task, data)
+        return self.template_helper.get_renderer().course_admin.student_task(course, username, task, data)
 
 
 class SubmissionDownloadFeedback(INGIniousAdminPage):

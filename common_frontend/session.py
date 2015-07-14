@@ -21,8 +21,7 @@ import copy
 
 import web
 
-from common_frontend.database import get_database
-from common_frontend.session_mongodb import MongoStore
+
 
 
 def get_session():
@@ -30,14 +29,14 @@ def get_session():
     return get_session.session
 
 
-def init(app, session_test=None):
+def init(app, database, session_test=None):
     """ 
         Init the session. Should be call before starting the web.py server
         session_test is specified to emulate a session (used for tests)
     """
     if session_test is None:
         if web.config.get('_session') is None:
-            get_session.session = web.session.Session(app, MongoStore(get_database(), 'sessions'))
+            get_session.session = web.session.Session(app, MongoStore(database, 'sessions'))
             web.config._session = get_session.session  # pylint: disable=protected-access
         else:
             get_session.session = web.config._session  # pylint: disable=protected-access

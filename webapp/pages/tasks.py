@@ -28,8 +28,6 @@ import web
 
 from common.tasks_code_boxes import FileBox
 from common.tasks_problems import MultipleChoiceProblem, BasicCodeProblem
-from common_frontend.templates import get_renderer
-import webapp.user as User
 from webapp.pages.utils import INGIniousPage
 from common_frontend.configuration import INGIniousConfiguration
 
@@ -38,17 +36,18 @@ class TaskPage(INGIniousPage):
 
     def GET(self, courseid, taskid):
         """ GET request """
-        if User.is_logged_in():
+        if self.user_manager.session_logged_in():
+            username = self.user_manager.session_username()
             try:
                 course = self.course_factory.get_course(courseid)
-                if not course.is_open_to_user(User.get_username(), course.is_group_course()):
-                    return get_renderer().course_unavailable()
+                if not self.user_manager.course_is_open_to_user(course, username):
+                    return self.template_helper.get_renderer().course_unavailable()
 
                 task = course.get_task(taskid)
-                if not task.is_visible_by_user(User.get_username()):
-                    return get_renderer().task_unavailable()
+                if not self.user_manager.task_is_visible_by_user(task, username):
+                    return self.template_helper.get_renderer().task_unavailable()
 
-                User.get_data().view_task(courseid, taskid)
+                self.user_manager.user_saw_task(username, courseid, taskid)
 
                 userinput = web.input()
                 if "submissionid" in userinput and "questionid" in userinput:
@@ -72,32 +71,34 @@ class TaskPage(INGIniousPage):
                         return sinput[userinput["questionid"]]
                 else:
                     # Display the task itself
-                    return get_renderer().task(course, task, self.submission_manager.get_user_submissions(task))
+                    return self.template_helper.get_renderer().task(course, task, self.submission_manager.get_user_submissions(task))
             except:
                 if web.config.debug:
                     raise
                 else:
                     raise web.notfound()
         else:
-            return get_renderer().index(False)
+            return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_inputs(), False)
 
     def POST(self, courseid, taskid):
         """ POST a new submission """
-        if User.is_logged_in():
+        if self.user_manager.session_logged_in():
+            username = self.user_manager.session_username()
             try:
                 course = self.course_factory.get_course(courseid)
-                if not course.is_open_to_user(User.get_username(), course.is_group_course()):
-                    return get_renderer().course_unavailable()
+                if not self.user_manager.course_is_open_to_user(course, username):
+                    return self.template_helper.get_renderer().course_unavailable()
 
                 task = course.get_task(taskid)
-                if not task.is_visible_by_user(User.get_username()):
-                    return get_renderer().task_unavailable()
+                if not self.user_manager.task_is_visible_by_user(task, username):
+                    return self.template_helper.get_renderer().task_unavailable()
 
-                User.get_data().view_task(courseid, taskid)
+                self.user_manager.user_saw_task(username, courseid, taskid)
+
                 userinput = web.input()
                 if "@action" in userinput and userinput["@action"] == "submit":
                     # Verify rights
-                    if not task.can_user_submit(User.get_username()):
+                    if not self.user_manager.task_can_user_submit(task, username):
                         return json.dumps({"status": "error", "text": "The deadline is over"})
 
                     # Reparse user input with array for multiple choices
@@ -112,7 +113,7 @@ class TaskPage(INGIniousPage):
                     del userinput['@action']
 
                     # Get debug info if the current user is an admin
-                    debug = User.get_username() in course.get_admins()
+                    debug = username in course.get_admins()
 
                     # Start the submission
                     submissionid = self.submission_manager.add_job(task, userinput, debug)
@@ -124,7 +125,7 @@ class TaskPage(INGIniousPage):
                         web.header('Content-Type', 'application/json')
                         result = self.submission_manager.get_submission(userinput['submissionid'])
                         result = self.submission_manager.get_input_from_submission(result)
-                        return self.submission_to_json(result, User.get_username() in course.get_admins())
+                        return self.submission_to_json(result, username in course.get_admins())
                     else:
                         web.header('Content-Type', 'application/json')
                         return json.dumps({'status': "waiting"})
@@ -134,7 +135,7 @@ class TaskPage(INGIniousPage):
                     if not submission:
                         raise web.notfound()
                     web.header('Content-Type', 'application/json')
-                    return self.submission_to_json(submission, (User.get_username() in course.get_admins()), True)
+                    return self.submission_to_json(submission, (username in course.get_admins()), True)
                 else:
                     raise web.notfound()
             except:
@@ -143,7 +144,7 @@ class TaskPage(INGIniousPage):
                 else:
                     raise web.notfound()
         else:
-            return get_renderer().index(False)
+            return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_inputs(), False)
 
     def submission_to_json(self, data, debug, reloading=False):
         """ Converts a submission to json (keeps only needed fields) """
@@ -188,18 +189,18 @@ class TaskPageStaticDownload(INGIniousPage):
 
     def GET(self, courseid, taskid, path):
         """ GET request """
-        if User.is_logged_in():
+        if self.user_manager.session_logged_in():
             try:
                 course = self.course_factory.get_course(courseid)
-                if not course.is_open_to_user(User.get_username(), course.is_group_course()):
-                    return get_renderer().course_unavailable()
+                if not self.user_manager.course_is_open_to_user(course):
+                    return self.template_helper.get_renderer().course_unavailable()
 
                 task = course.get_task(taskid)
-                if not task.is_visible_by_user(User.get_username()):
-                    return get_renderer().task_unavailable()
+                if not self.user_manager.task_is_visible_by_user(task):
+                    return self.template_helper.get_renderer().task_unavailable()
 
                 path_norm = posixpath.normpath(urllib.unquote(path))
-                public_folder_path = os.path.normpath(os.path.realpath(task.get_directory_path(), "public"))
+                public_folder_path = os.path.normpath(os.path.realpath(os.path.join(task.get_directory_path(), "public")))
                 file_path = os.path.normpath(os.path.realpath(os.path.join(public_folder_path, path_norm)))
 
                 # Verify that we are still inside the public directory
@@ -220,4 +221,4 @@ class TaskPageStaticDownload(INGIniousPage):
                 else:
                     raise web.notfound()
         else:
-            return get_renderer().index(False)
+            return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_inputs(), False)
