@@ -28,7 +28,7 @@ from common.tasks_code_boxes import FileBox
 from common.tasks_problems import MultipleChoiceProblem, BasicCodeProblem
 
 
-def _get_submissions(courseid, taskid, submissionid=None):
+def _get_submissions(courseid, taskid, with_input, submissionid=None):
     """
         Helper for the GET methods of the two following classes
     """
@@ -62,9 +62,12 @@ def _get_submissions(courseid, taskid, submissionid=None):
         data = {
             "id": str(submission["_id"]),
             "submitted_on": str(submission["submitted_on"]),
-            "status": submission["status"],
-            "input": get_input_from_submission(submission, True)
+            "status": submission["status"]
         }
+
+        if with_input:
+            data["input"] = get_input_from_submission(submission, True)
+
         if submission["status"] == "done":
             data["grade"] = submission.get("grade", 0)
             data["result"] = submission.get("result", "crash")
@@ -83,13 +86,13 @@ class APISubmissionSingle(APIAuthenticatedPage):
 
     def API_GET(self, courseid, taskid, submissionid):
         """
-            List all the submissions that the connected user made. Returns dicts in the form
+            List all the submissions that the connected user made. Returns list of the form
 
             ::
 
-                {
-                    "submission_id1":
+                [
                     {
+                        "id": "submission_id1",
                         "submitted_on": "date",
                         "status" : "done",          #can be "done", "waiting", "error" (execution status of the task).
                         "grade": 0.0,
@@ -103,12 +106,14 @@ class APISubmissionSingle(APIAuthenticatedPage):
                         }
                     }
                     #...
-                }
+                ]
 
             If you use the endpoint /api/v0/courses/the_course_id/tasks/the_task_id/submissions/submissionid,
             this dict will contain one entry or the page will return 404 Not Found.
         """
-        return _get_submissions(courseid, taskid, submissionid)
+        with_input = "input" in web.input()
+
+        return _get_submissions(courseid, taskid, with_input, submissionid)
 
 
 class APISubmissions(APIAuthenticatedPage):
@@ -122,9 +127,9 @@ class APISubmissions(APIAuthenticatedPage):
 
             ::
 
-                {
-                    "submission_id1":
+                [
                     {
+                        "id": "submission_id1",
                         "submitted_on": "date",
                         "status" : "done",          #can be "done", "waiting", "error" (execution status of the task).
                         "grade": 0.0,
@@ -138,12 +143,14 @@ class APISubmissions(APIAuthenticatedPage):
                         }
                     }
                     #...
-                }
+                ]
 
             If you use the endpoint /api/v0/courses/the_course_id/tasks/the_task_id/submissions/submissionid,
             this dict will contain one entry or the page will return 404 Not Found.
         """
-        return _get_submissions(courseid, taskid)
+        with_input = "input" in web.input()
+
+        return _get_submissions(courseid, taskid, with_input)
 
     def API_POST(self, courseid, taskid):
         """
