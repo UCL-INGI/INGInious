@@ -63,10 +63,10 @@ def _get_submissions(courseid, taskid, submissionid=None):
             "id": str(submission["_id"]),
             "submitted_on": str(submission["submitted_on"]),
             "status": submission["status"],
-            "input": get_input_from_submission(submission, True),
-            "grade": submission["grade"]
+            "input": get_input_from_submission(submission, True)
         }
         if submission["status"] == "done":
+            data["grade"] = submission.get("grade", 0)
             data["result"] = submission.get("result", "crash")
             data["feedback"] = submission.get("text", "")
             data["problems_feedback"] = submission.get("problems", {})
