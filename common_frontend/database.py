@@ -20,13 +20,14 @@
 from gridfs import GridFS
 from pymongo import MongoClient
 
-from common_frontend.configuration import INGIniousConfiguration
-
-def new_database_client():
-    """ Creates a new MongoClient instance for INGINious """
-    config = {'host': INGIniousConfiguration.get('mongo_opt', {}).get('host', 'localhost')}
+def new_database_client(options):
+    """
+    Creates a new MongoClient instance
+    :param options: a dict, containing the key "host" and "database".
+    """
+    config = {'host': options.get('host', 'localhost')}
     client = MongoClient(**config)
-    return client[INGIniousConfiguration.get('mongo_opt', {}).get('database', 'INGInious')]
+    return client[options.get('database', 'INGInious')]
 
 
 def new_gridfs_client(mongo_database):

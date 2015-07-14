@@ -20,7 +20,7 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 $ user_realname= user_manager.get_user_realname(username)
 $var title: $:user_realname - $:course.get_name()
 
-$var Column: $:template_helper.call('course_admin_menu',username=user_manager.session_username(),course=course,current='students')
+$var Column: $:template_helper.call('course_admin_menu',course=course,current='students')
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">

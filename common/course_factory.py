@@ -29,9 +29,10 @@ from common.exceptions import InvalidNameException, CourseNotFoundException, Cou
 class CourseFactory(object):
     """ Load courses from disk """
 
-    def __init__(self, tasks_directory, task_factory, course_class=Course):
+    def __init__(self, tasks_directory, task_factory, hook_manager, course_class=Course):
         self._tasks_directory = tasks_directory
         self._task_factory = task_factory
+        self._hook_manager = hook_manager
         self._course_class = course_class
         self._cache = {}
 
@@ -135,13 +136,14 @@ class CourseFactory(object):
             raise CourseUnreadableException(str(e))
         self._cache[courseid] = (self._course_class(courseid, course_descriptor, self._task_factory), os.stat(path_to_descriptor).st_mtime)
 
-def create_factories(task_directory, course_class=Course, task_class=Task):
+def create_factories(task_directory, hook_manager, course_class=Course, task_class=Task):
     """
     Shorthand for creating Factories
     :param task_directory:
+    :param hook_manager:
     :param course_class:
     :param task_class:
     :return: a tuple with two objects: the first being of type CourseFactory, the second of type TaskFactory
     """
-    task_factory = TaskFactory(task_directory, task_class)
-    return CourseFactory(task_directory, task_factory, course_class), task_factory
+    task_factory = TaskFactory(task_directory, hook_manager, task_class)
+    return CourseFactory(task_directory, task_factory, hook_manager, course_class), task_factory

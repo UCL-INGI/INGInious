@@ -22,9 +22,7 @@ import json
 import web
 
 from backend.helpers.job_manager_sync import JobManagerSync
-import common_frontend.backend_interface
 from webapp.pages.utils import INGIniousPage
-from common_frontend.configuration import INGIniousConfiguration
 
 def init(plugin_manager, course_factory, job_manager, config):
     """
@@ -92,9 +90,7 @@ def init(plugin_manager, course_factory, job_manager, config):
             except:
                 return json.dumps({"correct": None, "score": 0, "msg": "<p>Internal grader error: unknown task {}</p>".format(taskid)})
 
-            if not task.input_is_consistent(edx_input,
-                                            INGIniousConfiguration["allowed_file_extensions"],
-                                            INGIniousConfiguration["max_file_size"]):
+            if not task.input_is_consistent(edx_input, self.default_allowed_file_extensions, self.default_max_file_size):
                 return json.dumps({"correct": None, "score": 0, "msg": "<p>Internal grader error: input not consistent with task</p>"})
 
             try:

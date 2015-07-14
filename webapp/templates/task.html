@@ -74,7 +74,7 @@ $def ColumnF():
             </td>
         </tr>
     </table>
-    $if user_manager.session_username() in course.get_staff():
+    $if user_manager.has_staff_rights_on_course(course):
         <h3>Administration</h3>
         $if not course.is_open_to_non_staff():
             <div class="alert alert-warning" role="alert">
@@ -90,7 +90,7 @@ $def ColumnF():
             <a class="list-group-item list-group-item-info" href="/admin/$course.get_id()/task/$task.get_id()">
                 <i class="fa fa-tasks fa-fw"></i>&nbsp; View submissions
             </a>
-            $if user_manager.session_username() in course.get_admins():
+            $if user_manager.has_admin_rights_on_course(course):
                 <a class="list-group-item list-group-item-info" href="/admin/$course.get_id()/edit/task/$task.get_id()">
                     <i class="fa fa-edit fa-fw"></i>&nbsp; Edit task
                 </a>
@@ -141,7 +141,7 @@ $# Start content
 $:task.get_context()
 <hr/>
 <div id="task_alert"></div>
-$if user_manager.session_username() in course.get_admins():
+$if user_manager.has_admin_rights_on_course(course):
     <div class="modal fade" id="modal-debug">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">

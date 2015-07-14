@@ -46,10 +46,10 @@ class INGIniousAdminPage(INGIniousPage):
             if self.user_manager.session_logged_in():
                 course = self.course_factory.get_course(courseid)
                 if allow_all_staff:
-                    if self.user_manager.session_username() not in course.get_staff():
+                    if not self.user_manager.has_staff_rights_on_course(course):
                         raise web.notfound()
                 else:
-                    if self.user_manager.session_username() not in course.get_admins():
+                    if not self.user_manager.has_admin_rights_on_course(course):
                         raise web.notfound()
 
                 if taskid is None:
@@ -154,10 +154,10 @@ def make_csv(data):
     return csv_string.read()
 
 
-def get_menu(username, course, current, renderer, plugin_manager):
+def get_menu(course, current, renderer, plugin_manager, user_manager):
     """ Returns the HTML of the menu used in the administration. ```current``` is the current page of section """
     default_entries = []
-    if username in course.get_admins():
+    if user_manager.has_admin_rights_on_course(course):
         default_entries += [("settings", "<i class='fa fa-cog fa-fw'></i>&nbsp; Course settings"),
                             ("batch", "<i class='fa fa-rocket fa-fw'></i>&nbsp; Batch operations")]
 

@@ -23,7 +23,6 @@ import web
 from webapp.pages.api._api_page import APIAuthenticatedPage, APINotFound, APIForbidden, APIInvalidArguments
 from common.tasks_code_boxes import FileBox
 from common.tasks_problems import MultipleChoiceProblem, BasicCodeProblem
-from common_frontend.configuration import INGIniousConfiguration
 
 def _get_submissions(course_factory, submission_manager, user_manager, courseid, taskid, submissionid=None):
     """
@@ -179,13 +178,11 @@ class APISubmissions(APIAuthenticatedPage):
         init_var = self.list_multiple_multiple_choices_and_files(task)
         user_input = task.adapt_input_for_backend(web.input(**init_var))
 
-        if not task.input_is_consistent(user_input,
-                                        INGIniousConfiguration["allowed_file_extensions"],
-                                        INGIniousConfiguration["max_file_size"]):
+        if not task.input_is_consistent(user_input, self.default_allowed_file_extensions, self.default_max_file_size):
             raise APIInvalidArguments()
 
         # Get debug info if the current user is an admin
-        debug = username in course.get_admins()
+        debug = self.user_manager.has_admin_rights_on_course(course, username)
 
         # Start the submission
         submissionid = self.submission_manager.add_job(task, user_input, debug)

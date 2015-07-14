@@ -27,9 +27,10 @@ from common.exceptions import InvalidNameException, TaskNotFoundException, TaskU
 class TaskFactory(object):
     """ Load courses from disk """
 
-    def __init__(self, tasks_directory, task_class=Task):
+    def __init__(self, tasks_directory, hook_manager, task_class=Task):
         self._tasks_directory = tasks_directory
         self._task_class = task_class
+        self._hook_manager = hook_manager
         self._cache = {}
         self._task_file_managers = {}
         self.add_custom_task_file_manager(TaskYAMLFileReader())
@@ -217,5 +218,8 @@ class TaskFactory(object):
                 task_content = descriptor_reader.load(fd.read())
         except Exception as e:
             raise TaskUnreadableException(str(e))
+
+        self._hook_manager.call_hook('modify_task_data', course=course, taskid=taskid, data=task_content)
+
         task = self._task_class(course, taskid, task_content, self.get_directory_path(course.get_id(), taskid))
         self._cache[(course.get_id(), taskid)] = (task, os.stat(path_to_descriptor).st_mtime)

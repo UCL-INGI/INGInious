@@ -19,7 +19,7 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 
 $var title: $:course.get_name() - Start new batch job $container_title
 
-$var Column: $:template_helper.call('course_admin_menu',username=user_manager.session_username(),course=course,current='batch')
+$var Column: $:template_helper.call('course_admin_menu',course=course,current='batch')
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">

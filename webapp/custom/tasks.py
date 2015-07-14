@@ -23,7 +23,6 @@ from webapp.accessible_time import AccessibleTime
 from webapp.custom.task_problems import DisplayableCodeProblem, DisplayableCodeSingleLineProblem, DisplayableMatchProblem, \
     DisplayableMultipleChoiceProblem, DisplayableCodeFileProblem
 from common_frontend.parsable_text import ParsableText
-from common_frontend.plugin_manager import PluginManager
 
 
 class FrontendTask(common.tasks.Task):
@@ -33,7 +32,6 @@ class FrontendTask(common.tasks.Task):
         # We load the descriptor of the task here to allow plugins to modify settings of the task before it is read by the Task constructor
         if not id_checker(taskid):
             raise Exception("Task with invalid id: " + course.get_id() + "/" + taskid)
-        PluginManager().call_hook('modify_task_data', course=course, taskid=taskid, data=content)
 
         task_problem_types = task_problem_types or {
             "code": DisplayableCodeProblem,

@@ -26,7 +26,6 @@ from zipfile import ZipFile
 
 import web
 
-from common_frontend.configuration import INGIniousConfiguration
 from common.base import id_checker
 import common.custom_yaml
 from webapp.accessible_time import AccessibleTime
@@ -50,7 +49,8 @@ class CourseEditTask(INGIniousAdminPage):
             task_data = None
         if task_data is None:
             task_data = {}
-        environments = INGIniousConfiguration["containers"].keys()
+
+        environments = self.containers
 
         current_filetype = None
         try:

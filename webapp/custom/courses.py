@@ -19,11 +19,9 @@
 """ A course class with some modification for users """
 
 from collections import OrderedDict
-from datetime import datetime
 
 from common.courses import Course
 from webapp.accessible_time import AccessibleTime
-from common_frontend.configuration import INGIniousConfiguration
 
 
 class FrontendCourse(Course):
@@ -35,9 +33,9 @@ class FrontendCourse(Course):
         if self._content.get('nofrontend', False):
             raise Exception("That course is not allowed to be displayed directly in the webapp")
 
-        if "name" in self._content and "admins" in self._content and isinstance(self._content["admins"], list):
+        if "name" in self._content:
             self._name = self._content['name']
-            self._admins = self._content['admins']
+            self._admins = self._content.get('admins', [])
             self._tutors = self._content.get('tutors', [])
             self._accessible = AccessibleTime(self._content.get("accessible", None))
             self._registration = AccessibleTime(self._content.get("registration", None))
@@ -55,16 +53,13 @@ class FrontendCourse(Course):
         """ Return the name of this course """
         return self._name
 
-    def get_staff(self, with_superadmin=True):
+    def get_staff(self):
         """ Returns a list containing the usernames of all the staff users """
-        return list(set(self.get_tutors() + self.get_admins(with_superadmin)))
+        return list(set(self.get_tutors() + self.get_admins()))
 
-    def get_admins(self, with_superadmin=True):
+    def get_admins(self):
         """ Returns a list containing the usernames of the administrators of this course """
-        if with_superadmin:
-            return list(set(self._admins + INGIniousConfiguration.get('superadmins', [])))
-        else:
-            return self._admins
+        return self._admins
 
     def get_tutors(self):
         """ Returns a list containing the usernames of the tutors assigned to this course """

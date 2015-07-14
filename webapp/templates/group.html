@@ -51,7 +51,7 @@ $def ColumnF():
         $else:
             <a class="list-group-item disabled submission-empty">No submissions</a>
     </div>
-    $if user_manager.session_username() in course.get_staff():
+    $if user_manager.has_staff_rights_on_course(course):
         $if not course.is_open_to_non_staff():
             <div class="alert alert-warning" role="alert">
                 This course is currently invisible for students. 

@@ -19,7 +19,7 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 
 $var title: $:task.get_name() - $:group["description"] - $:course.get_name()
 
-$var Column: $:template_helper.call('course_admin_menu',username=user_manager.session_username(),course=course,current='groups')
+$var Column: $:template_helper.call('course_admin_menu',course=course,current='groups')
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">

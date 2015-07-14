@@ -21,8 +21,7 @@ import cgi
 
 from docutils import core, nodes
 from docutils.writers import html4css1
-
-from common_frontend.configuration import INGIniousConfiguration
+import tidylib
 
 class _CustomHTMLWriter(html4css1.Writer, object):
     """ A custom HTML writer that fixes some defaults of docutils... """
@@ -72,8 +71,6 @@ class ParsableText(object):
         """Init the object. Content is the string to be parsed. Mode is the parser to be used. Currently, only rst(reStructuredText) and HTML are supported"""
         if mode not in ["rst", "HTML"]:
             raise Exception("Unknown text parser: " + mode)
-        if mode == "HTML" and ("allow_html" not in INGIniousConfiguration or INGIniousConfiguration["allow_html"] == False):
-            raise Exception("HTML is not allowed")
         self._content = content
         self._parsed = None
         self._mode = mode
@@ -104,15 +101,8 @@ class ParsableText(object):
 
     def html(self, string):
         """Parses HTML"""
-        if "allow_html" not in INGIniousConfiguration or INGIniousConfiguration["allow_html"] == False:
-            raise Exception("HTML is not allowed")
-        elif INGIniousConfiguration["allow_html"] == "tidy":
-            import tidylib
-
-            out, dummy = tidylib.tidy_fragment(string)
-            return out
-        else:
-            return string
+        out, _ = tidylib.tidy_fragment(string)
+        return out
 
     def rst(self, string):
         """Parses reStructuredText"""

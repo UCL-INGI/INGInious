@@ -29,7 +29,7 @@ class CourseEditGroup(INGIniousAdminPage):
 
     def get_user_lists(self, course, groupid):
         """ Get the available student and tutor lists for group edition"""
-        student_list, tutor_list = self.user_manager.get_course_registered_users(course, False), course.get_staff(False)
+        student_list, tutor_list = self.user_manager.get_course_registered_users(course, False), course.get_staff()
 
         # Remove grouped users from the accessible list for the group
         grouped_users = self.database.groups.aggregate([

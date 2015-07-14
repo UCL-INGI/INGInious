@@ -29,7 +29,6 @@ import web
 from common.tasks_code_boxes import FileBox
 from common.tasks_problems import MultipleChoiceProblem, BasicCodeProblem
 from webapp.pages.utils import INGIniousPage
-from common_frontend.configuration import INGIniousConfiguration
 
 class TaskPage(INGIniousPage):
     """ Display a task (and allow to reload old submission/file uploaded during a submission) """
@@ -105,15 +104,13 @@ class TaskPage(INGIniousPage):
                     init_var = self.list_multiple_multiple_choices_and_files(task)
                     userinput = task.adapt_input_for_backend(web.input(**init_var))
 
-                    if not task.input_is_consistent(userinput,
-                                                    INGIniousConfiguration["allowed_file_extensions"],
-                                                    INGIniousConfiguration["max_file_size"]):
+                    if not task.input_is_consistent(userinput, self.default_allowed_file_extensions, self.default_max_file_size):
                         web.header('Content-Type', 'application/json')
                         return json.dumps({"status": "error", "text": "Please answer to all the questions. Your responses were not tested."})
                     del userinput['@action']
 
                     # Get debug info if the current user is an admin
-                    debug = username in course.get_admins()
+                    debug = self.user_manager.has_admin_rights_on_course(course, username)
 
                     # Start the submission
                     submissionid = self.submission_manager.add_job(task, userinput, debug)
@@ -125,7 +122,7 @@ class TaskPage(INGIniousPage):
                         web.header('Content-Type', 'application/json')
                         result = self.submission_manager.get_submission(userinput['submissionid'])
                         result = self.submission_manager.get_input_from_submission(result)
-                        return self.submission_to_json(result, username in course.get_admins())
+                        return self.submission_to_json(result, self.user_manager.has_admin_rights_on_course(course, username))
                     else:
                         web.header('Content-Type', 'application/json')
                         return json.dumps({'status': "waiting"})
@@ -135,7 +132,7 @@ class TaskPage(INGIniousPage):
                     if not submission:
                         raise web.notfound()
                     web.header('Content-Type', 'application/json')
-                    return self.submission_to_json(submission, (username in course.get_admins()), True)
+                    return self.submission_to_json(submission, self.user_manager.has_admin_rights_on_course(course, username), True)
                 else:
                     raise web.notfound()
             except:

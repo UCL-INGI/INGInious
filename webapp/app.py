@@ -24,12 +24,11 @@ import os
 
 import web
 
+from common.base import load_json_or_yaml
 from common_frontend import backend_interface
-from common_frontend.configuration import INGIniousConfiguration
 from webapp.database_updater import update_database
 from common_frontend.plugin_manager import PluginManager
 from common.course_factory import create_factories
-import webapp.pages.course_admin.utils
 from webapp.custom.tasks import FrontendTask
 from webapp.custom.courses import FrontendCourse
 from webapp.pages.utils import WebPyFakeMapping
@@ -39,6 +38,7 @@ from common_frontend.templates import TemplateHelper
 from common_frontend.database import new_database_client, new_gridfs_client
 from webapp.user_manager import UserManager
 from common_frontend.session_mongodb import MongoStore
+import webapp.pages.course_admin.utils as course_admin_utils
 
 urls = {
     '/': 'webapp.pages.index.IndexPage',
@@ -83,57 +83,79 @@ urls_maintenance = (
     '/.*', 'webapp.pages.maintenance.MaintenancePage'
 )
 
+def _load_configuration(config_file):
+    """
+    :param config_file:
+    :return: a dict containing the configuration
+    """
+    config = load_json_or_yaml(config_file)
+    if not 'allowed_file_extensions' in config:
+        config['allowed_file_extensions'] = [".c", ".cpp", ".java", ".oz", ".zip", ".tar.gz", ".tar.bz2", ".txt"]
+    if not 'max_file_size' in config:
+        config['max_file_size'] = 1024 * 1024
+    return config
+
 
 def get_app(config_file):
     """ Get the application. config_file is the path to the configuration file """
-    INGIniousConfiguration.load(config_file)
-    if INGIniousConfiguration.get("maintenance", False):
+    config = _load_configuration(config_file)
+
+    if config.get("maintenance", False):
         appli = web.application(urls_maintenance, globals(), autoreload=False)
         return appli
 
-    task_directory = INGIniousConfiguration["tasks_directory"]
+    task_directory = config["tasks_directory"]
+    default_allowed_file_extensions = config['allowed_file_extensions']
+    default_max_file_size = config['max_file_size']
 
     appli = web.application((), globals(), autoreload=False)
 
     # Init the different parts of the app
-    course_factory, task_factory = create_factories(task_directory, FrontendCourse, FrontendTask)
+    plugin_manager = PluginManager()
 
-    database = new_database_client()
+    database = new_database_client(config.get('mongo_opt', {}))
     gridfs = new_gridfs_client(database)
 
-    user_manager = UserManager(web.session.Session(appli, MongoStore(database, 'sessions')), database)
+    course_factory, task_factory = create_factories(task_directory, plugin_manager, FrontendCourse, FrontendTask)
 
-    update_database(database, gridfs, course_factory, user_manager)
+    user_manager = UserManager(web.session.Session(appli, MongoStore(database, 'sessions')), database, config.get('superadmins', []))
 
-    plugin_manager = PluginManager(appli, course_factory, task_factory, user_manager, INGIniousConfiguration.get("plugins", []))
-
-    job_manager = backend_interface.create_job_manager(INGIniousConfiguration, plugin_manager,
+    job_manager = backend_interface.create_job_manager(config, plugin_manager,
                                                        database,
                                                        task_directory, course_factory, task_factory)
 
     submission_manager = SubmissionManager(job_manager, user_manager, database, gridfs, plugin_manager)
 
     batch_manager = BatchManager(job_manager, database, gridfs, submission_manager, user_manager,
-                                 task_directory, INGIniousConfiguration.get('batch_containers', []),
-                                 INGIniousConfiguration.get('smtp', None))
+                                 task_directory, config.get('batch_containers', []),
+                                 config.get('smtp', None))
 
     template_helper = TemplateHelper(plugin_manager, 'webapp/templates', 'layout')
-    template_helper.add_to_template_globals("user_manager", user_manager)
-    template_helper.add_other("course_admin_menu",
-                              lambda username, course, current: webapp.pages.course_admin.utils.get_menu(username, course, current,
-                                                                                                         template_helper.get_renderer(False),
-                                                                                                         plugin_manager))
 
+    # Update the database
+    update_database(database, gridfs, course_factory, user_manager)
+
+    # Add some helpers for the templates
+    template_helper.add_to_template_globals("user_manager", user_manager)
+    template_helper.add_to_template_globals("default_allowed_file_extensions", default_allowed_file_extensions)
+    template_helper.add_to_template_globals("default_max_file_size", default_max_file_size)
+    template_helper.add_other("course_admin_menu",
+                              lambda course, current: course_admin_utils.get_menu(course, current, template_helper.get_renderer(False),
+                                                                                  plugin_manager, user_manager))
+
+    # Not found page
     appli.notfound = lambda: web.notfound(template_helper.get_renderer().notfound('Page not found'))
 
     # Init the mapping of the app
     appli.mapping = WebPyFakeMapping(dict(urls), plugin_manager,
                                      course_factory, task_factory,
                                      submission_manager, batch_manager, user_manager,
-                                     template_helper, database, gridfs)
+                                     template_helper, database, gridfs,
+                                     default_allowed_file_extensions, default_max_file_size,
+                                     config["containers"].keys())
 
     # Loads plugins
-    plugin_manager.load(job_manager)
+    plugin_manager.load(job_manager, appli, course_factory, task_factory, user_manager, config.get("plugins", []))
 
     # Start the backend
     job_manager.start()

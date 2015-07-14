@@ -80,9 +80,16 @@ class AuthMethod(object):
         return None
 
 class UserManager(object):
-    def __init__(self, session_dict, database):
+    def __init__(self, session_dict, database, superadmins):
+        """
+        :type session_dict: web.session.Session
+        :type database: pymongo.database.Database
+        :type superadmins: list(str)
+        :param superadmins: list of the super-administrators' usernames
+        """
         self._session = session_dict
         self._database = database
+        self._superadmins = superadmins
         self._auth_methods = []
 
     ##############################################
@@ -427,20 +434,21 @@ class UserManager(object):
             username = self.session_username()
 
         return (self.course_is_open_to_user(task.get_course(), username) and task._accessible.after_start()) or \
-               username in task.get_course().get_staff()
+                self.has_staff_rights_on_course(task.get_course(), username)
 
     def task_can_user_submit(self, task, username=None):
         """ returns true if the user can submit his work for this task """
         if username is None:
             username = self.session_username()
 
-        return (self.course_is_open_to_user(task.get_course(),username) and task._accessible.is_open()) or username in task.get_course().get_staff()
+        return (self.course_is_open_to_user(task.get_course(),username) and task._accessible.is_open()) or self.has_staff_rights_on_course(
+            task.get_course(), username)
 
     def get_course_groups(self, course):
         """ Returns a list of the course groups"""
         return list(self._database.groups.find({"course_id": course.get_id()}).sort("description"))
 
-    def get_course_user_group(self, course, username= None): #get_user_group
+    def get_course_user_group(self, course, username= None):
         """ Returns the group whose username belongs to
         :param course: a Course object
         :param username: The username of the user that we want to register. If None, uses self.session_username()
@@ -499,7 +507,8 @@ class UserManager(object):
         if username is None:
             username = self.session_username()
 
-        return (course._accessible.is_open() and self.course_is_user_registered(course, username, check_group)) or username in course.get_staff()
+        return (course._accessible.is_open() and self.course_is_user_registered(course, username, check_group)) or self.has_staff_rights_on_course(
+            course, username)
 
     def course_is_user_registered(self, course, username = None, check_group=True):
         """
@@ -512,11 +521,13 @@ class UserManager(object):
         if username is None:
             username = self.session_username()
 
+        if self.has_staff_rights_on_course(course, username):
+            return True
+
         has_group = (not check_group) or (not course.is_group_course()) or \
                     (self._database.groups.find_one({"users": username, "course_id": course.get_id()}) is not None)
 
-        return (self._database.registration.find_one({"username": username, "courseid": course.get_id()}) is not None) and \
-               has_group or username in course.get_staff()
+        return (self._database.registration.find_one({"username": username, "courseid": course.get_id()}) is not None) and has_group
 
     def get_course_registered_users(self, course, with_admins=True):
         """
@@ -530,3 +541,43 @@ class UserManager(object):
             return list(set(l + course.get_staff()))
         else:
             return l
+
+    ##############################################
+    #             Rights management              #
+    ##############################################
+
+    def user_is_superadmin(self, username = None):
+        """
+        :param username: the username. If None, the username of the currently logged in user is taken
+        :return: True if the user is superadmin, False else
+        """
+        if username is None:
+            username = self.session_username()
+
+        return username in self._superadmins
+
+    def has_admin_rights_on_course(self, course, username = None, include_superadmins = True):
+        """
+        Check if a user can be considered as having admin rights for a course
+        :type course: webapp.custom.courses.FrontendCourse
+        :param username: the username. If None, the username of the currently logged in user is taken
+        :param include_superadmins: Boolean indicating if superadmins should be taken into account
+        :return: True if the user has admin rights, False else
+        """
+        if username is None:
+            username = self.session_username()
+
+        return (username in course.get_admins()) or (include_superadmins and self.user_is_superadmin(username))
+
+    def has_staff_rights_on_course(self, course, username = None, include_superadmins = True):
+        """
+        Check if a user can be considered as having staff rights for a course
+        :type course: webapp.custom.courses.FrontendCourse
+        :param username: the username. If None, the username of the currently logged in user is taken
+        :param include_superadmins: Boolean indicating if superadmins should be taken into account
+        :return: True if the user has staff rights, False else
+        """
+        if username is None:
+            username = self.session_username()
+
+        return (username in course.get_staff()) or (include_superadmins and self.user_is_superadmin(username))

@@ -48,9 +48,6 @@ plugins:
         # register the user "test" with the password "test"
         test: test
 
-# Allow HTML in tasks? can be true, false or "tidy" (to run HTMLTidy)
-allow_html: tidy
-
 # Super admins: list of user names that can do everything in the backend
 superadmins:
   - test

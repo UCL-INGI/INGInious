@@ -26,7 +26,7 @@ class INGIniousPage(object):
     """
 
     def __init__(self, plugin_manager, course_factory, task_factory, submission_manager, batch_manager, user_manager, template_helper, database,
-                 gridfs):
+                 gridfs, default_allowed_file_extensions, default_max_file_size, containers):
         """
         Init the page
         :type plugin_manager: common_frontend.plugin_manager.PluginManager
@@ -38,6 +38,9 @@ class INGIniousPage(object):
         :type template_helper: webapp.template_helper.TemplateHelper
         :type database: pymongo.database.Database
         :type gridfs: gridfs.GridFS
+        :type default_allowed_file_extensions: list(str)
+        :type default_max_file_size: int
+        :type containers: list(str)
         """
         self.plugin_manager = plugin_manager
         self.course_factory = course_factory
@@ -48,6 +51,9 @@ class INGIniousPage(object):
         self.template_helper = template_helper
         self.database = database
         self.gridfs = gridfs
+        self.default_allowed_file_extensions = default_allowed_file_extensions
+        self.default_max_file_size = default_max_file_size
+        self.containers = containers
 
 
 def _webpy_fake_class_creator(inginious_page_cls, *args, **kwargs):
