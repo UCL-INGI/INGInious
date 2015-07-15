@@ -93,6 +93,15 @@ class WatchDogProxy(PatternMatchingEventHandler, object):
     def on_modified(self, event):
         self.process(event)
 
+
+def setDirectoryRights(path):
+    os.chmod(path, 0o777)
+    for root, dirs, files in os.walk(path):
+        for d in dirs:
+            os.chmod(os.path.join(root, d), 0o777)
+        for f in files:
+            os.chmod(os.path.join(root, f), 0o777)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("task", help="Path to the task directory to test")
@@ -119,6 +128,7 @@ if __name__ == "__main__":
     shutil.copytree(args.task, os.path.join(test_dir, "task"))
     if not os.path.exists(os.path.join(test_dir, "task", "student")):
         os.mkdir(os.path.join(test_dir, "task", "student"))
+    setDirectoryRights(os.path.join(test_dir, "task"))
 
     run_student = open(os.path.join(test_dir, '.internal', 'run_student'), 'w')
     run_student.write('#! /bin/bash\n')
