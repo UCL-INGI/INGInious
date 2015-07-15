@@ -21,10 +21,10 @@
 
 import logging
 import os
-from backend_agent.remote_agent import RemoteAgent
-from common.course_factory import create_factories
-import common.base
 import argparse
+
+from backend.agent.remote_agent import RemoteAgent
+from common.course_factory import create_factories
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

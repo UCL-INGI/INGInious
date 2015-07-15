@@ -29,7 +29,7 @@ import rpyc
 from rpyc.utils.server import ThreadedServer
 
 import common.base
-from backend_agent.simple_agent import SimpleAgent
+from backend.agent.simple_agent import SimpleAgent
 
 
 class RemoteAgent(SimpleAgent):
