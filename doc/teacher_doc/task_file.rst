@@ -15,6 +15,7 @@ Inside a course folder (see `Creating a new course`) tasks must have
     context: |-
         The context of this task. Explain here what the students have to do.
     order: 1
+    groups: false
     name: The complete name of this task
     accessible: true
     problems:
@@ -72,6 +73,9 @@ Inside a course folder (see `Creating a new course`) tasks must have
 -   *environment* is the name of the Docker container in which the grading code will run.
     This field is only needed if there is code to correct; a multiple-choice question does
     not need it. This environment will be used by default for the student containers.
+
+-   *groups* allows to indicate if the submission is to be done individually or per groups.
+    This field is only needed and taken into account for group-managed courses (see Group work).
 
 .. [#] There are some options about using HTML instead of restructuredText, but they
        are purposely not documented :-)
