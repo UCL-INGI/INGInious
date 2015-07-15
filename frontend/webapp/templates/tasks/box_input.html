@@ -1,0 +1,36 @@
+$def with (inputId,type,maxChars)
+
+$# Copyright (c) 2014-2015 Université Catholique de Louvain.
+$#
+$# This file is part of INGInious.
+$#
+$# INGInious is free software: you can redistribute it and/or modify
+$# it under the terms of the GNU Affero General Public License as published
+$# by the Free Software Foundation, either version 3 of the License, or
+$# (at your option) any later version.
+$#
+$# INGInious is distributed in the hope that it will be useful,
+$# but WITHOUT ANY WARRANTY; without even the implied warranty of
+$# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+$# GNU Affero General Public License for more details.
+$#
+$# You should have received a copy of the GNU Affero General Public
+$# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
+
+<input
+    $if type== "text":
+        type="text"
+    $elif type == "integer":
+        type="number"
+    $elif type == "decimal":
+        type="number"
+    name="$inputId"
+    value=""
+    $if "/" in inputId:
+        class="monospace form-control form-inline"
+    $else:
+        class="monospace form-control"
+    $if maxChars != 0:
+        maxlength="$maxChars"
+        style="width:${maxChars+1}em"
+/>
