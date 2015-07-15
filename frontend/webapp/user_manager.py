@@ -292,7 +292,7 @@ class UserManager(object):
 
         user_tasks = [taskid for taskid, task in tasks.iteritems() if task.get_accessible_time().after_start()]
 
-        retval = {}
+        retval = {username: None for username in usernames}
         for result in data:
             result["total_tasks"] = len(user_tasks)
             result["task_succeeded"] = len(set(result["task_succeeded"]).intersection(user_tasks))
