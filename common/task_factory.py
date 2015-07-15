@@ -24,7 +24,7 @@ from common.tasks import Task
 from common.base import id_checker
 from common.task_file_readers.yaml_reader import TaskYAMLFileReader
 from common.exceptions import InvalidNameException, TaskNotFoundException, TaskUnreadableException, TaskReaderNotFoundException
-
+import codecs
 
 class TaskFactory(object):
     """ Load courses from disk """
@@ -63,7 +63,7 @@ class TaskFactory(object):
             raise InvalidNameException("Task with invalid name: " + taskid)
         path_to_descriptor, descriptor_ext, descriptor_manager = self._get_task_descriptor_info(courseid, taskid)
         try:
-            with open(path_to_descriptor, 'r') as fd:
+            with codecs.open(path_to_descriptor, 'r', 'utf-8') as fd:
                 task_content = descriptor_manager.load(fd.read())
         except Exception as e:
             raise TaskUnreadableException(str(e))
@@ -119,7 +119,7 @@ class TaskFactory(object):
             raise TaskReaderNotFoundException()
 
         try:
-            with open(path_to_descriptor, 'w') as fd:
+            with codecs.open(path_to_descriptor, 'w', 'utf-8') as fd:
                 fd.write(descriptor_manager.dump(content))
         except:
             raise TaskNotFoundException()
@@ -216,7 +216,7 @@ class TaskFactory(object):
         """
         path_to_descriptor, descriptor_ext, descriptor_reader = self._get_task_descriptor_info(course.get_id(), taskid)
         try:
-            with open(path_to_descriptor, 'r') as fd:
+            with codecs.open(path_to_descriptor, 'r', 'utf-8') as fd:
                 task_content = descriptor_reader.load(fd.read())
         except Exception as e:
             raise TaskUnreadableException(str(e))
