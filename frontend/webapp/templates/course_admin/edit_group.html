@@ -73,7 +73,7 @@ $elif post:
                     <select type="text" class="form-control" id="student_username" name="student_username">
                         $for student in course_stud_list:
                             $if student not in group["users"]:
-                                <option value="$student">$student ($($user_manager.get_user_realname(student)))</option>
+                                <option value="$student">$student ($user_manager.get_user_realname(student))</option>
                     </select>
                 </div>
                 <div class="col-xs-12 col-md-4">
