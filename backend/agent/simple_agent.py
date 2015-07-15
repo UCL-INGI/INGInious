@@ -63,6 +63,9 @@ class SimpleAgent(object):
         except OSError:
             pass
 
+        # Assert that the folders are *really* empty
+        self._force_directory_empty(tmp_dir)
+
         self.logger.debug("Start cgroup helper")
         self._timeout_watcher = CGroupTimeoutWatcher()
         self._memory_watcher = CGroupMemoryWatcher()
@@ -72,6 +75,20 @@ class SimpleAgent(object):
         # Init the internal job count, used to name the directories
         self._internal_job_count_lock = threading.Lock()
         self._internal_job_count = 0
+
+    def _force_directory_empty(self, directory):
+        """ Call Docker to empty directories that are still owned by old containers """
+        docker_connection = docker.Client(**kwargs_from_env())
+        response = docker_connection.create_container(
+            "centos",
+            volumes={'/todel': {}},
+            network_disabled=True,
+            command="/bin/bash -c 'rm -Rf /todel/*'"
+        )
+        container_id = response["Id"]
+        docker_connection.start(container_id, binds={os.path.abspath(directory): {'ro': False, 'bind': '/todel'}})
+        docker_connection.wait(container_id)
+        thread.start_new_thread(docker_connection.remove_container, (container_id, True, False, True))
 
     def _get_new_internal_job_id(self):
         """ Get a new internal job id """
