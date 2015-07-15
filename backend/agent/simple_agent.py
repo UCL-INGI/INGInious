@@ -401,8 +401,7 @@ class SimpleAgent(object):
                 stdout = str(docker_connection.logs(container_id, stdout=True, stderr=False))
                 result = json.loads(stdout)
             except Exception as e:
-                print e
-                self.logger.warning("Cannot get back stdout of container %s!", container_id)
+                self.logger.warning("Cannot get back stdout of container %s! (%s)", container_id, str(e))
                 result = {'result': 'crash', 'text': 'The grader did not return a readable output'}
 
         # Close RPyC server
@@ -450,7 +449,8 @@ class SimpleAgent(object):
                 network_disabled=True,
                 volumes={'/task/student': {}},
                 command=command,
-                working_dir=working_dir
+                working_dir=working_dir,
+                user="4242"
             )
             container_id = response["Id"]
 
