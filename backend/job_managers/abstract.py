@@ -22,11 +22,9 @@ import signal
 import time
 import uuid
 from abc import abstractmethod
-import tempfile
-import tarfile
-from backend.hook_manager import HookManager
-import StringIO
-import os
+
+from common.hook_manager import HookManager
+
 
 def _init_manager():
     """ Makes the manager ignore SIGINT """

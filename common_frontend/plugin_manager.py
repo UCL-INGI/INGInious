@@ -19,7 +19,7 @@
 """ Plugin Manager """
 import importlib
 
-from backend.hook_manager import HookManager
+from common.hook_manager import HookManager
 
 class PluginManagerNotLoadedException(Exception):
     pass

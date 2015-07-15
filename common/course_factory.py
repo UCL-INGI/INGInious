@@ -22,6 +22,7 @@ from common.courses import Course
 from common.base import id_checker, load_json_or_yaml, write_json_or_yaml
 from common.task_factory import TaskFactory
 from common.tasks import Task
+from common.hook_manager import HookManager
 import os
 from common.exceptions import InvalidNameException, CourseNotFoundException, CourseUnreadableException
 
@@ -136,14 +137,17 @@ class CourseFactory(object):
             raise CourseUnreadableException(str(e))
         self._cache[courseid] = (self._course_class(courseid, course_descriptor, self._task_factory), os.stat(path_to_descriptor).st_mtime)
 
-def create_factories(task_directory, hook_manager, course_class=Course, task_class=Task):
+def create_factories(task_directory, hook_manager = None, course_class=Course, task_class=Task):
     """
     Shorthand for creating Factories
     :param task_directory:
-    :param hook_manager:
+    :param hook_manager: an Hook Manager instance. If None, a new Hook Manager is created
     :param course_class:
     :param task_class:
     :return: a tuple with two objects: the first being of type CourseFactory, the second of type TaskFactory
     """
+    if hook_manager is None:
+        hook_manager = HookManager()
+
     task_factory = TaskFactory(task_directory, hook_manager, task_class)
     return CourseFactory(task_directory, task_factory, hook_manager, course_class), task_factory

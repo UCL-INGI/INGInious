@@ -18,8 +18,7 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 
 from backend.tests.TestJobManager import TestLocalJobManager
-from common.courses import Course
-from backend.hook_manager import HookManager
+from common.hook_manager import HookManager
 
 
 class TestHook(TestLocalJobManager):
