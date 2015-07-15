@@ -20,6 +20,7 @@
 from common.base import id_checker
 from common.tasks_problems import CodeProblem, CodeSingleLineProblem, MultipleChoiceProblem, MatchProblem, CodeFileProblem
 
+
 class Task(object):
     """ Contains the data for a task """
 

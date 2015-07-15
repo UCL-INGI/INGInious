@@ -18,11 +18,13 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Factory for loading tasks from disk """
 
+import os
+
 from common.tasks import Task
 from common.base import id_checker
 from common.task_file_readers.yaml_reader import TaskYAMLFileReader
-import os
 from common.exceptions import InvalidNameException, TaskNotFoundException, TaskUnreadableException, TaskReaderNotFoundException
+
 
 class TaskFactory(object):
     """ Load courses from disk """

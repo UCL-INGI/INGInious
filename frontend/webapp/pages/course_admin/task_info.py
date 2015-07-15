@@ -22,6 +22,7 @@ import web
 
 from frontend.webapp.pages.course_admin.utils import make_csv, INGIniousAdminPage
 
+
 class CourseTaskInfoPage(INGIniousAdminPage):
     """ List informations about a task """
 
@@ -44,11 +45,11 @@ class CourseTaskInfoPage(INGIniousAdminPage):
         users = list(self.database.users.find({"_id": {"$in": user_list}}).sort("realname"))
 
         individual_results = list(self.database.user_tasks.find({"courseid": course.get_id(), "taskid": task.get_id(),
-                                                  "username": {"$in": user_list}}))
+                                                                 "username": {"$in": user_list}}))
 
         individual_data = OrderedDict([(user["_id"], {"username": user["_id"], "realname": user["realname"], "email": user["email"],
-                                        "url": self.individual_submission_url_generator(course, task, user["_id"]),
-                                        "tried":0, "grade": 0, "status": "notviewed"}) for user in users])
+                                                      "url": self.individual_submission_url_generator(course, task, user["_id"]),
+                                                      "tried": 0, "grade": 0, "status": "notviewed"}) for user in users])
 
         for user in individual_results:
             individual_data[user["username"]]["tried"] = user["tried"]
@@ -82,9 +83,9 @@ class CourseTaskInfoPage(INGIniousAdminPage):
                 ]))
 
             group_data = OrderedDict([(group['_id'], {"_id": group['_id'], "description": group['description'],
-                                            "url": self.group_submission_url_generator(course, task, group),
-                                            "tried":0, "grade": 0, "status": "notviewed",
-                                            "tutors": group["tutors"]}) for group in self.user_manager.get_course_groups(course)])
+                                                      "url": self.group_submission_url_generator(course, task, group),
+                                                      "tried": 0, "grade": 0, "status": "notviewed",
+                                                      "tutors": group["tutors"]}) for group in self.user_manager.get_course_groups(course)])
 
             for group in group_results:
                 if group['_id'] is not None:

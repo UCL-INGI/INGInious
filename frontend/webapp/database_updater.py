@@ -19,6 +19,7 @@
 """ Updates the database """
 import pymongo
 
+
 def update_database(database, gridfs, course_factory, user_manager):
     """
     Checks the database version and update the db if necessary
@@ -40,7 +41,7 @@ def update_database(database, gridfs, course_factory, user_manager):
         database.submissions.ensure_index([("submitted_on", pymongo.DESCENDING)])  # sort speed
 
         database.user_tasks.ensure_index([("username", pymongo.ASCENDING), ("courseid", pymongo.ASCENDING), ("taskid", pymongo.ASCENDING)],
-                                               unique=True)
+                                         unique=True)
         database.user_tasks.ensure_index([("username", pymongo.ASCENDING), ("courseid", pymongo.ASCENDING)])
         database.user_tasks.ensure_index([("courseid", pymongo.ASCENDING), ("taskid", pymongo.ASCENDING)])
         database.user_tasks.ensure_index([("courseid", pymongo.ASCENDING)])

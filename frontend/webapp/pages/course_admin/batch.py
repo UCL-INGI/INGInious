@@ -36,7 +36,7 @@ class CourseBatchOperations(INGIniousAdminPage):
         course, _ = self.get_course_and_check_rights(courseid)
 
         web_input = web.input()
-        if "drop" in web_input: # delete an old batch job
+        if "drop" in web_input:  # delete an old batch job
             try:
                 self.batch_manager.drop_batch_job(web_input["drop"])
             except:
@@ -52,12 +52,14 @@ class CourseBatchOperations(INGIniousAdminPage):
             else:
                 ne["status"] = "waiting"
             operations.append(ne)
-        operations = sorted(operations, key= (lambda o: o["submitted_on"]), reverse=True)
+        operations = sorted(operations, key=(lambda o: o["submitted_on"]), reverse=True)
 
         return self.template_helper.get_renderer().course_admin.batch(course, operations, self.batch_manager.get_all_batch_containers_metadata())
 
+
 class CourseBatchJobCreate(INGIniousAdminPage):
     """ Creates new batch jobs """
+
     def GET(self, courseid, container_name):
         """ GET request """
         course, container_title, container_description, container_args = self.get_basic_info(courseid, container_name)
@@ -117,7 +119,9 @@ class CourseBatchJobCreate(INGIniousAdminPage):
         if "course" in container_args and container_args["course"]["type"] == "file":
             del container_args["course"]
 
-        return self.template_helper.get_renderer().course_admin.batch_create(course, container_name, container_title, container_description, container_args, error)
+        return self.template_helper.get_renderer().course_admin.batch_create(course, container_name, container_title, container_description,
+                                                                             container_args, error)
+
 
 class CourseBatchJobDownload(INGIniousAdminPage):
     """ Get the file of a batch job """
@@ -136,7 +140,7 @@ class CourseBatchJobDownload(INGIniousAdminPage):
 
         f = self.gridfs.get(batch_job["result"]["file"])
 
-        #hack for index.html:
+        # hack for index.html:
         if path == "/":
             path = "/index.html"
 
@@ -145,7 +149,7 @@ class CourseBatchJobDownload(INGIniousAdminPage):
             web.header('Content-Disposition', 'attachment; filename="' + bid + '.tar.gz"', unique=True)
             return f.read()
         else:
-            path = path[1:] #remove the first /
+            path = path[1:]  # remove the first /
             if path.endswith('/'):  # remove the last / if it exists
                 path = path[0:-1]
 
@@ -155,22 +159,23 @@ class CourseBatchJobDownload(INGIniousAdminPage):
             except:
                 raise web.notfound()
 
-            if file_info.isdir(): #tar.gz the dir and return it
-               tmp = tempfile.TemporaryFile()
-               new_tar = tarfile.open(fileobj=tmp,mode='w:gz')
-               for m in tar.getmembers():
-                   new_tar.addfile(m, tar.extractfile(m))
-               new_tar.close()
-               tmp.seek(0)
-               return tmp
+            if file_info.isdir():  # tar.gz the dir and return it
+                tmp = tempfile.TemporaryFile()
+                new_tar = tarfile.open(fileobj=tmp, mode='w:gz')
+                for m in tar.getmembers():
+                    new_tar.addfile(m, tar.extractfile(m))
+                new_tar.close()
+                tmp.seek(0)
+                return tmp
             elif not file_info.isfile():
                 raise web.notfound()
-            else: #guess a mime type and send it to the browser
+            else:  # guess a mime type and send it to the browser
                 to_dl = tar.extractfile(path).read()
                 mimetypes.init()
                 mime_type = mimetypes.guess_type(urllib.pathname2url(path))
                 web.header('Content-Type', mime_type[0])
                 return to_dl
+
 
 class CourseBatchJobSummary(INGIniousAdminPage):
     """ Get the summary of a batch job """
@@ -206,13 +211,13 @@ class CourseBatchJobSummary(INGIniousAdminPage):
         if "result" in batch_job:
             done = True
             retval = batch_job["result"]["retval"]
-            stdout = batch_job["result"].get("stdout","")
+            stdout = batch_job["result"].get("stdout", "")
             stderr = batch_job["result"].get("stderr", "")
 
             if "file" in batch_job["result"]:
                 f = self.gridfs.get(batch_job["result"]["file"])
                 try:
-                    tar = tarfile.open(fileobj=f,mode='r:gz')
+                    tar = tarfile.open(fileobj=f, mode='r:gz')
                     file_list = set(tar.getnames()) - set([''])
                     tar.close()
                 except:

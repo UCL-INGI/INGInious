@@ -30,7 +30,6 @@ from docker.utils import kwargs_from_env
 from common.course_factory import create_factories
 
 from backend_agent.remote_agent import RemoteAgent
-import common.base
 
 if __name__ == "__main__":
     course_factory, task_factory = create_factories("./tasks")

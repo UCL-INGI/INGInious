@@ -23,6 +23,7 @@ import copy
 
 from common.base import directory_compare_from_hash, directory_content_with_hash, hash_file, id_checker, load_json_or_yaml, write_json_or_yaml
 
+
 class TestIdChecker(object):
     """ Test the id checker """
 

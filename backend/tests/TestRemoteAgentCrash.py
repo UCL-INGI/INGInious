@@ -21,7 +21,6 @@
 import time
 
 from backend.tests.TestJobManager import TestWithFakeRemoteAgent
-from common.courses import Course
 
 
 class TestRemoteAgentJobCrash(TestWithFakeRemoteAgent):

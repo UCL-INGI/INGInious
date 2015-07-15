@@ -18,6 +18,7 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Some type of exceptions used by parts of INGInious """
 
+
 class InvalidNameException(Exception):
     pass
 
@@ -36,6 +37,7 @@ class CourseUnreadableException(Exception):
 
 class TaskUnreadableException(Exception):
     pass
+
 
 class TaskReaderNotFoundException(Exception):
     pass

@@ -80,6 +80,7 @@ def needs_encode(obj):
                    for (k, v) in obj.iteritems())
     return True
 
+
 #: field name used for id
 _id = '_id'
 #: field name used for accessed time

@@ -18,12 +18,13 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Factory for loading courses from disk """
 
+import os
+
 from common.courses import Course
 from common.base import id_checker, load_json_or_yaml, write_json_or_yaml
 from common.task_factory import TaskFactory
 from common.tasks import Task
 from common.hook_manager import HookManager
-import os
 from common.exceptions import InvalidNameException, CourseNotFoundException, CourseUnreadableException
 
 
@@ -130,14 +131,15 @@ class CourseFactory(object):
         :param courseid: the (valid) course id of the course
         :raise InvalidNameException, CourseNotFoundException, CourseUnreadableException
         """
-        path_to_descriptor= self._get_course_descriptor_path(courseid)
+        path_to_descriptor = self._get_course_descriptor_path(courseid)
         try:
             course_descriptor = load_json_or_yaml(path_to_descriptor)
         except Exception as e:
             raise CourseUnreadableException(str(e))
         self._cache[courseid] = (self._course_class(courseid, course_descriptor, self._task_factory), os.stat(path_to_descriptor).st_mtime)
 
-def create_factories(task_directory, hook_manager = None, course_class=Course, task_class=Task):
+
+def create_factories(task_directory, hook_manager=None, course_class=Course, task_class=Task):
     """
     Shorthand for creating Factories
     :param task_directory:

@@ -20,11 +20,14 @@
 from abc import ABCMeta, abstractmethod
 from datetime import datetime
 
+
 class AuthInvalidInputException(Exception):
     pass
 
+
 class AuthInvalidMethodException(Exception):
     pass
+
 
 class AuthMethod(object):
     __metaclass__ = ABCMeta
@@ -78,6 +81,7 @@ class AuthMethod(object):
             {username: None} else
         """
         return None
+
 
 class UserManager(object):
     def __init__(self, session_dict, database, superadmins):
@@ -369,7 +373,7 @@ class UserManager(object):
                                                        "succeeded": False},
                                                       {"$set": {"succeeded": True}})
 
-        # Update the grade if needed
+            # Update the grade if needed
             self._database.user_tasks.find_and_modify({"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"],
                                                        "grade": {"$lt": job["grade"]}}, {"$set": {"grade": job["grade"]}})
 
@@ -434,21 +438,21 @@ class UserManager(object):
             username = self.session_username()
 
         return (self.course_is_open_to_user(task.get_course(), username) and task._accessible.after_start()) or \
-                self.has_staff_rights_on_course(task.get_course(), username)
+               self.has_staff_rights_on_course(task.get_course(), username)
 
     def task_can_user_submit(self, task, username=None):
         """ returns true if the user can submit his work for this task """
         if username is None:
             username = self.session_username()
 
-        return (self.course_is_open_to_user(task.get_course(),username) and task._accessible.is_open()) or self.has_staff_rights_on_course(
+        return (self.course_is_open_to_user(task.get_course(), username) and task._accessible.is_open()) or self.has_staff_rights_on_course(
             task.get_course(), username)
 
     def get_course_groups(self, course):
         """ Returns a list of the course groups"""
         return list(self._database.groups.find({"course_id": course.get_id()}).sort("description"))
 
-    def get_course_user_group(self, course, username= None):
+    def get_course_user_group(self, course, username=None):
         """ Returns the group whose username belongs to
         :param course: a Course object
         :param username: The username of the user that we want to register. If None, uses self.session_username()
@@ -483,7 +487,7 @@ class UserManager(object):
         self._database.registration.insert({"username": username, "courseid": course.get_id(), "date": datetime.now()})
         return True
 
-    def course_unregister_user(self, course, username = None):
+    def course_unregister_user(self, course, username=None):
         """
         Unregister a user to the course
         :param course: a Course object
@@ -510,7 +514,7 @@ class UserManager(object):
         return (course._accessible.is_open() and self.course_is_user_registered(course, username, check_group)) or self.has_staff_rights_on_course(
             course, username)
 
-    def course_is_user_registered(self, course, username = None, check_group=True):
+    def course_is_user_registered(self, course, username=None, check_group=True):
         """
         Checks if a user is registered
         :param course: a Course object
@@ -546,7 +550,7 @@ class UserManager(object):
     #             Rights management              #
     ##############################################
 
-    def user_is_superadmin(self, username = None):
+    def user_is_superadmin(self, username=None):
         """
         :param username: the username. If None, the username of the currently logged in user is taken
         :return: True if the user is superadmin, False else
@@ -556,7 +560,7 @@ class UserManager(object):
 
         return username in self._superadmins
 
-    def has_admin_rights_on_course(self, course, username = None, include_superadmins = True):
+    def has_admin_rights_on_course(self, course, username=None, include_superadmins=True):
         """
         Check if a user can be considered as having admin rights for a course
         :type course: webapp.custom.courses.FrontendCourse
@@ -569,7 +573,7 @@ class UserManager(object):
 
         return (username in course.get_admins()) or (include_superadmins and self.user_is_superadmin(username))
 
-    def has_staff_rights_on_course(self, course, username = None, include_superadmins = True):
+    def has_staff_rights_on_course(self, course, username=None, include_superadmins=True):
         """
         Check if a user can be considered as having staff rights for a course
         :type course: webapp.custom.courses.FrontendCourse

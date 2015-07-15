@@ -78,13 +78,14 @@ def _webpy_fake_class_creator(inginious_page_cls, *args, **kwargs):
         """
 
         def __getattr__(cls, name):
-            return getattr(obj.__class__,name)
+            return getattr(obj.__class__, name)
 
     class WebPyFakeClass(object):
         """
         A fake class that proxies everything to an object
         """
         __metaclass__ = WebPyFakeMetaClass
+
         def __getattr__(self, name):
             return getattr(obj, name)
 
@@ -95,6 +96,7 @@ class WebPyFakeMapping(object):
     """
         A "fake" mapping class for web.py that init the classes it contains automatically. Allow to avoid global state
     """
+
     def __init__(self, urls, *args, **kwargs):
         """
         :param urls: Basic dict of pattern/classname pairs

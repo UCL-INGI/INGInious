@@ -18,7 +18,9 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Basic dependencies for the webapp """
 import os
+
 import web
+
 
 class TemplateHelper(object):
     """ Class accessible from templates that calls function defined in the Python part of the code. Singleton class. """

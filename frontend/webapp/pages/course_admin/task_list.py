@@ -22,6 +22,7 @@ import web
 
 from frontend.webapp.pages.course_admin.utils import make_csv, INGIniousAdminPage
 
+
 class CourseTaskListPage(INGIniousAdminPage):
     """ List informations about all tasks """
 

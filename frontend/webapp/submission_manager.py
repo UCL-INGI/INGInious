@@ -84,7 +84,6 @@ class SubmissionManager(object):
 
         self._plugin_manager.call_hook("submission_done", submission=submission, job=job)
 
-
     def add_job(self, task, inputdata, debug=False):
         """ Add a job in the queue and returns a submission id.
             task is a Task instance and inputdata is the input as a dictionary
@@ -118,7 +117,6 @@ class SubmissionManager(object):
 
         return submissionid
 
-
     def get_input_from_submission(self, submission, only_input=False):
         """
             Get the input of a submission. If only_input is False, returns the full submissions with a dictionnary object at the key "input".
@@ -137,18 +135,15 @@ class SubmissionManager(object):
                 submission["input"] = inp
                 return submission
 
-
     def is_running(self, submissionid, user_check=True):
         """ Tells if a submission is running/in queue """
         submission = self.get_submission(submissionid, user_check)
         return submission["status"] == "waiting"
 
-
     def is_done(self, submissionid, user_check=True):
         """ Tells if a submission is done and its result is available """
         submission = self.get_submission(submissionid, user_check)
         return submission["status"] == "done" or submission["status"] == "error"
-
 
     def user_is_submission_owner(self, submission):
         """ Returns true if the current user is the owner of this jobid, false else """

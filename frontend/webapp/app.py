@@ -83,6 +83,7 @@ urls_maintenance = (
     '/.*', 'webapp.pages.maintenance.MaintenancePage'
 )
 
+
 def _load_configuration(config_file):
     """
     :param config_file:
@@ -193,6 +194,7 @@ def runfcgi(func, addr=('localhost', 8000)):
     import flup.server.fcgi as flups
 
     return flups.WSGIServer(func, multiplexed=True, bindAddress=addr, debug=False).run()
+
 
 def start_app(config_file, hostname="localhost", port=8080, app=None):
     """

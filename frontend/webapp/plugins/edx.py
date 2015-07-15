@@ -24,6 +24,7 @@ import web
 from backend.helpers.job_manager_sync import JobManagerSync
 from frontend.webapp.pages.utils import INGIniousPage
 
+
 def init(plugin_manager, course_factory, job_manager, config):
     """
         Init the edx plugin.

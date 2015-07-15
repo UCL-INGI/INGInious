@@ -126,7 +126,7 @@ class ContestScoreboard(INGIniousPage):
                         status["tries"] += 1
                         status["time"] = submission['submitted_on']
                         status["score"] = ((submission['submitted_on'] + (
-                        timedelta(minutes=contest_data["penalty"]) * (status["tries"] - 1))) - start).total_seconds() / 60
+                            timedelta(minutes=contest_data["penalty"]) * (status["tries"] - 1))) - start).total_seconds() / 60
                     elif submission['result'] == "failed":
                         status["status"] = "WA"
                         status["tries"] += 1
@@ -165,7 +165,7 @@ class ContestScoreboard(INGIniousPage):
                 results[user]["rank"] = current_rank
                 results[user]["displayed_rank"] = ""
 
-        return self.template_helper.get_custom_template_renderer('webapp/plugins/contests', '../../templates/layout').\
+        return self.template_helper.get_custom_template_renderer('webapp/plugins/contests', '../../templates/layout'). \
             scoreboard(course, start, end, blackout, tasks, results, activity)
 
 
@@ -176,7 +176,7 @@ class ContestAdmin(INGIniousAdminPage):
         """ GET request: simply display the form """
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         contest_data = get_contest_data(course)
-        return self.template_helper.get_custom_template_renderer('webapp/plugins/contests', '../../templates/layout').\
+        return self.template_helper.get_custom_template_renderer('webapp/plugins/contests', '../../templates/layout'). \
             admin(course, contest_data, None, False)
 
     def POST(self, courseid):
@@ -223,10 +223,10 @@ class ContestAdmin(INGIniousAdminPage):
 
         if len(errors) == 0:
             save_contest_data(course, contest_data)
-            return self.template_helper.get_custom_template_renderer('webapp/plugins/contests', '../../templates/layout').\
+            return self.template_helper.get_custom_template_renderer('webapp/plugins/contests', '../../templates/layout'). \
                 admin(course, contest_data, None, True)
         else:
-            return self.template_helper.get_custom_template_renderer('webapp/plugins/contests', '../../templates/layout').\
+            return self.template_helper.get_custom_template_renderer('webapp/plugins/contests', '../../templates/layout'). \
                 admin(course, contest_data, errors, False)
 
 

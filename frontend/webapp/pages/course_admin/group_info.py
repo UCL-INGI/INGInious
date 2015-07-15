@@ -36,7 +36,7 @@ class CourseGroupInfoPage(INGIniousAdminPage):
 
     def submission_url_generator(self, course, groupid, taskid):
         """ Generates a submission url """
-        return "/admin/" + course.get_id() + "/download?format=taskid%2Fgroup&tasks="+taskid+"&groups="+str(groupid)
+        return "/admin/" + course.get_id() + "/download?format=taskid%2Fgroup&tasks=" + taskid + "&groups=" + str(groupid)
 
     def page(self, course, groupid):
         """ Get all data and display the page """
@@ -62,8 +62,8 @@ class CourseGroupInfoPage(INGIniousAdminPage):
 
         tasks = course.get_tasks()
         result = dict([(taskid, {"taskid": taskid, "name": tasks[taskid].get_name(), "tried": 0, "status": "notviewed",
-                              "grade": 0, "url": self.submission_url_generator(course, groupid, taskid)}) for taskid in tasks])
-        
+                                 "grade": 0, "url": self.submission_url_generator(course, groupid, taskid)}) for taskid in tasks])
+
         for taskdata in data:
             if taskdata["_id"] in result:
                 result[taskdata["_id"]]["tried"] = taskdata["tried"]

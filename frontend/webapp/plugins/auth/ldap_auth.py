@@ -114,6 +114,7 @@ class LdapAuthMethod(AuthMethod):
 
         return retval
 
+
 def init(plugin_manager, _, _2, conf):
     """
         Allow to connect through a LDAP service

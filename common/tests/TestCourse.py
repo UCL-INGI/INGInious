@@ -20,9 +20,8 @@ import os
 import tempfile
 import shutil
 
-import common.base
-import common.courses
 from common.course_factory import create_factories
+
 
 class TestCourse(object):
     def setUp(self):

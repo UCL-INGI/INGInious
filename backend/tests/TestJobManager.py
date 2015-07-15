@@ -25,7 +25,6 @@ import time
 from backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
 from backend.job_managers.local import LocalJobManager
 from common.course_factory import create_factories
-import common.base
 from backend.tests.FakeAgents import get_fake_local_agent, FakeRemoteAgent
 
 

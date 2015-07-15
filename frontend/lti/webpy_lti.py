@@ -17,4 +17,4 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Tools for using PyLTI with web.py. Mostly taken from the implementation in pylti.flask """
-#TODO
+# TODO

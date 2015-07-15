@@ -20,6 +20,7 @@
 
 from frontend.webapp.pages.api._api_page import APIAuthenticatedPage, APINotFound
 
+
 class APICourses(APIAuthenticatedPage):
     """
         Endpoint /api/v0/courses(/[a-zA-Z_\-\.0-9]+)?

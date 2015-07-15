@@ -21,6 +21,7 @@ import web
 
 from frontend.webapp.pages.utils import INGIniousPage
 
+
 class CoursePage(INGIniousPage):
     """ Course page """
 
@@ -32,11 +33,11 @@ class CoursePage(INGIniousPage):
                 course = self.course_factory.get_course(courseid)
                 registration_uncomplete = not self.user_manager.course_is_open_to_user(course)
                 if registration_uncomplete and course.can_students_choose_group():
-                    raise web.seeother("/group/"+courseid)
+                    raise web.seeother("/group/" + courseid)
                 elif registration_uncomplete:
                     return self.template_helper.get_renderer().course_unavailable()
                 else:
-                    last_submissions = self.submission_manager.get_user_last_submissions_for_course(course,one_per_task=True)
+                    last_submissions = self.submission_manager.get_user_last_submissions_for_course(course, one_per_task=True)
                     except_free_last_submissions = []
                     for submission in last_submissions:
                         try:

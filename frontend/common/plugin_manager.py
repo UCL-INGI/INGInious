@@ -21,8 +21,10 @@ import importlib
 
 from common.hook_manager import HookManager
 
+
 class PluginManagerNotLoadedException(Exception):
     pass
+
 
 class PluginManager(HookManager):
     """ Registers an manage plugins. The init method inits only the Hook Manager; you have to call the method load() to start the plugins """

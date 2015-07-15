@@ -22,6 +22,7 @@ import web
 
 from frontend.webapp.pages.course_admin.utils import make_csv, INGIniousAdminPage
 
+
 class CourseGroupListPage(INGIniousAdminPage):
     """ Course administration page: list of groups """
 
@@ -47,7 +48,7 @@ class CourseGroupListPage(INGIniousAdminPage):
                 error = 'No group description given.'
             else:
                 self.database.groups.insert({"course_id": courseid, "users": [], "tutors": [], "size": 2,
-                                              "description": data['group_description']})
+                                             "description": data['group_description']})
         except:
             error = 'User returned an invalid form.'
 

@@ -23,13 +23,14 @@ import os.path
 from shutil import rmtree
 import tarfile
 import tempfile
+import threading
 
 import rpyc
 from rpyc.utils.server import ThreadedServer
 
 import common.base
 from backend_agent.simple_agent import SimpleAgent
-import threading
+
 
 class RemoteAgent(SimpleAgent):
     """

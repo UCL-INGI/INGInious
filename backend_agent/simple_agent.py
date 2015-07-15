@@ -31,7 +31,6 @@ import re
 import docker
 from docker.utils import kwargs_from_env
 import rpyc
-from common.course_factory import create_factories
 
 from backend_agent._rpyc_unix_server import UnixSocketServer
 
@@ -126,19 +125,22 @@ class SimpleAgent(object):
         for label in data:
             match = re.match(r"^org\.inginious\.batch\.args\.([a-zA-Z0-9\-_]+)\.([a-zA-Z0-9\-_]+)$", label)
             if match and match.group(1) in args:
-                if match.group(2) in ["name","description"]:
+                if match.group(2) in ["name", "description"]:
                     args[match.group(1)][match.group(2)] = data[label]
                 elif match.group(2) == "path":
-                    if re.match(r"^[a-zA-Z\-_\./]+$",data[label]) and ".." not in data[label]:
+                    if re.match(r"^[a-zA-Z\-_\./]+$", data[label]) and ".." not in data[label]:
                         args[match.group(1)]["path"] = data[label]
                 else:
                     args[match.group(1)][match.group(2)] = data[label]
 
         # Add all the unknown metadata
         for key in args:
-            if "name" not in args[key]: args[key]["name"] = key
-            if "path" not in args[key]: args[key]["path"] = key
-            if "description" not in args[key]: args[key]["description"] = ""
+            if "name" not in args[key]:
+                args[key]["name"] = key
+            if "path" not in args[key]:
+                args[key]["path"] = key
+            if "description" not in args[key]:
+                args[key]["description"] = ""
 
         return (title, description, args)
 
@@ -195,7 +197,7 @@ class SimpleAgent(object):
                 if batch_args[key]["type"] == "text":
                     if not isinstance(input_data[key], basestring):
                         raise Exception("Invalid value for inputdata: the value for key {} should be a string".format(key))
-                    open(os.path.join(input_path, batch_args[key]["path"]),'w').write(input_data[key])
+                    open(os.path.join(input_path, batch_args[key]["path"]), 'w').write(input_data[key])
                 elif batch_args[key]["type"] == "file":
                     if isinstance(input_data[key], basestring):
                         raise Exception("Invalid value for inputdata: the value for key {} should be a file object".format(key))

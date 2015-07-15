@@ -25,6 +25,7 @@ import web
 from frontend.webapp.pages.course_admin.utils import INGIniousAdminPage
 from common.base import id_checker
 
+
 class CourseDownloadSubmissions(INGIniousAdminPage):
     """ Batch operation management """
 
@@ -58,15 +59,15 @@ class CourseDownloadSubmissions(INGIniousAdminPage):
         if user_input.filter_type == "users":
             self._validate_list(user_input.users)
             submissions = list(self.database.submissions.find({"username": {"$in": user_input.users},
-                                                                "taskid": {"$in": user_input.tasks},
-                                                                "courseid": course.get_id(),
-                                                                "status": {"$in": ["done", "error"]}}))
+                                                               "taskid": {"$in": user_input.tasks},
+                                                               "courseid": course.get_id(),
+                                                               "status": {"$in": ["done", "error"]}}))
         else:
             self._validate_list(user_input.groups)
             submissions = list(self.database.submissions.find({"groupid": {"$in": [ObjectId(gid) for gid in user_input.groups]},
-                                                                "taskid": {"$in": user_input.tasks},
-                                                                "courseid": course.get_id(),
-                                                                "status": {"$in": ["done", "error"]}}))
+                                                               "taskid": {"$in": user_input.tasks},
+                                                               "courseid": course.get_id(),
+                                                               "status": {"$in": ["done", "error"]}}))
         if user_input.type == "single":
             submissions = self.submission_manager.keep_best_submission(submissions)
 
@@ -82,8 +83,8 @@ class CourseDownloadSubmissions(INGIniousAdminPage):
         # First, check for a particular submission
         if "submission" in user_input:
             submissions = list(self.database.submissions.find({"_id": ObjectId(user_input.submission),
-                                                                "courseid": course.get_id(),
-                                                                "status": {"$in": ["done", "error"]}}))
+                                                               "courseid": course.get_id(),
+                                                               "status": {"$in": ["done", "error"]}}))
             if len(submissions) != 1:
                 raise web.notfound()
 
@@ -129,8 +130,8 @@ class CourseDownloadSubmissions(INGIniousAdminPage):
                 show_groups = True
 
         return self.template_helper.get_renderer().course_admin.download(course,
-                                                                        tasks, user_data, group_data,
-                                                                        tutored_groups, tutored_users,
-                                                                        checked_tasks, checked_users, checked_groups,
-                                                                        self.valid_formats, chosen_format,
-                                                                        show_groups)
+                                                                         tasks, user_data, group_data,
+                                                                         tutored_groups, tutored_users,
+                                                                         checked_tasks, checked_users, checked_groups,
+                                                                         self.valid_formats, chosen_format,
+                                                                         show_groups)

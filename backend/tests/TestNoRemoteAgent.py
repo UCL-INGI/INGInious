@@ -18,7 +18,6 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 
 from backend.tests.TestJobManager import TestRemoteJobManager
-from common.courses import Course
 
 
 class TestNoRemoteAgent(TestRemoteJobManager):

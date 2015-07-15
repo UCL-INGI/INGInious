@@ -22,6 +22,7 @@ import web
 
 from frontend.webapp.pages.api._api_page import APIPage, APIInvalidArguments
 
+
 class APIAuthentication(APIPage):
     """
         Endpoint /api/v0/authentication

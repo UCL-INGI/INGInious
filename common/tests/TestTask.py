@@ -16,13 +16,15 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
+import os
+
 import common.base
 import common.courses
 import common.tasks
 import common.tasks_code_boxes
-import os
 from common.course_factory import create_factories
 from common.exceptions import InvalidNameException, TaskUnreadableException
+
 
 class test_tasks_basic(object):
     def setUp(self):

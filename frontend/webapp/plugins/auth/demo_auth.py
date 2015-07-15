@@ -20,10 +20,12 @@
 
 from frontend.webapp.user_manager import AuthMethod
 
+
 class DemoAuthMethod(AuthMethod):
     """
     An example auth method
     """
+
     def __init__(self, name, users):
         self._name = name
         self._users = users
@@ -57,6 +59,7 @@ class DemoAuthMethod(AuthMethod):
             if username in self._users:
                 retval[username] = (username, "{}@inginious.org".format(username))
         return retval
+
 
 def init(plugin_manager, _, _2, conf):
     """

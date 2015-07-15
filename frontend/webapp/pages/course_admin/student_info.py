@@ -21,6 +21,7 @@ import web
 
 from frontend.webapp.pages.course_admin.utils import make_csv, INGIniousAdminPage
 
+
 class CourseStudentInfoPage(INGIniousAdminPage):
     """ List information about a student """
 

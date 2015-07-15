@@ -27,7 +27,6 @@ import re
 import os
 
 import rpyc
-
 from rpyc import BgServingThread
 
 from backend.job_managers.abstract import AbstractJobManager
@@ -260,10 +259,10 @@ class RemoteManualAgentJobManager(AbstractJobManager):
         agent_id = self._select_agent()
         if agent_id is None:
             self._agent_batch_job_ended(jobid,
-                                         {'retval': -1,
-                                          'stderr': 'There are not any agent available for running this job. '
-                                                  'Please retry later. If this error persists, please contact the course administrator.'},
-                                         None)
+                                        {'retval': -1,
+                                         'stderr': 'There are not any agent available for running this job. '
+                                                   'Please retry later. If this error persists, please contact the course administrator.'},
+                                        None)
             return
 
         try:

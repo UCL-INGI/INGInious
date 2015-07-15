@@ -24,6 +24,7 @@ from bson.objectid import ObjectId
 
 from frontend.webapp.pages.course_admin.utils import make_csv, INGIniousAdminPage
 
+
 class CourseGroupTaskPage(INGIniousAdminPage):
     """ List information about a task done by a student """
 

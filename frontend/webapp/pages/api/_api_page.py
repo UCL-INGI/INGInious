@@ -25,6 +25,7 @@ import web
 import common.custom_yaml as yaml
 from frontend.webapp.pages.utils import INGIniousPage
 
+
 class APIPage(INGIniousPage):
     """ Generic handler for all API pages """
 

@@ -21,6 +21,7 @@ import web
 from frontend.webapp.accessible_time import AccessibleTime
 from frontend.webapp.pages.course_admin.utils import INGIniousAdminPage
 
+
 class CourseSettings(INGIniousAdminPage):
     """ Couse settings """
 

@@ -34,6 +34,7 @@ class BatchManager(object):
     """
         Manages batch jobs. Store them in DB and communicates with the backend to start them.
     """
+
     def __init__(self, job_manager, database, gridfs, submission_manager, user_manager, task_directory, batch_containers, smtp_config):
         self._job_manager = job_manager
         self._database = database
@@ -49,7 +50,7 @@ class BatchManager(object):
         dir_path = os.path.join(self._task_directory, course.get_id())
         tmpfile = tempfile.TemporaryFile()
         tar = tarfile.open(fileobj=tmpfile, mode='w:gz')
-        tar.add(dir_path,"/",True)
+        tar.add(dir_path, "/", True)
         tar.close()
         tmpfile.seek(0)
         return tmpfile
@@ -111,9 +112,7 @@ class BatchManager(object):
                  }
                 )
         """
-        return {container_name:self.get_batch_container_metadata(container_name) for container_name in self._batch_container}
-
-
+        return {container_name: self.get_batch_container_metadata(container_name) for container_name in self._batch_container}
 
     def add_batch_job(self, course, container_name, inputdata, launcher_name=None, send_mail=None):
         """
@@ -185,7 +184,7 @@ class BatchManager(object):
 The batch job you launched on INGInious is done. You can see the results on the "batch operation" page of your course
 administration.""")
             except Exception as e:
-                print "Cannot send mail: "+str(e)
+                print "Cannot send mail: " + str(e)
 
     def get_batch_job_status(self, batch_job_id):
         """ Returns the batch job with id batch_job_id Batch jobs are dicts in the form

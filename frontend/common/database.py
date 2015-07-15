@@ -20,6 +20,7 @@
 from gridfs import GridFS
 from pymongo import MongoClient
 
+
 def new_database_client(options):
     """
     Creates a new MongoClient instance

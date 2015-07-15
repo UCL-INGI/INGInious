@@ -23,6 +23,7 @@ from docutils import core, nodes
 from docutils.writers import html4css1
 import tidylib
 
+
 class _CustomHTMLWriter(html4css1.Writer, object):
     """ A custom HTML writer that fixes some defaults of docutils... """
 
@@ -32,6 +33,7 @@ class _CustomHTMLWriter(html4css1.Writer, object):
 
     class _CustomHTMLTranslator(html4css1.HTMLTranslator, object):
         """ A custom HTML translator """
+
         def visit_literal(self, node):
             """ A custom version of visit_literal that uses the balise <code> instead of <tt>. """
             # special case: "code" role

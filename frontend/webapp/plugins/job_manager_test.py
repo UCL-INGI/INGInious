@@ -19,6 +19,7 @@
 """ JobManagerTest plugin """
 from frontend.webapp.pages.utils import INGIniousPage
 
+
 def init(plugin_manager, _, job_manager, _3):
     """ Init the plugin """
 

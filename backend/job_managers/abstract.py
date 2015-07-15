@@ -294,7 +294,7 @@ class AbstractJobManager(object):
         if set(inputdata.keys()) != set(batch_args.keys()):
             raise Exception("Invalid keys for inputdata")
         for key in batch_args:
-            if batch_args[key]["type"] == "text" and not isinstance(inputdata[key],basestring):
+            if batch_args[key]["type"] == "text" and not isinstance(inputdata[key], basestring):
                 raise Exception("Invalid value for inputdata: the value for key {} should be a string".format(key))
             elif batch_args[key]["type"] == "file" and isinstance(inputdata[key], basestring):
                 raise Exception("Invalid value for inputdata: the value for key {} should be a file object".format(key))

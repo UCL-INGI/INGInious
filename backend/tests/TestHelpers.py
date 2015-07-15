@@ -22,7 +22,6 @@ import time
 from backend.helpers.job_manager_buffer import JobManagerBuffer
 from backend.helpers.job_manager_sync import JobManagerSync
 from backend.tests.TestJobManager import TestLocalJobManager
-from common.courses import Course
 
 
 class TestSync(TestLocalJobManager):

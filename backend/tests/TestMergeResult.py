@@ -19,7 +19,6 @@
 
 from backend.tests.TestJobManager import TestLocalJobManager
 from backend.job_managers.abstract import AbstractJobManager
-from common.courses import Course
 
 
 class TestNotInAgent(TestLocalJobManager):
@@ -29,7 +28,7 @@ class TestNotInAgent(TestLocalJobManager):
 
     def test_ok(self):
         self.was_in = False
-        self.job_manager.new_job(self.course_factory.get_task('test','no_run'), {"problem_id": "1"}, self.default_callback)
+        self.job_manager.new_job(self.course_factory.get_task('test', 'no_run'), {"problem_id": "1"}, self.default_callback)
         self.wait_for_callback()
         assert not self.was_in
 
@@ -82,7 +81,7 @@ class TestAutoMerge(TestLocalJobManager):
 
     def test_run_ok_match_nok(self):
         self.result = {"result": "success"}
-        self.job_manager.new_job(self.course_factory.get_task('test','do_both'), {"problem_1": "1", "problem_2": "0"}, self.default_callback)
+        self.job_manager.new_job(self.course_factory.get_task('test', 'do_both'), {"problem_1": "1", "problem_2": "0"}, self.default_callback)
         result = self.wait_for_callback()
         assert "result" in result and result["result"] == "failed"
 

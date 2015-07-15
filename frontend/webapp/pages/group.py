@@ -44,9 +44,9 @@ class GroupPage(INGIniousPage):
                     try:
                         groupid = web.input()["register_group"]
                         group = self.database.groups.find_one_and_update({"_id": ObjectId(groupid),
-                                                                           "course_id": courseid,
-                                                                           "$where": "this.users.length < this.size"},
-                                                                          {"$push": {"users": self.user_manager.session_username()}})
+                                                                          "course_id": courseid,
+                                                                          "$where": "this.users.length < this.size"},
+                                                                         {"$push": {"users": self.user_manager.session_username()}})
                         if group:
                             raise web.seeother("/course/" + courseid)
                         else:
@@ -65,7 +65,7 @@ class GroupPage(INGIniousPage):
 
                 group = self.user_manager.get_course_user_group(course)
                 available_groups = list(self.database.groups.find({"course_id": courseid,
-                                                               "$where": "this.users.length < this.size"}))
+                                                                   "$where": "this.users.length < this.size"}))
 
                 users = {}
                 for user in self.database.users.find({"_id": {"$in": self.user_manager.get_course_registered_users(course)}}):

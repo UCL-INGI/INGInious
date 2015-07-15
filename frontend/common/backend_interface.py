@@ -22,16 +22,17 @@ from backend.job_managers.local import LocalJobManager
 from backend.job_managers.remote_docker import RemoteDockerJobManager
 from backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
 
+
 def create_job_manager(configuration, plugin_manager, database, task_directory, course_factory, task_factory):
     """ Creates a new backend job manager from the configuration """
 
     # Updates the submissions that are waiting with the status error, as the server restarted
     database.submissions.update({'status': 'waiting'},
                                 {"$unset": {'jobid': ""},
-                                "$set": {'status': 'error', 'grade': 0.0, 'text': 'Internal error. Server restarted'}}, multi=True)
+                                 "$set": {'status': 'error', 'grade': 0.0, 'text': 'Internal error. Server restarted'}}, multi=True)
 
     # Updates all batch job still running
-    database.batch_jobs.update({'result':{'$exists':False}},
+    database.batch_jobs.update({'result': {'$exists': False}},
                                {"$set": {"result": {"retval": -1, "stderr": "Internal error. Server restarted"}}}, multi=True)
 
     # Create the job manager
@@ -45,7 +46,7 @@ def create_job_manager(configuration, plugin_manager, database, task_directory, 
     elif backend_type == "remote":
         return RemoteDockerJobManager(configuration.get("docker_daemons", []),
                                       configuration.get('containers',
-                                                        {"default": "ingi/inginious-c-default","sekexe": "ingi/inginious-c-sekexe"}),
+                                                        {"default": "ingi/inginious-c-default", "sekexe": "ingi/inginious-c-sekexe"}),
                                       task_directory,
                                       course_factory,
                                       task_factory,

@@ -24,6 +24,7 @@ from frontend.webapp.pages.api._api_page import APIAuthenticatedPage, APINotFoun
 from common.tasks_code_boxes import FileBox
 from common.tasks_problems import MultipleChoiceProblem, BasicCodeProblem
 
+
 def _get_submissions(course_factory, submission_manager, user_manager, courseid, taskid, with_input, submissionid=None):
     """
         Helper for the GET methods of the two following classes

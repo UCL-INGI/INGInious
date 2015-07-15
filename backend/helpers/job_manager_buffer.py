@@ -20,6 +20,7 @@
 
 import uuid
 
+
 class JobManagerBuffer(object):
     """ A buffer for a JobManager """
 

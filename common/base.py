@@ -25,6 +25,7 @@ import re
 
 import common.custom_yaml
 
+
 def id_checker(id_to_test):
     """Checks if a id is correct"""
     return bool(re.match(r'[a-z0-9\-_]+$', id_to_test, re.IGNORECASE))

@@ -20,6 +20,7 @@
 
 from frontend.webapp.pages.utils import INGIniousPage
 
+
 class MaintenancePage(INGIniousPage):
     """ Maintenance page """
 

@@ -32,6 +32,7 @@ from docker.utils import kwargs_from_env
 
 from cgutils import cgroup
 
+
 def get_container_cgroup(cgroupname, container):
     def recur(cg):
         if cg.name == container or cg.name == "docker-{}.scope".format(container):
@@ -42,8 +43,10 @@ def get_container_cgroup(cgroupname, container):
                 if g is not None:
                     return g
         return None
+
     cgroup_obj = cgroup.scan_cgroups(cgroupname)
     return recur(cgroup_obj)
+
 
 class CGroupMemoryWatcher(threading.Thread):
     """ Watch for cgroups events on memory """
