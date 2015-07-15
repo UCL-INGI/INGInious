@@ -1,0 +1,153 @@
+$def with (content)
+
+$# Copyright (c) 2014-2015 Université Catholique de Louvain.
+$#
+$# This file is part of INGInious.
+$#
+$# INGInious is free software: you can redistribute it and/or modify
+$# it under the terms of the GNU Affero General Public License as published
+$# by the Free Software Foundation, either version 3 of the License, or
+$# (at your option) any later version.
+$#
+$# INGInious is distributed in the hope that it will be useful,
+$# but WITHOUT ANY WARRANTY; without even the implied warranty of
+$# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+$# GNU Affero General Public License for more details.
+$#
+$# You should have received a copy of the GNU Affero General Public
+$# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="INGInious">
+<meta name="author" content="">
+<link rel="icon" href="/static/favicon.ico">
+
+<title>INGInious - $content.title</title>
+
+<!-- Bootstrap -->
+<link href="/static/css/bootstrap.min.css" rel="stylesheet">
+<link href="/static/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+
+<!-- Font Awesome -->
+<link href="/static/css/font-awesome.min.css" rel="stylesheet">
+
+<!-- INGInious Style -->
+<link href="/static/css/INGInious.css" rel="stylesheet">
+
+<!-- Codemirror Style -->
+<link href="/static/css/codemirror.css" rel="stylesheet">
+
+<!-- JQuery -->
+<script src="/static/js/jquery.min.js"></script>
+
+<!-- Icons -->
+<link rel="shortcut icon" href="/static/icons/favicon.ico">
+<link rel="apple-touch-icon" sizes="57x57" href="/static/icons/apple-touch-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="114x114" href="/static/icons/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/static/icons/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="144x144" href="/static/icons/apple-touch-icon-144x144.png">
+<link rel="apple-touch-icon" sizes="60x60" href="/static/icons/apple-touch-icon-60x60.png">
+<link rel="apple-touch-icon" sizes="120x120" href="/static/icons/apple-touch-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="76x76" href="/static/icons/apple-touch-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="152x152" href="/static/icons/apple-touch-icon-152x152.png">
+<link rel="icon" type="image/png" href="/static/icons/favicon-196x196.png" sizes="196x196">
+<link rel="icon" type="image/png" href="/static/icons/favicon-160x160.png" sizes="160x160">
+<link rel="icon" type="image/png" href="/static/icons/favicon-96x96.png" sizes="96x96">
+<link rel="icon" type="image/png" href="/static/icons/favicon-16x16.png" sizes="16x16">
+<link rel="icon" type="image/png" href="/static/icons/favicon-32x32.png" sizes="32x32">
+<meta name="msapplication-TileColor" content="#00a300">
+<meta name="msapplication-TileImage" content="/static/icons/mstile-144x144.png">
+<meta name="msapplication-config" content="/static/icons/browserconfig.xml">
+
+$if "header" in content:
+    $:content.header
+
+$:template_helper.call('css')
+$:template_helper.call('javascript_header')
+$:template_helper.call('header_hook')
+</head>
+
+<body role="document">
+    <div id="wrapper">
+        <div class="navbar navbar-default navbar-static-top" role="navigation">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse"
+                        data-target=".navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span> <span
+                            class="icon-bar"></span> <span class="icon-bar"></span> <span
+                            class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="/index"><img src="/static/images/header.png" alt="logo"/> INGInious</a>
+                </div>
+                <div class="collapse navbar-collapse">
+                    $if "Navbar" in content:
+                        $:content.Navbar
+                    $if user_manager.session_logged_in():
+                        <div class="navbar-right">
+                            <ul class="nav navbar-nav">
+                                <li><p class="navbar-text">Logged in as $user_manager.session_realname()</p></li>
+                                <li><a href="/index?logoff" class="navbar-link"><i class="fa fa-sign-out"></i> Log off</a></li>
+                            </ul>
+                        </div>
+                </div>
+            </div>
+        </div>
+    
+        <div id="main_container" class="container-fluid" role="main">
+                $if "Column" in content:
+                    <div id="content" class="col-xs-12 col-sm-8 col-lg-9">
+                $else:
+                    <div id="content" class="col-xs-12">
+                $:content
+                <div class="footer_push"></div>
+            </div>
+            $if "Column" in content:
+            	<div id="sidebar" class="col-xs-12 col-sm-4 col-lg-3">
+                    <div id="sidebar_affix">
+                        <div id="sidebar_inner">
+                            $:content.Column
+                        </div>
+                    </div>
+                </div>
+                <!--<div class="footer_push"></div>-->
+        </div>
+    </div>
+    <div id="footer">
+        <div class="navbar navbar-default navbar-static-top" style="position:absolute; width:100%" role="navigation">
+            <div class="container-fluid">
+                <div class="navbar-header" style="width: 100%">
+                    <p class="navbar-text">&copy; 2014-2015 Université Catholique de Louvain</p>
+                    <div class="navbar-right">
+                        <p class="navbar-text">
+                            <a href="https://github.com/UCL-INGI/INGInious" class="navbar-link">
+                                INGInious is distributed under AGPL license
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="/static/js/jquery.form.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/static/js/codemirror/codemirror.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="/static/js/checked-list-group.js"></script>
+    <script src="/static/js/INGInious.js"></script>
+    <script src="/static/js/INGIniousStudio.js"></script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">google.load('visualization', '1.0', {'packages':['corechart']});</script>
+    $:template_helper.call('javascript_footer')
+</body>
+</html>

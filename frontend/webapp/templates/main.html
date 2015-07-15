@@ -1,0 +1,102 @@
+$def with (open_courses,registrable_courses,submissions,registration_status)
+
+$# Copyright (c) 2014-2015 Université Catholique de Louvain.
+$#
+$# This file is part of INGInious.
+$#
+$# INGInious is free software: you can redistribute it and/or modify
+$# it under the terms of the GNU Affero General Public License as published
+$# by the Free Software Foundation, either version 3 of the License, or
+$# (at your option) any later version.
+$#
+$# INGInious is distributed in the hope that it will be useful,
+$# but WITHOUT ANY WARRANTY; without even the implied warranty of
+$# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+$# GNU Affero General Public License for more details.
+$#
+$# You should have received a copy of the GNU Affero General Public
+$# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
+
+$var title: My profile
+
+$# Left column content
+$def ColumnF():
+    <h3>Last tried exercises</h3>
+    
+    <div class="list-group">
+        $if submissions:
+            $for submission in submissions:
+                <a class="list-group-item 
+                    $if submission['status'] == 'done' and submission['result'] == 'success':
+                        list-group-item-success
+                    $elif submission['status'] == 'done' and submission['result'] == 'save':
+                        list-group-item-info
+                    $elif submission['status'] == 'waiting':
+                        list-group-item-warning
+                    $else:
+                        list-group-item-danger
+                    "
+                    href="/course/$submission['courseid']/$submission['taskid']">
+                    <b>$submission["task"].get_course().get_name()</b>: $submission["task"].get_name()
+                </a>
+        $else:
+            <a class="list-group-item disabled submission-empty">No submissions</a>
+    </div>
+$var Column: $:ColumnF()
+
+$# Start content
+<h2>My courses</h2>
+<div class="list-group list-group-progress" style="margin-left: 16px; margin-right: 16px;">
+	$if len(open_courses) != 0:
+        $for courseid in open_courses:
+                $if not user_manager.course_is_user_registered(open_courses[courseid]) and not open_courses[courseid].can_students_choose_group():
+                    <div class="list-group-item row disabled">
+                $else:
+                    <a href="course/$courseid" class="list-group-item row">
+
+                <div class="col-xs-12 col-md-7">
+                    $open_courses[courseid].get_name()
+                    $if not open_courses[courseid].is_open_to_non_staff():
+                        - <b>course not shown to students</b>
+                    $if not user_manager.course_is_user_registered(open_courses[courseid]) and not open_courses[courseid].can_students_choose_group():
+                        - <b>waiting for group attribution (<a  href="/?unregister_courseid=$courseid">unregister</a>)</b>
+                </div>
+                <div class="col-xs-12 col-md-5">
+                    <div class="progress">
+                        $ grade=user_manager.get_course_grade(open_courses[courseid])
+                        <div class="progress-bar progress-bar-success" aria-valuenow="$int(grade)" aria-valuemin="0" aria-valuemax="100" style="width: $grade%">
+                            $int(grade)%
+                        </div>
+                    </div>
+                </div>
+                $if not user_manager.course_is_user_registered(open_courses[courseid]) and not open_courses[courseid].can_students_choose_group():
+                    </div>
+                $else:
+                    </a>
+    $else:
+        <a href="#register" class="list-group-item row disabled">You are not registered to any course</a>
+</div>
+<hr/>
+<h3>Register for a course</h3>
+$if registration_status == True:
+    <div class="alert alert-success" role="alert">Registration complete.</div>
+$elif registration_status == False:
+    <div class="alert alert-danger" role="alert">Registration failed. Please check that you properly typed the password.</div>
+<form class="form row" role="form" action="/" method="post">
+    <div class="form-group col-sm-8">
+        <label class="sr-only" for="register_courseid">Course</label>
+        <select class="form-control" id="register_courseid" name="register_courseid">
+            <option value="">Select a course</option>
+            $for courseid, course in registrable_courses.iteritems():
+                <option value="$courseid"
+                $if course.is_password_needed_for_registration():
+                    data-password="1"
+                >$course.get_name()</option>
+        </select>
+    </div>
+    <div class="form-group col-sm-4">
+        <label class="sr-only" for="register_password">Password</label>
+        <input class="form-control" type="text" id="register_password" name="register_password" disabled="disabled" placeholder="Password">
+    </div>
+    <div class="col-sm-12"><button type="submit" class="btn btn-block btn-default">Register</button></div>
+</form>

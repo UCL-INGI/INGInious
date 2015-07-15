@@ -1,0 +1,83 @@
+$def with (course,username,data)
+
+$# Copyright (c) 2014-2015 Université Catholique de Louvain.
+$#
+$# This file is part of INGInious.
+$#
+$# INGInious is free software: you can redistribute it and/or modify
+$# it under the terms of the GNU Affero General Public License as published
+$# by the Free Software Foundation, either version 3 of the License, or
+$# (at your option) any later version.
+$#
+$# INGInious is distributed in the hope that it will be useful,
+$# but WITHOUT ANY WARRANTY; without even the implied warranty of
+$# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+$# GNU Affero General Public License for more details.
+$#
+$# You should have received a copy of the GNU Affero General Public
+$# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
+
+$ user_realname= user_manager.get_user_realname(username)
+$var title: $:user_realname - $:course.get_name()
+
+$var Column: $:template_helper.call('course_admin_menu',course=course,current='students')
+
+$def NavbarF():
+    <ol class="nav navbar-nav nav-breadcrumb">
+        <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
+        <li><a href="/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+            <i class="fa fa-user-secret"></i></a></li>
+        <li><a href="/admin/$course.get_id()/students" title="Students" data-toggle="tooltip" data-placement="bottom">
+            <i class="fa fa-user"></i></a></li>
+
+        <li class="active"><a href="#">$user_realname <span class="sr-only">(current)</span></a></li>
+    </ol>
+$var Navbar: $:NavbarF()
+
+<h2>Statistics for student $user_realname ($username)</h2>
+<table class="table">
+    <tr>
+        <th>task</th>
+        <th>status</th>
+        <th># submissions</th>
+        <th>
+            <div class="btn-group" role="group">
+                <a href="/admin/${course.get_id()}/download?format=taskid%2Fusername&users=$username"
+                   class="btn btn-danger btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa
+                   fa-download"></i></a>
+                <a href="/admin/${course.get_id()}/student/${username}?csv" class="btn btn-info btn-xs" title="Download
+                   CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
+            </div>
+        </th>
+    </tr>
+    $for task in data:
+    	<tr
+            $if task["status"] == "notattempted":
+                class="warning"
+            $elif task["status"] == "succeeded":
+                class="success"
+            $elif task["status"] == "failed":
+                class="danger"
+        >
+    		<td><a href="/admin/${course.get_id()}/student/$username/$task['taskid']">$task["name"]</a></td>
+    		<td>
+                $if task["status"] == "notviewed":
+                    Not viewed
+                $elif task["status"] == "notattempted":
+                    Not attempted (viewed)
+                $elif task["status"] == "succeeded":
+                    Succeeded ($task["grade"]%)
+                $else:
+                    Failed ($task["grade"]%)
+            </td>
+            <td>$task["tried"]</td>
+    		<td>
+                <div class="btn-group" role="group">
+    			    <a href="/admin/${course.get_id()}/student/$username/$task['taskid']" class="btn btn-default btn-xs" title="View submissions"
+                       data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
+                    <a href="$task['url']" class="btn btn-default btn-xs" title="Download submissions"
+                       data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                </div>
+    		</td>
+    	</tr>
+</table>

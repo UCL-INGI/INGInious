@@ -18,45 +18,25 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Task """
 from common.base import id_checker
-from common.task_file_managers.manage import get_task_file_manager
 from common.tasks_problems import CodeProblem, CodeSingleLineProblem, MultipleChoiceProblem, MatchProblem, CodeFileProblem
-from common.cached_object import CachedClass
-from common.base import get_tasks_directory
-import os.path
 
-class Task(CachedClass):
+class Task(object):
     """ Contains the data for a task """
 
-    def __init__(self, course, taskid, init_data=None):
+    def __init__(self, course, taskid, content, directory_path, task_problem_types=None):
         """
-            Init the task. course is a Course object, taskid the task id, and init_data is a dictionnary containing the data needed to initialize the Task object.
+            Init the task. course is a Course object, taskid the task id, and content is a dictionnary containing the data needed to initialize the Task object.
             If init_data is None, the data will be taken from the course tasks' directory.
         """
-
-        if not id_checker(taskid):
-            raise Exception("Task with invalid id: " + course.get_id() + "/" + taskid)
-
         self._course = course
         self._taskid = taskid
+        self._directory_path = directory_path
 
-        if init_data is None:
-            try:
-                self._data = get_task_file_manager(self.get_course_id(), self.get_id()).read()
-            except Exception as inst:
-                raise Exception("Error while reading task file: " + self._course.get_id() + "/" + self._taskid + " :\n" + str(inst))
-        else:
-            self._data = init_data
+        task_problem_types = task_problem_types or {"code": CodeProblem, "code-single-line": CodeSingleLineProblem, "code-file": CodeFileProblem,
+                                                    "multiple-choice": MultipleChoiceProblem, "match": MatchProblem}
 
-        self._environment = None
-        self._response_is_html = None
-        self._limits = None
-        self._problems = None
-        self._load_from_data() #init all the variables above
+        self._data = content
 
-    def _load_from_data(self):
-        """
-            Load data from _data
-        """
         self._environment = self._data.get('environment', None)
 
         # Response is HTML
@@ -83,22 +63,12 @@ class Task(CachedClass):
         self._problems = []
 
         for problemid in self._data['problems']:
-            self._problems.append(self._create_task_problem(self, problemid, self._data['problems'][problemid]))
+            self._problems.append(self._create_task_problem(problemid, self._data['problems'][problemid], task_problem_types))
 
-    def reload(self, update_data=True):
-        """
-            reloads the object from disk
-        """
-        try:
-            self._data = get_task_file_manager(self.get_course_id(), self.get_id()).read()
-        except Exception as inst:
-            raise Exception("Error while reading task file: " + self._course.get_id() + "/" + self._taskid + " :\n" + str(inst))
-        self._load_from_data()
-
-    def input_is_consistent(self, task_input):
+    def input_is_consistent(self, task_input, default_allowed_extension, default_max_size):
         """ Check if an input for a task is consistent. Return true if this is case, false else """
         for problem in self._problems:
-            if not problem.input_is_consistent(task_input):
+            if not problem.input_is_consistent(task_input, default_allowed_extension, default_max_size):
                 return False
         return True
 
@@ -130,6 +100,10 @@ class Task(CachedClass):
         """ Returns the method used to parse the output of the task: HTML or rst """
         return "HTML" if self._response_is_html else "rst"
 
+    def get_directory_path(self):
+        """ Returns the path to the directory containing the files related to the task """
+        return self._directory_path
+
     def check_answer(self, task_input):
         """
             Verify the answers in task_input. Returns five values
@@ -157,52 +131,12 @@ class Task(CachedClass):
             multiple_choice_error_count += problem_mc_error_count
         return valid, need_launch, main_message, problem_messages, multiple_choice_error_count
 
-    _problem_types = {"code": CodeProblem, "code-single-line": CodeSingleLineProblem, "code-file": CodeFileProblem,
-                      "multiple-choice": MultipleChoiceProblem, "match": MatchProblem}
-
-    def _create_task_problem(self, task, problemid, problem_content):
+    def _create_task_problem(self, problemid, problem_content, task_problem_types):
         """Creates a new instance of the right class for a given problem."""
         # Basic checks
         if not id_checker(problemid):
             raise Exception("Invalid problem _id: " + problemid)
-        if problem_content.get('type', "") not in self._problem_types:
+        if problem_content.get('type', "") not in task_problem_types:
             raise Exception("Invalid type for problem " + problemid)
 
-        return self._problem_types.get(problem_content.get('type', ""))(task, problemid, problem_content)
-
-    @classmethod
-    def add_problem_type(cls, problem_type, problem_class):
-        """ add a new problem type """
-        cls._problem_types[problem_type] = problem_class
-
-    @classmethod
-    def remove_problem_type(cls, problem_type):
-        """ delete a problem type """
-        del cls._problem_types[problem_type]
-
-    @classmethod
-    def remove_problem_types(cls):
-        """ delete all problem types """
-        cls._problem_types = {}
-
-    @classmethod
-    def add_problem_types(cls, problem_type_dict):
-        """ add new problem types """
-        cls._problem_types.update(problem_type_dict)
-
-    @classmethod
-    def _get_cache_key(cls, course, taskid, init_data=None):
-        """
-            Returns a key to be used to cache an object. *args and **kwargs are the ones passed to the normal constructor.
-            Returning None make the current object not being cached.
-            This probably needs to be overriden
-        """
-        if init_data is not None:
-            return None
-        else:
-            return course.get_id(), taskid
-
-    def _file_cache_check(self):
-        """ Returns the path to check for updates """
-        ext = get_task_file_manager(self.get_course_id(), self.get_id()).get_ext()
-        return os.path.join(get_tasks_directory(), self.get_course_id(), self.get_id(), "task." + ext)
+        return task_problem_types.get(problem_content.get('type', ""))(self, problemid, problem_content)

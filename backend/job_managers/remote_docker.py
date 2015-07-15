@@ -56,15 +56,15 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
             return True
         return False
 
-    def __init__(self, docker_daemons, image_aliases, hook_manager=None, is_testing=False):
+    def __init__(self, docker_daemons, image_aliases, task_directory, course_factory, task_factory, hook_manager=None, is_testing=False):
         """
             Starts the job manager.
 
             :param docker_daemons:
                 a list of dict representing docker daemons.
 
-                { "remote_host": "192.168.59.103", ## host of the docker daemon *from the frontend*
-                  "remote_docker_port": 2375, ## port of the distant docker daemon *from the frontend*
+                { "remote_host": "192.168.59.103", ## host of the docker daemon *from the webapp*
+                  "remote_docker_port": 2375, ## port of the distant docker daemon *from the webapp*
                   "remote_agent_port": 63456 ## a mandatory port used by the backend and the agent that will be automatically started. Needs to be
                                              ## available on the remote host, and to be open in the firewall.
                   ##does the docker daemon requires tls? Defaults to false
@@ -75,6 +75,9 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
                   ##path to the cgroups "mount" *from the host that runs the docker daemon*. Defaults to:
                   #"cgroups_location": "/sys/fs/cgroup"
                 }
+            :param task_directory: the task directory
+            :param course_factory: a CourseFactory object
+            :param task_factory: a TaskFactory object, possibly with specific task files managers attached
             :param image_aliases: a dict of image aliases, like {"default": "ingi/inginious-c-default"}.
             :param hook_manager: An instance of HookManager. If no instance is given(None), a new one will be created.
         """
@@ -139,4 +142,4 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
 
             agents.append({"host": daemon['remote_host'], "port": daemon.get("remote_agent_port", 63456)})
 
-        RemoteManualAgentJobManager.__init__(self, agents, image_aliases, hook_manager, is_testing)
+        RemoteManualAgentJobManager.__init__(self, agents, image_aliases, task_directory, course_factory, task_factory, hook_manager, is_testing)

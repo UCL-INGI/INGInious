@@ -37,8 +37,8 @@ class RemoteAgent(SimpleAgent):
         It can handle multiple requests at a time, but RPyC calls have to be made using the ```async``` function.
     """
 
-    def __init__(self, port, tmp_dir="./agent_tmp", sync_enabled=True):
-        SimpleAgent.__init__(self, tmp_dir)
+    def __init__(self, port, task_directory, course_factory, task_factory, tmp_dir="./agent_tmp", sync_enabled=True):
+        SimpleAgent.__init__(self, task_directory, course_factory, task_factory, tmp_dir)
         self.sync_enabled = sync_enabled
         self.logger.debug("Starting RPyC server - backend connection")
         self._backend_server = ThreadedServer(self._get_agent_backend_service(), port=port,
@@ -56,6 +56,7 @@ class RemoteAgent(SimpleAgent):
         handle_job = self.handle_job
         update_image_aliases = self._update_image_aliases
         sync_enabled = self.sync_enabled
+        task_directory = self.task_directory
         logger = self.logger
 
         class AgentService(rpyc.Service):
@@ -157,7 +158,7 @@ class RemoteAgent(SimpleAgent):
                 """
                 if sync_enabled:
                     logger.info("Getting the list of files from the local task directory for the backend.")
-                    return common.base.directory_content_with_hash(common.base.get_tasks_directory())
+                    return common.base.directory_content_with_hash(task_directory)
                 else:
                     logger.info("Warning the backend that sync is disabled.")
                     return None
@@ -176,7 +177,7 @@ class RemoteAgent(SimpleAgent):
                     tar = tarfile.open(fileobj=tmpfile, mode='r:gz')
 
                     # Verify security of the tar archive
-                    bd = os.path.abspath(common.base.get_tasks_directory())
+                    bd = os.path.abspath(task_directory)
                     for n in tar.getnames():
                         if not os.path.abspath(os.path.join(bd, n)).startswith(bd):
                             logger.error("Tar file given by the backend is invalid!")
@@ -190,13 +191,13 @@ class RemoteAgent(SimpleAgent):
                             return
 
                     # Extract the tar file
-                    tar.extractall(common.base.get_tasks_directory())
+                    tar.extractall(task_directory)
                     tar.close()
                     tmpfile.close()
 
                     # Delete unneeded files
                     for n in to_delete:
-                        c_path = os.path.join(common.base.get_tasks_directory(), n)
+                        c_path = os.path.join(task_directory, n)
                         if os.path.exists(c_path):
                             if os.path.isdir(c_path):
                                 rmtree(c_path)

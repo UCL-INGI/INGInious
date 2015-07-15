@@ -29,13 +29,13 @@ class TestNotInAgent(TestLocalJobManager):
 
     def test_ok(self):
         self.was_in = False
-        self.job_manager.new_job(Course('test').get_task('no_run'), {"problem_id": "1"}, self.default_callback)
+        self.job_manager.new_job(self.course_factory.get_task('test','no_run'), {"problem_id": "1"}, self.default_callback)
         self.wait_for_callback()
         assert not self.was_in
 
     def test_fail(self):
         self.was_in = False
-        self.job_manager.new_job(Course('test').get_task('do_run'), {"problem_id": "1"}, self.default_callback)
+        self.job_manager.new_job(self.course_factory.get_task('test', 'do_run'), {"problem_id": "1"}, self.default_callback)
         self.wait_for_callback()
         assert self.was_in
 
@@ -82,25 +82,25 @@ class TestAutoMerge(TestLocalJobManager):
 
     def test_run_ok_match_nok(self):
         self.result = {"result": "success"}
-        self.job_manager.new_job(Course('test').get_task('do_both'), {"problem_1": "1", "problem_2": "0"}, self.default_callback)
+        self.job_manager.new_job(self.course_factory.get_task('test','do_both'), {"problem_1": "1", "problem_2": "0"}, self.default_callback)
         result = self.wait_for_callback()
         assert "result" in result and result["result"] == "failed"
 
     def test_run_nok_match_ok(self):
         self.result = {"result": "failed"}
-        self.job_manager.new_job(Course('test').get_task('do_both'), {"problem_1": "0", "problem_2": "1"}, self.default_callback)
+        self.job_manager.new_job(self.course_factory.get_task('test', 'do_both'), {"problem_1": "0", "problem_2": "1"}, self.default_callback)
         result = self.wait_for_callback()
         assert "result" in result and result["result"] == "failed"
 
     def test_run_ok_match_ok(self):
         self.result = {"result": "success"}
-        self.job_manager.new_job(Course('test').get_task('do_both'), {"problem_1": "1", "problem_2": "1"}, self.default_callback)
+        self.job_manager.new_job(self.course_factory.get_task('test', 'do_both'), {"problem_1": "1", "problem_2": "1"}, self.default_callback)
         result = self.wait_for_callback()
         assert "result" in result and result["result"] == "success"
 
     def test_merge_text(self):
         self.result = {"result": "success", "problems": {"problem_1": 'a'}}
-        self.job_manager.new_job(Course('test').get_task('do_both'), {"problem_1": "1", "problem_2": "1"}, self.default_callback)
+        self.job_manager.new_job(self.course_factory.get_task('test', 'do_both'), {"problem_1": "1", "problem_2": "1"}, self.default_callback)
         result = self.wait_for_callback()
         assert "result" in result and result["result"] == "success"
         assert "problems" in result
@@ -110,36 +110,36 @@ class TestAutoMerge(TestLocalJobManager):
 
     def test_grade_no_run_success(self):
         self.result = {"result": "failed"}  # should not be checked!
-        self.job_manager.new_job(Course('test').get_task('no_run'), {"problem_id": "1"}, self.default_callback)
+        self.job_manager.new_job(self.course_factory.get_task('test', 'no_run'), {"problem_id": "1"}, self.default_callback)
         result = self.wait_for_callback()
         assert "grade" in result and result["grade"] == 100.0
 
     def test_grade_no_run_failed(self):
         self.result = {"result": "success"}
-        self.job_manager.new_job(Course('test').get_task('no_run'), {"problem_id": "0"}, self.default_callback)
+        self.job_manager.new_job(self.course_factory.get_task('test', 'no_run'), {"problem_id": "0"}, self.default_callback)
         result = self.wait_for_callback()
         assert "grade" in result and result["grade"] == 0
 
     def test_grade_do_run_success(self):
         self.result = {"result": "success"}
-        self.job_manager.new_job(Course('test').get_task('do_run'), {"problem_id": "0"}, self.default_callback)
+        self.job_manager.new_job(self.course_factory.get_task('test', 'do_run'), {"problem_id": "0"}, self.default_callback)
         result = self.wait_for_callback()
         assert "grade" in result and result["grade"] == 100.0
 
     def test_grade_do_run_failed(self):
         self.result = {"result": "failed"}
-        self.job_manager.new_job(Course('test').get_task('do_run'), {"problem_id": "0"}, self.default_callback)
+        self.job_manager.new_job(self.course_factory.get_task('test', 'do_run'), {"problem_id": "0"}, self.default_callback)
         result = self.wait_for_callback()
         assert "grade" in result and result["grade"] == 0
 
     def test_mcq(self):
         self.result = {"result": "success"}
-        self.job_manager.new_job(Course('test').get_task('no_run_mcq'), {"mcq1": "1", "mcq2": "1"}, self.default_callback)
+        self.job_manager.new_job(self.course_factory.get_task('test', 'no_run_mcq'), {"mcq1": "1", "mcq2": "1"}, self.default_callback)
         result = self.wait_for_callback()
         assert "grade" in result and result["grade"] == 100.0
 
     def test_mcq_fail(self):
         self.result = {"result": "success"}
-        self.job_manager.new_job(Course('test').get_task('no_run_mcq'), {"mcq1": "2", "mcq2": "3"}, self.default_callback)
+        self.job_manager.new_job(self.course_factory.get_task('test', 'no_run_mcq'), {"mcq1": "2", "mcq2": "3"}, self.default_callback)
         result = self.wait_for_callback()
         assert "grade" in result and result["grade"] == 0

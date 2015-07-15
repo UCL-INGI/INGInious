@@ -1,0 +1,70 @@
+$def with (auth_methods, error)
+
+$# Copyright (c) 2014-2015 Université Catholique de Louvain.
+$#
+$# This file is part of INGInious.
+$#
+$# INGInious is free software: you can redistribute it and/or modify
+$# it under the terms of the GNU Affero General Public License as published
+$# by the Free Software Foundation, either version 3 of the License, or
+$# (at your option) any later version.
+$#
+$# INGInious is distributed in the hope that it will be useful,
+$# but WITHOUT ANY WARRANTY; without even the implied warranty of
+$# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+$# GNU Affero General Public License for more details.
+$#
+$# You should have received a copy of the GNU Affero General Public
+$# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
+
+$var title: Connexion
+
+$# Start content
+    <div class="row">
+        <div class="col-sm-5">
+            <h2>Hello! <small>Welcome on the INGInious platform.</small></h2>
+            INGInious allows to grade securely code made by students.<br/>
+            <br/>
+            Please log in to see the courses.
+        </div>
+        <div class="col-sm-offset-2 col-sm-5 well">
+            $if error:
+                <div class="alert alert-danger" role="alert">
+                    <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    Invalid login/password
+                </div>
+            
+            $if len(auth_methods) > 1:
+                <ul class="nav nav-tabs nav-justified" role="tablist">
+                    $for authid, (name, _) in auth_methods.iteritems():
+                        <li 
+                            $if authid == 0:
+                                class="active"
+                        ><a href="#login-$authid" role="tab" data-toggle="tab">$name</a></li>
+                </ul>
+            
+            <!-- Tab panes -->
+            <div class="tab-content">
+                $for authid, (_, input) in auth_methods.iteritems():
+                    <div class="tab-pane fade
+                        $if authid == 0:
+                            in active
+                        " id="login-$authid">
+                        <p>
+                            <form role="form" action="/index" method="post">
+                                <input type="hidden" name="@authid" value="$authid"/>
+                                $for name, data in input.iteritems():
+                                    $if data["type"] == "password":
+                                        $ type="password"
+                                    $else:
+                                        $ type="text"
+                                    <div class="form-group">
+                                        <label>$data["placeholder"]</label> <input type="$type" class="form-control" name="$name" placeholder="$data['placeholder']">
+                                    </div>
+                                <button type="submit" class="btn btn-primary btn-block">Log in</button>
+                            </form>
+                        </p>
+                    </div>
+            </div>
+        </div>
+    </div>

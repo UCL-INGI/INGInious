@@ -9,8 +9,8 @@ backend: remote
 # to connect (backend: remote only) (the default config below is the one for boot2docker on OS X)
 docker_daemons:
 
-  - remote_host: "192.168.59.103" ##host of the docker daemon *from the frontend*
-    remote_docker_port: 2375 ##port of the distant docker daemon *from the frontend*
+  - remote_host: "192.168.59.103" ##host of the docker daemon *from the webapp*
+    remote_docker_port: 2375 ##port of the distant docker daemon *from the webapp*
     remote_agent_port: 63456 ##A mandatory port used by the backend and the agent that will be automatically started. Needs to be available on the
                              ##remote host, and to be open in the firewall.
     ##does the remote docker requires tls? Defaults to false
@@ -41,15 +41,12 @@ containers:
     default: ingi/inginious-c-default
     sekexe: ingi/inginious-c-sekexe
 
-# Plugins that will be loaded by the frontend
+# Plugins that will be loaded by the webapp
 plugins:
-  - plugin_module: frontend.plugins.auth.demo_auth
+  - plugin_module: frontend.webapp.plugins.auth.demo_auth
     users:
         # register the user "test" with the password "test"
         test: test
-
-# Allow HTML in tasks? can be true, false or "tidy" (to run HTMLTidy)
-allow_html: tidy
 
 # Super admins: list of user names that can do everything in the backend
 superadmins:

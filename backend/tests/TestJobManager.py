@@ -24,6 +24,7 @@ import time
 
 from backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
 from backend.job_managers.local import LocalJobManager
+from common.course_factory import create_factories
 import common.base
 from backend.tests.FakeAgents import get_fake_local_agent, FakeRemoteAgent
 
@@ -37,9 +38,7 @@ class TestJobManager(object):
         pass
 
     def setUp(self):
-        common.base.init_common_lib(os.path.join(os.path.dirname(__file__), 'tasks'),
-                                    [".c", ".cpp", ".java", ".oz", ".zip", ".tar.gz", ".tar.bz2", ".txt"],
-                                    1024 * 1024)
+        self.course_factory, self.task_factory = create_factories(os.path.join(os.path.dirname(__file__), 'tasks'))
         self.setUp_job_manager()
         self.callback_done = threading.Event()
         self.got_callback_result = None
@@ -80,6 +79,9 @@ class TestRemoteJobManager(TestJobManager):
     def setUp_job_manager(self):
         self.job_manager = RemoteManualAgentJobManager([{"host": "localhost", "port": self._get_port()}],
                                                        {"default": "ingi/inginious-c-default"},
+                                                       os.path.join(os.path.dirname(__file__), 'tasks'),
+                                                       self.course_factory,
+                                                       self.task_factory,
                                                        self.generate_hook_manager(),
                                                        True)
         self.job_manager.start()
@@ -91,6 +93,9 @@ class TestRemoteJobManager(TestJobManager):
 class TestLocalJobManager(TestJobManager):
     def setUp_job_manager(self):
         self.job_manager = LocalJobManager({"default": "inginious-c-default"},
+                                           os.path.join(os.path.dirname(__file__), 'tasks'),
+                                           self.course_factory,
+                                           self.task_factory,
                                            hook_manager=self.generate_hook_manager(),
                                            agent_class=get_fake_local_agent(self.handle_job_func))
         self.job_manager.start()

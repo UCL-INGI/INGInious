@@ -26,8 +26,8 @@ from backend_agent.simple_agent import SimpleAgent
 class LocalAgent(SimpleAgent):
     """ An agent made to be run locally (launched directly by the backend). It can handle multiple requests at a time. """
 
-    def __init__(self, image_aliases, tmp_dir="./agent_tmp"):
-        SimpleAgent.__init__(self, tmp_dir)
+    def __init__(self, image_aliases, task_directory, course_factory, task_factory, tmp_dir="./agent_tmp"):
+        SimpleAgent.__init__(self, task_directory, course_factory, task_factory, tmp_dir)
         self.image_aliases = image_aliases
 
     def new_job(self, job_id, course_id, task_id, inputdata, debug, callback_status, final_callback):

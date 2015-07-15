@@ -1,0 +1,133 @@
+$def with (course,submissions,group,available_groups,users,error)
+
+$# Copyright (c) 2014-2015 Université Catholique de Louvain.
+$#
+$# This file is part of INGInious.
+$#
+$# INGInious is free software: you can redistribute it and/or modify
+$# it under the terms of the GNU Affero General Public License as published
+$# by the Free Software Foundation, either version 3 of the License, or
+$# (at your option) any later version.
+$#
+$# INGInious is distributed in the hope that it will be useful,
+$# but WITHOUT ANY WARRANTY; without even the implied warranty of
+$# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+$# GNU Affero General Public License for more details.
+$#
+$# You should have received a copy of the GNU Affero General Public
+$# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
+
+$var title:  $:course.get_name()
+
+$# Left column content
+$def ColumnF():
+    $:template_helper.call('course_menu',course=course, template_helper=template_helper)
+    <h3>Current grade</h3>
+    <div class="progress">
+        $ grade=user_manager.get_course_grade(course)
+        <div class="progress-bar progress-bar-success" aria-valuenow="$int(grade)" aria-valuemin="0" aria-valuemax="100" style="width: $grade%">
+            $int(grade)%
+        </div>
+    </div>
+
+    <h3>Last tried exercises</h3>
+
+    <div class="list-group">
+        $if submissions:
+            $for submission in submissions:
+                <a class="list-group-item
+                    $if submission['status'] == 'done' and submission['result'] == 'success':
+                        list-group-item-success
+                    $elif submission['status'] == 'done' and submission['result'] == 'save':
+                        list-group-item-info
+                    $elif submission['status'] == 'waiting':
+                        list-group-item-warning
+                    $else:
+                        list-group-item-danger
+                    "
+                    href="/course/$submission['courseid']/$submission['taskid']">
+                    $submission['task'].get_name()
+                </a>
+        $else:
+            <a class="list-group-item disabled submission-empty">No submissions</a>
+    </div>
+    $if user_manager.has_staff_rights_on_course(course):
+        $if not course.is_open_to_non_staff():
+            <div class="alert alert-warning" role="alert">
+                This course is currently invisible for students. 
+                You can change this by modifying the "accessibility" option in the configuration of the course.
+            </div>
+        <div class="list-group">
+            <a class="list-group-item list-group-item-info" href="/admin/$course.get_id()">
+                <i class="fa fa-user-secret fa-fw"></i>&nbsp; Course administration
+            </a>
+        </div>
+    $else:
+        <div class="list-group">
+            <a class="list-group-item list-group-item-info" href="/?unregister_courseid=$course.get_id()">
+                <i class="fa fa-ban fa-fw"></i>&nbsp; Unregister from this course
+            </a>
+        </div>
+$var Column: $:ColumnF()
+
+$def NavbarF():
+    <ol class="nav navbar-nav nav-breadcrumb">
+        <li><a  href="/course/$course.get_id()">$course.get_name()</a></li>
+        <li class="active"><a href="#"><i class="fa fa-group"></i>
+            $if group is None:
+                Register for a group
+            $else:
+                $group["description"]
+            <span class="sr-only">(current)</span></a>
+        </li>
+    </ol>
+$var Navbar: $:NavbarF()
+
+$# Start content
+$if group is None:
+        <h2>$course.get_name() - Register in a group</h2>
+        $if error:
+            <div class="alert alert-danger" role="alert">$error</div>
+
+        $if len(available_groups) == 0:
+            <div class="alert alert-warning" role="alert">No more groups available. Please contact course administrator.</div>
+        $else:
+            <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                $for group in available_groups:
+                    <div class="panel panel-default">
+                        <div class="panel-heading" role="tab" id="heading_$group['_id']">
+                            <h4 class="panel-title">
+                                <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapse_$group['_id']" aria-expanded="false" aria-controls="collapse_$group['_id']">
+                                    $group["description"] (available : $(group["size"]-len(group["users"])) )
+                                </a>
+                                <div class="pull-right">
+                                    <a href="?register_group=$group['_id']" class="fa fa-sign-in" data-toggle="tooltip" title="Join in"></a>
+                                </div>
+                            </h4>
+                        </div>
+                        <div id="collapse_$group['_id']" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_$group['_id']">
+                            <div class="panel-body">
+                                $if len(group["users"]) == 0:
+                                    <span>No registered member.</span>
+                                $else:
+                                    <span>Current members :</span>
+                                    <ul class="list-group">
+                                    $for user in group["users"]:
+                                        <li class="list-group-item">$user ($users[user]["realname"])</li>
+                                    </ul>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+$else:
+        <h2>$course.get_name() - $group["description"]</h2>
+        <h3>Students</h3>
+        <div class="list-group">
+            $for user in group["users"]:
+                <div class="list-group-item">$user ($users[user]["realname"])</div>
+        </div>
+        <h3>Tutors</h3>
+        <div class="list-group">
+            $for user in group["tutors"]:
+                <div class="list-group-item">$user ($users[user]["realname"])</div>
+        </div>

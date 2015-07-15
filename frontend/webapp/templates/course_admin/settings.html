@@ -1,0 +1,231 @@
+$def with (course,errors,saved)
+
+$# Copyright (c) 2014-2015 Université Catholique de Louvain.
+$#
+$# This file is part of INGInious.
+$#
+$# INGInious is free software: you can redistribute it and/or modify
+$# it under the terms of the GNU Affero General Public License as published
+$# by the Free Software Foundation, either version 3 of the License, or
+$# (at your option) any later version.
+$#
+$# INGInious is distributed in the hope that it will be useful,
+$# but WITHOUT ANY WARRANTY; without even the implied warranty of
+$# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+$# GNU Affero General Public License for more details.
+$#
+$# You should have received a copy of the GNU Affero General Public
+$# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
+
+$var title: $:course.get_name() - Settings
+
+$var Column: $:template_helper.call('course_admin_menu',course=course,current='settings')
+
+$def NavbarF():
+    <ol class="nav navbar-nav nav-breadcrumb">
+        <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
+        <li><a href="/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+            <i class="fa fa-user-secret"></i></a></li>
+        <li class="active"><a href="#"><i class="fa fa-cog"></i> Course settings <span class="sr-only">(current)</span></a></li>
+    </ol>
+$var Navbar: $:NavbarF()
+
+<h2>Course settings</h2>
+$if errors is not None:
+    $for error in errors:
+        <div class="alert alert-danger" role="alert">$error</div>
+$elif saved:
+    <div class="alert alert-success" role="alert">Settings saved.</div>
+<form id="edit_course_form" action="/admin/${course.get_id()}/settings" method="post" class="form-horizontal">
+    <div class="form-group">
+        <label for="name" class="col-sm-2 control-label">Name</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="name" name="name" placeholder="title" value="$course.get_name()">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="admins" class="col-sm-2 control-label">Administrators</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="admins" name="admins" placeholder="Usernames of the administrators, separated by commas"
+                   value="$','.join(course.get_admins())">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="tutors" class="col-sm-2 control-label">Tutors</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="tutors" name="tutors" placeholder="Usernames of the tutors, separated by commas"
+                   value="$','.join(course.get_tutors())">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="groups" class="col-sm-2 control-label">Submission mode</label>
+        <div class="col-sm-10">
+            <label>
+                <input type="radio" value="false" name="groups" id="groups"
+                    $if not course.is_group_course():
+                        checked="checked"
+                /> Individually
+            </label><br/>
+            <label>
+                <input type="radio" value="true" name="groups"
+                    $if course.is_group_course():
+                        checked="checked"
+                /> Per groups
+            </label>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="groups_student_choice" class="col-sm-2 control-label">Group attribution</label>
+        <div class="col-sm-10">
+            <label>
+                <input type="radio" value="false" name="groups_student_choice" id="groups_student_choice"
+                    $if not course.can_students_choose_group():
+                        checked="checked"
+                /> Staff attributes groups to students
+            </label><br/>
+            <label>
+                <input type="radio" value="true" name="groups_student_choice"
+                    $if course.can_students_choose_group():
+                        checked="checked"
+                /> Students can choose their groups at registration time
+            </label>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="accessible" class="col-sm-2 control-label">Accessibility</label>
+        <div class="col-sm-10">
+            <label>
+                <input type="radio" value="false" name="accessible"
+                    $if course.get_accessibility().is_never_accessible():
+                        checked="checked"
+                /> Course hidden from students
+            </label><br/>
+            <label>
+                <input type="radio" value="true" name="accessible"
+                    $if course.get_accessibility().is_always_accessible():
+                        checked="checked"
+                /> Always accessible
+            </label><br/>
+            <label>
+                <input type="radio" value="custom" name="accessible"
+                    $if not course.get_accessibility().is_never_accessible() and not course.get_accessibility().is_always_accessible():
+                        checked="checked"
+                /> Custom:
+            </label>
+            $ at = course.get_accessibility()
+            <div class="row">
+                <div class="col-xs-2 col-lg-2"><label class="control-label">From</label></div>
+                <div class="col-xs-10 col-lg-4">
+                    <div class='input-group date' id='accessible_start_picker'>
+                        <input name="accessible_start" data-date-format="YYYY-MM-DD HH:mm:ss" value="${at.get_std_start_date()}" placeholder="2014-06-29 10:00" type='text' class="form-control" />
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    </div>
+                </div>
+                <div class="col-xs-2 col-lg-2"><label class="control-label">To</label></div>
+                <div class="col-xs-10 col-lg-4">
+                    <div class='input-group date' id='accessible_end_picker'>
+                        <input name="accessible_end" data-date-format="YYYY-MM-DD HH:mm:ss" value="${at.get_std_end_date()}" placeholder="2014-06-29 10:00" type='text' class="form-control" />
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    </div>
+                </div>
+            </div>
+            <script type="text/javascript">
+                \$(function() {
+                    \$('#accessible_start_picker').datetimepicker({useSeconds: true,sideBySide: true});
+                    \$('#accessible_end_picker').datetimepicker({useSeconds: true,sideBySide: true});
+                });
+            </script>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="accessible" class="col-sm-2 control-label">Registration</label>
+        <div class="col-sm-10">
+            <label>
+                <input type="radio" value="false" name="registration"
+                    $if course.get_registration_accessibility().is_never_accessible():
+                        checked="checked"
+                /> Closed
+            </label><br/>
+            <label>
+                <input type="radio" value="true" name="registration"
+                    $if course.get_registration_accessibility().is_always_accessible():
+                        checked="checked"
+                /> Always open
+            </label><br/>
+            <label>
+                <input type="radio" value="custom" name="registration"
+                    $if not course.get_registration_accessibility().is_never_accessible() and not course.get_registration_accessibility().is_always_accessible():
+                        checked="checked"
+                /> Custom:
+            </label>
+            $ at = course.get_registration_accessibility()
+            <div class="row">
+                <div class="col-xs-2 col-lg-2"><label class="control-label">From</label></div>
+                <div class="col-xs-10 col-lg-4">
+                    <div class='input-group date' id='registration_start_picker'>
+                        <input name="registration_start" data-date-format="YYYY-MM-DD HH:mm:ss" value="${at.get_std_start_date()}" placeholder="2014-06-29 10:00" type='text' class="form-control" />
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    </div>
+                </div>
+                <div class="col-xs-2 col-lg-2"><label class="control-label">To</label></div>
+                <div class="col-xs-10 col-lg-4">
+                    <div class='input-group date' id='registration_end_picker'>
+                        <input name="registration_end" data-date-format="YYYY-MM-DD HH:mm:ss" value="${at.get_std_end_date()}" placeholder="2014-06-29 10:00" type='text' class="form-control" />
+                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    </div>
+                </div>
+            </div>
+            <script type="text/javascript">
+                \$(function() {
+                    \$('#registration_start_picker').datetimepicker({useSeconds: true,sideBySide: true});
+                    \$('#registration_end_picker').datetimepicker({useSeconds: true,sideBySide: true});
+                });
+            </script>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="name" class="col-sm-2 control-label">Registration password</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" id="registration_password" name="registration_password" 
+            placeholder="Password needed for registration. Leave blank if you don't want to set a password." 
+            value="${course.get_registration_password()}">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="registration_ac" class="col-sm-2 control-label">Access control</label>
+        <div class="col-sm-10">
+            <label>
+                <input type="radio" value="None" name="registration_ac" id="registration_ac"
+                    $if course.get_access_control_method() is None:
+                        checked="checked"
+                /> No access control (everyone can register)
+            </label><br/>
+            <label>
+                <input type="radio" value="username" name="registration_ac"
+                    $if course.get_access_control_method() == "username":
+                        checked="checked"
+                /> Check by username
+            </label><br/>
+            <label>
+                <input type="radio" value="realname" name="registration_ac"
+                    $if course.get_access_control_method() == "realname":
+                        checked="checked"
+                /> Check by real name
+            </label><br/>
+            <label>
+                <input type="radio" value="email" name="registration_ac"
+                    $if course.get_access_control_method() == "email":
+                        checked="checked"
+                /> Check by email
+            </label>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="registration_ac_list" class="col-sm-2 control-label">Access control list</label>
+        <div class="col-sm-10">
+            <textarea class="form-control" id="registration_ac_list" name="registration_ac_list" rows="10" placeholder="Only used if access control is activated. Separate users by new lines.">$"\n".join(course.get_access_control_list())</textarea>
+        </div>
+    </div>
+    <button class="btn btn-primary btn-block" type="submit"><i class="fa fa-download"></i> Save changes</button>
+    
+</form>

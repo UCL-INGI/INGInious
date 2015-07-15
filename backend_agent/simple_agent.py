@@ -31,10 +31,9 @@ import re
 import docker
 from docker.utils import kwargs_from_env
 import rpyc
+from common.course_factory import create_factories
 
 from backend_agent._rpyc_unix_server import UnixSocketServer
-import common.base
-from common.courses import Course
 
 
 class SimpleAgent(object):
@@ -44,12 +43,15 @@ class SimpleAgent(object):
     """
     logger = logging.getLogger("agent")
 
-    def __init__(self, tmp_dir="./agent_tmp"):
+    def __init__(self, task_directory, course_factory, task_factory, tmp_dir="./agent_tmp"):
         from backend_agent._cgroup_helper import CGroupTimeoutWatcher, CGroupMemoryWatcher
 
         self.logger.info("Starting agent")
         self.image_aliases = []
         self.tmp_dir = tmp_dir
+        self.task_directory = task_directory
+        self.course_factory = course_factory
+        self.task_factory = task_factory
 
         # Delete tmp_dir, and recreate-it again
         try:
@@ -278,7 +280,7 @@ class SimpleAgent(object):
 
         # Get back the task data (for the limits)
         try:
-            task = Course(course_id).get_task(task_id)
+            task = self.course_factory.get_task(course_id, task_id)
         except:
             self.logger.warning("Task %s/%s unavailable on this agent", course_id, task_id)
             return {'result': 'crash', 'text': 'Task unavailable on agent. Please retry later, the agents should synchronize soon. If the error '
@@ -311,7 +313,7 @@ class SimpleAgent(object):
         os.chmod(container_path, 0777)
         os.chmod(sockets_path, 0777)
 
-        copytree(os.path.join(common.base.get_tasks_directory(), task.get_course_id(), task.get_id()), task_path)
+        copytree(os.path.join(self.task_directory, task.get_course_id(), task.get_id()), task_path)
         os.chmod(task_path, 0777)
 
         if not os.path.exists(student_path):

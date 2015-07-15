@@ -23,12 +23,9 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.abspath(os.path.dirname(os.path.realpath(__file__))), '..', '..'))
 
-from common.task_file_managers.manage import add_custom_task_file_manager, delete_all_possible_task_files, get_task_file_manager
-from common.task_file_managers.yaml_manager import TaskYAMLFileManager
-import frontend.plugins.task_file_managers.json_manager
-import frontend.plugins.task_file_managers.rst_manager
-import common.base
-from common.courses import Course
+import frontend.webapp.plugins.task_file_readers.json_reader
+import frontend.webapp.plugins.task_file_readers.rst_reader
+from common.course_factory import create_factories
 import argparse
 import tidylib
 
@@ -69,23 +66,19 @@ if __name__ == "__main__":
         print "Please select at least one of --delete-html and --yaml-convert. See task_converter.py --help"
         exit(1)
 
-    # Init common
-    common.base.init_common_lib(args.tasks, [], 1)  # we do not need to upload file, so not needed here
-    add_custom_task_file_manager(frontend.plugins.task_file_managers.json_manager.TaskJSONFileManager)
-    add_custom_task_file_manager(frontend.plugins.task_file_managers.rst_manager.TaskRSTFileManager)
+    course_factory, task_factory = create_factories(args.tasks)
 
-    courses = Course.get_all_courses()
+    task_factory.add_custom_task_file_manager(frontend.webapp.plugins.task_file_readers.json_reader.TaskJSONFileReader)
+    task_factory.add_custom_task_file_manager(frontend.webapp.plugins.task_file_readers.rst_reader.TaskRSTFileReader)
+
+    courses = course_factory.get_all_courses()
     for courseid, course in courses.iteritems():
         for taskid, task in course.get_tasks().iteritems():
-            data = get_task_file_manager(courseid, taskid).read()
+            data = task_factory.get_task_descriptor_content(courseid, taskid)
 
             # Convert *IsHTML if needed
             if args.html:
                 convert_html(data)
 
             # Save
-            if not args.yaml: #in original format
-                get_task_file_manager(courseid, taskid).write(data)
-            else: #force YAML
-                delete_all_possible_task_files(courseid, taskid)
-                TaskYAMLFileManager(courseid, taskid).write(data)
+            task_factory.update_task_descriptor_content(courseid, taskid, data, force_extension=(None if not args.yaml else "yaml"))

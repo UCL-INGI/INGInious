@@ -27,12 +27,13 @@ sys.path.append('/agent')
 import logging
 import docker
 from docker.utils import kwargs_from_env
+from common.course_factory import create_factories
 
 from backend_agent.remote_agent import RemoteAgent
 import common.base
 
 if __name__ == "__main__":
-    common.base.init_common_lib("./tasks", [], 1)  # we do not need to upload file, so not needed here
+    course_factory, task_factory = create_factories("./tasks")
 
     # create logger
     logger = logging.getLogger("agent")
@@ -66,4 +67,4 @@ if __name__ == "__main__":
     if not os.path.exists(mounted_dir):
         os.symlink("/agent_volume", mounted_dir)
 
-    RemoteAgent(int(os.environ["AGENT_PORT"]), mounted_dir, True)
+    RemoteAgent(int(os.environ["AGENT_PORT"]), "./tasks", course_factory, task_factory, mounted_dir, True)

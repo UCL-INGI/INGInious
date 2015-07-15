@@ -31,9 +31,8 @@ import rpyc
 from rpyc import BgServingThread
 
 from backend.job_managers.abstract import AbstractJobManager
-from common.base import directory_compare_from_hash, get_tasks_directory, directory_content_with_hash, hash_file
+from common.base import directory_compare_from_hash, directory_content_with_hash, hash_file
 import common.custom_yaml
-from common.task_file_managers.manage import get_available_task_file_managers, get_task_file_manager
 
 
 class RemoteManualAgentJobManager(AbstractJobManager):
@@ -43,7 +42,7 @@ class RemoteManualAgentJobManager(AbstractJobManager):
         container images, etc.
     """
 
-    def __init__(self, agents, image_aliases, hook_manager=None, is_testing=False):
+    def __init__(self, agents, image_aliases, task_directory, course_factory, task_factory, hook_manager=None, is_testing=False):
         """
             Starts the job manager.
 
@@ -57,14 +56,23 @@ class RemoteManualAgentJobManager(AbstractJobManager):
                         'host': "the host of the agent",
                         'port': "the port on which the agent listens"
                     }
+            :param task_directory: the task directory
+            :param course_factory: a CourseFactory object
+            :param task_factory: a TaskFactory object, possibly with specific task files managers attached
             :param image_aliases: a dict of image aliases, like {"default": "ingi/inginious-c-default"}.
             :param hook_manager: An instance of HookManager. If no instance is given(None), a new one will be created.
         """
 
         AbstractJobManager.__init__(self, image_aliases, hook_manager, is_testing)
+
+        self._task_directory = task_directory
+
         self._agents = [None for _ in range(0, len(agents))]
         self._agents_thread = [None for _ in range(0, len(agents))]
         self._agents_info = agents
+
+        self._course_factory = course_factory
+        self._task_factory = task_factory
 
         self._next_agent = 0
         self._running_on_agent = [[] for _ in range(0, len(agents))]
@@ -73,7 +81,7 @@ class RemoteManualAgentJobManager(AbstractJobManager):
 
     def start(self):
         # init the synchronization of task directories
-        self._last_content_in_task_directory = directory_content_with_hash(get_tasks_directory())
+        self._last_content_in_task_directory = directory_content_with_hash(self._task_directory)
         threading.Timer((30 if not self._is_testing else 2), self._try_synchronize_task_dir).start()
 
         # connect to agents
@@ -112,7 +120,7 @@ class RemoteManualAgentJobManager(AbstractJobManager):
         if self._closed:
             return
 
-        current_content_in_task_directory = directory_content_with_hash(get_tasks_directory())
+        current_content_in_task_directory = directory_content_with_hash(self._task_directory)
         changed, deleted = directory_compare_from_hash(current_content_in_task_directory, self._last_content_in_task_directory)
         if len(changed) != 0 or len(deleted) != 0:
             self._last_content_in_task_directory = current_content_in_task_directory
@@ -136,7 +144,7 @@ class RemoteManualAgentJobManager(AbstractJobManager):
 
         # As agent only supports task.yaml files as descriptors (and not exotic things like task.rst...), we have to ensure that we convert and send
         # task.yaml files to it.
-        task_files_to_convert = ["task." + ext for ext in get_available_task_file_managers()]
+        task_files_to_convert = ["task." + ext for ext in self._task_factory.get_available_task_file_extensions()]
         task_files_to_convert.remove("task.yaml")
 
         new_local_td = {}
@@ -147,7 +155,7 @@ class RemoteManualAgentJobManager(AbstractJobManager):
                 try:
                     path_to_file, _ = os.path.split(file_path)
                     courseid, taskid = match.group(1), match.group(2)
-                    content = get_task_file_manager(courseid, taskid).read()
+                    content = self._task_factory.get_task_descriptor_content(courseid, taskid)
                     yaml_content = StringIO(common.custom_yaml.dump(content).encode('utf-8'))
                     new_local_td[os.path.join(path_to_file, "task.yaml")] = (hash_file(yaml_content), 0o777)
                     yaml_content.seek(0)
@@ -177,14 +185,14 @@ class RemoteManualAgentJobManager(AbstractJobManager):
         tar = tarfile.open(fileobj=tmpfile, mode='w:gz')
         for path in to_update:
             # be a little safe about what the agent returns...
-            if os.path.relpath(os.path.join(get_tasks_directory(), path), get_tasks_directory()) == path and ".." not in path:
+            if os.path.relpath(os.path.join(self._task_directory, path), self._task_directory) == path and ".." not in path:
                 if path in generated_files:  # the file do not really exists on disk, it was generated
                     info = tarfile.TarInfo(name=path)
                     info.size = generated_files[path].len
                     info.mode = 0o777
                     tar.addfile(tarinfo=info, fileobj=generated_files[path])
                 else:  # the file really exists on disk
-                    tar.add(arcname=path, name=os.path.join(get_tasks_directory(), path))
+                    tar.add(arcname=path, name=os.path.join(self._task_directory, path))
             else:
                 print "Agent returned non-safe file path: " + path
         tar.close()

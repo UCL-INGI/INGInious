@@ -1,0 +1,108 @@
+$def with (course, bid, done, container_name, container_title, container_description, submitted_on, retval, stdout, stderr, file_list)
+
+$# Copyright (c) 2014-2015 Université Catholique de Louvain.
+$#
+$# This file is part of INGInious.
+$#
+$# INGInious is free software: you can redistribute it and/or modify
+$# it under the terms of the GNU Affero General Public License as published
+$# by the Free Software Foundation, either version 3 of the License, or
+$# (at your option) any later version.
+$#
+$# INGInious is distributed in the hope that it will be useful,
+$# but WITHOUT ANY WARRANTY; without even the implied warranty of
+$# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+$# GNU Affero General Public License for more details.
+$#
+$# You should have received a copy of the GNU Affero General Public
+$# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
+
+$var title: $:course.get_name() - Batch operations - Summary of job $bid
+
+$var Column: $:template_helper.call('course_admin_menu',course=course,current='batch')
+
+$def NavbarF():
+    <ol class="nav navbar-nav nav-breadcrumb">
+        <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
+        <li><a href="/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+            <i class="fa fa-user-secret"></i></a></li>
+        <li><a href="/admin/$course.get_id()/batch" title="Batch operations" data-toggle="tooltip" data-placement="bottom">
+            <i class="fa fa-rocket"></i></a></li>
+        <li class="active"><a href="#">Summary of job $bid[:10] <span class="sr-only">(current)</span></a></li>
+    </ol>
+$var Navbar: $:NavbarF()
+
+<h2>Summary of batch job $bid[:10]</h2>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Job information</div>
+    <table class="table table-bordered table-condensed">
+        <tr>
+            <th>Submitted on</th>
+            <td>$submitted_on.strftime("%d/%m/%Y %H:%M:%S")</td>
+        </tr>
+        <tr>
+            <th>Status</th>
+            <td>
+                $if not done:
+                    Still in progress
+                $elif retval == 0:
+                    Results available
+                $elif retval < 0:
+                    An internal error occured
+                $else:
+                    Container returned an error
+            </td>
+        </tr>
+        $if user_manager.has_admin_rights_on_course(course):
+            <tr>
+                <th>Return value</th>
+                <td>$retval</td>
+            </tr>
+            $if stdout != "":
+                <tr>
+                    <th>Standard output</th>
+                    <td><pre>$stdout</pre></td>
+                </tr>
+            $if stderr != "":
+                <tr>
+                    <th>Standard error</th>
+                    <td>
+                        <pre>$stderr</pre>
+                    </td>
+                </tr>
+    </table>
+</div>
+
+$if file_list is not None:
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Files returned
+            <a href="/admin/$course.get_id()/batch/download/$bid" class="btn btn-success btn-sm" data-toggle="tooltip" data-placement="bottom"
+               title="download results"><i class="fa fa-download"></i></a>
+        </div>
+        <div class="list-group">
+            $for p in file_list:
+                <a href="/admin/$course.get_id()/batch/download/$bid/$p" class="list-group-item">$p</a>
+        </div>
+    </div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Container information</div>
+    <table class="table table-bordered table-condensed">
+        $if container_name != container_title:
+            <tr>
+                <th>Container title</th>
+                <td>$container_title</td>
+            </tr>
+        $if container_description != "":
+            <tr>
+                <th>Container description</th>
+                <td>$:container_description</td>
+            </tr>
+        <tr>
+            <th>Container image name</th>
+            <td>$container_name</td>
+        </tr>
+    </table>
+</div>

@@ -24,10 +24,10 @@
 """
 import sys
 
-import common.base
-import frontend
-from frontend.custom.courses import FrontendCourse
-from frontend.custom.tasks import FrontendTask
+from frontend.webapp.custom.courses import FrontendCourse
+from frontend.webapp.custom.tasks import FrontendTask
+
+
 def usage():
     """ Usage """
     print "Usage: checktask course_id/task_id"
@@ -42,11 +42,11 @@ courseid = ids[0]
 taskid = ids[1]
 
 # Change default path to task Directory
-frontend.configuration.INGIniousConfiguration.load("./configuration.json")
-taskdir = frontend.configuration.INGIniousConfiguration['tasks_directory'] + '/' + courseid + '/' + taskid
+webapp.configuration.INGIniousConfiguration.load("./configuration.json")
+taskdir = webapp.configuration.INGIniousConfiguration['tasks_directory'] + '/' + courseid + '/' + taskid
 
 # HTML Tidy
-frontend.configuration.INGIniousConfiguration["allow_html"] = "tidy"
+webapp.configuration.INGIniousConfiguration["allow_html"] = "tidy"
 
 try:
     FrontendTask(FrontendCourse(courseid), taskid)

@@ -12,5 +12,5 @@ doc/_*
 tasks
 !tests/tasks
 !*/tests/tasks
-!frontend/templates/tasks
+!frontend/webapp/templates/tasks
 utils/task_tester/tests/

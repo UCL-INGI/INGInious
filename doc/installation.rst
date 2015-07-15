@@ -75,8 +75,6 @@ Some remarks:
 
 - (python-)sh and git are dependencies of the submission_repo plugin
 
-- libtidy and pytidylib are only needed if you use htmltidy to check tasks' output or if you use the edX plugin
-
 .. _EPEL: https://fedoraproject.org/wiki/EPEL
 
 You can then start the services *mongod* and *docker*.
@@ -125,9 +123,7 @@ Windows 7+
 Download and install python_, boot2docker_ and mongodb_. Then proceed to the installation of the following Python
 plugins :
 
-.. _python: https://www.python.org/
 .. _boot2docker: http://boot2docker.io/
-.. _mongodb: https://www.mongodb.org/
 
 ::
 
@@ -189,7 +185,6 @@ It content is :
       - plugin_module: frontend.plugins.auth.demo_auth
         users:
             test: test
-    allow_html: tidy
 
 The different entries are :
 
@@ -228,20 +223,6 @@ The different entries are :
 ``plugins``
     A list of plugin modules together with configuration options.
     See :ref:`plugins` for detailed information on available plugins, including their configuration.
-
-``allow_html``
-    This parameter accepts three options that define if and how HTML values in strings are treated.
-    This option applies globally on descriptions, titles and all strings directly displayed.
-    By default, all text is supposed to be in reStructuredText format but ``*IsHTML`` options are available in :ref:`course.yaml` and :ref:`task.yaml`.
-
-    ``false``
-        HTML is never allowed.
-
-    ``"tidy"``
-        HTML will be sanitized by the HTML Tidy library, to ensure that it is well-formed and will not impact the remaining of the document it is included in.
-
-    ``true``
-        HTML is always accepted, and never sanitized. (discouraged)
 
 .. _pre-built containers: https://registry.hub.docker.com/search?q=ingi%2Finginious-c-*&searchfield=
 .. _docker-py API: https://github.com/docker/docker-py/blob/master/docs/api.md#client-api

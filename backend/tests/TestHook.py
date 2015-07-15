@@ -18,8 +18,7 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 
 from backend.tests.TestJobManager import TestLocalJobManager
-from common.courses import Course
-from backend.hook_manager import HookManager
+from common.hook_manager import HookManager
 
 
 class TestHook(TestLocalJobManager):
@@ -36,7 +35,7 @@ class TestHook(TestLocalJobManager):
 
     def test_ok(self):
         self.is_ok = False
-        self.job_manager.new_job(Course('test').get_task('no_run'), {"problem_id": "1"}, self.default_callback)
+        self.job_manager.new_job(self.course_factory.get_task('test', 'no_run'), {"problem_id": "1"}, self.default_callback)
         self.wait_for_callback()
         assert self.is_ok
 
@@ -54,11 +53,11 @@ class TestHookNoCrash(TestLocalJobManager):
         return hook_manager
 
     def test_ok(self):
-        self.job_manager.new_job(Course('test').get_task('no_run'), {"problem_id": "1"}, self.default_callback)
+        self.job_manager.new_job(self.course_factory.get_task('test', 'no_run'), {"problem_id": "1"}, self.default_callback)
         self.wait_for_callback()
         assert self.got_callback_result["result"] == "success"
 
         # Twice to verify it still works after the first exception ;-)
-        self.job_manager.new_job(Course('test').get_task('no_run'), {"problem_id": "1"}, self.default_callback)
+        self.job_manager.new_job(self.course_factory.get_task('test', 'no_run'), {"problem_id": "1"}, self.default_callback)
         self.wait_for_callback()
         assert self.got_callback_result["result"] == "success"
