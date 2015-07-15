@@ -13,4 +13,4 @@ tasks
 !tests/tasks
 !*/tests/tasks
 !frontend/webapp/templates/tasks
-utils/task_tester/tests/
+utils/task_manual_tester/tests/

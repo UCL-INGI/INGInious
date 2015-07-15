@@ -63,13 +63,13 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.html is False and args.yaml is False:
-        print "Please select at least one of --delete-html and --yaml-convert. See task_converter.py --help"
+        print "Please select at least one of --delete-html and --convert-yaml. See task_converter.py --help"
         exit(1)
 
     course_factory, task_factory = create_factories(args.tasks)
 
-    task_factory.add_custom_task_file_manager(frontend.webapp.plugins.task_file_readers.json_reader.TaskJSONFileReader)
-    task_factory.add_custom_task_file_manager(frontend.webapp.plugins.task_file_readers.rst_reader.TaskRSTFileReader)
+    task_factory.add_custom_task_file_manager(frontend.webapp.plugins.task_file_readers.json_reader.TaskJSONFileReader())
+    task_factory.add_custom_task_file_manager(frontend.webapp.plugins.task_file_readers.rst_reader.TaskRSTFileReader())
 
     courses = course_factory.get_all_courses()
     for courseid, course in courses.iteritems():
