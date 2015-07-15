@@ -102,7 +102,8 @@ class SubmissionManager(object):
             "status": "waiting",
             "submitted_on": datetime.now()}
 
-        if course.is_group_course() and not self._user_manager.has_staff_rights_on_course(course, username):
+        if course.is_group_course() and not self._user_manager.has_staff_rights_on_course(course, username) \
+                and task.is_group_task():
             group = self._database.groups.find_one({"course_id": task.get_course_id(), "users": username})
             obj.update({"username": group["users"], "groupid": group["_id"]})
         else:

@@ -3,6 +3,7 @@ author: Anthony Gégo
 context: This sample tasks aims to test the basic functionality of the default environment.
     It aims to test sample input/output.
 environment: default
+groups: false
 limits:
     memory: '32'
     output: '5210'

@@ -98,12 +98,22 @@ $def ColumnF():
                     <i class="fa fa-wrench fa-fw"></i>&nbsp; Debug informations
                 </a>
         </div>
-    $elif course.is_group_course():
+    $elif course.is_group_course() and task.is_group_task():
+        <h3>Submitting as</h3>
         <div class="list-group">
             <a class="list-group-item list-group-item-info" href="/group/$course.get_id()">
-                <i class="fa fa-group fa-fw"></i>&nbsp; $user_manager.get_course_user_group(course)["description"]
+                <i class="fa fa-group fa-fw"></i>&nbsp; <b>Group :  $user_manager.get_course_user_group(course)["description"]</b>
             </a>
         </div>
+    $else:
+        <h3>Submitting as</h3>
+        <div class="list-group">
+            <div class="list-group-item list-group-item-info">
+                <i class="fa fa-user fa-fw"></i>&nbsp; <b>Individual student</b>
+            </div>
+        </div>
+
+
 
     <h3>Submissions</h3>
     <div id="submissions_restrictsize">

@@ -66,6 +66,9 @@ class FrontendTask(common.tasks.Task):
         # Order
         self._order = int(self._data.get('order', -1))
 
+        # Group task
+        self._groups = bool(self._data.get("groups", True))
+
     def get_name(self):
         """ Returns the name of this task """
         return self._name
@@ -108,3 +111,7 @@ class FrontendTask(common.tasks.Task):
         for problem in self._problems:
             input_data = problem.adapt_input_for_backend(input_data)
         return input_data
+
+    def is_group_task(self):
+        """ Indicates if the task submission mode is per groups """
+        return self._groups
