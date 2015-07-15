@@ -32,7 +32,7 @@ import docker
 from docker.utils import kwargs_from_env
 import rpyc
 
-from backend_agent._rpyc_unix_server import UnixSocketServer
+from backend.agent._rpyc_unix_server import UnixSocketServer
 
 
 class SimpleAgent(object):
@@ -43,7 +43,7 @@ class SimpleAgent(object):
     logger = logging.getLogger("agent")
 
     def __init__(self, task_directory, course_factory, task_factory, tmp_dir="./agent_tmp"):
-        from backend_agent._cgroup_helper import CGroupTimeoutWatcher, CGroupMemoryWatcher
+        from backend.agent._cgroup_helper import CGroupTimeoutWatcher, CGroupMemoryWatcher
 
         self.logger.info("Starting agent")
         self.image_aliases = []

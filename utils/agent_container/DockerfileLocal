@@ -22,8 +22,9 @@ VOLUME /agent_volume
 VOLUME /sys/fs/cgroup
 
 ADD common /agent/common
-ADD backend_agent /agent/backend_agent
+ADD backend/agent /agent/backend/agent
+RUN touch /agent/backend/__init__.py
 WORKDIR /agent
-CMD ["/agent/backend_agent/start_container_agent.py"]
+CMD ["/agent/backend/agent/start_container_agent.py"]
 
 LABEL agent-version=0.3

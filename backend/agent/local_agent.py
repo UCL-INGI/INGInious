@@ -20,7 +20,7 @@
 
 import threading
 
-from backend_agent.simple_agent import SimpleAgent
+from backend.agent.simple_agent import SimpleAgent
 
 
 class LocalAgent(SimpleAgent):

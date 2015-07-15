@@ -20,7 +20,7 @@
 can access directly to docker and cgroups."""
 
 from backend.job_managers.abstract import AbstractJobManager
-from backend_agent.local_agent import LocalAgent
+from backend.agent.local_agent import LocalAgent
 
 
 class LocalJobManager(AbstractJobManager):
