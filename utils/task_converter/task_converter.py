@@ -23,9 +23,8 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.abspath(os.path.dirname(os.path.realpath(__file__))), '..', '..'))
 
-import webapp.plugins.task_file_readers.json_reader
-import webapp.plugins.task_file_readers.rst_reader
-import common.base
+import frontend.webapp.plugins.task_file_readers.json_reader
+import frontend.webapp.plugins.task_file_readers.rst_reader
 from common.course_factory import create_factories
 import argparse
 import tidylib
@@ -69,8 +68,8 @@ if __name__ == "__main__":
 
     course_factory, task_factory = create_factories(args.tasks)
 
-    task_factory.add_custom_task_file_manager(webapp.plugins.task_file_readers.json_reader.TaskJSONFileReader)
-    task_factory.add_custom_task_file_manager(webapp.plugins.task_file_readers.rst_reader.TaskRSTFileReader)
+    task_factory.add_custom_task_file_manager(frontend.webapp.plugins.task_file_readers.json_reader.TaskJSONFileReader)
+    task_factory.add_custom_task_file_manager(frontend.webapp.plugins.task_file_readers.rst_reader.TaskRSTFileReader)
 
     courses = course_factory.get_all_courses()
     for courseid, course in courses.iteritems():

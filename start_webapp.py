@@ -19,9 +19,10 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Starts the webapp """
 
-import webapp.app
 import os
 import argparse
+
+import frontend.webapp.app
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -39,4 +40,4 @@ if __name__ == "__main__":
         else:
             raise Exception("No configuration file found")
 
-    webapp.app.start_app(config, hostname=args.host, port=args.port)
+    frontend.webapp.app.start_app(config, hostname=args.host, port=args.port)
