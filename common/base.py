@@ -84,6 +84,9 @@ def directory_compare_from_hash(from_directory, to_directory):
     :param to_directory: dict in the form {file: (hash of the file, stat of the file)} from directory_content_with_hash
     :return: a tuple containing two list: the files that should be uploaded to "to_directory" and the files that should be removed from "to_directory"
     """
+    from_directory = dict([(os.path.normpath(path), (filehash, stat)) for path, (filehash, stat) in from_directory.iteritems()])
+    to_directory = dict([(os.path.normpath(path), (filehash, stat)) for path, (filehash, stat) in to_directory.iteritems()])
+
     to_upload = []
     to_delete = []
     for path, (filehash, stat) in from_directory.iteritems():
