@@ -20,117 +20,24 @@
 import difflib
 import getopt
 import glob
-import json
 import os
 import sys
+import time
 
-import docker
+sys.path.append(os.path.join(os.path.abspath(os.path.dirname(os.path.realpath(__file__))),'..','..'))
 
-import common.base
 import common.courses
 import common.tasks
-def run_task(task, inputdata):
-    # Define memory limits
-    mem_limit = task.get_limits()["memory"]
-    if mem_limit < 20:
-        mem_limit = 20
-    elif mem_limit > 500:
-        mem_limit = 500
-
-    # Create container and fetch container id
-    response = dock.create_container(
-        'inginious/' +
-        task.get_environment(),
-        command='INGInious --debug',
-        stdin_open=True,
-        network_disabled=True,
-        volumes={
-            '/ro/task': {}},
-        mem_limit=mem_limit *
-        1024 *
-        1024)
-    container_id = response["Id"]
-
-    # Start the container
-    dock.start(container_id, binds={os.path.abspath(taskdir): {'ro': True, 'bind': '/ro/task'}})
-    dock.attach_socket(container_id, {'stdin': 1, 'stream': 1}).send(json.dumps(inputdata) + "\n")
-    dock.wait(container_id)
-
-    # Get the std outputs
-    stdout = str(dock.logs(container_id, stdout=True, stderr=False))
-    stderr = str(dock.logs(container_id, stdout=False, stderr=True))
-
-    # Delete used containers to avoid using too much disk space
-    dock.remove_container(container_id, True, False, True)
-    return stdout, stderr
+from common.base import load_json_or_yaml
+from common.course_factory import create_factories
+from frontend.common import backend_interface
+from frontend.common.parsable_text import ParsableText
 
 
-def usage():
-    print "Usage : test_task [-v|--verbose]  course_id/task_id"
-    print "Verbose mode prints the entire standard output from the task"
-    sys.exit(1)
+def job_done_callback(result, filename, inputfiles, data):
+    print '\x1b[34;1m[' + str(job_done_callback.jobs_done + 1) + '/' + str(len(inputfiles)) + ']' + " Testing input file : " + filename + '\033[0m'
 
-# We need to be sudo to run docker
-euid = os.geteuid()
-if euid != 0:
-    print "Script not started as root. Exiting..."
-    exit(2)
-
-# Read arguments from the command line
-try:
-    opts, args = getopt.getopt(sys.argv[1:], 'v', ['verbose'])
-    if not args:
-        usage()
-except getopt.GetoptError as e:
-    print e
-    sys.exit(1)
-
-
-verbose = False
-for opt, arg in opts:
-    if opt in ('-v', '--verbose'):
-        verbose = True
-
-
-# Read input argument
-ids = args[0].split('/')
-courseid = ids[0]
-taskid = ids[1]
-
-# Read configuration file to obtain tasks directory
-common.base.INGIniousConfiguration.load("./configuration.json")
-taskdir = common.base.INGIniousConfiguration['tasks_directory'] + '/' + courseid + '/' + taskid
-dock = docker.Client(base_url=common.base.INGIniousConfiguration.get("docker_instances")[0].get("server_url"))
-
-# Open the taskfile
-task = common.courses.Course(courseid).get_task(taskid)
-limits = task.get_limits()
-
-# List inputfiles
-inputfiles = glob.glob(taskdir + '/*.test')
-
-i = 1
-for filename in inputfiles:
-    filename = os.path.basename(filename)
-    print '\x1b[34;1m[' + str(i) + '/' + str(len(inputfiles)) + ']' + " Testing input file : " + filename + '\033[0m'
-
-    # Open the input file and merge with limits
-    try:
-        inputfile = open(taskdir + '/' + filename, 'r')
-    except IOError as e:
-        print e
-        exit(2)
-    data = common.custom_yaml.load(open(inputfile, "r"))
-    data['limits'] = limits
-
-    # Run the task
-    stdout, stderr = run_task(task, data)
-
-    if stderr:
-        print '\x1b[31;1m' + stderr + '\033[0m'
-
-    # Open freshly computed json
-    result = json.loads(stdout.strip('\0\n '))
+    job = _parse_text(task, result)
 
     # Print stdout if verbose
     if verbose:
@@ -207,4 +114,109 @@ for filename in inputfiles:
     if noprob:
         print "\033[32;1m-> All tests passed \033[0m"
 
-    i = i + 1
+    job_done_callback.jobs_done += 1
+
+job_done_callback.jobs_done = 0
+
+
+def get_config():
+    if os.path.isfile("./configuration.yaml"):
+        configfile = "./configuration.yaml"
+    elif os.path.isfile("./configuration.json"):
+        configfile = "./configuration.json"
+    else:
+        raise Exception("No configuration file found")
+
+    return load_json_or_yaml(configfile)
+
+
+def launch_job(filename, data, inputfiles):
+    job_manager.new_job(task, data["input"],
+                        (lambda job: job_done_callback(job, filename, inputfiles, data)),
+                        "Task tester",
+                        True)
+
+
+def usage():
+    print "Usage : test_task [-v|--verbose]  course_id/task_id"
+    print "Verbose mode prints the entire standard output from the task"
+    sys.exit(1)
+
+
+def _parse_text(task, job_result):
+    if "text" in job_result:
+        job_result["text"] = ParsableText(job_result["text"], task.get_response_type()).parse()
+    if "problems" in job_result:
+        for problem in job_result["problems"]:
+            job_result["problems"][problem] = ParsableText(job_result["problems"][problem], task.get_response_type()).parse()
+    return job_result
+
+if __name__ == "__main__":
+
+    # We need to be sudo to run docker
+    if not os.name == 'nt':
+        euid = os.geteuid()
+        if euid != 0:
+            print "Script not started as root. Exiting..."
+            exit(2)
+
+    # Read arguments from the command line
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], 'v', ['verbose'])
+        if not args:
+            usage()
+    except getopt.GetoptError as e:
+        print e
+        sys.exit(1)
+
+    verbose = False
+    for opt, arg in opts:
+        if opt in ('-v', '--verbose'):
+            verbose = True
+
+    # Read input argument
+    ids = args[0].split('/')
+    courseid = ids[0]
+    taskid = ids[1]
+
+    # Load configuration
+    config = get_config()
+
+    # Initialize course/task factory and job manager
+    task_directory = config["tasks_directory"]
+    backend_type = config.get("backend", "local")
+    course_factory, task_factory = create_factories(task_directory)
+    job_manager = backend_interface.create_job_manager(config, None, task_directory, course_factory, task_factory, True)
+    job_manager.start()
+
+    # Open the taskfile
+    task = course_factory.get_course(courseid).get_task(taskid)
+    limits = task.get_limits()
+
+    # List inputfiles
+    inputfiles = glob.glob(task_directory + "/" + courseid + "/" + taskid + '/*.test')
+
+    # Ensure job manager is entirely loaded
+    # TODO : Hook (for all types of job managers...)
+    time.sleep(3)
+
+    for filename in inputfiles:
+        filename = os.path.basename(filename)
+
+        # Open the input file and merge with limits
+        try:
+            inputfile = open(task_directory + "/" + courseid + "/" + taskid + '/' + filename, 'r')
+        except IOError as e:
+            print e
+            exit(2)
+
+        data = common.custom_yaml.load(inputfile)
+        data['limits'] = limits
+
+        launch_job(filename, data, inputfiles)
+
+    while job_done_callback.jobs_done < len(inputfiles):
+        pass
+
+    job_manager.close()
+    sys.exit(0)

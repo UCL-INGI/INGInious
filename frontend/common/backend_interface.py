@@ -23,8 +23,8 @@ from backend.job_managers.remote_docker import RemoteDockerJobManager
 from backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
 
 
-def create_job_manager(configuration, plugin_manager, database, task_directory, course_factory, task_factory):
-    """ Creates a new backend job manager from the configuration """
+def update_pending_jobs(database):
+    """ Updates pending jobs status in the database """
 
     # Updates the submissions that are waiting with the status error, as the server restarted
     database.submissions.update({'status': 'waiting'},
@@ -35,6 +35,10 @@ def create_job_manager(configuration, plugin_manager, database, task_directory, 
     database.batch_jobs.update({'result': {'$exists': False}},
                                {"$set": {"result": {"retval": -1, "stderr": "Internal error. Server restarted"}}}, multi=True)
 
+
+def create_job_manager(configuration, plugin_manager, task_directory, course_factory, task_factory, is_testing=False):
+    """ Creates a new backend job manager from the configuration """
+
     # Create the job manager
     backend_type = configuration.get("backend", "local")
     if backend_type == "local":
@@ -42,7 +46,7 @@ def create_job_manager(configuration, plugin_manager, database, task_directory, 
                                task_directory,
                                course_factory,
                                task_factory,
-                               configuration.get('local_agent_tmp_dir', "/tmp/inginious_agent"), plugin_manager)
+                               configuration.get('local_agent_tmp_dir', "/tmp/inginious_agent"), plugin_manager, is_testing)
     elif backend_type == "remote":
         return RemoteDockerJobManager(configuration.get("docker_daemons", []),
                                       configuration.get('containers',
@@ -50,7 +54,7 @@ def create_job_manager(configuration, plugin_manager, database, task_directory, 
                                       task_directory,
                                       course_factory,
                                       task_factory,
-                                      plugin_manager)
+                                      plugin_manager, is_testing)
     elif backend_type == "remote_manual":
         return RemoteManualAgentJobManager(
             configuration.get("agents", [{"host": "localhost", "port": 5001}]),
@@ -58,6 +62,6 @@ def create_job_manager(configuration, plugin_manager, database, task_directory, 
             task_directory,
             course_factory,
             task_factory,
-            plugin_manager)
+            plugin_manager, is_testing)
     else:
         raise Exception("Unknown backend {}".format(backend_type))
