@@ -21,7 +21,10 @@
 import posixpath
 import urllib
 import os
+import signal
 
+from gridfs import GridFS
+from pymongo import MongoClient
 import web
 
 from common.base import load_json_or_yaml
@@ -35,7 +38,6 @@ from frontend.webapp.pages.utils import WebPyFakeMapping
 from frontend.webapp.submission_manager import SubmissionManager
 from frontend.webapp.batch_manager import BatchManager
 from frontend.common.templates import TemplateHelper
-from frontend.common.database import new_database_client, new_gridfs_client
 from frontend.webapp.user_manager import UserManager
 from frontend.common.session_mongodb import MongoStore
 import frontend.webapp.pages.course_admin.utils as course_admin_utils
@@ -96,6 +98,11 @@ def _load_configuration(config_file):
         config['max_file_size'] = 1024 * 1024
     return config
 
+def _close_app(app, mongo_client, job_manager):
+    app.stop()
+    job_manager.close()
+    mongo_client.close()
+    raise KeyboardInterrupt()
 
 def get_app(config_file):
     """ Get the application. config_file is the path to the configuration file """
@@ -114,8 +121,9 @@ def get_app(config_file):
     # Init the different parts of the app
     plugin_manager = PluginManager()
 
-    database = new_database_client(config.get('mongo_opt', {}))
-    gridfs = new_gridfs_client(database)
+    mongo_client = MongoClient(host=config.get('mongo_opt', {}).get('host', 'localhost'))
+    database = mongo_client[config.get('mongo_opt', {}).get('database', 'INGInious')]
+    gridfs = GridFS(database)
 
     course_factory, task_factory = create_factories(task_directory, plugin_manager, FrontendCourse, FrontendTask)
 
@@ -161,6 +169,9 @@ def get_app(config_file):
 
     # Start the backend
     job_manager.start()
+
+    # Close the job manager when interrupting the app
+    signal.signal(signal.SIGINT, lambda _, _2: _close_app(appli, mongo_client, job_manager))
 
     return appli
 
