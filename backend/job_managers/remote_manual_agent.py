@@ -78,10 +78,13 @@ class RemoteManualAgentJobManager(AbstractJobManager):
 
         self._last_content_in_task_directory = None
 
+        self._timers = {}
+
     def start(self):
         # init the synchronization of task directories
         self._last_content_in_task_directory = directory_content_with_hash(self._task_directory)
-        threading.Timer((30 if not self._is_testing else 2), self._try_synchronize_task_dir).start()
+        self._timers[self._try_synchronize_task_dir] = threading.Timer((30 if not self._is_testing else 2), self._try_synchronize_task_dir)
+        self._timers[self._try_synchronize_task_dir].start()
 
         # connect to agents
         self._try_agent_connection()
@@ -107,7 +110,8 @@ class RemoteManualAgentJobManager(AbstractJobManager):
                     self._synchronize_task_dir(self._agents[entry])
 
         if not self._is_testing:
-            threading.Timer(10, self._try_agent_connection).start()
+            self._timers[self._try_agent_connection] = threading.Timer(10, self._try_agent_connection)
+            self._timers[self._try_agent_connection].start()
 
     def _synchronize_image_aliases(self, agent):
         """ Update the list of image aliases on the remote agent """
@@ -128,7 +132,8 @@ class RemoteManualAgentJobManager(AbstractJobManager):
                     self._synchronize_task_dir(agent)
 
         if not self._is_testing:
-            threading.Timer(30, self._try_synchronize_task_dir).start()
+            self._timers[self._try_synchronize_task_dir] = threading.Timer(30, self._try_synchronize_task_dir)
+            self._timers[self._try_synchronize_task_dir].start()
 
     def _synchronize_task_dir(self, agent):
         """ Synchronizes the task directory with the remote agent. Steps are:
@@ -352,10 +357,22 @@ class RemoteManualAgentJobManager(AbstractJobManager):
         for jid in self._running_on_agent[agent_id]:
             self._agent_job_ended(jid, {'result': 'crash', 'text': 'Remote agent shutdown'}, agent_id)
 
+        agent_conn = self._agents[agent_id]
+        bg_thread = self._agents_thread[agent_id]
+
+        self._agents[agent_id] = None
+        self._running_on_agent[agent_id] = []
+        self._agents_thread[agent_id] = None
+
         try:
-            self._agents[agent_id] = None
-            self._running_on_agent[agent_id] = []
-            self._agents_thread[agent_id].close()
+            if agent_conn is not None:
+                agent_conn.close()
+        except:
+            pass
+
+        try:
+            if bg_thread is not None:
+                bg_thread.close()
         except:
             pass
 
@@ -376,3 +393,5 @@ class RemoteManualAgentJobManager(AbstractJobManager):
                 entry.close()
                 thread._thread.join()  # pylint: disable=W0212
                 thread._conn = None  # pylint: disable=W0212
+        for f in self._timers:
+            self._timers[f].cancel()
