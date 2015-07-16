@@ -201,7 +201,12 @@ class RemoteManualAgentJobManager(AbstractJobManager):
         # sync the agent
         async_update = rpyc.async(agent.root.update_task_directory)
         # do not forget to close the file
-        async_update(tmpfile, to_delete).add_callback(lambda r: tmpfile.close())
+        async_update(tmpfile, to_delete).add_callback(lambda r: self._synchronize_task_dir_done(agent, tmpfile))
+
+    def _synchronize_task_dir_done(self, agent, file_to_close):
+        """ Ends the file sync by warning hooks and closing some files """
+        file_to_close.close()
+        self._hook_manager.call_hook("job_manager_agent_sync_done", agent=agent)
 
     def _select_agent(self):
         """ Select which agent should handle the next job.

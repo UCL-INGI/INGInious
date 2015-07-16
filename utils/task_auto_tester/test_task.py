@@ -22,7 +22,7 @@ import getopt
 import glob
 import os
 import sys
-import time
+import threading
 
 sys.path.append(os.path.join(os.path.abspath(os.path.dirname(os.path.realpath(__file__))),'..','..'))
 
@@ -30,6 +30,8 @@ import common.courses
 import common.tasks
 from common.base import load_json_or_yaml
 from common.course_factory import create_factories
+from backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
+from common.hook_manager import HookManager
 from frontend.common import backend_interface
 from frontend.common.parsable_text import ParsableText
 
@@ -37,7 +39,7 @@ from frontend.common.parsable_text import ParsableText
 def job_done_callback(result, filename, inputfiles, data):
     print '\x1b[34;1m[' + str(job_done_callback.jobs_done + 1) + '/' + str(len(inputfiles)) + ']' + " Testing input file : " + filename + '\033[0m'
 
-    job = _parse_text(task, result)
+    parse_text(task, result)
 
     # Print stdout if verbose
     if verbose:
@@ -115,6 +117,7 @@ def job_done_callback(result, filename, inputfiles, data):
         print "\033[32;1m-> All tests passed \033[0m"
 
     job_done_callback.jobs_done += 1
+    jobs_semaphore.release()
 
 job_done_callback.jobs_done = 0
 
@@ -143,13 +146,12 @@ def usage():
     sys.exit(1)
 
 
-def _parse_text(task, job_result):
+def parse_text(task, job_result):
     if "text" in job_result:
         job_result["text"] = ParsableText(job_result["text"], task.get_response_type()).parse()
     if "problems" in job_result:
         for problem in job_result["problems"]:
             job_result["problems"][problem] = ParsableText(job_result["problems"][problem], task.get_response_type()).parse()
-    return job_result
 
 if __name__ == "__main__":
 
@@ -186,7 +188,18 @@ if __name__ == "__main__":
     task_directory = config["tasks_directory"]
     backend_type = config.get("backend", "local")
     course_factory, task_factory = create_factories(task_directory)
-    job_manager = backend_interface.create_job_manager(config, None, task_directory, course_factory, task_factory, True)
+    hook_manager = HookManager()
+
+    jm_semaphore = threading.Semaphore(0)
+
+    def release_jm_sem(agent):
+        """ release """
+        jm_semaphore.release()
+        print "Sync done"
+
+    hook_manager.add_hook("job_manager_agent_sync_done", release_jm_sem)
+
+    job_manager = backend_interface.create_job_manager(config, hook_manager, task_directory, course_factory, task_factory, True)
     job_manager.start()
 
     # Open the taskfile
@@ -198,7 +211,11 @@ if __name__ == "__main__":
 
     # Ensure job manager is entirely loaded
     # TODO : Hook (for all types of job managers...)
-    time.sleep(3)
+    if isinstance(job_manager, RemoteManualAgentJobManager):
+        print "Waiting for sync"
+        jm_semaphore.acquire()
+
+    jobs_semaphore = threading.Semaphore(0)
 
     for filename in inputfiles:
         filename = os.path.basename(filename)
@@ -215,8 +232,8 @@ if __name__ == "__main__":
 
         launch_job(filename, data, inputfiles)
 
-    while job_done_callback.jobs_done < len(inputfiles):
-        pass
+    for filename in inputfiles:
+        jobs_semaphore.acquire()
 
     job_manager.close()
     sys.exit(0)
