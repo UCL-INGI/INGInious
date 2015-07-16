@@ -29,14 +29,13 @@ sys.path.append(os.path.join(os.path.abspath(os.path.dirname(os.path.realpath(__
 import common.courses
 import common.tasks
 from common.base import load_json_or_yaml
-from backend.job_managers.local import LocalJobManager
-from backend.job_managers.remote_docker import RemoteDockerJobManager
-from backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
 from common.course_factory import create_factories
+from frontend.common import backend_interface
 from frontend.common.parsable_text import ParsableText
 
-def job_done_callback(result, i, filename, inputfiles, data):
-    print '\x1b[34;1m[' + str(i) + '/' + str(len(inputfiles)) + ']' + " Testing input file : " + filename + '\033[0m'
+
+def job_done_callback(result, filename, inputfiles, data):
+    print '\x1b[34;1m[' + str(job_done_callback.jobs_done + 1) + '/' + str(len(inputfiles)) + ']' + " Testing input file : " + filename + '\033[0m'
 
     job = _parse_text(task, result)
 
@@ -115,29 +114,10 @@ def job_done_callback(result, i, filename, inputfiles, data):
     if noprob:
         print "\033[32;1m-> All tests passed \033[0m"
 
-def get_job_manager(config):
-    if backend_type == "local":
-        return LocalJobManager(config.get('containers', {"default": "ingi/inginious-c-default", "sekexe": "ingi/inginious-c-sekexe"}),
-                                      task_directory,
-                                      course_factory,
-                                      task_factory,
-                                      config.get('local_agent_tmp_dir', "/tmp/inginious_agent"))
-    elif backend_type == "remote":
-        return RemoteDockerJobManager(config.get("docker_daemons", []),
-                                             config.get('containers',
-                                                        {"default": "ingi/inginious-c-default", "sekexe": "ingi/inginious-c-sekexe"}),
-                                             task_directory,
-                                             course_factory,
-                                             task_factory)
-    elif backend_type == "remote_manual":
-        return RemoteManualAgentJobManager(
-            config.get("agents", [{"host": "localhost", "port": 5001}]),
-            config.get('containers', {"default": "ingi/inginious-c-default", "sekexe": "ingi/inginious-c-sekexe"}),
-            task_directory,
-            course_factory,
-            task_factory)
-    else:
-        raise Exception("Unknown backend {}".format(backend_type))
+    job_done_callback.jobs_done += 1
+
+job_done_callback.jobs_done = 0
+
 
 def get_config():
     if os.path.isfile("./configuration.yaml"):
@@ -149,16 +129,19 @@ def get_config():
 
     return load_json_or_yaml(configfile)
 
-def launch_job(i, filename, data, inputfiles):
+
+def launch_job(filename, data, inputfiles):
     job_manager.new_job(task, data["input"],
-                        (lambda job: job_done_callback(job, i, filename, inputfiles, data)),
+                        (lambda job: job_done_callback(job, filename, inputfiles, data)),
                         "Task tester",
                         True)
+
 
 def usage():
     print "Usage : test_task [-v|--verbose]  course_id/task_id"
     print "Verbose mode prints the entire standard output from the task"
     sys.exit(1)
+
 
 def _parse_text(task, job_result):
     if "text" in job_result:
@@ -203,7 +186,7 @@ if __name__ == "__main__":
     task_directory = config["tasks_directory"]
     backend_type = config.get("backend", "local")
     course_factory, task_factory = create_factories(task_directory)
-    job_manager = get_job_manager(config)
+    job_manager = backend_interface.create_job_manager(config, None, task_directory, course_factory, task_factory, True)
     job_manager.start()
 
     # Open the taskfile
@@ -217,7 +200,7 @@ if __name__ == "__main__":
     # TODO : Hook (for all types of job managers...)
     time.sleep(3)
 
-    for i, filename in enumerate(inputfiles):
+    for filename in inputfiles:
         filename = os.path.basename(filename)
 
         # Open the input file and merge with limits
@@ -230,7 +213,10 @@ if __name__ == "__main__":
         data = common.custom_yaml.load(inputfile)
         data['limits'] = limits
 
-        launch_job(i+1, filename, data, inputfiles)
+        launch_job(filename, data, inputfiles)
 
+    while job_done_callback.jobs_done < len(inputfiles):
+        pass
 
-# TODO : Kill script at the end of process
+    job_manager.close()
+    sys.exit(0)

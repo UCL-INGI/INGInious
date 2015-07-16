@@ -121,8 +121,9 @@ def get_app(config_file):
 
     user_manager = UserManager(web.session.Session(appli, MongoStore(database, 'sessions')), database, config.get('superadmins', []))
 
+    backend_interface.update_pending_jobs(database)
+
     job_manager = backend_interface.create_job_manager(config, plugin_manager,
-                                                       database,
                                                        task_directory, course_factory, task_factory)
 
     submission_manager = SubmissionManager(job_manager, user_manager, database, gridfs, plugin_manager)
