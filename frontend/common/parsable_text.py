@@ -101,12 +101,14 @@ class ParsableText(object):
         """Returns parsed text"""
         return self.parse()
 
-    def html(self, string):
+    @classmethod
+    def html(cls, string):
         """Parses HTML"""
         out, _ = tidylib.tidy_fragment(string)
         return out
 
-    def rst(self, string):
+    @classmethod
+    def rst(cls, string):
         """Parses reStructuredText"""
         overrides = {'initial_header_level': 3, 'doctitle_xform': False}
         parts = core.publish_parts(source=string, writer=_CustomHTMLWriter(), settings_overrides=overrides)
