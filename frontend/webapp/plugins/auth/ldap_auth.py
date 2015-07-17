@@ -20,7 +20,7 @@
 
 import simpleldap
 
-from frontend.webapp import AuthMethod
+from frontend.webapp.user_manager import AuthMethod
 
 
 class LdapAuthMethod(AuthMethod):
@@ -29,13 +29,11 @@ class LdapAuthMethod(AuthMethod):
     """
 
     def __init__(self, name, host, port, encryption, require_cert, base_dn, request, prefix):
-        encryption = self._encryption
         if encryption not in ["none", "ssl", "tls"]:
             raise Exception("Unknown encryption method {}".format(encryption))
         if encryption == "none":
             encryption = None
 
-        port = self._port
         if port == 0:
             port = None
 
