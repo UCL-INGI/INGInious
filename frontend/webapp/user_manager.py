@@ -206,8 +206,9 @@ class UserManager(object):
             if method.should_cache() is True:
                 infos = method.get_users_info(remaining_users)
                 for user, val in infos.iteritems():
-                    retval[user] = val
-                    self._database.user_info_cache.update_one({"_id": user}, {"$set": {"realname": val[0], "email": val[1]}}, upsert=True)
+                    if val is not None:
+                        retval[user] = val
+                        self._database.user_info_cache.update_one({"_id": user}, {"$set": {"realname": val[0], "email": val[1]}}, upsert=True)
 
         return retval
 
