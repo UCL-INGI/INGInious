@@ -71,7 +71,8 @@ class AuthMethod(object):
         :param username:
         :return: (realname, email) if the user is available with this auth method, None else
         """
-        return self.get_users_info([username])[username]
+        info = self.get_users_info([username])
+        return info[username] if info is not None else None
 
     @abstractmethod
     def get_users_info(self, usernames):
@@ -203,7 +204,7 @@ class UserManager(object):
         # If it's still not the case, ask the other auth methods
         for method in self._auth_methods:
             if method.should_cache() is True:
-                infos = method.get_user_info(remaining_users)
+                infos = method.get_users_info(remaining_users)
                 for user, val in infos.iteritems():
                     retval[user] = val
                     self._database.user_info_cache.update_one({"_id": user}, {"$set": {"realname": val[0], "email": val[1]}}, upsert=True)
@@ -215,7 +216,8 @@ class UserManager(object):
         :param username:
         :return: a tuple (realname, email) if the user can be found, None else
         """
-        return self.get_users_info([username])[username]
+        info = self.get_users_info([username])
+        return info[username] if info is not None else None
 
     def get_user_realname(self, username):
         """
