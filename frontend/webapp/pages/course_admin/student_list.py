@@ -46,7 +46,7 @@ class CourseStudentListPage(INGIniousAdminPage):
             "grade": 0, "url": self.submission_url_generator(course, user["_id"])}) for user in users])
 
         for username, data in self.user_manager.get_course_caches(user_list, course).iteritems():
-            user_data[username].update(data)
+            user_data[username].update(data if data is not None else {})
 
         if "csv" in web.input():
             return make_csv(user_data)
