@@ -221,7 +221,8 @@ class CourseEditTask(INGIniousAdminPage):
                 return json.dumps({"status": "error", "message": "Grade weight must be a floating-point number"})
 
             # Groups
-            data["groups"] = True if data["groups"] == "true" else False
+            if "groups" in data:
+                data["groups"] = True if data["groups"] == "true" else False
 
             # Accessible
             if data["accessible"] == "custom":
