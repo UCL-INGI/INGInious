@@ -42,14 +42,17 @@ class CourseTaskInfoPage(INGIniousAdminPage):
     def page(self, course, task):
         """ Get all data and display the page """
         user_list = self.user_manager.get_course_registered_users(course)
-        users = list(self.database.users.find({"_id": {"$in": user_list}}).sort("realname"))
+        users = OrderedDict(sorted(self.user_manager.get_users_info(user_list).items(),
+                                   key=lambda k: k[1][0] if k[1] is not None else ""))
 
         individual_results = list(self.database.user_tasks.find({"courseid": course.get_id(), "taskid": task.get_id(),
                                                                  "username": {"$in": user_list}}))
 
-        individual_data = OrderedDict([(user["_id"], {"username": user["_id"], "realname": user["realname"], "email": user["email"],
-                                                      "url": self.individual_submission_url_generator(course, task, user["_id"]),
-                                                      "tried": 0, "grade": 0, "status": "notviewed"}) for user in users])
+        individual_data = OrderedDict([(username, {"username": username, "realname": user[0] if user is not None else "",
+                                                   "email": user[1] if user is not None else "",
+                                                   "url": self.individual_submission_url_generator(course, task, username),
+                                                   "tried": 0, "grade": 0, "status": "notviewed"})
+                                       for username, user in users.iteritems()])
 
         for user in individual_results:
             individual_data[user["username"]]["tried"] = user["tried"]
