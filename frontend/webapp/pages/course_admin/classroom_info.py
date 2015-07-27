@@ -29,14 +29,11 @@ class CourseGroupInfoPage(INGIniousAdminPage):
     def GET(self, courseid, groupid):
         """ GET request """
         course, _ = self.get_course_and_check_rights(courseid)
-        if not course.is_group_course():
-            raise web.notfound()
-        else:
-            return self.page(course, groupid)
+        return self.page(course, groupid)
 
     def submission_url_generator(self, course, groupid, taskid):
         """ Generates a submission url """
-        return "/admin/" + course.get_id() + "/download?format=taskid%2Fgroup&tasks=" + taskid + "&groups=" + str(groupid)
+        return "/admin/" + course.get_id() + "/download?format=taskid%2Fclassroom&tasks=" + taskid + "&classrooms=" + str(groupid)
 
     def page(self, course, groupid):
         """ Get all data and display the page """
@@ -80,4 +77,4 @@ class CourseGroupInfoPage(INGIniousAdminPage):
 
         group = self.database.groups.find_one({"_id": ObjectId(groupid)})
 
-        return self.template_helper.get_renderer().course_admin.group(course, group, result.values())
+        return self.template_helper.get_renderer().course_admin.classroom(course, group, result.values())

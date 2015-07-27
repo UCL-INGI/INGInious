@@ -23,32 +23,26 @@ import web
 from frontend.webapp.pages.course_admin.utils import make_csv, INGIniousAdminPage
 
 
-class CourseGroupListPage(INGIniousAdminPage):
+class CourseClassroomListPage(INGIniousAdminPage):
     """ Course administration page: list of groups """
 
     def GET(self, courseid):
         """ GET request """
         course, _ = self.get_course_and_check_rights(courseid)
-        if not course.is_group_course():
-            raise web.notfound()
-        else:
-            return self.page(course)
+        return self.page(course)
 
     def POST(self, courseid):
         """ POST request """
         course, _ = self.get_course_and_check_rights(courseid)
 
-        if not course.is_group_course():
-            raise web.notfound()
-
         error = ""
         try:
             data = web.input()
-            if not data['group_description']:
+            if not data['classroom']:
                 error = 'No group description given.'
             else:
                 self.database.groups.insert({"course_id": courseid, "users": [], "tutors": [], "size": 2,
-                                             "description": data['group_description']})
+                                             "description": data['classroom']})
         except:
             error = 'User returned an invalid form.'
 
@@ -114,4 +108,4 @@ class CourseGroupListPage(INGIniousAdminPage):
         if "csv" in web.input():
             return make_csv(data)
 
-        return self.template_helper.get_renderer().course_admin.group_list(course, [my_groups, other_groups], ungrouped_users, error, post)
+        return self.template_helper.get_renderer().course_admin.classroom_list(course, [my_groups, other_groups], ungrouped_users, error, post)

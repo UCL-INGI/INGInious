@@ -49,7 +49,7 @@ class CourseGroupTaskPage(INGIniousAdminPage):
             return make_csv(data)
 
         group = self.database.groups.find_one({"_id": ObjectId(groupid)})
-        return self.template_helper.get_renderer().course_admin.group_task(course, group, task, data)
+        return self.template_helper.get_renderer().course_admin.classroom_task(course, group, task, data)
 
 
 class SubmissionDownloadFeedback(INGIniousAdminPage):

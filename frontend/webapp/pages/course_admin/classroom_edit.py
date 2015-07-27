@@ -51,7 +51,7 @@ class CourseEditGroup(INGIniousAdminPage):
         group = self.database.groups.find_one({"_id": ObjectId(groupid), "course_id": courseid})
 
         if group:
-            return self.template_helper.get_renderer().course_admin.edit_group(course, student_list, tutor_list, group, "", False)
+            return self.template_helper.get_renderer().course_admin.edit_classroom(course, student_list, tutor_list, group, "", False)
         else:
             raise web.notfound()
 
@@ -66,7 +66,7 @@ class CourseEditGroup(INGIniousAdminPage):
             data = web.input(group_tutor=[], group_student=[])
             if "delete" in data:
                 self.database.groups.remove({"_id": ObjectId(groupid)})
-                raise web.seeother("/admin/" + courseid + "/groups")
+                raise web.seeother("/admin/" + courseid + "/classrooms")
             else:
                 data["group_tutor"] = [tutor for tutor in data["group_tutor"] if tutor in tutor_list]
                 data["group_student"] = [student for student in data["group_student"] if student in student_list]
@@ -84,4 +84,4 @@ class CourseEditGroup(INGIniousAdminPage):
         except:
             error = 'User returned an invalid form.'
 
-        return self.template_helper.get_renderer().course_admin.edit_group(course, student_list, tutor_list, group, error, True)
+        return self.template_helper.get_renderer().course_admin.edit_classroom(course, student_list, tutor_list, group, error, True)

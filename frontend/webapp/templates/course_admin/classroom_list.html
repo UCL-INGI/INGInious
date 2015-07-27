@@ -19,7 +19,7 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 
 $var title: $:course.get_name()
 
-$var Column: $:template_helper.call('course_admin_menu',course=course,current='groups')
+$var Column: $:template_helper.call('course_admin_menu',course=course,current='classrooms')
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
@@ -28,58 +28,64 @@ $def NavbarF():
             <i class="fa fa-user-secret"></i></a></li>
         <li class="active">
             <a href="#">
-                <i class="fa fa-group"></i> Groups <span class="sr-only">(current)</span>
+                <i class="fa fa-group"></i> Classrooms <span class="sr-only">(current)</span>
             </a>
         </li>
     </ol>
 $var Navbar: $:NavbarF()
 
-<h2>Groups</h2>
+<h2>Classrooms</h2>
     $if error:
         <div class="alert alert-danger" role="alert">$error</div>
     $elif post:
-        <div class="alert alert-success" role="alert">New group created.</div>
-
-    $if ungrouped_users > 0 and user_manager.has_admin_rights_on_course(course):
-        <div class="alert alert-warning" role="alert">$ungrouped_users of your registered students have no assigned groups.</div>
+        <div class="alert alert-success" role="alert">New classroom created.</div>
 
 <table class="table">
     <tr>
-        <th>Group description</th>
-        <th>Students</th>
+        <th>Classroom</th>
+        <th># students</th>
         <th># task tried</th>
         <th># task done</th>
         <th>
             <div class="btn-group" role="group">
-                <a href="/admin/${course.get_id()}/download?format=taskid%2Fgroup" class="btn btn-danger btn-xs" title="Download
+                <a href="/admin/${course.get_id()}/download?format=taskid%2Fclassroom" class="btn btn-danger btn-xs" title="Download
                    all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                <a href="/admin/${course.get_id()}/groups?csv" class="btn btn-info btn-xs" title="Download
+                <a href="/admin/${course.get_id()}/classrooms?csv" class="btn btn-info btn-xs" title="Download
                    CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
             </div>
         </th>
     </tr>
-    $ text = ["My groups","Other groups"]
+    $if ungrouped_users > 0:
+        <tr class="active">
+            <td>Default classroom</td>
+            <td>$ungrouped_users</td>
+            <td></td>
+            <td></td>
+            <td></td>
+        </tr>
+
+    $ text = ["My classroom(s)","Other classroom(s)"]
     $for ind in range(0,2):
         $if len(data[ind]) > 0:
             $if len(data[0]) > 0 and len(data[1]) > 0:
                 <tr>
                     <th colspan="5">$text[ind]</th>
                 </tr>
-            $for group in data[ind]:
+            $for classroom in data[ind]:
                 <tr>
                     <td>
-                        <a href="/admin/${course.get_id()}/group/$group['_id']">$group["description"]</a>
+                        <a href="/admin/${course.get_id()}/classroom/$classroom['_id']">$classroom["description"]</a>
                     </td>
-                    <td>$len(group['users']) / $group['size']</td>
-                    <td>$group["tried"]</td>
-                    <td>$group["done"]</td>
+                    <td>$len(classroom['users'])</td>
+                    <td>$classroom["tried"]</td>
+                    <td>$classroom["done"]</td>
                     <td>
                         <div class="btn-group" role="group">
-                            <a href="/admin/${course.get_id()}/edit/group/$group['_id']" class="btn btn-primary btn-xs" title="Edit group" data-toggle="tooltip"
+                            <a href="/admin/${course.get_id()}/edit/classroom/$classroom['_id']" class="btn btn-primary btn-xs" title="Edit classroom" data-toggle="tooltip"
                                data-placement="bottom"><i class="fa fa-edit"></i></a>
-                            <a href="/admin/${course.get_id()}/group/$group['_id']" class="btn btn-default btn-xs" title="View submissions" data-toggle="tooltip"
+                            <a href="/admin/${course.get_id()}/classroom/$classroom['_id']" class="btn btn-default btn-xs" title="View submissions" data-toggle="tooltip"
                                data-placement="bottom"><i class="fa fa-search"></i></a>
-                            <a href="$group['url']" class="btn btn-default btn-xs" title="Download submissions"
+                            <a href="$classroom['url']" class="btn btn-default btn-xs" title="Download submissions"
                                data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
                         </div>
                     </td>
@@ -89,8 +95,8 @@ $var Navbar: $:NavbarF()
 <div class="row">
     <form class=form-horizontal" method="post">
         <div class="form-group">
-            <div class="col-sm-8"><input type="text" class="form-control" name="group_description" placeholder="New group description"/></div>
-            <div class="col-sm-4"><button type="submit" class="btn btn-info btn-block">Create new group</button></div>
+            <div class="col-sm-8"><input type="text" class="form-control" name="classroom" placeholder="New classroom description"/></div>
+            <div class="col-sm-4"><button type="submit" class="btn btn-info btn-block">Create new classroom</button></div>
         </div>
     </form>
 </div>
