@@ -38,12 +38,13 @@ class CourseStudentListPage(INGIniousAdminPage):
     def page(self, course, error="", post=False):
         """ Get all data and display the page """
         user_list = self.user_manager.get_course_registered_users(course)
-        users = list(self.database.users.find({"_id": {"$in": user_list}}).sort("realname"))
+        users = OrderedDict(sorted(self.user_manager.get_users_info(user_list).items(), key=lambda k: k[0]))
 
-        user_data = OrderedDict([(user["_id"], {
-            "username": user["_id"], "realname": user["realname"], "email": user["email"], "total_tasks": 0,
+        user_data = OrderedDict([(username, {
+            "username": username, "realname": user[0] if user is not None else "",
+            "email": user[1] if user is not None else "", "total_tasks": 0,
             "task_grades": {"answer": 0, "match": 0}, "task_succeeded": 0, "task_tried": 0, "total_tries": 0,
-            "grade": 0, "url": self.submission_url_generator(course, user["_id"])}) for user in users])
+            "grade": 0, "url": self.submission_url_generator(course, username)}) for username, user in users.iteritems()])
 
         for username, data in self.user_manager.get_course_caches(user_list, course).iteritems():
             user_data[username].update(data if data is not None else {})
