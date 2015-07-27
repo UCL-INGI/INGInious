@@ -38,7 +38,8 @@ class CourseStudentListPage(INGIniousAdminPage):
     def page(self, course, error="", post=False):
         """ Get all data and display the page """
         user_list = self.user_manager.get_course_registered_users(course)
-        users = OrderedDict(sorted(self.user_manager.get_users_info(user_list).items(), key=lambda k: k[0]))
+        users = OrderedDict(sorted(self.user_manager.get_users_info(user_list).items(),
+                                   key=lambda k: k[1][0] if k[1] is not None else ""))
 
         user_data = OrderedDict([(username, {
             "username": username, "realname": user[0] if user is not None else "",
