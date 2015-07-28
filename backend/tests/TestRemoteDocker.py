@@ -69,13 +69,13 @@ class TestDockerJobManager(object):
         pass
 
     def start_manager(self):
-        if TEST_DOCKER_JOB_MANAGER == "boot2docker":
+        if TEST_ENV == "boot2docker":
             self.job_manager = RemoteDockerJobManager([{
                 "remote_host": "192.168.59.103",
                 "remote_docker_port": 2375,
                 "remote_agent_port": 63456
             }], {"default": "ingi/inginious-c-default"}, "./tasks", self.course_factory, self.task_factory, is_testing=True)
-        elif TEST_DOCKER_JOB_MANAGER == "travis":
+        elif TEST_ENV == "travis":
             self.job_manager = RemoteDockerJobManager([{
                 "remote_host": "localhost",
                 "remote_docker_port": 2375,
