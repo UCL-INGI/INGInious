@@ -25,9 +25,7 @@ class SeleniumTest(unittest.TestCase):
                                            desired_capabilities=DesiredCapabilities.CHROME)
             self.base_url = CUSTOM_SELENIUM_BASE_URL or "http://192.168.59.3:8081"
         elif TEST_ENV == "travis":
-            self.driver = webdriver.Remote(command_executor=(CUSTOM_SELENIUM_EXECUTOR or 'http://192.168.59.103:4444/wd/hub'),
-                                           desired_capabilities=DesiredCapabilities.CHROME)
-            self.base_url = CUSTOM_SELENIUM_BASE_URL or "http://192.168.59.3:8081"
+            raise SkipTest("Frontend tests are not yet available on a Travis environment")
         elif TEST_ENV == "local" or True:
             self.driver = webdriver.Firefox()
             self.base_url = CUSTOM_SELENIUM_BASE_URL or "http://127.0.0.1:8081"
