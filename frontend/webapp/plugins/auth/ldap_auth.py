@@ -106,7 +106,7 @@ class LdapAuthMethod(AuthMethod):
                     email = user_data["mail"][0]
                     realname = user_data["cn"][0]
 
-                    retval[username] = (email, realname)
+                    retval[username] = (realname, email)
                 except:
                     pass
 

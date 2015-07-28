@@ -68,8 +68,8 @@ class GroupPage(INGIniousPage):
                                                                    "$where": "this.users.length < this.size"}))
 
                 users = {}
-                for user in self.database.users.find({"_id": {"$in": self.user_manager.get_course_registered_users(course)}}):
-                    users[user["_id"]] = user
+                for username, user in self.user_manager.get_users_info(self.user_manager.get_course_registered_users(course)).iteritems():
+                    users[username] = {"realname": user[0], "email": user[1]}
 
                 return self.template_helper.get_renderer().group(course, except_free_last_submissions, group, available_groups, users, error)
             except:
