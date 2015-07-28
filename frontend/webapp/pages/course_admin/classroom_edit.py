@@ -33,7 +33,7 @@ class CourseEditGroup(INGIniousAdminPage):
         student_list, tutor_list = self.user_manager.get_course_registered_users(course, False), course.get_staff()
 
         # Remove grouped users from the accessible list for the group
-        grouped_users = self.database.groups.aggregate([
+        grouped_users = self.database.classrooms.aggregate([
             {"$match": {"_id": {"$ne": ObjectId(groupid)}}},
             {"$group": {"_id": "$_id", "gusers": {"$addToSet": "$users"}}}])
 
@@ -48,7 +48,7 @@ class CourseEditGroup(INGIniousAdminPage):
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         student_list, tutor_list = self.get_user_lists(course, groupid)
 
-        group = self.database.groups.find_one({"_id": ObjectId(groupid), "course_id": courseid})
+        group = self.database.classrooms.find_one({"_id": ObjectId(groupid), "courseid": courseid})
 
         if group:
             return self.template_helper.get_renderer().course_admin.edit_classroom(course, student_list, tutor_list, group, "", False)
@@ -59,13 +59,13 @@ class CourseEditGroup(INGIniousAdminPage):
         """ Edit a group """
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         student_list, tutor_list = self.get_user_lists(course, groupid)
-        group = self.database.groups.find_one({"_id": ObjectId(groupid), "course_id": courseid})
+        group = self.database.classrooms.find_one({"_id": ObjectId(groupid), "courseid": courseid})
 
         error = ""
         try:
             data = web.input(group_tutor=[], group_student=[])
             if "delete" in data:
-                self.database.groups.remove({"_id": ObjectId(groupid)})
+                self.database.classrooms.remove({"_id": ObjectId(groupid)})
                 raise web.seeother("/admin/" + courseid + "/classrooms")
             else:
                 data["group_tutor"] = [tutor for tutor in data["group_tutor"] if tutor in tutor_list]
@@ -74,7 +74,7 @@ class CourseEditGroup(INGIniousAdminPage):
                 if len(data["group_student"]) > int(data['size']):
                     error = 'Too many students for given group size.'
                 elif data['description']:
-                    group = self.database.groups.find_one_and_update(
+                    group = self.database.classrooms.find_one_and_update(
                         {"_id": ObjectId(groupid)},
                         {"$set": {"description": data["description"],
                                   "users": data["group_student"], "tutors": data["group_tutor"],

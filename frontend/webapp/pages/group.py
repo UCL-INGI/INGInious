@@ -44,7 +44,7 @@ class GroupPage(INGIniousPage):
                     try:
                         groupid = web.input()["register_group"]
                         group = self.database.groups.find_one_and_update({"_id": ObjectId(groupid),
-                                                                          "course_id": courseid,
+                                                                          "courseid": courseid,
                                                                           "$where": "this.users.length < this.size"},
                                                                          {"$push": {"users": self.user_manager.session_username()}})
                         if group:
@@ -64,7 +64,7 @@ class GroupPage(INGIniousPage):
                         pass
 
                 group = self.user_manager.get_course_user_group(course)
-                available_groups = list(self.database.groups.find({"course_id": courseid,
+                available_groups = list(self.database.groups.find({"courseid": courseid,
                                                                    "$where": "this.users.length < this.size"}))
 
                 users = {}

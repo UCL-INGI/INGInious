@@ -75,6 +75,6 @@ class CourseGroupInfoPage(INGIniousAdminPage):
         if "csv" in web.input():
             return make_csv(result)
 
-        group = self.database.groups.find_one({"_id": ObjectId(groupid)})
+        group = self.database.classrooms.find_one({"_id": ObjectId(groupid)})
 
         return self.template_helper.get_renderer().course_admin.classroom(course, group, result.values())

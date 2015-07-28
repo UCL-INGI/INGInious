@@ -451,9 +451,24 @@ class UserManager(object):
         return (self.course_is_open_to_user(task.get_course(), username) and task._accessible.is_open()) or self.has_staff_rights_on_course(
             task.get_course(), username)
 
+    def get_course_classrooms(self, course):
+        """ Returns a list of the course classrooms"""
+        return list(self._database.classrooms.find({"courseid": course.get_id()}).sort("description"))
+
+    def get_course_user_classroom(self, course, username=None):
+        """ Returns the classroom whose username belongs to
+        :param course: a Course object
+        :param username: The username of the user that we want to register. If None, uses self.session_username()
+        :return: the classroom description
+        """
+        if username is None:
+            username = self.session_username()
+
+        return self._database.classrooms.find_one({"courseid": course.get_id(), "users": username})
+
     def get_course_groups(self, course):
         """ Returns a list of the course groups"""
-        return list(self._database.groups.find({"course_id": course.get_id()}).sort("description"))
+        return list(self._database.groups.find({"courseid": course.get_id()}).sort("description"))
 
     def get_course_user_group(self, course, username=None):
         """ Returns the group whose username belongs to
@@ -464,7 +479,7 @@ class UserManager(object):
         if username is None:
             username = self.session_username()
 
-        return self._database.groups.find_one({"course_id": course.get_id(), "users": username})
+        return self._database.groups.find_one({"courseid": course.get_id(), "users": username})
 
     def course_register_user(self, course, username=None, password=None, force=False):
         """
@@ -501,7 +516,7 @@ class UserManager(object):
 
         self._database.registration.remove({"username": username, "courseid": course.get_id()})
         if course.is_group_course():
-            self._database.groups.update({"course_id": course.get_id(), "users": username}, {"$pull": {"users": username}})
+            self._database.groups.update({"courseid": course.get_id(), "users": username}, {"$pull": {"users": username}})
 
     def course_is_open_to_user(self, course, username=None, check_group=True):
         """
@@ -532,7 +547,7 @@ class UserManager(object):
             return True
 
         has_group = (not check_group) or (not course.is_group_course()) or \
-                    (self._database.groups.find_one({"users": username, "course_id": course.get_id()}) is not None)
+                    (self._database.groups.find_one({"users": username, "courseid": course.get_id()}) is not None)
 
         return (self._database.registration.find_one({"username": username, "courseid": course.get_id()}) is not None) and has_group
 

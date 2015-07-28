@@ -104,7 +104,7 @@ class SubmissionManager(object):
 
         if course.is_group_course() and not self._user_manager.has_staff_rights_on_course(course, username) \
                 and task.is_group_task():
-            group = self._database.groups.find_one({"course_id": task.get_course_id(), "users": username})
+            group = self._database.groups.find_one({"courseid": task.get_course_id(), "users": username})
             obj.update({"username": group["users"]})
         else:
             obj.update({"username": [username]})
