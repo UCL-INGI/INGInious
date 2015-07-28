@@ -70,7 +70,7 @@ class CourseTaskFiles(INGIniousAdminPage):
         else:
             return self.show_tab_file(courseid, taskid)
 
-    def show_tab_file(self, courseid, taskid, _error=False):
+    def show_tab_file(self, courseid, taskid, error_=False):
         """ Return the file tab """
         return self.template_helper.get_renderer(False).course_admin.edit_tabs.files(self.course_factory.get_course(courseid),
                                                                                      taskid,

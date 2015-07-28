@@ -20,7 +20,7 @@
 import pymongo
 
 
-def update_database(database, gridfs, course_factory, user_manager):
+def update_database(database, gridfs_, course_factory, user_manager):
     """
     Checks the database version and update the db if necessary
     :param course_factory: the course factory

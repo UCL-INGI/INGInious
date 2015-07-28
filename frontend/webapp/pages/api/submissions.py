@@ -115,7 +115,7 @@ class APISubmissionSingle(APIAuthenticatedPage):
 
 
 class APISubmissions(APIAuthenticatedPage):
-    """
+    r"""
         Endpoint /api/v0/courses/[a-zA-Z_\-\.0-9]+/tasks/[a-zA-Z_\-\.0-9]+/submissions
     """
 

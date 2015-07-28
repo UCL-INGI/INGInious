@@ -34,7 +34,7 @@ class BasicProblem(object):
         return None
 
     @abstractmethod
-    def input_is_consistent(self, task_input, default_allowed_extension, default_max_size):
+    def input_is_consistent(self, task_input_, default_allowed_extension_, default_max_size_):
         """ Check if an input for this problem is consistent. Return true if this is case, false else """
         return False
 
@@ -92,7 +92,7 @@ class MatchProblem(BasicProblem):
     def get_type(self):
         return "match"
 
-    def input_is_consistent(self, task_input, default_allowed_extension, default_max_size):
+    def input_is_consistent(self, task_input, default_allowed_extension_, default_max_size_):
         return self.get_id() in task_input
 
     def check_answer(self, taskInput):
@@ -243,7 +243,7 @@ class MultipleChoiceProblem(BasicProblem):
                 return entry
         return None
 
-    def input_is_consistent(self, task_input, default_allowed_extension, default_max_size):
+    def input_is_consistent(self, task_input, default_allowed_extension_, default_max_size_):
         if self.get_id() not in task_input:
             return False
         if self._multiple:

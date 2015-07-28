@@ -29,12 +29,12 @@ from frontend.webapp.pages.utils import INGIniousPage
 from frontend.webapp.pages.course_admin.utils import INGIniousAdminPage
 
 
-def add_admin_menu(_course):
+def add_admin_menu(course_):
     """ Add a menu for the contest settings in the administration """
     return ('contest', '<i class="fa fa-trophy fa-fw"></i>&nbsp; Contest plugin')
 
 
-def modify_task_data(course, _taskid, data):
+def modify_task_data(course, taskid_, data):
     """ Modify the availability of tasks during contests """
     contest_data = get_contest_data(course)
     if contest_data['enabled']:
@@ -230,7 +230,7 @@ class ContestAdmin(INGIniousAdminPage):
                 admin(course, contest_data, errors, False)
 
 
-def init(plugin_manager, course_factory, job_manager, _config):
+def init(plugin_manager, _, _2, _3):
     """
         Init the contest plugin.
         Available configuration:
