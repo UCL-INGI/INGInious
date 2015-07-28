@@ -25,7 +25,7 @@ from bson.objectid import ObjectId
 from frontend.webapp.pages.course_admin.utils import INGIniousAdminPage
 
 
-class CourseEditGroup(INGIniousAdminPage):
+class CourseEditClassroom(INGIniousAdminPage):
     """ Edit a task """
 
     def get_user_lists(self, course, groupid):

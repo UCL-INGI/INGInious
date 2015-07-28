@@ -23,27 +23,29 @@ from bson.objectid import ObjectId
 from frontend.webapp.pages.course_admin.utils import make_csv, INGIniousAdminPage
 
 
-class CourseGroupInfoPage(INGIniousAdminPage):
-    """ List information about a group """
+class CourseClassroomInfoPage(INGIniousAdminPage):
+    """ List information about a classroom """
 
-    def GET(self, courseid, groupid):
+    def GET(self, courseid, classroomid):
         """ GET request """
         course, _ = self.get_course_and_check_rights(courseid)
-        return self.page(course, groupid)
+        return self.page(course, classroomid)
 
-    def submission_url_generator(self, course, groupid, taskid):
+    def submission_url_generator(self, course, classroomid, taskid):
         """ Generates a submission url """
-        return "/admin/" + course.get_id() + "/download?format=taskid%2Fclassroom&tasks=" + taskid + "&classrooms=" + str(groupid)
+        return "/admin/" + course.get_id() + "/download?format=taskid%2Fclassroom&tasks=" + taskid + "&classrooms=" + str(classroomid)
 
-    def page(self, course, groupid):
+    def page(self, course, classroomid):
         """ Get all data and display the page """
+        classroom = self.database.classrooms.find_one({"_id": ObjectId(classroomid)})
+
         data = list(self.database.submissions.aggregate(
             [
                 {
                     "$match":
                         {
                             "courseid": course.get_id(),
-                            "groupid": ObjectId(groupid)
+                            "username": {"$in": classroom["users"]}
                         }
                 },
                 {
@@ -59,7 +61,7 @@ class CourseGroupInfoPage(INGIniousAdminPage):
 
         tasks = course.get_tasks()
         result = dict([(taskid, {"taskid": taskid, "name": tasks[taskid].get_name(), "tried": 0, "status": "notviewed",
-                                 "grade": 0, "url": self.submission_url_generator(course, groupid, taskid)}) for taskid in tasks])
+                                 "grade": 0, "url": self.submission_url_generator(course, classroomid, taskid)}) for taskid in tasks])
 
         for taskdata in data:
             if taskdata["_id"] in result:
@@ -75,6 +77,4 @@ class CourseGroupInfoPage(INGIniousAdminPage):
         if "csv" in web.input():
             return make_csv(result)
 
-        group = self.database.classrooms.find_one({"_id": ObjectId(groupid)})
-
-        return self.template_helper.get_renderer().course_admin.classroom(course, group, result.values())
+        return self.template_helper.get_renderer().course_admin.classroom(course, classroom, result.values())
