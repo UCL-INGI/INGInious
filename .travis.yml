@@ -7,7 +7,7 @@ env:
     - "HOST_IP=$(/sbin/ifconfig venet0:0 | grep 'inet addr' | awk -F: '{print $2}' | awk '{print $1}')"
     - DOCKER_HOST=tcp://$HOST_IP:2375
     - SLIRP_PORTS=$(seq 2375 2500)
-    - TEST_DOCKER_JOB_MANAGER=travis
+    - TEST_ENV=travis
 before_install:
   - echo exit 101 | sudo tee /usr/sbin/policy-rc.d
   - sudo chmod +x /usr/sbin/policy-rc.d
