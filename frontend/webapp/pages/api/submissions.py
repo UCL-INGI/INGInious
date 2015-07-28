@@ -60,8 +60,7 @@ def _get_submissions(course_factory, submission_manager, user_manager, courseid,
         data = {
             "id": str(submission["_id"]),
             "submitted_on": str(submission["submitted_on"]),
-            "status": submission["status"],
-            "grade": submission["grade"]
+            "status": submission["status"]
         }
 
         if with_input:

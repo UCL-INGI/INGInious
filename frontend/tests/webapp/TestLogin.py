@@ -1,28 +1,83 @@
 # -*- coding: utf-8 -*-
-from selenium.selenium import selenium
-import unittest, time, re
+from selenium.webdriver.support.ui import Select
 
-class TestLogin(unittest.TestCase):
-    def setUp(self):
-        self.verificationErrors = []
-        self.selenium = selenium("192.168.59.103", 4444, "*googlechrome", "http://192.168.59.3:8081/index?logoff")
-        self.selenium.start()
-    
+
+
+from frontend.tests.webapp.SeleniumTest import SeleniumTest
+
+
+class TestLogin(SeleniumTest):
     def test_login(self):
-        sel = self.selenium
-        sel.open("/index?logoff")
-        sel.type("name=login", "test")
-        sel.type("name=password", "test")
-        sel.click("//button[@type='submit']")
-        self.assertEqual("Logged in as test", sel.get_text("css=p.navbar-text"))
-        sel.click("css=i.fa.fa-sign-out")
-        sel.wait_for_page_to_load("30000")
-        self.assertEqual("Hello! Welcome on the INGInious platform.", sel.get_text("css=h2"))
-        self.assertEqual("Log in", sel.get_text("//button[@type='submit']"))
-    
-    def tearDown(self):
-        self.selenium.stop()
-        self.assertEqual([], self.verificationErrors)
+        driver = self.driver
+        driver.get(self.base_url + "/index?logoff")
+        
+        self.assertEqual("Hello! Welcome on the INGInious platform.", driver.find_element_by_css_selector("h2").text)
+        
+        driver.find_element_by_name("login").clear()
+        driver.find_element_by_name("login").send_keys("test")
+        driver.find_element_by_name("password").clear()
+        driver.find_element_by_name("password").send_keys("test")
+        
+        driver.find_element_by_xpath("//button[@type='submit']").click()
+        
+        self.wait_for_presence_css(".navbar p.navbar-text")
+        self.assertEqual("Logged in as test", driver.find_elements_by_css_selector(".navbar p.navbar-text")[0].text)
+        self.assertEqual("Log off", driver.find_element_by_link_text("Log off").text)
 
-if __name__ == "__main__":
-    unittest.main()
+class LoggedInTest(SeleniumTest):
+    login = "test"
+    password = "test"
+
+    def setUp(self):
+        super(LoggedInTest, self).setUp()
+        driver = self.driver
+        driver.get(self.base_url + "/index?logoff")
+        driver.find_element_by_name("login").clear()
+        driver.find_element_by_name("login").send_keys(self.login)
+        driver.find_element_by_name("password").clear()
+        driver.find_element_by_name("password").send_keys(self.password)
+        driver.find_element_by_xpath("//button[@type='submit']").click()
+        self.wait_for_presence_css(".navbar p.navbar-text")
+
+class TestRegistration(LoggedInTest):
+    login = "test3"
+    password = "test"
+
+    def test_unregister(self, retry=True):
+        driver = self.driver
+        driver.get(self.base_url + "/course/test")
+
+        try:
+            self.assertEqual("[LTEST0000] Test tasks : H2G2 - List of exercises", driver.find_element_by_css_selector("h2").text)
+        except:
+            if retry:
+                self.test_register(False)
+                self.test_unregister(False)
+                return
+            else:
+                raise
+
+        driver.find_element_by_partial_link_text("Unregister from this course").click()
+        self.assertEqual("[LTEST0000] Test tasks : H2G2", driver.find_element_by_css_selector("#register_courseid option[value=\"test\"]").text)
+
+    def test_register(self, retry=True):
+        driver = self.driver
+
+        driver.get(self.base_url + "/course/test")
+
+        try:
+            self.assertEqual("Error 403 You are not registered to this course.", driver.find_element_by_css_selector(".alert.alert-warning").text)
+        except:
+            if retry:
+                self.test_unregister(False)
+                self.test_register(False)
+                return
+            else:
+                raise
+
+        driver.get(self.base_url + "/index")
+        Select(driver.find_element_by_id("register_courseid")).select_by_visible_text("[LTEST0000] Test tasks : H2G2")
+        self.assertEqual("[LTEST0000] Test tasks : H2G2", driver.find_element_by_css_selector("#register_courseid option[value=\"test\"]").text)
+        driver.find_element_by_xpath("//button[@type='submit']").click()
+        driver.get(self.base_url + "/course/test")
+        self.assertEqual("[LTEST0000] Test tasks : H2G2 - List of exercises", driver.find_element_by_css_selector("h2").text)

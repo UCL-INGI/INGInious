@@ -30,17 +30,17 @@ import docker
 from backend.job_managers.remote_docker import RemoteDockerJobManager
 from common.course_factory import create_factories
 
-TEST_DOCKER_JOB_MANAGER = os.environ.get("TEST_DOCKER_JOB_MANAGER", None)
+TEST_ENV = os.environ.get("TEST_ENV", None)
 
 
 class TestDockerJobManager(object):
     def setUp(self):
 
-        if TEST_DOCKER_JOB_MANAGER is None:
+        if TEST_ENV is None:
             raise SkipTest("Testing the Docker Job Manager is disabled.")
-        elif TEST_DOCKER_JOB_MANAGER == "boot2docker":
+        elif TEST_ENV == "boot2docker":
             self.docker_connection = docker.Client(base_url="tcp://192.168.59.103:2375")
-        elif TEST_DOCKER_JOB_MANAGER == "travis":
+        elif TEST_ENV == "travis":
             self.docker_connection = docker.Client(base_url="tcp://localhost:2375")
         else:
             raise Exception("Unknown method for testing the Docker Job Manager!")
