@@ -106,7 +106,7 @@ class FrontendCourse(Course):
 
     def can_students_choose_group(self):
         """ Returns True if the students can choose their groups """
-        return self._groups_student_choice
+        return self._groups and self._groups_student_choice
 
     def is_user_accepted_by_access_control(self, username, realname, email):
         """ Returns True if the user is allowed by the ACL """
