@@ -78,7 +78,7 @@ def _get_submissions(course_factory, submission_manager, user_manager, courseid,
 
 
 class APISubmissionSingle(APIAuthenticatedPage):
-    """
+    r"""
         Endpoint /api/v0/courses/[a-zA-Z_\-\.0-9]+/tasks/[a-zA-Z_\-\.0-9]+/submissions/[a-zA-Z_\-\.0-9]+
     """
 

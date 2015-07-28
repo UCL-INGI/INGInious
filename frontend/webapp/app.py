@@ -43,41 +43,41 @@ from frontend.common.session_mongodb import MongoStore
 import frontend.webapp.pages.course_admin.utils as course_admin_utils
 
 urls = {
-    '/': 'frontend.webapp.pages.index.IndexPage',
-    '/index': 'frontend.webapp.pages.index.IndexPage',
-    '/course/([^/]+)': 'frontend.webapp.pages.course.CoursePage',
-    '/course/([^/]+)/([^/]+)': 'frontend.webapp.pages.tasks.TaskPage',
-    '/course/([^/]+)/([^/]+)/(.*)': 'frontend.webapp.pages.tasks.TaskPageStaticDownload',
-    '/group/([^/]+)': 'frontend.webapp.pages.group.GroupPage',
-    '/admin/([^/]+)': 'frontend.webapp.pages.course_admin.utils.CourseRedirect',
-    '/admin/([^/]+)/settings': 'frontend.webapp.pages.course_admin.settings.CourseSettings',
-    '/admin/([^/]+)/batch': 'frontend.webapp.pages.course_admin.batch.CourseBatchOperations',
-    '/admin/([^/]+)/batch/create/(.+)': 'frontend.webapp.pages.course_admin.batch.CourseBatchJobCreate',
-    '/admin/([^/]+)/batch/summary/([^/]+)': 'frontend.webapp.pages.course_admin.batch.CourseBatchJobSummary',
-    '/admin/([^/]+)/batch/download/([^/]+)': 'frontend.webapp.pages.course_admin.batch.CourseBatchJobDownload',
-    '/admin/([^/]+)/batch/download/([^/]+)(/.*)': 'frontend.webapp.pages.course_admin.batch.CourseBatchJobDownload',
-    '/admin/([^/]+)/students': 'frontend.webapp.pages.course_admin.student_list.CourseStudentListPage',
-    '/admin/([^/]+)/student/([^/]+)': 'frontend.webapp.pages.course_admin.student_info.CourseStudentInfoPage',
-    '/admin/([^/]+)/student/([^/]+)/([^/]+)': 'frontend.webapp.pages.course_admin.student_task.CourseStudentTaskPage',
-    '/admin/([^/]+)/student/([^/]+)/([^/]+)/([^/]+)': 'frontend.webapp.pages.course_admin.student_task.SubmissionDownloadFeedback',
-    '/admin/([^/]+)/groups': 'frontend.webapp.pages.course_admin.group_list.CourseGroupListPage',
-    '/admin/([^/]+)/group/([^/]+)': 'frontend.webapp.pages.course_admin.group_info.CourseGroupInfoPage',
-    '/admin/([^/]+)/group/([^/]+)/([^/]+)': 'frontend.webapp.pages.course_admin.group_task.CourseGroupTaskPage',
-    '/admin/([^/]+)/group/([^/]+)/([^/]+)/([^/]+)': 'frontend.webapp.pages.course_admin.group_task.SubmissionDownloadFeedback',
-    '/admin/([^/]+)/tasks': 'frontend.webapp.pages.course_admin.task_list.CourseTaskListPage',
-    '/admin/([^/]+)/task/([^/]+)': 'frontend.webapp.pages.course_admin.task_info.CourseTaskInfoPage',
-    '/admin/([^/]+)/edit/group/([^/]+)': 'frontend.webapp.pages.course_admin.group_edit.CourseEditGroup',
-    '/admin/([^/]+)/edit/task/([^/]+)': 'frontend.webapp.pages.course_admin.task_edit.CourseEditTask',
-    '/admin/([^/]+)/edit/task/([^/]+)/files': 'frontend.webapp.pages.course_admin.task_edit_file.CourseTaskFiles',
-    '/admin/([^/]+)/download': 'frontend.webapp.pages.course_admin.download.CourseDownloadSubmissions',
-    '/api/v0/auth_methods': 'frontend.webapp.pages.api.auth_methods.APIAuthMethods',
-    '/api/v0/authentication': 'frontend.webapp.pages.api.authentication.APIAuthentication',
-    '/api/v0/courses': 'frontend.webapp.pages.api.courses.APICourses',
-    '/api/v0/courses/([a-zA-Z_\-\.0-9]+)': 'frontend.webapp.pages.api.courses.APICourses',
-    '/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks': 'frontend.webapp.pages.api.tasks.APITasks',
-    '/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)': 'frontend.webapp.pages.api.tasks.APITasks',
-    '/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)/submissions': 'frontend.webapp.pages.api.submissions.APISubmissions',
-    '/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)/submissions/([a-zA-Z_\-\.0-9]+)':
+    r'/': 'frontend.webapp.pages.index.IndexPage',
+    r'/index': 'frontend.webapp.pages.index.IndexPage',
+    r'/course/([^/]+)': 'frontend.webapp.pages.course.CoursePage',
+    r'/course/([^/]+)/([^/]+)': 'frontend.webapp.pages.tasks.TaskPage',
+    r'/course/([^/]+)/([^/]+)/(.*)': 'frontend.webapp.pages.tasks.TaskPageStaticDownload',
+    r'/group/([^/]+)': 'frontend.webapp.pages.group.GroupPage',
+    r'/admin/([^/]+)': 'frontend.webapp.pages.course_admin.utils.CourseRedirect',
+    r'/admin/([^/]+)/settings': 'frontend.webapp.pages.course_admin.settings.CourseSettings',
+    r'/admin/([^/]+)/batch': 'frontend.webapp.pages.course_admin.batch.CourseBatchOperations',
+    r'/admin/([^/]+)/batch/create/(.+)': 'frontend.webapp.pages.course_admin.batch.CourseBatchJobCreate',
+    r'/admin/([^/]+)/batch/summary/([^/]+)': 'frontend.webapp.pages.course_admin.batch.CourseBatchJobSummary',
+    r'/admin/([^/]+)/batch/download/([^/]+)': 'frontend.webapp.pages.course_admin.batch.CourseBatchJobDownload',
+    r'/admin/([^/]+)/batch/download/([^/]+)(/.*)': 'frontend.webapp.pages.course_admin.batch.CourseBatchJobDownload',
+    r'/admin/([^/]+)/students': 'frontend.webapp.pages.course_admin.student_list.CourseStudentListPage',
+    r'/admin/([^/]+)/student/([^/]+)': 'frontend.webapp.pages.course_admin.student_info.CourseStudentInfoPage',
+    r'/admin/([^/]+)/student/([^/]+)/([^/]+)': 'frontend.webapp.pages.course_admin.student_task.CourseStudentTaskPage',
+    r'/admin/([^/]+)/student/([^/]+)/([^/]+)/([^/]+)': 'frontend.webapp.pages.course_admin.student_task.SubmissionDownloadFeedback',
+    r'/admin/([^/]+)/groups': 'frontend.webapp.pages.course_admin.group_list.CourseGroupListPage',
+    r'/admin/([^/]+)/group/([^/]+)': 'frontend.webapp.pages.course_admin.group_info.CourseGroupInfoPage',
+    r'/admin/([^/]+)/group/([^/]+)/([^/]+)': 'frontend.webapp.pages.course_admin.group_task.CourseGroupTaskPage',
+    r'/admin/([^/]+)/group/([^/]+)/([^/]+)/([^/]+)': 'frontend.webapp.pages.course_admin.group_task.SubmissionDownloadFeedback',
+    r'/admin/([^/]+)/tasks': 'frontend.webapp.pages.course_admin.task_list.CourseTaskListPage',
+    r'/admin/([^/]+)/task/([^/]+)': 'frontend.webapp.pages.course_admin.task_info.CourseTaskInfoPage',
+    r'/admin/([^/]+)/edit/group/([^/]+)': 'frontend.webapp.pages.course_admin.group_edit.CourseEditGroup',
+    r'/admin/([^/]+)/edit/task/([^/]+)': 'frontend.webapp.pages.course_admin.task_edit.CourseEditTask',
+    r'/admin/([^/]+)/edit/task/([^/]+)/files': 'frontend.webapp.pages.course_admin.task_edit_file.CourseTaskFiles',
+    r'/admin/([^/]+)/download': 'frontend.webapp.pages.course_admin.download.CourseDownloadSubmissions',
+    r'/api/v0/auth_methods': 'frontend.webapp.pages.api.auth_methods.APIAuthMethods',
+    r'/api/v0/authentication': 'frontend.webapp.pages.api.authentication.APIAuthentication',
+    r'/api/v0/courses': 'frontend.webapp.pages.api.courses.APICourses',
+    r'/api/v0/courses/([a-zA-Z_\-\.0-9]+)': 'frontend.webapp.pages.api.courses.APICourses',
+    r'/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks': 'frontend.webapp.pages.api.tasks.APITasks',
+    r'/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)': 'frontend.webapp.pages.api.tasks.APITasks',
+    r'/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)/submissions': 'frontend.webapp.pages.api.submissions.APISubmissions',
+    r'/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)/submissions/([a-zA-Z_\-\.0-9]+)':
         'frontend.webapp.pages.api.submissions.APISubmissionSingle',
 }
 
@@ -92,13 +92,14 @@ def _load_configuration(config_file):
     :return: a dict containing the configuration
     """
     config = load_json_or_yaml(config_file)
-    if not 'allowed_file_extensions' in config:
+    if 'allowed_file_extensions' not in config:
         config['allowed_file_extensions'] = [".c", ".cpp", ".java", ".oz", ".zip", ".tar.gz", ".tar.bz2", ".txt"]
-    if not 'max_file_size' in config:
+    if 'max_file_size' not in config:
         config['max_file_size'] = 1024 * 1024
     return config
 
 def _close_app(app, mongo_client, job_manager):
+    """ Ensures that the app is properly closed """
     app.stop()
     job_manager.close()
     mongo_client.close()
@@ -195,6 +196,7 @@ class StaticMiddleware(object):
             return self.app(environ, start_response)
 
     def normpath(self, path):
+        """ Normalize the path """
         path2 = posixpath.normpath(urllib.unquote(path))
         if path.endswith("/"):
             path2 += "/"
@@ -217,11 +219,10 @@ def start_app(config_file, hostname="localhost", port=8080, app=None):
 
     func = app.wsgifunc()
 
-    if os.environ.has_key('SERVER_SOFTWARE'):  # cgi
+    if 'SERVER_SOFTWARE' in os.environ:  # cgi
         os.environ['FCGI_FORCE_CGI'] = 'Y'
 
-    if (os.environ.has_key('PHP_FCGI_CHILDREN')  # lighttpd fastcgi
-        or os.environ.has_key('SERVER_SOFTWARE')):
+    if 'PHP_FCGI_CHILDREN' in os.environ or 'SERVER_SOFTWARE' in os.environ:  # lighttpd fastcgi
         return runfcgi(func, None)
 
     func = StaticMiddleware(func)
