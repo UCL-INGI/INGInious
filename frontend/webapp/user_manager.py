@@ -154,16 +154,16 @@ class UserManager(object):
         """
         return {i: (am.get_name(), am.needed_input()) for i, am in enumerate(self._auth_methods)}
 
-    def auth_user(self, auth_method_id, user_input):
+    def auth_user(self, auth_method_id, input):
         """
         :param auth_method_id: the auth method id, as provided by get_auth_methods_inputs()
-        :param user_input: the input of the user, should respect what was given by get_auth_methods_inputs()
+        :param input: the input of the user, should respect what was given by get_auth_methods_inputs()
         :raise AuthInvalidInputException
         :return: True if the user successfully authenticated, False else
         """
         if len(self._auth_methods) <= auth_method_id:
             raise AuthInvalidMethodException()
-        info = self._auth_methods[auth_method_id].auth(user_input)
+        info = self._auth_methods[auth_method_id].auth(input)
         if info is not None:
             self._set_session(info[0], info[1], info[2])
             return True

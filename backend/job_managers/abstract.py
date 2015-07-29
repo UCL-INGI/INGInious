@@ -155,7 +155,7 @@ class AbstractJobManager(object):
             - {"retval":-1, "stderr": "the error message"}
                 if the container failed to start
         """
-        _, callback, _2, statinfo = self._running_batch_job_data[jobid]
+        container_name, callback, _, statinfo = self._running_batch_job_data[jobid]
 
         # Deletes from data structures
         del self._running_batch_job_data[jobid]

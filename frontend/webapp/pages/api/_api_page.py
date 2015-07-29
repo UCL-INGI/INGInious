@@ -81,31 +81,31 @@ class APIPage(INGIniousPage):
         """ Returns 405 Invalid Method to the client """
         raise APIInvalidMethod(self._guess_available_methods())
 
-    def API_GET(self, *args_, **kwargs_):
+    def API_GET(self, *args, **kwargs):
         """ API GET request. Should be overridden by subclasses """
         self.invalid_method()
 
-    def API_PUT(self, *args_, **kwargs_):
+    def API_PUT(self, *args, **kwargs):
         """ API PUT request. Should be overridden by subclasses """
         self.invalid_method()
 
-    def API_POST(self, *args_, **kwargs_):
+    def API_POST(self, *args, **kwargs):
         """ API POST request. Should be overridden by subclasses """
         self.invalid_method()
 
-    def API_DELETE(self, *args_, **kwargs_):
+    def API_DELETE(self, *args, **kwargs):
         """ API DELETE request. Should be overridden by subclasses """
         self.invalid_method()
 
-    def API_PATCH(self, *args_, **kwargs_):
+    def API_PATCH(self, *args, **kwargs):
         """ API PATCH request. Should be overridden by subclasses """
         self.invalid_method()
 
-    def API_HEAD(self, *args_, **kwargs_):
+    def API_HEAD(self, *args, **kwargs):
         """ API HEAD request. Should be overridden by subclasses """
         self.invalid_method()
 
-    def API_OPTIONS(self, *args_, **kwargs_):
+    def API_OPTIONS(self, *args, **kwargs):
         """ API OPTIONS request. Should be overridden by subclasses """
         self.invalid_method()
 

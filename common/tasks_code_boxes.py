@@ -41,7 +41,7 @@ class BasicBox(object):
         """ Return the _id of this box """
         return self._id
 
-    def input_is_consistent(self, task_input, default_allowed_extension_, default_max_size_):
+    def input_is_consistent(self, task_input, default_allowed_extension, default_max_size):
         """ Check if an input for this box is consistent. Return true if this is case, false else """
         try:
             return self.get_complete_id() in task_input
@@ -71,7 +71,7 @@ class TextBox(BasicBox):
     def get_type(self):
         return "text"
 
-    def input_is_consistent(self, task_input_, default_allowed_extension_, default_max_size_):
+    def input_is_consistent(self, task_input, default_allowed_extension, default_max_size):
         # do not call input_is_consistent from BasicBox.
         return True
 
