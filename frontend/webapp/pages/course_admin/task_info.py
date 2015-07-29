@@ -84,7 +84,7 @@ class CourseTaskInfoPage(INGIniousAdminPage):
                     {
                         "$group":
                             {
-                                "_id": "$taskid",
+                                "_id": "$username",
                                 "tried": {"$sum": 1},
                                 "succeeded": {"$sum": {"$cond": [{"$eq": ["$result", "success"]}, 1, 0]}},
                                 "grade": {"$max": "$grade"}
@@ -93,14 +93,14 @@ class CourseTaskInfoPage(INGIniousAdminPage):
                 ]))
 
             for g in group_results:
-                group_data[g["_id"]]["tried"] = g["tried"]
+                group_data[group['_id']]["tried"] = g["tried"]
                 if g["tried"] == 0:
-                    group_data[g["_id"]]["status"] = "notattempted"
+                    group_data[group['_id']]["status"] = "notattempted"
                 elif g["succeeded"]:
-                    group_data[g["_id"]]["status"] = "succeeded"
+                    group_data[group['_id']]["status"] = "succeeded"
                 else:
-                    group_data[g["_id"]]["status"] = "failed"
-                group_data[g["_id"]]["grade"] = g["grade"]
+                    group_data[group['_id']]["status"] = "failed"
+                group_data[group['_id']]["grade"] = g["grade"]
 
         my_groups, other_groups = [], []
         for group in group_data.values():

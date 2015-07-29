@@ -57,12 +57,8 @@ class CourseClassroomListPage(INGIniousAdminPage):
         grouped_users = list(self.database.classrooms.aggregate([
             {"$match": {"courseid": course.get_id()}},
             {"$unwind": "$users"},
-            {"$group":
-                {
-                    "_id": "$courseid",
-                    "user_list": {"$push": "$users"}
-                }
-            }]))
+            {"$unwind": "$users"},
+            {"$group": {"_id": "$_id", "user_list": {"$addToSet": "$users"}}}]))
 
         ungrouped_users = len(set(self.user_manager.get_course_registered_users(course, False)) -
                               set(grouped_users[0]["user_list"] if len(grouped_users) > 0 else []))

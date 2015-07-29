@@ -67,7 +67,8 @@ $elif post:
                 <label for="name" class="col-sm-2 control-label">Student list</label>
                 <div class="col-sm-10">
                     <div class="list-group" id="student_list">
-                    $for user in group["users"]:
+                    $ cusers = [item for sublist in group["users"] for item in sublist]
+                    $for user in cusers:
                         <div class="list-group-item" id="student_list_$user">
                             $user ($user_manager.get_user_realname(user))
                             <div class="pull-right"><i onclick="javascript:group_remove_user('student', '$user')" class="fa fa-trash-o fa-lg"></i></div>
@@ -78,7 +79,7 @@ $elif post:
                         <div class="col-xs-12 col-md-8">
                             <select type="text" class="form-control" id="student_username" name="student_username">
                                 $for student in course_stud_list:
-                                    $if student not in group["users"]:
+                                    $if student not in cusers:
                                         <option value="$student">$student ($user_manager.get_user_realname(student))</option>
                             </select>
                         </div>

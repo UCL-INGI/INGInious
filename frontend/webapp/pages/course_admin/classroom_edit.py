@@ -33,9 +33,10 @@ class CourseEditClassroom(INGIniousAdminPage):
         student_list, tutor_list = self.user_manager.get_course_registered_users(course, False), course.get_staff()
 
         # Remove grouped users from the accessible list for the group
-        grouped_users = self.database.classrooms.aggregate([
+        grouped_users = list(self.database.classrooms.aggregate([
             {"$match": {"_id": {"$ne": ObjectId(groupid)}}},
-            {"$group": {"_id": "$_id", "gusers": {"$addToSet": "$users"}}}])
+            {"$unwind": "$users"},
+            {"$group": {"_id": "$_id", "gusers": {"$addToSet": "$users"}}}]))
 
         for result in grouped_users:
             for users in result["gusers"]:
