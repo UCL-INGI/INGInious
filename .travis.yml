@@ -6,27 +6,35 @@ env:
   global:
     - "HOST_IP=$(/sbin/ifconfig venet0:0 | grep 'inet addr' | awk -F: '{print $2}' | awk '{print $1}')"
     - DOCKER_HOST=tcp://$HOST_IP:2375
-    - SLIRP_PORTS=$(seq 2375 2500)
+    - SLIRP_PORTS="2375 4445"
     - TEST_ENV=travis
+services: mongodb
 before_install:
   - echo exit 101 | sudo tee /usr/sbin/policy-rc.d
   - sudo chmod +x /usr/sbin/policy-rc.d
 install:
   - curl -sSL https://get.docker.com/ | sh
-  - sudo apt-get install slirp libtidy-*
+  - sudo apt-get install slirp libtidy-* xvfb
   - sudo usermod -aG docker "$USER"
   - git clone git://github.com/cptactionhank/sekexe
-  - "pip install pymongo pytidylib docker-py sh web.py docutils simpleldap pyyaml rpyc cgroup-utils selenium"
+  - "pip install pymongo pytidylib docker-py sh web.py docutils simpleldap pyyaml rpyc cgroup-utils selenium pyvirtualdisplay"
   - sudo mkdir /var/lib/docker
   - sudo mkdir /etc/docker
   - sudo chmod -R 777 /var/lib/docker
   - sudo chmod -R 777 /etc/docker
+  - sudo mkdir /agent_volume
 before_script:
   - "sudo HOST_IP=\"$HOST_IP\" SLIRP_PORTS=\"$SLIRP_PORTS\" sekexe/run 'mount -t tmpfs -o size=8g tmpfs /var/lib/docker && docker -d --log-level=error -H tcp://0.0.0.0:2375' &"
   - "while ! docker info; do echo 'retrying to connect to docker...'; sleep 1; done"
-  - "docker run -d -p 4444:4444 selenium/standalone-chrome"
 script:
-  - nosetests .
+  - nosetests backend/tests
+  - nosetests common/tests
+  - docker pull ingi/inginious-agent
+  - docker pull ingi/inginious-c-default
+  - "docker run -i --rm --net=host -v /sys/fs/cgroup:/sys/fs/cgroup -v /agent_volume:/agent_volume -e 'AGENT_PORT=4445' -e 'AGENT_CONTAINER_NAME=inginious-agent' -e 'DOCKER_HOST=tcp://localhost:2375' --name inginious-agent ingi/inginious-agent &"
+  - nosetests frontend/tests
+  - docker kill inginious-agent
+
 
 notifications:
   webhooks:

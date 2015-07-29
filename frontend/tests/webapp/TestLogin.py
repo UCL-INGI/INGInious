@@ -19,10 +19,10 @@ class TestLogin(SeleniumTest):
         driver.find_element_by_name("password").send_keys("test")
         
         driver.find_element_by_xpath("//button[@type='submit']").click()
-        
+
         self.wait_for_presence_css(".navbar p.navbar-text")
-        self.assertEqual("Logged in as test", driver.find_elements_by_css_selector(".navbar p.navbar-text")[0].text)
-        self.assertEqual("Log off", driver.find_element_by_link_text("Log off").text)
+        #self.assertEqual("Logged in as test", driver.find_element_by_xpath('//*[@id="wrapper"]/div[1]/div/div[2]/div/ul/li[1]/p').text)
+        self.assertEqual("Log off", driver.find_element_by_id("logoff_button").text)
 
 class LoggedInTest(SeleniumTest):
     login = "test"

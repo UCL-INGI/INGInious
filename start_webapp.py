@@ -21,6 +21,7 @@
 
 import os
 import argparse
+from common.base import load_json_or_yaml
 
 import frontend.webapp.app
 
@@ -40,4 +41,4 @@ if __name__ == "__main__":
         else:
             raise Exception("No configuration file found")
 
-    frontend.webapp.app.start_app(config, hostname=args.host, port=args.port)
+    frontend.webapp.app.start_app(load_json_or_yaml(config), hostname=args.host, port=args.port)

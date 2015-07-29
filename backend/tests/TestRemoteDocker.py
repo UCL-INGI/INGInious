@@ -38,7 +38,7 @@ class TestDockerJobManager(object):
 
         if TEST_ENV is None:
             raise SkipTest("Testing the Docker Job Manager is disabled.")
-        elif TEST_ENV == "boot2docker":
+        elif TEST_ENV in ["boot2docker", "boot2docker-local"]:
             self.docker_connection = docker.Client(base_url="tcp://192.168.59.103:2375")
         elif TEST_ENV == "travis":
             self.docker_connection = docker.Client(base_url="tcp://localhost:2375")
@@ -69,7 +69,7 @@ class TestDockerJobManager(object):
         pass
 
     def start_manager(self):
-        if TEST_ENV == "boot2docker":
+        if TEST_ENV in ["boot2docker", "boot2docker-local"]:
             self.job_manager = RemoteDockerJobManager([{
                 "remote_host": "192.168.59.103",
                 "remote_docker_port": 2375,
