@@ -67,36 +67,37 @@ class CourseClassroomListPage(INGIniousAdminPage):
         ungrouped_users = len(set(self.user_manager.get_course_registered_users(course, False)) -
                               set(grouped_users[0]["user_list"] if len(grouped_users) > 0 else []))
 
-        classrooms = OrderedDict([(classroom['_id'],
-                               dict(classroom.items() +
-                                    [("tried", 0),
-                                     ("done", 0),
-                                     ("url", self.submission_url_generator(course, classroom['_id']))
-                                     ]
-                                    )
-                               ) for classroom in self.user_manager.get_course_classrooms(course)])
+        classrooms = OrderedDict()
 
-        data = list(self.database.submissions.aggregate(
-            [
-                {
-                    "$match":
-                        {
-                            "courseid": course.get_id(),
-                            "groupid": {"$in": classrooms.keys()}
-                        }
-                },
-                {
-                    "$group":
-                        {
-                            "_id": {"groupid": "$groupid", "taskid": "$taskid"},
-                            "done": {"$sum": {"$cond": [{"$eq": ["$result", "success"]}, 1, 0]}}
-                        }
-                }
-            ]))
+        for classroom in self.user_manager.get_course_classrooms(course):
+            classrooms[classroom['_id']] = dict(classroom.items() +
+                                                [("tried", 0),
+                                                 ("done", 0),
+                                                 ("url", self.submission_url_generator(course, classroom['_id']))
+                                                 ])
 
-        for classroom in data:
-            classrooms[classroom["_id"]["groupid"]]["tried"] += 1
-            classrooms[classroom["_id"]["groupid"]]["done"] += 1 if classroom["done"] else 0
+            data = list(self.database.submissions.aggregate(
+                [
+                    {
+                        "$match":
+                            {
+                                "courseid": course.get_id(),
+                                "username": {"$in": classroom["users"]}
+                            }
+                    },
+                    {
+                        "$group":
+                            {
+                                "_id": {"taskid": "$taskid"},
+                                "done": {"$sum": {"$cond": [{"$eq": ["$result", "success"]}, 1, 0]}}
+                            }
+                    },
+
+                ]))
+
+            for c in data:
+                classrooms[classroom['_id']]["tried"] += 1
+                classrooms[classroom['_id']]["done"] += 1 if c["done"] else 0
 
         my_classrooms, other_classrooms = [], []
         for classroom in classrooms.values():

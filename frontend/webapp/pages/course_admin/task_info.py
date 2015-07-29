@@ -64,20 +64,27 @@ class CourseTaskInfoPage(INGIniousAdminPage):
                 individual_data[user["username"]]["status"] = "failed"
             individual_data[user["username"]]["grade"] = user["grade"]
 
-        if course.is_group_course():
+        group_data = OrderedDict()
+        for group in self.user_manager.get_course_classrooms(course):
+            group_data[group['_id']] = {"_id": group['_id'], "description": group['description'],
+                                        "url": self.group_submission_url_generator(course, task, group),
+                                        "tried": 0, "grade": 0, "status": "notviewed",
+                                        "tutors": group["tutors"]}
+
             group_results = list(self.database.submissions.aggregate(
                 [
                     {
                         "$match":
                             {
                                 "courseid": course.get_id(),
-                                "taskid": task.get_id()
+                                "taskid": task.get_id(),
+                                "username": {"$in": group["users"]}
                             }
                     },
                     {
                         "$group":
                             {
-                                "_id": "$groupid",
+                                "_id": "$taskid",
                                 "tried": {"$sum": 1},
                                 "succeeded": {"$sum": {"$cond": [{"$eq": ["$result", "success"]}, 1, 0]}},
                                 "grade": {"$max": "$grade"}
@@ -85,39 +92,26 @@ class CourseTaskInfoPage(INGIniousAdminPage):
                     }
                 ]))
 
-            group_data = OrderedDict([(group['_id'], {"_id": group['_id'], "description": group['description'],
-                                                      "url": self.group_submission_url_generator(course, task, group),
-                                                      "tried": 0, "grade": 0, "status": "notviewed",
-                                                      "tutors": group["tutors"]}) for group in self.user_manager.get_course_groups(course)])
-
-            for group in group_results:
-                if group['_id'] is not None:
-                    group_data[group["_id"]]["tried"] = group["tried"]
-                    if group["tried"] == 0:
-                        group_data[group["_id"]]["status"] = "notattempted"
-                    elif group["succeeded"]:
-                        group_data[group["_id"]]["status"] = "succeeded"
-                    else:
-                        group_data[group["_id"]]["status"] = "failed"
-                    group_data[group["_id"]]["grade"] = group["grade"]
-
-            my_groups, other_groups = [], []
-            for group in group_data.values():
-                if self.user_manager.session_username() in group["tutors"]:
-                    my_groups.append(group)
+            for g in group_results:
+                group_data[g["_id"]]["tried"] = g["tried"]
+                if g["tried"] == 0:
+                    group_data[g["_id"]]["status"] = "notattempted"
+                elif g["succeeded"]:
+                    group_data[g["_id"]]["status"] = "succeeded"
                 else:
-                    other_groups.append(group)
+                    group_data[g["_id"]]["status"] = "failed"
+                group_data[g["_id"]]["grade"] = g["grade"]
 
-            if "csv" in web.input() and web.input()["csv"] == "students":
-                return make_csv(individual_data.values())
-            elif "csv" in web.input() and web.input()["csv"] == "groups":
-                return make_csv(group_data.values())
+        my_groups, other_groups = [], []
+        for group in group_data.values():
+            if self.user_manager.session_username() in group["tutors"]:
+                my_groups.append(group)
+            else:
+                other_groups.append(group)
 
-            return self.template_helper.get_renderer().course_admin.task_info(course, task, individual_data.values(), [my_groups, other_groups])
+        if "csv" in web.input() and web.input()["csv"] == "students":
+            return make_csv(individual_data.values())
+        elif "csv" in web.input() and web.input()["csv"] == "groups":
+            return make_csv(group_data.values())
 
-        else:
-
-            if "csv" in web.input():
-                return make_csv(individual_data.values())
-
-            return self.template_helper.get_renderer().course_admin.task_info(course, task, individual_data.values())
+        return self.template_helper.get_renderer().course_admin.task_info(course, task, individual_data.values(), [my_groups, other_groups])

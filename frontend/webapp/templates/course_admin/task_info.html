@@ -33,22 +33,19 @@ $def NavbarF():
 $var Navbar: $:NavbarF()
 
 <h2>Results for task "$task.get_name()"</h2>
-$if course.is_group_course():
-        <div role="tabpanel">
-            <ul class="nav nav-tabs" id="edit_task_tabs" role="tablist">
-                            <li role="presentation" class="active"><a href="#tab_indiv" aria-controls="basicinfo" role="tab" data-toggle="tab"><i class="fa
-                    fa-user fa-fw"></i>&nbsp; Individual results</a></li>
-                            <li role="presentation"><a href="#tab_group" aria-controls="container" role="tab" data-toggle="tab"><i class="fa
-                    fa-users fa-fw"></i>&nbsp; Group results</a></li>
-            </ul>
-            <div id="edit_task_tabs_content" class="tab-content">
-                    <div role="tabpanel" class="tab-pane active" id="tab_indiv">
-                        $:include.course_admin.task_info_table(course,task,individual_data)
-                    </div>
-                    <div role="tabpanel" class="tab-pane" id="tab_group">
-                        $:include.course_admin.task_info_table(course,task,group_data,True)
-                    </div>
-            </div>
+    <div role="tabpanel">
+        <ul class="nav nav-tabs" id="edit_task_tabs" role="tablist">
+                        <li role="presentation" class="active"><a href="#tab_indiv" aria-controls="basicinfo" role="tab" data-toggle="tab"><i class="fa
+                fa-user fa-fw"></i>&nbsp; Individual results</a></li>
+                        <li role="presentation"><a href="#tab_group" aria-controls="container" role="tab" data-toggle="tab"><i class="fa
+                fa-users fa-fw"></i>&nbsp; Classroom results</a></li>
+        </ul>
+        <div id="edit_task_tabs_content" class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="tab_indiv">
+                    $:include.course_admin.task_info_table(course,task,individual_data)
+                </div>
+                <div role="tabpanel" class="tab-pane" id="tab_group">
+                    $:include.course_admin.task_info_table(course,task,group_data,True)
+                </div>
         </div>
-$else:
-        $:include.course_admin.task_info_table(course,task,individual_data)
+    </div>

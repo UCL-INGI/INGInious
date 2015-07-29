@@ -41,73 +41,97 @@ $if error:
 $elif post:
     <div class="alert alert-success" role="alert">Classroom updated.</div>
 <form method="post" class="form-horizontal">
-    <br/>
-    <div class="form-group">
-        <label for="name" class="col-sm-2 control-label">Classroom description</label>
-        <div class="col-sm-10">
-            <input type="text" class="form-control" id="description" name="description" placeholder="Classroom description" value="$group['description']">
-        </div>
-    </div>
-    <div class="form-group">
-        <label for="name" class="col-sm-2 control-label">Classroom size</label>
-        <div class="col-xs-12 col-md-6">
-            <input type="number" class="form-control" id="size" name="size" placeholder="Classroom size" value="$group['size']">
-        </div>
-        <div class="col-xs-12 col-md-4">
-            <button type="submit" name="delete" class="form-control btn btn-block btn-danger"><span class="fa fa-trash"></span> Delete classroom</button>
-        </div>
-    </div>
-    <div class="form-group">
-        <label for="name" class="col-sm-2 control-label">Student list</label>
-        <div class="col-sm-10">
-            <div class="list-group" id="student_list">
-            $for user in group["users"]:
-                <div class="list-group-item" id="student_list_$user">
-                    $user ($user_manager.get_user_realname(user))
-                    <div class="pull-right"><i onclick="javascript:group_remove_user('student', '$user')" class="fa fa-trash-o fa-lg"></i></div>
-                    <input type="hidden" name="group_student" value="$user">
+    <div role="tabpanel">
+        <ul class="nav nav-tabs" id="edit_task_tabs" role="tablist">
+			<li role="presentation" class="active"><a href="#tab_basic" aria-controls="basic" role="tab" data-toggle="tab">
+                <i class="fa fa-users fa-fw"></i>&nbsp; Classroom settings</a></li>
+			<li role="presentation"><a href="#tab_groups" aria-controls="groups" role="tab" data-toggle="tab">
+                <i class="fa fa-list-ul fa-fw"></i>&nbsp; Groups</a></li>
+        </ul>
+		<div id="edit_task_tabs_content" class="tab-content">
+			<div role="tabpanel" class="tab-pane active" id="tab_basic">
+            <div class="form-group">
+                <label for="name" class="col-sm-2 control-label">Classroom description</label>
+                <div class="col-sm-10">
+                    <div class="row">
+                        <div class="col-xs-12 col-md-8">
+                            <input type="text" class="form-control" id="description" name="description" placeholder="Classroom description" value="$group['description']">
+                        </div>
+                        <div class="col-xs-12 col-md-4">
+                            <button type="submit" name="delete" class="form-control btn btn-block btn-danger"><span class="fa fa-trash"></span> Delete classroom</button>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-xs-12 col-md-8">
-                    <select type="text" class="form-control" id="student_username" name="student_username">
-                        $for student in course_stud_list:
-                            $if student not in group["users"]:
-                                <option value="$student">$student ($user_manager.get_user_realname(student))</option>
-                    </select>
+            <div class="form-group">
+                <label for="name" class="col-sm-2 control-label">Student list</label>
+                <div class="col-sm-10">
+                    <div class="list-group" id="student_list">
+                    $for user in group["users"]:
+                        <div class="list-group-item" id="student_list_$user">
+                            $user ($user_manager.get_user_realname(user))
+                            <div class="pull-right"><i onclick="javascript:group_remove_user('student', '$user')" class="fa fa-trash-o fa-lg"></i></div>
+                            <input type="hidden" name="group_student" value="$user">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-md-8">
+                            <select type="text" class="form-control" id="student_username" name="student_username">
+                                $for student in course_stud_list:
+                                    $if student not in group["users"]:
+                                        <option value="$student">$student ($user_manager.get_user_realname(student))</option>
+                            </select>
+                        </div>
+                        <div class="col-xs-12 col-md-4">
+                            <button type="button" onclick="javascript:group_add_user('student', $$('#student_username').val(), $$('#student_username option:selected').text())" class="form-control btn btn-block btn-primary"><span class="fa fa-plus"></span> Add student</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-xs-12 col-md-4">
-                    <button type="button" onclick="javascript:group_add_user('student', $$('#student_username').val(), $$('#student_username option:selected').text())" class="form-control btn btn-block btn-primary"><span class="fa fa-plus"></span> Add student</button>
-                </div>
-            </div>
-        </div>
 
-    </div>
-    <div class="form-group">
-        <label for="name" class="col-sm-2 control-label">Tutor list</label>
-        <div class="col-sm-10">
-            <div class="list-group" id="tutor_list">
-            $for user in group["tutors"]:
-                <div class="list-group-item" id="tutor_list_$user">
-                    $user ($user_manager.get_user_realname(user))
-                    <div class="pull-right"><i onclick="javascript:group_remove_user('tutor', '$user')" class="fa fa-trash-o fa-lg"></i></div>
-                    <input type="hidden" name="group_tutor" value="$user">
+            </div>
+            <div class="form-group">
+                <label for="name" class="col-sm-2 control-label">Tutor list</label>
+                <div class="col-sm-10">
+                    <div class="list-group" id="tutor_list">
+                    $for user in group["tutors"]:
+                        <div class="list-group-item" id="tutor_list_$user">
+                            $user ($user_manager.get_user_realname(user))
+                            <div class="pull-right"><i onclick="javascript:group_remove_user('tutor', '$user')" class="fa fa-trash-o fa-lg"></i></div>
+                            <input type="hidden" name="group_tutor" value="$user">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-md-8">
+                            <select type="text" class="form-control" id="tutor_username" name="tutor_username">
+                                $for tutor in course_tut_list:
+                                    $if tutor not in group["tutors"]:
+                                        <option value="$tutor">$tutor ($user_manager.get_user_realname(tutor))</option>
+                            </select>
+                        </div>
+                        <div class="col-xs-12 col-md-4">
+                            <button type="button" onclick="javascript:group_add_user('tutor', $$('#tutor_username').val(), $$('#tutor_username option:selected').text())" class="form-control btn btn-block btn-primary"><span class="fa fa-plus"></span> Add tutor</button>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-xs-12 col-md-8">
-                    <select type="text" class="form-control" id="tutor_username" name="tutor_username">
-                        $for tutor in course_tut_list:
-                            $if tutor not in group["tutors"]:
-                                <option value="$tutor">$tutor ($user_manager.get_user_realname(tutor))</option>
-                    </select>
+			</div>
+
+			<div role="tabpanel" class="tab-pane" id="tab_groups">
+
+                <div class="row form-group">
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="new_group_description" value="" placeholder="New group description"/>
+                    </div>
+                    <div class="col-sm-3">
+                        <button type="button" class="btn btn-primary btn-block"><span class="fa fa-plus"></span> Add new group</button>
+                    </div>
                 </div>
-                <div class="col-xs-12 col-md-4">
-                    <button type="button" onclick="javascript:group_add_user('tutor', $$('#tutor_username').val(), $$('#tutor_username option:selected').text())" class="form-control btn btn-block btn-primary"><span class="fa fa-plus"></span> Add tutor</button>
-                </div>
-            </div>
-        </div>
-    </div>
+
+			</div>
+
+		</div>
+	</div>
+
     <button class="btn btn-primary btn-block task_edit_submit_button" type="submit"><i class="fa fa-download"></i> Update</button>
 </form>
 
@@ -115,10 +139,10 @@ $elif post:
 <script type="text/javascript">
     function group_add_user(type, username, complete_name) {
         // Check if enough space in group
-        if($$('[name="group_student"]').length == $$("#size").val() && type == "student") {
+        /*if($$('[name="group_student"]').length == $$("#size").val() && type == "student") {
             alert("Too many students !");
             return;
-        }
+        }*/
 
         // Add entry in user list for user
         $$("#" + type + "_list").append('<div class="list-group-item" id="' + type + '_list_' + username + '">' + complete_name +
