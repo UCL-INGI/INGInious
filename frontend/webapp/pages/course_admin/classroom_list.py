@@ -95,6 +95,8 @@ class CourseClassroomListPage(INGIniousAdminPage):
                 classrooms[classroom['_id']]["tried"] += 1
                 classrooms[classroom['_id']]["done"] += 1 if c["done"] else 0
 
+            classrooms[classroom['_id']]["len"] = sum([len(group) for group in classrooms[classroom['_id']]["users"]])
+
         my_classrooms, other_classrooms = [], []
         for classroom in classrooms.values():
             if self.user_manager.session_username() in classroom["tutors"]:

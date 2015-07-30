@@ -1,4 +1,4 @@
-$def with (course,course_stud_list,course_tut_list,group,error,post)
+$def with (course,course_stud_list,course_tut_list,classroom,error,post)
 
 $# Copyright (c) 2014-2015 Université Catholique de Louvain.
 $#
@@ -17,10 +17,10 @@ $#
 $# You should have received a copy of the GNU Affero General Public
 $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 
-$var title: Edit $group["description"]
+$var title: Edit $classroom["description"]
 
 $def ColumnF():
-    <div id="group_edit_submit_status"></div>
+    <div id="classroom_edit_submit_status"></div>
     $:template_helper.call('course_admin_menu',course=course,current='classrooms')
 $var Column: $:ColumnF()
 
@@ -31,11 +31,11 @@ $def NavbarF():
             <i class="fa fa-user-secret"></i></a></li>
         <li><a href="/admin/$course.get_id()/classrooms" title="Classrooms" data-toggle="tooltip" data-placement="bottom">
             <i class='fa fa-users'></i></a></li>
-        <li class="active"><a href="#">Edit classroom $group["description"] <span class="sr-only">(current)</span></a></li>
+        <li class="active"><a href="#">Edit classroom $classroom["description"] <span class="sr-only">(current)</span></a></li>
     </ol>
 $var Navbar: $:NavbarF()
 
-<h2>Edit classroom $group["description"]</h2>
+<h2>Edit classroom $classroom["description"]</h2>
 $if error:
     <div class="alert alert-danger" role="alert">$error</div>
 $elif post:
@@ -55,7 +55,7 @@ $elif post:
                 <div class="col-sm-10">
                     <div class="row">
                         <div class="col-xs-12 col-md-8">
-                            <input type="text" class="form-control" id="description" name="description" placeholder="Classroom description" value="$group['description']">
+                            <input type="text" class="form-control" id="description" name="description" placeholder="Classroom description" value="$classroom['description']">
                         </div>
                         <div class="col-xs-12 col-md-4">
                             <button type="submit" name="delete" class="form-control btn btn-block btn-danger"><span class="fa fa-trash"></span> Delete classroom</button>
@@ -63,38 +63,12 @@ $elif post:
                     </div>
                 </div>
             </div>
-            <div class="form-group">
-                <label for="name" class="col-sm-2 control-label">Student list</label>
-                <div class="col-sm-10">
-                    <div class="list-group" id="student_list">
-                    $ cusers = [item for sublist in group["users"] for item in sublist]
-                    $for user in cusers:
-                        <div class="list-group-item" id="student_list_$user">
-                            $user ($user_manager.get_user_realname(user))
-                            <div class="pull-right"><i onclick="javascript:group_remove_user('student', '$user')" class="fa fa-trash-o fa-lg"></i></div>
-                            <input type="hidden" name="group_student" value="$user">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-xs-12 col-md-8">
-                            <select type="text" class="form-control" id="student_username" name="student_username">
-                                $for student in course_stud_list:
-                                    $if student not in cusers:
-                                        <option value="$student">$student ($user_manager.get_user_realname(student))</option>
-                            </select>
-                        </div>
-                        <div class="col-xs-12 col-md-4">
-                            <button type="button" onclick="javascript:group_add_user('student', $$('#student_username').val(), $$('#student_username option:selected').text())" class="form-control btn btn-block btn-primary"><span class="fa fa-plus"></span> Add student</button>
-                        </div>
-                    </div>
-                </div>
 
-            </div>
             <div class="form-group">
                 <label for="name" class="col-sm-2 control-label">Tutor list</label>
                 <div class="col-sm-10">
                     <div class="list-group" id="tutor_list">
-                    $for user in group["tutors"]:
+                    $for user in classroom["tutors"]:
                         <div class="list-group-item" id="tutor_list_$user">
                             $user ($user_manager.get_user_realname(user))
                             <div class="pull-right"><i onclick="javascript:group_remove_user('tutor', '$user')" class="fa fa-trash-o fa-lg"></i></div>
@@ -105,12 +79,12 @@ $elif post:
                         <div class="col-xs-12 col-md-8">
                             <select type="text" class="form-control" id="tutor_username" name="tutor_username">
                                 $for tutor in course_tut_list:
-                                    $if tutor not in group["tutors"]:
+                                    $if tutor not in classroom["tutors"]:
                                         <option value="$tutor">$tutor ($user_manager.get_user_realname(tutor))</option>
                             </select>
                         </div>
                         <div class="col-xs-12 col-md-4">
-                            <button type="button" onclick="javascript:group_add_user('tutor', $$('#tutor_username').val(), $$('#tutor_username option:selected').text())" class="form-control btn btn-block btn-primary"><span class="fa fa-plus"></span> Add tutor</button>
+                            <button type="button" onclick="javascript:group_add_user('tutor', $$('#tutor_username').val(), $$('#tutor_username option:selected').text())" class="form-control btn btn-block btn-warning"><span class="fa fa-plus"></span> Add tutor</button>
                         </div>
                     </div>
                 </div>
@@ -118,16 +92,100 @@ $elif post:
 			</div>
 
 			<div role="tabpanel" class="tab-pane" id="tab_groups">
+                <input id="nbgroups" name="nbgroups" type="hidden" value="$len(classroom['users'])">
+                <div class="panel-group" id="groups" role="tablist" aria-multiselectable="true">
+                    $for index,group in enumerate(classroom["users"]):
+                        <div id="panel$(index+1)" class="panel panel-default">
+                            <div class="panel-heading" id="heading$(index+1)">
+                                <a id="title" role="button" data-toggle="collapse" data-parent="#groups" href="#collapse$(index+1)" aria-expanded="true" aria-controls="collapse$(index+1)">
+                                    Group #$(index+1)
+                                </a>
+                                <div id="delete" class="pull-right">
+                                    <a onclick="javascript:delete_group('$index')" href="#" data-toggle="tooltip" data-placement="left" title="Delete group">
+                                        <i class="fa fa-trash-o fa-lg"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div id="collapse$(index+1)" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading$(index+1)">
+                                <div class="panel-body">
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Max. group size</label>
+                                        <div class="col-sm-10">
+                                            <input type="number" class="form-control" id="description" name="description" placeholder="2" value="$classroom['sizes'][index]">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label  class="col-sm-2 control-label">Student list</label>
+                                        <div class="col-sm-10">
+                                            <div class="list-group" id="student_list">
+                                                $ cusers = [item for sublist in classroom["users"] for item in sublist]
+                                                $for user in group:
+                                                    <div class="list-group-item" id="student_list_$user">
+                                                        $user ($user_manager.get_user_realname(user))
+                                                        <div class="pull-right">
+                                                            <a onclick="javascript:group_remove_user('student', '$user')" href="#" data-toggle="tooltip" data-placement="left" title="Remove student">
+                                                                <i class="fa fa-trash-o fa-lg"></i>
+                                                            </a>
+                                                        </div>
+                                                        <input type="hidden" name="group_student" value="$user">
+                                                    </div>
+                                                <a href="#" class="list-group-item list-group-item-warning">
+                                                    Add student
+                                                    <div class="pull-right"><i class="fa fa-plus fa-lg"></i></div>
+                                                </a>
+                                            </div>
+                                            <!--<div class="row">
+                                                <div class="col-xs-12 col-md-8">
+                                                    <select type="text" class="form-control" id="student_username" name="student_username">
+                                                        $for student in course_stud_list:
+                                                            <option value="$student">$student ($user_manager.get_user_realname(student))</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-xs-12 col-md-4">
+                                                    <button type="button" onclick="javascript:group_add_user('student', $$('#student_username').val(), $$('#student_username option:selected').text())" class="form-control btn btn-block btn-warning">Add student</button>
+                                                </div>
+                                            </div>-->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-                <div class="row form-group">
-                    <div class="col-sm-9">
-                        <input type="text" class="form-control" id="new_group_description" value="" placeholder="New group description"/>
-                    </div>
-                    <div class="col-sm-3">
-                        <button type="button" class="btn btn-primary btn-block"><span class="fa fa-plus"></span> Add new group</button>
+                    <div id="panel_new" class="panel panel-default">
+                        <div class="panel-heading" id="heading_new">
+                            <a id="title" role="button" data-toggle="collapse" data-parent="#groups" onclick="javascript:new_group()" href="#collapse_new" aria-expanded="true" aria-controls="collapse_new">
+                                New group
+                            </a>
+                            <div style="display:none;" id="delete" class="pull-right">
+                                <a onclick="javascript:delete_group('0')" href="#" data-toggle="tooltip" data-placement="left" title="Delete group">
+                                    <i class="fa fa-trash-o fa-lg"></i>
+                                </a>
+                            </div>
+                            <div id="add" class="pull-right"><a href="#collaspe_new" onclick="javascript:new_group()"><i class="fa fa-plus fa-lg"></i></a></div>
+                        </div>
+                        <div id="collapse_new" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading_new">
+                                <div class="panel-body">
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">Max. group size</label>
+                                        <div class="col-sm-10">
+                                            <input type="number" class="form-control" id="description" name="description" placeholder="2" value="2">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label  class="col-sm-2 control-label">Student list</label>
+                                        <div class="col-sm-10">
+                                            <div class="list-group" id="student_list">
+                                                <a href="#" class="list-group-item list-group-item-warning">
+                                                    Add student
+                                                    <div class="pull-right"><i class="fa fa-plus fa-lg"></i></div>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                     </div>
                 </div>
-
 			</div>
 
 		</div>
@@ -138,6 +196,32 @@ $elif post:
 
 <!-- Javascript for managing student/tutor lists -->
 <script type="text/javascript">
+    function new_group() {
+        var panel = $$('#panel_new').clone();
+        var groups_count = parseInt($$('#nbgroups').val()) + 1;
+        $$('#nbgroups').val(groups_count);
+
+        // Update header value
+        $$('#heading_new #title').attr("aria-controls", "collapse" + groups_count);
+        $$('#heading_new #title').attr("href", "#collapse" + groups_count);
+        $$('#heading_new #title').html("Group #" + groups_count);
+        $$('#heading_new #title').removeAttr("onclick");
+        $$('#heading_new #add').remove();
+        $$('#heading_new #delete').removeAttr("style");
+        $$('#heading_new').attr("id", "heading" + groups_count);
+
+        // Update collapse panel
+        $$('#collapse_new').attr("aria-labelledby", "heading" + groups_count);
+        $$('#collapse_new').attr("id", "collapse" + groups_count);
+
+        // Update panel and copy
+        $$('#panel_new').attr("id", "panel" + groups_count);
+        $$("#panel" + groups_count).after(panel);
+
+        // Regenrate tooltips
+        $$("#groups").tooltip({ selector: "[title]" });
+    }
+
     function group_add_user(type, username, complete_name) {
         // Check if enough space in group
         /*if($$('[name="group_student"]').length == $$("#size").val() && type == "student") {
@@ -147,8 +231,8 @@ $elif post:
 
         // Add entry in user list for user
         $$("#" + type + "_list").append('<div class="list-group-item" id="' + type + '_list_' + username + '">' + complete_name +
-                '<div class="pull-right"><i onclick="javascript:group_remove_user(\'' + type + '\', \'' + username +
-                '\')" class="fa fa-trash-o fa-lg"></i></div><input type="hidden" name="group_' + type + '" value="' + username + '"></div>');
+                '<div class="pull-right"><a href="#" onclick="javascript:group_remove_user(\'' + type + '\', \'' + username +
+                '\')"><i class="fa fa-trash-o fa-lg"></i></a></div><input type="hidden" name="group_' + type + '" value="' + username + '"></div>');
 
         // Remove user from select list and disable select if empty
         $$("#" + type + "_username option[value='"+ username +"']").remove();
