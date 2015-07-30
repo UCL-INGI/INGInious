@@ -43,41 +43,33 @@ class TestRegistration(LoggedInTest):
     login = "test3"
     password = "test"
 
-    def test_unregister(self, retry=True):
+    def test_unregister(self):
         driver = self.driver
         driver.get(self.base_url + "/course/test")
 
-        try:
-            self.assertEqual("[LTEST0000] Test tasks : H2G2 - List of exercises", driver.find_element_by_css_selector("h2").text)
-        except:
-            if retry:
-                self.test_register(False)
-                self.test_unregister(False)
-                return
-            else:
-                raise
-
+        self.test_register()
+        self.assertEqual("[LTEST0000] Test tasks : H2G2 - List of exercises", driver.find_element_by_css_selector("h2").text)
         driver.find_element_by_partial_link_text("Unregister from this course").click()
         self.assertEqual("[LTEST0000] Test tasks : H2G2", driver.find_element_by_css_selector("#register_courseid option[value=\"test\"]").text)
 
-    def test_register(self, retry=True):
+    def test_register(self):
         driver = self.driver
 
         driver.get(self.base_url + "/course/test")
-
-        try:
-            self.assertEqual("Error 403 You are not registered to this course.", driver.find_element_by_css_selector(".alert.alert-warning").text)
-        except:
-            if retry:
-                self.test_unregister(False)
-                self.test_register(False)
-                return
-            else:
-                raise
-
+        self.assertEqual("Error 403 You are not registered to this course.", driver.find_element_by_css_selector(".alert.alert-warning").text)
         driver.get(self.base_url + "/index")
         Select(driver.find_element_by_id("register_courseid")).select_by_visible_text("[LTEST0000] Test tasks : H2G2")
         self.assertEqual("[LTEST0000] Test tasks : H2G2", driver.find_element_by_css_selector("#register_courseid option[value=\"test\"]").text)
         driver.find_element_by_xpath("//button[@type='submit']").click()
         driver.get(self.base_url + "/course/test")
         self.assertEqual("[LTEST0000] Test tasks : H2G2 - List of exercises", driver.find_element_by_css_selector("h2").text)
+
+class RegisteredTest(LoggedInTest):
+    course = "test"
+
+    def setUp(self):
+        super(RegisteredTest, self).setUp()
+        driver = self.driver
+        driver.get(self.base_url + "/index")
+        Select(driver.find_element_by_id("register_courseid")).select_by_visible_text("[LTEST0000] Test tasks : H2G2")
+        driver.find_element_by_xpath("//button[@type='submit']").click()

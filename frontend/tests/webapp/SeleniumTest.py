@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from pymongo import MongoClient
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium import webdriver
 import os
@@ -42,6 +43,11 @@ def _start_frontend(config, host, port):
     thread.start()
     semaphore.acquire()
     return thread, server, close_app_func
+
+def _drop_database(config):
+    """ Drop the database before running any test """
+    mongo_client = MongoClient(host=config.get('host', 'localhost'))
+    mongo_client.drop_database(config.get('database', 'INGIniousFrontendTest'))
 
 class SeleniumTest(unittest.TestCase):
 
@@ -100,9 +106,11 @@ class SeleniumTest(unittest.TestCase):
             raise SkipTest("Env variable TEST_ENV is not properly configured. Please take a look a the documentation to properly configure your "
                            "test environment.")
 
+        self.driver.maximize_window()
         self.driver.implicitly_wait(30)
         self.verificationErrors = []
         self.accept_next_alert = True
+        _drop_database(self.frontend_config["mongo_opt"])
         self.frontend_thread, self.frontend_server, self.close_app_func = _start_frontend(self.frontend_config, self.frontend_host, self.frontend_port)
 
 
@@ -145,4 +153,5 @@ class SeleniumTest(unittest.TestCase):
         self.frontend_server.stop()
         self.close_app_func()
         self.frontend_thread.join()
+        _drop_database(self.frontend_config["mongo_opt"])
         self.assertEqual([], self.verificationErrors)
