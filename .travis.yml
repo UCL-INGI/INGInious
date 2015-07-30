@@ -26,12 +26,12 @@ install:
 before_script:
   - "sudo HOST_IP=\"$HOST_IP\" SLIRP_PORTS=\"$SLIRP_PORTS\" sekexe/run 'mount -t tmpfs -o size=8g tmpfs /var/lib/docker && docker -d --log-level=error -H tcp://0.0.0.0:2375' &"
   - "while ! docker info; do echo 'retrying to connect to docker...'; sleep 1; done"
+  - docker pull centos
+  - docker pull ingi/inginious-c-default
 script:
-  - nosetests backend/tests
-  - nosetests common/tests
-  - "docker pull ingi/inginious-agent && docker pull ingi/inginious-c-default && docker run -id --net=host -v /sys/fs/cgroup:/sys/fs/cgroup -v /agent_volume:/agent_volume -e 'AGENT_PORT=4445' -e 'AGENT_CONTAINER_NAME=inginious-agent' -e 'DOCKER_HOST=tcp://localhost:2375' --name inginious-agent ingi/inginious-agent && sleep 10"
+#  - nosetests backend/tests
+#  - nosetests common/tests
   - nosetests frontend/tests
-  - docker kill inginious-agent
 
 
 notifications:

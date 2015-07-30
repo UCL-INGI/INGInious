@@ -10,10 +10,10 @@ class TestTaskSubmission(LoggedInTest):
     password = "test"
 
     def test_submit(self):
-        return
         driver = self.driver
 
         driver.get(self.base_url + "/course/test/helloworld")
+        print "-----------------Trying to find textarea-----------------"
         for i in range(5):
             try:
                 if self.is_element_present(By.CSS_SELECTOR, "div.CodeMirror textarea"):
@@ -23,9 +23,14 @@ class TestTaskSubmission(LoggedInTest):
             time.sleep(1)
         else:
             self.fail("time out")
+        print "-----------------Calling script-----------------"
         driver.execute_script("""codeEditors[0].setValue('print "Hello World!"')""")
+        time.sleep(2)
+        self.assertEqual("""print "Hello World!\"""", driver.find_element_by_css_selector('textarea.code-editor').get_attribute('value'))
+        print "-----------------Clicking-----------------"
         driver.find_element_by_id("task-submit").click()
-        for i in range(60):
+        print "-----------------Trying to find task alert-----------------"
+        for i in range(5):
             try:
                 if self.is_element_present(By.XPATH, "//div[@id='task_alert']/div/p"):
                     break
@@ -34,6 +39,8 @@ class TestTaskSubmission(LoggedInTest):
             time.sleep(1)
         else:
             self.fail("time out")
+        print "-----------------Done-----------------"
+        print driver.find_element_by_xpath("//div[@id='task_alert']/div").text
         self.assertEqual("You solved this difficult task!", driver.find_element_by_xpath("//div[@id='task_alert']/div/p").text)
         self.assertEqual("100.0", driver.find_element_by_id("task_grade").text)
         self.assertEqual("Succeeded", driver.find_element_by_id("task_status").text)
