@@ -29,9 +29,7 @@ before_script:
 script:
   - nosetests backend/tests
   - nosetests common/tests
-  - docker pull ingi/inginious-agent
-  - docker pull ingi/inginious-c-default
-  - "docker run -i --rm --net=host -v /sys/fs/cgroup:/sys/fs/cgroup -v /agent_volume:/agent_volume -e 'AGENT_PORT=4445' -e 'AGENT_CONTAINER_NAME=inginious-agent' -e 'DOCKER_HOST=tcp://localhost:2375' --name inginious-agent ingi/inginious-agent &"
+  - "docker pull ingi/inginious-agent && docker pull ingi/inginious-c-default && docker run -id --net=host -v /sys/fs/cgroup:/sys/fs/cgroup -v /agent_volume:/agent_volume -e 'AGENT_PORT=4445' -e 'AGENT_CONTAINER_NAME=inginious-agent' -e 'DOCKER_HOST=tcp://localhost:2375' --name inginious-agent ingi/inginious-agent && sleep 10"
   - nosetests frontend/tests
   - docker kill inginious-agent
 
