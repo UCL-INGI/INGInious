@@ -30,16 +30,16 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
     """ A Job Manager that automatically launch Agents on distant Docker daemons """
 
     @classmethod
-    def is_agent_valid_and_started(cls, docker_connection):
+    def is_agent_valid_and_started(cls, docker_connection, agent_name):
         try:
-            container_data = docker_connection.inspect_container("inginious-agent")
+            container_data = docker_connection.inspect_container(agent_name)
             if container_data["Config"]["Labels"]["agent-version"] != AGENT_CONTAINER_VERSION:
                 # kill the container
-                docker_connection.kill("inginious-agent")
-                docker_connection.remove_container("inginious-agent", force=True)
+                docker_connection.kill(agent_name)
+                docker_connection.remove_container(agent_name, force=True)
             elif container_data["State"]["Running"] is False:
                 # remove the container and restart it
-                docker_connection.remove_container("inginious-agent", force=True)
+                docker_connection.remove_container(agent_name, force=True)
             else:
                 return True
         except:
@@ -74,6 +74,8 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
                   #"local_location": "unix:///var/run/docker.sock"
                   ##path to the cgroups "mount" *from the host that runs the docker daemon*. Defaults to:
                   #"cgroups_location": "/sys/fs/cgroup"
+                  ##name that will be used to reference the agent
+                  #"agent_name": "inginious-agent"
                 }
             :param task_directory: the task directory
             :param course_factory: a CourseFactory object
@@ -98,8 +100,10 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
                 docker_connection = docker.Client(base_url="http://" + daemon['remote_host'] + ":" + str(int(daemon["remote_docker_port"])),
                                                   tls=False)
 
+            agent_name = daemon.get('agent_name', 'inginious-agent')
+
             # Verify if the container is available and at the right version
-            if not self.is_agent_valid_and_started(docker_connection):
+            if not self.is_agent_valid_and_started(docker_connection, agent_name):
 
                 # Verify that the image ingi/inginious-agent exists and is up-to-date
                 if self.is_agent_image_update_needed(docker_connection):
@@ -113,7 +117,7 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
                                         "Please update  INGInious or pull manually a valid version of the container image ingi/inginious-agent.")
 
                 docker_local_location = daemon.get("local_location", "unix:///var/run/docker.sock")
-                environment = {"AGENT_CONTAINER_NAME": "inginious-agent", "AGENT_PORT": daemon.get("remote_agent_port", 63456)}
+                environment = {"AGENT_CONTAINER_NAME": agent_name, "AGENT_PORT": daemon.get("remote_agent_port", 63456)}
                 volumes = {'/sys/fs/cgroup/': {}}
                 binds = {daemon.get('cgroups_location', "/sys/fs/cgroup"): {'ro': False, 'bind': "/sys/fs/cgroup"}}
 
@@ -132,7 +136,7 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
                     "ingi/inginious-agent",
                     environment=environment,
                     detach=True,
-                    name="inginious-agent",
+                    name=agent_name,
                     volumes=volumes
                 )
                 container_id = response["Id"]
