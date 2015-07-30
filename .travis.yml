@@ -17,7 +17,7 @@ install:
   - sudo apt-get install slirp libtidy-* xvfb
   - sudo usermod -aG docker "$USER"
   - git clone git://github.com/cptactionhank/sekexe
-  - "pip install pymongo pytidylib docker-py sh web.py docutils simpleldap pyyaml rpyc cgroup-utils selenium pyvirtualdisplay"
+  - "pip install pymongo pytidylib docker-py sh web.py docutils simpleldap pyyaml rpyc cgroup-utils selenium pyvirtualdisplay pygments"
   - sudo mkdir /var/lib/docker
   - sudo mkdir /etc/docker
   - sudo chmod -R 777 /var/lib/docker
