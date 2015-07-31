@@ -250,6 +250,19 @@ ul.checked-list-box .list-group-item-primary {
   color: #ffffff;
   background-color: #428bca;
 }
+.caution .first {
+  display: none;
+}
+.caution p.last {
+  font-size: 12px;
+  font-weight: 300;
+  background-color: #e99002;
+  color: #ffffff;
+  padding: 15px;
+  margin-bottom: 21px;
+  border: 1px solid #d08002;
+  border-radius: 0;
+}
 /* Codemirror */
 .CodeMirror-placeholder {
   color: #aaaaaa !important;

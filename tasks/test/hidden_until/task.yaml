@@ -1,0 +1,25 @@
+accessible: true
+author: Guillaume Derval
+context: |
+    This tests the "hidden-until" directive of RST
+
+    .. hidden-until:: 01/01/2015
+
+        This should not be hidden
+
+    .. hidden-until:: 01/01/3015
+
+        This should be hidden
+environment: default
+limits:
+    memory: '100'
+    time: '30'
+    output: '2'
+name: Hidden Until
+problems:
+    test:
+        name: ''
+        type: match
+        answer: '42'
+        header: Type 42
+weight: 1.0

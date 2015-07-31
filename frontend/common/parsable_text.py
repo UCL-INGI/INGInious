@@ -18,11 +18,49 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Tools to parse text """
 import cgi
+from datetime import datetime
 
 from docutils import core, nodes
+from docutils.statemachine import StringList
 from docutils.writers import html4css1
 import tidylib
+from docutils.parsers.rst.directives.body import Container
+from docutils.parsers.rst import directives, Directive
+from frontend.webapp.accessible_time import parse_date
 
+
+class HiddenUntilDirective(Directive,object):
+    required_arguments = 1
+    has_content = True
+    optional_arguments = 0
+    option_spec = {}
+
+    def run(self):
+        self.assert_has_content()
+
+        hidden_until = self.arguments[0]
+        try:
+            hidden_until = parse_date(hidden_until)
+        except:
+            raise self.error('Unknown date format in the "%s" directive; '
+                             '%s' % (self.name, hidden_until))
+
+        if hidden_until <= datetime.now():
+            text = '\n'.join(self.content)
+            node = nodes.compound(text)
+            self.add_name(node)
+
+            self.state.nested_parse(self.content, self.content_offset, node)
+            return [node]
+        else:
+            node = nodes.caution()
+            self.add_name(node)
+            text = "A part of this feedback is hidden until %s. Please come back later and reload the submission to see the full feedback." % \
+                   hidden_until.strftime("%d/%m/%Y %H:%M:%S")
+            self.state.nested_parse(StringList(text.split("\n")), 0, node)
+            return [node]
+
+directives.register_directive("hidden-until", HiddenUntilDirective)
 
 class _CustomHTMLWriter(html4css1.Writer, object):
     """ A custom HTML writer that fixes some defaults of docutils... """

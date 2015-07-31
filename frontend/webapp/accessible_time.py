@@ -21,6 +21,22 @@
 from datetime import datetime
 
 
+def parse_date(date, default=None):
+    """ Parse a valid date """
+    if date == "":
+        if default is not None:
+            return default
+        else:
+            raise Exception("Unknown format for " + date)
+
+    for format_type in ["%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M", "%Y-%m-%d %H", "%Y-%m-%d", "%d/%m/%Y %H:%M:%S", "%d/%m/%Y %H:%M", "%d/%m/%Y %H",
+                        "%d/%m/%Y"]:
+        try:
+            return datetime.strptime(date, format_type)
+        except ValueError:
+            pass
+    raise Exception("Unknown format for " + date)
+
 class AccessibleTime(object):
     """ represents the period of time when a course/task is accessible """
 
@@ -46,23 +62,9 @@ class AccessibleTime(object):
         else:  # str
             values = val.split("/")
             if len(values) == 1:
-                self._val = [self._parse_date(values[0].strip(), datetime.min), datetime.max]
+                self._val = [parse_date(values[0].strip(), datetime.min), datetime.max]
             else:
-                self._val = [self._parse_date(values[0].strip(), datetime.min), self._parse_date(values[1].strip(), datetime.max)]
-
-    @classmethod
-    def _parse_date(cls, date, default):
-        """ Parse a valid date """
-        if date == "":
-            return default
-
-        for format_type in ["%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M", "%Y-%m-%d %H", "%Y-%m-%d", "%d/%m/%Y %H:%M:%S", "%d/%m/%Y %H:%M", "%d/%m/%Y %H",
-                            "%d/%m/%Y"]:
-            try:
-                return datetime.strptime(date, format_type)
-            except ValueError:
-                pass
-        raise Exception("Unknown format for " + date)
+                self._val = [parse_date(values[0].strip(), datetime.min), parse_date(values[1].strip(), datetime.max)]
 
     def before_start(self, when=None):
         """ Returns True if the task/course is not yet accessible """
