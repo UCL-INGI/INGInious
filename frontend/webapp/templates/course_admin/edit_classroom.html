@@ -92,9 +92,9 @@ $elif post:
 			</div>
 
 			<div role="tabpanel" class="tab-pane" id="tab_groups">
-                <input id="nbgroups" name="nbgroups" type="hidden" value="$len(classroom['users'])">
+                <input id="nbgroups" name="nbgroups" type="hidden" value="$len(classroom['groups'])">
                 <div class="panel-group" id="groups" role="tablist" aria-multiselectable="true">
-                    $for index,group in enumerate(classroom["users"]):
+                    $for index,group in enumerate(classroom["groups"]):
                         <div id="panel$(index+1)" class="panel panel-default">
                             <div class="panel-heading" id="heading$(index+1)">
                                 <a id="title" role="button" data-toggle="collapse" data-parent="#groups" href="#collapse$(index+1)" aria-expanded="true" aria-controls="collapse$(index+1)">
@@ -111,15 +111,14 @@ $elif post:
                                     <div class="form-group">
                                         <label class="col-sm-2 control-label">Max. group size</label>
                                         <div class="col-sm-10">
-                                            <input type="number" class="form-control" id="description" name="description" placeholder="2" value="$classroom['sizes'][index]">
+                                            <input type="number" class="form-control" id="description" name="description" placeholder="2" value="$classroom['groups'][index]['size']">
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label  class="col-sm-2 control-label">Student list</label>
                                         <div class="col-sm-10">
                                             <div class="list-group" id="student_list">
-                                                $ cusers = [item for sublist in classroom["users"] for item in sublist]
-                                                $for user in group:
+                                                $for user in group["students"]:
                                                     <div class="list-group-item" id="student_list_$user">
                                                         $user ($user_manager.get_user_realname(user))
                                                         <div class="pull-right">

@@ -54,15 +54,6 @@ class CourseClassroomListPage(INGIniousAdminPage):
 
     def page(self, course, error="", post=False):
         """ Get all data and display the page """
-        grouped_users = list(self.database.classrooms.aggregate([
-            {"$match": {"courseid": course.get_id()}},
-            {"$unwind": "$users"},
-            {"$unwind": "$users"},
-            {"$group": {"_id": "$_id", "user_list": {"$addToSet": "$users"}}}]))
-
-        ungrouped_users = len(set(self.user_manager.get_course_registered_users(course, False)) -
-                              set(grouped_users[0]["user_list"] if len(grouped_users) > 0 else []))
-
         classrooms = OrderedDict()
 
         for classroom in self.user_manager.get_course_classrooms(course):
@@ -78,7 +69,7 @@ class CourseClassroomListPage(INGIniousAdminPage):
                         "$match":
                             {
                                 "courseid": course.get_id(),
-                                "username": {"$in": classroom["users"]}
+                                "username": {"$in": classroom["students"]}
                             }
                     },
                     {
@@ -95,8 +86,6 @@ class CourseClassroomListPage(INGIniousAdminPage):
                 classrooms[classroom['_id']]["tried"] += 1
                 classrooms[classroom['_id']]["done"] += 1 if c["done"] else 0
 
-            classrooms[classroom['_id']]["len"] = sum([len(group) for group in classrooms[classroom['_id']]["users"]])
-
         my_classrooms, other_classrooms = [], []
         for classroom in classrooms.values():
             if self.user_manager.session_username() in classroom["tutors"]:
@@ -107,4 +96,4 @@ class CourseClassroomListPage(INGIniousAdminPage):
         if "csv" in web.input():
             return make_csv(data)
 
-        return self.template_helper.get_renderer().course_admin.classroom_list(course, [my_classrooms, other_classrooms], ungrouped_users, error, post)
+        return self.template_helper.get_renderer().course_admin.classroom_list(course, [my_classrooms, other_classrooms], error, post)

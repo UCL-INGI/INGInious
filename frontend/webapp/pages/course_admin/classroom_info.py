@@ -45,7 +45,7 @@ class CourseClassroomInfoPage(INGIniousAdminPage):
                     "$match":
                         {
                             "courseid": course.get_id(),
-                            "username": {"$in": classroom["users"]}
+                            "username": {"$in": classroom["students"]}
                         }
                 },
                 {

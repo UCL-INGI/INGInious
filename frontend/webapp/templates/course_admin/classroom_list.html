@@ -1,4 +1,4 @@
-$def with (course,data,ungrouped_users,error,post)
+$def with (course,data,error,post)
 
 $# Copyright (c) 2014-2015 Université Catholique de Louvain.
 $#
@@ -55,14 +55,6 @@ $var Navbar: $:NavbarF()
             </div>
         </th>
     </tr>
-    $if ungrouped_users > 0:
-        <tr class="active">
-            <td>Default classroom</td>
-            <td>$ungrouped_users</td>
-            <td></td>
-            <td></td>
-            <td></td>
-        </tr>
 
     $ text = ["My classroom(s)","Other classroom(s)"]
     $for ind in range(0,2):
@@ -76,7 +68,7 @@ $var Navbar: $:NavbarF()
                     <td>
                         <a href="/admin/${course.get_id()}/classroom/$classroom['_id']">$classroom["description"]</a>
                     </td>
-                    <td>$classroom["len"]</td>
+                    <td>$len(classroom["students"])</td>
                     <td>$classroom["tried"]</td>
                     <td>$classroom["done"]</td>
                     <td>

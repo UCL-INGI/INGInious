@@ -502,7 +502,15 @@ class UserManager(object):
                 return False
         if self.course_is_open_to_user(course, username):
             return False  # already registered?
-        self._database.registration.insert({"username": username, "courseid": course.get_id(), "date": datetime.now()})
+
+        classroom = self._database.classrooms.find_one({"courseid": course.get_id(), "default": True})
+        if classroom is None:
+            self._database.classrooms.insert({"courseid": course.get_id(), "description": "Default",
+                                              "students": [username], "tutors": [],  "groups": [], "default": True})
+        else:
+            self._database.classrooms.find_one_and_update({"courseid": course.get_id(), "default": True},
+                                                          {"$push": {"students": username}})
+
         return True
 
     def course_unregister_user(self, course, username=None):
@@ -514,9 +522,15 @@ class UserManager(object):
         if username is None:
             username = self.session_username()
 
-        self._database.registration.remove({"username": username, "courseid": course.get_id()})
-        if course.is_group_course():
-            self._database.groups.update({"courseid": course.get_id(), "users": username}, {"$pull": {"users": username}})
+        # Needed if user belongs to a group
+        self._database.classrooms.find_one_and_update(
+            {"courseid": course.get_id(), "groups.students": username},
+            {"$pull": {"groups.$.students": username, "students": username}})
+
+        # If user doesn't belong to a group, will ensure correct deletion
+        self._database.classrooms.find_one_and_update(
+            {"courseid": course.get_id(), "students": username},
+            {"$pull": {"students": username}})
 
     def course_is_open_to_user(self, course, username=None, check_group=True):
         """
@@ -546,10 +560,7 @@ class UserManager(object):
         if self.has_staff_rights_on_course(course, username):
             return True
 
-        has_group = (not check_group) or (not course.is_group_course()) or \
-                    (self._database.groups.find_one({"users": username, "courseid": course.get_id()}) is not None)
-
-        return (self._database.registration.find_one({"username": username, "courseid": course.get_id()}) is not None) and has_group
+        return self._database.classrooms.find_one({"students": username, "courseid": course.get_id()}) is not None
 
     def get_course_registered_users(self, course, with_admins=True):
         """
@@ -558,7 +569,12 @@ class UserManager(object):
         :param with_admins: include admins?
         :return: a list of usernames that are registered to the course
         """
-        l = [entry['username'] for entry in list(self._database.registration.find({"courseid": course.get_id()}, {"username": True, "_id": False}))]
+
+        l = [entry['students'] for entry in list(self._database.classrooms.aggregate([
+            {"$match": {"courseid": course.get_id()}},
+            {"$unwind": "$students"},
+            {"$project": {"_id": 0, "students": 1}}
+        ]))]
         if with_admins:
             return list(set(l + course.get_staff()))
         else:
