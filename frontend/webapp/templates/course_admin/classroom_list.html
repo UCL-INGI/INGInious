@@ -84,13 +84,31 @@ $var Navbar: $:NavbarF()
                 </tr>
 </table>
 
+<form class="form-horizontal" method="post">
+    <div class="form-group">
+        <label for="default" class="col-sm-2 control-label">Default classroom : </label>
+        <div class="col-sm-7">
+            <select name="default" class="form-control">
+                $for ind in range(0,2):
+                    $for classroom in data[ind]:
+                        $ sel = 'selected' if classroom['default'] else ''
+                        <option value="$classroom['_id']" $sel>$classroom['description']</option>
+            </select>
+        </div>
+        <div class="col-sm-3"><button type="submit" class="btn btn-info btn-block">Set as default</button></div>
+    </div>
+</form>
+
 <div class="row">
     <form class=form-horizontal" method="post">
         <div class="form-group">
-            <div class="col-sm-8"><input type="text" class="form-control" name="classroom" placeholder="New classroom description"/></div>
-            <div class="col-sm-4"><button type="submit" class="btn btn-info btn-block">Create new classroom</button></div>
+            <div class="col-sm-9"><input type="text" class="form-control" name="classroom" placeholder="New classroom description"/></div>
+            <div class="col-sm-3"><button type="submit" class="btn btn-warning btn-block"><i class="fa fa-plus fa-lg"></i> New classroom</button></div>
         </div>
     </form>
 </div>
+
+
+
 
 

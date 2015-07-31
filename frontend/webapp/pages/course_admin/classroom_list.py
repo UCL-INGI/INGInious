@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 from collections import OrderedDict
-
+from bson.objectid import ObjectId
 import web
 
 from frontend.webapp.pages.course_admin.utils import make_csv, INGIniousAdminPage
@@ -38,11 +38,14 @@ class CourseClassroomListPage(INGIniousAdminPage):
         error = ""
         try:
             data = web.input()
-            if not data['classroom']:
-                error = 'No classroom description given.'
-            else:
+            if 'classroom' in data:
                 self.database.classrooms.insert({"courseid": courseid, "users": [], "tutors": [], "size": 2,
                                              "description": data['classroom']})
+            elif 'default' in data:
+                self.database.classrooms.find_one_and_update({"courseid": courseid, "default": True},
+                                                             {"$set": {"default": False}})
+                self.database.classrooms.find_one_and_update({"_id": ObjectId(data['default'])},
+                                                             {"$set": {"default": True}})
         except:
             error = 'User returned an invalid form.'
 
