@@ -113,6 +113,10 @@ class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableBasicPr
         if limit == 0:
             limit = len(self._choices)  # no limit
 
+        # Ensure that the choices are random
+        # no need to copy...
+        shuffle(self._choices)
+
         if self._multiple:
             # take only the valid choices in the first pass
             for entry in self._choices:
@@ -136,6 +140,7 @@ class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableBasicPr
                 if entry['valid'] and limit > 0:
                     choices.append(entry)
                     limit = limit - 1
+
         shuffle(choices)
         return str(renderer.tasks.multiplechoice(self.get_id(), self._multiple, choices))
 

@@ -227,7 +227,6 @@ class MultipleChoiceProblem(BasicProblem):
         self._success_message = content.get("success_message", None)
 
         self._choices = good_choices + bad_choices
-        shuffle(self._choices)
 
     def get_type(self):
         return "multiple-choice"
