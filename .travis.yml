@@ -29,9 +29,9 @@ before_script:
   - docker pull centos
   - docker pull ingi/inginious-c-default
 script:
-#  - nosetests backend/tests
-#  - nosetests common/tests
-  - nosetests frontend/tests
+  - nosetests backend/tests
+  - nosetests common/tests
+#  - nosetests frontend/tests
 
 
 notifications:
