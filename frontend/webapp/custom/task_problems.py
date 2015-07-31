@@ -127,17 +127,15 @@ class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableBasicPr
                     choices.append(entry)
                     limit = limit - 1
         else:
-            # need to have a valid entry
-            found_valid = False
+            # need to have ONE valid entry
             for entry in self._choices:
-                if limit == 1 and not found_valid and not entry['valid']:
-                    continue
-                elif limit == 0:
-                    break
-                choices.append(entry)
-                limit = limit - 1
-                if entry['valid']:
-                    found_valid = True
+                if not entry['valid'] and limit > 1:
+                    choices.append(entry)
+                    limit = limit - 1
+            for entry in self._choices:
+                if entry['valid'] and limit > 0:
+                    choices.append(entry)
+                    limit = limit - 1
         shuffle(choices)
         return str(renderer.tasks.multiplechoice(self.get_id(), self._multiple, choices))
 
