@@ -71,7 +71,8 @@ class ParsableText(object):
 
     def __init__(self, content, mode="rst"):
         """Init the object. Content is the string to be parsed. Mode is the parser to be used. Currently, only rst(reStructuredText) and HTML are supported"""
-        if mode not in ["rst", "HTML"]:
+        mode = mode.lower()
+        if mode not in ["rst", "html"]:
             raise Exception("Unknown text parser: " + mode)
         self._content = content
         self._parsed = None
@@ -85,7 +86,7 @@ class ParsableText(object):
         """Returns parsed text"""
         if self._parsed is None:
             try:
-                if self._mode == "HTML":
+                if self._mode == "html":
                     self._parsed = self.html(self._content)
                 else:
                     self._parsed = self.rst(self._content)

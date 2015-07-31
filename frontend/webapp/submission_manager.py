@@ -55,8 +55,6 @@ class SubmissionManager(object):
         submission = self.get_submission(submissionid, False)
         submission = self.get_input_from_submission(submission)
 
-        job = self._parse_text(task, job)
-
         data = {
             "status": ("done" if job["result"] == "success" or job["result"] == "failed" else "error"),  # error only if error was made by INGInious
             "result": job["result"],
@@ -64,7 +62,8 @@ class SubmissionManager(object):
             "text": job.get("text", None),
             "tests": job.get("tests", None),
             "problems": (job["problems"] if "problems" in job else {}),
-            "archive": (self._gridfs.put(base64.b64decode(job["archive"])) if "archive" in job else None)
+            "archive": (self._gridfs.put(base64.b64decode(job["archive"])) if "archive" in job else None),
+            "response_type": task.get_response_type()
         }
 
         # Store additional data
@@ -136,6 +135,20 @@ class SubmissionManager(object):
                 submission["input"] = inp
                 return submission
 
+    def get_feedback_from_submission(self, submission, only_feedback=False):
+        """
+            Get the input of a submission. If only_input is False, returns the full submissions with a dictionnary object at the key "input".
+            Else, returns only the dictionnary.
+        """
+        if only_feedback:
+            submission = {"text": submission.get("text", None), "problems": dict(submission.get("problems",{}))}
+        if "text" in submission:
+            submission["text"] = ParsableText(submission["text"], submission["response_type"]).parse()
+        if "problems" in submission:
+            for problem in submission["problems"]:
+                submission["problems"][problem] = ParsableText(submission["problems"][problem], submission["response_type"]).parse()
+        return submission
+
     def is_running(self, submissionid, user_check=True):
         """ Tells if a submission is running/in queue """
         submission = self.get_submission(submissionid, user_check)
@@ -189,15 +202,6 @@ class SubmissionManager(object):
     def get_user_last_submissions_for_course(self, course, limit=5, one_per_task=False):
         """ Returns a given number (default 5) of submissions of task from the course given"""
         return self.get_user_last_submissions({"courseid": course.get_id(), "taskid": {"$in": course.get_tasks().keys()}}, limit, one_per_task)
-
-    def _parse_text(self, task, job_result):
-        """ Parses text """
-        if "text" in job_result:
-            job_result["text"] = ParsableText(job_result["text"], task.get_response_type()).parse()
-        if "problems" in job_result:
-            for problem in job_result["problems"]:
-                job_result["problems"][problem] = ParsableText(job_result["problems"][problem], task.get_response_type()).parse()
-        return job_result
 
     @classmethod
     def keep_best_submission(cls, submissions):
