@@ -22,12 +22,13 @@ import posixpath
 import urllib
 import os
 import signal
+import threading
 
 from gridfs import GridFS
 from pymongo import MongoClient
 import web
+from backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
 
-from common.base import load_json_or_yaml
 from frontend.common import backend_interface
 from frontend.webapp.database_updater import update_database
 from frontend.common.plugin_manager import PluginManager
@@ -43,41 +44,41 @@ from frontend.common.session_mongodb import MongoStore
 import frontend.webapp.pages.course_admin.utils as course_admin_utils
 
 urls = {
-    '/': 'frontend.webapp.pages.index.IndexPage',
-    '/index': 'frontend.webapp.pages.index.IndexPage',
-    '/course/([^/]+)': 'frontend.webapp.pages.course.CoursePage',
-    '/course/([^/]+)/([^/]+)': 'frontend.webapp.pages.tasks.TaskPage',
-    '/course/([^/]+)/([^/]+)/(.*)': 'frontend.webapp.pages.tasks.TaskPageStaticDownload',
-    '/group/([^/]+)': 'frontend.webapp.pages.group.GroupPage',
-    '/admin/([^/]+)': 'frontend.webapp.pages.course_admin.utils.CourseRedirect',
-    '/admin/([^/]+)/settings': 'frontend.webapp.pages.course_admin.settings.CourseSettings',
-    '/admin/([^/]+)/batch': 'frontend.webapp.pages.course_admin.batch.CourseBatchOperations',
-    '/admin/([^/]+)/batch/create/(.+)': 'frontend.webapp.pages.course_admin.batch.CourseBatchJobCreate',
-    '/admin/([^/]+)/batch/summary/([^/]+)': 'frontend.webapp.pages.course_admin.batch.CourseBatchJobSummary',
-    '/admin/([^/]+)/batch/download/([^/]+)': 'frontend.webapp.pages.course_admin.batch.CourseBatchJobDownload',
-    '/admin/([^/]+)/batch/download/([^/]+)(/.*)': 'frontend.webapp.pages.course_admin.batch.CourseBatchJobDownload',
-    '/admin/([^/]+)/students': 'frontend.webapp.pages.course_admin.student_list.CourseStudentListPage',
-    '/admin/([^/]+)/student/([^/]+)': 'frontend.webapp.pages.course_admin.student_info.CourseStudentInfoPage',
-    '/admin/([^/]+)/student/([^/]+)/([^/]+)': 'frontend.webapp.pages.course_admin.student_task.CourseStudentTaskPage',
-    '/admin/([^/]+)/student/([^/]+)/([^/]+)/([^/]+)': 'frontend.webapp.pages.course_admin.student_task.SubmissionDownloadFeedback',
-    '/admin/([^/]+)/classrooms': 'frontend.webapp.pages.course_admin.classroom_list.CourseClassroomListPage',
-    '/admin/([^/]+)/classroom/([^/]+)': 'frontend.webapp.pages.course_admin.classroom_info.CourseClassroomInfoPage',
-    '/admin/([^/]+)/classroom/([^/]+)/([^/]+)': 'frontend.webapp.pages.course_admin.classroom_task.CourseClassroomTaskPage',
-    '/admin/([^/]+)/classroom/([^/]+)/([^/]+)/([^/]+)': 'frontend.webapp.pages.course_admin.classroom_task.SubmissionDownloadFeedback',
-    '/admin/([^/]+)/tasks': 'frontend.webapp.pages.course_admin.task_list.CourseTaskListPage',
-    '/admin/([^/]+)/task/([^/]+)': 'frontend.webapp.pages.course_admin.task_info.CourseTaskInfoPage',
-    '/admin/([^/]+)/edit/classroom/([^/]+)': 'frontend.webapp.pages.course_admin.classroom_edit.CourseEditClassroom',
-    '/admin/([^/]+)/edit/task/([^/]+)': 'frontend.webapp.pages.course_admin.task_edit.CourseEditTask',
-    '/admin/([^/]+)/edit/task/([^/]+)/files': 'frontend.webapp.pages.course_admin.task_edit_file.CourseTaskFiles',
-    '/admin/([^/]+)/download': 'frontend.webapp.pages.course_admin.download.CourseDownloadSubmissions',
-    '/api/v0/auth_methods': 'frontend.webapp.pages.api.auth_methods.APIAuthMethods',
-    '/api/v0/authentication': 'frontend.webapp.pages.api.authentication.APIAuthentication',
-    '/api/v0/courses': 'frontend.webapp.pages.api.courses.APICourses',
-    '/api/v0/courses/([a-zA-Z_\-\.0-9]+)': 'frontend.webapp.pages.api.courses.APICourses',
-    '/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks': 'frontend.webapp.pages.api.tasks.APITasks',
-    '/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)': 'frontend.webapp.pages.api.tasks.APITasks',
-    '/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)/submissions': 'frontend.webapp.pages.api.submissions.APISubmissions',
-    '/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)/submissions/([a-zA-Z_\-\.0-9]+)':
+    r'/': 'frontend.webapp.pages.index.IndexPage',
+    r'/index': 'frontend.webapp.pages.index.IndexPage',
+    r'/course/([^/]+)': 'frontend.webapp.pages.course.CoursePage',
+    r'/course/([^/]+)/([^/]+)': 'frontend.webapp.pages.tasks.TaskPage',
+    r'/course/([^/]+)/([^/]+)/(.*)': 'frontend.webapp.pages.tasks.TaskPageStaticDownload',
+    r'/group/([^/]+)': 'frontend.webapp.pages.group.GroupPage',
+    r'/admin/([^/]+)': 'frontend.webapp.pages.course_admin.utils.CourseRedirect',
+    r'/admin/([^/]+)/settings': 'frontend.webapp.pages.course_admin.settings.CourseSettings',
+    r'/admin/([^/]+)/batch': 'frontend.webapp.pages.course_admin.batch.CourseBatchOperations',
+    r'/admin/([^/]+)/batch/create/(.+)': 'frontend.webapp.pages.course_admin.batch.CourseBatchJobCreate',
+    r'/admin/([^/]+)/batch/summary/([^/]+)': 'frontend.webapp.pages.course_admin.batch.CourseBatchJobSummary',
+    r'/admin/([^/]+)/batch/download/([^/]+)': 'frontend.webapp.pages.course_admin.batch.CourseBatchJobDownload',
+    r'/admin/([^/]+)/batch/download/([^/]+)(/.*)': 'frontend.webapp.pages.course_admin.batch.CourseBatchJobDownload',
+    r'/admin/([^/]+)/students': 'frontend.webapp.pages.course_admin.student_list.CourseStudentListPage',
+    r'/admin/([^/]+)/student/([^/]+)': 'frontend.webapp.pages.course_admin.student_info.CourseStudentInfoPage',
+    r'/admin/([^/]+)/student/([^/]+)/([^/]+)': 'frontend.webapp.pages.course_admin.student_task.CourseStudentTaskPage',
+    r'/admin/([^/]+)/student/([^/]+)/([^/]+)/([^/]+)': 'frontend.webapp.pages.course_admin.student_task.SubmissionDownloadFeedback',
+    r'/admin/([^/]+)/classrooms': 'frontend.webapp.pages.course_admin.classroom_list.CourseClassroomListPage',
+    r'/admin/([^/]+)/classroom/([^/]+)': 'frontend.webapp.pages.course_admin.classroom_info.CourseClassroomInfoPage',
+    r'/admin/([^/]+)/classroom/([^/]+)/([^/]+)': 'frontend.webapp.pages.course_admin.classroom_task.CourseClassroomTaskPage',
+    r'/admin/([^/]+)/classroom/([^/]+)/([^/]+)/([^/]+)': 'frontend.webapp.pages.course_admin.classroom_task.SubmissionDownloadFeedback',
+    r'/admin/([^/]+)/tasks': 'frontend.webapp.pages.course_admin.task_list.CourseTaskListPage',
+    r'/admin/([^/]+)/task/([^/]+)': 'frontend.webapp.pages.course_admin.task_info.CourseTaskInfoPage',
+    r'/admin/([^/]+)/edit/classroom/([^/]+)': 'frontend.webapp.pages.course_admin.classroom_edit.CourseEditClassroom',
+    r'/admin/([^/]+)/edit/task/([^/]+)': 'frontend.webapp.pages.course_admin.task_edit.CourseEditTask',
+    r'/admin/([^/]+)/edit/task/([^/]+)/files': 'frontend.webapp.pages.course_admin.task_edit_file.CourseTaskFiles',
+    r'/admin/([^/]+)/download': 'frontend.webapp.pages.course_admin.download.CourseDownloadSubmissions',
+    r'/api/v0/auth_methods': 'frontend.webapp.pages.api.auth_methods.APIAuthMethods',
+    r'/api/v0/authentication': 'frontend.webapp.pages.api.authentication.APIAuthentication',
+    r'/api/v0/courses': 'frontend.webapp.pages.api.courses.APICourses',
+    r'/api/v0/courses/([a-zA-Z_\-\.0-9]+)': 'frontend.webapp.pages.api.courses.APICourses',
+    r'/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks': 'frontend.webapp.pages.api.tasks.APITasks',
+    r'/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)': 'frontend.webapp.pages.api.tasks.APITasks',
+    r'/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)/submissions': 'frontend.webapp.pages.api.submissions.APISubmissions',
+    r'/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)/submissions/([a-zA-Z_\-\.0-9]+)':
         'frontend.webapp.pages.api.submissions.APISubmissionSingle',
 }
 
@@ -86,27 +87,78 @@ urls_maintenance = (
 )
 
 
-def _load_configuration(config_file):
+def _put_configuration_defaults(config):
     """
-    :param config_file:
-    :return: a dict containing the configuration
+    :param config: the basic configuration as a dict
+    :return: the same dict, but with defaults for some unfilled parameters
     """
-    config = load_json_or_yaml(config_file)
-    if not 'allowed_file_extensions' in config:
+    if 'allowed_file_extensions' not in config:
         config['allowed_file_extensions'] = [".c", ".cpp", ".java", ".oz", ".zip", ".tar.gz", ".tar.bz2", ".txt"]
-    if not 'max_file_size' in config:
+    if 'max_file_size' not in config:
         config['max_file_size'] = 1024 * 1024
     return config
 
+
 def _close_app(app, mongo_client, job_manager):
+    """ Ensures that the app is properly closed """
     app.stop()
     job_manager.close()
     mongo_client.close()
-    raise KeyboardInterrupt()
 
-def get_app(config_file):
-    """ Get the application. config_file is the path to the configuration file """
-    config = _load_configuration(config_file)
+
+def _handle_active_hook(job_manager, plugin_manager, active_callback):
+    """
+    Creates the necessary hooks in plugin_manager and ensures active_callback will be called at the right time
+    :param job_manager:
+    :param plugin_manager:
+    :param active_callback:
+    """
+    sync_mutex = threading.Lock()
+    #start_mutex = threading.Lock()
+    def sync_done(check_all_done):
+        """ release """
+        sync_mutex.acquire()
+        sync_done.done = True
+        sync_mutex.release()
+        check_all_done()
+
+
+    #def start_done(check_all_done):
+    #    """ release """
+    #    start_mutex.acquire()
+    #    start_done.done = True
+    #    start_mutex.release()
+    #    check_all_done()
+
+    sync_done.done = False
+    #start_done.done = False
+
+    def check_all_done():
+        sync_mutex.acquire()
+        #start_mutex.acquire()
+        if sync_done.done:# and start_done.done:
+            try:
+                active_callback()
+            except:
+                pass
+        sync_mutex.release()
+        #start_mutex.release()
+
+    if not isinstance(job_manager, RemoteManualAgentJobManager):
+        sync_done.done = True
+
+    plugin_manager.add_hook("job_manager_agent_sync_done", lambda agent: sync_done(check_all_done))
+    #plugin_manager.add_hook("job_manager_init_done", lambda job_manager: start_done(check_all_done))
+    check_all_done()
+
+
+def get_app(config, active_callback=None):
+    """
+    :param config: the configuration dict
+    :param active_callback: a callback without arguments that will be called when the app is fully initialized
+    :return: A new app
+    """
+    config = _put_configuration_defaults(config)
 
     if config.get("maintenance", False):
         appli = web.application(urls_maintenance, globals(), autoreload=False)
@@ -164,16 +216,17 @@ def get_app(config_file):
                                      default_allowed_file_extensions, default_max_file_size,
                                      config["containers"].keys())
 
+    # Active hook
+    if active_callback is not None:
+        _handle_active_hook(job_manager, plugin_manager, active_callback)
+
     # Loads plugins
     plugin_manager.load(job_manager, appli, course_factory, task_factory, user_manager, config.get("plugins", []))
 
     # Start the backend
     job_manager.start()
 
-    # Close the job manager when interrupting the app
-    signal.signal(signal.SIGINT, lambda _, _2: _close_app(appli, mongo_client, job_manager))
-
-    return appli
+    return appli, lambda: _close_app(appli, mongo_client, job_manager)
 
 
 class StaticMiddleware(object):
@@ -195,6 +248,7 @@ class StaticMiddleware(object):
             return self.app(environ, start_response)
 
     def normpath(self, path):
+        """ Normalize the path """
         path2 = posixpath.normpath(urllib.unquote(path))
         if path.endswith("/"):
             path2 += "/"
@@ -208,21 +262,25 @@ def runfcgi(func, addr=('localhost', 8000)):
     return flups.WSGIServer(func, multiplexed=True, bindAddress=addr, debug=False).run()
 
 
-def start_app(config_file, hostname="localhost", port=8080, app=None):
+def start_app(config, hostname="localhost", port=8080):
     """
         Get and start the application. config_file is the path to the configuration file.
     """
-    if app is None:
-        app = get_app(config_file)
+    app, close_app_func = get_app(config)
 
     func = app.wsgifunc()
 
-    if os.environ.has_key('SERVER_SOFTWARE'):  # cgi
+    if 'SERVER_SOFTWARE' in os.environ:  # cgi
         os.environ['FCGI_FORCE_CGI'] = 'Y'
 
-    if (os.environ.has_key('PHP_FCGI_CHILDREN')  # lighttpd fastcgi
-        or os.environ.has_key('SERVER_SOFTWARE')):
+    if 'PHP_FCGI_CHILDREN' in os.environ or 'SERVER_SOFTWARE' in os.environ:  # lighttpd fastcgi
         return runfcgi(func, None)
+
+    # Close the job manager when interrupting the app
+    def close_app_signal():
+        close_app_func()
+        raise KeyboardInterrupt()
+    signal.signal(signal.SIGINT, lambda _, _2: close_app_signal)
 
     func = StaticMiddleware(func)
     func = web.httpserver.LogMiddleware(func)

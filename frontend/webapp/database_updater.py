@@ -72,10 +72,17 @@ def update_database(database, gridfs, course_factory, user_manager):
         db_version = 3
 
     if db_version < 4:
+        print "Updating database to db_version 4"
         submissions = database.submissions.find({"$where": "!Array.isArray(this.username)"})
         for submission in submissions:
             submission["username"] = [submission["username"]]
             database.submissions.save(submission)
         db_version = 4
+
+    if db_version < 5:
+        print "Updating database to db_version 5"
+        database.drop_collection("users")
+        database.submissions.update_many({}, {"$set": {"response_type": "html"}})
+        db_version = 5
 
     database.db_version.update({}, {"$set": {"db_version": db_version}}, upsert=True)

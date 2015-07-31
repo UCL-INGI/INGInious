@@ -99,6 +99,9 @@ class RemoteManualAgentJobManager(AbstractJobManager):
                 try:
                     conn = rpyc.connect(info['host'], info['port'], service=self._get_rpyc_server(entry),
                                         config={"allow_public_attrs": True, 'allow_pickle': True})
+                    # Try to access conn.root. This raises an exception when the remote RPyC is not yet fully initialized
+                    if not conn.root:
+                        raise Exception("Cannot get remote service")
                 except:
                     self._agents[entry] = None
                     self._agents_thread[entry] = None

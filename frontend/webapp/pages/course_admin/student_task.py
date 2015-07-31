@@ -54,6 +54,7 @@ class SubmissionDownloadFeedback(INGIniousAdminPage):
 
     def page(self, course, username, task, submissionid):
         submission = self.submission_manager.get_submission(submissionid, False)
+        submission = self.submission_manager.get_feedback_from_submission(submission)
         if username not in submission["username"] or submission["courseid"] != course.get_id() or submission["taskid"] != task.get_id():
             return json.dumps({"status": "error", "text": "You do not have the rights to access to this submission"})
         elif "jobid" in submission:

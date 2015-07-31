@@ -20,6 +20,8 @@ docker_daemons:
     #local_location: "unix:///var/run/docker.sock"
     ##path to the cgroups "mount" *from the host that runs the docker daemon*. Defaults to:
     #cgroups_location: "/sys/fs/cgroup"
+    ##name that will be used to reference the agent
+    #"agent_name": "inginious-agent"
 
 # List of remote agents to which the backend will try
 # to connect (backend: remote_manual only) (the default config below is the one for boot2docker on OS X)

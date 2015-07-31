@@ -38,7 +38,7 @@ class TestDockerJobManager(object):
 
         if TEST_ENV is None:
             raise SkipTest("Testing the Docker Job Manager is disabled.")
-        elif TEST_ENV == "boot2docker":
+        elif TEST_ENV in ["boot2docker", "boot2docker-local"]:
             self.docker_connection = docker.Client(base_url="tcp://192.168.59.103:2375")
         elif TEST_ENV == "travis":
             self.docker_connection = docker.Client(base_url="tcp://localhost:2375")
@@ -69,13 +69,13 @@ class TestDockerJobManager(object):
         pass
 
     def start_manager(self):
-        if TEST_DOCKER_JOB_MANAGER == "boot2docker":
+        if TEST_ENV in ["boot2docker", "boot2docker-local"]:
             self.job_manager = RemoteDockerJobManager([{
                 "remote_host": "192.168.59.103",
                 "remote_docker_port": 2375,
                 "remote_agent_port": 63456
             }], {"default": "ingi/inginious-c-default"}, "./tasks", self.course_factory, self.task_factory, is_testing=True)
-        elif TEST_DOCKER_JOB_MANAGER == "travis":
+        elif TEST_ENV == "travis":
             self.job_manager = RemoteDockerJobManager([{
                 "remote_host": "localhost",
                 "remote_docker_port": 2375,
@@ -144,7 +144,7 @@ class TestDockerJobManagerAgentAlreadyStarted(TestDockerJobManager):
         self.start_fake_agent()
 
     def test_agent_already_started(self):
-        assert RemoteDockerJobManager.is_agent_valid_and_started(self.docker_connection) is True
+        assert RemoteDockerJobManager.is_agent_valid_and_started(self.docker_connection, "inginious-agent") is True
 
 
 class TestDockerJobManagerAgentAlreadyStartedButDead(TestDockerJobManager):
@@ -154,7 +154,7 @@ class TestDockerJobManagerAgentAlreadyStartedButDead(TestDockerJobManager):
         self.docker_connection.kill("inginious-agent")
 
     def test_agent_already_started_but_dead(self):
-        assert RemoteDockerJobManager.is_agent_valid_and_started(self.docker_connection) is False
+        assert RemoteDockerJobManager.is_agent_valid_and_started(self.docker_connection, "inginious-agent") is False
 
 
 class TestDockerJobManagerInvalidAgentAlreadyStarted(TestDockerJobManager):
@@ -163,7 +163,7 @@ class TestDockerJobManagerInvalidAgentAlreadyStarted(TestDockerJobManager):
         self.start_fake_agent()
 
     def test_invalid_agent_already_started(self):
-        assert RemoteDockerJobManager.is_agent_valid_and_started(self.docker_connection) is False
+        assert RemoteDockerJobManager.is_agent_valid_and_started(self.docker_connection, "inginious-agent") is False
 
 
 class TestDockerJobManagerNoAgentStarted(TestDockerJobManager):
@@ -171,7 +171,7 @@ class TestDockerJobManagerNoAgentStarted(TestDockerJobManager):
         pass
 
     def test_invalid_agent_already_started(self):
-        assert RemoteDockerJobManager.is_agent_valid_and_started(self.docker_connection) is False
+        assert RemoteDockerJobManager.is_agent_valid_and_started(self.docker_connection, "inginious-agent") is False
 
 
 class TestDockerJobManagerRun(TestDockerJobManager):
