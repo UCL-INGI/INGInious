@@ -9,8 +9,8 @@ configuration.*.yaml
 !configuration.example.yaml
 dump
 doc/_*
-tasks
+/tasks
 !tests/tasks
 !*/tests/tasks
-!frontend/webapp/templates/tasks
+!frontend/common/templates/tasks
 utils/task_manual_tester/tests/
