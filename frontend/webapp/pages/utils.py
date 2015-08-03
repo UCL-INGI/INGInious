@@ -32,10 +32,10 @@ class INGIniousPage(object):
         :type plugin_manager: frontend.common.plugin_manager.PluginManager
         :type course_factory: common.course_factory.CourseFactory
         :type task_factory: common.task_factory.TaskFactory
-        :type submission_manager: webapp.submission_manager.SubmissionManager
-        :type batch_manager: webapp.batch_manager.BatchManager
-        :type user_manager: webapp.user_manager.UserManager
-        :type template_helper: webapp.template_helper.TemplateHelper
+        :type submission_manager: frontend.webapp.submission_manager.WebAppSubmissionManager
+        :type batch_manager: frontend.webapp.batch_manager.BatchManager
+        :type user_manager: frontend.webapp.user_manager.UserManager
+        :type template_helper: frontend.webapp.template_helper.TemplateHelper
         :type database: pymongo.database.Database
         :type gridfs: gridfs.GridFS
         :type default_allowed_file_extensions: list(str)

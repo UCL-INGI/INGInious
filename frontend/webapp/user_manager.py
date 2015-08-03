@@ -19,6 +19,7 @@
 """ Manages users data and session """
 from abc import ABCMeta, abstractmethod
 from datetime import datetime
+from frontend.common.user_manager import AbstractUserManager
 
 
 class AuthInvalidInputException(Exception):
@@ -84,7 +85,7 @@ class AuthMethod(object):
         return None
 
 
-class UserManager(object):
+class UserManager(AbstractUserManager):
     def __init__(self, session_dict, database, superadmins):
         """
         :type session_dict: web.session.Session

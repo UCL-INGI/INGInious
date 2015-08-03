@@ -28,7 +28,7 @@ from common.tasks_problems import MultipleChoiceProblem, BasicCodeProblem
 def _get_submissions(course_factory, submission_manager, user_manager, courseid, taskid, with_input, submissionid=None):
     """
         Helper for the GET methods of the two following classes
-        :type submission_manager: frontend.webapp.submission_manager.SubmissionManager
+        :type submission_manager: frontend.webapp.submission_manager.WebAppSubmissionManager
     """
 
     try:

@@ -37,7 +37,7 @@ from common.course_factory import create_factories
 from frontend.webapp.tasks import WebAppTask
 from frontend.webapp.courses import WebAppCourse
 from frontend.webapp.pages.utils import WebPyFakeMapping
-from frontend.webapp.submission_manager import SubmissionManager
+from frontend.webapp.submission_manager import WebAppSubmissionManager
 from frontend.webapp.batch_manager import BatchManager
 from frontend.common.templates import TemplateHelper
 from frontend.webapp.user_manager import UserManager
@@ -187,7 +187,7 @@ def get_app(config, active_callback=None):
     job_manager = backend_interface.create_job_manager(config, plugin_manager,
                                                        task_directory, course_factory, task_factory)
 
-    submission_manager = SubmissionManager(job_manager, user_manager, database, gridfs, plugin_manager)
+    submission_manager = WebAppSubmissionManager(job_manager, user_manager, database, gridfs, plugin_manager)
 
     batch_manager = BatchManager(job_manager, database, gridfs, submission_manager, user_manager,
                                  task_directory, config.get('batch_containers', []),
