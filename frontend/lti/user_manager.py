@@ -21,49 +21,75 @@ from frontend.common.user_manager import AbstractUserManager
 
 
 class UserManager(AbstractUserManager):
+    def __init__(self, session_dict, database):
+        """
+        :type session_dict: web.session.Session
+        :type database: pymongo.database.Database
+        """
+        self._session = session_dict
+        self._database = database
 
     def session_logged_in(self):
         """ Returns True if a user is currently connected in this session, False else """
-        return True
+        return "loggedin" in self._session and self._session.loggedin is True
 
     def session_username(self):
         """ Returns the username from the session, if one is open. Else, returns None"""
-        return "test"
+        if not self.session_logged_in():
+            return None
+        return self._session.username
 
     def session_email(self):
         """ Returns the email of the current user in the session, if one is open. Else, returns None"""
-        return "test@test.be"
+        if not self.session_logged_in():
+            return None
+        return self._session.email
 
     def session_realname(self):
         """ Returns the real name of the current user in the session, if one is open. Else, returns None"""
-        return "test"
+        if not self.session_logged_in():
+            return None
+        return self._session.realname
 
     def session_roles(self):
-        """ Returns the LTI roles that the logged in user owns"""
-        return 'Student',
+        """ Returns the LTI roles that the logged in user owns. If there are no user connected, returns []"""
+        if not self.session_logged_in():
+            return []
+        return self._session.roles
 
     def session_context(self):
-        """ Return a tuple courseid, taskid, representing the LTI context to which the current user is authenticated """
-        return "test", "test"
+        """ Return a tuple courseid, taskid, representing the LTI context to which the current user is authenticated. If there are no user
+        connected, returns None """
+        if not self.session_logged_in():
+            return None
+        return self._session.context
 
     def lti_auth(self, user_id, roles, realname, email, course_id, task_id):
-        """
-        LTI Auth
-        :param user_id:
-        :param roles:
-        :param realname:
-        :param email:
-        :param course_id:
-        :param task_id:
-        :return:
-        """
-        pass
+        """ LTI Auth """
+        self._session.loggedin = True
+        self._session.email = email
+        self._session.username = user_id
+        self._session.realname = realname
+        self._session.roles = roles
+        self._session.context = (course_id, task_id)
+
+        # TODO save additionnal info in database
+
+    def _destroy_session(self):
+        """ Destroy the session """
+        self._session.loggedin = False
+        self._session.email = None
+        self._session.username = None
+        self._session.realname = None
+        self._session.roles = None
+        self._session.context = None
 
     def get_users_info(self, usernames):
         """
         :param usernames: a list of usernames
         :return: a dict, in the form {username: val}, where val is either None if the user cannot be found, or a tuple (realname, email)
         """
+        # TODO
         if "test" in usernames:
             return {"test": ("test", "test@test.be")}
         else:
@@ -74,6 +100,7 @@ class UserManager(AbstractUserManager):
         :param username:
         :return: a tuple (realname, email) if the user can be found, None else
         """
+        # TODO
         if username == "test":
             return "test", "test@test.be"
         return None
@@ -83,6 +110,7 @@ class UserManager(AbstractUserManager):
         :param username:
         :return: the real name of the user if it can be found, None else
         """
+        # TODO
         if username == "test":
             return "test"
         return None
@@ -92,6 +120,7 @@ class UserManager(AbstractUserManager):
         :param username:
         :return: the email of the user if it can be found, None else
         """
+        # TODO
         if username == "test":
             return "test@test.be"
         return None
@@ -102,6 +131,7 @@ class UserManager(AbstractUserManager):
         :param username: The username of the user for who we want to retrieve the grade. If None, uses self.session_username()
         :return: "succeeded" if the current user solved this task, "failed" if he failed, and "notattempted" if he did not try it yet
         """
+        # TODO
         return "notattempted"
 
     def get_task_grade(self, task, username=None):
@@ -110,4 +140,5 @@ class UserManager(AbstractUserManager):
         :param username: The username of the user for who we want to retrieve the grade. If None, uses self.session_username()
         :return: a floating point number (percentage of max grade)
         """
+        # TODO
         return 0.0

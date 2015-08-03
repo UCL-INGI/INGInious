@@ -29,6 +29,7 @@ import web
 
 from backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
 from frontend.common import backend_interface
+from frontend.common.session_mongodb import MongoStore
 from frontend.common.static_middleware import StaticMiddleware
 from frontend.common.plugin_manager import PluginManager
 from common.course_factory import create_factories
@@ -143,7 +144,7 @@ def get_app(config, active_callback=None):
 
     course_factory, task_factory = create_factories(task_directory, plugin_manager, FrontendCourse, FrontendTask)
 
-    user_manager = UserManager()
+    user_manager = UserManager(web.session.Session(appli, MongoStore(database, 'sessions')), database)
 
     backend_interface.update_pending_jobs(database)
 
