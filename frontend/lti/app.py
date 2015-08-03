@@ -153,7 +153,7 @@ def get_app(config, active_callback=None):
 
     submission_manager = SubmissionManager(job_manager, user_manager, database, gridfs, plugin_manager)
 
-    template_helper = TemplateHelper(plugin_manager, 'frontend/lti/templates', 'layout')
+    template_helper = TemplateHelper(plugin_manager, 'frontend/lti/templates', 'layout', config.get('use_minified_js', True))
 
     # Update the database
     update_database(database)
