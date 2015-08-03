@@ -34,12 +34,14 @@ from frontend.common.plugin_manager import PluginManager
 from common.course_factory import create_factories
 from frontend.common.tasks import FrontendTask
 from frontend.common.courses import FrontendCourse
-from frontend.lti.pages.utils import WebPyFakeMapping
 from frontend.common.submission_manager import SubmissionManager
 from frontend.common.templates import TemplateHelper
+from frontend.common.webpy_fake_mapping import WebPyFakeMapping
 from frontend.lti.user_manager import UserManager
 
-urls = {}
+urls = {
+    "/launch": "frontend.lti.pages.launch.LTILaunch"
+}
 
 def _put_configuration_defaults(config):
     """

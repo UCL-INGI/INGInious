@@ -17,11 +17,15 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Some utils for all the pages """
-
+from abc import abstractmethod
+from oauth import oauth
+from pylti.common import LTIOAuthDataStore, LTIException, verify_request_common
+import web
+import pylti
 
 class LTIPage(object):
     """
-    A base for all the pages of the INGInious webapp.
+    A base for all the pages of the INGInious LTI tool provider.
     Contains references to the PluginManager, the CourseFactory, and the SubmissionManager
     """
 
@@ -32,9 +36,9 @@ class LTIPage(object):
         :type plugin_manager: frontend.common.plugin_manager.PluginManager
         :type course_factory: common.course_factory.CourseFactory
         :type task_factory: common.task_factory.TaskFactory
-        :type submission_manager: frontend.webapp.submission_manager.WebAppSubmissionManager
-        :type user_manager: frontend.webapp.user_manager.UserManager
-        :type template_helper: frontend.webapp.template_helper.TemplateHelper
+        :type submission_manager: frontend.common.submission_manager.SubmissionManager
+        :type user_manager: frontend.lti.user_manager.UserManager
+        :type template_helper: frontend.common.template_helper.TemplateHelper
         :type database: pymongo.database.Database
         :type gridfs: gridfs.GridFS
         :type default_allowed_file_extensions: list(str)
@@ -53,64 +57,114 @@ class LTIPage(object):
         self.default_max_file_size = default_max_file_size
         self.containers = containers
 
+class LTIAuthenticatedPage(LTIPage):
+    """ A page that will be called by the TC or from an iframe within the TC """
 
-def _webpy_fake_class_creator(inginious_page_cls, *args, **kwargs):
-    """
-    :param inginious_page_cls: path to a class inheriting from INGIniousPage, or directly the "class object"
-    :param args: args to be sent to the constructor of the classes
-    :param kwargs: kwargs to be sent to the constructor of the classes
-    :return: a fake Class that proxies everything to an instance of the INGIniousPage
-    """
-    if isinstance(inginious_page_cls, basestring):
-        mod, cls = inginious_page_cls.rsplit('.', 1)
-        mod = __import__(mod, None, None, [''])
-        cls = getattr(mod, cls)
-    else:
-        cls = inginious_page_cls
+    admin_role = ("Instructor", "Staff", "Administrator")
+    tutor_role = ("Mentor",) + admin_role
+    learner_role = ("Student", "Learner", "Member") + tutor_role
 
-    obj = cls(*args, **kwargs)
+    def __init__(self, plugin_manager, course_factory, task_factory, submission_manager, user_manager, template_helper, database,
+                 gridfs, default_allowed_file_extensions, default_max_file_size, containers):
+        super(LTIAuthenticatedPage, self).__init__(plugin_manager, course_factory, task_factory, submission_manager, user_manager, template_helper, database,
+        gridfs, default_allowed_file_extensions, default_max_file_size, containers)
+        self.course = None
+        self.task = None
 
-    class WebPyFakeMetaClass(type):
-        """
-        A fake metaclass that proxies everything to an object
-        """
+    def LTI_POST(self, *args, **kwargs):
+        raise web.notacceptable()
 
-        def __getattr__(cls, name):
-            return getattr(obj.__class__, name)
+    def LTI_GET(self, *args, **kwargs):
+        raise web.notacceptable()
 
-    class WebPyFakeClass(object):
-        """
-        A fake class that proxies everything to an object
-        """
-        __metaclass__ = WebPyFakeMetaClass
+    def required_role(self, method="POST"):
+        """ Allow to override the minimal access right needed for this page. Method can be either "POST" or "GET" """
+        return self.learner_role
 
-        def __getattr__(self, name):
-            return getattr(obj, name)
+    def verify_role(self, roles, method):
+        for role in self.required_role(method):
+            if role in roles:
+                return True
+        return False
 
-    return WebPyFakeClass
+    def POST(self, *args, **kwargs):
+        try:
+            self._verify_lti_status("POST")
+        except Exception as e:
+            raise web.notfound(str(e))
+        return self.LTI_POST(*args, **kwargs)
 
+    def GET(self, *args, **kwargs):
+        try:
+            self._verify_lti_status("GET")
+        except Exception as e:
+            raise web.notfound(str(e))
+        return self.LTI_GET(*args, **kwargs)
 
-class WebPyFakeMapping(object):
-    """
-        A "fake" mapping class for web.py that init the classes it contains automatically. Allow to avoid global state
-    """
+    def _verify_lti_status(self, method="POST"):
+        """ Verify session and/or parse the LTI data from the POST request """
 
-    def __init__(self, urls, *args, **kwargs):
-        """
-        :param urls: Basic dict of pattern/classname pairs
-        :param args: args to be sent to the constructor of the classes
-        :param kwargs: kwargs to be sent to the constructor of the classes
-        """
-        self.dict = {}
-        self.args = args
-        self.kwargs = kwargs
+        # First, check if a user is already logged-in
+        user_logged_in = self.user_manager.session_logged_in()
 
-        for pattern, classname in urls.iteritems():
-            self.append((pattern, classname))
+        # Second, check if we are in a POST request including LTI data
+        if method == "POST" and web.input().get("lti_message_type") == "basic-lti-launch-request":
+            try:
+                self._parse_lti_data()
+            except:
+                if not user_logged_in:
+                    raise
 
-    def append(self, what):
-        pattern, classname = what
-        self.dict[pattern] = _webpy_fake_class_creator(classname, *self.args, **self.kwargs)
+        if not self.user_manager.session_logged_in():
+            raise Exception("User not connected")
 
-    def __iter__(self):
-        return self.dict.iteritems().__iter__()
+        if not self.verify_role(self.user_manager.session_roles(), method):
+            raise Exception("User cannot see this page")
+
+        try:
+            course_id, task_id = self.user_manager.session_context()
+            self.course = self.course_factory.get_course(course_id)
+            self.task = self.course.get_task(task_id)
+        except:
+            raise Exception("Cannot find context")
+
+    def _parse_lti_data(self):
+        """ Verify and parse the data for the LTI basic launch """
+        post_input = web.webapi.rawinput("POST")
+        try:
+            verified = verify_request_common({"__consumer_key__": {"secret": "__lti_secret__"}}, "http://localhost:8082/launch", "POST", {}, post_input)
+        except:
+            raise Exception("Cannot authentify request")
+
+        if verified:
+            user_id = post_input["user_id"]
+            roles = post_input.get("roles", "Student").split(",")
+            realname = self._find_realname(post_input)
+            email = post_input.get("lis_person_contact_email_primary","")
+            try:
+                course_id, task_id = post_input["context_id"].split('/')
+            except:
+                raise Exception("Invalid context_id")
+
+            self.user_manager.lti_auth(user_id, roles, realname, email, course_id, task_id)
+
+    def _find_realname(self, post_input):
+        """ Returns the most appropriate name to identify the user """
+
+        # First, try the full name
+        if "lis_person_name_full" in post_input:
+            return post_input["lis_person_name_full"]
+        if "lis_person_name_given" in post_input and "lis_person_name_family" in post_input:
+            return post_input["lis_person_name_given"] + post_input["lis_person_name_family"]
+
+        # Then the email
+        if "lis_person_contact_email_primary" in post_input:
+            return post_input["lis_person_contact_email_primary"]
+
+        # Then only part of the full name
+        if "lis_person_name_family" in post_input:
+            return post_input["lis_person_name_family"]
+        if "lis_person_name_given" in post_input:
+            return post_input["lis_person_name_given"]
+
+        return post_input["user_id"]

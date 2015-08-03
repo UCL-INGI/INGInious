@@ -38,6 +38,27 @@ class UserManager(AbstractUserManager):
         """ Returns the real name of the current user in the session, if one is open. Else, returns None"""
         return "test"
 
+    def session_roles(self):
+        """ Returns the LTI roles that the logged in user owns"""
+        return 'Student',
+
+    def session_context(self):
+        """ Return a tuple courseid, taskid, representing the LTI context to which the current user is authenticated """
+        return "test", "test"
+
+    def lti_auth(self, user_id, roles, realname, email, course_id, task_id):
+        """
+        LTI Auth
+        :param user_id:
+        :param roles:
+        :param realname:
+        :param email:
+        :param course_id:
+        :param task_id:
+        :return:
+        """
+        pass
+
     def get_users_info(self, usernames):
         """
         :param usernames: a list of usernames
