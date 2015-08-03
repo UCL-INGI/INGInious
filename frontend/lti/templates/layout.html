@@ -1,0 +1,96 @@
+$def with (content)
+
+$# Copyright (c) 2014-2015 Université Catholique de Louvain.
+$#
+$# This file is part of INGInious.
+$#
+$# INGInious is free software: you can redistribute it and/or modify
+$# it under the terms of the GNU Affero General Public License as published
+$# by the Free Software Foundation, either version 3 of the License, or
+$# (at your option) any later version.
+$#
+$# INGInious is distributed in the hope that it will be useful,
+$# but WITHOUT ANY WARRANTY; without even the implied warranty of
+$# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+$# GNU Affero General Public License for more details.
+$#
+$# You should have received a copy of the GNU Affero General Public
+$# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="INGInious">
+    <meta name="author" content="">
+    <link rel="icon" href="/static/common/icons/favicon.ico">
+
+    <title>INGInious - $content.title</title>
+
+    <!-- Bootstrap -->
+    <link href="/static/common/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/common/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link href="/static/common/css/font-awesome.min.css" rel="stylesheet">
+
+    <!-- INGInious Style -->
+    <link href="/static/lti/css/INGInious.css" rel="stylesheet">
+
+    <!-- Codemirror Style -->
+    <link href="/static/common/css/codemirror.css" rel="stylesheet">
+
+    <!-- JQuery -->
+    <script src="/static/common/js/jquery.min.js"></script>
+
+    <!-- Icons -->
+    <link rel="shortcut icon" href="/static/common/icons/favicon.ico">
+    <link rel="apple-touch-icon" sizes="57x57" href="/static/common/icons/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/static/common/icons/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/static/common/icons/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/static/common/icons/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/static/common/icons/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/static/common/icons/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/static/common/icons/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/static/common/icons/apple-touch-icon-152x152.png">
+    <link rel="icon" type="image/png" href="/static/common/icons/favicon-196x196.png" sizes="196x196">
+    <link rel="icon" type="image/png" href="/static/common/icons/favicon-160x160.png" sizes="160x160">
+    <link rel="icon" type="image/png" href="/static/common/icons/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="/static/common/icons/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="/static/common/icons/favicon-32x32.png" sizes="32x32">
+    <meta name="msapplication-TileColor" content="#00a300">
+    <meta name="msapplication-TileImage" content="/static/common/icons/mstile-144x144.png">
+    <meta name="msapplication-config" content="/static/common/icons/browserconfig.xml">
+
+    $if "header" in content:
+        $:content.header
+
+    $:template_helper.call('css')
+    $:template_helper.call('javascript_header')
+    $:template_helper.call('header_hook')
+</head>
+
+<body role="document">
+<div id="wrapper">
+    <div id="main_container" class="container-fluid" role="main">
+        <div id="content" class="col-xs-12">
+            $:content
+            <div class="footer_push"></div>
+        </div>
+    </div>
+
+    <!-- Bootstrap core JavaScript -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="/static/common/js/jquery.form.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/static/common/js/codemirror/codemirror.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/static/common/js/bootstrap.min.js"></script>
+    <script src="/static/common/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="/static/common/js/checked-list-group.js"></script>
+    <script src="/static/lti/js/INGInious.js"></script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    $:template_helper.call('javascript_footer')
+</div>
+</body>
+</html>

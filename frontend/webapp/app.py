@@ -31,12 +31,12 @@ import web
 from backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
 from frontend.common import backend_interface
 from frontend.common.static_middleware import StaticMiddleware
+from frontend.common.webpy_fake_mapping import WebPyFakeMapping
 from frontend.webapp.database_updater import update_database
 from frontend.common.plugin_manager import PluginManager
 from common.course_factory import create_factories
 from frontend.webapp.tasks import WebAppTask
 from frontend.webapp.courses import WebAppCourse
-from frontend.webapp.pages.utils import WebPyFakeMapping
 from frontend.webapp.submission_manager import WebAppSubmissionManager
 from frontend.webapp.batch_manager import BatchManager
 from frontend.common.templates import TemplateHelper

@@ -42,6 +42,7 @@ class TemplateHelper(object):
 
         self._default_renderer = self.get_custom_template_renderer(default_template_dir, default_layout)
         self._default_renderer_nolayout = self.get_custom_template_renderer(default_template_dir)
+        self._default_common_renderer = self.get_custom_template_renderer(os.path.join(os.path.dirname(__file__), "templates"))
 
         self.add_to_template_globals("include", self._default_renderer_nolayout)
         self.add_to_template_globals("template_helper", self)
@@ -50,6 +51,10 @@ class TemplateHelper(object):
     def get_renderer(self, with_layout=True):
         """ Get the default renderer """
         return self._default_renderer if with_layout else self._default_renderer_nolayout
+
+    def get_common_renderer(self):
+        """ Get the default renderer for templates in the frontend.common package"""
+        return self._default_common_renderer
 
     def add_to_template_globals(self, name, value):
         """ Add a variable to will be accessible in the templates """
