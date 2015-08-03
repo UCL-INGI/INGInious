@@ -29,7 +29,7 @@ import web
 from common.base import id_checker
 import common.custom_yaml
 from frontend.webapp.accessible_time import AccessibleTime
-from frontend.webapp.custom.tasks import FrontendTask
+from frontend.webapp.tasks import WebAppTask
 from frontend.webapp.pages.course_admin.task_edit_file import CourseTaskFiles
 from frontend.webapp.pages.course_admin.utils import INGIniousAdminPage
 
@@ -255,7 +255,7 @@ class CourseEditTask(INGIniousAdminPage):
 
         directory_path = self.task_factory.get_directory_path(courseid, taskid)
         try:
-            FrontendTask(course, taskid, data, directory_path)
+            WebAppTask(course, taskid, data, directory_path)
         except Exception as message:
             return json.dumps({"status": "error", "message": "Invalid data: {}".format(str(message))})
 

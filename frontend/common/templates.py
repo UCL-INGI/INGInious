@@ -16,14 +16,14 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
-""" Basic dependencies for the webapp """
+""" TemplateManager """
 import os
 
 import web
 
 
 class TemplateHelper(object):
-    """ Class accessible from templates that calls function defined in the Python part of the code. Singleton class. """
+    """ Class accessible from templates that calls function defined in the Python part of the code. """
 
     _base_helpers = {}  # see __init__
     WEB_CTX_KEY = "inginious_tpl_helper"

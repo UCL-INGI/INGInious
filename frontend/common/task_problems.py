@@ -24,7 +24,7 @@ from random import shuffle
 from frontend.common.parsable_text import ParsableText
 from common.tasks_problems import BasicProblem, BasicCodeProblem, CodeProblem, CodeSingleLineProblem, MatchProblem, MultipleChoiceProblem, \
     CodeFileProblem
-from frontend.webapp.custom.tasks_code_boxes import DisplayableInputBox, DisplayableMultilineBox, DisplayableTextBox, DisplayableFileBox
+from frontend.common.tasks_code_boxes import DisplayableInputBox, DisplayableMultilineBox, DisplayableTextBox, DisplayableFileBox
 
 
 class DisplayableBasicProblem(BasicProblem):

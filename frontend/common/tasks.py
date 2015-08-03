@@ -19,14 +19,13 @@
 """ Classes modifying basic tasks, problems and boxes classes """
 from common.base import id_checker
 import common.tasks
-from frontend.webapp.accessible_time import AccessibleTime
-from frontend.webapp.custom.task_problems import DisplayableCodeProblem, DisplayableCodeSingleLineProblem, DisplayableMatchProblem, \
-    DisplayableMultipleChoiceProblem, DisplayableCodeFileProblem
 from frontend.common.parsable_text import ParsableText
+from frontend.common.task_problems import DisplayableCodeProblem, DisplayableCodeFileProblem, DisplayableCodeSingleLineProblem, \
+    DisplayableMultipleChoiceProblem, DisplayableMatchProblem
 
 
 class FrontendTask(common.tasks.Task):
-    """ A task that stores additionnal context informations """
+    """ A task that stores additional context information """
 
     def __init__(self, course, taskid, content, directory_path, task_problem_types=None):
         # We load the descriptor of the task here to allow plugins to modify settings of the task before it is read by the Task constructor
@@ -40,7 +39,7 @@ class FrontendTask(common.tasks.Task):
             "multiple-choice": DisplayableMultipleChoiceProblem,
             "match": DisplayableMatchProblem}
 
-        common.tasks.Task.__init__(self, course, taskid, content, directory_path, task_problem_types)
+        super(FrontendTask, self).__init__(course, taskid, content, directory_path, task_problem_types)
 
         self._name = self._data.get('name', 'Task {}'.format(self.get_id()))
 
@@ -57,18 +56,6 @@ class FrontendTask(common.tasks.Task):
         else:
             self._author = []
 
-        # Grade weight
-        self._weight = float(self._data.get("weight", 1.0))
-
-        # _accessible
-        self._accessible = AccessibleTime(self._data.get("accessible", None))
-
-        # Order
-        self._order = int(self._data.get('order', -1))
-
-        # Group task
-        self._groups = bool(self._data.get("groups", True))
-
     def get_name(self):
         """ Returns the name of this task """
         return self._name
@@ -81,37 +68,8 @@ class FrontendTask(common.tasks.Task):
         """ Return the list of this task's authors """
         return self._author
 
-    def get_order(self):
-        """ Get the position of this task in the course """
-        return self._order
-
-    def get_grading_weight(self):
-        """ Get the relative weight of this task in the grading """
-        return self._weight
-
-    def get_accessible_time(self):
-        """  Get the accessible time of this task """
-        return self._accessible
-
-    def is_visible_by_students(self):
-        """ Returns true if the task is accessible by all students that are not administrator of the course """
-        return self.get_course().is_open_to_non_staff() and self._accessible.after_start()
-
-    def get_deadline(self):
-        """ Returns a string containing the deadline for this task """
-        if self._accessible.is_always_accessible():
-            return "No deadline"
-        elif self._accessible.is_never_accessible():
-            return "It's too late"
-        else:
-            return self._accessible.get_end_date().strftime("%d/%m/%Y %H:%M:%S")
-
     def adapt_input_for_backend(self, input_data):
         """ Adapt the input from web.py for the backend """
         for problem in self._problems:
             input_data = problem.adapt_input_for_backend(input_data)
         return input_data
-
-    def is_group_task(self):
-        """ Indicates if the task submission mode is per groups """
-        return self._groups

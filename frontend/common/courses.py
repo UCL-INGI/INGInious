@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2014-2015 Université Catholique de Louvain.
+# Copyright (c) 2014 Université Catholique de Louvain.
 #
 # This file is part of INGInious.
 #
@@ -16,4 +16,20 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
-""" Contains classes that derivates from classes in the common modules, but with some minor modifications """
+""" Classes modifying basic tasks, problems and boxes classes """
+from common.courses import Course
+
+
+class FrontendCourse(Course):
+    """ A basic course extension that stores the name of the course """
+    def __init__(self, courseid, content, task_factory):
+        super(FrontendCourse, self).__init__(courseid, content, task_factory)
+
+        try:
+            self._name = self._content['name']
+        except:
+            raise Exception("Course has an invalid description: " + self.get_id())
+
+    def get_name(self):
+        """ Return the name of this course """
+        return self._name
