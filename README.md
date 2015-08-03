@@ -6,7 +6,7 @@ INGInious
 [![Documentation Status](https://readthedocs.org/projects/inginious/badge/?version=latest)](https://readthedocs.org/projects/inginious/?badge=latest)
 [![Join the chat at https://gitter.im/UCL-INGI/INGInious](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/UCL-INGI/INGInious?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-<img align="right" src="frontend/static/images/logo.png" alt="logo">
+<img align="right" src="frontend/common/static/images/logo.png" alt="logo">
 
 INGInious is an intelligent grader that allows secured and automated testing of code made by students.
 

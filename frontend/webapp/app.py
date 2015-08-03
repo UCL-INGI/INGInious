@@ -30,13 +30,14 @@ import web
 
 from backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
 from frontend.common import backend_interface
+from frontend.common.static_middleware import StaticMiddleware
 from frontend.webapp.database_updater import update_database
 from frontend.common.plugin_manager import PluginManager
 from common.course_factory import create_factories
 from frontend.webapp.tasks import WebAppTask
 from frontend.webapp.courses import WebAppCourse
 from frontend.webapp.pages.utils import WebPyFakeMapping
-from frontend.webapp.submission_manager import SubmissionManager
+from frontend.webapp.submission_manager import WebAppSubmissionManager
 from frontend.webapp.batch_manager import BatchManager
 from frontend.common.templates import TemplateHelper
 from frontend.webapp.user_manager import UserManager
@@ -186,7 +187,7 @@ def get_app(config, active_callback=None):
     job_manager = backend_interface.create_job_manager(config, plugin_manager,
                                                        task_directory, course_factory, task_factory)
 
-    submission_manager = SubmissionManager(job_manager, user_manager, database, gridfs, plugin_manager)
+    submission_manager = WebAppSubmissionManager(job_manager, user_manager, database, gridfs, plugin_manager)
 
     batch_manager = BatchManager(job_manager, database, gridfs, submission_manager, user_manager,
                                  task_directory, config.get('batch_containers', []),
@@ -228,33 +229,6 @@ def get_app(config, active_callback=None):
 
     return appli, lambda: _close_app(appli, mongo_client, job_manager)
 
-
-class StaticMiddleware(object):
-    """ WSGI middleware for serving static files. """
-
-    def __init__(self, app, prefix='/static/', root_path='frontend/webapp/static'):
-        self.app = app
-        self.prefix = prefix
-        self.root_path = root_path
-
-    def __call__(self, environ, start_response):
-        path = environ.get('PATH_INFO', '')
-        path = self.normpath(path)
-
-        if path.startswith(self.prefix):
-            environ["PATH_INFO"] = self.root_path + "/" + web.lstrips(path, self.prefix)
-            return web.httpserver.StaticApp(environ, start_response)
-        else:
-            return self.app(environ, start_response)
-
-    def normpath(self, path):
-        """ Normalize the path """
-        path2 = posixpath.normpath(urllib.unquote(path))
-        if path.endswith("/"):
-            path2 += "/"
-        return path2
-
-
 def runfcgi(func, addr=('localhost', 8000)):
     """Runs a WSGI function as a FastCGI server."""
     import flup.server.fcgi as flups
@@ -282,7 +256,7 @@ def start_app(config, hostname="localhost", port=8080):
         raise KeyboardInterrupt()
     signal.signal(signal.SIGINT, lambda _, _2: close_app_signal)
 
-    func = StaticMiddleware(func)
+    func = StaticMiddleware(func, (('/static/common/', 'frontend/common/static'), ('/static/webapp/', 'frontend/webapp/static')))
     func = web.httpserver.LogMiddleware(func)
     server = web.httpserver.WSGIServer((hostname, port), func)
     print "http://%s:%d/" % (hostname, port)
