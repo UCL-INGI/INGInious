@@ -27,14 +27,14 @@ import threading
 from gridfs import GridFS
 from pymongo import MongoClient
 import web
-from backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
 
+from backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
 from frontend.common import backend_interface
 from frontend.webapp.database_updater import update_database
 from frontend.common.plugin_manager import PluginManager
 from common.course_factory import create_factories
-from frontend.webapp.custom.tasks import FrontendTask
-from frontend.webapp.custom.courses import FrontendCourse
+from frontend.webapp.tasks import WebAppTask
+from frontend.webapp.courses import WebAppCourse
 from frontend.webapp.pages.utils import WebPyFakeMapping
 from frontend.webapp.submission_manager import SubmissionManager
 from frontend.webapp.batch_manager import BatchManager
@@ -177,7 +177,7 @@ def get_app(config, active_callback=None):
     database = mongo_client[config.get('mongo_opt', {}).get('database', 'INGInious')]
     gridfs = GridFS(database)
 
-    course_factory, task_factory = create_factories(task_directory, plugin_manager, FrontendCourse, FrontendTask)
+    course_factory, task_factory = create_factories(task_directory, plugin_manager, WebAppCourse, WebAppTask)
 
     user_manager = UserManager(web.session.Session(appli, MongoStore(database, 'sessions')), database, config.get('superadmins', []))
 

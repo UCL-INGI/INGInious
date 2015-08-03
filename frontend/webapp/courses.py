@@ -21,20 +21,20 @@
 from collections import OrderedDict
 
 from common.courses import Course
+from frontend.common.courses import FrontendCourse
 from frontend.webapp.accessible_time import AccessibleTime
 
 
-class FrontendCourse(Course):
+class WebAppCourse(FrontendCourse):
     """ A course with some modification for users """
 
     def __init__(self, courseid, content, task_factory):
-        Course.__init__(self, courseid, content, task_factory)
+        super(WebAppCourse, self).__init__(courseid, content, task_factory)
 
         if self._content.get('nofrontend', False):
             raise Exception("That course is not allowed to be displayed directly in the webapp")
 
-        if "name" in self._content:
-            self._name = self._content['name']
+        try:
             self._admins = self._content.get('admins', [])
             self._tutors = self._content.get('tutors', [])
             self._accessible = AccessibleTime(self._content.get("accessible", None))
@@ -46,12 +46,8 @@ class FrontendCourse(Course):
             self._registration_ac_list = self._content.get('registration_ac_list', [])
             self._groups = self._content.get("groups", False)
             self._groups_student_choice = self._content.get("groups_student_choice", False)
-        else:
+        except:
             raise Exception("Course has an invalid description: " + self.get_id())
-
-    def get_name(self):
-        """ Return the name of this course """
-        return self._name
 
     def get_staff(self):
         """ Returns a list containing the usernames of all the staff users """

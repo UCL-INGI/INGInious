@@ -24,7 +24,7 @@ from random import shuffle
 from frontend.common.parsable_text import ParsableText
 from common.tasks_problems import BasicProblem, BasicCodeProblem, CodeProblem, CodeSingleLineProblem, MatchProblem, MultipleChoiceProblem, \
     CodeFileProblem
-from frontend.webapp.custom.tasks_code_boxes import DisplayableInputBox, DisplayableMultilineBox, DisplayableTextBox, DisplayableFileBox
+from frontend.common.tasks_code_boxes import DisplayableInputBox, DisplayableMultilineBox, DisplayableTextBox, DisplayableFileBox
 
 
 class DisplayableBasicProblem(BasicProblem):
@@ -113,6 +113,10 @@ class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableBasicPr
         if limit == 0:
             limit = len(self._choices)  # no limit
 
+        # Ensure that the choices are random
+        # no need to copy...
+        shuffle(self._choices)
+
         if self._multiple:
             # take only the valid choices in the first pass
             for entry in self._choices:
@@ -127,17 +131,16 @@ class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableBasicPr
                     choices.append(entry)
                     limit = limit - 1
         else:
-            # need to have a valid entry
-            found_valid = False
+            # need to have ONE valid entry
             for entry in self._choices:
-                if limit == 1 and not found_valid and not entry['valid']:
-                    continue
-                elif limit == 0:
-                    break
-                choices.append(entry)
-                limit = limit - 1
-                if entry['valid']:
-                    found_valid = True
+                if not entry['valid'] and limit > 1:
+                    choices.append(entry)
+                    limit = limit - 1
+            for entry in self._choices:
+                if entry['valid'] and limit > 0:
+                    choices.append(entry)
+                    limit = limit - 1
+
         shuffle(choices)
         return str(renderer.tasks.multiplechoice(self.get_id(), self._multiple, choices))
 

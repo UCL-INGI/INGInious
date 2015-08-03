@@ -324,14 +324,14 @@ function submitTask()
                           }
                           else
                           {
-                              displayTaskErrorAlert();
+                              displayTaskErrorAlert({});
                               updateTaskStatus("Internal error", 0);
                               unblurTaskForm();
                           }
                       },
             error:    function()
                       {
-                          displayTaskErrorAlert();
+                          displayTaskErrorAlert({});
                           updateTaskStatus("Internal error", 0);
                           unblurTaskForm();
                       }
@@ -375,14 +375,14 @@ function waitForSubmission(submissionid)
                     }
                     else if(data['result'] == "timeout")
                     {
-                        displayTimeOutAlert();
+                        displayTimeOutAlert(data);
                         updateSubmission(submissionid, data['result'], data["grade"]);
                         updateTaskStatus("Wrong answer", data["grade"]);
                         unblurTaskForm();
                     }
                     else if(data['result'] == "overflow")
                     {
-                        displayOverflowAlert();
+                        displayOverflowAlert(data);
                         updateSubmission(submissionid, data['result'], data["grade"]);
                         updateTaskStatus("Wrong answer", data["grade"]);
                         unblurTaskForm();
@@ -397,7 +397,7 @@ function waitForSubmission(submissionid)
                 }
                 else
                 {
-                    displayTaskErrorAlert("");
+                    displayTaskErrorAlert({});
                     updateSubmission(submissionid, "error", "0.0");
                     updateTaskStatus("Wrong answer", 0);
                     unblurTaskForm();
@@ -405,7 +405,7 @@ function waitForSubmission(submissionid)
             })
             .fail(function()
             {
-                displayTaskErrorAlert("");
+                displayTaskErrorAlert({});
                 updateSubmission(submissionid, "error", "0.0");
                 updateTaskStatus("Wrong answer", 0);
                 unblurTaskForm();
@@ -472,54 +472,54 @@ function displayTaskInputErrorAlert()
         }, 200);
 }
 
-//Displays a loading input alert in task form
-function displayTaskInputDoneAlert()
-{
-    var task_alert = $('#task_alert');
-    task_alert.html(getAlertCode("<b>Submission loaded</b>", "success", false));
-    $('html, body').animate(
-        {
-            scrollTop: task_alert.offset().top - 100
-        }, 200);
-}
-
 //Displays an overflow error alert in task form
 function displayOverflowAlert(content)
 {
-    var msg = "<b>Your submission made an overflow.</b>";
-    var task_alert = $('#task_alert');
-    task_alert.html(getAlertCode(msg, "warning", true));
-    $('html, body').animate(
-        {
-            scrollTop: task_alert.offset().top - 100
-        }, 200);
+    displayTaskStudentAlertWithProblems(content,
+        "<b>Your submission made an overflow. Your score is " + content["grade"] + "%</b>",
+        "<b>Your submission made an overflow. Your score is " + content["grade"] + "%</b><br/>",
+        "",
+        "warning", false);
 }
 
 //Displays a timeout error alert in task form
 function displayTimeOutAlert(content)
 {
-    var msg = "<b>Your submission timed out.</b>";
-    var task_alert = $('#task_alert');
-    task_alert.html(getAlertCode(msg, "warning", true));
-    $('html, body').animate(
-        {
-            scrollTop: task_alert.offset().top - 100
-        }, 200);
+    displayTaskStudentAlertWithProblems(content,
+        "<b>Your submission timed out. Your score is " + content["grade"] + "%</b>",
+        "<b>Your submission timed out. Your score is " + content["grade"] + "%</b><br/>",
+        "",
+        "warning", false);
 }
 
 //Displays an internal error alert in task form
 function displayTaskErrorAlert(content)
 {
-    var msg = "<b>An internal error occured. Please retry later.</b>";
-    if(content != "")
-        msg += "<br />Please send an email to the course administrator. Information : " + content.text;
+    displayTaskStudentAlertWithProblems(content,
+        "<b>An internal error occured. Please retry later. If the error persists, send an email to the course administrator.</b>",
+        "<b>An internal error occured. Please retry later. If the error persists, send an email to the course administrator.</b><br/>",
+        "",
+        "danger", false);
+}
 
-    var task_alert = $('#task_alert');
-    task_alert.html(getAlertCode(msg, "danger", true));
-    $('html, body').animate(
-        {
-            scrollTop: task_alert.offset().top - 100
-        }, 200);
+//Displays a student error alert in task form
+function displayTaskStudentErrorAlert(content)
+{
+    displayTaskStudentAlertWithProblems(content,
+        "<b>There are some errors in your answer. Your score is " + content["grade"] + "%</b>",
+        "<b>There are some errors in your answer. Your score is " + content["grade"] + "%</b><br/>",
+        "",
+        "danger", false);
+}
+
+//Displays a student success alert in task form
+function displayTaskStudentSuccessAlert(content)
+{
+    displayTaskStudentAlertWithProblems(content,
+        "<b>Your answer passed the tests! Your score is " + content["grade"] + "%</b>",
+        "<b>Your answer passed the tests! Your score is " + content["grade"] + "%</b><br/>",
+        "",
+        "success", true);
 }
 
 //Displays a student error alert in task form
@@ -543,7 +543,7 @@ function displayTaskStudentAlertWithProblems(content, topEmpty, topPrefix, prefi
             var problemid = elem.id.substr(11); //skip "task_alert."
             if(problemid in content.problems)
             {
-                $(elem).html(getAlertCode(prefix + content.problems[problemid], type, true));
+                $(elem).html(getAlertCode(prefix + content.problems[problemid], "info", true));
                 if(firstPos == -1 || firstPos > $(elem).offset().top)
                     firstPos = $(elem).offset().top;
             }
@@ -560,26 +560,6 @@ function displayTaskStudentAlertWithProblems(content, topEmpty, topPrefix, prefi
         {
             scrollTop: firstPos - 100
         }, 200);
-}
-
-//Displays a student error alert in task form
-function displayTaskStudentErrorAlert(content)
-{
-    displayTaskStudentAlertWithProblems(content,
-        "<b>There are some errors in your answer. Your score is " + content["grade"] + "%</b>",
-        "<b>There are some errors in your answer. Your score is " + content["grade"] + "%</b><br/>",
-        "<b>There are some errors in your answer:</b><br/>",
-        "danger", false);
-}
-
-//Displays a student success alert in task form
-function displayTaskStudentSuccessAlert(content)
-{
-    displayTaskStudentAlertWithProblems(content,
-        "<b>Your answer passed the tests! Your score is " + content["grade"] + "%</b>",
-        "<b>Your answer passed the tests! Your score is " + content["grade"] + "%</b><br/>",
-        "",
-        "success", true);
 }
 
 //Create an alert
@@ -643,14 +623,14 @@ function loadOldFeedback(data)
         else if(data['result'] == "success")
             displayTaskStudentSuccessAlert(data);
         else if(data['result'] == "timeout")
-            displayTimeOutAlert();
+            displayTimeOutAlert(data);
         else if(data['result'] == "overflow")
-            displayOverflowAlert();
+            displayOverflowAlert(data);
         else // == "error"
             displayTaskErrorAlert(data);
     }
     else
-        displayTaskErrorAlert("");
+        displayTaskErrorAlert({});
 }
 
 //Load data from input into the form inputs
