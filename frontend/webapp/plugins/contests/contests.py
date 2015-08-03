@@ -44,9 +44,9 @@ def modify_task_data(course, _taskid, data):
 def additional_headers():
     """ Additional HTML headers """
     return """
-        <link href="/static/plugins/contests/scoreboard.css" rel="stylesheet">
-        <script src="/static/plugins/contests/jquery.countdown.min.js"></script>
-        <script src="/static/plugins/contests/contests.js"></script>
+        <link href="/static/webapp/plugins/contests/scoreboard.css" rel="stylesheet">
+        <script src="/static/webapp/plugins/contests/jquery.countdown.min.js"></script>
+        <script src="/static/webapp/plugins/contests/contests.js"></script>
     """
 
 

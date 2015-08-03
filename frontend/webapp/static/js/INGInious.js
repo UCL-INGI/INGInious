@@ -105,7 +105,7 @@ var loadingSomething = false;
 //Run CodeMirror on static code
 function colorizeStaticCode()
 {
-    CodeMirror.modeURL = "/static/js/codemirror/mode/%N/%N.js";
+    CodeMirror.modeURL = "/static/common/js/codemirror/mode/%N/%N.js";
     $('.code.literal-block').each(function()
     {
         var classes = $(this).attr('class').split(' ');
@@ -133,7 +133,7 @@ function colorizeStaticCode()
 //Register and init a code editor (ace)
 function registerCodeEditor(textarea, lang, lines)
 {
-    CodeMirror.modeURL = "/static/js/codemirror/mode/%N/%N.js";
+    CodeMirror.modeURL = "/static/common/js/codemirror/mode/%N/%N.js";
     var mode = CodeMirror.findModeByName(lang);
     if(mode == undefined)
         mode = {"mode": "plain", "mime": "text/plain"};
