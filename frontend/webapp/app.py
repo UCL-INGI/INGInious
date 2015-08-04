@@ -193,7 +193,7 @@ def get_app(config, active_callback=None):
                                  task_directory, config.get('batch_containers', []),
                                  config.get('smtp', None))
 
-    template_helper = TemplateHelper(plugin_manager, 'frontend/webapp/templates', 'layout')
+    template_helper = TemplateHelper(plugin_manager, 'frontend/webapp/templates', 'layout', config.get('use_minified_js', True))
 
     # Update the database
     update_database(database, gridfs, course_factory, user_manager)

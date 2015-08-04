@@ -17,15 +17,8 @@
 // License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 "use strict";
 
-$(function()
+function init_task_page()
 {
-    //Init CodeMirror
-    colorizeStaticCode();
-    $('.code-editor').each(function(index, elem)
-    {
-        registerCodeEditor(elem, $(elem).attr('data-x-language'), $(elem).attr('data-x-lines'));
-    });
-
     //Init the task form, if we are on the task submission page
     var task_form = $('form#task');
     task_form.on('submit', function()
@@ -41,145 +34,10 @@ $(function()
         waitForSubmission(task_form.attr("data-wait-submission"));
     }
     $('#submissions').find('.submission').on('click', clickOnSubmission);
-
-    //Start affix only if there the height of the sidebar is less than the height of the content
-    if($('#sidebar').height() < $('#content').height())
-    {
-        var start_affix = function()
-        {
-            $('#sidebar_affix').affix({offset: {top: 65, bottom: 61}});
-        };
-        var update_size = function()
-        {
-            $('#sidebar_affix').width($('#sidebar').width());
-        };
-        $(window).scroll(update_size);
-        $(window).resize(update_size);
-        update_size();
-        start_affix();
-    }
-
-    //Registration form, disable the password field when not needed
-    var register_courseid = $('#register_courseid');
-    if(register_courseid)
-    {
-        register_courseid.change(function()
-        {
-            if($('option[value="' + register_courseid.val() + '"]', register_courseid).attr('data-password') == 1)
-                $('#register_password').removeAttr('disabled');
-            else
-                $('#register_password').attr('disabled', 'disabled')
-        });
-    }
-
-    //Fix a bug with codemirror and bootstrap tabs
-    $('a[data-toggle="tab"]').on('shown.bs.tab', function(e)
-    {
-        var target = $(e.target).attr("href");
-        $(target + ' .CodeMirror').each(function(i, el)
-        {
-            el.CodeMirror.refresh();
-        });
-    });
-
-    //Enable tooltips
-    $(function()
-    {
-        //Fix for button groups
-        var all_needed_tooltips = $('[data-toggle="tooltip"]');
-        var all_exceptions = $('.btn-group .btn[data-toggle="tooltip"], td[data-toggle="tooltip"]');
-
-        var not_exceptions = all_needed_tooltips.not(all_exceptions);
-
-        not_exceptions.tooltip();
-        all_exceptions.tooltip({'container': 'body'});
-    })
-});
-
-//Contains all code editors
-var codeEditors = [];
+}
 
 //True if loading something
 var loadingSomething = false;
-
-//Run CodeMirror on static code
-function colorizeStaticCode()
-{
-    CodeMirror.modeURL = "/static/common/js/codemirror/mode/%N/%N.js";
-    $('.code.literal-block').each(function()
-    {
-        var classes = $(this).attr('class').split(' ');
-        var mode = undefined;
-        $.each(classes, function(idx, elem) {
-            if(elem != "code" && elem != "literal-block")
-            {
-                var nmode = CodeMirror.findModeByName(elem);
-                if (nmode != undefined)
-                    mode = nmode;
-            }
-        });
-        if(mode != undefined)
-        {
-            var elem = this
-
-            CodeMirror.requireMode(mode['mode'], function()
-            {
-                CodeMirror.colorize($(elem), mode["mime"]);
-            });
-        }
-    });
-}
-
-//Register and init a code editor (ace)
-function registerCodeEditor(textarea, lang, lines)
-{
-    CodeMirror.modeURL = "/static/common/js/codemirror/mode/%N/%N.js";
-    var mode = CodeMirror.findModeByName(lang);
-    if(mode == undefined)
-        mode = {"mode": "plain", "mime": "text/plain"};
-
-    var is_single = $(textarea).hasClass('single');
-
-    var editor = CodeMirror.fromTextArea(textarea, {
-        lineNumbers:       true,
-        mode:              mode["mime"],
-        foldGutter:        true,
-        styleActiveLine:   true,
-        matchBrackets:     true,
-        autoCloseBrackets: true,
-        lineWrapping:      true,
-        gutters:           ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
-        indentUnit:        4,
-        viewportMargin:    Infinity,
-        lint:              function()
-                           {
-                               return []
-                           }
-    });
-
-    if(is_single)
-        $(editor.getWrapperElement()).addClass('single');
-
-    editor.on("change", function(cm)
-    {
-        cm.save();
-    });
-
-    var min_editor_height = (21 * lines);
-    editor.on("viewportChange", function(cm)
-    {
-        if(cm.getScrollInfo()["height"] > min_editor_height)
-            editor.setSize(null, "auto");
-        else
-            editor.setSize(null, min_editor_height + "px");
-    });
-    editor.setSize(null, min_editor_height + "px");
-
-    if(mode["mode"] != "plain")
-        CodeMirror.autoLoadMode(editor, mode["mode"]);
-    codeEditors.push(editor);
-    return editor;
-}
 
 //Task page: find an editor by problem id
 function getEditorForProblemId(problemId)
@@ -205,6 +63,7 @@ function blurTaskForm()
     task_form.addClass('form-blur');
     loadingSomething = true;
 }
+
 function unblurTaskForm()
 {
     $.each(codeEditors, function(idx, editor)

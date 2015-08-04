@@ -28,7 +28,7 @@ class TemplateHelper(object):
     _base_helpers = {}  # see __init__
     WEB_CTX_KEY = "inginious_tpl_helper"
 
-    def __init__(self, plugin_manager, default_template_dir, default_layout):
+    def __init__(self, plugin_manager, default_template_dir, default_layout, use_minified=True):
         self._base_helpers = {"header_hook": (lambda **kwargs: self._generic_hook('header_html', **kwargs)),
                               "course_menu": (lambda **kwargs: self._generic_hook('course_menu', **kwargs)),
                               "javascript_header": (lambda **_: self._javascript_helper("header")),
@@ -47,6 +47,7 @@ class TemplateHelper(object):
         self.add_to_template_globals("include", self._default_renderer_nolayout)
         self.add_to_template_globals("template_helper", self)
         self.add_to_template_globals("plugin_manager", plugin_manager)
+        self.add_to_template_globals("use_minified", use_minified)
 
     def get_renderer(self, with_layout=True):
         """ Get the default renderer """

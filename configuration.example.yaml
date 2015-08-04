@@ -57,6 +57,9 @@ superadmins:
 # Disable INGInious?
 maintenance: false
 
+# Use single minified javascript file (production) or multiple files (dev) ?
+use_minified_js: true
+
 smtp:
     sendername: 'INGInious <no-reply@inginious.org>'
     host: 'smtp.gmail.com'

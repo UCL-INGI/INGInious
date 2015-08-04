@@ -30,7 +30,7 @@ class LTIPage(object):
     """
 
     def __init__(self, plugin_manager, course_factory, task_factory, submission_manager, user_manager, template_helper, database,
-                 gridfs, default_allowed_file_extensions, default_max_file_size, containers):
+                 gridfs, default_allowed_file_extensions, default_max_file_size, containers, consumers):
         """
         Init the page
         :type plugin_manager: frontend.common.plugin_manager.PluginManager
@@ -56,6 +56,7 @@ class LTIPage(object):
         self.default_allowed_file_extensions = default_allowed_file_extensions
         self.default_max_file_size = default_max_file_size
         self.containers = containers
+        self.consumers = consumers
 
 class LTIAuthenticatedPage(LTIPage):
     """ A page that will be called by the TC or from an iframe within the TC """
@@ -132,7 +133,7 @@ class LTIAuthenticatedPage(LTIPage):
         """ Verify and parse the data for the LTI basic launch """
         post_input = web.webapi.rawinput("POST")
         try:
-            verified = verify_request_common({"__consumer_key__": {"secret": "__lti_secret__"}}, "http://localhost:8082/launch", "POST", {}, post_input)
+            verified = verify_request_common(self.consumers, "http://localhost:8082/launch", "POST", {}, post_input)
         except:
             raise Exception("Cannot authentify request")
 
