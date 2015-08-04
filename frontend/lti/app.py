@@ -35,9 +35,9 @@ from frontend.common.plugin_manager import PluginManager
 from common.course_factory import create_factories
 from frontend.common.tasks import FrontendTask
 from frontend.common.courses import FrontendCourse
-from frontend.common.submission_manager import SubmissionManager
 from frontend.common.templates import TemplateHelper
 from frontend.common.webpy_fake_mapping import WebPyFakeMapping
+from frontend.lti.submission_manager import LTISubmissionManager
 from frontend.lti.user_manager import UserManager
 
 urls = {
@@ -151,7 +151,7 @@ def get_app(config, active_callback=None):
     job_manager = backend_interface.create_job_manager(config, plugin_manager,
                                                        task_directory, course_factory, task_factory)
 
-    submission_manager = SubmissionManager(job_manager, user_manager, database, gridfs, plugin_manager)
+    submission_manager = LTISubmissionManager(job_manager, user_manager, database, gridfs, plugin_manager, config.get('nb_submissions_kept', 5))
 
     template_helper = TemplateHelper(plugin_manager, 'frontend/lti/templates', 'layout', config.get('use_minified_js', True))
 
@@ -172,7 +172,8 @@ def get_app(config, active_callback=None):
                                      submission_manager, user_manager,
                                      template_helper, database, gridfs,
                                      default_allowed_file_extensions, default_max_file_size,
-                                     config["containers"].keys())
+                                     config["containers"].keys(),
+                                     config["lti"])
 
     # Active hook
     if active_callback is not None:
