@@ -66,9 +66,9 @@ class LTIAuthenticatedPage(LTIPage):
     learner_role = ("Student", "Learner", "Member") + tutor_role
 
     def __init__(self, plugin_manager, course_factory, task_factory, submission_manager, user_manager, template_helper, database,
-                 gridfs, default_allowed_file_extensions, default_max_file_size, containers):
+                 gridfs, default_allowed_file_extensions, default_max_file_size, containers, consumers):
         super(LTIAuthenticatedPage, self).__init__(plugin_manager, course_factory, task_factory, submission_manager, user_manager, template_helper, database,
-        gridfs, default_allowed_file_extensions, default_max_file_size, containers)
+        gridfs, default_allowed_file_extensions, default_max_file_size, containers, consumers)
         self.course = None
         self.task = None
 
