@@ -36,7 +36,7 @@ class GroupPage(INGIniousPage):
                 course = self.course_factory.get_course(courseid)
                 registration_uncomplete = not self.user_manager.course_is_open_to_user(course)
                 error = ""
-                if not course.is_group_course() or self.user_manager.has_staff_rights_on_course(course):
+                if self.user_manager.has_staff_rights_on_course(course):
                     raise web.notfound()
                 elif registration_uncomplete and not course.can_students_choose_group():
                     return self.template_helper.get_renderer().course_unavailable()

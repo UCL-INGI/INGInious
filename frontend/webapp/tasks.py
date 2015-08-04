@@ -37,7 +37,7 @@ class WebAppTask(FrontendTask):
         self._order = int(self._data.get('order', -1))
 
         # Group task
-        self._groups = bool(self._data.get("groups", True))
+        self._groups = bool(self._data.get("groups", False))
 
     def get_order(self):
         """ Get the position of this task in the course """

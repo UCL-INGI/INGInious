@@ -44,7 +44,6 @@ class WebAppCourse(FrontendCourse):
             if self._registration_ac not in [None, "username", "realname", "email"]:
                 raise Exception("Course has an invalid value for registration_ac: " + self.get_id())
             self._registration_ac_list = self._content.get('registration_ac_list', [])
-            self._groups = self._content.get("groups", False)
             self._groups_student_choice = self._content.get("groups_student_choice", False)
         except:
             raise Exception("Course has an invalid description: " + self.get_id())
@@ -96,13 +95,9 @@ class WebAppCourse(FrontendCourse):
         """ Returns the list of all users allowed by the AC list """
         return self._registration_ac_list
 
-    def is_group_course(self):
-        """ Returns True if the course submissions are made by groups """
-        return self._groups
-
     def can_students_choose_group(self):
         """ Returns True if the students can choose their groups """
-        return self._groups and self._groups_student_choice
+        return self._groups_student_choice
 
     def is_user_accepted_by_access_control(self, username, realname, email):
         """ Returns True if the user is allowed by the ACL """

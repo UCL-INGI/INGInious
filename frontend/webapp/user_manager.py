@@ -465,22 +465,7 @@ class UserManager(AbstractUserManager):
         if username is None:
             username = self.session_username()
 
-        return self._database.classrooms.find_one({"courseid": course.get_id(), "users": username})
-
-    def get_course_groups(self, course):
-        """ Returns a list of the course groups"""
-        return list(self._database.groups.find({"courseid": course.get_id()}).sort("description"))
-
-    def get_course_user_group(self, course, username=None):
-        """ Returns the group whose username belongs to
-        :param course: a Course object
-        :param username: The username of the user that we want to register. If None, uses self.session_username()
-        :return: the group description
-        """
-        if username is None:
-            username = self.session_username()
-
-        return self._database.groups.find_one({"courseid": course.get_id(), "users": username})
+        return self._database.classrooms.find_one({"courseid": course.get_id(), "students": username})
 
     def course_register_user(self, course, username=None, password=None, force=False):
         """

@@ -72,9 +72,6 @@ class IndexPage(INGIniousPage):
                     registration_status = False
                 else:
                     registration_status = self.user_manager.course_register_user(course, username, user_input.get("register_password", None))
-
-                if course.is_group_course() and course.can_students_choose_group():
-                    raise web.seeother("/group/" + course.get_id())
             except:
                 registration_status = False
         if "unregister_courseid" in user_input:
