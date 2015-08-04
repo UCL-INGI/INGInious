@@ -1,4 +1,4 @@
-$def with (message)
+$def with (course,task,submissions)
 
 $# Copyright (c) 2014-2015 Université Catholique de Louvain.
 $#
@@ -17,16 +17,104 @@ $#
 $# You should have received a copy of the GNU Affero General Public
 $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 
-$var title: Error 404
+$var title: $:task.get_name() - $:task.get_course().get_name()
+
+$# Left column content
+$def ColumnF():
+    <h3>Informations</h3>
+    <table class="table table-condensed">
+        $if task.get_authors():
+            <tr>
+                <td>Author(s)</td>
+                <td>$",".join(task.get_authors())</td>
+            </tr>
+        <tr>
+            <td>Status</td>
+            <td id="task_status">
+                $if len(submissions) == 0:
+                    Not yet attempted
+                $else:
+                    $ succeeded=False
+                    $ waiting=False   
+                    $for submission in submissions:
+                        $if submission["status"] == "done" and submission["result"] == "success":
+                            $ succeeded=True
+                            $break
+                        $elif submission["status"] == "waiting":
+                            $ waiting=True
+                            $break
+                    $if succeeded:
+                        Succeeded
+                    $elif waiting:
+                        Waiting for verification
+                    $else:
+                        Wrong answer
+            </td>
+        </tr>
+        <tr>
+            <td>Grade</td>
+            <td>
+                <span id="task_grade">$user_manager.get_task_grade(task)</span>%
+            </td>
+        </tr>
+    </table>
+
+    <h3>Submissions</h3>
+    <div id="submissions_restrictsize">
+
+	    <div id="submissions" class="list-group">
+	        $if submissions:
+	            $for submission in submissions:
+	                <a class="submission list-group-item 
+	                    $if submission['status'] == 'done' and submission['result'] == 'success':
+	                        list-group-item-success
+	                    $elif submission['status'] == 'done' and submission['result'] == 'save':
+	                        list-group-item-info
+	                    $elif submission['status'] == 'waiting':
+	                        list-group-item-warning
+	                    $else:
+	                        list-group-item-danger
+	                    "
+	                    data-submission-id="$submission['_id']">
+	                    $submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S") - $submission.get("grade",0.0)%
+	                </a>
+	        $else:
+	            <a class="list-group-item disabled submission-empty">No submissions</a>
+	    </div>
+    </div>
+    <p>
+        <small>Please note that for performance reasons, INGInious may not keep all your submissions indefinitely.</small>
+    </p>
+$var Column: $:ColumnF()
 
 $# Start content
-Hello World!
+<h2>$task.get_name()</h2>
+$:task.get_context()
+<hr/>
+<div id="task_alert"></div>
 
-<ul>
-    <li>session_logged_in: $user_manager.session_logged_in()</li>
-    <li>session_username: $user_manager.session_username()</li>
-    <li>session_email: $user_manager.session_email()</li>
-    <li>session_realname: $user_manager.session_realname()</li>
-    <li>session_roles: $user_manager.session_roles()</li>
-    <li>session_context: $user_manager.session_context()</li>
-</ul>
+<form id="task" method="post" enctype="multipart/form-data"
+    $for submission in submissions:
+        $if submission["status"] == "waiting":
+            data-wait-submission="$submission['_id']"
+            $break
+>
+    <input type="hidden" name="@action" value="submit"/>
+    $for key, problem in enumerate(task.get_problems()):
+        <div class="panel panel-default">
+            $if len(task.get_problems()) != 1 or problem.get_name() != "":
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        $if len(task.get_problems()) != 1:
+                            Question ${key+1}:
+                        $problem.get_name()
+                    </h3>
+                </div>
+            <div class="panel-body">
+                <div id="task_alert.$problem.get_id()" class="task_alert_problem"></div>
+                $:problem.get_header()
+                $:problem.show_input(template_helper.get_common_renderer())
+            </div>
+        </div>
+    <button type="submit" class="btn btn-default btn-lg btn-block center-block" id="task-submit">Submit</button>
+</form>

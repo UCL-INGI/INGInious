@@ -41,7 +41,8 @@ from frontend.lti.submission_manager import LTISubmissionManager
 from frontend.lti.user_manager import UserManager
 
 urls = {
-    "/launch": "frontend.lti.pages.launch.LTILaunch"
+    r"/launch": "frontend.lti.pages.launch.LTILaunchTask",
+    r"/([a-zA-Z0-9\-_]+)/task": "frontend.lti.pages.task.LTITask"
 }
 
 def _put_configuration_defaults(config):

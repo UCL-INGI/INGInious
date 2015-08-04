@@ -44,38 +44,6 @@ class AbstractUserManager(object):
         pass
 
     @abstractmethod
-    def get_users_info(self, usernames):
-        """
-        :param usernames: a list of usernames
-        :return: a dict, in the form {username: val}, where val is either None if the user cannot be found, or a tuple (realname, email)
-        """
-        pass
-
-    @abstractmethod
-    def get_user_info(self, username):
-        """
-        :param username:
-        :return: a tuple (realname, email) if the user can be found, None else
-        """
-        pass
-
-    @abstractmethod
-    def get_user_realname(self, username):
-        """
-        :param username:
-        :return: the real name of the user if it can be found, None else
-        """
-        pass
-
-    @abstractmethod
-    def get_user_email(self, username):
-        """
-        :param username:
-        :return: the email of the user if it can be found, None else
-        """
-        pass
-
-    @abstractmethod
     def get_task_status(self, task, username=None):
         """
         :param task: a Task object

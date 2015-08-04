@@ -18,10 +18,12 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Some utils for all the pages """
 from abc import abstractmethod
+import abc
 from oauth import oauth
 from pylti.common import LTIOAuthDataStore, LTIException, verify_request_common
 import web
 import pylti
+import hashlib
 
 class LTIPage(object):
     """
@@ -59,16 +61,16 @@ class LTIPage(object):
         self.consumers = consumers
 
 class LTIAuthenticatedPage(LTIPage):
-    """ A page that will be called by the TC or from an iframe within the TC """
+    """ A page that needs to be authentified by the TC """
 
     admin_role = ("Instructor", "Staff", "Administrator")
     tutor_role = ("Mentor",) + admin_role
     learner_role = ("Student", "Learner", "Member") + tutor_role
 
     def __init__(self, plugin_manager, course_factory, task_factory, submission_manager, user_manager, template_helper, database,
-                 gridfs, default_allowed_file_extensions, default_max_file_size, containers):
+                 gridfs, default_allowed_file_extensions, default_max_file_size, containers, consumers):
         super(LTIAuthenticatedPage, self).__init__(plugin_manager, course_factory, task_factory, submission_manager, user_manager, template_helper, database,
-        gridfs, default_allowed_file_extensions, default_max_file_size, containers)
+        gridfs, default_allowed_file_extensions, default_max_file_size, containers, consumers)
         self.course = None
         self.task = None
 
@@ -88,14 +90,16 @@ class LTIAuthenticatedPage(LTIPage):
                 return True
         return False
 
-    def POST(self, *args, **kwargs):
+    def POST(self, session_identifier, *args, **kwargs):
+        self._set_session_identifier(session_identifier)
         try:
             self._verify_lti_status("POST")
         except Exception as e:
             raise web.notfound(str(e))
         return self.LTI_POST(*args, **kwargs)
 
-    def GET(self, *args, **kwargs):
+    def GET(self, session_identifier, *args, **kwargs):
+        self._set_session_identifier(session_identifier)
         try:
             self._verify_lti_status("GET")
         except Exception as e:
@@ -104,17 +108,6 @@ class LTIAuthenticatedPage(LTIPage):
 
     def _verify_lti_status(self, method="POST"):
         """ Verify session and/or parse the LTI data from the POST request """
-
-        # First, check if a user is already logged-in
-        user_logged_in = self.user_manager.session_logged_in()
-
-        # Second, check if we are in a POST request including LTI data
-        if method == "POST" and web.input().get("lti_message_type") == "basic-lti-launch-request":
-            try:
-                self._parse_lti_data()
-            except:
-                if not user_logged_in:
-                    raise
 
         if not self.user_manager.session_logged_in():
             raise Exception("User not connected")
@@ -129,6 +122,25 @@ class LTIAuthenticatedPage(LTIPage):
         except:
             raise Exception("Cannot find context")
 
+    def _set_session_identifier(self, session_identifier):
+        self.user_manager.set_session_identifier(session_identifier)
+
+class LTILaunchPage(LTIPage):
+    __metaclass__ = abc.ABCMeta
+
+    def __init__(self, plugin_manager, course_factory, task_factory, submission_manager, user_manager, template_helper, database,
+                 gridfs, default_allowed_file_extensions, default_max_file_size, containers, consumers):
+        super(LTILaunchPage, self).__init__(plugin_manager, course_factory, task_factory, submission_manager, user_manager, template_helper, database,
+                                            gridfs, default_allowed_file_extensions, default_max_file_size, containers, consumers)
+
+    def POST(self, *args, **kwargs):
+        session_identifier = self._parse_lti_data()
+        return self.LAUNCH_POST(session_identifier)
+
+    @abc.abstractmethod
+    def LAUNCH_POST(self, session_identifier):
+        pass
+
     def _parse_lti_data(self):
         """ Verify and parse the data for the LTI basic launch """
         post_input = web.webapi.rawinput("POST")
@@ -141,13 +153,23 @@ class LTIAuthenticatedPage(LTIPage):
             user_id = post_input["user_id"]
             roles = post_input.get("roles", "Student").split(",")
             realname = self._find_realname(post_input)
-            email = post_input.get("lis_person_contact_email_primary","")
+            email = post_input.get("lis_person_contact_email_primary", "")
+
+            # Create a custom session identifier
+            ressource_link_id = post_input["resource_link_id"]
+            m = hashlib.sha1()
+            m.update(ressource_link_id)
+            ressource_link_id = m.hexdigest()
+
             try:
                 course_id, task_id = post_input["context_id"].split('/')
             except:
                 raise Exception("Invalid context_id")
 
-            self.user_manager.lti_auth(user_id, roles, realname, email, course_id, task_id)
+            self.user_manager.lti_auth(ressource_link_id, user_id, roles, realname, email, course_id, task_id)
+            return ressource_link_id
+        else:
+            raise Exception("Cannot authentify request")
 
     def _find_realname(self, post_input):
         """ Returns the most appropriate name to identify the user """

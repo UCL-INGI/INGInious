@@ -17,10 +17,10 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Main page for the LTI provider. Displays a task and allow to answer to it. """
-from frontend.lti.pages.utils import LTIAuthenticatedPage
+import web
+from frontend.lti.pages.utils import LTILaunchPage
 
 
-class LTILaunch(LTIAuthenticatedPage):
-
-    def LTI_POST(self):
-        return self.template_helper.get_renderer().task("test")
+class LTILaunchTask(LTILaunchPage):
+    def LAUNCH_POST(self, session_identifier):
+        raise web.seeother('/'+ session_identifier + '/task')

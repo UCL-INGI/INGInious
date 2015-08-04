@@ -1,20 +1,6 @@
 /* Mixins */
 /* Fonts */
 @import url(//fonts.googleapis.com/css?family=Yanone+Kaffeesatz:300);
-.container-fluid {
-  max-width: 1200px;
-}
-.navbar-brand {
-  font-family: 'Yanone Kaffeesatz', sans-serif;
-  font-weight: 300;
-  font-size: 25px;
-}
-.navbar-brand img {
-  height: 45px;
-  margin-top: -12px;
-  vertical-align: top;
-  display: inline;
-}
 /*Fixes for bootstrap*/
 .form-inline.form-control {
   display: inline-block;
@@ -58,31 +44,6 @@ label p {
 input.monospace {
   font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
 }
-.navbar {
-  -webkit-backface-visibility: hidden;
-}
-#main_container #sidebar {
-  height: 100%;
-}
-#main_container #sidebar #sidebar_inner {
-  position: relative;
-  overflow: hidden;
-}
-@media screen and (max-width: 768px) {
-  #main_container #sidebar #sidebar_affix {
-    position: static !important;
-    margin-bottom: 60px;
-  }
-}
-#main_container #sidebar .affix {
-  top: 0;
-}
-#main_container #sidebar .affix-bottom {
-  position: relative;
-}
-#main_container #sidebar .affix-top {
-  position: relative;
-}
 form#task {
   -webkit-transition: all 0.3s ease-in-out;
   -moz-transition: all 0.3s ease-in-out;
@@ -109,6 +70,78 @@ form#task label {
 }
 #submissions .submission {
   cursor: pointer;
+}
+.panel {
+  position: relative;
+}
+.panel .panel-heading {
+  overflow: visible;
+}
+.panel .panel-heading .btn-group,
+.panel .download-tabs-user-group {
+  position: absolute;
+  right: 10px;
+  top: 28px;
+  z-index: 1000;
+}
+.panel .panel-body .CodeMirror.single {
+  margin: 10px -15px -15px;
+}
+.caution .first {
+  display: none;
+}
+.caution p.last {
+  font-size: 12px;
+  font-weight: 300;
+  background-color: #e99002;
+  color: #ffffff;
+  padding: 15px;
+  margin-bottom: 21px;
+  border: 1px solid #d08002;
+  border-radius: 0;
+}
+/* Codemirror */
+.CodeMirror-placeholder {
+  color: #aaaaaa !important;
+}
+.container-fluid {
+  max-width: 1200px;
+}
+.navbar-brand {
+  font-family: 'Yanone Kaffeesatz', sans-serif;
+  font-weight: 300;
+  font-size: 25px;
+}
+.navbar-brand img {
+  height: 45px;
+  margin-top: -12px;
+  vertical-align: top;
+  display: inline;
+}
+.navbar {
+  -webkit-backface-visibility: hidden;
+}
+#main_container #sidebar {
+  height: 100%;
+}
+#main_container #sidebar #sidebar_inner {
+  position: relative;
+  overflow: hidden;
+}
+@media screen and (max-width: 768px) {
+  #main_container #sidebar #sidebar_affix {
+    position: static !important;
+    margin-bottom: 60px;
+  }
+}
+#main_container #sidebar .affix {
+  top: 0;
+}
+#main_container #sidebar .affix-bottom {
+  position: relative;
+}
+#main_container #sidebar .affix-top {
+  position: relative;
 }
 .index-logo {
   position: absolute;
@@ -176,22 +209,6 @@ form#task label {
   top: 10px;
   color: rgba(255, 255, 255, 0.5);
 }
-.panel {
-  position: relative;
-}
-.panel .panel-heading {
-  overflow: visible;
-}
-.panel .panel-heading .btn-group,
-.panel .download-tabs-user-group {
-  position: absolute;
-  right: 10px;
-  top: 28px;
-  z-index: 1000;
-}
-.panel .panel-body .CodeMirror.single {
-  margin: 10px -15px -15px;
-}
 div[data-toggle="buttons"] label {
   color: #ffffff;
   background-color: #f04124;
@@ -250,6 +267,7 @@ ul.checked-list-box .list-group-item-primary {
   color: #ffffff;
   background-color: #428bca;
 }
+<<<<<<< HEAD
 .caution .first {
   display: none;
 }
@@ -298,3 +316,5 @@ li.placeholder:before {
     border-left-color: black;
     border-right: none;
 }
+=======
+>>>>>>> b1d4fb80aed6e9e1325264b536e9bf83565d3e99

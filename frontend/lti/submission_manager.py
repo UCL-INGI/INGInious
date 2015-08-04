@@ -28,8 +28,9 @@ class LTISubmissionManager(SubmissionManager):
         super(LTISubmissionManager, self).__init__(job_manager, user_manager, database, gridfs, hook_manager)
 
     def add_job(self, task, inputdata, debug=False):
-        super(LTISubmissionManager, self).add_job(task, inputdata, debug)
+        retval = super(LTISubmissionManager, self).add_job(task, inputdata, debug)
         self._delete_exceeding_submissions(self._user_manager.session_username(), task.get_course_id(), task.get_id())
+        return retval
 
     def _delete_exceeding_submissions(self, username, course_id, task_id):
         """ Deletes exceeding submissions from the database, to keep the database relatively small """
@@ -63,4 +64,4 @@ class LTISubmissionManager(SubmissionManager):
             to_keep.add(tasks.pop()["_id"])
 
         to_delete = {val["_id"] for val in tasks}.difference(to_keep)
-        self._database.submissions.delete_many({"_id": {"$in": to_delete}})
+        self._database.submissions.delete_many({"_id": {"$in": list(to_delete)}})

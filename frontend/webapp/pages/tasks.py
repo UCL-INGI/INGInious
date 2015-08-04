@@ -28,6 +28,7 @@ import web
 
 from common.tasks_code_boxes import FileBox
 from common.tasks_problems import MultipleChoiceProblem, BasicCodeProblem
+from frontend.common.task_page_helpers import submission_to_json, list_multiple_multiple_choices_and_files
 from frontend.webapp.pages.utils import INGIniousPage
 
 
@@ -102,7 +103,7 @@ class TaskPage(INGIniousPage):
                         return json.dumps({"status": "error", "text": "The deadline is over"})
 
                     # Reparse user input with array for multiple choices
-                    init_var = self.list_multiple_multiple_choices_and_files(task)
+                    init_var = list_multiple_multiple_choices_and_files(task)
                     userinput = task.adapt_input_for_backend(web.input(**init_var))
 
                     if not task.input_is_consistent(userinput, self.default_allowed_file_extensions, self.default_max_file_size):
@@ -124,7 +125,7 @@ class TaskPage(INGIniousPage):
                         result = self.submission_manager.get_submission(userinput['submissionid'])
                         result = self.submission_manager.get_input_from_submission(result)
                         result = self.submission_manager.get_feedback_from_submission(result)
-                        return self.submission_to_json(result, self.user_manager.has_admin_rights_on_course(course, username))
+                        return submission_to_json(result, self.user_manager.has_admin_rights_on_course(course, username))
                     else:
                         web.header('Content-Type', 'application/json')
                         return json.dumps({'status': "waiting"})
@@ -135,7 +136,7 @@ class TaskPage(INGIniousPage):
                     if not submission:
                         raise web.notfound()
                     web.header('Content-Type', 'application/json')
-                    return self.submission_to_json(submission, self.user_manager.has_admin_rights_on_course(course, username), True)
+                    return submission_to_json(submission, self.user_manager.has_admin_rights_on_course(course, username), True)
                 else:
                     raise web.notfound()
             except:
@@ -145,43 +146,6 @@ class TaskPage(INGIniousPage):
                     raise web.notfound()
         else:
             return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_inputs(), False)
-
-    def submission_to_json(self, data, debug, reloading=False):
-        """ Converts a submission to json (keeps only needed fields) """
-        tojson = {
-            'status': data['status'],
-            'result': data.get('result', 'crash'),
-            'id': str(data["_id"]),
-            'submitted_on': str(data['submitted_on']),
-            'grade': str(data.get("grade", 0.0))
-        }
-
-        if reloading:
-            # Set status='ok' because we are reloading an old submission.
-            tojson["status"] = 'ok'
-            # And also include input
-            tojson["input"] = data.get('input', {})
-
-        if "text" in data:
-            tojson["text"] = data["text"]
-        if "problems" in data:
-            tojson["problems"] = data["problems"]
-
-        if debug:
-            tojson["debug"] = data
-        return json.dumps(tojson, default=str)
-
-    def list_multiple_multiple_choices_and_files(self, task):
-        """ List problems in task that expect and array as input """
-        output = {}
-        for problem in task.get_problems():
-            if isinstance(problem, MultipleChoiceProblem) and problem.allow_multiple():
-                output[problem.get_id()] = []
-            elif isinstance(problem, BasicCodeProblem):
-                for box in problem.get_boxes():
-                    if isinstance(box, FileBox):
-                        output[box.get_complete_id()] = {}
-        return output
 
 
 class TaskPageStaticDownload(INGIniousPage):

@@ -15,18 +15,7 @@
 //
 // You should have received a copy of the GNU Affero General Public
 // License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
-
-/* Mixins */
-.blur(@size) {
-    -webkit-filter: blur(@size);
-    -moz-filter: blur(@size);
-    -o-filter: blur(@size);
-    -ms-filter: blur(@size);
-    filter: blur(@size);
-}
-
-/* Fonts */
-@import url(//fonts.googleapis.com/css?family=Yanone+Kaffeesatz:300);
+@import "../../../common/static/css/common.less";
 
 .container-fluid
 {
@@ -46,75 +35,6 @@
         vertical-align: top;
         display: inline;
     }
-}
-
-.transition(@transition) {
-    -webkit-transition: @transition;
-    -moz-transition: @transition;
-    -ms-transition: @transition;
-    -o-transition: @transition;
-    transition: @transition;
-}
-
-/*Fixes for bootstrap*/
-.form-inline.form-control
-{
-    display: inline-block;
-    width: auto;
-    vertical-align: middle;
-}
-
-.table td.td-collapse
-{
-    padding: 0;
-    border: none;
-
-    background-color: #f9f9f9;
-
-    > div
-    {
-        border-top: 1px solid #dddddd;
-        border-left: 1px solid black;
-        padding-left: 50px;
-        padding-right: 0px;
-        table.table
-        {
-            margin-top: 0px;
-            margin-bottom: 10px;
-        }
-    }
-}
-
-.progress-bar[aria-valuenow]
-{
-    line-height: 18px !important;
-    min-width: 30px;
-}
-
-.progress-bar[aria-valuenow="0"]
-{
-    background-color: transparent !important;
-    color: #555555;
-    -webkit-box-shadow: none;
-    -moz-box-shadow: none;
-    box-shadow: none;
-}
-
-/* Other */
-.list-group .progress
-{
-    margin: 0;
-}
-
-label p
-{
-    margin: 0;
-    padding: 0;
-}
-
-input.monospace
-{
-    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
 .navbar
@@ -160,38 +80,6 @@ input.monospace
 
 
     }
-}
-
-
-form#task
-{
-    .transition(all 0.3s ease-in-out);
-
-    &.form-blur
-    {
-        .blur(5px);
-    }
-
-    #task-submit
-    {
-        margin-top: 10px;
-    }
-
-    label
-    {
-        display: block;
-    }
-}
-
-#submissions_restrictsize
-{
-    overflow: auto;
-    max-height: 223px;
-}
-
-#submissions .submission
-{
-    cursor: pointer;
 }
 
 .index-logo
@@ -294,29 +182,6 @@ form#task
     }
 }
 
-.panel
-{
-    position: relative;
-
-    .panel-heading
-    {
-        overflow: visible;
-    }
-
-    .panel-heading .btn-group, .download-tabs-user-group
-    {
-        position: absolute;
-        right: 10px;
-        top: 28px;
-        z-index: 1000;
-    }
-
-    .panel-body .CodeMirror.single
-    {
-        margin: 10px -15px -15px;
-    }
-}
-
 div[data-toggle="buttons"] label
 {
     color: #ffffff;
@@ -399,28 +264,33 @@ ul.checked-list-box
     }
 }
 
-.caution
-{
-    .first
-    {
-        display: none;
-    }
-
-    p.last
-    {
-        font-size: 12px;
-        font-weight: 300;
-        background-color: #e99002;
-        color: #ffffff;
-        padding: 15px;
-        margin-bottom: 21px;
-        border: 1px solid #d08002;
-        border-radius: 0;
-    }
+.dragging {
+    cursor: move !important;
 }
 
-/* Codemirror */
-.CodeMirror-placeholder
-{
-    color: #aaaaaa !important;
+.dragged {
+    position: absolute;
+    top:0;
+    opacity: 0.5;
+    z-index: 2000;
+}
+
+li.placeholder {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+li.placeholder:before {
+    position: absolute;
+    content: "" !important;
+    width: 0;
+    height: 0;
+    margin-top: -5px;
+    left: -5px;
+    top: -4px;
+    border: 5px solid transparent;
+    border-left-color: black;
+    border-right: none;
 }
