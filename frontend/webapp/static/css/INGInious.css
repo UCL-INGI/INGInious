@@ -267,24 +267,6 @@ ul.checked-list-box .list-group-item-primary {
   color: #ffffff;
   background-color: #428bca;
 }
-<<<<<<< HEAD
-.caution .first {
-  display: none;
-}
-.caution p.last {
-  font-size: 12px;
-  font-weight: 300;
-  background-color: #e99002;
-  color: #ffffff;
-  padding: 15px;
-  margin-bottom: 21px;
-  border: 1px solid #d08002;
-  border-radius: 0;
-}
-/* Codemirror */
-.CodeMirror-placeholder {
-  color: #aaaaaa !important;
-}
 
 .dragging {
     cursor: move !important;
@@ -316,5 +298,3 @@ li.placeholder:before {
     border-left-color: black;
     border-right: none;
 }
-=======
->>>>>>> b1d4fb80aed6e9e1325264b536e9bf83565d3e99
