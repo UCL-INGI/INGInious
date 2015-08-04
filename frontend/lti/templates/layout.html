@@ -42,9 +42,6 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
     <!-- Codemirror Style -->
     <link href="/static/common/css/codemirror.css" rel="stylesheet">
 
-    <!-- JQuery -->
-    <script src="/static/common/js/jquery.min.js"></script>
-
     <!-- Icons -->
     <link rel="shortcut icon" href="/static/common/icons/favicon.ico">
     <link rel="apple-touch-icon" sizes="57x57" href="/static/common/icons/apple-touch-icon-57x57.png">
@@ -64,6 +61,18 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
     <meta name="msapplication-TileImage" content="/static/common/icons/mstile-144x144.png">
     <meta name="msapplication-config" content="/static/common/icons/browserconfig.xml">
 
+    $if use_minified:
+        <script src="/static/lti/js/all-minified.js"></script>
+    $else:
+        <script src="/static/common/js/libs/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="/static/common/js/libs/jquery.form.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="/static/common/js/codemirror/codemirror.js" type="text/javascript" charset="utf-8"></script>
+        <script src="/static/common/js/libs/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="/static/common/js/libs/bootstrap-datetimepicker.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="/static/common/js/libs/checked-list-group.js" type="text/javascript" charset="utf-8"></script>
+        <script src="/static/common/js/common.js" type="text/javascript" charset="utf-8"></script>
+        <script src="/static/common/js/task.js" type="text/javascript" charset="utf-8"></script>
+        <script src="/static/lti/js/lti.js" type="text/javascript" charset="utf-8"></script>
     $if "header" in content:
         $:content.header
 
@@ -77,18 +86,29 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
     <div id="main_container" class="container-fluid" role="main">
         <div id="content" class="col-xs-12">
             $:content
-            <div class="footer_push"></div>
+            <div id="powered">
+                Proudly powered by <a href="http://www.github.com/UCL-INGI/INGInious">INGInious</a>, a free and open-source grading tool.
+            </div>
         </div>
+        $if "Column" in content:
+            <div id="lti-sidebar">
+                <div id="lti-sidebar-btn">
+                    <button class="sidebar-open" onclick="$$('body').addClass('sidebar-active');">
+                        <i class="fa fa-angle-right"></i>
+                    </button>
+                    <button class="sidebar-close" onclick="$$('body').removeClass('sidebar-active');">
+                        <i class="fa fa-angle-left"></i>
+                    </button>
+                </div>
+                <div id="lti-sidebar-inner">
+                    <div id="lti-sidebar-content">
+                        $:content.Column
+                    </div>
+                </div>
+            </div>
     </div>
 
-    <!-- Bootstrap core JavaScript -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="/static/common/js/jquery.form.min.js" type="text/javascript" charset="utf-8"></script>
-    <script src="/static/common/js/codemirror/codemirror.js" type="text/javascript" charset="utf-8"></script>
-    <script src="/static/common/js/bootstrap.min.js"></script>
-    <script src="/static/common/js/bootstrap-datetimepicker.min.js"></script>
-    <script src="/static/common/js/checked-list-group.js"></script>
-    <script src="/static/lti/js/INGInious.js"></script>
     <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     $:template_helper.call('javascript_footer')
 </div>

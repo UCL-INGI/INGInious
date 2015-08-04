@@ -1,0 +1,176 @@
+/* Mixins */
+.blur(@size) {
+    -webkit-filter: blur(@size);
+    -moz-filter: blur(@size);
+    -o-filter: blur(@size);
+    -ms-filter: blur(@size);
+    filter: blur(@size);
+}
+
+.transition(@transition) {
+    -webkit-transition: @transition;
+    -moz-transition: @transition;
+    -ms-transition: @transition;
+    -o-transition: @transition;
+    transition: @transition;
+}
+
+.grayscale(@value: 1) {
+    -webkit-filter: grayscale(@value);
+    -moz-filter: grayscale(@value);
+    -o-filter: grayscale(@value);
+    -ms-filter: grayscale(@value);
+    filter: grayscale(@value);
+}
+
+.custom_filter(@filter) {
+    -webkit-filter: @filter;
+    -moz-filter: @filter;
+    -o-filter: @filter;
+    -ms-filter: @filter;
+    filter: @filter;
+}
+
+/* Fonts */
+@import url(//fonts.googleapis.com/css?family=Yanone+Kaffeesatz:300);
+
+/*Fixes for bootstrap*/
+.form-inline.form-control
+{
+    display: inline-block;
+    width: auto;
+    vertical-align: middle;
+}
+
+.table td.td-collapse
+{
+    padding: 0;
+    border: none;
+
+    background-color: #f9f9f9;
+
+    > div
+    {
+        border-top: 1px solid #dddddd;
+        border-left: 1px solid black;
+        padding-left: 50px;
+        padding-right: 0px;
+        table.table
+        {
+            margin-top: 0px;
+            margin-bottom: 10px;
+        }
+    }
+}
+
+.progress-bar[aria-valuenow]
+{
+    line-height: 18px !important;
+    min-width: 30px;
+}
+
+.progress-bar[aria-valuenow="0"]
+{
+    background-color: transparent !important;
+    color: #555555;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+}
+
+/* Other */
+.list-group .progress
+{
+    margin: 0;
+}
+
+label p
+{
+    margin: 0;
+    padding: 0;
+}
+
+input.monospace
+{
+    font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+form#task
+{
+    .transition(all 0.3s ease-in-out);
+
+    &.form-blur
+    {
+        .blur(5px);
+    }
+
+    #task-submit
+    {
+        margin-top: 10px;
+    }
+
+    label
+    {
+        display: block;
+    }
+}
+
+#submissions_restrictsize
+{
+    overflow: auto;
+    max-height: 223px;
+}
+
+#submissions .submission
+{
+    cursor: pointer;
+}
+
+.panel
+{
+    position: relative;
+
+    .panel-heading
+    {
+        overflow: visible;
+    }
+
+    .panel-heading .btn-group, .download-tabs-user-group
+    {
+        position: absolute;
+        right: 10px;
+        top: 28px;
+        z-index: 1000;
+    }
+
+    .panel-body .CodeMirror.single
+    {
+        margin: 10px -15px -15px;
+    }
+}
+
+.caution
+{
+    .first
+    {
+        display: none;
+    }
+
+    p.last
+    {
+        font-size: 12px;
+        font-weight: 300;
+        background-color: #e99002;
+        color: #ffffff;
+        padding: 15px;
+        margin-bottom: 21px;
+        border: 1px solid #d08002;
+        border-radius: 0;
+    }
+}
+
+/* Codemirror */
+.CodeMirror-placeholder
+{
+    color: #aaaaaa !important;
+}
