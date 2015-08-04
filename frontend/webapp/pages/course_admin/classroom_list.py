@@ -35,27 +35,31 @@ class CourseClassroomListPage(INGIniousAdminPage):
         """ POST request """
         course, _ = self.get_course_and_check_rights(courseid)
 
-        error = ""
+        error = False
         try:
             data = web.input()
             if 'classroom' in data:
-                self.database.classrooms.insert({"courseid": courseid, "users": [], "tutors": [], "size": 2,
-                                             "description": data['classroom']})
+                self.database.classrooms.insert({"default": False, "courseid": courseid, "students": [],
+                                                 "tutors": [], "groups": [],
+                                                 "description": data['classroom']})
+                msg = "New classroom created."
             elif 'default' in data:
                 self.database.classrooms.find_one_and_update({"courseid": courseid, "default": True},
                                                              {"$set": {"default": False}})
                 self.database.classrooms.find_one_and_update({"_id": ObjectId(data['default'])},
                                                              {"$set": {"default": True}})
+                msg = "Default classroom changed."
         except:
-            error = 'User returned an invalid form.'
+            msg = 'User returned an invalid form.'
+            error = True
 
-        return self.page(course, error, True)
+        return self.page(course, msg, error)
 
     def submission_url_generator(self, course, classroomid):
         """ Generates a submission url """
         return "/admin/" + course.get_id() + "/download?format=taskid%2Fclassroom&classrooms=" + str(classroomid)
 
-    def page(self, course, error="", post=False):
+    def page(self, course, msg="", error=False):
         """ Get all data and display the page """
         classrooms = OrderedDict()
 
@@ -99,4 +103,4 @@ class CourseClassroomListPage(INGIniousAdminPage):
         if "csv" in web.input():
             return make_csv(data)
 
-        return self.template_helper.get_renderer().course_admin.classroom_list(course, [my_classrooms, other_classrooms], error, post)
+        return self.template_helper.get_renderer().course_admin.classroom_list(course, [my_classrooms, other_classrooms], msg, error)
