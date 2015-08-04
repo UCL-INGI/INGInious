@@ -17,20 +17,59 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ A custom Submission Manager that removes exceeding submissions """
+import uuid
 import pymongo
 from frontend.common.submission_manager import SubmissionManager
-
+import threading
+import pylti.common
 
 class LTISubmissionManager(SubmissionManager):
     """ A custom Submission Manager that removes exceeding submissions """
-    def __init__(self, job_manager, user_manager, database, gridfs, hook_manager, max_submissions):
+    def __init__(self, job_manager, user_manager, database, gridfs, hook_manager, max_submissions, lti_consumers):
         self._max_submissions = max_submissions
         super(LTISubmissionManager, self).__init__(job_manager, user_manager, database, gridfs, hook_manager)
+        self.lis_outcome_data = {}
+        self.lis_outcome_data_lock = threading.Lock()
+        self.lti_consumers = lti_consumers
 
     def add_job(self, task, inputdata, debug=False):
-        retval = super(LTISubmissionManager, self).add_job(task, inputdata, debug)
+        self.lis_outcome_data_lock.acquire()
+        submission_id = super(LTISubmissionManager, self).add_job(task, inputdata, debug)
+        self.lis_outcome_data[submission_id] = (self._user_manager.session_consumer_key(),
+                                                self._user_manager.session_outcome_service_url(),
+                                                self._user_manager.session_outcome_result_id())
+        self.lis_outcome_data_lock.release()
+
         self._delete_exceeding_submissions(self._user_manager.session_username(), task.get_course_id(), task.get_id())
-        return retval
+        return submission_id
+
+    def _job_done_callback(self, submissionid, task, job):
+        super(LTISubmissionManager, self)._job_done_callback(submissionid, task, job)
+
+        # Send data to the TC
+
+        self.lis_outcome_data_lock.acquire()
+        data = self.lis_outcome_data[submissionid]
+        del self.lis_outcome_data[submissionid]
+        self.lis_outcome_data_lock.release()
+
+        try:
+            print "Send LIS outcome: "
+            print data
+
+            submission = self.get_submission(submissionid, False)
+            xml = pylti.common.generate_request_xml(str(uuid.uuid1()), "replaceResult", data[2], submission["grade"])
+
+            print "XML Sent:"
+            print xml
+
+            retval = pylti.common.post_message(self.lti_consumers, data[0], data[1], xml)
+
+            print "Returned value:"
+            print retval
+        except Exception as e:
+            print "An exception occured while sending the grade to the tool consumer: "
+            print e
 
     def _delete_exceeding_submissions(self, username, course_id, task_id):
         """ Deletes exceeding submissions from the database, to keep the database relatively small """
