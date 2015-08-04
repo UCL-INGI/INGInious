@@ -154,6 +154,14 @@ class LTILaunchPage(LTIPage):
             roles = post_input.get("roles", "Student").split(",")
             realname = self._find_realname(post_input)
             email = post_input.get("lis_person_contact_email_primary", "")
+            lis_outcome_service_url = post_input.get("lis_outcome_service_url", None)
+            outcome_result_id = post_input.get("lis_result_sourcedid", None)
+            consumer_key = post_input["oauth_consumer_key"]
+
+            if lis_outcome_service_url is None:
+                raise Exception("INGInious needs the parameter lis_outcome_service_url in the LTI basic-launch-request")
+            if outcome_result_id is None:
+                raise Exception("INGInious needs the parameter lis_result_sourcedid in the LTI basic-launch-request")
 
             # Create a custom session identifier
             ressource_link_id = post_input["resource_link_id"]
@@ -166,7 +174,8 @@ class LTILaunchPage(LTIPage):
             except:
                 raise Exception("Invalid context_id")
 
-            self.user_manager.lti_auth(ressource_link_id, user_id, roles, realname, email, course_id, task_id)
+            self.user_manager.lti_auth(ressource_link_id, user_id, roles, realname, email, course_id, task_id, consumer_key, lis_outcome_service_url,
+                                       outcome_result_id)
             return ressource_link_id
         else:
             raise Exception("Cannot authentify request")

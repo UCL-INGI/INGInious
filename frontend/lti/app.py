@@ -152,7 +152,8 @@ def get_app(config, active_callback=None):
     job_manager = backend_interface.create_job_manager(config, plugin_manager,
                                                        task_directory, course_factory, task_factory)
 
-    submission_manager = LTISubmissionManager(job_manager, user_manager, database, gridfs, plugin_manager, config.get('nb_submissions_kept', 5))
+    submission_manager = LTISubmissionManager(job_manager, user_manager, database, gridfs,
+                                              plugin_manager, config.get('nb_submissions_kept', 5), config["lti"])
 
     template_helper = TemplateHelper(plugin_manager, 'frontend/lti/templates', 'layout', config.get('use_minified_js', True))
 

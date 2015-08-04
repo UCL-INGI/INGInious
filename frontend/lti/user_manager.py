@@ -66,14 +66,35 @@ class UserManager(AbstractUserManager):
             return None
         return self._get_session_dict()["context"]
 
-    def lti_auth(self, session_identifier, user_id, roles, realname, email, course_id, task_id):
+    def session_consumer_key(self):
+        """ Return the consumer key for the current context or None if no user is connected """
+        if not self.session_logged_in():
+            return None
+        return self._get_session_dict()["consumer_key"]
+
+    def session_outcome_service_url(self):
+        """ Return the link to the outcome service url for the current context or None if no user is connected """
+        if not self.session_logged_in():
+            return None
+        return self._get_session_dict()["outcome_service_url"]
+
+    def session_outcome_result_id(self):
+        """ Return the LIS outcome result id for the current context or None if no user is connected """
+        if not self.session_logged_in():
+            return None
+        return self._get_session_dict()["outcome_result_id"]
+
+    def lti_auth(self, session_identifier, user_id, roles, realname, email, course_id, task_id, consumer_key, outcome_service_url, outcome_result_id):
         """ LTI Auth """
         self._set_session_dict(session_identifier, {
             "email": email,
             "username": user_id,
             "realname": realname,
             "roles": roles,
-            "context": (course_id, task_id)
+            "context": (course_id, task_id),
+            "outcome_service_url": outcome_service_url,
+            "outcome_result_id": outcome_result_id,
+            "consumer_key": consumer_key
         })
 
     def set_session_identifier(self, session_identifier):
