@@ -50,7 +50,7 @@ urls = {
     r'/course/([^/]+)': 'frontend.webapp.pages.course.CoursePage',
     r'/course/([^/]+)/([^/]+)': 'frontend.webapp.pages.tasks.TaskPage',
     r'/course/([^/]+)/([^/]+)/(.*)': 'frontend.webapp.pages.tasks.TaskPageStaticDownload',
-    r'/group/([^/]+)': 'frontend.webapp.pages.group.GroupPage',
+    r'/classroom/([^/]+)': 'frontend.webapp.pages.classroom.ClassroomPage',
     r'/admin/([^/]+)': 'frontend.webapp.pages.course_admin.utils.CourseRedirect',
     r'/admin/([^/]+)/settings': 'frontend.webapp.pages.course_admin.settings.CourseSettings',
     r'/admin/([^/]+)/batch': 'frontend.webapp.pages.course_admin.batch.CourseBatchOperations',

@@ -518,26 +518,24 @@ class UserManager(AbstractUserManager):
             {"courseid": course.get_id(), "students": username},
             {"$pull": {"students": username}})
 
-    def course_is_open_to_user(self, course, username=None, check_group=True):
+    def course_is_open_to_user(self, course, username=None):
         """
         Checks if a user is can access a course
         :param course: a Course object
         :param username: The username of the user that we want to check. If None, uses self.session_username()
-        :param check_group: Also check that the user is in a group (only for courses with groups)
         :return: True if the user can access the course, False else
         """
         if username is None:
             username = self.session_username()
 
-        return (course._accessible.is_open() and self.course_is_user_registered(course, username, check_group)) or self.has_staff_rights_on_course(
-            course, username)
+        return (course._accessible.is_open() and self.course_is_user_registered(course, username))\
+               or self.has_staff_rights_on_course(course, username)
 
-    def course_is_user_registered(self, course, username=None, check_group=True):
+    def course_is_user_registered(self, course, username=None):
         """
         Checks if a user is registered
         :param course: a Course object
         :param username: The username of the user that we want to check. If None, uses self.session_username()
-        :param check_group: Also check that the user is in a group (only for courses with groups)
         :return: True if the user is registered, False else
         """
         if username is None:
