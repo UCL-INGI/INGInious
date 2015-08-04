@@ -142,6 +142,7 @@ function clickOnSubmission()
     if(loadingSomething)
         return;
     loadOldSubmissionInput($(this).attr('data-submission-id'));
+    $('body').removeClass('sidebar-active');
 }
 
 //Get current datetime

@@ -30,7 +30,8 @@ module.exports = function(grunt)
                         '../../frontend/common/static/js/libs/checked-list-group.js',
                         '../../frontend/common/static/js/codemirror/codemirror.js',
                         '../../frontend/common/static/js/common.js',
-                        '../../frontend/common/static/js/task.js'
+                        '../../frontend/common/static/js/task.js',
+                        '../../frontend/lti/static/js/lti.js'
                     ]
                 }
             }
