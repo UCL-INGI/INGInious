@@ -37,9 +37,16 @@ $var Navbar: $:NavbarF()
 
 <h2>Edit classroom $classroom["description"]</h2>
 $if error:
-    <div class="alert alert-danger" role="alert">$:msg</div>
+    <div class="alert alert-danger alert-dismissable" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        $:msg
+    </div>
 $elif msg:
-    <div class="alert alert-success" role="alert">$:msg</div>
+    <div class="alert alert-success alert-dismissable" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        $:msg
+    </div>
+        
 <form method="post" class="form-horizontal">
     <div role="tabpanel">
         <ul class="nav nav-tabs" id="edit_task_tabs" role="tablist">

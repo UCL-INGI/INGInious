@@ -19,6 +19,7 @@ module.exports = function(grunt)
                         '../../frontend/common/static/js/codemirror/codemirror.js',
                         '../../frontend/common/static/js/common.js',
                         '../../frontend/common/static/js/task.js',
+                        '../../frontend/webapp/static/js/jquery-sortable.min.js',
                         '../../frontend/webapp/static/js/webapp.js',
                         '../../frontend/webapp/static/js/studio.js'
                     ],
