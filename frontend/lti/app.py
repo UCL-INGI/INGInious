@@ -42,7 +42,7 @@ from frontend.lti.submission_manager import LTISubmissionManager
 from frontend.lti.user_manager import UserManager
 
 urls = {
-    r"/launch": "frontend.lti.pages.launch.LTILaunchTask",
+    r"/launch/([a-zA-Z0-9\-_]+)/([a-zA-Z0-9\-_]+)": "frontend.lti.pages.launch.LTILaunchTask",
     r"/([a-zA-Z0-9\-_]+)/task": "frontend.lti.pages.task.LTITask"
 }
 

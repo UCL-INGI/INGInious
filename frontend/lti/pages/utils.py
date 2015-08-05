@@ -116,7 +116,7 @@ class LTIAuthenticatedPage(LTIPage):
             raise Exception("User cannot see this page")
 
         try:
-            course_id, task_id = self.user_manager.session_context()
+            course_id, task_id = self.user_manager.session_task()
             self.course = self.course_factory.get_course(course_id)
             self.task = self.course.get_task(task_id)
         except:
@@ -133,21 +133,24 @@ class LTILaunchPage(LTIPage):
         super(LTILaunchPage, self).__init__(plugin_manager, course_factory, task_factory, submission_manager, user_manager, template_helper, database,
                                             gridfs, default_allowed_file_extensions, default_max_file_size, containers, consumers)
 
-    def POST(self, *args, **kwargs):
-        session_identifier = self._parse_lti_data()
-        return self.LAUNCH_POST(session_identifier)
+    def POST(self, courseid, taskid, *args, **kwargs):
+        try:
+            session_identifier = self._parse_lti_data(courseid, taskid)
+        except Exception as e:
+            raise web.notfound(str(e))
+        return self.LAUNCH_POST(session_identifier, *args, **kwargs)
 
     @abc.abstractmethod
     def LAUNCH_POST(self, session_identifier):
         pass
 
-    def _parse_lti_data(self):
+    def _parse_lti_data(self, courseid, taskid):
         """ Verify and parse the data for the LTI basic launch """
         post_input = web.webapi.rawinput("POST")
         try:
-            verified = verify_request_common(self.consumers, "http://localhost:8082/launch", "POST", {}, post_input)
+            verified = verify_request_common(self.consumers, web.ctx.homepath+web.ctx.fullpath, "POST", {}, post_input)
         except:
-            raise Exception("Cannot authentify request")
+            raise Exception("Cannot authentify request (1)")
 
         if verified:
             user_id = post_input["user_id"]
@@ -169,16 +172,11 @@ class LTILaunchPage(LTIPage):
             m.update(ressource_link_id)
             ressource_link_id = m.hexdigest()
 
-            try:
-                course_id, task_id = post_input["context_id"].split('/')
-            except:
-                raise Exception("Invalid context_id")
-
-            self.user_manager.lti_auth(ressource_link_id, user_id, roles, realname, email, course_id, task_id, consumer_key, lis_outcome_service_url,
+            self.user_manager.lti_auth(ressource_link_id, user_id, roles, realname, email, courseid, taskid, consumer_key, lis_outcome_service_url,
                                        outcome_result_id)
             return ressource_link_id
         else:
-            raise Exception("Cannot authentify request")
+            raise Exception("Cannot authentify request (2)")
 
     def _find_realname(self, post_input):
         """ Returns the most appropriate name to identify the user """

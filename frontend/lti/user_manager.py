@@ -59,12 +59,12 @@ class UserManager(AbstractUserManager):
             return []
         return self._get_session_dict()["roles"]
 
-    def session_context(self):
-        """ Return a tuple courseid, taskid, representing the LTI context to which the current user is authenticated. If there are no user
+    def session_task(self):
+        """ Return a tuple (courseid, taskid), representing the task to which the current user is authenticated. If there are no user
         connected, returns None """
         if not self.session_logged_in():
             return None
-        return self._get_session_dict()["context"]
+        return self._get_session_dict()["task"]
 
     def session_consumer_key(self):
         """ Return the consumer key for the current context or None if no user is connected """
@@ -91,7 +91,7 @@ class UserManager(AbstractUserManager):
             "username": user_id,
             "realname": realname,
             "roles": roles,
-            "context": (course_id, task_id),
+            "task": (course_id, task_id),
             "outcome_service_url": outcome_service_url,
             "outcome_result_id": outcome_result_id,
             "consumer_key": consumer_key
