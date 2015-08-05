@@ -37,6 +37,7 @@ from frontend.common.tasks import FrontendTask
 from frontend.common.courses import FrontendCourse
 from frontend.common.templates import TemplateHelper
 from frontend.common.webpy_fake_mapping import WebPyFakeMapping
+from frontend.lti.lis_outcome_manager import LisOutcomeManager
 from frontend.lti.submission_manager import LTISubmissionManager
 from frontend.lti.user_manager import UserManager
 
@@ -57,9 +58,10 @@ def _put_configuration_defaults(config):
     return config
 
 
-def _close_app(app, mongo_client, job_manager):
+def _close_app(app, mongo_client, job_manager, lis_outcome_manager):
     """ Ensures that the app is properly closed """
     app.stop()
+    lis_outcome_manager.stop()
     job_manager.close()
     mongo_client.close()
 
@@ -152,8 +154,10 @@ def get_app(config, active_callback=None):
     job_manager = backend_interface.create_job_manager(config, plugin_manager,
                                                        task_directory, course_factory, task_factory)
 
-    submission_manager = LTISubmissionManager(job_manager, user_manager, database, gridfs,
-                                              plugin_manager, config.get('nb_submissions_kept', 5), config["lti"])
+    lis_outcome_manager = LisOutcomeManager(database, user_manager, course_factory, config["lti"])
+
+    submission_manager = LTISubmissionManager(job_manager, user_manager, database, gridfs, plugin_manager,
+                                              config.get('nb_submissions_kept', 5), lis_outcome_manager)
 
     template_helper = TemplateHelper(plugin_manager, 'frontend/lti/templates', 'layout', config.get('use_minified_js', True))
 
@@ -187,7 +191,7 @@ def get_app(config, active_callback=None):
     # Start the backend
     job_manager.start()
 
-    return appli, lambda: _close_app(appli, mongo_client, job_manager)
+    return appli, lambda: _close_app(appli, mongo_client, job_manager, lis_outcome_manager)
 
 
 def runfcgi(func, addr=('localhost', 8000)):
