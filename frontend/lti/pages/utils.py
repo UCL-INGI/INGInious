@@ -148,7 +148,7 @@ class LTILaunchPage(LTIPage):
         """ Verify and parse the data for the LTI basic launch """
         post_input = web.webapi.rawinput("POST")
         try:
-            verified = verify_request_common(self.consumers, web.ctx.homepath+web.ctx.fullpath, "POST", {}, post_input)
+            verified = verify_request_common(self.consumers, web.ctx.home+web.ctx.fullpath, "POST", {}, post_input)
         except:
             raise Exception("Cannot authentify request (1)")
 
