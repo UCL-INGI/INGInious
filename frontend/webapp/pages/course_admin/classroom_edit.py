@@ -89,6 +89,11 @@ class CourseEditClassroom(INGIniousAdminPage):
                     msg = "You can't remove your default classroom."
                     error = True
                 else:
+                    self.database.classrooms.find_one_and_update({"courseid": courseid, "default": True},
+                                                                 {"$push": {
+                                                                     "students": {"$each": classroom["students"]}
+                                                                 }})
+
                     self.database.classrooms.delete_one({"_id": ObjectId(classroomid)})
                     raise web.seeother("/admin/" + courseid + "/classrooms")
             elif "upload" in data:

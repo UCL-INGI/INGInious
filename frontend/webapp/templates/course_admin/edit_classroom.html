@@ -59,17 +59,25 @@ $elif msg:
         </ul>
 		<div id="edit_task_tabs_content" class="tab-content">
 			<div role="tabpanel" class="tab-pane active" id="tab_basic">
+                $if classroom["default"]:
+                    <div class="alert alert-info alert-dismissable" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                        This is your default classroom. It can't be deleted and students can't be removed from.
+                    </div>
                 <div class="form-group">
                     <label for="name" class="col-sm-2 control-label">Classroom description</label>
                     <div class="col-sm-10">
-                        <div class="row">
-                            <div class="col-xs-12 col-md-8">
-                                <input type="text" class="form-control" id="description" name="description" placeholder="Classroom description" value="$classroom['description']">
+                        $if classroom["default"]:
+                            <input type="text" class="form-control" id="description" name="description" placeholder="Classroom description" value="$classroom['description']">
+                        $else:
+                            <div class="row">
+                                <div class="col-xs-12 col-md-8">
+                                    <input type="text" class="form-control" id="description" name="description" placeholder="Classroom description" value="$classroom['description']">
+                                </div>
+                                <div class="col-xs-12 col-md-4">
+                                    <button type="submit" name="delete" class="form-control btn btn-block btn-danger"><span class="fa fa-trash"></span> Delete classroom</button>
+                                </div>
                             </div>
-                            <div class="col-xs-12 col-md-4">
-                                <button type="submit" name="delete" class="form-control btn btn-block btn-danger"><span class="fa fa-trash"></span> Delete classroom</button>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -107,12 +115,32 @@ $elif msg:
 			</div>
 
 			<div role="tabpanel" class="tab-pane" id="tab_groups">
+                <!-- Modal -->
+                <div id="student_modal" class="modal fade" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Add student</h4>
+                            </div>
+                            <div class="modal-body">
+                                <p>Some text in the modal.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-primary">Add student</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
                 <div id="groups" class='list-group'>
                     <div class="panel panel-warning group">
                         <div class="panel-heading clearfix" role="tab">
                             <h4 class="panel-title">
                                 Ungrouped users
-                                <a class="pull-right" id="group_delete" href="#" data-toggle="tooltip" title="Add student">
+                                <a class="pull-right" id="group_delete" href="#" data-toggle="modal" data-target="#student_modal">
                                     <i class="fa fa-plus"></i>
                                 </a>
                             </h4>
@@ -123,9 +151,10 @@ $elif msg:
                                 $if not student["grouped"]:
                                     <li data-username="$student['students']" class="list-group-item group-entry">
                                         $user_manager.get_user_realname(student["students"]) ($student["students"])
-                                        <a class="pull-right" id="user_delete" href="#" onclick="javascript:student_remove('$student['students']')" data-toggle="tooltip" data-placement="left" title="Remove student">
-                                            <i class="fa fa-user-times"></i>
-                                        </a>
+                                        $if not classroom["default"]:
+                                            <a class="pull-right" id="user_delete" href="#" onclick="javascript:student_remove('$student['students']')" data-toggle="tooltip" data-placement="left" title="Remove student">
+                                                <i class="fa fa-user-times"></i>
+                                            </a>
                                     </li>
                         </ul>
                     </div>
@@ -133,9 +162,9 @@ $elif msg:
 
                     $for index,group in enumerate((classroom["groups"] + [None])):
                             $if group is None:
-                                <div id="$(index+1)" style="display:none;" class="panel panel-default">
+                                <div id="$(index+1)" style="display:none;" class="panel panel-default group-panel">
                             $else:
-                                <div id="$(index+1)" class="panel panel-default group">
+                                <div id="$(index+1)" class="panel panel-default group-panel group">
                             <div class="panel-heading clearfix" role="tab">
                                 <h4 class="panel-title">
                                     <div class="row">
@@ -162,9 +191,10 @@ $elif msg:
                                     $for student in group["students"]:
                                         <li data-username="$student" class="list-group-item group-entry">
                                             $user_manager.get_user_realname(student) ($student)
-                                            <a class="pull-right" id="user_delete" href="#" onclick="javascript:student_remove('$student')" data-toggle="tooltip" data-placement="left" title="Remove student">
-                                                <i class="fa fa-user-times"></i>
-                                            </a>
+                                            $if not classroom["default"]:
+                                                <a class="pull-right" id="user_delete" href="#" onclick="javascript:student_remove('$student')" data-toggle="tooltip" data-placement="left" title="Remove student">
+                                                    <i class="fa fa-user-times"></i>
+                                                </a>
                                         </li>
                             </ul>
                         </div>
@@ -214,6 +244,7 @@ $elif msg:
         // Clone and change id for deletion
         var clone = new_group_li.clone();
         clone.attr("id", parseInt(clone.attr("id")) + 1);
+        clone.find("#group_number").text(clone.attr("id"));
 
         // Remove the hidden style attribute and push
         new_group_li.removeAttr("style");
@@ -235,8 +266,9 @@ $elif msg:
         $$("#" + id).remove();
 
         // Renumbering groups
-        $$("#groups .group").each(function(index) {
-            $$(this).find("#group_number").text(index);
+        $$("#groups .group-panel").each(function(index) {
+            $$(this).attr("id", index);
+            $$(this).find("#group_number").text(index+1);
         });
     }
 
@@ -277,10 +309,12 @@ $elif msg:
         $$("#" + username).remove();
     }
 
-    if(!$$("#tutor_list").val())
-        $$("#tutor_list").prop("disabled", true);
+    $$(document).ready(function() {
+        if(!$$("#tutor_list").val())
+            $$("#tutor_list").prop("disabled", true);
 
-    $$("ul.students").sortable({group:"students"});
+        $$("ul.students").sortable({group:"students"});
+    });
 
 
 </script>
