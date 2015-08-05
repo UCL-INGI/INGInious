@@ -449,7 +449,10 @@ class UserManager(AbstractUserManager):
         if username is None:
             username = self.session_username()
 
-        return (self.course_is_open_to_user(task.get_course(), username) and task._accessible.is_open()) or self.has_staff_rights_on_course(
+        classroom = self._database.classrooms.find_one({"courseid": task.get_course_id(), "groups.students": username})
+        group_filter = (classroom is not None and task.is_group_task()) or not task.is_group_task()
+
+        return (self.course_is_open_to_user(task.get_course(), username) and task._accessible.is_open() and group_filter) or self.has_staff_rights_on_course(
             task.get_course(), username)
 
     def get_course_classrooms(self, course):

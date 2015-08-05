@@ -87,7 +87,7 @@ $# Start content
             $ status=user_manager.get_task_status(task)
             $ completion=user_manager.get_task_grade(task)
             <a href="/course/$course.get_id()/$taskid" class="row list-group-item 
-                $if not task.is_visible_by_students() or not user_manager.task_can_user_submit(task):
+                $if not task.is_visible_by_students() or not task.get_accessible_time().is_open():
                     disabled
                 ">
                 <div class="col-xs-12 col-md-7">
@@ -96,7 +96,7 @@ $# Start content
                     $task.get_name()
                     $if not task.is_visible_by_students():
                         - <b>(task hidden to students)</b>
-                    $if not user_manager.task_can_user_submit(task):
+                    $if not task.get_accessible_time().is_open():
                         - <b>deadline reached</b>
                 </div>
                 <div class="col-xs-12 col-md-5">

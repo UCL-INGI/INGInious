@@ -62,7 +62,7 @@ class WebAppSubmissionManager(SubmissionManager):
             "status": "waiting",
             "submitted_on": datetime.now()}
 
-        if task.is_group_task():
+        if task.is_group_task() and not self._user_manager.has_staff_rights_on_course(task.get_course(), username):
             group = self._database.classrooms.find_one(
                 {"courseid": task.get_course_id(), "groups.students": username},
                 {"groups": {"$elemMatch": {"students": username}}})
