@@ -26,7 +26,7 @@ from frontend.webapp.pages.utils import INGIniousPage
 
 
 class ClassroomPage(INGIniousPage):
-    """ Course page """
+    """ Classroom page """
 
     def GET(self, courseid):
         """ GET request """
@@ -36,24 +36,48 @@ class ClassroomPage(INGIniousPage):
 
         try:
             course = self.course_factory.get_course(courseid)
-            error = ""
+            username = self.user_manager.session_username()
+
+            error = False
+            msg = ""
+            data = web.input()
             if self.user_manager.has_staff_rights_on_course(course):
                 raise web.notfound()
             elif not self.user_manager.course_is_open_to_user(course):
                 return self.template_helper.get_renderer().course_unavailable()
-            elif "register_group" in web.input():
-                try:
-                    groupid = web.input()["register_group"]
-                    group = self.database.classrooms.find_one_and_update({"_id": ObjectId(groupid),
-                                                                      "courseid": courseid,
-                                                                      "$where": "this.users.length < this.size"},
-                                                                     {"$push": {"users": self.user_manager.session_username()}})
-                    if group:
-                        raise web.seeother("/course/" + courseid)
+            elif "register_group" in data:
+                if course.can_students_choose_group():
+                    classroom = self.database.classrooms.find_one({"courseid": course.get_id(), "students": username})
+
+                    if int(data["register_group"]) >= 0 and (len(classroom["groups"]) > int(data["register_group"])):
+                        group = classroom["groups"][int(data["register_group"])]
+                        if group["size"] > len(group["students"]):
+                            for index, group in enumerate(classroom["groups"]):
+                                if username in group["students"]:
+                                    classroom["groups"][index]["students"].remove(username)
+                            classroom["groups"][int(data["register_group"])]["students"].append(username)
+                        self.database.classrooms.replace_one({"courseid": course.get_id(), "students": username}, classroom)
                     else:
-                        error = "Couldn't register to the specified group."
-                except InvalidId:
-                    error = "Couldn't register to the specified group."
+                        error = True
+                        msg = "Couldn't register to the specified group."
+                else:
+                    error = True
+                    msg = "You are not allowed to change group."
+            elif "unregister_group" in data:
+                if course.can_students_choose_group():
+                    classroom = self.database.classrooms.find_one({"courseid": course.get_id(), "students": username, "groups.students": username})
+                    if classroom is not None:
+                        for index, group in enumerate(classroom["groups"]):
+                            if username in group["students"]:
+                                classroom["groups"][index]["students"].remove(username)
+                        self.database.classrooms.replace_one({"courseid": course.get_id(), "students": username}, classroom)
+                    else:
+                        error = True
+                        msg = "You're not registered in a group."
+                else:
+                    error = True
+                    msg = "You are not allowed to change group."
+
 
             last_submissions = self.submission_manager.get_user_last_submissions_for_course(course, one_per_task=True)
             except_free_last_submissions = []
@@ -65,10 +89,15 @@ class ClassroomPage(INGIniousPage):
                     pass
 
             classroom = self.user_manager.get_course_user_classroom(course)
-
             users = self.user_manager.get_users_info(classroom["students"] + classroom["tutors"])
 
-            return self.template_helper.get_renderer().classroom(course, except_free_last_submissions, classroom, users, error)
+            mygroup = None
+            for index, group in enumerate(classroom["groups"]):
+                if self.user_manager.session_username() in group["students"]:
+                    mygroup = group
+                    mygroup["index"] = index + 1
+
+            return self.template_helper.get_renderer().classroom(course, except_free_last_submissions, classroom, users, mygroup, msg, error)
         except:
             if web.config.debug:
                 raise

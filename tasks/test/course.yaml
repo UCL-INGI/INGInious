@@ -9,4 +9,4 @@ tutors: []
 registration_ac: null
 registration_ac_list:
 - ''
-groups_student_choice: false
+groups_student_choice: true

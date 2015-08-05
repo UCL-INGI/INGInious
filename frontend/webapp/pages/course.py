@@ -31,10 +31,7 @@ class CoursePage(INGIniousPage):
         if self.user_manager.session_logged_in():
             try:
                 course = self.course_factory.get_course(courseid)
-                registration_uncomplete = not self.user_manager.course_is_open_to_user(course)
-                if registration_uncomplete and course.can_students_choose_group():
-                    raise web.seeother("/group/" + courseid)
-                elif registration_uncomplete:
+                if not self.user_manager.course_is_open_to_user(course):
                     return self.template_helper.get_renderer().course_unavailable()
                 else:
                     last_submissions = self.submission_manager.get_user_last_submissions_for_course(course, one_per_task=True)

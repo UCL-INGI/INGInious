@@ -94,11 +94,11 @@ class IndexPage(INGIniousPage):
         all_courses = self.course_factory.get_all_courses()
 
         open_courses = {courseid: course for courseid, course in all_courses.iteritems()
-                        if self.user_manager.course_is_open_to_user(course, username, False)}
+                        if self.user_manager.course_is_open_to_user(course, username)}
         open_courses = OrderedDict(sorted(open_courses.iteritems(), key=lambda x: x[1].get_name()))
 
         registerable_courses = {courseid: course for courseid, course in all_courses.iteritems() if
-                                not self.user_manager.course_is_open_to_user(course, username, False) and
+                                not self.user_manager.course_is_open_to_user(course, username) and
                                 course.is_registration_possible(username, realname, email)}
 
         registerable_courses = OrderedDict(sorted(registerable_courses.iteritems(), key=lambda x: x[1].get_name()))
