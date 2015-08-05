@@ -132,3 +132,13 @@ function registerCodeEditor(textarea, lang, lines)
     codeEditors.push(editor);
     return editor;
 }
+
+// Apply parent function recursively
+jQuery.fn.extend({
+    rparent: function (number) {
+        if(number==1)
+            return $(this).parent();
+        else
+            return $(this).parent().rparent(number-1);
+    }
+});

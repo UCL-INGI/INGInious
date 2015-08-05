@@ -86,7 +86,7 @@ $elif msg:
                                         <span>$user ($user_manager.get_user_realname(user))</span>
                                         <input type="hidden" name="tutors" value="$user">
 
-                                <div class="pull-right"><a href="#" onclick="javascript:tutor_remove($$(this).parent().parent().attr('id'))"><i class="fa fa-trash-o fa-lg"></i></a></div>
+                                <div class="pull-right"><a href="#" onclick="javascript:tutor_remove($$(this).rparent(2).attr('id'))"><i class="fa fa-trash-o fa-lg"></i></a></div>
                             </li>
                         </ul>
                         <div class="row">
@@ -107,49 +107,72 @@ $elif msg:
 			</div>
 
 			<div role="tabpanel" class="tab-pane" id="tab_groups">
-                <ul id="groups" class='list-group'>
-                    <li class="list-group-item group">
-                        <b>Ungrouped users</b><br/><br/>
+                <div id="groups" class='list-group'>
+                    <div class="panel panel-warning group">
+                        <div class="panel-heading clearfix" role="tab">
+                            <h4 class="panel-title">
+                                Ungrouped users
+                                <a class="pull-right" id="group_delete" href="#" data-toggle="tooltip" title="Add student">
+                                    <i class="fa fa-plus"></i>
+                                </a>
+                            </h4>
+                        </div>
                         <input id="size" type="hidden" class="form-control" value="0">
-                        <ul id="group_0" style="list-style-type: none;" class="students">
+                        <ul id="group_0" style="list-style-type: none;" class="students list-group">
                             $for student in student_list.values():
                                 $if not student["grouped"]:
-                                    <li data-username="$student['students']" class="list-group-item group-entry">$user_manager.get_user_realname(student["students"]) ($student["students"])</li>
+                                    <li data-username="$student['students']" class="list-group-item group-entry">
+                                        $user_manager.get_user_realname(student["students"]) ($student["students"])
+                                        <a class="pull-right" id="user_delete" href="#" onclick="javascript:student_remove('$student['students']')" data-toggle="tooltip" data-placement="left" title="Remove student">
+                                            <i class="fa fa-user-times"></i>
+                                        </a>
+                                    </li>
                         </ul>
-                    </li>
+                    </div>
+
 
                     $for index,group in enumerate((classroom["groups"] + [None])):
                             $if group is None:
-                                <li id="$(index+1)" style="display:none;" class="list-group-item">
+                                <div id="$(index+1)" style="display:none;" class="panel panel-default">
                             $else:
-                                <li id="$(index+1)" class="list-group-item group">
-                            <div>
-                                <b>Group</b>
-                                <a id="group_delete" href="#" onclick="javascript:group_delete($$(this).parent().parent().attr('id'))" class="pull-right"><i class="fa fa-trash-o fa-lg"></i></a>
+                                <div id="$(index+1)" class="panel panel-default group">
+                            <div class="panel-heading clearfix" role="tab">
+                                <h4 class="panel-title">
+                                    <div class="row">
+                                        <div class="col-sm-6 col-xs-12">
+                                            Group #<span id="group_number">$(index+1)</span>
+                                        </div>
+                                        <div class="col-sm-2 col-xs-3" style="text-align: right;">
+                                            <label>Max group size :</label>
+                                        </div>
+                                        <div class="col-sm-3 col-xs-7">
+                                            <input style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" id="size" type="number" class="form-control" value="$(group['size'] if group is not None else 2)">
+                                        </div>
+                                        <div class="col-sm-1 col-xs-2">
+                                            <a class="pull-right" id="group_delete" href="#" onclick="javascript:group_delete($$(this).rparent(5).attr('id'))" data-toggle="tooltip" title="Delete group">
+                                                <i class="fa fa-trash-o"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </h4>
                             </div>
-                            <br>
-                            <div class="form-group">
-                                <label for="name" class="col-sm-2 control-label">Group size</label>
-                                <div class="col-sm-10">
-                                    <input id="size" type="number" class="form-control" value="$(group['size'] if group is not None else 2)">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="name" class="col-sm-2 control-label">Student list</label>
-                                <div class="col-sm-10">
-                                    <ul style="list-style-type: none; padding:0;" class="students">
-                                        $if group is not None:
-                                            $for student in group["students"]:
-                                                <li data-username="$student" class="list-group-item group-entry">$user_manager.get_user_realname(student) ($student)</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </li>
 
-                    <a href="#group_add" onclick="javascript:group_add()" id="group_add" class="list-group-item list-group-item-warning">
+                            <ul style="list-style-type: none; padding:0;" class="list-group students">
+                                $if group is not None:
+                                    $for student in group["students"]:
+                                        <li data-username="$student" class="list-group-item group-entry">
+                                            $user_manager.get_user_realname(student) ($student)
+                                            <a class="pull-right" id="user_delete" href="#" onclick="javascript:student_remove('$student')" data-toggle="tooltip" data-placement="left" title="Remove student">
+                                                <i class="fa fa-user-times"></i>
+                                            </a>
+                                        </li>
+                            </ul>
+                        </div>
+
+                    <a href="#group_add" onclick="javascript:group_add()" id="group_add" class="btn btn-block btn-default">
                         <b><i class="fa fa-plus fa-lg"></i> Add new group</b>
                     </a>
-                </ul>
+                </div>
                 <button name="update" class="btn btn-primary btn-block" onclick="javascript:prepare_submit()" type="submit"><i class="fa fa-floppy-o"></i> Update</button>
             </div>
             <div role="tabpanel" class="tab-pane" id="tab_upload">
@@ -167,7 +190,7 @@ $elif msg:
 
     function prepare_submit()
     {
-        $$("#groups li.group").each(function(i) {
+        $$("#groups .group").each(function(i) {
 
             var group = {"size": parseInt($$(this).find("#size").val()), "students": []};
             $$(this).find(".group-entry").each(function(j) {
@@ -186,7 +209,7 @@ $elif msg:
     function group_add()
     {
         // New group hidden item
-        var new_group_li = $$("#groups li").last();
+        var new_group_li = $$("#groups .panel").last();
 
         // Clone and change id for deletion
         var clone = new_group_li.clone();
@@ -210,6 +233,11 @@ $elif msg:
 
         // Remove item...
         $$("#" + id).remove();
+
+        // Renumbering groups
+        $$("#groups .group").each(function(index) {
+            $$(this).find("#group_number").text(index);
+        });
     }
 
     function tutor_add(username, complete_name) {
@@ -234,6 +262,10 @@ $elif msg:
         $$("#tutor_list option[value='"+ username +"']").remove();
         if(!$$("#tutor_list").val())
             $$("#tutor_list").prop("disabled", true);
+    }
+
+    function student_remove(username) {
+        $$(".group-entry[data-username='" + username + "']").remove();
     }
 
     function tutor_remove(username) {
