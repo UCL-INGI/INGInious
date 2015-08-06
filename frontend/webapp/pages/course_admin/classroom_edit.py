@@ -116,11 +116,25 @@ class CourseEditClassroom(INGIniousAdminPage):
 
                     # Check students
                     for student in group["students"]:
-                        if student not in student_list:
-                            errored_students.append(student)
-                        else:
-                            student_list[student]["grouped"] = True if (group["size"] > 0 and group["size"] >= len(group["students"])) else False
+                        if student in student_list:
+                            student_list[student] = {"grouped": True if (group["size"] > 0 and group["size"] >= len(group["students"])) else False}
                             students.append(student)
+                        elif student in other_students:
+                            # Needed if user belongs to a group
+                            self.database.classrooms.find_one_and_update({"courseid": courseid, "groups.students": student}, {"$pull": {"groups.$.students": student, "students": student}})
+                            # If user doesn't belong to a group, will ensure correct deletion
+                            self.database.classrooms.find_one_and_update({"courseid": courseid, "students": student}, {"$pull": {"students": student}})
+
+                            student_list[student] = {"grouped": True if (group["size"] > 0 and group["size"] >= len(group["students"])) else False}
+                            students.append(student)
+                        else:
+                            user_info = self.user_manager.get_user_info(student)
+                            if user_info is not None and user_info not in tutor_list:
+                                student_list[student] = {"grouped": True if (group["size"] > 0 and group["size"] >= len(group["students"])) else False}
+                                students.append(student)
+                                users_info[student] = user_info
+                            else:
+                                errored_students.append(student)
 
                     # Remove errored students from group
                     group["students"] = [student for student in group["students"] if student not in errored_students]

@@ -180,12 +180,12 @@ $elif msg:
                         </div>
                         <input id="size" type="hidden" class="form-control" value="0">
                         <ul id="group_0" style="list-style-type: none;" class="students list-group">
-                            $for student in student_list.values():
+                            $for username, student in student_list.iteritems():
                                 $if not student["grouped"]:
-                                    <li data-username="$student['students']" class="list-group-item group-entry">
-                                        <span id="$student['students']">$users_info[student["students"]][0] ($student["students"])</span>
+                                    <li data-username="$username" class="list-group-item group-entry">
+                                        <span id="$username']">$users_info[username][0] ($username)</span>
                                         $ style = 'style="display:none;"' if classroom["default"] else ''
-                                        <a $:style class="pull-right" id="user_delete" href="#" onclick="javascript:classroom_student_remove('$student['students']')" data-toggle="tooltip" data-placement="left" title="Remove student">
+                                        <a $:style class="pull-right" id="user_delete" href="#" onclick="javascript:classroom_student_remove('$username')" data-toggle="tooltip" data-placement="left" title="Remove student">
                                             <i class="fa fa-user-times"></i>
                                         </a>
                                     </li>
