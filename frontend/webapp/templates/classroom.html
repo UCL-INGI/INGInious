@@ -135,13 +135,13 @@ $elif msg:
                             <li class="list-group-item">
                                 $if users[user] is not None:
                                     $users[user][0]
+                                    <div class="pull-right">
+                                        <a href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="Send an email">
+                                            <i class="fa fa-envelope-o"></i>
+                                        </a>
+                                    </div>
                                 $else:
                                     $user
-                                <div class="pull-right">
-                                    <a href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="Send an email">
-                                        <i class="fa fa-envelope-o"></i>
-                                    </a>
-                                </div>
                             </li>
                         </ul>
                 </div>
@@ -168,13 +168,13 @@ $elif msg:
                         <li class="list-group-item">
                             $if users[user] is not None:
                                 $users[user][0]
+                                <div class="pull-right">
+                                    <a href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="Send an email">
+                                        <i class="fa fa-envelope-o"></i>
+                                    </a>
+                                </div>
                             $else:
                                 $user
-                            <div class="pull-right">
-                                <a href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="Send an email">
-                                    <i class="fa fa-envelope-o"></i>
-                                </a>
-                            </div>
                         </li>
                     </ul>
                 </div>
@@ -224,13 +224,13 @@ $elif msg:
                                     <li class="list-group-item">
                                         $if users[user] is not None:
                                             $users[user][0]
+                                            <div class="pull-right">
+                                                <a href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="Send an email">
+                                                    <i class="fa fa-envelope-o"></i>
+                                                </a>
+                                            </div>
                                         $else:
                                             $user
-                                        <div class="pull-right">
-                                            <a href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="Send an email">
-                                                <i class="fa fa-envelope-o"></i>
-                                            </a>
-                                        </div>
                                     </li>
 
                             </ul>
