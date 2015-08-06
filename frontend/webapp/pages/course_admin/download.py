@@ -31,9 +31,9 @@ class CourseDownloadSubmissions(INGIniousAdminPage):
 
     valid_formats = formats = [
         "taskid/username",
-        "taskid/group",
+        "taskid/classroom",
         "username/taskid",
-        "group/taskid"
+        "classroom/taskid"
     ]
 
     def _validate_list(self, usernames):
@@ -46,7 +46,7 @@ class CourseDownloadSubmissions(INGIniousAdminPage):
         """ GET request """
         course, _ = self.get_course_and_check_rights(courseid)
 
-        user_input = web.input(tasks=[], groups=[], users=[])
+        user_input = web.input(tasks=[], classrooms=[], users=[])
 
         if "filter_type" not in user_input or "type" not in user_input or "format" not in user_input or user_input.format not in self.valid_formats:
             raise web.notfound()
@@ -58,13 +58,20 @@ class CourseDownloadSubmissions(INGIniousAdminPage):
 
         if user_input.filter_type == "users":
             self._validate_list(user_input.users)
-            submissions = list(self.database.submissions.find({"username": {"$in": user_input.users},
+            classrooms = list(self.database.classrooms.find({"courseid": courseid,
+                                                             "students": {"$in": user_input.users}}))
+            classrooms = dict([(username, classroom) for classroom in classrooms for username in classroom["students"]])
+
+            submissions = list(self.database.submissions.find({"username": {"$in": classrooms.keys()},
                                                                "taskid": {"$in": user_input.tasks},
                                                                "courseid": course.get_id(),
                                                                "status": {"$in": ["done", "error"]}}))
         else:
-            self._validate_list(user_input.groups)
-            submissions = list(self.database.submissions.find({"groupid": {"$in": [ObjectId(gid) for gid in user_input.groups]},
+            self._validate_list(user_input.classrooms)
+            classrooms = list(self.database.classrooms.find({"_id": {"$in": [ObjectId(cid) for cid in user_input.classrooms]}}))
+
+            classrooms = dict([(username, classroom) for classroom in classrooms for username in classroom["students"]])
+            submissions = list(self.database.submissions.find({"username": {"$in": classrooms.keys()},
                                                                "taskid": {"$in": user_input.tasks},
                                                                "courseid": course.get_id(),
                                                                "status": {"$in": ["done", "error"]}}))
@@ -73,7 +80,7 @@ class CourseDownloadSubmissions(INGIniousAdminPage):
 
         web.header('Content-Type', 'application/x-gzip', unique=True)
         web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)
-        return self.submission_manager.get_submission_archive(submissions, list(reversed(user_input.format.split('/'))))
+        return self.submission_manager.get_submission_archive(submissions, list(reversed(user_input.format.split('/'))), classrooms)
 
     def GET(self, courseid):
         """ GET request """
@@ -100,39 +107,39 @@ class CourseDownloadSubmissions(INGIniousAdminPage):
                                    key=lambda k: k[1][0] if k[1] is not None else ""))
         user_data = OrderedDict([(username, user[0] if user is not None else username) for username,user in users.iteritems()])
 
-        groups = self.user_manager.get_course_groups(course)
-        group_data = OrderedDict([(str(group["_id"]), group["description"]) for group in groups])
-        tutored_groups = [str(group["_id"]) for group in groups if self.user_manager.session_username() in group["tutors"]]
-        tutored_users = [username for group in groups if self.user_manager.session_username() in group["tutors"] for username in group["users"]]
+        classrooms = self.user_manager.get_course_classrooms(course)
+        classroom_data = OrderedDict([(str(classroom["_id"]), classroom["description"]) for classroom in classrooms])
+        tutored_classrooms = [str(classroom["_id"]) for classroom in classrooms if self.user_manager.session_username() in classroom["tutors"]]
+        tutored_users = [username for classroom in classrooms if self.user_manager.session_username() in classroom["tutors"] for username in classroom["students"]]
 
         checked_tasks = tasks.keys()
         checked_users = user_data.keys()
-        checked_groups = group_data.keys()
-        show_groups = False
+        checked_classrooms = classroom_data.keys()
+        show_classrooms = False
         chosen_format = self.valid_formats[0]
 
         if "tasks" in user_input:
             checked_tasks = user_input.tasks.split(',')
         if "users" in user_input:
             checked_users = user_input.users.split(',')
-        if "groups" in user_input:
-            checked_groups = user_input.groups.split(',')
-            show_groups = True
+        if "classrooms" in user_input:
+            checked_classrooms = user_input.classrooms.split(',')
+            show_classrooms = True
         if "tutored" in user_input:
-            if user_input.tutored == "groups":
-                checked_groups = tutored_groups
-                show_groups = True
+            if user_input.tutored == "classrooms":
+                checked_classrooms = tutored_classrooms
+                show_classrooms = True
             elif user_input.tutored == "users":
                 checked_users = tutored_users
-                show_groups = True
+                show_classrooms = True
         if "format" in user_input and user_input.format in self.valid_formats:
             chosen_format = user_input.format
-            if "group" in chosen_format:
-                show_groups = True
+            if "classroom" in chosen_format:
+                show_classrooms = True
 
         return self.template_helper.get_renderer().course_admin.download(course,
-                                                                         tasks, user_data, group_data,
-                                                                         tutored_groups, tutored_users,
-                                                                         checked_tasks, checked_users, checked_groups,
+                                                                         tasks, user_data, classroom_data,
+                                                                         tutored_classrooms, tutored_users,
+                                                                         checked_tasks, checked_users, checked_classrooms,
                                                                          self.valid_formats, chosen_format,
-                                                                         show_groups)
+                                                                         show_classrooms)

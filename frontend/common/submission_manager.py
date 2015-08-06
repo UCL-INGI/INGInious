@@ -227,7 +227,7 @@ class SubmissionManager(object):
                 final_subs.append(sub)
         return final_subs
 
-    def get_submission_archive(self, submissions, sub_folders):
+    def get_submission_archive(self, submissions, sub_folders, classrooms):
         """
         :param submissions: a list of submissions
         :param sub_folders: possible values:
@@ -255,7 +255,7 @@ class SubmissionManager(object):
                         base_path = '_' + username + base_path
                         base_path = base_path[1:]
                     elif sub_folder == 'group':
-                        base_path = (str(submission["groupid"]) if "groupid" in submission else username) + base_path
+                        base_path = (str(classrooms[username]["_id"]) if "classroomid" in submission else username) + base_path
 
                     base_path = '/' + base_path
                 base_path = base_path[1:]

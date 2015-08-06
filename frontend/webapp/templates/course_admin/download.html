@@ -1,4 +1,4 @@
-$def with (course, tasks, user_data, group_data, tutored_groups, tutored_users, checked_tasks, checked_users, checked_groups, valid_formats, chosen_format, show_groups)
+$def with (course, tasks, user_data, classroom_data, tutored_classrooms, tutored_users, checked_tasks, checked_users, checked_classrooms, valid_formats, chosen_format, show_classrooms)
 
 $# Copyright (c) 2014-2015 Université Catholique de Louvain.
 $#
@@ -51,37 +51,37 @@ $var Navbar: $:NavbarF()
     </div>
 
 
-    $if show_groups:
-        <input type="hidden" name="filter_type" id="filter_type" value="groups"/>
+    $if show_classrooms:
+        <input type="hidden" name="filter_type" id="filter_type" value="classrooms"/>
     $else:
         <input type="hidden" name="filter_type" id="filter_type" value="users"/>
 
-    <div class="panel" id="panel-download-user-group">
+    <div class="panel" id="panel-download-user-classroom">
         <ul class="nav nav-tabs" role="tablist">
             <li role="presentation"
-                $if not show_groups:
+                $if not show_classrooms:
                     class="active"
             >
                 <a href="#user_filter" aria-controls="user_filter" role="tab" data-toggle="tab">Select users</a>
             </li>
             <li role="presentation"
-                $if show_groups:
+                $if show_classrooms:
                     class="active"
             >
-                <a href="#group_filter" aria-controls="group_filter" role="tab" data-toggle="tab">Select groups</a>
+                <a href="#classroom_filter" aria-controls="classroom_filter" role="tab" data-toggle="tab">Select classrooms</a>
             </li>
         </ul>
-        <div class="btn-group download-tabs-user-group">
+        <div class="btn-group download-tabs-user-classroom">
             <button type="button" class="btn btn-primary btn-xs" onclick="download_page_select(true, this)">Select all</button>
             <button type="button" class="btn btn-primary btn-xs" onclick="download_page_select(false, this)">Deselect all</button>
-            $if len(tutored_users) != 0 or len(tutored_groups) != 0:
+            $if len(tutored_users) != 0 or len(tutored_classrooms) != 0:
                 <button type="button" class="btn btn-primary btn-xs" onclick="download_page_select_tutor(this,
                             ['$'\',\''.join(tutored_users)'],
-                            ['$'\',\''.join(tutored_groups)'])">Tutored only</button>
+                            ['$'\',\''.join(tutored_classrooms)'])">Tutored only</button>
         </div>
         <div class="tab-content">
             <div role="tabpanel" class="tab-pane
-                $if not show_groups:
+                $if not show_classrooms:
                     active
             " id="user_filter">
                 $if len(user_data) == 0:
@@ -96,27 +96,27 @@ $var Navbar: $:NavbarF()
                     </ul>
             </div>
             <div role="tabpanel" class="tab-pane
-                $if show_groups:
+                $if show_classrooms:
                     active
-            " id="group_filter">
-                $if len(group_data) == 0:
-                    <div class="alert alert-warning">Not any group to display</div>
+            " id="classroom_filter">
+                $if len(classroom_data) == 0:
+                    <div class="alert alert-warning">Not any classroom to display</div>
                 $else:
                     <ul class="list-group checked-list-box">
-                        $for groupid, groupname in group_data.iteritems():
-                        <li class="list-group-item" data-value="$groupid" data-name="groups"
-                            $if groupid in checked_groups:
+                        $for classroomid, classroomname in classroom_data.iteritems():
+                        <li class="list-group-item" data-value="$classroomid" data-name="classrooms"
+                            $if classroomid in checked_classrooms:
                                 data-checked="true"
-                        >$groupname</li>
+                        >$classroomname</li>
                     </ul>
             </div>
         </div>
     </div>
     <script type="text/javascript">
         $$(function(){
-            $$('#panel-download-user-group').find('a[data-toggle="tab"]').on('shown.bs.tab', function(e)
+            $$('#panel-download-user-classroom').find('a[data-toggle="tab"]').on('shown.bs.tab', function(e)
             {
-                if($$(e.target).attr('href') == "#group_filter") $$('#filter_type').val('groups');
+                if($$(e.target).attr('href') == "#classroom_filter") $$('#filter_type').val('classrooms');
                 else $$('#filter_type').val('users');
             });
         });
@@ -147,7 +147,7 @@ $var Navbar: $:NavbarF()
                         <li>
                             <label>
                                 <input type="radio" name="type" value="single" checked="checked"/>
-                                Download the best submission for each task/user/group
+                                Download the best submission for each task/user/classroom
                             </label>
                         </li>
                         <li>
