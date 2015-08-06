@@ -161,7 +161,7 @@ form#task label {
 #task_debug dd dl {
   margin-bottom: 0;
 }
-#edit_task_tabs {
+.nav-tabs {
   margin-bottom: 15px;
 }
 .nav-tabs > li.studio_file_editor_tab a .closetab {

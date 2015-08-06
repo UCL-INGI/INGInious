@@ -61,24 +61,31 @@ class CourseEditClassroom(INGIniousAdminPage):
 
         student_list = dict([(student["students"], student) for student in student_list])
 
-        return student_list, tutor_list
+        other_students = [entry['students'] for entry in list(self.database.classrooms.aggregate([
+            {"$match": {"courseid": course.get_id(), "_id": {"$ne": ObjectId(classroomid)}}},
+            {"$unwind": "$students"},
+            {"$project": {"_id": 0, "students": 1}}
+        ]))]
+
+        users_info = self.user_manager.get_users_info(other_students + student_list.keys() + tutor_list)
+
+        return student_list, tutor_list, other_students, users_info
 
     def GET(self, courseid, classroomid):
         """ Edit a classroom """
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
-        student_list, tutor_list = self.get_user_lists(course, classroomid)
-
+        student_list, tutor_list, other_students, users_info = self.get_user_lists(course, classroomid)
         classroom = self.database.classrooms.find_one({"_id": ObjectId(classroomid), "courseid": courseid})
 
         if classroom:
-            return self.template_helper.get_renderer().course_admin.edit_classroom(course, student_list, tutor_list, classroom, "", False)
+            return self.template_helper.get_renderer().course_admin.edit_classroom(course, student_list, tutor_list, other_students, users_info, classroom, "", False)
         else:
             raise web.notfound()
 
     def POST(self, courseid, classroomid):
         """ Edit a classroom """
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
-        student_list, tutor_list = self.get_user_lists(course, classroomid)
+        student_list, tutor_list, other_students, users_info = self.get_user_lists(course, classroomid)
         classroom = self.database.classrooms.find_one({"_id": ObjectId(classroomid), "courseid": courseid})
 
         error = False
@@ -139,4 +146,4 @@ class CourseEditClassroom(INGIniousAdminPage):
             msg = 'An error occurred while parsing the form data.'
             error = True
 
-        return self.template_helper.get_renderer().course_admin.edit_classroom(course, student_list, tutor_list, classroom, msg, error)
+        return self.template_helper.get_renderer().course_admin.edit_classroom(course, student_list, tutor_list, other_students, users_info, classroom, msg, error)
