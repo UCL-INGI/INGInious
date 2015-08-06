@@ -36,7 +36,6 @@ class WebAppSubmissionManager(SubmissionManager):
         """
         super(WebAppSubmissionManager, self).__init__(job_manager, user_manager, database, gridfs, hook_manager)
 
-
     def _job_done_callback(self, submissionid, task, job):
         """ Callback called by JobManager when a job is done. Updates the submission in the database with the data returned after the completion of the job """
         super(WebAppSubmissionManager, self)._job_done_callback(submissionid, task, job)
@@ -63,10 +62,12 @@ class WebAppSubmissionManager(SubmissionManager):
             "status": "waiting",
             "submitted_on": datetime.now()}
 
-        if course.is_group_course() and not self._user_manager.has_staff_rights_on_course(course, username) \
-                and task.is_group_task():
-            group = self._database.groups.find_one({"course_id": task.get_course_id(), "users": username})
-            obj.update({"username": group["users"], "groupid": group["_id"]})
+        if task.is_group_task() and not self._user_manager.has_staff_rights_on_course(task.get_course(), username):
+            group = self._database.classrooms.find_one(
+                {"courseid": task.get_course_id(), "groups.students": username},
+                {"groups": {"$elemMatch": {"students": username}}})
+
+            obj.update({"username": group["groups"][0]["students"]})
         else:
             obj.update({"username": [username]})
 

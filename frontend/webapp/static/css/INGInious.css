@@ -161,7 +161,7 @@ form#task label {
 #task_debug dd dl {
   margin-bottom: 0;
 }
-#edit_task_tabs {
+.nav-tabs {
   margin-bottom: 15px;
 }
 .nav-tabs > li.studio_file_editor_tab a .closetab {
@@ -266,4 +266,35 @@ ul.checked-list-box .state-icon {
 ul.checked-list-box .list-group-item-primary {
   color: #ffffff;
   background-color: #428bca;
+}
+
+.dragging {
+    cursor: move !important;
+}
+
+.dragged {
+    position: absolute;
+    top:0;
+    opacity: 0.5;
+    z-index: 2000;
+}
+
+li.placeholder {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+li.placeholder:before {
+    position: absolute;
+    content: "" !important;
+    width: 0;
+    height: 0;
+    margin-top: -5px;
+    left: -5px;
+    top: -4px;
+    border: 5px solid transparent;
+    border-left-color: black;
+    border-right: none;
 }

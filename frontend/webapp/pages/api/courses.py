@@ -66,12 +66,12 @@ class APICourses(APIAuthenticatedPage):
         email = self.user_manager.session_email()
 
         for courseid, course in courses.iteritems():
-            if self.user_manager.course_is_open_to_user(course, username, False) or course.is_registration_possible(username, realname, email):
+            if self.user_manager.course_is_open_to_user(course, username) or course.is_registration_possible(username, realname, email):
                 data = {
                     "id": courseid,
                     "name": course.get_name(),
                     "require_password": course.is_password_needed_for_registration(),
-                    "is_registered": self.user_manager.course_is_open_to_user(course, username, False)
+                    "is_registered": self.user_manager.course_is_open_to_user(course, username)
                 }
                 if self.user_manager.course_is_open_to_user(course, username):
                     data["tasks"] = {taskid: task.get_name() for taskid, task in course.get_tasks().iteritems()}

@@ -1,0 +1,271 @@
+$def with (course,student_list,tutor_list,other_students,users_info,classroom,msg,error)
+
+$# Copyright (c) 2014-2015 Université Catholique de Louvain.
+$#
+$# This file is part of INGInious.
+$#
+$# INGInious is free software: you can redistribute it and/or modify
+$# it under the terms of the GNU Affero General Public License as published
+$# by the Free Software Foundation, either version 3 of the License, or
+$# (at your option) any later version.
+$#
+$# INGInious is distributed in the hope that it will be useful,
+$# but WITHOUT ANY WARRANTY; without even the implied warranty of
+$# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+$# GNU Affero General Public License for more details.
+$#
+$# You should have received a copy of the GNU Affero General Public
+$# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
+
+$var title: Edit $classroom["description"]
+
+$def ColumnF():
+    <div id="classroom_edit_submit_status"></div>
+    $:template_helper.call('course_admin_menu',course=course,current='classrooms')
+$var Column: $:ColumnF()
+
+$def NavbarF():
+    <ol class="nav navbar-nav nav-breadcrumb">
+        <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
+        <li><a href="/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+            <i class="fa fa-user-secret"></i></a></li>
+        <li><a href="/admin/$course.get_id()/classrooms" title="Classrooms" data-toggle="tooltip" data-placement="bottom">
+            <i class='fa fa-users'></i></a></li>
+        <li class="active"><a href="#">Edit classroom $classroom["description"] <span class="sr-only">(current)</span></a></li>
+    </ol>
+$var Navbar: $:NavbarF()
+
+<h2>Edit classroom $classroom["description"]</h2>
+$if error:
+    <div class="alert alert-danger alert-dismissable" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        $:msg
+    </div>
+$elif msg:
+    <div class="alert alert-success alert-dismissable" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        $:msg
+    </div>
+
+<!-- Modal -->
+<div id="student_modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Add student</h4>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="classroom_student_add();return false;">
+                    <div role="tabpanel">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li role="presentation" class="active"><a href="#tab_registered_student" aria-controls="registered_student" role="tab" data-toggle="tab">
+                                <i class="fa fa-user fa-fw"></i>&nbsp; Registered student</a></li>
+                            <li role="presentation"><a href="#tab_new_student" aria-controls="new_student" role="tab" data-toggle="tab">
+                                <i class="fa fa-plus fa-fw"></i>&nbsp; New student</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div role="tabpanel" class="tab-pane active" id="tab_registered_student">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="control-label" for="registered_student">Choose student :</label>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <select id="registered_students" name="registered_students" class="form-control">
+                                            $for student in other_students:
+                                                $if users_info[student] is not None:
+                                                    <option value="$student">$users_info[student][0] ($student)</option>
+                                                $else:
+                                                    <option value="$student">$student</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="tab_new_student" role="tabpanel" class="tab-pane">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label class="control-label" for="new_student">Student username (will be registered) :</label>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input id="new_student" name="new_student" type="text" class="form-control" placeholder="Student username">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="javascript:classroom_student_add()">Add student</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form method="post" class="form-horizontal">
+    <div role="tabpanel">
+        <ul class="nav nav-tabs" role="tablist">
+			<li role="presentation" class="active"><a href="#tab_basic" aria-controls="basic" role="tab" data-toggle="tab">
+                <i class="fa fa-users fa-fw"></i>&nbsp; Basic settings</a></li>
+			<li role="presentation"><a href="#tab_groups" aria-controls="groups" role="tab" data-toggle="tab">
+                <i class="fa fa-list-ul fa-fw"></i>&nbsp; Students</a></li>
+            <li role="presentation"><a href="#tab_upload" aria-controls="upload" role="tab" data-toggle="tab">
+                <i class="fa fa-download fa-fw"></i>&nbsp; Upload classroom</a></li>
+        </ul>
+		<div class="tab-content">
+			<div role="tabpanel" class="tab-pane active" id="tab_basic">
+                $if classroom["default"]:
+                    <div class="alert alert-info alert-dismissable" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                        This is your default classroom. It can't be deleted and students can't be removed from.
+                    </div>
+                <div class="form-group">
+                    <label for="name" class="col-sm-2 control-label">Classroom description</label>
+                    <div class="col-sm-10">
+                        $if classroom["default"]:
+                            <input type="text" class="form-control" id="description" name="description" placeholder="Classroom description" value="$classroom['description']">
+                        $else:
+                            <div class="row">
+                                <div class="col-xs-12 col-md-8">
+                                    <input type="text" class="form-control" id="description" name="description" placeholder="Classroom description" value="$classroom['description']">
+                                </div>
+                                <div class="col-xs-12 col-md-4">
+                                    <a name="delete" onclick="javascript:classroom_delete()" class="form-control btn btn-block btn-danger"><span class="fa fa-trash"></span> Delete classroom</a>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="name" class="col-sm-2 control-label">Tutor list</label>
+                    <div class="col-sm-10">
+                        <ul class="list-group" id="tutors">
+                        $for user in (classroom["tutors"] + [None]):
+                                $if user is None:
+                                    <li class="list-group-item" style="display:none;">
+                                        <span></span>
+                                $else:
+                                    <li class="list-group-item" id="$user">
+                                        <span>$user ($user_manager.get_user_realname(user))</span>
+                                        <input type="hidden" name="tutors" value="$user">
+
+                                <div class="pull-right"><a href="#" onclick="javascript:classroom_tutor_remove($$(this).rparent(2).attr('id'))"><i class="fa fa-trash-o fa-lg"></i></a></div>
+                            </li>
+                        </ul>
+                        <div class="row">
+                            <div class="col-xs-12 col-md-8">
+                                <select type="text" class="form-control" id="tutor_list" name="tutor_list">
+                                    $for tutor in tutor_list:
+                                        $if tutor not in classroom["tutors"]:
+                                            $if users_info[tutor] is not None:
+                                                <option value="$tutor">$users_info[tutor][0] ($tutor)</option>
+                                            $else:
+                                                <option value="$tutor">$tutor</option>
+                                </select>
+                            </div>
+                            <div class="col-xs-12 col-md-4">
+                                <button type="button" onclick="javascript:classroom_tutor_add($$('#tutor_list').val(), $$('#tutor_list option:selected').text())" class="form-control btn btn-block btn-warning"><span class="fa fa-plus"></span> Add tutor</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button name="update" class="btn btn-primary btn-block" onclick="javascript:classroom_prepare_submit()" type="submit"><i class="fa fa-floppy-o"></i> Update</button>
+			</div>
+
+			<div role="tabpanel" class="tab-pane" id="tab_groups">
+                <div id="groups" class='list-group'>
+                    <div class="panel panel-warning group">
+                        <div class="panel-heading clearfix" role="tab">
+                            <h4 class="panel-title">
+                                Ungrouped users
+                                <a class="pull-right" id="group_delete" href="#" data-toggle="modal" data-target="#student_modal">
+                                    <i class="fa fa-plus"></i>
+                                </a>
+                            </h4>
+                        </div>
+                        <input id="size" type="hidden" class="form-control" value="0">
+                        <ul id="group_0" style="list-style-type: none;" class="students list-group">
+                            $for username, student in student_list.iteritems():
+                                $if not student["grouped"]:
+                                    <li data-username="$username" class="list-group-item group-entry">
+                                        $if users_info[username] is not None:
+                                            <span id="$username']">$users_info[username][0] ($username)</span>
+                                        $else:
+                                            <span id="$username']">$username</span>
+                                        $ style = 'style="display:none;"' if classroom["default"] else ''
+                                        <a $:style class="pull-right" id="user_delete" href="#" onclick="javascript:classroom_student_remove('$username')" data-toggle="tooltip" data-placement="left" title="Remove student">
+                                            <i class="fa fa-user-times"></i>
+                                        </a>
+                                    </li>
+                        </ul>
+                    </div>
+
+
+                    $for index,group in enumerate((classroom["groups"] + [None])):
+                            $if group is None:
+                                <div id="$(index+1)" style="display:none;" class="panel panel-default group-panel">
+                            $else:
+                                <div id="$(index+1)" class="panel panel-default group-panel group">
+                            <div class="panel-heading clearfix" role="tab">
+                                <h4 class="panel-title">
+                                    <div class="row">
+                                        <div class="col-sm-6 col-xs-12">
+                                            Group #<span id="group_number">$(index+1)</span>
+                                        </div>
+                                        <div class="col-sm-2 col-xs-3" style="text-align: right;">
+                                            <label>Max group size :</label>
+                                        </div>
+                                        <div class="col-sm-3 col-xs-7">
+                                            <input style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" id="size" type="number" class="form-control" value="$(group['size'] if group is not None else 2)">
+                                        </div>
+                                        <div class="col-sm-1 col-xs-2">
+                                            <a class="pull-right" id="group_delete" href="#" onclick="javascript:classroom_group_delete($$(this).rparent(5).attr('id'))" data-toggle="tooltip" title="Delete group">
+                                                <i class="fa fa-trash-o"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </h4>
+                            </div>
+
+                            <ul style="list-style-type: none; padding:0;" class="list-group students">
+                                $if group is not None:
+                                    $for student in group["students"]:
+                                        <li data-username="$student" class="list-group-item group-entry">
+                                            $if users_info[student] is not None:
+                                                <span id="$student">$users_info[student][0] ($student)</span>
+                                            $else:
+                                                <span id="$student">$student</span>
+                                            $ style = 'style="display:none;"' if classroom["default"] else ''
+                                            <a $:style class="pull-right" id="user_delete" href="#" onclick="javascript:classroom_student_remove('$student')" data-toggle="tooltip" data-placement="left" title="Remove student">
+                                                <i class="fa fa-user-times"></i>
+                                            </a>
+                                        </li>
+                            </ul>
+                        </div>
+
+                    <a href="#group_add" onclick="javascript:classroom_group_add()" id="group_add" class="btn btn-block btn-default">
+                        <b><i class="fa fa-plus fa-lg"></i> Add new group</b>
+                    </a>
+                </div>
+                <button name="update" class="btn btn-primary btn-block" onclick="javascript:classroom_prepare_submit()" type="submit"><i class="fa fa-floppy-o"></i> Update</button>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="tab_upload">
+
+                <button name="upload" class="btn btn-danger btn-block" type="submit"><i class="fa fa-download"></i> Upload (will erase current settings)</button>
+            </div>
+		</div>
+	</div>
+
+
+</form>
+
+<!-- Javascript for managing student/tutor lists -->
+<script type="text/javascript">
+$$(document).ready(function() {
+    if(!$$("#tutor_list").val())
+        $$("#tutor_list").prop("disabled", true);
+
+    $$("ul.students").sortable({group:"students"});
+});
+</script>

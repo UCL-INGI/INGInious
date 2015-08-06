@@ -1,4 +1,4 @@
-$def with (course,group,task,data)
+$def with (course,classroom,task,data)
 
 $# Copyright (c) 2014-2015 Université Catholique de Louvain.
 $#
@@ -17,35 +17,35 @@ $#
 $# You should have received a copy of the GNU Affero General Public
 $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 
-$var title: $:task.get_name() - $:group["description"] - $:course.get_name()
+$var title: $:task.get_name() - $:classroom["description"] - $:course.get_name()
 
-$var Column: $:template_helper.call('course_admin_menu',course=course,current='groups')
+$var Column: $:template_helper.call('course_admin_menu',course=course,current='classrooms')
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
         <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
         <li><a href="/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-user-secret"></i></a></li>
-        <li><a href="/admin/$course.get_id()/groups" title="Groups" data-toggle="tooltip" data-placement="bottom">
+        <li><a href="/admin/$course.get_id()/classrooms" title="Classrooms" data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-group"></i></a></li>
-        <li><a href="/admin/$course.get_id()/group/$group['_id']">$group["description"]</a></li>
+        <li><a href="/admin/$course.get_id()/classroom/$classroom['_id']">$classroom["description"]</a></li>
         <li class="active"><a href="#">$:task.get_name() <span class="sr-only">(current)</span></a></li>
     </ol>
 $var Navbar: $:NavbarF()
 
-<h2>Submissions for the task "$:task.get_name()" - $group["description"]</h2>
+<h2>Submissions for the task "$:task.get_name()" - $classroom["description"]</h2>
 <table class="table">
     <tr>
-        <th>actual authors</th>
+        <th>authors</th>
         <th>id</th>
         <th>submitted on</th>
         <th>result</th>
         <th>
             <div class="btn-group" role="group">
-                <a href="/admin/${course.get_id()}/download?format=taskid%2Fgroup&groups=${group['_id']}&tasks=${task.get_id()}"
+                <a href="/admin/${course.get_id()}/download?format=taskid%2Fclassroom&classrooms=${classroom['_id']}&tasks=${task.get_id()}"
                    class="btn btn-danger btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa
                    fa-download"></i></a>
-                <a href="/admin/${course.get_id()}/group/${group['_id']}/${task.get_id()}?csv" class="btn btn-info btn-xs" title="Download
+                <a href="/admin/${course.get_id()}/classroom/${classroom['_id']}/${task.get_id()}?csv" class="btn btn-info btn-xs" title="Download
                    CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
             </div>
         </th>
@@ -88,7 +88,7 @@ $var Navbar: $:NavbarF()
 		<div class="modal-content">
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h3 class="modal-title" id="modal_feedback_label">Feedback shown to the group</h3>
+                <h3 class="modal-title" id="modal_feedback_label">Feedback shown to the student(s)</h3>
 			</div>
 			<div class="modal-body" id="modal_feedback_content">
 			</div>

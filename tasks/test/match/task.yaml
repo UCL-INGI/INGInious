@@ -2,6 +2,7 @@ accessible: true
 author: Guillaume Derval
 context: This tasks aims to test the frontend-integrated grader.
 environment: default
+groups: true
 limits:
     memory: '100'
     output: '2'

@@ -49,11 +49,6 @@ class CourseSettings(INGIniousAdminPage):
             if len(course_content['tutors']) == 1 and course_content['tutors'][0].strip() == "":
                 course_content['tutors'] = []
 
-            if data["groups"] == "true":
-                course_content['groups'] = True
-            else:
-                course_content['groups'] = False
-
             if data["groups_student_choice"] == "true":
                 course_content['groups_student_choice'] = True
             else:

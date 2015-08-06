@@ -100,7 +100,7 @@ class TaskPage(INGIniousPage):
                 if "@action" in userinput and userinput["@action"] == "submit":
                     # Verify rights
                     if not self.user_manager.task_can_user_submit(task, username):
-                        return json.dumps({"status": "error", "text": "The deadline is over"})
+                        return json.dumps({"status": "error", "text": "You are not allowed to submit for this task."})
 
                     # Reparse user input with array for multiple choices
                     init_var = list_multiple_multiple_choices_and_files(task)

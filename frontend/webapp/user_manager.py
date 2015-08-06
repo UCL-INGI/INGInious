@@ -449,23 +449,26 @@ class UserManager(AbstractUserManager):
         if username is None:
             username = self.session_username()
 
-        return (self.course_is_open_to_user(task.get_course(), username) and task._accessible.is_open()) or self.has_staff_rights_on_course(
+        classroom = self._database.classrooms.find_one({"courseid": task.get_course_id(), "groups.students": username})
+        group_filter = (classroom is not None and task.is_group_task()) or not task.is_group_task()
+
+        return (self.course_is_open_to_user(task.get_course(), username) and task._accessible.is_open() and group_filter) or self.has_staff_rights_on_course(
             task.get_course(), username)
 
-    def get_course_groups(self, course):
-        """ Returns a list of the course groups"""
-        return list(self._database.groups.find({"course_id": course.get_id()}).sort("description"))
+    def get_course_classrooms(self, course):
+        """ Returns a list of the course classrooms"""
+        return list(self._database.classrooms.find({"courseid": course.get_id()}).sort("description"))
 
-    def get_course_user_group(self, course, username=None):
-        """ Returns the group whose username belongs to
+    def get_course_user_classroom(self, course, username=None):
+        """ Returns the classroom whose username belongs to
         :param course: a Course object
         :param username: The username of the user that we want to register. If None, uses self.session_username()
-        :return: the group description
+        :return: the classroom description
         """
         if username is None:
             username = self.session_username()
 
-        return self._database.groups.find_one({"course_id": course.get_id(), "users": username})
+        return self._database.classrooms.find_one({"courseid": course.get_id(), "students": username})
 
     def course_register_user(self, course, username=None, password=None, force=False):
         """
@@ -488,7 +491,15 @@ class UserManager(AbstractUserManager):
                 return False
         if self.course_is_open_to_user(course, username):
             return False  # already registered?
-        self._database.registration.insert({"username": username, "courseid": course.get_id(), "date": datetime.now()})
+
+        classroom = self._database.classrooms.find_one({"courseid": course.get_id(), "default": True})
+        if classroom is None:
+            self._database.classrooms.insert({"courseid": course.get_id(), "description": "Default",
+                                              "students": [username], "tutors": [],  "groups": [], "default": True})
+        else:
+            self._database.classrooms.find_one_and_update({"courseid": course.get_id(), "default": True},
+                                                          {"$push": {"students": username}})
+
         return True
 
     def course_unregister_user(self, course, username=None):
@@ -500,30 +511,34 @@ class UserManager(AbstractUserManager):
         if username is None:
             username = self.session_username()
 
-        self._database.registration.remove({"username": username, "courseid": course.get_id()})
-        if course.is_group_course():
-            self._database.groups.update({"course_id": course.get_id(), "users": username}, {"$pull": {"users": username}})
+        # Needed if user belongs to a group
+        self._database.classrooms.find_one_and_update(
+            {"courseid": course.get_id(), "groups.students": username},
+            {"$pull": {"groups.$.students": username, "students": username}})
 
-    def course_is_open_to_user(self, course, username=None, check_group=True):
+        # If user doesn't belong to a group, will ensure correct deletion
+        self._database.classrooms.find_one_and_update(
+            {"courseid": course.get_id(), "students": username},
+            {"$pull": {"students": username}})
+
+    def course_is_open_to_user(self, course, username=None):
         """
         Checks if a user is can access a course
         :param course: a Course object
         :param username: The username of the user that we want to check. If None, uses self.session_username()
-        :param check_group: Also check that the user is in a group (only for courses with groups)
         :return: True if the user can access the course, False else
         """
         if username is None:
             username = self.session_username()
 
-        return (course._accessible.is_open() and self.course_is_user_registered(course, username, check_group)) or self.has_staff_rights_on_course(
-            course, username)
+        return (course._accessible.is_open() and self.course_is_user_registered(course, username))\
+               or self.has_staff_rights_on_course(course, username)
 
-    def course_is_user_registered(self, course, username=None, check_group=True):
+    def course_is_user_registered(self, course, username=None):
         """
         Checks if a user is registered
         :param course: a Course object
         :param username: The username of the user that we want to check. If None, uses self.session_username()
-        :param check_group: Also check that the user is in a group (only for courses with groups)
         :return: True if the user is registered, False else
         """
         if username is None:
@@ -532,10 +547,7 @@ class UserManager(AbstractUserManager):
         if self.has_staff_rights_on_course(course, username):
             return True
 
-        has_group = (not check_group) or (not course.is_group_course()) or \
-                    (self._database.groups.find_one({"users": username, "course_id": course.get_id()}) is not None)
-
-        return (self._database.registration.find_one({"username": username, "courseid": course.get_id()}) is not None) and has_group
+        return self._database.classrooms.find_one({"students": username, "courseid": course.get_id()}) is not None
 
     def get_course_registered_users(self, course, with_admins=True):
         """
@@ -544,7 +556,12 @@ class UserManager(AbstractUserManager):
         :param with_admins: include admins?
         :return: a list of usernames that are registered to the course
         """
-        l = [entry['username'] for entry in list(self._database.registration.find({"courseid": course.get_id()}, {"username": True, "_id": False}))]
+
+        l = [entry['students'] for entry in list(self._database.classrooms.aggregate([
+            {"$match": {"courseid": course.get_id()}},
+            {"$unwind": "$students"},
+            {"$project": {"_id": 0, "students": 1}}
+        ]))]
         if with_admins:
             return list(set(l + course.get_staff()))
         else:

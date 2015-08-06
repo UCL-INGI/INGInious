@@ -85,4 +85,33 @@ def update_database(database, gridfs, course_factory, user_manager):
         database.submissions.update_many({}, {"$set": {"response_type": "html"}})
         db_version = 5
 
+    if db_version < 6:
+        print "Updating database to db_version 6"
+        course_list = list(database.registration.aggregate([
+            {"$match": {}},
+            {
+                "$group": {
+                    "_id": "$courseid",
+                    "students": {"$addToSet": "$username"}
+                }
+            }]))
+
+        classrooms = {}
+        for course in course_list:
+            classrooms[course["_id"]] = {"courseid": course["_id"], "groups": [], "description": "Default classroom", "default": True, "students": course["students"], "tutors": set([])}
+
+        group_list = list(database.groups.find({}, {'_id': 0}))
+        for group in group_list:
+            classrooms[group["course_id"]]["groups"].append({"size": group["size"], "students": group["users"]})
+            classrooms[group["course_id"]]["tutors"] = classrooms[group["course_id"]]["tutors"].union(group["tutors"])
+
+        for i, classroom in classrooms.iteritems():
+            classroom["tutors"] = list(classroom["tutors"])
+            database.classrooms.insert(classroom)
+
+        database.classrooms.create_index([("students", pymongo.ASCENDING)])
+        database.classrooms.create_index([("groups.students", pymongo.ASCENDING)])
+
+        db_version = 6
+
     database.db_version.update({}, {"$set": {"db_version": db_version}}, upsert=True)

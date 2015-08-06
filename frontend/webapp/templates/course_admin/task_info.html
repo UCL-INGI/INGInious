@@ -1,4 +1,4 @@
-$def with (course,task,individual_data,group_data={})
+$def with (course,task,individual_data,classroom_data)
 
 $# Copyright (c) 2014-2015 Université Catholique de Louvain.
 $#
@@ -33,22 +33,122 @@ $def NavbarF():
 $var Navbar: $:NavbarF()
 
 <h2>Results for task "$task.get_name()"</h2>
-$if course.is_group_course():
-        <div role="tabpanel">
-            <ul class="nav nav-tabs" id="edit_task_tabs" role="tablist">
-                            <li role="presentation" class="active"><a href="#tab_indiv" aria-controls="basicinfo" role="tab" data-toggle="tab"><i class="fa
-                    fa-user fa-fw"></i>&nbsp; Individual results</a></li>
-                            <li role="presentation"><a href="#tab_group" aria-controls="container" role="tab" data-toggle="tab"><i class="fa
-                    fa-users fa-fw"></i>&nbsp; Group results</a></li>
-            </ul>
-            <div id="edit_task_tabs_content" class="tab-content">
-                    <div role="tabpanel" class="tab-pane active" id="tab_indiv">
-                        $:include.course_admin.task_info_table(course,task,individual_data)
-                    </div>
-                    <div role="tabpanel" class="tab-pane" id="tab_group">
-                        $:include.course_admin.task_info_table(course,task,group_data,True)
-                    </div>
-            </div>
+    <div role="tabpanel">
+        <ul class="nav nav-tabs" id="edit_task_tabs" role="tablist">
+                        <li role="presentation" class="active"><a href="#tab_indiv" aria-controls="basicinfo" role="tab" data-toggle="tab"><i class="fa
+                fa-user fa-fw"></i>&nbsp; Individual results</a></li>
+                        <li role="presentation"><a href="#tab_classroom" aria-controls="container" role="tab" data-toggle="tab"><i class="fa
+                fa-users fa-fw"></i>&nbsp; Classroom results</a></li>
+        </ul>
+        <div id="edit_task_tabs_content" class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="tab_indiv">
+                    <table class="table">
+                        <tr>
+                            <th>Student</th>
+                            <th>Status</th>
+                            <th># submissions</th>
+                            <th>
+                                <div class="btn-group" role="group">
+                                    <a href="/admin/${course.get_id()}/download?format=taskid%2Fusername&tasks=$task.get_id()" class="btn btn-danger
+                                        btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                                    <a href="/admin/${course.get_id()}/task/${task.get_id()}?csv=students" class="btn btn-info btn-xs" title="Download CSV"
+                                       data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
+                                </div>
+                            </th>
+                        </tr>
+                        $for user in individual_data:
+                            <tr
+                                $if user["status"] == "notattempted":
+                                    class="warning"
+                                $elif user["status"] == "succeeded":
+                                    class="success"
+                                $elif user["status"] == "failed":
+                                    class="danger"
+                            >
+                                <td>
+                                    $if user["realname"] != "":
+                                        <a href="/admin/${course.get_id()}/student/$user['username']">$user["realname"]</a>
+                                        (<a href="/admin/${course.get_id()}/student/$user['username']">$user["username"]</a> - <a href='mailto:$user["email"]'>email</a>)
+                                    $else:
+                                        <a href="/admin/${course.get_id()}/student/$user['username']">$user["username"]</a>
+                                </td>
+                                <td>
+                                    $if user["status"] == "notviewed":
+                                        Not viewed
+                                    $elif user["status"] == "notattempted":
+                                        Not attempted (viewed)
+                                    $elif user["status"] == "succeeded":
+                                        Succeeded ($user["grade"]%)
+                                    $else:
+                                        Failed ($user["grade"]%)
+                                </td>
+                                <td>$user["tried"] </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="/admin/${course.get_id()}/student/$user['username']/$task.get_id()" class="btn btn-default btn-xs" title="View
+                                           submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
+                                        <a href="$user['url']" class="btn btn-default btn-xs" title="Download
+                                           submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                    </table>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="tab_classroom">
+                    <table class="table">
+                        <tr>
+                            <th>Classroom</th>
+                            <th>Status</th>
+                            <th># submissions</th>
+                            <th>
+                                <div class="btn-group" role="group">
+                                    <a href="/admin/${course.get_id()}/download?format=taskid%2Fclassroom&tasks=$task.get_id()" class="btn btn-danger
+                                        btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                                    <a href="/admin/${course.get_id()}/task/${task.get_id()}?csv=classrooms" class="btn btn-info btn-xs" title="Download CSV"
+                                       data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
+                                </div>
+                            </th>
+                        </tr>
+                        $ text = ["My classrooms","Other classrooms"]
+                        $for ind in range(0,2):
+                            $if len(classroom_data[ind]) > 0:
+                                $if len(classroom_data[0]) > 0 and len(classroom_data[1]) > 0:
+                                    <tr>
+                                        <th colspan="5">$text[ind]</th>
+                                    </tr>
+                            $for classroom in classroom_data[ind]:
+                                <tr
+                                    $if classroom["status"] == "notattempted":
+                                        class="warning"
+                                    $elif classroom["status"] == "succeeded":
+                                        class="success"
+                                    $elif classroom["status"] == "failed":
+                                        class="danger"
+                                >
+                                    <td>
+                                        <a href="/admin/${course.get_id()}/classroom/$classroom['_id']">$classroom['description']</a>
+                                    </td>
+                                    <td>
+                                        $if classroom["status"] == "notviewed":
+                                            Not viewed
+                                        $elif classroom["status"] == "notattempted":
+                                            Not attempted (viewed)
+                                        $elif classroom["status"] == "succeeded":
+                                            Succeeded ($classroom["grade"]%)
+                                        $else:
+                                            Failed ($classroom["grade"]%)
+                                    </td>
+                                    <td>$classroom["tried"] </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="/admin/${course.get_id()}/classroom/$classroom['_id']/$task.get_id()" class="btn btn-default btn-xs" title="View
+                                               submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
+                                            <a href="$classroom['url']" class="btn btn-default btn-xs" title="Download
+                                               submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                                        </div>
+                                    </td>
+                                </tr>
+                    </table>
+                </div>
         </div>
-$else:
-        $:include.course_admin.task_info_table(course,task,individual_data)
+    </div>
