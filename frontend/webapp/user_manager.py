@@ -494,7 +494,7 @@ class UserManager(AbstractUserManager):
 
         classroom = self._database.classrooms.find_one({"courseid": course.get_id(), "default": True})
         if classroom is None:
-            self._database.classrooms.insert({"courseid": course.get_id(), "description": "Default",
+            self._database.classrooms.insert({"courseid": course.get_id(), "description": "Default classroom",
                                               "students": [username], "tutors": [],  "groups": [], "default": True})
         else:
             self._database.classrooms.find_one_and_update({"courseid": course.get_id(), "default": True},
