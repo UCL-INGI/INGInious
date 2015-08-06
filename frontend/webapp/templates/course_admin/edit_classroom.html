@@ -73,7 +73,10 @@ $elif msg:
                                     <div class="col-md-9">
                                         <select id="registered_students" name="registered_students" class="form-control">
                                             $for student in other_students:
-                                                <option value="$student">$student ($users_info[student][0])</option>
+                                                $if users_info[student] is not None:
+                                                    <option value="$student">$users_info[student][0] ($student)</option>
+                                                $else:
+                                                    <option value="$student">$student</option>
                                         </select>
                                     </div>
                                 </div>
@@ -155,7 +158,10 @@ $elif msg:
                                 <select type="text" class="form-control" id="tutor_list" name="tutor_list">
                                     $for tutor in tutor_list:
                                         $if tutor not in classroom["tutors"]:
-                                            <option value="$tutor">$users_info[tutor][0] ($tutor)</option>
+                                            $if users_info[tutor] is not None:
+                                                <option value="$tutor">$users_info[tutor][0] ($tutor)</option>
+                                            $else:
+                                                <option value="$tutor">$tutor</option>
                                 </select>
                             </div>
                             <div class="col-xs-12 col-md-4">
@@ -183,7 +189,10 @@ $elif msg:
                             $for username, student in student_list.iteritems():
                                 $if not student["grouped"]:
                                     <li data-username="$username" class="list-group-item group-entry">
-                                        <span id="$username']">$users_info[username][0] ($username)</span>
+                                        $if users_info[username] is not None:
+                                            <span id="$username']">$users_info[username][0] ($username)</span>
+                                        $else:
+                                            <span id="$username']">$username</span>
                                         $ style = 'style="display:none;"' if classroom["default"] else ''
                                         <a $:style class="pull-right" id="user_delete" href="#" onclick="javascript:classroom_student_remove('$username')" data-toggle="tooltip" data-placement="left" title="Remove student">
                                             <i class="fa fa-user-times"></i>
@@ -223,7 +232,10 @@ $elif msg:
                                 $if group is not None:
                                     $for student in group["students"]:
                                         <li data-username="$student" class="list-group-item group-entry">
-                                            <span id="$student">$users_info[student][0] ($student)</span>
+                                            $if users_info[student] is not None:
+                                                <span id="$student">$users_info[student][0] ($student)</span>
+                                            $else:
+                                                <span id="$student">$student</span>
                                             $ style = 'style="display:none;"' if classroom["default"] else ''
                                             <a $:style class="pull-right" id="user_delete" href="#" onclick="javascript:classroom_student_remove('$student')" data-toggle="tooltip" data-placement="left" title="Remove student">
                                                 <i class="fa fa-user-times"></i>
