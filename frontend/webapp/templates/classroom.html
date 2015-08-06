@@ -113,7 +113,10 @@ $elif msg:
                         <ul class="list-group">
                         $for user in classroom["tutors"]:
                             <li class="list-group-item">
-                                $users[user][0]
+                                $if users[user] is not None:
+                                    $users[user][0]
+                                $else:
+                                    $user
                                 <div class="pull-right">
                                     <a href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="Send an email">
                                         <i class="fa fa-envelope-o"></i>
@@ -130,7 +133,10 @@ $elif msg:
                         <ul class="list-group">
                         $for user in classroom["students"]:
                             <li class="list-group-item">
-                                $users[user][0]
+                                $if users[user] is not None:
+                                    $users[user][0]
+                                $else:
+                                    $user
                                 <div class="pull-right">
                                     <a href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="Send an email">
                                         <i class="fa fa-envelope-o"></i>
@@ -160,7 +166,10 @@ $elif msg:
                     <ul class="list-group">
                     $for user in mygroup["students"]:
                         <li class="list-group-item">
-                            $users[user][0]
+                            $if users[user] is not None:
+                                $users[user][0]
+                            $else:
+                                $user
                             <div class="pull-right">
                                 <a href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="Send an email">
                                     <i class="fa fa-envelope-o"></i>
