@@ -1,0 +1,9 @@
+include LICENSE
+include README.md
+recursive-include inginious/backend/tests/tasks *
+recursive-include inginious/backend/tests/utils *
+recursive-include inginious/common/tests/tasks *
+recursive-include inginious/frontend/*/static *
+recursive-include inginious/frontend/*/templates *
+recursive-include inginious/tasks *
+recursive-include inginious/utils *
