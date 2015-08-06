@@ -1,0 +1,112 @@
+$def with (course,username,task,submissionid,submission,to_display)
+
+$# Copyright (c) 2014-2015 Université Catholique de Louvain.
+$#
+$# This file is part of INGInious.
+$#
+$# INGInious is free software: you can redistribute it and/or modify
+$# it under the terms of the GNU Affero General Public License as published
+$# by the Free Software Foundation, either version 3 of the License, or
+$# (at your option) any later version.
+$#
+$# INGInious is distributed in the hope that it will be useful,
+$# but WITHOUT ANY WARRANTY; without even the implied warranty of
+$# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+$# GNU Affero General Public License for more details.
+$#
+$# You should have received a copy of the GNU Affero General Public
+$# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
+
+$ user_realname= user_manager.get_user_realname(username)
+$var title: $:task.get_name() - $:user_realname - $:course.get_name()
+
+$var Column: $:template_helper.call('course_admin_menu',course=course,current='students')
+
+$def NavbarF():
+    <ol class="nav navbar-nav nav-breadcrumb">
+        <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
+        <li>
+            <a href="/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+                <i class="fa fa-user-secret"></i>
+            </a>
+        </li>
+        $if course.is_group_course():
+            <li>
+                <a href="/admin/$course.get_id()/students" title="Groups" data-toggle="tooltip" data-placement="bottom">
+                    <i class="fa fa-group"></i>
+                </a>
+            </li>
+        $else:
+            <li>
+                <a href="/admin/$course.get_id()/students" title="Students" data-toggle="tooltip" data-placement="bottom">
+                    <i class="fa fa-user"></i>
+                </a>
+            </li>
+        <li><a href="/admin/$course.get_id()/student/$username">$user_realname</a></li>
+        <li><a href="/admin/$course.get_id()/student/$username/$task.get_id()">$:task.get_name()</a></li>
+        <li class="active"><a href="#">$submissionid[0:10] <span class="sr-only">(current)</span></a></li>
+    </ol>
+$var Navbar: $:NavbarF()
+
+<h2>Submissions $submissionid[0:10] - "$:task.get_name()" - $user_realname ($username)</h2>
+<div class="alert alert-info text-center">
+    This page show what was shown to the student when (s)he made his/her submission. <br/>
+    <br/>
+    <a href="javascript:$$('.student_view').slideToggle()" class="btn btn-sm btn-block btn-primary">
+        <i class="fa fa-filter fa-fw"></i> Click here to hide/display context informations
+    </a>
+    <a href="/admin/$course.get_id()/download?submission=$submissionid" class="btn btn-sm btn-block btn-primary">
+        <i class="fa fa-download fa-fw"></i> Download full submission
+    </a>
+</div>
+<div class="student_view">
+    $:task.get_context()
+</div>
+$if submission["result"] == "success":
+    $ color="success"
+$elif submission["result"] in ["timeout", "overflow"]:
+    $ color="warning"
+$else:
+    $ color="danger"
+<div class="alert alert-$color">
+    Result: $submission["result"]<br/>
+    Grade: $submission["grade"] %
+    $if submission["text"]:
+        <br/>
+        <br/>
+        $:submission["text"]
+</div>
+$for key, problem in enumerate(to_display):
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                $if not problem["defined"]:
+                    <span class="text-warning">This problem id is not defined in the task.</span>
+                $if not problem["present"]:
+                    <span class="text-warning">This problem is not present in the submission.</span>
+                Question ${key+1}: $problem["name"]
+                $if problem['base64'] is not None:
+                    <a href="data:text/plain;base64,$problem['base64']" class="btn btn-default btn-xs" title="Download as file" data-toggle="tooltip"
+                       data-placement="bottom">
+                        <i class="fa fa-download"></i>
+                    </a>
+            </h3>
+        </div>
+        <div class="panel-body">
+            $if problem["feedback"] is not None:
+                <div class="alert alert-info">
+                    $:problem["feedback"]
+                </div>
+            <div class="student_view">
+                $:problem["context"]
+            </div>
+            $if problem["content"] is not None:
+                <textarea class="code-editor form-control"
+                          data-x-language="$problem['language']"
+                          data-x-lines="1">$problem["content"]</textarea>
+            $elif not problem["present"]:
+                <span class="text-warning">This problem was not answered in this submission.</span>
+            $else:
+            <span class="text-warning">There is input, but it can't be read as an UTF-8 file.</span>
+        </div>
+    </div>

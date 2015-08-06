@@ -73,8 +73,9 @@ $var Navbar: $:NavbarF()
             </td>
             <td>
                 <div class="btn-group" role="group">
-                    <a href="#" onclick="studio_get_feedback('$submission['_id']'); return false;" class="btn btn-default btn-xs"
-                       title="Show feedback" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
+                    <a href="/admin/$course.get_id()/student/$submission['username'][0]/$task.get_id()/$submission['_id']"
+                       class="btn btn-default btn-xs" title="View submission" data-toggle="tooltip" data-placement="bottom"><i class="fa
+                       fa-search"></i></a>
                     <a href="$submission['url']" class="btn btn-default btn-xs" title="Download submission" data-toggle="tooltip"
                        data-placement="bottom"><i class="fa fa-download"></i></a>
                 </div>
