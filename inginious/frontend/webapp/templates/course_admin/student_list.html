@@ -52,32 +52,39 @@ $var Navbar: $:NavbarF()
         </th>
     </tr>
 
-    $for user in user_data:
-        <tr>
-            <td>
-                $if user["realname"] != "":
-                    <a href="/admin/${course.get_id()}/student/$user["username"]">$user["realname"]</a>
-                    (<a href="/admin/${course.get_id()}/student/$user["username"]">$user["username"]</a> - <a href='mailto:$user["email"]'>email</a>)
-                $else:
-                    <a href="/admin/${course.get_id()}/student/$user["username"]">$user["username"]</a>
-            </td>
-            <td>$user["task_tried"]</td>
-            <td>$user["task_succeeded"]</td>
-            <td>
-                <div class="progress">
-                    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="$user['grade']" aria-valuemin="0" aria-valuemax="100" style="width: $user['grade']%">
-                        <span>$user["grade"]%</span>
+    $for i in range(0,2):
+        $if i == 0:
+            $ users = course.get_staff()
+            <tr><th colspan="5">Teaching staff</th></tr>
+        $else:
+            $ users = user_manager.get_course_registered_users(course, False)
+            <tr><th colspan="5">Students</th></tr>
+        $for user in users:
+            <tr>
+                <td>
+                    $if user_data[user]["realname"] != "":
+                        <a href="/admin/${course.get_id()}/student/$user_data[user]["username"]">$user_data[user]["realname"]</a>
+                        (<a href="/admin/${course.get_id()}/student/$user_data[user]["username"]">$user_data[user]["username"]</a> - <a href='mailto:$user_data[user]["email"]'>email</a>)
+                    $else:
+                        <a href="/admin/${course.get_id()}/student/$user_data[user]["username"]">$user_data[user]["username"]</a>
+                </td>
+                <td>$user_data[user]["task_tried"]</td>
+                <td>$user_data[user]["task_succeeded"]</td>
+                <td>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="$user_data[user]['grade']" aria-valuemin="0" aria-valuemax="100" style="width: $user_data[user]['grade']%">
+                            <span>$user_data[user]["grade"]%</span>
+                        </div>
                     </div>
-                </div>
-            </td>
-            <td>
-                <div class="btn-group" role="group">
-                    <a href="/admin/${course.get_id()}/student/$user["username"]" class="btn btn-default btn-xs" title="View submissions"
-                       data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
-                    <a href="$user['url']" class="btn btn-default btn-xs" title="Download submissions"
-                       data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                </div>
-            </td>
-        </tr>
+                </td>
+                <td>
+                    <div class="btn-group" role="group">
+                        <a href="/admin/${course.get_id()}/student/$user_data[user]["username"]" class="btn btn-default btn-xs" title="View submissions"
+                           data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
+                        <a href="$user_data[user]['url']" class="btn btn-default btn-xs" title="Download submissions"
+                           data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                    </div>
+                </td>
+            </tr>
 </table>
 
