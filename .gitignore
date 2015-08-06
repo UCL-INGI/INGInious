@@ -6,12 +6,8 @@ sessions*
 repo_submissions
 configuration.yaml
 configuration.*.yaml
-!configuration.example.yaml
+!inginious/configuration.example.yaml
 dump
 doc/_*
-/tasks
-!tests/tasks
-!*/tests/tasks
-!frontend/common/templates/tasks
 utils/task_manual_tester/tests/
 node_modules/

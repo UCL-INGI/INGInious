@@ -21,9 +21,9 @@
 
 import os
 import argparse
-from common.base import load_json_or_yaml
+from inginious.common.base import load_json_or_yaml
 
-import frontend.lti.app
+import inginious.frontend.lti.app
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -41,4 +41,4 @@ if __name__ == "__main__":
         else:
             raise Exception("No configuration file found. Please check that the file configuration.lti.yaml exists.")
 
-    frontend.lti.app.start_app(load_json_or_yaml(config), hostname=args.host, port=args.port)
+    inginious.frontend.lti.app.start_app(load_json_or_yaml(config), hostname=args.host, port=args.port)

@@ -23,8 +23,8 @@ import logging
 import os
 import argparse
 
-from backend.agent.remote_agent import RemoteAgent
-from common.course_factory import create_factories
+from inginious.backend.agent.remote_agent import RemoteAgent
+from inginious.common.course_factory import create_factories
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
