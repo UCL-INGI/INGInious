@@ -61,7 +61,7 @@ urls = {
     r'/admin/([^/]+)/students': 'frontend.webapp.pages.course_admin.student_list.CourseStudentListPage',
     r'/admin/([^/]+)/student/([^/]+)': 'frontend.webapp.pages.course_admin.student_info.CourseStudentInfoPage',
     r'/admin/([^/]+)/student/([^/]+)/([^/]+)': 'frontend.webapp.pages.course_admin.student_task.CourseStudentTaskPage',
-    r'/admin/([^/]+)/student/([^/]+)/([^/]+)/([^/]+)': 'frontend.webapp.pages.course_admin.student_task.SubmissionDownloadFeedback',
+    r'/admin/([^/]+)/student/([^/]+)/([^/]+)/([^/]+)': 'frontend.webapp.pages.course_admin.submission.CourseStudentTaskSubmission',
     r'/admin/([^/]+)/groups': 'frontend.webapp.pages.course_admin.group_list.CourseGroupListPage',
     r'/admin/([^/]+)/group/([^/]+)': 'frontend.webapp.pages.course_admin.group_info.CourseGroupInfoPage',
     r'/admin/([^/]+)/group/([^/]+)/([^/]+)': 'frontend.webapp.pages.course_admin.group_task.CourseGroupTaskPage',
