@@ -141,6 +141,10 @@ class CourseEditClassroom(INGIniousAdminPage):
                     if group["size"] > 0 and group["size"] >= len(group["students"]):
                         groups.append(group)
 
+                removed_students = [student for student in student_list if student not in students]
+                self.database.classrooms.find_one_and_update({"courseid": courseid, "default": True},
+                                                             {"$push": {"students": {"$each": removed_students}}})
+
                 if len(errored_students) > 0:
                     msg = "Changes couldn't be applied for following students : <ul>"
                     for student in errored_students:
