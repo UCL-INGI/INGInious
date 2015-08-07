@@ -25,12 +25,6 @@ from abc import abstractmethod
 
 from inginious.common.hook_manager import HookManager
 
-
-def _init_manager():
-    """ Makes the manager ignore SIGINT """
-    signal.signal(signal.SIGINT, signal.SIG_IGN)
-
-
 class AbstractJobManager(object):
     """ Manages jobs """
 
