@@ -12,6 +12,7 @@ services: mongodb
 before_install:
   - echo exit 101 | sudo tee /usr/sbin/policy-rc.d
   - sudo chmod +x /usr/sbin/policy-rc.d
+  - pip install --upgrade pip
 install:
   - curl -sSL https://get.docker.com/ | sh
   - sudo apt-get install slirp libtidy-* xvfb
