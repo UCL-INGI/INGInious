@@ -47,7 +47,12 @@ class CourseStudentListPage(INGIniousAdminPage):
                 else:
                     self.user_manager.course_unregister_user(course, data["username"])
             except:
-                raise
+                pass
+        elif "register" in data:
+            try:
+                self.user_manager.course_register_user(course, data["username"], '', True)
+            except:
+                pass
         return self.page(course)
 
     def submission_url_generator(self, course, username):
