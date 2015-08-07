@@ -37,18 +37,23 @@ class CourseClassroomListPage(INGIniousAdminPage):
 
         error = False
         try:
-            data = web.input()
-            if 'classroom' in data:
-                self.database.classrooms.insert({"default": False, "courseid": courseid, "students": [],
-                                                 "tutors": [], "groups": [],
-                                                 "description": data['classroom']})
-                msg = "New classroom created."
-            elif 'default' in data:
-                self.database.classrooms.find_one_and_update({"courseid": courseid, "default": True},
-                                                             {"$set": {"default": False}})
-                self.database.classrooms.find_one_and_update({"_id": ObjectId(data['default'])},
-                                                             {"$set": {"default": True}})
-                msg = "Default classroom changed."
+            if self.user_manager.has_admin_rights_on_course(course):
+                data = web.input()
+                if 'classroom' in data:
+                    default = True if self.database.classrooms.find_one({"courseid":courseid, "default": True}) is None else False
+                    self.database.classrooms.insert({"default": default, "courseid": courseid, "students": [],
+                                                     "tutors": [], "groups": [],
+                                                     "description": data['classroom']})
+                    msg = "New classroom created."
+                elif 'default' in data:
+                    self.database.classrooms.find_one_and_update({"courseid": courseid, "default": True},
+                                                                 {"$set": {"default": False}})
+                    self.database.classrooms.find_one_and_update({"_id": ObjectId(data['default'])},
+                                                                 {"$set": {"default": True}})
+                    msg = "Default classroom changed."
+            else:
+                msg = "You have no rights to add/change classrooms"
+                error = True
         except:
             msg = 'User returned an invalid form.'
             error = True
