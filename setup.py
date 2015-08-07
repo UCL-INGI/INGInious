@@ -35,18 +35,17 @@ setup(
         "plumbum>=1.5.0",
         "Pygments>=2.0.2",
         "pymongo>=3.0.3",
-        "python-ldap>=2.4.20",
+        "python-ldap>=2.4.19",
         "pytidylib>=0.2.4",
         "PyYAML>=3.11",
         "requests>=2.7.0",
         "rpyc>=3.3.0",
-        "sh>=1.11",
         "simpleldap>=0.8",
         "six>=1.9.0",
         "web.py>=0.37",
         "websocket-client>=0.32.0",
         "pylti>=0.3.2"
-    ] + (["cgroup-utils>=0.6"] if sys.platform.startswith('linux') else []),
+    ] + (["sh>=1.11"] if not (sys.platform == 'win32') else ["pbs>=0.110"]) + (["cgroup-utils>=0.6"] if sys.platform.startswith('linux') else []),
 
     extras_require={
         "test": ["selenium", "nose", "pyvirtualdisplay"]

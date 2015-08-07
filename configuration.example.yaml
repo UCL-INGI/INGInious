@@ -35,7 +35,7 @@ mongo_opt:
     database: INGInious
 
 # Location of the task directory
-tasks_directory: ./tasks
+tasks_directory: ./inginious/tasks
 
 # Aliases for containers
 # Only containers listed here can be used by tasks
@@ -45,7 +45,7 @@ containers:
 
 # Plugins that will be loaded by the webapp
 plugins:
-  - plugin_module: frontend.webapp.plugins.auth.demo_auth
+  - plugin_module: inginious.frontend.webapp.plugins.auth.demo_auth
     users:
         # register the user "test" with the password "test"
         test: test

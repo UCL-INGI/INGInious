@@ -37,9 +37,12 @@ class CourseStudentListPage(INGIniousAdminPage):
 
     def page(self, course, error="", post=False):
         """ Get all data and display the page """
-        user_list = self.user_manager.get_course_registered_users(course)
-        users = OrderedDict(sorted(self.user_manager.get_users_info(user_list).items(),
-                                   key=lambda k: k[1][0] if k[1] is not None else ""))
+        user_list = self.user_manager.get_course_registered_users(course, False)
+        users = sorted(self.user_manager.get_users_info(user_list).items(),
+                                   key=lambda k: k[1][0] if k[1] is not None else "")
+
+        users = OrderedDict(sorted(self.user_manager.get_users_info(course.get_staff()).items(),
+                                   key=lambda k: k[1][0] if k[1] is not None else "") + users)
 
         user_data = OrderedDict([(username, {
             "username": username, "realname": user[0] if user is not None else "",
@@ -53,4 +56,4 @@ class CourseStudentListPage(INGIniousAdminPage):
         if "csv" in web.input():
             return make_csv(user_data)
 
-        return self.template_helper.get_renderer().course_admin.student_list(course, user_data, error, post)
+        return self.template_helper.get_renderer().course_admin.student_list(course, user_data.values(), error, post)
