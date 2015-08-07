@@ -74,5 +74,5 @@ setup(
     author_email = "inginious@info.ucl.ac.be",
     license = "AGPL 3",
     url = "https://github.com/UCL-INGI/INGInious",
-    long_description =open(os.path.join(os.path.dirname(__file__), 'README.md')).read()
+    long_description =open(os.path.join(os.path.dirname(__file__), 'README.rst')).read()
 )

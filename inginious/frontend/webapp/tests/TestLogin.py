@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 from selenium.webdriver.support.ui import Select
 
-
-
-from inginious.frontend.tests.webapp.SeleniumTest import SeleniumTest
+from inginious.frontend.webapp.tests.SeleniumTest import SeleniumTest
 
 
 class TestLogin(SeleniumTest):
