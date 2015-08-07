@@ -129,7 +129,7 @@ class CourseEditClassroom(INGIniousAdminPage):
                             students.append(student)
                         else:
                             user_info = self.user_manager.get_user_info(student)
-                            if user_info is not None and user_info not in tutor_list:
+                            if user_info is not None and student not in tutor_list:
                                 student_list[student] = {"grouped": True if (group["size"] > 0 and group["size"] >= len(group["students"])) else False}
                                 students.append(student)
                                 users_info[student] = user_info
