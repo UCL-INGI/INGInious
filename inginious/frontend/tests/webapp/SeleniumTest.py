@@ -101,6 +101,7 @@ class SeleniumTest(unittest.TestCase):
                 "remote_agent_port": 4445,
                 "local_location": "tcp://127.0.0.1:2375"
             }]
+            raise SkipTest("Testing the frontend with selenium is disabled on Travis, for now")
         else:
             raise SkipTest("Env variable TEST_ENV is not properly configured. Please take a look a the documentation to properly configure your "
                            "test environment.")
