@@ -46,9 +46,12 @@ setup(
         "websocket-client>=0.32.0",
         "pylti>=0.3.2"
     ] + (["sh>=1.11"] if not (sys.platform == 'win32') else ["pbs>=0.110"]) + (["cgroup-utils>=0.5"] if sys.platform.startswith('linux') else []),
-
+    tests_require=[
+        "selenium",
+        "nose",
+        "pyvirtualdisplay"
+    ],
     extras_require={
-        "test": ["selenium", "nose", "pyvirtualdisplay"],
         "cgi": ["flup"]
     },
 
