@@ -29,10 +29,10 @@ def _start_frontend(config, host, port):
 
     app, close_app_func = get_app(config, active_callback)
 
-    inginious_root_path = posixpath.relpath(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')), os.getcwd())
+    inginious_root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
     func = StaticMiddleware(app.wsgifunc(), (
-        ('/static/common/', inginious_root_path + '/frontend/common/static'),
-        ('/static/webapp/', inginious_root_path + '/frontend/webapp/static')
+        ('/static/common/', os.path.join(inginious_root_path, 'frontend', 'common', 'static')),
+        ('/static/webapp/', os.path.join(inginious_root_path, 'frontend', 'webapp', 'static'))
     ))
     server = web.httpserver.WSGIServer((host, port), func)
 

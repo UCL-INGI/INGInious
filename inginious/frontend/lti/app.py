@@ -222,10 +222,10 @@ def start_app(config, hostname="localhost", port=8080):
 
     signal.signal(signal.SIGINT, lambda _, _2: close_app_signal)
 
-    inginious_root_path = os.path.relpath(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')), os.getcwd())
+    inginious_root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
     func = StaticMiddleware(func, (
-        ('/static/common/', os.path.join(inginious_root_path, 'frontend/common/static')),
-        ('/static/lti/', os.path.join(inginious_root_path, 'frontend/lti/static'))
+        ('/static/common/', os.path.join(inginious_root_path, 'frontend', 'common', 'static')),
+        ('/static/lti/', os.path.join(inginious_root_path, 'frontend', 'lti', 'static'))
     ))
 
     func = web.httpserver.LogMiddleware(func)
