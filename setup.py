@@ -48,7 +48,8 @@ setup(
     ] + (["sh>=1.11"] if not (sys.platform == 'win32') else ["pbs>=0.110"]) + (["cgroup-utils>=0.6"] if sys.platform.startswith('linux') else []),
 
     extras_require={
-        "test": ["selenium", "nose", "pyvirtualdisplay"]
+        "test": ["selenium", "nose", "pyvirtualdisplay"],
+        "cgi": ["flup"]
     },
 
     scripts=[
