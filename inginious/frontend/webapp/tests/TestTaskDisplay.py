@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-from selenium.webdriver.support.ui import Select
 
 
 
-from inginious.frontend.tests.webapp.SeleniumTest import SeleniumTest
-from inginious.frontend.tests.webapp.TestLogin import LoggedInTest, RegisteredTest
+from inginious.frontend.webapp.tests.TestLogin import LoggedInTest, RegisteredTest
 
 
 class TestDisplaySuperAdmin(LoggedInTest):

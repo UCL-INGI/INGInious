@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-from selenium.webdriver.common.by import By
 import time
 
-from inginious.frontend.tests.webapp.TestLogin import LoggedInTest
+from selenium.webdriver.common.by import By
+
+from inginious.frontend.webapp.tests.TestLogin import LoggedInTest
 
 
 class TestTaskSubmission(LoggedInTest):
