@@ -256,10 +256,11 @@ def start_app(config, hostname="localhost", port=8080):
         raise KeyboardInterrupt()
     signal.signal(signal.SIGINT, lambda _, _2: close_app_signal)
 
-    inginious_root_path = os.path.relpath(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')), os.getcwd())
+    inginious_root_path = posixpath.relpath(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')), os.getcwd())
+
     func = StaticMiddleware(func, (
-        ('/static/common/', os.path.join(inginious_root_path, 'frontend/common/static')),
-        ('/static/webapp/', os.path.join(inginious_root_path, 'frontend/webapp/static'))
+        ('/static/common/', inginious_root_path + '/frontend/common/static'),
+        ('/static/webapp/', inginious_root_path + '/frontend/webapp/static')
     ))
     func = web.httpserver.LogMiddleware(func)
     server = web.httpserver.WSGIServer((hostname, port), func)
