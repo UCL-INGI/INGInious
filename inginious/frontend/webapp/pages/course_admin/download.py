@@ -91,7 +91,7 @@ class CourseDownloadSubmissions(INGIniousAdminPage):
 
             web.header('Content-Type', 'application/x-gzip', unique=True)
             web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)
-            return self.submission_manager.get_submission_archive(submissions, [])
+            return self.submission_manager.get_submission_archive(submissions, [], {})
 
         # Else, display the complete page
         tasks = {taskid: task.get_name() for taskid, task in course.get_tasks().iteritems()}

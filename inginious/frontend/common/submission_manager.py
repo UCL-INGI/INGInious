@@ -252,10 +252,10 @@ class SubmissionManager(object):
                     if sub_folder == 'taskid':
                         base_path = submission['taskid'] + base_path
                     elif sub_folder == 'username':
-                        base_path = '_' + username + base_path
+                        base_path = '_' + '-'.join(submission['username']) + base_path
                         base_path = base_path[1:]
-                    elif sub_folder == 'group':
-                        base_path = (str(classrooms[username]["_id"]) if "classroomid" in submission else username) + base_path
+                    elif sub_folder == 'classroom':
+                        base_path = (classrooms[username]["description"] + " (" + str(classrooms[username]["_id"]) + ")").replace(" ", "_") + base_path
 
                     base_path = '/' + base_path
                 base_path = base_path[1:]
