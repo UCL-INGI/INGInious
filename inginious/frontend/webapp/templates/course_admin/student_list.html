@@ -56,11 +56,12 @@ $var Navbar: $:NavbarF()
     </div>
 </div>
 
-<div class="row">
-    <form class=form-horizontal" method="post">
-        <div class="form-group">
-            <div class="col-sm-9"><input type="text" class="form-control" name="username" placeholder="Student username"/></div>
-            <div class="col-sm-3"><button name="register" type="submit" class="btn btn-warning btn-block"><i class="fa fa-plus fa-lg"></i> Add student</button></div>
-        </div>
-    </form>
-</div>
+$if user_manager.has_admin_rights_on_course(course):
+    <div class="row">
+        <form class=form-horizontal" method="post">
+            <div class="form-group">
+                <div class="col-sm-9"><input type="text" class="form-control" name="username" placeholder="Student username"/></div>
+                <div class="col-sm-3"><button name="register" type="submit" class="btn btn-warning btn-block"><i class="fa fa-plus fa-lg"></i> Add student</button></div>
+            </div>
+        </form>
+    </div>
