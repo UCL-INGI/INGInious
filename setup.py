@@ -27,8 +27,9 @@ setup(
     version="0.3.dev",
     description="An intelligent grader that allows secured and automated testing of code made by students.",
     packages=find_packages(),
+    dependency_links=["git+https://github.com/GuillaumeDerval/docker-py.git#egg=docker-py-1.3.0dev"],
     install_requires=[
-        "docker-py>=1.3.1",
+        "docker-py==1.3.0dev",
         "docutils>=0.12",
         "multiprocessing>=2.6.2.1",
         "plumbum>=1.5.0",
@@ -46,6 +47,10 @@ setup(
         "pylti>=0.3.2"
     ] + (["sh>=1.11"] if not (sys.platform == 'win32') else ["pbs>=0.110"]) + (["cgroup-utils>=0.6"] if sys.platform.startswith('linux') else []),
 
+    extras_require={
+        "test": ["selenium", "nose", "pyvirtualdisplay"]
+    },
+
     scripts=[
         'inginious-agent',
         'inginious-lti',
@@ -58,6 +63,8 @@ setup(
     ],
 
     include_package_data=True,
+
+    test_suite='nose.collector',
 
     author = u"Université catholique de Louvain",
     author_email = "inginious@info.ucl.ac.be",
