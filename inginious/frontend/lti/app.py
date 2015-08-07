@@ -219,8 +219,8 @@ def start_app(config, hostname="localhost", port=8080):
     def close_app_signal():
         close_app_func()
         raise KeyboardInterrupt()
-
-    signal.signal(signal.SIGINT, lambda _, _2: close_app_signal)
+    signal.signal(signal.SIGINT, lambda _, _2: close_app_signal())
+    signal.signal(signal.SIGTERM, lambda _, _2: close_app_signal())
 
     inginious_root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
     func = StaticMiddleware(func, (

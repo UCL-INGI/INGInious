@@ -12,12 +12,13 @@ services: mongodb
 before_install:
   - echo exit 101 | sudo tee /usr/sbin/policy-rc.d
   - sudo chmod +x /usr/sbin/policy-rc.d
+  - pip install --upgrade pip
 install:
   - curl -sSL https://get.docker.com/ | sh
   - sudo apt-get install slirp libtidy-* xvfb
   - sudo usermod -aG docker "$USER"
   - git clone git://github.com/cptactionhank/sekexe
-  - "pip install pymongo pytidylib docker-py sh web.py docutils simpleldap pyyaml rpyc cgroup-utils selenium pyvirtualdisplay pygments"
+  - pip install --process-dependency-links --upgrade .
   - sudo mkdir /var/lib/docker
   - sudo mkdir /etc/docker
   - sudo chmod -R 777 /var/lib/docker
