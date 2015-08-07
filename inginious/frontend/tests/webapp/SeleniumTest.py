@@ -26,7 +26,12 @@ def _start_frontend(config, host, port):
         semaphore.release()
 
     app, close_app_func = get_app(config, active_callback)
-    func = web.httpserver.LogMiddleware(StaticMiddleware(app.wsgifunc()))
+
+    inginious_root_path = os.path.relpath(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')), os.getcwd())
+    func = StaticMiddleware(app.wsgifunc(), (
+        ('/static/common/', os.path.join(inginious_root_path, 'frontend/common/static')),
+        ('/static/webapp/', os.path.join(inginious_root_path, 'frontend/webapp/static'))
+    ))
     server = web.httpserver.WSGIServer((host, port), func)
 
     class FrontendThread(threading.Thread):
@@ -61,7 +66,7 @@ class SeleniumTest(unittest.TestCase):
                 "remote_agent_port": 4445
             }],
             "mongo_opt": {"host": "localhost", "database": "INGIniousFrontendTest"},
-            "tasks_directory": "./tasks",
+            "tasks_directory": "./inginious/tasks",
             "containers": {
                 "default": "ingi/inginious-c-default",
                 "sekexe": "ingi/inginious-c-sekexe",
@@ -69,7 +74,7 @@ class SeleniumTest(unittest.TestCase):
             "superadmins": ["test"],
             "plugins": [
                 {
-                    "plugin_module": "frontend.webapp.plugins.auth.demo_auth",
+                    "plugin_module": "inginious.frontend.webapp.plugins.auth.demo_auth",
                     "users": {"test": "test", "test2": "test", "test3": "test"}
                 }
             ]
