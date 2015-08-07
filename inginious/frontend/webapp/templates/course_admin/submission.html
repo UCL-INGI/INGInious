@@ -30,18 +30,11 @@ $def NavbarF():
                 <i class="fa fa-user-secret"></i>
             </a>
         </li>
-        $if course.is_group_course():
-            <li>
-                <a href="/admin/$course.get_id()/students" title="Groups" data-toggle="tooltip" data-placement="bottom">
-                    <i class="fa fa-group"></i>
-                </a>
-            </li>
-        $else:
-            <li>
-                <a href="/admin/$course.get_id()/students" title="Students" data-toggle="tooltip" data-placement="bottom">
-                    <i class="fa fa-user"></i>
-                </a>
-            </li>
+        <li>
+            <a href="/admin/$course.get_id()/students" title="Students" data-toggle="tooltip" data-placement="bottom">
+                <i class="fa fa-user"></i>
+            </a>
+        </li>
         <li><a href="/admin/$course.get_id()/student/$username">$user_realname</a></li>
         <li><a href="/admin/$course.get_id()/student/$username/$task.get_id()">$:task.get_name()</a></li>
         <li class="active"><a href="#">$submissionid[0:10] <span class="sr-only">(current)</span></a></li>
