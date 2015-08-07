@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+
+import posixpath
 from pymongo import MongoClient
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium import webdriver
@@ -27,10 +29,10 @@ def _start_frontend(config, host, port):
 
     app, close_app_func = get_app(config, active_callback)
 
-    inginious_root_path = os.path.relpath(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')), os.getcwd())
+    inginious_root_path = posixpath.relpath(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')), os.getcwd())
     func = StaticMiddleware(app.wsgifunc(), (
-        ('/static/common/', os.path.join(inginious_root_path, 'frontend/common/static')),
-        ('/static/webapp/', os.path.join(inginious_root_path, 'frontend/webapp/static'))
+        ('/static/common/', inginious_root_path + '/frontend/common/static'),
+        ('/static/webapp/', inginious_root_path + '/frontend/webapp/static')
     ))
     server = web.httpserver.WSGIServer((host, port), func)
 
@@ -63,7 +65,7 @@ class SeleniumTest(unittest.TestCase):
             "docker_daemons": [{
                 "remote_host": "192.168.59.103",
                 "remote_docker_port": 2375,
-                "remote_agent_port": 4445
+                "remote_agent_port": 63456
             }],
             "mongo_opt": {"host": "localhost", "database": "INGIniousFrontendTest"},
             "tasks_directory": "./inginious/tasks",
