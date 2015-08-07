@@ -60,21 +60,15 @@ class CourseDownloadSubmissions(INGIniousAdminPage):
             self._validate_list(user_input.users)
             classrooms = list(self.database.classrooms.find({"courseid": courseid,
                                                              "students": {"$in": user_input.users}}))
-            classrooms = dict([(username, classroom) for classroom in classrooms for username in classroom["students"]])
-
-            submissions = list(self.database.submissions.find({"username": {"$in": classrooms.keys()},
-                                                               "taskid": {"$in": user_input.tasks},
-                                                               "courseid": course.get_id(),
-                                                               "status": {"$in": ["done", "error"]}}))
         else:
             self._validate_list(user_input.classrooms)
             classrooms = list(self.database.classrooms.find({"_id": {"$in": [ObjectId(cid) for cid in user_input.classrooms]}}))
 
-            classrooms = dict([(username, classroom) for classroom in classrooms for username in classroom["students"]])
-            submissions = list(self.database.submissions.find({"username": {"$in": classrooms.keys()},
-                                                               "taskid": {"$in": user_input.tasks},
-                                                               "courseid": course.get_id(),
-                                                               "status": {"$in": ["done", "error"]}}))
+        classrooms = dict([(username, classroom) for classroom in classrooms for username in classroom["students"]])
+        submissions = list(self.database.submissions.find({"username": {"$in": classrooms.keys()},
+                                                           "taskid": {"$in": user_input.tasks},
+                                                           "courseid": course.get_id(),
+                                                           "status": {"$in": ["done", "error"]}}))
         if user_input.type == "single":
             submissions = self.submission_manager.keep_best_submission(submissions)
 
