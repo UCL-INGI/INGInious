@@ -35,54 +35,33 @@ $def NavbarF():
 $var Navbar: $:NavbarF()
 
 <h2>Students</h2>
-<table class="table">
-    <tr>
-        <th>student</th>
-        <th># task tried</th>
-        <th># task done</th>
-        <th>current grade</th>
-        <th>
-            <div class="btn-group" role="group">
-                <a href="/admin/${course.get_id()}/download?format=taskid%2Fusername" class="btn btn-danger btn-xs"
-                   title="Download
-                   all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                <a href="/admin/${course.get_id()}/students?csv" class="btn btn-info btn-xs" title="Download
-                   CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
+
+<div role="tabpanel">
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#tab_students" aria-controls="students" role="tab" data-toggle="tab">
+            <i class="fa fa-user fa-fw"></i>&nbsp; Students</a>
+        </li>
+        <li role="presentation"><a href="#tab_staff" aria-controls="staff" role="tab" data-toggle="tab">
+            <i class="fa fa-user-secret fa-fw"></i>&nbsp; Teaching staff</a>
+        </li>
+
+    </ul>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="tab_students">
+            $:include.course_admin.student_list_table(course,user_data[len(course.get_staff()):len(user_data)], False)
+        </div>
+        <div role="tabpanel" class="tab-pane" id="tab_staff">
+            $:include.course_admin.student_list_table(course,user_data[0:len(course.get_staff())], True)
+        </div>
+    </div>
+</div>
+
+$if user_manager.has_admin_rights_on_course(course):
+    <div class="row">
+        <form class=form-horizontal" method="post">
+            <div class="form-group">
+                <div class="col-sm-9"><input type="text" class="form-control" name="username" placeholder="Student username"/></div>
+                <div class="col-sm-3"><button name="register" type="submit" class="btn btn-warning btn-block"><i class="fa fa-plus fa-lg"></i> Add student</button></div>
             </div>
-        </th>
-    </tr>
-
-    $for i, user in enumerate(user_data):
-        $if i == 0:
-            <tr><th colspan="5">Teaching staff</th></tr>
-        $elif i == len(course.get_staff()):
-            $ users = user_manager.get_course_registered_users(course, False)
-            <tr><th colspan="5">Students</th></tr>
-        <tr>
-            <td>
-                $if user["realname"] != "":
-                    <a href="/admin/${course.get_id()}/student/$user["username"]">$user["realname"]</a>
-                    (<a href="/admin/${course.get_id()}/student/$user["username"]">$user["username"]</a> - <a href='mailto:$user["email"]'>email</a>)
-                $else:
-                    <a href="/admin/${course.get_id()}/student/$user["username"]">$user["username"]</a>
-            </td>
-            <td>$user["task_tried"]</td>
-            <td>$user["task_succeeded"]</td>
-            <td>
-                <div class="progress">
-                    <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="$user['grade']" aria-valuemin="0" aria-valuemax="100" style="width: $user['grade']%">
-                        <span>$user["grade"]%</span>
-                    </div>
-                </div>
-            </td>
-            <td>
-                <div class="btn-group" role="group">
-                    <a href="/admin/${course.get_id()}/student/$user["username"]" class="btn btn-default btn-xs" title="View submissions"
-                       data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
-                    <a href="$user['url']" class="btn btn-default btn-xs" title="Download submissions"
-                       data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                </div>
-            </td>
-        </tr>
-</table>
-
+        </form>
+    </div>

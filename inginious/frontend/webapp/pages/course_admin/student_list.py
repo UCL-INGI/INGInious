@@ -31,14 +31,37 @@ class CourseStudentListPage(INGIniousAdminPage):
         course, _ = self.get_course_and_check_rights(courseid)
         return self.page(course)
 
+    def POST(self, courseid):
+        """ POST request """
+        course, _ = self.get_course_and_check_rights(courseid, None, False)
+        data= web.input()
+        if "remove" in data:
+            try:
+                if data["type"] == "all":
+                    classrooms = list(self.database.classrooms.find({"courseid": courseid}))
+                    for classroom in classrooms:
+                        classroom["students"] = []
+                        for group in classroom["groups"]:
+                            group["students"] = []
+                        self.database.classrooms.replace_one({"_id": classroom["_id"]}, classroom)
+                else:
+                    self.user_manager.course_unregister_user(course, data["username"])
+            except:
+                pass
+        elif "register" in data:
+            try:
+                self.user_manager.course_register_user(course, data["username"], '', True)
+            except:
+                pass
+        return self.page(course)
+
     def submission_url_generator(self, course, username):
         """ Generates a submission url """
         return "/admin/" + course.get_id() + "/download?format=taskid%2Fusername&users=" + username
 
     def page(self, course, error="", post=False):
         """ Get all data and display the page """
-        user_list = self.user_manager.get_course_registered_users(course, False)
-        users = sorted(self.user_manager.get_users_info(user_list).items(),
+        users = sorted(self.user_manager.get_users_info(self.user_manager.get_course_registered_users(course, False)).items(),
                                    key=lambda k: k[1][0] if k[1] is not None else "")
 
         users = OrderedDict(sorted(self.user_manager.get_users_info(course.get_staff()).items(),
@@ -50,7 +73,7 @@ class CourseStudentListPage(INGIniousAdminPage):
             "task_grades": {"answer": 0, "match": 0}, "task_succeeded": 0, "task_tried": 0, "total_tries": 0,
             "grade": 0, "url": self.submission_url_generator(course, username)}) for username, user in users.iteritems()])
 
-        for username, data in self.user_manager.get_course_caches(user_list, course).iteritems():
+        for username, data in self.user_manager.get_course_caches(users.keys(), course).iteritems():
             user_data[username].update(data if data is not None else {})
 
         if "csv" in web.input():
