@@ -24,13 +24,19 @@ import argparse
 from inginious.common.base import load_json_or_yaml
 
 import inginious.frontend.lti.app
+from inginious.frontend.lti.installer import Installer
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", help="Path to configuration file. By default: configuration.yaml or configuration.json")
     parser.add_argument("--host", help="Host to bind to", default="localhost")
     parser.add_argument("--port", help="Port to listen to", type=int, default=8080)
+    parser.add_argument("--install", help="Runs the installation script", action='store_true')
     args = parser.parse_args()
+
+    if args.install:
+        Installer(args.config).run()
+        exit(0)
 
     config = None
     if args.config is None:
@@ -40,5 +46,6 @@ if __name__ == "__main__":
             config = "./configuration.lti.json"
         else:
             raise Exception("No configuration file found. Please check that the file configuration.lti.yaml exists.")
-
+    else:
+        config = args.config
     inginious.frontend.lti.app.start_app(load_json_or_yaml(config), hostname=args.host, port=args.port)

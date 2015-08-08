@@ -24,7 +24,7 @@ import sys
 
 setup(
     name="INGInious",
-    version="0.3.dev",
+    version="0.3.dev2",
     description="An intelligent grader that allows secured and automated testing of code made by students.",
     packages=find_packages(),
     dependency_links=["git+https://github.com/GuillaumeDerval/docker-py.git#egg=docker-py-1.3.0dev"],
