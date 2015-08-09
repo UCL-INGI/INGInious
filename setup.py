@@ -42,12 +42,20 @@ install_requires = [
     "pylti>=0.3.2",
     "mock >= 1.0.1"
 ]
+test_requires = [
+    "selenium",
+    "nose",
+    "pyvirtualdisplay"
+]
 
+# Platform specific dependencies
 if not on_rtd:
     install_requires += [
         "simpleldap>=0.8",
         "python-ldap>=2.4.19",
     ]
+else:
+    install_requires += test_requires
 
 if sys.platform == 'win32':
     install_requires += ["pbs>=0.110"]
@@ -57,6 +65,7 @@ else:
 if sys.platform.startswith('linux') and not on_rtd:
     install_requires += ["cgroup-utils>=0.5"]
 
+# Setup
 setup(
     name="INGInious",
     version=inginious.__version__,
@@ -64,11 +73,7 @@ setup(
     packages=find_packages(),
     dependency_links=["git+https://github.com/GuillaumeDerval/docker-py.git#egg=docker-py-1.3.0dev"],
     install_requires=install_requires,
-    tests_require=[
-        "selenium",
-        "nose",
-        "pyvirtualdisplay"
-    ],
+    tests_require=test_requires,
     extras_require={
         "cgi": ["flup"]
     },
