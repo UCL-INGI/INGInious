@@ -15,6 +15,7 @@
 import sys
 import os
 import inginious
+import sphinx_rtd_theme
 
 import sys
 from mock import Mock as MagicMock
