@@ -21,14 +21,16 @@ VOLUME /sys/fs/cgroup
 
 RUN \
     mkdir /agent && \
-    mkdir /agent/backend && \
-    touch /agent/backend/__init__.py && \
+    mkdir /agent/inginious && \
+    touch /agent/inginious/__init__.py && \
+    mkdir /agent/inginious/backend && \
+    touch /agent/inginious/backend/__init__.py && \
     git clone https://github.com/UCL-INGI/INGInious.git /INGInious && \
-    cp -r /INGInious/common /agent/common && \
-    cp -r /INGInious/backend/agent /agent/backend/agent && \
+    cp -r /INGInious/inginious/common /agent/inginious/common && \
+    cp -r /INGInious/inginious/backend/agent /agent/inginious/backend/agent && \
     rm -rf /INGInious
 
 WORKDIR /agent
-CMD ["/agent/backend/agent/start_container_agent.py"]
+CMD ["/agent/inginious/backend/agent/start_container_agent.py"]
 
 LABEL agent-version=0.3

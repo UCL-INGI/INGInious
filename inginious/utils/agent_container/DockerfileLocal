@@ -1,5 +1,5 @@
 # Create a custom agent container from local sources. The command to run (from INGInious root) is:
-# docker build -t ingi/inginious-agent --file=utils/agent_container/DockerfileLocal .
+# docker build -t ingi/inginious-agent --file=inginious/utils/agent_container/DockerfileLocal .
 
 FROM centos
 
@@ -21,10 +21,11 @@ RUN \
 VOLUME /agent_volume
 VOLUME /sys/fs/cgroup
 
-ADD common /agent/common
-ADD backend/agent /agent/backend/agent
-RUN touch /agent/backend/__init__.py
+ADD inginious/common /agent/inginious/common
+ADD inginious/backend/agent /agent/inginious/backend/agent
+RUN touch /agent/inginious/__init__.py && \
+    touch /agent/inginious/backend/__init__.py
 WORKDIR /agent
-CMD ["/agent/backend/agent/start_container_agent.py"]
+CMD ["/agent/inginious/backend/agent/start_container_agent.py"]
 
 LABEL agent-version=0.3
