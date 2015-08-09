@@ -23,31 +23,47 @@ from setuptools import setup, find_packages
 import sys
 import inginious
 
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+
+install_requires = [
+    "docker-py==1.3.0dev",
+    "docutils>=0.12",
+    "multiprocessing>=2.6.2.1",
+    "plumbum>=1.5.0",
+    "Pygments>=2.0.2",
+    "pymongo>=3.0.3",
+    "pytidylib>=0.2.4",
+    "PyYAML>=3.11",
+    "requests>=2.7.0",
+    "rpyc>=3.3.0",
+    "six>=1.9.0",
+    "web.py>=0.37",
+    "websocket-client>=0.32.0",
+    "pylti>=0.3.2",
+    "mock >= 1.0.1"
+]
+
+if not on_rtd:
+    install_requires += [
+        "simpleldap>=0.8",
+        "python-ldap>=2.4.19",
+    ]
+
+if sys.platform == 'win32':
+    install_requires += ["pbs>=0.110"]
+else:
+    install_requires += ["sh>=1.11"]
+
+if sys.platform.startswith('linux') and not on_rtd:
+    install_requires += ["cgroup-utils>=0.5"]
+
 setup(
     name="INGInious",
     version=inginious.__version__,
     description="An intelligent grader that allows secured and automated testing of code made by students.",
     packages=find_packages(),
     dependency_links=["git+https://github.com/GuillaumeDerval/docker-py.git#egg=docker-py-1.3.0dev"],
-    install_requires=[
-        "docker-py==1.3.0dev",
-        "docutils>=0.12",
-        "multiprocessing>=2.6.2.1",
-        "plumbum>=1.5.0",
-        "Pygments>=2.0.2",
-        "pymongo>=3.0.3",
-        "python-ldap>=2.4.19",
-        "pytidylib>=0.2.4",
-        "PyYAML>=3.11",
-        "requests>=2.7.0",
-        "rpyc>=3.3.0",
-        "simpleldap>=0.8",
-        "six>=1.9.0",
-        "web.py>=0.37",
-        "websocket-client>=0.32.0",
-        "pylti>=0.3.2",
-        "mock >= 1.0.1"
-    ] + (["sh>=1.11"] if not (sys.platform == 'win32') else ["pbs>=0.110"]) + (["cgroup-utils>=0.5"] if sys.platform.startswith('linux') else []),
+    install_requires=install_requires,
     tests_require=[
         "selenium",
         "nose",
