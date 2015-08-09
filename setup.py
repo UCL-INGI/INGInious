@@ -52,7 +52,8 @@ if not on_rtd:
     install_requires += [
         "simpleldap>=0.8",
         "python-ldap>=2.4.19",
-        "pytidylib>=0.2.4"
+        "pytidylib>=0.2.4",
+        "sphinx-rtd-theme>=0.1.8"
     ]
 else:
     install_requires += test_requires
