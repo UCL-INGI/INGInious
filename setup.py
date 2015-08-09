@@ -32,7 +32,6 @@ install_requires = [
     "plumbum>=1.5.0",
     "Pygments>=2.0.2",
     "pymongo>=3.0.3",
-    "pytidylib>=0.2.4",
     "PyYAML>=3.11",
     "requests>=2.7.0",
     "rpyc>=3.3.0",
@@ -53,6 +52,7 @@ if not on_rtd:
     install_requires += [
         "simpleldap>=0.8",
         "python-ldap>=2.4.19",
+        "pytidylib>=0.2.4"
     ]
 else:
     install_requires += test_requires
