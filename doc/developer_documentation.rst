@@ -15,11 +15,6 @@ Code documentation
 ------------------
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 5
 
-   dev_doc/app_frontend
-   dev_doc/frontend
-   dev_doc/common
-   dev_doc/backend
-   dev_doc/agent
-   dev_doc/app_agent
+   api_doc/inginious

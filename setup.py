@@ -21,10 +21,11 @@ import os
 
 from setuptools import setup, find_packages
 import sys
+import inginious
 
 setup(
     name="INGInious",
-    version="0.3.dev2",
+    version=inginious.__version__,
     description="An intelligent grader that allows secured and automated testing of code made by students.",
     packages=find_packages(),
     dependency_links=["git+https://github.com/GuillaumeDerval/docker-py.git#egg=docker-py-1.3.0dev"],
@@ -44,7 +45,8 @@ setup(
         "six>=1.9.0",
         "web.py>=0.37",
         "websocket-client>=0.32.0",
-        "pylti>=0.3.2"
+        "pylti>=0.3.2",
+        "mock >= 1.0.1"
     ] + (["sh>=1.11"] if not (sys.platform == 'win32') else ["pbs>=0.110"]) + (["cgroup-utils>=0.5"] if sys.platform.startswith('linux') else []),
     tests_require=[
         "selenium",
