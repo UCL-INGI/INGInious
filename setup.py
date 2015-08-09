@@ -59,6 +59,7 @@ setup(
         'inginious-agent',
         'inginious-lti',
         'inginious-webapp',
+        'inginious-install',
         'inginious/utils/check_task_description/inginious-check-task',
         'inginious/utils/sync/inginious-synchronize',
         'inginious/utils/task_auto_tester/inginious-auto-test-task',
