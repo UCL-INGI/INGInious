@@ -134,3 +134,4 @@ problems:
         limit: 3
         type: multiple-choice
 weight: 1.0
+order: 9

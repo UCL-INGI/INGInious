@@ -23,3 +23,4 @@ problems:
         answer: '42'
         header: Type 42
 weight: 1.0
+order: 6

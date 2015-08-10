@@ -36,20 +36,23 @@ $var Navbar: $:NavbarF()
 
 <h2>Statistics for student $user_realname ($username)</h2>
 <table class="table">
-    <tr>
-        <th>task</th>
-        <th>status</th>
-        <th># submissions</th>
-        <th>
-            <div class="btn-group" role="group">
-                <a href="/admin/${course.get_id()}/download?format=taskid%2Fusername&users=$username"
-                   class="btn btn-danger btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa
-                   fa-download"></i></a>
-                <a href="/admin/${course.get_id()}/student/${username}?csv" class="btn btn-info btn-xs" title="Download
-                   CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
-            </div>
-        </th>
-    </tr>
+    <thead>
+        <tr>
+            <th>task</th>
+            <th>status</th>
+            <th># submissions</th>
+            <th>
+                <div class="btn-group" role="group">
+                    <a href="/admin/${course.get_id()}/download?format=taskid%2Fusername&users=$username"
+                       class="btn btn-danger btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa
+                       fa-download"></i></a>
+                    <a href="/admin/${course.get_id()}/student/${username}?csv" class="btn btn-info btn-xs" title="Download
+                       CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
+                </div>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
     $for task in data:
     	<tr
             $if task["status"] == "notattempted":
@@ -80,4 +83,5 @@ $var Navbar: $:NavbarF()
                 </div>
     		</td>
     	</tr>
+    </tbody>
 </table>

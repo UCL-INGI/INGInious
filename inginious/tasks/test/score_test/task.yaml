@@ -15,3 +15,4 @@ problems:
         language: python
         header: 'def func():'
 weight: 2.0
+order: 7

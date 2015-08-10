@@ -35,21 +35,24 @@ $var Navbar: $:NavbarF()
 
 <h2>Submissions for the task "$:task.get_name()" - $classroom["description"]</h2>
 <table class="table">
-    <tr>
-        <th>authors</th>
-        <th>id</th>
-        <th>submitted on</th>
-        <th>result</th>
-        <th>
-            <div class="btn-group" role="group">
-                <a href="/admin/${course.get_id()}/download?format=taskid%2Fclassroom&classrooms=${classroom['_id']}&tasks=${task.get_id()}"
-                   class="btn btn-danger btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa
-                   fa-download"></i></a>
-                <a href="/admin/${course.get_id()}/classroom/${classroom['_id']}/${task.get_id()}?csv" class="btn btn-info btn-xs" title="Download
-                   CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
-            </div>
-        </th>
-    </tr>
+    <thead>
+        <tr>
+            <th>authors</th>
+            <th>id</th>
+            <th>submitted on</th>
+            <th>result</th>
+            <th>
+                <div class="btn-group" role="group">
+                    <a href="/admin/${course.get_id()}/download?format=taskid%2Fclassroom&classrooms=${classroom['_id']}&tasks=${task.get_id()}"
+                       class="btn btn-danger btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa
+                       fa-download"></i></a>
+                    <a href="/admin/${course.get_id()}/classroom/${classroom['_id']}/${task.get_id()}?csv" class="btn btn-info btn-xs" title="Download
+                       CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
+                </div>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
     $for submission in data:
         $ succeeded = "result" in submission and submission["result"] == "success"
     	<tr
@@ -81,6 +84,7 @@ $var Navbar: $:NavbarF()
                 </div>
             </td>
     	</tr>
+    </tbody>
 </table>
 
 <div class="modal fade" id="modal_feedback" tabindex="-1" role="dialog" aria-labelledby="modal_feedback_label" aria-hidden="true">

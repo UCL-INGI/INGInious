@@ -31,6 +31,23 @@ class CourseTaskListPage(INGIniousAdminPage):
         course, _ = self.get_course_and_check_rights(courseid)
         return self.page(course)
 
+    def POST(self, courseid):
+        """ POST request """
+        course, _ = self.get_course_and_check_rights(courseid)
+        data = web.input(task=[])
+
+        if "task" in data:
+            # Change tasks order
+            for index, taskid in enumerate(data["task"]):
+                try:
+                    task = self.task_factory.get_task_descriptor_content(courseid, taskid)
+                    task["order"] = index
+                    self.task_factory.update_task_descriptor_content(courseid, taskid, task)
+                except:
+                    pass
+
+        return self.page(course)
+
     def submission_url_generator(self, course, taskid):
         """ Generates a submission url """
         return "/admin/" + course.get_id() + "/download?format=taskid%2Fusername&tasks=" + taskid

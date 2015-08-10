@@ -43,19 +43,22 @@ $var Navbar: $:NavbarF()
         <div id="edit_task_tabs_content" class="tab-content">
                 <div role="tabpanel" class="tab-pane active" id="tab_indiv">
                     <table class="table">
-                        <tr>
-                            <th>Student</th>
-                            <th>Status</th>
-                            <th># submissions</th>
-                            <th>
-                                <div class="btn-group" role="group">
-                                    <a href="/admin/${course.get_id()}/download?format=taskid%2Fusername&tasks=$task.get_id()" class="btn btn-danger
-                                        btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                                    <a href="/admin/${course.get_id()}/task/${task.get_id()}?csv=students" class="btn btn-info btn-xs" title="Download CSV"
-                                       data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
-                                </div>
-                            </th>
-                        </tr>
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Status</th>
+                                <th># submissions</th>
+                                <th>
+                                    <div class="btn-group" role="group">
+                                        <a href="/admin/${course.get_id()}/download?format=taskid%2Fusername&tasks=$task.get_id()" class="btn btn-danger
+                                            btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                                        <a href="/admin/${course.get_id()}/task/${task.get_id()}?csv=students" class="btn btn-info btn-xs" title="Download CSV"
+                                           data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
                         $for user in individual_data:
                             <tr
                                 $if user["status"] == "notattempted":
@@ -92,23 +95,27 @@ $var Navbar: $:NavbarF()
                                     </div>
                                 </td>
                             </tr>
+                        </tbody>
                     </table>
                 </div>
                 <div role="tabpanel" class="tab-pane" id="tab_classroom">
                     <table class="table">
-                        <tr>
-                            <th>Classroom</th>
-                            <th>Status</th>
-                            <th># submissions</th>
-                            <th>
-                                <div class="btn-group" role="group">
-                                    <a href="/admin/${course.get_id()}/download?format=taskid%2Fclassroom&tasks=$task.get_id()" class="btn btn-danger
-                                        btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                                    <a href="/admin/${course.get_id()}/task/${task.get_id()}?csv=classrooms" class="btn btn-info btn-xs" title="Download CSV"
-                                       data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
-                                </div>
-                            </th>
-                        </tr>
+                        <thead>
+                            <tr>
+                                <th>Classroom</th>
+                                <th>Status</th>
+                                <th># submissions</th>
+                                <th>
+                                    <div class="btn-group" role="group">
+                                        <a href="/admin/${course.get_id()}/download?format=taskid%2Fclassroom&tasks=$task.get_id()" class="btn btn-danger
+                                            btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                                        <a href="/admin/${course.get_id()}/task/${task.get_id()}?csv=classrooms" class="btn btn-info btn-xs" title="Download CSV"
+                                           data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
                         $ text = ["My classrooms","Other classrooms"]
                         $for ind in range(0,2):
                             $if len(classroom_data[ind]) > 0:
@@ -148,6 +155,7 @@ $var Navbar: $:NavbarF()
                                         </div>
                                     </td>
                                 </tr>
+                        </tbody>
                     </table>
                 </div>
         </div>

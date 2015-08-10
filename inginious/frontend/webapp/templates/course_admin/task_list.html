@@ -30,27 +30,40 @@ $def NavbarF():
     </ol>
 $var Navbar: $:NavbarF()
 
-<h2>Tasks</h2>
-<table class="table">
-    <tr>
-        <th>task name</th>
-        <th># student viewed</th>
-        <th># student attempted</th>
-        <th># student succeeded</th>
-        <th># attempts</th>
-        <th>
-            <div class="btn-group" role="group">
-                <a href="/admin/${course.get_id()}/download?format=taskid%2Fusername" class="btn btn-danger btn-xs" title="Download
-                   all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                <a href="/admin/${course.get_id()}/tasks?csv" class="btn btn-info btn-xs" title="Download
-                   CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
-            </div>
-        </th>
-    </tr>
+<form method="post">
+<h2>Tasks
+    <div class="pull-right">
+        <div class="btn-group">
+            <button type="button" id="switch" class="btn-sm btn btn-default"><i class="fa fa-list-ol"></i> Change task order</button>
+            <button type="submit" id="switch" class="btn-sm btn btn-success"><i class="fa fa-check"></i> Update task order</button>
+        </div>
+    </div>
+</h2>
+
+<table class="table sorted_table">
+    <thead>
+        <tr>
+            <th>task name</th>
+            <th># student viewed</th>
+            <th># student attempted</th>
+            <th># student succeeded</th>
+            <th># attempts</th>
+            <th>
+                <div class="btn-group" role="group">
+                    <a href="/admin/${course.get_id()}/download?format=taskid%2Fusername" class="btn btn-danger btn-xs" title="Download
+                       all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                    <a href="/admin/${course.get_id()}/tasks?csv" class="btn btn-info btn-xs" title="Download
+                       CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
+                </div>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
     $for taskid in data:
     	<tr>
     		<td>
     			<a href="/admin/${course.get_id()}/task/$taskid">$data[taskid]["name"]</a>
+                <input type="hidden" name="task" value="$taskid">
     		</td>
     		<td>$data[taskid]["viewed"]</td>
     		<td>$data[taskid]["attempted"]</td>
@@ -67,11 +80,16 @@ $var Navbar: $:NavbarF()
                 </div>
     		</td>
     	</tr>
-    <tr>
-        <td colspan="5"><input type="text" class="form-control" id="new_task_id" placeholder="New task id"/></td>
-        <td><a href="javascript:studio_create_new_task();" class="btn btn-info btn-large btn-block">Create new task</a></td>
-    </tr>
+    </tbody>
 </table>
+</form>
+
+<div class="row">
+    <div class="form-group">
+        <div class="col-sm-9"><input type="text" class="form-control" id="new_task_id" placeholder="New task id"/></div>
+        <div class="col-sm-3"><a href="javascript:studio_create_new_task();" class="btn btn-info btn-large btn-block">Create new task</a></div>
+    </div>
+</div>
 $if len(errors) != 0:
     <h3>Errors while loading tasks</h3>
     <table class="table">
@@ -85,3 +103,25 @@ $if len(errors) != 0:
                 <td><pre>$task['error']</pre></td>
             </tr>
     </table>
+
+<script type="text/javascript">
+$$('.sorted_table').sortable({
+    containerSelector: 'table',
+    itemPath: '> tbody',
+    itemSelector: 'tr',
+    placeholder: '<tr class="placeholder"/>'
+});
+
+$$('.sorted_table').sortable("disable");
+
+$$("#switch").click(function  (e) {
+    if($$(this).hasClass("active")) {
+        $$(this).removeClass("active");
+        $$(".sorted_table tr").removeAttr("style");
+    } else {
+        $$(this).addClass("active");
+        $$(".sorted_table tr").attr("style", "cursor: pointer;");
+    }
+    $$('.sorted_table').sortable($$(this).hasClass("active") ? "enable" : "disable");
+});
+</script>

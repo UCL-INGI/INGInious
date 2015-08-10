@@ -47,21 +47,23 @@ $var Navbar: $:NavbarF()
         </div>
 
 <table class="table">
-    <tr>
-        <th>Classroom</th>
-        <th># students</th>
-        <th># task tried</th>
-        <th># task done</th>
-        <th>
-            <div class="btn-group" role="group">
-                <a href="/admin/${course.get_id()}/download?format=taskid%2Fclassroom" class="btn btn-danger btn-xs" title="Download
-                   all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                <a href="/admin/${course.get_id()}/classrooms?csv" class="btn btn-info btn-xs" title="Download
-                   CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
-            </div>
-        </th>
-    </tr>
-
+    <thead>
+        <tr>
+            <th>Classroom</th>
+            <th># students</th>
+            <th># task tried</th>
+            <th># task done</th>
+            <th>
+                <div class="btn-group" role="group">
+                    <a href="/admin/${course.get_id()}/download?format=taskid%2Fclassroom" class="btn btn-danger btn-xs" title="Download
+                       all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                    <a href="/admin/${course.get_id()}/classrooms?csv" class="btn btn-info btn-xs" title="Download
+                       CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
+                </div>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
     $ text = ["My classroom(s)","Other classroom(s)"]
     $for ind in range(0,2):
         $if len(data[ind]) > 0:
@@ -88,6 +90,7 @@ $var Navbar: $:NavbarF()
                         </div>
                     </td>
                 </tr>
+    </tbody>
 </table>
 
 <form class="form-horizontal" method="post">
