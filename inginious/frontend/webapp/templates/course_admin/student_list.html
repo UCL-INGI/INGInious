@@ -49,19 +49,18 @@ $var Navbar: $:NavbarF()
     <div class="tab-content">
         <div role="tabpanel" class="tab-pane active" id="tab_students">
             $:include.course_admin.student_list_table(course,user_data[len(course.get_staff()):len(user_data)], False)
+            $if user_manager.has_admin_rights_on_course(course):
+                <div class="row">
+                    <form class=form-horizontal" method="post">
+                        <div class="form-group">
+                            <div class="col-sm-9"><input type="text" class="form-control" name="username" placeholder="Student username"/></div>
+                            <div class="col-sm-3"><button name="register" type="submit" class="btn btn-warning btn-block"><i class="fa fa-plus fa-lg"></i> Add student</button></div>
+                        </div>
+                    </form>
+                </div>
         </div>
         <div role="tabpanel" class="tab-pane" id="tab_staff">
             $:include.course_admin.student_list_table(course,user_data[0:len(course.get_staff())], True)
         </div>
     </div>
 </div>
-
-$if user_manager.has_admin_rights_on_course(course):
-    <div class="row">
-        <form class=form-horizontal" method="post">
-            <div class="form-group">
-                <div class="col-sm-9"><input type="text" class="form-control" name="username" placeholder="Student username"/></div>
-                <div class="col-sm-3"><button name="register" type="submit" class="btn btn-warning btn-block"><i class="fa fa-plus fa-lg"></i> Add student</button></div>
-            </div>
-        </form>
-    </div>

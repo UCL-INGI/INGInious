@@ -50,28 +50,30 @@ $ is_admin = user_manager.has_admin_rights_on_course(course)
         </script>
 
     <table class="table">
-        <tr>
-            $if is_staff:
-                <th>member</th>
-            $else:
-                <th>student</th>
-            <th># task tried</th>
-            <th># task done</th>
-            <th>current grade</th>
-            <th>
-                <div class="btn-group" role="group">
-                    <a href="/admin/${course.get_id()}/download?format=taskid%2Fusername" class="btn btn-danger btn-xs"
-                       title="Download
-                       all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                    <a href="/admin/${course.get_id()}/students?csv" class="btn btn-info btn-xs" title="Download
-                       CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
-                    $if not is_staff and is_admin:
-                        <button type="button" data-toggle="modal" data-username="all students" data-type="all" data-target="#remove_modal" class="btn btn-warning btn-xs" title="Unregister all students"
-                           data-toggle="tooltip" data-placement="bottom"><i class="fa fa-user-times"></i></button>
-                </div>
-            </th>
-        </tr>
-
+        <thead>
+            <tr>
+                $if is_staff:
+                    <th>member</th>
+                $else:
+                    <th>student</th>
+                <th># task tried</th>
+                <th># task done</th>
+                <th>current grade</th>
+                <th>
+                    <div class="btn-group" role="group">
+                        <a href="/admin/${course.get_id()}/download?format=taskid%2Fusername" class="btn btn-danger btn-xs"
+                           title="Download
+                           all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                        <a href="/admin/${course.get_id()}/students?csv" class="btn btn-info btn-xs" title="Download
+                           CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
+                        $if not is_staff and is_admin:
+                            <button type="button" data-toggle="modal" data-username="all students" data-type="all" data-target="#remove_modal" class="btn btn-warning btn-xs" title="Unregister all students"
+                               data-toggle="tooltip" data-placement="bottom"><i class="fa fa-user-times"></i></button>
+                    </div>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
         $for user in user_data:
              <tr>
                 <td>
@@ -102,6 +104,7 @@ $ is_admin = user_manager.has_admin_rights_on_course(course)
                     </div>
                 </td>
             </tr>
+        </tbody>
     </table>
 
 </form>

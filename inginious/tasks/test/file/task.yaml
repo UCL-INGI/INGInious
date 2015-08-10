@@ -16,3 +16,4 @@ problems:
         allowed_exts:
         - .txt
 weight: 1.0
+order: 1

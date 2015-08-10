@@ -9,7 +9,7 @@ limits:
     output: '5210'
     time: '30'
 name: Basic questions
-order: 1
+order: 3
 problems:
     q1:
         name: What is the name of the Earth destructors ?

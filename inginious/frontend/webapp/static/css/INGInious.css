@@ -294,3 +294,22 @@ li.placeholder:before {
   border-left-color: black;
   border-right: none;
 }
+.sorted_table tr.placeholder {
+  display: block;
+  background: black;
+  position: relative;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+.sorted_table tr.placeholder:before {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 0;
+  border: 5px solid transparent;
+  border-left-color: black;
+  margin-top: -5px;
+  left: -5px;
+  border-right: none;
+}

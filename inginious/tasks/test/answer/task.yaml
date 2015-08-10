@@ -10,7 +10,7 @@ limits:
     output: '5210'
     time: '10'
 name: Deep Thought Simulation
-order: 0
+order: 2
 problems:
     q1:
         language: ''

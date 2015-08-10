@@ -21,3 +21,4 @@ problems:
         language: python
         header: 'def func():'
 weight: 3.0
+order: 0
