@@ -75,7 +75,7 @@ Inside a course folder (see `Creating a new course`) tasks must have
     not need it. This environment will be used by default for the student containers.
 
 -   *groups* allows to indicate if the submission is to be done individually or per groups.
-    This field is only needed and taken into account for group-managed courses (see Group work).
+    (see Classrooms and Groups).
 
 .. [#] There are some options about using HTML instead of restructuredText, but they
        are purposely not documented :-)

@@ -60,7 +60,7 @@ class CourseTaskListPage(INGIniousAdminPage):
                     "$match":
                         {
                             "courseid": course.get_id(),
-                            "username": {"$in": self.user_manager.get_course_registered_users(course)}
+                            "username": {"$in": self.user_manager.get_course_registered_users(course, False)}
                         }
                 },
                 {

@@ -78,50 +78,44 @@ Uploading task files
 
 .. _groups:
 
-Group work
-----------
+Classrooms and groups
+---------------------
 
-Students may sometimes be allowed to work in groups. In this case, they
-are used to submit one common work. INGInious integrates a group
-management solution to ease the teacher to correct these grouped works
+Classrooms are useful to administratively separate students following the
+same course. Classrooms offer separate statistics to help the teacher identify
+problems students may encounter in this particular context. Submission
+groups can be set in classrooms. These groups define a set of users that
+will submit together. Their submissions will contain as authors all the
+students that were members of the group at submission time.
 
-What is a group ?
-`````````````````
+Students in one classroom can collaborate together if the teacher allow
+them to, and cannot collaborate with students from another classroom.
+If you want students from different classrooms to work together in one
+submission group, maybe INGInious classrooms are not useful for you and
+you should only consider groups in one default classroom.
 
-A group in INGInious is defined as follow: it consists in a possibly
-changing association of users that make submissions together, and an
-identifier/description that enables the easy retrieval of submissions.
-That is, every submission is accounted to every student that was member
-of the group at the submission time, and the submissions associated to
-a group are linked to its identifier and may not be made by the same
-association of users if the group changed at some time.
-It is therefore recommended to make only minor changes to a created group.
+Classroom creation/edition
+``````````````````````````
 
-Activating group work
-`````````````````````
-
-Group work can be enabled and disabled during the period of the course.
-Statistics will be kept. However, these group statistics are only
-available when group work is enabled. To enable group work in the course
-settings, switch the submission mode to "Per groups" in the course
-settings.
-
-Groups can be formed by the course administrators or by the students
-at the registration time. This option can be set in the course settings.
-If the option is set, students will be asked to select a group among
-the remaining non-full groups at the registration time.
-
-Group creation/edition
-``````````````````````
-
-Groups have to be created and edited from the frontend in the course
-administration. In the group list view, specify a group description,
-and click on "Create new group". The newly created group will appear
+Classrooms have to be created and edited from the web app in the course
+administration. In the classroom list view, specify a classroom description,
+and click on "Create new classroom". The newly created classroom will appear
 in the list.
 
-To edit a group, click on the quick link "Edit group" located on the
-right side of the table. You'll be able to change the group
-description and to specify the maximum group size, the student list
-(from the registered student list of your course) and the assigned
-tutors/supervisors (from the teaching staff). Assigning tutors will
-help them to retrieve their group statistics.
+To edit a classroom, click on the quick link "Edit classroom" located on the
+right side of the table. You'll be able to change the classroom description,
+the associated teaching staff, and to specify the (grouped) students.
+Assigning tutors will help them to retrieve their classroom statistics.
+
+The student list is entirely managed by drag-and-drop. You can create
+a new group on the same page, set its maximum size, and drag-and-drop
+ungrouped students or already grouped students in the newly created group.
+
+Classroom attribution
+`````````````````````
+
+If you does not really matter the way students are grouped together, you can
+set empty groups with maximum size and let the students choose their groups
+themselves. Just check the option in the course settings to allow them to group
+together. When submissions will be retrieved, the group members will be displayed
+as the authors as with staff-grouped students.
