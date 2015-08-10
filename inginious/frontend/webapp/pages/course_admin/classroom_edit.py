@@ -18,6 +18,7 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Pages that allow editing of tasks """
 
+from inginious.common import custom_yaml
 import web
 import json
 from pymongo import ReturnDocument
@@ -71,6 +72,55 @@ class CourseEditClassroom(INGIniousAdminPage):
 
         return student_list, tutor_list, other_students, users_info
 
+    def update_classroom(self, course, classroomid, new_data):
+        """ Update classroom and returns a list of errored students"""
+        student_list, tutor_list, other_students, users_info = self.get_user_lists(course, classroomid)
+
+        # Check tutors
+        new_data["tutors"] = [tutor for tutor in new_data["tutors"] if tutor in tutor_list]
+
+        students, groups, errored_students = [], [], []
+
+        # Check the students
+        for student in new_data["students"]:
+            if student in student_list:
+                students.append(student)
+            else:
+                if student in other_students:
+                    # Remove user from the other classroom
+                    self.database.classrooms.find_one_and_update({"courseid": course.get_id(), "groups.students": student}, {"$pull": {"groups.$.students": student, "students": student}})
+                    self.database.classrooms.find_one_and_update({"courseid": course.get_id(), "students": student}, {"$pull": {"students": student}})
+                    students.append(student)
+                else:
+                    # Check if user can be registered
+                    user_info = self.user_manager.get_user_info(student)
+                    if user_info is None or student in tutor_list:
+                        errored_students.append(student)
+                    else:
+                        students.append(student)
+
+        removed_students = [student for student in student_list if student not in new_data["students"]]
+        self.database.classrooms.find_one_and_update({"courseid": course.get_id(), "default": True},
+                                                     {"$push": {"students": {"$each": removed_students}}})
+
+        new_data["students"] = students
+
+        # Check the groups
+        for group in new_data["groups"]:
+            group["students"] = [student for student in group["students"] if student in new_data["students"]]
+            if len(group["students"]) <= group["size"]:
+                groups.append(group)
+
+        new_data["groups"] = groups
+
+        classroom = self.database.classrooms.find_one_and_update(
+            {"_id": ObjectId(classroomid)},
+            {"$set": {"description": new_data["description"],
+                      "students": students, "tutors": new_data["tutors"],
+                      "groups": groups}}, return_document=ReturnDocument.AFTER)
+
+        return classroom, errored_students
+
     def GET(self, courseid, classroomid):
         """ Edit a classroom """
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
@@ -85,13 +135,14 @@ class CourseEditClassroom(INGIniousAdminPage):
     def POST(self, courseid, classroomid):
         """ Edit a classroom """
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
-        student_list, tutor_list, other_students, users_info = self.get_user_lists(course, classroomid)
-        classroom = self.database.classrooms.find_one({"_id": ObjectId(classroomid), "courseid": courseid})
 
         error = False
         try:
-            data = web.input(tutors=[], groups=[])
+            data = web.input(tutors=[], groups=[], classroomfile={})
             if "delete" in data:
+                # Get the classroom
+                classroom = self.database.classrooms.find_one({"_id": ObjectId(classroomid), "courseid": courseid})
+
                 if classroom['default']:
                     msg = "You can't remove your default classroom."
                     error = True
@@ -103,47 +154,20 @@ class CourseEditClassroom(INGIniousAdminPage):
 
                     self.database.classrooms.delete_one({"_id": ObjectId(classroomid)})
                     raise web.seeother("/admin/" + courseid + "/classrooms")
-            elif "upload" in data:
-                msg = "New classroom settings uploaded."
             else:
-                # Check tutors
-                data["tutors"] = [tutor for tutor in data["tutors"] if tutor in tutor_list]
+                if "upload" in data:
+                    new_data = custom_yaml.load(data["classroomfile"].file)
+                else:
+                    # Prepare classroom-like data structure from input
+                    new_data = {"description": data["description"], "tutors": data["tutors"], "students": [], "groups": []}
+                    for index, groupstr in enumerate(data["groups"]):
+                        group = json.loads(groupstr)
+                        new_data["students"].extend(group["students"])
+                        if index != 0:
+                            new_data["groups"].append(group)
 
-                students, groups, errored_students = [], [], []
-                # Generate groups structure
-                for groupstr in data["groups"]:
-                    group = json.loads(groupstr)
-
-                    # Check students
-                    for student in group["students"]:
-                        if student in student_list:
-                            student_list[student] = {"grouped": True if (group["size"] > 0 and group["size"] >= len(group["students"])) else False}
-                            students.append(student)
-                        elif student in other_students:
-                            # Needed if user belongs to a group
-                            self.database.classrooms.find_one_and_update({"courseid": courseid, "groups.students": student}, {"$pull": {"groups.$.students": student, "students": student}})
-                            # If user doesn't belong to a group, will ensure correct deletion
-                            self.database.classrooms.find_one_and_update({"courseid": courseid, "students": student}, {"$pull": {"students": student}})
-
-                            student_list[student] = {"grouped": True if (group["size"] > 0 and group["size"] >= len(group["students"])) else False}
-                            students.append(student)
-                        else:
-                            user_info = self.user_manager.get_user_info(student)
-                            if user_info is not None and student not in tutor_list:
-                                student_list[student] = {"grouped": True if (group["size"] > 0 and group["size"] >= len(group["students"])) else False}
-                                students.append(student)
-                                users_info[student] = user_info
-                            else:
-                                errored_students.append(student)
-
-                    # Remove errored students from group
-                    group["students"] = [student for student in group["students"] if student not in errored_students]
-                    if group["size"] > 0 and group["size"] >= len(group["students"]):
-                        groups.append(group)
-
-                removed_students = [student for student in student_list if student not in students]
-                self.database.classrooms.find_one_and_update({"courseid": courseid, "default": True},
-                                                             {"$push": {"students": {"$each": removed_students}}})
+                classroom, errored_students = self.update_classroom(course, classroomid, new_data)
+                student_list, tutor_list, other_students, users_info = self.get_user_lists(course, classroom["_id"])
 
                 if len(errored_students) > 0:
                     msg = "Changes couldn't be applied for following students : <ul>"
@@ -154,14 +178,10 @@ class CourseEditClassroom(INGIniousAdminPage):
                 else :
                     msg = "Classroom updated."
 
-                classroom = self.database.classrooms.find_one_and_update(
-                    {"_id": ObjectId(classroomid)},
-                    {"$set": {"description": data["description"],
-                              "students": students, "tutors": data["tutors"],
-                              "groups": groups}}, return_document=ReturnDocument.AFTER)
-
         except:
-            msg = 'An error occurred while parsing the form data.'
+            classroom = self.database.classrooms.find_one({"_id": ObjectId(classroomid), "courseid": courseid})
+            student_list, tutor_list, other_students, users_info = self.get_user_lists(course, classroom["_id"])
+            msg = 'An error occurred while parsing the data.'
             error = True
 
         return self.template_helper.get_renderer().course_admin.edit_classroom(course, student_list, tutor_list, other_students, users_info, classroom, msg, error)

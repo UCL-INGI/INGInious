@@ -111,6 +111,40 @@ The student list is entirely managed by drag-and-drop. You can create
 a new group on the same page, set its maximum size, and drag-and-drop
 ungrouped students or already grouped students in the newly created group.
 
+Classroom upload
+````````````````
+
+You can generate your classroom structure with an external tool and then
+upload it on INGInious. A YALM file of this structure is required :
+
+::
+
+    description: Classroom description
+    tutors:
+            - tutor1
+            - tutor2
+    students: - user1
+              - user2
+    groups: - size: 2
+              students: - user1
+                        - user2
+
+-   *description* is a string and corresponds to your class description
+
+-   *tutors* is a list of strings representing the usernames of the
+assigned classroom tutors.
+
+-   *students* is a list of strings representing the usernames of the
+classroom students.
+
+-   *groups* is a list of group structures containing the following elements :
+
+    *size*
+        the maximum group size
+    *students*
+        the list of student usernames in this group
+
+
 Group attribution
 `````````````````
 

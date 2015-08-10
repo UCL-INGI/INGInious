@@ -103,7 +103,7 @@ $elif msg:
     </div>
 </div>
 
-<form method="post" class="form-horizontal">
+<form method="post" enctype="multipart/form-data" class="form-horizontal">
     <div role="tabpanel">
         <ul class="nav nav-tabs" role="tablist">
 			<li role="presentation" class="active"><a href="#tab_basic" aria-controls="basic" role="tab" data-toggle="tab">
@@ -251,6 +251,13 @@ $elif msg:
                 <button name="update" class="btn btn-primary btn-block" onclick="javascript:classroom_prepare_submit()" type="submit"><i class="fa fa-floppy-o"></i> Update</button>
             </div>
             <div role="tabpanel" class="tab-pane" id="tab_upload">
+                <div class="form-group">
+                    <label for="name" class="col-sm-2 control-label">Classroom description</label>
+                    <div class="col-sm-10">
+                        <p>Note : Please refer to documentation for file format</p>
+                        <input name="classroomfile" type="file">
+                    </div>
+                </div>
 
                 <button name="upload" class="btn btn-danger btn-block" type="submit"><i class="fa fa-download"></i> Upload (will erase current settings)</button>
             </div>
