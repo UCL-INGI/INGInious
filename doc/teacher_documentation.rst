@@ -4,7 +4,7 @@ Teacher's documentation
 Contents:
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
 
    teacher_doc/what_is_inginious
    teacher_doc/create_course
