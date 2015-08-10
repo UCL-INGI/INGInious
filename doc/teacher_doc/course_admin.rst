@@ -115,7 +115,7 @@ Classroom upload
 ````````````````
 
 You can generate your classroom structure with an external tool and then
-upload it on INGInious. A YALM file of this structure is required :
+upload it on INGInious. A YAML file of this structure is required :
 
 ::
 
@@ -151,7 +151,7 @@ upload it on INGInious. A YALM file of this structure is required :
 Group attribution
 `````````````````
 
-If you does not really matter the way students are grouped together, you can
+If you do not really matter the way students are grouped together, you can
 set empty groups with maximum size and let the students choose their groups
 themselves. Just check the option in the course settings to allow them to group
 together. When submissions will be retrieved, the group members will be displayed
