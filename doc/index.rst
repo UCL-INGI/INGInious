@@ -6,6 +6,7 @@ INGInious' documentation
 
     installation
     updating
+    config_reference
     teacher_documentation
     developer_documentation
 
