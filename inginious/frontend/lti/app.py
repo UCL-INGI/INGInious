@@ -36,7 +36,7 @@ from inginious.common.course_factory import create_factories
 from inginious.frontend.common.tasks import FrontendTask
 from inginious.frontend.common.courses import FrontendCourse
 from inginious.frontend.common.templates import TemplateHelper
-from inginious.frontend.common.webpy_fake_mapping import WebPyFakeMapping
+from inginious.frontend.common.webpy_fake_mapping import WebPyCustomMapping
 from inginious.frontend.lti.lis_outcome_manager import LisOutcomeManager
 from inginious.frontend.lti.submission_manager import LTISubmissionManager
 from inginious.frontend.lti.user_manager import UserManager
@@ -173,13 +173,13 @@ def get_app(config, active_callback=None):
     appli.notfound = lambda: web.notfound(template_helper.get_renderer().notfound('Page not found'))
 
     # Init the mapping of the app
-    appli.mapping = WebPyFakeMapping(dict(urls), plugin_manager,
-                                     course_factory, task_factory,
-                                     submission_manager, user_manager,
-                                     template_helper, database, gridfs,
-                                     default_allowed_file_extensions, default_max_file_size,
-                                     config["containers"].keys(),
-                                     config["lti"])
+    appli.init_mapping(WebPyCustomMapping(dict(urls), plugin_manager,
+                       course_factory, task_factory,
+                       submission_manager, user_manager,
+                       template_helper, database, gridfs,
+                       default_allowed_file_extensions, default_max_file_size,
+                       config["containers"].keys(),
+                       config["lti"]))
 
     # Active hook
     if active_callback is not None:
