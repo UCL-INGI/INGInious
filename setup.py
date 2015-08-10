@@ -39,7 +39,8 @@ install_requires = [
     "web.py-INGI>=0.38dev1",
     "websocket-client>=0.32.0",
     "pylti>=0.3.2",
-    "mock >= 1.0.1"
+    "mock >= 1.0.1",
+    "watchdog >= 0.8.3"
 ]
 test_requires = [
     "selenium",
