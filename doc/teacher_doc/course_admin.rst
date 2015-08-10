@@ -123,11 +123,14 @@ upload it on INGInious. A YALM file of this structure is required :
     tutors:
             - tutor1
             - tutor2
-    students: - user1
-              - user2
-    groups: - size: 2
-              students: - user1
-                        - user2
+    students:
+            - user1
+            - user2
+    groups:
+            - size: 2
+              students:
+                    - user1
+                    - user2
 
 -   *description* is a string and corresponds to your class description
 
