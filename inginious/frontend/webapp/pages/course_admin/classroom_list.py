@@ -81,6 +81,7 @@ class CourseClassroomListPage(INGIniousAdminPage):
                         "$match":
                             {
                                 "courseid": course.get_id(),
+                                "taskid": {"$in": course.get_tasks().keys()},
                                 "username": {"$in": classroom["students"]}
                             }
                     },

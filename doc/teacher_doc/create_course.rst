@@ -112,9 +112,6 @@ There are other fields that are available in the frontend:
 ``nofrontend``
         if this field is defined and set to ``true``, then the course won't be displayed on the frontend, but will still be available for the plugins.
 
-``groups``
-    If this field is defined and set to ``true``, group work will be activated.
-
 ``groups_student_choice``
     If this field is defined and set to ``true`` and if group work is activated, students will be invited to register
     for a group at the registration time.
