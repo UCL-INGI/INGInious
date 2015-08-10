@@ -179,6 +179,9 @@ class Installer(object):
         remote_docker_port = 2375
         use_tls = False
 
+        if docker_args == {}:
+            docker_args["base_url"] = "unix:///var/run/docker.sock"
+
         if "base_url" in docker_args:
             self._display_info("Found docker base_url")
             try:
