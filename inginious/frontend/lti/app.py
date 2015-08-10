@@ -42,8 +42,8 @@ from inginious.frontend.lti.submission_manager import LTISubmissionManager
 from inginious.frontend.lti.user_manager import UserManager
 
 urls = {
-    r"/launch/([a-zA-Z0-9\-_]+)/([a-zA-Z0-9\-_]+)": "frontend.lti.pages.launch.LTILaunchTask",
-    r"/([a-zA-Z0-9\-_]+)/task": "frontend.lti.pages.task.LTITask"
+    r"/launch/([a-zA-Z0-9\-_]+)/([a-zA-Z0-9\-_]+)": "inginious.frontend.lti.pages.launch.LTILaunchTask",
+    r"/([a-zA-Z0-9\-_]+)/task": "inginious.frontend.lti.pages.task.LTITask"
 }
 
 def _put_configuration_defaults(config):
