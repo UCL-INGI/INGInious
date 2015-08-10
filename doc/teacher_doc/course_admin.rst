@@ -111,8 +111,8 @@ The student list is entirely managed by drag-and-drop. You can create
 a new group on the same page, set its maximum size, and drag-and-drop
 ungrouped students or already grouped students in the newly created group.
 
-Classroom attribution
-`````````````````````
+Group attribution
+`````````````````
 
 If you does not really matter the way students are grouped together, you can
 set empty groups with maximum size and let the students choose their groups
