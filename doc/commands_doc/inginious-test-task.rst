@@ -26,7 +26,7 @@ One limitation though: ``inginious-test-task`` cannot execute the internal comma
 
    The task directory to test
 
-.. option:: task
+.. option:: container
 
    Name of the container image to run. Usually in the form ``ingi/inginious-c-***``. For example, ``ingi/inginious-c-default``.
    All the default containers are available on the `UCL-INGI page from Docker Hub`_.
