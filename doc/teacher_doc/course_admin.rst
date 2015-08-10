@@ -132,10 +132,10 @@ upload it on INGInious. A YALM file of this structure is required :
 -   *description* is a string and corresponds to your class description
 
 -   *tutors* is a list of strings representing the usernames of the
-assigned classroom tutors.
+    assigned classroom tutors.
 
 -   *students* is a list of strings representing the usernames of the
-classroom students.
+    classroom students.
 
 -   *groups* is a list of group structures containing the following elements :
 
