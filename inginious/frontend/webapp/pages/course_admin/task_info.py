@@ -84,7 +84,7 @@ class CourseTaskInfoPage(INGIniousAdminPage):
                     {
                         "$group":
                             {
-                                "_id": "$username",
+                                "_id": "$taskid",
                                 "tried": {"$sum": 1},
                                 "succeeded": {"$sum": {"$cond": [{"$eq": ["$result", "success"]}, 1, 0]}},
                                 "grade": {"$max": "$grade"}

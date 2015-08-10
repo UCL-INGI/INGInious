@@ -87,7 +87,8 @@ class CourseClassroomListPage(INGIniousAdminPage):
                     {
                         "$group":
                             {
-                                "_id": {"taskid": "$taskid"},
+                                "_id": "$taskid",
+                                "tried": {"$sum": 1},
                                 "done": {"$sum": {"$cond": [{"$eq": ["$result", "success"]}, 1, 0]}}
                             }
                     },
@@ -95,7 +96,7 @@ class CourseClassroomListPage(INGIniousAdminPage):
                 ]))
 
             for c in data:
-                classrooms[classroom['_id']]["tried"] += 1
+                classrooms[classroom['_id']]["tried"] += 1 if c["tried"] else 0
                 classrooms[classroom['_id']]["done"] += 1 if c["done"] else 0
 
         my_classrooms, other_classrooms = [], []
