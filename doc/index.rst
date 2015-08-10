@@ -5,6 +5,7 @@ INGInious' documentation
     :maxdepth: 2
 
     install_documentation
+    commands
     teacher_documentation
     developer_documentation
 
