@@ -78,8 +78,8 @@ Uploading task files
 
 .. _groups:
 
-Group work
-----------
+Classrooms and groups
+---------------------
 
 Students may sometimes be allowed to work in groups. In this case, they
 are used to submit one common work. INGInious integrates a group
