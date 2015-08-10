@@ -49,7 +49,7 @@ class AuthMethod(object):
         return None
 
     @abstractmethod
-    def needed_input(self):
+    def needed_fields(self):
         """
         :return: a dictionary containing as key the name of the input (in the HTML sense of name), and, as value, a dictionary containing two fields:
 
@@ -149,11 +149,11 @@ class UserManager(AbstractUserManager):
         """
         self._auth_methods.append(auth_method)
 
-    def get_auth_methods_inputs(self):
+    def get_auth_methods_fields(self):
         """
-        :return: a dict, containing the auth method id as key, and a tuple (name, needed input) for each auth method
+        :return: a dict, containing the auth method id as key, and a tuple (name, needed fields) for each auth method
         """
-        return {i: (am.get_name(), am.needed_input()) for i, am in enumerate(self._auth_methods)}
+        return {i: (am.get_name(), am.needed_fields()) for i, am in enumerate(self._auth_methods)}
 
     def auth_user(self, auth_method_id, input):
         """

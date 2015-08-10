@@ -222,7 +222,7 @@ def get_app(config, active_callback=None):
         _handle_active_hook(job_manager, plugin_manager, active_callback)
 
     # Loads plugins
-    plugin_manager.load(job_manager, appli, course_factory, task_factory, user_manager, config.get("plugins", []))
+    plugin_manager.load(job_manager, appli, course_factory, task_factory, database, user_manager, config.get("plugins", []))
 
     # Start the inginious.backend
     job_manager.start()
