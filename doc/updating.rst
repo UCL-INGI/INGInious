@@ -4,18 +4,51 @@ Updating INGInious
 General update procedure
 ------------------------
 
-Updating INGInious is very simple. You simply have to pull the new version on git, and then pull the docker containers.
+Updating INGInious is very simple. Simply update your package, then pull the new images from Docker Hub:
+
+If you installed with pip from git:
+```````````````````````````````````
 
 ::
-    $ cd /my/inginious
+
+    $ pip install --process-dependency-links --upgrade git+https://github.com/UCL-INGI/INGInious.git
+
+If you installed with pip from pipy:
+````````````````````````````````````
+
+::
+
+    $ pip install --process-dependency-links --upgrade inginious
+
+If you cloned the sources:
+``````````````````````````
+
+::
+
+    $ cd INGInious_dir
     $ git pull
-    $ docker pull
+
+Updating your containers:
+`````````````````````````
+
+::
+
     $ docker images | awk -F " " '{print $1}' | grep "ingi/inginious-c" | xargs -n 1 docker pull
 
 Updating the configuration
 --------------------------
 
 Most of the time, you won't need to update your configuration; it will only be necessary when an huge architectural change is made on INGInious.
+
+Updating from INGInious 0.2 (< August 2015) to INGInious 0.3+
+`````````````````````````````````````````````````````````````
+
+As INGInious is now packaged using setuptools, the best thing to do is to remove the sources of INGInious, install it with pip, and configure it
+again with ``inginious-install``.
+
+Please see :ref:`Installpip`.
+
+Note that the edX plugin is deprecated in favor of the new LTI frontend. Again, see :ref:`Installpip` for more informations.
 
 Updating from INGInious 0.1 (< June 2015) to INGInious 0.2
 ``````````````````````````````````````````````````````````
