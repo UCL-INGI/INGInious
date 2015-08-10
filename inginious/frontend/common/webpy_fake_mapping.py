@@ -18,43 +18,7 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Contains helpers to send state to web.py pages """
 
-def _webpy_fake_class_creator(inginious_page_cls, *args, **kwargs):
-    """
-    :param inginious_page_cls: path to a class inheriting from INGIniousPage, or directly the "class object"
-    :param args: args to be sent to the constructor of the classes
-    :param kwargs: kwargs to be sent to the constructor of the classes
-    :return: a fake Class that proxies everything to an instance of the INGIniousPage
-    """
-    if isinstance(inginious_page_cls, basestring):
-        mod, cls = inginious_page_cls.rsplit('.', 1)
-        mod = __import__(mod, None, None, [''])
-        cls = getattr(mod, cls)
-    else:
-        cls = inginious_page_cls
-
-    obj = cls(*args, **kwargs)
-
-    class WebPyFakeMetaClass(type):
-        """
-        A fake metaclass that proxies everything to an object
-        """
-
-        def __getattr__(cls, name):
-            return getattr(obj.__class__, name)
-
-    class WebPyFakeClass(object):
-        """
-        A fake class that proxies everything to an object
-        """
-        __metaclass__ = WebPyFakeMetaClass
-
-        def __getattr__(self, name):
-            return getattr(obj, name)
-
-    return WebPyFakeClass
-
-
-class WebPyFakeMapping(object):
+class WebPyCustomMapping(object):
     """
         A "fake" mapping class for web.py that init the classes it contains automatically. Allow to avoid global state
     """
@@ -74,7 +38,14 @@ class WebPyFakeMapping(object):
 
     def append(self, what):
         pattern, classname = what
-        self.dict[pattern] = _webpy_fake_class_creator(classname, *self.args, **self.kwargs)
+        if isinstance(classname, basestring):
+            mod, cls = classname.rsplit('.', 1)
+            mod = __import__(mod, None, None, [''])
+            cls = getattr(mod, cls)
+        else:
+            cls = classname
+
+        self.dict[pattern] = cls(*self.args, **self.kwargs)
 
     def __iter__(self):
         return self.dict.iteritems().__iter__()

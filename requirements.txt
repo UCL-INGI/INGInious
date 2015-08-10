@@ -14,6 +14,6 @@ sh >= 1.11 ; sys_platform != 'win32'
 cgroup-utils >= 0.5 ; sys_platform == 'linux2'
 simpleldap >= 0.8
 six >= 1.9.0
-web.py >= 0.37
+web.py-INGI >= 0.38dev1
 websocket-client >= 0.32.0
 pylti >= 0.3.2

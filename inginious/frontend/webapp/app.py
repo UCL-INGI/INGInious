@@ -31,7 +31,7 @@ import web
 from inginious.backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
 from inginious.frontend.common import backend_interface
 from inginious.frontend.common.static_middleware import StaticMiddleware
-from inginious.frontend.common.webpy_fake_mapping import WebPyFakeMapping
+from inginious.frontend.common.webpy_fake_mapping import WebPyCustomMapping
 from inginious.frontend.webapp.database_updater import update_database
 from inginious.frontend.common.plugin_manager import PluginManager
 from inginious.common.course_factory import create_factories
@@ -210,12 +210,12 @@ def get_app(config, active_callback=None):
     appli.notfound = lambda: web.notfound(template_helper.get_renderer().notfound('Page not found'))
 
     # Init the mapping of the app
-    appli.mapping = WebPyFakeMapping(dict(urls), plugin_manager,
-                                     course_factory, task_factory,
-                                     submission_manager, batch_manager, user_manager,
-                                     template_helper, database, gridfs,
-                                     default_allowed_file_extensions, default_max_file_size,
-                                     config["containers"].keys())
+    appli.init_mapping(WebPyCustomMapping(dict(urls), plugin_manager,
+                                        course_factory, task_factory,
+                                        submission_manager, batch_manager, user_manager,
+                                        template_helper, database, gridfs,
+                                        default_allowed_file_extensions, default_max_file_size,
+                                        config["containers"].keys()))
 
     # Active hook
     if active_callback is not None:

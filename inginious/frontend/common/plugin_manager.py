@@ -50,7 +50,7 @@ class PluginManager(HookManager):
         """ Add a new page to the web application. Only available after that the Plugin Manager is loaded """
         if not self._loaded:
             raise PluginManagerNotLoadedException()
-        self._app.add_mapping(pattern, classname)
+        self._app.add_to_mapping(pattern, classname)
 
     def add_task_file_manager(self, task_file_manager):
         """ Add a task file manager. Only available after that the Plugin Manager is loaded """

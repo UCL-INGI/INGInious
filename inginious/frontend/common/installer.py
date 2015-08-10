@@ -272,7 +272,7 @@ class Installer(object):
         if backend == "local":
             self._display_info("- Verifying access to cgroups")
             try:
-                import cgroup
+                from cgutils import cgroup
             except:
                 self._display_error("- Cannot import cgroup-utils. Is the package installed?")
                 return False
