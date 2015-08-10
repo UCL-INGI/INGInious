@@ -7,6 +7,10 @@ Read and follow screen instructions.
 
 .. program:: inginious-install
 
+::
+
+    inginious-install [-h] [--file FILE] {lti,webapp}
+
 .. option:: --file
 
    Specify the configuration file to use. By default, it is configuration.yaml or configuration.lti.yaml, depending on which backend you use
