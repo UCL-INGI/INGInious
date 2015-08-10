@@ -6,6 +6,10 @@ but also as a FastCGI backend.
 
 .. program:: inginious-lti
 
+::
+
+    inginious-lti [-h] [--config CONFIG] [--host HOST] [--port PORT]
+
 .. option:: --config
 
    Specify the configuration file to use. By default, it is configuration.lti.yaml.
