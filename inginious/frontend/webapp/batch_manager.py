@@ -35,7 +35,7 @@ class BatchManager(object):
         Manages batch jobs. Store them in DB and communicates with the inginious.backend to start them.
     """
 
-    def __init__(self, job_manager, database, gridfs, submission_manager, user_manager, task_directory, batch_containers, smtp_config):
+    def __init__(self, job_manager, database, gridfs, submission_manager, user_manager, task_directory, batch_containers):
         self._job_manager = job_manager
         self._database = database
         self._gridfs = gridfs
@@ -43,7 +43,6 @@ class BatchManager(object):
         self._user_manager = user_manager
         self._task_directory = task_directory
         self._batch_container = batch_containers
-        self._smtp_config = smtp_config
 
     def _get_course_data(self, course):
         """ Returns a file-like object to a tgz archive of the course files """
@@ -171,14 +170,9 @@ class BatchManager(object):
         )
 
         # Send a mail to user
-        if send_mail is not None and self._smtp_config is not None:
+        if send_mail is not None:
             try:
-                web.config.smtp_server = self._smtp_config["host"]
-                web.config.smtp_port = int(self._smtp_config["port"])
-                web.config.smtp_starttls = bool(self._smtp_config["starttls"])
-                web.config.smtp_username = self._smtp_config["username"]
-                web.config.smtp_password = self._smtp_config["password"]
-                web.sendmail(self._smtp_config["sendername"], send_mail, "Batch job {} finished".format(batch_job_id),
+                web.sendmail(web.config.smtp_sendername, send_mail, "Batch job {} finished".format(batch_job_id),
                              """This is an automated message.
 
 The batch job you launched on INGInious is done. You can see the results on the "batch operation" page of your course

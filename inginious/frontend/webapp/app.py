@@ -190,10 +190,19 @@ def get_app(config, active_callback=None):
     submission_manager = WebAppSubmissionManager(job_manager, user_manager, database, gridfs, plugin_manager)
 
     batch_manager = BatchManager(job_manager, database, gridfs, submission_manager, user_manager,
-                                 task_directory, config.get('batch_containers', []),
-                                 config.get('smtp', None))
+                                 task_directory, config.get('batch_containers', []))
 
     template_helper = TemplateHelper(plugin_manager, 'frontend/webapp/templates', 'layout', config.get('use_minified_js', True))
+
+    # Init web mail
+    smtp_conf =config.get('smtp', None)
+    if smtp_conf is not None:
+        web.config.smtp_server = smtp_conf["host"]
+        web.config.smtp_port = int(smtp_conf["port"])
+        web.config.smtp_starttls = bool(smtp_conf.get("starttls", False))
+        web.config.smtp_username = smtp_conf.get("username", "")
+        web.config.smtp_password = smtp_conf.get("password", "")
+        web.config.smtp_sendername = smtp_conf.get("sendername", "no-reply@ingnious.org")
 
     # Update the database
     update_database(database, gridfs, course_factory, user_manager)
