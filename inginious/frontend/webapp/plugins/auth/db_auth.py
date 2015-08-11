@@ -224,5 +224,5 @@ def init(plugin_manager, _, _2, conf):
         Allow authentication from database
     """
 
-    plugin_manager.register_auth_method(DatabaseAuthMethod(conf.get('name', 'WebApp Database'), plugin_manager.get_database()))
+    plugin_manager.register_auth_method(DatabaseAuthMethod(conf.get('name', 'WebApp'), plugin_manager.get_database()))
     plugin_manager.add_page('/register', RegistrationPage)

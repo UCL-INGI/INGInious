@@ -103,21 +103,35 @@ class Installer(inginious.frontend.common.installer.Installer):
             "users": users
         }
 
+    def db_auth_plugin(self):
+        """  Configures the db auth plugin """
+        name = self._ask_with_default("Authentication method name (will be displayed on the login page)", "WebApp")
+
+        return {
+            "plugin_module": "inginious.frontend.webapp.plugins.auth.db_auth",
+            "name": name
+        }
+
     def configure_authentication(self):
         """ Configure the authentication plugins """
         options = {"plugins": []}
         while True:
             self._display_info("You can choose an authentication plugin between:")
-            self._display_info("- The LDAP auth plugin. This plugin allows to connect to a distant LDAP host. Type 'ldap' to choose it.")
-            self._display_info("- The test auth plugin. This plugin allows you to test locally INGInious, using password defined in the config "
-                               "file. Type 'test' to choose it.")
-            plugin = self._ask_with_default("Choose between 'test' and 'ldap'", 'test')
-            if plugin not in ['ldap', 'test']:
+            self._display_info("- 1. Test auth plugin. This plugin allows you to test locally INGInious, "
+                               "using password defined in the config file.")
+            self._display_info("- 2. DB auth plugin. This plugin stores users on the web app database and supports"
+                               "self registration")
+            self._display_info("- 3. LDAP auth plugin. This plugin allows to connect to a distant LDAP host.")
+
+            plugin = self._ask_with_default("Enter the corresponding number to your choice", '1')
+            if plugin not in ['1', '2', '3']:
                 continue
-            elif plugin == 'ldap':
-                options["plugins"].append(self.ldap_plugin())
-            elif plugin == 'test':
+            elif plugin == '1':
                 options["plugins"].append(self.test_auth_plugin())
+            elif plugin == '2':
+                options["plugins"].append(self.db_auth_plugin())
+            elif plugin == '3':
+                options["plugins"].append(self.ldap_plugin())
 
             if not self._ask_boolean("Would you like to add another auth method?", False):
                 break
