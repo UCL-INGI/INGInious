@@ -20,6 +20,7 @@
 
 import hashlib
 import web
+import random
 import re
 from inginious.frontend.webapp.user_manager import AuthMethod
 from inginious.frontend.webapp.pages.utils import INGIniousPage
@@ -50,7 +51,7 @@ class DatabaseAuthMethod(AuthMethod):
 
     def needed_fields(self):
         return {"input": {"login": {"type": "text", "placeholder": "Login"}, "password": {"type": "password", "placeholder": "Password"}},
-                "info": """<div class="text-center"><a href="/register">Register</a> - <a href="/register#lostpasswd">Lost password ?</a></div>"""}
+                "info": """<div class="text-center"><a href="/register">Register</a> / <a href="/register#lostpasswd">Lost password ?</a></div>"""}
 
     def should_cache(self):
         return False
@@ -62,16 +63,18 @@ class DatabaseAuthMethod(AuthMethod):
             {username: None} else
         """
         retval = {username: None for username in usernames}
-        for username in retval:
-            if username in self._users:
-                retval[username] = (username, "{}@inginious.org".format(username))
+        data = self._database.users.find({"username": {"$in": usernames}})
+        for user in data:
+            retval[user["username"]] = (user["realname"], user["email"])
         return retval
 
+
 class RegistrationPage(INGIniousPage):
-        """ Displays the scoreboard of the contest """
+        """ Registration page for DB authentication """
 
         def GET(self):
             error = False
+            reset = None
             msg = ""
             data = web.input()
 
@@ -82,20 +85,31 @@ class RegistrationPage(INGIniousPage):
                     msg = "Invalid activation hash."
                 else:
                     msg = "You are now activated. You can proceed to login."
+            elif "reset" in data:
+                user = self.database.users.find_one({"reset": data["reset"]})
+                if user is None:
+                    error = True
+                    msg = "Invalid reset hash."
+                else:
+                    reset = {"hash": data["reset"], "username": user["username"], "realname": user["realname"]}
 
-            return self.template_helper.get_custom_template_renderer('frontend/webapp/templates', 'layout').register(msg, error)
+            return self.template_helper.get_custom_template_renderer('frontend/webapp/templates', 'layout').register(reset, msg, error)
 
-        def POST(self):
+        def register_user(self, data):
+            """ Parses input and register user """
             error = False
             msg = ""
 
-            data = web.input()
+            email_re = re.compile(
+            r"(^[-!#$%&'*+/=?^_`{}|~0-9A-Z]+(\.[-!#$%&'*+/=?^_`{}|~0-9A-Z]+)*"  # dot-atom
+            r'|^"([\001-\010\013\014\016-\037!#-\[\]-\177]|\\[\001-011\013\014\016-\177])*"' # quoted-string
+            r')@(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?$', re.IGNORECASE)  # domain
 
             # Check input format
             if re.match("\w{4,}$", data["username"]) is None:
                 error = True
                 msg = "Invalid username format."
-            elif re.match("(<)?(\w+@\w+(?:\.\w+)+)(?(1)>)", data["email"]) is None:
+            elif email_re.match(data["email"]) is None:
                 error = True
                 msg = "Invalid email format."
             elif len(data["passwd"]) < 6:
@@ -115,7 +129,7 @@ class RegistrationPage(INGIniousPage):
                         msg = "This email address is already in use !"
                 else:
                     passwd_hash = hashlib.sha512(data["passwd"]).hexdigest()
-                    activate_hash = hashlib.sha512(data["username"]).hexdigest()
+                    activate_hash = hashlib.sha512(str(random.getrandbits(256))).hexdigest()
                     self.database.users.insert({"username": data["username"],
                                                 "realname": data["realname"],
                                                 "email": data["email"],
@@ -132,7 +146,78 @@ To activate your account, please click on the following link :
                         error = True
                         msg = "Something went wrong while sending you activation email. Please contact the administrator."
 
-            return self.template_helper.get_custom_template_renderer('frontend/webapp/templates', 'layout').register(msg, error)
+            return msg, error
+
+        def lost_passwd(self, data):
+            error = False
+            msg = ""
+
+            # Check input format
+            email_re = re.compile(
+            r"(^[-!#$%&'*+/=?^_`{}|~0-9A-Z]+(\.[-!#$%&'*+/=?^_`{}|~0-9A-Z]+)*"  # dot-atom
+            r'|^"([\001-\010\013\014\016-\037!#-\[\]-\177]|\\[\001-011\013\014\016-\177])*"' # quoted-string
+            r')@(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?$', re.IGNORECASE)  # domain
+            if email_re.match(data["recovery_email"]) is None:
+                error = True
+                msg = "Invalid email format."
+
+            if not error:
+                reset_hash = hashlib.sha512(str(random.getrandbits(256))).hexdigest()
+                user = self.database.users.find_one_and_update({"email": data["recovery_email"]}, {"$set": {"reset": reset_hash}})
+                if user is None:
+                    error = True
+                    msg = "This email address was not found in database."
+                else:
+                    try:
+                        web.sendmail(web.config.smtp_sendername, data["recovery_email"], "INGInious password recovery",
+                                 "Dear " + user["realname"] + """,
+
+Someone (probably you) asked to reset your INGInious password. If this was you, please click on the following link :
+""" + web.ctx.homedomain + "/register?reset=" + reset_hash)
+                        msg = "An email has been sent to you to reset your password."
+                    except:
+                        error = True
+                        msg = "Something went wrong while sending you reset email. Please contact the administrator."
+
+            return msg, error
+
+        def reset_passwd(self, data):
+            error = False
+            msg = ""
+
+            # Check input format
+            if len(data["passwd"]) < 6:
+                error = True
+                msg = "Password too short."
+            elif data["passwd"] != data["passwd2"]:
+                error = True
+                msg = "Passwords don't match !"
+
+            if not error:
+                passwd_hash = hashlib.sha512(data["passwd"]).hexdigest()
+                user = self.database.users.find_one_and_update({"reset": data["reset_hash"]}, {"$set": {"password": passwd_hash}, "$unset": {"reset": True}})
+                if user is None:
+                    error = True
+                    msg = "Invalid reset hash."
+                else:
+                    msg = "Your password has been successfully changed."
+
+            return msg, error
+
+        def POST(self):
+            """ Handles POST request """
+            reset = None
+            msg = ""
+            error = False
+            data = web.input()
+            if "register" in data:
+                msg, error = self.register_user(data)
+            elif "lostpasswd" in data:
+                msg, error = self.lost_passwd(data)
+            elif "resetpasswd" in data:
+                msg, error = self.reset_passwd(data)
+
+            return self.template_helper.get_custom_template_renderer('frontend/webapp/templates', 'layout').register(reset, msg, error)
 
 def init(plugin_manager, _, _2, conf):
     """
