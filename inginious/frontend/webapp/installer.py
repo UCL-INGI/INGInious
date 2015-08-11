@@ -129,7 +129,15 @@ class Installer(inginious.frontend.common.installer.Installer):
             elif plugin == '1':
                 options["plugins"].append(self.test_auth_plugin())
             elif plugin == '2':
-                options["plugins"].append(self.db_auth_plugin())
+                already_in = False
+                for p in options["plugins"]:
+                    if p["plugin_module"] == "inginious.frontend.webapp.plugins.auth.db_auth":
+                        already_in = True
+
+                if not already_in:
+                    options["plugins"].append(self.db_auth_plugin())
+                else:
+                    self._display_warning("DB auth plugin cannot be set more than once !")
             elif plugin == '3':
                 options["plugins"].append(self.ldap_plugin())
 
