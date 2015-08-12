@@ -21,6 +21,7 @@ import os
 
 import threading
 import socket
+import logging
 
 from inginious.backend.agent.simple_agent import SimpleAgent
 
@@ -29,6 +30,14 @@ class LocalAgent(SimpleAgent):
     """ An agent made to be run locally (launched directly by the backend). It can handle multiple requests at a time. """
 
     def __init__(self, image_aliases, task_directory, course_factory, task_factory, tmp_dir="./agent_tmp"):
+        logger = logging.getLogger("agent")
+        logger.setLevel(logging.DEBUG)
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.DEBUG)
+        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
+
         SimpleAgent.__init__(self, task_directory, course_factory, task_factory, os.path.join(tmp_dir, 'ssh.sock'), tmp_dir)
         self.image_aliases = image_aliases
 

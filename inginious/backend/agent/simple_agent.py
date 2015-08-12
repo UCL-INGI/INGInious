@@ -615,7 +615,8 @@ class SimpleAgent(object):
         try:
             return_value = docker_connection.wait(container_id, max_time)
         except:
-            return -1
+            return_value = -1
+        self.logger.debug("Container id %s ended with %i", container_id, return_value)
         return return_value
 
     def _handle_container_ssh_start(self, docker_connection, container_id, job_id, ssh_callback):
