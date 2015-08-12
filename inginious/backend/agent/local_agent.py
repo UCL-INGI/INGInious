@@ -44,7 +44,7 @@ class LocalAgent(SimpleAgent):
         self.image_aliases = image_aliases
 
         # Choose a socket
-        tmp_socket_dir = tempfile.mkdtemp(dir=tmp_dir)
+        tmp_socket_dir = tempfile.mkdtemp()  # TODO: should be in tmp_dir, but it is deleted while we wait for Docker 1.9.0 and user namespaces
         self.ssh_sock_path = os.path.join(tmp_socket_dir, 'ssh.sock')
 
         SimpleAgent.__init__(self, task_directory, course_factory, task_factory, self.ssh_sock_path, tmp_dir)
