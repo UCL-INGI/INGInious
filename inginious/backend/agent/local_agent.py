@@ -40,14 +40,14 @@ class LocalAgent(SimpleAgent):
         ch.setFormatter(formatter)
         logger.addHandler(ch)
 
-        # Setup some fields
-        self.image_aliases = image_aliases
-
         # Choose a socket
         tmp_socket_dir = tempfile.mkdtemp()  # TODO: should be in tmp_dir, but it is deleted while we wait for Docker 1.9.0 and user namespaces
         self.ssh_sock_path = os.path.join(tmp_socket_dir, 'ssh.sock')
 
         SimpleAgent.__init__(self, task_directory, course_factory, task_factory, self.ssh_sock_path, tmp_dir)
+
+        # Setup some fields
+        self.image_aliases = image_aliases
 
 
     def get_socket_to_debug_ssh(self, conn_id):
