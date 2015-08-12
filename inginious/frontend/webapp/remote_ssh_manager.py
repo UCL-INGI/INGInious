@@ -92,6 +92,7 @@ class RemoteSSHManager(threading.Thread):
             while not self._stopped:
                 try:
                     conn, _ = server.accept()
+                    conn.setblocking(1)
                 except KeyboardInterrupt:
                     raise
                 except:
