@@ -65,7 +65,7 @@ class RemoteSSHManager(threading.Thread):
 
     def __init__(self, port_or_filename):
         super(RemoteSSHManager, self).__init__()
-        #self.daemon = True
+        self.daemon = True
         self._port_or_filename = port_or_filename
         self._open_connections = {}
         self.start()
