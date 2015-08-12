@@ -62,11 +62,6 @@ class SimpleAgent(object):
         self.course_factory = course_factory
         self.task_factory = task_factory
 
-        if ssh_manager_location is not None:
-            self.remote_ssh_manager = RemoteSSHManager(ssh_manager_location)
-        else:
-            self.remote_ssh_manager = None
-
         # Delete tmp_dir, and recreate-it again
         try:
             rmtree(tmp_dir)
@@ -80,6 +75,11 @@ class SimpleAgent(object):
 
         # Assert that the folders are *really* empty
         self._force_directory_empty(tmp_dir)
+
+        if ssh_manager_location is not None:
+            self.remote_ssh_manager = RemoteSSHManager(ssh_manager_location)
+        else:
+            self.remote_ssh_manager = None
 
         self.logger.debug("Start cgroup helper")
         self._timeout_watcher = CGroupTimeoutWatcher()
