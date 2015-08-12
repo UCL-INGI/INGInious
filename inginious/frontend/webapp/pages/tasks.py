@@ -72,7 +72,8 @@ class TaskPage(INGIniousPage):
                         return sinput[userinput["questionid"]]
                 else:
                     # Display the task itself
-                    return self.template_helper.get_renderer().task(course, task, self.submission_manager.get_user_submissions(task))
+                    return self.template_helper.get_renderer().task(course, task, self.submission_manager.get_user_submissions(task),
+                                                                    self.remote_ssh_manager.is_active())
             except:
                 if web.config.debug:
                     raise
@@ -114,7 +115,7 @@ class TaskPage(INGIniousPage):
                     # Get debug info if the current user is an admin
                     debug = self.user_manager.has_admin_rights_on_course(course, username)
                     if "@debug-mode" in userinput:
-                        if userinput["@debug-mode"] == "ssh" and debug:
+                        if userinput["@debug-mode"] == "ssh" and debug and self.remote_ssh_manager.is_active():
                             debug = "ssh"
                         del userinput['@debug-mode']
 
@@ -135,7 +136,7 @@ class TaskPage(INGIniousPage):
                         return submission_to_json(result, self.user_manager.has_admin_rights_on_course(course, username))
                     else:
                         web.header('Content-Type', 'application/json')
-                        if "ssh_key" in result:
+                        if "ssh_key" in result and self.remote_ssh_manager.is_active():
                             return json.dumps({'status': "waiting",
                                                'ssh_host': self.remote_ssh_manager.get_url(),
                                                'ssh_key': result["ssh_key"],

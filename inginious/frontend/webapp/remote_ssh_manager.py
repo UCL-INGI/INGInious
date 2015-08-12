@@ -65,15 +65,23 @@ class RemoteSSHManager(threading.Thread):
         self._port = port
         self._database = database
         self._job_manager = job_manager
-        self._stopped = False
+        self._stopped = True
 
     def get_url(self):
         """ Returns a string host:ip pointing to the open socket for the remote debugging """
         return str(self._host)+":"+str(self._port)
 
+    def start(self):
+        self._stopped = False
+        super(RemoteSSHManager, self).start()
+
     def stop(self):
         """ Stop the server """
         self._stopped = True
+
+    def is_active(self):
+        """ Returns True if remote debugging is activated """
+        return not self._stopped
 
     def run(self):
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

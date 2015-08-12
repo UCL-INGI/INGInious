@@ -282,9 +282,11 @@ class AbstractJobManager(object):
         """  """
         jobid = self._new_job_id()
 
-        # Verify correctness of ssh_callback
+        # Verify correctness of debug/ssh_callback
         if debug == "ssh" and ssh_callback is None:
             raise Exception("ssh_callback is None but debug == 'ssh'")
+        if debug == "ssh" and not self.is_remote_debug_active():
+            raise Exception("Remote debugging is not activated")
         if ssh_callback is None:
             ssh_callback = lambda x, y: None
 
@@ -364,6 +366,13 @@ class AbstractJobManager(object):
             del self._active_ssh_debug_servers[job_id]
         except:
             pass
+
+    @abstractmethod
+    def is_remote_debug_active(self):
+        """
+        :return: True if remote container debugging via SSH is activated, False else.
+        """
+        return False
 
     @abstractmethod
     def get_socket_to_debug_ssh(self, job_id):

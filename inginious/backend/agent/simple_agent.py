@@ -45,6 +45,14 @@ class SimpleAgent(object):
     logger = logging.getLogger("agent")
 
     def __init__(self, task_directory, course_factory, task_factory, ssh_manager_location, tmp_dir="./agent_tmp"):
+        """
+        :param task_directory:
+        :param course_factory:
+        :param task_factory:
+        :param ssh_manager_location: port or filename(unix socket) to bind to. If None, remote debugging is deactivated
+        :param tmp_dir:
+        :return:
+        """
         from inginious.backend.agent._cgroup_helper import CGroupTimeoutWatcher, CGroupMemoryWatcher
 
         self.logger.info("Starting agent")
@@ -53,7 +61,11 @@ class SimpleAgent(object):
         self.task_directory = task_directory
         self.course_factory = course_factory
         self.task_factory = task_factory
-        self.remote_ssh_manager = RemoteSSHManager(ssh_manager_location)
+
+        if ssh_manager_location is not None:
+            self.remote_ssh_manager = RemoteSSHManager(ssh_manager_location)
+        else:
+            self.remote_ssh_manager = None
 
         # Delete tmp_dir, and recreate-it again
         try:
@@ -293,6 +305,8 @@ class SimpleAgent(object):
         # Verify some arguments
         if debug == "ssh" and ssh_callback is None:
             return {'result': 'crash', 'text': 'Agent error message: debug mode is set as ssh, but ssh_callback is None.'}
+        if debug == "ssh" and self.remote_ssh_manager is None:
+            return {'result': 'crash', 'text': 'Remote debugging is not activated on this agent.'}
 
         # Initialize connection to Docker
         try:
@@ -413,7 +427,8 @@ class SimpleAgent(object):
             self.logger.info("Container for job id %s crashed", job_id)
             error_occured = True
 
-        self._handle_container_ssh_close(job_id)
+        if debug == "ssh":
+            self._handle_container_ssh_close(job_id)
 
         # Verify that everything went well
         error_timeout = self._timeout_watcher.container_had_error(container_id)
@@ -605,6 +620,9 @@ class SimpleAgent(object):
 
     def _handle_container_ssh_start(self, docker_connection, container_id, job_id, ssh_callback):
         """ Handle the creation of the distant SSH server """
+        if self.remote_ssh_manager is None:
+            raise Exception("Remote debugging is not activated")
+
         ssh_key = None
         for attempt in range(0, 30):
             try:
@@ -639,4 +657,7 @@ class SimpleAgent(object):
 
     def _handle_container_ssh_close(self, job_id):
         """ Marks as closed a distant SSH server """
+        if self.remote_ssh_manager is None:
+            raise Exception("Remote debugging is not activated")
+
         self.remote_ssh_manager.del_connection(job_id)

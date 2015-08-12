@@ -28,4 +28,4 @@ RUN touch /agent/inginious/__init__.py && \
 WORKDIR /agent
 CMD ["/agent/inginious/backend/agent/start_container_agent.py"]
 
-LABEL agent-version=0.3
+LABEL agent-version=0.4

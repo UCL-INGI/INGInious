@@ -17,13 +17,14 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ A Job Manager that automatically launch Agents on distant Docker daemons """
+import json
 
 import docker
 import docker.utils
 
 from inginious.backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
 
-AGENT_CONTAINER_VERSION = "0.3"
+AGENT_CONTAINER_VERSION = "0.4"
 
 
 class RemoteDockerJobManager(RemoteManualAgentJobManager):
@@ -33,18 +34,34 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
     def is_agent_valid_and_started(cls, docker_connection, agent_name):
         try:
             container_data = docker_connection.inspect_container(agent_name)
-            if container_data["Config"]["Labels"]["agent-version"] != AGENT_CONTAINER_VERSION:
+        except:
+            print "No agent present on remote host."
+            return False
+
+        #Due to a bug in Docker 1.9, labels are not returned for running containers
+        #if container_data["Config"]["Labels"] is None or "agent-version" not in container_data["Config"]["Labels"] or container_data["Config"][
+        #    "Labels"]["agent-version"] != AGENT_CONTAINER_VERSION:
+        # Workaround:
+        if cls.is_agent_image_update_needed(docker_connection):
+            print "Agent already started, but not at the right version."
+            try:
                 # kill the container
                 docker_connection.kill(agent_name)
                 docker_connection.remove_container(agent_name, force=True)
-            elif container_data["State"]["Running"] is False:
+            except:
+                pass
+            return False
+        elif container_data["State"]["Running"] is False:
+            print "Agent dead."
+            try:
                 # remove the container and restart it
                 docker_connection.remove_container(agent_name, force=True)
-            else:
-                return True
-        except:
-            pass
-        return False
+            except:
+                pass
+            return False
+        else:
+            return True
+
 
     @classmethod
     def is_agent_image_update_needed(cls, docker_connection):
@@ -63,19 +80,25 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
             :param docker_daemons:
                 a list of dict representing docker daemons.
 
-                { "remote_host": "192.168.59.103", ## host of the docker daemon *from the webapp*
-                  "remote_docker_port": 2375, ## port of the distant docker daemon *from the webapp*
-                  "remote_agent_port": 63456, ## a mandatory port used by the inginious.backend and the agent that will be automatically started.
-                                              ## Needs to be available on the remote host, and to be open in the firewall.
-                  "remote_agent_ssh_port": 63457, ## Also mandatory, and needs to be available on the remote host, and to be open in the firewall.
-                                                  ## It is used to run debug sessions on remote containers.
+                { "remote_host": "192.168.59.103" ## host of the docker daemon *from the webapp*
+                  "remote_docker_port": 2375      ## port of the distant docker daemon *from the webapp*
+                  "remote_agent_port": 63456      ## a mandatory port used by the inginious.backend and the agent that will be automatically started.
+                                                  ## Needs to be available on the remote host, and to be open in the firewall.
+
+                  ## Optionnal. Enable remote container debugging via SSH.
+                  ## The port needs to be available on the remote host, and to be open in the firewall.
+                  #"remote_agent_ssh_port": 63457,
+
                   ##does the docker daemon requires tls? Defaults to false
                   ##parameter can be set to true or path to the certificates
                   #use_tls: false
+
                   ##link to the docker daemon *from the host that runs the docker daemon*. Defaults to:
                   #"local_location": "unix:///var/run/docker.sock"
+
                   ##path to the cgroups "mount" *from the host that runs the docker daemon*. Defaults to:
                   #"cgroups_location": "/sys/fs/cgroup"
+
                   ##name that will be used to reference the agent
                   #"agent_name": "inginious-agent"
                 }
@@ -121,7 +144,7 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
                 docker_local_location = daemon.get("local_location", "unix:///var/run/docker.sock")
                 environment = {"AGENT_CONTAINER_NAME": agent_name,
                                "AGENT_PORT": daemon.get("remote_agent_port", 63456),
-                               "AGENT_SSH_PORT": daemon.get("remote_agent_ssh_port", 63457)}
+                               "AGENT_SSH_PORT": daemon.get("remote_agent_ssh_port", "")}
                 volumes = {'/sys/fs/cgroup/': {}}
                 binds = {daemon.get('cgroups_location', "/sys/fs/cgroup"): {'ro': False, 'bind': "/sys/fs/cgroup"}}
 
@@ -150,6 +173,6 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
 
             agents.append({"host": daemon['remote_host'],
                            "port": daemon.get("remote_agent_port", 63456),
-                           "ssh_port": daemon.get("remote_agent_ssh_port", 63457)})
+                           "ssh_port": daemon.get("remote_agent_ssh_port")})
 
         RemoteManualAgentJobManager.__init__(self, agents, image_aliases, task_directory, course_factory, task_factory, hook_manager, is_testing)

@@ -38,7 +38,7 @@ class RemoteAgent(SimpleAgent):
         It can handle multiple requests at a time, but RPyC calls have to be made using the ```async``` function.
     """
 
-    def __init__(self, port, task_directory, course_factory, task_factory, ssh_manager_port=30000, tmp_dir="./agent_tmp", sync_enabled=True):
+    def __init__(self, port, task_directory, course_factory, task_factory, ssh_manager_port=None, tmp_dir="./agent_tmp", sync_enabled=True):
         SimpleAgent.__init__(self, task_directory, course_factory, task_factory, ssh_manager_port, tmp_dir)
         self.sync_enabled = sync_enabled
         self.logger.debug("Starting RPyC server - inginious.backend connection")

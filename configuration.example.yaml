@@ -12,15 +12,21 @@ docker_daemons:
     remote_docker_port: 2375         ## Port of the distant docker daemon *from the webapp*
     remote_agent_port: 63456         ## A mandatory port used by the backend and the agent that will be automatically started. Needs to be
                                      ## available on the remote host, and to be open in the firewall.
-    remote_agent_ssh_port: 63457     ## Also mandatory, and needs to be available on the remote host, and to be open in the firewall.
-                                     ## It is used to run debug sessions on remote containers.
+
+    ## Optionnal. Enable remote container debugging via SSH.
+    ## The port needs to be available on the remote host, and to be open in the firewall.
+    #remote_agent_ssh_port: 63457
+
     ##does the remote docker requires tls? Defaults to false
     ##parameter can be set to true or path to the certificates
     #use_tls: false
+
     ##link to the docker daemon *from the host that runs the docker daemon*. Defaults to:
     #local_location: "unix:///var/run/docker.sock"
+
     ##path to the cgroups "mount" *from the host that runs the docker daemon*. Defaults to:
     #cgroups_location: "/sys/fs/cgroup"
+
     ##name that will be used to reference the agent
     #"agent_name": "inginious-agent"
 
@@ -60,6 +66,9 @@ maintenance: false
 
 # Use single minified javascript file (production) or multiple files (dev) ?
 use_minified_js: true
+
+# Activate debugging? (only used if the backend is properly configured)
+remote_debugging_active: true
 
 smtp:
     sendername: 'INGInious <no-reply@inginious.org>'

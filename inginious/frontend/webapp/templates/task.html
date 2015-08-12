@@ -1,4 +1,4 @@
-$def with (course,task,submissions)
+$def with (course, task, submissions, remote_debug_available)
 
 $# Copyright (c) 2014-2015 Université Catholique de Louvain.
 $#
@@ -192,7 +192,7 @@ $if user_manager.has_admin_rights_on_course(course):
             </div>
         </div>
     $if user_manager.task_can_user_submit(task):
-        $if user_manager.has_admin_rights_on_course(course):
+        $if user_manager.has_admin_rights_on_course(course) and remote_debug_available:
             <input type="hidden" name="@debug-mode" id="task-debug-mode" value=""/>
             <div class="row">
                 <div class="col-xs-9 col-md-10">

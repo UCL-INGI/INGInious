@@ -55,8 +55,10 @@ class RemoteManualAgentJobManager(AbstractJobManager):
                     {
                         'host': "the host of the agent",
                         'port': "the port on which the agent listens"
-                        'ssh_port': "the port on which the interface for accessing the debug ssh server is accessible"
+                        'ssh_port': "the port on which the interface for accessing the debug ssh server is accessible (not mandatory, can be None)"
                     }
+
+                If a least one ssh_port is absent or None, remote debugging will be deactivated for all agents
             :param task_directory: the task directory
             :param course_factory: a CourseFactory object
             :param task_factory: a TaskFactory object, possibly with specific task files managers attached
@@ -81,6 +83,26 @@ class RemoteManualAgentJobManager(AbstractJobManager):
         self._last_content_in_task_directory = None
 
         self._timers = {}
+
+        # Is remote debugging activated?
+        nb_ok = 0
+        message = "ok"
+
+        for info in self._agents_info:
+            if info.get('ssh_port') is not None:
+                nb_ok += 1
+            elif nb_ok != 0:
+                nb_ok = -1
+                message = "one_error"
+
+        if nb_ok == 0:
+            self._remote_debugging_activated = False
+            print "Remote debugging is deactivated as all agent have no ssh_port defined"
+        elif nb_ok == -1:
+            self._remote_debugging_activated = False
+            print "Remote debugging is deactivated as one agent has no ssh_port defined"
+        else:
+            self._remote_debugging_activated = True
 
     def start(self):
         # init the synchronization of task directories
@@ -402,7 +424,13 @@ class RemoteManualAgentJobManager(AbstractJobManager):
         for f in self._timers:
             self._timers[f].cancel()
 
+    def is_remote_debug_active(self):
+        return self._remote_debugging_activated
+
     def get_socket_to_debug_ssh(self, job_id):
+        if not self._remote_debugging_activated:
+            raise Exception("Remote debugging is not activated")
+
         remote_conn_id = self._get_distant_conn_id_for_job(job_id)
         if remote_conn_id is None:
             return None

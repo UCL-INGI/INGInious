@@ -48,6 +48,9 @@ class LocalJobManager(AbstractJobManager):
     def close(self):
         pass
 
+    def is_remote_debug_active(self):
+        return True
+
     def get_socket_to_debug_ssh(self, job_id):
         remote_conn_id = self._get_distant_conn_id_for_job(job_id)
         if remote_conn_id is not None:

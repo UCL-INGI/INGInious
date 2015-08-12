@@ -193,7 +193,9 @@ def get_app(hostname, port, sshport, config, active_callback=None):
                                                        task_directory, course_factory, task_factory)
 
     remote_ssh_manager = RemoteSSHManager(hostname, sshport, database, job_manager)
-    remote_ssh_manager.start()
+
+    if config.get("remote_debugging_active", True) and job_manager.is_remote_debug_active():
+        remote_ssh_manager.start()
 
     submission_manager = WebAppSubmissionManager(job_manager, user_manager, database, gridfs, plugin_manager)
 

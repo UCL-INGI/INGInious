@@ -66,4 +66,9 @@ if __name__ == "__main__":
     if not os.path.exists(mounted_dir):
         os.symlink("/agent_volume", mounted_dir)
 
-    RemoteAgent(int(os.environ["AGENT_PORT"]), "./tasks", course_factory, task_factory, int(os.environ["AGENT_SSH_PORT"]), mounted_dir, True)
+    agent_ssh_port = os.environ.get('AGENT_SSH_PORT')
+    if agent_ssh_port == "":
+        agent_ssh_port = None
+    else:
+        agent_ssh_port = int(agent_ssh_port)
+    RemoteAgent(int(os.environ["AGENT_PORT"]), "./tasks", course_factory, task_factory, agent_ssh_port, mounted_dir, True)
