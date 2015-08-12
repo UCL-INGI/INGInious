@@ -23,6 +23,7 @@ import socket
 import tempfile
 import select
 import sys
+from subprocess import Popen
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -87,18 +88,18 @@ if __name__ == "__main__":
     
         client.close()
         conn.close()
-    
-    pid = os.fork()
-    if pid == 0:
-        conn, addr = server.accept()
-        print "Connection accepted"
-        server.close()
-        run_relay(conn)
-    else:
-        args = ('ssh', 'ssh',
-                '-o', 'UserKnownHostsFile=/dev/null',
-                '-o', 'StrictHostKeyChecking=no',
-                '-p', str(ssh_port),
-                '-i', os.path.join(tmpdir, "key"),
-                'worker@127.0.0.1')
-        os.execlp(*args)
+
+    args = ['ssh', '-o', 'UserKnownHostsFile=/dev/null',
+                   '-o', 'StrictHostKeyChecking=no',
+                   '-p', str(ssh_port),
+                   '-i', os.path.join(tmpdir, "key"),
+                   'worker@127.0.0.1']
+
+    p = Popen(args, stdin=sys.stdin, stdout=sys.stdout)
+
+    conn, addr = server.accept()
+    print "Connection accepted"
+    server.close()
+    run_relay(conn)
+
+    p.wait()
