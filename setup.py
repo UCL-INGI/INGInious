@@ -17,10 +17,11 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
-import os
-
-from setuptools import setup, find_packages
 import sys
+
+import os
+from setuptools import setup, find_packages
+
 import inginious
 
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
@@ -73,7 +74,7 @@ setup(
     version=inginious.__version__,
     description="An intelligent grader that allows secured and automated testing of code made by students.",
     packages=find_packages(),
-    dependency_links=["git+https://github.com/GuillaumeDerval/docker-py.git#egg=docker-py-1.3.0dev"],
+    dependency_links=["git+https://github.com/GuillaumeDerval/docker-py.git#egg=docker-py-1.4.0dev"],
     install_requires=install_requires,
     tests_require=test_requires,
     extras_require={
@@ -97,9 +98,9 @@ setup(
 
     test_suite='nose.collector',
 
-    author = u"Université catholique de Louvain",
-    author_email = "inginious@info.ucl.ac.be",
-    license = "AGPL 3",
-    url = "https://github.com/UCL-INGI/INGInious",
-    long_description =open(os.path.join(os.path.dirname(__file__), 'README.rst')).read()
+    author=u"Université catholique de Louvain",
+    author_email="inginious@info.ucl.ac.be",
+    license="AGPL 3",
+    url="https://github.com/UCL-INGI/INGInious",
+    long_description=open(os.path.join(os.path.dirname(__file__), 'README.rst')).read()
 )
