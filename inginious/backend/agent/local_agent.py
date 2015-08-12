@@ -18,6 +18,7 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Agent, managing docker (local version) """
 import os
+import tempfile
 
 import threading
 import socket
@@ -30,6 +31,7 @@ class LocalAgent(SimpleAgent):
     """ An agent made to be run locally (launched directly by the backend). It can handle multiple requests at a time. """
 
     def __init__(self, image_aliases, task_directory, course_factory, task_factory, tmp_dir="./agent_tmp"):
+        # Start a logger specific to this agent
         logger = logging.getLogger("agent")
         logger.setLevel(logging.DEBUG)
         ch = logging.StreamHandler()
@@ -38,13 +40,20 @@ class LocalAgent(SimpleAgent):
         ch.setFormatter(formatter)
         logger.addHandler(ch)
 
-        SimpleAgent.__init__(self, task_directory, course_factory, task_factory, os.path.join(tmp_dir, 'ssh.sock'), tmp_dir)
+        # Setup some fields
         self.image_aliases = image_aliases
+
+        # Choose a socket
+        tmp_socket_dir = tempfile.mkdtemp(dir=tmp_dir)
+        self.ssh_sock_path = os.path.join(tmp_socket_dir, 'ssh.sock')
+
+        SimpleAgent.__init__(self, task_directory, course_factory, task_factory, self.ssh_sock_path, tmp_dir)
+
 
     def get_socket_to_debug_ssh(self, conn_id):
         """ Get a socket to the remote ssh server identified by conn_id. Returns None if the conn_id is expired or not valid. """
         client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        client.connect(os.path.join(self.tmp_dir, 'ssh.sock'))
+        client.connect(self.ssh_sock_path)
         client.send(conn_id + "\n")
         retval = ""
         while retval not in ["ok\n", "ko\n"]:
