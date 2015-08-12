@@ -75,8 +75,8 @@ class LdapAuthMethod(AuthMethod):
         except:
             return None
 
-    def needed_input(self):
-        return {"login": {"type": "text", "placeholder": "Login"}, "password": {"type": "password", "placeholder": "Password"}}
+    def needed_fields(self):
+        return {"input": {"login": {"type": "text", "placeholder": "Login"}, "password": {"type": "password", "placeholder": "Password"}}, "info": ""}
 
     def should_cache(self):
         return True

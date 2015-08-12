@@ -79,7 +79,7 @@ class TaskPage(INGIniousPage):
                 else:
                     raise web.notfound()
         else:
-            return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_inputs(), False)
+            return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_fields(), False)
 
     def POST(self, courseid, taskid):
         """ POST a new submission """
@@ -158,7 +158,7 @@ class TaskPage(INGIniousPage):
                 else:
                     raise web.notfound()
         else:
-            return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_inputs(), False)
+            return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_fields(), False)
 
 
 class TaskPageStaticDownload(INGIniousPage):
@@ -198,4 +198,4 @@ class TaskPageStaticDownload(INGIniousPage):
                 else:
                     raise web.notfound()
         else:
-            return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_inputs(), False)
+            return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_fields(), False)

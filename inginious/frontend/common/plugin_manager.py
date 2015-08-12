@@ -34,12 +34,14 @@ class PluginManager(HookManager):
         self._loaded = False
         self._app = None
         self._task_factory = None
+        self._database = None
         self._user_manager = None
 
-    def load(self, job_manager, webpy_app, course_factory, task_factory, user_manager, config):
+    def load(self, job_manager, webpy_app, course_factory, task_factory, database, user_manager, config):
         """ Loads the plugin manager. Must be done after the initialisation of the job_manager """
         self._app = webpy_app
         self._task_factory = task_factory
+        self._database = database
         self._user_manager = user_manager
         self._loaded = True
         for entry in config:
@@ -72,3 +74,6 @@ class PluginManager(HookManager):
         if not self._loaded:
             raise PluginManagerNotLoadedException()
         self._user_manager.register_auth_method(auth_method)
+
+    def get_database(self):
+        return self._database

@@ -32,7 +32,7 @@ class ClassroomPage(INGIniousPage):
         """ GET request """
 
         if not self.user_manager.session_logged_in():
-            return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_inputs(), False)
+            return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_fields(), False)
 
         course = self.course_factory.get_course(courseid)
         username = self.user_manager.session_username()

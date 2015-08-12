@@ -45,7 +45,7 @@ $# Start content
             
             <!-- Tab panes -->
             <div class="tab-content">
-                $for authid, (_, input) in auth_methods.iteritems():
+                $for authid, (_, fields) in auth_methods.iteritems():
                     <div class="tab-pane fade
                         $if authid == 0:
                             in active
@@ -53,7 +53,7 @@ $# Start content
                         <p>
                             <form role="form" action="/index" method="post">
                                 <input type="hidden" name="@authid" value="$authid"/>
-                                $for name, data in input.iteritems():
+                                $for name, data in fields["input"].iteritems():
                                     $if data["type"] == "password":
                                         $ type="password"
                                     $else:
@@ -61,6 +61,9 @@ $# Start content
                                     <div class="form-group">
                                         <label>$data["placeholder"]</label> <input type="$type" class="form-control" name="$name" placeholder="$data['placeholder']">
                                     </div>
+
+                                $if fields["info"]:
+                                    <div style="margin-bottom: 5px">$:fields["info"]</div>
                                 <button type="submit" class="btn btn-primary btn-block">Log in</button>
                             </form>
                         </p>

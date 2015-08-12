@@ -53,7 +53,7 @@ class IndexPage(INGIniousPage):
             return self.call_index(False)
 
     def call_index(self, error):
-        return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_inputs(), error)
+        return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_fields(), error)
 
     def call_main(self):
         """ Display main page (only when logged) """
