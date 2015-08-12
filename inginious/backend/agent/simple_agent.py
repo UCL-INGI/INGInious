@@ -31,8 +31,10 @@ import re
 import docker
 from docker.utils import kwargs_from_env
 import rpyc
+import time
 
 from inginious.backend.agent._rpyc_unix_server import UnixSocketServer
+from inginious.backend.agent.remote_ssh_manager import RemoteSSHManager
 
 
 class SimpleAgent(object):
@@ -42,7 +44,7 @@ class SimpleAgent(object):
     """
     logger = logging.getLogger("agent")
 
-    def __init__(self, task_directory, course_factory, task_factory, tmp_dir="./agent_tmp"):
+    def __init__(self, task_directory, course_factory, task_factory, ssh_manager_location, tmp_dir="./agent_tmp"):
         from inginious.backend.agent._cgroup_helper import CGroupTimeoutWatcher, CGroupMemoryWatcher
 
         self.logger.info("Starting agent")
@@ -51,6 +53,7 @@ class SimpleAgent(object):
         self.task_directory = task_directory
         self.course_factory = course_factory
         self.task_factory = task_factory
+        self.remote_ssh_manager = RemoteSSHManager(ssh_manager_location)
 
         # Delete tmp_dir, and recreate-it again
         try:
@@ -241,14 +244,11 @@ class SimpleAgent(object):
             return {'retval': -1, "stderr": 'Cannot start container'}
 
         # Wait for completion
-        return_value = -1
-        try:
-            return_value = docker_connection.wait(container_id)
-        except:
-            self.logger.info("Container for job id %s crashed", job_id)
+        return_value = self._wait_for_container_completion(docker_connection, container_id, None)
 
         # If docker cannot do anything...
         if return_value == -1:
+            self.logger.info("Container for job id %s crashed", job_id)
             rmtree(container_path)
             return {'retval': -1, "stderr": 'Container crashed at startup'}
 
@@ -277,18 +277,22 @@ class SimpleAgent(object):
 
         return {'retval': return_value, "stdout": stdout, "stderr": stderr, "file": tmpfile}
 
-    def handle_job(self, job_id, course_id, task_id, inputdata, debug, _callback_status):
+    def handle_job(self, job_id, course_id, task_id, inputdata, debug, ssh_callback):
         """ Creates, executes and returns the results of a new job
         :param job_id: The distant job id
         :param course_id: The course id of the linked task
         :param task_id: The task id of the linked task
         :param inputdata: Input data, given by the student (dict)
-        :param debug: A boolean, indicating if the job should be run in debug mode or not
-        :param _callback_status: Not used, should be None.
+        :param debug: Can be False (normal mode), True (outputs more data), or "ssh" (starts an ssh server in the container)
+        :param ssh_callback: ssh callback function. Takes two parameters: (conn_id, private_key). Is only called if debug == "ssh".
         """
         self.logger.info("Received request for jobid %s", job_id)
         internal_job_id = self._get_new_internal_job_id()
         self.logger.debug("New Internal job id -> %i", internal_job_id)
+
+        # Verify some arguments
+        if debug == "ssh" and ssh_callback is None:
+            return {'result': 'crash', 'text': 'Agent error message: debug mode is set as ssh, but ssh_callback is None.'}
 
         # Initialize connection to Docker
         try:
@@ -345,7 +349,7 @@ class SimpleAgent(object):
                 environment,
                 stdin_open=True,
                 volumes={'/task': {}, '/sockets': {}},
-                network_disabled=True
+                network_disabled=(debug != "ssh")
             )
             container_id = response["Id"]
 
@@ -382,7 +386,8 @@ class SimpleAgent(object):
             # Send the input data
             container_input = {"input": inputdata, "limits": limits}
             if debug:
-                container_input["debug"] = True
+                container_input["debug"] = debug
+            self.logger.debug("%s", json.dumps(container_input))
             docker_connection.attach_socket(container_id, {'stdin': 1, 'stream': 1}).send(json.dumps(container_input) + "\n")
         except Exception as e:
             self.logger.warning("Cannot start container! %s", str(e))
@@ -390,18 +395,25 @@ class SimpleAgent(object):
             return {'result': 'crash', 'text': 'Cannot start container'}
 
         # Ask the "cgroup" thread to verify the timeout/memory limit
-        self._timeout_watcher.add_container_timeout(container_id, limits.get("time", 30), limits.get('hard_time', limits.get("time", 30) * 3))
+        time_limit = limits.get("time", 30)
+        hard_time_limit = limits.get('hard_time', time_limit * 3)
+        if debug == "ssh": #allow 30 minutes of real time.
+            time_limit = 30*60
+            hard_time_limit = 30*60
+        self._timeout_watcher.add_container_timeout(container_id, time_limit, hard_time_limit)
         self._memory_watcher.add_container_memory_limit(container_id, mem_limit)
+
+        # If ssh mode is activated, get the ssh key
+        if debug == "ssh":
+            self._handle_container_ssh_start(docker_connection, container_id, job_id, ssh_callback)
 
         # Wait for completion
         error_occured = False
-        try:
-            return_value = docker_connection.wait(container_id, limits.get('hard_time', limits.get("time", 30) * 4))
-            if return_value == -1:
-                raise Exception('Container crashed!')
-        except:
+        if self._wait_for_container_completion(docker_connection, container_id, int(hard_time_limit * 1.2)) == -1:
             self.logger.info("Container for job id %s crashed", job_id)
             error_occured = True
+
+        self._handle_container_ssh_close(job_id)
 
         # Verify that everything went well
         error_timeout = self._timeout_watcher.container_had_error(container_id)
@@ -416,6 +428,10 @@ class SimpleAgent(object):
             # Get logs back
             try:
                 stdout = str(docker_connection.logs(container_id, stdout=True, stderr=False))
+                self.logger.debug(stdout)
+                if debug == "ssh": # skip the first line of the output, that contained the ssh key
+                    stdout = "\n".join(stdout.split("\n")[1:])
+                self.logger.debug(stdout)
                 result = json.loads(stdout)
             except Exception as e:
                 self.logger.warning("Cannot get back stdout of container %s! (%s)", container_id, str(e))
@@ -525,14 +541,9 @@ class SimpleAgent(object):
             return 254
 
         # Wait for completion
-        return_value = 254
-        try:
-            return_value = docker_connection.wait(container_id)
-            if return_value == -1:
-                return_value = 254
-                raise Exception('Container crashed!')
-        except:
-            pass
+        return_value = self._wait_for_container_completion(docker_connection, container_id, None)
+        if return_value == -1:
+            return_value = 254
 
         # Verify that everything went well
         if self._timeout_watcher.container_had_error(container_id):
@@ -583,3 +594,49 @@ class SimpleAgent(object):
                 return None
 
         return StudentContainerManagementService
+
+    def _wait_for_container_completion(self, docker_connection, container_id, max_time):
+        """ Wait for container completion. Returns the return value of the command or -1 if an error happened. """
+        try:
+            return_value = docker_connection.wait(container_id, max_time)
+        except:
+            return -1
+        return return_value
+
+    def _handle_container_ssh_start(self, docker_connection, container_id, job_id, ssh_callback):
+        """ Handle the creation of the distant SSH server """
+        ssh_key = None
+        for attempt in range(0, 30):
+            try:
+                stdout = str(docker_connection.logs(container_id, stdout=True, stderr=False))
+                stdout = stdout.split("\n")[0]
+                stdout = json.loads(stdout)
+                ssh_key = stdout["ssh_key"]
+                self.logger.debug('Got SSH key for job %s', job_id)
+                break
+            except Exception as e:
+                self.logger.debug("Cannot get SSH for job %s: %s. Retrying...", job_id, str(e))
+            time.sleep(1)
+
+        if ssh_key is None:
+            return
+
+        try:
+            ip = docker_connection.inspect_container(container_id)["NetworkSettings"]["IPAddress"]
+        except:
+            self.logger.debug("Cannot inspect container to find IP, for job %s", job_id)
+            return
+
+        self.logger.debug("Got IP for SSH connection of job id %s: %s", job_id, ip)
+        self.remote_ssh_manager.add_open_connection(job_id, ip, 22)
+        self.logger.debug("Start key for the inginious-remote-debug command:\n%s\n%s", job_id, ssh_key)
+
+        if ssh_callback is not None:
+            try:
+                ssh_callback(job_id, ssh_key)
+            except:
+                self.logger.warning("Cannot call ssh_callback for job id %s", job_id)
+
+    def _handle_container_ssh_close(self, job_id):
+        """ Marks as closed a distant SSH server """
+        self.remote_ssh_manager.del_connection(job_id)

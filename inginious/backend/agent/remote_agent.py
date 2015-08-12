@@ -38,8 +38,8 @@ class RemoteAgent(SimpleAgent):
         It can handle multiple requests at a time, but RPyC calls have to be made using the ```async``` function.
     """
 
-    def __init__(self, port, task_directory, course_factory, task_factory, tmp_dir="./agent_tmp", sync_enabled=True):
-        SimpleAgent.__init__(self, task_directory, course_factory, task_factory, tmp_dir)
+    def __init__(self, port, task_directory, course_factory, task_factory, ssh_manager_port=30000, tmp_dir="./agent_tmp", sync_enabled=True):
+        SimpleAgent.__init__(self, task_directory, course_factory, task_factory, ssh_manager_port, tmp_dir)
         self.sync_enabled = sync_enabled
         self.logger.debug("Starting RPyC server - inginious.backend connection")
         self._backend_server = ThreadedServer(self._get_agent_backend_service(), port=port,
@@ -129,14 +129,14 @@ class RemoteAgent(SimpleAgent):
                 """
                 return handle_get_batch_container_metadata(container_name)
 
-            def exposed_new_job(self, job_id, course_id, task_id, inputdata, debug, callback_status, callback_return):
+            def exposed_new_job(self, job_id, course_id, task_id, inputdata, debug, ssh_callback, callback_return):
                 """ Creates, executes and returns the results of a new job (in a separate thread, distant version)
                 :param job_id: The distant job id
                 :param course_id: The course id of the linked task
                 :param task_id: The task id of the linked task
                 :param inputdata: Input data, given by the student (dict)
-                :param debug: A boolean, indicating if the job should be run in debug mode or not
-                :param callback_status: Not used, should be None.
+                :param debug: Can be False (normal mode), True (outputs more data), or "ssh" (starts an ssh server in the container)
+                :param ssh_callback: ssh callback function. Takes two parameters: (conn_id, private_key). Is only called if debug == "ssh".
                 :param callback_return: The callback on the remote server that will be called with the return value
                 """
 
@@ -145,7 +145,7 @@ class RemoteAgent(SimpleAgent):
 
                 def _threaded_execute():
                     try:
-                        retval = handle_job(job_id, course_id, task_id, inputdata, debug, callback_status)
+                        retval = handle_job(job_id, course_id, task_id, inputdata, debug, ssh_callback)
                         callback_return(retval)
                     except Exception as e:
                         callback_return({"result": "crash", "text": "An error occured in the Agent: {}".format(str(e))})

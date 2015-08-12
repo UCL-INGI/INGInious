@@ -58,7 +58,8 @@ form#task.form-blur {
   -ms-filter: blur(5px);
   filter: blur(5px);
 }
-form#task #task-submit {
+form#task #task-submit,
+form#task #task-submit-debug {
   margin-top: 10px;
 }
 form#task label {

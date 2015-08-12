@@ -35,7 +35,9 @@ class LocalJobManager(AbstractJobManager):
         pass
 
     def _execute_job(self, jobid, task, inputdata, debug):
-        self._agent.new_job(jobid, task.get_course_id(), task.get_id(), inputdata, debug, None, lambda result: self._job_ended(jobid, result))
+        self._agent.new_job(jobid, task.get_course_id(), task.get_id(), inputdata, debug,
+                            (lambda distant_conn_id, ssh_key: self._handle_ssh_callback(jobid, distant_conn_id, ssh_key)),
+                            (lambda result: self._job_ended(jobid, result)))
 
     def _execute_batch_job(self, jobid, container_name, inputdata):
         self._agent.new_batch_job(jobid, container_name, inputdata, lambda result: self._batch_job_ended(jobid, result))
@@ -45,3 +47,8 @@ class LocalJobManager(AbstractJobManager):
 
     def close(self):
         pass
+
+    def get_socket_to_debug_ssh(self, job_id):
+        remote_conn_id = self._get_distant_conn_id_for_job(job_id)
+        if remote_conn_id is not None:
+            return self._agent.get_socket_to_debug_ssh(remote_conn_id)

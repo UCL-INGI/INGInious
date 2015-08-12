@@ -23,9 +23,16 @@ function init_task_page()
     var task_form = $('form#task');
     task_form.on('submit', function()
     {
-        submitTask();
+        submitTask(false);
         return false;
     });
+
+    //Init the button that start a remote ssh server for debugging
+    $('form#task #task-submit-debug').on('click', function()
+    {
+        submitTask(true);
+    });
+
     if(task_form.attr("data-wait-submission"))
     {
         blurTaskForm();
@@ -159,10 +166,12 @@ function getDateTime()
 }
 
 //Submits a task
-function submitTask()
+function submitTask(with_ssh)
 {
     if(loadingSomething)
         return;
+
+    $('#task-debug-mode').val(with_ssh ? "ssh" : "");
 
     //Must be done before blurTaskForm as when a form is disabled, no input is sent by the plugin
     $('form#task').ajaxSubmit(
@@ -203,6 +212,21 @@ function submitTask()
     updateTaskStatus("Waiting for verification", 0);
 }
 
+//Display informations for remote debugging
+function displayRemoteDebug(ssh_host, ssh_conn_id, ssh_key)
+{
+    var pre_content = "$ inginious-remote-debug " + ssh_host + "\n" + ssh_conn_id + "\n" + ssh_key;
+    var task_alert = $('#task_alert');
+
+    if($('pre', task_alert).text() != pre_content)
+    {
+        var pre = $('<pre><pre>').text(pre_content);
+        var alert = $(getAlertCode("<b>SSH server active</b><br/>Please type this in your console:", "info", false));
+        alert.append(pre);
+        task_alert.empty().append(alert);
+    }
+}
+
 //Wait for a job to end
 function waitForSubmission(submissionid)
 {
@@ -213,7 +237,11 @@ function waitForSubmission(submissionid)
             .done(function(data)
             {
                 if("status" in data && data['status'] == "waiting")
+                {
                     waitForSubmission(submissionid);
+                    if("ssh_key" in data && "ssh_conn_id" in data && "ssh_host" in data)
+                        displayRemoteDebug(data["ssh_host"], data["ssh_conn_id"], data["ssh_key"])
+                }
                 else if("status" in data && "result" in data && "grade" in data)
                 {
                     if("debug" in data)

@@ -192,7 +192,21 @@ $if user_manager.has_admin_rights_on_course(course):
             </div>
         </div>
     $if user_manager.task_can_user_submit(task):
-        <button type="submit" class="btn btn-default btn-lg btn-block center-block" id="task-submit">Submit</button>
+        $if user_manager.has_admin_rights_on_course(course):
+            <input type="hidden" name="@debug-mode" id="task-debug-mode" value=""/>
+            <div class="row">
+                <div class="col-xs-9 col-md-10">
+                    <button type="submit" class="btn btn-default btn-lg btn-block center-block" id="task-submit">Submit</button>
+                </div>
+                <div class="col-xs-3 col-md-2">
+                    <button type="button" class="btn btn-info btn-lg btn-block center-block" id="task-submit-debug" data-toggle="tooltip"
+                            data-placement="top" title="Start remote SSH console with this input">
+                        <i class="fa fa-terminal"></i>
+                    </button>
+                </div>
+            </div>
+        $else:
+            <button type="submit" class="btn btn-default btn-lg btn-block center-block" id="task-submit">Submit</button>
     $elif not task.get_accessible_time().is_open():
         <button type="submit" class="btn btn-default btn-lg btn-block center-block" disabled="disabled">The deadline is over, you cannot submit anymore</button>
     $elif task.is_group_task():

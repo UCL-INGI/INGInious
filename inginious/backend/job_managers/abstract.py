@@ -18,12 +18,20 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Contains the class AbstractJobManager, which is the basic implementation of the inginious.backend """
 
-import signal
 import time
 import uuid
 from abc import abstractmethod
 
 from inginious.common.hook_manager import HookManager
+
+def _callable_once(func):
+    """ Returns a function that is only callable once; any other call will do nothing """
+    def once(*args, **kwargs):
+        if not once.called:
+            once.called = True
+            return func(*args, **kwargs)
+    once.called = False
+    return once
 
 class AbstractJobManager(object):
     """ Manages jobs """
@@ -42,6 +50,7 @@ class AbstractJobManager(object):
         self._running_job_data = {}
         self._running_batch_job_data = {}
         self._batch_container_args = {}
+        self._active_ssh_debug_servers = {}
 
         print "Job Manager initialization done"
         self._hook_manager.call_hook("job_manager_init_done", job_manager=self)
@@ -123,7 +132,14 @@ class AbstractJobManager(object):
 
     def _job_ended(self, jobid, result):
         """ Called when a job is done. results is a dictionary containing the results of the execution of the task on a remote Agent """
-        task, callback, base_dict, statinfo = self._running_job_data[jobid]
+        task, callback, ssh_callback, base_dict, statinfo = self._running_job_data[jobid]
+
+        # Ensure ssh_callback is called at least once
+        try:
+            ssh_callback(jobid, "")  # NB: origin ssh_callback was wrapped with _callable_once
+        except:
+            pass
+        self._close_distant_debug_ssh(jobid)
 
         # Deletes from data structures
         del self._running_job_data[jobid]
@@ -245,11 +261,32 @@ class AbstractJobManager(object):
 
     def _new_job_id(self):
         """ Returns a new job id. The job id is unique and should be passed to the new_job function """
-        return uuid.uuid4()
+        return str(uuid.uuid4())
 
-    def new_job(self, task, inputdata, callback, launcher_name="Unknown", debug=False):
-        """ Add a new job. callback is a function that will be called asynchronously in the job manager's process. """
+    def new_job(self, task, inputdata, callback, launcher_name="Unknown", debug=False, ssh_callback=None):
+        """ Add a new job. callback is
+        :type task: Task
+        :param inputdata: input from the student
+        :type inputdata: Storage or dict
+        :param callback: a function that will be called asynchronously in the job manager's process, with the results
+        :type callback: __builtin__.function or __builtin__.instancemethod
+        :param launcher_name: for informational use
+        :type launcher_name: str
+        :param debug: Either True(outputs more info), False(default), or "ssh" (starts a remote ssh server. ssh_callback needs to be defined)
+        :type debug: bool or string
+        :param ssh_callback: a callback function that will be called with (conn_id, ssh_key), the needed credentials to connect to the remote ssh
+            server
+        :type ssh_callback: __builtin__.function or __builtin__.instancemethod or None
+        :return: the new job id
+        """
+        """  """
         jobid = self._new_job_id()
+
+        # Verify correctness of ssh_callback
+        if debug == "ssh" and ssh_callback is None:
+            raise Exception("ssh_callback is None but debug == 'ssh'")
+        if ssh_callback is None:
+            ssh_callback = lambda x, y: None
 
         # Base dictionary with output
         basedict = {"task": task, "input": inputdata}
@@ -266,7 +303,7 @@ class AbstractJobManager(object):
 
         # Compute some informations that will be useful for statistics
         statinfo = {"launched": time.time(), "launcher_name": launcher_name}
-        self._running_job_data[jobid] = (task, callback, basedict, statinfo)
+        self._running_job_data[jobid] = (task, callback, _callable_once(ssh_callback), basedict, statinfo)
         self._hook_manager.call_hook("new_job", jobid=jobid, task=task, statinfo=statinfo, inputdata=inputdata)
 
         if need_emul:  # Go through the whole process: send everything to Agent
@@ -302,3 +339,33 @@ class AbstractJobManager(object):
         self._execute_batch_job(jobid, container_name, inputdata)
 
         return jobid
+
+    def _handle_ssh_callback(self, job_id, distant_conn_id, ssh_key):
+        """ Handles the callback, coming from the agent, giving the conn_id and the ssh_key needed to connect to the debug ssh server"""
+        data = self._running_job_data.get(job_id)
+        if data is None: #prevent race conditions...
+            return
+        task, callback, ssh_callback, base_dict, statinfo = data
+
+        self._active_ssh_debug_servers[job_id] = distant_conn_id
+
+        try:
+            ssh_callback(job_id, ssh_key)
+        except Exception as e:
+            print ("Cannot execute ssh callback for job id %s: %s" % (job_id, str(e)))
+
+    def _get_distant_conn_id_for_job(self, job_id):
+        """ Get the distant connection id for a job_id. Returns None if the conn_id is expired or not valid. """
+        return self._active_ssh_debug_servers.get(job_id, None)
+
+    def _close_distant_debug_ssh(self, job_id):
+        """ Remove the possibility to get a socket to a possible debug ssh server associated with this job_id """
+        try:  # better ask forgiveness (and prevent race conditions ;-) )
+            del self._active_ssh_debug_servers[job_id]
+        except:
+            pass
+
+    @abstractmethod
+    def get_socket_to_debug_ssh(self, job_id):
+        """ Get a socket to the remote ssh server identified by the job_id. Returns None if the conn_id is expired or not valid. """
+        return None

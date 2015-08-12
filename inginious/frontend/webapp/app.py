@@ -35,6 +35,7 @@ from inginious.frontend.common.webpy_fake_mapping import WebPyCustomMapping
 from inginious.frontend.webapp.database_updater import update_database
 from inginious.frontend.common.plugin_manager import PluginManager
 from inginious.common.course_factory import create_factories
+from inginious.frontend.webapp.remote_ssh_manager import RemoteSSHManager
 from inginious.frontend.webapp.tasks import WebAppTask
 from inginious.frontend.webapp.courses import WebAppCourse
 from inginious.frontend.webapp.submission_manager import WebAppSubmissionManager
@@ -100,9 +101,10 @@ def _put_configuration_defaults(config):
     return config
 
 
-def _close_app(app, mongo_client, job_manager):
+def _close_app(app, mongo_client, job_manager, remote_ssh_manager):
     """ Ensures that the app is properly closed """
     app.stop()
+    remote_ssh_manager.stop()
     job_manager.close()
     mongo_client.close()
 
@@ -153,8 +155,11 @@ def _handle_active_hook(job_manager, plugin_manager, active_callback):
     check_all_done()
 
 
-def get_app(config, active_callback=None):
+def get_app(hostname, port, sshport, config, active_callback=None):
     """
+    :param hostname: the hostname on which the web app will be bound
+    :param port: the port on which the web app will be bound
+    :param sshport: the port on which remote container debugging clients will connect
     :param config: the configuration dict
     :param active_callback: a callback without arguments that will be called when the app is fully initialized
     :return: A new app
@@ -187,6 +192,9 @@ def get_app(config, active_callback=None):
     job_manager = backend_interface.create_job_manager(config, plugin_manager,
                                                        task_directory, course_factory, task_factory)
 
+    remote_ssh_manager = RemoteSSHManager(hostname, sshport, database, job_manager)
+    remote_ssh_manager.start()
+
     submission_manager = WebAppSubmissionManager(job_manager, user_manager, database, gridfs, plugin_manager)
 
     batch_manager = BatchManager(job_manager, database, gridfs, submission_manager, user_manager,
@@ -213,7 +221,7 @@ def get_app(config, active_callback=None):
     appli.init_mapping(WebPyCustomMapping(dict(urls), plugin_manager,
                                         course_factory, task_factory,
                                         submission_manager, batch_manager, user_manager,
-                                        template_helper, database, gridfs,
+                                        remote_ssh_manager, template_helper, database, gridfs,
                                         default_allowed_file_extensions, default_max_file_size,
                                         config["containers"].keys()))
 
@@ -227,7 +235,7 @@ def get_app(config, active_callback=None):
     # Start the inginious.backend
     job_manager.start()
 
-    return appli, lambda: _close_app(appli, mongo_client, job_manager)
+    return appli, lambda: _close_app(appli, mongo_client, job_manager, remote_ssh_manager)
 
 def runfcgi(func, addr=('localhost', 8000)):
     """Runs a WSGI function as a FastCGI server."""
@@ -236,11 +244,11 @@ def runfcgi(func, addr=('localhost', 8000)):
     return flups.WSGIServer(func, multiplexed=True, bindAddress=addr, debug=False).run()
 
 
-def start_app(config, hostname="localhost", port=8080):
+def start_app(config, hostname="localhost", port=8080, sshport=8081):
     """
         Get and start the application. config_file is the path to the configuration file.
     """
-    app, close_app_func = get_app(config)
+    app, close_app_func = get_app(hostname, port, sshport, config)
 
     func = app.wsgifunc()
 

@@ -17,6 +17,8 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ A custom Submission Manager that removes exceeding submissions """
+import json
+from datetime import datetime
 import pymongo
 from inginious.frontend.common.submission_manager import SubmissionManager
 import threading
@@ -31,15 +33,38 @@ class LTISubmissionManager(SubmissionManager):
         self.lis_outcome_manager = lis_outcome_manager
 
     def add_job(self, task, inputdata, debug=False):
+        if not self._user_manager.session_logged_in():
+            raise Exception("A user must be logged in to submit an object")
+
+        username = self._user_manager.session_username()
+
+        debug = bool(debug) #do not allow "ssh" here
+
+        obj = {
+            "courseid": task.get_course_id(),
+            "taskid": task.get_id(),
+            "input": self._gridfs.put(json.dumps(inputdata)),
+            "status": "waiting",
+            "submitted_on": datetime.now(),
+            "username": [username],
+            "response_type": task.get_response_type()
+        }
+
+        submissionid = self._database.submissions.insert(obj)
+
         self.lis_outcome_data_lock.acquire()
-        submission_id = super(LTISubmissionManager, self).add_job(task, inputdata, debug)
-        self.lis_outcome_data[submission_id] = (self._user_manager.session_consumer_key(),
-                                                self._user_manager.session_outcome_service_url(),
-                                                self._user_manager.session_outcome_result_id())
+        self.lis_outcome_data[submissionid] = (self._user_manager.session_consumer_key(),
+                                               self._user_manager.session_outcome_service_url(),
+                                               self._user_manager.session_outcome_result_id())
         self.lis_outcome_data_lock.release()
 
+        self._hook_manager.call_hook("new_submission", submissionid=submissionid, submission=obj, inputdata=inputdata)
+
+        self._job_manager.new_job(task, inputdata, (lambda job: self._job_done_callback(submissionid, task, job)), "Frontend - {}".format(username),
+                                  debug)
+
         self._delete_exceeding_submissions(self._user_manager.session_username(), task.get_course_id(), task.get_id())
-        return submission_id
+        return submissionid
 
     def _job_done_callback(self, submissionid, task, job):
         super(LTISubmissionManager, self)._job_done_callback(submissionid, task, job)

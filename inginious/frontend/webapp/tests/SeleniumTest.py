@@ -22,12 +22,12 @@ CUSTOM_SELENIUM_EXECUTOR = os.environ.get("CUSTOM_SELENIUM_EXECUTOR", None)
 CUSTOM_SELENIUM_BASE_URL = os.environ.get("CUSTOM_SELENIUM_BASE_URL", None)
 CUSTOM_FRONTEND_CONF_FILE = os.environ.get("CUSTOM_FRONTEND_CONF_FILE", None)
 
-def _start_frontend(config, host, port):
+def _start_frontend(config, host, port, ssh_port):
     semaphore = threading.Semaphore(0)
     def active_callback():
         semaphore.release()
 
-    app, close_app_func = get_app(config, active_callback)
+    app, close_app_func = get_app(host, port, ssh_port, config, active_callback)
 
     inginious_root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
     func = StaticMiddleware(app.wsgifunc(), (
@@ -89,12 +89,14 @@ class SeleniumTest(unittest.TestCase):
             self.base_url = CUSTOM_SELENIUM_BASE_URL or "http://192.168.59.3:8081"
             self.frontend_host = "192.168.59.3"
             self.frontend_port = 8081
+            self.frontend_ssh_port = 8082
         elif TEST_ENV == "boot2docker-local":
             self.display = None
             self.driver = webdriver.Firefox()
             self.base_url = CUSTOM_SELENIUM_BASE_URL or "http://127.0.0.1:8081"
             self.frontend_host = "127.0.0.1"
             self.frontend_port = 8081
+            self.frontend_ssh_port = 8082
         elif TEST_ENV == "travis":
             self.display = Display(visible=0, size=(1920, 1080))
             self.display.start()
@@ -102,6 +104,7 @@ class SeleniumTest(unittest.TestCase):
             self.base_url = CUSTOM_SELENIUM_BASE_URL or "http://localhost:8081"
             self.frontend_host = "0.0.0.0"
             self.frontend_port = 8081
+            self.frontend_ssh_port = 8082
             self.frontend_config["docker_daemons"] = [{
                 "remote_host": "127.0.0.1",
                 "remote_docker_port": 2375,
@@ -118,7 +121,10 @@ class SeleniumTest(unittest.TestCase):
         self.verificationErrors = []
         self.accept_next_alert = True
         _drop_database(self.frontend_config["mongo_opt"])
-        self.frontend_thread, self.frontend_server, self.close_app_func = _start_frontend(self.frontend_config, self.frontend_host, self.frontend_port)
+        self.frontend_thread, self.frontend_server, self.close_app_func = _start_frontend(self.frontend_config,
+                                                                                          self.frontend_host,
+                                                                                          self.frontend_port,
+                                                                                          self.frontend_ssh_port)
 
 
     def is_element_present(self, how, what):

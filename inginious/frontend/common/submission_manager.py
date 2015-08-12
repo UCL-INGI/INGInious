@@ -17,8 +17,9 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Manages submissions """
+from test.test_typechecks import ABC
+from abc import abstractmethod, ABCMeta
 import base64
-from datetime import datetime
 import json
 import time
 import os.path
@@ -35,6 +36,8 @@ import inginious.common.custom_yaml
 
 class SubmissionManager(object):
     """ Manages submissions. Communicates with the database and the job manager. """
+
+    __metaclass__ = ABCMeta
 
     def __init__(self, job_manager, user_manager, database, gridfs, hook_manager):
         """
@@ -70,8 +73,7 @@ class SubmissionManager(object):
             "text": job.get("text", None),
             "tests": job.get("tests", None),
             "problems": (job["problems"] if "problems" in job else {}),
-            "archive": (self._gridfs.put(base64.b64decode(job["archive"])) if "archive" in job else None),
-            "response_type": task.get_response_type()
+            "archive": (self._gridfs.put(base64.b64decode(job["archive"])) if "archive" in job else None)
         }
 
         # Store additional data
@@ -88,6 +90,7 @@ class SubmissionManager(object):
 
         self._hook_manager.call_hook("submission_done", submission=submission, job=job)
 
+    @abstractmethod
     def add_job(self, task, inputdata, debug=False):
         """
         Add a job in the queue and returns a submission id.
@@ -99,28 +102,7 @@ class SubmissionManager(object):
         :type debug: bool
         :return:
         """
-        if not self._user_manager.session_logged_in():
-            raise Exception("A user must be logged in to submit an object")
 
-        username = self._user_manager.session_username()
-
-        obj = {
-            "courseid": task.get_course_id(),
-            "taskid": task.get_id(),
-            "input": self._gridfs.put(json.dumps(inputdata)),
-            "status": "waiting",
-            "submitted_on": datetime.now(),
-            "username": [username]
-        }
-
-        submissionid = self._database.submissions.insert(obj)
-
-        self._hook_manager.call_hook("new_submission", submissionid=submissionid, submission=obj, inputdata=inputdata)
-
-        self._job_manager.new_job(task, inputdata, (lambda job: self._job_done_callback(submissionid, task, job)), "Frontend - {}".format(username),
-                                  debug)
-
-        return submissionid
 
     def get_input_from_submission(self, submission, only_input=False):
         """
@@ -159,9 +141,15 @@ class SubmissionManager(object):
         submission = self.get_submission(submissionid, user_check)
         return submission["status"] == "waiting"
 
-    def is_done(self, submissionid, user_check=True):
+    def is_done(self, submissionid_or_submission, user_check=True):
         """ Tells if a submission is done and its result is available """
-        submission = self.get_submission(submissionid, user_check)
+        # TODO: not a very nice way to avoid too many database call. Should be refactored.
+        if isinstance(submissionid_or_submission, dict):
+            submission = submissionid_or_submission
+        else:
+            submission = self.get_submission(submissionid_or_submission, False)
+        if user_check and not self.user_is_submission_owner(submission):
+            return None
         return submission["status"] == "done" or submission["status"] == "error"
 
     def user_is_submission_owner(self, submission):

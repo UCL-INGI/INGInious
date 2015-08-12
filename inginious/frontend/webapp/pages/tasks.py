@@ -113,6 +113,10 @@ class TaskPage(INGIniousPage):
 
                     # Get debug info if the current user is an admin
                     debug = self.user_manager.has_admin_rights_on_course(course, username)
+                    if "@debug-mode" in userinput:
+                        if userinput["@debug-mode"] == "ssh" and debug:
+                            debug = "ssh"
+                        del userinput['@debug-mode']
 
                     # Start the submission
                     submissionid = self.submission_manager.add_job(task, userinput, debug)
@@ -120,15 +124,24 @@ class TaskPage(INGIniousPage):
                     web.header('Content-Type', 'application/json')
                     return json.dumps({"status": "ok", "submissionid": str(submissionid)})
                 elif "@action" in userinput and userinput["@action"] == "check" and "submissionid" in userinput:
-                    if self.submission_manager.is_done(userinput['submissionid']):
+                    result = self.submission_manager.get_submission(userinput['submissionid'])
+                    if result is None:
                         web.header('Content-Type', 'application/json')
-                        result = self.submission_manager.get_submission(userinput['submissionid'])
+                        return json.dumps({'status': "error"})
+                    elif self.submission_manager.is_done(result):
+                        web.header('Content-Type', 'application/json')
                         result = self.submission_manager.get_input_from_submission(result)
                         result = self.submission_manager.get_feedback_from_submission(result)
                         return submission_to_json(result, self.user_manager.has_admin_rights_on_course(course, username))
                     else:
                         web.header('Content-Type', 'application/json')
-                        return json.dumps({'status': "waiting"})
+                        if "ssh_key" in result:
+                            return json.dumps({'status': "waiting",
+                                               'ssh_host': self.remote_ssh_manager.get_url(),
+                                               'ssh_key': result["ssh_key"],
+                                               'ssh_conn_id': userinput['submissionid']})
+                        else:
+                            return json.dumps({'status': "waiting"})
                 elif "@action" in userinput and userinput["@action"] == "load_submission_input" and "submissionid" in userinput:
                     submission = self.submission_manager.get_submission(userinput["submissionid"])
                     submission = self.submission_manager.get_input_from_submission(submission)

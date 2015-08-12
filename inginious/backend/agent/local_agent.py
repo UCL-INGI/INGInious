@@ -17,8 +17,10 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Agent, managing docker (local version) """
+import os
 
 import threading
+import socket
 
 from inginious.backend.agent.simple_agent import SimpleAgent
 
@@ -27,21 +29,35 @@ class LocalAgent(SimpleAgent):
     """ An agent made to be run locally (launched directly by the backend). It can handle multiple requests at a time. """
 
     def __init__(self, image_aliases, task_directory, course_factory, task_factory, tmp_dir="./agent_tmp"):
-        SimpleAgent.__init__(self, task_directory, course_factory, task_factory, tmp_dir)
+        SimpleAgent.__init__(self, task_directory, course_factory, task_factory, os.path.join(tmp_dir, 'ssh.sock'), tmp_dir)
         self.image_aliases = image_aliases
 
-    def new_job(self, job_id, course_id, task_id, inputdata, debug, callback_status, final_callback):
+    def get_socket_to_debug_ssh(self, conn_id):
+        """ Get a socket to the remote ssh server identified by conn_id. Returns None if the conn_id is expired or not valid. """
+        client = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        client.connect(os.path.join(self.tmp_dir, 'ssh.sock'))
+        client.send(conn_id + "\n")
+        retval = ""
+        while retval not in ["ok\n", "ko\n"]:
+            retval += client.recv(3)
+        retval = retval.strip()
+        if retval != "ok":
+            client.close()
+            return None
+        return client
+
+    def new_job(self, job_id, course_id, task_id, inputdata, debug, ssh_callback, final_callback):
         """ Creates, executes and returns the results of a new job (in a separate thread)
         :param job_id: The distant job id
         :param course_id: The course id of the linked task
         :param task_id: The task id of the linked task
         :param inputdata: Input data, given by the student (dict)
-        :param debug: A boolean, indicating if the job should be run in debug mode or not
-        :param callback_status: Not used, should be None.
+        :param debug: Can be False (normal mode), True (outputs more data), or "ssh" (starts an ssh server in the container)
+        :param ssh_callback: ssh callback function. Takes two parameters: (conn_id, private_key). Is only called if debug == "ssh".
         :param final_callback: Callback function called when the job is done; one argument: the result.
         """
 
-        t = threading.Thread(target=lambda: self._handle_job_threaded(job_id, course_id, task_id, inputdata, debug, callback_status, final_callback))
+        t = threading.Thread(target=lambda: self._handle_job_threaded(job_id, course_id, task_id, inputdata, debug, ssh_callback, final_callback))
         t.daemon = True
         t.start()
 
@@ -76,9 +92,9 @@ class LocalAgent(SimpleAgent):
         """
         return self.handle_get_batch_container_metadata(container_name)
 
-    def _handle_job_threaded(self, job_id, course_id, task_id, inputdata, debug, callback_status, final_callback):
+    def _handle_job_threaded(self, job_id, course_id, task_id, inputdata, debug, ssh_callback, final_callback):
         try:
-            result = self.handle_job(job_id, course_id, task_id, inputdata, debug, callback_status)
+            result = self.handle_job(job_id, course_id, task_id, inputdata, debug, ssh_callback)
             final_callback(result)
         except:
             final_callback({"result": "crash"})

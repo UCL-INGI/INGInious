@@ -29,6 +29,7 @@ from inginious.common.course_factory import create_factories
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("port", help="Port to listen to", type=int)
+    parser.add_argument("sshport", help="Port used for remote debugging", type=int)
     parser.add_argument("--dir", help="Path to a directory where the agent can store information, such as caches. Defaults to ./agent_data",
                         default="./agent_data")
     parser.add_argument("--tasks", help="Path to the task directory. By default, it is hidden by the agent and automatically synchronized with the "
@@ -60,4 +61,4 @@ if __name__ == "__main__":
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
-    RemoteAgent(args.port, taskdir, course_factory, task_factory, os.path.join(args.dir, 'tmp'), sync_enabled)
+    RemoteAgent(args.port, taskdir, course_factory, task_factory, args.sshport, os.path.join(args.dir, 'tmp'), sync_enabled)

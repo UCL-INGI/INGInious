@@ -65,8 +65,10 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
 
                 { "remote_host": "192.168.59.103", ## host of the docker daemon *from the webapp*
                   "remote_docker_port": 2375, ## port of the distant docker daemon *from the webapp*
-                  "remote_agent_port": 63456 ## a mandatory port used by the inginious.backend and the agent that will be automatically started. Needs to be
-                                             ## available on the remote host, and to be open in the firewall.
+                  "remote_agent_port": 63456, ## a mandatory port used by the inginious.backend and the agent that will be automatically started.
+                                              ## Needs to be available on the remote host, and to be open in the firewall.
+                  "remote_agent_ssh_port": 63457, ## Also mandatory, and needs to be available on the remote host, and to be open in the firewall.
+                                                  ## It is used to run debug sessions on remote containers.
                   ##does the docker daemon requires tls? Defaults to false
                   ##parameter can be set to true or path to the certificates
                   #use_tls: false
@@ -117,7 +119,9 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
                                         "Please update  INGInious or pull manually a valid version of the container image ingi/inginious-agent.")
 
                 docker_local_location = daemon.get("local_location", "unix:///var/run/docker.sock")
-                environment = {"AGENT_CONTAINER_NAME": agent_name, "AGENT_PORT": daemon.get("remote_agent_port", 63456)}
+                environment = {"AGENT_CONTAINER_NAME": agent_name,
+                               "AGENT_PORT": daemon.get("remote_agent_port", 63456),
+                               "AGENT_SSH_PORT": daemon.get("remote_agent_ssh_port", 63457)}
                 volumes = {'/sys/fs/cgroup/': {}}
                 binds = {daemon.get('cgroups_location', "/sys/fs/cgroup"): {'ro': False, 'bind': "/sys/fs/cgroup"}}
 
@@ -144,6 +148,8 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
                 # Start the container
                 docker_connection.start(container_id, network_mode="host", binds=binds, restart_policy={"Name": "always"})
 
-            agents.append({"host": daemon['remote_host'], "port": daemon.get("remote_agent_port", 63456)})
+            agents.append({"host": daemon['remote_host'],
+                           "port": daemon.get("remote_agent_port", 63456),
+                           "ssh_port": daemon.get("remote_agent_ssh_port", 63457)})
 
         RemoteManualAgentJobManager.__init__(self, agents, image_aliases, task_directory, course_factory, task_factory, hook_manager, is_testing)

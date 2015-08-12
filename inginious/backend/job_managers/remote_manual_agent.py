@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ A JobManager that can interact with distant agents, via RPyC """
+import socket
 
 import threading
 import copy
@@ -54,6 +55,7 @@ class RemoteManualAgentJobManager(AbstractJobManager):
                     {
                         'host': "the host of the agent",
                         'port': "the port on which the agent listens"
+                        'ssh_port': "the port on which the interface for accessing the debug ssh server is accessible"
                     }
             :param task_directory: the task directory
             :param course_factory: a CourseFactory object
@@ -241,8 +243,9 @@ class RemoteManualAgentJobManager(AbstractJobManager):
             agent = self._agents[agent_id]
             async_run = rpyc.async(agent.root.new_job)
             self._running_on_agent[agent_id].append(jobid)
-            async_run(str(jobid), str(task.get_course_id()), str(task.get_id()), dict(inputdata), debug, None,
-                      lambda r: self._execute_job_callback(jobid, r, agent_id))
+            async_run(str(jobid), str(task.get_course_id()), str(task.get_id()), dict(inputdata), debug,
+                      (lambda distant_conn_id, ssh_key: self._handle_ssh_callback(jobid, distant_conn_id, ssh_key)),
+                      (lambda r: self._execute_job_callback(jobid, r, agent_id)))
         except:
             self._agent_shutdown(agent_id)
             self._execute_job(jobid, task, inputdata, debug)
@@ -398,3 +401,26 @@ class RemoteManualAgentJobManager(AbstractJobManager):
                 thread._conn = None  # pylint: disable=W0212
         for f in self._timers:
             self._timers[f].cancel()
+
+    def get_socket_to_debug_ssh(self, job_id):
+        remote_conn_id = self._get_distant_conn_id_for_job(job_id)
+        if remote_conn_id is None:
+            return None
+        remote_agent_id = None
+        for agent_id, running_jids in enumerate(self._running_on_agent):
+            if job_id in running_jids:
+                remote_agent_id = agent_id
+                break
+        if remote_agent_id is None:
+            return None
+
+        client = socket.create_connection((self._agents_info[remote_agent_id]["host"], self._agents_info[remote_agent_id]["ssh_port"]))
+        client.send(remote_conn_id + "\n")
+        retval = ""
+        while retval not in ["ok\n", "ko\n"]:
+            retval += client.recv(3)
+        retval = retval.strip()
+        if retval != "ok":
+            client.close()
+            return None
+        return client
