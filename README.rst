@@ -11,7 +11,7 @@ INGInious
     :target: https://gitter.im/UCL-INGI/INGInious?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 
 
-INGInious is an intelligent grader that allows secured and automated testing of code made by students.
+INGInious is an intelligent grader that allows secured and automated testing of code made by students.
 
 It is written in Python and uses Docker_ to run student's code inside a secured environment.
 
