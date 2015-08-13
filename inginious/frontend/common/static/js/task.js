@@ -215,13 +215,17 @@ function submitTask(with_ssh)
 //Display informations for remote debugging
 function displayRemoteDebug(ssh_host, ssh_conn_id, ssh_key)
 {
-    var pre_content = "$ inginious-remote-debug " + ssh_host + "\n" + ssh_conn_id + "\n" + ssh_key;
+    var pre_content = "inginious-remote-debug " + ssh_host + "\n" + ssh_conn_id + "\n" + ssh_key;
     var task_alert = $('#task_alert');
 
     if($('pre', task_alert).text() != pre_content)
     {
         var pre = $('<pre><pre>').text(pre_content);
-        var alert = $(getAlertCode("<b>SSH server active</b><br/>Please type this in your console:", "info", false));
+        var alert = $(getAlertCode("<b>SSH server active</b><br/>"+
+                                   "Please paste this command into your terminal.<br/>"+
+                                   "You need to have the <a href='https://pypi.python.org/pypi/INGInious/'>INGInious pip package</a> installed.<br/>",
+                                   "info", false));
+        alert.attr('id', 'ssh_remote_info');
         alert.append(pre);
         task_alert.empty().append(alert);
     }

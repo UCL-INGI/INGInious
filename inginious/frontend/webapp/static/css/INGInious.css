@@ -65,6 +65,15 @@ form#task #task-submit-debug {
 form#task label {
   display: block;
 }
+#task_alert .alert#ssh_remote_info {
+  font-size: 14px;
+}
+#task_alert .alert#ssh_remote_info pre {
+  font-size: 10px;
+}
+#task_alert .alert#ssh_remote_info pre:before {
+  content: "$ ";
+}
 #submissions_restrictsize {
   overflow: auto;
   max-height: 223px;
