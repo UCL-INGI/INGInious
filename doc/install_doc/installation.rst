@@ -19,7 +19,6 @@ INGInious needs
 - Docker_ 1.7+  (if you use the "local" or "remote" backend)
 - MongoDB_
 - Libtidy
-- Development libs of OpenLDAP
 
 .. _Docker: https://www.docker.com
 .. _Python: https://www.python.org/
@@ -45,7 +44,11 @@ Centos 7.0+
 ::
 
     $ sudo yum install -y epel-release
-    $ sudo yum install -y git mongodb mongodb-server docker python-pip gcc python-devel libtidy openldap-devel
+    $ sudo yum install -y git mongodb mongodb-server docker python-pip gcc python-devel libtidy
+
+.. note::
+
+    You may also add ``openldap-devel`` if you want to use the LDAP auth plugin
 
 You can then start the services ``mongod`` and ``docker``:
 
@@ -65,12 +68,16 @@ Ubuntu 14.04+
 `````````````
 
 Please note that while CentOS, OS X and Windows are used to develop/test/use INGInious everyday, this is not the case for Ubuntu; less support will
- be given for this OS.
+be given for this OS.
 
 ::
 
     $ sudo apt-get update
-    $ sudo apt-get install git mongodb docker python gcc python-dev pip libldap2-dev libsasl2-dev libssl-dev
+    $ sudo apt-get install git mongodb docker python gcc python-dev pip
+
+.. note::
+
+    You may also add ``libldap2-dev libsasl2-dev libssl-dev`` if you want to use the LDAP auth plugin)
 
 You can then start the services ``mongod`` and ``docker``:
 
@@ -136,6 +143,16 @@ recent project, it is better to use dev version, which have a lot more functionn
 
 Run the same command to upgrade.
 
+.. note::
+
+   If you plan to use INGInious in production, you may want to enable the LDAP plugin or use CGI instead of the web.py default webserver.
+   In this case, you have to install more packages: simply add ``[cgi]``, ``[ldap]`` or ``[cgi,ldap]`` to the above command, depending on your needs:
+
+   ::
+
+       $ pip install --process-dependency-links --upgrade git+https://github.com/UCL-INGI/INGInious.git[cgi,ldap]
+
+
 Pip+Pipy
 ````````
 
@@ -147,6 +164,10 @@ version from pipy than with the development version.
     $ pip install --process-dependency-links --upgrade inginious
 
 Run the same command to upgrade.
+
+.. note::
+
+    See the note above if you plan to use CGI or LDAP.
 
 Git
 ```
