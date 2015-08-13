@@ -12,3 +12,4 @@ doc/_*
 utils/task_manual_tester/tests/
 node_modules/
 INGInious.egg-info/
+dist/
