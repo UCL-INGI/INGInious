@@ -20,6 +20,7 @@
 import abc
 
 import os
+import socket
 import uuid
 import docker
 from docker.utils import kwargs_from_env
@@ -150,7 +151,7 @@ class Installer(object):
         self._display_header("END")
         file_dir = self._config_path or os.path.join(os.getcwd(), self.configuration_filename())
         try:
-            data = yaml.dump(options, open(file_dir, "w"))
+            yaml.dump(options, open(file_dir, "w"))
             self._display_info("Successfully written the configuration file")
         except:
             self._display_error("Cannot write the configuration file on disk. Here is the content of the file")
@@ -165,6 +166,11 @@ class Installer(object):
     def configuration_filename(self):
         """ Returns the name of the configuration file """
         return "configuration.yaml"
+
+    @abc.abstractmethod
+    def support_remote_debugging(self):
+        """ Returns True if the frontend supports remote debugging, False else"""
+        return False
 
     #######################################
     #       Docker configuration          #
@@ -287,7 +293,8 @@ class Installer(object):
 
         return True
 
-    def get_agent_environment(self, agent_name, agent_port, remote_host, remote_docker_port, use_tls, local_location, cgroups_location):
+    def get_agent_environment(self, agent_name, agent_port, agent_ssh_port, remote_host, remote_docker_port, use_tls, local_location,
+                              cgroups_location):
         """ Get the environment for the agent. Returns None if an error happens. """
         try:
             if isinstance(use_tls, basestring):
@@ -307,7 +314,7 @@ class Installer(object):
             self._display_error("- Cannot connect to the remote Docker instance: %s" % str(e))
             return None
 
-        environment = {"AGENT_CONTAINER_NAME": agent_name, "AGENT_PORT": agent_port}
+        environment = {"AGENT_CONTAINER_NAME": agent_name, "AGENT_PORT": agent_port, "AGENT_SSH_PORT": (agent_ssh_port or "")}
         volumes = {'/sys/fs/cgroup/': {}}
         binds = {cgroups_location: {'ro': False, 'bind': "/sys/fs/cgroup"}}
 
@@ -325,10 +332,10 @@ class Installer(object):
 
         return docker_connection, environment, volumes, binds
 
-    def test_agent_pull(self, agent_id, agent_port, remote_host, remote_docker_port,
-                        use_tls, local_location, cgroups_location):
+    def test_agent_pull(self, agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port, use_tls, local_location, cgroups_location):
         """ Pull the agent to do remote tests """
-        data = self.get_agent_environment(agent_id, agent_port, remote_host, remote_docker_port, use_tls, local_location, cgroups_location)
+        data = self.get_agent_environment(agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port, use_tls, local_location,
+                                          cgroups_location)
         if data is None:
             return False
         docker_connection, environment, volumes, binds = data
@@ -340,10 +347,11 @@ class Installer(object):
         except:
             return False
 
-    def run_remote_container(self, agent_id, agent_port, remote_host, remote_docker_port,
-                             use_tls, local_location, cgroups_location, command):
+    def run_remote_container(self, agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port, use_tls, local_location,
+                             cgroups_location, command):
         """ Run a remote Docker container and get its output. Returns None in case of error """
-        data = self.get_agent_environment(agent_id, agent_port, remote_host, remote_docker_port, use_tls, local_location, cgroups_location)
+        data = self.get_agent_environment(agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port, use_tls, local_location,
+                                          cgroups_location)
         if data is None:
             return None
         docker_connection, environment, volumes, binds = data
@@ -391,24 +399,26 @@ class Installer(object):
 
         return stdout
 
-    def test_agent_docker_location(self, agent_id, agent_port, remote_host, remote_docker_port, use_tls, local_location, cgroups_location):
+    def test_agent_docker_location(self, agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port, use_tls, local_location,
+                                   cgroups_location):
         """ Test local docker location """
-        stdout = self.run_remote_container(agent_id, agent_port, remote_host, remote_docker_port, use_tls, local_location, cgroups_location,
-                                           ["docker", "info"])
+        stdout = self.run_remote_container(agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port, use_tls, local_location,
+                                           cgroups_location, ["docker", "info"])
         return stdout is not None and "Execution Driver:" in stdout
 
-    def test_agent_docker_cgroup(self, agent_id, agent_port, remote_host, remote_docker_port,
+    def test_agent_docker_cgroup(self, agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port,
                                  use_tls, local_location, cgroups_location):
         """ Test cgroup location on the agent's host """
-        stdout = self.run_remote_container(agent_id, agent_port, remote_host, remote_docker_port, use_tls, local_location, cgroups_location,
-                                           ["ls", "/sys/fs/cgroup"])
+        stdout = self.run_remote_container(agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port, use_tls, local_location,
+                                           cgroups_location, ["ls", "/sys/fs/cgroup"])
         return stdout is not None and "cpuacct" in stdout
 
-    def test_agent_port(self, agent_id, agent_port, remote_host, remote_docker_port, use_tls, local_location, cgroups_location):
-        """ Test agent port """
-        data = self.get_agent_environment(agent_id, agent_port, remote_host, remote_docker_port, use_tls, local_location, cgroups_location)
+    def start_agent_container(self, agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port, use_tls, local_location, cgroups_location):
+        """ Starts a remote agent container """
+        data = self.get_agent_environment(agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port, use_tls, local_location,
+                                          cgroups_location)
         if data is None:
-            return None
+            return None, None
         docker_connection, environment, volumes, binds = data
 
         try:
@@ -422,7 +432,7 @@ class Installer(object):
             container_id = response["Id"]
         except Exception as e:
             self._display_error("- Cannot create container: %s" % str(e))
-            return None
+            return docker_connection, None
 
         try:
             # Start the container
@@ -433,34 +443,67 @@ class Installer(object):
                 docker_connection.remove_container(container_id)
             except:
                 pass
-            return None
+            return docker_connection, None
 
         time.sleep(5)
 
-        try:
-            for i in range(0, 3): #retry three times
-                conn = rpyc.connect(remote_host, agent_port, config={"allow_public_attrs": True, 'allow_pickle': True})
+        return docker_connection, container_id
 
-                # Try to access conn.root. This raises an exception when the remote RPyC is not yet fully initialized
-                try:
-                    if not conn.root:
-                        raise Exception("Cannot get remote service")
-                    break
-                except:
-                    pass
-        except:
-            try:
-                docker_connection.remove_container(container_id, force=True)
-            except:
-                pass
-            return False
-
+    def stop_agent_container(self, docker_connection, container_id):
+        """ Closes a remote agent container """
         try:
             docker_connection.remove_container(container_id, force=True)
         except:
             pass
-        return True
 
+    def test_agent_port(self, agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port, use_tls, local_location, cgroups_location):
+        """ Test agent port """
+        docker_connection, container_id = self.start_agent_container(agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port,
+                                                                     use_tls, local_location, cgroups_location)
+        if container_id is None:
+            return False
+
+        ok = False
+        for i in range(0, 5): #retry five times
+            try:
+                conn = rpyc.connect(remote_host, agent_port, config={"allow_public_attrs": True, 'allow_pickle': True})
+
+                # Try to access conn.root. This raises an exception when the remote RPyC is not yet fully initialized
+                if not conn.root:
+                    raise Exception("Cannot get remote service")
+                ok = True
+                break
+            except:
+                time.sleep(1)
+
+        self.stop_agent_container(docker_connection, container_id)
+        return ok
+
+
+    def test_agent_ssh_port(self, agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port, use_tls, local_location, cgroups_location):
+        """ Test agent port """
+        docker_connection, container_id = self.start_agent_container(agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port,
+                                                                     use_tls, local_location, cgroups_location)
+        if container_id is None:
+            return False
+
+        ok = False
+        for i in range(0, 5):  # retry five times
+            try:
+                client = socket.create_connection((remote_host, agent_ssh_port))
+                client.send("something" + "\n")
+                retval = ""
+                while retval not in ["ok\n", "ko\n"]:
+                    retval += client.recv(3)
+                retval = retval.strip()
+                if retval == "ko":
+                    ok = True
+                    break
+            except:
+                time.sleep(1)
+
+        self.stop_agent_container(docker_connection, container_id)
+        return ok
 
     def ask_docker_backend(self, default_backend=None):
         """ Ask the user to choose the backend """
@@ -527,6 +570,14 @@ class Installer(object):
         agent_id = self._ask_with_default("Agent ID (you can leave this field blank)", def_agent_id)
         self._display_question("Please indicate the port on which the agent will bind. This port should be accessible from the current machine.")
         agent_port = self._ask_with_default("Agent port", "63456")
+        agent_ssh_port = None
+        if self.support_remote_debugging():
+            self._display_question("If you want to enable remote debugging, please indicate another port on which the agent will bind. "
+                                   "This port should be accessible from the current machine. Leave empty if you do not want to allow remote "
+                                   "debugging.")
+            agent_ssh_port = self._ask_with_default("Remote debugging port", "")
+            if agent_ssh_port == "":
+                agent_ssh_port = None
 
         # Try default configuration first
         local_location = "unix:///var/run/docker.sock"
@@ -534,8 +585,7 @@ class Installer(object):
 
         # Pull the inginious-agent image
         self._display_info("- Pulling the inginious-agent image. This can take time.")
-        if not self.test_agent_pull(agent_id, agent_port, remote_host, remote_docker_port,
-                                    use_tls, local_location, cgroups_location):
+        if not self.test_agent_pull(agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port, use_tls, local_location, cgroups_location):
             self._display_error("- An error occured while pulling ingi/inginious-agent")
             if self._ask_with_default("Would you like to retry?", True):
                 return self.configure_backend_remote_agent(def_remote_host, def_remote_docker_port, def_use_tls, def_agent_id)
@@ -544,7 +594,7 @@ class Installer(object):
 
         # Test the docker local location
         self._display_info("- Guessing the agent local Docker location. This can take some time.")
-        if not self.test_agent_docker_location(agent_id, agent_port, remote_host, remote_docker_port,
+        if not self.test_agent_docker_location(agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port,
                                                use_tls, local_location, cgroups_location):
             self._display_info("- Cannot guess the default local Docker location for the agent.")
             local_location_valid = False
@@ -554,7 +604,7 @@ class Installer(object):
 
         # Test the cgroup location
         self._display_info("- Guessing the cgroup location on the agent's host. This can take some time.")
-        if not self.test_agent_docker_cgroup(agent_id, agent_port, remote_host, remote_docker_port,
+        if not self.test_agent_docker_cgroup(agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port,
                                              use_tls, local_location, cgroups_location):
             self._display_info("- Cannot guess the cgroup location on the agent's host.")
             cgroups_location_valid = False
@@ -576,12 +626,12 @@ class Installer(object):
             self._display_info("- Verifying the configuration. This can take time.")
             should_ask = False
 
-            if not self.test_agent_docker_location(agent_id, agent_port, remote_host, remote_docker_port,
+            if not self.test_agent_docker_location(agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port,
                                                    use_tls, local_location, cgroups_location):
                 self._display_warning("- Invalid value for Docker location")
                 should_ask = True
 
-            if not self.test_agent_docker_cgroup(agent_id, agent_port, remote_host, remote_docker_port,
+            if not self.test_agent_docker_cgroup(agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port,
                                                  use_tls, local_location, cgroups_location):
                 self._display_warning("- Invalid location for cgroup")
                 should_ask = True
@@ -594,7 +644,8 @@ class Installer(object):
         # Test the agent port
         while True:
             self._display_info("- Testing the agent port. This can take time.")
-            if not self.test_agent_port(agent_id, agent_port, remote_host, remote_docker_port, use_tls, local_location, cgroups_location):
+            if not self.test_agent_port(agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port, use_tls, local_location,
+                                        cgroups_location):
                 self._display_error("Invalid value for the agent port. The port seems not being accessible. "
                                     "Remember to open the port in the firewall.")
                 if not self._ask_with_default("Do you want to retry?", True):
@@ -604,6 +655,21 @@ class Installer(object):
                 self._display_info("- Agent port valid. The remote agent correctly started!")
                 break
 
+        # Test the agent remote debug port
+        while agent_ssh_port:
+            self._display_info("- Testing the agent remote debugging port. This can take time.")
+            if not self.test_agent_ssh_port(agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port, use_tls, local_location,
+                                            cgroups_location):
+                self._display_error("Invalid value for the agent remote debugging port. The port seems not being accessible. "
+                                    "Remember to open the port in the firewall.")
+                if not self._ask_with_default("Do you want to retry?", True):
+                    agent_ssh_port = None
+                else:
+                    agent_ssh_port = self._ask_with_default("Remote debugging port", "63456")
+            else:
+                self._display_info("- Remote debugging port valid.")
+                break
+
         # Hey, we are done!
         self._display_info("- Configuration of the agent succeeded.")
         self._display_question("")
@@ -611,6 +677,7 @@ class Installer(object):
             "remote_host": remote_host,
             "remote_docker_port": remote_docker_port,
             "remote_agent_port": agent_port,
+            "remote_agent_ssh_port": agent_ssh_port,
             "use_tls": use_tls,
             "local_location": local_location,
             "cgroups_location": cgroups_location,

@@ -170,3 +170,7 @@ class Installer(inginious.frontend.common.installer.Installer):
     def configuration_filename(self):
         """ Returns the name of the configuration file """
         return "configuration.yaml"
+
+    def support_remote_debugging(self):
+        """ Returns True if the frontend supports remote debugging, False else"""
+        return True
