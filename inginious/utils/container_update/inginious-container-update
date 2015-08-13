@@ -1,0 +1,56 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# Copyright (c) 2014-2015 Université Catholique de Louvain.
+#
+# This file is part of INGInious.
+#
+# INGInious is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# INGInious is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public
+# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
+
+import re
+import docker
+from docker.utils import kwargs_from_env
+
+def main():
+    """ Updates all "stock" images (images beginning with 'ingi/inginious-') """
+    INFO = '\033[94m'
+    WARNING = '\033[33m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+
+    stock_images = []
+    try:
+        docker_connection = docker.Client(timeout=10, **kwargs_from_env())
+        for image in docker_connection.images():
+            for tag in image["RepoTags"]:
+                if re.match(r"^ingi/inginious-(c-[a-z]+|agent):latest$", tag):
+                    stock_images.append(tag)
+    except:
+        print FAIL + "Cannot connect to Docker!" + ENDC
+        print FAIL + "Restart this command after making sure the command `docker info` works" + ENDC
+        return
+
+    if len(stock_images) == 0:
+        print WARNING + "You have no image to update. Do not forget to run `inginious-install`." + ENDC
+    else:
+        print INFO + "Currently installed images:"
+        for i in stock_images:
+            print INFO + ("- %s" % i) + ENDC
+        for image in stock_images:
+            print INFO + ("Updating %s" % image) + ENDC
+            docker_connection.pull(image)
+        print INFO + "Images update done" + ENDC
+
+if __name__ == "__main__":
+    main()
