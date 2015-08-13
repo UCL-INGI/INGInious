@@ -8,7 +8,7 @@ but also as a FastCGI backend.
 
 ::
 
-    inginious-webapp [-h] [--config CONFIG] [--host HOST] [--port PORT]
+    inginious-webapp [-h] [--config CONFIG] [--host HOST] [--port PORT] [--sshhost SSHHOST] [--sshport SSHPORT]
 
 .. option:: --config
 
@@ -21,6 +21,14 @@ but also as a FastCGI backend.
 .. option:: --port PORT
 
    Specify the port to which to bind to. By default, it is 8080.
+
+.. option:: --sshhost SSHHOST
+
+   Specify the host to which the remote debug manager will bind. If it is not set, remote debugging will be deactivated.
+
+.. option:: --sshport SSHPORT
+
+   Specify the port to which the remote debug manager will bind.
 
 .. option:: -h, --help
 

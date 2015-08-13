@@ -20,6 +20,7 @@ Task tests commands
     commands_doc/inginious-test-task
     commands_doc/inginious-check-task
     commands_doc/inginious-auto-test-task
+    commands_doc/inginious-remote-debug
 
 Utilities
 ---------
@@ -29,6 +30,7 @@ Utilities
 
     commands_doc/inginious-synchronize
     commands_doc/inginious-old-task-converter
+    commands_doc/inginious-container-update
 
 
 Other commands
