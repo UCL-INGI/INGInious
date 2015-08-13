@@ -65,14 +65,28 @@ form#task #task-submit-debug {
 form#task label {
   display: block;
 }
+#task_alert {
+  position: relative;
+}
 #task_alert .alert#ssh_remote_info {
   font-size: 14px;
 }
 #task_alert .alert#ssh_remote_info pre {
   font-size: 10px;
+  margin-right: 50px;
 }
 #task_alert .alert#ssh_remote_info pre:before {
   content: "$ ";
+}
+#task_alert .kill-submission-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 50px;
+}
+#task_alert .loading-alert {
+  padding-right: 50px;
 }
 #submissions_restrictsize {
   overflow: auto;

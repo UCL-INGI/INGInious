@@ -151,6 +151,10 @@ class TaskPage(INGIniousPage):
                         raise web.notfound()
                     web.header('Content-Type', 'application/json')
                     return submission_to_json(submission, self.user_manager.has_admin_rights_on_course(course, username), True)
+                elif "@action" in userinput and userinput["@action"] == "kill" and "submissionid" in userinput:
+                    self.submission_manager.kill_running_submission(userinput["submissionid"]) #ignore return value
+                    web.header('Content-Type', 'application/json')
+                    return json.dumps({'status': 'done'})
                 else:
                     raise web.notfound()
             except:

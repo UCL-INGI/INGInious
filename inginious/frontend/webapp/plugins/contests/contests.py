@@ -127,7 +127,7 @@ class ContestScoreboard(INGIniousPage):
                         status["time"] = submission['submitted_on']
                         status["score"] = ((submission['submitted_on'] + (
                             timedelta(minutes=contest_data["penalty"]) * (status["tries"] - 1))) - start).total_seconds() / 60
-                    elif submission['result'] == "failed":
+                    elif submission['result'] == "failed" or submission['result'] == "killed":
                         status["status"] = "WA"
                         status["tries"] += 1
                     elif submission['result'] == "timeout":

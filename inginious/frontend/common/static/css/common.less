@@ -117,17 +117,34 @@ form#task
 
 #task_alert
 {
+    position: relative;
+
     .alert#ssh_remote_info
     {
         font-size: 14px;
         pre
         {
             font-size: 10px;
+            margin-right: 50px;
             &:before
             {
                 content: "$ ";
             }
         }
+    }
+
+    .kill-submission-btn
+    {
+        position: absolute;
+        top: 0;
+        right: 0;
+        height: 100%;
+        width: 50px;
+    }
+
+    .loading-alert
+    {
+        padding-right: 50px;
     }
 }
 

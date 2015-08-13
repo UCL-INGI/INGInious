@@ -181,6 +181,7 @@ function submitTask(with_ssh)
                       {
                           if("status" in data && data["status"] == "ok" && "submissionid" in data)
                           {
+                              displayTaskLoadingAlert(data['submissionid']);
                               incrementTries();
                               displayNewSubmission(data['submissionid']);
                               waitForSubmission(data['submissionid']);
@@ -208,27 +209,8 @@ function submitTask(with_ssh)
 
     blurTaskForm();
     resetAlerts();
-    displayTaskLoadingAlert();
+    displayTaskLoadingAlert(null);
     updateTaskStatus("Waiting for verification", 0);
-}
-
-//Display informations for remote debugging
-function displayRemoteDebug(ssh_host, ssh_conn_id, ssh_key)
-{
-    var pre_content = "inginious-remote-debug " + ssh_host + "\n" + ssh_conn_id + "\n" + ssh_key;
-    var task_alert = $('#task_alert');
-
-    if($('pre', task_alert).text() != pre_content)
-    {
-        var pre = $('<pre><pre>').text(pre_content);
-        var alert = $(getAlertCode("<b>SSH server active</b><br/>"+
-                                   "Please paste this command into your terminal.<br/>"+
-                                   "You need to have the <a href='https://pypi.python.org/pypi/INGInious/'>INGInious pip package</a> installed.<br/>",
-                                   "info", false));
-        alert.attr('id', 'ssh_remote_info');
-        alert.append(pre);
-        task_alert.empty().append(alert);
-    }
 }
 
 //Wait for a job to end
@@ -244,7 +226,7 @@ function waitForSubmission(submissionid)
                 {
                     waitForSubmission(submissionid);
                     if("ssh_key" in data && "ssh_conn_id" in data && "ssh_host" in data)
-                        displayRemoteDebug(data["ssh_host"], data["ssh_conn_id"], data["ssh_key"])
+                        displayRemoteDebug(submissionid, data["ssh_host"], data["ssh_conn_id"], data["ssh_key"])
                 }
                 else if("status" in data && "result" in data && "grade" in data)
                 {
@@ -279,6 +261,13 @@ function waitForSubmission(submissionid)
                         updateTaskStatus("Wrong answer", data["grade"]);
                         unblurTaskForm();
                     }
+                    else if(data['result'] == "killed")
+                    {
+                        displayKilledAlert(data);
+                        updateSubmission(submissionid, data['result'], data["grade"]);
+                        updateTaskStatus("Wrong answer", data["grade"]);
+                        unblurTaskForm();
+                    }
                     else // == "error"
                     {
                         displayTaskErrorAlert(data);
@@ -303,6 +292,20 @@ function waitForSubmission(submissionid)
                 unblurTaskForm();
             });
     }, 1000);
+}
+
+//Kill a running submission
+function killSubmission(submissionid)
+{
+    $('.kill-submission-btn').attr('disabled', 'disabled');
+    var url = $('form#task').attr("action");
+    jQuery.post(url, {"@action": "kill", "submissionid": submissionid}, null, "json").done(function(data)
+    {
+        $('.kill-submission-btn').removeAttr('disabled');
+    }).fail(function(data)
+    {
+        $('.kill-submission-btn').removeAttr('disabled');
+    });
 }
 
 //Displays debug info
@@ -331,15 +334,45 @@ function displayDebugInfoRecur(info, box)
     });
 }
 
+//Get the code for a "loading" alert, with a button to kill the current submission
+function getLoadingAlertCode(content, submissionid)
+{
+    var kill_button = "";
+    if(submissionid != null)
+        kill_button =   "<button type='button' onclick='killSubmission(\""+submissionid+"\")' class='btn btn-danger kill-submission-btn btn-small'>"+
+                            "<i class='fa fa-close'></i>"+
+                        "</button>";
+    var div_content =   "<div class='loading-alert'>"+content+"</div>";
+    return getAlertCode(kill_button + div_content, "info", false);
+}
+
 //Displays a loading alert in task form
-function displayTaskLoadingAlert()
+function displayTaskLoadingAlert(submissionid)
 {
     var task_alert = $('#task_alert');
-    task_alert.html(getAlertCode("<b>Verifying your answers...</b>", "info", false));
-    $('html, body').animate(
-        {
-            scrollTop: task_alert.offset().top - 100
-        }, 200);
+    task_alert.html(getLoadingAlertCode("<b>Verifying your answers...</b>", submissionid));
+    $('html, body').animate({
+        scrollTop: task_alert.offset().top - 100
+    }, 200);
+}
+
+//Display informations for remote debugging
+function displayRemoteDebug(submissionid, ssh_host, ssh_conn_id, ssh_key)
+{
+    var pre_content = "inginious-remote-debug " + ssh_host + "\n" + ssh_conn_id + "\n" + ssh_key;
+    var task_alert = $('#task_alert');
+
+    if($('pre', task_alert).text() != pre_content)
+    {
+        var pre = $('<pre><pre>').text(pre_content);
+        var alert = $(getLoadingAlertCode("<b>SSH server active</b><br/>" +
+            "Please paste this command into your terminal.<br/>" +
+            "You need to have the <a href='https://pypi.python.org/pypi/INGInious/'>INGInious pip package</a> installed.<br/>",
+            submissionid));
+        alert.attr('id', 'ssh_remote_info');
+        alert.append(pre);
+        task_alert.empty().append(alert);
+    }
 }
 
 //Displays a loading input alert in task form
@@ -370,6 +403,16 @@ function displayOverflowAlert(content)
     displayTaskStudentAlertWithProblems(content,
         "<b>Your submission made an overflow. Your score is " + content["grade"] + "%</b>",
         "<b>Your submission made an overflow. Your score is " + content["grade"] + "%</b><br/>",
+        "",
+        "warning", false);
+}
+
+//Displays a 'killed' alert in task form
+function displayKilledAlert(content)
+{
+    displayTaskStudentAlertWithProblems(content,
+        "<b>Your submission was killed.</b>",
+        "<b>Your submission was killed.</b><br/>",
         "",
         "warning", false);
 }
@@ -518,6 +561,8 @@ function loadOldFeedback(data)
             displayTimeOutAlert(data);
         else if(data['result'] == "overflow")
             displayOverflowAlert(data);
+        else if(data['result'] == "killed")
+            displayKilledAlert(data);
         else // == "error"
             displayTaskErrorAlert(data);
     }

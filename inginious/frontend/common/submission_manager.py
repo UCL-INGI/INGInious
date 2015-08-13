@@ -27,6 +27,7 @@ import StringIO
 import tempfile
 
 from bson.objectid import ObjectId
+from datetime import datetime
 import pymongo
 
 from inginious.frontend.common.parsable_text import ParsableText
@@ -84,12 +85,11 @@ class SubmissionManager(object):
         # Save submission to database
         self._database.submissions.update(
             {"_id": submission["_id"]},
-            {"$set": data}
+            {"$set": data, "$unset": {'jobid': ""}}
         )
 
         self._hook_manager.call_hook("submission_done", submission=submission, job=job)
 
-    @abstractmethod
     def add_job(self, task, inputdata, debug=False):
         """
         Add a job in the queue and returns a submission id.
@@ -99,9 +99,68 @@ class SubmissionManager(object):
         :type inputdata: dict
         :param debug: If debug is true, more debug data will be saved
         :type debug: bool
-        :return:
+        :returns: the submission id
         """
+        if not self._user_manager.session_logged_in():
+            raise Exception("A user must be logged in to submit an object")
 
+        username = self._user_manager.session_username()
+
+        obj = {
+            "courseid": task.get_course_id(),
+            "taskid": task.get_id(),
+            "input": self._gridfs.put(json.dumps(inputdata)),
+            "status": "waiting",
+            "submitted_on": datetime.now(),
+            "username": [username],
+            "response_type": task.get_response_type()
+        }
+
+        self._before_submission_insertion(task, inputdata, debug, obj)
+
+        submissionid = self._database.submissions.insert(obj)
+
+        self._after_submission_insertion(task, inputdata, debug, obj, submissionid)
+
+        self._hook_manager.call_hook("new_submission", submissionid=submissionid, submission=obj, inputdata=inputdata)
+
+        ssh_callback = None
+        if debug == "ssh":
+            ssh_callback = lambda conn_id, ssh_key: self._handle_ssh_callback(submissionid, conn_id, ssh_key)
+
+        jobid = self._job_manager.new_job(task, inputdata, (lambda job: self._job_done_callback(submissionid, task, job)), "Frontend - {}".format(
+            username), debug, ssh_callback)
+
+        self._database.submissions.update(
+            {"_id": submissionid, "status": "waiting"},
+            {"$set": {"jobid": jobid}}
+        )
+
+        return submissionid
+
+
+    def _before_submission_insertion(self, task, inputdata, debug, obj):
+        """
+        Called before any new submission is inserted into the database. Allows you to modify obj, the new document that will be inserted into the
+        database. Should be overridden in subclasses.
+
+        :param task: Task related to the submission
+        :param inputdata: input of the student
+        :param debug: True, False or "ssh". See add_job.
+        :param obj: the new document that will be inserted
+        """
+        pass
+
+    def _after_submission_insertion(self, task, inputdata, debug, submission, submissionid):
+        """
+        Called after any new submission is inserted into the database, but before starting the job.  Should be overridden in subclasses.
+        :param task: Task related to the submission
+        :param inputdata: input of the student
+        :param debug: True, False or "ssh". See add_job.
+        :param submission: the new document that was inserted (do not contain _id)
+        :param submissionid: submission id of the submission
+        """
+        pass
 
     def get_input_from_submission(self, submission, only_input=False):
         """
@@ -150,6 +209,19 @@ class SubmissionManager(object):
         if user_check and not self.user_is_submission_owner(submission):
             return None
         return submission["status"] == "done" or submission["status"] == "error"
+
+    def kill_running_submission(self, submissionid, user_check=True):
+        """ Attempt to kill the remote job associated with this submission id.
+        :param submissionid:
+        :param user_check: Check if the current user owns this submission
+        :return: True if the job was killed, False if an error occured
+        """
+        submission = self.get_submission(submissionid, user_check)
+        if not submission:
+            return False
+        if "jobid" not in submission:
+            return False
+        return self._job_manager.kill_job(submission["jobid"])
 
     def user_is_submission_owner(self, submission):
         """ Returns true if the current user is the owner of this jobid, false else """
@@ -303,3 +375,12 @@ class SubmissionManager(object):
         tar.close()
         tmpfile.seek(0)
         return tmpfile
+
+    def _handle_ssh_callback(self, submission_id, conn_id, ssh_key):
+        """ Handles the creation of a remote ssh server """
+        if ssh_key != "":  # ignore late calls (a bit hacky, but...)
+            obj = {
+                "ssh_internal_conn_id": conn_id,
+                "ssh_key": ssh_key
+            }
+            self._database.submissions.update_one({"_id": submission_id}, {"$set": obj})

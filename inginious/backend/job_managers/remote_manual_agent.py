@@ -452,3 +452,18 @@ class RemoteManualAgentJobManager(AbstractJobManager):
             client.close()
             return None
         return client
+
+    def kill_job(self, job_id):
+        remote_agent_id = None
+        for agent_id, running_jids in enumerate(self._running_on_agent):
+            if job_id in running_jids:
+                remote_agent_id = agent_id
+                break
+        if remote_agent_id is None:
+            return False
+
+        try:
+            return self._agents[remote_agent_id].root.kill_job(job_id)
+        except:
+            raise
+            return False

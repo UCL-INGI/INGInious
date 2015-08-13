@@ -91,6 +91,12 @@ class SimpleAgent(object):
         self._internal_job_count_lock = threading.Lock()
         self._internal_job_count = 0
 
+        # Dict that stores running container ids for each job id
+        self._container_for_job = {}
+
+        # Stores container id of killed containers
+        self._killed_containers = set()
+
     def _force_directory_empty(self, directory):
         """ Call Docker to empty directories that are still owned by old containers """
         docker_connection = docker.Client(**kwargs_from_env())
@@ -366,6 +372,7 @@ class SimpleAgent(object):
                 network_disabled=(debug != "ssh")
             )
             container_id = response["Id"]
+            self._container_for_job[job_id] = container_id
 
             # Start the RPyC server associated with this container
             container_set = set()
@@ -406,6 +413,12 @@ class SimpleAgent(object):
         except Exception as e:
             self.logger.warning("Cannot start container! %s", str(e))
             rmtree(container_path)
+
+            try:
+                del self._container_for_job[job_id]
+            except:
+                pass
+
             return {'result': 'crash', 'text': 'Cannot start container'}
 
         # Ask the "cgroup" thread to verify the timeout/memory limit
@@ -430,10 +443,15 @@ class SimpleAgent(object):
         if debug == "ssh":
             self._handle_container_ssh_close(job_id)
 
+        del self._container_for_job[job_id]
+
         # Verify that everything went well
+        error_killed = self._container_was_killed(container_id)
         error_timeout = self._timeout_watcher.container_had_error(container_id)
         error_memory = self._memory_watcher.container_had_error(container_id)
-        if error_timeout:
+        if error_killed:
+            result = {"result": "killed"}
+        elif error_timeout:
             result = {"result": "timeout"}
         elif error_memory:
             result = {"result": "overflow"}
@@ -662,3 +680,33 @@ class SimpleAgent(object):
             raise Exception("Remote debugging is not activated")
 
         self.remote_ssh_manager.del_connection(job_id)
+
+    def _container_was_killed(self, container_id):
+        """ Returns True (/False) if the container was (/not) killed by the remote job manager. Can only be called ONCE for each container_id """
+        if container_id in self._killed_containers:
+            self._killed_containers.remove(container_id)
+            return True
+        return False
+
+    def kill_job(self, job_id):
+        """ Kill a running job """
+        container_id = self._container_for_job.get(job_id)
+        if container_id is None:
+            self.logger.error("Invalid job_id submitted to kill_job")
+            return False
+
+        # Add it now, even if the container is not really killed.
+        self._killed_containers.add(container_id)
+
+        try:
+            docker_connection = docker.Client(**kwargs_from_env())
+        except:
+            self.logger.error("kill_job cannot connect to Docker!")
+            return False
+
+        try:
+            docker_connection.kill(container_id)
+            return True
+        except Exception as e:
+            self.logger.info("Cannot kill container %s: %s", container_id, str(e))
+            return False

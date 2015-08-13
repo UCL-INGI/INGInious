@@ -58,6 +58,7 @@ class RemoteAgent(SimpleAgent):
         update_image_aliases = self._update_image_aliases
         sync_enabled = self.sync_enabled
         task_directory = self.task_directory
+        kill_job = self.kill_job
         logger = self.logger
 
         class AgentService(rpyc.Service):
@@ -151,6 +152,13 @@ class RemoteAgent(SimpleAgent):
                         callback_return({"result": "crash", "text": "An error occured in the Agent: {}".format(str(e))})
 
                 threading.Thread(target=_threaded_execute).start()
+
+            def exposed_kill_job(self, job_id):
+                """ Kill a job
+                :param job_id:
+                :return: True if the jobs was killed, False if an error occured
+                """
+                return kill_job(job_id)
 
             def exposed_get_task_directory_hashes(self):
                 """ Get the list of files from the local task directory

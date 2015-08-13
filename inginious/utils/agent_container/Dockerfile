@@ -33,4 +33,4 @@ RUN \
 WORKDIR /agent
 CMD ["/agent/inginious/backend/agent/start_container_agent.py"]
 
-LABEL agent-version=0.4
+LABEL agent-version=0.5

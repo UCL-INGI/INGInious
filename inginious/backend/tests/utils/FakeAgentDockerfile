@@ -3,4 +3,4 @@ FROM centos
 
 CMD ["/bin/sleep", "10"]
 
-LABEL agent-version=0.4
+LABEL agent-version=0.5

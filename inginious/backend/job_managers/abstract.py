@@ -199,10 +199,10 @@ class AbstractJobManager(object):
                 origin_dict["stdout"] = emul_result["stdout"]
 
             # Else merge everything
-            if emul_result['result'] not in ["error", "failed", "success", "timeout", "overflow", "crash"]:
+            if emul_result['result'] not in ["error", "failed", "success", "timeout", "overflow", "crash", "killed"]:
                 emul_result['result'] = "error"
 
-            if emul_result["result"] not in ["error", "timeout", "overflow", "crash"]:
+            if emul_result["result"] not in ["error", "timeout", "overflow", "crash", "killed"]:
                 final_dict = emul_result
 
                 final_dict["result"] = "success" if origin_dict["result"] == "success" and final_dict["result"] == "success" else "failed"
@@ -219,7 +219,7 @@ class AbstractJobManager(object):
                             final_dict["problems"][pid] = origin_dict["problems"][pid]
                 elif "problems" not in final_dict and "problems" in origin_dict:
                     final_dict["problems"] = origin_dict["problems"]
-            elif emul_result["result"] in ["error", "timeout", "overflow", "crash"] and "text" in emul_result:
+            elif emul_result["result"] in ["error", "timeout", "overflow", "crash", "killed"] and "text" in emul_result:
                 final_dict = origin_dict.copy()
                 final_dict.update({"result": emul_result["result"], "text": emul_result["text"]})
             else:
@@ -227,7 +227,8 @@ class AbstractJobManager(object):
                 error_messages = {
                     "error": "An unknown internal error occured",
                     "timeout": "Your code took too much time to execute",
-                    "overflow": "Your code took too much memory or disk"
+                    "overflow": "Your code took too much memory or disk",
+                    "killed": "You or an administrator asked to kill the submission while it was running"
                 }
                 other_message = "There was an internal error while running the tests"
                 final_dict.update({"result": emul_result["result"], "text": error_messages.get(emul_result["result"], other_message)})
@@ -378,3 +379,12 @@ class AbstractJobManager(object):
     def get_socket_to_debug_ssh(self, job_id):
         """ Get a socket to the remote ssh server identified by the job_id. Returns None if the conn_id is expired or not valid. """
         return None
+
+    @abstractmethod
+    def kill_job(self, job_id):
+        """
+        Kills a running job
+        :param job_id:
+        :return: True if the job was killed, False if an error occured
+        """
+        return False

@@ -24,7 +24,7 @@ import docker.utils
 
 from inginious.backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
 
-AGENT_CONTAINER_VERSION = "0.4"
+AGENT_CONTAINER_VERSION = "0.5"
 
 
 class RemoteDockerJobManager(RemoteManualAgentJobManager):

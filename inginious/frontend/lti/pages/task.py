@@ -89,6 +89,10 @@ class LTITask(LTIAuthenticatedPage):
                 raise web.notfound()
             web.header('Content-Type', 'application/json')
             return submission_to_json(submission, "Administrator" in self.user_manager.session_roles(), True)
+        elif "@action" in userinput and userinput["@action"] == "kill" and "submissionid" in userinput:
+            self.submission_manager.kill_running_submission(userinput["submissionid"])  # ignore return value
+            web.header('Content-Type', 'application/json')
+            return json.dumps({'status': 'done'})
         else:
             # Display the task itself
             return self.template_helper.get_renderer().task(self.course, self.task, self.submission_manager.get_user_submissions(self.task))

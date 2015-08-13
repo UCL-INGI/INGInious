@@ -55,3 +55,6 @@ class LocalJobManager(AbstractJobManager):
         remote_conn_id = self._get_distant_conn_id_for_job(job_id)
         if remote_conn_id is not None:
             return self._agent.get_socket_to_debug_ssh(remote_conn_id)
+
+    def kill_job(self, job_id):
+        return self._agent.kill_job(job_id)
