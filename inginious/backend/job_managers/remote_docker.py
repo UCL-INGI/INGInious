@@ -17,7 +17,6 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ A Job Manager that automatically launch Agents on distant Docker daemons """
-import json
 
 import docker
 import docker.utils
@@ -38,8 +37,8 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
             print "No agent present on remote host."
             return False
 
-        #Due to a bug in Docker 1.9, labels are not returned for running containers
-        #if container_data["Config"]["Labels"] is None or "agent-version" not in container_data["Config"]["Labels"] or container_data["Config"][
+        # Due to a bug in Docker 1.9, labels are not returned for running containers
+        # if container_data["Config"]["Labels"] is None or "agent-version" not in container_data["Config"]["Labels"] or container_data["Config"][
         #    "Labels"]["agent-version"] != AGENT_CONTAINER_VERSION:
         # Workaround:
         if cls.is_agent_image_update_needed(docker_connection):
@@ -61,7 +60,6 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
             return False
         else:
             return True
-
 
     @classmethod
     def is_agent_image_update_needed(cls, docker_connection):

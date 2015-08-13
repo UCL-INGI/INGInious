@@ -19,8 +19,8 @@
 """ Manages users data and session """
 from abc import ABCMeta, abstractmethod
 
-class AbstractUserManager(object):
 
+class AbstractUserManager(object):
     __metaclass__ = ABCMeta
 
     @abstractmethod

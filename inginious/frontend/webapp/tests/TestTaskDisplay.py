@@ -20,9 +20,11 @@ class TestDisplaySuperAdmin(LoggedInTest):
         self.assertEqual("0", driver.find_element_by_id("task_tries").text)
         self.assertEqual("Submit", driver.find_element_by_id("task-submit").text)
 
+
 class TestDisplayAdmin(TestDisplaySuperAdmin):
     login = "test2"
     password = "test"
+
 
 class TestDisplayUserAfterDeadline(RegisteredTest):
     login = "test3"

@@ -18,7 +18,7 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Manages users data and session """
 from abc import ABCMeta, abstractmethod
-from datetime import datetime
+
 from inginious.frontend.common.user_manager import AbstractUserManager
 
 
@@ -452,7 +452,8 @@ class UserManager(AbstractUserManager):
         classroom = self._database.classrooms.find_one({"courseid": task.get_course_id(), "groups.students": username})
         group_filter = (classroom is not None and task.is_group_task()) or not task.is_group_task()
 
-        return (self.course_is_open_to_user(task.get_course(), username) and task._accessible.is_open() and group_filter) or self.has_staff_rights_on_course(
+        return (self.course_is_open_to_user(task.get_course(),
+                                            username) and task._accessible.is_open() and group_filter) or self.has_staff_rights_on_course(
             task.get_course(), username)
 
     def get_course_classrooms(self, course):
@@ -495,7 +496,7 @@ class UserManager(AbstractUserManager):
         classroom = self._database.classrooms.find_one({"courseid": course.get_id(), "default": True})
         if classroom is None:
             self._database.classrooms.insert({"courseid": course.get_id(), "description": "Default classroom",
-                                              "students": [username], "tutors": [],  "groups": [], "default": True})
+                                              "students": [username], "tutors": [], "groups": [], "default": True})
         else:
             self._database.classrooms.find_one_and_update({"courseid": course.get_id(), "default": True},
                                                           {"$push": {"students": username}})
@@ -531,7 +532,7 @@ class UserManager(AbstractUserManager):
         if username is None:
             username = self.session_username()
 
-        return (course._accessible.is_open() and self.course_is_user_registered(course, username))\
+        return (course._accessible.is_open() and self.course_is_user_registered(course, username)) \
                or self.has_staff_rights_on_course(course, username)
 
     def course_is_user_registered(self, course, username=None):

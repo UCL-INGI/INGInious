@@ -18,9 +18,10 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Main page for the LTI provider. Displays a task and allow to answer to it. """
 import web
+
 from inginious.frontend.lti.pages.utils import LTILaunchPage
 
 
 class LTILaunchTask(LTILaunchPage):
     def LAUNCH_POST(self, session_identifier):
-        raise web.seeother('/'+ session_identifier + '/task')
+        raise web.seeother('/' + session_identifier + '/task')

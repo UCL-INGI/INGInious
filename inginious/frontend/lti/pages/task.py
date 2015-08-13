@@ -21,13 +21,14 @@ import base64
 import json
 import mimetypes
 import urllib
+
 import web
+
 from inginious.frontend.common.task_page_helpers import list_multiple_multiple_choices_and_files, submission_to_json
 from inginious.frontend.lti.pages.utils import LTIAuthenticatedPage
 
 
 class LTITask(LTIAuthenticatedPage):
-
     def LTI_GET(self):
         return self.LTI_POST()
 

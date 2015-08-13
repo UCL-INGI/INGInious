@@ -19,8 +19,6 @@
 """ Index page """
 
 import web
-from bson.objectid import ObjectId
-from bson.errors import InvalidId
 
 from inginious.frontend.webapp.pages.utils import INGIniousPage
 
@@ -76,7 +74,6 @@ class ClassroomPage(INGIniousPage):
             else:
                 error = True
                 msg = "You are not allowed to change group."
-
 
         last_submissions = self.submission_manager.get_user_last_submissions_for_course(course, one_per_task=True)
         except_free_last_submissions = []

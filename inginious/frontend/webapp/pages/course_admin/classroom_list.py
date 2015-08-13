@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 from collections import OrderedDict
+
 from bson.objectid import ObjectId
 import web
 
@@ -40,7 +41,7 @@ class CourseClassroomListPage(INGIniousAdminPage):
             if self.user_manager.has_admin_rights_on_course(course):
                 data = web.input()
                 if 'classroom' in data:
-                    default = True if self.database.classrooms.find_one({"courseid":courseid, "default": True}) is None else False
+                    default = True if self.database.classrooms.find_one({"courseid": courseid, "default": True}) is None else False
                     self.database.classrooms.insert({"default": default, "courseid": courseid, "students": [],
                                                      "tutors": [], "groups": [],
                                                      "description": data['classroom']})

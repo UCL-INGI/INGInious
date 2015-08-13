@@ -18,6 +18,7 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Custom installer for the LTI frontend """
 import uuid
+
 import inginious.frontend.common.installer
 
 

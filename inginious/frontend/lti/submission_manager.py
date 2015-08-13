@@ -17,14 +17,16 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ A custom Submission Manager that removes exceeding submissions """
-import json
-from datetime import datetime
-import pymongo
-from inginious.frontend.common.submission_manager import SubmissionManager
 import threading
+
+import pymongo
+
+from inginious.frontend.common.submission_manager import SubmissionManager
+
 
 class LTISubmissionManager(SubmissionManager):
     """ A custom Submission Manager that removes exceeding submissions """
+
     def __init__(self, job_manager, user_manager, database, gridfs, hook_manager, max_submissions, lis_outcome_manager):
         self._max_submissions = max_submissions
         super(LTISubmissionManager, self).__init__(job_manager, user_manager, database, gridfs, hook_manager)

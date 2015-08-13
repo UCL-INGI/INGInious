@@ -1,29 +1,32 @@
 # -*- coding: utf-8 -*-
 
-import posixpath
+import os
+import unittest
+import threading
+
 from pymongo import MongoClient
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium import webdriver
-import os
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import NoAlertPresentException
-import unittest
 from nose.plugins.skip import SkipTest
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from inginious.frontend.webapp.app import get_app, StaticMiddleware
 import web
-import threading
 from pyvirtualdisplay import Display
+
+from inginious.frontend.webapp.app import get_app, StaticMiddleware
 
 TEST_ENV = os.environ.get("TEST_ENV", None)
 CUSTOM_SELENIUM_EXECUTOR = os.environ.get("CUSTOM_SELENIUM_EXECUTOR", None)
 CUSTOM_SELENIUM_BASE_URL = os.environ.get("CUSTOM_SELENIUM_BASE_URL", None)
 CUSTOM_FRONTEND_CONF_FILE = os.environ.get("CUSTOM_FRONTEND_CONF_FILE", None)
 
+
 def _start_frontend(config, host, port, ssh_port):
     semaphore = threading.Semaphore(0)
+
     def active_callback():
         semaphore.release()
 
@@ -40,6 +43,7 @@ def _start_frontend(config, host, port, ssh_port):
         def __init__(self):
             super(FrontendThread, self).__init__()
             self.daemon = True
+
         def run(self):
             try:
                 server.start()
@@ -51,14 +55,14 @@ def _start_frontend(config, host, port, ssh_port):
     semaphore.acquire()
     return thread, server, close_app_func
 
+
 def _drop_database(config):
     """ Drop the database before running any test """
     mongo_client = MongoClient(host=config.get('host', 'localhost'))
     mongo_client.drop_database(config.get('database', 'INGIniousFrontendTest'))
 
-class SeleniumTest(unittest.TestCase):
 
-        
+class SeleniumTest(unittest.TestCase):
     def setUp(self):
         self.frontend_config = {
             "backend": "remote",
@@ -126,7 +130,6 @@ class SeleniumTest(unittest.TestCase):
                                                                                           self.frontend_port,
                                                                                           self.frontend_ssh_port)
 
-
     def is_element_present(self, how, what):
         try:
             self.driver.find_element(by=how, value=what)
@@ -134,14 +137,12 @@ class SeleniumTest(unittest.TestCase):
             return False
         return True
 
-
     def is_alert_present(self):
         try:
             self.driver.switch_to_alert()
         except NoAlertPresentException, e:
             return False
         return True
-
 
     def close_alert_and_get_its_text(self):
         try:
@@ -154,7 +155,6 @@ class SeleniumTest(unittest.TestCase):
             return alert_text
         finally:
             self.accept_next_alert = True
-
 
     def wait_for_presence_css(self, selector):
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, selector)))

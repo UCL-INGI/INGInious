@@ -8,19 +8,20 @@ class TestLogin(SeleniumTest):
     def test_login(self):
         driver = self.driver
         driver.get(self.base_url + "/index?logoff")
-        
+
         self.assertEqual("Hello! Welcome on the INGInious platform.", driver.find_element_by_css_selector("h2").text)
-        
+
         driver.find_element_by_name("login").clear()
         driver.find_element_by_name("login").send_keys("test")
         driver.find_element_by_name("password").clear()
         driver.find_element_by_name("password").send_keys("test")
-        
+
         driver.find_element_by_xpath("//button[@type='submit']").click()
 
         self.wait_for_presence_css(".navbar p.navbar-text")
-        #self.assertEqual("Logged in as test", driver.find_element_by_xpath('//*[@id="wrapper"]/div[1]/div/div[2]/div/ul/li[1]/p').text)
+        # self.assertEqual("Logged in as test", driver.find_element_by_xpath('//*[@id="wrapper"]/div[1]/div/div[2]/div/ul/li[1]/p').text)
         self.assertEqual("Log off", driver.find_element_by_id("logoff_button").text)
+
 
 class LoggedInTest(SeleniumTest):
     login = "test"
@@ -36,6 +37,7 @@ class LoggedInTest(SeleniumTest):
         driver.find_element_by_name("password").send_keys(self.password)
         driver.find_element_by_xpath("//button[@type='submit']").click()
         self.wait_for_presence_css(".navbar p.navbar-text")
+
 
 class TestRegistration(LoggedInTest):
     login = "test3"
@@ -61,6 +63,7 @@ class TestRegistration(LoggedInTest):
         driver.find_element_by_xpath("//button[@type='submit']").click()
         driver.get(self.base_url + "/course/test")
         self.assertEqual("[LTEST0000] Test tasks : H2G2 - List of exercises", driver.find_element_by_css_selector("h2").text)
+
 
 class RegisteredTest(LoggedInTest):
     course = "test"

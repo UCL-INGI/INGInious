@@ -17,10 +17,10 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ A middleware for Web.py that serves static content """
-from SimpleHTTPServer import SimpleHTTPRequestHandler
 import os
 import posixpath
 import urllib
+
 import web
 
 
@@ -57,6 +57,7 @@ class StaticApp(web.httpserver.StaticApp, object):
         if trailing_slash:
             path += '/'
         return path
+
 
 class StaticMiddleware(object):
     """ WSGI middleware for serving static files. """

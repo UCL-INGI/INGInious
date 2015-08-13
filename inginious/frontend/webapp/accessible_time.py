@@ -37,6 +37,7 @@ def parse_date(date, default=None):
             pass
     raise Exception("Unknown format for " + date)
 
+
 class AccessibleTime(object):
     """ represents the period of time when a course/task is accessible """
 

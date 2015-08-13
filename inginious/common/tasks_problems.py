@@ -18,7 +18,6 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Tasks' problems """
 from abc import ABCMeta, abstractmethod
-from random import shuffle
 
 from inginious.common.base import id_checker
 from inginious.common.tasks_code_boxes import InputBox, MultilineBox, TextBox, FileBox

@@ -19,12 +19,13 @@
 """ Factory for loading tasks from disk """
 
 import os
+import codecs
 
 from inginious.common.tasks import Task
 from inginious.common.base import id_checker
 from inginious.common.task_file_readers.yaml_reader import TaskYAMLFileReader
 from inginious.common.exceptions import InvalidNameException, TaskNotFoundException, TaskUnreadableException, TaskReaderNotFoundException
-import codecs
+
 
 class TaskFactory(object):
     """ Load courses from disk """

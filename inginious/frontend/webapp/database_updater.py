@@ -98,7 +98,8 @@ def update_database(database, gridfs, course_factory, user_manager):
 
         classrooms = {}
         for course in course_list:
-            classrooms[course["_id"]] = {"courseid": course["_id"], "groups": [], "description": "Default classroom", "default": True, "students": course["students"], "tutors": set([])}
+            classrooms[course["_id"]] = {"courseid": course["_id"], "groups": [], "description": "Default classroom", "default": True,
+                                         "students": course["students"], "tutors": set([])}
 
         group_list = list(database.groups.find({}, {'_id': 0}))
         for group in group_list:

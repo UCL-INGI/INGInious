@@ -25,7 +25,7 @@ class INGIniousPage(object):
     Contains references to the PluginManager, the CourseFactory, and the SubmissionManager
     """
 
-    def __init__(self, plugin_manager, course_factory, task_factory,submission_manager, batch_manager, user_manager, remote_ssh_manager,
+    def __init__(self, plugin_manager, course_factory, task_factory, submission_manager, batch_manager, user_manager, remote_ssh_manager,
                  template_helper, database, gridfs, default_allowed_file_extensions, default_max_file_size, containers):
         """
         Init the page

@@ -18,8 +18,6 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Starts the webapp """
 
-import posixpath
-import urllib
 import os
 import signal
 import threading
@@ -117,6 +115,7 @@ def _handle_active_hook(job_manager, plugin_manager, active_callback):
     :param active_callback:
     """
     sync_mutex = threading.Lock()
+
     def sync_done(check_all_done):
         """ release """
         sync_mutex.acquire()
@@ -220,11 +219,11 @@ def get_app(hostname, port, sshhost, sshport, config, active_callback=None):
 
     # Init the mapping of the app
     appli.init_mapping(WebPyCustomMapping(dict(urls), plugin_manager,
-                                        course_factory, task_factory,
-                                        submission_manager, batch_manager, user_manager,
-                                        remote_ssh_manager, template_helper, database, gridfs,
-                                        default_allowed_file_extensions, default_max_file_size,
-                                        config["containers"].keys()))
+                                          course_factory, task_factory,
+                                          submission_manager, batch_manager, user_manager,
+                                          remote_ssh_manager, template_helper, database, gridfs,
+                                          default_allowed_file_extensions, default_max_file_size,
+                                          config["containers"].keys()))
 
     # Active hook
     if active_callback is not None:
@@ -237,6 +236,7 @@ def get_app(hostname, port, sshhost, sshport, config, active_callback=None):
     job_manager.start()
 
     return appli, lambda: _close_app(appli, mongo_client, job_manager, remote_ssh_manager)
+
 
 def runfcgi(func, addr=('localhost', 8000)):
     """Runs a WSGI function as a FastCGI server."""
@@ -268,6 +268,7 @@ def start_app(config, hostname="localhost", port=8080, sshhost=None, sshport=808
     def close_app_signal():
         close_app_func()
         raise KeyboardInterrupt()
+
     signal.signal(signal.SIGINT, lambda _, _2: close_app_signal())
     signal.signal(signal.SIGTERM, lambda _, _2: close_app_signal())
 

@@ -18,6 +18,7 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 from inginious.frontend.common.parsable_text import ParsableText
 
+
 class TestHookManager(object):
     def test_code(self):
         rendered = ParsableText.rst("""``test``""")
@@ -36,10 +37,10 @@ class TestHookManager(object):
         assert '<non existing tag>' not in rendered
 
     def test_parsable_text_once(self):
-
         def fake_parser(input):
             fake_parser.count += 1
             return ""
+
         fake_parser.count = 0
         orig_rst = ParsableText.rst
         ParsableText.rst = fake_parser

@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Manages submissions """
-from abc import abstractmethod, ABCMeta
+from abc import ABCMeta
 import base64
 import json
 import time
@@ -25,9 +25,9 @@ import os.path
 import tarfile
 import StringIO
 import tempfile
+from datetime import datetime
 
 from bson.objectid import ObjectId
-from datetime import datetime
 import pymongo
 
 from inginious.frontend.common.parsable_text import ParsableText
@@ -137,7 +137,6 @@ class SubmissionManager(object):
         )
 
         return submissionid
-
 
     def _before_submission_insertion(self, task, inputdata, debug, obj):
         """
@@ -314,7 +313,8 @@ class SubmissionManager(object):
                         base_path = '_' + '-'.join(submission['username']) + base_path
                         base_path = base_path[1:]
                     elif sub_folder == 'classroom':
-                        base_path = (classrooms[username]["description"] + " (" + str(classrooms[username]["_id"]) + ")").replace(" ", "_") + base_path
+                        base_path = (classrooms[username]["description"] + " (" + str(classrooms[username]["_id"]) + ")").replace(" ",
+                                                                                                                                  "_") + base_path
 
                     base_path = '/' + base_path
                 base_path = base_path[1:]

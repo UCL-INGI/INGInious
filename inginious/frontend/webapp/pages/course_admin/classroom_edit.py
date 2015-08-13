@@ -18,12 +18,13 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Pages that allow editing of tasks """
 
-from inginious.common import custom_yaml
-import web
 import json
+
+import web
 from pymongo import ReturnDocument
 from bson.objectid import ObjectId
 
+from inginious.common import custom_yaml
 from inginious.frontend.webapp.pages.course_admin.utils import INGIniousAdminPage
 
 
@@ -47,7 +48,7 @@ class CourseEditClassroom(INGIniousAdminPage):
                             "as": "group",
                             "in": {
                                 "$anyElementTrue": {
-                                    "$map":{
+                                    "$map": {
                                         "input": "$$group",
                                         "as": "groupmember",
                                         "in": {"$eq": ["$$groupmember", "$students"]}
@@ -88,7 +89,8 @@ class CourseEditClassroom(INGIniousAdminPage):
             else:
                 if student in other_students:
                     # Remove user from the other classroom
-                    self.database.classrooms.find_one_and_update({"courseid": course.get_id(), "groups.students": student}, {"$pull": {"groups.$.students": student, "students": student}})
+                    self.database.classrooms.find_one_and_update({"courseid": course.get_id(), "groups.students": student},
+                                                                 {"$pull": {"groups.$.students": student, "students": student}})
                     self.database.classrooms.find_one_and_update({"courseid": course.get_id(), "students": student}, {"$pull": {"students": student}})
                     students.append(student)
                 else:
@@ -128,7 +130,8 @@ class CourseEditClassroom(INGIniousAdminPage):
         classroom = self.database.classrooms.find_one({"_id": ObjectId(classroomid), "courseid": courseid})
 
         if classroom:
-            return self.template_helper.get_renderer().course_admin.edit_classroom(course, student_list, tutor_list, other_students, users_info, classroom, "", False)
+            return self.template_helper.get_renderer().course_admin.edit_classroom(course, student_list, tutor_list, other_students, users_info,
+                                                                                   classroom, "", False)
         else:
             raise web.notfound()
 
@@ -175,7 +178,7 @@ class CourseEditClassroom(INGIniousAdminPage):
                         msg += "<li>" + student + "</li>"
                     msg += "</ul>"
                     error = True
-                else :
+                else:
                     msg = "Classroom updated."
 
         except:
@@ -184,4 +187,5 @@ class CourseEditClassroom(INGIniousAdminPage):
             msg = 'An error occurred while parsing the data.'
             error = True
 
-        return self.template_helper.get_renderer().course_admin.edit_classroom(course, student_list, tutor_list, other_students, users_info, classroom, msg, error)
+        return self.template_helper.get_renderer().course_admin.edit_classroom(course, student_list, tutor_list, other_students, users_info,
+                                                                               classroom, msg, error)

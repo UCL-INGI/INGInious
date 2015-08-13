@@ -20,6 +20,7 @@
 import threading
 import socket
 import select
+
 from bson import ObjectId
 
 
@@ -69,7 +70,7 @@ class RemoteSSHManager(threading.Thread):
 
     def get_url(self):
         """ Returns a string host:ip pointing to the open socket for the remote debugging """
-        return str(self._host)+":"+str(self._port)
+        return str(self._host) + ":" + str(self._port)
 
     def start(self):
         self._stopped = False

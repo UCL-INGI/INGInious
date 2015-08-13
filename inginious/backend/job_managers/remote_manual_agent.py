@@ -18,7 +18,6 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ A JobManager that can interact with distant agents, via RPyC """
 import socket
-
 import threading
 import copy
 import tempfile

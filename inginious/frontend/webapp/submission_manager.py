@@ -17,8 +17,6 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Manages submissions """
-from datetime import datetime
-import json
 from inginious.frontend.common.submission_manager import SubmissionManager
 
 

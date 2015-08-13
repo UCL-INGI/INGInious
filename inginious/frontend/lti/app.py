@@ -46,6 +46,7 @@ urls = {
     r"/([a-zA-Z0-9\-_]+)/task": "inginious.frontend.lti.pages.task.LTITask"
 }
 
+
 def _put_configuration_defaults(config):
     """
     :param config: the basic configuration as a dict
@@ -81,7 +82,6 @@ def _handle_active_hook(job_manager, plugin_manager, active_callback):
         sync_done.done = True
         sync_mutex.release()
         check_all_done()
-
 
     sync_done.done = False
 
@@ -174,12 +174,12 @@ def get_app(config, active_callback=None):
 
     # Init the mapping of the app
     appli.init_mapping(WebPyCustomMapping(dict(urls), plugin_manager,
-                       course_factory, task_factory,
-                       submission_manager, user_manager,
-                       template_helper, database, gridfs,
-                       default_allowed_file_extensions, default_max_file_size,
-                       config["containers"].keys(),
-                       config["lti"]))
+                                          course_factory, task_factory,
+                                          submission_manager, user_manager,
+                                          template_helper, database, gridfs,
+                                          default_allowed_file_extensions, default_max_file_size,
+                                          config["containers"].keys(),
+                                          config["lti"]))
 
     # Active hook
     if active_callback is not None:
@@ -219,6 +219,7 @@ def start_app(config, hostname="localhost", port=8080):
     def close_app_signal():
         close_app_func()
         raise KeyboardInterrupt()
+
     signal.signal(signal.SIGINT, lambda _, _2: close_app_signal())
     signal.signal(signal.SIGTERM, lambda _, _2: close_app_signal())
 

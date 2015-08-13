@@ -18,6 +18,7 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Some functions shared by the task pages from the different frontends """
 import json
+
 from inginious.common.tasks_code_boxes import FileBox
 from inginious.common.tasks_problems import MultipleChoiceProblem, BasicCodeProblem
 

@@ -27,11 +27,11 @@ import threading
 import tempfile
 import tarfile
 import re
+import time
 
 import docker
 from docker.utils import kwargs_from_env
 import rpyc
-import time
 
 from inginious.backend.agent._rpyc_unix_server import UnixSocketServer
 from inginious.backend.agent.remote_ssh_manager import RemoteSSHManager
@@ -424,9 +424,9 @@ class SimpleAgent(object):
         # Ask the "cgroup" thread to verify the timeout/memory limit
         time_limit = limits.get("time", 30)
         hard_time_limit = limits.get('hard_time', time_limit * 3)
-        if debug == "ssh": #allow 30 minutes of real time.
-            time_limit = 30*60
-            hard_time_limit = 30*60
+        if debug == "ssh":  # allow 30 minutes of real time.
+            time_limit = 30 * 60
+            hard_time_limit = 30 * 60
         self._timeout_watcher.add_container_timeout(container_id, time_limit, hard_time_limit)
         self._memory_watcher.add_container_memory_limit(container_id, mem_limit)
 
@@ -462,7 +462,7 @@ class SimpleAgent(object):
             try:
                 stdout = str(docker_connection.logs(container_id, stdout=True, stderr=False))
                 self.logger.debug(stdout)
-                if debug == "ssh": # skip the first line of the output, that contained the ssh key
+                if debug == "ssh":  # skip the first line of the output, that contained the ssh key
                     stdout = "\n".join(stdout.split("\n")[1:])
                 self.logger.debug(stdout)
                 result = json.loads(stdout)

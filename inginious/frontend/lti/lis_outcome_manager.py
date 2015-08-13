@@ -21,9 +21,11 @@
 import threading
 import Queue
 import uuid
+import time
+
 import pylti.common
 from pymongo import ReturnDocument
-import time
+
 
 class LisOutcomeManager(threading.Thread):
     def __init__(self, database, user_manager, course_factory, lti_consumers):
@@ -55,7 +57,7 @@ class LisOutcomeManager(threading.Thread):
 
                 try:
                     grade = self._user_manager.get_task_grade(self._course_factory.get_task(courseid, taskid), username)
-                    grade = grade/100
+                    grade = grade / 100
                     if grade > 1:
                         grade = 1
                     if grade < 0:
@@ -100,9 +102,9 @@ class LisOutcomeManager(threading.Thread):
                   "taskid": taskid, "service_url": service_url,
                   "consumer_key": consumer_key, "result_id": result_id}
 
-        entry = self._database.lis_outcome_queue.find_one_and_update(search, {"$set":{"nb_attempt": 0}},
+        entry = self._database.lis_outcome_queue.find_one_and_update(search, {"$set": {"nb_attempt": 0}},
                                                                      return_document=ReturnDocument.BEFORE, upsert=True)
-        if entry is None: #and it should be
+        if entry is None:  # and it should be
             self._add_to_queue(self._database.lis_outcome_queue.find_one(search))
 
     def _delete(self, mongo_id):

@@ -18,6 +18,7 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Contains helpers to send state to web.py pages """
 
+
 class WebPyCustomMapping(object):
     """
         A "fake" mapping class for web.py that init the classes it contains automatically. Allow to avoid global state

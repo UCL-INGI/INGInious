@@ -34,7 +34,7 @@ class CourseStudentListPage(INGIniousAdminPage):
     def POST(self, courseid):
         """ POST request """
         course, _ = self.get_course_and_check_rights(courseid, None, False)
-        data= web.input()
+        data = web.input()
         if "remove" in data:
             try:
                 if data["type"] == "all":
@@ -62,7 +62,7 @@ class CourseStudentListPage(INGIniousAdminPage):
     def page(self, course, error="", post=False):
         """ Get all data and display the page """
         users = sorted(self.user_manager.get_users_info(self.user_manager.get_course_registered_users(course, False)).items(),
-                                   key=lambda k: k[1][0] if k[1] is not None else "")
+                       key=lambda k: k[1][0] if k[1] is not None else "")
 
         users = OrderedDict(sorted(self.user_manager.get_users_info(course.get_staff()).items(),
                                    key=lambda k: k[1][0] if k[1] is not None else "") + users)

@@ -23,6 +23,7 @@ import threading
 import socket
 import select
 
+
 class ManageSSHConnection(threading.Thread):
     """Manages a single connection to a remote ssh"""
 
@@ -57,6 +58,7 @@ class ManageSSHConnection(threading.Thread):
         finally:
             client.close()
             self._conn.close()
+
 
 class RemoteSSHManager(threading.Thread):
     """ Manages connections to the different debug ssh containers running """

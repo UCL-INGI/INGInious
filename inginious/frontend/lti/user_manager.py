@@ -19,6 +19,7 @@
 """ Manages users data and session """
 import pymongo
 import web
+
 from inginious.frontend.common.user_manager import AbstractUserManager
 
 
@@ -140,7 +141,7 @@ class UserManager(AbstractUserManager):
         username = username or self.session_username()
 
         val = list(self._database.submissions.find({"username": username, "courseid": task.get_course_id(), "taskid": task.get_id(),
-                                                    "status": "done"}).sort([("grade",pymongo.DESCENDING)]).limit(1))
+                                                    "status": "done"}).sort([("grade", pymongo.DESCENDING)]).limit(1))
         if len(val) == 1:
             return float(val[0]["grade"])
         return 0.0

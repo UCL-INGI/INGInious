@@ -24,12 +24,12 @@ from docutils import core, nodes
 from docutils.statemachine import StringList
 from docutils.writers import html4css1
 import tidylib
-from docutils.parsers.rst.directives.body import Container
 from docutils.parsers.rst import directives, Directive
+
 from inginious.frontend.webapp.accessible_time import parse_date
 
 
-class HiddenUntilDirective(Directive,object):
+class HiddenUntilDirective(Directive, object):
     required_arguments = 1
     has_content = True
     optional_arguments = 0
@@ -60,7 +60,9 @@ class HiddenUntilDirective(Directive,object):
             self.state.nested_parse(StringList(text.split("\n")), 0, node)
             return [node]
 
+
 directives.register_directive("hidden-until", HiddenUntilDirective)
+
 
 class _CustomHTMLWriter(html4css1.Writer, object):
     """ A custom HTML writer that fixes some defaults of docutils... """

@@ -18,6 +18,7 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 from inginious.common.hook_manager import HookManager
 
+
 class TestHookManager(object):
     def make_exception(self):
         raise Exception()

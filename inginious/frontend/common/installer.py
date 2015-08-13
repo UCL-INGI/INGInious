@@ -18,18 +18,19 @@
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Shared methods for the command line tool that installs the frontends """
 import abc
-
 import os
 import socket
 import uuid
+import sys
+import time
+import shutil
+
 import docker
 from docker.utils import kwargs_from_env
-import sys
 from gridfs import GridFS
 import rpyc
 from pymongo import MongoClient
-import time
-import shutil
+
 import inginious.common.custom_yaml as yaml
 
 HEADER = '\033[95m'
@@ -44,10 +45,11 @@ UNDERLINE = '\033[4m'
 DOC = '\033[39m'
 BACKGROUND_RED = '\033[101m'
 
+
 class Installer(object):
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, config_path = None):
+    def __init__(self, config_path=None):
         self._config_path = config_path
 
     #######################################
@@ -126,7 +128,7 @@ class Installer(object):
                     break
             else:
                 self._display_warning("Backend chosen: remote_manual. As it is a really advanced feature, you will have to configure it yourself in "
-                                   "the configuration file, at the end of the setup process.")
+                                      "the configuration file, at the end of the setup process.")
                 options = {"backend": "remote_manual"}
                 break
 
@@ -258,7 +260,7 @@ class Installer(object):
                 else:
                     tls_config = False
                     protocol = "http"
-                docker_connection = docker.Client(base_url=protocol+"://" + remote_host + ":" + str(remote_docker_port), tls=tls_config)
+                docker_connection = docker.Client(base_url=protocol + "://" + remote_host + ":" + str(remote_docker_port), tls=tls_config)
             elif backend == "local":
                 docker_connection = docker.Client(**kwargs_from_env())
             else:
@@ -464,7 +466,7 @@ class Installer(object):
             return False
 
         ok = False
-        for i in range(0, 5): #retry five times
+        for i in range(0, 5):  # retry five times
             try:
                 conn = rpyc.connect(remote_host, agent_port, config={"allow_public_attrs": True, 'allow_pickle': True})
 
@@ -478,7 +480,6 @@ class Installer(object):
 
         self.stop_agent_container(docker_connection, container_id)
         return ok
-
 
     def test_agent_ssh_port(self, agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port, use_tls, local_location, cgroups_location):
         """ Test agent port """
@@ -522,7 +523,7 @@ class Installer(object):
         """ Configures the remote backend """
         options = {"backend": "remote", "docker_daemons": []}
         while True:
-            agent_id = "inginious-agent-"+str(uuid.uuid1())
+            agent_id = "inginious-agent-" + str(uuid.uuid1())
             agent = self.configure_backend_remote_agent(def_remote_host, def_remote_docker_port, def_use_tls, agent_id)
             if agent is None and len(options["docker_daemons"]) == 0:
                 self._display_warning("You have not configured any agent. You will have to define one manually in the configuration.")
@@ -533,7 +534,7 @@ class Installer(object):
             else:
                 options["docker_daemons"].append(agent)
                 if not self._ask_boolean("Do you want to define another agent? Do this only if you have another server with a Docker instance "
-                                      "available", False):
+                                         "available", False):
                     break
         return options
 
@@ -775,7 +776,7 @@ class Installer(object):
         for image in to_download:
             try:
                 self._display_info("Downloading image %s. This can take some time." % image)
-                docker_connection.pull(image+":latest")
+                docker_connection.pull(image + ":latest")
             except Exception as e:
                 self._display_error("An error occured while pulling the image: %s." % str(e))
 
@@ -793,7 +794,7 @@ class Installer(object):
         elif current_options["backend"] == "remote":
             for daemon in current_options["docker_daemons"]:
                 remote_host = daemon["remote_host"]
-                remote_docker_port= daemon["remote_docker_port"]
+                remote_docker_port = daemon["remote_docker_port"]
                 use_tls = daemon["use_tls"]
 
                 if isinstance(use_tls, basestring):
@@ -823,7 +824,7 @@ class Installer(object):
     def configure_containers(self, current_options):
         """ Configures the container dict """
         containers = [
-            ("default","Default container. For Bash and Python 2 tasks"),
+            ("default", "Default container. For Bash and Python 2 tasks"),
             ("cpp", "Contains gcc and g++ for compiling C++"),
             ("java7", "Contains Java 7"),
             ("java8scala", "Contains Java 8 and Scala"),

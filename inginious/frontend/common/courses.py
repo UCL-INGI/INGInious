@@ -22,6 +22,7 @@ from inginious.common.courses import Course
 
 class FrontendCourse(Course):
     """ A basic course extension that stores the name of the course """
+
     def __init__(self, courseid, content, task_factory):
         super(FrontendCourse, self).__init__(courseid, content, task_factory)
 

@@ -17,9 +17,10 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 import base64
-import web
-from inginious.frontend.common.task_problems import DisplayableCodeFileProblem, DisplayableMultipleChoiceProblem
 
+import web
+
+from inginious.frontend.common.task_problems import DisplayableCodeFileProblem, DisplayableMultipleChoiceProblem
 from inginious.frontend.webapp.pages.course_admin.utils import INGIniousAdminPage
 
 
@@ -42,7 +43,7 @@ class CourseStudentTaskSubmission(INGIniousAdminPage):
 
         to_display = []
         for problem in task.get_problems():
-            if problem.get_id() in submission["input"]: #present in input and in task
+            if problem.get_id() in submission["input"]:  # present in input and in task
                 data = {
                     "id": problem.get_id(),
                     "name": problem.get_name(),
@@ -79,11 +80,11 @@ class CourseStudentTaskSubmission(INGIniousAdminPage):
                     data["content"] = submission["input"][problem.get_id()]
                     data["base64"] = str(base64.b64encode(str(submission["input"][problem.get_id()])))
                     try:
-                        data["language"]= problem.get_original_content()["language"]
+                        data["language"] = problem.get_original_content()["language"]
                     except:
                         pass
                 to_display.append(data)
-            else: #not present in input, but present in task
+            else:  # not present in input, but present in task
                 data = {
                     "id": problem.get_id(),
                     "name": problem.get_name(),
@@ -111,7 +112,7 @@ class CourseStudentTaskSubmission(INGIniousAdminPage):
                     "feedback": submission.get("problems", {}).get(pid, None),
                     "base64": None
                 }
-                if isinstance(submission["input"][pid], dict): #file
+                if isinstance(submission["input"][pid], dict):  # file
                     try:
                         data["content"] = unicode(base64.b64decode(submission["input"][pid]["value"]))
                     except:

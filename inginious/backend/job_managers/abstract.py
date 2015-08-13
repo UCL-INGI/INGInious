@@ -24,14 +24,18 @@ from abc import abstractmethod
 
 from inginious.common.hook_manager import HookManager
 
+
 def _callable_once(func):
     """ Returns a function that is only callable once; any other call will do nothing """
+
     def once(*args, **kwargs):
         if not once.called:
             once.called = True
             return func(*args, **kwargs)
+
     once.called = False
     return once
+
 
 class AbstractJobManager(object):
     """ Manages jobs """
@@ -346,7 +350,7 @@ class AbstractJobManager(object):
     def _handle_ssh_callback(self, job_id, distant_conn_id, ssh_key):
         """ Handles the callback, coming from the agent, giving the conn_id and the ssh_key needed to connect to the debug ssh server"""
         data = self._running_job_data.get(job_id)
-        if data is None: #prevent race conditions...
+        if data is None:  # prevent race conditions...
             return
         task, callback, ssh_callback, base_dict, statinfo = data
 

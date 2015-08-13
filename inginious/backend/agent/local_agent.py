@@ -19,7 +19,6 @@
 """ Agent, managing docker (local version) """
 import os
 import tempfile
-
 import threading
 import socket
 import logging
@@ -48,7 +47,6 @@ class LocalAgent(SimpleAgent):
 
         # Setup some fields
         self.image_aliases = image_aliases
-
 
     def get_socket_to_debug_ssh(self, conn_id):
         """ Get a socket to the remote ssh server identified by conn_id. Returns None if the conn_id is expired or not valid. """

@@ -99,12 +99,13 @@ class CourseDownloadSubmissions(INGIniousAdminPage):
         user_list = self.user_manager.get_course_registered_users(course)
         users = OrderedDict(sorted(self.user_manager.get_users_info(user_list).items(),
                                    key=lambda k: k[1][0] if k[1] is not None else ""))
-        user_data = OrderedDict([(username, user[0] if user is not None else username) for username,user in users.iteritems()])
+        user_data = OrderedDict([(username, user[0] if user is not None else username) for username, user in users.iteritems()])
 
         classrooms = self.user_manager.get_course_classrooms(course)
         classroom_data = OrderedDict([(str(classroom["_id"]), classroom["description"]) for classroom in classrooms])
         tutored_classrooms = [str(classroom["_id"]) for classroom in classrooms if self.user_manager.session_username() in classroom["tutors"]]
-        tutored_users = [username for classroom in classrooms if self.user_manager.session_username() in classroom["tutors"] for username in classroom["students"]]
+        tutored_users = [username for classroom in classrooms if self.user_manager.session_username() in classroom["tutors"] for username in
+                         classroom["students"]]
 
         checked_tasks = tasks.keys()
         checked_users = user_data.keys()

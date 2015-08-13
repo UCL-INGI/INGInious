@@ -63,8 +63,8 @@ class test_tasks_basic(object):
     def test_invalid_limits_1(self):
         try:
             t = inginious.common.tasks.Task(self.course_factory.get_course('test3'), 'invalid_task',
-                                  {"environment": "default", "limits": {"time": "a string!"}},
-                                  'fake_path')
+                                            {"environment": "default", "limits": {"time": "a string!"}},
+                                            'fake_path')
             a = t.get_limits()
             print a
         except Exception as e:
@@ -75,7 +75,7 @@ class test_tasks_basic(object):
     def test_invalid_limits_2(self):
         try:
             inginious.common.tasks.Task(self.course_factory.get_course('test3'), 'invalid_task',
-                              {"environment": "default", "limits": {"time": -1}}, 'fake_path')
+                                        {"environment": "default", "limits": {"time": -1}}, 'fake_path')
         except Exception as e:
             assert str(e) == "Invalid limit"
             return

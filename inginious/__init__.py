@@ -16,4 +16,4 @@
 #
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
-__version__="0.3a2.dev0"
+__version__ = "0.3a2.dev0"

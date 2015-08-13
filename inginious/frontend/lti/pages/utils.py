@@ -17,13 +17,12 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Some utils for all the pages """
-from abc import abstractmethod
 import abc
-from oauth import oauth
-from pylti.common import LTIOAuthDataStore, LTIException, verify_request_common
-import web
-import pylti
 import hashlib
+
+from pylti.common import verify_request_common
+import web
+
 
 class LTIPage(object):
     """
@@ -60,6 +59,7 @@ class LTIPage(object):
         self.containers = containers
         self.consumers = consumers
 
+
 class LTIAuthenticatedPage(LTIPage):
     """ A page that needs to be authentified by the TC """
 
@@ -69,8 +69,9 @@ class LTIAuthenticatedPage(LTIPage):
 
     def __init__(self, plugin_manager, course_factory, task_factory, submission_manager, user_manager, template_helper, database,
                  gridfs, default_allowed_file_extensions, default_max_file_size, containers, consumers):
-        super(LTIAuthenticatedPage, self).__init__(plugin_manager, course_factory, task_factory, submission_manager, user_manager, template_helper, database,
-        gridfs, default_allowed_file_extensions, default_max_file_size, containers, consumers)
+        super(LTIAuthenticatedPage, self).__init__(plugin_manager, course_factory, task_factory, submission_manager, user_manager, template_helper,
+                                                   database,
+                                                   gridfs, default_allowed_file_extensions, default_max_file_size, containers, consumers)
         self.course = None
         self.task = None
 
@@ -125,6 +126,7 @@ class LTIAuthenticatedPage(LTIPage):
     def _set_session_identifier(self, session_identifier):
         self.user_manager.set_session_identifier(session_identifier)
 
+
 class LTILaunchPage(LTIPage):
     __metaclass__ = abc.ABCMeta
 
@@ -148,7 +150,7 @@ class LTILaunchPage(LTIPage):
         """ Verify and parse the data for the LTI basic launch """
         post_input = web.webapi.rawinput("POST")
         try:
-            verified = verify_request_common(self.consumers, web.ctx.home+web.ctx.fullpath, "POST", {}, post_input)
+            verified = verify_request_common(self.consumers, web.ctx.home + web.ctx.fullpath, "POST", {}, post_input)
         except:
             raise Exception("Cannot authentify request (1)")
 
