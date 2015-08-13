@@ -402,8 +402,6 @@ function displayOverflowAlert(content)
 {
     displayTaskStudentAlertWithProblems(content,
         "<b>Your submission made an overflow. Your score is " + content["grade"] + "%</b>",
-        "<b>Your submission made an overflow. Your score is " + content["grade"] + "%</b><br/>",
-        "",
         "warning", false);
 }
 
@@ -412,8 +410,6 @@ function displayKilledAlert(content)
 {
     displayTaskStudentAlertWithProblems(content,
         "<b>Your submission was killed.</b>",
-        "<b>Your submission was killed.</b><br/>",
-        "",
         "warning", false);
 }
 
@@ -422,8 +418,6 @@ function displayTimeOutAlert(content)
 {
     displayTaskStudentAlertWithProblems(content,
         "<b>Your submission timed out. Your score is " + content["grade"] + "%</b>",
-        "<b>Your submission timed out. Your score is " + content["grade"] + "%</b><br/>",
-        "",
         "warning", false);
 }
 
@@ -432,8 +426,6 @@ function displayTaskErrorAlert(content)
 {
     displayTaskStudentAlertWithProblems(content,
         "<b>An internal error occured. Please retry later. If the error persists, send an email to the course administrator.</b>",
-        "<b>An internal error occured. Please retry later. If the error persists, send an email to the course administrator.</b><br/>",
-        "",
         "danger", false);
 }
 
@@ -442,8 +434,6 @@ function displayTaskStudentErrorAlert(content)
 {
     displayTaskStudentAlertWithProblems(content,
         "<b>There are some errors in your answer. Your score is " + content["grade"] + "%</b>",
-        "<b>There are some errors in your answer. Your score is " + content["grade"] + "%</b><br/>",
-        "",
         "danger", false);
 }
 
@@ -452,13 +442,11 @@ function displayTaskStudentSuccessAlert(content)
 {
     displayTaskStudentAlertWithProblems(content,
         "<b>Your answer passed the tests! Your score is " + content["grade"] + "%</b>",
-        "<b>Your answer passed the tests! Your score is " + content["grade"] + "%</b><br/>",
-        "",
         "success", true);
 }
 
 //Displays a student error alert in task form
-function displayTaskStudentAlertWithProblems(content, topEmpty, topPrefix, prefix, type, alwaysShowTop)
+function displayTaskStudentAlertWithProblems(content, top, type, alwaysShowTop)
 {
     resetAlerts();
 
@@ -467,7 +455,7 @@ function displayTaskStudentAlertWithProblems(content, topEmpty, topPrefix, prefi
 
     if("text" in content && content.text != "")
     {
-        task_alert.html(getAlertCode(topPrefix + content.text, type, true));
+        task_alert.html(getAlertCode(top + "<br/>" + content.text, type, true));
         firstPos = task_alert.offset().top;
     }
 
@@ -478,7 +466,7 @@ function displayTaskStudentAlertWithProblems(content, topEmpty, topPrefix, prefi
             var problemid = elem.id.substr(11); //skip "task_alert."
             if(problemid in content.problems)
             {
-                $(elem).html(getAlertCode(prefix + content.problems[problemid], "info", true));
+                $(elem).html(getAlertCode(content.problems[problemid], "info", true));
                 if(firstPos == -1 || firstPos > $(elem).offset().top)
                     firstPos = $(elem).offset().top;
             }
@@ -487,14 +475,14 @@ function displayTaskStudentAlertWithProblems(content, topEmpty, topPrefix, prefi
 
     if(firstPos == -1 || (alwaysShowTop && !("text" in content && content.text != "")))
     {
-        task_alert.html(getAlertCode(topEmpty, type, true));
+        task_alert.html(getAlertCode(top, type, true));
         firstPos = task_alert.offset().top;
     }
 
     $('html, body').animate(
-        {
-            scrollTop: firstPos - 100
-        }, 200);
+    {
+        scrollTop: firstPos - 100
+    }, 200);
 }
 
 //Create an alert
