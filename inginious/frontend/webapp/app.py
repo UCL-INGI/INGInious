@@ -117,7 +117,6 @@ def _handle_active_hook(job_manager, plugin_manager, active_callback):
     :param active_callback:
     """
     sync_mutex = threading.Lock()
-    #start_mutex = threading.Lock()
     def sync_done(check_all_done):
         """ release """
         sync_mutex.acquire()
@@ -125,37 +124,25 @@ def _handle_active_hook(job_manager, plugin_manager, active_callback):
         sync_mutex.release()
         check_all_done()
 
-
-    #def start_done(check_all_done):
-    #    """ release """
-    #    start_mutex.acquire()
-    #    start_done.done = True
-    #    start_mutex.release()
-    #    check_all_done()
-
     sync_done.done = False
-    #start_done.done = False
 
     def check_all_done():
         sync_mutex.acquire()
-        #start_mutex.acquire()
-        if sync_done.done:# and start_done.done:
+        if sync_done.done:
             try:
                 active_callback()
             except:
                 pass
         sync_mutex.release()
-        #start_mutex.release()
 
     if not isinstance(job_manager, RemoteManualAgentJobManager):
         sync_done.done = True
 
     plugin_manager.add_hook("job_manager_agent_sync_done", lambda agent: sync_done(check_all_done))
-    #plugin_manager.add_hook("job_manager_init_done", lambda job_manager: start_done(check_all_done))
     check_all_done()
 
 
-def get_app(hostname, port, sshport, config, active_callback=None):
+def get_app(hostname, port, sshhost, sshport, config, active_callback=None):
     """
     :param hostname: the hostname on which the web app will be bound
     :param port: the port on which the web app will be bound
@@ -192,10 +179,13 @@ def get_app(hostname, port, sshport, config, active_callback=None):
     job_manager = backend_interface.create_job_manager(config, plugin_manager,
                                                        task_directory, course_factory, task_factory)
 
-    remote_ssh_manager = RemoteSSHManager(hostname, sshport, database, job_manager)
+    remote_ssh_manager = RemoteSSHManager(sshhost, sshport, database, job_manager)
 
     if config.get("remote_debugging_active", True) and job_manager.is_remote_debug_active():
-        remote_ssh_manager.start()
+        if sshhost is None:
+            print "You have to set the --sshhost arg to start the remote debugging manager. Remote debugging is then deactivated"
+        else:
+            remote_ssh_manager.start()
 
     submission_manager = WebAppSubmissionManager(job_manager, user_manager, database, gridfs, plugin_manager)
 
@@ -205,7 +195,7 @@ def get_app(hostname, port, sshport, config, active_callback=None):
     template_helper = TemplateHelper(plugin_manager, 'frontend/webapp/templates', 'layout', config.get('use_minified_js', True))
 
     # Init web mail
-    smtp_conf =config.get('smtp', None)
+    smtp_conf = config.get('smtp', None)
     if smtp_conf is not None:
         web.config.smtp_server = smtp_conf["host"]
         web.config.smtp_port = int(smtp_conf["port"])
@@ -255,11 +245,16 @@ def runfcgi(func, addr=('localhost', 8000)):
     return flups.WSGIServer(func, multiplexed=True, bindAddress=addr, debug=False).run()
 
 
-def start_app(config, hostname="localhost", port=8080, sshport=8081):
+def start_app(config, hostname="localhost", port=8080, sshhost=None, sshport=8081):
     """
-        Get and start the application. config_file is the path to the configuration file.
+    :type config: collections.OrderedDict
+    :type hostname: str
+    :type port: int
+    :param sshhost:
+    :type sshport: int
+    :return:
     """
-    app, close_app_func = get_app(hostname, port, sshport, config)
+    app, close_app_func = get_app(hostname, port, sshhost, sshport, config)
 
     func = app.wsgifunc()
 

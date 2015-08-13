@@ -27,7 +27,7 @@ def _start_frontend(config, host, port, ssh_port):
     def active_callback():
         semaphore.release()
 
-    app, close_app_func = get_app(host, port, ssh_port, config, active_callback)
+    app, close_app_func = get_app(host, port, host, ssh_port, config, active_callback)
 
     inginious_root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
     func = StaticMiddleware(app.wsgifunc(), (

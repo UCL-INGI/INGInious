@@ -31,6 +31,8 @@ if __name__ == "__main__":
     parser.add_argument("--config", help="Path to configuration file. By default: configuration.yaml or configuration.json")
     parser.add_argument("--host", help="Host to bind to. Default is localhost.", default="localhost")
     parser.add_argument("--port", help="Port to listen to. Default is 8080.", type=int, default=8080)
+    parser.add_argument("--sshhost", help="Port to listen to for container remote debugging. If you do not set it, remote debugging will be "
+                                          "deactivated.", default=None)
     parser.add_argument("--sshport", help="Port to listen to for container remote debugging. Default is 8081.", type=int, default = 8081)
     args = parser.parse_args()
 
@@ -45,4 +47,4 @@ if __name__ == "__main__":
     else:
         config = args.config
 
-    inginious.frontend.webapp.app.start_app(load_json_or_yaml(config), hostname=args.host, port=args.port, sshport=args.sshport)
+    inginious.frontend.webapp.app.start_app(load_json_or_yaml(config), hostname=args.host, port=args.port, sshhost=args.sshhost, sshport=args.sshport)
