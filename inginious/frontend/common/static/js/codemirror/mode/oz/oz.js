@@ -17,7 +17,7 @@
             return new RegExp("^((" + words.join(")|(") + "))\\b");
         }
 
-        var singleOperators = /[\^@!\|<>#~\.\*\-\+\\/,]/;
+        var singleOperators = /[\^@!\|<>#~\.\*\-\+\\/,=]/;
         var doubleOperators = /(<-)|(:=)|(=<)|(>=)|(<=)|(<:)|(>:)|(=:)|(\\=)|(\\=:)|(!!)|(==)|(::)/;
         var tripleOperators = /(:::)|(\.\.\.)|(=<:)|(>=:)/;
 
