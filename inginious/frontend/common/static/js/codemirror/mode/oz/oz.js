@@ -47,7 +47,7 @@
             }
 
             // Operators
-            if (stream.match(tripleOperators) || stream.match(doubleOperators) || stream.match(singleOperators)) {
+            if (stream.match(tripleOperators) || stream.match(doubleOperators)) {
                 return "operator";
             }
 
@@ -120,6 +120,11 @@
                     state.tokenize = tokenComment;
                     return tokenComment(stream, state);
                 }
+            }
+
+            // Single operators
+            if(singleOperators.test(ch)) {
+                return "operator";
             }
 
             // If nothing match, we skip the entire alphanumerical block
