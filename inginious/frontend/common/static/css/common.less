@@ -203,7 +203,111 @@ form#task
 }
 
 /* Codemirror */
-.CodeMirror-placeholder
+@import url(http://fonts.googleapis.com/css?family=Source+Code+Pro:300);
+
+.cm-s-inginious
 {
-    color: #aaaaaa !important;
+    @font-mul: 1;
+    font-size: @font-mul*1em;
+    line-height: @font-mul*1.5em;
+    font-family: 'Source Code Pro', monospace !important;
+    //font-family: inconsolata, monospace;
+    letter-spacing: 0.3px;
+    word-spacing: 1px;
+    background: #fdfdfd;
+    color: #181818;
+
+    &.CodeMirror pre
+    {
+        font-family: 'Source Code Pro', monospace !important;
+    }
+
+    .CodeMirror-lines
+    {
+        padding: 8px 0;
+    }
+
+    .CodeMirror-gutters
+    {
+        background-color: transparent;
+        padding-right: 10px;
+        z-index: 3;
+        border: none;
+    }
+
+    .CodeMirror-placeholder
+    {
+        color: #aaaaaa !important;
+    }
+
+    div.CodeMirror-cursor
+    {
+        border-left: 3px solid #181818;
+    }
+
+    .CodeMirror-activeline-background
+    {
+        background: lighten(#d9edf7,20%);
+    }
+
+    .CodeMirror-selected
+    {
+        background: #d9edf7;
+    }
+
+    .cm-comment
+    {
+        color: #959595;
+        background-color: #f0f0f0;
+        opacity: 0.7;
+    }
+
+    .cm-string
+    {
+        color: #43ac6a;
+        font-style: oblique;
+    }
+
+    .cm-variable, .cm-variable-2
+    {
+        /*color: #f92672;*/
+        color: black;
+    }
+
+    .cm-property
+    {
+        //color: null;
+    }
+
+    .cm-keyword
+    {
+        color: #f04124;
+
+    }
+
+    .cm-atom
+    {
+        color: #e99002;
+    }
+
+    .cm-number
+    {
+        //color: null;
+    }
+
+    .cm-operator
+    {
+        color: #5bc0de;
+    }
+
+    .cm-def, .cm-variable-3
+    {
+        /*background-color: #d9edf7;*/
+        color: #5bc0de;
+    }
+
+    .CodeMirror-linenumber
+    {
+        /*color: #22a21f;*/
+    }
 }

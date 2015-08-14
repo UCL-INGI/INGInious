@@ -77,6 +77,7 @@ function colorizeStaticCode()
             CodeMirror.requireMode(mode['mode'], function()
             {
                 CodeMirror.colorize($(elem), mode["mime"]);
+                $(elem).removeClass("cm-s-default").addClass("cm-s-inginious");
             });
         }
     });
@@ -103,6 +104,7 @@ function registerCodeEditor(textarea, lang, lines)
         gutters:           ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
         indentUnit:        4,
         viewportMargin:    Infinity,
+        theme:             "inginious",
         lint:              function()
                            {
                                return []

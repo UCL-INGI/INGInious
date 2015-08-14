@@ -2,6 +2,7 @@
 /* Fonts */
 @import url(//fonts.googleapis.com/css?family=Yanone+Kaffeesatz:300);
 /*Fixes for bootstrap*/
+@import url(http://fonts.googleapis.com/css?family=Source+Code+Pro:300);
 .form-inline.form-control {
   display: inline-block;
   width: auto;
@@ -125,8 +126,69 @@ form#task label {
   border-radius: 0;
 }
 /* Codemirror */
-.CodeMirror-placeholder {
+.cm-s-inginious {
+  font-size: 1em;
+  line-height: 1.5em;
+  font-family: 'Source Code Pro', monospace !important;
+  letter-spacing: 0.3px;
+  word-spacing: 1px;
+  background: #fdfdfd;
+  color: #181818;
+}
+.cm-s-inginious.CodeMirror pre {
+  font-family: 'Source Code Pro', monospace !important;
+}
+.cm-s-inginious .CodeMirror-lines {
+  padding: 8px 0;
+}
+.cm-s-inginious .CodeMirror-gutters {
+  background-color: transparent;
+  padding-right: 10px;
+  z-index: 3;
+  border: none;
+}
+.cm-s-inginious .CodeMirror-placeholder {
   color: #aaaaaa !important;
+}
+.cm-s-inginious div.CodeMirror-cursor {
+  border-left: 3px solid #181818;
+}
+.cm-s-inginious .CodeMirror-activeline-background {
+  background: #ffffff;
+}
+.cm-s-inginious .CodeMirror-selected {
+  background: #d9edf7;
+}
+.cm-s-inginious .cm-comment {
+  color: #959595;
+  background-color: #f0f0f0;
+  opacity: 0.7;
+}
+.cm-s-inginious .cm-string {
+  color: #43ac6a;
+  font-style: oblique;
+}
+.cm-s-inginious .cm-variable,
+.cm-s-inginious .cm-variable-2 {
+  /*color: #f92672;*/
+  color: black;
+}
+.cm-s-inginious .cm-keyword {
+  color: #f04124;
+}
+.cm-s-inginious .cm-atom {
+  color: #e99002;
+}
+.cm-s-inginious .cm-operator {
+  color: #5bc0de;
+}
+.cm-s-inginious .cm-def,
+.cm-s-inginious .cm-variable-3 {
+  /*background-color: #d9edf7;*/
+  color: #5bc0de;
+}
+.cm-s-inginious .CodeMirror-linenumber {
+  /*color: #22a21f;*/
 }
 .container-fluid {
   max-width: 1200px;
