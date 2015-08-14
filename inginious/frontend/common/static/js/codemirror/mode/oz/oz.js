@@ -225,6 +225,7 @@
 
                 return state.currentIndent * conf.indentUnit;
             },
+            fold: "indent",
             electricChars: "eEdDtTnNiIoOfFhHyY[]",
             lineComment: "%",
             blockCommentStart: "/*",
