@@ -1,0 +1,59 @@
+<!doctype html>
+
+<title>CodeMirror: Oz mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<link href="http://fonts.googleapis.com/css?family=Inconsolata" rel="stylesheet" type="text/css">
+<script src="../../lib/codemirror.js"></script>
+<script src="oz.js"></script>
+<script type="text/javascript" src="../../addon/runmode/runmode.js"></script>
+<style>
+      .CodeMirror {border: 1px solid #aaa; height:210px; height: auto;}
+      .CodeMirror-scroll { overflow-x: auto; overflow-y: hidden;}
+      .CodeMirror pre { font-family: Inconsolata; font-size: 14px}
+    </style>
+<div id=nav>
+  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">Oz</a>
+  </ul>
+</div>
+
+<article>
+<h2>Oz mode</h2>
+
+<script type="text/javascript">
+
+function initText(editor) {
+  var content= "fun {Ints N Max}\nif N == Max then nil\nelse\n{Delay 1000}\nN|{Ints N+1 Max}\nend\nend\n\nfun {Sum S Stream}\ncase Stream of nil then S\n[] H|T then S|{Sum H+S T} end\nend\n\nlocal X Y in\nthread X = {Ints 0 1000} end\nthread Y = {Sum 0 X} end\n{Browse Y}\nend"
+  editor.setValue(content);
+  for (var i =0; i< editor.lineCount(); i++) editor.indentLine(i);
+}
+
+function init() {
+    editor = CodeMirror.fromTextArea(document.getElementById("solution"), {
+        lineNumbers: true,
+        mode: "text/x-oz",
+        readOnly: false
+    });
+    initText(editor);
+}
+
+document.body.onload = init;
+</script>
+
+  <div id="edit">
+  <textarea style="width:95%;height:200px;padding:5px;" name="solution" id="solution" ></textarea>
+  </div>
+  <p>MIME type defined: <code>text/x-oz</code>.</p>
+
+</article>
