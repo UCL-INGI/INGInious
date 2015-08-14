@@ -173,7 +173,8 @@ form#task label {
   /*color: #f92672;*/
   color: black;
 }
-.cm-s-inginious .cm-keyword {
+.cm-s-inginious .cm-keyword,
+.cm-s-inginious .cm-builtin {
   color: #f04124;
 }
 .cm-s-inginious .cm-atom {
