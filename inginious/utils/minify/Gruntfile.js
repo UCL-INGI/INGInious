@@ -17,12 +17,13 @@ module.exports = function(grunt)
                         '../../frontend/common/static/js/libs/bootstrap-datetimepicker.min.js',
                         '../../frontend/common/static/js/libs/checked-list-group.js',
                         '../../frontend/common/static/js/codemirror/codemirror.js',
+                        '../../frontend/common/static/js/codemirror/mode/meta.js',
                         '../../frontend/common/static/js/common.js',
                         '../../frontend/common/static/js/task.js',
                         '../../frontend/webapp/static/js/jquery-sortable.min.js',
                         '../../frontend/webapp/static/js/webapp.js',
                         '../../frontend/webapp/static/js/studio.js',
-			'../../frontend/webapp/static/js/classrooms.js'
+                        '../../frontend/webapp/static/js/classrooms.js'
                     ],
                     '../../frontend/lti/static/js/all-minified.js': [
                         '../../frontend/common/static/js/libs/jquery.min.js',
@@ -31,6 +32,7 @@ module.exports = function(grunt)
                         '../../frontend/common/static/js/libs/bootstrap-datetimepicker.min.js',
                         '../../frontend/common/static/js/libs/checked-list-group.js',
                         '../../frontend/common/static/js/codemirror/codemirror.js',
+                        '../../frontend/common/static/js/codemirror/mode/meta.js',
                         '../../frontend/common/static/js/common.js',
                         '../../frontend/common/static/js/task.js',
                         '../../frontend/lti/static/js/lti.js'
