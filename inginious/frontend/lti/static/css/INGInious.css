@@ -1,8 +1,8 @@
 /* Mixins */
 /* Fonts */
 @import url(//fonts.googleapis.com/css?family=Yanone+Kaffeesatz:300);
+@import url(//fonts.googleapis.com/css?family=Source+Code+Pro:300);
 /*Fixes for bootstrap*/
-@import url(http://fonts.googleapis.com/css?family=Source+Code+Pro:300);
 .form-inline.form-control {
   display: inline-block;
   width: auto;
