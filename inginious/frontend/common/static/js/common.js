@@ -120,19 +120,24 @@ function registerCodeEditor(textarea, lang, lines)
     });
 
     var min_editor_height = (21 * lines);
-    editor.on("viewportChange", function(cm)
-    {
-        if(cm.getScrollInfo()["height"] > min_editor_height)
-            editor.setSize(null, "auto");
-        else
-            editor.setSize(null, min_editor_height + "px");
-    });
+    editor.on("viewportChange", function(cm) { onEditorViewportChange(min_editor_height, cm); });
     editor.setSize(null, min_editor_height + "px");
+    onEditorViewportChange(min_editor_height, editor); //immediately trigger a size update
 
     if(mode["mode"] != "plain")
         CodeMirror.autoLoadMode(editor, mode["mode"]);
+
     codeEditors.push(editor);
     return editor;
+}
+
+// Verify if the size of each code editor is sufficient
+function onEditorViewportChange(min_editor_height, cm)
+{
+    if(cm.getScrollInfo()["height"] > min_editor_height)
+        cm.setSize(null, "auto");
+    else
+        cm.setSize(null, min_editor_height + "px");
 }
 
 // Apply parent function recursively
