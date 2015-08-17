@@ -140,24 +140,27 @@ class CourseEditClassroom(INGIniousAdminPage):
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
 
         error = False
-        try:
-            data = web.input(tutors=[], groups=[], classroomfile={})
-            if "delete" in data:
-                # Get the classroom
-                classroom = self.database.classrooms.find_one({"_id": ObjectId(classroomid), "courseid": courseid})
+        data = web.input(tutors=[], groups=[], classroomfile={})
+        if "delete" in data:
+            # Get the classroom
+            classroom = self.database.classrooms.find_one({"_id": ObjectId(classroomid), "courseid": courseid})
 
-                if classroom['default']:
-                    msg = "You can't remove your default classroom."
-                    error = True
-                else:
-                    self.database.classrooms.find_one_and_update({"courseid": courseid, "default": True},
-                                                                 {"$push": {
-                                                                     "students": {"$each": classroom["students"]}
-                                                                 }})
-
-                    self.database.classrooms.delete_one({"_id": ObjectId(classroomid)})
-                    raise web.seeother("/admin/" + courseid + "/classrooms")
+            if classroom is None:
+                msg = "Classroom not found."
+                error = True
+            elif classroom['default']:
+                msg = "You can't remove your default classroom."
+                error = True
             else:
+                self.database.classrooms.find_one_and_update({"courseid": courseid, "default": True},
+                                                             {"$push": {
+                                                                 "students": {"$each": classroom["students"]}
+                                                             }})
+
+                self.database.classrooms.delete_one({"_id": ObjectId(classroomid)})
+                raise web.seeother("/admin/" + courseid + "/classrooms")
+        else:
+            try:
                 if "upload" in data:
                     new_data = custom_yaml.load(data["classroomfile"].file)
                 else:
@@ -180,12 +183,11 @@ class CourseEditClassroom(INGIniousAdminPage):
                     error = True
                 else:
                     msg = "Classroom updated."
-
-        except:
-            classroom = self.database.classrooms.find_one({"_id": ObjectId(classroomid), "courseid": courseid})
-            student_list, tutor_list, other_students, users_info = self.get_user_lists(course, classroom["_id"])
-            msg = 'An error occurred while parsing the data.'
-            error = True
+            except:
+                classroom = self.database.classrooms.find_one({"_id": ObjectId(classroomid), "courseid": courseid})
+                student_list, tutor_list, other_students, users_info = self.get_user_lists(course, classroom["_id"])
+                msg = 'An error occurred while parsing the data.'
+                error = True
 
         return self.template_helper.get_renderer().course_admin.edit_classroom(course, student_list, tutor_list, other_students, users_info,
                                                                                classroom, msg, error)
