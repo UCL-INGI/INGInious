@@ -215,7 +215,7 @@ class MultipleChoiceProblem(BasicProblem):
 
         self._limit = 0
         if "limit" in content and isinstance(content['limit'], (int, long)) and content['limit'] >= 0 and (not self._multiple or content['limit'] >= \
-                len(good_choices)):
+                len(good_choices) or content['limit'] == 0):
             self._limit = content['limit']
         elif "limit" in content:
             raise Exception("Invalid limit in problem " + problemid)
