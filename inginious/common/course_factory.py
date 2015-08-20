@@ -137,6 +137,7 @@ class CourseFactory(object):
         except Exception as e:
             raise CourseUnreadableException(str(e))
         self._cache[courseid] = (self._course_class(courseid, course_descriptor, self._task_factory), os.stat(path_to_descriptor).st_mtime)
+        self._task_factory.update_cache_for_course(courseid)
 
 
 def create_factories(task_directory, hook_manager=None, course_class=Course, task_class=Task):
