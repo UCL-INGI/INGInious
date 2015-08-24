@@ -23,10 +23,10 @@
 
         var atoms = wordRegexp(["true", "false", "nil", "unit"]);
         var openingKeywords = wordRegexp(["local", "proc", "fun", "case", "class", "if", "cond", "or", "dis",
-            "choice", "not", "thread", "try", "raise", "lock", "for", "suchthat", "meth"]);
+            "choice", "not", "thread", "try", "raise", "lock", "for", "suchthat", "meth", "functor"]);
         var middleKeywords = wordRegexp(["in", "then", "else", "of", "elseof", "elsecase", "elseif", "catch",
             "finally", "with", "require", "prepare", "import", "export", "define", "do"]);
-        var commonKeywords = wordRegexp(["andthen", "at", "attr", "declare", "feat", "from", "functor", "lex",
+        var commonKeywords = wordRegexp(["andthen", "at", "attr", "declare", "feat", "from", "lex",
             "mod", "mode", "orelse", "parser", "prod", "prop", "scanner", "self", "syn", "token"]);
         var endKeywords = wordRegexp(["end"]);
 
@@ -155,16 +155,20 @@
             if (stream.eatSpace()) {
                 return null;
             }
-            if(!state.hasPassedFirstStage) {
-                stream.eat("{");
+
+            if(!state.hasPassedFirstStage && stream.eat("{")) {
                 state.hasPassedFirstStage = true;
                 return "bracket";
             }
-            else {
+            else if(state.hasPassedFirstStage) {
                 stream.match(/([A-Z][A-Za-z0-9_]*)|(`.+`)|\$/);
                 state.hasPassedFirstStage = false;
                 state.tokenize = tokenBase;
                 return "def"
+            }
+            else {
+                state.tokenize = tokenBase;
+                return null;
             }
         }
 
