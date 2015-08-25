@@ -354,20 +354,22 @@ function studio_get_template_for_problem(problem)
  */
 function studio_create_new_subproblem()
 {
-    var new_subproblem_pid = $('#new_subproblem_pid');
-    if(!new_subproblem_pid.val().match(/^[a-zA-Z0-9\._\-]+$/))
+    var new_subproblem_pid = $('#new_subproblem_pid').val();
+    var new_subproblem_type = $('#new_subproblem_type').val();
+    if(!new_subproblem_pid.match(/^[a-zA-Z0-9\._\-]+$/))
     {
         alert('Problem id should only contain alphanumeric characters (in addition to ".", "_" and "-").');
         return;
     }
 
-    if($(studio_get_problem(new_subproblem_pid.val())).length != 0)
+    if($(studio_get_problem(new_subproblem_pid)).length != 0)
     {
         alert('This problem id is already used.');
         return;
     }
 
-    studio_create_from_template('#' + $('#new_subproblem_type').val(), new_subproblem_pid.val())
+    studio_create_from_template('#' + new_subproblem_type, new_subproblem_pid);
+    studio_init_template(new_subproblem_type, new_subproblem_pid, {});
 }
 
 /**
@@ -466,7 +468,10 @@ function studio_init_template_code_file(well, pid, problem)
  */
 function studio_init_template_custom(well, pid, problem)
 {
-    registerCodeEditor($('#custom-' + pid)[0], 'yaml', 10).setValue(problem["custom"]);
+    var val = "";
+    if("custom" in problem)
+        val = problem["custom"];
+    registerCodeEditor($('#custom-' + pid)[0], 'yaml', 10).setValue(val);
 }
 
 /**
