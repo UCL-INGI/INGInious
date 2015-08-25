@@ -273,6 +273,7 @@ body.sidebar-active #content {
 }
 #main_container {
   overflow: hidden;
+  position: relative;
 }
 #content {
   -webkit-transition: all 0.5s ease;
