@@ -82,7 +82,7 @@ class DisplayableInputBox(InputBox, DisplayableBox):
 
     def show(self, renderer):
         """ Show InputBox """
-        return str(renderer.tasks.box_input(self.get_complete_id(), self._input_type, self._max_chars))
+        return str(renderer.tasks.box_input(self.get_complete_id(), self._input_type, self._max_chars, self._optional))
 
 
 class DisplayableMultilineBox(MultilineBox, DisplayableBox):
@@ -93,4 +93,4 @@ class DisplayableMultilineBox(MultilineBox, DisplayableBox):
 
     def show(self, renderer):
         """ Show MultilineBox """
-        return str(renderer.tasks.box_multiline(self.get_complete_id(), self._lines, self._max_chars, self._language))
+        return str(renderer.tasks.box_multiline(self.get_complete_id(), self._lines, self._max_chars, self._language, self._optional))

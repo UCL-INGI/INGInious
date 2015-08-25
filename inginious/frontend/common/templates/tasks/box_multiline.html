@@ -1,4 +1,4 @@
-$def with (inputId,lines,maxChars,language)
+$def with (inputId,lines,maxChars,language,optional)
 
 $# Copyright (c) 2014-2015 Université Catholique de Louvain.
 $#
@@ -22,4 +22,7 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
               class="code-editor form-control"
           $else:
               class="code-editor form-control single"
-          data-x-language="$language" data-x-lines="$lines"></textarea>
+          data-x-language="$language"
+          data-x-lines="$lines"
+          data-optional="$bool(optional)"
+></textarea>

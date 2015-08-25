@@ -61,7 +61,8 @@ class LTITask(LTIAuthenticatedPage):
 
             if not self.task.input_is_consistent(userinput, self.default_allowed_file_extensions, self.default_max_file_size):
                 web.header('Content-Type', 'application/json')
-                return json.dumps({"status": "error", "text": "Please answer to all the questions. Your responses were not tested."})
+                return json.dumps({"status": "error", "text": "Please answer to all the questions and verify the extensions of the files you want "
+                                                              "to upload. Your responses were not tested."})
             del userinput['@action']
 
             # Get debug info if the current user is an admin

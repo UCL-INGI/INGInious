@@ -29,6 +29,7 @@ $def sizeof_fmt(num):
     you submitted previously</a>
 
 $ allowed_exts= allowed_exts or default_allowed_file_extensions
+$ max_size= max_size or default_max_file_size
 <input
         type="file"
         name="$inputId"
@@ -36,6 +37,5 @@ $ allowed_exts= allowed_exts or default_allowed_file_extensions
         data-allowed-exts="$json.dumps(allowed_exts)"
         /><br/>
 
-$ max_size= max_size or default_max_file_size
 Max file size: $sizeof_fmt(max_size)<br/>
 Allowed extensions: $', '.join(allowed_exts)

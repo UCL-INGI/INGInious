@@ -165,10 +165,85 @@ function getDateTime()
         + ('0' + MyDate.getSeconds()).slice(-2);
 }
 
+//Verify the task form (files, ...)
+function taskFormValid()
+{
+    var answered_to_all = true;
+    var errors = [];
+    var form = $('#task');
+
+    form.find('textarea,input[type="text"]').each(function()
+    {
+        if($(this).attr('name') != undefined) //skip codemirror's internal textareas
+        {
+            if($(this).val() == "" && $(this).attr('data-optional') != "True")
+                answered_to_all = false;
+        }
+    });
+
+    form.find('input[type="file"]').each(function()
+    {
+        var filename = $(this).val().split(/(\\|\/)/g).pop();
+
+        //file input fields cannot be optionnal
+        if(filename == "")
+        {
+            answered_to_all = false;
+            return;
+        }
+
+        //verify ext
+        var allowed_extensions = $.parseJSON($(this).attr('data-allowed-exts'));
+        var ext = filename.split(/\./).pop();
+        if(!(ext in allowed_extensions))
+            errors.push(filename+" has not a valid extension.");
+
+        //try to get the size of the file
+        var size = -1;
+        try { size = $(this)[0].files[0].size; } catch (e) {} //modern browsers
+        if(size == -1) try { size = $(this)[0].files[0].fileSize; } catch(e) { } //old versions of Firefox
+
+        //Verify the maximum size
+        var max_size = parseInt($(this).attr('data-max-size'));
+        if(size != -1 && size > max_size)
+            errors.push(filename + " is too heavy.");
+    });
+
+    if(!answered_to_all)
+    {
+        errors.push("Please answer to all the questions.");
+    }
+
+    if(errors.length != 0)
+    {
+        var task_alert = $('#task_alert');
+        var content = $('<div></div>');
+        var first = true;
+        $.each(errors, function(idx, elem){
+            if(!first)
+                content.append($('<br>'));
+            first = false;
+            content.append($('<span></span>').text(elem));
+        });
+        task_alert.html(getAlertCode(content.html(), "danger", false));
+        $('html, body').animate({
+            scrollTop: task_alert.offset().top - 100
+        }, 200);
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
 //Submits a task
 function submitTask(with_ssh)
 {
     if(loadingSomething)
+        return;
+
+    if(!taskFormValid())
         return;
 
     $('#task-debug-mode').val(with_ssh ? "ssh" : "");
@@ -299,10 +374,10 @@ function killSubmission(submissionid)
 {
     $('.kill-submission-btn').attr('disabled', 'disabled');
     var url = $('form#task').attr("action");
-    jQuery.post(url, {"@action": "kill", "submissionid": submissionid}, null, "json").done(function(data)
+    jQuery.post(url, {"@action": "kill", "submissionid": submissionid}, null, "json").done(function()
     {
         $('.kill-submission-btn').removeAttr('disabled');
-    }).fail(function(data)
+    }).fail(function()
     {
         $('.kill-submission-btn').removeAttr('disabled');
     });

@@ -1,4 +1,4 @@
-$def with (inputId,type,maxChars)
+$def with (inputId,type,maxChars,optional)
 
 $# Copyright (c) 2014-2015 Université Catholique de Louvain.
 $#
@@ -33,4 +33,5 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
     $if maxChars != 0:
         maxlength="$maxChars"
         style="width:${maxChars+1}em"
+    data-optional="$bool(optional)"
 />
