@@ -151,6 +151,6 @@ class ParsableText(object):
     @classmethod
     def rst(cls, string):
         """Parses reStructuredText"""
-        overrides = {'initial_header_level': 3, 'doctitle_xform': False}
+        overrides = {'initial_header_level': 3, 'doctitle_xform': False, 'syntax_highlight': 'none'}
         parts = core.publish_parts(source=string, writer=_CustomHTMLWriter(), settings_overrides=overrides)
         return parts['body_pre_docinfo'] + parts['fragment']

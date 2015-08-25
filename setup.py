@@ -31,7 +31,6 @@ install_requires = [
     "docutils>=0.12",
     "multiprocessing>=2.6.2.1",
     "plumbum>=1.5.0",
-    "Pygments>=2.0.2",
     "pymongo>=3.0.3",
     "PyYAML>=3.11",
     "requests>=2.7.0",
@@ -53,7 +52,7 @@ test_requires = [
 if not on_rtd:
     install_requires += ["pytidylib>=0.2.4", "sphinx-rtd-theme>=0.1.8"]
 else:
-    install_requires += test_requires
+    install_requires += test_requires + ["Pygments>=2.0.2"]
 
 if sys.platform == 'win32':
     install_requires += ["pbs>=0.110"]
