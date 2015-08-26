@@ -49,11 +49,11 @@ class APIAuthMethods(APIPage):
                     text or password
         """
         to_display = []
-        for key, (name, input) in self.user_manager.get_auth_methods_fields().iteritems():
+        for key, (name, data) in self.user_manager.get_auth_methods_fields().iteritems():
             to_display.append({
                 "id": key,
                 "name": name,
-                "input": [{"id": ik, "name": iv["placeholder"], "type": iv["type"]} for ik, iv in input.iteritems()]
+                "input": [{"id": ik, "name": iv["placeholder"], "type": iv["type"]} for ik, iv in data["input"].iteritems()]
             })
 
         return 200, to_display
