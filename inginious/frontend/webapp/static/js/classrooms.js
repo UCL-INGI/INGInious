@@ -71,6 +71,20 @@ function classroom_group_delete(id)
     });
 }
 
+function classroom_groups_delete() {
+    $("#groups .group").each(function(i) {
+        classroom_group_delete($(this).attr("id"));
+    });
+}
+
+function classroom_groups_clean() {
+    $("#groups .group").each(function(i) {
+        $("#" + $(this).attr("id")).find("li").each(function(index) {
+            $(this).appendTo("#group_0");
+        });
+    });
+}
+
 function classroom_tutor_add(username, complete_name) {
 
     var new_tutor_div = $("#tutors li").last();

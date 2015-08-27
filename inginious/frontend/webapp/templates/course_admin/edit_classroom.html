@@ -244,9 +244,23 @@ $elif msg:
                             </ul>
                         </div>
 
-                    <a href="#group_add" onclick="javascript:classroom_group_add()" id="group_add" class="btn btn-block btn-default">
-                        <b><i class="fa fa-plus fa-lg"></i> Add new group</b>
-                    </a>
+                    <div class="row">
+                        <div class="col-md-4">
+                                <a href="#group_add" onclick="javascript:classroom_group_add()" id="group_add" class="btn btn-block btn-default">
+                                    <i class="fa fa-plus fa-lg"></i> New group
+                                </a>
+                        </div>
+                        <div class="col-md-4">
+                                <a href="#" onclick="javascript:classroom_groups_clean()" class="btn btn-block btn-warning">
+                                    <i class="fa fa-eraser fa-lg"></i> Clean groups
+                                </a>
+                        </div>
+                        <div class="col-md-4">
+                                <a href="#" onclick="javascript:classroom_groups_delete()" class="btn btn-block btn-danger">
+                                    <i class="fa fa-trash fa-lg"></i> Delete all groups
+                                </a>
+                        </div>
+                    </div>
                 </div>
                 <button name="update" class="btn btn-primary btn-block" onclick="javascript:classroom_prepare_submit()" type="submit"><i class="fa fa-floppy-o"></i> Update</button>
             </div>
