@@ -124,12 +124,25 @@ class UserManager(AbstractUserManager):
             return None
         return self._session.realname
 
+    def session_token(self):
+        """ Returns the token of the current user in the session, if one is open. Else, returns None"""
+        if not self.session_logged_in():
+            return None
+        return self._session.token
+
+
+    def set_session_token(self, token):
+        """ Sets the token of the current user in the session, if one is open."""
+        if self.session_logged_in():
+            self._session.token = token
+
     def _set_session(self, username, realname, email):
         """ Init the session """
         self._session.loggedin = True
         self._session.email = email
         self._session.username = username
         self._session.realname = realname
+        self._session.token = None
 
     def _destroy_session(self):
         """ Destroy the session """
@@ -137,6 +150,7 @@ class UserManager(AbstractUserManager):
         self._session.email = None
         self._session.username = None
         self._session.realname = None
+        self._session.token = None
 
     ##############################################
     #      User searching and authentication     #

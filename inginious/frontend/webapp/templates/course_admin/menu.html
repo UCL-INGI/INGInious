@@ -20,6 +20,9 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 <div class="list-group">
     $for link, name in entries:
         <a href="/admin/${course.get_id()}/${link}" class="list-group-item
+        $if link=='danger':
+            list-group-item-danger
+
         $if current == link:
             active
         ">$:name</a>
