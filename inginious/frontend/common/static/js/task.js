@@ -181,6 +181,14 @@ function taskFormValid()
         }
     });
 
+    form.find('input[type="checkbox"],input[type="radio"]').each(function()
+    {
+        if(form.find("input[name='"+ $(this).attr('name')+"']:checked").length == 0)
+        {
+            answered_to_all = false;
+        }
+    });
+
     form.find('input[type="file"]').each(function()
     {
         var filename = $(this).val().split(/(\\|\/)/g).pop();
@@ -194,8 +202,11 @@ function taskFormValid()
 
         //verify ext
         var allowed_extensions = $.parseJSON($(this).attr('data-allowed-exts'));
-        var ext = filename.split(/\./).pop();
-        if(!(ext in allowed_extensions))
+        var has_one = false;
+        $.each(allowed_extensions, function(idx, ext){
+            has_one = has_one || (filename.lastIndexOf(ext) === filename.length - ext.length) > 0;
+        });
+        if(!has_one)
             errors.push(filename+" has not a valid extension.");
 
         //try to get the size of the file
