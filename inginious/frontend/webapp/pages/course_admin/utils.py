@@ -166,7 +166,10 @@ def get_menu(course, current, renderer, plugin_manager, user_manager):
                         ("classrooms", "<i class='fa fa-group fa-fw'></i>&nbsp; Classrooms")]
 
     default_entries += [("tasks", "<i class='fa fa-tasks fa-fw'></i>&nbsp; Tasks"),
-                        ("download", "<i class='fa fa-download fa-fw'></i>&nbsp; Download submissions")]
+                        ("download", "<i class='fa fa-download fa-fw'></i>&nbsp; Download submissions")]\
+
+    if user_manager.user_is_superadmin():
+        default_entries += [("danger", "<i class='fa fa-bomb fa-fw'></i>&nbsp; Danger zone")]
 
     # Hook should return a tuple (link,name) where link is the relative link from the index of the course administration.
     additionnal_entries = [entry for entry in plugin_manager.call_hook('course_admin_menu', course=course) if entry is not None]

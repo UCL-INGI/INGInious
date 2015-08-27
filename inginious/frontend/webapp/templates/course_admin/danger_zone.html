@@ -1,0 +1,66 @@
+$def with (course, thehash, msg, error)
+
+$# Copyright (c) 2014-2015 Université Catholique de Louvain.
+$#
+$# This file is part of INGInious.
+$#
+$# INGInious is free software: you can redistribute it and/or modify
+$# it under the terms of the GNU Affero General Public License as published
+$# by the Free Software Foundation, either version 3 of the License, or
+$# (at your option) any later version.
+$#
+$# INGInious is distributed in the hope that it will be useful,
+$# but WITHOUT ANY WARRANTY; without even the implied warranty of
+$# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+$# GNU Affero General Public License for more details.
+$#
+$# You should have received a copy of the GNU Affero General Public
+$# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
+
+$var title: Danger zone
+
+$def ColumnF():
+    $:template_helper.call('course_admin_menu',course=course,current='danger')
+$var Column: $:ColumnF()
+
+$def NavbarF():
+    <ol class="nav navbar-nav nav-breadcrumb">
+        <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
+        <li><a href="/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+            <i class="fa fa-user-secret"></i></a></li>
+        <li class="active"><a href="#">Danger zone <span class="sr-only">(current)</span></a></li>
+    </ol>
+$var Navbar: $:NavbarF()
+
+<h2>Danger zone</h2>
+$if error:
+    <div class="alert alert-warning alert-dismissable" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        $:msg
+    </div>
+$elif msg:
+    <div class="alert alert-success alert-dismissable" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        $:msg
+    </div>
+
+<div class="panel panel-danger">
+    <div class="panel-heading">
+        <h3 class="panel-title">Wipe all course data</h3>
+    </div>
+    <div class="panel-body">
+        <p>This will remove all course data (submissions, classrooms, user statistics) from the database.</p>
+        <p>To confirm your will, please type the course id below :</p>
+        <form class="form-horizontal" method="post">
+            <input type="hidden" name="token" value="$thehash">
+            <div class="row">
+                <div class="col-md-6">
+                    <input type="text" placeholder="course id" name="courseid" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <button type="submit" name="wipeall" class="btn btn-block btn-warning"><i class="fa fa-trash"></i> Wipe all data</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
