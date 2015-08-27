@@ -73,7 +73,8 @@ setup(
     tests_require=test_requires,
     extras_require={
         "cgi": ["flup"],
-        "ldap": ["simpleldap>=0.8", "python-ldap>=2.4.19"]
+        "ldap": ["simpleldap>=0.8", "python-ldap>=2.4.19"],
+        "test": test_requires
     },
 
     scripts=[
