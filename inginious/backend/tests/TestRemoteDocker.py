@@ -40,7 +40,7 @@ class TestDockerJobManager(object):
             raise SkipTest("Testing the Docker Job Manager is disabled.")
         elif TEST_ENV in ["boot2docker", "boot2docker-local"]:
             self.docker_connection = docker.Client(base_url="tcp://192.168.59.103:2375")
-        elif TEST_ENV == "travis":
+        elif TEST_ENV == "jenkins":
             self.docker_connection = docker.Client(base_url="tcp://localhost:2375")
         else:
             raise Exception("Unknown method for testing the Docker Job Manager!")
@@ -75,7 +75,7 @@ class TestDockerJobManager(object):
                 "remote_docker_port": 2375,
                 "remote_agent_port": 63456
             }], {"default": "ingi/inginious-c-default"}, "./tasks", self.course_factory, self.task_factory, is_testing=True)
-        elif TEST_ENV == "travis":
+        elif TEST_ENV == "jenkins":
             self.job_manager = RemoteDockerJobManager([{
                 "remote_host": "localhost",
                 "remote_docker_port": 2375,
