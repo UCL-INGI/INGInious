@@ -50,6 +50,9 @@ containers:
     default: ingi/inginious-c-default
     sekexe: ingi/inginious-c-sekexe
 
+# Location of the backup directory (webapp)
+backup_directory: ./inginious/tasks
+
 # Plugins that will be loaded by the webapp
 plugins:
   - plugin_module: inginious.frontend.webapp.plugins.auth.demo_auth

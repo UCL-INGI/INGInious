@@ -285,6 +285,10 @@ class SubmissionManager(object):
                 final_subs.append(sub)
         return final_subs
 
+    def get_gridfs(self):
+        """ Returns the GridFS used by the submission manager """
+        return self._gridfs
+
     def get_submission_archive(self, submissions, sub_folders, classrooms):
         """
         :param submissions: a list of submissions

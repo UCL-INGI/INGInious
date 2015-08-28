@@ -17,11 +17,27 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
 """ Custom installer for the web app """
+
+import os
 import inginious.frontend.common.installer
 
 
 class Installer(inginious.frontend.common.installer.Installer):
     """ Custom installer for the LTI frontend """
+
+    def configure_backup_directory(self):
+        """ Configure backup directory """
+        self._display_question("Please choose a directory in which to store the backup files. By default, the tool will them in the current "
+                               "directory")
+        backup_directory = None
+        while backup_directory is None:
+            backup_directory = self._ask_with_default("Backup directory", ".")
+            if not os.path.exists(backup_directory):
+                self._display_error("Path does not exists")
+                if self._ask_boolean("Would you like to retry?", True):
+                    backup_directory = None
+
+        return {"backup_directory": backup_directory}
 
     def configure_batch_containers(self, current_options):
         """ Configures the container dict """
@@ -147,6 +163,10 @@ class Installer(inginious.frontend.common.installer.Installer):
 
     def frontend_specific_configuration(self, options):
         """ Modify the options for a specific frontend. Should return the new option dict """
+        self._display_header("BACKUP DIRECTORY")
+        backup_directory_opt = self.configure_backup_directory()
+        options.update(backup_directory_opt)
+
         self._display_header("BATCH CONTAINERS")
         batch_opts = self.configure_batch_containers(options)
         options.update(batch_opts)

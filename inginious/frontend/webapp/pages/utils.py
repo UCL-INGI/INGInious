@@ -26,7 +26,7 @@ class INGIniousPage(object):
     """
 
     def __init__(self, plugin_manager, course_factory, task_factory, submission_manager, batch_manager, user_manager, remote_ssh_manager,
-                 template_helper, database, gridfs, default_allowed_file_extensions, default_max_file_size, containers):
+                 template_helper, database, gridfs, default_allowed_file_extensions, default_max_file_size, backup_dir, containers):
         """
         Init the page
         :type plugin_manager: inginious.frontend.common.plugin_manager.PluginManager
@@ -41,6 +41,7 @@ class INGIniousPage(object):
         :type gridfs: gridfs.GridFS
         :type default_allowed_file_extensions: list(str)
         :type default_max_file_size: int
+        :type backup_dir : str
         :type containers: list(str)
         """
         self.plugin_manager = plugin_manager
@@ -55,4 +56,5 @@ class INGIniousPage(object):
         self.gridfs = gridfs
         self.default_allowed_file_extensions = default_allowed_file_extensions
         self.default_max_file_size = default_max_file_size
+        self.backup_dir = backup_dir
         self.containers = containers

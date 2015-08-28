@@ -224,7 +224,7 @@ def get_app(hostname, port, sshhost, sshport, config, active_callback=None):
                                           submission_manager, batch_manager, user_manager,
                                           remote_ssh_manager, template_helper, database, gridfs,
                                           default_allowed_file_extensions, default_max_file_size,
-                                          config["containers"].keys()))
+                                          config["backup_directory"], config["containers"].keys()))
 
     # Active hook
     if active_callback is not None:

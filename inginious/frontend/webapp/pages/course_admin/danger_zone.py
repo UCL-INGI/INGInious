@@ -21,12 +21,46 @@
 import hashlib
 import random
 import web
+import bson.json_util
+import os
+import datetime
+import zipfile
+import tempfile
+from gridfs import GridFS
 
 from inginious.frontend.webapp.pages.course_admin.utils import INGIniousAdminPage
 
 
 class CourseDangerZonePage(INGIniousAdminPage):
     """ Course administration page: list of classrooms """
+
+    def dump_course(self, courseid):
+        filepath = os.path.join(self.backup_dir, courseid + datetime.datetime.now().strftime("%Y%m%d.%H%M%S") + ".zip")
+
+        if not os.path.exists(os.path.dirname(filepath)):
+            os.makedirs(os.path.dirname(filepath))
+
+        with zipfile.ZipFile(filepath, "w") as zipf:
+            classrooms = self.database.classrooms.find({"courseid": courseid})
+            zipf.writestr("classrooms.json", bson.json_util.dumps(classrooms), zipfile.ZIP_DEFLATED)
+
+            user_tasks = self.database.user_tasks.find({"courseid": courseid})
+            zipf.writestr("user_tasks.json", bson.json_util.dumps(user_tasks), zipfile.ZIP_DEFLATED)
+
+            submissions = self.database.submissions.find({"courseid": courseid})
+            zipf.writestr("submissions.json", bson.json_util.dumps(submissions), zipfile.ZIP_DEFLATED)
+
+            submissions.rewind()
+
+            for submission in submissions:
+                for key in ["input", "archive"]:
+                    if key in submission and type(submission[key]) == bson.objectid.ObjectId:
+                        infile = self.submission_manager.get_gridfs().get(submission[key])
+                        zipf.writestr(os.path.join(key, str(submission[key]) + ".data"), infile.read(), zipfile.ZIP_DEFLATED)
+
+        self.database.classrooms.remove({"courseid": courseid})
+        self.database.user_tasks.remove({"courseid": courseid})
+        self.database.submissions.remove({"courseid": courseid})
 
     def GET(self, courseid):
         """ GET request """
@@ -53,7 +87,13 @@ class CourseDangerZonePage(INGIniousAdminPage):
                 msg = "Wrong course id."
                 error = True
             else:
-                msg = "All course data have been deleted."
+                try:
+                    self.dump_course(courseid)
+                    msg = "All course data have been deleted."
+                except:
+                    raise
+                    msg = "An error occured while dumping course from database."
+                    error = True
 
         course = self.course_factory.get_course(courseid)
         return self.page(course, msg, error)
