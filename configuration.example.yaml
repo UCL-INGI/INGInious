@@ -51,7 +51,7 @@ containers:
     sekexe: ingi/inginious-c-sekexe
 
 # Location of the backup directory (webapp)
-backup_directory: ./inginious/tasks
+backup_directory: ./inginious/backup
 
 # Plugins that will be loaded by the webapp
 plugins:
