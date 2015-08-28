@@ -25,8 +25,7 @@ import bson.json_util
 import os
 import datetime
 import zipfile
-import tempfile
-from gridfs import GridFS
+import glob
 
 from inginious.frontend.webapp.pages.course_admin.utils import INGIniousAdminPage
 
@@ -35,7 +34,8 @@ class CourseDangerZonePage(INGIniousAdminPage):
     """ Course administration page: list of classrooms """
 
     def dump_course(self, courseid):
-        filepath = os.path.join(self.backup_dir, courseid + datetime.datetime.now().strftime("%Y%m%d.%H%M%S") + ".zip")
+        """ Create a zip file containing all information about a given course in database and then remove it from db"""
+        filepath = os.path.join(self.backup_dir, courseid, datetime.datetime.now().strftime("%Y%m%d.%H%M%S") + ".zip")
 
         if not os.path.exists(os.path.dirname(filepath)):
             os.makedirs(os.path.dirname(filepath))
@@ -62,13 +62,31 @@ class CourseDangerZonePage(INGIniousAdminPage):
         self.database.user_tasks.remove({"courseid": courseid})
         self.database.submissions.remove({"courseid": courseid})
 
+    def restore_course(self, courseid, backup):
+        """ Restores a course of given courseid to a date specified in backup (format : YYYYMMDD.HHMMSS) """
+        pass
+
     def GET(self, courseid):
         """ GET request """
         if not self.user_manager.user_is_superadmin(self.user_manager.session_username()):
             raise web.notfound()
 
-        course = self.course_factory.get_course(courseid)
-        return self.page(course)
+        data = web.input()
+
+        if "download" in data:
+            filepath = os.path.join(self.backup_dir, courseid, data["download"] + '.zip')
+
+            if not os.path.exists(os.path.dirname(filepath)):
+                raise web.notfound()
+
+            web.header('Content-Type', 'application/zip', unique=True)
+            web.header('Content-Disposition', 'attachment; filename="lol.zip"', unique=True)
+
+            return open(filepath, 'rb')
+
+        else:
+            course = self.course_factory.get_course(courseid)
+            return self.page(course)
 
     def POST(self, courseid):
         """ POST request """
@@ -91,8 +109,22 @@ class CourseDangerZonePage(INGIniousAdminPage):
                     self.dump_course(courseid)
                     msg = "All course data have been deleted."
                 except:
-                    raise
                     msg = "An error occured while dumping course from database."
+                    error = True
+        elif "restore" in data:
+            if not data["token"] == self.user_manager.session_token():
+                msg = "Operation aborted due to invalid token."
+                error = True
+            elif "backupdate" not in data:
+                msg = "No backup date selected."
+                error = True
+            else:
+                try:
+                    dt = datetime.datetime.strptime(data["backupdate"], "%Y%m%d.%H%M%S")
+                    self.restore_course(courseid, data["backupdate"])
+                    msg = "Course restored to date : " + dt.strftime("%Y-%m-%d %H:%M:%S") + "."
+                except:
+                    msg = "An error occured while restoring backup."
                     error = True
 
         course = self.course_factory.get_course(courseid)
@@ -103,4 +135,16 @@ class CourseDangerZonePage(INGIniousAdminPage):
         thehash = hashlib.sha512(str(random.getrandbits(256))).hexdigest()
         self.user_manager.set_session_token(thehash)
 
-        return self.template_helper.get_renderer().course_admin.danger_zone(course, thehash, msg, error)
+        backups = []
+
+        filepath = os.path.join(self.backup_dir, course.get_id())
+        if os.path.exists(os.path.dirname(filepath)):
+            for backup in glob.glob(os.path.join(filepath, '*.zip')):
+                try:
+                    basename = os.path.basename(backup)[0:-4]
+                    dt = datetime.datetime.strptime(basename, "%Y%m%d.%H%M%S").strftime("%Y-%m-%d %H:%M:%S")
+                    backups.append({"file": basename, "date": dt})
+                except: # Wrong format
+                    pass
+
+        return self.template_helper.get_renderer().course_admin.danger_zone(course, thehash, backups, msg, error)
