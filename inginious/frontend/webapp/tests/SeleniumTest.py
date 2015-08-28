@@ -101,21 +101,15 @@ class SeleniumTest(unittest.TestCase):
             self.frontend_host = "127.0.0.1"
             self.frontend_port = 8081
             self.frontend_ssh_port = 8082
-        elif TEST_ENV == "travis":
+        elif TEST_ENV == "jenkins":
             self.display = Display(visible=0, size=(1920, 1080))
             self.display.start()
             self.driver = webdriver.Firefox()
             self.base_url = CUSTOM_SELENIUM_BASE_URL or "http://localhost:8081"
-            self.frontend_host = "0.0.0.0"
+            self.frontend_host = "localhost"
             self.frontend_port = 8081
             self.frontend_ssh_port = 8082
-            self.frontend_config["docker_daemons"] = [{
-                "remote_host": "127.0.0.1",
-                "remote_docker_port": 2375,
-                "remote_agent_port": 4445,
-                "local_location": "tcp://127.0.0.1:2375"
-            }]
-            raise SkipTest("Testing the frontend with selenium is disabled on Travis, for now")
+            self.frontend_config["backend"] = "local"
         else:
             raise SkipTest("Env variable TEST_ENV is not properly configured. Please take a look a the documentation to properly configure your "
                            "test environment.")
