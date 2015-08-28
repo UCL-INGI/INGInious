@@ -1,8 +1,8 @@
 INGInious
 =========
 
-.. image:: https://travis-ci.org/UCL-INGI/INGInious.svg?branch=master
-    :target: https://travis-ci.org/UCL-INGI/INGInious
+.. image:: http://jenkins2.info.ucl.ac.be/job/INGInious/badge/icon
+    :target: http://jenkins2.info.ucl.ac.be/job/INGInious/
 .. image:: https://landscape.io/github/UCL-INGI/INGInious/master/landscape.svg?style=flat
     :target: https://landscape.io/github/UCL-INGI/INGInious/master
 .. image:: https://readthedocs.org/projects/inginious/badge/?version=latest
