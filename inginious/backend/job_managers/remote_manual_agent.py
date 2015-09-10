@@ -67,6 +67,10 @@ class RemoteManualAgentJobManager(AbstractJobManager):
 
         AbstractJobManager.__init__(self, image_aliases, hook_manager, is_testing)
 
+        # Count the number of times the function _try_agent_connection is called, when testing
+        if is_testing:
+            self._connection_attempts = 0
+
         self._task_directory = task_directory
 
         self._agents = [None for _ in range(0, len(agents))]
@@ -113,7 +117,7 @@ class RemoteManualAgentJobManager(AbstractJobManager):
         self._try_agent_connection()
 
     def _try_agent_connection(self):
-        """ Tries to connect to the agents that are not connected yet """
+        """ Attempts to connect to the agents that are not connected yet """
         if self._closed:
             return
 
@@ -136,8 +140,20 @@ class RemoteManualAgentJobManager(AbstractJobManager):
                     self._synchronize_task_dir(self._agents[entry])
 
         if not self._is_testing:
-            self._timers[self._try_agent_connection] = threading.Timer(10, self._try_agent_connection)
+            # if we are not in a test, retry in 10 secs
+            retry_in = 10
+        elif self._connection_attempts < 3 and len(filter(lambda elem: elem is None, self._agents)):
+            # if we are testing, do maximum three attempts to connect to all agents
+            self._connection_attempts += 1
+            retry_in = 10
+        else:
+            # do not retry
+            retry_in = None
+
+        if retry_in is not None:
+            self._timers[self._try_agent_connection] = threading.Timer(retry_in, self._try_agent_connection)
             self._timers[self._try_agent_connection].start()
+
 
     def _synchronize_image_aliases(self, agent):
         """ Update the list of image aliases on the remote agent """
