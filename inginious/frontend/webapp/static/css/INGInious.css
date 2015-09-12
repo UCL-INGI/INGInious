@@ -242,8 +242,9 @@ form#task label {
   border-left: 1px solid #cccccc;
   padding-left: 20px;
   min-height: 20px;
+  white-space: pre;
   text-overflow: ellipsis;
-  overflow: hidden;
+  overflow: auto;
 }
 #task_debug dd dl {
   margin-bottom: 0;
