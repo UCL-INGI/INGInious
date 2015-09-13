@@ -59,6 +59,14 @@ For example, for the problem id "pid", the command to do is:
 
 When a problem is defined with several boxes, the argument becomes *pid/bid* where "pid" stands for the problem id and "bid" for "box id".
 
+Note that *getinput* can also retrieve the username/group of the user that submitted the task. You simply have to run
+::
+
+    getinput username
+
+If the submission is made as a user, it will contain the username. It it's made as a group, it will contain the list of the user's usernames in the
+group, joined with ','.
+
 parsetemplate
 `````````````
 

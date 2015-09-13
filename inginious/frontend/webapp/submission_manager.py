@@ -53,3 +53,13 @@ class WebAppSubmissionManager(SubmissionManager):
             obj.update({"username": group["groups"][0]["students"]})
         else:
             obj.update({"username": [username]})
+
+    def _after_submission_insertion(self, task, inputdata, debug, submission, submissionid):
+        # If we are submitting for a group, send the group (user list joined with ",") as username
+        if "group" not in [p.get_id() for p in task.get_problems()]:  # do not overwrite
+            username = self._user_manager.session_username()
+            if task.is_group_task() and not self._user_manager.has_staff_rights_on_course(task.get_course(), username):
+                group = self._database.classrooms.find_one(
+                    {"courseid": task.get_course_id(), "groups.students": username},
+                    {"groups": {"$elemMatch": {"students": username}}})
+                inputdata["username"] = ','.join(group["groups"][0]["students"])

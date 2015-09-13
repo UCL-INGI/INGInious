@@ -120,6 +120,10 @@ class SubmissionManager(object):
 
         submissionid = self._database.submissions.insert(obj)
 
+        # Send additionnal data to the job manager in inputdata. For now, the username and the group
+        if "username" not in [p.get_id() for p in task.get_problems()]:  # do not overwrite
+            inputdata["username"] = username
+
         self._after_submission_insertion(task, inputdata, debug, obj, submissionid)
 
         self._hook_manager.call_hook("new_submission", submissionid=submissionid, submission=obj, inputdata=inputdata)
