@@ -30,7 +30,7 @@ import re
 import time
 
 import docker
-from docker.utils import kwargs_from_env
+from docker.utils import kwargs_from_env, create_host_config
 import rpyc
 
 from inginious.backend.agent._rpyc_unix_server import UnixSocketServer
@@ -369,7 +369,7 @@ class SimpleAgent(object):
                 environment,
                 stdin_open=True,
                 volumes={'/task': {}, '/sockets': {}},
-                network_disabled=(debug != "ssh")
+                network_disabled=not (task.allow_network_access_grading() or debug == "ssh")
             )
             container_id = response["Id"]
             self._container_for_job[job_id] = container_id
@@ -377,6 +377,7 @@ class SimpleAgent(object):
             # Start the RPyC server associated with this container
             container_set = set()
             student_container_management_service = self._get_agent_student_container_service(
+                container_id,
                 container_set,
                 student_path,
                 task.get_environment(),
@@ -402,7 +403,8 @@ class SimpleAgent(object):
                                            os.path.abspath(sockets_path): {'ro': False, 'bind': '/sockets'}},
                                     mem_limit=mem_limit * 1024 * 1024,
                                     memswap_limit=mem_limit * 1024 * 1024,  # disable swap
-                                    oom_kill_disable=True)
+                                    oom_kill_disable=True,
+                                    network_mode=("bridge" if (task.allow_network_access_grading() or debug == "ssh") else None))
 
             # Send the input data
             container_input = {"input": inputdata, "limits": limits}
@@ -489,8 +491,8 @@ class SimpleAgent(object):
         # Return!
         return result
 
-    def _create_new_student_container(self, container_name, working_dir, command, memory_limit, time_limit, hard_time_limit, container_set,
-                                      student_path):
+    def _create_new_student_container(self, container_name, working_dir, command, memory_limit, time_limit, hard_time_limit, share_network,
+                                      parent_container_id, container_set, student_path):
         self.logger.debug("Starting new student container... %s %s %s %s %s %s", container_name, working_dir, command, memory_limit, time_limit,
                           hard_time_limit)
         try:
@@ -512,7 +514,7 @@ class SimpleAgent(object):
             response = docker_connection.create_container(
                 environment,
                 stdin_open=True,
-                network_disabled=True,
+                network_disabled=(not share_network),
                 volumes={'/task/student': {}},
                 command=command,
                 working_dir=working_dir,
@@ -525,7 +527,8 @@ class SimpleAgent(object):
                                     binds={os.path.abspath(student_path): {'ro': False, 'bind': '/task/student'}},
                                     mem_limit=mem_limit * 1024 * 1024,  # add 10 mo of bonus, as we check the memory in the "cgroup" thread
                                     memswap_limit=mem_limit * 1024 * 1024,  # disable swap
-                                    oom_kill_disable=True
+                                    oom_kill_disable=True,
+                                    network_mode=(None if not share_network else ('container:'+parent_container_id))
                                     )
 
             stdout_err = docker_connection.attach_socket(container_id, {'stdin': 0, 'stdout': 1, 'stderr': 1, 'stream': 1, 'logs': 1})
@@ -591,7 +594,7 @@ class SimpleAgent(object):
         # Return!
         return return_value
 
-    def _get_agent_student_container_service(self, container_set, student_path, default_container, default_time, default_memory):
+    def _get_agent_student_container_service(self, parent_container_id, container_set, student_path, default_container, default_time, default_memory):
         create_new_student_container = self._create_new_student_container
         student_container_signal = self._student_container_signal
         student_container_get_stdin = self._student_container_get_stdin
@@ -599,7 +602,7 @@ class SimpleAgent(object):
 
         class StudentContainerManagementService(rpyc.Service):
 
-            def exposed_run(self, container_name, working_dir, command, memory_limit, time_limit, hard_time_limit):
+            def exposed_run(self, container_name, working_dir, command, memory_limit=0, time_limit=0, hard_time_limit=0, share_network=False):
                 if container_name == "":
                     container_name = default_container
                 if memory_limit == 0:
@@ -609,7 +612,7 @@ class SimpleAgent(object):
                 if hard_time_limit == 0:
                     hard_time_limit = 3 * time_limit
                 return create_new_student_container(str(container_name), str(working_dir), str(command), int(memory_limit), int(time_limit),
-                                                    int(hard_time_limit), container_set, student_path)
+                                                    int(hard_time_limit), bool(share_network), parent_container_id, container_set, student_path)
 
             def exposed_signal(self, container_id, signalnum):
                 if container_id in container_set:

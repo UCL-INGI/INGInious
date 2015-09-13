@@ -28,6 +28,7 @@ Inside a course folder (see `Creating a new course`) tasks must have
         time: 30
         memory: 128
     environment: default
+    network_grading: False
 
 
 -   *author*, *context*, *order*, *name*, *language* and *header* are only needed
@@ -76,6 +77,9 @@ Inside a course folder (see `Creating a new course`) tasks must have
 
 -   *groups* allows to indicate if the submission is to be done individually or per groups.
     (see Classrooms and Groups).
+
+-   *network_grading* indicates if the grading container should have access to the net. This
+    is not the case by default.
 
 .. [#] There are some options about using HTML instead of restructuredText, but they
        are purposely not documented :-)

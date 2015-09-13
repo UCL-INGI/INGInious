@@ -54,10 +54,22 @@ $# License along with INGInious.  If not, see <http://www.gnu.org/licenses/>.
         </select>
     </div>
 </div>
+<div class="form-group">
+    <label for="network_grading" class="col-sm-4 control-label">Allow internet access inside the grading container?</label>
+
+    <div class="col-sm-8">
+        <div class="checkbox"><label>
+            <input type="checkbox" id="network_grading" name="network_grading"
+                   $if task_data.get('network_grading',False):
+                       checked="checked"
+            />&nbsp;
+        </label></div>
+    </div>
+</div>
 $if contains_is_html:
     <div class="form-group">
-        <label for="responseIsHTML" class="col-sm-2 control-label">Are the task's responses written in HTML instead of restructuredText?</label>
-        <div class="col-sm-10">
+        <label for="responseIsHTML" class="col-sm-4 control-label">Are the task's responses written in HTML instead of restructuredText?</label>
+        <div class="col-sm-8">
             <div class="checkbox"><label>
                 <input type="checkbox" id="responseIsHTML" name="responseIsHTML"
                     $if task_data.get('responseIsHTML',False):

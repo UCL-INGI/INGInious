@@ -237,6 +237,9 @@ class CourseEditTask(INGIniousAdminPage):
             # Checkboxes
             if data.get("responseIsHTML"):
                 data["responseIsHTML"] = True
+
+            # Network grading
+            data["network_grading"] = "network_grading" in data
         except Exception as message:
             return json.dumps({"status": "error", "message": "Your browser returned an invalid form ({})".format(str(message))})
 

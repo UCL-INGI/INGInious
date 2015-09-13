@@ -60,6 +60,9 @@ class Task(object):
         if "problems" not in self._data:
             raise Exception("Tasks must have some problems descriptions")
 
+        # Network access in grading container?
+        self._network_grading = self._data.get("network_grading", False)
+
         # Check all problems
         self._problems = []
 
@@ -96,6 +99,10 @@ class Task(object):
     def get_limits(self):
         """ Return the limits of this task """
         return self._limits
+
+    def allow_network_access_grading(self):
+        """ Return True if the grading container should have access to the network """
+        return self._network_grading
 
     def get_response_type(self):
         """ Returns the method used to parse the output of the task: HTML or rst """

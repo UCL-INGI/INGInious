@@ -96,10 +96,12 @@ made by the student don't interact with yours.
 run_student is fully configurable; you can change the container image (environment), set new timeouts, new memory limits, ... And you can call it as
 many time as you want.
 
---container                       Name of the container to use. The default is the same as the current container.
---time                            Timeout (in CPU time) for the container. The default is the same as the current container.
---hard-time                       Hard timeout for the container (in real time). The default is three times the value indicated for --time.
---memory                          Maximum memory for the container, in Megabytes. The default is the same as the current container.
+--container CONTAINER             Name of the container to use. The default is the same as the current container.
+--time TIME                       Timeout (in CPU time) for the container. The default is the same as the current container.
+--hard-time TIME                  Hard timeout for the container (in real time). The default is three times the value indicated for --time.
+--memory MEMORY                   Maximum memory for the container, in Megabytes. The default is the same as the current container.
+--share-network                   Share the network stack of the grading container with the student container. This is not the case by
+                                  default. If the container container has network access, this will also be the case for the student!
 
 Beyond these optionnals args, *run_student* also takes an additionnal (mandatory) arguments: the command to be run in the new container.
 
