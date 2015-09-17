@@ -115,4 +115,9 @@ def update_database(database, gridfs, course_factory, user_manager):
 
         db_version = 6
 
+    if db_version < 7:
+        print "Updating database to db_version 7"
+        database.submissions.update_many({}, {"$set": {"custom": {}}})
+        db_version = 7
+
     database.db_version.update({}, {"$set": {"db_version": db_version}}, upsert=True)

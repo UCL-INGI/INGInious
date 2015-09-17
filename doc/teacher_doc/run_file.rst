@@ -31,16 +31,22 @@ feedback
 The *feedback* command allows you to set the result of your tests.
 Every argument is optionnal.
 
--r, --result STATUS        set the result to STATUS. STATUS can be
-                           success (the student succeeded the task),
-                           failed (there are error in the student answer),
-                           timeout (the tests timed out) or
-                           crash (the tests crashed)
--f, --feedback MSG         set the feedback message to MSG. It is possible to set different
-                           messages for each problems. You can use *-i* to change the problem
-                           to which you assign the message
--i, --id PROBLEMID         set the problem id to which the message from the *-f* option is
-                           assigned. Unused if *-f* is not set.
+-r, --result STATUS            set the result to STATUS. STATUS can be
+                               - success (the student succeeded the task),
+                               - failed (there are error in the student answer),
+                               - timeout (the tests timed out),
+                               - overflow (there was a memory/disk overflow) or
+                               - crash (the tests crashed)
+-f, --feedback MSG             set the feedback message to MSG. It is possible to set different
+                               messages for each problems. You can use *-i* to change the problem
+                               to which you assign the message
+-i, --id PROBLEMID             set the problem id to which the message from the *-f* option is
+                               assigned. Unused if *-f* is not set.
+-g, --grade GRADE              the grade. Should be a floating point number between 0(no points) and
+                               100(all points) (bonuses, up to 200, are allowed).
+-c, --custom CUSTOM:VAL        add a value VAL to the "custom" dictionnary, with key CUSTOM, which is stored in DB.
+                               Useful for plugins.
+-j, --custom-json CUSTOM:VAL   same as ```--custom``` but VAL is a json-encoded dictionnary
 
 The *feedback* command can be called multiple times.
 

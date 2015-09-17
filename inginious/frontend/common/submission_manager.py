@@ -73,7 +73,8 @@ class SubmissionManager(object):
             "text": job.get("text", None),
             "tests": job.get("tests", None),
             "problems": (job["problems"] if "problems" in job else {}),
-            "archive": (self._gridfs.put(base64.b64decode(job["archive"])) if "archive" in job else None)
+            "archive": (self._gridfs.put(base64.b64decode(job["archive"])) if "archive" in job else None),
+            "custom": job.get("custom", {})
         }
 
         # Store additional data
