@@ -43,3 +43,7 @@ class Course(object):
     def get_tasks(self):
         """ Get all tasks in this course """
         return self._task_factory.get_all_tasks(self)
+
+    def get_descriptor(self):
+        """ Get (a copy) the description of the course """
+        return self._content.copy()
