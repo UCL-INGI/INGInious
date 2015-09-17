@@ -31,6 +31,7 @@ class TemplateHelper(object):
     def __init__(self, plugin_manager, default_template_dir, default_layout, use_minified=True):
         self._base_helpers = {"header_hook": (lambda **kwargs: self._generic_hook('header_html', **kwargs)),
                               "course_menu": (lambda **kwargs: self._generic_hook('course_menu', **kwargs)),
+                              "task_menu": (lambda **kwargs: self._generic_hook('task_menu', **kwargs)),
                               "javascript_header": (lambda **_: self._javascript_helper("header")),
                               "javascript_footer": (lambda **_: self._javascript_helper("footer")),
                               "css": (lambda **_: self._css_helper())}

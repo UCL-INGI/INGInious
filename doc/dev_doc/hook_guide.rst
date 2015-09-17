@@ -12,47 +12,52 @@ List of hooks
 -------------
 
 Each hook available in INGInious is described here, starting with its name and parameters.
-*css*
+``css``
     Used to add CSS files in the header. 
     Should return the path to a CSS file (relative to the root of INGInious).
-*course_admin_menu* (*course*)
+``course_admin_menu`` (``course``)
     Used to add links to the administration menu. This hook should return a tuple (link,name) 
     where link is the relative link from the index of the course administration.
     You can also return None.
-*course_menu* (*course*)
-    Allows to add HTML to the menu displayed on the course page. Course is the course object related to the page.
+``course_menu`` (``course``,``template_helper``)
+    Allows to add HTML to the menu displayed on the course page. Course is the course object related to the page. ``template_helper`` is an object
+    of type TemplateHelper, that can be useful to render templates.
     Should return HTML or None.
-*javascript_header*
+``task_menu`` (``course``,``task``,``template_helper``)
+    Allows to add HTML to the menu displayed on the course page. ``course`` is the course object related to the page. ``task``
+    is the task object related to the page. ``template_helper`` is an object of type TemplateHelper, that can be useful to render templates.
+    Should return HTML or None.
+``javascript_header``
     Used to add Javascript files in the header. 
     Should return the path to a Javascript file (relative to the root of INGInious).
-*javascript_footer*
+``javascript_footer``
     Used to add Javascript files in the footer. 
     Should return the path to a Javascript file (relative to the root of INGInious).
-*job_ended* (*jobid*, *task*, *statinfo*, *results*)
-   Called when a job has ended. *task* contains a Task object,
-   *statinfo* is a dictionnary containing various informations about the job.
-   *results* contains the results of the job.
-*job_manager_init_done* (*job_manager*)
-    Called when a JobManager instance is inited. *job_manager* is the instance that was inited.
+``job_ended`` (``jobid``, ``task``, ``statinfo``, ``results``)
+   Called when a job has ended. ``task`` contains a Task object,
+   ``statinfo`` is a dictionnary containing various informations about the job.
+   ``results`` contains the results of the job.
+``job_manager_init_done`` (``job_manager``)
+    Called when a JobManager instance is inited. ``job_manager`` is the instance that was inited.
     This hooks cannot be used by the plugins, as the backend is inited before the plugins.
-*job_manager_exit* (*job_manager*)
+``job_manager_exit`` (``job_manager``)
     Called when a JobManager received the exit signal, before the JobManager exits.
-*modify_task_data* (*course*, *taskid*, *data*)
+``modify_task_data`` (``course``, ``taskid``, ``data``)
     Allows to modify the task description before the initialisation of the Task object.
     Changes are not saved to disk.
-*new_job* (*jobid*, *task*, *statinfo*, *inputdata*)
-    Called when a job was just submitted. *task* contains a Task object,
-    *statinfo* is a dictionnary containing various informations about the job.
-    *inputdata* contains the answers that were submitted to INGInious.
-*new_submission* (*submissionid*, *submission*, *jobid*, *inputdata*)
+``new_job`` (``jobid``, ``task``, ``statinfo``, ``inputdata``)
+    Called when a job was just submitted. ``task`` contains a Task object,
+    ``statinfo`` is a dictionnary containing various informations about the job.
+    ``inputdata`` contains the answers that were submitted to INGInious.
+``new_submission`` (``submissionid``, ``submission``, ``jobid``, ``inputdata``)
     Called when a new submission is received.
-    *inputdata* contains the answers that were submitted to INGInious.
-    Please note that the *job* is not yet send to the backend when this hook is called (so *new_submission* is called before *new_job*),
+    ``inputdata`` contains the answers that were submitted to INGInious.
+    Please note that the ``job`` is not yet send to the backend when this hook is called (so ``new_submission`` is called before ``new_job``),
     pay also attention that a submission is the name given to a job that was made throught the frontend.
-    It implies that jobs created by plugins will not call *new_submission* nor *submission_done*.
-*submission_done* (*submission*, *job*)
-    Called when a submission has ended. The submissionid is contained in the dictionnary submission, under the field *_id*.
+    It implies that jobs created by plugins will not call ``new_submission`` nor ``submission_done``.
+``submission_done`` (``submission``, ``job``)
+    Called when a submission has ended. The submissionid is contained in the dictionnary submission, under the field ``_id``.
     (submission_done is called after job_ended)
-*template_helper* ()
+``template_helper`` ()
     Adds a new helper to the instance of TemplateHelper. Should return a tuple (name,func) where name is the name that will
     be indicated when calling the TemplateHelper.call method, and func is the function that will be called.

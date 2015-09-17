@@ -112,6 +112,8 @@ $def ColumnF():
             </a>
         </div>
 
+    $:template_helper.call('task_menu', course=course, task=task, template_helper=template_helper)
+
     <h3>Submissions</h3>
     <div id="submissions_restrictsize">
 	    <div id="submissions" class="list-group">
