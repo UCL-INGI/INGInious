@@ -186,6 +186,15 @@ class AbstractJobManager(object):
     def _merge_results(cls, origin_dict, emul_result):
         """ Merge the results of the multiple-choice (and other special problem types) questions with the returned results of the containers """
 
+        # Some error messages used accross this method
+        error_messages = {
+            "error": "An unknown internal error occured",
+            "timeout": "Your code took too much time to execute",
+            "overflow": "Your code took too much memory or disk",
+            "killed": "You or an administrator asked to kill the submission while it was running"
+        }
+        other_message = "There was an internal error while running the tests"
+
         # If no docker job was run, returns directly the original response dict, but without lists
         if emul_result is None:
             if "text" in origin_dict and isinstance(origin_dict["text"], list):
@@ -206,14 +215,22 @@ class AbstractJobManager(object):
             if emul_result['result'] not in ["error", "failed", "success", "timeout", "overflow", "crash", "killed"]:
                 emul_result['result'] = "error"
 
-            if emul_result["result"] not in ["error", "timeout", "overflow", "crash", "killed"]:
+            # If it is an error that could be returned by a grading script...
+            if emul_result["result"] in ["error", "failed", "success", "timeout", "overflow"]:
                 final_dict = emul_result
 
-                final_dict["result"] = "success" if origin_dict["result"] == "success" and final_dict["result"] == "success" else "failed"
+                # If the original result was fail, but we succeeded in the container, still say that it's a failure
+                # We do not need to update final_dict["result"] if it's not success, as it will always be worse than failed if this is the case.
+                if origin_dict["result"] != "success" and final_dict["result"] == "success":
+                    final_dict["result"] = "failed"
+
                 if "text" in final_dict and "text" in origin_dict:
                     final_dict["text"] = final_dict["text"] + "\n" + "\n".join(origin_dict["text"])
                 elif "text" not in final_dict and "text" in origin_dict:
                     final_dict["text"] = "\n".join(origin_dict["text"])
+                # Add a default error message for some types of error
+                elif "text" not in final_dict and "text" not in origin_dict and emul_result["result"] in error_messages:
+                    final_dict["text"] = error_messages[emul_result["result"]]
 
                 if "problems" in final_dict and "problems" in origin_dict:
                     for pid in origin_dict["problems"]:
@@ -223,18 +240,12 @@ class AbstractJobManager(object):
                             final_dict["problems"][pid] = origin_dict["problems"][pid]
                 elif "problems" not in final_dict and "problems" in origin_dict:
                     final_dict["problems"] = origin_dict["problems"]
-            elif emul_result["result"] in ["error", "timeout", "overflow", "crash", "killed"] and "text" in emul_result:
+            # If it is an error that should be returned by the Agent/Backend directly
+            elif emul_result["result"] in ["crash", "killed"] and "text" in emul_result:
                 final_dict = origin_dict.copy()
                 final_dict.update({"result": emul_result["result"], "text": emul_result["text"]})
-            else:
+            else: #emul_result["result"] in ["crash", "killed"]
                 final_dict = origin_dict.copy()
-                error_messages = {
-                    "error": "An unknown internal error occured",
-                    "timeout": "Your code took too much time to execute",
-                    "overflow": "Your code took too much memory or disk",
-                    "killed": "You or an administrator asked to kill the submission while it was running"
-                }
-                other_message = "There was an internal error while running the tests"
                 final_dict.update({"result": emul_result["result"], "text": error_messages.get(emul_result["result"], other_message)})
 
         # Verify that the grade is present
