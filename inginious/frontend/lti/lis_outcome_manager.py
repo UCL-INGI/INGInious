@@ -36,8 +36,8 @@ class LisOutcomeManager(threading.Thread):
         self._course_factory = course_factory
         self._lti_consumers = lti_consumers
         self._queue = Queue.Queue()
-        self.start()
         self._stopped = False
+        self.start()
 
     def stop(self):
         self._stopped = True
