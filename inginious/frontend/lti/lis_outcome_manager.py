@@ -81,7 +81,7 @@ class LisOutcomeManager(threading.Thread):
                 else:
                     print "An error occured while sending a grade to the TC. Maximum number of retries reached."
                     self._delete(mongo_id)
-        except:
+        except KeyboardInterrupt:
             pass
 
     def _add_to_queue(self, mongo_entry):
