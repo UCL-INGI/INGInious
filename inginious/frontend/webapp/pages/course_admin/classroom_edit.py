@@ -71,6 +71,9 @@ class CourseEditClassroom(INGIniousAdminPage):
 
         users_info = self.user_manager.get_users_info(other_students + student_list.keys() + tutor_list)
 
+        # Order the non-registered students
+        other_students = sorted(other_students, key=lambda val: (("0"+users_info[val][0]) if users_info[val] else ("1"+val)))
+
         return student_list, tutor_list, other_students, users_info
 
     def update_classroom(self, course, classroomid, new_data):
