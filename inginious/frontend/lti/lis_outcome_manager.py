@@ -50,9 +50,8 @@ class LisOutcomeManager(threading.Thread):
         try:
             while not self._stopped:
                 time.sleep(0.5)
-                data = self._queue.get(True, 1000)
-                if data is None:
-                    continue
+                data = self._queue.get()
+
                 mongo_id, username, courseid, taskid, consumer_key, service_url, result_id, nb_attempt = data
 
                 try:
