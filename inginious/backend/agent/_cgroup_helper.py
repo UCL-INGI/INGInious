@@ -32,6 +32,18 @@ from docker.utils import kwargs_from_env
 
 from cgutils import cgroup
 
+def force_close_event_listener(event_listener_obj):
+    """
+    Force an EventListener to close all its FD
+    :param event_listener_obj: an object of type cgroup.EventListener
+    """
+    try:
+        from cgroups import linux
+        event_listener_obj.target_file.close()
+        event_listener_obj.ec_file.close()
+        linux.close(event_listener_obj.event_fd)
+    except Exception as e:
+        print("Exception in force_close_event_listener: "+str(e))
 
 def get_container_cgroup(cgroupname, container):
     def recur(cg):
@@ -82,6 +94,7 @@ class CGroupMemoryWatcher(threading.Thread):
             if container_id in self._containers_running:
                 killed = self._containers_running[container_id]["killed"]
                 max_memory = self._containers_running[container_id]["max_memory"]
+                force_close_event_listener(self._containers_running[container_id]["eventlistener"])
                 del self._containers_running[container_id]
 
                 # Write a byte to _update_event_descriptor, waking up the select() call
@@ -121,6 +134,7 @@ class CGroupMemoryWatcher(threading.Thread):
                     container_ids = [container_id for container_id, data in self._containers_running
                                      if (data["eventlistener"] is not None and data["eventlistener"].event_fd in rlist)]
                     for container_id in container_ids:
+                        force_close_event_listener(self._containers_running[container_id]["eventlistener"])
                         self._containers_running[container_id]["eventlistener"] = None
 
             # If _update_event_descriptor is activated, just read a byte then restart select with a new
@@ -151,6 +165,7 @@ class CGroupMemoryWatcher(threading.Thread):
                         if mem_usage != -1:
                             self.logger.info("Deleting container %s as it exhausted its memory limit: %f/%f. Killing it.", container_id, mem_usage,
                                              max_memory)
+                            force_close_event_listener(self._containers_running[container_id]["eventlistener"])
                             self._containers_running[container_id]["eventlistener"] = None
                             self._containers_running[container_id]["killed"] = True
                             containers_to_kill.add(container_id)
