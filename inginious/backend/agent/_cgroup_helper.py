@@ -38,7 +38,7 @@ def force_close_event_listener(event_listener_obj):
     :param event_listener_obj: an object of type cgroup.EventListener
     """
     try:
-        from cgroups import linux
+        from cgutils import linux
         event_listener_obj.target_file.close()
         event_listener_obj.ec_file.close()
         linux.close(event_listener_obj.event_fd)
