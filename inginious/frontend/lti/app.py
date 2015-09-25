@@ -26,7 +26,6 @@ from gridfs import GridFS
 from pymongo import MongoClient
 import pymongo
 import web
-from frontend.lti.custom_session import CustomSession
 
 from inginious.backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
 from inginious.frontend.common import backend_interface
@@ -41,6 +40,7 @@ from inginious.frontend.common.webpy_fake_mapping import WebPyCustomMapping
 from inginious.frontend.lti.lis_outcome_manager import LisOutcomeManager
 from inginious.frontend.lti.submission_manager import LTISubmissionManager
 from inginious.frontend.lti.user_manager import UserManager
+from inginious.frontend.lti.custom_session import CustomSession
 
 urls = {
     r"/launch/([a-zA-Z0-9\-_]+)/([a-zA-Z0-9\-_]+)": "inginious.frontend.lti.pages.launch.LTILaunchTask",
