@@ -26,6 +26,7 @@ from gridfs import GridFS
 from pymongo import MongoClient
 import pymongo
 import web
+from frontend.lti.custom_session import CustomSession
 
 from inginious.backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
 from inginious.frontend.common import backend_interface
@@ -147,7 +148,7 @@ def get_app(config, active_callback=None):
 
     course_factory, task_factory = create_factories(task_directory, plugin_manager, FrontendCourse, FrontendTask)
 
-    user_manager = UserManager(web.session.Session(appli, MongoStore(database, 'sessions')), database)
+    user_manager = UserManager(CustomSession(appli, MongoStore(database, 'sessions')), database)
 
     backend_interface.update_pending_jobs(database)
 

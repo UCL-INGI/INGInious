@@ -23,5 +23,5 @@ from inginious.frontend.lti.pages.utils import LTILaunchPage
 
 
 class LTILaunchTask(LTILaunchPage):
-    def LAUNCH_POST(self, session_identifier):
-        raise web.seeother('/' + session_identifier + '/task')
+    def LAUNCH_POST(self):
+        raise web.seeother('/' + self.user_manager.get_session_identifier() + '/task')

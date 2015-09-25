@@ -24,12 +24,12 @@ from inginious.frontend.common.user_manager import AbstractUserManager
 
 
 class UserManager(AbstractUserManager):
-    def __init__(self, session_dict, database):
+    def __init__(self, session, database):
         """
-        :type session_dict: web.session.Session
+        :type session: inginious.frontend.lti.custom_session.CustomSession
         :type database: pymongo.database.Database
         """
-        self._session = session_dict
+        self._session = session
         self._database = database
 
     def session_logged_in(self):
@@ -85,9 +85,9 @@ class UserManager(AbstractUserManager):
             return None
         return self._get_session_dict()["outcome_result_id"]
 
-    def lti_auth(self, session_identifier, user_id, roles, realname, email, course_id, task_id, consumer_key, outcome_service_url, outcome_result_id):
+    def lti_auth(self, user_id, roles, realname, email, course_id, task_id, consumer_key, outcome_service_url, outcome_result_id):
         """ LTI Auth """
-        self._set_session_dict(session_identifier, {
+        self._set_session_dict({
             "email": email,
             "username": user_id,
             "realname": realname,
@@ -98,21 +98,25 @@ class UserManager(AbstractUserManager):
             "consumer_key": consumer_key
         })
 
+    def get_session_identifier(self):
+        return self._session.session_id
+
     def set_session_identifier(self, session_identifier):
-        """ Define the current session identifier. Needed before calling anything else in user_manager (but internal methods and lti_auth)"""
-        web.ctx.inginious_lti_session_identifier = session_identifier
+        """ Define the current session identifier. Needed before calling anything else in user_manager. If session_identifier is None,
+        a new session is created """
+        self._session.load(session_identifier)
 
     def _get_session_dict(self):
-        if "inginious_lti_session_identifier" not in web.ctx:
-            raise Exception("You cannot access methods from the user manager before calling set_session_identifier")
-        if "sessions" not in self._session:
+        if self._session.session_id is None:
             return None
-        return self._session["sessions"].get(web.ctx.inginious_lti_session_identifier)
+        return self._session
 
-    def _set_session_dict(self, session_identifier, value):
-        if not "sessions" in self._session:
-            self._session["sessions"] = {}
-        self._session["sessions"][session_identifier] = value
+    def _set_session_dict(self, value):
+        if self._session.session_id is None:
+            self.set_session_identifier(None)
+
+        for key, val in value.iteritems():
+            self._session[key] = val
 
     def get_task_status(self, task, username=None):
         """

@@ -29,6 +29,16 @@ from inginious.frontend.lti.pages.utils import LTIAuthenticatedPage
 
 
 class LTITask(LTIAuthenticatedPage):
+    def LTI_GET_NOT_CONNECTED(self):
+        return self.LTI_POST_NOT_CONNECTED()
+
+    def LTI_POST_NOT_CONNECTED(self):
+        userinput = web.input()
+        if "@action" in userinput:
+            web.header('Content-Type', 'application/json')
+            return json.dumps({"status": "error", "text": "Your session have expired. Copy your work and reload the page."})
+        return super(LTITask, self).LTI_POST_NOT_CONNECTED()
+
     def LTI_GET(self):
         return self.LTI_POST()
 

@@ -59,6 +59,10 @@ class LTIPage(object):
         self.containers = containers
         self.consumers = consumers
 
+class LTINotConnectedException(Exception):
+    pass
+class LTINoRightsException(Exception):
+    pass
 
 class LTIAuthenticatedPage(LTIPage):
     """ A page that needs to be authentified by the TC """
@@ -81,6 +85,18 @@ class LTIAuthenticatedPage(LTIPage):
     def LTI_GET(self, *args, **kwargs):
         raise web.notacceptable()
 
+    def LTI_GET_NOT_CONNECTED(self, *args, **kwargs):
+        raise web.notfound("Your session expired. Please reload the page.")
+
+    def LTI_POST_NOT_CONNECTED(self, *args, **kwargs):
+        raise web.notfound("Your session expired. Please reload the page.")
+
+    def LTI_GET_NO_RIGHTS(self, *args, **kwargs):
+        raise web.notfound("You do not have the rights to view this page.")
+
+    def LTI_POST_NO_RIGHTS(self, *args, **kwargs):
+        raise web.notfound("You do not have the rights to view this page.")
+
     def required_role(self, method="POST"):
         """ Allow to override the minimal access right needed for this page. Method can be either "POST" or "GET" """
         return self.learner_role
@@ -92,18 +108,28 @@ class LTIAuthenticatedPage(LTIPage):
         return False
 
     def POST(self, session_identifier, *args, **kwargs):
-        self._set_session_identifier(session_identifier)
+        self.user_manager.set_session_identifier(session_identifier)
         try:
             self._verify_lti_status("POST")
+        except LTINotConnectedException:
+            return self.LTI_POST_NOT_CONNECTED(*args, **kwargs)
+        except LTINoRightsException:
+            return self.LTI_POST_NO_RIGHTS(*args, **kwargs)
         except Exception as e:
+            raise
             raise web.notfound(str(e))
         return self.LTI_POST(*args, **kwargs)
 
     def GET(self, session_identifier, *args, **kwargs):
-        self._set_session_identifier(session_identifier)
+        self.user_manager.set_session_identifier(session_identifier)
         try:
             self._verify_lti_status("GET")
+        except LTINotConnectedException:
+            return self.LTI_GET_NOT_CONNECTED(*args, **kwargs)
+        except LTINoRightsException:
+            return self.LTI_GET_NO_RIGHTS(*args, **kwargs)
         except Exception as e:
+            raise
             raise web.notfound(str(e))
         return self.LTI_GET(*args, **kwargs)
 
@@ -111,21 +137,17 @@ class LTIAuthenticatedPage(LTIPage):
         """ Verify session and/or parse the LTI data from the POST request """
 
         if not self.user_manager.session_logged_in():
-            raise Exception("User not connected")
+            raise LTINotConnectedException()
 
         if not self.verify_role(self.user_manager.session_roles(), method):
-            raise Exception("User cannot see this page")
+            raise LTINoRightsException()
 
         try:
             course_id, task_id = self.user_manager.session_task()
             self.course = self.course_factory.get_course(course_id)
             self.task = self.course.get_task(task_id)
         except:
-            raise Exception("Cannot find context")
-
-    def _set_session_identifier(self, session_identifier):
-        self.user_manager.set_session_identifier(session_identifier)
-
+            raise LTINotConnectedException()
 
 class LTILaunchPage(LTIPage):
     __metaclass__ = abc.ABCMeta
@@ -137,13 +159,13 @@ class LTILaunchPage(LTIPage):
 
     def POST(self, courseid, taskid, *args, **kwargs):
         try:
-            session_identifier = self._parse_lti_data(courseid, taskid)
+            self._parse_lti_data(courseid, taskid)
         except Exception as e:
             raise web.notfound(str(e))
-        return self.LAUNCH_POST(session_identifier, *args, **kwargs)
+        return self.LAUNCH_POST(*args, **kwargs)
 
     @abc.abstractmethod
-    def LAUNCH_POST(self, session_identifier):
+    def LAUNCH_POST(self):
         pass
 
     def _parse_lti_data(self, courseid, taskid):
@@ -168,15 +190,7 @@ class LTILaunchPage(LTIPage):
             if outcome_result_id is None:
                 raise Exception("INGInious needs the parameter lis_result_sourcedid in the LTI basic-launch-request")
 
-            # Create a custom session identifier
-            ressource_link_id = post_input["resource_link_id"]
-            m = hashlib.sha1()
-            m.update(ressource_link_id)
-            ressource_link_id = m.hexdigest()
-
-            self.user_manager.lti_auth(ressource_link_id, user_id, roles, realname, email, courseid, taskid, consumer_key, lis_outcome_service_url,
-                                       outcome_result_id)
-            return ressource_link_id
+            self.user_manager.lti_auth(user_id, roles, realname, email, courseid, taskid, consumer_key, lis_outcome_service_url, outcome_result_id)
         else:
             raise Exception("Cannot authentify request (2)")
 
