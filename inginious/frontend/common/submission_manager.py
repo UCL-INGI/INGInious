@@ -184,18 +184,20 @@ class SubmissionManager(object):
                 submission["input"] = inp
                 return submission
 
-    def get_feedback_from_submission(self, submission, only_feedback=False):
+    def get_feedback_from_submission(self, submission, only_feedback=False, show_everything=False):
         """
             Get the input of a submission. If only_input is False, returns the full submissions with a dictionnary object at the key "input".
             Else, returns only the dictionnary.
+
+            If show_everything is True, feedback normally hidden is shown.
         """
         if only_feedback:
             submission = {"text": submission.get("text", None), "problems": dict(submission.get("problems", {}))}
         if "text" in submission:
-            submission["text"] = ParsableText(submission["text"], submission["response_type"]).parse()
+            submission["text"] = ParsableText(submission["text"], submission["response_type"], show_everything).parse()
         if "problems" in submission:
             for problem in submission["problems"]:
-                submission["problems"][problem] = ParsableText(submission["problems"][problem], submission["response_type"]).parse()
+                submission["problems"][problem] = ParsableText(submission["problems"][problem], submission["response_type"], show_everything).parse()
         return submission
 
     def is_running(self, submissionid, user_check=True):

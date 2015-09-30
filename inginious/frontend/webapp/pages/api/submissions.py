@@ -57,7 +57,8 @@ def _get_submissions(course_factory, submission_manager, user_manager, courseid,
     output = []
 
     for submission in submissions:
-        submission = submission_manager.get_feedback_from_submission(submission)
+        submission = submission_manager.get_feedback_from_submission(submission, show_everything=
+                                                                     user_manager.has_staff_rights_on_course(course, user_manager.session_username()))
         data = {
             "id": str(submission["_id"]),
             "submitted_on": str(submission["submitted_on"]),

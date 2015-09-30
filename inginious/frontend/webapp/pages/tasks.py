@@ -84,6 +84,7 @@ class TaskPage(INGIniousPage):
         """ POST a new submission """
         if self.user_manager.session_logged_in():
             username = self.user_manager.session_username()
+
             try:
                 course = self.course_factory.get_course(courseid)
                 if not self.user_manager.course_is_open_to_user(course, username):
@@ -94,6 +95,9 @@ class TaskPage(INGIniousPage):
                     return self.template_helper.get_renderer().task_unavailable()
 
                 self.user_manager.user_saw_task(username, courseid, taskid)
+
+                is_staff = self.user_manager.has_staff_rights_on_course(course, username)
+                is_admin = self.user_manager.has_admin_rights_on_course(course, username)
 
                 userinput = web.input()
                 if "@action" in userinput and userinput["@action"] == "submit":
@@ -112,7 +116,7 @@ class TaskPage(INGIniousPage):
                     del userinput['@action']
 
                     # Get debug info if the current user is an admin
-                    debug = self.user_manager.has_admin_rights_on_course(course, username)
+                    debug = is_admin
                     if "@debug-mode" in userinput:
                         if userinput["@debug-mode"] == "ssh" and debug and self.remote_ssh_manager.is_active():
                             debug = "ssh"
@@ -131,8 +135,8 @@ class TaskPage(INGIniousPage):
                     elif self.submission_manager.is_done(result):
                         web.header('Content-Type', 'application/json')
                         result = self.submission_manager.get_input_from_submission(result)
-                        result = self.submission_manager.get_feedback_from_submission(result)
-                        return submission_to_json(result, self.user_manager.has_admin_rights_on_course(course, username))
+                        result = self.submission_manager.get_feedback_from_submission(result, show_everything=is_staff)
+                        return submission_to_json(result, is_admin)
                     else:
                         web.header('Content-Type', 'application/json')
                         if "ssh_key" in result and self.remote_ssh_manager.is_active():
@@ -145,11 +149,11 @@ class TaskPage(INGIniousPage):
                 elif "@action" in userinput and userinput["@action"] == "load_submission_input" and "submissionid" in userinput:
                     submission = self.submission_manager.get_submission(userinput["submissionid"])
                     submission = self.submission_manager.get_input_from_submission(submission)
-                    submission = self.submission_manager.get_feedback_from_submission(submission)
+                    submission = self.submission_manager.get_feedback_from_submission(submission, show_everything=is_staff)
                     if not submission:
                         raise web.notfound()
                     web.header('Content-Type', 'application/json')
-                    return submission_to_json(submission, self.user_manager.has_admin_rights_on_course(course, username), True)
+                    return submission_to_json(submission, is_admin, True)
                 elif "@action" in userinput and userinput["@action"] == "kill" and "submissionid" in userinput:
                     self.submission_manager.kill_running_submission(userinput["submissionid"])  # ignore return value
                     web.header('Content-Type', 'application/json')

@@ -45,13 +45,27 @@ class HiddenUntilDirective(Directive, object):
             raise self.error('Unknown date format in the "%s" directive; '
                              '%s' % (self.name, hidden_until))
 
-        if hidden_until <= datetime.now():
+        force_show = self.state.document.settings.force_show_hidden_until and False
+
+        after_deadline = hidden_until <= datetime.now()
+        if after_deadline or force_show:
+            output = []
+
+            # Add a warning for teachers/tutors/...
+            if not after_deadline and force_show:
+                node = nodes.caution()
+                self.add_name(node)
+                text = "The feedback below will be hidden to the students until %s." % hidden_until.strftime("%d/%m/%Y %H:%M:%S")
+                self.state.nested_parse(StringList(text.split("\n")), 0, node)
+                output.append(node)
+
             text = '\n'.join(self.content)
             node = nodes.compound(text)
             self.add_name(node)
-
             self.state.nested_parse(self.content, self.content_offset, node)
-            return [node]
+            output.append(node)
+
+            return output
         else:
             node = nodes.caution()
             self.add_name(node)
@@ -109,14 +123,19 @@ class _CustomHTMLWriter(html4css1.Writer, object):
 class ParsableText(object):
     """Allow to parse a string with different parsers"""
 
-    def __init__(self, content, mode="rst"):
-        """Init the object. Content is the string to be parsed. Mode is the parser to be used. Currently, only rst(reStructuredText) and HTML are supported"""
+    def __init__(self, content, mode="rst", show_everything=False):
+        """
+            content             The string to be parsed.
+            mode                The parser to be used. Currently, only rst(reStructuredText) and HTML are supported.
+            show_everything     Shows things that are normally hidden, such as the hidden-util directive.
+        """
         mode = mode.lower()
         if mode not in ["rst", "html"]:
             raise Exception("Unknown text parser: " + mode)
         self._content = content
         self._parsed = None
         self._mode = mode
+        self._show_everything = show_everything
 
     def original_content(self):
         """ Returns the original content """
@@ -127,9 +146,9 @@ class ParsableText(object):
         if self._parsed is None:
             try:
                 if self._mode == "html":
-                    self._parsed = self.html(self._content)
+                    self._parsed = self.html(self._content, self._show_everything)
                 else:
-                    self._parsed = self.rst(self._content)
+                    self._parsed = self.rst(self._content, self._show_everything)
             except:
                 self._parsed = "<b>Parsing failed</b>: <pre>" + cgi.escape(self._content) + "</pre>"
         return self._parsed
@@ -143,14 +162,14 @@ class ParsableText(object):
         return self.parse()
 
     @classmethod
-    def html(cls, string):
+    def html(cls, string, show_everything=False):
         """Parses HTML"""
         out, _ = tidylib.tidy_fragment(string)
         return out
 
     @classmethod
-    def rst(cls, string):
+    def rst(cls, string, show_everything=False):
         """Parses reStructuredText"""
-        overrides = {'initial_header_level': 3, 'doctitle_xform': False, 'syntax_highlight': 'none'}
+        overrides = {'initial_header_level': 3, 'doctitle_xform': False, 'syntax_highlight': 'none', 'force_show_hidden_until': show_everything}
         parts = core.publish_parts(source=string, writer=_CustomHTMLWriter(), settings_overrides=overrides)
         return parts['body_pre_docinfo'] + parts['fragment']
