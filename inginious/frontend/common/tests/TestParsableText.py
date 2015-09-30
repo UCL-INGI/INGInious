@@ -37,7 +37,7 @@ class TestHookManager(object):
         assert '<non existing tag>' not in rendered
 
     def test_parsable_text_once(self):
-        def fake_parser(input):
+        def fake_parser(input, show_everything):
             fake_parser.count += 1
             return ""
 
@@ -79,3 +79,24 @@ class TestHookManager(object):
         ParsableText.rst = orig_rst
 
         assert "&lt;script " in rendered
+
+    def test_hidden_until_after(self):
+        assert "Something" in ParsableText.rst("""
+        .. hidden-until:: 22/05/2002
+
+            Something
+        """)
+
+    def test_hidden_until_before(self):
+        assert "Something" not in ParsableText.rst("""
+        .. hidden-until:: 22/05/2102
+
+            Something
+        """)
+
+    def test_hidden_until_before_admin(self):
+        assert "Something" in ParsableText.rst("""
+            .. hidden-until:: 22/05/2102
+
+                Something
+            """, show_everything=True)

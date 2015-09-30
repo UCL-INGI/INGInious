@@ -45,7 +45,7 @@ class HiddenUntilDirective(Directive, object):
             raise self.error('Unknown date format in the "%s" directive; '
                              '%s' % (self.name, hidden_until))
 
-        force_show = self.state.document.settings.force_show_hidden_until and False
+        force_show = self.state.document.settings.force_show_hidden_until
 
         after_deadline = hidden_until <= datetime.now()
         if after_deadline or force_show:
