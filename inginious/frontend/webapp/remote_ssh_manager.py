@@ -121,6 +121,5 @@ class RemoteSSHManager(threading.Thread):
                 except:
                     conn.send("ko\n")
                     conn.close()
-        except:
+        finally:
             server.close()
-            raise
