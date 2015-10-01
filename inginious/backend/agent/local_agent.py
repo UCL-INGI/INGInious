@@ -32,9 +32,9 @@ class LocalAgent(SimpleAgent):
     def __init__(self, image_aliases, task_directory, course_factory, task_factory, tmp_dir="./agent_tmp"):
         # Start a logger specific to this agent
         logger = logging.getLogger("agent")
-        logger.setLevel(logging.DEBUG)
+        logger.setLevel(logging.INFO)
         ch = logging.StreamHandler()
-        ch.setLevel(logging.DEBUG)
+        ch.setLevel(logging.INFO)
         formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
         ch.setFormatter(formatter)
         logger.addHandler(ch)
