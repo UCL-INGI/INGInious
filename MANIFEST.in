@@ -5,5 +5,7 @@ recursive-include inginious/backend/tests/utils *
 recursive-include inginious/common/tests/tasks *
 recursive-include inginious/frontend/*/static *
 recursive-include inginious/frontend/*/templates *
+recursive-include inginious/frontend/webapp/plugins/contests *
+recursive-include inginious/frontend/webapp/plugins/scoreboard *
 recursive-include inginious/tasks *
 recursive-include inginious/utils *
