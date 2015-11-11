@@ -54,15 +54,17 @@ class BatchManager(object):
         tmpfile.seek(0)
         return tmpfile
 
-    def _get_submissions_data(self, course, folders, best_only):
+    def _get_submissions_data(self, course, tasks, folders, best_only):
         """ Returns a file-like object to a tgz archive containing all the submissions made by the students for the course """
         users = self._user_manager.get_course_registered_users(course)
 
-        submissions = list(self._database.submissions.find(
-            {"courseid": course.get_id(), "username": {"$in": users}, "status": {"$in": ["done", "error"]}}))
+        db_args = {"courseid": course.get_id(), "username": {"$in": users}, "status": {"$in": ["done", "error"]}}
+        if tasks is not None:
+            db_args["taskid"] = {"$in": tasks}
+        submissions = list(self._database.submissions.find(db_args))
         if best_only != "0":
             submissions = self._submission_manager.keep_best_submission(submissions)
-        return self._submission_manager.get_submission_archive(submissions, list(reversed(folders.split('/'))))
+        return self._submission_manager.get_submission_archive(submissions, list(reversed(folders.split('/'))), {})
 
     def get_batch_container_metadata(self, container_name):
         """
@@ -132,7 +134,14 @@ class BatchManager(object):
         if "course" in container_args and container_args["course"]["type"] == "file" and "course" not in inputdata:
             inputdata["course"] = self._get_course_data(course)
         if "submissions" in container_args and container_args["submissions"]["type"] == "file" and "submissions" not in inputdata:
+            tasks = None
+            if "task" in container_args["submissions"] and container_args["submissions"]["task"] in inputdata:
+                tasks = [str(inputdata[container_args["submissions"]["task"]])]
+            elif "tasks" in container_args["submissions"] and container_args["submissions"]["tasks"] in inputdata:
+                tasks = str(inputdata[container_args["submissions"]["tasks"]]).split(",")
+
             inputdata["submissions"] = self._get_submissions_data(course,
+                                                                  tasks,
                                                                   container_args["submissions"].get('folder_format', 'taskid/username'),
                                                                   container_args["submissions"].get('best_only', "0"))
 
