@@ -57,7 +57,7 @@ class LdapAuthMethod(AuthMethod):
 
             # do not send empty password to the LDAP
             if password.rstrip() == "":
-                return False
+                return None
 
             # Connect to the ldap
             conn = simpleldap.Connection(self._host, port=self._port, encryption=self._encryption,
