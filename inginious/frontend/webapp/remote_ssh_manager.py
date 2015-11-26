@@ -119,7 +119,10 @@ class RemoteSSHManager(threading.Thread):
                     conn.close()
                     raise
                 except:
-                    conn.send("ko\n")
-                    conn.close()
+                    try:
+                        conn.send("ko\n")
+                        conn.close()
+                    except:
+                        pass
         finally:
             server.close()
