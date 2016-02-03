@@ -51,7 +51,7 @@ class CourseDangerZonePage(INGIniousAdminPage):
         if not os.path.exists(os.path.dirname(filepath)):
             os.makedirs(os.path.dirname(filepath))
 
-        with zipfile.ZipFile(filepath, "w") as zipf:
+        with zipfile.ZipFile(filepath, "w", allowZip64=True) as zipf:
             classrooms = self.database.classrooms.find({"courseid": courseid}, {"_id": 0})
             zipf.writestr("classrooms.json", bson.json_util.dumps(classrooms), zipfile.ZIP_DEFLATED)
 
