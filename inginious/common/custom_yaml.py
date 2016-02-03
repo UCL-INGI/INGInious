@@ -21,7 +21,11 @@
 from collections import OrderedDict
 
 import yaml as original_yaml
-
+try:
+    from yaml import CSafeLoader as SafeLoader
+    from yaml import CSafeDumper as SafeDumper
+except ImportError:
+    from yaml import SafeLoader, SafeDumper
 
 def load(stream):
     """
@@ -32,7 +36,7 @@ def load(stream):
         Safe version.
     """
 
-    class OrderedLoader(original_yaml.SafeLoader):
+    class OrderedLoader(SafeLoader):
         pass
 
     def construct_mapping(loader, node):
@@ -59,7 +63,7 @@ def dump(data, stream=None, **kwds):
     """
 
     # Display OrderedDicts correctly
-    class OrderedDumper(original_yaml.SafeDumper):
+    class OrderedDumper(SafeDumper):
         pass
 
     def _dict_representer(dumper, data):
