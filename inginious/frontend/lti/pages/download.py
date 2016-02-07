@@ -25,9 +25,9 @@ import shutil
 
 from inginious.frontend.lti.pages.utils import LTIAuthenticatedPage
 
-if os.path.exists("lti_download"):
-    shutil.rmtree("lti_download")
-os.mkdir("lti_download")
+if os.path.exists(os.path.join("lti_download", "tmp")):
+    shutil.rmtree(os.path.join("lti_download", "tmp"))
+os.mkdir(os.path.join("lti_download", "tmp"))
 
 download_status = []
 
@@ -64,7 +64,7 @@ class ArchiverThread(Thread):
     def run(self):
         download_status[self.dl_tag] = "listing submissions"
         self.get_submission_archive(self.iterate_and_update(), ['taskid', 'username'], [],
-                                    open(os.path.join("lti_download", str(self.dl_tag) + ".tgz")))
+                                    open(os.path.join("lti_download", "tmp", str(self.dl_tag) + ".tgz")))
         download_status[self.dl_tag] = "done"
 
     def iterate_and_update(self):
@@ -87,6 +87,6 @@ class LTIDownloadStatus(LTIAuthenticatedPage):
         if download_status[dl_tag] == "done":
             web.header('Content-Type', 'application/x-gzip', unique=True)
             web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)
-            return open(os.path.join("lti_download", str(dl_tag)+".tgz"))
+            return open(os.path.join("lti_download", "tmp", str(dl_tag)+".tgz"))
         else:
             return str(download_status[dl_tag])
