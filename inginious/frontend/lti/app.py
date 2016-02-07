@@ -44,7 +44,9 @@ from inginious.frontend.lti.custom_session import CustomSession
 
 urls = {
     r"/launch/([a-zA-Z0-9\-_]+)/([a-zA-Z0-9\-_]+)": "inginious.frontend.lti.pages.launch.LTILaunchTask",
-    r"/([a-zA-Z0-9\-_]+)/task": "inginious.frontend.lti.pages.task.LTITask"
+    r"/([a-zA-Z0-9\-_]+)/task": "inginious.frontend.lti.pages.task.LTITask",
+    r"/([a-zA-Z0-9\-_]+)/download/(current|all)/(mine|all)": "inginious.frontend.lti.pages.download.LTIDownload",
+    r"/([a-zA-Z0-9\-_]+)/download/([0-9]+)": "inginious.frontend.lti.pages.download.LTIDownloadStatus",
 }
 
 

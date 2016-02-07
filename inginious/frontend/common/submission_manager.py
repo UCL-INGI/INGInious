@@ -296,7 +296,7 @@ class SubmissionManager(object):
         """ Returns the GridFS used by the submission manager """
         return self._gridfs
 
-    def get_submission_archive(self, submissions, sub_folders, classrooms):
+    def get_submission_archive(self, submissions, sub_folders, classrooms, archive_file=None):
         """
         :param submissions: a list of submissions
         :param sub_folders: possible values:
@@ -307,11 +307,13 @@ class SubmissionManager(object):
             ['username','taskid']: /username/taskid/
         :return: a file-like object containing a tgz archive of all the submissions
         """
-        tmpfile = tempfile.TemporaryFile()
+        tmpfile = archive_file if archive_file is not None else tempfile.TemporaryFile()
         tar = tarfile.open(fileobj=tmpfile, mode='w:gz')
 
         for submission in submissions:
             submission = self.get_input_from_submission(submission)
+
+            submission_yaml = StringIO.StringIO(inginious.common.custom_yaml.dump(submission).encode('utf-8'))
 
             # Considering multiple single submissions for each user
             for username in submission["username"]:
@@ -330,7 +332,6 @@ class SubmissionManager(object):
                     base_path = '/' + base_path
                 base_path = base_path[1:]
 
-                submission_yaml = StringIO.StringIO(inginious.common.custom_yaml.dump(submission).encode('utf-8'))
                 submission_yaml_fname = base_path + str(submission["_id"]) + '/submission.test'
 
                 # Avoid putting two times the same submission on the same place
