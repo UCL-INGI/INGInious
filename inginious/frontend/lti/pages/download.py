@@ -53,6 +53,7 @@ class LTIDownload(LTIAuthenticatedPage):
 
         return "Progress can be displayed at download/"+str(dl_tag)
 
+
 class ArchiverThread(Thread):
     def __init__(self, dl_tag, submission_cursor, get_submission_archive):
         self.dl_tag = dl_tag
@@ -64,6 +65,7 @@ class ArchiverThread(Thread):
         download_status[self.dl_tag] = "listing submissions"
         self.get_submission_archive(self.iterate_and_update(), ['taskid', 'username'], [],
                                     open(os.path.join("lti_download", str(self.dl_tag) + ".tgz")))
+        download_status[self.dl_tag] = "done"
 
     def iterate_and_update(self):
         idx = 0
