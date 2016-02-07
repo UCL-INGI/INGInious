@@ -64,7 +64,7 @@ class ArchiverThread(Thread):
     def run(self):
         download_status[self.dl_tag] = "listing submissions"
         self.get_submission_archive(self.iterate_and_update(), ['taskid', 'username'], [],
-                                    open(os.path.join("lti_download", "tmp", str(self.dl_tag) + ".tgz")))
+                                    open(os.path.join("lti_download", "tmp", str(self.dl_tag) + ".tgz"), "w"))
         download_status[self.dl_tag] = "done"
 
     def iterate_and_update(self):
@@ -73,6 +73,7 @@ class ArchiverThread(Thread):
         for s in self.submission_cursor:
             download_status[self.dl_tag] = "archiving "+str(idx)+"/"+str(total)
             yield s
+            idx += 1
 
 
 class LTIDownloadStatus(LTIAuthenticatedPage):
@@ -81,7 +82,7 @@ class LTIDownloadStatus(LTIAuthenticatedPage):
 
     def LTI_GET(self, dl_tag):
         dl_tag = int(dl_tag)
-        if dl_tag not in download_status:
+        if dl_tag < 0 or dl_tag >= len(download_status):
             return "This archive does not exists"
 
         if download_status[dl_tag] == "done":
