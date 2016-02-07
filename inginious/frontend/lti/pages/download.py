@@ -31,6 +31,7 @@ os.mkdir(os.path.join("lti_download", "tmp"))
 
 download_status = []
 
+
 class LTIDownload(LTIAuthenticatedPage):
     def required_role(self, method="POST"):
         return self.admin_role
@@ -55,9 +56,9 @@ class LTIDownload(LTIAuthenticatedPage):
 
 
 class ArchiverThread(Thread):
-    def __init__(self, dl_tag, submission_cursor, get_submission_archive):
+    def __init__(self, dl_tag, submissions, get_submission_archive):
         self.dl_tag = dl_tag
-        self.submission_cursor = submission_cursor
+        self.submission = list(submissions) #copy
         self.get_submission_archive = get_submission_archive
         super(ArchiverThread, self).__init__()
 
@@ -69,11 +70,12 @@ class ArchiverThread(Thread):
 
     def iterate_and_update(self):
         idx = 0
-        total = self.submission_cursor.count()
-        for s in self.submission_cursor:
+        total = len(self.submission)
+        while len(self.submission) != 0:
+            s = self.submission.pop()
+            idx += 1
             download_status[self.dl_tag] = "archiving "+str(idx)+"/"+str(total)
             yield s
-            idx += 1
 
 
 class LTIDownloadStatus(LTIAuthenticatedPage):
