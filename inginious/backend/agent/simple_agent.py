@@ -356,7 +356,16 @@ class SimpleAgent(object):
                 environment,
                 stdin_open=True,
                 volumes={'/task': {}, '/sockets': {}},
-                network_disabled=not (task.allow_network_access_grading() or debug == "ssh")
+                network_disabled=not (task.allow_network_access_grading() or debug == "ssh"),
+                host_config = docker_connection.create_host_config(
+                    mem_limit=str(mem_limit) + "M",
+                    memswap_limit=str(mem_limit) + "M",
+                    mem_swappiness=0,
+                    oom_kill_disable=True,
+                        network_mode=("bridge" if (task.allow_network_access_grading() or debug == "ssh") else 'none'),
+                        binds={os.path.abspath(task_path): {'ro': False, 'bind': '/task'},
+                               os.path.abspath(sockets_path): {'ro': False, 'bind': '/sockets'}}
+                )
             )
             container_id = response["Id"]
             self._container_for_job[job_id] = container_id
@@ -385,13 +394,7 @@ class SimpleAgent(object):
             student_container_management_thread.start()
 
             # Start the container
-            docker_connection.start(container_id,
-                                    binds={os.path.abspath(task_path): {'ro': False, 'bind': '/task'},
-                                           os.path.abspath(sockets_path): {'ro': False, 'bind': '/sockets'}},
-                                    mem_limit=mem_limit * 1024 * 1024,
-                                    memswap_limit=mem_limit * 1024 * 1024,  # disable swap
-                                    oom_kill_disable=True,
-                                    network_mode=("bridge" if (task.allow_network_access_grading() or debug == "ssh") else None))
+            docker_connection.start(container_id)
 
             # Send the input data
             container_input = {"input": inputdata, "limits": limits}
@@ -505,18 +508,21 @@ class SimpleAgent(object):
                 volumes={'/task/student': {}},
                 command=command,
                 working_dir=working_dir,
-                user="4242"
+                user="4242",
+                mem_limit=str(mem_limit)+"M",
+                host_config=docker_connection.create_host_config(
+                    mem_limit=str(mem_limit) + "M",
+                    memswap_limit= str(mem_limit) + "M",
+                    mem_swappiness=0,
+                    oom_kill_disable=True,
+                    network_mode=('none' if not share_network else ('container:' + parent_container_id)),
+                    binds={os.path.abspath(student_path): {'ro': False, 'bind': '/task/student'}}
+                )
             )
             container_id = response["Id"]
 
             # Start the container
-            docker_connection.start(container_id,
-                                    binds={os.path.abspath(student_path): {'ro': False, 'bind': '/task/student'}},
-                                    mem_limit=mem_limit * 1024 * 1024,  # add 10 mo of bonus, as we check the memory in the "cgroup" thread
-                                    memswap_limit=mem_limit * 1024 * 1024,  # disable swap
-                                    oom_kill_disable=True,
-                                    network_mode=(None if not share_network else ('container:'+parent_container_id))
-                                    )
+            docker_connection.start(container_id)
 
             stdout_err = docker_connection.attach_socket(container_id, {'stdin': 0, 'stdout': 1, 'stderr': 1, 'stream': 1, 'logs': 1})
         except Exception as e:

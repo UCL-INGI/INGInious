@@ -14,7 +14,7 @@ import inginious
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
 install_requires = [
-    "docker-py==1.3.0.dev0",
+    "docker-py==1.7.2",
     "docutils>=0.12",
     "plumbum>=1.5.0",
     "pymongo>=3.0.3",
@@ -54,7 +54,6 @@ setup(
     version=inginious.__version__,
     description="An intelligent grader that allows secured and automated testing of code made by students.",
     packages=find_packages(),
-    dependency_links=["git+https://github.com/GuillaumeDerval/docker-py.git#egg=docker-py-1.3.0.dev0"],
     install_requires=install_requires,
     tests_require=test_requires,
     extras_require={

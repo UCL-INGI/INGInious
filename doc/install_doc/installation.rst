@@ -38,12 +38,12 @@ If you already have ``web.py`` on your machine, run:
     $ pip uninstall web.py
     $ pip install web.py-INGI
 
-Centos 7.0+
-```````````
+Centos 7.0+, Fedora 22+
+```````````````````````
 
 ::
 
-    $ sudo yum install -y epel-release
+    $ sudo yum install -y epel-release #CentOS only
     $ sudo yum install -y git mongodb mongodb-server docker python-pip gcc python-devel libtidy
 
 .. note::
@@ -139,7 +139,7 @@ recent project, it is better to use dev version, which have a lot more functionn
 
 ::
 
-    $ pip install --process-dependency-links --upgrade git+https://github.com/UCL-INGI/INGInious.git
+    $ pip install --upgrade git+https://github.com/UCL-INGI/INGInious.git
 
 Run the same command to upgrade.
 
@@ -150,7 +150,7 @@ Run the same command to upgrade.
 
    ::
 
-       $ pip install --process-dependency-links --upgrade git+https://github.com/UCL-INGI/INGInious.git[cgi,ldap]
+       $ pip install --upgrade git+https://github.com/UCL-INGI/INGInious.git[cgi,ldap]
 
 
 Pip+Pipy
@@ -161,7 +161,7 @@ version from pipy than with the development version.
 
 ::
 
-    $ pip install --process-dependency-links --upgrade inginious
+    $ pip install --upgrade inginious
 
 Run the same command to upgrade.
 
