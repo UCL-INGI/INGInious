@@ -8,7 +8,7 @@
 from inginious.backend.job_managers.local import LocalJobManager
 from inginious.backend.job_managers.remote_docker import RemoteDockerJobManager
 from inginious.backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
-
+from inginious.backend.job_managers.docker_machine import DockerMachineJobManager
 
 def update_pending_jobs(database):
     """ Updates pending jobs status in the database """
@@ -50,5 +50,14 @@ def create_job_manager(configuration, plugin_manager, task_directory, course_fac
             course_factory,
             task_factory,
             plugin_manager, is_testing)
+    elif backend_type == "docker_machine":
+        return DockerMachineJobManager(
+                configuration.get("machines", []),
+                configuration.get('containers',
+                                  {"default": "ingi/inginious-c-default", "sekexe": "ingi/inginious-c-sekexe"}),
+                task_directory,
+                course_factory,
+                task_factory,
+                plugin_manager, is_testing)
     else:
         raise Exception("Unknown inginious.backend {}".format(backend_type))

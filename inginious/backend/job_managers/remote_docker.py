@@ -102,6 +102,11 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
                         client_cert=(daemon["use_tls"] + '/cert.pem', daemon["use_tls"] + '/key.pem'),
                         verify=daemon["use_tls"] + '/ca.pem'
                     )
+                elif isinstance(daemon["use_tls"], dict):
+                    tls_config = docker.tls.TLSConfig(
+                        client_cert=(daemon["use_tls"]["cert"], daemon["use_tls"]["key"]),
+                        verify=daemon["use_tls"]["ca"]
+                    )
                 else:
                     tls_config = True
                 docker_connection = docker.Client(base_url="https://" + daemon['remote_host'] + ":" + str(int(daemon["remote_docker_port"])),
@@ -119,6 +124,9 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
                 if self.is_agent_image_update_needed(docker_connection):
                     print "Pulling the image ingi/inginious-agent. Please wait, this can take some time..."
                     for line in docker_connection.pull("ingi/inginious-agent", stream=True):
+                        print line
+                    print "Pulling the image centos. Please wait, this can take some time..."
+                    for line in docker_connection.pull("centos", stream=True):
                         print line
 
                     # Verify again that the image is ok
