@@ -42,7 +42,8 @@ if __name__ == "__main__":
         exit(1)
 
     try:
-        mounted_dir = docker_connection.inspect_container(os.environ["AGENT_CONTAINER_NAME"])["Volumes"]["/agent_volume"]
+        mounted_dir_list = {e["Destination"]: e["Source"] for e in docker_connection.inspect_container(os.environ["AGENT_CONTAINER_NAME"])["Mounts"]}
+        mounted_dir = mounted_dir_list["/agent_volume"]
     except:
         logger.error("Cannot find this container or /agent_volume not mounted")
         exit(1)
