@@ -18,7 +18,8 @@ AGENT_CONTAINER_VERSION = "0.5"
 class DockerMachineJobManager(RemoteDockerJobManager):
     """ A Job Manager that automatically launch Agents on Docker Machines """
 
-    def get_machine(self, machine):
+    @classmethod
+    def get_machine(cls, machine):
         base_dict = {
             "remote_agent_port":63456,
             "remote_docker_port": 2376,  # todo: is it possible with Docker-machine to have a different port?

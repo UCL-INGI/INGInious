@@ -13,11 +13,13 @@ import time
 import shutil
 
 import docker
+import subprocess
 from docker.utils import kwargs_from_env
 from gridfs import GridFS
 import rpyc
 from pymongo import MongoClient
 
+from inginious.backend.job_managers.docker_machine import DockerMachineJobManager
 import inginious.common.custom_yaml as yaml
 
 HEADER = '\033[95m'
@@ -99,7 +101,12 @@ class Installer(object):
         while True:
             options = {}
             backend = self.ask_docker_backend(def_backend)
-            if backend == "remote":
+            if backend == "docker_machine":
+                self._display_info("Backend chosen: docker machine. Let's configure the agents.")
+                options = self.configure_backend_docker_machine(def_remote_host, def_remote_docker_port, def_use_tls)
+                if options is not None:
+                    break
+            elif backend == "remote":
                 self._display_info("Backend chosen: remote. Let's configure the agents.")
                 options = self.configure_backend_remote(def_remote_host, def_remote_docker_port, def_use_tls)
                 if options is not None:
@@ -167,6 +174,7 @@ class Installer(object):
 
     def generate_docker_default(self):
         """ Generates "default" configuration for Docker and tests it """
+
         docker_args = kwargs_from_env()
 
         backend = None
@@ -218,6 +226,16 @@ class Installer(object):
                 remote_host = None
                 remote_docker_port = 2375
                 use_tls = False
+
+        try:
+            p = subprocess.Popen(["docker-machine", "ls"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            if p.wait() != 0:
+                raise Exception()
+            if len(p.stdout.read()) != 0:
+                backend = "docker_machine"
+                self._display_info("Found docker-machine with machines configured")
+        except:
+            pass
 
         if backend is None:
             self._display_big_warning("We are unable to find a running Docker instance. You can either continue to run the tool and complete "
@@ -497,14 +515,25 @@ class Installer(object):
         """ Ask the user to choose the backend """
         self._display_question("Please indicate which backend you would like to use. You can choose between: ")
         self._display_question("- 'local' (best choice on Linux, with Docker on the same machine);")
+        self._display_question("- 'docker_machine' (for Docker-machine users. If you are on OS X or Windows, choose this);")
         self._display_question("- 'remote' (for more advanced users or users using OS X or Windows with Boot2Docker);")
         self._display_question("- 'remote_manual' (advanced users only. not help will be provided by the tool).")
         backend = self._ask_with_default("Choose a backend", default_backend)
-        if backend in ["local", "remote", "remote_manual"]:
+        if backend in ["local", "remote", "remote_manual", "docker_machine"]:
             return backend
         else:
             self._display_question("Invalid choice %s. Please retry." % backend)
             self.ask_docker_backend(default_backend)
+
+    def configure_backend_docker_machine(self, def_remote_host, def_remote_docker_port, def_use_tls):
+        """ Configures the docker machine backend """
+        options = {"backend": "docker_machine", "machines": []}
+
+        p = subprocess.Popen(["docker-machine", "ls", "--format", "{{.Name}}"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        if p.wait() != 0:
+            raise Exception("An error occured while calling docker-machine")
+        options["machines"] = p.stdout.read().strip().split("\n")
+        return options
 
     def configure_backend_remote(self, def_remote_host, def_remote_docker_port, def_use_tls):
         """ Configures the remote backend """
@@ -535,7 +564,7 @@ class Installer(object):
         if remote_host == "-1":
             return None
         remote_docker_port = self._ask_with_default("Remote Docker port", def_remote_docker_port)
-        self._display_question(" Do you use TLS? By default, it is activated on Boot2Docker. You may want:")
+        self._display_question(" Do you use TLS? By default, it is activated on most Docker servers. You may want:")
         self._display_question("- to enable TLS verification: simply type 'true'")
         self._display_question("- to disable TLS verification: type 'false'")
         self._display_question("- to define a custom cert: type the absolute path to the directory containing the certs")
@@ -778,8 +807,13 @@ class Installer(object):
                 return
 
             self.download_container_agent(to_download, docker_connection)
-        elif current_options["backend"] == "remote":
-            for daemon in current_options["docker_daemons"]:
+        elif current_options["backend"] in ["remote", "docker_machine"]:
+            if current_options["backend"] == "remote":
+                docker_daemons = current_options["docker_daemons"]
+            else:
+                docker_daemons = map(lambda x: DockerMachineJobManager.get_machine(x), current_options["machines"])
+
+            for daemon in docker_daemons:
                 remote_host = daemon["remote_host"]
                 remote_docker_port = daemon["remote_docker_port"]
                 use_tls = daemon["use_tls"]
@@ -788,6 +822,12 @@ class Installer(object):
                     tls_config = docker.tls.TLSConfig(
                         client_cert=(use_tls + '/cert.pem', use_tls + '/key.pem'),
                         verify=use_tls + '/ca.pem'
+                    )
+                    protocol = "https"
+                elif isinstance(use_tls, dict):
+                    tls_config = docker.tls.TLSConfig(
+                            client_cert=(use_tls["cert"], use_tls["key"]),
+                            verify=use_tls["ca"]
                     )
                     protocol = "https"
                 elif use_tls is True:
