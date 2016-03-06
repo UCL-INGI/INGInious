@@ -5,9 +5,9 @@ Supported platforms
 -------------------
 
 INGInious is primarily intended to run on Linux (kernel 3.10+), but it is also compatible with Windows 7+ and OS X 10.9+ thanks to
-Boot2Docker.
+the Docker toolbox.
 
-Supported Linux distribution includes CentOS 7 (*recommended OS to run INGInious*) and Ubuntu 14.04 Trusty (and more recent).
+Supported Linux distribution includes CentOS 7.x (*recommended OS to run INGInious*), Fedora 22+ and Ubuntu 14.04+.
 
 Dependencies (not including Pipy packages)
 ------------------------------------------
@@ -21,6 +21,7 @@ INGInious needs
 - Libtidy
 
 .. _Docker: https://www.docker.com
+.. _Docker_Toolbox: https://www.docker.com/products/docker-toolbox
 .. _Python: https://www.python.org/
 .. _MongoDB: http://www.mongodb.org/
 
@@ -107,24 +108,18 @@ We use brew_ to install some packages. Packages are certainly available too via 
 
 Follow the instruction of brew to enable mongodb.
 
-Then you have to install Boot2Docker_. Go on their website, download the pkg and run it.
-Each time you start INGInious, don't forget to make sure Boot2Docker is running:
-
-::
-
-    $ boot2docker up
-    $ $(boot2docker shellinit)
-
+Then you have to install Docker_Toolbox_. Go on their website, download the pkg and run it.
+When you start INGInious, make sure to do it into a properly configured environment.
+You can do that using the "Docker quickstart terminal" app.
 
 Windows 7+
 ``````````
 
-Download and install Python_, Boot2Docker_ and MongoDB_.
+Download and install Python_, Docker_Toolbox_ and MongoDB_.
 
-.. _Boot2Docker: http://boot2docker.io/
 
-Boot2docker and MongoDB must be running to run INGInious. To run MongoDB as a service, please refer to th appropriate
-documentation.
+A docker machine (use the docker quickstart terminal) and MongoDB must be running to run INGInious. To run MongoDB as a service, please refer to th
+appropriate documentation.
 
 .. _Installpip:
 

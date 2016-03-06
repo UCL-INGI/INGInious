@@ -7,9 +7,7 @@ Directly in the container
 You can build a container by yourself and test your scripts directly
 inside the container. To do so, you have to:
 
-- Download and install Docker_ (on OS X, prefer docker-osx_ over
-Boot2Docker. docker-osx
-  allows to mount local directory which is needed by INGInious)
+- Download and install Docker_ (using, for example, the Docker Toolbox)
 - Download the source of the containers you use.
 - Build all the containers you need by using the command
   ::

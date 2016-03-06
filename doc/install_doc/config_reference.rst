@@ -20,6 +20,10 @@ It content is :
     #  - remote_host: "192.168.59.103"
     #    remote_docker_port: 2375
     #    remote_agent_port: 63456
+    # .. or ..
+    #backend: docker_machine
+    #machines:
+    #  - default
     mongo_opt:
         host: localhost
         database: INGInious
@@ -49,6 +53,9 @@ The different entries are :
 	  In ``local`` mode, INGInious uses the same environment variables as the Docker client to connect to the daemon. It means that if you can use
 	  any Docker client command, like ``docker info``, INGInious should run flawlessly.
 
+    - ``docker_machine``, that should be used when using Docker Machine (mostly OS X and Windows users, and users with a lot of servers to manage)
+      the ``machines`` list should be filled with the name of the machines you want to use.
+
 	- ``remote``, that should be used when the frontend and the Docker daemons are not on the same server. This includes advanced configurations
 	  for scalability (see :doc:`../dev_doc/understand_inginious`) and usage on OS X (as the Docker daemon is run in a virtual machine).
 
@@ -56,7 +63,7 @@ The different entries are :
 	  three things: its hostname, its port and an additional port used to communicate with the backend. **All these ports should be available from
 	  the backend!**. Very specific configuration details are possible; please read carefully the ``configuration.example.yaml`` for more information.
 
-	  The configuration for ``docker_daemons`` shown above is the one for boot2docker.
+	  The configuration for ``docker_daemons`` shown above is the one for boot2docker (which is outdated).
 	- ``remote_manual``, that should never be used directly (it's for debugging purposes).
 
 ``mongo_opt``
