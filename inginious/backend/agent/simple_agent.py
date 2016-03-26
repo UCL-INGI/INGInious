@@ -509,7 +509,6 @@ class SimpleAgent(object):
                 command=command,
                 working_dir=working_dir,
                 user="4242",
-                mem_limit=str(mem_limit)+"M",
                 host_config=docker_connection.create_host_config(
                     mem_limit=str(mem_limit) + "M",
                     memswap_limit= str(mem_limit) + "M",
