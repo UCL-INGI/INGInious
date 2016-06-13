@@ -4,36 +4,14 @@ Configuration reference
 (Note: this may not be up-to-date. The best way to configure INGInious is to use ``inginious-install``. See :ref:`config`.)
 
 Configuring INGInious is done via a file named ``configuration.yaml``.
-To get you started, a file named ``configuration.example.yaml`` is provided.
-It content is :
+To get you started, a file named `configuration.example.yaml <https://github.com/UCL-INGI/INGInious/blob/master/configuration.example.yaml>`_ is provided.
+The file contains detailed explanations, and is kept up to date with INGInious, while this documentation may not.
 
-::
-
-    tasks_directory: ./tasks
-    containers:
-        default: ingi/inginious-c-default
-        cpp: ingi/inginious-c-cpp
-    backend: local
-    # .. or ..
-    #backend: remote
-    #docker_daemons:
-    #  - remote_host: "192.168.59.103"
-    #    remote_docker_port: 2375
-    #    remote_agent_port: 63456
-    # .. or ..
-    #backend: docker_machine
-    #machines:
-    #  - default
-    mongo_opt:
-        host: localhost
-        database: INGInious
-    plugins:
-      - plugin_module: frontend.plugins.auth.demo_auth
-        users:
-            test: test
+.. literalinclude:: ../../configuration.example.yaml
+    :language: yaml
+    :linenos
 
 The different entries are :
-
 
 ``tasks_directory``
     The path to the directory that contains all the task definitions, grouped by courses.
@@ -42,38 +20,48 @@ The different entries are :
 ``containers``
     A dictionary of docker's container names.
     The key will be used in the task definition to identify the container, and the value must be a valid Docker container identifier.
-    The some `pre-built containers`_ are available on Docker's hub.
+    Containers for many languages are available on Docker's hub at https://hub.docker.com/u/ingi/.
 
-``backend`` and ``docker_daemons``
-	``backend`` is the type of backend you want to use. Three backends are available
+``backend``
+    The type of backend you want to use.
+    This defines where the grading containers are run, and how to access them.
+    Four backends are available:
 
-	- ``local``, that should be used when the frontend is used on the same machine as the Docker daemon. This is the case if you followed this
-	  tutorial and use CentOS or any other Linux distribution.
+    - ``local``. In this mode, the grading containers run on the same machine as the fontend.
+      This is the configuration described in this tutorial.
+      You will need a running docker daemon on your machine for this to work.
+      If you can use any Docker client command, like ``docker info``, INGInious should run flawlessly.
 
-	  In ``local`` mode, INGInious uses the same environment variables as the Docker client to connect to the daemon. It means that if you can use
-	  any Docker client command, like ``docker info``, INGInious should run flawlessly.
+    - ``docker_machine``, that should be used when using Docker Machine 
+      (mostly OS X and Windows users, and users with a lot of servers to manage).
+      The option ``machines`` should be filled with the list of machines you want to use.
 
-    - ``docker_machine``, that should be used when using Docker Machine (mostly OS X and Windows users, and users with a lot of servers to manage)
-      the ``machines`` list should be filled with the name of the machines you want to use.
+    - ``remote``, that should be used when the frontend and the Docker daemons are not on the same server.
+      This includes advanced configurations for scalability (see :doc:`../dev_doc/understand_inginious`)
+      and usage on OS X (as the Docker daemon is run in a virtual machine).
 
-	- ``remote``, that should be used when the frontend and the Docker daemons are not on the same server. This includes advanced configurations
-	  for scalability (see :doc:`../dev_doc/understand_inginious`) and usage on OS X (as the Docker daemon is run in a virtual machine).
+      This settings requires you to provide the option ``docker_daemons`` with a list of distant docker daemons.
+      Each docker daemon is defined by three things: its hostname, its port and an additional port used to communicate with the backend.
+      **All these ports should be available from the backend!**.
+      
+      Very specific configuration details are possible;
+      please read carefully the ``configuration.example.yaml`` for more information.
+      
+    - ``remote_manual``, allows you to specify manually the host and port of remote grading agents.
+      With this option, the agents are not managed by INGInious and should be monitored by external means.
 
-	  This settings requires an additional one, ``docker_daemons``. It is simply a list of distant docker daemons. Each docker daemon is defined by
-	  three things: its hostname, its port and an additional port used to communicate with the backend. **All these ports should be available from
-	  the backend!**. Very specific configuration details are possible; please read carefully the ``configuration.example.yaml`` for more information.
-
-	  The configuration for ``docker_daemons`` shown above is the one for boot2docker (which is outdated).
-	- ``remote_manual``, that should never be used directly (it's for debugging purposes).
+``docker_daemons``
+    Only used when ``backend`` is set to ``remote``.
 
 ``mongo_opt``
-    Quite self-explanatory. You can change the database name if you want multiple instances of in the improbable case of conflict.
+    Quite self-explanatory.
+    You can change the database name if you want multiple instances of in the improbable case of conflict.
 
 ``plugins``
     A list of plugin modules together with configuration options.
     See :ref:`plugins` for detailed information on available plugins, including their configuration.
 
-.. _pre-built containers: https://registry.hub.docker.com/search?q=ingi%2Finginious-c-*&searchfield=
+.. _configuration.example.yaml: https://github.com/UCL-INGI/INGInious/blob/master/configuration.example.yaml
 .. _docker-py API: https://github.com/docker/docker-py/blob/master/docs/api.md#client-api
 
 .. _plugins:
