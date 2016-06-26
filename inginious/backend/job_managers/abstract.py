@@ -4,7 +4,7 @@
 # more information about the licensing of this file.
 
 """ Contains the class AbstractJobManager, which is the basic implementation of the inginious.backend """
-
+import logging
 import time
 import uuid
 from abc import abstractmethod
@@ -42,8 +42,9 @@ class AbstractJobManager(object):
         self._running_batch_job_data = {}
         self._batch_container_args = {}
         self._active_ssh_debug_servers = {}
+        self._logger = logging.getLogger("inginious.backend")
 
-        print "Job Manager initialization done"
+        self._logger.info("Job Manager initialization done")
         self._hook_manager.call_hook("job_manager_init_done", job_manager=self)
 
     @abstractmethod
@@ -142,7 +143,7 @@ class AbstractJobManager(object):
         try:
             callback(final_result)
         except Exception as e:
-            print "JobManager failed to call the callback function for jobid {}: {}".format(jobid, repr(e))
+            self._logger.exception("JobManager failed to call the callback function for jobid {}: {}".format(jobid, repr(e)), exc_info=True)
 
         self._hook_manager.call_hook("job_ended", jobid=jobid, task=task, statinfo=statinfo, result=final_result)
 
@@ -165,7 +166,7 @@ class AbstractJobManager(object):
         try:
             callback(result)
         except Exception as e:
-            print "JobManager failed to call the callback function for jobid {}: {}".format(jobid, repr(e))
+            self._logger.exception("JobManager failed to call the callback function for jobid {}: {}".format(jobid, repr(e)))
 
         self._hook_manager.call_hook("batch_job_ended", jobid=jobid, statinfo=statinfo, result=result)
 

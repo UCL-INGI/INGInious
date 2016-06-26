@@ -7,6 +7,7 @@
 import Queue
 import StringIO
 import base64
+import logging
 import os.path
 import shutil
 import tarfile
@@ -26,6 +27,8 @@ class SubmissionGitSaver(threading.Thread):
 
     def __init__(self, plugin_manager, config):
         threading.Thread.__init__(self)
+        self._logger = logging.getLogger("inginious.webapp.plugins.SubmissionGitSaver")
+
         self.queue = Queue.Queue()
         mustdoinit = False
         self.repopath = config.get("repo_directory", "./repo_submissions")
@@ -36,7 +39,7 @@ class SubmissionGitSaver(threading.Thread):
         if mustdoinit:
             self.git.init()
         plugin_manager.add_hook('submission_done', self.add)
-        print "SubmissionGitSaver started"
+        self._logger.info("SubmissionGitSaver started")
 
     def add(self, submission, job):
         """ Add a new submission to the repo (add the to queue, will be saved async)"""
@@ -48,12 +51,12 @@ class SubmissionGitSaver(threading.Thread):
                 submission, job = self.queue.get()
                 self.save(submission, job)
             except Exception as inst:
-                print "Exception in JobSaver: " + str(inst)
+                self._logger.exception("Exception in JobSaver: " + str(inst), exc_info=True)
 
     def save(self, submission, job):
         """ saves a new submission in the repo (done async) """
         # Save submission to repo
-        print "Save submission " + str(submission["_id"]) + " to git repo"
+        self._logger.info("Save submission " + str(submission["_id"]) + " to git repo")
         # Verify that the directory for the course exists
         if not os.path.exists(os.path.join(self.repopath, submission["courseid"])):
             os.mkdir(os.path.join(self.repopath, submission["courseid"]))

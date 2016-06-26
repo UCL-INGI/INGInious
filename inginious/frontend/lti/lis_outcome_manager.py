@@ -4,7 +4,7 @@
 # more information about the licensing of this file.
 
 """ Manages the calls to the TC """
-
+import logging
 import threading
 import Queue
 import uuid
@@ -24,6 +24,7 @@ class LisOutcomeManager(threading.Thread):
         self._lti_consumers = lti_consumers
         self._queue = Queue.Queue()
         self._stopped = False
+        self._logger = logging.getLogger("inginious.lti.outcome_manager")
         self.start()
 
     def stop(self):
@@ -49,23 +50,23 @@ class LisOutcomeManager(threading.Thread):
                     if grade < 0:
                         grade = 0
                 except:
-                    print "An exception occured while getting a grade in LisOutcomeManager."
+                    self._logger.error("An exception occured while getting a grade in LisOutcomeManager.", exc_info=True)
                     continue
 
                 try:
                     xml = pylti.common.generate_request_xml(str(uuid.uuid1()), "replaceResult", result_id, grade)
                     if pylti.common.post_message(self._lti_consumers, consumer_key, service_url, xml):
                         self._delete(mongo_id)
-                        print "Successfully sent grade to TC: %s" % str(data)
+                        self._logger.debug("Successfully sent grade to TC: %s" % str(data))
                         continue
                 except Exception as e:
-                    print "An exception occured while sending a grade to the TC. Exception %s" % str(e)
+                    self._logger.error("An exception occured while sending a grade to the TC." + str(e), exc_info=True)
 
                 if nb_attempt < 5:
-                    print "An error occured while sending a grade to the TC. Retrying..."
+                    self._logger.debug("An error occured while sending a grade to the TC. Retrying...")
                     self._increment_attempt(mongo_id)
                 else:
-                    print "An error occured while sending a grade to the TC. Maximum number of retries reached."
+                    self._logger.error("An error occured while sending a grade to the TC. Maximum number of retries reached.")
                     self._delete(mongo_id)
         except KeyboardInterrupt:
             pass

@@ -4,7 +4,7 @@
 # more information about the licensing of this file.
 
 """ Starts the webapp """
-
+import logging
 import os
 import signal
 import threading
@@ -14,6 +14,7 @@ from pymongo import MongoClient
 import pymongo
 import web
 
+from common.log import init_logging, CustomLogMiddleware
 from inginious.backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
 from inginious.frontend.common import backend_interface
 from inginious.frontend.common.session_mongodb import MongoStore
@@ -96,6 +97,8 @@ def update_database(database):
     Checks the database version and update the db if necessary
     """
 
+    logger = logging.getLogger("inginious.db_update")
+
     db_version = database.db_version.find_one({})
     if db_version is None:
         db_version = 0
@@ -103,7 +106,7 @@ def update_database(database):
         db_version = db_version['db_version']
 
     if db_version < 1:
-        print "Updating database to db_version 1"
+        logger.info("Updating database to db_version 1")
         # Init the database
         database.submissions.ensure_index([("username", pymongo.ASCENDING)])
         database.submissions.ensure_index([("courseid", pymongo.ASCENDING)])
@@ -195,6 +198,8 @@ def start_app(config, hostname="localhost", port=8080):
     """
         Get and start the application. config_file is the path to the configuration file.
     """
+    init_logging(config.get('log_level', 'INFO'))
+
     app, close_app_func = get_app(config)
 
     func = app.wsgifunc()
@@ -219,9 +224,9 @@ def start_app(config, hostname="localhost", port=8080):
         ('/static/lti/', os.path.join(inginious_root_path, 'frontend', 'lti', 'static'))
     ))
 
-    func = web.httpserver.LogMiddleware(func)
+    func = CustomLogMiddleware(func, logging.getLogger("inginious.lti.requests"))
     server = web.httpserver.WSGIServer((hostname, port), func)
-    print "http://%s:%d/" % (hostname, port)
+    logging.getLogger("inginious.lti").info("http://%s:%d/" % (hostname, port))
     try:
         server.start()
     except KeyboardInterrupt:

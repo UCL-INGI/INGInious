@@ -4,7 +4,7 @@
 # more information about the licensing of this file.
 
 """ A Job Manager that automatically launch Agents on Docker Machines """
-from __future__ import print_function
+import logging
 import subprocess
 import sys
 
@@ -20,9 +20,12 @@ class DockerMachineJobManager(RemoteDockerJobManager):
 
     @classmethod
     def get_machine(cls, machine):
+        logger = logging.getLogger("inginious.backend")
+
         base_dict = {
             "remote_agent_port":63456,
             "remote_docker_port": 2376,  # todo: is it possible with Docker-machine to have a different port?
+            "remote_agent_ssh_port": 63457
         }
         if isinstance(machine, dict):
             base_dict.update(machine)
@@ -33,10 +36,10 @@ class DockerMachineJobManager(RemoteDockerJobManager):
         p.wait()
         p = subprocess.Popen(["docker-machine", "inspect", machine], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         if p.wait() != 0:
-            print("An error occured while running the docker-machine inspect command on {}".format(machine), file=sys.stderr)
-            print("INGInious will now exit. Here is the output of docker-machine inspect:", file=sys.stderr)
-            print(p.stdout.read(), file=sys.stderr)
-            print(p.stderr.read(), file=sys.stderr)
+            logger.error("An error occured while running the docker-machine inspect command on {}".format(machine))
+            logger.error("INGInious will now exit. Here is the output of docker-machine inspect:")
+            logger.error(p.stdout.read())
+            logger.error(p.stderr.read())
             exit(1)
         data = json.loads(p.stdout.read())
 

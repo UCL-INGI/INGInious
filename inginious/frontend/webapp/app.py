@@ -4,7 +4,7 @@
 # more information about the licensing of this file.
 
 """ Starts the webapp """
-
+import logging
 import os
 import signal
 import threading
@@ -20,6 +20,7 @@ from inginious.frontend.common.webpy_fake_mapping import WebPyCustomMapping
 from inginious.frontend.webapp.database_updater import update_database
 from inginious.frontend.common.plugin_manager import PluginManager
 from inginious.common.course_factory import create_factories
+from inginious.common.log import init_logging, CustomLogMiddleware
 from inginious.frontend.webapp.remote_ssh_manager import RemoteSSHManager
 from inginious.frontend.webapp.tasks import WebAppTask
 from inginious.frontend.webapp.courses import WebAppCourse
@@ -170,7 +171,8 @@ def get_app(hostname, port, sshhost, sshport, config, active_callback=None):
 
     if config.get("remote_debugging_active", True) and job_manager.is_remote_debug_active():
         if sshhost is None:
-            print "You have to set the --sshhost arg to start the remote debugging manager. Remote debugging is then deactivated"
+            logging.getLogger("inginious.webapp").info("You have to set the --sshhost arg to start the remote debugging manager. Remote debugging "
+                                                       "is then deactivated")
         else:
             remote_ssh_manager.start()
 
@@ -242,6 +244,7 @@ def start_app(config, hostname="localhost", port=8080, sshhost=None, sshport=808
     :type sshport: int
     :return:
     """
+    init_logging(config.get('log_level', 'INFO'))
     app, close_app_func = get_app(hostname, port, sshhost, sshport, config)
 
     func = app.wsgifunc()
@@ -265,9 +268,9 @@ def start_app(config, hostname="localhost", port=8080, sshhost=None, sshport=808
         ('/static/common/', os.path.join(inginious_root_path, 'frontend', 'common', 'static')),
         ('/static/webapp/', os.path.join(inginious_root_path, 'frontend', 'webapp', 'static'))
     ))
-    func = web.httpserver.LogMiddleware(func)
+    func = CustomLogMiddleware(func, logging.getLogger("inginious.webapp.requests"))
     server = web.httpserver.WSGIServer((hostname, port), func)
-    print "http://%s:%d/" % (hostname, port)
+    logging.getLogger("inginious.webapp").info("http://%s:%d/" % (hostname, port))
     try:
         server.start()
     except KeyboardInterrupt:

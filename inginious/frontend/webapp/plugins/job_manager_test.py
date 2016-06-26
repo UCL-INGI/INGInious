@@ -4,6 +4,8 @@
 # more information about the licensing of this file.
 
 """ JobManagerTest plugin """
+import logging
+
 from inginious.frontend.webapp.pages.utils import INGIniousPage
 
 
@@ -18,4 +20,4 @@ def init(plugin_manager, _, job_manager, _3):
             return str(job_manager.get_waiting_jobs_count())
 
     plugin_manager.add_page("/tests/stats", JobManagerTest)
-    print "Started JobManagerTest plugin"
+    logging.getLogger("inginious.webapp.plugin.JobManagerTest").info("Started JobManagerTest plugin")

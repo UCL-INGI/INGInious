@@ -4,9 +4,10 @@
 # more information about the licensing of this file.
 
 """ Factory for loading courses from disk """
-
+import logging
 import os
 
+from common.log import get_course_logger
 from inginious.common.courses import Course
 from inginious.common.base import id_checker, load_json_or_yaml, write_json_or_yaml
 from inginious.common.task_factory import TaskFactory
@@ -76,7 +77,7 @@ class CourseFactory(object):
             try:
                 output[courseid] = self.get_course(courseid)
             except Exception as e:  # todo log the error
-                print e
+                get_course_logger(courseid).warning("Cannot open course", exc_info=True)
         return output
 
     def _get_course_descriptor_path(self, courseid):

@@ -4,6 +4,7 @@
 # more information about the licensing of this file.
 
 """ A Job Manager that automatically launch Agents on distant Docker daemons """
+import logging
 
 import docker
 import docker.utils
@@ -18,10 +19,11 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
 
     @classmethod
     def is_agent_valid_and_started(cls, docker_connection, agent_name):
+        logger = logging.getLogger("inginious.backend")
         try:
             container_data = docker_connection.inspect_container(agent_name)
         except:
-            print "No agent present on remote host."
+            logger.info("No agent present on remote host.")
             return False
 
         # Due to a bug in Docker 1.9, labels are not returned for running containers
@@ -29,7 +31,7 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
         #    "Labels"]["agent-version"] != AGENT_CONTAINER_VERSION:
         # Workaround:
         if cls.is_agent_image_update_needed(docker_connection):
-            print "Agent already started, but not at the right version."
+            logger.info("Agent already started, but not at the right version.")
             try:
                 # kill the container
                 docker_connection.kill(agent_name)
@@ -38,7 +40,7 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
                 pass
             return False
         elif container_data["State"]["Running"] is False:
-            print "Agent dead."
+            logger.info("Agent dead.")
             try:
                 # remove the container and restart it
                 docker_connection.remove_container(agent_name, force=True)
@@ -94,6 +96,7 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
             :param hook_manager: An instance of HookManager. If no instance is given(None), a new one will be created.
         """
         agents = []
+        self._logger = logging.getLogger("inginious.backend")
 
         for daemon in docker_daemons:
             if daemon.get("use_tls", False):
@@ -122,12 +125,12 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
 
                 # Verify that the image ingi/inginious-agent exists and is up-to-date
                 if self.is_agent_image_update_needed(docker_connection):
-                    print "Pulling the image ingi/inginious-agent. Please wait, this can take some time..."
+                    self._logger.info("Pulling the image ingi/inginious-agent. Please wait, this can take some time...")
                     for line in docker_connection.pull("ingi/inginious-agent", stream=True):
-                        print line
-                    print "Pulling the image centos. Please wait, this can take some time..."
+                        self._logger.info(line)
+                    self._logger.info("Pulling the image centos. Please wait, this can take some time...")
                     for line in docker_connection.pull("centos", stream=True):
-                        print line
+                        self._logger.info(line)
 
                     # Verify again that the image is ok
                     if self.is_agent_image_update_needed(docker_connection):

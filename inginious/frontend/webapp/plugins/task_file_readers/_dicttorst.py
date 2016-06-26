@@ -18,7 +18,6 @@ def dict2rst(dict_obj):
         rst += dict_obj['name'] + '\n'
         rst += '=' * len(dict_obj['name']) + '\n\n'
         if 'author' in dict_obj:
-            print type(dict_obj['author'])
             if isinstance(dict_obj['author'], unicode):
                 rst += ':author: ' + dict_obj['author'] + '\n'
             else:

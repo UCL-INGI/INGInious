@@ -4,6 +4,7 @@
 # more information about the licensing of this file.
 
 """ A demo plugin that adds a page """
+import logging
 
 
 class DemoPage(object):
@@ -17,4 +18,4 @@ class DemoPage(object):
 def init(plugin_manager, _, _2, _3):
     """ Init the plugin """
     plugin_manager.add_page("/test", "webapp.plugins.demo_page.DemoPage")
-    print "Started Demo Page"
+    logging.getLogger("inginious.webapp.plugin.demopage").info("Started Demo Page")

@@ -4,7 +4,7 @@
 # more information about the licensing of this file.
 
 """ Manages batch containers """
-
+import logging
 import os
 import tempfile
 import tarfile
@@ -30,6 +30,7 @@ class BatchManager(object):
         self._user_manager = user_manager
         self._task_directory = task_directory
         self._batch_container = batch_containers
+        self._logger = logging.getLogger("inginious.batch")
 
     def _get_course_data(self, course):
         """ Returns a file-like object to a tgz archive of the course files """
@@ -174,7 +175,7 @@ class BatchManager(object):
 The batch job you launched on INGInious is done. You can see the results on the "batch operation" page of your course
 administration.""")
             except Exception as e:
-                print "Cannot send mail: " + str(e)
+                self._logger.error("Cannot send mail: " + str(e))
 
     def get_batch_job_status(self, batch_job_id):
         """ Returns the batch job with id batch_job_id Batch jobs are dicts in the form

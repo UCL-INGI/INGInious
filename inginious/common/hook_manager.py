@@ -4,6 +4,7 @@
 # more information about the licensing of this file.
 
 """ Hook Manager """
+import logging
 
 
 class HookManager(object):
@@ -11,13 +12,14 @@ class HookManager(object):
 
     def __init__(self):
         self.hooks = {}
+        self._logger = logging.getLogger("inginious.common.hookmanager")
 
     def _exception_free_callback(self, callback, *args, **kwargs):
         """ A wrapper that remove all exceptions raised from hooks """
         try:
             return callback(*args, **kwargs)
         except Exception as e:
-            print "An exception occured while calling a hook! " + str(e)
+            self._logger.exception("An exception occured while calling a hook! ",exc_info=True)
             return None
 
     def add_hook(self, name, callback):

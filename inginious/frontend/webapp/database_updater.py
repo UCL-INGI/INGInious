@@ -5,13 +5,15 @@
 
 """ Updates the database """
 import pymongo
-
+import logging
 
 def update_database(database, gridfs, course_factory, user_manager):
     """
     Checks the database version and update the db if necessary
     :param course_factory: the course factory
     """
+
+    logger = logging.getLogger("inginious.db_update")
 
     db_version = database.db_version.find_one({})
     if db_version is None:
@@ -20,7 +22,7 @@ def update_database(database, gridfs, course_factory, user_manager):
         db_version = db_version['db_version']
 
     if db_version < 1:
-        print "Updating database to db_version 1"
+        logger.info("Updating database to db_version 1")
         # Init the database
         database.submissions.ensure_index([("username", pymongo.ASCENDING)])
         database.submissions.ensure_index([("courseid", pymongo.ASCENDING)])
@@ -37,7 +39,7 @@ def update_database(database, gridfs, course_factory, user_manager):
         db_version = 1
 
     if db_version < 2:
-        print "Updating database to db_version 2"
+        logger.info("Updating database to db_version 2")
         # Register users that submitted some tasks to the related courses
         data = database.user_tasks.aggregate([{"$group": {"_id": "$courseid", "usernames": {"$addToSet": "$username"}}}])
         for r in list(data):
@@ -46,11 +48,11 @@ def update_database(database, gridfs, course_factory, user_manager):
                 for u in r['usernames']:
                     user_manager.course_register_user(course, u, force=True)
             except:
-                print "There was an error while updating the database. Some users may have been unregistered from the course {}".format(r['_id'])
+                logger.error("There was an error while updating the database. Some users may have been unregistered from the course {}".format(r['_id']))
         db_version = 2
 
     if db_version < 3:
-        print "Updating database to db_version 3"
+        logger.info("Updating database to db_version 3")
         # Add the grade for all the old submissions
         database.submissions.update({}, {"$set": {"grade": 0.0}}, multi=True)
         database.submissions.update({"result": "success"}, {"$set": {"grade": 100.0}}, multi=True)
@@ -59,7 +61,7 @@ def update_database(database, gridfs, course_factory, user_manager):
         db_version = 3
 
     if db_version < 4:
-        print "Updating database to db_version 4"
+        logger.info("Updating database to db_version 4")
         submissions = database.submissions.find({"$where": "!Array.isArray(this.username)"})
         for submission in submissions:
             submission["username"] = [submission["username"]]
@@ -67,13 +69,13 @@ def update_database(database, gridfs, course_factory, user_manager):
         db_version = 4
 
     if db_version < 5:
-        print "Updating database to db_version 5"
+        logger.info("Updating database to db_version 5")
         database.drop_collection("users")
         database.submissions.update_many({}, {"$set": {"response_type": "html"}})
         db_version = 5
 
     if db_version < 6:
-        print "Updating database to db_version 6"
+        logger.info("Updating database to db_version 6")
         course_list = list(database.registration.aggregate([
             {"$match": {}},
             {
@@ -103,7 +105,7 @@ def update_database(database, gridfs, course_factory, user_manager):
         db_version = 6
 
     if db_version < 7:
-        print "Updating database to db_version 7"
+        logger.info("Updating database to db_version 7")
         database.submissions.update_many({}, {"$set": {"custom": {}}})
         db_version = 7
 

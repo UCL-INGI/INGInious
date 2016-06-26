@@ -87,10 +87,10 @@ class RemoteManualAgentJobManager(AbstractJobManager):
 
         if nb_ok == 0:
             self._remote_debugging_activated = False
-            print "Remote debugging is deactivated as all agent have no ssh_port defined"
+            self._logger.info("Remote debugging is deactivated as all agent have no ssh_port defined")
         elif nb_ok == -1:
             self._remote_debugging_activated = False
-            print "Remote debugging is deactivated as one agent has no ssh_port defined"
+            self._logger.info("Remote debugging is deactivated as one agent has no ssh_port defined")
         else:
             self._remote_debugging_activated = True
 
@@ -119,7 +119,7 @@ class RemoteManualAgentJobManager(AbstractJobManager):
                 except:
                     self._agents[entry] = None
                     self._agents_thread[entry] = None
-                    print "Cannot connect to agent {}-{}".format(info['host'], info['port'])
+                    self._logger.warning("Cannot connect to agent {}-{}".format(info['host'], info['port']))
                 else:
                     self._agents[entry] = conn
                     self._agents_thread[entry] = BgServingThread(conn)
@@ -194,7 +194,7 @@ class RemoteManualAgentJobManager(AbstractJobManager):
                     yaml_content.seek(0)
                     generated_yaml_content[os.path.join(path_to_file, "task.yaml")] = yaml_content
                 except:
-                    print "Cannot convert {} to a yaml file for the agent!".format(file_path)
+                    self._logger.exception("Cannot convert {} to a yaml file for the agent!".format(file_path), exc_info=True)
                     new_local_td[file_path] = data
             else:
                 new_local_td[file_path] = data
@@ -207,7 +207,7 @@ class RemoteManualAgentJobManager(AbstractJobManager):
         try:
             remote_td = copy.deepcopy(async_value_remote_td.value)
         except:
-            print "An error occured while retrieving list of files in the task dir from remote agent"
+            self._logger.exception("An error occured while retrieving list of files in the task dir from remote agent", exc_info=True)
             return
 
         if remote_td is None:  # sync disabled for this Agent
@@ -227,7 +227,7 @@ class RemoteManualAgentJobManager(AbstractJobManager):
                 else:  # the file really exists on disk
                     tar.add(arcname=path, name=os.path.join(self._task_directory, path))
             else:
-                print "Agent returned non-safe file path: " + path
+                self._logger.critical("Agent returned non-safe file path: " + path)
         tar.close()
         tmpfile.flush()
         tmpfile.seek(0)
@@ -373,11 +373,11 @@ class RemoteManualAgentJobManager(AbstractJobManager):
 
     def _on_agent_connection(self):
         """ Called when a RPyC service start: handles the connection of a distant Agent """
-        print "Agent connected"
+        self._logger.info("Agent connected")
 
     def _on_agent_disconnection(self, agent_id):
         """ Called when a RPyC service ends: handles the disconnection of a distant Agent """
-        print "Agent disconnected"
+        self._logger.info("Agent disconnected")
         self._agent_shutdown(agent_id)
 
     def _agent_shutdown(self, agent_id):
