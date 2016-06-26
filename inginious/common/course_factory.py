@@ -7,7 +7,7 @@
 import logging
 import os
 
-from common.log import get_course_logger
+from inginious.common.log import get_course_logger
 from inginious.common.courses import Course
 from inginious.common.base import id_checker, load_json_or_yaml, write_json_or_yaml
 from inginious.common.task_factory import TaskFactory

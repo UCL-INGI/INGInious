@@ -14,13 +14,13 @@ from pymongo import MongoClient
 import pymongo
 import web
 
-from common.log import init_logging, CustomLogMiddleware
 from inginious.backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
 from inginious.frontend.common import backend_interface
 from inginious.frontend.common.session_mongodb import MongoStore
 from inginious.frontend.common.static_middleware import StaticMiddleware
 from inginious.frontend.common.plugin_manager import PluginManager
 from inginious.common.course_factory import create_factories
+from inginious.common.log import init_logging, CustomLogMiddleware
 from inginious.frontend.common.tasks import FrontendTask
 from inginious.frontend.common.courses import FrontendCourse
 from inginious.frontend.common.templates import TemplateHelper
