@@ -4,8 +4,8 @@
 # more information about the licensing of this file.
 
 """ A plugin that allows to save submissions to a Git repository """
-import Queue
-import StringIO
+import queue
+import io
 import base64
 import logging
 import os.path
@@ -29,7 +29,7 @@ class SubmissionGitSaver(threading.Thread):
         threading.Thread.__init__(self)
         self._logger = logging.getLogger("inginious.webapp.plugins.SubmissionGitSaver")
 
-        self.queue = Queue.Queue()
+        self.queue = queue.Queue()
         mustdoinit = False
         self.repopath = config.get("repo_directory", "./repo_submissions")
         if not os.path.exists(self.repopath):
@@ -79,7 +79,7 @@ class SubmissionGitSaver(threading.Thread):
         open(os.path.join(dirname, 'result.yaml'), "w+").write(inginious.common.custom_yaml.dump(result_obj))
         if "archive" in job:
             os.mkdir(os.path.join(dirname, 'output'))
-            tar = tarfile.open(mode='r:gz', fileobj=StringIO.StringIO(base64.b64decode(job["archive"])))
+            tar = tarfile.open(mode='r:gz', fileobj=io.StringIO(base64.b64decode(job["archive"])))
             tar.extractall(os.path.join(dirname, 'output'))
             tar.close()
 

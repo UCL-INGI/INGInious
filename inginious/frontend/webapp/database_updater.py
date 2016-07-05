@@ -95,7 +95,7 @@ def update_database(database, gridfs, course_factory, user_manager):
             classrooms[group["course_id"]]["groups"].append({"size": group["size"], "students": group["users"]})
             classrooms[group["course_id"]]["tutors"] = classrooms[group["course_id"]]["tutors"].union(group["tutors"])
 
-        for i, classroom in classrooms.iteritems():
+        for i, classroom in classrooms.items():
             classroom["tutors"] = list(classroom["tutors"])
             database.classrooms.insert(classroom)
 

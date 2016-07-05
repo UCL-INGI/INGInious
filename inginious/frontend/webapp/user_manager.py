@@ -17,9 +17,7 @@ class AuthInvalidMethodException(Exception):
     pass
 
 
-class AuthMethod(object):
-    __metaclass__ = ABCMeta
-
+class AuthMethod(object, metaclass=ABCMeta):
     @abstractmethod
     def get_name(self):
         """
@@ -187,10 +185,10 @@ class UserManager(AbstractUserManager):
         for method in self._auth_methods:
             if method.should_cache() is False:
                 infos = method.get_users_info(remaining_users)
-                for user, val in infos.iteritems():
+                for user, val in infos.items():
                     retval[user] = val
 
-        remaining_users = [username for username, val in retval.iteritems() if val is None]
+        remaining_users = [username for username, val in retval.items() if val is None]
         if len(remaining_users) == 0:
             return retval
 
@@ -199,7 +197,7 @@ class UserManager(AbstractUserManager):
         for info in infos:
             retval[info["_id"]] = (info["realname"], info["email"])
 
-        remaining_users = [username for username, val in retval.iteritems() if val is None]
+        remaining_users = [username for username, val in retval.items() if val is None]
         if len(remaining_users) == 0:
             return retval
 
@@ -207,7 +205,7 @@ class UserManager(AbstractUserManager):
         for method in self._auth_methods:
             if method.should_cache() is True:
                 infos = method.get_users_info(remaining_users)
-                for user, val in infos.iteritems():
+                for user, val in infos.items():
                     if val is not None:
                         retval[user] = val
                         self._database.user_info_cache.update_one({"_id": user}, {"$set": {"realname": val[0], "email": val[1]}}, upsert=True)
@@ -281,7 +279,7 @@ class UserManager(AbstractUserManager):
             match["username"] = {"$in": usernames}
 
         tasks = course.get_tasks()
-        match["taskid"] = {"$in": tasks.keys()}
+        match["taskid"] = {"$in": list(tasks.keys())}
 
         data = list(self._database.user_tasks.aggregate(
             [
@@ -295,7 +293,7 @@ class UserManager(AbstractUserManager):
                 }}
             ]))
 
-        user_tasks = [taskid for taskid, task in tasks.iteritems() if task.get_accessible_time().after_start()]
+        user_tasks = [taskid for taskid, task in tasks.items() if task.get_accessible_time().after_start()]
 
         retval = {username: None for username in usernames}
         for result in data:
@@ -397,7 +395,7 @@ class UserManager(AbstractUserManager):
         total_weight = 0
         grade = 0
 
-        for task_id, task in course.get_tasks().iteritems():
+        for task_id, task in course.get_tasks().items():
             if self.task_is_visible_by_user(task, username):
                 total_weight += task.get_grading_weight()
                 grade += cache["task_grades"].get(task_id, 0.0) * task.get_grading_weight()

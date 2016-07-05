@@ -7,7 +7,7 @@
 import base64
 import json
 import mimetypes
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 import web
 
@@ -44,7 +44,7 @@ class LTITask(LTIAuthenticatedPage):
             if isinstance(sinput[userinput["questionid"]], dict):
                 # File uploaded previously
                 mimetypes.init()
-                mime_type = mimetypes.guess_type(urllib.pathname2url(sinput[userinput["questionid"]]['filename']))
+                mime_type = mimetypes.guess_type(urllib.request.pathname2url(sinput[userinput["questionid"]]['filename']))
                 web.header('Content-Type', mime_type[0])
                 return base64.b64decode(sinput[userinput["questionid"]]['value'])
             else:

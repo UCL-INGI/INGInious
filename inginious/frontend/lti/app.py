@@ -171,7 +171,7 @@ def get_app(config, active_callback=None):
                                           submission_manager, user_manager,
                                           template_helper, database, gridfs,
                                           default_allowed_file_extensions, default_max_file_size,
-                                          config["containers"].keys(),
+                                          list(config["containers"].keys()),
                                           config["lti"]))
 
     # Active hook

@@ -71,7 +71,7 @@ $var Navbar: $:NavbarF()
 $if user_manager.has_admin_rights_on_course(course):
     <h3>Start a new batch job</h3>
     <div class="list-group">
-        $for key, val in available_containers.iteritems():
+        $for key, val in available_containers.items():
             <a href="/admin/$course.get_id()/batch/create/$key" class="list-group-item">
                 <h4 class="list-group-item-heading">$val[0]</h4>
                 <p class="list-group-item-text">$:val[1]</p>

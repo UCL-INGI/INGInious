@@ -10,9 +10,8 @@ from inginious.common.base import id_checker
 from inginious.common.tasks_code_boxes import InputBox, MultilineBox, TextBox, FileBox
 
 
-class BasicProblem(object):
+class BasicProblem(object, metaclass=ABCMeta):
     """Basic problem """
-    __metaclass__ = ABCMeta
 
     @abstractmethod
     def get_type(self):
@@ -159,7 +158,7 @@ class CodeProblem(BasicCodeProblem):
         super(CodeProblem, self).__init__(task, problemid, content)
         if "boxes" in content:
             self._boxes = []
-            for boxid, box_content in content['boxes'].iteritems():
+            for boxid, box_content in content['boxes'].items():
                 if boxid == "":
                     raise Exception("Empty box ids are not allowed")
                 self._boxes.append(self._create_box(boxid, box_content))
@@ -201,7 +200,7 @@ class MultipleChoiceProblem(BasicProblem):
             raise Exception("Problem " + problemid + " does not have any valid answer")
 
         self._limit = 0
-        if "limit" in content and isinstance(content['limit'], (int, long)) and content['limit'] >= 0 and (not self._multiple or content['limit'] >= \
+        if "limit" in content and isinstance(content['limit'], int) and content['limit'] >= 0 and (not self._multiple or content['limit'] >= \
                 len(good_choices) or content['limit'] == 0):
             self._limit = content['limit']
         elif "limit" in content:

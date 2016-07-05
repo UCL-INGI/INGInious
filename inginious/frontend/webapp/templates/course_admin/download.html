@@ -30,7 +30,7 @@ $var Navbar: $:NavbarF()
             </div>
         </div>
         <ul class="list-group checked-list-box">
-            $for taskid, taskname in tasks.iteritems():
+            $for taskid, taskname in tasks.items():
                 <li class="list-group-item" data-value="$taskid" data-name="tasks"
                     $if taskid in checked_tasks:
                         data-checked="true"
@@ -76,7 +76,7 @@ $var Navbar: $:NavbarF()
                     <div class="alert alert-warning">Not any user to display</div>
                 $else:
                     <ul class="list-group checked-list-box">
-                        $for userid, username in user_data.iteritems():
+                        $for userid, username in user_data.items():
                         <li class="list-group-item" data-value="$userid" data-name="users"
                             $if userid in checked_users:
                                 data-checked="true"
@@ -91,7 +91,7 @@ $var Navbar: $:NavbarF()
                     <div class="alert alert-warning">Not any classroom to display</div>
                 $else:
                     <ul class="list-group checked-list-box">
-                        $for classroomid, classroomname in classroom_data.iteritems():
+                        $for classroomid, classroomname in classroom_data.items():
                         <li class="list-group-item" data-value="$classroomid" data-name="classrooms"
                             $if classroomid in checked_classrooms:
                                 data-checked="true"

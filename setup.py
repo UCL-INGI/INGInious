@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -80,7 +80,7 @@ setup(
 
     test_suite='nose.collector',
 
-    author=u"INGInious contributors",
+    author="INGInious contributors",
     author_email="inginious@info.ucl.ac.be",
     license="AGPL 3",
     url="https://github.com/UCL-INGI/INGInious",

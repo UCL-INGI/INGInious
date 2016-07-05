@@ -17,7 +17,7 @@ $var Navbar: $:NavbarF()
 <h3>Available scoreboards</h3>
 <div class="list-group">
     $if len(scoreboards):
-        $for sid, name in scoreboards.iteritems():
+        $for sid, name in scoreboards.items():
             <a href="/scoreboard/$course.get_id()/$sid" class="list-group-item">$name</a>
     $else:
         <a href="#" class="list-group-item disabled">No scoreboards have been defined for this course</a>

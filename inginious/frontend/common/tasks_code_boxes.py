@@ -12,9 +12,8 @@ from inginious.common.tasks_code_boxes import TextBox, InputBox, MultilineBox, F
 from inginious.frontend.common.parsable_text import ParsableText
 
 
-class DisplayableBox(object):
+class DisplayableBox(object, metaclass=ABCMeta):
     """ A basic interface for displayable boxes """
-    __metaclass__ = ABCMeta
 
     def __init__(self, problem, boxid, boxData):
         pass

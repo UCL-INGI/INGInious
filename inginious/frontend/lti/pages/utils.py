@@ -136,9 +136,7 @@ class LTIAuthenticatedPage(LTIPage):
         except:
             raise LTINotConnectedException()
 
-class LTILaunchPage(LTIPage):
-    __metaclass__ = abc.ABCMeta
-
+class LTILaunchPage(LTIPage, metaclass=abc.ABCMeta):
     def __init__(self, plugin_manager, course_factory, task_factory, submission_manager, user_manager, template_helper, database,
                  gridfs, default_allowed_file_extensions, default_max_file_size, containers, consumers):
         super(LTILaunchPage, self).__init__(plugin_manager, course_factory, task_factory, submission_manager, user_manager, template_helper, database,

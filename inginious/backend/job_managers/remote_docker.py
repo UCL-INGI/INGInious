@@ -100,7 +100,7 @@ class RemoteDockerJobManager(RemoteManualAgentJobManager):
 
         for daemon in docker_daemons:
             if daemon.get("use_tls", False):
-                if isinstance(daemon["use_tls"], basestring):
+                if isinstance(daemon["use_tls"], str):
                     tls_config = docker.tls.TLSConfig(
                         client_cert=(daemon["use_tls"] + '/cert.pem', daemon["use_tls"] + '/key.pem'),
                         verify=daemon["use_tls"] + '/ca.pem'

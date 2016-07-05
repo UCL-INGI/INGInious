@@ -21,12 +21,12 @@ class WebPyCustomMapping(object):
         self.args = args
         self.kwargs = kwargs
 
-        for pattern, classname in urls.iteritems():
+        for pattern, classname in urls.items():
             self.append((pattern, classname))
 
     def append(self, what):
         pattern, classname = what
-        if isinstance(classname, basestring):
+        if isinstance(classname, str):
             mod, cls = classname.rsplit('.', 1)
             mod = __import__(mod, None, None, [''])
             cls = getattr(mod, cls)
@@ -36,4 +36,4 @@ class WebPyCustomMapping(object):
         self.dict[pattern] = cls(*self.args, **self.kwargs)
 
     def __iter__(self):
-        return self.dict.iteritems().__iter__()
+        return iter(self.dict.items()).__iter__()

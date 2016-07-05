@@ -43,7 +43,7 @@ $if start <= start.now():
 	        $for taskid in tasks:
 	            <th class="contest_task"><a href="/course/${course.get_id()}/$taskid">$taskid</a></th>
 	    </tr>
-	    $for username, data in results.iteritems():
+	    $for username, data in results.items():
 	        <tr>
 	            <td class="contest_rank">$data['displayed_rank']</td>
 	            <td class="contest_contestant">$data['name']</td>

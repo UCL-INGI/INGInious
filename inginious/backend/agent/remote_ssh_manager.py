@@ -71,7 +71,7 @@ class RemoteSSHManager(threading.Thread):
             pass
 
     def run(self):
-        if isinstance(self._port_or_filename, basestring):
+        if isinstance(self._port_or_filename, str):
             server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
             server.bind(self._port_or_filename)
         else:

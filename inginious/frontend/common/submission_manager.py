@@ -10,7 +10,7 @@ import json
 import time
 import os.path
 import tarfile
-import StringIO
+import io
 import tempfile
 from datetime import datetime
 
@@ -21,10 +21,8 @@ from inginious.frontend.common.parsable_text import ParsableText
 import inginious.common.custom_yaml
 
 
-class SubmissionManager(object):
+class SubmissionManager(object, metaclass=ABCMeta):
     """ Manages submissions. Communicates with the database and the job manager. """
-
-    __metaclass__ = ABCMeta
 
     def __init__(self, job_manager, user_manager, database, gridfs, hook_manager):
         """
@@ -97,7 +95,7 @@ class SubmissionManager(object):
         obj = {
             "courseid": task.get_course_id(),
             "taskid": task.get_id(),
-            "input": self._gridfs.put(json.dumps(inputdata)),
+            "input": self._gridfs.put(json.dumps(inputdata),encoding="utf8"),
             "status": "waiting",
             "submitted_on": datetime.now(),
             "username": [username],
@@ -164,7 +162,7 @@ class SubmissionManager(object):
             else:
                 return submission
         else:
-            inp = json.load(self._gridfs.get(submission['input']))
+            inp = json.loads(self._gridfs.get(submission['input']).read().decode('utf8'))
             if only_input:
                 return inp
             else:
@@ -258,7 +256,7 @@ class SubmissionManager(object):
 
     def get_user_last_submissions_for_course(self, course, limit=5, one_per_task=False):
         """ Returns a given number (default 5) of submissions of task from the course given"""
-        return self.get_user_last_submissions({"courseid": course.get_id(), "taskid": {"$in": course.get_tasks().keys()}}, limit, one_per_task)
+        return self.get_user_last_submissions({"courseid": course.get_id(), "taskid": {"$in": list(course.get_tasks().keys())}}, limit, one_per_task)
 
     @classmethod
     def keep_best_submission(cls, submissions):
@@ -274,8 +272,8 @@ class SubmissionManager(object):
                 elif tasks[sub["taskid"]][username].get("grade", 0.0) < sub.get("grade", 0.0):
                     tasks[sub["taskid"]][username] = sub
         final_subs = []
-        for task in tasks.itervalues():
-            for sub in task.itervalues():
+        for task in tasks.values():
+            for sub in task.values():
                 final_subs.append(sub)
         return final_subs
 
@@ -300,7 +298,7 @@ class SubmissionManager(object):
         for submission in submissions:
             submission = self.get_input_from_submission(submission)
 
-            submission_yaml = StringIO.StringIO(inginious.common.custom_yaml.dump(submission).encode('utf-8'))
+            submission_yaml = io.StringIO(inginious.common.custom_yaml.dump(submission).encode('utf-8'))
 
             # Considering multiple single submissions for each user
             for username in submission["username"]:
@@ -346,7 +344,7 @@ class SubmissionManager(object):
 
                     # If there files that were uploaded by the student, add them
                     if submission['input'] is not None:
-                        for pid, problem in submission['input'].iteritems():
+                        for pid, problem in submission['input'].items():
                             # If problem is a dict, it is a file (from the specification of the problems)
                             if isinstance(problem, dict):
                                 # Get the extension (match extensions with more than one dot too)
@@ -359,7 +357,7 @@ class SubmissionManager(object):
                                         if problem['filename'].endswith(t_ext):
                                             ext = t_ext
 
-                                subfile = StringIO.StringIO(base64.b64decode(problem['value']))
+                                subfile = io.StringIO(base64.b64decode(problem['value']))
                                 taskfname = base_path + str(submission["_id"]) + '/uploaded_files/' + pid + ext
 
                                 # Generate file info

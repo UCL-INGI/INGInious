@@ -48,22 +48,22 @@ class CourseStudentListPage(INGIniousAdminPage):
 
     def page(self, course, error="", post=False):
         """ Get all data and display the page """
-        users = sorted(self.user_manager.get_users_info(self.user_manager.get_course_registered_users(course, False)).items(),
+        users = sorted(list(self.user_manager.get_users_info(self.user_manager.get_course_registered_users(course, False)).items()),
                        key=lambda k: k[1][0] if k[1] is not None else "")
 
-        users = OrderedDict(sorted(self.user_manager.get_users_info(course.get_staff()).items(),
+        users = OrderedDict(sorted(list(self.user_manager.get_users_info(course.get_staff()).items()),
                                    key=lambda k: k[1][0] if k[1] is not None else "") + users)
 
         user_data = OrderedDict([(username, {
             "username": username, "realname": user[0] if user is not None else "",
             "email": user[1] if user is not None else "", "total_tasks": 0,
             "task_grades": {"answer": 0, "match": 0}, "task_succeeded": 0, "task_tried": 0, "total_tries": 0,
-            "grade": 0, "url": self.submission_url_generator(course, username)}) for username, user in users.iteritems()])
+            "grade": 0, "url": self.submission_url_generator(course, username)}) for username, user in users.items()])
 
-        for username, data in self.user_manager.get_course_caches(users.keys(), course).iteritems():
+        for username, data in self.user_manager.get_course_caches(list(users.keys()), course).items():
             user_data[username].update(data if data is not None else {})
 
         if "csv" in web.input():
             return make_csv(user_data)
 
-        return self.template_helper.get_renderer().course_admin.student_list(course, user_data.values(), error, post)
+        return self.template_helper.get_renderer().course_admin.student_list(course, list(user_data.values()), error, post)

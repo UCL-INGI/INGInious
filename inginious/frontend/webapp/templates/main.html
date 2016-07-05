@@ -75,7 +75,7 @@ $elif registration_status == False:
         <label class="sr-only" for="register_courseid">Course</label>
         <select class="form-control" id="register_courseid" name="register_courseid">
             <option value="">Select a course</option>
-            $for courseid, course in registrable_courses.iteritems():
+            $for courseid, course in registrable_courses.items():
                 <option value="$courseid"
                 $if course.is_password_needed_for_registration():
                     data-password="1"

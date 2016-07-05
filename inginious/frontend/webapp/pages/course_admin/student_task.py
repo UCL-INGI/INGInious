@@ -27,7 +27,7 @@ class CourseStudentTaskPage(INGIniousAdminPage):
         """ Get all data and display the page """
         data = list(self.database.submissions.find({"username": username, "courseid": course.get_id(), "taskid": task.get_id()}).sort(
             [("submitted_on", pymongo.DESCENDING)]))
-        data = [dict(f.items() + [("url", self.submission_url_generator(course, str(f["_id"])))]) for f in data]
+        data = [dict(list(f.items()) + [("url", self.submission_url_generator(course, str(f["_id"])))]) for f in data]
         if "csv" in web.input():
             return make_csv(data)
         return self.template_helper.get_renderer().course_admin.student_task(course, username, task, data)

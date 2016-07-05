@@ -143,7 +143,7 @@ def init(plugin_manager, course_factory, job_manager, config):
 
         def keep_only_config_return_values(self, job_return):
             """ Keep only some useful return values """
-            return {key: value for key, value in job_return.iteritems() if return_fields.match(key)}
+            return {key: value for key, value in job_return.items() if return_fields.match(key)}
 
         def POST(self):
             """ POST request """
@@ -173,7 +173,7 @@ def init(plugin_manager, course_factory, job_manager, config):
                     except:
                         return json.dumps({"status": "error", "status_message": "An internal error occured"})
 
-                    return json.dumps(dict({"status": "done"}.items() + self.keep_only_config_return_values(job_return).items()))
+                    return json.dumps(dict(list({"status": "done"}.items()) + list(self.keep_only_config_return_values(job_return).items())))
                 else:
                     # New async job
                     jobid = job_manager_buffer.new_job(task, task_input, "Plugin - Simple Grader")
@@ -184,7 +184,7 @@ def init(plugin_manager, course_factory, job_manager, config):
                     return json.dumps({"status": "waiting"})
                 elif job_manager_buffer.is_done(post_input["jobid"]):
                     job_return = job_manager_buffer.get_result(post_input["jobid"])
-                    return json.dumps(dict({"status": "done"}.items() + self.keep_only_config_return_values(job_return).items()))
+                    return json.dumps(dict(list({"status": "done"}.items()) + list(self.keep_only_config_return_values(job_return).items())))
                 else:
                     return json.dumps({"status": "error", "status_message": "There is no job with jobid {}".format(post_input["jobid"])})
             else:

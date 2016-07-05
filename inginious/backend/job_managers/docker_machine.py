@@ -38,10 +38,10 @@ class DockerMachineJobManager(RemoteDockerJobManager):
         if p.wait() != 0:
             logger.error("An error occured while running the docker-machine inspect command on {}".format(machine))
             logger.error("INGInious will now exit. Here is the output of docker-machine inspect:")
-            logger.error(p.stdout.read())
-            logger.error(p.stderr.read())
+            logger.error(p.stdout.read().decode('utf-8'))
+            logger.error(p.stderr.read().decode('utf-8'))
             exit(1)
-        data = json.loads(p.stdout.read())
+        data = json.loads(p.stdout.read().decode('utf-8'))
 
         use_tls = {
             "cert": data["HostOptions"]["AuthOptions"]["ServerCertPath"],
@@ -75,6 +75,6 @@ class DockerMachineJobManager(RemoteDockerJobManager):
             :param image_aliases: a dict of image aliases, like {"default": "ingi/inginious-c-default"}.
             :param hook_manager: An instance of HookManager. If no instance is given(None), a new one will be created.
         """
-        docker_daemons = map(self.get_machine, machines)
+        docker_daemons = list(map(self.get_machine, machines))
         super(DockerMachineJobManager, self).__init__(docker_daemons, image_aliases, task_directory, course_factory, task_factory, hook_manager,
                                                       is_testing)

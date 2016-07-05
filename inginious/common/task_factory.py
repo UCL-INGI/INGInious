@@ -164,7 +164,7 @@ class TaskFactory(object):
             raise InvalidNameException("Task with invalid name: " + taskid)
         base_file = os.path.join(self._tasks_directory, courseid, taskid, "task")
 
-        for ext, task_file_manager in self._task_file_managers.iteritems():
+        for ext, task_file_manager in self._task_file_managers.items():
             if os.path.isfile(base_file + "." + ext):
                 return (base_file + "." + ext, ext, task_file_manager)
 
@@ -176,7 +176,7 @@ class TaskFactory(object):
 
     def get_available_task_file_extensions(self):
         """ Get a list of all the extensions possible for task descriptors """
-        return self._task_file_managers.keys()
+        return list(self._task_file_managers.keys())
 
     def _cache_update_needed(self, course, taskid):
         """

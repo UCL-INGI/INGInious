@@ -15,8 +15,8 @@ from time import time
 from bson.binary import Binary
 from web.session import Store
 
-valid_key_types = set((str, unicode))
-atomic_types = set((bool, int, long, float, str, unicode, type(None),
+valid_key_types = set((str, str))
+atomic_types = set((bool, int, int, float, str, str, type(None),
                     _pattern_type, datetime))
 
 
@@ -64,7 +64,7 @@ def needs_encode(obj):
         return any(needs_encode(i) for i in obj)
     if obtype is dict:
         return any(type(k) not in valid_key_types or needs_encode(v)
-                   for (k, v) in obj.iteritems())
+                   for (k, v) in obj.items())
     return True
 
 
@@ -85,11 +85,11 @@ class MongoStore(Store):
 
     def encode(self, sessiondict):
         return dict((k, Binary(Store.encode(self, v)) if needs_encode(v) else v)
-                    for (k, v) in sessiondict.iteritems())
+                    for (k, v) in sessiondict.items())
 
     def decode(self, sessiondict):
         return dict((k, Store.decode(self, v) if isinstance(v, Binary) else v)
-                    for (k, v) in sessiondict.iteritems())
+                    for (k, v) in sessiondict.items())
 
     def __contains__(self, sessionid):
         return bool(self.collection.find_one({_id: sessionid}))

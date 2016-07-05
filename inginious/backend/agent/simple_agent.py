@@ -9,7 +9,7 @@ import json
 import logging
 import os.path
 from shutil import rmtree, copytree
-import thread
+import _thread
 import threading
 import tempfile
 import tarfile
@@ -96,7 +96,7 @@ class SimpleAgent(object):
         container_id = response["Id"]
         docker_connection.start(container_id, binds={os.path.abspath(directory): {'ro': False, 'bind': '/todel'}})
         docker_connection.wait(container_id)
-        thread.start_new_thread(docker_connection.remove_container, (container_id, True, False, True))
+        _thread.start_new_thread(docker_connection.remove_container, (container_id, True, False, True))
 
     def _get_new_internal_job_id(self):
         """ Get a new internal job id """
@@ -210,9 +210,9 @@ class SimpleAgent(object):
         os.mkdir(container_path)
         os.mkdir(input_path)
         os.mkdir(output_path)
-        os.chmod(container_path, 0777)
-        os.chmod(input_path, 0777)
-        os.chmod(output_path, 0777)
+        os.chmod(container_path, 0o777)
+        os.chmod(input_path, 0o777)
+        os.chmod(output_path, 0o777)
 
         try:
             if set(input_data.keys()) != set(batch_args.keys()):
@@ -220,11 +220,11 @@ class SimpleAgent(object):
 
             for key in batch_args:
                 if batch_args[key]["type"] == "text":
-                    if not isinstance(input_data[key], basestring):
+                    if not isinstance(input_data[key], str):
                         raise Exception("Invalid value for inputdata: the value for key {} should be a string".format(key))
                     open(os.path.join(input_path, batch_args[key]["path"]), 'w').write(input_data[key])
                 elif batch_args[key]["type"] == "file":
-                    if isinstance(input_data[key], basestring):
+                    if isinstance(input_data[key], str):
                         raise Exception("Invalid value for inputdata: the value for key {} should be a file object".format(key))
                     open(os.path.join(input_path, batch_args[key]["path"]), 'w').write(input_data[key].read())
         except:
@@ -312,7 +312,7 @@ class SimpleAgent(object):
         try:
             task = self.course_factory.get_task(course_id, task_id)
         except:
-            self.logger.warning("Task %s/%s unavailable on this agent", course_id, task_id)
+            self.logger.warning("Task %s/%s unavailable on this agent", course_id, task_id, exc_info=True)
             return {'result': 'crash', 'text': 'Task unavailable on agent. Please retry later, the agents should synchronize soon. If the error '
                                                'persists, please contact your course administrator.'}
 
@@ -340,15 +340,15 @@ class SimpleAgent(object):
 
         os.mkdir(container_path)
         os.mkdir(sockets_path)
-        os.chmod(container_path, 0777)
-        os.chmod(sockets_path, 0777)
+        os.chmod(container_path, 0o777)
+        os.chmod(sockets_path, 0o777)
 
         copytree(os.path.join(self.task_directory, task.get_course_id(), task.get_id()), task_path)
-        os.chmod(task_path, 0777)
+        os.chmod(task_path, 0o777)
 
         if not os.path.exists(student_path):
             os.mkdir(student_path)
-            os.chmod(student_path, 0777)
+            os.chmod(student_path, 0o777)
 
         # Run the container
         try:
@@ -466,14 +466,14 @@ class SimpleAgent(object):
         student_container_management.close()
 
         # Remove container
-        thread.start_new_thread(docker_connection.remove_container, (container_id, True, False, True))
+        _thread.start_new_thread(docker_connection.remove_container, (container_id, True, False, True))
 
         # Remove subcontainers
         for i in container_set:
             # Also deletes them from the timeout/memory watchers
             self._timeout_watcher.container_had_error(container_id)
             self._memory_watcher.container_had_error(container_id)
-            thread.start_new_thread(docker_connection.remove_container, (i, True, False, True))
+            _thread.start_new_thread(docker_connection.remove_container, (i, True, False, True))
 
         # Delete folders
         rmtree(container_path)
@@ -580,7 +580,7 @@ class SimpleAgent(object):
             return_value = 252
 
         # Remove container
-        thread.start_new_thread(docker_connection.remove_container, (container_id, True, False, True))
+        _thread.start_new_thread(docker_connection.remove_container, (container_id, True, False, True))
         container_set.remove(container_id)
 
         # Return!

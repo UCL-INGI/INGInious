@@ -9,7 +9,7 @@ import threading
 import copy
 import tempfile
 import tarfile
-from StringIO import StringIO
+from io import StringIO
 import re
 import os
 
@@ -129,7 +129,7 @@ class RemoteManualAgentJobManager(AbstractJobManager):
         if not self._is_testing:
             # if we are not in a test, retry in 10 secs
             retry_in = 10
-        elif self._connection_attempts < 3 and len(filter(lambda elem: elem is None, self._agents)):
+        elif self._connection_attempts < 3 and len([elem for elem in self._agents if elem is None]):
             # if we are testing, do maximum three attempts to connect to all agents
             self._connection_attempts += 1
             retry_in = 10
@@ -182,7 +182,7 @@ class RemoteManualAgentJobManager(AbstractJobManager):
 
         new_local_td = {}
         generated_yaml_content = {}
-        for file_path, data in local_td.iteritems():
+        for file_path, data in local_td.items():
             match = re.match(r'^([a-zA-Z0-9_\-]+)/([a-zA-Z0-9_\-]+)/(task.[a-z0-9]+)$', file_path)
             if match is not None and match.group(3) in task_files_to_convert:
                 try:
@@ -235,10 +235,14 @@ class RemoteManualAgentJobManager(AbstractJobManager):
         # sync the agent
         async_update = rpyc.async(agent.root.update_task_directory)
         # do not forget to close the file
-        async_update(tmpfile, to_delete).add_callback(lambda r: self._synchronize_task_dir_done(agent, tmpfile))
+        async_update(tmpfile, to_delete).add_callback(lambda r: self._synchronize_task_dir_done(agent, tmpfile, r))
 
-    def _synchronize_task_dir_done(self, agent, file_to_close):
+    def _synchronize_task_dir_done(self, agent, file_to_close, exc):
         """ Ends the file sync by warning hooks and closing some files """
+        try:
+            exc.value
+        except:
+            self._logger.exception("Exception happened during task dir update")
         file_to_close.close()
         self._hook_manager.call_hook("job_manager_agent_sync_done", agent=agent)
 
@@ -280,10 +284,10 @@ class RemoteManualAgentJobManager(AbstractJobManager):
         # Compress inputdata before sending it to the agent
         tmpfile = tempfile.TemporaryFile()
         tar = tarfile.open(fileobj=tmpfile, mode='w:gz')
-        for key, val in inputdata.iteritems():
+        for key, val in inputdata.items():
             info = tarfile.TarInfo(name=key)
             info.mode = 0o777
-            if isinstance(val, basestring):
+            if isinstance(val, str):
                 fileobj = StringIO(val)
                 info.size = fileobj.len
                 tar.addfile(tarinfo=info, fileobj=fileobj)

@@ -153,10 +153,13 @@ class RemoteAgent(SimpleAgent):
                          from the local task directory, with their hash, or None if sync is disabled.
                 """
                 if sync_enabled:
-                    logger.info("Getting the list of files from the local task directory for the inginious.backend.")
-                    return inginious.common.base.directory_content_with_hash(task_directory)
+                    logger.info("Getting the list of files from the local task directory from the backend.")
+                    try:
+                        return inginious.common.base.directory_content_with_hash(task_directory)
+                    except:
+                        logger.exception("An error occured while syncing directories")
                 else:
-                    logger.info("Warning the inginious.backend that sync is disabled.")
+                    logger.warn("Sync is disabled, but backend tried to sync")
                     return None
 
             def exposed_update_task_directory(self, remote_tar_file, to_delete):

@@ -331,9 +331,9 @@ class AbstractJobManager(object):
         if set(inputdata.keys()) != set(batch_args.keys()):
             raise Exception("Invalid keys for inputdata")
         for key in batch_args:
-            if batch_args[key]["type"] == "text" and not isinstance(inputdata[key], basestring):
+            if batch_args[key]["type"] == "text" and not isinstance(inputdata[key], str):
                 raise Exception("Invalid value for inputdata: the value for key {} should be a string".format(key))
-            elif batch_args[key]["type"] == "file" and isinstance(inputdata[key], basestring):
+            elif batch_args[key]["type"] == "file" and isinstance(inputdata[key], str):
                 raise Exception("Invalid value for inputdata: the value for key {} should be a file object".format(key))
 
         # Compute some informations that will be useful for statistics
@@ -358,7 +358,7 @@ class AbstractJobManager(object):
         try:
             ssh_callback(job_id, ssh_key)
         except Exception as e:
-            print ("Cannot execute ssh callback for job id %s: %s" % (job_id, str(e)))
+            print(("Cannot execute ssh callback for job id %s: %s" % (job_id, str(e))))
 
     def _get_distant_conn_id_for_job(self, job_id):
         """ Get the distant connection id for a job_id. Returns None if the conn_id is expired or not valid. """

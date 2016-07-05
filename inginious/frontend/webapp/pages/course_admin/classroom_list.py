@@ -57,7 +57,7 @@ class CourseClassroomListPage(INGIniousAdminPage):
         classrooms = OrderedDict()
 
         for classroom in self.user_manager.get_course_classrooms(course):
-            classrooms[classroom['_id']] = dict(classroom.items() +
+            classrooms[classroom['_id']] = dict(list(classroom.items()) +
                                                 [("tried", 0),
                                                  ("done", 0),
                                                  ("url", self.submission_url_generator(course, classroom['_id']))
@@ -69,7 +69,7 @@ class CourseClassroomListPage(INGIniousAdminPage):
                         "$match":
                             {
                                 "courseid": course.get_id(),
-                                "taskid": {"$in": course.get_tasks().keys()},
+                                "taskid": {"$in": list(course.get_tasks().keys())},
                                 "username": {"$in": classroom["students"]}
                             }
                     },
@@ -89,7 +89,7 @@ class CourseClassroomListPage(INGIniousAdminPage):
                 classrooms[classroom['_id']]["done"] += 1 if c["done"] else 0
 
         my_classrooms, other_classrooms = [], []
-        for classroom in classrooms.values():
+        for classroom in list(classrooms.values()):
             if self.user_manager.session_username() in classroom["tutors"]:
                 my_classrooms.append(classroom)
             else:

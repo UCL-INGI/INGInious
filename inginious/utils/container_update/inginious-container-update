@@ -24,20 +24,20 @@ def main():
                 if re.match(r"^ingi/inginious-(c-[a-z]+|agent):latest$", tag):
                     stock_images.append(tag)
     except:
-        print FAIL + "Cannot connect to Docker!" + ENDC
-        print FAIL + "Restart this command after making sure the command `docker info` works" + ENDC
+        print(FAIL + "Cannot connect to Docker!" + ENDC)
+        print(FAIL + "Restart this command after making sure the command `docker info` works" + ENDC)
         return
 
     if len(stock_images) == 0:
-        print WARNING + "You have no image to update. Do not forget to run `inginious-install`." + ENDC
+        print(WARNING + "You have no image to update. Do not forget to run `inginious-install`." + ENDC)
     else:
-        print INFO + "Currently installed images:"
+        print(INFO + "Currently installed images:")
         for i in stock_images:
-            print INFO + ("- %s" % i) + ENDC
+            print(INFO + ("- %s" % i) + ENDC)
         for image in stock_images:
-            print INFO + ("Updating %s" % image) + ENDC
+            print(INFO + ("Updating %s" % image) + ENDC)
             docker_connection.pull(image)
-        print INFO + "Images update done" + ENDC
+        print(INFO + "Images update done" + ENDC)
 
 if __name__ == "__main__":
     main()

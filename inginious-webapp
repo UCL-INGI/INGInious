@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -15,6 +15,12 @@ import inginious.frontend.webapp.app
 from inginious.frontend.webapp.installer import Installer
 
 if __name__ == "__main__":
+    import locale
+    print(locale.getpreferredencoding())
+    import sys
+    print(sys.stdout.encoding)
+    f = open('t', 'w')
+    print(f.encoding)
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", help="Path to configuration file. By default: configuration.yaml or configuration.json")
     parser.add_argument("--host", help="Host to bind to. Default is localhost.", default="localhost")

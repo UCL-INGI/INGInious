@@ -7,9 +7,7 @@
 from abc import ABCMeta, abstractmethod
 
 
-class AbstractUserManager(object):
-    __metaclass__ = ABCMeta
-
+class AbstractUserManager(object, metaclass=ABCMeta):
     @abstractmethod
     def session_logged_in(self):
         """ Returns True if a user is currently connected in this session, False else """

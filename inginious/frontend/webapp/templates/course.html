@@ -70,7 +70,7 @@ $var Navbar: $:NavbarF()
 $# Start content
 <h2>$course.get_name() - List of exercises</h2>
 <div class="list-group list-group-progress" style="margin-left: 16px; margin-right: 16px;">
-    $for taskid, task in course.get_tasks().iteritems()
+    $for taskid, task in course.get_tasks().items()
         $if user_manager.task_is_visible_by_user(task):
             $ status=user_manager.get_task_status(task)
             $ completion=user_manager.get_task_grade(task)

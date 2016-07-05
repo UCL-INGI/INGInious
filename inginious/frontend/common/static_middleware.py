@@ -6,7 +6,7 @@
 """ A middleware for Web.py that serves static content """
 import os
 import posixpath
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 import web
 
@@ -31,9 +31,9 @@ class StaticApp(web.httpserver.StaticApp, object):
         path = path.split('#', 1)[0]
         # Don't forget explicit trailing slash when normalizing. Issue17324
         trailing_slash = path.rstrip().endswith('/')
-        path = posixpath.normpath(urllib.unquote(path))
+        path = posixpath.normpath(urllib.parse.unquote(path))
         words = path.split('/')
-        words = filter(None, words)
+        words = [_f for _f in words if _f]
         path = self.base_path
         for word in words:
             drive, word = os.path.splitdrive(word)
@@ -65,7 +65,7 @@ class StaticMiddleware(object):
 
     def normpath(self, path):
         """ Normalize the path """
-        path2 = posixpath.normpath(urllib.unquote(path))
+        path2 = posixpath.normpath(urllib.parse.unquote(path))
         if path.endswith("/"):
             path2 += "/"
         return path2

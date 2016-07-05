@@ -72,7 +72,7 @@ class TestDockerJobManager(object):
 
     def build_fake_agent(self, dockerfile="FakeAgentDockerfile"):
         dockerfile_dir = os.path.abspath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "utils/"))
-        print [line for line in self.docker_connection.build(dockerfile_dir, dockerfile=dockerfile, rm=True, tag="ingi/inginious-agent")]
+        print([line for line in self.docker_connection.build(dockerfile_dir, dockerfile=dockerfile, rm=True, tag="ingi/inginious-agent")])
 
     def start_fake_agent(self):
         response = self.docker_connection.create_container(

@@ -5,7 +5,7 @@
 
 """ Some helpers to manage cgroups"""
 
-from Queue import PriorityQueue
+from queue import PriorityQueue
 import logging
 import math
 import multiprocessing
@@ -30,7 +30,7 @@ def force_close_event_listener(event_listener_obj):
         event_listener_obj.ec_file.close()
         linux.close(event_listener_obj.event_fd)
     except Exception as e:
-        print("Exception in force_close_event_listener: "+str(e))
+        print(("Exception in force_close_event_listener: "+str(e)))
 
 def get_container_cgroup(cgroupname, container):
     def recur(cg):
@@ -112,7 +112,7 @@ class CGroupMemoryWatcher(threading.Thread):
         while (True):
             # Get a list with all the eventfd
             with self._containers_running_lock:
-                to_select = [self._update_pipe[0]] + [d["eventlistener"].event_fd for d in self._containers_running.values() if
+                to_select = [self._update_pipe[0]] + [d["eventlistener"].event_fd for d in list(self._containers_running.values()) if
                                                       d["eventlistener"] is not None]
 
             # Run the select() system call on all the eventfd.
@@ -142,7 +142,7 @@ class CGroupMemoryWatcher(threading.Thread):
                         (container_id,
                          d["eventlistener"].event_fd,
                          d["max_memory"]) for container_id,
-                                              d in self._containers_running.iteritems() if (
+                                              d in self._containers_running.items() if (
                             d["eventlistener"] is not None and d["eventlistener"].event_fd in rlist)]
                     for container_id, event_fd, max_memory in container_ids:
                         # we have to read everything

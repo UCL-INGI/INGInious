@@ -35,9 +35,7 @@ DOC = '\033[39m'
 BACKGROUND_RED = '\033[101m'
 
 
-class Installer(object):
-    __metaclass__ = abc.ABCMeta
-
+class Installer(object, metaclass=abc.ABCMeta):
     def __init__(self, config_path=None):
         self._config_path = config_path
 
@@ -47,35 +45,35 @@ class Installer(object):
 
     def _display_header(self, title):
         """ Displays an header in the console """
-        print ""
-        print BOLD + HEADER + "--- " + title + " ---" + ENDC
+        print("")
+        print(BOLD + HEADER + "--- " + title + " ---" + ENDC)
 
     def _display_warning(self, content):
         """ Displays a warning in the console """
-        print WARNING + "(WARN) " + content + ENDC
+        print(WARNING + "(WARN) " + content + ENDC)
 
     def _display_info(self, content):
         """ Displays an info message in the console """
-        print INFO + "(INFO) " + content + ENDC
+        print(INFO + "(INFO) " + content + ENDC)
 
     def _display_question(self, content):
         """ Displays a preamble to a question """
-        print DOC + content + ENDC
+        print(DOC + content + ENDC)
 
     def _display_error(self, content):
         """ Displays an error """
-        print WHITE + BACKGROUND_RED + "(ERROR) " + content + ENDC
+        print(WHITE + BACKGROUND_RED + "(ERROR) " + content + ENDC)
 
     def _display_big_warning(self, content):
         """ Displays a BIG warning """
-        print ""
-        print BOLD + WARNING + "--- WARNING ---" + ENDC
-        print WARNING + content + ENDC
-        print ""
+        print("")
+        print(BOLD + WARNING + "--- WARNING ---" + ENDC)
+        print(WARNING + content + ENDC)
+        print("")
 
     def _ask_with_default(self, question, default):
         default = str(default)
-        answer = raw_input(DOC + UNDERLINE + question + " [" + default + "]:" + ENDC + " ")
+        answer = input(DOC + UNDERLINE + question + " [" + default + "]:" + ENDC + " ")
         if answer == "":
             answer = default
         return answer
@@ -151,7 +149,7 @@ class Installer(object):
             self._display_info("Successfully written the configuration file")
         except:
             self._display_error("Cannot write the configuration file on disk. Here is the content of the file")
-            print yaml.dump(options)
+            print(yaml.dump(options))
 
     @abc.abstractmethod
     def frontend_specific_configuration(self, options):
@@ -253,7 +251,7 @@ class Installer(object):
         """ Test if the configuration given for connecting to Docker works"""
         try:
             if backend == "remote":
-                if isinstance(use_tls, basestring):
+                if isinstance(use_tls, str):
                     tls_config = docker.tls.TLSConfig(
                         client_cert=(use_tls + '/cert.pem', use_tls + '/key.pem'),
                         verify=use_tls + '/ca.pem'
@@ -304,7 +302,7 @@ class Installer(object):
                               cgroups_location):
         """ Get the environment for the agent. Returns None if an error happens. """
         try:
-            if isinstance(use_tls, basestring):
+            if isinstance(use_tls, str):
                 tls_config = docker.tls.TLSConfig(
                     client_cert=(use_tls + '/cert.pem', use_tls + '/key.pem'),
                     verify=use_tls + '/ca.pem'
@@ -811,14 +809,14 @@ class Installer(object):
             if current_options["backend"] == "remote":
                 docker_daemons = current_options["docker_daemons"]
             else:
-                docker_daemons = map(lambda x: DockerMachineJobManager.get_machine(x), current_options["machines"])
+                docker_daemons = [DockerMachineJobManager.get_machine(x) for x in current_options["machines"]]
 
             for daemon in docker_daemons:
                 remote_host = daemon["remote_host"]
                 remote_docker_port = daemon["remote_docker_port"]
                 use_tls = daemon["use_tls"]
 
-                if isinstance(use_tls, basestring):
+                if isinstance(use_tls, str):
                     tls_config = docker.tls.TLSConfig(
                         client_cert=(use_tls + '/cert.pem', use_tls + '/key.pem'),
                         verify=use_tls + '/ca.pem'

@@ -57,7 +57,7 @@ class TemplateHelper(object):
         return web.template.render(os.path.join(base_dir_path, dir_path), globals=self._template_globals, base=base)
 
     def call(self, name, **kwargs):
-        helpers = dict(self._base_helpers.items() + self._plugin_manager.call_hook("template_helper"))
+        helpers = dict(list(self._base_helpers.items()) + self._plugin_manager.call_hook("template_helper"))
         if helpers.get(name, None) is None:
             return ""
         else:

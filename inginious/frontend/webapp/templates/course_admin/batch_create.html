@@ -42,7 +42,7 @@ $if errors is not None:
             <th>Container image name</th>
             <td>$container_name</td>
         </tr>
-        $for key, val in container_args.iteritems():
+        $for key, val in container_args.items():
             <tr>
                 $if val.get("description") is not None:
                     <th rowspan="2"><label for="args-$key">$val.get("name",key)</label></th>

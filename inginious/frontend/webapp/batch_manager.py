@@ -77,7 +77,7 @@ class BatchManager(object):
 
         metadata = copy.deepcopy(self._job_manager.get_batch_container_metadata(container_name))
         if metadata != (None, None, None):
-            for key, val in metadata[2].iteritems():
+            for key, val in metadata[2].items():
                 if "description" in val:
                     val["description"] = ParsableText(val["description"].replace('\\n', '\n').replace('\\t', '\t'), 'rst').parse()
             metadata = (metadata[0], ParsableText(metadata[1].replace('\\n', '\n').replace('\\t', '\t'), 'rst').parse(), metadata[2])

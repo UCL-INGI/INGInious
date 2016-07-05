@@ -56,7 +56,7 @@ class CourseEditClassroom(INGIniousAdminPage):
             {"$project": {"_id": 0, "students": 1}}
         ]))]
 
-        users_info = self.user_manager.get_users_info(other_students + student_list.keys() + tutor_list)
+        users_info = self.user_manager.get_users_info(other_students + list(student_list.keys()) + tutor_list)
 
         # Order the non-registered students
         other_students = sorted(other_students, key=lambda val: (("0"+users_info[val][0]) if users_info[val] else ("1"+val)))

@@ -102,7 +102,7 @@ class UserManager(AbstractUserManager):
         if self._session.session_id is None:
             self.set_session_identifier(None)
 
-        for key, val in value.iteritems():
+        for key, val in value.items():
             self._session[key] = val
 
     def get_task_status(self, task, username=None):

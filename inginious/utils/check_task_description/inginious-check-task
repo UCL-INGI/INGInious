@@ -33,10 +33,10 @@ if __name__ == "__main__":
     try:
         course_factory.get_task(args.course, args.task)
     except Exception as inst:
-        print "There was an error while validating the file:"
-        print type(inst)
-        print inst
+        print("There was an error while validating the file:")
+        print(type(inst))
+        print(inst)
         exit(1)
     else:
-        print "File verification succeeded"
+        print("File verification succeeded")
         exit(0)

@@ -6,7 +6,7 @@
 """ Manages the calls to the TC """
 import logging
 import threading
-import Queue
+import queue
 import uuid
 import time
 
@@ -22,7 +22,7 @@ class LisOutcomeManager(threading.Thread):
         self._user_manager = user_manager
         self._course_factory = course_factory
         self._lti_consumers = lti_consumers
-        self._queue = Queue.Queue()
+        self._queue = queue.Queue()
         self._stopped = False
         self._logger = logging.getLogger("inginious.lti.outcome_manager")
         self.start()

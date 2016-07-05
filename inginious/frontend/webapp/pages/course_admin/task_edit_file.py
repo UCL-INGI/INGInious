@@ -95,7 +95,7 @@ class CourseTaskFiles(INGIniousAdminPage):
                     insert_dict[f] = None
 
         def recur_print(current, level, current_name):
-            iteritems = sorted(current.iteritems())
+            iteritems = sorted(current.items())
             # First, the files
             recur_print.flattened += [(level, False, f, os.path.join(current_name, f)) for f, t in iteritems if t is None]
             # Then, the dirs

@@ -9,7 +9,7 @@ import json
 import mimetypes
 import os
 import posixpath
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 import web
 
@@ -48,7 +48,7 @@ class TaskPage(INGIniousPage):
                     if isinstance(sinput[userinput["questionid"]], dict):
                         # File uploaded previously
                         mimetypes.init()
-                        mime_type = mimetypes.guess_type(urllib.pathname2url(sinput[userinput["questionid"]]['filename']))
+                        mime_type = mimetypes.guess_type(urllib.request.pathname2url(sinput[userinput["questionid"]]['filename']))
                         web.header('Content-Type', mime_type[0])
                         return base64.b64decode(sinput[userinput["questionid"]]['value'])
                     else:
@@ -171,7 +171,7 @@ class TaskPageStaticDownload(INGIniousPage):
                 if not self.user_manager.task_is_visible_by_user(task):
                     return self.template_helper.get_renderer().task_unavailable()
 
-                path_norm = posixpath.normpath(urllib.unquote(path))
+                path_norm = posixpath.normpath(urllib.parse.unquote(path))
                 public_folder_path = os.path.normpath(os.path.realpath(os.path.join(task.get_directory_path(), "public")))
                 file_path = os.path.normpath(os.path.realpath(os.path.join(public_folder_path, path_norm)))
 

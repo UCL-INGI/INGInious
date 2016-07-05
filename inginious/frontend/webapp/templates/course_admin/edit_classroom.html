@@ -174,7 +174,7 @@ $elif msg:
                         </div>
                         <input id="size" type="hidden" class="form-control" value="0">
                         <ul id="group_0" style="list-style-type: none;" class="students list-group">
-                            $for username, student in student_list.iteritems():
+                            $for username, student in student_list.items():
                                 $if not student["grouped"]:
                                     <li data-username="$username" class="list-group-item group-entry">
                                         $if users_info[username] is not None:

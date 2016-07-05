@@ -5,8 +5,8 @@
 
 """ Utilities for administration pages """
 
-import StringIO
-import cStringIO
+import io
+import io
 import codecs
 import csv
 
@@ -58,7 +58,7 @@ class UnicodeWriter(object):
 
     def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
         # Redirect output to a queue
-        self.queue = cStringIO.StringIO()
+        self.queue = io.StringIO()
         self.writer = csv.writer(self.queue, dialect=dialect, **kwds)
         self.stream = f
         self.encoder = codecs.getincrementalencoder(encoding)()
@@ -91,14 +91,14 @@ def make_csv(data):
             rval = data[entry]
         todel = []
         toadd = {}
-        for key, val in rval.iteritems():
+        for key, val in rval.items():
             if isinstance(val, dict):
-                for key2, val2 in val.iteritems():
+                for key2, val2 in val.items():
                     toadd[str(key) + "[" + str(key2) + "]"] = val2
                 todel.append(key)
         for k in todel:
             del rval[k]
-        for k, v in toadd.iteritems():
+        for k, v in toadd.items():
             rval[k] = v
 
     # Convert everything to CSV
@@ -123,16 +123,16 @@ def make_csv(data):
         for entry in data:
             new_output = [str(entry)]
             for col in columns:
-                new_output.append(unicode(data[entry][col]) if col in data[entry] else "")
+                new_output.append(str(data[entry][col]) if col in data[entry] else "")
             output.append(new_output)
     else:
         for entry in data:
             new_output = []
             for col in columns:
-                new_output.append(unicode(entry[col]) if col in entry else "")
+                new_output.append(str(entry[col]) if col in entry else "")
             output.append(new_output)
 
-    csv_string = StringIO.StringIO()
+    csv_string = io.StringIO()
     csv_writer = UnicodeWriter(csv_string)
     for row in output:
         csv_writer.writerow(row)

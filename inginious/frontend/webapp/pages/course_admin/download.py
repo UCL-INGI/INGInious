@@ -38,7 +38,7 @@ class CourseDownloadSubmissions(INGIniousAdminPage):
         if "filter_type" not in user_input or "type" not in user_input or "format" not in user_input or user_input.format not in self.valid_formats:
             raise web.notfound()
 
-        tasks = course.get_tasks().keys()
+        tasks = list(course.get_tasks().keys())
         for i in user_input.tasks:
             if i not in tasks:
                 raise web.notfound()
@@ -52,7 +52,7 @@ class CourseDownloadSubmissions(INGIniousAdminPage):
             classrooms = list(self.database.classrooms.find({"_id": {"$in": [ObjectId(cid) for cid in user_input.classrooms]}}))
 
         classrooms = dict([(username, classroom) for classroom in classrooms for username in classroom["students"]])
-        submissions = list(self.database.submissions.find({"username": {"$in": classrooms.keys()},
+        submissions = list(self.database.submissions.find({"username": {"$in": list(classrooms.keys())},
                                                            "taskid": {"$in": user_input.tasks},
                                                            "courseid": course.get_id(),
                                                            "status": {"$in": ["done", "error"]}}))
@@ -81,12 +81,12 @@ class CourseDownloadSubmissions(INGIniousAdminPage):
             return self.submission_manager.get_submission_archive(submissions, [], {})
 
         # Else, display the complete page
-        tasks = {taskid: task.get_name() for taskid, task in course.get_tasks().iteritems()}
+        tasks = {taskid: task.get_name() for taskid, task in course.get_tasks().items()}
 
         user_list = self.user_manager.get_course_registered_users(course)
-        users = OrderedDict(sorted(self.user_manager.get_users_info(user_list).items(),
+        users = OrderedDict(sorted(list(self.user_manager.get_users_info(user_list).items()),
                                    key=lambda k: k[1][0] if k[1] is not None else ""))
-        user_data = OrderedDict([(username, user[0] if user is not None else username) for username, user in users.iteritems()])
+        user_data = OrderedDict([(username, user[0] if user is not None else username) for username, user in users.items()])
 
         classrooms = self.user_manager.get_course_classrooms(course)
         classroom_data = OrderedDict([(str(classroom["_id"]), classroom["description"]) for classroom in classrooms])
@@ -94,9 +94,9 @@ class CourseDownloadSubmissions(INGIniousAdminPage):
         tutored_users = [username for classroom in classrooms if self.user_manager.session_username() in classroom["tutors"] for username in
                          classroom["students"]]
 
-        checked_tasks = tasks.keys()
-        checked_users = user_data.keys()
-        checked_classrooms = classroom_data.keys()
+        checked_tasks = list(tasks.keys())
+        checked_users = list(user_data.keys())
+        checked_classrooms = list(classroom_data.keys())
         show_classrooms = False
         chosen_format = self.valid_formats[0]
 

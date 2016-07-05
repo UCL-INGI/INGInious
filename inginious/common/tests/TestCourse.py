@@ -16,7 +16,7 @@ class TestCourse(object):
 
     def test_course_loading(self):
         '''Tests if a course file loads correctly'''
-        print "\033[1m-> common-courses: course loading\033[0m"
+        print("\033[1m-> common-courses: course loading\033[0m")
         c = self.course_factory.get_course('test')
         assert c.get_id() == 'test'
         assert c._content['accessible'] == True
@@ -52,7 +52,7 @@ class TestCourse(object):
 
     def test_all_courses_loading(self):
         '''Tests if all courses are loaded by Course.get_all_courses()'''
-        print "\033[1m-> common-courses: all courses loading\033[0m"
+        print("\033[1m-> common-courses: all courses loading\033[0m")
         c = self.course_factory.get_all_courses()
         assert 'test' in c
         assert 'test2' in c
@@ -60,7 +60,7 @@ class TestCourse(object):
 
     def test_tasks_loading(self):
         '''Tests loading tasks from the get_tasks method'''
-        print "\033[1m-> common-courses: course tasks loading\033[0m"
+        print("\033[1m-> common-courses: course tasks loading\033[0m")
         c = self.course_factory.get_course('test')
         t = c.get_tasks()
         assert 'task1' in t
