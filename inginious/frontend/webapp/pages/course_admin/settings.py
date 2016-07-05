@@ -36,10 +36,8 @@ class CourseSettings(INGIniousAdminPage):
             if len(course_content['tutors']) == 1 and course_content['tutors'][0].strip() == "":
                 course_content['tutors'] = []
 
-            if data["groups_student_choice"] == "true":
-                course_content['groups_student_choice'] = True
-            else:
-                course_content['groups_student_choice'] = False
+            course_content['groups_student_choice'] = True if data["groups_student_choice"] == "true" else False
+            course_content['use_classrooms'] = True if data["use_classrooms"] == "true" else False
 
             if data["accessible"] == "custom":
                 course_content['accessible'] = "{}/{}".format(data["accessible_start"], data["accessible_end"])

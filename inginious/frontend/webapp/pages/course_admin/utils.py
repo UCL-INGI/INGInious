@@ -150,7 +150,8 @@ def get_menu(course, current, renderer, plugin_manager, user_manager):
                             ("batch", "<i class='fa fa-rocket fa-fw'></i>&nbsp; Batch operations")]
 
     default_entries += [("students", "<i class='fa fa-user fa-fw'></i>&nbsp; Students"),
-                        ("classrooms", "<i class='fa fa-group fa-fw'></i>&nbsp; Classrooms")]
+                        ("classrooms", "<i class='fa fa-group fa-fw'></i>&nbsp; " +
+                         ("Classrooms" if course.use_classrooms() else "Groups"))]
 
     default_entries += [("tasks", "<i class='fa fa-tasks fa-fw'></i>&nbsp; Tasks"),
                         ("download", "<i class='fa fa-download fa-fw'></i>&nbsp; Download submissions")]
