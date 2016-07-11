@@ -56,6 +56,7 @@ urls = {
     r'/admin/([^/]+)/tasks': 'inginious.frontend.webapp.pages.course_admin.task_list.CourseTaskListPage',
     r'/admin/([^/]+)/task/([^/]+)': 'inginious.frontend.webapp.pages.course_admin.task_info.CourseTaskInfoPage',
     r'/admin/([^/]+)/edit/classroom/([^/]+)': 'inginious.frontend.webapp.pages.course_admin.classroom_edit.CourseEditClassroom',
+    r'/admin/([^/]+)/edit/classrooms': 'inginious.frontend.webapp.pages.course_admin.classroom_edit.CourseEditClassroom',
     r'/admin/([^/]+)/edit/task/([^/]+)': 'inginious.frontend.webapp.pages.course_admin.task_edit.CourseEditTask',
     r'/admin/([^/]+)/edit/task/([^/]+)/files': 'inginious.frontend.webapp.pages.course_admin.task_edit_file.CourseTaskFiles',
     r'/admin/([^/]+)/download': 'inginious.frontend.webapp.pages.course_admin.download.CourseDownloadSubmissions',

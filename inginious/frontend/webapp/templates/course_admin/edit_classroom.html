@@ -174,11 +174,12 @@ $elif msg:
                         </div>
                         <input id="size" type="hidden" class="form-control" value="0">
                         <ul id="group_0" style="list-style-type: none;" class="students list-group">
-                            $for username, student in student_list.iteritems():
-                                $if not student["grouped"]:
+                            $for username in classroom["students"]:
+                                $if not student_list[username]["grouped"]:
+                                    $ user=users_info[username]
                                     <li data-username="$username" class="list-group-item group-entry">
                                         $if users_info[username] is not None:
-                                            <span id="$username']">$users_info[username][0] ($username)</span>
+                                            <span id="$username']">$user[0] ($username)</span>
                                         $else:
                                             <span id="$username']">$username</span>
                                         $ style = 'style="display:none;"' if classroom["default"] else ''

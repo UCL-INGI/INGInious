@@ -18,15 +18,16 @@ from inginious.frontend.webapp.pages.course_admin.utils import INGIniousAdminPag
 class CourseEditClassroom(INGIniousAdminPage):
     """ Edit a task """
 
-    def get_user_lists(self, course, classroomid):
+    def get_user_lists(self, course, classroomid=''):
         """ Get the available student and tutor lists for classroom edition"""
         tutor_list = course.get_staff()
 
-        # Determine if user is grouped or not in the classroom
+        # Determine student list and if they are grouped
         student_list = list(self.database.classrooms.aggregate([
-            {"$match": {"_id": ObjectId(classroomid)}},
+            {"$match": {"courseid": course.get_id()}},
             {"$unwind": "$students"},
             {"$project": {
+                "classroom": "$_id",
                 "students": 1,
                 "grouped": {
                     "$anyElementTrue": {
@@ -49,19 +50,17 @@ class CourseEditClassroom(INGIniousAdminPage):
         ]))
 
         student_list = dict([(student["students"], student) for student in student_list])
+        users_info = self.user_manager.get_users_info(student_list.keys() + tutor_list)
 
-        other_students = [entry['students'] for entry in list(self.database.classrooms.aggregate([
-            {"$match": {"courseid": course.get_id(), "_id": {"$ne": ObjectId(classroomid)}}},
-            {"$unwind": "$students"},
-            {"$project": {"_id": 0, "students": 1}}
-        ]))]
+        if classroomid:
+            # Order the non-registered students
+            other_students = [student_list[entry]['students'] for entry in student_list.keys() if
+                              not student_list[entry]['classroom'] == ObjectId(classroomid)]
+            other_students = sorted(other_students, key=lambda val: (("0"+users_info[val][0]) if users_info[val] else ("1"+val)))
 
-        users_info = self.user_manager.get_users_info(other_students + student_list.keys() + tutor_list)
-
-        # Order the non-registered students
-        other_students = sorted(other_students, key=lambda val: (("0"+users_info[val][0]) if users_info[val] else ("1"+val)))
-
-        return student_list, tutor_list, other_students, users_info
+            return student_list, tutor_list, other_students, users_info
+        else:
+            return student_list, tutor_list, users_info
 
     def update_classroom(self, course, classroomid, new_data):
         """ Update classroom and returns a list of errored students"""
@@ -113,71 +112,86 @@ class CourseEditClassroom(INGIniousAdminPage):
 
         return classroom, errored_students
 
-    def GET(self, courseid, classroomid):
+    def GET(self, courseid, classroomid=''):
         """ Edit a classroom """
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=True)
-        student_list, tutor_list, other_students, users_info = self.get_user_lists(course, classroomid)
-        classroom = self.database.classrooms.find_one({"_id": ObjectId(classroomid), "courseid": courseid})
 
-        if classroom:
-            return self.template_helper.get_renderer().course_admin.edit_classroom(course, student_list, tutor_list, other_students, users_info,
-                                                                                   classroom, "", False)
+        if classroomid:
+            student_list, tutor_list, other_students, users_info = self.get_user_lists(course, classroomid)
+            classroom = self.database.classrooms.find_one({"_id": ObjectId(classroomid), "courseid": courseid})
+
+            if classroom:
+                return self.template_helper.get_renderer().course_admin.edit_classroom(course, student_list, tutor_list, other_students, users_info,
+                                                                                       classroom, "", False)
+            else:
+                raise web.notfound()
         else:
-            raise web.notfound()
+            student_list, tutor_list, users_info = self.get_user_lists(course)
+            classrooms = list(self.database.classrooms.find({"courseid": courseid}))
+            if course.use_classrooms():
+                return web.notfound()
+            else:
+                return self.template_helper.get_renderer().course_admin.edit_classrooms(course, student_list, tutor_list,
+                                                                                       users_info, classrooms, "",
+                                                                                       False)
 
-    def POST(self, courseid, classroomid):
+    def POST(self, courseid, classroomid=''):
         """ Edit a classroom """
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=True)
 
         error = False
-        data = web.input(tutors=[], groups=[], classroomfile={})
-        if "delete" in data:
-            # Get the classroom
-            classroom = self.database.classrooms.find_one({"_id": ObjectId(classroomid), "courseid": courseid})
 
-            if classroom is None:
-                msg = "Classroom not found."
-                error = True
-            elif classroom['default']:
-                msg = "You can't remove your default classroom."
-                error = True
-            else:
-                self.database.classrooms.find_one_and_update({"courseid": courseid, "default": True},
-                                                             {"$push": {
-                                                                 "students": {"$each": classroom["students"]}
-                                                             }})
+        if classroomid:
+            data = web.input(tutors=[], groups=[], classroomfile={})
+            if "delete" in data:
+                # Get the classroom
+                classroom = self.database.classrooms.find_one({"_id": ObjectId(classroomid), "courseid": courseid})
 
-                self.database.classrooms.delete_one({"_id": ObjectId(classroomid)})
-                raise web.seeother("/admin/" + courseid + "/classrooms")
-        else:
-            try:
-                if "upload" in data:
-                    new_data = custom_yaml.load(data["classroomfile"].file)
-                else:
-                    # Prepare classroom-like data structure from input
-                    new_data = {"description": data["description"], "tutors": data["tutors"], "students": [], "groups": []}
-                    for index, groupstr in enumerate(data["groups"]):
-                        group = json.loads(groupstr)
-                        new_data["students"].extend(group["students"])
-                        if index != 0:
-                            new_data["groups"].append(group)
-
-                classroom, errored_students = self.update_classroom(course, classroomid, new_data)
-                student_list, tutor_list, other_students, users_info = self.get_user_lists(course, classroom["_id"])
-
-                if len(errored_students) > 0:
-                    msg = "Changes couldn't be applied for following students : <ul>"
-                    for student in errored_students:
-                        msg += "<li>" + student + "</li>"
-                    msg += "</ul>"
+                if classroom is None:
+                    msg = "Classroom not found."
+                    error = True
+                elif classroom['default']:
+                    msg = "You can't remove your default classroom."
                     error = True
                 else:
-                    msg = "Classroom updated."
-            except:
-                classroom = self.database.classrooms.find_one({"_id": ObjectId(classroomid), "courseid": courseid})
-                student_list, tutor_list, other_students, users_info = self.get_user_lists(course, classroom["_id"])
-                msg = 'An error occurred while parsing the data.'
-                error = True
+                    self.database.classrooms.find_one_and_update({"courseid": courseid, "default": True},
+                                                                 {"$push": {
+                                                                     "students": {"$each": classroom["students"]}
+                                                                 }})
 
-        return self.template_helper.get_renderer().course_admin.edit_classroom(course, student_list, tutor_list, other_students, users_info,
-                                                                               classroom, msg, error)
+                    self.database.classrooms.delete_one({"_id": ObjectId(classroomid)})
+                    raise web.seeother("/admin/" + courseid + "/classrooms")
+            else:
+                try:
+                    if "upload" in data:
+                        new_data = custom_yaml.load(data["classroomfile"].file)
+                    else:
+                        # Prepare classroom-like data structure from input
+                        new_data = {"description": data["description"], "tutors": data["tutors"], "students": [], "groups": []}
+                        for index, groupstr in enumerate(data["groups"]):
+                            group = json.loads(groupstr)
+                            new_data["students"].extend(group["students"])
+                            if index != 0:
+                                new_data["groups"].append(group)
+
+                    classroom, errored_students = self.update_classroom(course, classroomid, new_data)
+                    student_list, tutor_list, other_students, users_info = self.get_user_lists(course, classroom["_id"])
+
+                    if len(errored_students) > 0:
+                        msg = "Changes couldn't be applied for following students : <ul>"
+                        for student in errored_students:
+                            msg += "<li>" + student + "</li>"
+                        msg += "</ul>"
+                        error = True
+                    else:
+                        msg = "Classroom updated."
+                except:
+                    classroom = self.database.classrooms.find_one({"_id": ObjectId(classroomid), "courseid": courseid})
+                    student_list, tutor_list, other_students, users_info = self.get_user_lists(course, classroom["_id"])
+                    msg = 'An error occurred while parsing the data.'
+                    error = True
+
+            return self.template_helper.get_renderer().course_admin.edit_classroom(course, student_list, tutor_list, other_students, users_info,
+                                                                                   classroom, msg, error)
+        else:
+            return 'lol'
