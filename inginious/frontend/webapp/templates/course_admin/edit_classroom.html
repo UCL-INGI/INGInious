@@ -138,7 +138,7 @@ $elif msg:
                                         <span>$user ($user_manager.get_user_realname(user))</span>
                                         <input type="hidden" name="tutors" value="$user">
 
-                                <div class="pull-right"><a href="#" onclick="javascript:classroom_tutor_remove($$(this).rparent(2).attr('id'))"><i class="fa fa-trash-o fa-lg"></i></a></div>
+                                <div class="pull-right"><a href="#" onclick="javascript:classroom_tutor_remove($$(this).rparent(2).attr('id'), '')"><i class="fa fa-trash-o fa-lg"></i></a></div>
                             </li>
                         </ul>
                         <div class="row">
@@ -153,7 +153,7 @@ $elif msg:
                                 </select>
                             </div>
                             <div class="col-xs-12 col-md-4">
-                                <button type="button" onclick="javascript:classroom_tutor_add($$('#tutor_list').val(), $$('#tutor_list option:selected').text())" class="form-control btn btn-block btn-warning"><span class="fa fa-plus"></span> Add tutor</button>
+                                <button type="button" onclick="javascript:classroom_tutor_add($$('#tutor_list').val(), $$('#tutor_list option:selected').text(), '')" class="form-control btn btn-block btn-warning"><span class="fa fa-plus"></span> Add tutor</button>
                             </div>
                         </div>
                     </div>

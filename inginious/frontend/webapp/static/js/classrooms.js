@@ -72,9 +72,9 @@ function classroom_groups_clean() {
     });
 }
 
-function classroom_tutor_add(username, complete_name) {
+function classroom_tutor_add(username, complete_name, id) {
 
-    var new_tutor_div = $("#tutors li").last();
+    var new_tutor_div = $("#tutors_" + id + " li").last();
     var clone = new_tutor_div.clone();
 
     new_tutor_div.attr("id", username);
@@ -91,9 +91,22 @@ function classroom_tutor_add(username, complete_name) {
 
     // Add entry in user list for user
     // Remove user from select list and disable select if empty
-    $("#tutor_list option[value='"+ username +"']").remove();
+    $("#tutor_list_" + id + " option[value='"+ username +"']").remove();
     if(!$("#tutor_list").val())
         $("#tutor_list").prop("disabled", true);
+}
+
+function classroom_tutor_remove(username, id) {
+    // Put user back to select list
+    jQuery('<option/>', {
+        value: username,
+        text:  $("#" + username).text()
+    }).appendTo($("#tutor_list_" + id));
+
+    $("#tutor_list_" + id).prop("disabled", false);
+
+    // Remove user from user list
+    $("#" + username).remove();
 }
 
 function classroom_student_add() {
@@ -154,19 +167,6 @@ function classroom_student_remove(username) {
     $("#registered_students").prop("disabled", false);
 
     $(".group-entry[data-username='" + username + "']").remove();
-}
-
-function classroom_tutor_remove(username) {
-    // Put user back to select list
-    jQuery('<option/>', {
-        value: username,
-        text:  $("#" + username).text()
-    }).appendTo($("#tutor_list"));
-
-    $("#tutor_list").prop("disabled", false);
-
-    // Remove user from user list
-    $("#" + username).remove();
 }
 
 function classroom_delete() {

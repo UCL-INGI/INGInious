@@ -120,66 +120,75 @@ $elif msg:
         </div>
 
 
-        $for index,group in enumerate((classrooms[0]["groups"] + [None])):
-                $if group is None:
+        $for index,classroom in enumerate((classrooms + [None])):
+                $if classroom is None:
                     <div id="$(index+1)" style="display:none;" class="panel panel-default group-panel">
                 $else:
+                    $ group = classroom["groups"][0]
                     <div id="$(index+1)" class="panel panel-default group-panel group">
-                <div class="panel-heading clearfix" role="tab">
-                    <h4 class="panel-title">
-                        <div class="row">
-                            <div class="col-sm-6 col-xs-12">
-                                <!--Group #<span id="group_number">$(index+1)</span>-->
-                                <input type="text" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" class="form-control" id="description" name="description" placeholder="Classroom description" value="$classrooms[0]['description']">
+                    <div class="panel-heading clearfix" role="tab">
+                        <h4 class="panel-title">
+                            <div class="row">
+                                <div class="col-sm-6 col-xs-12">
+                                    <input type="text" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" class="form-control" id="description" name="description" placeholder="Classroom description" value="$classroom['description']">
+                                </div>
+                                <div class="col-sm-2 col-xs-3" style="text-align: right;">
+                                    <label>Max group size :</label>
+                                </div>
+                                <div class="col-sm-3 col-xs-7">
+                                    <input style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" id="size" type="number" class="form-control" value="$(group['size'] if group is not None else 2)">
+                                </div>
+                                <div class="col-sm-1 col-xs-2">
+                                    <a class="pull-right" id="group_delete" href="#" onclick="javascript:classroom_group_delete($$(this).rparent(5).attr('id'))" data-toggle="tooltip" title="Delete group">
+                                        <i class="fa fa-trash-o"></i>
+                                    </a>
+                                </div>
                             </div>
-                            <div class="col-sm-2 col-xs-3" style="text-align: right;">
-                                <label>Max group size :</label>
-                            </div>
-                            <div class="col-sm-3 col-xs-7">
-                                <input style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" id="size" type="number" class="form-control" value="$(group['size'] if group is not None else 2)">
-                            </div>
-                            <div class="col-sm-1 col-xs-2">
-                                <a class="pull-right" id="group_delete" href="#" onclick="javascript:classroom_group_delete($$(this).rparent(5).attr('id'))" data-toggle="tooltip" title="Delete group">
-                                    <i class="fa fa-trash-o"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </h4>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <ul class="list-group" id="tutors">
-                        $for user in (classrooms[0]["tutors"] + [None]):
-                                $if user is None:
-                                    <li class="list-group-item" style="display:none;">
-                                        <span></span>
-                                $else:
-                                    <li class="list-group-item" id="$user">
-                                        <span>$user ($user_manager.get_user_realname(user))</span>
-                                        <input type="hidden" name="tutors" value="$user">
-
-                                <div class="pull-right"><a href="#" onclick="javascript:classroom_tutor_remove($$(this).rparent(2).attr('id'))"><i class="fa fa-trash-o fa-lg"></i></a></div>
-                            </li>
-                        </ul>
-
-                        <div class="row">
-                            <div class="col-xs-12 col-md-8" style="text-align: center">
-                                <select type="text" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" class="form-control input-xs" id="tutor_list" name="tutor_list">
-                                    $for tutor in tutor_list:
-                                        $if tutor not in classrooms[0]["tutors"]:
-                                            $if users_info[tutor] is not None:
-                                                <option value="$tutor">$users_info[tutor][0] ($tutor)</option>
-                                            $else:
-                                                <option value="$tutor">$tutor</option>
-                                </select>
-                            </div>
-                            <div class="col-xs-12 col-md-4">
-                                <button type="button" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" onclick="javascript:classroom_tutor_add($$('#tutor_list').val(), $$('#tutor_list option:selected').text())" class="form-control btn btn-xs btn-warning"><span class="fa fa-plus"></span> Add tutor</button>
-                            </div>
-                        </div>
+                        </h4>
                     </div>
-                </div>
+                    <div class="panel-heading clearfix" role="tab">
+                        <h4 class="panel-title">
+                            <div class="row">
+                                <div class="col-sm-6 col-xs-12">
+                                    Tutors
+                                </div>
+                                <div class="col-sm-4 col-xs-6" style="text-align: center">
+                                    <select type="text" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" class="form-control input-xs" id="tutor_list_$index" name="tutor_list_$index">
+                                        $for tutor in tutor_list:
+                                            $if tutor not in classroom["tutors"]:
+                                                $if users_info[tutor] is not None:
+                                                    <option value="$tutor">$users_info[tutor][0] ($tutor)</option>
+                                                $else:
+                                                    <option value="$tutor">$tutor</option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-2 col-xs-6">
+                                    <button type="button" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" onclick="javascript:classroom_tutor_add($$('#tutor_list_$index').val(), $$('#tutor_list_$index option:selected').text(), $index)" class="form-control btn btn-xs btn-warning"><span class="fa fa-plus"></span> Add tutor</button>
+                                </div>
+                            </div>
+                        </h4>
+                    </div>
+
+
+                    <ul class="list-group" id="tutors_$index">
+                    $for user in (classroom["tutors"] + [None]):
+                            $if user is None:
+                                <li class="list-group-item" style="display:none;">
+                                    <span></span>
+                            $else:
+                                <li class="list-group-item" id="$user">
+                                    <span>$user ($user_manager.get_user_realname(user))</span>
+                                    <input type="hidden" name="tutors" value="$user">
+
+                            <div class="pull-right"><a href="#" onclick="javascript:classroom_tutor_remove($$(this).rparent(2).attr('id'), $index)"><i class="fa fa-trash-o fa-lg"></i></a></div>
+                        </li>
+                    </ul>
+
+
+                    <div class="panel-heading clearfix" role="tab">
+                        <h4 class="panel-title">Students</h4>
+                    </div>
+
                     <ul style="list-style-type: none; padding:0;" class="list-group students">
                         $if group is not None:
                             $for student in group["students"]:
