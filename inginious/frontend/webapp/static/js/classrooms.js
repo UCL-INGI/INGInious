@@ -46,7 +46,7 @@ function classroom_group_add()
 function classroom_group_delete(id)
 {
     // Append all the items to ungrouped users
-    $("#" + id).find("li").each(function(index) {
+    $("#" + id).find("#students li").each(function(index) {
         $(this).appendTo("#group_0");
     });
 
@@ -68,7 +68,7 @@ function classroom_groups_delete() {
 
 function classroom_groups_clean() {
     $("#groups .group").each(function(i) {
-        $("#" + $(this).attr("id")).find("li").each(function(index) {
+        $("#" + $(this).attr("id")).find("#students li").each(function(index) {
             $(this).appendTo("#group_0");
         });
     });

@@ -45,39 +45,13 @@ $elif msg:
             </div>
             <div class="modal-body">
                 <form onsubmit="classroom_student_add();return false;">
-                    <div role="tabpanel">
-                        <ul class="nav nav-tabs" role="tablist">
-                            <li role="presentation" class="active"><a href="#tab_registered_student" aria-controls="registered_student" role="tab" data-toggle="tab">
-                                <i class="fa fa-user fa-fw"></i>&nbsp; Registered student</a></li>
-                            <li role="presentation"><a href="#tab_new_student" aria-controls="new_student" role="tab" data-toggle="tab">
-                                <i class="fa fa-plus fa-fw"></i>&nbsp; New student</a></li>
-                        </ul>
-                        <div class="tab-content">
-                            <div role="tabpanel" class="tab-pane active" id="tab_registered_student">
-                                <div class="row">
-                                    <div class="col-md-3">
-                                        <label class="control-label" for="registered_student">Choose student :</label>
-                                    </div>
-                                    <div class="col-md-9">
-                                        <select id="registered_students" name="registered_students" class="form-control">
-                                            $for student in []:
-                                                $if users_info[student] is not None:
-                                                    <option value="$student">$users_info[student][0] ($student)</option>
-                                                $else:
-                                                    <option value="$student">$student</option>
-                                        </select>
-                                    </div>
-                                </div>
+                    <div id="tab_new_student" role="tabpanel" class="tab-pane active">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="control-label" for="new_student">Student username (will be registered) :</label>
                             </div>
-                            <div id="tab_new_student" role="tabpanel" class="tab-pane">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <label class="control-label" for="new_student">Student username (will be registered) :</label>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <input id="new_student" name="new_student" type="text" class="form-control" placeholder="Student username">
-                                    </div>
-                                </div>
+                            <div class="col-md-6">
+                                <input id="new_student" name="new_student" type="text" class="form-control" placeholder="Student username">
                             </div>
                         </div>
                     </div>
@@ -220,7 +194,7 @@ $elif msg:
 
                 $if classroom:
                     $ group = classroom["groups"][0]
-                    <ul style="list-style-type: none; padding:0;" class="list-group students">
+                    <ul id="students" style="list-style-type: none; padding:0;" class="list-group students">
                         $if group is not None:
                             $for student in group["students"]:
                                 <li data-username="$student" class="list-group-item group-entry">

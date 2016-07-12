@@ -217,7 +217,7 @@ $elif msg:
                                 </h4>
                             </div>
 
-                            <ul style="list-style-type: none; padding:0;" class="list-group students">
+                            <ul id="students" style="list-style-type: none; padding:0;" class="list-group students">
                                 $if group is not None:
                                     $for student in group["students"]:
                                         <li data-username="$student" class="list-group-item group-entry">
