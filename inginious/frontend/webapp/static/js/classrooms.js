@@ -29,6 +29,8 @@ function classroom_group_add()
 
     // Clone and change id for deletion
     var clone = new_group_li.clone();
+    clone.find("#tutor_list_" + parseInt(clone.attr("id"))).attr("id", "#tutor_list_" + (parseInt(clone.attr("id")) + 1));
+    clone.find("#tutors_" + parseInt(clone.attr("id"))).attr("id", "#tutors_" + (parseInt(clone.attr("id")) + 1));
     clone.attr("id", parseInt(clone.attr("id")) + 1);
     clone.find("#group_number").text(clone.attr("id"));
 
@@ -74,6 +76,10 @@ function classroom_groups_clean() {
 
 function classroom_tutor_add(username, complete_name, id) {
 
+    // Check if valid entry
+    if(username==null)
+        return;
+
     var new_tutor_div = $("#tutors_" + id + " li").last();
     var clone = new_tutor_div.clone();
 
@@ -92,8 +98,8 @@ function classroom_tutor_add(username, complete_name, id) {
     // Add entry in user list for user
     // Remove user from select list and disable select if empty
     $("#tutor_list_" + id + " option[value='"+ username +"']").remove();
-    if(!$("#tutor_list").val())
-        $("#tutor_list").prop("disabled", true);
+    if(!$("#tutor_list_" + id ).val())
+        $("#tutor_list_" + id ).prop("disabled", true);
 }
 
 function classroom_tutor_remove(username, id) {
