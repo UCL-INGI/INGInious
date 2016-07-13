@@ -78,7 +78,7 @@ class CourseEditClassroom(INGIniousAdminPage):
             classroom = self.database.classrooms.find_one({"_id": ObjectId(classroomid), "courseid": course.get_id()})
 
         # Check tutors
-        new_data["tutors"] = [tutor for tutor in new_data["tutors"] if tutor in classroom["tutors"]]
+        new_data["tutors"] = [tutor for tutor in new_data["tutors"] if tutor in course.get_tutors()]
 
         students, groups, errored_students = [], [], []
 
@@ -183,28 +183,27 @@ class CourseEditClassroom(INGIniousAdminPage):
             if classroomid and classroomid in data["delete"]:
                 raise web.seeother("/admin/" + courseid + "/classrooms")
 
-        if not classroomid:
-            try:
-                classrooms = custom_yaml.load(data["classroomfile"].file) if "upload" in data \
-                    else json.loads(data["classrooms"])
+        try:
+            classrooms = custom_yaml.load(data["classroomfile"].file) if "upload" in data \
+                else json.loads(data["classrooms"])
 
-                for index, new_classroom in enumerate(classrooms):
-                    if index == 0:
-                        new_classroom["default"] = True
-                    classroom, errors = self.update_classroom(course, new_classroom['_id'], new_classroom)
-                    errored_students += errors
+            for index, new_classroom in enumerate(classrooms):
+                if index == 0:
+                    new_classroom["default"] = True
+                classroom, errors = self.update_classroom(course, new_classroom['_id'], new_classroom)
+                errored_students += errors
 
-                if len(errored_students) > 0:
-                    msg = "Changes couldn't be applied for following students : <ul>"
-                    for student in errored_students:
-                        msg += "<li>" + student + "</li>"
-                    msg += "</ul>"
-                    error = True
-                else:
-                    msg = "Classroom updated."
-            except:
-                msg = 'An error occurred while parsing the data.'
+            if len(errored_students) > 0:
+                msg = "Changes couldn't be applied for following students : <ul>"
+                for student in errored_students:
+                    msg += "<li>" + student + "</li>"
+                msg += "</ul>"
                 error = True
+            else:
+                msg = "Classroom updated."
+        except:
+            msg = 'An error occurred while parsing the data.'
+            error = True
 
         # Display the page
         return self.display_page(course, classroomid, msg, error)

@@ -23,7 +23,7 @@ function classroom_prepare_submit()
         });
 
         var tutors = [];
-        $("#tutors_ .tutor").each(function(i) {
+        $(".tutor").each(function(i) {
             var tutor = $(this).find("input").val();
             tutors.push(tutor);
         });
@@ -60,7 +60,7 @@ function classroom_prepare_submit()
             });
 
             var tutors = [];
-            $("#tutors_ .tutor").each(function (i) {
+            $(this).find(".tutor").each(function (i) {
                 var tutor = $(this).find("input").val();
                 tutors.push(tutor);
             });
