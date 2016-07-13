@@ -91,7 +91,10 @@ $elif msg:
     </div>
 </div>
 
-<form method="post" enctype="multipart/form-data" class="form-horizontal">
+<form method="post" id="classform" enctype="multipart/form-data" class="form-horizontal">
+    <input type="hidden" id="classrooms" name="classroom" value="true" />
+    <input type="hidden" id="default" name="default" value="$classroom['default']" />
+    <input type="hidden" id="_id" name="_id" value="$classroom['_id']" />
     <div role="tabpanel">
         <ul class="nav nav-tabs" role="tablist">
 			<li role="presentation" class="active"><a href="#tab_basic" aria-controls="basic" role="tab" data-toggle="tab">
@@ -134,7 +137,7 @@ $elif msg:
                                     <li class="list-group-item" style="display:none;">
                                         <span></span>
                                 $else:
-                                    <li class="list-group-item" id="$user">
+                                    <li class="list-group-item tutor" id="$user">
                                         <span>$user ($user_manager.get_user_realname(user))</span>
                                         <input type="hidden" name="tutors" value="$user">
 

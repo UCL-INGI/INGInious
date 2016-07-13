@@ -6,20 +6,45 @@
 
 function classroom_prepare_submit()
 {
-    $("#groups .group").each(function(i) {
+    // Check in which mode we are : classrooms or only groups
+    if(JSON.parse($("#classrooms").val())) {
 
-        var group = {"size": parseInt($(this).find("#size").val()), "students": []};
-        $(this).find(".group-entry").each(function(j) {
-            group["students"].push($(this).data('username'));
+        var students = [];
+        var groups = [];
+        $("#groups .group").each(function(i) {
+            var group = {"size": parseInt($(this).find("#size").val()), "students": []};
+            $(this).find(".group-entry").each(function(j) {
+                var username = $(this).data('username');
+                group["students"].push(username);
+                students.push(username);
+            });
+
+            if(i!=0)  groups.push(group);
         });
 
-        var inputField = jQuery('<input/>', {
-            type:"hidden",
-            name:"groups",
-            value: JSON.stringify(group)
-        }).appendTo(this);
+        var tutors = [];
+        $("#tutors_ .tutor").each(function(i) {
+            var tutor = $(this).find("input").val();
+            tutors.push(tutor);
+        });
 
-    });
+        var id = $("#_id").val();
+        var description = $("#description").val();
+        var cdefault = $("#default").val().toLowerCase();
+        var classrooms = [{_id: id, description: description, students: students,
+            groups: groups, tutors: tutors, default: cdefault}];
+
+        var inputField = jQuery('<input/>', {
+                type:"hidden",
+                name:"classrooms",
+                value: JSON.stringify(classrooms)
+        }).appendTo($("#classform"));
+
+    } else {
+
+    }
+
+
 }
 
 function classroom_group_add()
@@ -87,6 +112,7 @@ function classroom_tutor_add(username, complete_name, id) {
     new_tutor_div.find("span").text(complete_name);
 
     new_tutor_div.removeAttr("style");
+    new_tutor_div.addClass("tutor");
     new_tutor_div.after(clone);
 
     jQuery('<input/>', {

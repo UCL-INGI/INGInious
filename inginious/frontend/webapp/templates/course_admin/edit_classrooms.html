@@ -65,7 +65,8 @@ $elif msg:
     </div>
 </div>
 
-<form method="post" enctype="multipart/form-data" class="form-horizontal">
+<form method="post" id="classform" enctype="multipart/form-data" class="form-horizontal">
+    <input type="hidden" id="classrooms" name="classrooms" value="false" />
     <div id="groups" class='list-group'>
         <div class="panel panel-warning group">
             <div class="panel-heading clearfix" role="tab">
@@ -95,7 +96,7 @@ $elif msg:
 
 
         $for index,classroom in enumerate((classrooms + [None])):
-                $if classroom is None:
+                $if (classroom is None) or (len(classroom["groups"])==0):
                     <div id="$(index+1)" style="display:none;" class="panel panel-default group-panel">
                         <div class="panel-heading clearfix" role="tab">
                         <h4 class="panel-title">
@@ -164,7 +165,7 @@ $elif msg:
                     </h4>
                 </div>
 
-                $if classroom:
+                $if classroom and (len(classroom["groups"])!=0):
                     $ group = classroom["groups"][0]
                     <ul class="list-group" id="tutors_$(index+1)">
                     $for user in (classroom["tutors"] + [None]):
@@ -172,7 +173,7 @@ $elif msg:
                                 <li class="list-group-item" style="display:none;">
                                     <span></span>
                             $else:
-                                <li class="list-group-item" id="$user">
+                                <li class="list-group-item tutor" id="$user">
                                     <span>$user ($user_manager.get_user_realname(user))</span>
                                     <input type="hidden" name="tutors" value="$user">
 
@@ -192,7 +193,7 @@ $elif msg:
                     <h4 class="panel-title">Students</h4>
                 </div>
 
-                $if classroom:
+                $if classroom and (len(classroom["groups"])!=0):
                     $ group = classroom["groups"][0]
                     <ul id="students" style="list-style-type: none; padding:0;" class="list-group students">
                         $if group is not None:
