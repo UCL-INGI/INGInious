@@ -65,7 +65,7 @@ $elif msg:
     </div>
 </div>
 
-<form method="post" id="classform" enctype="multipart/form-data" class="form-horizontal">
+<form method="post" enctype="multipart/form-data" class="form-horizontal">
     <input type="hidden" id="classrooms" name="classrooms" value="false" />
     <div id="groups" class='list-group'>
         <div class="panel panel-warning group">
@@ -121,6 +121,7 @@ $elif msg:
                 $else:
                     $ group = classroom["groups"][0]
                     <div id="$(index+1)" class="panel panel-default group-panel group">
+                        <input type="hidden" id="_id" name="_id" value="$classroom['_id']" />
                         <div class="panel-heading clearfix" role="tab">
                             <h4 class="panel-title">
                                 <div class="row">

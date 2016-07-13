@@ -64,8 +64,18 @@ class CourseEditClassroom(INGIniousAdminPage):
 
     def update_classroom(self, course, classroomid, new_data):
         """ Update classroom and returns a list of errored students"""
-        classroom = self.database.classrooms.find_one({"_id": ObjectId(classroomid), "courseid": course.get_id()})
+
         student_list = self.user_manager.get_course_registered_users(course, False)
+
+        if classroomid == 'None':
+            del new_data['_id']
+            new_data["courseid"] = course.get_id()
+            result = self.database.classrooms.insert_one(new_data)
+            classroomid = result.inserted_id
+            new_data['_id'] = result.inserted_id
+            classroom = new_data
+        else:
+            classroom = self.database.classrooms.find_one({"_id": ObjectId(classroomid), "courseid": course.get_id()})
 
         # Check tutors
         new_data["tutors"] = [tutor for tutor in new_data["tutors"] if tutor in classroom["tutors"]]
@@ -145,33 +155,42 @@ class CourseEditClassroom(INGIniousAdminPage):
         """ Edit a classroom """
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=True)
 
+        msg=''
         error = False
         errored_students = []
-        data = web.input(tutors=[], groups=[], classroomfile={})
-        if "delete" in data:
-            # Get the classroom
-            classroom = self.database.classrooms.find_one({"_id": ObjectId(classroomid), "courseid": courseid})
+        data = web.input(delete=[], tutors=[], groups=[], classroomfile={})
+        if len(data["delete"]):
 
-            if classroom is None:
-                msg = "Classroom not found."
-                error = True
-            elif classroom['default']:
-                msg = "You can't remove your default classroom."
-                error = True
-            else:
-                self.database.classrooms.find_one_and_update({"courseid": courseid, "default": True},
-                                                             {"$push": {
-                                                                 "students": {"$each": classroom["students"]}
-                                                             }})
+            for classid in data["delete"]:
+                # Get the classroom
+                classroom = self.database.classrooms.find_one({"_id": ObjectId(classid), "courseid": courseid})
 
-                self.database.classrooms.delete_one({"_id": ObjectId(classroomid)})
+                if classroom is None:
+                    msg = "Classroom not found."
+                    error = True
+                elif classroom['default'] and classroomid:
+                    msg = "You can't remove your default classroom."
+                    error = True
+                else:
+                    self.database.classrooms.find_one_and_update({"courseid": courseid, "default": True},
+                                                                 {"$push": {
+                                                                     "students": {"$each": classroom["students"]}
+                                                                 }})
+
+                    self.database.classrooms.delete_one({"_id": ObjectId(classid)})
+                    msg = "Classroom updated."
+
+            if classroomid and classroomid in data["delete"]:
                 raise web.seeother("/admin/" + courseid + "/classrooms")
-        else:
+
+        if not classroomid:
             try:
                 classrooms = custom_yaml.load(data["classroomfile"].file) if "upload" in data \
                     else json.loads(data["classrooms"])
 
-                for new_classroom in classrooms:
+                for index, new_classroom in enumerate(classrooms):
+                    if index == 0:
+                        new_classroom["default"] = True
                     classroom, errors = self.update_classroom(course, new_classroom['_id'], new_classroom)
                     errored_students += errors
 

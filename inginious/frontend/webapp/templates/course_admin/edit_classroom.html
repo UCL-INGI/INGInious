@@ -91,7 +91,7 @@ $elif msg:
     </div>
 </div>
 
-<form method="post" id="classform" enctype="multipart/form-data" class="form-horizontal">
+<form method="post" enctype="multipart/form-data" class="form-horizontal">
     <input type="hidden" id="classrooms" name="classroom" value="true" />
     <input type="hidden" id="default" name="default" value="$classroom['default']" />
     <input type="hidden" id="_id" name="_id" value="$classroom['_id']" />
@@ -122,7 +122,7 @@ $elif msg:
                                     <input type="text" class="form-control" id="description" name="description" placeholder="Classroom description" value="$classroom['description']">
                                 </div>
                                 <div class="col-xs-12 col-md-4">
-                                    <a name="delete" onclick="javascript:classroom_delete()" class="form-control btn btn-block btn-danger"><span class="fa fa-trash"></span> Delete classroom</a>
+                                    <a name="delete" onclick="javascript:classroom_delete('$classroom['_id']')" class="form-control btn btn-block btn-danger"><span class="fa fa-trash"></span> Delete classroom</a>
                                 </div>
                             </div>
                     </div>

@@ -30,7 +30,7 @@ function classroom_prepare_submit()
 
         var id = $("#_id").val();
         var description = $("#description").val();
-        var cdefault = $("#default").val().toLowerCase();
+        var cdefault = JSON.parse($("#default").val().toLowerCase());
         var classrooms = [{_id: id, description: description, students: students,
             groups: groups, tutors: tutors, default: cdefault}];
 
@@ -38,10 +38,55 @@ function classroom_prepare_submit()
                 type:"hidden",
                 name:"classrooms",
                 value: JSON.stringify(classrooms)
-        }).appendTo($("#classform"));
+        }).appendTo($("form"));
 
     } else {
 
+        var classrooms = [];
+
+        var ungrouped = [];
+        // for each group/classroom
+        $("#groups .group").each(function(i) {
+            var students = [];
+            var id = $(this).find("#_id").val();
+            var description = (i == 0) ? '' : $(this).find("#description").val();
+            var group_size = (i == 0) ? 0 : parseInt($(this).find("#size").val());
+            var group_students = [];
+
+            $(this).find(".group-entry").each(function (j) {
+                var username = $(this).data('username');
+                group_students.push(username);
+                students.push(username);
+            });
+
+            var tutors = [];
+            $("#tutors_ .tutor").each(function (i) {
+                var tutor = $(this).find("input").val();
+                tutors.push(tutor);
+            });
+
+            if (i == 0) ungrouped = ungrouped.concat(students);
+            else if (i == 1) students = students.concat(ungrouped);
+
+            if (i > 0) {
+                var groups = [{size: group_size, students: group_students}];
+                var classroom = {_id: id, description: description, students: students,
+                    groups: groups, tutors: tutors, default: (i == 1)};
+                classrooms.push(classroom);
+            }
+        });
+
+        if($(".group").length <= 1){
+            var classroom = {_id: 'None', description: '', students: ungrouped,
+                    groups: [], tutors: [], default: true};
+                classrooms.push(classroom);
+        }
+
+         var inputField = jQuery('<input/>', {
+                type:"hidden",
+                name:"classrooms",
+                value: JSON.stringify(classrooms)
+        }).appendTo($("form"));
     }
 
 
@@ -64,6 +109,15 @@ function classroom_group_add()
     new_group_li.addClass("group");
     new_group_li.after(clone);
 
+    if(!JSON.parse($("#classrooms").val())) {
+        jQuery('<input/>', {
+            type:'hidden',
+            name: '_id',
+            id: '_id',
+            value: 'None'
+        }).appendTo(new_group_li);
+    }
+
     // Regroup sortable lists
     $("ul.students").sortable({group:"students"});
 }
@@ -74,6 +128,19 @@ function classroom_group_delete(id)
     $("#" + id).find("#students li").each(function(index) {
         $(this).appendTo("#group_0");
     });
+
+    // add the classroom id in delete field
+    if(!JSON.parse($("#classrooms").val())) {
+        // if group_id is not none, inform to delete
+        // do not remove last group id
+        if($("#" + id).find("#_id").val() != 'None') {
+            jQuery('<input/>', {
+                type: 'hidden',
+                name: 'delete',
+                value: $("#" + id).find("#_id").val()
+            }).appendTo($('form'));
+        }
+    }
 
     // Remove item...
     $("#" + id).remove();
@@ -201,10 +268,11 @@ function classroom_student_remove(username) {
     $(".group-entry[data-username='" + username + "']").remove();
 }
 
-function classroom_delete() {
+function classroom_delete(id) {
     jQuery('<input/>', {
         type:'hidden',
-        name: 'delete'
+        name: 'delete',
+        value: id
     }).appendTo($('form'));
 
     $('form').submit();
