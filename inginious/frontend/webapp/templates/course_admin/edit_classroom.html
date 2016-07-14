@@ -101,8 +101,8 @@ $elif msg:
                 <i class="fa fa-users fa-fw"></i>&nbsp; Basic settings</a></li>
 			<li role="presentation"><a href="#tab_groups" aria-controls="groups" role="tab" data-toggle="tab">
                 <i class="fa fa-list-ul fa-fw"></i>&nbsp; Students</a></li>
-            <li role="presentation"><a href="#tab_upload" aria-controls="upload" role="tab" data-toggle="tab">
-                <i class="fa fa-download fa-fw"></i>&nbsp; Upload classroom</a></li>
+            <!--<li role="presentation"><a href="#tab_upload" aria-controls="upload" role="tab" data-toggle="tab">
+                <i class="fa fa-download fa-fw"></i>&nbsp; Upload classroom</a></li>-->
         </ul>
 		<div class="tab-content">
 			<div role="tabpanel" class="tab-pane active" id="tab_basic">
@@ -255,17 +255,6 @@ $elif msg:
                     </div>
                 </div>
                 <button name="update" class="btn btn-primary btn-block" onclick="javascript:classroom_prepare_submit()" type="submit"><i class="fa fa-floppy-o"></i> Update</button>
-            </div>
-            <div role="tabpanel" class="tab-pane" id="tab_upload">
-                <div class="form-group">
-                    <label for="name" class="col-sm-2 control-label">Classroom description</label>
-                    <div class="col-sm-10">
-                        <p>Note : Please refer to documentation for file format</p>
-                        <input name="classroomfile" type="file">
-                    </div>
-                </div>
-
-                <button name="upload" class="btn btn-danger btn-block" type="submit"><i class="fa fa-download"></i> Upload (will erase current settings)</button>
             </div>
 		</div>
 	</div>

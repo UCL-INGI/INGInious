@@ -84,22 +84,19 @@ class CourseEditClassroom(INGIniousAdminPage):
 
         # Check the students
         for student in new_data["students"]:
-            if student in classroom["students"]:
+            if student in student_list:
+                # Remove user from the other classroom
+                self.database.classrooms.find_one_and_update({"courseid": course.get_id(), "groups.students": student},
+                                                             {"$pull": {"groups.$.students": student, "students": student}})
+                self.database.classrooms.find_one_and_update({"courseid": course.get_id(), "students": student}, {"$pull": {"students": student}})
                 students.append(student)
             else:
-                if student in student_list:
-                    # Remove user from the other classroom
-                    self.database.classrooms.find_one_and_update({"courseid": course.get_id(), "groups.students": student},
-                                                                 {"$pull": {"groups.$.students": student, "students": student}})
-                    self.database.classrooms.find_one_and_update({"courseid": course.get_id(), "students": student}, {"$pull": {"students": student}})
-                    students.append(student)
+                # Check if user can be registered
+                user_info = self.user_manager.get_user_info(student)
+                if user_info is None or student in classroom["tutors"]:
+                    errored_students.append(student)
                 else:
-                    # Check if user can be registered
-                    user_info = self.user_manager.get_user_info(student)
-                    if user_info is None or student in classroom["tutors"]:
-                        errored_students.append(student)
-                    else:
-                        students.append(student)
+                    students.append(student)
 
         removed_students = [student for student in classroom["students"] if student not in new_data["students"]]
         self.database.classrooms.find_one_and_update({"courseid": course.get_id(), "default": True},
@@ -115,16 +112,21 @@ class CourseEditClassroom(INGIniousAdminPage):
 
         new_data["groups"] = groups
 
+        # Check for default classroom
+        if new_data['default']:
+            self.database.classrooms.find_one_and_update({"courseid": course.get_id(), "default": True},
+                                                         {"$set": {"default": False}})
+
         classroom = self.database.classrooms.find_one_and_update(
             {"_id": ObjectId(classroomid)},
             {"$set": {"description": new_data["description"],
                       "students": students, "tutors": new_data["tutors"],
-                      "groups": groups}}, return_document=ReturnDocument.AFTER)
+                      "groups": groups, "default": new_data['default']}}, return_document=ReturnDocument.AFTER)
 
         return classroom, errored_students
 
     def display_page(self, course, classroomid='', msg='', error=False):
-
+        # If no classroom id specified, use the groups only template
         if classroomid:
             student_list, tutor_list, other_students, users_info = self.get_user_lists(course, classroomid)
             classroom = self.database.classrooms.find_one({"_id": ObjectId(classroomid), "courseid": course.get_id()})
@@ -139,7 +141,7 @@ class CourseEditClassroom(INGIniousAdminPage):
             student_list, tutor_list, users_info = self.get_user_lists(course)
             classrooms = list(self.database.classrooms.find({"courseid": course.get_id()}))
             if course.use_classrooms():
-                return web.notfound()
+                raise web.notfound()
             else:
                 return self.template_helper.get_renderer().course_admin.edit_classrooms(course, student_list,
                                                                                         tutor_list,
@@ -184,13 +186,26 @@ class CourseEditClassroom(INGIniousAdminPage):
                 raise web.seeother("/admin/" + courseid + "/classrooms")
 
         try:
-            classrooms = custom_yaml.load(data["classroomfile"].file) if "upload" in data \
-                else json.loads(data["classrooms"])
+            if "upload" in data:
+                self.database.classrooms.delete_many({"courseid": course.get_id()})
+                classrooms = custom_yaml.load(data["classroomfile"].file)
+            else:
+                classrooms = json.loads(data["classrooms"])
 
             for index, new_classroom in enumerate(classrooms):
-                if index == 0:
+                # In case of file upload, no id specified
+                new_classroom['_id'] = new_classroom['_id'] if '_id' in new_classroom else 'None'
+
+                # In case of no classroom usage, set the first entry default
+                if not classroomid and index == 0:
                     new_classroom["default"] = True
+
+                # Update the classroom
                 classroom, errors = self.update_classroom(course, new_classroom['_id'], new_classroom)
+
+                # If file upload was done, get the default classroom id
+                if course.use_classrooms() and classroom['default']:
+                    classroomid = classroom['_id']
                 errored_students += errors
 
             if len(errored_students) > 0:

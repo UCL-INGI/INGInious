@@ -22,7 +22,15 @@ $def NavbarF():
     </ol>
 $var Navbar: $:NavbarF()
 
-<h2>Classrooms</h2>
+<h2>Classrooms
+    <div class="pull-right">
+        <div class="btn-group">
+            $if not course.use_classrooms():
+                <a type="button" id="switch" class="btn-sm btn btn-primary" href="edit/classrooms"><i class="fa fa-edit"></i> Edit groups</a>
+            <button type="submit" id="switch" class="btn-sm btn btn-danger" data-toggle="modal" data-target="#upload_modal"><i class="fa fa-upload"></i> Upload structure</button>
+        </div>
+    </div>
+</h2>
     $if error:
         <div class="alert alert-danger alert-dismissable" role="alert">
             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
@@ -33,6 +41,29 @@ $var Navbar: $:NavbarF()
             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
             $msg
         </div>
+
+<div class="modal fade" id="upload_modal">
+    <form method="post" enctype="multipart/form-data" action="edit/classrooms">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Upload course structure</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Note : Please refer to documentation for file format</p>
+                    <div class="form-group">
+                        <label for="name" class="col-sm-2 control-label">Course structure</label>
+                        <input name="classroomfile" type="file">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button name="upload" class="btn btn-danger btn-block" type="submit"><i class="fa fa-upload"></i> Upload (will erase current settings)</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
 
 <table class="table">
     <thead>
@@ -60,50 +91,53 @@ $var Navbar: $:NavbarF()
                     <th colspan="5">$text[ind]</th>
                 </tr>
             $for classroom in data[ind]:
-                <tr>
-                    <td>
-                        <a href="/admin/${course.get_id()}/classroom/$classroom['_id']">$classroom["description"]</a>
-                    </td>
-                    <td>$len(classroom["students"])</td>
-                    <td>$classroom["tried"]</td>
-                    <td>$classroom["done"]</td>
-                    <td>
-                        <div class="btn-group" role="group">
-                            <a href="/admin/${course.get_id()}/edit/classroom/$classroom['_id']" class="btn btn-primary btn-xs" title="Edit classroom" data-toggle="tooltip"
-                               data-placement="bottom"><i class="fa fa-edit"></i></a>
-                            <a href="/admin/${course.get_id()}/classroom/$classroom['_id']" class="btn btn-default btn-xs" title="View submissions" data-toggle="tooltip"
-                               data-placement="bottom"><i class="fa fa-search"></i></a>
-                            <a href="$classroom['url']" class="btn btn-default btn-xs" title="Download submissions"
-                               data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                        </div>
-                    </td>
-                </tr>
+                $if course.use_classrooms() or len(classroom['groups']) > 0:
+                    <tr>
+                        <td>
+                            <a href="/admin/${course.get_id()}/classroom/$classroom['_id']">$classroom["description"]</a>
+                        </td>
+                        <td>$(len(classroom["students"]) if course.use_classrooms() else len(classroom["groups"][0]["students"]))</td>
+                        <td>$classroom["tried"]</td>
+                        <td>$classroom["done"]</td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                $if course.use_classrooms():
+                                    <a href="/admin/${course.get_id()}/edit/classroom/$classroom['_id']" class="btn btn-primary btn-xs" title="Edit classroom" data-toggle="tooltip"
+                                       data-placement="bottom"><i class="fa fa-edit"></i></a>
+                                <a href="/admin/${course.get_id()}/classroom/$classroom['_id']" class="btn btn-default btn-xs" title="View submissions" data-toggle="tooltip"
+                                   data-placement="bottom"><i class="fa fa-search"></i></a>
+                                <a href="$classroom['url']" class="btn btn-default btn-xs" title="Download submissions"
+                                   data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                            </div>
+                        </td>
+                    </tr>
     </tbody>
 </table>
 
-<form class="form-horizontal" method="post">
-    <div class="form-group">
-        <label for="default" class="col-sm-2 control-label">Default classroom : </label>
-        <div class="col-sm-7">
-            <select name="default" class="form-control">
-                $for ind in range(0,2):
-                    $for classroom in data[ind]:
-                        $ sel = 'selected' if classroom['default'] else ''
-                        <option value="$classroom['_id']" $sel>$classroom['description']</option>
-            </select>
-        </div>
-        <div class="col-sm-3"><button type="submit" class="btn btn-info btn-block">Set as default</button></div>
-    </div>
-</form>
-
-<div class="row">
-    <form class=form-horizontal" method="post">
+$if course.use_classrooms():
+    <form class="form-horizontal" method="post">
         <div class="form-group">
-            <div class="col-sm-9"><input type="text" class="form-control" name="classroom" placeholder="New classroom description"/></div>
-            <div class="col-sm-3"><button type="submit" class="btn btn-warning btn-block"><i class="fa fa-plus fa-lg"></i> New classroom</button></div>
+            <label for="default" class="col-sm-2 control-label">Default classroom : </label>
+            <div class="col-sm-7">
+                <select name="default" class="form-control">
+                    $for ind in range(0,2):
+                        $for classroom in data[ind]:
+                            $ sel = 'selected' if classroom['default'] else ''
+                            <option value="$classroom['_id']" $sel>$classroom['description']</option>
+                </select>
+            </div>
+            <div class="col-sm-3"><button type="submit" class="btn btn-info btn-block">Set as default</button></div>
         </div>
     </form>
-</div>
+
+    <div class="row">
+        <form class=form-horizontal" method="post">
+            <div class="form-group">
+                <div class="col-sm-9"><input type="text" class="form-control" name="classroom" placeholder="New classroom description"/></div>
+                <div class="col-sm-3"><button type="submit" class="btn btn-warning btn-block"><i class="fa fa-plus fa-lg"></i> New classroom</button></div>
+            </div>
+        </form>
+    </div>
 
 
 
