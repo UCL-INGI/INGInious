@@ -67,10 +67,16 @@ class CourseEditClassroom(INGIniousAdminPage):
 
         student_list = self.user_manager.get_course_registered_users(course, False)
 
+        # If classroom is new
         if classroomid == 'None':
+            # Remove _id for correct insertion
             del new_data['_id']
             new_data["courseid"] = course.get_id()
+
+            # Insert the new classroom
             result = self.database.classrooms.insert_one(new_data)
+
+            # Retrieve new classroom id
             classroomid = result.inserted_id
             new_data['_id'] = result.inserted_id
             classroom = new_data
@@ -199,6 +205,11 @@ class CourseEditClassroom(INGIniousAdminPage):
                 # In case of no classroom usage, set the first entry default
                 if not classroomid and index == 0:
                     new_classroom["default"] = True
+
+                # If no groups field set, create group from class students if in groups only mode
+                if "groups" not in new_classroom:
+                    new_classroom["groups"] = [] if classroomid else [{'size': len(new_classroom['students']),
+                                                                       'students': new_classroom['students']}]
 
                 # Update the classroom
                 classroom, errors = self.update_classroom(course, new_classroom['_id'], new_classroom)
