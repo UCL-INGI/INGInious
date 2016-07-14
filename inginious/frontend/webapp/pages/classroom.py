@@ -6,6 +6,7 @@
 """ Index page """
 
 import web
+from bson.objectid import ObjectId
 
 from inginious.frontend.webapp.pages.utils import INGIniousPage
 
@@ -30,7 +31,7 @@ class ClassroomPage(INGIniousPage):
         elif not self.user_manager.course_is_open_to_user(course):
             return self.template_helper.get_renderer().course_unavailable()
         elif "register_group" in data:
-            if course.can_students_choose_group():
+            if course.can_students_choose_group() and course.use_classrooms():
                 classroom = self.database.classrooms.find_one({"courseid": course.get_id(), "students": username})
 
                 if int(data["register_group"]) >= 0 and (len(classroom["groups"]) > int(data["register_group"])):
@@ -42,6 +43,27 @@ class ClassroomPage(INGIniousPage):
                         classroom["groups"][int(data["register_group"])]["students"].append(username)
                     self.database.classrooms.replace_one({"courseid": course.get_id(), "students": username}, classroom)
                 else:
+                    error = True
+                    msg = "Couldn't register to the specified group."
+            elif course.can_students_choose_group():
+
+                classroom = self.database.classrooms.find_one(
+                    {"courseid": course.get_id(), "students": username})
+
+                if classroom is not None:
+                    classroom["students"].remove(username)
+                    for index, group in enumerate(classroom["groups"]):
+                        if username in group["students"]:
+                            classroom["groups"][index]["students"].remove(username)
+                    self.database.classrooms.replace_one({"courseid": course.get_id(), "students": username}, classroom)
+
+                # Add student in the classroom and unique group
+                self.database.classrooms.find_one_and_update({"_id": ObjectId(data["register_group"])},
+                                                             {"$push": {"students": username}})
+                new_classroom = self.database.classrooms.find_one_and_update({"_id": ObjectId(data["register_group"])},
+                                                                             {"$push": {"groups.0.students": username}})
+
+                if new_classroom is None:
                     error = True
                     msg = "Couldn't register to the specified group."
             else:
@@ -72,12 +94,17 @@ class ClassroomPage(INGIniousPage):
                 pass
 
         classroom = self.user_manager.get_course_user_classroom(course)
-        users = self.user_manager.get_users_info(classroom["students"] + classroom["tutors"])
+        classrooms = list(self.database.classrooms.find({"courseid": course.get_id()}))
+        users = self.user_manager.get_users_info(self.user_manager.get_course_registered_users(course))
 
-        mygroup = None
-        for index, group in enumerate(classroom["groups"]):
-            if self.user_manager.session_username() in group["students"]:
-                mygroup = group
-                mygroup["index"] = index + 1
+        if course.use_classrooms():
+            mygroup = None
+            for index, group in enumerate(classroom["groups"]):
+                if self.user_manager.session_username() in group["students"]:
+                    mygroup = group
+                    mygroup["index"] = index + 1
 
-        return self.template_helper.get_renderer().classroom(course, except_free_last_submissions, classroom, users, mygroup, msg, error)
+            return self.template_helper.get_renderer().classroom(course, except_free_last_submissions, classroom, users, mygroup, msg, error)
+        else:
+            return self.template_helper.get_renderer().group(course, except_free_last_submissions, classrooms, users,
+                                                             classroom, msg, error)

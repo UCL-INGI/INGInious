@@ -204,10 +204,6 @@ $elif msg:
                                         <span id="$student">$users_info[student][0] ($student)</span>
                                     $else:
                                         <span id="$student">$student</span>
-                                    $ style = 'style="display:none;"' if classrooms[0]["default"] else ''
-                                    <a $:style class="pull-right" id="user_delete" href="#" onclick="javascript:classroom_student_remove('$student')" data-toggle="tooltip" data-placement="left" title="Remove student">
-                                        <i class="fa fa-user-times"></i>
-                                    </a>
                                 </li>
                     </ul>
                 $else:
