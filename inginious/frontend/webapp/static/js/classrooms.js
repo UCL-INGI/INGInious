@@ -231,10 +231,14 @@ function classroom_student_add() {
             'data-username': $("#new_student").val()
         });
 
-        jQuery('<span/>', {
+        var new_user = jQuery('<span/>', {
             id: new_li.data("username"),
-            text: $("#new_student").val() + ' (will be registered)'
+            text: ' ' + $("#new_student").val() + ' (will be registered)'
         }).appendTo(new_li);
+
+        jQuery('<i/>', {
+            class: "fa fa-arrows",
+        }).prependTo(new_user);
     }
 
     var user_del_link = jQuery('<a/>', {
