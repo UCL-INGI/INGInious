@@ -1,4 +1,4 @@
-$def with (course, tasks, user_data, classroom_data, tutored_classrooms, tutored_users, checked_tasks, checked_users, checked_classrooms, valid_formats, chosen_format, show_classrooms)
+$def with (course, tasks, user_data, classrooms, tutored_classrooms, tutored_users, checked_tasks, checked_users, checked_classrooms, valid_formats, chosen_format, show_classrooms)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -8,6 +8,8 @@ $#
 $var title: $:course.get_name() - Download submissions
 
 $var Column: $:template_helper.call('course_admin_menu',course=course,current='download')
+
+$ use_classrooms = course.use_classrooms()
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
@@ -50,13 +52,13 @@ $var Navbar: $:NavbarF()
                 $if not show_classrooms:
                     class="active"
             >
-                <a href="#user_filter" aria-controls="user_filter" role="tab" data-toggle="tab">Select users</a>
+                <a href="#user_filter" aria-controls="user_filter" role="tab" data-toggle="tab">Select students</a>
             </li>
             <li role="presentation"
                 $if show_classrooms:
                     class="active"
             >
-                <a href="#classroom_filter" aria-controls="classroom_filter" role="tab" data-toggle="tab">Select classrooms</a>
+                <a href="#classroom_filter" aria-controls="classroom_filter" role="tab" data-toggle="tab">Select $('classroom' if use_classrooms else 'group')s</a>
             </li>
         </ul>
         <div class="btn-group download-tabs-user-classroom">
@@ -73,7 +75,7 @@ $var Navbar: $:NavbarF()
                     active
             " id="user_filter">
                 $if len(user_data) == 0:
-                    <div class="alert alert-warning">Not any user to display</div>
+                    <div class="alert alert-warning">No user to display</div>
                 $else:
                     <ul class="list-group checked-list-box">
                         $for userid, username in user_data.iteritems():
@@ -87,15 +89,16 @@ $var Navbar: $:NavbarF()
                 $if show_classrooms:
                     active
             " id="classroom_filter">
-                $if len(classroom_data) == 0:
-                    <div class="alert alert-warning">Not any classroom to display</div>
+                $if len(classrooms) == 0:
+                    <div class="alert alert-warning">No $('classroom' if use_classrooms else 'group') to display</div>
                 $else:
                     <ul class="list-group checked-list-box">
-                        $for classroomid, classroomname in classroom_data.iteritems():
-                        <li class="list-group-item" data-value="$classroomid" data-name="classrooms"
-                            $if classroomid in checked_classrooms:
-                                data-checked="true"
-                        >$classroomname</li>
+                        $for classroom in classrooms:
+                            $if course.use_classrooms() or len(classroom['groups']) > 0:
+                                <li class="list-group-item" data-value="$classroom['_id']" data-name="classrooms"
+                                    $if classroom['_id'] in checked_classrooms:
+                                        data-checked="true"
+                                >$classroom['description']</li>
                     </ul>
             </div>
         </div>
@@ -135,7 +138,7 @@ $var Navbar: $:NavbarF()
                         <li>
                             <label>
                                 <input type="radio" name="type" value="single" checked="checked"/>
-                                Download the best submission for each task/user/classroom
+                                Download the best submission for each task/user/$('classroom' if use_classrooms else 'group')
                             </label>
                         </li>
                         <li>

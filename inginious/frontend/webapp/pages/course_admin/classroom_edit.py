@@ -137,7 +137,7 @@ class CourseEditClassroom(INGIniousAdminPage):
             student_list, tutor_list, other_students, users_info = self.get_user_lists(course, classroomid)
             classroom = self.database.classrooms.find_one({"_id": ObjectId(classroomid), "courseid": course.get_id()})
 
-            if classroom:
+            if classroom and course.use_classrooms():
                 return self.template_helper.get_renderer().course_admin.edit_classroom(course, student_list, tutor_list,
                                                                                        other_students, users_info,
                                                                                        classroom, msg, error)
