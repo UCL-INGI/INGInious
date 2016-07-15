@@ -53,7 +53,14 @@ $def ColumnF():
     $else:
         <div class="list-group">
             <a class="list-group-item list-group-item-info" href="/classroom/$course.get_id()">
-                <i class="fa fa-group fa-fw"></i>&nbsp; Classroom : $user_manager.get_course_user_classroom(course)["description"]
+                <i class="fa fa-group fa-fw"></i>&nbsp;
+                $ myclassroom = user_manager.get_course_user_classroom(course)
+                $if course.use_classrooms():
+                    Classroom : $myclassroom["description"]
+                $elif len(myclassroom['groups']) > 0 and user_manager.session_username() in myclassroom['groups'][0]['students']:
+                    Group : $myclassroom['description']
+                $else:
+                    Groups management
             </a>
             <a class="list-group-item list-group-item-info" href="/?unregister_courseid=$course.get_id()">
                 <i class="fa fa-user-times fa-fw"></i>&nbsp; Unregister from this course
