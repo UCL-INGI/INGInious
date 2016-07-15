@@ -6,8 +6,9 @@ $# more information about the licensing of this file.
 $#
 
 $var title: $:course.get_name()
-
 $var Column: $:template_helper.call('course_admin_menu',course=course,current='classrooms')
+
+$ use_classrooms = course.use_classrooms()
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
@@ -16,13 +17,13 @@ $def NavbarF():
             <i class="fa fa-user-secret"></i></a></li>
         <li class="active">
             <a href="#">
-                <i class="fa fa-group"></i> Classrooms <span class="sr-only">(current)</span>
+                <i class="fa fa-group"></i> $("Classroom" if use_classrooms else "Group")s <span class="sr-only">(current)</span>
             </a>
         </li>
     </ol>
 $var Navbar: $:NavbarF()
 
-<h2>Classrooms
+<h2>$("Classroom" if use_classrooms else "Group")s
     <div class="pull-right">
         <div class="btn-group">
             $if not course.use_classrooms():
@@ -68,7 +69,7 @@ $var Navbar: $:NavbarF()
 <table class="table">
     <thead>
         <tr>
-            <th>Classroom</th>
+            <th>$("Classroom" if use_classrooms else "Group")</th>
             <th># students</th>
             <th># task tried</th>
             <th># task done</th>
@@ -83,7 +84,7 @@ $var Navbar: $:NavbarF()
         </tr>
     </thead>
     <tbody>
-    $ text = ["My classroom(s)","Other classroom(s)"]
+    $ text = ["My classroom(s)","Other classroom(s)"] if use_classrooms else ["My group(s)","Other group(s)"]
     $for ind in range(0,2):
         $if len(data[ind]) > 0:
             $if len(data[0]) > 0 and len(data[1]) > 0:

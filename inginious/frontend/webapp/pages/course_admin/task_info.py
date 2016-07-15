@@ -56,7 +56,7 @@ class CourseTaskInfoPage(INGIniousAdminPage):
             classroom_data[classroom['_id']] = {"_id": classroom['_id'], "description": classroom['description'],
                                                 "url": self.classroom_submission_url_generator(course, task, classroom),
                                                 "tried": 0, "grade": 0, "status": "notviewed",
-                                                "tutors": classroom["tutors"]}
+                                                "tutors": classroom["tutors"], "groups": classroom["groups"]}
 
             classroom_results = list(self.database.submissions.aggregate(
                 [

@@ -9,6 +9,8 @@ $var title: $:task.get_name() - $:course.get_name()
 
 $var Column: $:template_helper.call('course_admin_menu',course=course,current='tasks')
 
+$ use_classrooms = course.use_classrooms()
+
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
         <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
@@ -26,7 +28,7 @@ $var Navbar: $:NavbarF()
                         <li role="presentation" class="active"><a href="#tab_indiv" aria-controls="basicinfo" role="tab" data-toggle="tab"><i class="fa
                 fa-user fa-fw"></i>&nbsp; Individual results</a></li>
                         <li role="presentation"><a href="#tab_classroom" aria-controls="container" role="tab" data-toggle="tab"><i class="fa
-                fa-users fa-fw"></i>&nbsp; Classroom results</a></li>
+                fa-users fa-fw"></i>&nbsp; $("Classroom" if use_classrooms else "Group") results</a></li>
         </ul>
         <div id="edit_task_tabs_content" class="tab-content">
                 <div role="tabpanel" class="tab-pane active" id="tab_indiv">
@@ -90,7 +92,7 @@ $var Navbar: $:NavbarF()
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>Classroom</th>
+                                <th>$("Classroom" if use_classrooms else "Group")</th>
                                 <th>Status</th>
                                 <th># submissions</th>
                                 <th>
@@ -104,7 +106,7 @@ $var Navbar: $:NavbarF()
                             </tr>
                         </thead>
                         <tbody>
-                        $ text = ["My classrooms","Other classrooms"]
+                        $ text = ["My classroom(s)","Other classroom(s)"] if use_classrooms else ["My group(s)","Other group(s)"]
                         $for ind in range(0,2):
                             $if len(classroom_data[ind]) > 0:
                                 $if len(classroom_data[0]) > 0 and len(classroom_data[1]) > 0:
@@ -112,37 +114,38 @@ $var Navbar: $:NavbarF()
                                         <th colspan="5">$text[ind]</th>
                                     </tr>
                             $for classroom in classroom_data[ind]:
-                                <tr
-                                    $if classroom["status"] == "notattempted":
-                                        class="warning"
-                                    $elif classroom["status"] == "succeeded":
-                                        class="success"
-                                    $elif classroom["status"] == "failed":
-                                        class="danger"
-                                >
-                                    <td>
-                                        <a href="/admin/${course.get_id()}/classroom/$classroom['_id']">$classroom['description']</a>
-                                    </td>
-                                    <td>
-                                        $if classroom["status"] == "notviewed":
-                                            Not viewed
-                                        $elif classroom["status"] == "notattempted":
-                                            Not attempted (viewed)
+                                $if course.use_classrooms() or len(classroom['groups']) > 0:
+                                    <tr
+                                        $if classroom["status"] == "notattempted":
+                                            class="warning"
                                         $elif classroom["status"] == "succeeded":
-                                            Succeeded ($classroom["grade"]%)
-                                        $else:
-                                            Failed ($classroom["grade"]%)
-                                    </td>
-                                    <td>$classroom["tried"] </td>
-                                    <td>
-                                        <div class="btn-group" role="group">
-                                            <a href="/admin/${course.get_id()}/classroom/$classroom['_id']/$task.get_id()" class="btn btn-default btn-xs" title="View
-                                               submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
-                                            <a href="$classroom['url']" class="btn btn-default btn-xs" title="Download
-                                               submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                                        </div>
-                                    </td>
-                                </tr>
+                                            class="success"
+                                        $elif classroom["status"] == "failed":
+                                            class="danger"
+                                    >
+                                        <td>
+                                            <a href="/admin/${course.get_id()}/classroom/$classroom['_id']">$classroom['description']</a>
+                                        </td>
+                                        <td>
+                                            $if classroom["status"] == "notviewed":
+                                                Not viewed
+                                            $elif classroom["status"] == "notattempted":
+                                                Not attempted (viewed)
+                                            $elif classroom["status"] == "succeeded":
+                                                Succeeded ($classroom["grade"]%)
+                                            $else:
+                                                Failed ($classroom["grade"]%)
+                                        </td>
+                                        <td>$classroom["tried"] </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a href="/admin/${course.get_id()}/classroom/$classroom['_id']/$task.get_id()" class="btn btn-default btn-xs" title="View
+                                                   submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
+                                                <a href="$classroom['url']" class="btn btn-default btn-xs" title="Download
+                                                   submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                                            </div>
+                                        </td>
+                                    </tr>
                         </tbody>
                     </table>
                 </div>
