@@ -450,18 +450,18 @@ class UserManager(AbstractUserManager):
         if username is None:
             username = self.session_username()
 
-        classroom = self._database.classrooms.find_one({"courseid": task.get_course_id(), "groups.students": username})
-        group_filter = (classroom is not None and task.is_group_task()) or not task.is_group_task()
+        aggregation = self._database.classrooms.find_one({"courseid": task.get_course_id(), "groups.students": username})
+        group_filter = (aggregation is not None and task.is_group_task()) or not task.is_group_task()
 
         return (self.course_is_open_to_user(task.get_course(),
                                             username) and task._accessible.is_open() and group_filter) or self.has_staff_rights_on_course(
             task.get_course(), username)
 
-    def get_course_classrooms(self, course):
-        """ Returns a list of the course classrooms"""
+    def get_course_aggregations(self, course):
+        """ Returns a list of the course aggregations"""
         return list(self._database.classrooms.find({"courseid": course.get_id()}).sort("description"))
 
-    def get_course_user_classroom(self, course, username=None):
+    def get_course_user_aggregation(self, course, username=None):
         """ Returns the classroom whose username belongs to
         :param course: a Course object
         :param username: The username of the user that we want to register. If None, uses self.session_username()
@@ -494,8 +494,8 @@ class UserManager(AbstractUserManager):
         if self.course_is_open_to_user(course, username):
             return False  # already registered?
 
-        classroom = self._database.classrooms.find_one({"courseid": course.get_id(), "default": True})
-        if classroom is None:
+        aggregation = self._database.classrooms.find_one({"courseid": course.get_id(), "default": True})
+        if aggregation is None:
             self._database.classrooms.insert({"courseid": course.get_id(), "description": "Default classroom",
                                               "students": [username], "tutors": [], "groups": [], "default": True})
         else:

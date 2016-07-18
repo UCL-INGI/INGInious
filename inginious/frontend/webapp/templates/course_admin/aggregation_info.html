@@ -1,13 +1,13 @@
-$def with (course,classroom,data)
+$def with (course,aggregation,data)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
-$var title: $:classroom["description"] - $:course.get_name()
+$var title: $:aggregation["description"] - $:course.get_name()
 
-$var Column: $:template_helper.call('course_admin_menu',course=course,current='classrooms')
+$var Column: $:template_helper.call('course_admin_menu',course=course,current='aggregations')
 
 $ use_classrooms = course.use_classrooms()
 
@@ -16,14 +16,14 @@ $def NavbarF():
         <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
         <li><a href="/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-user-secret"></i></a></li>
-        <li><a href="/admin/$course.get_id()/classrooms" title="$('Classroom' if use_classrooms else 'Group')s" data-toggle="tooltip" data-placement="bottom">
+        <li><a href="/admin/$course.get_id()/aggregations" title="$('Classroom' if use_classrooms else 'Team')s" data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-group"></i></a></li>
 
-        <li class="active"><a href="#">$classroom["description"] <span class="sr-only">(current)</span></a></li>
+        <li class="active"><a href="#">$aggregation["description"] <span class="sr-only">(current)</span></a></li>
     </ol>
 $var Navbar: $:NavbarF()
 
-<h2>Statistics for $("classroom" if use_classrooms else "group") $classroom["description"]</h2>
+<h2>Statistics for $("classroom" if use_classrooms else "group") $aggregation["description"]</h2>
 <table class="table">
     <thead>
         <tr>
@@ -32,10 +32,10 @@ $var Navbar: $:NavbarF()
             <th># submissions</th>
             <th>
                 <div class="btn-group" role="group">
-                    <a href="/admin/${course.get_id()}/download?format=taskid%2Fclassroom&classrooms=$classroom['_id']"
+                    <a href="/admin/${course.get_id()}/download?format=taskid%2Faggregation&aggregations=$aggregation['_id']"
                        class="btn btn-danger btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa
                        fa-download"></i></a>
-                    <a href="/admin/${course.get_id()}/classroom/${classroom['_id']}?csv" class="btn btn-info btn-xs" title="Download
+                    <a href="/admin/${course.get_id()}/aggregation/${aggregation['_id']}?csv" class="btn btn-info btn-xs" title="Download
                        CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
                 </div>
             </th>
@@ -51,7 +51,7 @@ $var Navbar: $:NavbarF()
             $elif task["status"] == "failed":
                 class="danger"
         >
-    		<td><a href="/admin/${course.get_id()}/classroom/$classroom['_id']/$task['taskid']">$task["name"]</a></td>
+    		<td><a href="/admin/${course.get_id()}/aggregation/$aggregation['_id']/$task['taskid']">$task["name"]</a></td>
     		<td>
                 $if task["status"] == "notviewed":
                     Not viewed
@@ -65,7 +65,7 @@ $var Navbar: $:NavbarF()
             <td>$task["tried"]</td>
     		<td>
                 <div class="btn-group" role="group">
-    			    <a href="/admin/${course.get_id()}/classroom/$classroom['_id']/$task['taskid']" class="btn btn-default btn-xs" title="View submissions"
+    			    <a href="/admin/${course.get_id()}/aggregation/$aggregation['_id']/$task['taskid']" class="btn btn-default btn-xs" title="View submissions"
                        data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
                     <a href="$task['url']" class="btn btn-default btn-xs" title="Download submissions"
                        data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>

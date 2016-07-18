@@ -10,21 +10,21 @@ from bson.objectid import ObjectId
 from inginious.frontend.webapp.pages.course_admin.utils import make_csv, INGIniousAdminPage
 
 
-class CourseClassroomInfoPage(INGIniousAdminPage):
-    """ List information about a classroom """
+class CourseAggregationInfoPage(INGIniousAdminPage):
+    """ List information about a aggregation """
 
-    def GET(self, courseid, classroomid):
+    def GET(self, courseid, aggregationid):
         """ GET request """
         course, _ = self.get_course_and_check_rights(courseid)
-        return self.page(course, classroomid)
+        return self.page(course, aggregationid)
 
-    def submission_url_generator(self, course, classroomid, taskid):
+    def submission_url_generator(self, course, aggregationid, taskid):
         """ Generates a submission url """
-        return "/admin/" + course.get_id() + "/download?format=taskid%2Fclassroom&tasks=" + taskid + "&classrooms=" + str(classroomid)
+        return "/admin/" + course.get_id() + "/download?format=taskid%2Faggregation&tasks=" + taskid + "&aggregations=" + str(aggregationid)
 
-    def page(self, course, classroomid):
+    def page(self, course, aggregationid):
         """ Get all data and display the page """
-        classroom = self.database.classrooms.find_one({"_id": ObjectId(classroomid)})
+        aggregation = self.database.classrooms.find_one({"_id": ObjectId(aggregationid)})
 
         data = list(self.database.submissions.aggregate(
             [
@@ -32,7 +32,7 @@ class CourseClassroomInfoPage(INGIniousAdminPage):
                     "$match":
                         {
                             "courseid": course.get_id(),
-                            "username": {"$in": classroom["students"]}
+                            "username": {"$in": aggregation["students"]}
                         }
                 },
                 {
@@ -48,7 +48,7 @@ class CourseClassroomInfoPage(INGIniousAdminPage):
 
         tasks = course.get_tasks()
         result = dict([(taskid, {"taskid": taskid, "name": tasks[taskid].get_name(), "tried": 0, "status": "notviewed",
-                                 "grade": 0, "url": self.submission_url_generator(course, classroomid, taskid)}) for taskid in tasks])
+                                 "grade": 0, "url": self.submission_url_generator(course, aggregationid, taskid)}) for taskid in tasks])
 
         for taskdata in data:
             if taskdata["_id"] in result:
@@ -64,4 +64,4 @@ class CourseClassroomInfoPage(INGIniousAdminPage):
         if "csv" in web.input():
             return make_csv(result)
 
-        return self.template_helper.get_renderer().course_admin.classroom(course, classroom, result.values())
+        return self.template_helper.get_renderer().course_admin.aggregation_info(course, aggregation, result.values())

@@ -19,9 +19,9 @@ class CourseDownloadSubmissions(INGIniousAdminPage):
     def valid_formats(self, course):
         return [
             "taskid/username",
-            "taskid/" + ('classroom' if course.use_classrooms() else 'group'),
+            "taskid/aggregation",
             "username/taskid",
-            ('classroom' if course.use_classrooms() else 'group') + "/taskid"
+            "aggregation/taskid"
         ]
 
     def _validate_list(self, usernames):
@@ -34,7 +34,7 @@ class CourseDownloadSubmissions(INGIniousAdminPage):
         """ GET request """
         course, _ = self.get_course_and_check_rights(courseid)
 
-        user_input = web.input(tasks=[], classrooms=[], users=[])
+        user_input = web.input(tasks=[], aggregations=[], users=[])
 
         if "filter_type" not in user_input or "type" not in user_input or "format" not in user_input or user_input.format not in self.valid_formats(course):
             raise web.notfound()
@@ -46,18 +46,18 @@ class CourseDownloadSubmissions(INGIniousAdminPage):
 
         if user_input.filter_type == "users":
             self._validate_list(user_input.users)
-            classrooms = list(self.database.classrooms.find({"courseid": courseid,
+            aggregations = list(self.database.classrooms.find({"courseid": courseid,
                                                              "students": {"$in": user_input.users}}))
         else:
-            self._validate_list(user_input.classrooms)
-            classrooms = list(self.database.classrooms.find({"_id": {"$in": [ObjectId(cid) for cid in user_input.classrooms]}}))
+            self._validate_list(user_input.aggregations)
+            aggregations = list(self.database.classrooms.find({"_id": {"$in": [ObjectId(cid) for cid in user_input.classrooms]}}))
 
         # Tweak if not using classrooms : classroom['students'] may content ungrouped users
-        classrooms = dict([( username,
-                             classroom if course.use_classrooms() or (username in classroom['groups'][0]["students"]) else None
-                             ) for classroom in classrooms for username in classroom["students"]])
+        aggregations = dict([(username,
+                              aggregation if course.use_classrooms() or (username in aggregation['groups'][0]["students"]) else None
+                              ) for aggregation in aggregations for username in aggregation["students"]])
 
-        submissions = list(self.database.submissions.find({"username": {"$in": classrooms.keys()},
+        submissions = list(self.database.submissions.find({"username": {"$in": aggregations.keys()},
                                                            "taskid": {"$in": user_input.tasks},
                                                            "courseid": course.get_id(),
                                                            "status": {"$in": ["done", "error"]}}))
@@ -66,7 +66,7 @@ class CourseDownloadSubmissions(INGIniousAdminPage):
 
         web.header('Content-Type', 'application/x-gzip', unique=True)
         web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)
-        return self.submission_manager.get_submission_archive(submissions, list(reversed(user_input.format.split('/'))), classrooms)
+        return self.submission_manager.get_submission_archive(submissions, list(reversed(user_input.format.split('/'))), aggregations)
 
     def GET(self, courseid):
         """ GET request """
@@ -93,46 +93,49 @@ class CourseDownloadSubmissions(INGIniousAdminPage):
                                    key=lambda k: k[1][0] if k[1] is not None else ""))
         user_data = OrderedDict([(username, user[0] if user is not None else username) for username, user in users.iteritems()])
 
-        classrooms = self.user_manager.get_course_classrooms(course)
-        tutored_classrooms = [str(classroom["_id"]) for classroom in classrooms if self.user_manager.session_username() in classroom["tutors"] and len(classroom['groups']) > 0]
+        aggregations = self.user_manager.get_course_aggregations(course)
+        tutored_aggregations = [str(aggregation["_id"]) for aggregation in aggregations if self.user_manager.session_username() in aggregation["tutors"] and len(aggregation['groups']) > 0]
 
         tutored_users = []
-        for classroom in classrooms:
-            for username in classroom["students"]:
+        for aggregation in aggregations:
+            for username in aggregation["students"]:
                 # If no classrooms used, only students inside groups
-                if self.user_manager.session_username() in classroom["tutors"] and \
+                if self.user_manager.session_username() in aggregation["tutors"] and \
                         (course.use_classrooms() or
-                             (len(classroom['groups']) > 0 and username in classroom['groups'][0]['students'])):
+                             (len(aggregation['groups']) > 0 and username in aggregation['groups'][0]['students'])):
                     tutored_users += [username]
 
         checked_tasks = tasks.keys()
         checked_users = user_data.keys()
-        checked_classrooms = [classroom['_id'] for classroom in classrooms]
-        show_classrooms = False
+        checked_aggregations = [aggregation['_id'] for aggregation in aggregations]
+        show_aggregations = False
         chosen_format = self.valid_formats(course)[0]
 
         if "tasks" in user_input:
             checked_tasks = user_input.tasks.split(',')
         if "users" in user_input:
             checked_users = user_input.users.split(',')
-        if "classrooms" in user_input:
-            checked_classrooms = user_input.classrooms.split(',')
-            show_classrooms = True
+        if "aggregations" in user_input:
+            checked_aggregations = user_input.aggregations.split(',')
+            show_aggregations = True
         if "tutored" in user_input:
-            if user_input.tutored == "classrooms":
-                checked_classrooms = tutored_classrooms
-                show_classrooms = True
+            if user_input.tutored == "aggregations":
+                checked_aggregations = tutored_aggregations
+                show_aggregations = True
             elif user_input.tutored == "users":
                 checked_users = tutored_users
-                show_classrooms = True
+                show_aggregations = True
         if "format" in user_input and user_input.format in self.valid_formats(course):
             chosen_format = user_input.format
-            if "classroom" in chosen_format:
-                show_classrooms = True
+            if "aggregation" in chosen_format:
+                show_aggregations = True
+
+        for aggregation in aggregations:
+            aggregation['checked'] = str(aggregation['_id']) in checked_aggregations
 
         return self.template_helper.get_renderer().course_admin.download(course,
-                                                                         tasks, user_data, classrooms,
-                                                                         tutored_classrooms, tutored_users,
-                                                                         checked_tasks, checked_users, checked_classrooms,
+                                                                         tasks, user_data, aggregations,
+                                                                         tutored_aggregations, tutored_users,
+                                                                         checked_tasks, checked_users,
                                                                          self.valid_formats(course), chosen_format,
-                                                                         show_classrooms)
+                                                                         show_aggregations)

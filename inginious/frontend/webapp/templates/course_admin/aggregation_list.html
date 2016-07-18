@@ -6,7 +6,7 @@ $# more information about the licensing of this file.
 $#
 
 $var title: $:course.get_name()
-$var Column: $:template_helper.call('course_admin_menu',course=course,current='classrooms')
+$var Column: $:template_helper.call('course_admin_menu',course=course,current='aggregations')
 
 $ use_classrooms = course.use_classrooms()
 
@@ -17,17 +17,17 @@ $def NavbarF():
             <i class="fa fa-user-secret"></i></a></li>
         <li class="active">
             <a href="#">
-                <i class="fa fa-group"></i> $("Classroom" if use_classrooms else "Group")s <span class="sr-only">(current)</span>
+                <i class="fa fa-group"></i> $("Classroom" if use_classrooms else "Team")s <span class="sr-only">(current)</span>
             </a>
         </li>
     </ol>
 $var Navbar: $:NavbarF()
 
-<h2>$("Classroom" if use_classrooms else "Group")s
+<h2>$("Classroom" if use_classrooms else "Team")s
     <div class="pull-right">
         <div class="btn-group">
             $if not course.use_classrooms():
-                <a type="button" id="switch" class="btn-sm btn btn-primary" href="edit/classrooms"><i class="fa fa-edit"></i> Edit groups</a>
+                <a type="button" id="switch" class="btn-sm btn btn-primary" href="edit/aggregations"><i class="fa fa-edit"></i> Edit teams</a>
             <button type="submit" id="switch" class="btn-sm btn btn-danger" data-toggle="modal" data-target="#upload_modal"><i class="fa fa-upload"></i> Upload structure</button>
             <a href="?download" class="btn-sm btn btn-success"><i class="fa fa-download"></i> Download structure</a>
         </div>
@@ -45,7 +45,7 @@ $var Navbar: $:NavbarF()
         </div>
 
 <div class="modal fade" id="upload_modal">
-    <form method="post" enctype="multipart/form-data" action="edit/classrooms">
+    <form method="post" enctype="multipart/form-data" action="edit/aggregations">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -56,7 +56,7 @@ $var Navbar: $:NavbarF()
                     <p>Note : Please refer to documentation for file format</p>
                     <div class="form-group">
                         <label for="name" class="col-sm-2 control-label">Course structure</label>
-                        <input name="classroomfile" type="file">
+                        <input name="aggregationfile" type="file">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -70,45 +70,45 @@ $var Navbar: $:NavbarF()
 <table class="table">
     <thead>
         <tr>
-            <th>$("Classroom" if use_classrooms else "Group")</th>
+            <th>$("Classroom" if use_classrooms else "Team")</th>
             <th># students</th>
             <th># task tried</th>
             <th># task done</th>
             <th>
                 <div class="btn-group" role="group">
-                    <a href="/admin/${course.get_id()}/download?format=taskid%2Fclassroom" class="btn btn-danger btn-xs" title="Download
+                    <a href="/admin/${course.get_id()}/download?format=taskid%2Faggregation" class="btn btn-danger btn-xs" title="Download
                        all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                    <a href="/admin/${course.get_id()}/classrooms?csv" class="btn btn-info btn-xs" title="Download
+                    <a href="/admin/${course.get_id()}/aggregations?csv" class="btn btn-info btn-xs" title="Download
                        CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
                 </div>
             </th>
         </tr>
     </thead>
     <tbody>
-    $ text = ["My classroom(s)","Other classroom(s)"] if use_classrooms else ["My group(s)","Other group(s)"]
+    $ text = ["My classroom(s)","Other classroom(s)"] if use_classrooms else ["My team(s)","Other team(s)"]
     $for ind in range(0,2):
         $if len(data[ind]) > 0:
             $if len(data[0]) > 0 and len(data[1]) > 0:
                 <tr>
                     <th colspan="5">$text[ind]</th>
                 </tr>
-            $for classroom in data[ind]:
-                $if course.use_classrooms() or len(classroom['groups']) > 0:
+            $for aggregation in data[ind]:
+                $if course.use_classrooms() or len(aggregation['groups']) > 0:
                     <tr>
                         <td>
-                            <a href="/admin/${course.get_id()}/classroom/$classroom['_id']">$classroom["description"]</a>
+                            <a href="/admin/${course.get_id()}/aggregation/$aggregation['_id']">$aggregation["description"]</a>
                         </td>
-                        <td>$(len(classroom["students"]) if course.use_classrooms() else len(classroom["groups"][0]["students"]))</td>
-                        <td>$classroom["tried"]</td>
-                        <td>$classroom["done"]</td>
+                        <td>$(len(aggregation["students"]) if course.use_classrooms() else len(aggregation["groups"][0]["students"]))</td>
+                        <td>$aggregation["tried"]</td>
+                        <td>$aggregation["done"]</td>
                         <td>
                             <div class="btn-group" role="group">
                                 $if course.use_classrooms():
-                                    <a href="/admin/${course.get_id()}/edit/classroom/$classroom['_id']" class="btn btn-primary btn-xs" title="Edit classroom" data-toggle="tooltip"
+                                    <a href="/admin/${course.get_id()}/edit/aggregation/$aggregation['_id']" class="btn btn-primary btn-xs" title="Edit classroom" data-toggle="tooltip"
                                        data-placement="bottom"><i class="fa fa-edit"></i></a>
-                                <a href="/admin/${course.get_id()}/classroom/$classroom['_id']" class="btn btn-default btn-xs" title="View submissions" data-toggle="tooltip"
+                                <a href="/admin/${course.get_id()}/aggregation/$aggregation['_id']" class="btn btn-default btn-xs" title="View submissions" data-toggle="tooltip"
                                    data-placement="bottom"><i class="fa fa-search"></i></a>
-                                <a href="$classroom['url']" class="btn btn-default btn-xs" title="Download submissions"
+                                <a href="$aggregation['url']" class="btn btn-default btn-xs" title="Download submissions"
                                    data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
                             </div>
                         </td>
@@ -123,9 +123,9 @@ $if course.use_classrooms():
             <div class="col-sm-7">
                 <select name="default" class="form-control">
                     $for ind in range(0,2):
-                        $for classroom in data[ind]:
-                            $ sel = 'selected' if classroom['default'] else ''
-                            <option value="$classroom['_id']" $sel>$classroom['description']</option>
+                        $for aggregation in data[ind]:
+                            $ sel = 'selected' if aggregation['default'] else ''
+                            <option value="$aggregation['_id']" $sel>$aggregation['description']</option>
                 </select>
             </div>
             <div class="col-sm-3"><button type="submit" class="btn btn-info btn-block">Set as default</button></div>

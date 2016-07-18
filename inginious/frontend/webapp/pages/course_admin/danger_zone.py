@@ -39,8 +39,8 @@ class CourseDangerZonePage(INGIniousAdminPage):
             os.makedirs(os.path.dirname(filepath))
 
         with zipfile.ZipFile(filepath, "w", allowZip64=True) as zipf:
-            classrooms = self.database.classrooms.find({"courseid": courseid}, {"_id": 0})
-            zipf.writestr("classrooms.json", bson.json_util.dumps(classrooms), zipfile.ZIP_DEFLATED)
+            aggregations = self.database.classrooms.find({"courseid": courseid}, {"_id": 0})
+            zipf.writestr("aggregations.json", bson.json_util.dumps(aggregations), zipfile.ZIP_DEFLATED)
 
             user_tasks = self.database.user_tasks.find({"courseid": courseid}, {"_id": 0})
             zipf.writestr("user_tasks.json", bson.json_util.dumps(user_tasks), zipfile.ZIP_DEFLATED)
@@ -65,9 +65,9 @@ class CourseDangerZonePage(INGIniousAdminPage):
         filepath = os.path.join(self.backup_dir, courseid, backup + ".zip")
         with zipfile.ZipFile(filepath, "r") as zipf:
 
-            classrooms = bson.json_util.loads(zipf.read("classrooms.json"))
-            if len(classrooms) > 0:
-                self.database.classrooms.insert(classrooms)
+            aggregations = bson.json_util.loads(zipf.read("aggregations.json"))
+            if len(aggregations) > 0:
+                self.database.classrooms.insert(aggregations)
 
             user_tasks = bson.json_util.loads(zipf.read("user_tasks.json"))
             if len(user_tasks) > 0:

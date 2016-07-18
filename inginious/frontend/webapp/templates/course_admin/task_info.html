@@ -28,7 +28,7 @@ $var Navbar: $:NavbarF()
                         <li role="presentation" class="active"><a href="#tab_indiv" aria-controls="basicinfo" role="tab" data-toggle="tab"><i class="fa
                 fa-user fa-fw"></i>&nbsp; Individual results</a></li>
                         <li role="presentation"><a href="#tab_classroom" aria-controls="container" role="tab" data-toggle="tab"><i class="fa
-                fa-users fa-fw"></i>&nbsp; $("Classroom" if use_classrooms else "Group") results</a></li>
+                fa-users fa-fw"></i>&nbsp; $("Classroom" if use_classrooms else "Team") results</a></li>
         </ul>
         <div id="edit_task_tabs_content" class="tab-content">
                 <div role="tabpanel" class="tab-pane active" id="tab_indiv">
@@ -92,7 +92,7 @@ $var Navbar: $:NavbarF()
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>$("Classroom" if use_classrooms else "Group")</th>
+                                <th>$("Classroom" if use_classrooms else "Team")</th>
                                 <th>Status</th>
                                 <th># submissions</th>
                                 <th>
@@ -106,7 +106,7 @@ $var Navbar: $:NavbarF()
                             </tr>
                         </thead>
                         <tbody>
-                        $ text = ["My classroom(s)","Other classroom(s)"] if use_classrooms else ["My group(s)","Other group(s)"]
+                        $ text = ["My classroom(s)","Other classroom(s)"] if use_classrooms else ["My team(s)","Other team(s)"]
                         $for ind in range(0,2):
                             $if len(classroom_data[ind]) > 0:
                                 $if len(classroom_data[0]) > 0 and len(classroom_data[1]) > 0:

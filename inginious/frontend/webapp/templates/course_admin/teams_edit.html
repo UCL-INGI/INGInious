@@ -1,15 +1,15 @@
-$def with (course,student_list,tutor_list,users_info,classrooms,msg,error)
+$def with (course,student_list,tutor_list,users_info,aggregations,msg,error)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
-$var title: Edit classrooms
+$var title: Edit teams
 
 $def ColumnF():
     <div id="classroom_edit_submit_status"></div>
-    $:template_helper.call('course_admin_menu',course=course,current='classrooms')
+    $:template_helper.call('course_admin_menu',course=course,current='aggregations')
 $var Column: $:ColumnF()
 
 $def NavbarF():
@@ -17,13 +17,13 @@ $def NavbarF():
         <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
         <li><a href="/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-user-secret"></i></a></li>
-        <li><a href="/admin/$course.get_id()/classrooms" title="Groups" data-toggle="tooltip" data-placement="bottom">
+        <li><a href="/admin/$course.get_id()/aggregations" title="Teams" data-toggle="tooltip" data-placement="bottom">
             <i class='fa fa-users'></i></a></li>
-        <li class="active"><a href="#">Edit groups <span class="sr-only">(current)</span></a></li>
+        <li class="active"><a href="#">Edit teams <span class="sr-only">(current)</span></a></li>
     </ol>
 $var Navbar: $:NavbarF()
 
-<h2>Edit groups</h2>
+<h2>Edit teams</h2>
 $if error:
     <div class="alert alert-danger alert-dismissable" role="alert">
         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
@@ -71,7 +71,7 @@ $elif msg:
         <div class="panel panel-warning group">
             <div class="panel-heading clearfix" role="tab">
                 <h4 class="panel-title">
-                    Ungrouped users
+                    Non teamed students
                     <a class="pull-right" id="group_delete" href="#" data-toggle="modal" data-target="#student_modal">
                         <i class="fa fa-plus"></i>
                     </a>
@@ -86,7 +86,7 @@ $elif msg:
                                 <span id="$username']"><i class="fa fa-arrows"></i> $users_info[username][0] ($username)</span>
                             $else:
                                 <span id="$username']"><i class="fa fa-arrows"></i> $username</span>
-                            $ style = 'style="display:none;"' if classrooms[0]["default"] else ''
+                            $ style = 'style="display:none;"' if aggregations[0]["default"] else ''
                             <a $:style class="pull-right" id="user_delete" href="#" onclick="javascript:classroom_student_remove('$username')" data-toggle="tooltip" data-placement="left" title="Remove student">
                                 <i class="fa fa-user-times"></i>
                             </a>
@@ -95,23 +95,23 @@ $elif msg:
         </div>
 
 
-        $for index,classroom in enumerate((classrooms + [None])):
+        $for index,classroom in enumerate((aggregations + [None])):
                 $if (classroom is None) or (len(classroom["groups"])==0):
                     <div id="$(index+1)" style="display:none;" class="panel panel-default group-panel">
                         <div class="panel-heading clearfix" role="tab">
                         <h4 class="panel-title">
                             <div class="row">
                                 <div class="col-sm-6 col-xs-12">
-                                    <input type="text" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" class="form-control" id="description" name="description" placeholder="Classroom description" value="New group">
+                                    <input type="text" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" class="form-control" id="description" name="description" placeholder="Classroom description" value="New team">
                                 </div>
                                 <div class="col-sm-2 col-xs-3" style="text-align: right;">
-                                    <label>Max group size :</label>
+                                    <label>Max team size :</label>
                                 </div>
                                 <div class="col-sm-3 col-xs-7">
                                     <input style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" id="size" type="number" class="form-control" value="2">
                                 </div>
                                 <div class="col-sm-1 col-xs-2">
-                                    <a class="pull-right" id="group_delete" href="#" onclick="javascript:classroom_group_delete($$(this).rparent(5).attr('id'))" data-toggle="tooltip" title="Delete group">
+                                    <a class="pull-right" id="group_delete" href="#" onclick="javascript:classroom_group_delete($$(this).rparent(5).attr('id'))" data-toggle="tooltip" title="Delete team">
                                         <i class="fa fa-trash-o"></i>
                                     </a>
                                 </div>
@@ -129,13 +129,13 @@ $elif msg:
                                         <input type="text" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" class="form-control" id="description" name="description" placeholder="Classroom description" value="$classroom['description']">
                                     </div>
                                     <div class="col-sm-2 col-xs-3" style="text-align: right;">
-                                        <label>Max group size :</label>
+                                        <label>Max team size :</label>
                                     </div>
                                     <div class="col-sm-3 col-xs-7">
                                         <input style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" id="size" type="number" class="form-control" value="$(group['size'] if group is not None else 2)">
                                     </div>
                                     <div class="col-sm-1 col-xs-2">
-                                        <a class="pull-right" id="group_delete" href="#" onclick="javascript:classroom_group_delete($$(this).rparent(5).attr('id'))" data-toggle="tooltip" title="Delete group">
+                                        <a class="pull-right" id="group_delete" href="#" onclick="javascript:classroom_group_delete($$(this).rparent(5).attr('id'))" data-toggle="tooltip" title="Delete team">
                                             <i class="fa fa-trash-o"></i>
                                         </a>
                                     </div>
@@ -213,17 +213,17 @@ $elif msg:
         <div class="row">
             <div class="col-md-4">
                     <a href="#group_add" onclick="javascript:classroom_group_add()" id="group_add" class="btn btn-block btn-default">
-                        <i class="fa fa-plus fa-lg"></i> New group
+                        <i class="fa fa-plus fa-lg"></i> New team
                     </a>
             </div>
             <div class="col-md-4">
                     <a href="#" onclick="javascript:classroom_groups_clean()" class="btn btn-block btn-warning">
-                        <i class="fa fa-eraser fa-lg"></i> Clean groups
+                        <i class="fa fa-eraser fa-lg"></i> Clean teams
                     </a>
             </div>
             <div class="col-md-4">
                     <a href="#" onclick="javascript:classroom_groups_delete()" class="btn btn-block btn-danger">
-                        <i class="fa fa-trash fa-lg"></i> Delete all groups
+                        <i class="fa fa-trash fa-lg"></i> Delete all teams
                     </a>
             </div>
         </div>

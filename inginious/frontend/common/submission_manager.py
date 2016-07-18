@@ -283,7 +283,7 @@ class SubmissionManager(object):
         """ Returns the GridFS used by the submission manager """
         return self._gridfs
 
-    def get_submission_archive(self, submissions, sub_folders, classrooms, archive_file=None):
+    def get_submission_archive(self, submissions, sub_folders, aggregations, archive_file=None):
         """
         :param submissions: a list of submissions
         :param sub_folders: possible values:
@@ -312,14 +312,14 @@ class SubmissionManager(object):
                     elif sub_folder == 'username':
                         base_path = '_' + '-'.join(submission['username']) + base_path
                         base_path = base_path[1:]
-                    elif sub_folder in ['classroom', 'group']:
-                        if classrooms[username] is None:
+                    elif sub_folder == 'aggregation':
+                        if aggregations[username] is None:
                             # If classrooms are not used, and user is not grouped, his classroom is replaced by None
                             base_path = '_' + '-'.join(submission['username']) + base_path
                             base_path = base_path[1:]
                         else:
-                            base_path = (classrooms[username]["description"] +
-                                         " (" + str(classrooms[username]["_id"]) + ")").replace(" ", "_") + base_path
+                            base_path = (aggregations[username]["description"] +
+                                         " (" + str(aggregations[username]["_id"]) + ")").replace(" ", "_") + base_path
 
                     base_path = '/' + base_path
                 base_path = base_path[1:]

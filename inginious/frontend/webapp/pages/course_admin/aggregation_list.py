@@ -12,8 +12,8 @@ import web
 from inginious.frontend.webapp.pages.course_admin.utils import make_csv, INGIniousAdminPage
 
 
-class CourseClassroomListPage(INGIniousAdminPage):
-    """ Course administration page: list of classrooms """
+class CourseAggregationListPage(INGIniousAdminPage):
+    """ Course administration page: list of aggregations """
 
     def GET(self, courseid):
         """ GET request """
@@ -21,23 +21,23 @@ class CourseClassroomListPage(INGIniousAdminPage):
 
         if "download" in web.input():
             web.header('Content-Type', 'text/x-yaml', unique=True)
-            web.header('Content-Disposition', 'attachment; filename="classrooms.yaml"', unique=True)
+            web.header('Content-Disposition', 'attachment; filename="aggregations.yaml"', unique=True)
             if course.use_classrooms():
-                classrooms = [{"default": classroom["default"],
-                               "description": classroom["description"],
-                               "groups": classroom["groups"],
-                               "students": classroom["students"],
-                               "tutors": classroom["tutors"]} for classroom in
-                              self.user_manager.get_course_classrooms(course)]
+                aggregations = [{"default": aggregation["default"],
+                               "description": aggregation["description"],
+                               "groups": aggregation["groups"],
+                               "students": aggregation["students"],
+                               "tutors": aggregation["tutors"]} for aggregation in
+                              self.user_manager.get_course_aggregations(course)]
             else:
-                classrooms = [{"default": classroom["default"],
-                               "description": classroom["description"],
-                               "groups": classroom["groups"],
-                               "students": classroom["students"],
-                               "tutors": classroom["tutors"]} for classroom in
-                              self.user_manager.get_course_classrooms(course) if len(classroom["groups"])>0]
+                aggregations = [{"default": aggregation["default"],
+                               "description": aggregation["description"],
+                               "groups": aggregation["groups"],
+                               "students": aggregation["students"],
+                               "tutors": aggregation["tutors"]} for aggregation in
+                              self.user_manager.get_course_aggregations(course) if len(aggregation["groups"]) > 0]
 
-            return yaml.dump(classrooms)
+            return yaml.dump(aggregations)
 
         return self.page(course)
 
@@ -70,19 +70,19 @@ class CourseClassroomListPage(INGIniousAdminPage):
 
         return self.page(course, msg, error)
 
-    def submission_url_generator(self, course, classroomid):
+    def submission_url_generator(self, course, aggregationid):
         """ Generates a submission url """
-        return "/admin/" + course.get_id() + "/download?format=taskid%2Fclassroom&classrooms=" + str(classroomid)
+        return "/admin/" + course.get_id() + "/download?format=taskid%2Faggregation&aggregations=" + str(aggregationid)
 
     def page(self, course, msg="", error=False):
         """ Get all data and display the page """
-        classrooms = OrderedDict()
+        aggregations = OrderedDict()
 
-        for classroom in self.user_manager.get_course_classrooms(course):
-            classrooms[classroom['_id']] = dict(classroom.items() +
+        for aggregation in self.user_manager.get_course_aggregations(course):
+            aggregations[aggregation['_id']] = dict(aggregation.items() +
                                                 [("tried", 0),
                                                  ("done", 0),
-                                                 ("url", self.submission_url_generator(course, classroom['_id']))
+                                                 ("url", self.submission_url_generator(course, aggregation['_id']))
                                                  ])
 
             data = list(self.database.submissions.aggregate(
@@ -92,7 +92,7 @@ class CourseClassroomListPage(INGIniousAdminPage):
                             {
                                 "courseid": course.get_id(),
                                 "taskid": {"$in": course.get_tasks().keys()},
-                                "username": {"$in": classroom["students"]}
+                                "username": {"$in": aggregation["students"]}
                             }
                     },
                     {
@@ -107,17 +107,17 @@ class CourseClassroomListPage(INGIniousAdminPage):
                 ]))
 
             for c in data:
-                classrooms[classroom['_id']]["tried"] += 1 if c["tried"] else 0
-                classrooms[classroom['_id']]["done"] += 1 if c["done"] else 0
+                aggregations[aggregation['_id']]["tried"] += 1 if c["tried"] else 0
+                aggregations[aggregation['_id']]["done"] += 1 if c["done"] else 0
 
-        my_classrooms, other_classrooms = [], []
-        for classroom in classrooms.values():
-            if self.user_manager.session_username() in classroom["tutors"]:
-                my_classrooms.append(classroom)
+        my_aggregations, other_aggregations = [], []
+        for aggregation in aggregations.values():
+            if self.user_manager.session_username() in aggregation["tutors"]:
+                my_aggregations.append(aggregation)
             else:
-                other_classrooms.append(classroom)
+                other_aggregations.append(aggregation)
 
         if "csv" in web.input():
             return make_csv(data)
 
-        return self.template_helper.get_renderer().course_admin.classroom_list(course, [my_classrooms, other_classrooms], msg, error)
+        return self.template_helper.get_renderer().course_admin.aggregation_list(course, [my_aggregations, other_aggregations], msg, error)

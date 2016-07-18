@@ -36,7 +36,7 @@ function classroom_prepare_submit()
 
         var inputField = jQuery('<input/>', {
                 type:"hidden",
-                name:"classrooms",
+                name:"aggregations",
                 value: JSON.stringify(classrooms)
         }).appendTo($("form"));
 
@@ -84,7 +84,7 @@ function classroom_prepare_submit()
 
          var inputField = jQuery('<input/>', {
                 type:"hidden",
-                name:"classrooms",
+                name:"aggregations",
                 value: JSON.stringify(classrooms)
         }).appendTo($("form"));
     }

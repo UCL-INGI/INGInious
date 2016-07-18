@@ -1,4 +1,4 @@
-$def with (course,submissions,classrooms,users,myclassroom,msg, error)
+$def with (course,submissions,teams,users,myteam,msg, error)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -63,7 +63,7 @@ $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
         <li><a  href="/course/$course.get_id()">$course.get_name()</a></li>
         <li class="active"><a href="#"><i class="fa fa-group"></i>
-            $if myclassroom is None:
+            $if myteam is None:
                 Register for a group
             $else:
                 Groups
@@ -85,8 +85,8 @@ $elif msg:
         $:msg
     </div>
 
-$if len(myclassroom["groups"]) > 0 and username in myclassroom["groups"][0]["students"]:
-    <h3>My group : $myclassroom["description"]</h3>
+$if len(myteam["groups"]) > 0 and username in myteam["groups"][0]["students"]:
+    <h3>My group : $myteam["description"]</h3>
     <div class="panel panel-info">
         <div class="panel-heading" role="tab" id="heading">
             <h4 class="panel-title">
@@ -101,7 +101,7 @@ $if len(myclassroom["groups"]) > 0 and username in myclassroom["groups"][0]["stu
         </div>
 
         <ul class="list-group">
-        $for user in myclassroom["groups"][0]["students"]:
+        $for user in myteam["groups"][0]["students"]:
             <li class="list-group-item">
                 $if users[user] is not None:
                     $users[user][0]
@@ -115,12 +115,12 @@ $if len(myclassroom["groups"]) > 0 and username in myclassroom["groups"][0]["stu
             </li>
         </ul>
 
-    $if len(myclassroom["tutors"]) > 0:
+    $if len(myteam["tutors"]) > 0:
             <div class="panel-heading" role="tab" id="heading">
                 <h4 class="panel-title">Tutors</h4>
             </div>
                 <ul class="list-group">
-                $for user in myclassroom["tutors"]:
+                $for user in myteam["tutors"]:
                     <li class="list-group-item">
                         $if users[user] is not None:
                             $users[user][0]
@@ -136,9 +136,9 @@ $if len(myclassroom["groups"]) > 0 and username in myclassroom["groups"][0]["stu
 
     </div>
 
-$elif len(myclassroom["groups"]) == 0:
+$elif len(myteam["groups"]) == 0:
     <div class="alert alert-info alert-dismissable" role="alert">
-        No set group in this classroom. If you think this is a mistake, please contact the course administrator.
+        No set team in this course. If you think this is a mistake, please contact the course administrator.
     </div>
 $elif course.can_students_choose_group():
     <h3>My group</h3>
@@ -152,23 +152,23 @@ $else:
         You're not yet registered to a group. Please contact the course administrator for more information.
     </div>
 
-$if not len(classrooms) == 0:
+$if not len(teams) == 0:
     <h3 style="margin-bottom: 20px">All groups</h3>
-    $for index, classroom in enumerate(classrooms):
-        $if len(classroom["groups"])>0:
-            <h4>$classroom["description"]</h4>
-            $ group = classroom["groups"][0]
-                    $if len(myclassroom["groups"]) == 0 or username not in myclassroom["groups"][0]["students"] and (group["size"]-len(group["students"])) > 0 and course.can_students_choose_group():
+    $for index, team in enumerate(teams):
+        $if len(team["groups"])>0:
+            <h4>$team["description"]</h4>
+            $ group = team["groups"][0]
+                    $if len(myteam["groups"]) == 0 or username not in myteam["groups"][0]["students"] and (group["size"]-len(group["students"])) > 0 and course.can_students_choose_group():
                         <div class="panel panel-success">
                     $else:
                         <div class="panel panel-default">
                 <div class="panel-heading" role="tab" id="heading_$index">
                     <h4 class="panel-title">
                         Students
-                        $if len(myclassroom["groups"]) == 0 or username not in myclassroom["groups"][0]["students"] and (group["size"]-len(group["students"])) > 0 and course.can_students_choose_group():
+                        $if len(myteam["groups"]) == 0 or username not in myteam["groups"][0]["students"] and (group["size"]-len(group["students"])) > 0 and course.can_students_choose_group():
                             (available : $(group["size"]-len(group["students"])) )
                             <div class="pull-right">
-                                <a href="?register_group=$classroom['_id']" data-toggle="tooltip" data-placement="left" title="Join in">
+                                <a href="?register_group=$team['_id']" data-toggle="tooltip" data-placement="left" title="Join in">
                                     <i style="color:white;" class="fa fa-sign-in"></i>
                                 </a>
                             </div>
@@ -193,12 +193,12 @@ $if not len(classrooms) == 0:
                         </li>
 
                 </ul>
-                $if len(classroom["tutors"]) > 0:
+                $if len(team["tutors"]) > 0:
                     <div class="panel-heading" role="tab" id="heading">
                         <h4 class="panel-title">Tutors</h4>
                     </div>
                         <ul class="list-group">
-                        $for user in classroom["tutors"]:
+                        $for user in team["tutors"]:
                             <li class="list-group-item">
                                 $if users[user] is not None:
                                     $users[user][0]
