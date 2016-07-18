@@ -78,31 +78,43 @@ Uploading task files
 
 .. _groups:
 
+Classrooms and teams
+--------------------
+
+Collaborative work and separate students administration are possible in INGInious.
+Two models are available:
+
+- *Classrooms and groups* : Classrooms are useful to administratively separate
+  students following the same course. They offer separate statistics to
+  help the teacher identify problems students may encounter in this particular context.
+
+  Submissions groups can be set in classrooms and define a set of users that
+  will submit together. Their submissions will contain as authors all the
+  students that were members of the group at submission time. Note that students cannot
+  collaborate with students from another classroom. In this case, please consider
+  using only teams, as described below.
+- *Teams* : Teams are administratively-separated submissions groups. They are
+  internally assimilated to classrooms with a unique submission group. They offer
+  separate statistics for each submission group.
+
+Choice between these two models can be made in the course settings. Switching from
+one model to another will reinitialize the all course structure (that is, students
+registration also). Course structures can be backed up if necessary from the
+classrooms/teams administration pages.
+
+Creation and edition
+`````````````````````
+
+Classrooms and teams are created and edited from the web app in the course
+administration.
+
 Classrooms and groups
----------------------
+*********************
 
-Classrooms are useful to administratively separate students following the
-same course. Classrooms offer separate statistics to help the teacher identify
-problems students may encounter in this particular context. Submission
-groups can be set in classrooms. These groups define a set of users that
-will submit together. Their submissions will contain as authors all the
-students that were members of the group at submission time.
+In the classroom list view, specify a classroom description, and click on
+"*Create new classroom*". The newly created classroom will appear in the list.
 
-Students in one classroom can collaborate together if the teacher allow
-them to, and cannot collaborate with students from another classroom.
-If you want students from different classrooms to work together in one
-submission group, maybe INGInious classrooms are not useful for you and
-you should only consider groups in one default classroom.
-
-Classroom creation/edition
-``````````````````````````
-
-Classrooms have to be created and edited from the web app in the course
-administration. In the classroom list view, specify a classroom description,
-and click on "Create new classroom". The newly created classroom will appear
-in the list.
-
-To edit a classroom, click on the quick link "Edit classroom" located on the
+To edit a classroom, click on the quick link "*Edit classroom*" located on the
 right side of the table. You'll be able to change the classroom description,
 the associated teaching staff, and to specify the (grouped) students.
 Assigning tutors will help them to retrieve their classroom statistics.
@@ -111,48 +123,99 @@ The student list is entirely managed by drag-and-drop. You can create
 a new group on the same page, set its maximum size, and drag-and-drop
 ungrouped students or already grouped students in the newly created group.
 
-Classroom upload
-````````````````
+Teams
+*****
 
-You can generate your classroom structure with an external tool and then
-upload it on INGInious. A YAML file of this structure is required :
+To create a new team, click on "*Edit teams*" simply in the team list view and
+press on the "*New team*" button. You'll then be able to specify the team
+description, its maximum size, assigned tutors and students. Team edition
+works the same way.
+
+The student list is entirely managed by drag-and-drop. Students can be moved
+from one team to another by simply moving his name to the new team.
+
+Group/team attribution
+``````````````````````
+
+If you do not really matter the way students work together, you can
+set empty groups or teams with maximum size and let the students choose their
+groups or teams themselves. Just check the option in the course settings to
+allow them to gather. When submissions will be retrieved, the group/team members will
+be displayed as the authors as with staff-defined groups or teams.
+
+Course structure upload
+```````````````````````
+
+You can generate the course classroom or team structure with an external tool
+and then upload it on INGInious. This is done with a YAML file, which structure
+for classrooms or teams are similar and described below. The course structure
+can be upload on the classroom or team list view in the course administration.
+
+Classrooms YAML structure
+*************************
 
 ::
 
-    description: Classroom description
-    tutors:
-            - tutor1
-            - tutor2
-    students:
-            - user1
-            - user2
-    groups:
-            - size: 2
-              students:
-                    - user1
-                    - user2
+    -    description: Classroom 1
+         tutors:
+                 - tutor1
+                 - tutor2
+         students:
+                 - user1
+                 - user2
+         groups:
+                 - size: 2
+                   students:
+                         - user1
+                         - user2
+    -    description: Classroom 2
+         tutors:
+                 - tutor1
+                 - tutor2
+         students:
+                 - user3
+                 - user4
 
 -   *description* is a string and corresponds to your class description
-
 -   *tutors* is a list of strings representing the usernames of the
     assigned classroom tutors.
-
 -   *students* is a list of strings representing the usernames of the
     classroom students.
-
 -   *groups* is a list of group structures containing the following elements :
 
-    *size*
-        the maximum group size
-    *students*
-        the list of student usernames in this group
+    - *size*: the maximum group size
+    - *students*:  the list of student usernames in this group
 
+Teams YAML structure
+********************
 
-Group attribution
-`````````````````
+::
 
-If you do not really matter the way students are grouped together, you can
-set empty groups with maximum size and let the students choose their groups
-themselves. Just check the option in the course settings to allow them to group
-together. When submissions will be retrieved, the group members will be displayed
-as the authors as with staff-grouped students.
+    -    description: Team 1
+         tutors:
+                 - tutor1
+                 - tutor2
+         students:
+                 - user1
+                 - user2
+    -    description: Team 2
+         tutors:
+                 - tutor1
+                 - tutor2
+         students:
+                 - user3
+                 - user4
+
+-   *description* is a string and corresponds to your team description
+-   *tutors* is a list of strings representing the usernames of the
+    assigned team tutors.
+-   *students* is a list of strings representing the usernames of the
+    team students.
+
+Backup course structure
+```````````````````````
+
+Course structures (classrooms or teams) can be exporte for backup or manual
+edition via the classroom/team list page in the course administration pages.
+Simply click on the "*Download structure*" button. The download file will have
+the same format as described above.
