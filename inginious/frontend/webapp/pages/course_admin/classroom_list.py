@@ -6,6 +6,7 @@
 from collections import OrderedDict
 
 from bson.objectid import ObjectId
+import inginious.common.custom_yaml as yaml
 import web
 
 from inginious.frontend.webapp.pages.course_admin.utils import make_csv, INGIniousAdminPage
@@ -17,6 +18,27 @@ class CourseClassroomListPage(INGIniousAdminPage):
     def GET(self, courseid):
         """ GET request """
         course, _ = self.get_course_and_check_rights(courseid)
+
+        if "download" in web.input():
+            web.header('Content-Type', 'text/x-yaml', unique=True)
+            web.header('Content-Disposition', 'attachment; filename="classrooms.yaml"', unique=True)
+            if course.use_classrooms():
+                classrooms = [{"default": classroom["default"],
+                               "description": classroom["description"],
+                               "groups": classroom["groups"],
+                               "students": classroom["students"],
+                               "tutors": classroom["tutors"]} for classroom in
+                              self.user_manager.get_course_classrooms(course)]
+            else:
+                classrooms = [{"default": classroom["default"],
+                               "description": classroom["description"],
+                               "groups": classroom["groups"],
+                               "students": classroom["students"],
+                               "tutors": classroom["tutors"]} for classroom in
+                              self.user_manager.get_course_classrooms(course) if len(classroom["groups"])>0]
+
+            return yaml.dump(classrooms)
+
         return self.page(course)
 
     def POST(self, courseid):
