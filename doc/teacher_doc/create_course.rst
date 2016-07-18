@@ -113,11 +113,11 @@ There are other fields that are available in the frontend:
     If this field is defined and set to ``true``, then the course won't be displayed on the frontend, but will still be available for the plugins.
 
 ``groups_student_choice``
-    If this field is defined and set to ``true`` and if group work is activated for a given task, students will be
+    If this field is defined and set to ``true`` and if collaborative work is activated for a given task, students will be
     invited to register for a group before submitting.
 
 ``use_classrooms``
     If this field is set to ``true``, the classroom model will be used, otherwise, the team model will be used. The default
     value for this field is ``true``
-    
+
 .. _INGI: http://www.uclouvain.be/ingi.html
