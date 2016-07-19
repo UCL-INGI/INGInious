@@ -24,7 +24,7 @@ class CourseAggregationInfoPage(INGIniousAdminPage):
 
     def page(self, course, aggregationid):
         """ Get all data and display the page """
-        aggregation = self.database.classrooms.find_one({"_id": ObjectId(aggregationid)})
+        aggregation = self.database.aggregations.find_one({"_id": ObjectId(aggregationid)})
 
         data = list(self.database.submissions.aggregate(
             [

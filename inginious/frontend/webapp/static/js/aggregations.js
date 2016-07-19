@@ -4,9 +4,9 @@
 //
 "use strict";
 
-function classroom_prepare_submit()
+function aggregations_prepare_submit()
 {
-    // Check in which mode we are : classrooms or only groups
+    // Check in which mode we are : classrooms or teams
     if(JSON.parse($("#classrooms").val())) {
 
         var students = [];
@@ -31,21 +31,21 @@ function classroom_prepare_submit()
         var id = $("#_id").val();
         var description = $("#description").val();
         var cdefault = JSON.parse($("#default").val().toLowerCase());
-        var classrooms = [{_id: id, description: description, students: students,
+        var aggregations = [{_id: id, description: description, students: students,
             groups: groups, tutors: tutors, default: cdefault}];
 
         var inputField = jQuery('<input/>', {
                 type:"hidden",
                 name:"aggregations",
-                value: JSON.stringify(classrooms)
+                value: JSON.stringify(aggregations)
         }).appendTo($("form"));
 
     } else {
 
-        var classrooms = [];
+        var aggregations = [];
 
         var ungrouped = [];
-        // for each group/classroom
+        // for each team
         $("#groups .group").each(function(i) {
             var students = [];
             var id = $(this).find("#_id").val();
@@ -70,29 +70,29 @@ function classroom_prepare_submit()
 
             if (i > 0) {
                 var groups = [{size: group_size, students: group_students}];
-                var classroom = {_id: id, description: description, students: students,
+                var aggregation = {_id: id, description: description, students: students,
                     groups: groups, tutors: tutors, default: (i == 1)};
-                classrooms.push(classroom);
+                aggregations.push(aggregation);
             }
         });
 
         if($(".group").length <= 1){
-            var classroom = {_id: 'None', description: '', students: ungrouped,
+            var aggregation = {_id: 'None', description: '', students: ungrouped,
                     groups: [], tutors: [], default: true};
-                classrooms.push(classroom);
+                aggregations.push(aggregation);
         }
 
          var inputField = jQuery('<input/>', {
                 type:"hidden",
                 name:"aggregations",
-                value: JSON.stringify(classrooms)
+                value: JSON.stringify(aggregations)
         }).appendTo($("form"));
     }
 
 
 }
 
-function classroom_group_add()
+function aggregation_add()
 {
     // New group hidden item
     var new_group_li = $("#groups .panel").last();
@@ -122,14 +122,14 @@ function classroom_group_add()
     $("ul.students").sortable({group:"students"});
 }
 
-function classroom_group_delete(id)
+function aggregation_delete(id)
 {
     // Append all the items to ungrouped users
     $("#" + id).find("#students li").each(function(index) {
         $(this).appendTo("#group_0");
     });
 
-    // add the classroom id in delete field
+    // add the aggregation id in delete field
     if(!JSON.parse($("#classrooms").val())) {
         // if group_id is not none, inform to delete
         // do not remove last group id
@@ -152,13 +152,13 @@ function classroom_group_delete(id)
     });
 }
 
-function classroom_groups_delete() {
+function aggregations_delete() {
     $("#groups .group").each(function(i) {
-        classroom_group_delete($(this).attr("id"));
+        aggregation_delete($(this).attr("id"));
     });
 }
 
-function classroom_groups_clean() {
+function aggregations_clean() {
     $("#groups .group").each(function(i) {
         $("#" + $(this).attr("id")).find("#students li").each(function(index) {
             $(this).appendTo("#group_0");
@@ -166,7 +166,7 @@ function classroom_groups_clean() {
     });
 }
 
-function classroom_tutor_add(username, complete_name, id) {
+function tutor_add(username, complete_name, id) {
 
     // Check if valid entry
     if(username==null)
@@ -195,7 +195,7 @@ function classroom_tutor_add(username, complete_name, id) {
         $("#tutor_list_" + id ).prop("disabled", true);
 }
 
-function classroom_tutor_remove(username, id) {
+function tutor_remove(username, id) {
     // Put user back to select list
     jQuery('<option/>', {
         value: username,
@@ -208,7 +208,7 @@ function classroom_tutor_remove(username, id) {
     $("#" + username).remove();
 }
 
-function classroom_student_add() {
+function student_add() {
     if($("#tab_registered_student").hasClass("active")) {
 
         var new_li = jQuery('<li/>', {
@@ -245,7 +245,7 @@ function classroom_student_add() {
         'class': "pull-right",
         'id': 'user_delete',
         'href': '#',
-        'onclick': "javascript:classroom_student_remove('" + new_li.data("username") + "')",
+        'onclick': "javascript:student_remove('" + new_li.data("username") + "')",
         'data-toggle': 'tooltip',
         'data-placement': 'left',
         'title': 'Remove student'
@@ -261,7 +261,7 @@ function classroom_student_add() {
     $("#student_modal").modal('hide');
 }
 
-function classroom_student_remove(username) {
+function student_remove(username) {
     jQuery('<option/>', {
         value: username,
         text:  $("#" + username).text()

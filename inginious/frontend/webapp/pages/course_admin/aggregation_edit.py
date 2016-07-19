@@ -23,7 +23,7 @@ class CourseEditAggregation(INGIniousAdminPage):
         tutor_list = course.get_staff()
 
         # Determine student list and if they are grouped
-        student_list = list(self.database.classrooms.aggregate([
+        student_list = list(self.database.aggregations.aggregate([
             {"$match": {"courseid": course.get_id()}},
             {"$unwind": "$students"},
             {"$project": {
@@ -74,14 +74,14 @@ class CourseEditAggregation(INGIniousAdminPage):
             new_data["courseid"] = course.get_id()
 
             # Insert the new aggregation
-            result = self.database.classrooms.insert_one(new_data)
+            result = self.database.aggregations.insert_one(new_data)
 
             # Retrieve new aggregation id
             aggregationid = result.inserted_id
             new_data['_id'] = result.inserted_id
             aggregation = new_data
         else:
-            aggregation = self.database.classrooms.find_one({"_id": ObjectId(aggregationid), "courseid": course.get_id()})
+            aggregation = self.database.aggregations.find_one({"_id": ObjectId(aggregationid), "courseid": course.get_id()})
 
         # Check tutors
         new_data["tutors"] = [tutor for tutor in new_data["tutors"] if tutor in course.get_tutors()]
@@ -92,9 +92,9 @@ class CourseEditAggregation(INGIniousAdminPage):
         for student in new_data["students"]:
             if student in student_list:
                 # Remove user from the other aggregation
-                self.database.classrooms.find_one_and_update({"courseid": course.get_id(), "groups.students": student},
+                self.database.aggregations.find_one_and_update({"courseid": course.get_id(), "groups.students": student},
                                                              {"$pull": {"groups.$.students": student, "students": student}})
-                self.database.classrooms.find_one_and_update({"courseid": course.get_id(), "students": student}, {"$pull": {"students": student}})
+                self.database.aggregations.find_one_and_update({"courseid": course.get_id(), "students": student}, {"$pull": {"students": student}})
                 students.append(student)
             else:
                 # Check if user can be registered
@@ -105,7 +105,7 @@ class CourseEditAggregation(INGIniousAdminPage):
                     students.append(student)
 
         removed_students = [student for student in aggregation["students"] if student not in new_data["students"]]
-        self.database.classrooms.find_one_and_update({"courseid": course.get_id(), "default": True},
+        self.database.aggregations.find_one_and_update({"courseid": course.get_id(), "default": True},
                                                      {"$push": {"students": {"$each": removed_students}}})
 
         new_data["students"] = students
@@ -120,10 +120,10 @@ class CourseEditAggregation(INGIniousAdminPage):
 
         # Check for default aggregation
         if new_data['default']:
-            self.database.classrooms.find_one_and_update({"courseid": course.get_id(), "default": True},
+            self.database.aggregations.find_one_and_update({"courseid": course.get_id(), "default": True},
                                                          {"$set": {"default": False}})
 
-        aggregation = self.database.classrooms.find_one_and_update(
+        aggregation = self.database.aggregations.find_one_and_update(
             {"_id": ObjectId(aggregationid)},
             {"$set": {"description": new_data["description"],
                       "students": students, "tutors": new_data["tutors"],
@@ -135,7 +135,7 @@ class CourseEditAggregation(INGIniousAdminPage):
         # If no aggregation id specified, use the groups only template
         if aggregationid:
             student_list, tutor_list, other_students, users_info = self.get_user_lists(course, aggregationid)
-            aggregation = self.database.classrooms.find_one({"_id": ObjectId(aggregationid), "courseid": course.get_id()})
+            aggregation = self.database.aggregations.find_one({"_id": ObjectId(aggregationid), "courseid": course.get_id()})
 
             if aggregation and course.use_classrooms():
                 return self.template_helper.get_renderer().course_admin.classroom_edit(course, student_list, tutor_list,
@@ -145,7 +145,7 @@ class CourseEditAggregation(INGIniousAdminPage):
                 raise web.notfound()
         else:
             student_list, tutor_list, users_info = self.get_user_lists(course)
-            aggregations = list(self.database.classrooms.find({"courseid": course.get_id()}))
+            aggregations = list(self.database.aggregations.find({"courseid": course.get_id()}))
             if course.use_classrooms():
                 raise web.notfound()
             else:
@@ -171,7 +171,7 @@ class CourseEditAggregation(INGIniousAdminPage):
 
             for classid in data["delete"]:
                 # Get the aggregation
-                aggregation = self.database.classrooms.find_one({"_id": ObjectId(classid), "courseid": courseid})
+                aggregation = self.database.aggregations.find_one({"_id": ObjectId(classid), "courseid": courseid})
 
                 if aggregation is None:
                     msg = "Classroom not found."
@@ -180,12 +180,12 @@ class CourseEditAggregation(INGIniousAdminPage):
                     msg = "You can't remove your default classroom."
                     error = True
                 else:
-                    self.database.classrooms.find_one_and_update({"courseid": courseid, "default": True},
+                    self.database.aggregations.find_one_and_update({"courseid": courseid, "default": True},
                                                                  {"$push": {
                                                                      "students": {"$each": aggregation["students"]}
                                                                  }})
 
-                    self.database.classrooms.delete_one({"_id": ObjectId(classid)})
+                    self.database.aggregations.delete_one({"_id": ObjectId(classid)})
                     msg = "Classroom updated."
 
             if aggregationid and aggregationid in data["delete"]:
@@ -193,7 +193,7 @@ class CourseEditAggregation(INGIniousAdminPage):
 
         try:
             if "upload" in data:
-                self.database.classrooms.delete_many({"courseid": course.get_id()})
+                self.database.aggregations.delete_many({"courseid": course.get_id()})
                 aggregations = custom_yaml.load(data["aggregationfile"].file)
             else:
                 aggregations = json.loads(data["aggregations"])

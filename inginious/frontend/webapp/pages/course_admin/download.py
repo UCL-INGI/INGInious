@@ -46,11 +46,11 @@ class CourseDownloadSubmissions(INGIniousAdminPage):
 
         if user_input.filter_type == "users":
             self._validate_list(user_input.users)
-            aggregations = list(self.database.classrooms.find({"courseid": courseid,
+            aggregations = list(self.database.aggregations.find({"courseid": courseid,
                                                              "students": {"$in": user_input.users}}))
         else:
             self._validate_list(user_input.aggregations)
-            aggregations = list(self.database.classrooms.find({"_id": {"$in": [ObjectId(cid) for cid in user_input.classrooms]}}))
+            aggregations = list(self.database.aggregations.find({"_id": {"$in": [ObjectId(cid) for cid in user_input.aggregations]}}))
 
         # Tweak if not using classrooms : classroom['students'] may content ungrouped users
         aggregations = dict([(username,

@@ -26,7 +26,7 @@ class CourseAggregationTaskPage(INGIniousAdminPage):
 
     def page(self, course, aggregationid, task):
         """ Get all data and display the page """
-        aggregation = self.database.classrooms.find_one({"_id": ObjectId(aggregationid)})
+        aggregation = self.database.aggregations.find_one({"_id": ObjectId(aggregationid)})
 
         data = list(
             self.database.submissions.find({"username": {"$in": aggregation["students"]}, "courseid": course.get_id(), "taskid": task.get_id()}).sort(

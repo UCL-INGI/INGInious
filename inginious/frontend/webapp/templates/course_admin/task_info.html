@@ -1,4 +1,4 @@
-$def with (course,task,individual_data,classroom_data)
+$def with (course,task,individual_data,aggregation_data)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -27,7 +27,7 @@ $var Navbar: $:NavbarF()
         <ul class="nav nav-tabs" id="edit_task_tabs" role="tablist">
                         <li role="presentation" class="active"><a href="#tab_indiv" aria-controls="basicinfo" role="tab" data-toggle="tab"><i class="fa
                 fa-user fa-fw"></i>&nbsp; Individual results</a></li>
-                        <li role="presentation"><a href="#tab_classroom" aria-controls="container" role="tab" data-toggle="tab"><i class="fa
+                        <li role="presentation"><a href="#tab_aggregation" aria-controls="container" role="tab" data-toggle="tab"><i class="fa
                 fa-users fa-fw"></i>&nbsp; $("Classroom" if use_classrooms else "Team") results</a></li>
         </ul>
         <div id="edit_task_tabs_content" class="tab-content">
@@ -88,7 +88,7 @@ $var Navbar: $:NavbarF()
                         </tbody>
                     </table>
                 </div>
-                <div role="tabpanel" class="tab-pane" id="tab_classroom">
+                <div role="tabpanel" class="tab-pane" id="tab_aggregation">
                     <table class="table">
                         <thead>
                             <tr>
@@ -97,9 +97,9 @@ $var Navbar: $:NavbarF()
                                 <th># submissions</th>
                                 <th>
                                     <div class="btn-group" role="group">
-                                        <a href="/admin/${course.get_id()}/download?format=taskid%2Fclassroom&tasks=$task.get_id()" class="btn btn-danger
+                                        <a href="/admin/${course.get_id()}/download?format=taskid%2Faggregation&tasks=$task.get_id()" class="btn btn-danger
                                             btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                                        <a href="/admin/${course.get_id()}/task/${task.get_id()}?csv=classrooms" class="btn btn-info btn-xs" title="Download CSV"
+                                        <a href="/admin/${course.get_id()}/task/${task.get_id()}?csv=aggregations" class="btn btn-info btn-xs" title="Download CSV"
                                            data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
                                     </div>
                                 </th>
@@ -108,40 +108,40 @@ $var Navbar: $:NavbarF()
                         <tbody>
                         $ text = ["My classroom(s)","Other classroom(s)"] if use_classrooms else ["My team(s)","Other team(s)"]
                         $for ind in range(0,2):
-                            $if len(classroom_data[ind]) > 0:
-                                $if len(classroom_data[0]) > 0 and len(classroom_data[1]) > 0:
+                            $if len(aggregation_data[ind]) > 0:
+                                $if len(aggregation_data[0]) > 0 and len(aggregation_data[1]) > 0:
                                     <tr>
                                         <th colspan="5">$text[ind]</th>
                                     </tr>
-                            $for classroom in classroom_data[ind]:
-                                $if course.use_classrooms() or len(classroom['groups']) > 0:
+                            $for aggregation in aggregation_data[ind]:
+                                $if course.use_classrooms() or len(aggregation['groups']) > 0:
                                     <tr
-                                        $if classroom["status"] == "notattempted":
+                                        $if aggregation["status"] == "notattempted":
                                             class="warning"
-                                        $elif classroom["status"] == "succeeded":
+                                        $elif aggregation["status"] == "succeeded":
                                             class="success"
-                                        $elif classroom["status"] == "failed":
+                                        $elif aggregation["status"] == "failed":
                                             class="danger"
                                     >
                                         <td>
-                                            <a href="/admin/${course.get_id()}/classroom/$classroom['_id']">$classroom['description']</a>
+                                            <a href="/admin/${course.get_id()}/aggregation/$aggregation['_id']">$aggregation['description']</a>
                                         </td>
                                         <td>
-                                            $if classroom["status"] == "notviewed":
+                                            $if aggregation["status"] == "notviewed":
                                                 Not viewed
-                                            $elif classroom["status"] == "notattempted":
+                                            $elif aggregation["status"] == "notattempted":
                                                 Not attempted (viewed)
-                                            $elif classroom["status"] == "succeeded":
-                                                Succeeded ($classroom["grade"]%)
+                                            $elif aggregation["status"] == "succeeded":
+                                                Succeeded ($aggregation["grade"]%)
                                             $else:
-                                                Failed ($classroom["grade"]%)
+                                                Failed ($aggregation["grade"]%)
                                         </td>
-                                        <td>$classroom["tried"] </td>
+                                        <td>$aggregation["tried"] </td>
                                         <td>
                                             <div class="btn-group" role="group">
-                                                <a href="/admin/${course.get_id()}/classroom/$classroom['_id']/$task.get_id()" class="btn btn-default btn-xs" title="View
+                                                <a href="/admin/${course.get_id()}/aggregation/$aggregation['_id']/$task.get_id()" class="btn btn-default btn-xs" title="View
                                                    submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
-                                                <a href="$classroom['url']" class="btn btn-default btn-xs" title="Download
+                                                <a href="$aggregation['url']" class="btn btn-default btn-xs" title="Download
                                                    submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
                                             </div>
                                         </td>

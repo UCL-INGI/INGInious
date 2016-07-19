@@ -27,7 +27,7 @@ class CourseDangerZonePage(INGIniousAdminPage):
                 if key in submission and type(submission[key]) == bson.objectid.ObjectId:
                     self.submission_manager.get_gridfs().delete(submission[key])
 
-        self.database.classrooms.remove({"courseid": courseid})
+        self.database.aggregations.remove({"courseid": courseid})
         self.database.user_tasks.remove({"courseid": courseid})
         self.database.submissions.remove({"courseid": courseid})
 
@@ -39,7 +39,7 @@ class CourseDangerZonePage(INGIniousAdminPage):
             os.makedirs(os.path.dirname(filepath))
 
         with zipfile.ZipFile(filepath, "w", allowZip64=True) as zipf:
-            aggregations = self.database.classrooms.find({"courseid": courseid}, {"_id": 0})
+            aggregations = self.database.aggregations.find({"courseid": courseid}, {"_id": 0})
             zipf.writestr("aggregations.json", bson.json_util.dumps(aggregations), zipfile.ZIP_DEFLATED)
 
             user_tasks = self.database.user_tasks.find({"courseid": courseid}, {"_id": 0})
@@ -67,7 +67,7 @@ class CourseDangerZonePage(INGIniousAdminPage):
 
             aggregations = bson.json_util.loads(zipf.read("aggregations.json"))
             if len(aggregations) > 0:
-                self.database.classrooms.insert(aggregations)
+                self.database.aggregations.insert(aggregations)
 
             user_tasks = bson.json_util.loads(zipf.read("user_tasks.json"))
             if len(user_tasks) > 0:

@@ -450,7 +450,7 @@ class UserManager(AbstractUserManager):
         if username is None:
             username = self.session_username()
 
-        aggregation = self._database.classrooms.find_one({"courseid": task.get_course_id(), "groups.students": username})
+        aggregation = self._database.aggregations.find_one({"courseid": task.get_course_id(), "groups.students": username})
         group_filter = (aggregation is not None and task.is_group_task()) or not task.is_group_task()
 
         return (self.course_is_open_to_user(task.get_course(),
@@ -459,7 +459,7 @@ class UserManager(AbstractUserManager):
 
     def get_course_aggregations(self, course):
         """ Returns a list of the course aggregations"""
-        return list(self._database.classrooms.find({"courseid": course.get_id()}).sort("description"))
+        return list(self._database.aggregations.find({"courseid": course.get_id()}).sort("description"))
 
     def get_course_user_aggregation(self, course, username=None):
         """ Returns the classroom whose username belongs to
@@ -470,7 +470,7 @@ class UserManager(AbstractUserManager):
         if username is None:
             username = self.session_username()
 
-        return self._database.classrooms.find_one({"courseid": course.get_id(), "students": username})
+        return self._database.aggregations.find_one({"courseid": course.get_id(), "students": username})
 
     def course_register_user(self, course, username=None, password=None, force=False):
         """
@@ -494,12 +494,12 @@ class UserManager(AbstractUserManager):
         if self.course_is_open_to_user(course, username):
             return False  # already registered?
 
-        aggregation = self._database.classrooms.find_one({"courseid": course.get_id(), "default": True})
+        aggregation = self._database.aggregations.find_one({"courseid": course.get_id(), "default": True})
         if aggregation is None:
-            self._database.classrooms.insert({"courseid": course.get_id(), "description": "Default classroom",
+            self._database.aggregations.insert({"courseid": course.get_id(), "description": "Default classroom",
                                               "students": [username], "tutors": [], "groups": [], "default": True})
         else:
-            self._database.classrooms.find_one_and_update({"courseid": course.get_id(), "default": True},
+            self._database.aggregations.find_one_and_update({"courseid": course.get_id(), "default": True},
                                                           {"$push": {"students": username}})
 
         return True
@@ -514,12 +514,12 @@ class UserManager(AbstractUserManager):
             username = self.session_username()
 
         # Needed if user belongs to a group
-        self._database.classrooms.find_one_and_update(
+        self._database.aggregations.find_one_and_update(
             {"courseid": course.get_id(), "groups.students": username},
             {"$pull": {"groups.$.students": username, "students": username}})
 
         # If user doesn't belong to a group, will ensure correct deletion
-        self._database.classrooms.find_one_and_update(
+        self._database.aggregations.find_one_and_update(
             {"courseid": course.get_id(), "students": username},
             {"$pull": {"students": username}})
 
@@ -549,7 +549,7 @@ class UserManager(AbstractUserManager):
         if self.has_staff_rights_on_course(course, username):
             return True
 
-        return self._database.classrooms.find_one({"students": username, "courseid": course.get_id()}) is not None
+        return self._database.aggregations.find_one({"students": username, "courseid": course.get_id()}) is not None
 
     def get_course_registered_users(self, course, with_admins=True):
         """
@@ -559,7 +559,7 @@ class UserManager(AbstractUserManager):
         :return: a list of usernames that are registered to the course
         """
 
-        l = [entry['students'] for entry in list(self._database.classrooms.aggregate([
+        l = [entry['students'] for entry in list(self._database.aggregations.aggregate([
             {"$match": {"courseid": course.get_id()}},
             {"$unwind": "$students"},
             {"$project": {"_id": 0, "students": 1}}

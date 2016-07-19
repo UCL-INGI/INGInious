@@ -50,15 +50,15 @@ class CourseAggregationListPage(INGIniousAdminPage):
             if self.user_manager.has_admin_rights_on_course(course):
                 data = web.input()
                 if 'classroom' in data:
-                    default = True if self.database.classrooms.find_one({"courseid": courseid, "default": True}) is None else False
-                    self.database.classrooms.insert({"default": default, "courseid": courseid, "students": [],
+                    default = True if self.database.aggregations.find_one({"courseid": courseid, "default": True}) is None else False
+                    self.database.aggregations.insert({"default": default, "courseid": courseid, "students": [],
                                                      "tutors": [], "groups": [],
                                                      "description": data['classroom']})
                     msg = "New classroom created."
                 elif 'default' in data:
-                    self.database.classrooms.find_one_and_update({"courseid": courseid, "default": True},
+                    self.database.aggregations.find_one_and_update({"courseid": courseid, "default": True},
                                                                  {"$set": {"default": False}})
-                    self.database.classrooms.find_one_and_update({"_id": ObjectId(data['default'])},
+                    self.database.aggregations.find_one_and_update({"_id": ObjectId(data['default'])},
                                                                  {"$set": {"default": True}})
                     msg = "Default classroom changed."
             else:

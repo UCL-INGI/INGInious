@@ -34,7 +34,7 @@ class AggregationPage(INGIniousPage):
         elif "register_group" in data:
             change = True
             if course.can_students_choose_group() and course.use_classrooms():
-                aggregation = self.database.classrooms.find_one({"courseid": course.get_id(), "students": username})
+                aggregation = self.database.aggregations.find_one({"courseid": course.get_id(), "students": username})
 
                 if int(data["register_group"]) >= 0 and (len(aggregation["groups"]) > int(data["register_group"])):
                     group = aggregation["groups"][int(data["register_group"])]
@@ -43,13 +43,13 @@ class AggregationPage(INGIniousPage):
                             if username in group["students"]:
                                 aggregation["groups"][index]["students"].remove(username)
                         aggregation["groups"][int(data["register_group"])]["students"].append(username)
-                    self.database.classrooms.replace_one({"courseid": course.get_id(), "students": username}, aggregation)
+                    self.database.aggregations.replace_one({"courseid": course.get_id(), "students": username}, aggregation)
                 else:
                     error = True
                     msg = "Couldn't register to the specified group."
             elif course.can_students_choose_group():
 
-                aggregation = self.database.classrooms.find_one(
+                aggregation = self.database.aggregations.find_one(
                     {"courseid": course.get_id(), "students": username})
 
                 if aggregation is not None:
@@ -57,12 +57,12 @@ class AggregationPage(INGIniousPage):
                     for index, group in enumerate(aggregation["groups"]):
                         if username in group["students"]:
                             aggregation["groups"][index]["students"].remove(username)
-                    self.database.classrooms.replace_one({"courseid": course.get_id(), "students": username}, aggregation)
+                    self.database.aggregations.replace_one({"courseid": course.get_id(), "students": username}, aggregation)
 
                 # Add student in the classroom and unique group
-                self.database.classrooms.find_one_and_update({"_id": ObjectId(data["register_group"])},
+                self.database.aggregations.find_one_and_update({"_id": ObjectId(data["register_group"])},
                                                              {"$push": {"students": username}})
-                new_aggregation = self.database.classrooms.find_one_and_update({"_id": ObjectId(data["register_group"])},
+                new_aggregation = self.database.aggregations.find_one_and_update({"_id": ObjectId(data["register_group"])},
                                                                              {"$push": {"groups.0.students": username}})
 
                 if new_aggregation is None:
@@ -74,12 +74,12 @@ class AggregationPage(INGIniousPage):
         elif "unregister_group" in data:
             change = True
             if course.can_students_choose_group():
-                aggregation = self.database.classrooms.find_one({"courseid": course.get_id(), "students": username, "groups.students": username})
+                aggregation = self.database.aggregations.find_one({"courseid": course.get_id(), "students": username, "groups.students": username})
                 if aggregation is not None:
                     for index, group in enumerate(aggregation["groups"]):
                         if username in group["students"]:
                             aggregation["groups"][index]["students"].remove(username)
-                    self.database.classrooms.replace_one({"courseid": course.get_id(), "students": username}, aggregation)
+                    self.database.aggregations.replace_one({"courseid": course.get_id(), "students": username}, aggregation)
                 else:
                     error = True
                     msg = "You're not registered in a group."
@@ -97,7 +97,7 @@ class AggregationPage(INGIniousPage):
                 pass
 
         aggregation = self.user_manager.get_course_user_aggregation(course)
-        aggregations = list(self.database.classrooms.find({"courseid": course.get_id()}))
+        aggregations = list(self.database.aggregations.find({"courseid": course.get_id()}))
         users = self.user_manager.get_users_info(self.user_manager.get_course_registered_users(course))
 
         if course.use_classrooms():
