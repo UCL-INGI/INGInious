@@ -52,13 +52,13 @@ $elif saved:
                 <input type="radio" value="true" name="use_classrooms"
                     $if course.use_classrooms():
                         checked="checked"
-                /> Classrooms with groups
+                /> Classrooms with groups $('(Warning : changing this will unregister all students)' if course.use_classrooms() else '')
             </label><br/>
             <label>
                 <input type="radio" value="false" name="use_classrooms" id="use_classrooms"
                     $if not course.use_classrooms():
                         checked="checked"
-                /> Teams
+                /> Teams $('(Warning : changing this will unregister all students)' if not course.use_classrooms() else '')
             </label>
         </div>
     </div>

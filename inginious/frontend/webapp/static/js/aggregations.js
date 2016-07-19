@@ -216,10 +216,14 @@ function student_add() {
             'data-username':$("#registered_students :selected").val()
         });
 
-        jQuery('<span/>', {
+        var new_user = jQuery('<span/>', {
             id: new_li.data("username"),
-            text: $("#registered_students :selected").text()
+            text: ' ' + $("#registered_students :selected").text()
         }).appendTo(new_li);
+
+        jQuery('<i/>', {
+            class: "fa fa-arrows",
+        }).prependTo(new_user);
 
         $("#registered_students :selected").remove();
         if(!$("#registered_students").val())
@@ -280,4 +284,22 @@ function classroom_delete(id) {
     }).appendTo($('form'));
 
     $('form').submit();
+}
+
+function aggregation_update() {
+    // Check group sizes
+    var aggregation = $(this).parent();
+    var grp_size_input = aggregation.find("#size");
+    var max_grp_size = parseInt(grp_size_input.val());
+
+    var actual_grp_size = 0;
+    aggregation.find(".group-entry").each(function (j) {
+        actual_grp_size++;
+    });
+
+    // If actual size higher than max group size, update
+    if(actual_grp_size > max_grp_size) {
+        grp_size_input.val(actual_grp_size);
+        grp_size_input.fadeTo('fast', 0.5).fadeTo('fast', 1.0);
+    }
 }
