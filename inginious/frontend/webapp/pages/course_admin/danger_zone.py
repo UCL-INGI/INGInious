@@ -79,7 +79,8 @@ class CourseDangerZonePage(INGIniousAdminPage):
                     if key in submission and type(submission[key]) == bson.objectid.ObjectId:
                         submission[key] = self.submission_manager.get_gridfs().put(zipf.read(key + "/" + str(submission[key]) + ".data"))
 
-            self.database.submissions.insert(submissions)
+            if len(submissions) > 0:
+                self.database.submissions.insert(submissions)
 
     def GET(self, courseid):
         """ GET request """
