@@ -73,7 +73,7 @@ $def NavbarF():
 $var Navbar: $:NavbarF()
 
 $# Start content
-<h2>$course.get_name() - Groups</h2>
+<h2>$course.get_name() - Teams</h2>
 $if error:
     <div class="alert alert-danger alert-dismissable" role="alert">
         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
@@ -86,14 +86,14 @@ $elif msg:
     </div>
 
 $if len(myteam["groups"]) > 0 and username in myteam["groups"][0]["students"]:
-    <h3>My group : $myteam["description"]</h3>
+    <h3>My team : $myteam["description"]</h3>
     <div class="panel panel-info">
         <div class="panel-heading" role="tab" id="heading">
             <h4 class="panel-title">
                 Students
                 $if course.can_students_choose_group():
                 <div class="pull-right">
-                    <a href="?unregister_group" data-toggle="tooltip" data-placement="left" title="Quit group">
+                    <a href="?unregister_group" data-toggle="tooltip" data-placement="left" title="Quit team">
                         <i style="color:white;" class="fa fa-user-times"></i>
                     </a>
                 </div>
@@ -141,22 +141,22 @@ $elif len(myteam["groups"]) == 0:
         No set team in this course. If you think this is a mistake, please contact the course administrator.
     </div>
 $elif course.can_students_choose_group():
-    <h3>My group</h3>
+    <h3>My team</h3>
     <div class="alert alert-warning alert-dismissable" role="alert">
-        You're not registered to a group. Please consider registration in one of the group below
-        to take part in all course activities. If no more group is available, please contact the course administrator.
+        You're not registered to a team. Please consider registration in one of the team below
+        to take part in all course activities. If no more team is available, please contact the course administrator.
     </div>
 $else:
-    <h3>My group</h3>
+    <h3>My team</h3>
     <div class="alert alert-warning alert-dismissable" role="alert">
-        You're not yet registered to a group. Please contact the course administrator for more information.
+        You're not yet registered to a team. Please contact the course administrator for more information.
     </div>
 
 $if not len(teams) == 0:
-    <h3 style="margin-bottom: 20px">All groups</h3>
+    <h3 style="margin-bottom: 20px">All teams</h3>
     $for index, team in enumerate(teams):
         $if len(team["groups"])>0:
-            <h4>$team["description"]</h4>
+            <h4>Team : $team["description"]</h4>
             $ group = team["groups"][0]
                     $if len(myteam["groups"]) == 0 or username not in myteam["groups"][0]["students"] and (group["size"]-len(group["students"])) > 0 and course.can_students_choose_group():
                         <div class="panel panel-success">
