@@ -32,7 +32,7 @@ class WebAppCourse(FrontendCourse):
                 raise Exception("Course has an invalid value for registration_ac: " + self.get_id())
             self._registration_ac_list = self._content.get('registration_ac_list', [])
             self._groups_student_choice = self._content.get("groups_student_choice", False)
-            self._use_classrooms = self._content.get('use_classrooms', False)
+            self._use_classrooms = self._content.get('use_classrooms', True)
         except:
             raise Exception("Course has an invalid description: " + self.get_id())
 
