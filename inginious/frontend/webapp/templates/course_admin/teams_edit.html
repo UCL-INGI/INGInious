@@ -233,6 +233,7 @@ $$(document).ready(function() {
         $$("#tutor_list").prop("disabled", true);
 
     $$("ul.students").sortable({group:"students"});
-    $$("ul.students").bind("DOMSubtreeModified", aggregation_update);
+    $$("ul.students").bind("DOMSubtreeModified", function() {aggregation_update($$(this).parent())});
+    $$("input[id='size']").on('keyup click',function() {aggregation_update($$(this).rparent(5))});
 });
 </script>

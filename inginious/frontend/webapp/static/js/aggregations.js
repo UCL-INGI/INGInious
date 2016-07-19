@@ -120,6 +120,8 @@ function aggregation_add()
 
     // Regroup sortable lists
     $("ul.students").sortable({group:"students"});
+    $("ul.students").bind("DOMSubtreeModified", function() {aggregation_update($(this).parent())});
+    $("input[id='size']").on('keyup click',function() {aggregation_update($(this).rparent(5))});
 }
 
 function aggregation_delete(id)
@@ -286,19 +288,18 @@ function classroom_delete(id) {
     $('form').submit();
 }
 
-function aggregation_update() {
+function aggregation_update(ref) {
     // Check group sizes
-    var aggregation = $(this).parent();
-    var grp_size_input = aggregation.find("#size");
+    var grp_size_input = ref.find("#size");
     var max_grp_size = parseInt(grp_size_input.val());
 
     var actual_grp_size = 0;
-    aggregation.find(".group-entry").each(function (j) {
+    ref.find(".group-entry").each(function (j) {
         actual_grp_size++;
     });
 
     // If actual size higher than max group size, update
-    if(actual_grp_size > max_grp_size) {
+    if(actual_grp_size > max_grp_size || isNaN(max_grp_size)) {
         grp_size_input.val(actual_grp_size);
         grp_size_input.fadeTo('fast', 0.5).fadeTo('fast', 1.0);
     }
