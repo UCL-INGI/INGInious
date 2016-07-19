@@ -20,11 +20,11 @@ class CourseTaskInfoPage(INGIniousAdminPage):
 
     def individual_submission_url_generator(self, course, task, task_data):
         """ Generates a submission url """
-        return "/admin/" + course.get_id() + "/download?dl=taskid%2Fusername&users=" + task_data + "&tasks=" + task.get_id()
+        return "/admin/" + course.get_id() + "/download?format=taskid%2Fusername&users=" + task_data + "&tasks=" + task.get_id()
 
     def aggregation_submission_url_generator(self, course, task, aggregation):
         """ Generates a submission url """
-        return "/admin/" + course.get_id() + "/download?dl=taskid%2Faggregation&aggregations=" + str(aggregation['_id']) + "&tasks=" + task.get_id()
+        return "/admin/" + course.get_id() + "/download?format=taskid%2Faggregation&aggregations=" + str(aggregation['_id']) + "&tasks=" + task.get_id()
 
     def page(self, course, task):
         """ Get all data and display the page """
