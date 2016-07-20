@@ -30,7 +30,7 @@ class CourseSettings(INGIniousAdminPage):
             if course_content['name'] == "":
                 errors.append('Invalid name')
             course_content['admins'] = data['admins'].split(',')
-            if self.user_manager.session_username() not in course_content['admins']:
+            if not self.user_manager.user_is_superadmin() and self.user_manager.session_username() not in course_content['admins']:
                 errors.append('You cannot remove yourself from the administrators of this course')
             course_content['tutors'] = data['tutors'].split(',')
             if len(course_content['tutors']) == 1 and course_content['tutors'][0].strip() == "":
