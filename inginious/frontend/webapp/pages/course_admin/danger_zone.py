@@ -84,8 +84,7 @@ class CourseDangerZonePage(INGIniousAdminPage):
 
     def GET(self, courseid):
         """ GET request """
-        if not self.user_manager.user_is_superadmin(self.user_manager.session_username()):
-            raise web.notfound()
+        course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
 
         data = web.input()
 
@@ -101,13 +100,11 @@ class CourseDangerZonePage(INGIniousAdminPage):
             return open(filepath, 'rb')
 
         else:
-            course = self.course_factory.get_course(courseid)
             return self.page(course)
 
     def POST(self, courseid):
         """ POST request """
-        if not self.user_manager.user_is_superadmin(self.user_manager.session_username()):
-            raise web.notfound()
+        course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
 
         msg = ""
         error = False
@@ -144,7 +141,6 @@ class CourseDangerZonePage(INGIniousAdminPage):
                     msg = "An error occured while restoring backup."
                     error = True
 
-        course = self.course_factory.get_course(courseid)
         return self.page(course, msg, error)
 
     def page(self, course, msg="", error=False):
