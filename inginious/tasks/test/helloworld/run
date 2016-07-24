@@ -4,7 +4,7 @@
 parsetemplate --output student/studentcode.py template.py 
 
 # Verify the output of the code...
-output=$(run_student python student/studentcode.py)
+output=$(python student/studentcode.py)
 return_val=$?
 
 if [ "$return_val" = "252" ]; then
@@ -16,5 +16,5 @@ elif [ "$output" = "Hello World!" ]; then
 	feedback --result success --feedback "You solved this *difficult* task!"
 else
 	# The student failed
-	feedback --result failed --feedback "Your output is $output"
+	feedback --result failed --feedback "Your output is $output ($return_val)"
 fi
