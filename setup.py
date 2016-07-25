@@ -16,11 +16,9 @@ on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 install_requires = [
     "docker-py==1.7.2",
     "docutils>=0.12",
-    "plumbum>=1.5.0",
     "pymongo>=3.0.3",
     "PyYAML>=3.11",
     "requests>=2.7.0",
-    "rpyc>=3.3.0",
     "six>=1.9.0",
     "web.py-INGI>=0.38dev1",
     "websocket-client>=0.32.0",
@@ -44,9 +42,6 @@ if sys.platform == 'win32':
     install_requires += ["pbs>=0.110"]
 else:
     install_requires += ["sh>=1.11"]
-
-if sys.platform.startswith('linux') and not on_rtd:
-    install_requires += ["cgroup-utils>=0.5"]
 
 # Setup
 setup(
