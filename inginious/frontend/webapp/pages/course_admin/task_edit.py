@@ -58,7 +58,7 @@ class CourseEditTask(INGIniousAdminPage):
                         del problem_copy[i]
                 problem["custom"] = inginious.common.custom_yaml.dump(problem_copy)
 
-        return self.template_helper.get_renderer().course_admin.edit_task(
+        return self.template_helper.get_renderer().course_admin.task_edit(
             course,
             taskid,
             task_data,

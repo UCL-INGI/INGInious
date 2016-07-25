@@ -95,8 +95,15 @@ $def ColumnF():
                 $else:
                     <i class="fa fa-chevron-right fa-fw"></i>&nbsp; <b>$user_manager.session_realname()</b>
             </div>
-            <a class="list-group-item list-group-item-info" href="/classroom/$course.get_id()">
-                <i class="fa fa-users fa-fw"></i>&nbsp; Classroom : $user_manager.get_course_user_classroom(course)["description"]
+            <a class="list-group-item list-group-item-info" href="/aggregation/$course.get_id()">
+                <i class="fa fa-group fa-fw"></i>&nbsp;
+                $ myaggregation = user_manager.get_course_user_aggregation(course)
+                $if course.use_classrooms():
+                    Classroom : $myclassroom["description"]
+                $elif len(myaggregation['groups']) > 0 and user_manager.session_username() in myaggregation['groups'][0]['students']:
+                    Group : $myaggregation['description']
+                $else:
+                    Groups management
             </a>
         </div>
 
@@ -200,7 +207,7 @@ $if user_manager.has_admin_rights_on_course(course):
     $elif not task.get_accessible_time().is_open():
         <button type="submit" class="btn btn-default btn-lg btn-block center-block" disabled="disabled">The deadline is over, you cannot submit anymore</button>
     $elif task.is_group_task():
-        <a href="/classroom/$course.get_id()" class="btn btn-default btn-lg btn-block center-block">Please register in a group</a>
+        <a href="/aggregation/$course.get_id()" class="btn btn-default btn-lg btn-block center-block">Please register in a group</a>
     $else:
         <button type="submit" class="btn btn-default btn-lg btn-block center-block" disabled="disabled">You are not allowed to submit</button>
 </form>

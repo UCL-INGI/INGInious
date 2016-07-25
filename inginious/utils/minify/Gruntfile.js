@@ -23,7 +23,7 @@ module.exports = function(grunt)
                         '../../frontend/webapp/static/js/jquery-sortable.min.js',
                         '../../frontend/webapp/static/js/webapp.js',
                         '../../frontend/webapp/static/js/studio.js',
-                        '../../frontend/webapp/static/js/classrooms.js'
+                        '../../frontend/webapp/static/js/aggregations.js'
                     ],
                     '../../frontend/lti/static/js/all-minified.js': [
                         '../../frontend/common/static/js/libs/jquery.min.js',

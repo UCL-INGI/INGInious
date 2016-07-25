@@ -27,7 +27,7 @@ class CourseDangerZonePage(INGIniousAdminPage):
                 if key in submission and type(submission[key]) == bson.objectid.ObjectId:
                     self.submission_manager.get_gridfs().delete(submission[key])
 
-        self.database.classrooms.remove({"courseid": courseid})
+        self.database.aggregations.remove({"courseid": courseid})
         self.database.user_tasks.remove({"courseid": courseid})
         self.database.submissions.remove({"courseid": courseid})
 
@@ -39,8 +39,8 @@ class CourseDangerZonePage(INGIniousAdminPage):
             os.makedirs(os.path.dirname(filepath))
 
         with zipfile.ZipFile(filepath, "w", allowZip64=True) as zipf:
-            classrooms = self.database.classrooms.find({"courseid": courseid}, {"_id": 0})
-            zipf.writestr("classrooms.json", bson.json_util.dumps(classrooms), zipfile.ZIP_DEFLATED)
+            aggregations = self.database.aggregations.find({"courseid": courseid}, {"_id": 0})
+            zipf.writestr("aggregations.json", bson.json_util.dumps(aggregations), zipfile.ZIP_DEFLATED)
 
             user_tasks = self.database.user_tasks.find({"courseid": courseid}, {"_id": 0})
             zipf.writestr("user_tasks.json", bson.json_util.dumps(user_tasks), zipfile.ZIP_DEFLATED)
@@ -65,9 +65,9 @@ class CourseDangerZonePage(INGIniousAdminPage):
         filepath = os.path.join(self.backup_dir, courseid, backup + ".zip")
         with zipfile.ZipFile(filepath, "r") as zipf:
 
-            classrooms = bson.json_util.loads(zipf.read("classrooms.json"))
-            if len(classrooms) > 0:
-                self.database.classrooms.insert(classrooms)
+            aggregations = bson.json_util.loads(zipf.read("aggregations.json"))
+            if len(aggregations) > 0:
+                self.database.aggregations.insert(aggregations)
 
             user_tasks = bson.json_util.loads(zipf.read("user_tasks.json"))
             if len(user_tasks) > 0:
@@ -79,12 +79,12 @@ class CourseDangerZonePage(INGIniousAdminPage):
                     if key in submission and type(submission[key]) == bson.objectid.ObjectId:
                         submission[key] = self.submission_manager.get_gridfs().put(zipf.read(key + "/" + str(submission[key]) + ".data"))
 
-            self.database.submissions.insert(submissions)
+            if len(submissions) > 0:
+                self.database.submissions.insert(submissions)
 
     def GET(self, courseid):
         """ GET request """
-        if not self.user_manager.user_is_superadmin(self.user_manager.session_username()):
-            raise web.notfound()
+        course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
 
         data = web.input()
 
@@ -100,13 +100,11 @@ class CourseDangerZonePage(INGIniousAdminPage):
             return open(filepath, 'rb')
 
         else:
-            course = self.course_factory.get_course(courseid)
             return self.page(course)
 
     def POST(self, courseid):
         """ POST request """
-        if not self.user_manager.user_is_superadmin(self.user_manager.session_username()):
-            raise web.notfound()
+        course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
 
         msg = ""
         error = False
@@ -143,7 +141,6 @@ class CourseDangerZonePage(INGIniousAdminPage):
                     msg = "An error occured while restoring backup."
                     error = True
 
-        course = self.course_factory.get_course(courseid)
         return self.page(course, msg, error)
 
     def page(self, course, msg="", error=False):

@@ -43,4 +43,4 @@ class CourseStudentInfoPage(INGIniousAdminPage):
 
         if "csv" in web.input():
             return make_csv(result)
-        return self.template_helper.get_renderer().course_admin.student(course, username, list(result.values()))
+        return self.template_helper.get_renderer().course_admin.student_info(course, username, list(result.values()))

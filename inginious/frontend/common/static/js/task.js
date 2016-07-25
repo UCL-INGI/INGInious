@@ -556,6 +556,8 @@ function displayTaskStudentAlertWithProblems(content, top, type, alwaysShowTop)
     {
         scrollTop: firstPos - 100
     }, 200);
+
+    colorizeStaticCode();
 }
 
 //Create an alert

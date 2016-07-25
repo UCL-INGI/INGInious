@@ -6,7 +6,6 @@
 """ Some common functions for logging """
 import logging
 
-
 def init_logging(log_level=logging.DEBUG):
     """
     Init logging
@@ -37,6 +36,8 @@ class CustomLogMiddleware:
         self.app = app
         self.logger = logger
         self.format = '%s - - [%s] "%s %s %s" - %s'
+        import web
+        self._web_debug = web.debug
 
     def __call__(self, environ, start_response):
         def xstart_response(status, response_headers, *args):
@@ -47,7 +48,7 @@ class CustomLogMiddleware:
         return self.app(environ, xstart_response)
 
     def log(self, status, environ):
-        outfile = environ.get('wsgi.errors', self.debug_web)
+        outfile = environ.get('wsgi.errors', self._web_debug)
         req = environ.get('PATH_INFO', '_')
         protocol = environ.get('ACTUAL_SERVER_PROTOCOL', '-')
         method = environ.get('REQUEST_METHOD', '-')

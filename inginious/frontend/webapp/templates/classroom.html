@@ -1,4 +1,4 @@
-$def with (course,submissions,classroom,users,mygroup,msg, error)
+$def with (course,submissions,classroom,users,mygroup,msg,error,change)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -62,10 +62,7 @@ $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
         <li><a  href="/course/$course.get_id()">$course.get_name()</a></li>
         <li class="active"><a href="#"><i class="fa fa-group"></i>
-            $if classroom is None:
-                Register for a classroom
-            $else:
-                $classroom["description"]
+            $classroom["description"]
             <span class="sr-only">(current)</span></a>
         </li>
     </ol>
@@ -86,13 +83,13 @@ $elif msg:
 
 <div role="tabpanel">
     <ul class="nav nav-tabs" id="edit_task_tabs" role="tablist">
-        <li role="presentation" class="active"><a href="#tab_basic" aria-controls="basic" role="tab" data-toggle="tab">
+        <li role="presentation" class="$('active' if not change else '')"><a href="#tab_basic" aria-controls="basic" role="tab" data-toggle="tab">
             <i class="fa fa-users fa-fw"></i>&nbsp; Members</a></li>
-        <li role="presentation"><a href="#tab_groups" aria-controls="groups" role="tab" data-toggle="tab">
+        <li role="presentation" class="$('active' if change else '')"><a href="#tab_groups" aria-controls="groups" role="tab" data-toggle="tab">
             <i class="fa fa-list-ul fa-fw"></i>&nbsp; Groups</a></li>
     </ul>
     <div id="edit_task_tabs_content" class="tab-content">
-        <div role="tabpanel" class="tab-pane active" id="tab_basic">
+        <div role="tabpanel" class="tab-pane $('active' if not change else '')" id="tab_basic">
             $if len(classroom["tutors"]) > 0:
                 <div class="panel panel-info">
                     <div class="panel-heading" role="tab" id="heading">
@@ -135,7 +132,7 @@ $elif msg:
                 </div>
         </div>
 
-        <div role="tabpanel" class="tab-pane" id="tab_groups">
+        <div role="tabpanel" class="tab-pane $('active' if change else '')" id="tab_groups">
             $if mygroup is not None:
                 <h3>My group</h3>
                 <div class="panel panel-info">
