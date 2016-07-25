@@ -14,12 +14,12 @@ import zmq
 from zmq.asyncio import Poller
 
 from inginious.backend4._asyncio_utils import AsyncIteratorWrapper
-from inginious.agent4._cgroup_abstraction import MemoryWatcher, TimeoutWatcher
+from inginious.agent4._killer_watchers import TimeoutWatcher
 from inginious.agent4._docker_interface import DockerInterface
 from inginious.agent4._pipeline import PipelinePush, PipelinePull
 from inginious.backend4.message_meta import ZMQUtils
 from inginious.backend4.messages import BackendNewJob, AgentJobStarted, BackendNewBatchJob, BackendKillJob, AgentHello, BackendJobId, AgentJobDone, \
-    KWPRegisterContainer, KWPKilledStatus, SPResult, EventContainerDied
+    KWPRegisterContainer, KWPKilledStatus, SPResult, EventContainerDied, EventContainerOOM
 
 
 class DockerAgent(object):
@@ -86,18 +86,15 @@ class DockerAgent(object):
         # Watchers
         self._killer_watcher_push = PipelinePush(context, "agentpush")
         self._killer_watcher_pull = PipelinePull(context, "agentpull")
-        self._timeout_watcher = TimeoutWatcher(context)
-        self._memory_watcher = MemoryWatcher(context)
+        self._timeout_watcher = TimeoutWatcher(context, self._docker)
 
-        self._containers_killed = set()
+        self._containers_killed = dict()
 
         # Poller
         self._poller = Poller()
         self._poller.register(self._backend_socket, zmq.POLLIN)
         self._poller.register(self._docker_events_sub, zmq.POLLIN)
         self._poller.register(self._killer_watcher_pull.get_pull_socket(), zmq.POLLIN)
-
-        self._docker_interface = DockerInterface()
 
     async def init_watch_docker_events(self):
         url = "inproc://docker_events"
@@ -107,22 +104,27 @@ class DockerAgent(object):
         self._loop.create_task(self._watch_docker_events())
 
     async def init_watcher_pipe(self):
+        # Start elements in the pipeline
         self._loop.create_task(self._timeout_watcher.run_pipeline())
-        self._loop.create_task(self._memory_watcher.run_pipeline())
+
+        # Link the pipeline
         self._timeout_watcher.link(self._killer_watcher_push)
-        self._memory_watcher.link(self._timeout_watcher)
-        self._killer_watcher_pull.link(self._memory_watcher)
+        # [ if one day we have more watchers, add them here in the pipeline ]
+        self._killer_watcher_pull.link(self._timeout_watcher)
 
     async def _watch_docker_events(self):
-        source = AsyncIteratorWrapper(self._docker_interface.event_stream(filters={"event":"die"}))
+        source = AsyncIteratorWrapper(self._docker.event_stream(filters={"event":["die","oom"]}))
         async for i in source:
-            container_id = i["id"]
-            try:
-                retval = int(i["Actor"]["Attributes"]["exitCode"])
-            except:
-                self._logger.exception("Cannot parse exitCode for container %s", container_id)
-                retval=-1
-            await ZMQUtils.send(self._docker_events_pub, EventContainerDied(container_id, retval))
+            if i["status"] == "die":
+                container_id = i["id"]
+                try:
+                    retval = int(i["Actor"]["Attributes"]["exitCode"])
+                except:
+                    self._logger.exception("Cannot parse exitCode for container %s", container_id)
+                    retval=-1
+                await ZMQUtils.send(self._docker_events_pub, EventContainerDied(container_id, retval))
+            elif i["status"] == "oom":
+                await ZMQUtils.send(self._docker_events_sub, EventContainerOOM(i["id"]))
 
     async def handle_backend_message(self, message):
         """Dispatch messages received from clients to the right handlers"""
@@ -238,39 +240,27 @@ class DockerAgent(object):
             container_id = await self._loop.run_in_executor(None, lambda :self._docker.create_container(environment, debug, enable_network,
                                                                                                         mem_limit, task_path, sockets_path,
                                                                                                         input_path))
-
-            # TODO: run_student management
-            # Start a socket to communicate between the agent and the container
-            # container_set = set()
-            # student_container_management_server_fact = lambda: self._get_agent_student_container_server(
-            #    container_id,
-            #    container_set,
-            #    student_path,
-            #    task.get_environment(),
-            #    time_limit,
-            #    mem_limit)
-
-            # Small workaround for error "AF_UNIX path too long" when the agent is launched inside a container. Resolve all symlinks to reduce the
-            # path length.
-            # smaller_path_to_socket = os.path.realpath(os.path.join(sockets_path, 'INGInious.sock'))
-
-            # server = self._loop.create_unix_server(student_container_management_server_fact, smaller_path_to_socket)
-            # self._loop.create_task(server)
-
-            # Start the container
-            await self._loop.run_in_executor(None, lambda: self._docker.start_container(container_id))
         except Exception as e:
             self._logger.warning("Cannot create container! %s", str(e), exc_info=True)
             await self.send_job_result(message.job_id, "crash", 'Cannot start container')
             rmtree(container_path)
             return
 
-        # Ask the "cgroup" thread to verify the timeout/memory limit
-        await ZMQUtils.send(self._killer_watcher_push.get_push_socket(), KWPRegisterContainer(container_id, mem_limit, time_limit, hard_time_limit))
-
         # Store info
         self._containers_running[container_id] = message, container_path
         self._container_for_job[message.job_id] = container_id
+
+        try:
+            # Start the container
+            await self._loop.run_in_executor(None, lambda: self._docker.start_container(container_id))
+        except Exception as e:
+            self._logger.warning("Cannot start container! %s", str(e), exc_info=True)
+            await self.send_job_result(message.job_id, "crash", 'Cannot start container')
+            rmtree(container_path)
+            return
+
+        # Ask the "cgroup" thread to verify the timeout/memory limit
+        await ZMQUtils.send(self._killer_watcher_push.get_push_socket(), KWPRegisterContainer(container_id, mem_limit, time_limit, hard_time_limit))
 
         # Tell the backend/client the job has started
         await ZMQUtils.send(self._backend_socket, AgentJobStarted(message.job_id))
@@ -291,7 +281,7 @@ class DockerAgent(object):
         self._containers_ending[container_id] = (message, container_path, retval)
 
         await ZMQUtils.send(self._killer_watcher_push.get_push_socket(),
-                            KWPKilledStatus(container_id, "killed" if container_id in self._containers_killed else None))
+                            KWPKilledStatus(container_id, self._containers_killed[container_id] if container_id in self._containers_killed else None))
 
 
     async def handle_job_closing_p2(self, killed_msg: KWPKilledStatus):
@@ -362,18 +352,24 @@ class DockerAgent(object):
         # Do not forget to remove data from internal state
         del self._container_for_job[message.job_id]
         if container_id in self._containers_killed:
-            self._containers_killed.remove(container_id)
+            del self._containers_killed[container_id]
 
     async def handle_kill_job(self, message: BackendKillJob):
         if message.job_id in self._container_for_job:
-            self._containers_killed.add(self._container_for_job[message.job_id])
+            self._containers_killed[self._container_for_job[message.job_id]] = "killed"
             await self._loop.run_in_executor(None, self._docker.kill_container(self._container_for_job[message.job_id]))
         else:
             self._logger.warning("Cannot kill container for job %s because it is not running", str(message.job_id))
 
     async def handle_docker_event(self, message):
-        assert type(message) == EventContainerDied
-        self._loop.create_task(self.handle_job_closing_p1(message.container_id, message.retval))
+        if type(message) == EventContainerDied:
+            if message.container_id in self._containers_running:
+                self._loop.create_task(self.handle_job_closing_p1(message.container_id, message.retval))
+        elif type(message) == EventContainerOOM:
+            if message.container_id in self._containers_running:
+                self._logger.info("Container %s did OOM, killing it", message.container_id)
+                self._containers_killed[message.container_id] = "overflow"
+                await self._loop.run_in_executor(None, self._docker.kill_container(message.container_id))
 
     async def send_job_result(self, job_id: BackendJobId, result: str, text: str = "", grade: float = None, problems: Dict[str, SPResult] = None,
                               custom: Dict[str, Any] = None):

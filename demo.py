@@ -52,7 +52,7 @@ def main():
     t.start()
 
     time.sleep(5)
-    client.new_job(course_factory.get_task("test", "helloworld"), {"question1": "print('Hello World!')"}, callback_test)
+    client.new_job(course_factory.get_task("test", "helloworld"), {"question1": "while True:\n\tpass\nprint('Hello World!')"}, callback_test)
 
 
 

@@ -519,6 +519,16 @@ class EventContainerDied(metaclass=MessageMeta, msgtype="event_container_died"):
     """
     Message used internally in the Docker Agent to signal that a container has closed
     """
+
     def __init__(self, container_id: str, retval: int):
         self.container_id = container_id
         self.retval = retval
+
+
+class EventContainerOOM(metaclass=MessageMeta, msgtype="event_container_oom"):
+    """
+    Message used internally in the Docker Agent to signal that a container has made an OOM
+    """
+
+    def __init__(self, container_id: str):
+        self.container_id = container_id

@@ -15,6 +15,9 @@ import docker
 
 
 class DockerInterface(object):
+    """
+        (not asyncio) Interface to Docker
+    """
     def __init__(self):
         self._docker = docker.Client()
 
@@ -114,11 +117,12 @@ class DockerInterface(object):
         task_path = os.path.abspath(task_path)
         sockets_path = os.path.abspath(sockets_path)
         input_path = os.path.abspath(input_path)
+
         response = self._docker.create_container(
             environment,
             stdin_open=True,
             volumes=['/task', '/sockets', '/input'],
-            network_disabled=not (network_grading or debug == "ssh"),
+            #network_disabled=not (network_grading or debug == "ssh"), #set in host_config, makes docker do strange things instead
             host_config=self._docker.create_host_config(
                 mem_limit=str(mem_limit) + "M",
                 memswap_limit=str(mem_limit) + "M",
@@ -142,6 +146,9 @@ class DockerInterface(object):
         # if debug == "ssh":  # skip the first line of the output, that contained the ssh key
         #     stdout = "\n".join(stdout.split("\n")[1:])
         return json.loads(stdout)
+
+    def get_stats(self, container_id):
+        return self._docker.stats(container_id, decode=True)
 
     def remove_container(self, container_id):
         self._docker.remove_container(container_id, True, False, True)
