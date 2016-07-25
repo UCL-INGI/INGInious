@@ -12,8 +12,8 @@ Here is a simple example of a *run* file, compatible with the *default* environm
 that simply returns that the student's code is OK:
 ::
 
-    #! /bin/bash
-    feedback --result success
+    #!/bin/bash
+    feedback-result success
 
 The *run* script is simply an executable application (a bash script, a python script, or
 a compiled executable runnable by the container). INGInious' default containers provides
@@ -23,10 +23,13 @@ By default, the script is run inside the container in the /task directory, by a 
 user. You can modify the container to change this (and everything else).
 
 Usable commands in the *run* file
----------------------------------
+=================================
 
-feedback
-````````
+Feedback commands
+-----------------
+
+feedback (obsolete since v0.4)
+``````````````````````````````
 
 The *feedback* command allows you to set the result of your tests.
 Every argument is optionnal.
@@ -37,6 +40,7 @@ Every argument is optionnal.
                                - timeout (the tests timed out),
                                - overflow (there was a memory/disk overflow) or
                                - crash (the tests crashed)
+-e, --escape                   interprets the space-like escape chars.
 -f, --feedback MSG             set the feedback message to MSG. It is possible to set different
                                messages for each problems. You can use *-i* to change the problem
                                to which you assign the message
@@ -54,6 +58,147 @@ The *feedback* command can be called multiple times.
 
     feedback --result success --feedback "You're right, the answer is 42!"
 
+feedback-result
+```````````````
+The *feedback-result* command sets the submission result of a task, or a problem,
+and uses the following syntax :
+
+::
+
+    feedback-result [-i|--id PROBLEM_ID] RESULT
+
+The execution result can be of different types:
+
+- success : the student succeeded the task
+- failed : there are error in the student answer
+- timeout : the tests timed out
+- overflow :there was a memory/disk overflow
+- crash : the tests crashed
+
+For instance, the following command will inform that the student succeeded:
+
+::
+
+    feedback-result success
+
+feedback-grade
+``````````````
+The *feedback-grade* command sets the submission grade and uses the following syntax:
+::
+
+    feedback-grade GRADE
+
+If no grade is specified, the result score will be binary. This means that a failed
+submission will give a 0.0% score to the student, while a successful submission will
+give a 100.0% score to the student. For instance, the following command will give
+an 87.8% grade to the student:
+
+::
+
+    feedback-grade 87.8
+
+
+feedback-msg
+````````````
+The *feedback-msg* command sets the feedback message associated to the task or a subproblem. It has several
+optional parameters:
+
+-a, --append                        append to current feedback, if not specified, replace the
+                                    current feedback.
+-i, --id PROBLEM_ID                 problem id to which associate the feedback, leave empty
+                                    for the whole task.
+-e, --escape                        interprets backslash escapes
+-m, --message MESSAGE               feedback message
+
+If the message is not specified, the feedback message is read from stdin. For instance, the command can be
+used as follows:
+
+::
+
+    feedback-msg -ae -m "This is the correct answer.\n\nWell done!"
+
+reStructuredText helper commands
+--------------------------------
+
+Several helper commands are available to format the feedback text, which format is reStructuredText.
+
+rst-code
+````````
+
+The *rst-code* command generates a code-block with the specified code snippet and language
+to enable syntax highlighting. It has the following parameters:
+
+-l, --language LANGUAGE    snippet language, leave empty to disable syntax highlighting
+-e, --escape               interprets backslash escapes
+-c, --code CODE            snippet code
+
+If the code parameter is not specified, it is read on standard input. The result is written on standard output.
+For instance, the command can be used as follows:
+
+::
+
+    cat test.java | rst-code -l java | feedback-msg -a
+
+rst-image
+`````````
+
+The *rst-image* command generates a raw reStructuredText block containing the image to display. It has the
+following syntax
+
+::
+
+    rst-image [-f|--format FORMAT] FILEPATH
+
+The optional *format* parameter is used to specify the image format (jpg, png,...) if this is not explicitly specified
+the the image filename. The output is written on the standard output. For instance, the command can be used as follows:
+
+::
+
+    rst-image generated.png | feedback -a
+
+
+rst-msgblock
+````````````
+The *rst-msgblock* command is used to generate a reStructuredText admonition in a specific colour according to the
+message type. It has the following optional parameters:
+
+-c, --class CSS_CLASS    Bootstrap alert CSS class:
+
+                          - success
+                          - info
+                          - warning
+                          - danger
+-e, --escape             interprets backslash escapes
+-t, --title TITLE        message title
+-m, --message MESSAGE    message text
+
+If the message parameter is not set, the message is read from standard input. For instance, the command can
+be used as follows:
+
+::
+
+    rst-msgblock -c info -m "This is a note" | feedback -ae
+
+rst-indent
+``````````
+The *rst-indent* command is used to handle the indentation of the given text. It has the following optional arguments:
+
+-e, --escape                      interprets backslash escapes
+-c, --indent-char INDENT_CHAR     indentation char, default = tabulation
+-a, --amount AMOUNT               amount of indentation, default = 1
+-m, --message MESSAGE             message text
+
+If the message parameter is not set, the text is read from standard input. The amount of indentation can be negative
+to de-indent the text. For instance, the command can be used as follows, to add an image to the feedback,
+inside a list item, for instance :
+
+::
+
+     rst-image generated.png | rst-indent | feedback -a
+
+Input commands
+--------------
+
 getinput
 ````````
 
@@ -63,14 +208,16 @@ For example, for the problem id "pid", the command to do is:
 
     getinput pid
 
-When a problem is defined with several boxes, the argument becomes *pid/bid* where "pid" stands for the problem id and "bid" for "box id".
+When a problem is defined with several boxes, the argument becomes *pid/bid* where "pid"
+stands for the problem id and "bid" for "box id".
 
 Note that *getinput* can also retrieve the username/group of the user that submitted the task. You simply have to run
 ::
 
     getinput username
 
-If the submission is made as a user, it will contain the username. It it's made as a group, it will contain the list of the user's usernames in the
+If the submission is made as a user, it will contain the username. It it's made as a group,
+it will contain the list of the user's usernames in the
 group, joined with ','.
 
 parsetemplate
@@ -102,13 +249,13 @@ Example of template file (in java)
 .. _run_student:
 
 run_student
-```````````
+-----------
 
-*run_student* allows the *run file* to start, at will, sub-containers. This makes you able to secure the grading, making sure the untrusted code
-made by the student don't interact with yours.
+*run_student* allows the *run file* to start, at will, sub-containers. This makes you able to secure the grading,
+making sure the untrusted code made by the student don't interact with yours.
 
-run_student is fully configurable; you can change the container image (environment), set new timeouts, new memory limits, ... And you can call it as
-many time as you want.
+run_student is fully configurable; you can change the container image (environment), set new timeouts, new memory
+limits, ... And you can call it as many time as you want.
 
 --container CONTAINER             Name of the container to use. The default is the same as the current container.
 --time TIME                       Timeout (in CPU time) for the container. The default is the same as the current container.
@@ -128,14 +275,14 @@ More technically, please note that:
     - 254 means that an error occured while running the proxy
 
 archive
-```````
+-------
 
 *archive* allows you to put some data in an archive that will be returned to the frontend
 and stored in the database for future reading. You can put there debug data, for example.
 
 The command takes some arguments, which are all optionnal:
 
--o, --outsubdir    DIRECTORY        will put the file (specified with -a or -r)in the
+-o, --outsubdir DIRECTORY           will put the file (specified with -a or -r)in the
                                     specified sub-directory in the output archive
 -a, --add FILEPATH                  add the file to the archive
 -r, --remove FILEPATH               remove the file from the archive
