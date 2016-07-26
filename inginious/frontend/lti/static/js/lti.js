@@ -7,7 +7,6 @@
 $(function()
 {
     init_common();
-    init_task_page();
     init_lti();
 });
 
