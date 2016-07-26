@@ -4,25 +4,23 @@
 # more information about the licensing of this file.
 
 import asyncio
-import json
 import logging
 import os
 import struct
-from enum import Enum
 from shutil import rmtree, copytree
 from typing import Dict, Any
 
 import msgpack
-from msgpack import Unpacker
 import zmq
+from msgpack import Unpacker
 from zmq.asyncio import Poller
 
-from inginious.backend4._asyncio_utils import AsyncIteratorWrapper
-from inginious.agent4._killer_watchers import TimeoutWatcher
 from inginious.agent4._docker_interface import DockerInterface
+from inginious.agent4._killer_watchers import TimeoutWatcher
 from inginious.agent4._pipeline import PipelinePush, PipelinePull
-from inginious.backend4.message_meta import ZMQUtils
-from inginious.backend4.messages import BackendNewJob, AgentJobStarted, BackendNewBatchJob, BackendKillJob, AgentHello, BackendJobId, AgentJobDone, \
+from inginious.common.asyncio_utils import AsyncIteratorWrapper
+from inginious.common.message_meta import ZMQUtils
+from inginious.common.messages import BackendNewJob, AgentJobStarted, BackendNewBatchJob, BackendKillJob, AgentHello, BackendJobId, AgentJobDone, \
     KWPRegisterContainer, KWPKilledStatus, SPResult, EventContainerDied, EventContainerOOM
 
 
@@ -70,11 +68,11 @@ class DockerAgent(object):
 
         # TODO centos img?
         # Assert that the folders are *really* empty
-        #self._force_directory_empty(tmp_dir)
+        # self._force_directory_empty(tmp_dir)
         # TODO ssh debug
-        #if ssh_manager_location is not None:
+        # if ssh_manager_location is not None:
         #    self.remote_ssh_manager = RemoteSSHManager(ssh_manager_location)
-        #else:
+        # else:
         #    self.remote_ssh_manager = None
 
         # Docker
@@ -104,6 +102,7 @@ class DockerAgent(object):
         self._poller.register(self._killer_watcher_pull.get_pull_socket(), zmq.POLLIN)
 
     async def init_watch_docker_events(self):
+        """ Init everything needed to watch docker events """
         url = "inproc://docker_events"
         self._docker_events_pub.bind(url)
         self._docker_events_sub.connect(url)
@@ -111,6 +110,7 @@ class DockerAgent(object):
         self._loop.create_task(self._watch_docker_events())
 
     async def init_watcher_pipe(self):
+        """ Init the killer pipeline """
         # Start elements in the pipeline
         self._loop.create_task(self._timeout_watcher.run_pipeline())
 
@@ -120,7 +120,8 @@ class DockerAgent(object):
         self._killer_watcher_pull.link(self._timeout_watcher)
 
     async def _watch_docker_events(self):
-        source = AsyncIteratorWrapper(self._docker.event_stream(filters={"event":["die","oom"]}))
+        """ Get raw docker events and convert them to more readable objects, and then give them to self._docker_events_sub """
+        source = AsyncIteratorWrapper(self._docker.event_stream(filters={"event": ["die", "oom"]}))
         async for i in source:
             if i["status"] == "die":
                 container_id = i["id"]
@@ -128,7 +129,7 @@ class DockerAgent(object):
                     retval = int(i["Actor"]["Attributes"]["exitCode"])
                 except:
                     self._logger.exception("Cannot parse exitCode for container %s", container_id)
-                    retval=-1
+                    retval = -1
                 await ZMQUtils.send(self._docker_events_pub, EventContainerDied(container_id, retval))
             elif i["status"] == "oom":
                 await ZMQUtils.send(self._docker_events_sub, EventContainerOOM(i["id"]))
@@ -159,6 +160,10 @@ class DockerAgent(object):
         self._loop.create_task(func(message))
 
     async def handle_kwp_killed_status(self, message: KWPKilledStatus):
+        """
+        Handles the messages returned by the "killer pipeline", that indicates if a particular container was killed
+        by an element of the pipeline. Gives the message to the right handler.
+        """
         if message.container_id in self._containers_ending:
             self._loop.create_task(self.handle_job_closing_p2(message))
         elif message.container_id in self._student_containers_ending:
@@ -169,10 +174,16 @@ class DockerAgent(object):
         pass
 
     async def handle_new_batch_job(self, message: BackendNewJob):
+        """
+        Handles a new batch job: starts the container
+        """
         # TODO
         pass
 
     async def handle_new_job(self, message: BackendNewJob):
+        """
+        Handles a new job: starts the grading container
+        """
         self._logger.info("Received request for jobid %s", message.job_id)
         if message.debug == "ssh" and False:
             await self.send_job_result(message.job_id, "crash", 'Remote debugging is not activated on this agent.')
@@ -237,7 +248,7 @@ class DockerAgent(object):
 
         # Run the container
         try:
-            container_id = await self._loop.run_in_executor(None, lambda :self._docker.create_container(environment, debug, enable_network,
+            container_id = await self._loop.run_in_executor(None, lambda: self._docker.create_container(environment, debug, enable_network,
                                                                                                         mem_limit, task_path, sockets_path))
         except Exception as e:
             self._logger.warning("Cannot create container! %s", str(e), exc_info=True)
@@ -274,19 +285,23 @@ class DockerAgent(object):
 
         # If ssh mode is activated, get the ssh key
         # TODO SSH Debug
-        #if debug == "ssh":
+        # if debug == "ssh":
         #    self._handle_container_ssh_start(docker_connection, container_id, job_id, ssh_callback)
 
     async def create_student_container(self, job_id, parent_container_id, sockets_path, student_path, socket_id, environment, memory_limit,
                                        time_limit, hard_time_limit, share_network, write_stream):
+        """
+        Creates a new student container.
+        :param write_stream: stream on which to write the return value of the container (with a correctly formatted msgpack message)
+        """
         self._logger.debug("Starting new student container... %s %s %s %s %s %s", environment, memory_limit, time_limit, hard_time_limit)
 
         try:
-            socket_path = os.path.join(sockets_path, str(socket_id)+".sock")
+            socket_path = os.path.join(sockets_path, str(socket_id) + ".sock")
             container_id = await self._loop.run_in_executor(None,
-                                                            lambda : self._docker.create_container_student(parent_container_id, environment,
-                                                                                                           share_network, memory_limit,
-                                                                                                           student_path, socket_path))
+                                                            lambda: self._docker.create_container_student(parent_container_id, environment,
+                                                                                                          share_network, memory_limit,
+                                                                                                          student_path, socket_path))
         except:
             self._logger.exception("Cannot create student container!")
             write_stream.write(msgpack.dumps({"type": "run_student_retval", "retval": 254, "id": socket_id}, encoding="utf8", use_bin_type=True))
@@ -305,13 +320,15 @@ class DockerAgent(object):
             return
 
         # Ask the "cgroup" thread to verify the timeout/memory limit
-        await ZMQUtils.send(self._killer_watcher_push.get_push_socket(), KWPRegisterContainer(container_id, memory_limit, time_limit, hard_time_limit))
+        await ZMQUtils.send(self._killer_watcher_push.get_push_socket(),
+                            KWPRegisterContainer(container_id, memory_limit, time_limit, hard_time_limit))
 
     async def handle_running_container(self, job_id, container_id,
                                        inputdata, debug,
                                        orig_memory_limit, orig_time_limit, orig_hard_time_limit,
                                        sockets_path, student_path,
                                        future_results):
+        """ Talk with a container. Sends the initial input. Allows to start student containers """
         sock = await self._loop.run_in_executor(None, lambda: self._docker.attach_to_container(container_id))
         read_stream, write_stream = await asyncio.open_connection(sock=sock._sock)
 
@@ -327,10 +344,10 @@ class DockerAgent(object):
         try:
             while not read_stream.at_eof():
                 msg_header = await read_stream.readexactly(8)
-                type, length = struct.unpack_from('>BxxxL', msg_header) # format imposed by docker in the attach endpoint
+                type, length = struct.unpack_from('>BxxxL', msg_header)  # format imposed by docker in the attach endpoint
                 if length != 0:
                     content = await read_stream.readexactly(length)
-                    if type == 1: #stdout
+                    if type == 1:  # stdout
                         unpacker.feed(content)
 
                     # parse the messages
@@ -355,7 +372,7 @@ class DockerAgent(object):
                                 write_stream.close()
                                 sock._sock.close()
                                 sock.close()
-                                return # this is the last message
+                                return  # this is the last message
                         except:
                             self._logger.exception("Received incorrect message from container %s (job id %s)", container_id, job_id)
                             future_results.set_result(None)
@@ -372,8 +389,8 @@ class DockerAgent(object):
         sock.close()
         future_results.set_result(None)
 
-
     async def handle_student_job_closing_p1(self, container_id, retval):
+        """ First part of the tudent container ending handler. Ask the killer pipeline if they killed the container that recently died. Do some cleaning. """
         self._logger.debug("Closing student (p1) for %s", container_id)
         try:
             job_id, parent_container_id, socket_id, write_stream = self._student_containers_running[container_id]
@@ -382,7 +399,7 @@ class DockerAgent(object):
             self._logger.warning("Student container %s that has finished(p1) was not launched by this agent", str(container_id), exc_info=True)
             return
 
-        if job_id in self._student_containers_for_job: # if it does not exists, then the parent container has closed
+        if job_id in self._student_containers_for_job:  # if it does not exists, then the parent container has closed
             self._student_containers_for_job[job_id].remove(container_id)
         self._student_containers_ending[container_id] = (job_id, parent_container_id, socket_id, write_stream, retval)
 
@@ -390,6 +407,7 @@ class DockerAgent(object):
                             KWPKilledStatus(container_id, self._containers_killed[container_id] if container_id in self._containers_killed else None))
 
     async def handle_student_job_closing_p2(self, killed_msg: KWPKilledStatus):
+        """ Second part of the student container ending handler. Gather results and send them to the grading container associated with the job. """
         container_id = killed_msg.container_id
         self._logger.debug("Closing student (p2) for %s", container_id)
         try:
@@ -409,6 +427,7 @@ class DockerAgent(object):
             await write_stream.drain()
 
     async def handle_job_closing_p1(self, container_id, retval):
+        """ First part of the end job handler. Ask the killer pipeline if they killed the container that recently died. Do some cleaning. """
         self._logger.debug("Closing (p1) for %s", container_id)
         try:
             message, container_path, future_results = self._containers_running[container_id]
@@ -427,8 +446,8 @@ class DockerAgent(object):
         await ZMQUtils.send(self._killer_watcher_push.get_push_socket(),
                             KWPKilledStatus(container_id, self._containers_killed[container_id] if container_id in self._containers_killed else None))
 
-
     async def handle_job_closing_p2(self, killed_msg: KWPKilledStatus):
+        """ Second part of the end job handler. Gather results and send them to the backend. """
         container_id = killed_msg.container_id
         self._logger.debug("Closing (p2) for %s", container_id)
         try:
@@ -477,7 +496,7 @@ class DockerAgent(object):
                 grade = 0.0
 
         # Remove container
-        self._loop.run_in_executor(None, lambda : self._docker.remove_container(container_id))
+        self._loop.run_in_executor(None, lambda: self._docker.remove_container(container_id))
 
         # TODO run_student
         # Remove subcontainers
@@ -499,6 +518,7 @@ class DockerAgent(object):
             del self._containers_killed[container_id]
 
     async def handle_kill_job(self, message: BackendKillJob):
+        """ Handles `kill` messages. Kill things. """
         if message.job_id in self._container_for_job:
             self._containers_killed[self._container_for_job[message.job_id]] = "killed"
             await self._loop.run_in_executor(None, self._docker.kill_container(self._container_for_job[message.job_id]))
@@ -506,6 +526,7 @@ class DockerAgent(object):
             self._logger.warning("Cannot kill container for job %s because it is not running", str(message.job_id))
 
     async def handle_docker_event(self, message):
+        """ Handles events from Docker, notably `die` and `oom` """
         if type(message) == EventContainerDied:
             if message.container_id in self._containers_running:
                 self._loop.create_task(self.handle_job_closing_p1(message.container_id, message.retval))
@@ -519,6 +540,7 @@ class DockerAgent(object):
 
     async def send_job_result(self, job_id: BackendJobId, result: str, text: str = "", grade: float = None, problems: Dict[str, SPResult] = None,
                               custom: Dict[str, Any] = None):
+        """ Send the result of a job back to the backend """
         if grade is None:
             if result == "success":
                 grade = 100.0
@@ -532,6 +554,7 @@ class DockerAgent(object):
         await ZMQUtils.send(self._backend_socket, AgentJobDone(job_id, (result, text), grade, problems, custom))
 
     async def run_dealer(self):
+        """ Run the agent """
         self._backend_socket.connect(self._backend_addr)
 
         # Init Docker events watcher

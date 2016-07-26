@@ -2,16 +2,14 @@
 #
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
-import logging
-
 import asyncio
+import logging
 
 import zmq
 
-from backend4.message_meta import ZMQUtils
-from backend4.messages import BackendNewJob, BackendKillJob, BackendNewBatchJob, AgentBatchJobDone, AgentHello, AgentJobDone
 from common.course_factory import CourseFactory
-from common.task_factory import TaskFactory
+from inginious.common.message_meta import ZMQUtils
+from inginious.common.messages import BackendNewJob, BackendKillJob, BackendNewBatchJob, AgentBatchJobDone, AgentHello, AgentJobDone
 
 
 class MCQAgent(object):
@@ -84,10 +82,11 @@ class MCQAgent(object):
                                                                grade, problems, {}))
 
     async def run_dealer(self):
+        """ Run the agent """
         self._backend_socket.connect(self._backend_addr)
 
         # Tell the backend we are up
-        await ZMQUtils.send(self._backend_socket, AgentHello(1, {"mcq":{"id":"mcq","created":0}}, {}))
+        await ZMQUtils.send(self._backend_socket, AgentHello(1, {"mcq": {"id": "mcq", "created": 0}}, {}))
 
         # And then run the agent
         try:

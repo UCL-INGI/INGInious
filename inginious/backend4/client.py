@@ -4,19 +4,12 @@
 # more information about the licensing of this file.
 import asyncio
 import logging
-
-import zmq
-
-from backend4._zeromq_client import BetterParanoidPirateClient
-from .message_meta import ZMQUtils
-from .messages import ClientHello, BackendUpdateContainers, BackendBatchJobDone, BackendBatchJobStarted, BackendJobStarted, BackendJobDone, \
-    BackendJobSSHDebug, ClientNewBatchJob, ClientNewJob, ClientKillJob
-
-import time
 import uuid
 from abc import abstractmethod, ABCMeta
 
-from inginious.common.hook_manager import HookManager
+from backend4._zeromq_client import BetterParanoidPirateClient
+from inginious.common.messages import ClientHello, BackendUpdateContainers, BackendBatchJobDone, BackendBatchJobStarted, BackendJobStarted, \
+    BackendJobDone, BackendJobSSHDebug, ClientNewBatchJob, ClientNewJob, ClientKillJob
 
 
 def _callable_once(func):
@@ -29,6 +22,7 @@ def _callable_once(func):
 
     once.called = False
     return once
+
 
 class AbstractJobManager(object, metaclass=ABCMeta):
     @abstractmethod
@@ -177,7 +171,7 @@ class Client(BetterParanoidPirateClient):
             pass
 
         # TODO
-        #self._close_distant_debug_ssh(jobid)
+        # self._close_distant_debug_ssh(jobid)
 
         # Call the callback
         try:
@@ -243,12 +237,12 @@ class Client(BetterParanoidPirateClient):
 
     def get_waiting_jobs_count(self):
         """Returns the total number of waiting jobs in the Job Manager. This count is not real-time, and can be based on a local cache. """
-        #TODO
+        # TODO
         return 0
 
     def get_waiting_batch_jobs_count(self):
         """Returns the total number of waiting jobs in the Job Manager. This count is not real-time, and can be based on a local cache. """
-        #TODO
+        # TODO
         return 0
 
     def new_job(self, task, inputdata, callback, launcher_name="Unknown", debug=False, ssh_callback=None):
@@ -282,7 +276,7 @@ class Client(BetterParanoidPirateClient):
         try:
             limits = task.get_limits()
             time_limit = int(limits.get('time', 20))
-            hard_time_limit = int(limits.get('time_hard', 3*time_limit))
+            hard_time_limit = int(limits.get('time_hard', 3 * time_limit))
             mem_limit = int(limits.get('memory', 200))
         except:
             self._logger.exception("Cannot retrieve limits for task %s/%s", task.get_course_id(), task.get_id())
@@ -339,88 +333,3 @@ class Client(BetterParanoidPirateClient):
         Kills a running job
         """
         self._loop.call_soon_threadsafe(self._simple_send(ClientKillJob(job_id)))
-
-# class Client(object):
-#     def __init__(self, context, backend_addr):
-#         self._context = context
-#         self._loop = asyncio.get_event_loop()
-#         self._backend_addr = backend_addr
-#
-#         self._logger = logging.getLogger("client")
-#
-#         self._available_containers = []
-#         self._available_batch_containers = []
-#         self._backend_socket = self._context.socket(zmq.DEALER)
-#
-#     async def handle_backend_message(self, message):
-#         """Dispatch messages received from clients to the right handlers"""
-#         message_handlers = {
-#             BackendUpdateContainers: self._handle_update_containers,
-#             BackendBatchJobStarted: self._handle_batch_job_started,
-#             BackendBatchJobDone: self._handle_batch_job_done,
-#             BackendJobStarted: self._handle_job_started,
-#             BackendJobDone: self._handle_job_done,
-#             BackendJobSSHDebug: self._handle_job_ssh_debug,
-#         }
-#         try:
-#             func = message_handlers[message.__class__]
-#         except:
-#             raise TypeError("Unknown message type %s" % message.__class__)
-#         self._loop.create_task(func(message))
-#
-#     async def _handle_update_containers(self, message: BackendUpdateContainers):
-#         self._available_batch_containers = message.available_batch_containers
-#         self._available_containers = message.available_containers
-#         self._logger.info("Updated containers and batch containers")
-#         self._logger.debug("Containers: %s", str(self._available_containers))
-#         self._logger.debug("Batch containers: %s", str(self._available_batch_containers))
-#
-#     async def _handle_batch_job_started(self, message: BackendBatchJobStarted):
-#         pass
-#
-#     async def _handle_batch_job_done(self, message: BackendBatchJobDone):
-#         pass
-#
-#     async def _handle_job_started(self, message: BackendJobStarted):
-#         pass
-#
-#     async def _handle_job_done(self, message: BackendJobDone):
-#         pass
-#
-#     async def _handle_job_ssh_debug(self, message: BackendJobSSHDebug):
-#         pass
-#
-#     def _execute_job(self, jobid, task, inputdata, debug):
-#         """ Executes a job in a Docker container.
-#             This function should be called on the event loop.
-#         :param jobid: The job id
-#         :param task:  The Task instance linked to the job to run
-#         :param inputdata: Input given by the student
-#         :param debug: Boolean indicating if the job should be run with the debug status
-#         """
-#         pass
-#
-#     def _execute_batch_job(self, jobid, container_name, inputdata):
-#         """ Executes a batch job in the specified Docker container, then calls self._batch_job_ended with the result.
-#             This function should be called on the event loop.
-#         :param jobid: The job id
-#         :param container_name:  The name of the container to run
-#         :param inputdata: tgz file
-#         """
-#         pass
-#
-#     async def run(self):
-#         self._backend_socket.connect(self._backend_addr)
-#
-#         await ZMQUtils.send(self._backend_socket, ClientHello("me"))
-#
-#         # And then run the agent
-#         try:
-#             while True:
-#                 message = await ZMQUtils.recv(self._backend_socket)
-#                 await self.handle_backend_message(message)
-#
-#         except asyncio.CancelledError:
-#             return
-#         except KeyboardInterrupt:
-#             return

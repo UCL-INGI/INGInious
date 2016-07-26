@@ -2,15 +2,15 @@
 #
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
-import random
 from typing import Dict, Optional, Any, Union, Tuple
 
-from .message_meta import MessageMeta
+from inginious.common.message_meta import MessageMeta
 
 # JobId of the backend, composed with the adress of the client and the client job id
 BackendJobId = Tuple[bytes, str]
 ClientJobId = str
 SPResult = Tuple[str, str]
+
 
 #################################################################
 #                                                               #
@@ -240,6 +240,7 @@ class BackendNewBatchJob(metaclass=MessageMeta, msgtype="backend_new_batch_job")
         Agent should start the Batch Job, immediately send that the hob was created using BatchJobStarted.
         When the Batch Job ends, agent should send a BatchJobDone message.
     """
+
     def __init__(self, job_id: BackendJobId, container_name: str, input_data: bytes):
         """
         :param job_id: the backend-side job_id
@@ -256,6 +257,7 @@ class BackendNewJob(metaclass=MessageMeta, msgtype="backend_new_job"):
         Creates a new job
         B->A.
     """
+
     def __init__(self, job_id: BackendJobId, course_id: str, task_id: str, inputdata: Dict[str, Any],
                  environment: str, enable_network: bool, time_limit: int, hard_time_limit: Optional[int], mem_limit: int,
                  debug: Union[str, bool]):
@@ -291,6 +293,7 @@ class BackendKillJob(metaclass=MessageMeta, msgtype="backend_kill_job"):
         Kills a running job.
         B->A.
     """
+
     def __init__(self, job_id: BackendJobId):
         """
         :param job_id: the backend-side job id that is associated to the job to kill
@@ -310,7 +313,7 @@ class AgentHello(metaclass=MessageMeta, msgtype="agent_hello"):
         Let the agent say hello and announce which containers it has available
     """
 
-    def __init__(self, available_job_slots: int, available_containers: Dict[str,Dict[str, str]],
+    def __init__(self, available_job_slots: int, available_containers: Dict[str, Dict[str, str]],
                  available_batch_containers: Dict[str, Dict[str, Union[str, Dict[str, str]]]]):
         """
             :param available_job_slots: an integer giving the number of concurrent
@@ -348,6 +351,7 @@ class AgentBatchJobStarted(metaclass=MessageMeta, msgtype="agent_batch_job_start
         Tell the backend the batch job asked with NewBatchJob has been created.
         A->B.
     """
+
     def __init__(self, job_id: BackendJobId):
         """
         :param job_id: the backend-side job_id associated to the batch job
@@ -360,6 +364,7 @@ class AgentBatchJobDone(metaclass=MessageMeta, msgtype="agent_batch_job_done"):
         Gives the results of a batch job to the backend
         A->B.
     """
+
     def __init__(self, job_id: BackendJobId, retval: int, stdout: str, stderr: str, file: Optional[bytes]):
         """
         :param job_id: the backend-side job_id associated to the batch job
@@ -383,6 +388,7 @@ class AgentJobStarted(metaclass=MessageMeta, msgtype="agent_job_started"):
         Indicates to the backend that a job started
         A->B.
     """
+
     def __init__(self, job_id: BackendJobId):
         """
         :param job_id: the backend-side job_id associated to the job
@@ -395,6 +401,7 @@ class AgentJobDone(metaclass=MessageMeta, msgtype="agent_job_done"):
         Gives the result of a job.
         A->B.
     """
+
     def __init__(self, job_id: BackendJobId, result: SPResult, grade: float, problems: Dict[str, SPResult], custom: Dict[str, Any]):
         """
         :param job_id: the backend-side job id associated with this job
@@ -422,6 +429,7 @@ class AgentJobSSHDebug(metaclass=MessageMeta, msgtype="agentjob_ssh_debug"):
     """
         Gives the necessary info to SSH into a job running in ssh debug mode
     """
+
     def __init__(self, job_id: BackendJobId, private_key: bytes):
         """
         :param job_id: the backend-side job id associated with this job
@@ -442,7 +450,8 @@ class KWPKilledStatus(metaclass=MessageMeta, msgtype="kwp_killed_status"):
         Ask watchers in the pipeline to fill this message with data about the container.
         Watchers should send the updated message throught the pipeline
     """
-    def __init__(self, container_id: str, killed_result: Optional[str]=None):
+
+    def __init__(self, container_id: str, killed_result: Optional[str] = None):
         """
         :param container_id: container to check
         :param killed_result: result that will be sent to the client (timeout, overflow...) if the container was killed, None if it was None
@@ -467,6 +476,7 @@ class KWPRegisterContainer(metaclass=MessageMeta, msgtype="kwp_register_containe
     """
         Register a container with given limitations
     """
+
     def __init__(self, container_id: str, max_mem: int, timeout: int, timeout_hard: int):
         """
         :param container_id: container to register
@@ -478,6 +488,7 @@ class KWPRegisterContainer(metaclass=MessageMeta, msgtype="kwp_register_containe
         self.max_mem = max_mem
         self.timeout = timeout
         self.timeout_hard = timeout_hard
+
 
 #################################################################
 #                                                               #
@@ -493,6 +504,7 @@ class Ping(metaclass=MessageMeta, msgtype="ping"):
     def __init__(self):
         pass
 
+
 class Pong(metaclass=MessageMeta, msgtype="pong"):
     """
     Pong message
@@ -501,6 +513,7 @@ class Pong(metaclass=MessageMeta, msgtype="pong"):
     def __init__(self):
         pass
 
+
 class Unknown(metaclass=MessageMeta, msgtype="unknown"):
     """
     Unknown message. Sent by a server that do not know a specific client; probably because the server restarted
@@ -508,6 +521,7 @@ class Unknown(metaclass=MessageMeta, msgtype="unknown"):
 
     def __init__(self):
         pass
+
 
 #################################################################
 #                                                               #

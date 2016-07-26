@@ -12,6 +12,7 @@ import threading
 
 
 class AsyncIteratorWrapper(object):
+    """ A wrapper that converts old-style-generators to async generators using run_in_executor """
     def __init__(self, obj):
         self._it = obj
         self._loop = asyncio.get_event_loop()

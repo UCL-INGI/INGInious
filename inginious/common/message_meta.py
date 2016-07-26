@@ -1,8 +1,11 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
+#
+# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+# more information about the licensing of this file.
 import inspect
-from typing import Tuple, TypeVar
 
 import msgpack
+
 
 class MessageMeta(type):
     """
@@ -113,6 +116,7 @@ class MessageMeta(type):
                 raise TypeError("Immutable object")
 
         needed_keys = set(parameters.keys()) | {"type"}
+
         def _verify(self, force=False):
             """
             Ensure this message is consistent with its definition. Verifies only if force or MessageMeta.DEBUG is True
@@ -156,7 +160,7 @@ def run_tests():
             self.container_id = container_id
 
     print("----------------- Verify basic instantiation")
-    obj = StartContainer("test","test2")
+    obj = StartContainer("test", "test2")
     print(obj.job_id)
     assert obj.job_id == "test"
     print(obj.container_name)
@@ -219,7 +223,7 @@ def run_tests():
 
     print("----------------- Invalid dump 3 (invalid content)")
     try:
-        invalid_dump3 = msgpack.dumps({"type":"kill_container", "container_id": 2}, encoding="utf8")
+        invalid_dump3 = msgpack.dumps({"type": "kill_container", "container_id": 2}, encoding="utf8")
         obj6 = MessageMeta.load(invalid_dump3)
         print(type(obj6))
         print(obj6.container_id)

@@ -6,12 +6,12 @@
 """
     Pipeline abstraction for ZMQ
 """
+import asyncio
 from abc import ABCMeta, abstractmethod
 
-import asyncio
 import zmq
 
-from backend4.message_meta import ZMQUtils
+from inginious.common.message_meta import ZMQUtils
 
 
 class PipelineBase(object):

@@ -8,11 +8,11 @@ from collections import OrderedDict
 
 import zmq
 from zmq.asyncio import Poller
-from .message_meta import ZMQUtils
-from .messages import BackendNewJob, AgentJobStarted, AgentBatchJobStarted, AgentBatchJobDone, \
-    AgentJobDone, AgentJobSSHDebug, BackendJobDone, BackendJobStarted, BackendJobSSHDebug, BackendBatchJobStarted, \
-    BackendBatchJobDone, ClientNewJob, ClientNewBatchJob, BackendNewBatchJob, \
-    ClientKillJob, BackendKillJob, AgentHello, ClientHello, BackendUpdateContainers, Unknown, Ping, Pong
+
+from inginious.common.message_meta import ZMQUtils
+from inginious.common.messages import BackendNewJob, AgentJobStarted, AgentBatchJobStarted, AgentBatchJobDone, AgentJobDone, AgentJobSSHDebug, \
+    BackendJobDone, BackendJobStarted, BackendJobSSHDebug, BackendBatchJobStarted, BackendBatchJobDone, ClientNewJob, ClientNewBatchJob, \
+    BackendNewBatchJob, ClientKillJob, BackendKillJob, AgentHello, ClientHello, BackendUpdateContainers, Unknown, Ping, Pong
 
 
 class Backend(object):
@@ -191,7 +191,8 @@ class Backend(object):
                 await ZMQUtils.send_with_addr(self._agent_socket, agent_addr, BackendNewJob(job_id, job_msg.course_id, job_msg.task_id,
                                                                                             job_msg.inputdata, job_msg.environment,
                                                                                             job_msg.enable_network, job_msg.time_limit,
-                                                                                            job_msg.hard_time_limit, job_msg.mem_limit, job_msg.debug))
+                                                                                            job_msg.hard_time_limit, job_msg.mem_limit,
+                                                                                            job_msg.debug))
             elif typestr == "batch":
                 job_id = (client_addr, job_msg.job_id)
                 self._batch_job_running[job_id] = agent_addr
@@ -200,7 +201,6 @@ class Backend(object):
 
         # Do not forget to add again for which we did not find jobs to do
         self._available_agents += not_found_for_agent
-
 
     async def handle_agent_hello(self, agent_addr, message: AgentHello):
         """

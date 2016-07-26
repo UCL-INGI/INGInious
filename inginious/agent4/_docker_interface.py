@@ -8,9 +8,8 @@
 """
 import json
 import os
-import random
-import time
 import re
+
 import docker
 
 
@@ -18,6 +17,7 @@ class DockerInterface(object):
     """
         (not asyncio) Interface to Docker
     """
+
     def __init__(self):
         self._docker = docker.Client()
 
@@ -112,8 +112,16 @@ class DockerInterface(object):
 
         return parsed
 
-
     def create_container(self, environment, debug, network_grading, mem_limit, task_path, sockets_path):
+        """
+        Creates a container.
+        :param environment: env to start (name/id of a docker image)
+        :param debug: True/False or "ssh"
+        :param network_grading: boolean to indicate if the network should be enabled in the container or not
+        :param mem_limit: in Mo
+        :param task_path: path to the task directory that will be mounted in the container
+        :param sockets_path: path to the socket directory that will be mounted in the container
+        """
         task_path = os.path.abspath(task_path)
         sockets_path = os.path.abspath(sockets_path)
 
@@ -121,7 +129,7 @@ class DockerInterface(object):
             environment,
             stdin_open=True,
             volumes=['/task', '/sockets'],
-            #network_disabled=not (network_grading or debug == "ssh"), #set in host_config, makes docker do strange things instead
+            # network_disabled=not (network_grading or debug == "ssh"), #set in host_config, makes docker do strange things instead
             host_config=self._docker.create_host_config(
                 mem_limit=str(mem_limit) + "M",
                 memswap_limit=str(mem_limit) + "M",
@@ -135,6 +143,15 @@ class DockerInterface(object):
         return response["Id"]
 
     def create_container_student(self, parent_container_id, environment, network_grading, mem_limit, student_path, socket_path):
+        """
+        Creates a student container
+        :param parent_container_id: id of the "parent" container
+        :param environment: env to start (name/id of a docker image)
+        :param network_grading: boolean to indicate if the network should be enabled in the container or not (share the parent stack)
+        :param mem_limit: in Mo
+        :param student_path: path to the task directory that will be mounted in the container
+        :param socket_path: path to the socket that will be mounted in the container
+        """
         student_path = os.path.abspath(student_path)
         socket_path = os.path.abspath(socket_path)
 
@@ -157,9 +174,11 @@ class DockerInterface(object):
         return response["Id"]
 
     def start_container(self, container_id):
+        """ Starts a container (obviously) """
         self._docker.start(container_id)
 
     def attach_to_container(self, container_id):
+        """ A socket attached to the stdin/stdout of a container """
         return self._docker.attach_socket(container_id, {
             'stdin': 1,
             'stdout': 1,
@@ -168,6 +187,7 @@ class DockerInterface(object):
         })
 
     def get_logs(self, container_id):
+        """ Return the full stdout of a container (parsed with json) """
         stdout = self._docker.logs(container_id, stdout=True, stderr=False).decode('utf8')
         stderr = self._docker.logs(container_id, stdout=False, stderr=True).decode('utf8')
         # TODO SSH
@@ -176,13 +196,28 @@ class DockerInterface(object):
         return json.loads(stdout)
 
     def get_stats(self, container_id):
+        """
+        :param container_id:
+        :return: an iterable that contains dictionnaries with the stats of the running container. See the docker api for content.
+        """
         return self._docker.stats(container_id, decode=True)
 
     def remove_container(self, container_id):
+        """
+        Removes a container (with fire)
+        """
         self._docker.remove_container(container_id, True, False, True)
 
     def kill_container(self, container_id, signal=None):
+        """
+        Kills a container
+        :param signal: custom signal. Default is SIGKILL.
+        """
         self._docker.kill(container_id, signal)
 
     def event_stream(self, filters={}):
+        """
+        :param filters: filters to apply on messages. See docker api.
+        :return: an iterable that contains events from docker. See the docker api for content.
+        """
         return self._docker.events(decode=True, filters=filters)

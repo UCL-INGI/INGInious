@@ -4,10 +4,11 @@
 # more information about the licensing of this file.
 import abc
 import asyncio
+
 import zmq
 
-from inginious.backend4.message_meta import ZMQUtils
-from inginious.backend4.messages import Pong, Ping, Unknown
+from inginious.common.message_meta import ZMQUtils
+from inginious.common.messages import Pong, Ping, Unknown
 
 
 class BetterParanoidPirateClient(object, metaclass=abc.ABCMeta):
@@ -66,7 +67,8 @@ class BetterParanoidPirateClient(object, metaclass=abc.ABCMeta):
         # format is (other_msg, get_key, recv_handler, abrt_handler,responsible_for)
         # where responsible_for is the list of classes whose transaction will be killed when this message is received.
         self._msgs_registered[send_msg.__msgtype__] = ([recv_msg.__msgtype__] + [x.__msgtype__ for x, _ in inter_msg], get_key, None, None, [])
-        self._msgs_registered[recv_msg.__msgtype__] = ([], get_key, coroutine_recv, coroutine_abrt, [recv_msg.__msgtype__] + [x.__msgtype__ for x,_ in inter_msg])
+        self._msgs_registered[recv_msg.__msgtype__] = (
+        [], get_key, coroutine_recv, coroutine_abrt, [recv_msg.__msgtype__] + [x.__msgtype__ for x, _ in inter_msg])
 
         self._transactions[recv_msg.__msgtype__] = {}
         for msg_class, handler in inter_msg:
