@@ -113,15 +113,14 @@ class DockerInterface(object):
         return parsed
 
 
-    def create_container(self, environment, debug, network_grading, mem_limit, task_path, sockets_path, input_path):
+    def create_container(self, environment, debug, network_grading, mem_limit, task_path, sockets_path):
         task_path = os.path.abspath(task_path)
         sockets_path = os.path.abspath(sockets_path)
-        input_path = os.path.abspath(input_path)
 
         response = self._docker.create_container(
             environment,
             stdin_open=True,
-            volumes=['/task', '/sockets', '/input'],
+            volumes=['/task', '/sockets'],
             #network_disabled=not (network_grading or debug == "ssh"), #set in host_config, makes docker do strange things instead
             host_config=self._docker.create_host_config(
                 mem_limit=str(mem_limit) + "M",
@@ -130,14 +129,43 @@ class DockerInterface(object):
                 oom_kill_disable=True,
                 network_mode=("bridge" if (network_grading or debug == "ssh") else 'none'),
                 binds={task_path: {'bind': '/task'},
-                       sockets_path: {'bind': '/sockets'},
-                       input_path: {'mode': 'ro', 'bind': '/input'}}
+                       sockets_path: {'bind': '/sockets'}}
+            )
+        )
+        return response["Id"]
+
+    def create_container_student(self, parent_container_id, environment, network_grading, mem_limit, student_path, socket_path):
+        student_path = os.path.abspath(student_path)
+        socket_path = os.path.abspath(socket_path)
+
+        response = self._docker.create_container(
+            environment,
+            stdin_open=True,
+            volumes=['/task/student', '/__parent.sock'],
+            command="_run_student_intern",
+            user="4242",
+            host_config=self._docker.create_host_config(
+                mem_limit=str(mem_limit) + "M",
+                memswap_limit=str(mem_limit) + "M",
+                mem_swappiness=0,
+                oom_kill_disable=True,
+                network_mode=('none' if not network_grading else ('container:' + parent_container_id)),
+                binds={student_path: {'bind': '/task/student'},
+                       socket_path: {'bind': '/__parent.sock'}}
             )
         )
         return response["Id"]
 
     def start_container(self, container_id):
         self._docker.start(container_id)
+
+    def attach_to_container(self, container_id):
+        return self._docker.attach_socket(container_id, {
+            'stdin': 1,
+            'stdout': 1,
+            'stderr': 0,
+            'stream': 1,
+        })
 
     def get_logs(self, container_id):
         stdout = self._docker.logs(container_id, stdout=True, stderr=False).decode('utf8')
