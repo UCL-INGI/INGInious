@@ -273,7 +273,7 @@ class DockerAgent(object):
 
         # Talk to the container
         self._loop.create_task(self.handle_running_container(message.job_id, container_id, message.inputdata, debug,
-                                                             mem_limit, time_limit, hard_time_limit,
+                                                             environment_name, mem_limit, time_limit, hard_time_limit,
                                                              sockets_path, student_path,
                                                              future_results))
 
@@ -288,13 +288,22 @@ class DockerAgent(object):
         # if debug == "ssh":
         #    self._handle_container_ssh_start(docker_connection, container_id, job_id, ssh_callback)
 
-    async def create_student_container(self, job_id, parent_container_id, sockets_path, student_path, socket_id, environment, memory_limit,
+    async def create_student_container(self, job_id, parent_container_id, sockets_path, student_path, socket_id, environment_name, memory_limit,
                                        time_limit, hard_time_limit, share_network, write_stream):
         """
         Creates a new student container.
         :param write_stream: stream on which to write the return value of the container (with a correctly formatted msgpack message)
         """
-        self._logger.debug("Starting new student container... %s %s %s %s %s %s", environment, memory_limit, time_limit, hard_time_limit)
+        self._logger.debug("Starting new student container... %s %s %s %s", environment_name, memory_limit, time_limit, hard_time_limit)
+
+        if environment_name not in self._containers:
+            self._logger.warning("Student container asked for an unknown environment %s (not in aliases)", environment_name)
+            write_stream.write(msgpack.dumps({"type": "run_student_retval", "retval": 254, "socket_id": socket_id}, encoding="utf8",
+                                             use_bin_type=True))
+            await write_stream.drain()
+            return
+
+        environment = self._containers[environment_name]["id"]
 
         try:
             socket_path = os.path.join(sockets_path, str(socket_id) + ".sock")
@@ -304,18 +313,24 @@ class DockerAgent(object):
                                                                                                           student_path, socket_path))
         except:
             self._logger.exception("Cannot create student container!")
-            write_stream.write(msgpack.dumps({"type": "run_student_retval", "retval": 254, "id": socket_id}, encoding="utf8", use_bin_type=True))
+            write_stream.write(msgpack.dumps({"type": "run_student_retval", "retval": 254, "socket_id": socket_id}, encoding="utf8",
+                                             use_bin_type=True))
             await write_stream.drain()
             return
 
         self._student_containers_for_job[job_id].add(container_id)
         self._student_containers_running[container_id] = job_id, parent_container_id, socket_id, write_stream
 
+        # send to the container that the sibling has started
+        write_stream.write(msgpack.dumps({"type": "run_student_started", "socket_id": socket_id}, encoding="utf8", use_bin_type=True))
+        await write_stream.drain()
+
         try:
             await self._loop.run_in_executor(None, lambda: self._docker.start_container(container_id))
         except:
             self._logger.exception("Cannot start student container!")
-            write_stream.write(msgpack.dumps({"type": "run_student_retval", "retval": 254, "id": socket_id}, encoding="utf8", use_bin_type=True))
+            write_stream.write(msgpack.dumps({"type": "run_student_retval", "retval": 254, "socket_id": socket_id}, encoding="utf8",
+                                             use_bin_type=True))
             await write_stream.drain()
             return
 
@@ -325,7 +340,7 @@ class DockerAgent(object):
 
     async def handle_running_container(self, job_id, container_id,
                                        inputdata, debug,
-                                       orig_memory_limit, orig_time_limit, orig_hard_time_limit,
+                                       orig_env, orig_memory_limit, orig_time_limit, orig_hard_time_limit,
                                        sockets_path, student_path,
                                        future_results):
         """ Talk with a container. Sends the initial input. Allows to start student containers """
@@ -355,12 +370,13 @@ class DockerAgent(object):
                         try:
                             self._logger.debug("Received msg %s from container %s", msg["type"], container_id)
                             if msg["type"] == "run_student":
-                                environment = msg["environment"]
+                                environment = msg["environment"] or orig_env
                                 memory_limit = msg["memory_limit"] or orig_memory_limit
                                 time_limit = msg["time_limit"] or orig_time_limit
                                 hard_time_limit = msg["hard_time_limit"] or orig_hard_time_limit
                                 share_network = msg["share_network"]
-                                socket_id = int(msg["socket_id"])
+                                socket_id = msg["socket_id"]
+                                assert "/" not in socket_id
                                 self._loop.create_task(self.create_student_container(job_id, container_id, sockets_path, student_path,
                                                                                      socket_id, environment, memory_limit, time_limit,
                                                                                      hard_time_limit, share_network, write_stream))
@@ -411,7 +427,7 @@ class DockerAgent(object):
         container_id = killed_msg.container_id
         self._logger.debug("Closing student (p2) for %s", container_id)
         try:
-            job_id, parent_container_id, socket_id, write_stream, retval = self._containers_ending[container_id]
+            job_id, parent_container_id, socket_id, write_stream, retval = self._student_containers_ending[container_id]
             del self._student_containers_ending[container_id]
         except:
             self._logger.warning("Student container %s that has finished(p2) was not launched by this agent", str(container_id))
@@ -422,9 +438,12 @@ class DockerAgent(object):
         elif killed_msg.killed_result == "overflow":
             retval = 252
 
-        if not write_stream.closed():
-            write_stream.write(msgpack.dumps({"type": "run_student_retval", "retval": retval, "id": socket_id}, encoding="utf8", use_bin_type=True))
+        try:
+            write_stream.write(msgpack.dumps({"type": "run_student_retval", "retval": retval, "socket_id": socket_id},
+                                             encoding="utf8", use_bin_type=True))
             await write_stream.drain()
+        except:
+            pass # parent container closed
 
     async def handle_job_closing_p1(self, container_id, retval):
         """ First part of the end job handler. Ask the killer pipeline if they killed the container that recently died. Do some cleaning. """
