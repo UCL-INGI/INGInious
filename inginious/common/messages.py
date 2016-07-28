@@ -217,13 +217,17 @@ class BackendJobSSHDebug(metaclass=MessageMeta, msgtype="backend_job_ssh_debug")
         Gives the necessary info to SSH into a job running in ssh debug mode
     """
 
-    def __init__(self, job_id: ClientJobId, private_key: bytes):
+    def __init__(self, job_id: ClientJobId, host: str, port: int, password: str):
         """
         :param job_id: the client-side job id associated with this job
-        :param private_key: private key (as a byte string) that allows to connect to the container
+        :param host: host to which the client should connect
+        :param port: port on which sshd is bound
+        :param password: password that allows to connect to the container
         """
         self.job_id = job_id
-        self.private_key = private_key
+        self.host = host
+        self.port = port
+        self.password = password
 
 
 #################################################################
@@ -425,18 +429,22 @@ class AgentJobDone(metaclass=MessageMeta, msgtype="agent_job_done"):
         self.custom = custom
 
 
-class AgentJobSSHDebug(metaclass=MessageMeta, msgtype="agentjob_ssh_debug"):
+class AgentJobSSHDebug(metaclass=MessageMeta, msgtype="agent_job_ssh_debug"):
     """
         Gives the necessary info to SSH into a job running in ssh debug mode
     """
 
-    def __init__(self, job_id: BackendJobId, private_key: bytes):
+    def __init__(self, job_id: BackendJobId, host: str, port: int, password: str):
         """
         :param job_id: the backend-side job id associated with this job
-        :param private_key: private key (as a byte string) that allows to connect to the container
+        :param host: host to which the client should connect
+        :param port: port on which sshd is bound
+        :param password: password that allows to connect to the container
         """
         self.job_id = job_id
-        self.private_key = private_key
+        self.host = host
+        self.port = port
+        self.password = password
 
 
 #################################################################

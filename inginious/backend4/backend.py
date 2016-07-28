@@ -314,7 +314,8 @@ class Backend(object):
 
     async def handle_agent_job_ssh_debug(self, _, message: AgentJobSSHDebug):
         """Handle an AgentJobSSHDebug message. Send the data back to the client"""
-        await ZMQUtils.send_with_addr(self._client_socket, message.job_id[0], BackendJobSSHDebug(message.job_id[1], message.private_key))
+        await ZMQUtils.send_with_addr(self._client_socket, message.job_id[0], BackendJobSSHDebug(message.job_id[1], message.host, message.port,
+                                                                                                 message.password))
 
     async def handle_agent_batch_job_started(self, agent_addr, message: AgentBatchJobStarted):
         """Handle an AgentBatchJobStarted message. Send the data back to the client"""

@@ -78,7 +78,8 @@ class AbstractJobManager(object, metaclass=ABCMeta):
 
     @abstractmethod
     def new_job(self, task, inputdata, callback, launcher_name="Unknown", debug=False, ssh_callback=None):
-        """ Add a new job. callback is
+        """ Add a new job. Every callback will be called once and only once.
+
         :type task: Task
         :param inputdata: input from the student
         :type inputdata: Storage or dict
@@ -88,8 +89,8 @@ class AbstractJobManager(object, metaclass=ABCMeta):
         :type launcher_name: str
         :param debug: Either True(outputs more info), False(default), or "ssh" (starts a remote ssh server. ssh_callback needs to be defined)
         :type debug: bool or string
-        :param ssh_callback: a callback function that will be called with (conn_id, ssh_key), the needed credentials to connect to the remote ssh
-            server
+        :param ssh_callback: a callback function that will be called with (host, port, password), the needed credentials to connect to the
+                             remote ssh server. May be called with host, port, password being None, meaning no session was open.
         :type ssh_callback: __builtin__.function or __builtin__.instancemethod or None
         :return: the new job id
         """
@@ -154,12 +155,10 @@ class Client(BetterParanoidPirateClient):
 
         # Ensure ssh_callback is called at least once
         try:
-            ssh_callback(job_id, "")  # NB: original ssh_callback was wrapped with _callable_once
+            # NB: original ssh_callback was wrapped with _callable_once
+            await self._loop.run_in_executor(None, lambda: ssh_callback(None, None, None))
         except:
-            pass
-
-        # TODO
-        # self._close_distant_debug_ssh(jobid)
+            self._logger.exception("Error occured while calling ssh_callback for job %s", job_id)
 
         # Call the callback
         try:
@@ -168,8 +167,10 @@ class Client(BetterParanoidPirateClient):
             self._logger.exception("Failed to call the callback function for jobid {}: {}".format(job_id, repr(e)), exc_info=True)
 
     async def _handle_job_ssh_debug(self, message: BackendJobSSHDebug, ssh_callback, **kwargs):
-        # TODO
-        pass
+        try:
+            await self._loop.run_in_executor(None, lambda: ssh_callback(message.host, message.port, message.password))
+        except:
+            self._logger.exception("Error occured while calling ssh_callback for job %s", message.job_id)
 
     async def _handle_batch_job_abort(self, job_id: str):
         await self._handle_batch_job_done(BackendBatchJobDone(job_id, -1, "Backend unavailable, retry later", "", None))
@@ -245,17 +246,24 @@ class Client(BetterParanoidPirateClient):
         :type launcher_name: str
         :param debug: Either True(outputs more info), False(default), or "ssh" (starts a remote ssh server. ssh_callback needs to be defined)
         :type debug: bool or string
-        :param ssh_callback: a callback function that will be called with (conn_id, ssh_key), the needed credentials to connect to the remote ssh
-            server
+        :param ssh_callback: a callback function that will be called with (host, port, password), the needed credentials to connect to the
+                             remote ssh server. May be called with host, port, password being None, meaning no session was open.
         :type ssh_callback: __builtin__.function or __builtin__.instancemethod or None
         :return: the new job id
         """
         job_id = str(uuid.uuid4())
 
+        if debug == "ssh" and ssh_callback is None:
+            self._logger.error("SSH callback not set in %s/%s", task.get_course_id(), task.get_id())
+            callback({"result": "crash", "text": "SSH callback not set."})
+            return
+        # wrap ssh_callback to ensure it is called at most once, and that it can always be called to simplify code
+        ssh_callback = _callable_once(ssh_callback if ssh_callback is not None else lambda: None)
+
         environment = task.get_environment()
         if environment not in self._available_containers:
             self._logger.warning("Env %s not available for task %s/%s", environment, task.get_course_id(), task.get_id())
-            # TODO ssh_callback
+            ssh_callback(None, None, None) # ssh_callback must be called once
             callback({"result": "crash", "text": "Environment not available."})
             return
 
@@ -268,14 +276,14 @@ class Client(BetterParanoidPirateClient):
             mem_limit = int(limits.get('memory', 200))
         except:
             self._logger.exception("Cannot retrieve limits for task %s/%s", task.get_course_id(), task.get_id())
-            # TODO ssh_callback
+            ssh_callback(None, None, None)  # ssh_callback must be called once
             callback({"result": "crash", "text": "Error while reading task limits"})
             return
 
         msg = ClientNewJob(job_id, task.get_course_id(), task.get_id(), inputdata, environment, enable_network, time_limit,
                            hard_time_limit, mem_limit, debug, launcher_name)
         self._loop.call_soon_threadsafe(asyncio.ensure_future, self._create_transaction(msg, task=task, callback=callback,
-                                                                                        ssh_callback=_callable_once(ssh_callback)))
+                                                                                        ssh_callback=ssh_callback))
 
         return job_id
 

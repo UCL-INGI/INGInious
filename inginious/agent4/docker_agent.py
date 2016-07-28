@@ -21,7 +21,7 @@ from inginious.agent4._pipeline import PipelinePush, PipelinePull
 from inginious.common.asyncio_utils import AsyncIteratorWrapper
 from inginious.common.message_meta import ZMQUtils
 from inginious.common.messages import BackendNewJob, AgentJobStarted, BackendNewBatchJob, BackendKillJob, AgentHello, BackendJobId, AgentJobDone, \
-    KWPRegisterContainer, KWPKilledStatus, SPResult, EventContainerDied, EventContainerOOM
+    KWPRegisterContainer, KWPKilledStatus, SPResult, EventContainerDied, EventContainerOOM, AgentJobSSHDebug
 
 
 class DockerAgent(object):
@@ -289,7 +289,7 @@ class DockerAgent(object):
             return
 
         # Talk to the container
-        self._loop.create_task(self.handle_running_container(message.job_id, container_id, message.inputdata, debug,
+        self._loop.create_task(self.handle_running_container(message.job_id, container_id, message.inputdata, debug, ssh_port,
                                                              environment_name, mem_limit, time_limit, hard_time_limit,
                                                              sockets_path, student_path, systemfiles_path,
                                                              future_results))
@@ -352,7 +352,7 @@ class DockerAgent(object):
                             KWPRegisterContainer(container_id, memory_limit, time_limit, hard_time_limit))
 
     async def handle_running_container(self, job_id, container_id,
-                                       inputdata, debug,
+                                       inputdata, debug, ssh_port,
                                        orig_env, orig_memory_limit, orig_time_limit, orig_hard_time_limit,
                                        sockets_path, student_path, systemfiles_path,
                                        future_results):
@@ -383,19 +383,23 @@ class DockerAgent(object):
                         try:
                             self._logger.debug("Received msg %s from container %s", msg["type"], container_id)
                             if msg["type"] == "run_student":
+                                # start a new student container
                                 environment = msg["environment"] or orig_env
                                 memory_limit = msg["memory_limit"] or orig_memory_limit
                                 time_limit = msg["time_limit"] or orig_time_limit
                                 hard_time_limit = msg["hard_time_limit"] or orig_hard_time_limit
                                 share_network = msg["share_network"]
                                 socket_id = msg["socket_id"]
-                                assert "/" not in socket_id
+                                assert "/" not in socket_id # ensure task creator do not try to break the agent :-(
                                 self._loop.create_task(self.create_student_container(job_id, container_id, sockets_path, student_path,
                                                                                      systemfiles_path, socket_id, environment, memory_limit,
                                                                                      time_limit, hard_time_limit, share_network, write_stream))
                             elif msg["type"] == "ssh_key":
+                                # send the data to the backend (and client)
                                 self._logger.info("%s %s", self.running_ssh_debug[container_id], str(msg))
+                                await ZMQUtils.send(self._backend_socket, AgentJobSSHDebug(job_id, self.ssh_host, ssh_port, msg["ssh_key"]))
                             elif msg["type"] == "result":
+                                # last message containing the results of the container
                                 future_results.set_result(msg["result"])
                                 write_stream.close()
                                 sock._sock.close()
@@ -409,9 +413,10 @@ class DockerAgent(object):
                             sock.close()
                             return
         except:
-            pass
+            self._logger.exception("Exception while reading container %s output", container_id)
 
         # EOF without result :-(
+        self._logger.warning("Container %s has not given any result", container_id)
         write_stream.close()
         sock._sock.close()
         sock.close()
