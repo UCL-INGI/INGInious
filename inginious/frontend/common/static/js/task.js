@@ -4,9 +4,9 @@
 //
 "use strict";
 
-function init_task_page(def_download)
+function init_task_page(evaluate)
 {
-    defaultDownload = def_download;
+    evaluatedSubmission = evaluate;
 
     //Init the task form, if we are on the task submission page
     var task_form = $('form#task');
@@ -36,7 +36,7 @@ function init_task_page(def_download)
     });
 }
 
-var defaultDownload = 'best';
+var evaluatedSubmission = 'best';
 //True if loading something
 var loadingSomething = false;
 
@@ -117,12 +117,13 @@ function displayNewSubmission(id)
         "data-submission-id": id
     }).on('click', clickOnSubmission);
 
-    if(defaultDownload == "student") {
+    if(evaluatedSubmission == "student") {
         var actual_link = jQuery('<a/>', {
-         title:"Select for evaluation",
-         "data-toggle":"tooltip",
-         "data-placement": "right"
-         }).appendTo(submission_link).after("&nbsp;&nbsp;").on('click', selectSubmission);
+            class:"allowed",
+            title:"Select for evaluation",
+            "data-toggle":"tooltip",
+            "data-placement": "right"
+        }).appendTo(submission_link).after("&nbsp;&nbsp;").on('click', selectSubmission);
 
          jQuery('<i/>', {class: "fa fa-bookmark fa-fw"}).appendTo(actual_link);
     }

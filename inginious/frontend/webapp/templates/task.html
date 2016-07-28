@@ -103,7 +103,7 @@ $def ColumnF():
                 $elif len(myaggregation['groups']) > 0 and user_manager.session_username() in myaggregation['groups'][0]['students']:
                     Team : $myaggregation['description']
                 $else:
-                    Groups management
+                    Teams management
             </a>
         </div>
 
@@ -134,9 +134,9 @@ $def ColumnF():
 	                        list-group-item-danger
 	                    "
 	                    data-submission-id="$submission['_id']">
-                        $if task.default_download() == 'student' and students == submission['username']:
+                        $if task.get_evaluate() == 'student' and students == submission['username']:
                             <a class="allowed" title="Select for evaluation" data-toggle="tooltip" data-placement="right"><i class="fa fa-bookmark fa-fw"></i></a>&nbsp;
-                        $elif task.default_download() == 'student':
+                        $elif task.get_evaluate() == 'student':
                             <a class="notallowed" title="Not the same $('group' if course.use_classrooms() else 'team')" data-toggle="tooltip" data-placement="right"><i class="fa fa-minus-circle fa-fw"></i></a>&nbsp;
 
                         <span>$submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S") - $submission.get("grade",0.0)%</span>
@@ -229,6 +229,6 @@ $if user_manager.has_admin_rights_on_course(course):
 
 <script type="text/javascript">
 $$(document).ready(function() {
-    init_task_page("$task.default_download()");
+    init_task_page("$task.get_evaluate()");
 });
 </script>

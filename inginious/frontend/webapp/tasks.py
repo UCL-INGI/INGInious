@@ -27,7 +27,7 @@ class WebAppTask(FrontendTask):
         self._groups = bool(self._data.get("groups", False))
 
         # Default download
-        self._def_download = self._data.get("def_download", "best")
+        self._evaluate = self._data.get("evaluate", "best")
 
         # Submission storage
         self._store_only_last = bool(self._data.get("store_only_last", False))
@@ -61,10 +61,10 @@ class WebAppTask(FrontendTask):
         """ Indicates if the task submission mode is per groups """
         return self._groups
 
-    def default_download(self):
+    def get_evaluate(self):
         """ Indicates the default download for the task """
-        return self._def_download
+        return self._evaluate
 
-    def store_only_last(self):
+    def get_store_only_last(self):
         """ Indicates if only the last submission must be stored for the task """
         return self._store_only_last

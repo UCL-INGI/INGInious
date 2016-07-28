@@ -383,9 +383,9 @@ class UserManager(AbstractUserManager):
                                                        "grade": {"$lt": job["grade"]}}, {"$set": {"grade": job["grade"]}})
 
         # Check if the submission is the default download
-        set_default = task.default_download() == 'last' or \
-                      (task.default_download() == 'student' and old_submission is None) or \
-                      (task.default_download() == 'best' and old_submission.get('grade', 0.0) <= job["grade"])
+        set_default = task.get_evaluate() == 'last' or \
+                      (task.get_evaluate() == 'student' and old_submission is None) or \
+                      (task.get_evaluate() == 'best' and old_submission.get('grade', 0.0) <= job["grade"])
 
         if set_default:
             self._database.user_tasks.find_and_modify(

@@ -70,7 +70,7 @@ class TaskPage(INGIniousPage):
                     if task.is_group_task() and not self.user_manager.has_admin_rights_on_course(course, username):
                         for index, group in enumerate(self.user_manager.get_course_user_aggregation(course)["groups"]):
                             if self.user_manager.session_username() in group["students"]:
-                                students = group
+                                students = group["students"]
                     else:
                         students = [username]
 
@@ -176,7 +176,7 @@ class TaskPage(INGIniousPage):
                     return json.dumps({'status': 'done'})
                 elif "@action" in userinput and userinput["@action"] == "set_submission" and "submissionid" in userinput:
                     web.header('Content-Type', 'application/json')
-                    if task.default_download() != 'student':
+                    if task.get_evaluate() != 'student':
                         return json.dumps({'status': "error"})
 
                     submission = self.submission_manager.get_submission(userinput["submissionid"])
@@ -186,7 +186,7 @@ class TaskPage(INGIniousPage):
                     if task.is_group_task() and not is_admin:
                         for index, group in enumerate(self.user_manager.get_course_user_aggregation(course)["groups"]):
                             if self.user_manager.session_username() in group["students"]:
-                                students = group
+                                students = group["students"]
                     else:
                         students = [username]
 

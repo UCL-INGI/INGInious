@@ -260,25 +260,6 @@ class SubmissionManager(object):
         """ Returns a given number (default 5) of submissions of task from the course given"""
         return self.get_user_last_submissions({"courseid": course.get_id(), "taskid": {"$in": course.get_tasks().keys()}}, limit, one_per_task)
 
-    @classmethod
-    def keep_best_submission(cls, submissions):
-        """ Command used to only keep the best submission, if any """
-        submissions.sort(key=lambda item: item['submitted_on'], reverse=True)
-        tasks = {}
-        for sub in submissions:
-            if sub["taskid"] not in tasks:
-                tasks[sub["taskid"]] = {}
-            for username in sub["username"]:
-                if username not in tasks[sub["taskid"]]:
-                    tasks[sub["taskid"]][username] = sub
-                elif tasks[sub["taskid"]][username].get("grade", 0.0) < sub.get("grade", 0.0):
-                    tasks[sub["taskid"]][username] = sub
-        final_subs = []
-        for task in tasks.itervalues():
-            for sub in task.itervalues():
-                final_subs.append(sub)
-        return final_subs
-
     def get_gridfs(self):
         """ Returns the GridFS used by the submission manager """
         return self._gridfs
