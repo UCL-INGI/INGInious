@@ -184,6 +184,7 @@ function setSelectedSubmission(id) {
         .done(function(data)
         {
             var submission_link = jQuery('<a/>', {
+                id:"my_submission",
                 class: "submission list-group-item list-group-item-info",
                 "data-submission-id": id
             }).on('click', clickOnSubmission);
@@ -191,7 +192,7 @@ function setSelectedSubmission(id) {
             jQuery('<i/>', {class: "fa fa-chevron-right fa-fw"}).appendTo(submission_link).after("&nbsp;");
             submission_link.append(text);
 
-            $("#my_submission").fadeOut(function() {$(this).empty().append(submission_link).fadeIn()});
+            $("#my_submission").fadeOut(function() {$(this).replaceWith(submission_link.fadeIn().removeAttr('style'));});
 
         });
 }

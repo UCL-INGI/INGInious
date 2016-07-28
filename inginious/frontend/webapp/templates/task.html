@@ -110,14 +110,22 @@ $def ColumnF():
     $:template_helper.call('task_menu', course=course, task=task, template_helper=template_helper)
 
     <h3>For evaluation</h3>
-    <div id="my_submission" class="list-group">
+    <div class="list-group">
+        <div class="list-group-item list-group-item-info"><i class="fa fa-info fa-fw"></i>
+            $if task.get_evaluate() == "last":
+                Last submission
+            $elif task.get_evaluate() == "best":
+                Best submission
+            $else:
+                Selected submission
+        </div>
         $if eval_submission:
-            <a class="submission list-group-item list-group-item-info" data-submission-id="$eval_submission['_id']">
+            <a id="my_submission" class="submission list-group-item list-group-item-info" data-submission-id="$eval_submission['_id']">
                 <i class="fa fa-chevron-right fa-fw"></i>
                 $eval_submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S") - $eval_submission.get("grade",0.0)%
             </a>
         $else:
-            <a class="list-group-item disabled submission-empty">No submission</a>
+            <div id="my_submission" class="list-group-item list-group-item-info"><i class="fa fa-chevron-right fa-fw"></i> No submission</div>
     </div>
 
     <h3>Submission history</h3>
