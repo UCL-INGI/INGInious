@@ -25,24 +25,20 @@ $def ColumnF():
         <tr>
             <td>Status</td>
             <td id="task_status">
-                $if len(submissions) == 0:
+                $if not eval_submission and len(submissions) == 0:
                     Not yet attempted
-                $else:
-                    $ succeeded=False
-                    $ waiting=False   
-                    $for submission in submissions:
-                        $if submission["status"] == "done" and submission["result"] == "success":
-                            $ succeeded=True
-                            $break
-                        $elif submission["status"] == "waiting":
-                            $ waiting=True
-                            $break
-                    $if succeeded:
+                $elif eval_submission["status"] == "done" and eval_submission["result"] == "success":
                         Succeeded
-                    $elif waiting:
+                $else:
+                    $ waiting=False
+                    $for submission in submissions:
+                            $if submission["status"] == "waiting":
+                                $ waiting=True
+                                $break
+                    $if waiting:
                         Waiting for verification
                     $else:
-                        Wrong answer
+                        Failed
             </td>
         </tr>
         <tr>
@@ -147,7 +143,10 @@ $def ColumnF():
                         $elif task.get_evaluate() == 'student':
                             <a class="notallowed" title="Not the same $('group' if course.use_classrooms() else 'team')" data-toggle="tooltip" data-placement="right"><i class="fa fa-minus-circle fa-fw"></i></a>&nbsp;
 
-                        <span>$submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S") - $submission.get("grade",0.0)%</span>
+                        $if "grade" in submission:
+                            <span>$submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S") - $submission["grade"]%</span>
+                        $else:
+                            <span>$submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S")</span>
 	                </li>
 
 	        $else:

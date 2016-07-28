@@ -193,7 +193,9 @@ class TaskPage(INGIniousPage):
                     # Check if group/team is the same
                     if students == submission["username"]:
                         self.database.user_tasks.update_many({"courseid": courseid, "taskid": taskid, "username": {"$in": students}},
-                                                                     {"$set": {"submissionid": submission['_id']}})
+                                                                     {"$set": {"submissionid": submission['_id'],
+                                                                               "grade": submission['grade'],
+                                                                               "succeeded": submission["result"] == "success"}})
                         return json.dumps({'status': 'done'})
                     else:
                         return json.dumps({'status': 'error'})

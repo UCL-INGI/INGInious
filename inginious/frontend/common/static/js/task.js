@@ -100,10 +100,8 @@ function updateTaskStatus(newStatus, grade)
     var currentStatus = task_status.text().trim();
     var currentGrade = parseFloat(task_grade.text().trim());
 
-    if(currentStatus != "Succeeded")
-        task_status.text(newStatus);
-    if(currentGrade < grade)
-        task_grade.text(grade);
+    task_status.text(newStatus);
+    task_grade.text(grade);
 }
 
 //Creates a new submission (left column)
@@ -165,11 +163,11 @@ function selectSubmission(e) {
     var id = item.attr('data-submission-id');
 
     if($(this).hasClass('allowed'))
-        setSelectedSubmission(id);
+        setSelectedSubmission(id, true);
 }
 
 // Set selected submission
-function setSelectedSubmission(id) {
+function setSelectedSubmission(id, fade) {
     var item;
 
     $('#submissions').find('.submission').each(function() {
@@ -177,24 +175,33 @@ function setSelectedSubmission(id) {
             item = $(this)
     });
 
-    var text = item.find("span").html();
-    var url = $('form#task').attr("action");
+    // LTI does not support selecting a specific submission for evaluation
+    if($("#my_submission").length) {
+        var text = item.find("span").html();
+        var url = $('form#task').attr("action");
 
-    jQuery.post(url, {"@action": "set_submission", "submissionid": id}, null, "json")
-        .done(function(data)
-        {
-            var submission_link = jQuery('<a/>', {
-                id:"my_submission",
-                class: "submission list-group-item list-group-item-info",
-                "data-submission-id": id
-            }).on('click', clickOnSubmission);
+        jQuery.post(url, {"@action": "set_submission", "submissionid": id}, null, "json")
+            .done(function (data) {
+                var submission_link = jQuery('<a/>', {
+                    id: "my_submission",
+                    class: "submission list-group-item list-group-item-info",
+                    "data-submission-id": id
+                }).on('click', clickOnSubmission);
 
-            jQuery('<i/>', {class: "fa fa-chevron-right fa-fw"}).appendTo(submission_link).after("&nbsp;");
-            submission_link.append(text);
+                jQuery('<i/>', {class: "fa fa-chevron-right fa-fw"}).appendTo(submission_link).after("&nbsp;");
+                submission_link.append(text);
 
-            $("#my_submission").fadeOut(function() {$(this).replaceWith(submission_link.fadeIn().removeAttr('style'));});
+                if (fade) {
+                    $("#my_submission").fadeOut(function () {
+                        $(this).replaceWith(submission_link.fadeIn().removeAttr('style'));
+                    });
+                } else {
+                    $("#my_submission").replaceWith(submission_link);
+                }
+            });
+    }
 
-        });
+    updateTaskStatus(item.hasClass("list-group-item-success") ? "Succeeded" : "Failed", parseFloat(item.text().split("-")[1]));
 }
 
 //Submission's click handler
@@ -377,61 +384,59 @@ function waitForSubmission(submissionid)
                     {
                         displayTaskStudentErrorAlert(data);
                         updateSubmission(submissionid, data['result'], data["grade"]);
-                        updateTaskStatus("Wrong answer", data["grade"]);
                         unblurTaskForm();
                     }
                     else if(data['result'] == "success")
                     {
                         displayTaskStudentSuccessAlert(data);
                         updateSubmission(submissionid, data['result'], data["grade"]);
-                        updateTaskStatus("Succeeded", data["grade"]);
                         unblurTaskForm();
                     }
                     else if(data['result'] == "timeout")
                     {
                         displayTimeOutAlert(data);
                         updateSubmission(submissionid, data['result'], data["grade"]);
-                        updateTaskStatus("Wrong answer", data["grade"]);
                         unblurTaskForm();
                     }
                     else if(data['result'] == "overflow")
                     {
                         displayOverflowAlert(data);
                         updateSubmission(submissionid, data['result'], data["grade"]);
-                        updateTaskStatus("Wrong answer", data["grade"]);
                         unblurTaskForm();
                     }
                     else if(data['result'] == "killed")
                     {
                         displayKilledAlert(data);
                         updateSubmission(submissionid, data['result'], data["grade"]);
-                        updateTaskStatus("Wrong answer", data["grade"]);
                         unblurTaskForm();
                     }
                     else // == "error"
                     {
                         displayTaskErrorAlert(data);
                         updateSubmission(submissionid, data['result'], data["grade"]);
-                        updateTaskStatus("Wrong answer", data["grade"]);
                         unblurTaskForm();
+                    }
+
+                    if("replace" in data && data["replace"]) {
+                        setSelectedSubmission(submissionid, true);
+                    } else {
+                        setSelectedSubmission($('#my_submission').attr('data-submission-id'), false);
                     }
                 }
                 else
                 {
                     displayTaskErrorAlert({});
                     updateSubmission(submissionid, "error", "0.0");
-                    updateTaskStatus("Wrong answer", 0);
+                    updateTaskStatus("Failed", 0);
                     unblurTaskForm();
                 }
 
-                if("replace" in data && data["replace"])
-                    setSelectedSubmission(submissionid);
             })
             .fail(function()
             {
                 displayTaskErrorAlert({});
                 updateSubmission(submissionid, "error", "0.0");
-                updateTaskStatus("Wrong answer", 0);
+                updateTaskStatus("Failed", 0);
                 unblurTaskForm();
             });
     }, 1000);

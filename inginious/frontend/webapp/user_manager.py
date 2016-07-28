@@ -368,19 +368,8 @@ class UserManager(AbstractUserManager):
         """ Update stats with a new submission """
         self.user_saw_task(username, submission["courseid"], submission["taskid"])
 
-        # Update inc counter
-        old_submission = self._database.user_tasks.find_one_and_update({"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]},
-                                         {"$inc": {"tried": 1}})
-
-        # Set to succeeded if not succeeded yet
-        if job["result"] == "success":
-            self._database.user_tasks.find_and_modify({"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"],
-                                                       "succeeded": False},
-                                                      {"$set": {"succeeded": True}})
-
-            # Update the grade if needed
-            self._database.user_tasks.find_and_modify({"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"],
-                                                       "grade": {"$lt": job["grade"]}}, {"$set": {"grade": job["grade"]}})
+        old_submission = self._database.user_tasks.find_one_and_update(
+            {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]}, {"$inc": {"tried": 1}})
 
         # Check if the submission is the default download
         set_default = task.get_evaluate() == 'last' or \
@@ -388,8 +377,9 @@ class UserManager(AbstractUserManager):
                       (task.get_evaluate() == 'best' and old_submission.get('grade', 0.0) <= job["grade"])
 
         if set_default:
-            self._database.user_tasks.find_and_modify(
-                {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]}, {"$set": {"submissionid": submission['_id']}})
+            self._database.user_tasks.find_one_and_update(
+                {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]},
+                {"$set": {"succeeded": job["result"] == "success", "grade": job["grade"],"submissionid": submission['_id']}})
 
     def get_course_grade(self, course, username=None):
         """

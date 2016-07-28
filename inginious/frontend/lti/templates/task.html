@@ -61,7 +61,10 @@ $def ColumnF():
 	                        list-group-item-danger
 	                    "
 	                    data-submission-id="$submission['_id']">
-	                    <span>$submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S") - $submission.get("grade",0.0)%</span>
+	                    $if "grade" in submission:
+                            <span>$submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S") - $submission["grade"]%</span>
+                        $else:
+                            <span>$submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S")</span>
 	                </li>
 	        $else:
 	            <li class="list-group-item disabled submission-empty">No submissions</li>
