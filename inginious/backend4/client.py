@@ -104,18 +104,6 @@ class AbstractJobManager(object, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def is_remote_debug_active(self):
-        """
-        :return: True if remote container debugging via SSH is activated, False else.
-        """
-        return False
-
-    @abstractmethod
-    def get_socket_to_debug_ssh(self, job_id):
-        """ Get a socket to the remote ssh server identified by the job_id. Returns None if the conn_id is expired or not valid. """
-        return None
-
-    @abstractmethod
     def kill_job(self, job_id):
         """
         Kills a running job
@@ -315,18 +303,6 @@ class Client(BetterParanoidPirateClient):
         self._loop.call_soon_threadsafe(asyncio.ensure_future, self._create_transaction(msg, callback=callback))
 
         return job_id
-
-    def is_remote_debug_active(self):
-        """
-        :return: True if remote container debugging via SSH is activated, False else.
-        """
-        # TODO
-        return False
-
-    def get_socket_to_debug_ssh(self, job_id):
-        """ Get a socket to the remote ssh server identified by the job_id. Returns None if the conn_id is expired or not valid. """
-        # TODO
-        return None
 
     def kill_job(self, job_id):
         """

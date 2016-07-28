@@ -112,6 +112,19 @@ class DockerInterface(object):
 
         return parsed
 
+    def get_host_ip(self, env_with_dig='ingi/inginious-c-default'):
+        """
+        Get the external IP of the host of the docker daemon. Uses OpenDNS internally.
+        :param env_with_dig: any container image that has dig
+        """
+        try:
+            response = self._docker.create_container(env_with_dig, command="dig +short myip.opendns.com @resolver1.opendns.com")
+            self._docker.start(response['Id'])
+            assert self._docker.wait(response['Id']) == 0
+            return self._docker.logs(response['Id'], stdout=True, stderr=False).decode('utf8').strip()
+        except:
+            return None
+
     def create_container(self, environment, network_grading, mem_limit, task_path, sockets_path, ssh_port=None):
         """
         Creates a container.

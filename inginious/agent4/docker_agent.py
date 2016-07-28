@@ -25,12 +25,13 @@ from inginious.common.messages import BackendNewJob, AgentJobStarted, BackendNew
 
 
 class DockerAgent(object):
-    def __init__(self, context, backend_addr, nb_sub_agents, task_directory, ssh_ports = None, tmp_dir="./agent_tmp"):
+    def __init__(self, context, backend_addr, nb_sub_agents, task_directory, ssh_host = None, ssh_ports = None, tmp_dir="./agent_tmp"):
         """
         :param context: ZeroMQ context for this process
         :param backend_addr: address of the backend (for example, "tcp://127.0.0.1:2222")
         :param nb_sub_agents: nb of slots available for this agent
         :param task_directory: path to the task directory
+        :param ssh_host: hostname/ip/... to which external client should connect to access to an ssh remote debug session
         :param ssh_ports: iterable containing ports to which the docker instance can assign ssh servers (for remote debugging)
         :param tmp_dir: temp dir that is used by the agent to start new containers
         """
@@ -65,14 +66,6 @@ class DockerAgent(object):
         except OSError:
             pass
 
-        # TODO centos img?
-        # Assert that the folders are *really* empty
-        # self._force_directory_empty(tmp_dir)
-
-        # SSH remote debug
-        self.ssh_ports = set(ssh_ports) if ssh_ports is not None else set()
-        self.running_ssh_debug = {} # container_id : ssh_port
-
         # Docker
         self._docker = DockerInterface()
 
@@ -80,6 +73,19 @@ class DockerAgent(object):
         self._logger.info("Discovering containers")
         self._containers = self._docker.get_containers()
         self._batch_containers = self._docker.get_batch_containers()
+
+        # SSH remote debug
+        self.ssh_host = ssh_host
+        if self.ssh_host is None and len(self._containers) != 0:
+            self._logger.info("Guessing external host IP")
+            self.ssh_host = self._docker.get_host_ip(next(iter(self._containers.values()))["id"])
+        if self.ssh_host is None:
+            self._logger.warning("Cannot find external host IP. Please indicate it in the configuration. Remote SSH debug has been deactivated.")
+            ssh_ports = None
+        else:
+            self._logger.info("External address for SSH remote debug is %s", self.ssh_host)
+        self.ssh_ports = set(ssh_ports) if ssh_ports is not None else set()
+        self.running_ssh_debug = {}  # container_id : ssh_port
 
         # Sockets
         self._backend_socket = self._context.socket(zmq.DEALER)
