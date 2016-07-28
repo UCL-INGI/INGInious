@@ -142,7 +142,7 @@ class DockerInterface(object):
         )
         return response["Id"]
 
-    def create_container_student(self, parent_container_id, environment, network_grading, mem_limit, student_path, socket_path):
+    def create_container_student(self, parent_container_id, environment, network_grading, mem_limit, student_path, socket_path, systemfiles_path):
         """
         Creates a student container
         :param parent_container_id: id of the "parent" container
@@ -151,16 +151,17 @@ class DockerInterface(object):
         :param mem_limit: in Mo
         :param student_path: path to the task directory that will be mounted in the container
         :param socket_path: path to the socket that will be mounted in the container
+        :param systemfiles_path: path to the systemfiles folder containing files that can override partially some defined system files
         """
         student_path = os.path.abspath(student_path)
         socket_path = os.path.abspath(socket_path)
+        systemfiles_path = os.path.abspath(systemfiles_path)
 
         response = self._docker.create_container(
             environment,
             stdin_open=True,
-            volumes=['/task/student', '/__parent.sock'],
+            volumes=['/task/student', '/__parent.sock', '/task/systemfiles'],
             command="_run_student_intern",
-            user="4242",
             host_config=self._docker.create_host_config(
                 mem_limit=str(mem_limit) + "M",
                 memswap_limit=str(mem_limit) + "M",
@@ -168,7 +169,8 @@ class DockerInterface(object):
                 oom_kill_disable=True,
                 network_mode=('none' if not network_grading else ('container:' + parent_container_id)),
                 binds={student_path: {'bind': '/task/student'},
-                       socket_path: {'bind': '/__parent.sock'}}
+                       socket_path: {'bind': '/__parent.sock'},
+                       systemfiles_path: {'bind': '/task/systemfiles', 'mode': 'ro'}}
             )
         )
         return response["Id"]

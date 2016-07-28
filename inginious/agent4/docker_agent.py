@@ -226,7 +226,7 @@ class DockerAgent(object):
         task_path = os.path.join(container_path, 'task')  # tmp_dir/id/task/
         sockets_path = os.path.join(container_path, 'sockets')  # tmp_dir/id/socket/
         student_path = os.path.join(task_path, 'student')  # tmp_dir/id/task/student/
-
+        systemfiles_path = os.path.join(task_path, 'systemfiles')  # tmp_dir/id/task/systemfiles/
         try:
             rmtree(container_path)
         except:
@@ -274,7 +274,7 @@ class DockerAgent(object):
         # Talk to the container
         self._loop.create_task(self.handle_running_container(message.job_id, container_id, message.inputdata, debug,
                                                              environment_name, mem_limit, time_limit, hard_time_limit,
-                                                             sockets_path, student_path,
+                                                             sockets_path, student_path, systemfiles_path,
                                                              future_results))
 
         # Ask the "cgroup" thread to verify the timeout/memory limit
@@ -288,8 +288,8 @@ class DockerAgent(object):
         # if debug == "ssh":
         #    self._handle_container_ssh_start(docker_connection, container_id, job_id, ssh_callback)
 
-    async def create_student_container(self, job_id, parent_container_id, sockets_path, student_path, socket_id, environment_name, memory_limit,
-                                       time_limit, hard_time_limit, share_network, write_stream):
+    async def create_student_container(self, job_id, parent_container_id, sockets_path, student_path, systemfiles_path, socket_id, environment_name,
+                                       memory_limit, time_limit, hard_time_limit, share_network, write_stream):
         """
         Creates a new student container.
         :param write_stream: stream on which to write the return value of the container (with a correctly formatted msgpack message)
@@ -310,7 +310,8 @@ class DockerAgent(object):
             container_id = await self._loop.run_in_executor(None,
                                                             lambda: self._docker.create_container_student(parent_container_id, environment,
                                                                                                           share_network, memory_limit,
-                                                                                                          student_path, socket_path))
+                                                                                                          student_path, socket_path,
+                                                                                                          systemfiles_path))
         except:
             self._logger.exception("Cannot create student container!")
             write_stream.write(msgpack.dumps({"type": "run_student_retval", "retval": 254, "socket_id": socket_id}, encoding="utf8",
@@ -341,7 +342,7 @@ class DockerAgent(object):
     async def handle_running_container(self, job_id, container_id,
                                        inputdata, debug,
                                        orig_env, orig_memory_limit, orig_time_limit, orig_hard_time_limit,
-                                       sockets_path, student_path,
+                                       sockets_path, student_path, systemfiles_path,
                                        future_results):
         """ Talk with a container. Sends the initial input. Allows to start student containers """
         sock = await self._loop.run_in_executor(None, lambda: self._docker.attach_to_container(container_id))
@@ -378,8 +379,8 @@ class DockerAgent(object):
                                 socket_id = msg["socket_id"]
                                 assert "/" not in socket_id
                                 self._loop.create_task(self.create_student_container(job_id, container_id, sockets_path, student_path,
-                                                                                     socket_id, environment, memory_limit, time_limit,
-                                                                                     hard_time_limit, share_network, write_stream))
+                                                                                     systemfiles_path, socket_id, environment, memory_limit,
+                                                                                     time_limit, hard_time_limit, share_network, write_stream))
                             elif msg["type"] == "ssh_key":
                                 # TODO: ssh debug
                                 pass
@@ -516,14 +517,6 @@ class DockerAgent(object):
 
         # Remove container
         self._loop.run_in_executor(None, lambda: self._docker.remove_container(container_id))
-
-        # TODO run_student
-        # Remove subcontainers
-        # for i in container_set:
-        #    # Also deletes them from the timeout/memory watchers
-        #    self._timeout_watcher.container_had_error(container_id)
-        #    self._memory_watcher.container_had_error(container_id)
-        #    _thread.start_new_thread(docker_connection.remove_container, (i, True, False, True))
 
         # Delete folders
         rmtree(container_path)
