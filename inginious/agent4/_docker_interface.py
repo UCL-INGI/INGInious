@@ -112,7 +112,7 @@ class DockerInterface(object):
 
         return parsed
 
-    def create_container(self, environment, debug, network_grading, mem_limit, task_path, sockets_path):
+    def create_container(self, environment, network_grading, mem_limit, task_path, sockets_path, ssh_port=None):
         """
         Creates a container.
         :param environment: env to start (name/id of a docker image)
@@ -121,6 +121,7 @@ class DockerInterface(object):
         :param mem_limit: in Mo
         :param task_path: path to the task directory that will be mounted in the container
         :param sockets_path: path to the socket directory that will be mounted in the container
+        :param ssh_port: port that will be bound to 22 inside the container
         """
         task_path = os.path.abspath(task_path)
         sockets_path = os.path.abspath(sockets_path)
@@ -128,16 +129,17 @@ class DockerInterface(object):
         response = self._docker.create_container(
             environment,
             stdin_open=True,
+            ports=[22] if ssh_port is not None else [],
             volumes=['/task', '/sockets'],
-            # network_disabled=not (network_grading or debug == "ssh"), #set in host_config, makes docker do strange things instead
             host_config=self._docker.create_host_config(
                 mem_limit=str(mem_limit) + "M",
                 memswap_limit=str(mem_limit) + "M",
                 mem_swappiness=0,
                 oom_kill_disable=True,
-                network_mode=("bridge" if (network_grading or debug == "ssh") else 'none'),
+                network_mode=("bridge" if (network_grading or ssh_port is not None) else 'none'),
                 binds={task_path: {'bind': '/task'},
-                       sockets_path: {'bind': '/sockets'}}
+                       sockets_path: {'bind': '/sockets'}},
+                port_bindings = {22:ssh_port} if ssh_port is not None else {}
             )
         )
         return response["Id"]

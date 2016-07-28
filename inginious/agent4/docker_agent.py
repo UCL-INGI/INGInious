@@ -25,14 +25,13 @@ from inginious.common.messages import BackendNewJob, AgentJobStarted, BackendNew
 
 
 class DockerAgent(object):
-    def __init__(self, context, backend_addr, nb_sub_agents, task_directory, ssh_manager_location,
-                 tmp_dir="./agent_tmp"):
+    def __init__(self, context, backend_addr, nb_sub_agents, task_directory, ssh_ports = None, tmp_dir="./agent_tmp"):
         """
         :param context: ZeroMQ context for this process
         :param backend_addr: address of the backend (for example, "tcp://127.0.0.1:2222")
         :param nb_sub_agents: nb of slots available for this agent
         :param task_directory: path to the task directory
-        :param ssh_manager_location: port or filename(unix socket) to bind to. If None, remote debugging is deactivated
+        :param ssh_ports: iterable containing ports to which the docker instance can assign ssh servers (for remote debugging)
         :param tmp_dir: temp dir that is used by the agent to start new containers
         """
         self._logger = logging.getLogger("inginious.agent.docker")
@@ -69,11 +68,10 @@ class DockerAgent(object):
         # TODO centos img?
         # Assert that the folders are *really* empty
         # self._force_directory_empty(tmp_dir)
-        # TODO ssh debug
-        # if ssh_manager_location is not None:
-        #    self.remote_ssh_manager = RemoteSSHManager(ssh_manager_location)
-        # else:
-        #    self.remote_ssh_manager = None
+
+        # SSH remote debug
+        self.ssh_ports = set(ssh_ports) if ssh_ports is not None else set()
+        self.running_ssh_debug = {} # container_id : ssh_port
 
         # Docker
         self._docker = DockerInterface()
@@ -185,9 +183,6 @@ class DockerAgent(object):
         Handles a new job: starts the grading container
         """
         self._logger.info("Received request for jobid %s", message.job_id)
-        if message.debug == "ssh" and False:
-            await self.send_job_result(message.job_id, "crash", 'Remote debugging is not activated on this agent.')
-            return
 
         course_id = message.course_id
         task_id = message.task_id
@@ -216,9 +211,19 @@ class DockerAgent(object):
 
         environment = self._containers[environment_name]["id"]
 
-        if debug == "ssh":  # allow 30 minutes of real time.
+        # Handle ssh debugging
+        ssh_port = None
+        if debug == "ssh":
+            # allow 30 minutes of real time.
             time_limit = 30 * 60
             hard_time_limit = 30 * 60
+
+            # select a port
+            if len(self.ssh_ports) == 0:
+                self._logger.warning("User asked for an ssh debug but no ports are available")
+                await self.send_job_result(message.job_id, "crash", 'No slots are available for SSH debug right now. Please retry later.')
+                return
+            ssh_port = self.ssh_ports.pop()
 
         # Remove possibly existing older folder and creates the new ones
         internal_job_id = self._get_new_internal_job_id()
@@ -248,12 +253,14 @@ class DockerAgent(object):
 
         # Run the container
         try:
-            container_id = await self._loop.run_in_executor(None, lambda: self._docker.create_container(environment, debug, enable_network,
-                                                                                                        mem_limit, task_path, sockets_path))
+            container_id = await self._loop.run_in_executor(None, lambda: self._docker.create_container(environment, enable_network, mem_limit,
+                                                                                                        task_path, sockets_path, ssh_port))
         except Exception as e:
             self._logger.warning("Cannot create container! %s", str(e), exc_info=True)
             await self.send_job_result(message.job_id, "crash", 'Cannot start container')
             rmtree(container_path)
+            if ssh_port is not None:
+                self.ssh_ports.add(ssh_port)
             return
 
         # Store info
@@ -261,6 +268,8 @@ class DockerAgent(object):
         self._containers_running[container_id] = message, container_path, future_results
         self._container_for_job[message.job_id] = container_id
         self._student_containers_for_job[message.job_id] = set()
+        if ssh_port is not None:
+            self.running_ssh_debug[container_id] = ssh_port
 
         try:
             # Start the container
@@ -269,6 +278,8 @@ class DockerAgent(object):
             self._logger.warning("Cannot start container! %s", str(e), exc_info=True)
             await self.send_job_result(message.job_id, "crash", 'Cannot start container')
             rmtree(container_path)
+            if ssh_port is not None:
+                self.ssh_ports.add(ssh_port)
             return
 
         # Talk to the container
@@ -282,11 +293,6 @@ class DockerAgent(object):
 
         # Tell the backend/client the job has started
         await ZMQUtils.send(self._backend_socket, AgentJobStarted(message.job_id))
-
-        # If ssh mode is activated, get the ssh key
-        # TODO SSH Debug
-        # if debug == "ssh":
-        #    self._handle_container_ssh_start(docker_connection, container_id, job_id, ssh_callback)
 
     async def create_student_container(self, job_id, parent_container_id, sockets_path, student_path, systemfiles_path, socket_id, environment_name,
                                        memory_limit, time_limit, hard_time_limit, share_network, write_stream):
@@ -382,8 +388,7 @@ class DockerAgent(object):
                                                                                      systemfiles_path, socket_id, environment, memory_limit,
                                                                                      time_limit, hard_time_limit, share_network, write_stream))
                             elif msg["type"] == "ssh_key":
-                                # TODO: ssh debug
-                                pass
+                                self._logger.info("%s %s", self.running_ssh_debug[container_id], str(msg))
                             elif msg["type"] == "result":
                                 future_results.set_result(msg["result"])
                                 write_stream.close()
@@ -416,9 +421,15 @@ class DockerAgent(object):
             self._logger.warning("Student container %s that has finished(p1) was not launched by this agent", str(container_id), exc_info=True)
             return
 
+        # Delete remaining student containers
         if job_id in self._student_containers_for_job:  # if it does not exists, then the parent container has closed
             self._student_containers_for_job[job_id].remove(container_id)
         self._student_containers_ending[container_id] = (job_id, parent_container_id, socket_id, write_stream, retval)
+
+        # Allow other container to reuse the ssh port this container has finished to use
+        if container_id in self.running_ssh_debug:
+            self.ssh_ports.add(self.running_ssh_debug[container_id])
+            del self.running_ssh_debug[container_id]
 
         await ZMQUtils.send(self._killer_watcher_push.get_push_socket(),
                             KWPKilledStatus(container_id, self._containers_killed[container_id] if container_id in self._containers_killed else None))
@@ -476,11 +487,6 @@ class DockerAgent(object):
         except:
             self._logger.warning("Container %s that has finished(p2) was not launched by this agent", str(container_id))
             return
-
-        # TODO: debug ssh
-        # debug = message.debug
-        # if debug == "ssh":
-        #     self._handle_container_ssh_close(job_id)
 
         result = "crash" if retval == -1 else None
         error_msg = None
