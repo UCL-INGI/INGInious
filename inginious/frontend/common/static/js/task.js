@@ -4,9 +4,15 @@
 //
 "use strict";
 
-function init_task_page(evaluate)
+function init_task_page(evaluate, max_task_subs, max_subs)
 {
     evaluatedSubmission = evaluate;
+    if(max_subs <= 0)
+        maxSubmissions = max_task_subs;
+    else if(max_task_subs <= 0)
+        maxSubmissions = max_subs;
+    else
+        maxSubmissions = Math.min(max_task_subs, max_subs);
 
     //Init the task form, if we are on the task submission page
     var task_form = $('form#task');
@@ -39,6 +45,7 @@ function init_task_page(evaluate)
 var evaluatedSubmission = 'best';
 //True if loading something
 var loadingSomething = false;
+var maxSubmissions = 0;
 
 //Task page: find an editor by problem id
 function getEditorForProblemId(problemId)
@@ -130,9 +137,14 @@ function displayNewSubmission(id)
     submissions.prepend(submission_link);
 
     $("body").tooltip({
-    selector: '[data-toggle="tooltip"]'
-});
+        selector: '[data-toggle="tooltip"]'
+    });
 
+    if(maxSubmissions > 0) {
+        var subs = $(".submission");
+        if(subs.length > maxSubmissions)
+            subs.last().remove();
+    }
 }
 
 //Updates a loading submission
@@ -163,11 +175,11 @@ function selectSubmission(e) {
     var id = item.attr('data-submission-id');
 
     if($(this).hasClass('allowed'))
-        setSelectedSubmission(id, true);
+        setSelectedSubmission(id, true, true);
 }
 
 // Set selected submission
-function setSelectedSubmission(id, fade) {
+function setSelectedSubmission(id, fade, makepost) {
     var item;
 
     $('#submissions').find('.submission').each(function() {
@@ -180,8 +192,8 @@ function setSelectedSubmission(id, fade) {
         var text = item.find("span").html();
         var url = $('form#task').attr("action");
 
-        jQuery.post(url, {"@action": "set_submission", "submissionid": id}, null, "json")
-            .done(function (data) {
+        var applyfn = function (data) {
+            if ('status' in data && data['status'] == 'done') {
                 var submission_link = jQuery('<a/>', {
                     id: "my_submission",
                     class: "submission list-group-item list-group-item-info",
@@ -198,7 +210,13 @@ function setSelectedSubmission(id, fade) {
                 } else {
                     $("#my_submission").replaceWith(submission_link);
                 }
-            });
+            }
+        }
+
+        if(makepost)
+            jQuery.post(url, {"@action": "set_submission", "submissionid": id}, null, "json").done(applyfn);
+        else
+            applyfn({"status":"done"})
     }
 
     updateTaskStatus(item.hasClass("list-group-item-success") ? "Succeeded" : "Failed", parseFloat(item.text().split("-")[1]));

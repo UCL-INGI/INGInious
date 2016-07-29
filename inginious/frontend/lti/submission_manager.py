@@ -31,7 +31,7 @@ class LTISubmissionManager(SubmissionManager):
                                                self._user_manager.session_outcome_service_url(),
                                                self._user_manager.session_outcome_result_id())
         self.lis_outcome_data_lock.release()
-        self._delete_exceeding_submissions(self._user_manager.session_username(), task.get_course_id(), task.get_id())
+        self._delete_exceeding_submissions(self._user_manager.session_username(), task, self._max_submissions)
 
     def _job_done_callback(self, submissionid, task, job):
         super(LTISubmissionManager, self)._job_done_callback(submissionid, task, job)
@@ -46,14 +46,23 @@ class LTISubmissionManager(SubmissionManager):
         submission = self.get_submission(submissionid, False)
         self.lis_outcome_manager.add(submission["username"], submission["courseid"], submission["taskid"], data[0], data[1], data[2])
 
-    def _delete_exceeding_submissions(self, username, course_id, task_id):
+
+    def _delete_exceeding_submissions(self, username, task, max_submissions_bound=-1):
         """ Deletes exceeding submissions from the database, to keep the database relatively small """
 
-        if self._max_submissions <= 0:
+        if max_submissions_bound <= 0:
+            max_submissions = task.get_stored_submissions()
+        elif task.get_stored_submissions() <= 0:
+            max_submissions = max_submissions_bound
+        else:
+            max_submissions = min(max_submissions_bound, task.get_stored_submissions())
+
+        if max_submissions <= 0:
             return
-        tasks = list(self._database.submissions.find({"username": username, "courseid": course_id, "taskid": task_id},
-                                                     projection=["_id", "status", "result", "grade"],
-                                                     sort=[('submitted_on', pymongo.DESCENDING)]))
+        tasks = list(self._database.submissions.find(
+            {"username": username, "courseid": task.get_course_id(), "taskid": task.get_id()},
+            projection=["_id", "status", "result", "grade"],
+            sort=[('submitted_on', pymongo.DESCENDING)]))
 
         # Find the best "status"="done" and "result"="success"
         idx_best = -1
@@ -74,7 +83,7 @@ class LTISubmissionManager(SubmissionManager):
             if val["status"] == "waiting":
                 to_keep.add(val["_id"])
 
-        while len(to_keep) < self._max_submissions and len(tasks) > 0:
+        while len(to_keep) < max_submissions and len(tasks) > 0:
             to_keep.add(tasks.pop()["_id"])
 
         to_delete = {val["_id"] for val in tasks}.difference(to_keep)

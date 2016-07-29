@@ -4,6 +4,8 @@
 # more information about the licensing of this file.
 
 """ Manages submissions """
+import pymongo
+
 from inginious.frontend.common.submission_manager import SubmissionManager
 
 
@@ -50,3 +52,47 @@ class WebAppSubmissionManager(SubmissionManager):
                     {"courseid": task.get_course_id(), "groups.students": username},
                     {"groups": {"$elemMatch": {"students": username}}})
                 inputdata["username"] = ','.join(group["groups"][0]["students"])
+
+        self._delete_exceeding_submissions(self._user_manager.session_username(), task)
+
+    def _delete_exceeding_submissions(self, username, task, max_submissions_bound=-1):
+        """ Deletes exceeding submissions from the database, to keep the database relatively small """
+
+        if max_submissions_bound <= 0:
+            max_submissions = task.get_stored_submissions()
+        elif task.get_stored_submissions() <= 0:
+            max_submissions = max_submissions_bound
+        else:
+            max_submissions = min(max_submissions_bound, task.get_stored_submissions())
+
+        if max_submissions <= 0:
+            return
+        tasks = list(self._database.submissions.find(
+            {"username": username, "courseid": task.get_course_id(), "taskid": task.get_id()},
+            projection=["_id", "status", "result", "grade"],
+            sort=[('submitted_on', pymongo.DESCENDING)]))
+
+        # Find the best "status"="done" and "result"="success"
+        idx_best = -1
+        for idx, val in enumerate(tasks):
+            if val["status"] == "done" and val["result"] == "success":
+                if idx_best == -1 or tasks[idx_best]["grade"] < val["grade"]:
+                    idx_best = idx
+
+        # List the entries to keep
+        to_keep = set()
+
+        # Always keep the best submission
+        if idx_best != -1:
+            to_keep.add(tasks[idx_best]["_id"])
+
+        # Always keep running submissions
+        for val in tasks:
+            if val["status"] == "waiting":
+                to_keep.add(val["_id"])
+
+        while len(to_keep) < max_submissions and len(tasks) > 0:
+            to_keep.add(tasks.pop()["_id"])
+
+        to_delete = {val["_id"] for val in tasks}.difference(to_keep)
+        self._database.submissions.delete_many({"_id": {"$in": list(to_delete)}})

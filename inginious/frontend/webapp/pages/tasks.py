@@ -77,7 +77,7 @@ class TaskPage(INGIniousPage):
                     # Display the task itself
                     return self.template_helper.get_renderer().task(course, task,
                                                                     self.submission_manager.get_user_submissions(task),
-                                                                    students, eval_submission, self.remote_ssh_manager.is_active())
+                                                                    students, eval_submission, user_task, self.remote_ssh_manager.is_active())
             except:
                 if web.config.debug:
                     raise

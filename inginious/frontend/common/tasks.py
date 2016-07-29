@@ -43,6 +43,9 @@ class FrontendTask(inginious.common.tasks.Task):
         else:
             self._author = []
 
+        # Submission storage
+        self._stored_submissions = int(self._data.get("stored_submissions", 0))
+
     def get_name(self):
         """ Returns the name of this task """
         return self._name
@@ -60,3 +63,7 @@ class FrontendTask(inginious.common.tasks.Task):
         for problem in self._problems:
             input_data = problem.adapt_input_for_backend(input_data)
         return input_data
+
+    def get_stored_submissions(self):
+        """ Indicates if only the last submission must be stored for the task """
+        return self._stored_submissions

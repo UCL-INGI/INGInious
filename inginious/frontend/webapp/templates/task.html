@@ -1,4 +1,4 @@
-$def with (course, task, submissions, students, eval_submission, remote_debug_available)
+$def with (course, task, submissions, students, eval_submission, user_task, remote_debug_available)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -54,7 +54,7 @@ $def ColumnF():
         <tr>
             <td>Attempts</td>
             <td id="task_tries">
-                ${len(submissions)}
+                $(user_task.get('tried', 0))
             </td>
         </tr>
     </table>
@@ -236,6 +236,6 @@ $if user_manager.has_admin_rights_on_course(course):
 
 <script type="text/javascript">
 $$(document).ready(function() {
-    init_task_page("$task.get_evaluate()");
+    init_task_page("$task.get_evaluate()" , $task.get_stored_submissions(), 0);
 });
 </script>
