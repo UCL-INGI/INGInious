@@ -39,11 +39,11 @@ class ClientNewBatchJob(metaclass=MessageMeta, msgtype="client_new_batch_job"):
         When the Batch Job ends, agent should send a BatchJobDone message.
     """
 
-    def __init__(self, job_id: ClientJobId, container_name: str, input_data: bytes, launcher: str):
+    def __init__(self, job_id: ClientJobId, container_name: str, input_data: Dict[str, Any], launcher: str):
         """
         :param job_id: the client-side job_id
         :param container_name: alias of the container to run
-        :param input_data: a tgz file, as a byte string
+        :param input_data: the input data as a dict, fullfilling the parameters
         :param launcher: the name of the entity that launched this job, for logging purposes
         """
         self.job_id = job_id
@@ -245,11 +245,11 @@ class BackendNewBatchJob(metaclass=MessageMeta, msgtype="backend_new_batch_job")
         When the Batch Job ends, agent should send a BatchJobDone message.
     """
 
-    def __init__(self, job_id: BackendJobId, container_name: str, input_data: bytes):
+    def __init__(self, job_id: BackendJobId, container_name: str, input_data: Dict[str, Any]):
         """
         :param job_id: the backend-side job_id
         :param container_name: alias of the container to run
-        :param input_data: a tgz file, as a byte string
+        :param input_data: input dict, fullfilling the parameters of the container
         """
         self.job_id = job_id
         self.container_name = container_name

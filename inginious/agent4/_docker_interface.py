@@ -135,6 +135,7 @@ class DockerInterface(object):
         :param task_path: path to the task directory that will be mounted in the container
         :param sockets_path: path to the socket directory that will be mounted in the container
         :param ssh_port: port that will be bound to 22 inside the container
+        :return: the container id
         """
         task_path = os.path.abspath(task_path)
         sockets_path = os.path.abspath(sockets_path)
@@ -157,6 +158,26 @@ class DockerInterface(object):
         )
         return response["Id"]
 
+    def create_batch_container(self, environment, input_path, output_path):
+        """
+        Creates a batch container
+        :param environment: env to start (name/id of a docker image)
+        :param input_path: path to the input folder
+        :param output_path: path to the output folder
+        :return: the container id
+        """
+        input_path = os.path.abspath(input_path)
+        output_path = os.path.abspath(output_path)
+
+        response = self._docker.create_container(
+            environment,
+            volumes=['/input', '/output'],
+            host_config=self._docker.create_host_config(
+                binds={input_path: {'bind': '/input'}, output_path: {'bind': '/output'}},
+            )
+        )
+        return response["Id"]
+
     def create_container_student(self, parent_container_id, environment, network_grading, mem_limit, student_path, socket_path, systemfiles_path):
         """
         Creates a student container
@@ -167,6 +188,7 @@ class DockerInterface(object):
         :param student_path: path to the task directory that will be mounted in the container
         :param socket_path: path to the socket that will be mounted in the container
         :param systemfiles_path: path to the systemfiles folder containing files that can override partially some defined system files
+        :return: the container id
         """
         student_path = os.path.abspath(student_path)
         socket_path = os.path.abspath(socket_path)
@@ -204,13 +226,10 @@ class DockerInterface(object):
         })
 
     def get_logs(self, container_id):
-        """ Return the full stdout of a container (parsed with json) """
+        """ Return the full stdout/stderr of a container"""
         stdout = self._docker.logs(container_id, stdout=True, stderr=False).decode('utf8')
         stderr = self._docker.logs(container_id, stdout=False, stderr=True).decode('utf8')
-        # TODO SSH
-        # if debug == "ssh":  # skip the first line of the output, that contained the ssh key
-        #     stdout = "\n".join(stdout.split("\n")[1:])
-        return json.loads(stdout)
+        return stdout, stderr
 
     def get_stats(self, container_id):
         """

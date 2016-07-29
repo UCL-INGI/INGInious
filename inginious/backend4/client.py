@@ -141,13 +141,18 @@ class Client(BetterParanoidPirateClient):
     async def _handle_batch_job_started(self, message: BackendBatchJobStarted, **kwargs):
         self._logger.debug("Batch job %s started", message.job_id)
 
-    async def _handle_batch_job_done(self, message: BackendBatchJobDone, **kwargs):
+    async def _handle_batch_job_done(self, message: BackendBatchJobDone, callback):
         self._logger.debug("Batch job %s done", message.job_id)
-        # TODO
-        pass
+
+        # Call the callback
+        try:
+            callback(message.retval, message.stdout, message.stderr, message.file)
+        except Exception as e:
+            self._logger.exception("Failed to call the callback function for jobid {}: {}".format(message.job_id, repr(e)), exc_info=True)
 
     async def _handle_job_started(self, message: BackendJobStarted, **kwargs):
         self._logger.debug("Job %s started", message.job_id)
+
 
     async def _handle_job_done(self, message: BackendJobDone, task, callback, ssh_callback):
         self._logger.debug("Job %s done", message.job_id)
@@ -172,8 +177,8 @@ class Client(BetterParanoidPirateClient):
         except:
             self._logger.exception("Error occured while calling ssh_callback for job %s", message.job_id)
 
-    async def _handle_batch_job_abort(self, job_id: str):
-        await self._handle_batch_job_done(BackendBatchJobDone(job_id, -1, "Backend unavailable, retry later", "", None))
+    async def _handle_batch_job_abort(self, job_id: str, callback):
+        await self._handle_batch_job_done(BackendBatchJobDone(job_id, -1, "Backend unavailable, retry later", "", None), callback)
 
     async def _handle_job_abort(self, job_id: str, task, callback, ssh_callback):
         await self._handle_job_done(BackendJobDone(job_id, ("crash", "Backend unavailable, retry later"), 0.0, {}, {}), task, callback, ssh_callback)
@@ -307,7 +312,7 @@ class Client(BetterParanoidPirateClient):
             elif batch_args[key]["type"] == "file" and isinstance(inputdata[key], str):
                 raise Exception("Invalid value for inputdata: the value for key {} should be a file object".format(key))
 
-        msg = ClientNewBatchJob(job_id, container_name, batch_args, launcher_name)
+        msg = ClientNewBatchJob(job_id, container_name, inputdata, launcher_name)
         self._loop.call_soon_threadsafe(asyncio.ensure_future, self._create_transaction(msg, callback=callback))
 
         return job_id
