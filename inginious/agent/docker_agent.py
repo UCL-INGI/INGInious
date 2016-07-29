@@ -17,9 +17,9 @@ import zmq
 from msgpack import Unpacker
 from zmq.asyncio import Poller
 
-from inginious.agent4._docker_interface import DockerInterface
-from inginious.agent4._killer_watchers import TimeoutWatcher
-from inginious.agent4._pipeline import PipelinePush, PipelinePull
+from inginious.agent._docker_interface import DockerInterface
+from inginious.agent._killer_watchers import TimeoutWatcher
+from inginious.agent._pipeline import PipelinePush, PipelinePull
 from inginious.common.asyncio_utils import AsyncIteratorWrapper
 from inginious.common.message_meta import ZMQUtils
 from inginious.common.messages import BackendNewJob, AgentJobStarted, BackendNewBatchJob, BackendKillJob, AgentHello, BackendJobId, AgentJobDone, \
@@ -27,7 +27,7 @@ from inginious.common.messages import BackendNewJob, AgentJobStarted, BackendNew
 
 
 class DockerAgent(object):
-    def __init__(self, context, backend_addr, nb_sub_agents, task_directory, ssh_host = None, ssh_ports = None, tmp_dir="./agent_tmp"):
+    def __init__(self, context, backend_addr, nb_sub_agents, task_directory, ssh_host=None, ssh_ports=None, tmp_dir="./agent_tmp"):
         """
         :param context: ZeroMQ context for this process
         :param backend_addr: address of the backend (for example, "tcp://127.0.0.1:2222")
@@ -257,7 +257,6 @@ class DockerAgent(object):
         # Tell the backend/client the job has started
         await ZMQUtils.send(self._backend_socket, AgentBatchJobStarted(message.job_id))
 
-
     async def handle_new_job(self, message: BackendNewJob):
         """
         Handles a new job: starts the grading container
@@ -464,7 +463,7 @@ class DockerAgent(object):
                                 hard_time_limit = msg["hard_time_limit"] or orig_hard_time_limit
                                 share_network = msg["share_network"]
                                 socket_id = msg["socket_id"]
-                                assert "/" not in socket_id # ensure task creator do not try to break the agent :-(
+                                assert "/" not in socket_id  # ensure task creator do not try to break the agent :-(
                                 self._loop.create_task(self.create_student_container(job_id, container_id, sockets_path, student_path,
                                                                                      systemfiles_path, socket_id, environment, memory_limit,
                                                                                      time_limit, hard_time_limit, share_network, write_stream))
@@ -540,7 +539,7 @@ class DockerAgent(object):
                                              encoding="utf8", use_bin_type=True))
             await write_stream.drain()
         except:
-            pass # parent container closed
+            pass  # parent container closed
 
     async def handle_job_closing_p1(self, container_id, retval):
         """ First part of the end job handler. Ask the killer pipeline if they killed the container that recently died. Do some cleaning. """

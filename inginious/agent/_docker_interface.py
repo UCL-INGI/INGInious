@@ -6,7 +6,6 @@
 """
     (not asyncio) Interface to Docker
 """
-import json
 import os
 import re
 
@@ -153,7 +152,7 @@ class DockerInterface(object):
                 network_mode=("bridge" if (network_grading or ssh_port is not None) else 'none'),
                 binds={task_path: {'bind': '/task'},
                        sockets_path: {'bind': '/sockets'}},
-                port_bindings = {22:ssh_port} if ssh_port is not None else {}
+                port_bindings={22: ssh_port} if ssh_port is not None else {}
             )
         )
         return response["Id"]

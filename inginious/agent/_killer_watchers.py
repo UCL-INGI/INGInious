@@ -11,7 +11,7 @@ import asyncio
 import logging
 from abc import abstractmethod
 
-from inginious.agent4._pipeline import PipelineElement
+from inginious.agent._pipeline import PipelineElement
 from inginious.common.asyncio_utils import AsyncIteratorWrapper
 from inginious.common.messages import KWPRegisterContainer, KWPKilledStatus
 

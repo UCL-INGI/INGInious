@@ -7,7 +7,7 @@ import logging
 import uuid
 from abc import abstractmethod, ABCMeta
 
-from backend4._zeromq_client import BetterParanoidPirateClient
+from inginious.client._zeromq_client import BetterParanoidPirateClient
 from inginious.common.messages import ClientHello, BackendUpdateContainers, BackendBatchJobDone, BackendBatchJobStarted, BackendJobStarted, \
     BackendJobDone, BackendJobSSHDebug, ClientNewBatchJob, ClientNewJob, ClientKillJob
 
