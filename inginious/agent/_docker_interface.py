@@ -10,6 +10,7 @@ import os
 import re
 
 import docker
+from docker.utils import kwargs_from_env
 
 
 class DockerInterface(object):
@@ -18,7 +19,7 @@ class DockerInterface(object):
     """
 
     def __init__(self):
-        self._docker = docker.Client()
+        self._docker = docker.Client(**kwargs_from_env())
 
     def get_containers(self):
         """
@@ -217,12 +218,16 @@ class DockerInterface(object):
 
     def attach_to_container(self, container_id):
         """ A socket attached to the stdin/stdout of a container """
-        return self._docker.attach_socket(container_id, {
+        sock = self._docker.attach_socket(container_id, {
             'stdin': 1,
             'stdout': 1,
             'stderr': 0,
             'stream': 1,
         })
+        try:
+            return sock._sock
+        except AttributeError:
+            return sock
 
     def get_logs(self, container_id):
         """ Return the full stdout/stderr of a container"""
