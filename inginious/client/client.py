@@ -24,15 +24,15 @@ def _callable_once(func):
     return once
 
 
-class AbstractJobManager(object, metaclass=ABCMeta):
+class AbstractClient(object, metaclass=ABCMeta):
     @abstractmethod
     def start(self):
-        """ Starts the Job Manager. Should be done after a complete initialisation of the hook manager. """
+        """ Starts the Client. Should be done after a complete initialisation of the hook manager. """
         pass
 
     @abstractmethod
     def close(self):
-        """ Close the Job Manager """
+        """ Close the Client """
         pass
 
     @abstractmethod
@@ -68,12 +68,12 @@ class AbstractJobManager(object, metaclass=ABCMeta):
 
     @abstractmethod
     def get_waiting_jobs_count(self):
-        """Returns the total number of waiting jobs in the Job Manager. This count is not real-time, and can be based on a local cache. """
+        """Returns the total number of waiting jobs in the Client. This count is not real-time, and can be based on a local cache. """
         pass
 
     @abstractmethod
     def get_waiting_batch_jobs_count(self):
-        """Returns the total number of waiting jobs in the Job Manager. This count is not real-time, and can be based on a local cache. """
+        """Returns the total number of waiting jobs in the Client. This count is not real-time, and can be based on a local cache. """
         pass
 
     @abstractmethod
@@ -83,7 +83,7 @@ class AbstractJobManager(object, metaclass=ABCMeta):
         :type task: Task
         :param inputdata: input from the student
         :type inputdata: Storage or dict
-        :param callback: a function that will be called asynchronously in the job manager's process, with the results
+        :param callback: a function that will be called asynchronously in the client's process, with the results
         :type callback: __builtin__.function or __builtin__.instancemethod
         :param launcher_name: for informational use
         :type launcher_name: str
@@ -98,8 +98,8 @@ class AbstractJobManager(object, metaclass=ABCMeta):
 
     @abstractmethod
     def new_batch_job(self, container_name, inputdata, callback, launcher_name="Unknown"):
-        """ Add a new batch job. callback is a function that will be called asynchronously in the job manager's process.
-            inputdata is a dict containing all the keys of get_batch_container_metadata(container_name)[2].
+        """ Add a new batch job. callback is a function that will be called asynchronously in the client's process.
+            inputdata is a dict containing all the keys of get_batch_containers_metadata()[container_name]["parameters"].
             The values associated are file-like objects for "file" types and  strings for "text" types.
         """
         pass
@@ -153,7 +153,6 @@ class Client(BetterParanoidPirateClient):
     async def _handle_job_started(self, message: BackendJobStarted, **kwargs):
         self._logger.debug("Job %s started", message.job_id)
 
-
     async def _handle_job_done(self, message: BackendJobDone, task, callback, ssh_callback):
         self._logger.debug("Job %s done", message.job_id)
         job_id = message.job_id
@@ -193,11 +192,11 @@ class Client(BetterParanoidPirateClient):
         self._logger.info("Connecting to backend")
 
     def start(self):
-        """ Starts the Job Manager. Should be done after a complete initialisation of the hook manager. """
+        """ Starts the Client. Should be done after a complete initialisation of the hook manager. """
         self._loop.call_soon_threadsafe(asyncio.ensure_future, self.client_start())
 
     def close(self):
-        """ Close the Job Manager """
+        """ Close the Client """
         pass
 
     def get_batch_containers_metadata(self):
@@ -230,12 +229,12 @@ class Client(BetterParanoidPirateClient):
         return self._available_containers
 
     def get_waiting_jobs_count(self):
-        """Returns the total number of waiting jobs in the Job Manager. This count is not real-time, and can be based on a local cache. """
+        """Returns the total number of waiting jobs in the Client. This count is not real-time, and can be based on a local cache. """
         # TODO
         return 0
 
     def get_waiting_batch_jobs_count(self):
-        """Returns the total number of waiting jobs in the Job Manager. This count is not real-time, and can be based on a local cache. """
+        """Returns the total number of waiting jobs in the Client. This count is not real-time, and can be based on a local cache. """
         # TODO
         return 0
 
@@ -245,7 +244,7 @@ class Client(BetterParanoidPirateClient):
         :type task: Task
         :param inputdata: input from the student
         :type inputdata: Storage or dict
-        :param callback: a function that will be called asynchronously in the job manager's process, with the results
+        :param callback: a function that will be called asynchronously in the client's process, with the results
         :type callback: __builtin__.function or __builtin__.instancemethod
         :param launcher_name: for informational use
         :type launcher_name: str
@@ -268,7 +267,7 @@ class Client(BetterParanoidPirateClient):
         environment = task.get_environment()
         if environment not in self._available_containers:
             self._logger.warning("Env %s not available for task %s/%s", environment, task.get_course_id(), task.get_id())
-            ssh_callback(None, None, None) # ssh_callback must be called once
+            ssh_callback(None, None, None)  # ssh_callback must be called once
             callback({"result": "crash", "text": "Environment not available."})
             return
 
@@ -293,8 +292,8 @@ class Client(BetterParanoidPirateClient):
         return job_id
 
     def new_batch_job(self, container_name, inputdata, callback, launcher_name="Unknown"):
-        """ Add a new batch job. callback is a function that will be called asynchronously in the job manager's process.
-            inputdata is a dict containing all the keys of get_batch_container_metadata(container_name)[2].
+        """ Add a new batch job. callback is a function that will be called asynchronously in the client's process.
+            inputdata is a dict containing all the keys of get_batch_containers_metadata()[container_name]["parameters"].
             The values associated are file-like objects for "file" types and  strings for "text" types.
         """
         job_id = str(uuid.uuid4())
