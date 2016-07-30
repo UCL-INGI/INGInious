@@ -7,13 +7,13 @@ import logging
 
 import zmq
 
-from common.course_factory import CourseFactory
+from common.course_factory import CourseFactory, create_factories
 from inginious.common.message_meta import ZMQUtils
 from inginious.common.messages import BackendNewJob, BackendKillJob, BackendNewBatchJob, AgentBatchJobDone, AgentHello, AgentJobDone
 
 
 class MCQAgent(object):
-    def __init__(self, context, backend_addr, course_factory: CourseFactory):
+    def __init__(self, context, backend_addr, task_directory):
         """
         :param context: ZeroMQ context for this process
         :param backend_addr: address of the backend (for example, "tcp://127.0.0.1:2222")
@@ -28,6 +28,8 @@ class MCQAgent(object):
         self._context = context
         self._loop = asyncio.get_event_loop()
 
+        # Create a course factory
+        course_factory, _ = create_factories(task_directory)
         self.course_factory = course_factory
 
         # Sockets
