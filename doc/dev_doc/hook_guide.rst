@@ -37,11 +37,6 @@ Each hook available in INGInious is described here, starting with its name and p
    Called when a job has ended. ``task`` contains a Task object,
    ``statinfo`` is a dictionnary containing various informations about the job.
    ``results`` contains the results of the job.
-``job_manager_init_done`` (``job_manager``)
-    Called when a JobManager instance is inited. ``job_manager`` is the instance that was inited.
-    This hooks cannot be used by the plugins, as the backend is inited before the plugins.
-``job_manager_exit`` (``job_manager``)
-    Called when a JobManager received the exit signal, before the JobManager exits.
 ``modify_task_data`` (``course``, ``taskid``, ``data``)
     Allows to modify the task description before the initialisation of the Task object.
     Changes are not saved to disk.

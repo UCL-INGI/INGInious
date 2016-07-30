@@ -53,9 +53,9 @@ Jobs
 ----
 
 When you send a student's input to the backend, it creates what we call a *job*.
-Jobs are sent to an object called the *Job Manager*, which handles the run of the task
-
-More information about the way a *Job Manager* handles tasks is available in the documentation of the JobManager class.
+Jobs are sent to an object called the *Client*, which itself is a simple communication layer to a job queue that we call the *Backend*.
+The *Backend* itself can be used by multiple *Client*s, and dispatch jobs among *Agent*s, which can be of different types (for now, we have two
+kind of agents, *DockerAgent* and *MCQAgent*)
 
 When a job is submitted, a callback must be given: it is automatically called when the task is done, asynchronously.
 
