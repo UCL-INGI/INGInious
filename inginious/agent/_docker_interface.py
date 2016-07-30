@@ -217,17 +217,16 @@ class DockerInterface(object):
         self._docker.start(container_id)
 
     def attach_to_container(self, container_id):
-        """ A socket attached to the stdin/stdout of a container """
+        """ A socket attached to the stdin/stdout of a container. The object returned contains a get_socket() function to get a socket.socket
+        object and  close_socket() to close the connection """
         sock = self._docker.attach_socket(container_id, {
             'stdin': 1,
             'stdout': 1,
             'stderr': 0,
             'stream': 1,
         })
-        try:
-            return sock._sock
-        except AttributeError:
-            return sock
+        # fix a problem with docker-py; we must keep a reference of sock at every time
+        return FixDockerSocket(sock)
 
     def get_logs(self, container_id):
         """ Return the full stdout/stderr of a container"""
@@ -261,3 +260,30 @@ class DockerInterface(object):
         :return: an iterable that contains events from docker. See the docker api for content.
         """
         return self._docker.events(decode=True, filters=filters)
+
+class FixDockerSocket():
+    """
+    Fix the API inconsistency of docker-py with attach_socket
+    """
+    def __init__(self, docker_py_sock):
+        self.docker_py_sock = docker_py_sock
+
+    def get_socket(self):
+        """
+        Returns a valid socket.socket object
+        """
+        try:
+            return self.docker_py_sock._sock
+        except AttributeError:
+            return self.docker_py_sock
+
+    def close_socket(self):
+        """
+        Correctly closes the socket
+        :return:
+        """
+        try:
+            self.docker_py_sock._sock.close()
+        except AttributeError:
+            pass
+        self.docker_py_sock.close()

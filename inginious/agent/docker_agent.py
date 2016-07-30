@@ -431,7 +431,7 @@ class DockerAgent(object):
                                        future_results):
         """ Talk with a container. Sends the initial input. Allows to start student containers """
         sock = await self._loop.run_in_executor(None, lambda: self._docker.attach_to_container(container_id))
-        read_stream, write_stream = await asyncio.open_connection(sock=sock)
+        read_stream, write_stream = await asyncio.open_connection(sock=sock.get_socket())
 
         # a small helper
         async def write(o):
@@ -475,13 +475,13 @@ class DockerAgent(object):
                                 # last message containing the results of the container
                                 future_results.set_result(msg["result"])
                                 write_stream.close()
-                                sock.close()
+                                sock.close_socket()
                                 return  # this is the last message
                         except:
                             self._logger.exception("Received incorrect message from container %s (job id %s)", container_id, job_id)
                             future_results.set_result(None)
                             write_stream.close()
-                            sock.close()
+                            sock.close_socket()
                             return
         except:
             self._logger.exception("Exception while reading container %s output", container_id)
@@ -489,7 +489,7 @@ class DockerAgent(object):
         # EOF without result :-(
         self._logger.warning("Container %s has not given any result", container_id)
         write_stream.close()
-        sock.close()
+        sock.close_socket()
         future_results.set_result(None)
 
     async def handle_student_job_closing_p1(self, container_id, retval):
