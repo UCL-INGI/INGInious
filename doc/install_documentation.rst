@@ -8,3 +8,4 @@ Installation, configuration and upgrade
     install_doc/updating
     install_doc/config_reference
     install_doc/lti
+    install_doc/troubleshooting
