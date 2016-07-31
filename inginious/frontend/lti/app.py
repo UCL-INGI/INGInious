@@ -21,7 +21,7 @@ from inginious.common.course_factory import create_factories
 from inginious.common.log import init_logging, CustomLogMiddleware
 from inginious.frontend.common.tasks import FrontendTask
 from inginious.frontend.common.courses import FrontendCourse
-from inginious.frontend.common.templates import TemplateHelper
+from inginious.frontend.common.template_helper import TemplateHelper
 from inginious.frontend.lti.lis_outcome_manager import LisOutcomeManager
 from inginious.frontend.lti.submission_manager import LTISubmissionManager
 from inginious.frontend.lti.user_manager import UserManager

@@ -14,7 +14,7 @@ from common.course_factory import CourseFactory
 from common.task_factory import TaskFactory
 from frontend.common.plugin_manager import PluginManager
 from frontend.common.submission_manager import SubmissionManager
-from frontend.common.templates import TemplateHelper
+from frontend.common.template_helper import TemplateHelper
 from frontend.webapp.batch_manager import BatchManager
 from frontend.webapp.user_manager import UserManager
 

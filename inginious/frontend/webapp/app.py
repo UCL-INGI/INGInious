@@ -23,7 +23,7 @@ from inginious.frontend.webapp.tasks import WebAppTask
 from inginious.frontend.webapp.courses import WebAppCourse
 from inginious.frontend.webapp.submission_manager import WebAppSubmissionManager
 from inginious.frontend.webapp.batch_manager import BatchManager
-from inginious.frontend.common.templates import TemplateHelper
+from inginious.frontend.common.template_helper import TemplateHelper
 from inginious.frontend.webapp.user_manager import UserManager
 from inginious.frontend.common.session_mongodb import MongoStore
 import inginious.frontend.webapp.pages.course_admin.utils as course_admin_utils
