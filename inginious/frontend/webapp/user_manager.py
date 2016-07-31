@@ -362,7 +362,7 @@ class UserManager(AbstractUserManager):
                                                            "tried": 0, "succeeded": False, "grade": 0.0}},
                                          upsert=True)
 
-    def update_user_stats(self, username, submission, job):
+    def update_user_stats(self, username, submission, result_str, grade):
         """ Update stats with a new submission """
         self.user_saw_task(username, submission["courseid"], submission["taskid"])
 
@@ -371,14 +371,14 @@ class UserManager(AbstractUserManager):
                                          {"$inc": {"tried": 1}})
 
         # Set to succeeded if not succeeded yet
-        if job["result"] == "success":
+        if result_str == "success":
             self._database.user_tasks.find_and_modify({"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"],
                                                        "succeeded": False},
                                                       {"$set": {"succeeded": True}})
 
             # Update the grade if needed
             self._database.user_tasks.find_and_modify({"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"],
-                                                       "grade": {"$lt": job["grade"]}}, {"$set": {"grade": job["grade"]}})
+                                                       "grade": {"$lt": grade}}, {"$set": {"grade": grade}})
 
     def get_course_grade(self, course, username=None):
         """

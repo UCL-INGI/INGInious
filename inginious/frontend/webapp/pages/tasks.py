@@ -58,7 +58,7 @@ class TaskPage(INGIniousPage):
                 else:
                     # Display the task itself
                     return self.template_helper.get_renderer().task(course, task, self.submission_manager.get_user_submissions(task),
-                                                                    self.remote_ssh_manager.is_active())
+                                                                    True)
             except:
                 if web.config.debug:
                     raise
@@ -105,7 +105,7 @@ class TaskPage(INGIniousPage):
                     # Get debug info if the current user is an admin
                     debug = is_admin
                     if "@debug-mode" in userinput:
-                        if userinput["@debug-mode"] == "ssh" and debug and self.remote_ssh_manager.is_active():
+                        if userinput["@debug-mode"] == "ssh" and debug:
                             debug = "ssh"
                         del userinput['@debug-mode']
 
@@ -126,11 +126,11 @@ class TaskPage(INGIniousPage):
                         return submission_to_json(result, is_admin)
                     else:
                         web.header('Content-Type', 'application/json')
-                        if "ssh_key" in result and self.remote_ssh_manager.is_active():
+                        if "ssh_host" in result:
                             return json.dumps({'status': "waiting",
-                                               'ssh_host': self.remote_ssh_manager.get_url(),
-                                               'ssh_key': result["ssh_key"],
-                                               'ssh_conn_id': userinput['submissionid']})
+                                               'ssh_host': result["ssh_host"],
+                                               'ssh_port': result["ssh_port"],
+                                               'ssh_password': result["ssh_password"]})
                         else:
                             return json.dumps({'status': "waiting"})
                 elif "@action" in userinput and userinput["@action"] == "load_submission_input" and "submissionid" in userinput:

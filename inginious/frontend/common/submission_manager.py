@@ -22,18 +22,18 @@ import inginious.common.custom_yaml
 
 
 class SubmissionManager(object, metaclass=ABCMeta):
-    """ Manages submissions. Communicates with the database and the job manager. """
+    """ Manages submissions. Communicates with the database and to the backend/agent using a Client. """
 
-    def __init__(self, job_manager, user_manager, database, gridfs, hook_manager):
+    def __init__(self, client, user_manager, database, gridfs, hook_manager):
         """
-        :type job_manager: inginious.backend.job_managers.abstract.AbstractJobManager
+        :type client: inginious.client.client.AbstractClient
         :type user_manager: inginious.frontend.common.user_manager.AbstractUserManager
         :type database: pymongo.database.Database
         :type gridfs: gridfs.GridFS
         :type hook_manager: inginious.common.hook_manager.HookManager
         :return:
         """
-        self._job_manager = job_manager
+        self._client = client
         self._user_manager = user_manager
         self._database = database
         self._gridfs = gridfs
@@ -46,27 +46,22 @@ class SubmissionManager(object, metaclass=ABCMeta):
             return None
         return sub
 
-    def _job_done_callback(self, submissionid, task, job):
-        """ Callback called by JobManager when a job is done. Updates the submission in the database with the data returned after the completion of the job """
+    def _job_done_callback(self, submissionid, task, result, grade, problems, tests, custom, archive):
+        """ Callback called by Client when a job is done. Updates the submission in the database with the data returned after the completion of the
+        job """
         submission = self.get_submission(submissionid, False)
         submission = self.get_input_from_submission(submission)
 
         data = {
-            "status": ("done" if job["result"] == "success" or job["result"] == "failed" else "error"),  # error only if error was made by INGInious
-            "result": job["result"],
-            "grade": job["grade"],
-            "text": job.get("text", None),
-            "tests": job.get("tests", None),
-            "problems": (job["problems"] if "problems" in job else {}),
-            "archive": (self._gridfs.put(base64.b64decode(job["archive"])) if "archive" in job else None),
-            "custom": job.get("custom", {})
+            "status": ("done" if result[0] == "success" or result[0] == "failed" else "error"),  # error only if error was made by INGInious
+            "result": result[0],
+            "grade": grade,
+            "text": result[1],
+            "tests": tests,
+            "problems": problems,
+            "archive": (self._gridfs.put(archive) if archive is not None else None),
+            "custom": custom
         }
-
-        # Store additional data
-        dont_dump = ["task", "course", "input"]
-        for index in job:
-            if index not in data and index not in dont_dump:
-                data[index] = job[index]
 
         # Save submission to database
         self._database.submissions.update(
@@ -74,7 +69,8 @@ class SubmissionManager(object, metaclass=ABCMeta):
             {"$set": data, "$unset": {'jobid': ""}}
         )
 
-        self._hook_manager.call_hook("submission_done", submission=submission, job=job)
+        self._hook_manager.call_hook("submission_done", submission=submission, result=result, grade=grade, problems=problems, tests=tests,
+                                     custom=custom, archive=archive)
 
     def add_job(self, task, inputdata, debug=False):
         """
@@ -106,7 +102,7 @@ class SubmissionManager(object, metaclass=ABCMeta):
 
         submissionid = self._database.submissions.insert(obj)
 
-        # Send additionnal data to the job manager in inputdata. For now, the username and the group
+        # Send additionnal data to the client in inputdata. For now, the username and the group
         if "username" not in [p.get_id() for p in task.get_problems()]:  # do not overwrite
             inputdata["username"] = username
 
@@ -114,12 +110,14 @@ class SubmissionManager(object, metaclass=ABCMeta):
 
         self._hook_manager.call_hook("new_submission", submissionid=submissionid, submission=obj, inputdata=inputdata)
 
-        ssh_callback = None
+        ssh_callback = lambda host, port, password: None
         if debug == "ssh":
-            ssh_callback = lambda conn_id, ssh_key: self._handle_ssh_callback(submissionid, conn_id, ssh_key)
+            ssh_callback = lambda host, port, password: self._handle_ssh_callback(submissionid, host, port, password)
 
-        jobid = self._job_manager.new_job(task, inputdata, (lambda job: self._job_done_callback(submissionid, task, job)), "Frontend - {}".format(
-            username), debug, ssh_callback)
+        jobid = self._client.new_job(task, inputdata,
+                                     (lambda result, grade, problems, tests, custom, archive:
+                                      self._job_done_callback(submissionid, task, result, grade, problems, tests, custom, archive)),
+                                     "Frontend - {}".format(username), debug, ssh_callback)
 
         self._database.submissions.update(
             {"_id": submissionid, "status": "waiting"},
@@ -212,7 +210,7 @@ class SubmissionManager(object, metaclass=ABCMeta):
             return False
         if "jobid" not in submission:
             return False
-        return self._job_manager.kill_job(submission["jobid"])
+        return self._client.kill_job(submission["jobid"])
 
     def user_is_submission_owner(self, submission):
         """ Returns true if the current user is the owner of this jobid, false else """
@@ -378,11 +376,25 @@ class SubmissionManager(object, metaclass=ABCMeta):
         tmpfile.seek(0)
         return tmpfile
 
-    def _handle_ssh_callback(self, submission_id, conn_id, ssh_key):
+    def _handle_ssh_callback(self, submission_id, host, port, password):
         """ Handles the creation of a remote ssh server """
-        if ssh_key != "":  # ignore late calls (a bit hacky, but...)
+        if host is not None:  # ignore late calls (a bit hacky, but...)
             obj = {
-                "ssh_internal_conn_id": conn_id,
-                "ssh_key": ssh_key
+                "ssh_host": host,
+                "ssh_port": port,
+                "ssh_password": password
             }
             self._database.submissions.update_one({"_id": submission_id}, {"$set": obj})
+
+
+def update_pending_jobs(database):
+    """ Updates pending jobs status in the database """
+
+    # Updates the submissions that are waiting with the status error, as the server restarted
+    database.submissions.update({'status': 'waiting'},
+                                {"$unset": {'jobid': ""},
+                                 "$set": {'status': 'error', 'grade': 0.0, 'text': 'Internal error. Server restarted'}}, multi=True)
+
+    # Updates all batch job still running
+    database.batch_jobs.update({'result': {'$exists': False}},
+                               {"$set": {"result": {"retval": -1, "stderr": "Internal error. Server restarted"}}}, multi=True)

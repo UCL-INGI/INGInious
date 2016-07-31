@@ -21,7 +21,7 @@ import inginious.common.custom_yaml
 class SubmissionGitSaver(threading.Thread):
     """
         Thread class that saves results from submission in the git repo.
-        It must be a thread as a git commit can take some time and because we extract archives returned by Job Manager.
+        It must be a thread as a git commit can take some time and because we extract archives returned by the Client.
         But it must also be launched only one time as our git operations are not really process/tread-safe ;-)
     """
 
@@ -41,19 +41,19 @@ class SubmissionGitSaver(threading.Thread):
         plugin_manager.add_hook('submission_done', self.add)
         self._logger.info("SubmissionGitSaver started")
 
-    def add(self, submission, job):
+    def add(self, submission, result, grade, problems, tests, custom, archive):
         """ Add a new submission to the repo (add the to queue, will be saved async)"""
-        self.queue.put((submission, job))
+        self.queue.put((submission, result, grade, problems, tests, custom, archive))
 
     def run(self):
         while True:
             try:
-                submission, job = self.queue.get()
-                self.save(submission, job)
+                submission, result, grade, problems, tests, custom, archive = self.queue.get()
+                self.save(submission, result, grade, problems, tests, custom, archive)
             except Exception as inst:
                 self._logger.exception("Exception in JobSaver: " + str(inst), exc_info=True)
 
-    def save(self, submission, job):
+    def save(self, submission, result, grade, problems, tests, custom, archive):
         """ saves a new submission in the repo (done async) """
         # Save submission to repo
         self._logger.info("Save submission " + str(submission["_id"]) + " to git repo")
@@ -72,14 +72,14 @@ class SubmissionGitSaver(threading.Thread):
         open(os.path.join(dirname, 'submitted_on'), "w+").write(str(submission["submitted_on"]))
         open(os.path.join(dirname, 'input.yaml'), "w+").write(inginious.common.custom_yaml.dump(submission["input"]))
         result_obj = {
-            "result": job["result"],
-            "text": (job["text"] if "text" in job else None),
-            "problems": (job["problems"] if "problems" in job else {})
+            "result": result[0],
+            "text": result[1],
+            "problems": problems
         }
         open(os.path.join(dirname, 'result.yaml'), "w+").write(inginious.common.custom_yaml.dump(result_obj))
-        if "archive" in job:
+        if archive is not None:
             os.mkdir(os.path.join(dirname, 'output'))
-            tar = tarfile.open(mode='r:gz', fileobj=io.StringIO(base64.b64decode(job["archive"])))
+            tar = tarfile.open(mode='r:gz', fileobj=io.StringIO(archive))
             tar.extractall(os.path.join(dirname, 'output'))
             tar.close()
 
@@ -87,7 +87,7 @@ class SubmissionGitSaver(threading.Thread):
         title = " - ".join([str(submission["courseid"]) + "/" + str(submission["taskid"]),
                             str(submission["_id"]),
                             submission["username"],
-                            ("success" if "result" in job and job["result"] == "success" else "failed")])
+                            ("success" if result[0] == "success" else "failed")])
         self.git.commit('-m', title)
 
 

@@ -217,7 +217,7 @@ class ContestAdmin(INGIniousAdminPage):
                 admin(course, contest_data, errors, False)
 
 
-def init(plugin_manager, course_factory, job_manager, _config):
+def init(plugin_manager, course_factory, client, _config):
     """
         Init the contest plugin.
         Available configuration:

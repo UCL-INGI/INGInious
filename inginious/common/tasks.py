@@ -64,7 +64,7 @@ class Task(object):
         return True
 
     def get_environment(self):
-        """ Returns the environment in which the job manager have to launch this task"""
+        """ Returns the environment in which the agent have to launch this task"""
         return self._environment
 
     def get_id(self):

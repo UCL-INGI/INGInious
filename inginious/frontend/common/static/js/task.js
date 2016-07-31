@@ -298,8 +298,8 @@ function waitForSubmission(submissionid)
                 if("status" in data && data['status'] == "waiting")
                 {
                     waitForSubmission(submissionid);
-                    if("ssh_key" in data && "ssh_conn_id" in data && "ssh_host" in data)
-                        displayRemoteDebug(submissionid, data["ssh_host"], data["ssh_conn_id"], data["ssh_key"])
+                    if("ssh_host" in data && "ssh_port" in data && "ssh_password" in data)
+                        displayRemoteDebug(submissionid, data["ssh_host"], data["ssh_port"], data["ssh_password"])
                 }
                 else if("status" in data && "result" in data && "grade" in data)
                 {
@@ -430,9 +430,9 @@ function displayTaskLoadingAlert(submissionid)
 }
 
 //Display informations for remote debugging
-function displayRemoteDebug(submissionid, ssh_host, ssh_conn_id, ssh_key)
+function displayRemoteDebug(submissionid, ssh_host, ssh_port, ssh_password)
 {
-    var pre_content = "inginious-remote-debug " + ssh_host + "\n" + ssh_conn_id + "\n" + ssh_key;
+    var pre_content = "ssh worker@" + ssh_host + " -p " + ssh_port+ " -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no";
     var task_alert = $('#task_alert');
 
     if($('pre', task_alert).text() != pre_content)
@@ -440,7 +440,7 @@ function displayRemoteDebug(submissionid, ssh_host, ssh_conn_id, ssh_key)
         var pre = $('<pre><pre>').text(pre_content);
         var alert = $(getLoadingAlertCode("<b>SSH server active</b><br/>" +
             "Please paste this command into your terminal.<br/>" +
-            "You need to have the <a href='https://pypi.python.org/pypi/INGInious/'>INGInious pip package</a> installed.<br/>",
+            "The password to connect is <code>"+ssh_password+"</code><br/>",
             submissionid));
         alert.attr('id', 'ssh_remote_info');
         alert.append(pre);

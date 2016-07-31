@@ -24,8 +24,8 @@ class PluginManager(HookManager):
         self._database = None
         self._user_manager = None
 
-    def load(self, job_manager, webpy_app, course_factory, task_factory, database, user_manager, config):
-        """ Loads the plugin manager. Must be done after the initialisation of the job_manager """
+    def load(self, client, webpy_app, course_factory, task_factory, database, user_manager, config):
+        """ Loads the plugin manager. Must be done after the initialisation of the client """
         self._app = webpy_app
         self._task_factory = task_factory
         self._database = database
@@ -33,7 +33,7 @@ class PluginManager(HookManager):
         self._loaded = True
         for entry in config:
             module = importlib.import_module(entry["plugin_module"])
-            module.init(self, course_factory, job_manager, entry)
+            module.init(self, course_factory, client, entry)
 
     def add_page(self, pattern, classname):
         """ Add a new page to the web application. Only available after that the Plugin Manager is loaded """

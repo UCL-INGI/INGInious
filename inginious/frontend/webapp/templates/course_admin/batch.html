@@ -29,7 +29,7 @@ $var Navbar: $:NavbarF()
     </tr>
     $for op in operations:
         <tr>
-            <td>$available_containers.get(op['container_name'], (op['container_name'],))[0]</td>
+            <td>$op['container_name']</td>
             <td>$op['submitted_on'].strftime("%d/%m/%Y %H:%M:%S")</td>
 
             $if op['status'] == 'ok':
@@ -73,7 +73,7 @@ $if user_manager.has_admin_rights_on_course(course):
     <div class="list-group">
         $for key, val in available_containers.items():
             <a href="/admin/$course.get_id()/batch/create/$key" class="list-group-item">
-                <h4 class="list-group-item-heading">$val[0]</h4>
-                <p class="list-group-item-text">$:val[1]</p>
+                <h4 class="list-group-item-heading">$key</h4>
+                <p class="list-group-item-text">$:val["description"]</p>
             </a>
     </div>

@@ -14,9 +14,9 @@ from inginious.frontend.common.submission_manager import SubmissionManager
 class LTISubmissionManager(SubmissionManager):
     """ A custom Submission Manager that removes exceeding submissions """
 
-    def __init__(self, job_manager, user_manager, database, gridfs, hook_manager, max_submissions, lis_outcome_manager):
+    def __init__(self, client, user_manager, database, gridfs, hook_manager, max_submissions, lis_outcome_manager):
         self._max_submissions = max_submissions
-        super(LTISubmissionManager, self).__init__(job_manager, user_manager, database, gridfs, hook_manager)
+        super(LTISubmissionManager, self).__init__(client, user_manager, database, gridfs, hook_manager)
         self.lis_outcome_data = {}
         self.lis_outcome_data_lock = threading.Lock()
         self.lis_outcome_manager = lis_outcome_manager
@@ -33,11 +33,10 @@ class LTISubmissionManager(SubmissionManager):
         self.lis_outcome_data_lock.release()
         self._delete_exceeding_submissions(self._user_manager.session_username(), task.get_course_id(), task.get_id())
 
-    def _job_done_callback(self, submissionid, task, job):
-        super(LTISubmissionManager, self)._job_done_callback(submissionid, task, job)
+    def _job_done_callback(self, submissionid, task, result, grade, problems, tests, custom, archive):
+        super(LTISubmissionManager, self)._job_done_callback(submissionid, task, result, grade, problems, tests, custom, archive)
 
         # Send data to the TC
-
         self.lis_outcome_data_lock.acquire()
         data = self.lis_outcome_data[submissionid]
         del self.lis_outcome_data[submissionid]

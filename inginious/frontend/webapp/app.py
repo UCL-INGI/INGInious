@@ -7,21 +7,18 @@
 import logging
 import os
 import signal
-import threading
 
 from gridfs import GridFS
 from pymongo import MongoClient
 import web
 
-from inginious.backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
-from inginious.frontend.common import backend_interface
+from frontend.common.arch_helper import create_arch, start_asyncio_and_zmq
 from inginious.frontend.common.static_middleware import StaticMiddleware
 from inginious.frontend.common.webpy_fake_mapping import WebPyCustomMapping
 from inginious.frontend.webapp.database_updater import update_database
 from inginious.frontend.common.plugin_manager import PluginManager
 from inginious.common.course_factory import create_factories
 from inginious.common.log import init_logging, CustomLogMiddleware
-from inginious.frontend.webapp.remote_ssh_manager import RemoteSSHManager
 from inginious.frontend.webapp.tasks import WebAppTask
 from inginious.frontend.webapp.courses import WebAppCourse
 from inginious.frontend.webapp.submission_manager import WebAppSubmissionManager
@@ -30,6 +27,7 @@ from inginious.frontend.common.templates import TemplateHelper
 from inginious.frontend.webapp.user_manager import UserManager
 from inginious.frontend.common.session_mongodb import MongoStore
 import inginious.frontend.webapp.pages.course_admin.utils as course_admin_utils
+from inginious.frontend.common.submission_manager import update_pending_jobs
 
 urls = {
     r'/': 'inginious.frontend.webapp.pages.index.IndexPage',
@@ -89,55 +87,16 @@ def _put_configuration_defaults(config):
     return config
 
 
-def _close_app(app, mongo_client, job_manager, remote_ssh_manager):
+def _close_app(app, mongo_client, client):
     """ Ensures that the app is properly closed """
     app.stop()
-    remote_ssh_manager.stop()
-    job_manager.close()
+    client.close()
     mongo_client.close()
 
 
-def _handle_active_hook(job_manager, plugin_manager, active_callback):
+def get_app(config):
     """
-    Creates the necessary hooks in plugin_manager and ensures active_callback will be called at the right time
-    :param job_manager:
-    :param plugin_manager:
-    :param active_callback:
-    """
-    sync_mutex = threading.Lock()
-
-    def sync_done(check_all_done):
-        """ release """
-        sync_mutex.acquire()
-        sync_done.done = True
-        sync_mutex.release()
-        check_all_done()
-
-    sync_done.done = False
-
-    def check_all_done():
-        sync_mutex.acquire()
-        if sync_done.done:
-            try:
-                active_callback()
-            except:
-                pass
-        sync_mutex.release()
-
-    if not isinstance(job_manager, RemoteManualAgentJobManager):
-        sync_done.done = True
-
-    plugin_manager.add_hook("job_manager_agent_sync_done", lambda agent: sync_done(check_all_done))
-    check_all_done()
-
-
-def get_app(hostname, port, sshhost, sshport, config, active_callback=None):
-    """
-    :param hostname: the hostname on which the web app will be bound
-    :param port: the port on which the web app will be bound
-    :param sshport: the port on which remote container debugging clients will connect
     :param config: the configuration dict
-    :param active_callback: a callback without arguments that will be called when the app is fully initialized
     :return: A new app
     """
     config = _put_configuration_defaults(config)
@@ -152,6 +111,8 @@ def get_app(hostname, port, sshhost, sshport, config, active_callback=None):
 
     appli = web.application((), globals(), autoreload=False)
 
+    zmq_context, asyncio_thread = start_asyncio_and_zmq()
+
     # Init the different parts of the app
     plugin_manager = PluginManager()
 
@@ -163,24 +124,14 @@ def get_app(hostname, port, sshhost, sshport, config, active_callback=None):
 
     user_manager = UserManager(web.session.Session(appli, MongoStore(database, 'sessions')), database, config.get('superadmins', []))
 
-    backend_interface.update_pending_jobs(database)
+    update_pending_jobs(database)
 
-    job_manager = backend_interface.create_job_manager(config, plugin_manager,
-                                                       task_directory, course_factory, task_factory)
+    client = create_arch(config, task_directory, zmq_context)
 
-    remote_ssh_manager = RemoteSSHManager(sshhost, sshport, database, job_manager)
+    submission_manager = WebAppSubmissionManager(client, user_manager, database, gridfs, plugin_manager)
 
-    if config.get("remote_debugging_active", True) and job_manager.is_remote_debug_active():
-        if sshhost is None:
-            logging.getLogger("inginious.webapp").info("You have to set the --sshhost arg to start the remote debugging manager. Remote debugging "
-                                                       "is then deactivated")
-        else:
-            remote_ssh_manager.start()
-
-    submission_manager = WebAppSubmissionManager(job_manager, user_manager, database, gridfs, plugin_manager)
-
-    batch_manager = BatchManager(job_manager, database, gridfs, submission_manager, user_manager,
-                                 task_directory, config.get('batch_containers', []))
+    batch_manager = BatchManager(client, database, gridfs, submission_manager, user_manager,
+                                 task_directory)
 
     template_helper = TemplateHelper(plugin_manager, 'frontend/webapp/templates', 'layout', config.get('use_minified_js', True))
 
@@ -212,21 +163,17 @@ def get_app(hostname, port, sshhost, sshport, config, active_callback=None):
     appli.init_mapping(WebPyCustomMapping(dict(urls), plugin_manager,
                                           course_factory, task_factory,
                                           submission_manager, batch_manager, user_manager,
-                                          remote_ssh_manager, template_helper, database, gridfs,
+                                          template_helper, database, gridfs,
                                           default_allowed_file_extensions, default_max_file_size,
-                                          config.get("backup_directory", './backup'), list(config["containers"].keys())))
-
-    # Active hook
-    if active_callback is not None:
-        _handle_active_hook(job_manager, plugin_manager, active_callback)
+                                          config.get("backup_directory", './backup'), {})) # TODO get rid of containers
 
     # Loads plugins
-    plugin_manager.load(job_manager, appli, course_factory, task_factory, database, user_manager, config.get("plugins", []))
+    plugin_manager.load(client, appli, course_factory, task_factory, database, user_manager, config.get("plugins", []))
 
     # Start the inginious.backend
-    job_manager.start()
+    client.start()
 
-    return appli, lambda: _close_app(appli, mongo_client, job_manager, remote_ssh_manager)
+    return appli, lambda: _close_app(appli, mongo_client, client)
 
 
 def runfcgi(func, addr=('localhost', 8000)):
@@ -246,7 +193,7 @@ def start_app(config, hostname="localhost", port=8080, sshhost=None, sshport=808
     :return:
     """
     init_logging(config.get('log_level', 'INFO'))
-    app, close_app_func = get_app(hostname, port, sshhost, sshport, config)
+    app, close_app_func = get_app(config)
 
     func = app.wsgifunc()
 
@@ -256,7 +203,7 @@ def start_app(config, hostname="localhost", port=8080, sshhost=None, sshport=808
     if 'PHP_FCGI_CHILDREN' in os.environ or 'SERVER_SOFTWARE' in os.environ:  # lighttpd fastcgi
         return runfcgi(func, None)
 
-    # Close the job manager when interrupting the app
+    # Close the client when interrupting the app
     def close_app_signal():
         close_app_func()
         raise KeyboardInterrupt()

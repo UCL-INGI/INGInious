@@ -50,7 +50,7 @@ Each hook available in INGInious is described here, starting with its name and p
     Please note that the ``job`` is not yet send to the backend when this hook is called (so ``new_submission`` is called before ``new_job``),
     pay also attention that a submission is the name given to a job that was made throught the frontend.
     It implies that jobs created by plugins will not call ``new_submission`` nor ``submission_done``.
-``submission_done`` (``submission``, ``job``)
+``submission_done`` (``submission``, ``result``, ``grade``, ``problems``, ``tests``, ``custom``, ``archive``)
     Called when a submission has ended. The submissionid is contained in the dictionnary submission, under the field ``_id``.
     (submission_done is called after job_ended)
 ``template_helper`` ()
