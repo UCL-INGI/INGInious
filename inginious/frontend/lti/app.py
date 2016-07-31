@@ -22,20 +22,18 @@ from inginious.common.log import init_logging, CustomLogMiddleware
 from inginious.frontend.common.tasks import FrontendTask
 from inginious.frontend.common.courses import FrontendCourse
 from inginious.frontend.common.templates import TemplateHelper
-from inginious.frontend.common.webpy_fake_mapping import WebPyCustomMapping
 from inginious.frontend.lti.lis_outcome_manager import LisOutcomeManager
 from inginious.frontend.lti.submission_manager import LTISubmissionManager
 from inginious.frontend.lti.user_manager import UserManager
 from inginious.frontend.lti.custom_session import CustomSession
 from inginious.frontend.common.submission_manager import update_pending_jobs
 
-urls = {
-    r"/launch/([a-zA-Z0-9\-_]+)/([a-zA-Z0-9\-_]+)": "inginious.frontend.lti.pages.launch.LTILaunchTask",
-    r"/([a-zA-Z0-9\-_]+)/task": "inginious.frontend.lti.pages.task.LTITask",
-    r"/([a-zA-Z0-9\-_]+)/download/(current|all)/(mine|all)": "inginious.frontend.lti.pages.download.LTIDownload",
-    r"/([a-zA-Z0-9\-_]+)/download/([0-9]+)": "inginious.frontend.lti.pages.download.LTIDownloadStatus",
-}
-
+urls = (
+    r"/launch/([a-zA-Z0-9\-_]+)/([a-zA-Z0-9\-_]+)", "inginious.frontend.lti.pages.launch.LTILaunchTask",
+    r"/([a-zA-Z0-9\-_]+)/task", "inginious.frontend.lti.pages.task.LTITask",
+    r"/([a-zA-Z0-9\-_]+)/download/(current|all)/(mine|all)", "inginious.frontend.lti.pages.download.LTIDownload",
+    r"/([a-zA-Z0-9\-_]+)/download/([0-9]+)", "inginious.frontend.lti.pages.download.LTIDownloadStatus",
+)
 
 def _put_configuration_defaults(config):
     """
@@ -131,14 +129,21 @@ def get_app(config):
     # Not found page
     appli.notfound = lambda: web.notfound(template_helper.get_renderer().notfound('Page not found'))
 
+    # Insert the needed singletons into the application, to allow pages to call them
+    appli.plugin_manager = plugin_manager
+    appli.course_factory = course_factory
+    appli.task_factory = task_factory
+    appli.submission_manager = submission_manager
+    appli.user_manager = user_manager
+    appli.template_helper = template_helper
+    appli.database = database
+    appli.gridfs = gridfs
+    appli.default_allowed_file_extensions = default_allowed_file_extensions
+    appli.default_max_file_size = default_max_file_size
+    appli.consumers = config["lti"]
+
     # Init the mapping of the app
-    appli.init_mapping(WebPyCustomMapping(dict(urls), plugin_manager,
-                                          course_factory, task_factory,
-                                          submission_manager, user_manager,
-                                          template_helper, database, gridfs,
-                                          default_allowed_file_extensions, default_max_file_size,
-                                          list(config["containers"].keys()),
-                                          config["lti"]))
+    appli.init_mapping(urls)
 
     # Loads plugins
     plugin_manager.load(client, appli, course_factory, task_factory, database, user_manager, config.get("plugins", []))

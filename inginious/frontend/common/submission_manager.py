@@ -39,6 +39,10 @@ class SubmissionManager(object, metaclass=ABCMeta):
         self._gridfs = gridfs
         self._hook_manager = hook_manager
 
+    def get_available_environments(self):
+        """:return a list of available environments """
+        return self._client.get_available_containers()
+
     def get_submission(self, submissionid, user_check=True):
         """ Get a submission from the database """
         sub = self._database.submissions.find_one({'_id': ObjectId(submissionid)})
