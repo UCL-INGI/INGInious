@@ -189,7 +189,8 @@ class BackendJobDone(metaclass=MessageMeta, msgtype="backend_job_done"):
         Gives the result of a job.
     """
 
-    def __init__(self, job_id: ClientJobId, result: SPResult, grade: float, problems: Dict[str, SPResult], custom: Dict[str, Any]):
+    def __init__(self, job_id: ClientJobId, result: SPResult, grade: float, problems: Dict[str, SPResult], tests: Dict[str, any],
+                 custom: Dict[str, Any], archive: Optional[bytes]):
         """
         :param job_id: the client-side job id associated with this job
         :param result: A tuple containing the result type and the text to be shown to the student
@@ -203,13 +204,17 @@ class BackendJobDone(metaclass=MessageMeta, msgtype="backend_job_done"):
             - "error": an error happenned in the grading script (task writer error)
         :param grade: grade
         :param problems: particular feedbacks for each subproblem. Keys are subproblem ids.
+        :param tests: tests made in the container
         :param custom: custom values
+        :param archive: bytes string containing an archive of the content of the container as a tgz
         """
         self.job_id = job_id
         self.result = result
         self.grade = grade
         self.problems = problems
+        self.tests = tests
         self.custom = custom
+        self.archive = archive
 
 
 class BackendJobSSHDebug(metaclass=MessageMeta, msgtype="backend_job_ssh_debug"):
@@ -406,7 +411,8 @@ class AgentJobDone(metaclass=MessageMeta, msgtype="agent_job_done"):
         A->B.
     """
 
-    def __init__(self, job_id: BackendJobId, result: SPResult, grade: float, problems: Dict[str, SPResult], custom: Dict[str, Any]):
+    def __init__(self, job_id: BackendJobId, result: SPResult, grade: float, problems: Dict[str, SPResult], tests: Dict[str, Any],
+                 custom: Dict[str, Any], archive: Optional[bytes]):
         """
         :param job_id: the backend-side job id associated with this job
         :param result: a tuple that contains the result itself, either:
@@ -420,13 +426,17 @@ class AgentJobDone(metaclass=MessageMeta, msgtype="agent_job_done"):
             and the feedback text.
         :param grade: grade
         :param problems: particular feedbacks for each subproblem. Keys are subproblem ids
+        :param tests: tests made in the container
         :param custom: custom values
+        :param archive: bytes string containing an archive of the content of the container as a tgz
         """
         self.job_id = job_id
         self.result = result
         self.grade = grade
         self.problems = problems
+        self.tests = tests
         self.custom = custom
+        self.archive = archive
 
 
 class AgentJobSSHDebug(metaclass=MessageMeta, msgtype="agent_job_ssh_debug"):

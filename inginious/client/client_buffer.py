@@ -20,12 +20,15 @@ class ClientBuffer(object):
         """ Runs a new job. It works exactly like the Client class, instead that there is no callback """
         bjobid = uuid.uuid4()
         self._waiting_jobs.append(str(bjobid))
-        self._client.new_job(task, inputdata, lambda r: self._callback(bjobid, r), launcher_name, debug)
+        self._client.new_job(task, inputdata,
+                             (lambda result, grade, problems, tests, custom, archive:
+                              self._callback(bjobid, result, grade, problems, tests, custom, archive)),
+                             launcher_name, debug)
         return bjobid
 
-    def _callback(self, bjobid, result):
+    def _callback(self, bjobid, result, grade, problems, tests, custom, archive):
         """ Callback for self._client.new_job """
-        self._jobs_done[str(bjobid)] = result
+        self._jobs_done[str(bjobid)] = (result, grade, problems, tests, custom, archive)
         self._waiting_jobs.remove(str(bjobid))
 
     def is_waiting(self, bjobid):
@@ -37,7 +40,16 @@ class ClientBuffer(object):
         return str(bjobid) in self._jobs_done
 
     def get_result(self, bjobid):
-        """ Get the result of task. Must only be called ONCE, AFTER the task is done (after a successfull call to is_done). """
+        """
+            Get the result of task. Must only be called ONCE, AFTER the task is done (after a successfull call to is_done).
+            :return a tuple (result, grade, problems, tests, custom, archive)
+            result is itself a tuple containing the result string and the main feedback (i.e. ('success', 'You succeeded')
+            grade is a number between 0 and 100 indicating the grade of the users
+            problems is a dict of tuple, in the form {'problemid': result}
+            test is a dict of tests made in the container
+            custom is a dict containing random things set in the container
+            archive is either None or a bytes containing a tgz archive of files from the job
+        """
         result = self._jobs_done[str(bjobid)]
         del self._jobs_done[str(bjobid)]
         return result

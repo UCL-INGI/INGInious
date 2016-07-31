@@ -119,7 +119,7 @@ class Backend(object):
 
     async def handle_client_hello(self, client_addr, _: ClientHello):
         """ Handle an ClientHello message. Send available (batch) containers to the client """
-        self._logger.debug("Saying hello to %s", client_addr)
+        self._logger.info("New client connected %s", client_addr)
         self._registered_clients.add(client_addr)
         await self.send_container_update_to_client([client_addr])
 
@@ -146,7 +146,7 @@ class Backend(object):
             del self._waiting_jobs[(client_addr, message.job_id, "grade")]
             # Do not forget to send a JobDone
             await ZMQUtils.send_with_addr(self._client_socket, client_addr, BackendJobDone(message.job_id, ("killed", "You killed the job"),
-                                                                                           0, {}, {}))
+                                                                                           0, {}, {}, {}, None))
         # If the job is running, transmit the info to the agent
         elif (client_addr, message.job_id) in self._job_running:
             agent_addr = self._job_running[(client_addr, message.job_id)]
@@ -206,7 +206,7 @@ class Backend(object):
         """
         Handle an AgentAvailable message. Add agent_addr to the list of available agents
         """
-        self._logger.debug("Agent %s said hello", agent_addr)
+        self._logger.info("Agent %s said hello", agent_addr)
 
         for i in range(0, message.available_job_slots):
             self._available_agents.append(agent_addr)
@@ -304,7 +304,8 @@ class Backend(object):
 
         # Sent the data back to the client
         await ZMQUtils.send_with_addr(self._client_socket, message.job_id[0], BackendJobDone(message.job_id[1], message.result,
-                                                                                             message.grade, message.problems, message.custom))
+                                                                                             message.grade, message.problems,
+                                                                                             message.tests, message.custom, message.archive))
 
         # The agent is available now
         self._available_agents.append(agent_addr)
@@ -341,6 +342,7 @@ class Backend(object):
         await self.update_queue()
 
     async def run(self):
+        self._logger.info("Backend started")
         self._agent_socket.bind(self._agent_addr)
         self._client_socket.bind(self._client_addr)
 

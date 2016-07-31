@@ -16,13 +16,14 @@ class ClientSync(object):
     def new_job(self, task, inputdata, launcher_name="Unknown", debug=False):
         """
             Runs a new job.
-            It works exactly like the Client class, instead that there is no callback and directly returns result.
+            It works exactly like the Client class, instead that there is no callback and directly returns result, in the form of a tuple
+            (result, grade, problems, tests, custom, archive).
         """
         job_semaphore = threading.Semaphore(0)
 
-        def manage_output(job):
+        def manage_output(result, grade, problems, tests, custom, archive):
             """ Manages the output of this job """
-            manage_output.job_return = job
+            manage_output.job_return = (result, grade, problems, tests, custom, archive)
             job_semaphore.release()
 
         manage_output.job_return = None

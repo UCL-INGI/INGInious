@@ -4,13 +4,14 @@
 # more information about the licensing of this file.
 
 import asyncio
+import base64
 import logging
 import os
 import struct
 import tarfile
 import tempfile
 from shutil import rmtree, copytree
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 import msgpack
 import zmq
@@ -574,6 +575,8 @@ class DockerAgent(object):
         grade = None
         problems = {}
         custom = {}
+        tests = {}
+        archive = None
 
         if killed_msg.killed_result is not None:
             result = killed_msg.killed_result
@@ -588,6 +591,10 @@ class DockerAgent(object):
                 grade = return_value.get("grade", None)
                 problems = return_value.get("problems", {})
                 custom = return_value.get("custom", {})
+                tests = return_value.get("tests", {})
+                archive = return_value.get("archive", None)
+                if archive is not None:
+                    archive = base64.b64decode(archive)
             except Exception as e:
                 self._logger.exception("Cannot get back stdout of container %s! (%s)", container_id, str(e))
                 result = "crash"
@@ -609,7 +616,7 @@ class DockerAgent(object):
         rmtree(container_path)
 
         # Return!
-        await self.send_job_result(message.job_id, result, error_msg, grade, problems, custom)
+        await self.send_job_result(message.job_id, result, error_msg, grade, problems, tests, custom, archive)
 
         # Do not forget to remove data from internal state
         del self._container_for_job[message.job_id]
@@ -688,7 +695,7 @@ class DockerAgent(object):
                 await self._loop.run_in_executor(None, self._docker.kill_container(message.container_id))
 
     async def send_job_result(self, job_id: BackendJobId, result: str, text: str = "", grade: float = None, problems: Dict[str, SPResult] = None,
-                              custom: Dict[str, Any] = None):
+                              tests: Dict[str, Any] = None, custom: Dict[str, Any] = None, archive: Optional[bytes] = None):
         """ Send the result of a job back to the backend """
         if grade is None:
             if result == "success":
@@ -699,11 +706,14 @@ class DockerAgent(object):
             problems = {}
         if custom is None:
             custom = {}
+        if tests is None:
+            tests = {}
 
-        await ZMQUtils.send(self._backend_socket, AgentJobDone(job_id, (result, text), grade, problems, custom))
+        await ZMQUtils.send(self._backend_socket, AgentJobDone(job_id, (result, text), grade, problems, tests, custom, archive))
 
     async def run_dealer(self):
         """ Run the agent """
+        self._logger.info("Agent started")
         self._backend_socket.connect(self._backend_addr)
 
         # Init Docker events watcher
@@ -713,7 +723,7 @@ class DockerAgent(object):
         await self.init_watcher_pipe()
 
         # Tell the backend we are up and have `nb_sub_agents` threads available
-
+        self._logger.info("Saying hello to the backend")
         await ZMQUtils.send(self._backend_socket, AgentHello(self._nb_sub_agents, self._containers, self._batch_containers))
 
         # And then run the agent

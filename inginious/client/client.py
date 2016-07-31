@@ -83,7 +83,14 @@ class AbstractClient(object, metaclass=ABCMeta):
         :type task: Task
         :param inputdata: input from the student
         :type inputdata: Storage or dict
-        :param callback: a function that will be called asynchronously in the client's process, with the results
+        :param callback: a function that will be called asynchronously in the client's process, with the results.
+            it's signature must be (result, grade, problems, tests, custom, archive), where:
+            result is itself a tuple containing the result string and the main feedback (i.e. ('success', 'You succeeded');
+            grade is a number between 0 and 100 indicating the grade of the users;
+            problems is a dict of tuple, in the form {'problemid': result};
+            test is a dict of tests made in the container
+            custom is a dict containing random things set in the container
+            archive is either None or a bytes containing a tgz archive of files from the job
         :type callback: __builtin__.function or __builtin__.instancemethod
         :param launcher_name: for informational use
         :type launcher_name: str
@@ -166,7 +173,7 @@ class Client(BetterParanoidPirateClient):
 
         # Call the callback
         try:
-            callback(message.result)
+            callback(message.result, message.grade, message.problems, message.tests, message.custom, message.archive)
         except Exception as e:
             self._logger.exception("Failed to call the callback function for jobid {}: {}".format(job_id, repr(e)), exc_info=True)
 
@@ -180,7 +187,8 @@ class Client(BetterParanoidPirateClient):
         await self._handle_batch_job_done(BackendBatchJobDone(job_id, -1, "Backend unavailable, retry later", "", None), callback)
 
     async def _handle_job_abort(self, job_id: str, task, callback, ssh_callback):
-        await self._handle_job_done(BackendJobDone(job_id, ("crash", "Backend unavailable, retry later"), 0.0, {}, {}), task, callback, ssh_callback)
+        await self._handle_job_done(BackendJobDone(job_id, ("crash", "Backend unavailable, retry later"), 0.0, {}, {}, {}, None), task, callback,
+                                    ssh_callback)
 
     async def _on_disconnect(self):
         self._logger.warning("Disconnected from backend, retrying...")
@@ -244,7 +252,14 @@ class Client(BetterParanoidPirateClient):
         :type task: Task
         :param inputdata: input from the student
         :type inputdata: Storage or dict
-        :param callback: a function that will be called asynchronously in the client's process, with the results
+        :param callback: a function that will be called asynchronously in the client's process, with the results.
+            it's signature must be (result, grade, problems, tests, custom, archive), where:
+            result is itself a tuple containing the result string and the main feedback (i.e. ('success', 'You succeeded');
+            grade is a number between 0 and 100 indicating the grade of the users;
+            problems is a dict of tuple, in the form {'problemid': result};
+            test is a dict of tests made in the container
+            custom is a dict containing random things set in the container
+            archive is either None or a bytes containing a tgz archive of files from the job
         :type callback: __builtin__.function or __builtin__.instancemethod
         :param launcher_name: for informational use
         :type launcher_name: str
