@@ -14,7 +14,6 @@ import web
 
 from frontend.common.arch_helper import create_arch, start_asyncio_and_zmq
 from inginious.frontend.common.static_middleware import StaticMiddleware
-from inginious.frontend.common.webpy_fake_mapping import WebPyCustomMapping
 from inginious.frontend.webapp.database_updater import update_database
 from inginious.frontend.common.plugin_manager import PluginManager
 from inginious.common.course_factory import create_factories
