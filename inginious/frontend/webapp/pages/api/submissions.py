@@ -183,7 +183,7 @@ class APISubmissions(APIAuthenticatedPage):
         debug = self.user_manager.has_admin_rights_on_course(course, username)
 
         # Start the submission
-        submissionid = self.submission_manager.add_job(task, user_input, debug)
+        submissionid, _ = self.submission_manager.add_job(task, user_input, debug)
 
         return 200, {"submissionid": str(submissionid)}
 

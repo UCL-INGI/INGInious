@@ -60,7 +60,7 @@ $def ColumnF():
                 $elif len(myaggregation['groups']) > 0 and user_manager.session_username() in myaggregation['groups'][0]['students']:
                     Team : $myaggregation['description']
                 $else:
-                    Groups management
+                    Teams management
             </a>
             <a class="list-group-item list-group-item-info" href="/?unregister_courseid=$course.get_id()">
                 <i class="fa fa-user-times fa-fw"></i>&nbsp; Unregister from this course

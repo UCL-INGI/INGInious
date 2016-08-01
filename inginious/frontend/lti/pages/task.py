@@ -66,10 +66,10 @@ class LTITask(LTIAuthenticatedPage):
             debug = "Administrator" in self.user_manager.session_roles()
 
             # Start the submission
-            submissionid = self.submission_manager.add_job(self.task, userinput, debug)
+            submissionid, oldsubids = self.submission_manager.add_job(self.task, userinput, debug)
 
             web.header('Content-Type', 'application/json')
-            return json.dumps({"status": "ok", "submissionid": str(submissionid)})
+            return json.dumps({"status": "ok", "submissionid": str(submissionid), "remove": oldsubids})
         elif "@action" in userinput and userinput["@action"] == "check" and "submissionid" in userinput:
             if self.submission_manager.is_done(userinput['submissionid']):
                 web.header('Content-Type', 'application/json')

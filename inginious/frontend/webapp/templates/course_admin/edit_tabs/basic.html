@@ -68,38 +68,42 @@ $else:
 <div class="form-group">
     <label for="groups" class="col-sm-2 control-label">Submission storage</label>
     <div class="col-sm-10">
+        $ stored_submissions = task_data.get('stored_submissions', 0)
         <label>
-            <input type="radio" value="false" name="store_only_last" id="store_only_last"
-                $if not task_data.get('store_only_last', False):
+            <input type="radio" value="true" name="store_all" id="stored_submissions"
+                $if stored_submissions == 0:
                     checked="checked"
             /> All submissions
         </label><br/>
         <label>
-            <input type="radio" value="true" name="store_only_last"
-                $if task_data.get('store_only_last', False):
+            <input type="radio" value="false" name="store_all"
+                $if stored_submissions > 0:
                     checked="checked"
-            /> Only last submission
+            /> Only the last
+            <input name="stored_submissions" class="input-xs" value="$(stored_submissions if stored_submissions > 0 else 5)" type='number'>
+            submissions
         </label>
     </div>
+
 </div>
 <div class="form-group">
-    <label for="groups" class="col-sm-2 control-label">Default downloadable submission</label>
+    <label for="groups" class="col-sm-2 control-label">Evaluation submission</label>
     <div class="col-sm-10">
         <label>
-            <input type="radio" value="best" name="def_download" id="def_download"
-                $if task_data.get('def_download', 'best') == 'best':
+            <input type="radio" value="best" name="evaluate" id="evaluate"
+                $if task_data.get('evaluate', 'best') == 'best':
                     checked="checked"
             /> Best submission
         </label><br/>
         <label>
-            <input type="radio" value="last" name="def_download"
-                $if task_data.get('def_download', 'best') == 'last':
+            <input type="radio" value="last" name="evaluate"
+                $if task_data.get('evaluate', 'best') == 'last':
                     checked="checked"
             /> Last submission
         </label><br/>
         <label>
-            <input type="radio" value="student" name="def_download"
-                $if task_data.get('def_download', 'best') == 'student':
+            <input type="radio" value="student" name="evaluate"
+                $if task_data.get('evaluate', 'best') == 'student':
                     checked="checked"
             /> Student choice
         </label>
@@ -128,18 +132,18 @@ $else:
         </label>
         $ at = AccessibleTime(task_data.get('accessible',True))
         <div class="row">
-            <div class="col-xs-2 col-lg-2"><label class="control-label">From</label></div>
-            <div class="col-xs-10 col-lg-4">
+            <div class="col-xs-2 col-lg-1"><label class="control-label">From:</label></div>
+            <div class="col-xs-10 col-lg-5">
                 <div class='input-group date' id='accessible_start_picker'>
-                    <input name="accessible_start" data-date-format="YYYY-MM-DD HH:mm:ss" value="${at.get_std_start_date()}" placeholder="2014-06-29 10:00" type='text' class="form-control" />
-                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    <input name="accessible_start" data-date-format="YYYY-MM-DD HH:mm:ss" value="${at.get_std_start_date()}" placeholder="2014-06-29 10:00" type='text' class="input-xs" />
+                    <span class="input-group-addon btn-xs" style="width:0px;"><i class="fa fa-calendar"></i></span>
                 </div>
             </div>
-            <div class="col-xs-2 col-lg-2"><label class="control-label">To</label></div>
-            <div class="col-xs-10 col-lg-4">
+            <div class="col-xs-2 col-lg-1"><label class="control-label">to:</label></div>
+            <div class="col-xs-10 col-lg-5">
                 <div class='input-group date' id='accessible_end_picker'>
-                    <input name="accessible_end" data-date-format="YYYY-MM-DD HH:mm:ss" value="${at.get_std_end_date()}" placeholder="2014-06-29 10:00" type='text' class="form-control" />
-                    <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    <input name="accessible_end" data-date-format="YYYY-MM-DD HH:mm:ss" value="${at.get_std_end_date()}" placeholder="2014-06-29 10:00" type='text' class="input-xs" />
+                    <span class="input-group-addon btn-xs" style="width:0px;"><i class="fa fa-calendar"></i></span>
                 </div>
             </div>
         </div>
