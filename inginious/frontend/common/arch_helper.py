@@ -73,6 +73,8 @@ def create_arch(configuration, task_directory, context):
             except:
                 logger.error("debug_ports should be in the format 'begin-end', for example '1000-2000'")
                 exit(1)
+        else:
+            debug_ports = range(64100, 64111)
 
         client = Client(context, "inproc://backend_client")
         backend = Backend(context, "inproc://backend_agent", "inproc://backend_client")
