@@ -38,7 +38,7 @@ class CourseSettings(INGIniousAdminPage):
 
             course_content['groups_student_choice'] = True if data["groups_student_choice"] == "true" else False
 
-            if course_content['use_classrooms'] != (data['use_classrooms'] == "true"):
+            if course_content.get('use_classrooms', True) != (data['use_classrooms'] == "true"):
                 self.database.aggregations.delete_many({"courseid": course.get_id()})
 
             course_content['use_classrooms'] = True if data["use_classrooms"] == "true" else False
