@@ -4,15 +4,9 @@
 //
 "use strict";
 
-function init_task_page(evaluate, max_task_subs, max_subs)
+function init_task_page(evaluate)
 {
     evaluatedSubmission = evaluate;
-    if(max_subs <= 0)
-        maxSubmissions = max_task_subs;
-    else if(max_task_subs <= 0)
-        maxSubmissions = max_subs;
-    else
-        maxSubmissions = Math.min(max_task_subs, max_subs);
 
     //Init the task form, if we are on the task submission page
     var task_form = $('form#task');
@@ -45,7 +39,6 @@ function init_task_page(evaluate, max_task_subs, max_subs)
 var evaluatedSubmission = 'best';
 //True if loading something
 var loadingSomething = false;
-var maxSubmissions = 0;
 
 //Task page: find an editor by problem id
 function getEditorForProblemId(problemId)
@@ -139,12 +132,17 @@ function displayNewSubmission(id)
     $("body").tooltip({
         selector: '[data-toggle="tooltip"]'
     });
+}
 
-    if(maxSubmissions > 0) {
-        var subs = $(".submission");
-        if(subs.length > maxSubmissions)
-            subs.last().remove();
-    }
+function removeSubmission(id) {
+    var item;
+
+    $('#submissions').find('.submission').each(function() {
+        if($(this).attr('data-submission-id').trim() == id)
+            item = $(this)
+    });
+
+    item.remove();
 }
 
 //Updates a loading submission
@@ -362,6 +360,12 @@ function submitTask(with_ssh)
                               displayTaskErrorAlert({});
                               updateTaskStatus("Internal error", 0);
                               unblurTaskForm();
+                          }
+
+                          if("remove" in data) {
+                              data["remove"].forEach(function(element, index, array) {
+                                 removeSubmission(element);
+                              });
                           }
                       },
             error:    function()
