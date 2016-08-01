@@ -432,17 +432,24 @@ class DockerAgent(object):
                                        future_results):
         """ Talk with a container. Sends the initial input. Allows to start student containers """
         sock = await self._loop.run_in_executor(None, lambda: self._docker.attach_to_container(container_id))
-        read_stream, write_stream = await asyncio.open_connection(sock=sock.get_socket())
+        try:
+            read_stream, write_stream = await asyncio.open_connection(sock=sock.get_socket())
+        except:
+            self._logger.exception("Exception occured while creating read/write stream to container")
+            return None
 
         # a small helper
         async def write(o):
-            write_stream.write(msgpack.dumps(o, encoding="utf8", use_bin_type=True))
+            msg = msgpack.dumps(o, encoding="utf8", use_bin_type=True)
+            self._logger.debug("Sending %i bytes to container", len(msg))
+            write_stream.write(struct.pack('I', len(msg)))
+            write_stream.write(msg)
             await write_stream.drain()
 
         # Send hello msg
         await write({"type": "start", "input": inputdata, "debug": debug})
 
-        unpacker = Unpacker(encoding="utf8", use_list=False)
+        buffer = bytearray()
         try:
             while not read_stream.at_eof():
                 msg_header = await read_stream.readexactly(8)
@@ -450,11 +457,17 @@ class DockerAgent(object):
                 if length != 0:
                     content = await read_stream.readexactly(length)
                     if type == 1:  # stdout
-                        unpacker.feed(content)
+                        buffer += content
 
-                    # parse the messages
-                    for msg in unpacker:
+                    if type == 2:  # stderr
+                        self._logger.debug("Received stderr from containers:\n%s", content)
+
+                    # 4 first bytes are the lenght of the message. If we have a complete message...
+                    while len(buffer) > 4 and len(buffer) >= 4+struct.unpack('I',buffer[0:4])[0]:
+                        msg_encoded = buffer[4:4 + struct.unpack('I', buffer[0:4])[0]]  # ... get it
+                        buffer = buffer[4 + struct.unpack('I', buffer[0:4])[0]:]  # ... withdraw it from the buffer
                         try:
+                            msg = msgpack.unpackb(msg_encoded, encoding="utf8", use_list=False)
                             self._logger.debug("Received msg %s from container %s", msg["type"], container_id)
                             if msg["type"] == "run_student":
                                 # start a new student container
