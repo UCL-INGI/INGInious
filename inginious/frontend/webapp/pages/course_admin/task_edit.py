@@ -211,10 +211,6 @@ class CourseEditTask(INGIniousAdminPage):
             if "groups" in data:
                 data["groups"] = True if data["groups"] == "true" else False
 
-            # Submision storage
-            if "store_only_last" in data:
-                data["store_only_last"] = True if data["store_only_last"] == "true" else False
-
             # Accessible
             if data["accessible"] == "custom":
                 data["accessible"] = "{}/{}".format(data["accessible_start"], data["accessible_end"])

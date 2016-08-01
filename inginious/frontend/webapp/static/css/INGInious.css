@@ -93,7 +93,7 @@ form#task label {
   overflow: auto;
   max-height: 223px;
 }
-.submission {
+#submissions .submission {
   cursor: pointer;
 }
 .panel {

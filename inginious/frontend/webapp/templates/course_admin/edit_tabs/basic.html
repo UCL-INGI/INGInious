@@ -61,47 +61,7 @@ $else:
             <input type="radio" value="true" name="groups"
                 $if task_data.get('groups', False):
                     checked="checked"
-            /> Per group/team
-        </label>
-    </div>
-</div>
-<div class="form-group">
-    <label for="groups" class="col-sm-2 control-label">Submission storage</label>
-    <div class="col-sm-10">
-        <label>
-            <input type="radio" value="false" name="store_only_last" id="store_only_last"
-                $if not task_data.get('store_only_last', False):
-                    checked="checked"
-            /> All submissions
-        </label><br/>
-        <label>
-            <input type="radio" value="true" name="store_only_last"
-                $if task_data.get('store_only_last', False):
-                    checked="checked"
-            /> Only last submission
-        </label>
-    </div>
-</div>
-<div class="form-group">
-    <label for="groups" class="col-sm-2 control-label">Default downloadable submission</label>
-    <div class="col-sm-10">
-        <label>
-            <input type="radio" value="best" name="def_download" id="def_download"
-                $if task_data.get('def_download', 'best') == 'best':
-                    checked="checked"
-            /> Best submission
-        </label><br/>
-        <label>
-            <input type="radio" value="last" name="def_download"
-                $if task_data.get('def_download', 'best') == 'last':
-                    checked="checked"
-            /> Last submission
-        </label><br/>
-        <label>
-            <input type="radio" value="student" name="def_download"
-                $if task_data.get('def_download', 'best') == 'student':
-                    checked="checked"
-            /> Student choice
+            /> Per groups
         </label>
     </div>
 </div>

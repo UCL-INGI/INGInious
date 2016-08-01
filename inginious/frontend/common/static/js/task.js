@@ -4,10 +4,8 @@
 //
 "use strict";
 
-function init_task_page(def_download)
+function init_task_page()
 {
-    defaultDownload = def_download;
-
     //Init the task form, if we are on the task submission page
     var task_form = $('form#task');
     task_form.on('submit', function()
@@ -29,14 +27,9 @@ function init_task_page(def_download)
         displayTaskLoadingAlert();
         waitForSubmission(task_form.attr("data-wait-submission"));
     }
-
-    $('.submission').each(function() {
-        $(this).on('click', clickOnSubmission);
-        $(this).find('a').on('click', selectSubmission);
-    });
+    $('#submissions').find('.submission').on('click', clickOnSubmission);
 }
 
-var defaultDownload = 'best';
 //True if loading something
 var loadingSomething = false;
 
@@ -112,28 +105,10 @@ function displayNewSubmission(id)
     var submissions = $('#submissions');
     submissions.find('.submission-empty').remove();
 
-    var submission_link = jQuery('<li/>', {
-        class: "submission list-group-item list-group-item-warning",
-        "data-submission-id": id
-    }).on('click', clickOnSubmission);
-
-    if(defaultDownload == "student") {
-        var actual_link = jQuery('<a/>', {
-         title:"Select for evaluation",
-         "data-toggle":"tooltip",
-         "data-placement": "right"
-         }).appendTo(submission_link).after("&nbsp;&nbsp;").on('click', selectSubmission);
-
-         jQuery('<i/>', {class: "fa fa-bookmark fa-fw"}).appendTo(actual_link);
-    }
-
-    jQuery('<span/>', {}).text(getDateTime()).appendTo(submission_link);
-    submissions.prepend(submission_link);
-
-    $("body").tooltip({
-    selector: '[data-toggle="tooltip"]'
-});
-
+    submissions.prepend($('<a></a>')
+        .addClass('submission').addClass('list-group-item')
+        .addClass('list-group-item-warning')
+        .attr('data-submission-id', id).text(getDateTime()).on('click', clickOnSubmission))
 }
 
 //Updates a loading submission
@@ -150,49 +125,9 @@ function updateSubmission(id, result, grade)
         if($(this).attr('data-submission-id').trim() == id)
         {
             $(this).removeClass('list-group-item-warning').addClass(nclass);
-            $(this).find("span").append(" - " + grade + "%");
+            $(this).text($(this).text() + " - " + grade + "%");
         }
     });
-}
-
-// Select submission handler
-function selectSubmission(e) {
-
-    e.stopPropagation();
-
-    var item = $(this).parent();
-    var id = item.attr('data-submission-id');
-
-    if($(this).hasClass('allowed'))
-        setSelectedSubmission(id);
-}
-
-// Set selected submission
-function setSelectedSubmission(id) {
-    var item;
-
-    $('#submissions').find('.submission').each(function() {
-        if($(this).attr('data-submission-id').trim() == id)
-            item = $(this)
-    });
-
-    var text = item.find("span").html();
-    var url = $('form#task').attr("action");
-
-    jQuery.post(url, {"@action": "set_submission", "submissionid": id}, null, "json")
-        .done(function(data)
-        {
-            var submission_link = jQuery('<a/>', {
-                class: "submission list-group-item list-group-item-info",
-                "data-submission-id": id
-            }).on('click', clickOnSubmission);
-
-            jQuery('<i/>', {class: "fa fa-chevron-right fa-fw"}).appendTo(submission_link).after("&nbsp;");
-            submission_link.append(text);
-
-            $("#my_submission").fadeOut(function() {$(this).empty().append(submission_link).fadeIn()});
-
-        });
 }
 
 //Submission's click handler
@@ -421,9 +356,6 @@ function waitForSubmission(submissionid)
                     updateTaskStatus("Wrong answer", 0);
                     unblurTaskForm();
                 }
-
-                if("replace" in data && data["replace"])
-                    setSelectedSubmission(submissionid);
             })
             .fail(function()
             {

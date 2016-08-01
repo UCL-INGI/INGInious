@@ -27,7 +27,7 @@ class WebAppSubmissionManager(SubmissionManager):
 
         submission = self.get_submission(submissionid, False)
         for username in submission["username"]:
-            self._user_manager.update_user_stats(username, task, submission, job)
+            self._user_manager.update_user_stats(username, submission, job)
 
     def _before_submission_insertion(self, task, inputdata, debug, obj):
         username = self._user_manager.session_username()

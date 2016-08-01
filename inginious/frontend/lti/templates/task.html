@@ -49,23 +49,26 @@ $def ColumnF():
 
     <h3>Submissions</h3>
     <div id="submissions_restrictsize">
-	    <ul id="submissions" class="list-group">
+
+	    <div id="submissions" class="list-group">
 	        $if submissions:
 	            $for submission in submissions:
-	                <li class="submission list-group-item
+	                <a class="submission list-group-item 
 	                    $if submission['status'] == 'done' and submission['result'] == 'success':
 	                        list-group-item-success
+	                    $elif submission['status'] == 'done' and submission['result'] == 'save':
+	                        list-group-item-info
 	                    $elif submission['status'] == 'waiting':
 	                        list-group-item-warning
 	                    $else:
 	                        list-group-item-danger
 	                    "
 	                    data-submission-id="$submission['_id']">
-	                    <span>$submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S") - $submission.get("grade",0.0)%</span>
-	                </li>
+	                    $submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S") - $submission.get("grade",0.0)%
+	                </a>
 	        $else:
-	            <li class="list-group-item disabled submission-empty">No submissions</li>
-	    </ul>
+	            <a class="list-group-item disabled submission-empty">No submissions</a>
+	    </div>
     </div>
     <p>
         <small>Please note that for performance reasons, INGInious may not keep all your submissions indefinitely.</small>
@@ -103,9 +106,3 @@ $:task.get_context()
         </div>
     <button type="submit" class="btn btn-default btn-lg btn-block center-block" id="task-submit">Submit</button>
 </form>
-
-<script type="text/javascript">
-$$(document).ready(function() {
-    init_task_page('last');
-});
-</script>

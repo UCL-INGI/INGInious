@@ -364,12 +364,12 @@ class UserManager(AbstractUserManager):
                                                            "tried": 0, "succeeded": False, "grade": 0.0}},
                                          upsert=True)
 
-    def update_user_stats(self, username, task, submission, job):
+    def update_user_stats(self, username, submission, job):
         """ Update stats with a new submission """
         self.user_saw_task(username, submission["courseid"], submission["taskid"])
 
         # Update inc counter
-        old_submission = self._database.user_tasks.find_one_and_update({"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]},
+        self._database.user_tasks.update({"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]},
                                          {"$inc": {"tried": 1}})
 
         # Set to succeeded if not succeeded yet
@@ -381,15 +381,6 @@ class UserManager(AbstractUserManager):
             # Update the grade if needed
             self._database.user_tasks.find_and_modify({"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"],
                                                        "grade": {"$lt": job["grade"]}}, {"$set": {"grade": job["grade"]}})
-
-        # Check if the submission is the default download
-        set_default = task.default_download() == 'last' or \
-                      (task.default_download() == 'student' and old_submission is None) or \
-                      (task.default_download() == 'best' and old_submission.get('grade', 0.0) <= job["grade"])
-
-        if set_default:
-            self._database.user_tasks.find_and_modify(
-                {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]}, {"$set": {"submissionid": submission['_id']}})
 
     def get_course_grade(self, course, username=None):
         """

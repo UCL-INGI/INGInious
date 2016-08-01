@@ -13,7 +13,6 @@ import urllib
 
 import web
 
-from bson.objectid import ObjectId
 from inginious.frontend.common.task_page_helpers import submission_to_json, list_multiple_multiple_choices_and_files
 from inginious.frontend.webapp.pages.utils import INGIniousPage
 
@@ -57,27 +56,9 @@ class TaskPage(INGIniousPage):
                         web.header('Content-Type', 'text/plain')
                         return sinput[userinput["questionid"]]
                 else:
-                    user_task = self.database.user_tasks.find_one({
-                        "courseid": task.get_course_id(),
-                        "taskid": task.get_id(),
-                        "username": self.user_manager.session_username()
-                    })
-
-                    submissionid = user_task.get('submissionid', None)
-                    eval_submission = self.database.submissions.find_one({'_id': ObjectId(submissionid)})
-
-                    students = None
-                    if task.is_group_task() and not self.user_manager.has_admin_rights_on_course(course, username):
-                        for index, group in enumerate(self.user_manager.get_course_user_aggregation(course)["groups"]):
-                            if self.user_manager.session_username() in group["students"]:
-                                students = group
-                    else:
-                        students = [username]
-
                     # Display the task itself
-                    return self.template_helper.get_renderer().task(course, task,
-                                                                    self.submission_manager.get_user_submissions(task),
-                                                                    students, eval_submission, self.remote_ssh_manager.is_active())
+                    return self.template_helper.get_renderer().task(course, task, self.submission_manager.get_user_submissions(task),
+                                                                    self.remote_ssh_manager.is_active())
             except:
                 if web.config.debug:
                     raise
@@ -142,17 +123,7 @@ class TaskPage(INGIniousPage):
                         web.header('Content-Type', 'application/json')
                         result = self.submission_manager.get_input_from_submission(result)
                         result = self.submission_manager.get_feedback_from_submission(result, show_everything=is_staff)
-
-                        user_task = self.database.user_tasks.find_one({
-                                     "courseid":task.get_course_id(),
-                                     "taskid": task.get_id(),
-                                     "username": self.user_manager.session_username()
-                                 })
-
-                        submissionid = user_task.get('submissionid', None)
-                        default_submission = self.database.submissions.find_one({'_id': ObjectId(submissionid)})
-                        return submission_to_json(result, is_admin, False, True if default_submission is None else default_submission['_id'] == result['_id'])
-
+                        return submission_to_json(result, is_admin)
                     else:
                         web.header('Content-Type', 'application/json')
                         if "ssh_key" in result and self.remote_ssh_manager.is_active():
@@ -174,29 +145,6 @@ class TaskPage(INGIniousPage):
                     self.submission_manager.kill_running_submission(userinput["submissionid"])  # ignore return value
                     web.header('Content-Type', 'application/json')
                     return json.dumps({'status': 'done'})
-                elif "@action" in userinput and userinput["@action"] == "set_submission" and "submissionid" in userinput:
-                    web.header('Content-Type', 'application/json')
-                    if task.default_download() != 'student':
-                        return json.dumps({'status': "error"})
-
-                    submission = self.submission_manager.get_submission(userinput["submissionid"])
-
-                    # Check if task is done per group/team
-                    students = None
-                    if task.is_group_task() and not is_admin:
-                        for index, group in enumerate(self.user_manager.get_course_user_aggregation(course)["groups"]):
-                            if self.user_manager.session_username() in group["students"]:
-                                students = group
-                    else:
-                        students = [username]
-
-                    # Check if group/team is the same
-                    if students == submission["username"]:
-                        self.database.user_tasks.update_many({"courseid": courseid, "taskid": taskid, "username": {"$in": students}},
-                                                                     {"$set": {"submissionid": submission['_id']}})
-                        return json.dumps({'status': 'done'})
-                    else:
-                        return json.dumps({'status': 'error'})
                 else:
                     raise web.notfound()
             except:
