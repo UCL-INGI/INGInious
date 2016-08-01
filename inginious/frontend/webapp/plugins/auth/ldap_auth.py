@@ -4,6 +4,7 @@
 # more information about the licensing of this file.
 
 """ LDAP plugin """
+from collections import OrderedDict
 
 import simpleldap
 
@@ -63,7 +64,8 @@ class LdapAuthMethod(AuthMethod):
             return None
 
     def needed_fields(self):
-        return {"input": {"login": {"type": "text", "placeholder": "Login"}, "password": {"type": "password", "placeholder": "Password"}}, "info": ""}
+        return {"input": OrderedDict((("login", {"type": "text", "placeholder": "Login"}), ("password", {"type": "password", "placeholder":
+            "Password"}))), "info": ""}
 
     def should_cache(self):
         return True

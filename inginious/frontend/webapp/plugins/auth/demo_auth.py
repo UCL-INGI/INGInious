@@ -4,6 +4,7 @@
 # more information about the licensing of this file.
 
 """ Demo auth """
+from collections import OrderedDict
 
 from inginious.frontend.webapp.user_manager import AuthMethod
 
@@ -30,7 +31,8 @@ class DemoAuthMethod(AuthMethod):
             return None
 
     def needed_fields(self):
-        return {"input": {"login": {"type": "text", "placeholder": "Login"}, "password": {"type": "password", "placeholder": "Password"}}, "info": ""}
+        return {"input": OrderedDict((("login", {"type": "text", "placeholder": "Login"}), ("password", {"type": "password", "placeholder":
+            "Password"}))), "info": ""}
 
     def should_cache(self):
         return False

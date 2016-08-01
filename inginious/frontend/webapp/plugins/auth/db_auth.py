@@ -8,6 +8,7 @@
 import hashlib
 import random
 import re
+from collections import OrderedDict
 
 import web
 
@@ -39,8 +40,9 @@ class DatabaseAuthMethod(AuthMethod):
             return None
 
     def needed_fields(self):
-        return {"input": {"login": {"type": "text", "placeholder": "Login"}, "password": {"type": "password", "placeholder": "Password"}},
-                "info": """<div class="text-center"><a href="/register">Register</a> / <a href="/register#lostpasswd">Lost password ?</a></div>"""}
+        return {"input": OrderedDict((("login", {"type": "text", "placeholder": "Login"}), ("password", {"type": "password", "placeholder":
+            "Password"}))), "info": """<div class="text-center"><a href="/register">Register</a> / <a href="/register#lostpasswd">Lost password
+            ?</a></div>"""}
 
     def should_cache(self):
         return False
