@@ -129,7 +129,7 @@ class TaskPage(INGIniousPage):
                         del userinput['@debug-mode']
 
                     # Start the submission
-                    submissionid = self.submission_manager.add_job(task, userinput, debug)
+                    submissionid, _ = self.submission_manager.add_job(task, userinput, debug)
 
                     web.header('Content-Type', 'application/json')
                     return json.dumps({"status": "ok", "submissionid": str(submissionid)})

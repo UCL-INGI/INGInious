@@ -31,7 +31,7 @@ class LTISubmissionManager(SubmissionManager):
                                                self._user_manager.session_outcome_service_url(),
                                                self._user_manager.session_outcome_result_id())
         self.lis_outcome_data_lock.release()
-        self._delete_exceeding_submissions(self._user_manager.session_username(), task, self._max_submissions)
+        return self._delete_exceeding_submissions(self._user_manager.session_username(), task, self._max_submissions)
 
     def _job_done_callback(self, submissionid, task, job):
         super(LTISubmissionManager, self)._job_done_callback(submissionid, task, job)
@@ -88,3 +88,4 @@ class LTISubmissionManager(SubmissionManager):
 
         to_delete = {val["_id"] for val in tasks}.difference(to_keep)
         self._database.submissions.delete_many({"_id": {"$in": list(to_delete)}})
+        return to_delete[0]

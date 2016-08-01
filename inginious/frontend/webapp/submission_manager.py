@@ -53,7 +53,7 @@ class WebAppSubmissionManager(SubmissionManager):
                     {"groups": {"$elemMatch": {"students": username}}})
                 inputdata["username"] = ','.join(group["groups"][0]["students"])
 
-        self._delete_exceeding_submissions(self._user_manager.session_username(), task)
+        return self._delete_exceeding_submissions(self._user_manager.session_username(), task)
 
     def _delete_exceeding_submissions(self, username, task, max_submissions_bound=-1):
         """ Deletes exceeding submissions from the database, to keep the database relatively small """
@@ -96,3 +96,4 @@ class WebAppSubmissionManager(SubmissionManager):
 
         to_delete = {val["_id"] for val in tasks}.difference(to_keep)
         self._database.submissions.delete_many({"_id": {"$in": list(to_delete)}})
+        return to_delete[0]

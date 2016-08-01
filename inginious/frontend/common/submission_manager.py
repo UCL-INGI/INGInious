@@ -87,7 +87,7 @@ class SubmissionManager(object):
         :type inputdata: dict
         :param debug: If debug is true, more debug data will be saved
         :type debug: bool
-        :returns: the submission id
+        :returns: the new submission id and the removed submission id
         """
         if not self._user_manager.session_logged_in():
             raise Exception("A user must be logged in to submit an object")
@@ -112,7 +112,7 @@ class SubmissionManager(object):
         if "username" not in [p.get_id() for p in task.get_problems()]:  # do not overwrite
             inputdata["username"] = username
 
-        self._after_submission_insertion(task, inputdata, debug, obj, submissionid)
+        to_remove = self._after_submission_insertion(task, inputdata, debug, obj, submissionid)
 
         self._hook_manager.call_hook("new_submission", submissionid=submissionid, submission=obj, inputdata=inputdata)
 
@@ -128,7 +128,7 @@ class SubmissionManager(object):
             {"$set": {"jobid": jobid}}
         )
 
-        return submissionid
+        return submissionid, to_remove
 
     def _before_submission_insertion(self, task, inputdata, debug, obj):
         """

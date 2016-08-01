@@ -66,7 +66,7 @@ class LTITask(LTIAuthenticatedPage):
             debug = "Administrator" in self.user_manager.session_roles()
 
             # Start the submission
-            submissionid = self.submission_manager.add_job(self.task, userinput, debug)
+            submissionid, _ = self.submission_manager.add_job(self.task, userinput, debug)
 
             web.header('Content-Type', 'application/json')
             return json.dumps({"status": "ok", "submissionid": str(submissionid)})
