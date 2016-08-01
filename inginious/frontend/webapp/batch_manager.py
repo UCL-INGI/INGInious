@@ -70,8 +70,6 @@ class BatchManager(object):
                  }
                 )
         """
-        #TODO update callers
-        #TODO update function
         if container_name not in self._client.get_batch_containers_metadata():
             raise Exception("This batch container is not allowed to be started")
 
@@ -145,26 +143,28 @@ class BatchManager(object):
 
         launcher_name = launcher_name or "plugin"
 
-        self._client.new_batch_job(container_name, inputdata, lambda r: self._batch_job_done_callback(batch_job_id, r, send_mail),
-                                        launcher_name="Frontend - {}".format(launcher_name))
+        self._client.new_batch_job(container_name, inputdata,
+                                   lambda retval, stdout, stderr, file:
+                                   self._batch_job_done_callback(batch_job_id, retval, stdout, stderr, file, send_mail),
+                                   launcher_name="Frontend - {}".format(launcher_name))
 
         return batch_job_id
 
-    def _batch_job_done_callback(self, batch_job_id, result, send_mail=None):
+    def _batch_job_done_callback(self, batch_job_id, retval, stdout, stderr, file, send_mail=None):
         """ Called when the batch job with id jobid has finished.
-            result is a dictionnary, containing:
-
-            - {"retval": 0, "stdout": "...", "stderr": "...", "file": "..."}
-                if everything went well.(where file is a tgz file containing the content of the / output folder from the container)
-            - {"retval": "...", "stdout": "...", "stderr": "..."}
-                if the container crashed (retval is an int != 0)
-            - {"retval": -1, "stderr": "the error message"}
-                if the container failed to start
+            :param retval: an integer, the return value of the command in the container
+            :param stdout: stdout of the container
+            :param stderr: stderr of the container
+            :param file: tgz as bytes. Can be None if retval < 0
         """
 
-        # If there is a tgz file to save, put it in gridfs
-        if "file" in result:
-            result["file"] = self._gridfs.put(result["file"].read())
+        result = {
+            "retval": retval,
+            "stdout": stdout,
+            "stderr": stderr,
+        }
+        if file is not None:
+            result["file"] = self._gridfs.put(file)
 
         # Save submission to database
         self._database.batch_jobs.update(
