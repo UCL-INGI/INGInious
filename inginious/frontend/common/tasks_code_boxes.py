@@ -50,7 +50,7 @@ class DisplayableFileBox(FileBox, DisplayableBox):
     def adapt_input_for_backend(self, input_data):
         try:
             input_data[self.get_complete_id()] = {"filename": input_data[self.get_complete_id()].filename,
-                                                  "value": base64.b64encode(input_data[self.get_complete_id()].value)}
+                                                  "value": base64.b64encode(input_data[self.get_complete_id()].value).decode('utf8')}
         except:
             input_data[self.get_complete_id()] = {}
         return input_data
