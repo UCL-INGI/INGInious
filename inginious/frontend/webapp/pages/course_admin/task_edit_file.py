@@ -139,7 +139,6 @@ class CourseTaskFiles(INGIniousAdminPage):
 
         content = open(wanted_path, 'r').read()
         try:
-            content.decode('utf-8')
             return json.dumps({"content": content})
         except:
             return json.dumps({"error": "not-readable"})
