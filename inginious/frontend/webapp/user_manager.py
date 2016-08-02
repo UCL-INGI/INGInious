@@ -361,7 +361,7 @@ class UserManager(AbstractUserManager):
         """ Set in the database that the user has viewed this task """
         self._database.user_tasks.update({"username": username, "courseid": courseid, "taskid": taskid},
                                          {"$setOnInsert": {"username": username, "courseid": courseid, "taskid": taskid,
-                                                           "tried": 0, "succeeded": False, "grade": 0.0}},
+                                                           "tried": 0, "succeeded": False, "grade": 0.0, "submissionid": None}},
                                          upsert=True)
 
     def update_user_stats(self, username, task, submission, job):

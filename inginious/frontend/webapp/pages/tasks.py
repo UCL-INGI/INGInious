@@ -88,7 +88,7 @@ class TaskPage(INGIniousPage):
                     })
 
                     submissionid = user_task.get('submissionid', None)
-                    eval_submission = self.database.submissions.find_one({'_id': ObjectId(submissionid)})
+                    eval_submission = self.database.submissions.find_one({'_id': ObjectId(submissionid)}) if submissionid else None
 
                     students = None
                     if task.is_group_task() and not self.user_manager.has_admin_rights_on_course(course, username):
@@ -174,7 +174,7 @@ class TaskPage(INGIniousPage):
                                  })
 
                         submissionid = user_task.get('submissionid', None)
-                        default_submission = self.database.submissions.find_one({'_id': ObjectId(submissionid)})
+                        default_submission = self.database.submissions.find_one({'_id': ObjectId(submissionid)}) if submissionid else None
                         if default_submission is None:
                             self.set_selected_submission(course, task, userinput['submissionid'])
                         return submission_to_json(result, is_admin, False, True if default_submission is None else default_submission['_id'] == result['_id'])

@@ -196,7 +196,8 @@ class SubmissionManager(object):
             })
 
             submissionid = user_task.get('submissionid', None)
-            to_keep.add(submissionid)
+            if submissionid:
+                to_keep.add(submissionid)
 
         # Always keep running submissions
         for val in tasks:
