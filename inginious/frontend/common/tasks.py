@@ -46,6 +46,9 @@ class FrontendTask(inginious.common.tasks.Task):
         # Submission storage
         self._stored_submissions = int(self._data.get("stored_submissions", 0))
 
+        # Default download
+        self._evaluate = self._data.get("evaluate", "best")
+
     def get_name(self):
         """ Returns the name of this task """
         return self._name
@@ -67,3 +70,7 @@ class FrontendTask(inginious.common.tasks.Task):
     def get_stored_submissions(self):
         """ Indicates if only the last submission must be stored for the task """
         return self._stored_submissions
+
+    def get_evaluate(self):
+        """ Indicates the default download for the task """
+        return self._evaluate

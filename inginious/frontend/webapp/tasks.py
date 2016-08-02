@@ -26,9 +26,6 @@ class WebAppTask(FrontendTask):
         # Group task
         self._groups = bool(self._data.get("groups", False))
 
-        # Default download
-        self._evaluate = self._data.get("evaluate", "best")
-
     def get_order(self):
         """ Get the position of this task in the course """
         return self._order
@@ -57,7 +54,3 @@ class WebAppTask(FrontendTask):
     def is_group_task(self):
         """ Indicates if the task submission mode is per groups """
         return self._groups
-
-    def get_evaluate(self):
-        """ Indicates the default download for the task """
-        return self._evaluate
