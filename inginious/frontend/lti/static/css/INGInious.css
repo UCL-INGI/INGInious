@@ -92,6 +92,7 @@ form#task label {
 #submissions_restrictsize {
   overflow: auto;
   max-height: 223px;
+  margin-bottom: 50px;
 }
 .submission {
   cursor: pointer;

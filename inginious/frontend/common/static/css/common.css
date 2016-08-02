@@ -1,6 +1,7 @@
 /* Mixins */
 /* Fonts */
 @import url(//fonts.googleapis.com/css?family=Yanone+Kaffeesatz:300);
+@import url(//fonts.googleapis.com/css?family=Source+Code+Pro);
 /*Fixes for bootstrap*/
 .form-inline.form-control {
   display: inline-block;
@@ -65,9 +66,33 @@ form#task #task-submit-debug {
 form#task label {
   display: block;
 }
+#task_alert {
+  position: relative;
+}
+#task_alert .alert#ssh_remote_info {
+  font-size: 14px;
+}
+#task_alert .alert#ssh_remote_info pre {
+  font-size: 10px;
+  margin-right: 50px;
+}
+#task_alert .alert#ssh_remote_info pre:before {
+  content: "$ ";
+}
+#task_alert .kill-submission-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 50px;
+}
+#task_alert .loading-alert {
+  padding-right: 50px;
+}
 #submissions_restrictsize {
   overflow: auto;
   max-height: 223px;
+  margin-bottom: 50px;
 }
 .submission {
   cursor: pointer;
@@ -102,6 +127,68 @@ form#task label {
   border-radius: 0;
 }
 /* Codemirror */
-.CodeMirror-placeholder {
+.cm-s-inginious {
+  font-size: 1em;
+  line-height: 1.5em;
+  font-family: 'Source Code Pro', monospace !important;
+  letter-spacing: 0.3px;
+  word-spacing: 1px;
+  background: #fdfdfd;
+  color: #181818;
+}
+.cm-s-inginious.CodeMirror pre {
+  font-family: 'Source Code Pro', monospace !important;
+}
+.cm-s-inginious .CodeMirror-lines {
+  padding: 8px 0;
+}
+.cm-s-inginious .CodeMirror-gutters {
+  background-color: transparent;
+  padding-right: 10px;
+  z-index: 3;
+  border: none;
+}
+.cm-s-inginious .CodeMirror-placeholder {
   color: #aaaaaa !important;
+}
+.cm-s-inginious div.CodeMirror-cursor {
+  border-left: 3px solid #181818;
+}
+.cm-s-inginious .CodeMirror-activeline-background {
+  background: #ffffff;
+}
+.cm-s-inginious .CodeMirror-selected {
+  background: #d9edf7;
+}
+.cm-s-inginious .cm-comment {
+  color: #959595;
+  background-color: #f0f0f0;
+  opacity: 0.7;
+}
+.cm-s-inginious .cm-string {
+  color: #43ac6a;
+  font-style: oblique;
+}
+.cm-s-inginious .cm-variable,
+.cm-s-inginious .cm-variable-2 {
+  /*color: #f92672;*/
+  color: black;
+}
+.cm-s-inginious .cm-keyword,
+.cm-s-inginious .cm-builtin {
+  color: #f04124;
+}
+.cm-s-inginious .cm-atom {
+  color: #e99002;
+}
+.cm-s-inginious .cm-operator {
+  color: #5bc0de;
+}
+.cm-s-inginious .cm-def,
+.cm-s-inginious .cm-variable-3 {
+  /*background-color: #d9edf7;*/
+  color: #5bc0de;
+}
+.cm-s-inginious .CodeMirror-linenumber {
+  /*color: #22a21f;*/
 }
