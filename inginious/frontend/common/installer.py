@@ -6,20 +6,13 @@
 """ Shared methods for the command line tool that installs the frontends """
 import abc
 import os
-import socket
-import uuid
-import sys
-import time
 import shutil
 
 import docker
-import subprocess
 from docker.utils import kwargs_from_env
 from gridfs import GridFS
-import rpyc
 from pymongo import MongoClient
 
-from inginious.backend.job_managers.docker_machine import DockerMachineJobManager
 import inginious.common.custom_yaml as yaml
 
 HEADER = '\033[95m'
@@ -93,35 +86,25 @@ class Installer(object, metaclass=abc.ABCMeta):
 
     def run(self):
         """ Run the installator """
-        self._display_header("DOCKER CONFIGURATION")
-        def_backend, def_remote_host, def_remote_docker_port, def_use_tls = self.generate_docker_default()
+        self._display_header("BACKEND CONFIGURATION")
         options = {}
         while True:
             options = {}
-            backend = self.ask_docker_backend(def_backend)
-            if backend == "docker_machine":
-                self._display_info("Backend chosen: docker machine. Let's configure the agents.")
-                options = self.configure_backend_docker_machine(def_remote_host, def_remote_docker_port, def_use_tls)
-                if options is not None:
-                    break
-            elif backend == "remote":
-                self._display_info("Backend chosen: remote. Let's configure the agents.")
-                options = self.configure_backend_remote(def_remote_host, def_remote_docker_port, def_use_tls)
-                if options is not None:
-                    break
-            elif backend == "local":
+            backend = self.ask_backend()
+            if backend == "local":
                 self._display_info("Backend chosen: local. Testing the configuration.")
-                options = {"backend": "local"}
-                if not self.test_basic_docker_conf("local"):
-                    self._display_error("An error occured while testing the configuration.")
+                options = self._ask_local_config()
+                if not self.test_local_docker_conf():
+                    self._display_error("An error occured while testing the configuration. Please make sure you are able do run `docker info` in "
+                                        "your command line, and environment parameters like DOCKER_HOST are correctly set.")
                     if self._ask_boolean("Would you like to continue anyway?", False):
                         break
                 else:
                     break
             else:
-                self._display_warning("Backend chosen: remote_manual. As it is a really advanced feature, you will have to configure it yourself in "
+                self._display_warning("Backend chosen: manual. As it is a really advanced feature, you will have to configure it yourself in "
                                       "the configuration file, at the end of the setup process.")
-                options = {"backend": "remote_manual"}
+                options = {"backend": backend}
                 break
 
         self._display_header("MONGODB CONFIGURATION")
@@ -170,534 +153,97 @@ class Installer(object, metaclass=abc.ABCMeta):
     #       Docker configuration          #
     #######################################
 
-    def generate_docker_default(self):
-        """ Generates "default" configuration for Docker and tests it """
+    def _ask_local_config(self):
+        """ Ask some parameters about the local configuration """
+        options = {"backend": "local", "local-config": {}}
 
-        docker_args = kwargs_from_env()
+        # Concurrency
+        while True:
+            concurrency = self._ask_with_default("Maximum concurrency (number of tasks running simultaneously). Leave it empty to use the number of "
+                                                 "CPU of your host.", "")
+            if concurrency == "":
+                break
 
-        backend = None
-        remote_host = None
-        remote_docker_port = 2375
-        use_tls = False
-
-        if docker_args == {}:
-            docker_args["base_url"] = "unix:///var/run/docker.sock"
-
-        if "base_url" in docker_args:
-            self._display_info("Found docker base_url")
             try:
-                if docker_args["base_url"].startswith("tcp://") or \
-                        docker_args["base_url"].startswith("http://") or \
-                        docker_args["base_url"].startswith("https://"):
-                    backend = "remote"
-                    info = docker_args["base_url"].split("://")
-                    host_info = info[1].split(':')
-                    remote_host = host_info[0]
-                    if len(remote_host) > 1:
-                        remote_docker_port = int(host_info[1])
-                    if info[0] == "https":
-                        use_tls = True
-                    if "tls" in docker_args:
-                        try:
-                            use_tls = os.path.dirname(docker_args["tls"].verify)
-                        except:
-                            self._display_warning("Unable to parse the TLS configuration")
-                    self._display_info("Current Docker configuration suggest the use of the remote backend")
-                    self._display_info("Found Docker host: %s" % remote_host)
-                    self._display_info("Found Docker port: %s" % remote_docker_port)
-                    self._display_info("TLS cert dirt: %s" % use_tls)
-                elif docker_args["base_url"].startswith("unix://"):
-                    backend = "local"
-                    self._display_info("Current Docker configuration suggest the use of the local backend")
-                else:
-                    self._display_warning("Unable to read docker base_url: %s" % docker_args["base_url"])
+                concurrency = int(concurrency)
             except:
-                self._display_warning("Unable to read docker base_url")
+                self._display_error("Invalid number")
+                continue
 
-        if backend is not None:
-            self._display_info("Testing the default configuration")
-            if self.test_basic_docker_conf(backend, remote_host, remote_docker_port, use_tls):
-                self._display_info("Default configuration works")
+            if concurrency <= 0:
+                self._display_error("Invalid number")
+                continue
+
+            options["local-config"]["concurrency"] = concurrency
+            break
+
+        # Debug hostname
+        hostname = self._ask_with_default("What is the external hostname/address of your machine? You can leave this empty and let INGInious "
+                                        "autodetect it.", "")
+        if hostname != "":
+            options["local-config"]["debug_host"] = hostname
+        self._display_info("You can now enter the port range for the remote debugging feature of INGInious. Please verify that these "
+                                        "ports are open in your firewall. You can leave this parameters empty, the default is 64100-64200")
+
+        # Debug port range
+        port_range = None
+        while True:
+            start_port = self._ask_with_default("Beginning of the range", "")
+            if start_port != "":
+                try:
+                    start_port = int(start_port)
+                except:
+                    self._display_error("Invalid number")
+                    continue
+                end_port = self._ask_with_default("End of the range", str(start_port+100))
+                try:
+                    end_port = int(end_port)
+                except:
+                    self._display_error("Invalid number")
+                    continue
+                if start_port > end_port:
+                    self._display_error("Invalid range")
+                    continue
+                port_range = str(start_port)+"-"+str(end_port)
             else:
-                self._display_info("Default configuration not working")
-                backend = None
-                remote_host = None
-                remote_docker_port = 2375
-                use_tls = False
+                break
+        if port_range != None:
+            options["local-config"]["debug_ports"] = port_range
 
+        return options
+
+    def test_local_docker_conf(self):
+        """ Test to connect to a local Docker daemon """
         try:
-            p = subprocess.Popen(["docker-machine", "ls"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            if p.wait() != 0:
-                raise Exception()
-            if len(p.stdout.read()) != 0:
-                backend = "docker_machine"
-                self._display_info("Found docker-machine with machines configured")
-        except:
-            pass
-
-        if backend is None:
-            self._display_big_warning("We are unable to find a running Docker instance. You can either continue to run the tool and complete "
-                                      "everything manually, or exit it and try to make the 'docker info' command work.")
-
-        if backend == "local" and (sys.platform.startswith("darwin") or sys.platform.startswith("win")):
-            self._display_big_warning("As you are on OS X or on Windows, and that your Docker client is configured to be local, there is probably a "
-                                      "problem with your configuration. You can either continue to run the tool and complete everything manually, "
-                                      "or exit it and try to make the 'docker info' command work.")
-            backend = "remote"
-
-        return backend, remote_host, remote_docker_port, use_tls
-
-    def test_basic_docker_conf(self, backend, remote_host=None, remote_docker_port=None, use_tls=None):
-        """ Test if the configuration given for connecting to Docker works"""
-        try:
-            if backend == "remote":
-                if isinstance(use_tls, str):
-                    tls_config = docker.tls.TLSConfig(
-                        client_cert=(use_tls + '/cert.pem', use_tls + '/key.pem'),
-                        verify=use_tls + '/ca.pem'
-                    )
-                    protocol = "https"
-                elif use_tls is True:
-                    tls_config = True
-                    protocol = "https"
-                else:
-                    tls_config = False
-                    protocol = "http"
-                docker_connection = docker.Client(base_url=protocol + "://" + remote_host + ":" + str(remote_docker_port), tls=tls_config)
-            elif backend == "local":
-                docker_connection = docker.Client(**kwargs_from_env())
-            else:
-                self._display_warning("- The setup tool does not support remote manual agents. The configuration will not be checked.")
-                return True
+            docker_connection = docker.Client(**kwargs_from_env())
         except Exception as e:
             self._display_error("- Unable to connect to Docker. Error was %s" % str(e))
             return False
 
         try:
             self._display_info("- Asking Docker some info")
-            if docker.utils.compare_version('1.19', docker_connection.version()['ApiVersion']) < 0:
-                self._display_error("- Docker version >= 1.7.0 is required.")
+            if docker.utils.compare_version('1.24', docker_connection.version()['ApiVersion']) < 0:
+                self._display_error("- Docker version >= 1.12.0 is required.")
                 return False
         except Exception as e:
             self._display_error("- Unable to contact Docker. Error was %s" % str(e))
             return False
         self._display_info("- Successfully got info from Docker. Docker connection works.")
 
-        if backend == "local":
-            self._display_info("- Verifying access to cgroups")
-            try:
-                from cgutils import cgroup
-            except:
-                self._display_error("- Cannot import cgroup-utils. Is the package installed?")
-                return False
-            try:
-                cgroup.scan_cgroups("memory")
-            except:
-                self._display_error("- Cannot find cgroup. Are you sure the Docker instance is local?")
-                return False
-
         return True
 
-    def get_agent_environment(self, agent_name, agent_port, agent_ssh_port, remote_host, remote_docker_port, use_tls, local_location,
-                              cgroups_location):
-        """ Get the environment for the agent. Returns None if an error happens. """
-        try:
-            if isinstance(use_tls, str):
-                tls_config = docker.tls.TLSConfig(
-                    client_cert=(use_tls + '/cert.pem', use_tls + '/key.pem'),
-                    verify=use_tls + '/ca.pem'
-                )
-                protocol = "https"
-            elif use_tls is True:
-                tls_config = True
-                protocol = "https"
-            else:
-                tls_config = False
-                protocol = "http"
-            docker_connection = docker.Client(base_url=protocol + "://" + remote_host + ":" + str(remote_docker_port), tls=tls_config)
-        except Exception as e:
-            self._display_error("- Cannot connect to the remote Docker instance: %s" % str(e))
-            return None
-
-        environment = {"AGENT_CONTAINER_NAME": agent_name, "AGENT_PORT": agent_port, "AGENT_SSH_PORT": (agent_ssh_port or "")}
-        volumes = {'/sys/fs/cgroup/': {}}
-        binds = {cgroups_location: {'ro': False, 'bind': "/sys/fs/cgroup"}}
-
-        if local_location.startswith("unix://"):
-            volumes['/var/run/docker.sock'] = {}
-            binds[local_location[7:]] = {'ro': False, 'bind': '/var/run/docker.sock'}
-            environment["DOCKER_HOST"] = "unix:///var/run/docker.sock"
-        elif local_location.startswith("tcp://"):
-            environment["DOCKER_HOST"] = local_location
-            if use_tls:
-                environment["DOCKER_TLS_VERIFY"] = "on"
-        else:
-            self._display_error("- Unknown protocol for Docker local location: %s" % local_location)
-            return None
-
-        return docker_connection, environment, volumes, binds
-
-    def test_agent_pull(self, agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port, use_tls, local_location, cgroups_location):
-        """ Pull the agent to do remote tests """
-        data = self.get_agent_environment(agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port, use_tls, local_location,
-                                          cgroups_location)
-        if data is None:
-            return False
-        docker_connection, environment, volumes, binds = data
-
-        try:
-            docker_connection.pull("ingi/inginious-agent:latest")
-            docker_connection.inspect_image("ingi/inginious-agent")
-            return True
-        except:
-            return False
-
-    def run_remote_container(self, agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port, use_tls, local_location,
-                             cgroups_location, command):
-        """ Run a remote Docker container and get its output. Returns None in case of error """
-        data = self.get_agent_environment(agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port, use_tls, local_location,
-                                          cgroups_location)
-        if data is None:
-            return None
-        docker_connection, environment, volumes, binds = data
-
-        try:
-            response = docker_connection.create_container(
-                "ingi/inginious-agent",
-                environment=environment,
-                detach=True,
-                name=agent_id,
-                volumes=volumes,
-                command=command
-            )
-            container_id = response["Id"]
-        except Exception as e:
-            self._display_error("- Cannot create container: %s" % str(e))
-            return None
-
-        try:
-            # Start the container
-            docker_connection.start(container_id, network_mode="host", binds=binds)
-        except Exception as e:
-            self._display_error("- Cannot start container: %s" % str(e))
-            try:
-                docker_connection.remove_container(container_id)
-            except:
-                pass
-            return None
-
-        try:
-            docker_connection.wait(container_id, timeout=20)
-            stdout = str(docker_connection.logs(container_id, stdout=True, stderr=False))
-        except Exception as e:
-            self._display_error("- Cannot retrieve output of container: %s" % str(e))
-            try:
-                docker_connection.remove_container(container_id)
-            except:
-                pass
-            return None
-
-        try:
-            docker_connection.remove_container(container_id)
-        except:
-            pass
-
-        return stdout
-
-    def test_agent_docker_location(self, agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port, use_tls, local_location,
-                                   cgroups_location):
-        """ Test local docker location """
-        stdout = self.run_remote_container(agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port, use_tls, local_location,
-                                           cgroups_location, ["docker", "info"])
-        return stdout is not None and "Execution Driver:" in stdout
-
-    def test_agent_docker_cgroup(self, agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port,
-                                 use_tls, local_location, cgroups_location):
-        """ Test cgroup location on the agent's host """
-        stdout = self.run_remote_container(agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port, use_tls, local_location,
-                                           cgroups_location, ["ls", "/sys/fs/cgroup"])
-        return stdout is not None and "cpuacct" in stdout
-
-    def start_agent_container(self, agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port, use_tls, local_location, cgroups_location):
-        """ Starts a remote agent container """
-        data = self.get_agent_environment(agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port, use_tls, local_location,
-                                          cgroups_location)
-        if data is None:
-            return None, None
-        docker_connection, environment, volumes, binds = data
-
-        try:
-            response = docker_connection.create_container(
-                "ingi/inginious-agent",
-                environment=environment,
-                detach=True,
-                name=agent_id,
-                volumes=volumes
-            )
-            container_id = response["Id"]
-        except Exception as e:
-            self._display_error("- Cannot create container: %s" % str(e))
-            return docker_connection, None
-
-        try:
-            # Start the container
-            docker_connection.start(container_id, network_mode="host", binds=binds)
-        except Exception as e:
-            self._display_error("- Cannot start container: %s" % str(e))
-            try:
-                docker_connection.remove_container(container_id)
-            except:
-                pass
-            return docker_connection, None
-
-        time.sleep(5)
-
-        return docker_connection, container_id
-
-    def stop_agent_container(self, docker_connection, container_id):
-        """ Closes a remote agent container """
-        try:
-            docker_connection.remove_container(container_id, force=True)
-        except:
-            pass
-
-    def test_agent_port(self, agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port, use_tls, local_location, cgroups_location):
-        """ Test agent port """
-        docker_connection, container_id = self.start_agent_container(agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port,
-                                                                     use_tls, local_location, cgroups_location)
-        if container_id is None:
-            return False
-
-        ok = False
-        for i in range(0, 5):  # retry five times
-            try:
-                conn = rpyc.connect(remote_host, agent_port, config={"allow_public_attrs": True, 'allow_pickle': True})
-
-                # Try to access conn.root. This raises an exception when the remote RPyC is not yet fully initialized
-                if not conn.root:
-                    raise Exception("Cannot get remote service")
-                ok = True
-                break
-            except:
-                time.sleep(1)
-
-        self.stop_agent_container(docker_connection, container_id)
-        return ok
-
-    def test_agent_ssh_port(self, agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port, use_tls, local_location, cgroups_location):
-        """ Test agent port """
-        docker_connection, container_id = self.start_agent_container(agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port,
-                                                                     use_tls, local_location, cgroups_location)
-        if container_id is None:
-            return False
-
-        ok = False
-        for i in range(0, 5):  # retry five times
-            try:
-                client = socket.create_connection((remote_host, agent_ssh_port))
-                client.send("something" + "\n")
-                retval = ""
-                while retval not in ["ok\n", "ko\n"]:
-                    retval += client.recv(3)
-                retval = retval.strip()
-                if retval == "ko":
-                    ok = True
-                    break
-            except:
-                time.sleep(1)
-
-        self.stop_agent_container(docker_connection, container_id)
-        return ok
-
-    def ask_docker_backend(self, default_backend=None):
+    def ask_backend(self):
         """ Ask the user to choose the backend """
-        self._display_question("Please indicate which backend you would like to use. You can choose between: ")
-        self._display_question("- 'local' (best choice on Linux, with Docker on the same machine);")
-        self._display_question("- 'docker_machine' (for Docker-machine users. If you are on OS X or Windows, choose this);")
-        self._display_question("- 'remote' (for more advanced users or users using OS X or Windows with Boot2Docker);")
-        self._display_question("- 'remote_manual' (advanced users only. not help will be provided by the tool).")
-        backend = self._ask_with_default("Choose a backend", default_backend)
-        if backend in ["local", "remote", "remote_manual", "docker_machine"]:
-            return backend
+        response = self._ask_boolean("Do you have a local docker daemon (on Linux), do you use docker-machine via a local machine, or do you use "
+                                     "Docker for macOS?", True)
+        if(response):
+            self._display_info("If you use docker-machine on macOS, please see "
+                               "http://inginious.readthedocs.io/en/latest/install_doc/troubleshooting.html")
+            return "local"
         else:
-            self._display_question("Invalid choice %s. Please retry." % backend)
-            self.ask_docker_backend(default_backend)
-
-    def configure_backend_docker_machine(self, def_remote_host, def_remote_docker_port, def_use_tls):
-        """ Configures the docker machine backend """
-        options = {"backend": "docker_machine", "machines": []}
-
-        p = subprocess.Popen(["docker-machine", "ls", "--format", "{{.Name}}"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        if p.wait() != 0:
-            raise Exception("An error occured while calling docker-machine")
-        options["machines"] = p.stdout.read().strip().split("\n")
-        return options
-
-    def configure_backend_remote(self, def_remote_host, def_remote_docker_port, def_use_tls):
-        """ Configures the remote backend """
-        options = {"backend": "remote", "docker_daemons": []}
-        while True:
-            agent_id = "inginious-agent-" + str(uuid.uuid1())
-            agent = self.configure_backend_remote_agent(def_remote_host, def_remote_docker_port, def_use_tls, agent_id)
-            if agent is None and len(options["docker_daemons"]) == 0:
-                self._display_warning("You have not configured any agent. You will have to define one manually in the configuration.")
-                if self._ask_boolean("Are you sure you do not want to retry?", False):
-                    break
-            elif agent is None:
-                break
-            else:
-                options["docker_daemons"].append(agent)
-                if not self._ask_boolean("Do you want to define another agent? Do this only if you have another server with a Docker instance "
-                                         "available", False):
-                    break
-        return options
-
-    def configure_backend_remote_agent(self, def_remote_host, def_remote_docker_port, def_use_tls, def_agent_id):
-        """ Configure an agent """
-
-        # Basic questions
-        self._display_question("")
-        self._display_question("Configuring an agent. Type -1 in the first field to skip this step.")
-        remote_host = self._ask_with_default("Remote Docker host", def_remote_host)
-        if remote_host == "-1":
-            return None
-        remote_docker_port = self._ask_with_default("Remote Docker port", def_remote_docker_port)
-        self._display_question(" Do you use TLS? By default, it is activated on most Docker servers. You may want:")
-        self._display_question("- to enable TLS verification: simply type 'true'")
-        self._display_question("- to disable TLS verification: type 'false'")
-        self._display_question("- to define a custom cert: type the absolute path to the directory containing the certs")
-        use_tls = self._ask_with_default("Use TLS", def_use_tls)
-        if use_tls == "True" or use_tls == "true":
-            use_tls = True
-        if use_tls == "False" or use_tls == "false":
-            use_tls = False
-
-        # Test this basic configuration
-        self._display_info("Testing connection to Docker")
-        if not self.test_basic_docker_conf("remote", remote_host, remote_docker_port, use_tls):
-            self._display_error("Cannot connect to Docker.")
-            if self._ask_with_default("Would you like to retry?", True):
-                return self.configure_backend_remote_agent(def_remote_host, def_remote_docker_port, def_use_tls, def_agent_id)
-            else:
-                return None
-
-        # Ask for more specific infos
-        agent_id = self._ask_with_default("Agent ID (you can leave this field blank)", def_agent_id)
-        self._display_question("Please indicate the port on which the agent will bind. This port should be accessible from the current machine.")
-        agent_port = self._ask_with_default("Agent port", "63456")
-        agent_ssh_port = None
-        if self.support_remote_debugging():
-            self._display_question("If you want to enable remote debugging, please indicate another port on which the agent will bind. "
-                                   "This port should be accessible from the current machine. Leave empty if you do not want to allow remote "
-                                   "debugging.")
-            agent_ssh_port = self._ask_with_default("Remote debugging port", "")
-            if agent_ssh_port == "":
-                agent_ssh_port = None
-
-        # Try default configuration first
-        local_location = "unix:///var/run/docker.sock"
-        cgroups_location = "/sys/fs/cgroup"
-
-        # Pull the inginious-agent image
-        self._display_info("- Pulling the inginious-agent image. This can take time.")
-        if not self.test_agent_pull(agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port, use_tls, local_location, cgroups_location):
-            self._display_error("- An error occured while pulling ingi/inginious-agent")
-            if self._ask_with_default("Would you like to retry?", True):
-                return self.configure_backend_remote_agent(def_remote_host, def_remote_docker_port, def_use_tls, def_agent_id)
-            else:
-                return None
-
-        # Test the docker local location
-        self._display_info("- Guessing the agent local Docker location. This can take some time.")
-        if not self.test_agent_docker_location(agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port,
-                                               use_tls, local_location, cgroups_location):
-            self._display_info("- Cannot guess the default local Docker location for the agent.")
-            local_location_valid = False
-        else:
-            self._display_info("- Correctly guessed the default local Docker location for the agent.")
-            local_location_valid = True
-
-        # Test the cgroup location
-        self._display_info("- Guessing the cgroup location on the agent's host. This can take some time.")
-        if not self.test_agent_docker_cgroup(agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port,
-                                             use_tls, local_location, cgroups_location):
-            self._display_info("- Cannot guess the cgroup location on the agent's host.")
-            cgroups_location_valid = False
-        else:
-            self._display_info("- Correctly guessed the cgroup location on the agent's host.")
-            cgroups_location_valid = True
-
-        # If we correctly guessed, ask if we should still ask the parameters
-        should_ask = not cgroups_location_valid or not local_location_valid
-        if not should_ask:
-            should_ask = self._ask_boolean("The tool correctly guessed the configuration for cgroup and for the Docker local location. Do you "
-                                           "want to change it anyway?", False)
-
-        # Ask the parameters if needed
-        while should_ask:
-            cgroups_location = self._ask_with_default("cgroup location on the remote host", cgroups_location)
-            local_location = self._ask_with_default("Docker location on the remote host", local_location)
-
-            self._display_info("- Verifying the configuration. This can take time.")
-            should_ask = False
-
-            if not self.test_agent_docker_location(agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port,
-                                                   use_tls, local_location, cgroups_location):
-                self._display_warning("- Invalid value for Docker location")
-                should_ask = True
-
-            if not self.test_agent_docker_cgroup(agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port,
-                                                 use_tls, local_location, cgroups_location):
-                self._display_warning("- Invalid location for cgroup")
-                should_ask = True
-
-            if not should_ask:
-                self._display_info("- Values for cgroup and remote Docker location are valid.")
-            else:
-                should_ask = self._ask_with_default("An error happened. Would you like to retry", True)
-
-        # Test the agent port
-        while True:
-            self._display_info("- Testing the agent port. This can take time.")
-            if not self.test_agent_port(agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port, use_tls, local_location,
-                                        cgroups_location):
-                self._display_error("Invalid value for the agent port. The port seems not being accessible. "
-                                    "Remember to open the port in the firewall.")
-                if not self._ask_with_default("Do you want to retry?", True):
-                    break
-                agent_port = self._ask_with_default("Agent port", "63456")
-            else:
-                self._display_info("- Agent port valid. The remote agent correctly started!")
-                break
-
-        # Test the agent remote debug port
-        while agent_ssh_port:
-            self._display_info("- Testing the agent remote debugging port. This can take time.")
-            if not self.test_agent_ssh_port(agent_id, agent_port, agent_ssh_port, remote_host, remote_docker_port, use_tls, local_location,
-                                            cgroups_location):
-                self._display_error("Invalid value for the agent remote debugging port. The port seems not being accessible. "
-                                    "Remember to open the port in the firewall.")
-                if not self._ask_with_default("Do you want to retry?", True):
-                    agent_ssh_port = None
-                else:
-                    agent_ssh_port = self._ask_with_default("Remote debugging port", "63456")
-            else:
-                self._display_info("- Remote debugging port valid.")
-                break
-
-        # Hey, we are done!
-        self._display_info("- Configuration of the agent succeeded.")
-        self._display_question("")
-        return {
-            "remote_host": remote_host,
-            "remote_docker_port": remote_docker_port,
-            "remote_agent_port": agent_port,
-            "remote_agent_ssh_port": agent_ssh_port,
-            "use_tls": use_tls,
-            "local_location": local_location,
-            "cgroups_location": cgroups_location,
-            "agent_name": agent_id
-        }
+            self._display_info("You will have to run inginious-backend and inginious-agent yourself. Please run the commands without argument "
+                               "and/or read the documentation for more info")
+            return self._display_question("Please enter the address of your backend")
 
     #######################################
     #       MONGODB CONFIGURATION         #
@@ -786,14 +332,6 @@ class Installer(object, metaclass=abc.ABCMeta):
     #             CONTAINERS              #
     #######################################
 
-    def download_container_agent(self, to_download, docker_connection):
-        for image in to_download:
-            try:
-                self._display_info("Downloading image %s. This can take some time." % image)
-                docker_connection.pull(image + ":latest")
-            except Exception as e:
-                self._display_error("An error occured while pulling the image: %s." % str(e))
-
     def download_containers(self, to_download, current_options):
         """ Download the chosen containers on all the agents """
         if current_options["backend"] == "local":
@@ -804,47 +342,15 @@ class Installer(object, metaclass=abc.ABCMeta):
                 self._display_error("Cannot connect to local Docker daemon. Skipping download.")
                 return
 
-            self.download_container_agent(to_download, docker_connection)
-        elif current_options["backend"] in ["remote", "docker_machine"]:
-            if current_options["backend"] == "remote":
-                docker_daemons = current_options["docker_daemons"]
-            else:
-                docker_daemons = [DockerMachineJobManager.get_machine(x) for x in current_options["machines"]]
-
-            for daemon in docker_daemons:
-                remote_host = daemon["remote_host"]
-                remote_docker_port = daemon["remote_docker_port"]
-                use_tls = daemon["use_tls"]
-
-                if isinstance(use_tls, str):
-                    tls_config = docker.tls.TLSConfig(
-                        client_cert=(use_tls + '/cert.pem', use_tls + '/key.pem'),
-                        verify=use_tls + '/ca.pem'
-                    )
-                    protocol = "https"
-                elif isinstance(use_tls, dict):
-                    tls_config = docker.tls.TLSConfig(
-                            client_cert=(use_tls["cert"], use_tls["key"]),
-                            verify=use_tls["ca"]
-                    )
-                    protocol = "https"
-                elif use_tls is True:
-                    tls_config = True
-                    protocol = "https"
-                else:
-                    tls_config = False
-                    protocol = "http"
-
+            for image in to_download:
                 try:
-                    docker_connection = docker.Client(base_url=protocol + "://" + remote_host + ":" + str(remote_docker_port), tls=tls_config)
-                except:
-                    self._display_error("Cannot connect to distant Docker daemon. Skipping download.")
-                    continue
-
-                self.download_container_agent(to_download, docker_connection)
+                    self._display_info("Downloading image %s. This can take some time." % image)
+                    docker_connection.pull(image + ":latest")
+                except Exception as e:
+                    self._display_error("An error occured while pulling the image: %s." % str(e))
         else:
-            self._display_warning("This installation tool does not support the backend remote_manual directly. You will have to pull the images by "
-                                  "yourself. Here is the list: %s" % str(to_download))
+            self._display_warning("This installation tool does not support the backend configuration directly, if it's not local. You will have to "
+                                  "pull the images by yourself. Here is the list: %s" % str(to_download))
 
     def configure_containers(self, current_options):
         """ Configures the container dict """
@@ -858,12 +364,11 @@ class Installer(object, metaclass=abc.ABCMeta):
             ("php", "Contains PHP 5"),
             ("pythia0compat", "Compatibility container for Pythia 0"),
             ("pythia1compat", "Compatibility container for Pythia 1"),
-            ("python3", "Contains Python 3"),
             ("r", "Can run R scripts"),
             ("sekexe", "Can run an user-mode-linux for advanced tasks")
         ]
 
-        default_download = ["default", "mono", "java7"]
+        default_download = ["default", "java8scala"]
 
         self._display_question("The tool will now propose to download some base container image for multiple languages.")
         self._display_question("Please note that the download of these images can take a lot of time, so choose only the images you need")

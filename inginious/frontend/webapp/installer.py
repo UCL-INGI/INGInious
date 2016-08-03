@@ -10,7 +10,7 @@ import inginious.frontend.common.installer
 
 
 class Installer(inginious.frontend.common.installer.Installer):
-    """ Custom installer for the LTI frontend """
+    """ Custom installer for the WebApp frontend """
 
     def configure_backup_directory(self):
         """ Configure backup directory """
@@ -172,6 +172,16 @@ class Installer(inginious.frontend.common.installer.Installer):
                 break
             options["superadmins"].append(superadmin)
 
+        self._display_header("REMOTE DEBUGGING - IN BROWSER")
+        self._display_info("If you want to activate the remote debugging of task in the users' browser, you have to install separately "
+                           "INGInious-xterm, which is available on Github, according to the parameters you have given for the hostname and the "
+                           "port range given in the configuration of the remote debugging.")
+        self._display_info("You can leave the following question empty to disable this feature; remote debugging will still be available, "
+                           "but not in the browser.")
+        webterm = self._ask_with_default("Please indicate the link to your installation of INGInious-xterm (for example: "
+                                  "https://your-hostname.com:8080).","")
+        if webterm != "":
+            options["webterm"] = webterm
         return options
 
     def configuration_filename(self):
