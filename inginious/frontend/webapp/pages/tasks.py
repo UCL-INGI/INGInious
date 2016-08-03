@@ -14,6 +14,7 @@ import urllib.request, urllib.parse, urllib.error
 import web
 
 from bson.objectid import ObjectId
+from inginious.common import exceptions
 from inginious.frontend.common.task_page_helpers import submission_to_json, list_multiple_multiple_choices_and_files
 from inginious.frontend.webapp.pages.utils import INGIniousPage
 
@@ -49,64 +50,69 @@ class TaskPage(INGIniousPage):
         """ GET request """
         if self.user_manager.session_logged_in():
             username = self.user_manager.session_username()
+
+            # Fetch the course
             try:
                 course = self.course_factory.get_course(courseid)
-                if not self.user_manager.course_is_open_to_user(course, username):
-                    return self.template_helper.get_renderer().course_unavailable()
+            except exceptions.CourseNotFoundException as e:
+                raise web.notfound()
 
+            if not self.user_manager.course_is_open_to_user(course, username):
+                return self.template_helper.get_renderer().course_unavailable()
+
+            # Fetch the task
+            try:
                 task = course.get_task(taskid)
-                if not self.user_manager.task_is_visible_by_user(task, username):
-                    return self.template_helper.get_renderer().task_unavailable()
+            except exceptions.TaskNotFoundException as e:
+                raise web.notfound()
 
-                self.user_manager.user_saw_task(username, courseid, taskid)
+            if not self.user_manager.task_is_visible_by_user(task, username):
+                return self.template_helper.get_renderer().task_unavailable()
 
-                userinput = web.input()
-                if "submissionid" in userinput and "questionid" in userinput:
-                    # Download a previously submitted file
-                    submission = self.submission_manager.get_submission(userinput["submissionid"], True)
-                    if submission is None:
-                        raise web.notfound()
-                    sinput = self.submission_manager.get_input_from_submission(submission, True)
-                    if userinput["questionid"] not in sinput:
-                        raise web.notfound()
+            self.user_manager.user_saw_task(username, courseid, taskid)
 
-                    if isinstance(sinput[userinput["questionid"]], dict):
-                        # File uploaded previously
-                        mimetypes.init()
-                        mime_type = mimetypes.guess_type(urllib.request.pathname2url(sinput[userinput["questionid"]]['filename']))
-                        web.header('Content-Type', mime_type[0])
-                        return base64.b64decode(sinput[userinput["questionid"]]['value'])
-                    else:
-                        # Other file, download it as text
-                        web.header('Content-Type', 'text/plain')
-                        return sinput[userinput["questionid"]]
-                else:
-                    user_task = self.database.user_tasks.find_one({
-                        "courseid": task.get_course_id(),
-                        "taskid": task.get_id(),
-                        "username": self.user_manager.session_username()
-                    })
-
-                    submissionid = user_task.get('submissionid', None)
-                    eval_submission = self.database.submissions.find_one({'_id': ObjectId(submissionid)}) if submissionid else None
-
-                    students = None
-                    if task.is_group_task() and not self.user_manager.has_admin_rights_on_course(course, username):
-                        for index, group in enumerate(self.user_manager.get_course_user_aggregation(course)["groups"]):
-                            if self.user_manager.session_username() in group["students"]:
-                                students = group["students"]
-                    else:
-                        students = [username]
-
-                    # Display the task itself
-                    return self.template_helper.get_renderer().task(course, task,
-                                                                    self.submission_manager.get_user_submissions(task),
-                                                                    students, eval_submission, user_task, self.webterm_link)
-            except:
-                if web.config.debug:
-                    raise
-                else:
+            userinput = web.input()
+            if "submissionid" in userinput and "questionid" in userinput:
+                # Download a previously submitted file
+                submission = self.submission_manager.get_submission(userinput["submissionid"], True)
+                if submission is None:
                     raise web.notfound()
+                sinput = self.submission_manager.get_input_from_submission(submission, True)
+                if userinput["questionid"] not in sinput:
+                    raise web.notfound()
+
+                if isinstance(sinput[userinput["questionid"]], dict):
+                    # File uploaded previously
+                    mimetypes.init()
+                    mime_type = mimetypes.guess_type(urllib.request.pathname2url(sinput[userinput["questionid"]]['filename']))
+                    web.header('Content-Type', mime_type[0])
+                    return base64.b64decode(sinput[userinput["questionid"]]['value'])
+                else:
+                    # Other file, download it as text
+                    web.header('Content-Type', 'text/plain')
+                    return sinput[userinput["questionid"]]
+            else:
+                user_task = self.database.user_tasks.find_one({
+                    "courseid": task.get_course_id(),
+                    "taskid": task.get_id(),
+                    "username": self.user_manager.session_username()
+                })
+
+                submissionid = user_task.get('submissionid', None)
+                eval_submission = self.database.submissions.find_one({'_id': ObjectId(submissionid)}) if submissionid else None
+
+                students = None
+                if task.is_group_task() and not self.user_manager.has_admin_rights_on_course(course, username):
+                    for index, group in enumerate(self.user_manager.get_course_user_aggregation(course)["groups"]):
+                        if self.user_manager.session_username() in group["students"]:
+                            students = group["students"]
+                else:
+                    students = [username]
+
+                # Display the task itself
+                return self.template_helper.get_renderer().task(course, task,
+                                                                self.submission_manager.get_user_submissions(task),
+                                                                students, eval_submission, user_task, self.webterm_link)
         else:
             return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_fields())
 
