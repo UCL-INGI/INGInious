@@ -57,12 +57,18 @@ class CourseDownloadSubmissions(INGIniousAdminPage):
                               aggregation if course.use_classrooms() or (username in aggregation['groups'][0]["students"]) else None
                               ) for aggregation in aggregations for username in aggregation["students"]])
 
-        submissions = list(self.database.submissions.find({"username": {"$in": list(aggregations.keys())},
-                                                           "taskid": {"$in": user_input.tasks},
-                                                           "courseid": course.get_id(),
-                                                           "status": {"$in": ["done", "error"]}}))
         if user_input.type == "single":
-            submissions = self.submission_manager.keep_best_submission(submissions)
+            user_tasks = list(self.database.user_tasks.find({"username": {"$in": aggregations.keys()},
+                                                        "taskid": {"$in": user_input.tasks},
+                                                        "courseid": course.get_id()}))
+
+            submissionsid = [user_task['submissionid'] for user_task in user_tasks]
+            submissions = list(self.database.submissions.find({"_id": {"$in": submissionsid}}))
+        else:
+            submissions = list(self.database.submissions.find({"username": {"$in": aggregations.keys()},
+                                                               "taskid": {"$in": user_input.tasks},
+                                                               "courseid": course.get_id(),
+                                                               "status": {"$in": ["done", "error"]}}))
 
         web.header('Content-Type', 'application/x-gzip', unique=True)
         web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)

@@ -203,13 +203,14 @@ getinput
 ````````
 
 The *getinput* command returns the input given by the student for a specific problem id.
-For example, for the problem id "pid", the command to do is:
+For example, for the problem id "pid", the command to run is:
 ::
 
     getinput pid
 
 When a problem is defined with several boxes, the argument becomes *pid/bid* where "pid"
-stands for the problem id and "bid" for "box id".
+stands for the problem id and "bid" for "box id". If the problem is a file upload, the problem id can be appended
+with *:filename* or *:value" to retrieve its filename or value.
 
 Note that *getinput* can also retrieve the username/group of the user that submitted the task. You simply have to run
 ::
@@ -245,6 +246,9 @@ Example of template file (in java)
     @        @problem_one@@
         }
     }
+
+To access the filename and text content of a submitted file, the *problemid* can be
+followed by a *:filename* or *:value* suffix.
 
 .. _run_student:
 

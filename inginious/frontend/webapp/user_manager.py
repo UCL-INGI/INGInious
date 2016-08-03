@@ -359,26 +359,25 @@ class UserManager(AbstractUserManager):
         """ Set in the database that the user has viewed this task """
         self._database.user_tasks.update({"username": username, "courseid": courseid, "taskid": taskid},
                                          {"$setOnInsert": {"username": username, "courseid": courseid, "taskid": taskid,
-                                                           "tried": 0, "succeeded": False, "grade": 0.0}},
+                                                           "tried": 0, "succeeded": False, "grade": 0.0, "submissionid": None}},
                                          upsert=True)
 
-    def update_user_stats(self, username, submission, result_str, grade):
+    def update_user_stats(self, username, task, submission, result_str, grade):
         """ Update stats with a new submission """
         self.user_saw_task(username, submission["courseid"], submission["taskid"])
 
-        # Update inc counter
-        self._database.user_tasks.update({"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]},
-                                         {"$inc": {"tried": 1}})
+        old_submission = self._database.user_tasks.find_one_and_update(
+            {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]}, {"$inc": {"tried": 1}})
 
-        # Set to succeeded if not succeeded yet
-        if result_str == "success":
-            self._database.user_tasks.find_and_modify({"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"],
-                                                       "succeeded": False},
-                                                      {"$set": {"succeeded": True}})
+        # Check if the submission is the default download
+        set_default = task.get_evaluate() == 'last' or \
+                      (task.get_evaluate() == 'student' and old_submission is None) or \
+                      (task.get_evaluate() == 'best' and old_submission.get('grade', 0.0) <= grade)
 
-            # Update the grade if needed
-            self._database.user_tasks.find_and_modify({"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"],
-                                                       "grade": {"$lt": grade}}, {"$set": {"grade": grade}})
+        if set_default:
+            self._database.user_tasks.find_one_and_update(
+                {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]},
+                {"$set": {"succeeded": result_str == "success", "grade": grade,"submissionid": submission['_id']}})
 
     def get_course_grade(self, course, username=None):
         """

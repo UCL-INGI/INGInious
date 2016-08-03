@@ -97,8 +97,9 @@ form#task label {
 #submissions_restrictsize {
   overflow: auto;
   max-height: 223px;
+  margin-bottom: 50px;
 }
-#submissions .submission {
+.submission {
   cursor: pointer;
 }
 .panel {

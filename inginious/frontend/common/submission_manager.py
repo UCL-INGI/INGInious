@@ -85,7 +85,7 @@ class SubmissionManager(object, metaclass=ABCMeta):
         :type inputdata: dict
         :param debug: If debug is true, more debug data will be saved
         :type debug: bool
-        :returns: the submission id
+        :returns: the new submission id and the removed submission id
         """
         if not self._user_manager.session_logged_in():
             raise Exception("A user must be logged in to submit an object")
@@ -110,7 +110,7 @@ class SubmissionManager(object, metaclass=ABCMeta):
         if "username" not in [p.get_id() for p in task.get_problems()]:  # do not overwrite
             inputdata["username"] = username
 
-        self._after_submission_insertion(task, inputdata, debug, obj, submissionid)
+        to_remove = self._after_submission_insertion(task, inputdata, debug, obj, submissionid)
 
         self._hook_manager.call_hook("new_submission", submissionid=submissionid, submission=obj, inputdata=inputdata)
 
@@ -128,7 +128,7 @@ class SubmissionManager(object, metaclass=ABCMeta):
             {"$set": {"jobid": jobid}}
         )
 
-        return submissionid
+        return submissionid, to_remove
 
     def _before_submission_insertion(self, task, inputdata, debug, obj):
         """
@@ -152,6 +152,65 @@ class SubmissionManager(object, metaclass=ABCMeta):
         :param submissionid: submission id of the submission
         """
         pass
+
+    def _always_keep_best(self):
+        """  Indicates if the best submissions are always kept in all cases (LTI) """
+        return False
+
+    def _delete_exceeding_submissions(self, username, task, max_submissions_bound=-1):
+        """ Deletes exceeding submissions from the database, to keep the database relatively small """
+
+        if max_submissions_bound <= 0:
+            max_submissions = task.get_stored_submissions()
+        elif task.get_stored_submissions() <= 0:
+            max_submissions = max_submissions_bound
+        else:
+            max_submissions = min(max_submissions_bound, task.get_stored_submissions())
+
+        if max_submissions <= 0:
+            return []
+        tasks = list(self._database.submissions.find(
+            {"username": username, "courseid": task.get_course_id(), "taskid": task.get_id()},
+            projection=["_id", "status", "result", "grade", "submitted_on"],
+            sort=[('submitted_on', pymongo.ASCENDING)]))
+
+        # List the entries to keep
+        to_keep = set([])
+
+        if task.get_evaluate() == 'best' or self._always_keep_best():
+            # Find the best "status"="done" and "result"="success"
+            idx_best = -1
+            for idx, val in enumerate(tasks):
+                if val["status"] == "done":
+                    if idx_best == -1 or tasks[idx_best]["grade"] < val["grade"]:
+                        idx_best = idx
+
+            # Always keep the best submission
+            if idx_best != -1:
+                to_keep.add(tasks[idx_best]["_id"])
+        elif task.get_evaluate() == 'student':
+            user_task = self._database.user_tasks.find_one({
+                "courseid": task.get_course_id(),
+                "taskid": task.get_id(),
+                "username": username
+            })
+
+            submissionid = user_task.get('submissionid', None)
+            if submissionid:
+                to_keep.add(submissionid)
+
+        # Always keep running submissions
+        for val in tasks:
+            if val["status"] == "waiting":
+                to_keep.add(val["_id"])
+
+        while len(to_keep) < max_submissions and len(tasks) > 0:
+            to_keep.add(tasks.pop()["_id"])
+
+        to_delete = {val["_id"] for val in tasks}.difference(to_keep)
+        self._database.submissions.delete_many({"_id": {"$in": list(to_delete)}})
+
+        return map(str, to_delete)
 
     def get_input_from_submission(self, submission, only_input=False):
         """
@@ -259,25 +318,6 @@ class SubmissionManager(object, metaclass=ABCMeta):
     def get_user_last_submissions_for_course(self, course, limit=5, one_per_task=False):
         """ Returns a given number (default 5) of submissions of task from the course given"""
         return self.get_user_last_submissions({"courseid": course.get_id(), "taskid": {"$in": list(course.get_tasks().keys())}}, limit, one_per_task)
-
-    @classmethod
-    def keep_best_submission(cls, submissions):
-        """ Command used to only keep the best submission, if any """
-        submissions.sort(key=lambda item: item['submitted_on'], reverse=True)
-        tasks = {}
-        for sub in submissions:
-            if sub["taskid"] not in tasks:
-                tasks[sub["taskid"]] = {}
-            for username in sub["username"]:
-                if username not in tasks[sub["taskid"]]:
-                    tasks[sub["taskid"]][username] = sub
-                elif tasks[sub["taskid"]][username].get("grade", 0.0) < sub.get("grade", 0.0):
-                    tasks[sub["taskid"]][username] = sub
-        final_subs = []
-        for task in tasks.values():
-            for sub in task.values():
-                final_subs.append(sub)
-        return final_subs
 
     def get_gridfs(self):
         """ Returns the GridFS used by the submission manager """

@@ -4,6 +4,8 @@
 # more information about the licensing of this file.
 
 """ Manages submissions """
+import pymongo
+
 from inginious.frontend.common.submission_manager import SubmissionManager
 
 
@@ -28,7 +30,7 @@ class WebAppSubmissionManager(SubmissionManager):
 
         submission = self.get_submission(submissionid, False)
         for username in submission["username"]:
-            self._user_manager.update_user_stats(username, submission, result[0], grade)
+            self._user_manager.update_user_stats(username, task, submission, result[0], grade)
 
     def _before_submission_insertion(self, task, inputdata, debug, obj):
         username = self._user_manager.session_username()
@@ -51,3 +53,8 @@ class WebAppSubmissionManager(SubmissionManager):
                     {"courseid": task.get_course_id(), "groups.students": username},
                     {"groups": {"$elemMatch": {"students": username}}})
                 inputdata["username"] = ','.join(group["groups"][0]["students"])
+
+        return self._delete_exceeding_submissions(self._user_manager.session_username(), task)
+
+    def _always_keep_best(self):
+        return False

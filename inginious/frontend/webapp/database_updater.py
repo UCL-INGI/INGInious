@@ -114,4 +114,33 @@ def update_database(database, gridfs, course_factory, user_manager):
         database.classrooms.rename("aggregations")
         db_version = 8
 
+    if db_version < 9:
+        logger.info("Updating database to db_version 9")
+        user_tasks = list(database.user_tasks.find())
+
+        for user_task in user_tasks:
+            username = user_task['username']
+            taskid = user_task['taskid']
+            courseid = user_task['courseid']
+
+            tasks = list(database.submissions.find(
+                {"username": username, "courseid": courseid, "taskid": taskid},
+                projection=["_id", "status", "result", "grade", "submitted_on"],
+                sort=[('submitted_on', pymongo.DESCENDING)]))
+
+            # Before db v9, the default submission for evaluation was the best
+            idx_best = -1
+            for idx, val in enumerate(tasks):
+                if idx_best == -1 or (val["status"] == "done" and tasks[idx_best]["grade"] < val["grade"]):
+                    idx_best = idx
+
+            # If best submission found, update and otherwise set to None
+            if idx_best != -1:
+                database.user_tasks.update_one({"username": username, "courseid": courseid, "taskid": taskid}, {"$set": {"submissionid": tasks[idx_best]["_id"]}})
+            else:
+                database.user_tasks.update_one({"username": username, "courseid": courseid, "taskid": taskid},
+                                               {"$set": {"submissionid": None}})
+
+        db_version = 9
+
     database.db_version.update({}, {"$set": {"db_version": db_version}}, upsert=True)
