@@ -23,7 +23,14 @@ $def NavbarF():
     </ol>
 $var Navbar: $:NavbarF()
 
-<h2>Edit task "$taskid"</h2>
+<h2>
+    Edit task "$taskid"
+    <div class="pull-right">
+        <div class="btn-group">
+            <a id="switch" class="btn-sm btn btn-info" href="/course/$course.get_id()/$taskid"><i class="fa fa-search"></i> View task</a>
+        </div>
+    </div>
+</h2>
 <form id="edit_task_form" method="post" enctype="multipart/form-data" class="form-horizontal">
     <input type="hidden" name="@action" value="edit_task"/>
     
