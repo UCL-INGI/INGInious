@@ -92,7 +92,7 @@ class Backend(object):
 
         # Verify that the client is registered
         if message.__class__ != ClientHello and client_addr not in self._registered_clients:
-            await ZMQUtils.send_with_addr(client_addr, client_addr, Unknown())
+            await ZMQUtils.send_with_addr(self._client_socket, client_addr, Unknown())
             return
 
         message_handlers = {
