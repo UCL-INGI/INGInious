@@ -40,7 +40,7 @@ class LdapAuthMethod(AuthMethod):
     def auth(self, login_data):
         try:
             # Get configuration
-            login = login_data["login"]
+            login = login_data["login"].strip().lower()
             password = login_data["password"]
 
             # do not send empty password to the LDAP

@@ -29,7 +29,7 @@ class DatabaseAuthMethod(AuthMethod):
         return self._name
 
     def auth(self, login_data):
-        username = login_data["login"]
+        username = login_data["login"].strip()
         password_hash = hashlib.sha512(login_data["password"]).hexdigest()
 
         user = self._database.users.find_one({"username": username, "password": password_hash, "activate": {"$exists": False}})

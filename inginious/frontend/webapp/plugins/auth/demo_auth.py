@@ -22,7 +22,7 @@ class DemoAuthMethod(AuthMethod):
         return self._name
 
     def auth(self, login_data):
-        login = login_data["login"]
+        login = login_data["login"].strip()
         password = login_data["password"]
 
         if self._users.get(login) == password:
