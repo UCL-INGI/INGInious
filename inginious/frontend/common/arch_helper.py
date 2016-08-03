@@ -69,7 +69,7 @@ def create_arch(configuration, task_directory, context):
         if debug_ports is not None:
             try:
                 debug_ports = debug_ports.split("-")
-                debug_ports = range(debug_ports[0], debug_ports[1])
+                debug_ports = range(int(debug_ports[0]), int(debug_ports[1]))
             except:
                 logger.error("debug_ports should be in the format 'begin-end', for example '1000-2000'")
                 exit(1)
