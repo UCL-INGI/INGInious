@@ -1,7 +1,7 @@
 Configuration reference
 =======================
 
-(Note: this may not be up-to-date. The best way to configure INGInious is to use ``inginious-install``. See :ref:`config`.)
+(Note: the best way to configure INGInious is to use ``inginious-install``. See :ref:`config`.)
 
 Configuring INGInious is done via a file named ``configuration.yaml``.
 To get you started, a file named `configuration.example.yaml <https://github.com/UCL-INGI/INGInious/blob/master/configuration.example.yaml>`_ is provided.
@@ -17,41 +17,41 @@ The different entries are :
     The path to the directory that contains all the task definitions, grouped by courses.
     (see :ref:`task`)
 
-``containers``
-    A dictionary of docker's container names.
-    The key will be used in the task definition to identify the container, and the value must be a valid Docker container identifier.
-    Containers for many languages are available on Docker's hub at https://hub.docker.com/u/ingi/.
-
 ``backend``
-    The type of backend you want to use.
-    This defines where the grading containers are run, and how to access them.
-    Four backends are available:
+    The link to the backend used. You can either set it to ``local`` or indicate the address of your manually-managed backend.
 
-    - ``local``. In this mode, the grading containers run on the same machine as the fontend.
-      This is the configuration described in this tutorial.
-      You will need a running docker daemon on your machine for this to work.
-      If you can use any Docker client command, like ``docker info``, INGInious should run flawlessly.
+    - ``local``. In this mode, which is the default, you have to ensure the docker daemon is local to your machine, or, at least, share the same
+      directory structure. This is typically the case if you use Linux and have a local Docker daemon, or if you use Docker for Mac/Windows, or even
+      docker-machine with local machines. This is the configuration described in this tutorial. You will need a running docker daemon on your machine
+      for this to work. If you can use any Docker client command, like ``docker info``, INGInious should run flawlessly.
 
-    - ``docker_machine``, that should be used when using Docker Machine 
-      (mostly OS X and Windows users, and users with a lot of servers to manage).
-      The option ``machines`` should be filled with the list of machines you want to use.
+      In this mode, a supplementary config option is available, ``local-config``.
 
-    - ``remote``, that should be used when the frontend and the Docker daemons are not on the same server.
-      This includes advanced configurations for scalability (see :doc:`../dev_doc/understand_inginious`)
-      and usage on OS X (as the Docker daemon is run in a virtual machine).
+    - ``tcp://xxx.yyy.zzz.aaa:bbbb``, ``udp://xxx.yyy.zzz.aaa:bbbb`` or ``ipc:///path/to/your/sock``, where the adresses are the ip/socket path of
+      the backend you started manually. This is for advanced users only. See commands ``inginious-backend`` and ``inginious-agent`` for more
+      information.
 
-      This settings requires you to provide the option ``docker_daemons`` with a list of distant docker daemons.
-      Each docker daemon is defined by three things: its hostname, its port and an additional port used to communicate with the backend.
-      **All these ports should be available from the backend!**.
-      
-      Very specific configuration details are possible;
-      please read carefully the ``configuration.example.yaml`` for more information.
-      
-    - ``remote_manual``, allows you to specify manually the host and port of remote grading agents.
-      With this option, the agents are not managed by INGInious and should be monitored by external means.
+``local-config``
+    These configuration options are available only if you set ``backend:local``.
 
-``docker_daemons``
-    Only used when ``backend`` is set to ``remote``.
+    ``concurrency``
+        Number of concurrent task that can be run by INGInious. By default, it is the number of CPU in your host.
+
+    ``debug_host``
+        Host to which the users should connect in order to access to the debug ssh for containers. Most of the time, just do not indicate this
+        option: the address will be automagically guessed.
+
+    ``debug_ports``
+        Range of port, in the form ``64100-64200``, to which INGInious can bind SSH debug containers, to allow remote debugging. By default, it is
+        ``64100-64200``.
+
+    ``tmp_dir``
+        A directory whose absolute path must be available by the docker daemon and INGInious at the same time. By default, it is ``./agent_tmp``.
+
+``webterm``
+    Address of a INGInious-xterm app (see INGInious-xterm on GitHub). If set, it allows to use in-browser task debug via ssh.
+    You have to configure INGInious-xterm according to your configuration of ``local-config.debug_host`` and ``local-config.debug_ports`` or in
+    your agent, in order to make the system work properly. Note that if your run the frontend in HTTPS, INGInious-xterm should also run in HTTPS.
 
 ``mongo_opt``
     Quite self-explanatory.
