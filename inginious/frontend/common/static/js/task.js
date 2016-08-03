@@ -544,9 +544,10 @@ function displayRemoteDebug(submissionid, ssh_host, ssh_port, ssh_password)
         alert.attr('id', 'ssh_remote_info');
 
         // Generate iframe
-        if($('#webterm_link').val() != "undefined")
+        var webterm_link = $('#webterm_link').val();
+        if(webterm_link != undefined)
         {
-            var full_link = $('#webterm_link').val() + "?host=" + ssh_host + "&port=" + ssh_port + "&password=" + ssh_password;
+            var full_link = webterm_link + "?host=" + ssh_host + "&port=" + ssh_port + "&password=" + ssh_password;
             var iframe = $('<iframe>', {
                 src:         full_link,
                 id:          'iframessh',
