@@ -206,13 +206,11 @@ The *getinput* command returns the input given by the student for a specific pro
 For example, for the problem id "pid", the command to run is:
 ::
 
-    getinput [-f,--filename] pid
+    getinput pid
 
 When a problem is defined with several boxes, the argument becomes *pid/bid* where "pid"
-stands for the problem id and "bid" for "box id".
-
-If the problem is a file upload, the file content is written on standard output by default. To
-retrieve the filename, add the *--filename* parameter to the command.
+stands for the problem id and "bid" for "box id". If the problem is a file upload, the problem id can be appended
+with *:filename* or *:value" to retrieve its filename or value.
 
 Note that *getinput* can also retrieve the username/group of the user that submitted the task. You simply have to run
 ::
