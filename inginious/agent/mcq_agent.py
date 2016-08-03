@@ -73,7 +73,7 @@ class MCQAgent(object):
             return
 
         if error_count != 0:
-            text += "You have %i errors in the multiple choice questions" % error_count
+            text.append("You have %i errors in the multiple choice questions" % error_count)
 
         nb_subproblems = len(task.get_problems())
         grade = 100.0 * float(nb_subproblems - error_count) / float(nb_subproblems)
