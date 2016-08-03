@@ -210,7 +210,7 @@ class SubmissionManager(object, metaclass=ABCMeta):
         to_delete = {val["_id"] for val in tasks}.difference(to_keep)
         self._database.submissions.delete_many({"_id": {"$in": list(to_delete)}})
 
-        return map(str, to_delete)
+        return list(map(str, to_delete))
 
     def get_input_from_submission(self, submission, only_input=False):
         """
