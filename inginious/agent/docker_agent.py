@@ -384,9 +384,7 @@ class DockerAgent(object):
 
         if environment_name not in self._containers:
             self._logger.warning("Student container asked for an unknown environment %s (not in aliases)", environment_name)
-            write_stream.write(msgpack.dumps({"type": "run_student_retval", "retval": 254, "socket_id": socket_id}, encoding="utf8",
-                                             use_bin_type=True))
-            await write_stream.drain()
+            await self._write_to_container_stdin(write_stream, {"type": "run_student_retval", "retval": 254, "socket_id": socket_id})
             return
 
         environment = self._containers[environment_name]["id"]
@@ -400,30 +398,37 @@ class DockerAgent(object):
                                                                                                           systemfiles_path))
         except:
             self._logger.exception("Cannot create student container!")
-            write_stream.write(msgpack.dumps({"type": "run_student_retval", "retval": 254, "socket_id": socket_id}, encoding="utf8",
-                                             use_bin_type=True))
-            await write_stream.drain()
+            await self._write_to_container_stdin(write_stream, {"type": "run_student_retval", "retval": 254, "socket_id": socket_id})
             return
 
         self._student_containers_for_job[job_id].add(container_id)
         self._student_containers_running[container_id] = job_id, parent_container_id, socket_id, write_stream
 
         # send to the container that the sibling has started
-        write_stream.write(msgpack.dumps({"type": "run_student_started", "socket_id": socket_id}, encoding="utf8", use_bin_type=True))
-        await write_stream.drain()
+        await self._write_to_container_stdin(write_stream, {"type": "run_student_started", "socket_id": socket_id})
 
         try:
             await self._loop.run_in_executor(None, lambda: self._docker.start_container(container_id))
         except:
             self._logger.exception("Cannot start student container!")
-            write_stream.write(msgpack.dumps({"type": "run_student_retval", "retval": 254, "socket_id": socket_id}, encoding="utf8",
-                                             use_bin_type=True))
-            await write_stream.drain()
+            await self._write_to_container_stdin(write_stream, {"type": "run_student_retval", "retval": 254, "socket_id": socket_id})
             return
 
         # Ask the "cgroup" thread to verify the timeout/memory limit
         await ZMQUtils.send(self._killer_watcher_push.get_push_socket(),
                             KWPRegisterContainer(container_id, memory_limit, time_limit, hard_time_limit))
+
+    async def _write_to_container_stdin(self, write_stream, message):
+        """
+        Send a message to the stdin of a container, with the right data
+        :param write_stream: asyncio write stream to the stdin of the container
+        :param message: dict to be msgpacked and sent
+        """
+        msg = msgpack.dumps(message, encoding="utf8", use_bin_type=True)
+        self._logger.debug("Sending %i bytes to container", len(msg))
+        write_stream.write(struct.pack('I', len(msg)))
+        write_stream.write(msg)
+        await write_stream.drain()
 
     async def handle_running_container(self, job_id, container_id,
                                        inputdata, debug, ssh_port,
@@ -438,16 +443,8 @@ class DockerAgent(object):
             self._logger.exception("Exception occured while creating read/write stream to container")
             return None
 
-        # a small helper
-        async def write(o):
-            msg = msgpack.dumps(o, encoding="utf8", use_bin_type=True)
-            self._logger.debug("Sending %i bytes to container", len(msg))
-            write_stream.write(struct.pack('I', len(msg)))
-            write_stream.write(msg)
-            await write_stream.drain()
-
         # Send hello msg
-        await write({"type": "start", "input": inputdata, "debug": debug})
+        await self._write_to_container_stdin(write_stream, {"type": "start", "input": inputdata, "debug": debug})
 
         buffer = bytearray()
         try:
@@ -546,9 +543,7 @@ class DockerAgent(object):
             retval = 252
 
         try:
-            write_stream.write(msgpack.dumps({"type": "run_student_retval", "retval": retval, "socket_id": socket_id},
-                                             encoding="utf8", use_bin_type=True))
-            await write_stream.drain()
+            await self._write_to_container_stdin(write_stream, {"type": "run_student_retval", "retval": retval, "socket_id": socket_id})
         except:
             pass  # parent container closed
 
