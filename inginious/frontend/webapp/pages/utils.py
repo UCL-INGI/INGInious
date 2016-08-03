@@ -80,3 +80,7 @@ class INGIniousPage(object):
     @property
     def containers(self) -> List[str]:
         return self.app.submission_manager.get_available_environments()
+
+    @property
+    def webterm_link(self) -> str:
+        return self.app.webterm_link

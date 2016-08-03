@@ -89,6 +89,11 @@ form#task label {
 #task_alert .loading-alert {
   padding-right: 50px;
 }
+#task_alert #iframessh {
+  width: 100%;
+  padding-right: 50px;
+  height: 600px;
+}
 #submissions_restrictsize {
   overflow: auto;
   max-height: 223px;

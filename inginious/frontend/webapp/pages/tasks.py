@@ -58,14 +58,14 @@ class TaskPage(INGIniousPage):
                 else:
                     # Display the task itself
                     return self.template_helper.get_renderer().task(course, task, self.submission_manager.get_user_submissions(task),
-                                                                    True)
+                                                                    self.webterm_link)
             except:
                 if web.config.debug:
                     raise
                 else:
                     raise web.notfound()
         else:
-            return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_fields(), self.webterm_link)
+            return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_fields())
 
     def POST(self, courseid, taskid):
         """ POST a new submission """

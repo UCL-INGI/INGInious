@@ -435,15 +435,34 @@ function displayRemoteDebug(submissionid, ssh_host, ssh_port, ssh_password)
     var pre_content = "ssh worker@" + ssh_host + " -p " + ssh_port+ " -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no";
     var task_alert = $('#task_alert');
 
-    if($('pre', task_alert).text() != pre_content)
+    //If not already set
+    if($('pre#commandssh', task_alert).text() != pre_content)
     {
-        var pre = $('<pre><pre>').text(pre_content);
-        var alert = $(getLoadingAlertCode("<b>SSH server active</b><br/>" +
-            "Please paste this command into your terminal.<br/>" +
-            "The password to connect is <code>"+ssh_password+"</code><br/>",
-            submissionid));
+
+        var manual_content_1 = "Paste this command into your terminal:<br/>";
+        var pre = $('<pre id="commandssh"><pre>').text(pre_content);
+        var manual_content_2 = "The password to connect is <code>" + ssh_password + "</code><br/>";
+
+        var alert = $(getLoadingAlertCode("<b>SSH server active</b><br/>", submissionid));
         alert.attr('id', 'ssh_remote_info');
+
+        // Generate iframe
+        if($('#webterm_link').val() != "undefined")
+        {
+            var full_link = $('#webterm_link').val() + "?host=" + ssh_host + "&port=" + ssh_port + "&password=" + ssh_password;
+            var iframe = $('<iframe>', {
+                src:         full_link,
+                id:          'iframessh',
+                frameborder: 0,
+                scrolling:   'no'
+            }).appendTo(alert);
+            manual_content_1 = "Alternatively, you can also paste this command into your terminal:<br/>";
+        }
+
+        alert.append(manual_content_1);
         alert.append(pre);
+        alert.append(manual_content_2);
+
         task_alert.empty().append(alert);
     }
 }
