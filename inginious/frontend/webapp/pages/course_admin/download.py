@@ -58,14 +58,14 @@ class CourseDownloadSubmissions(INGIniousAdminPage):
                               ) for aggregation in aggregations for username in aggregation["students"]])
 
         if user_input.type == "single":
-            user_tasks = list(self.database.user_tasks.find({"username": {"$in": aggregations.keys()},
+            user_tasks = list(self.database.user_tasks.find({"username": {"$in": list(aggregations.keys())},
                                                         "taskid": {"$in": user_input.tasks},
                                                         "courseid": course.get_id()}))
 
             submissionsid = [user_task['submissionid'] for user_task in user_tasks]
             submissions = list(self.database.submissions.find({"_id": {"$in": submissionsid}}))
         else:
-            submissions = list(self.database.submissions.find({"username": {"$in": aggregations.keys()},
+            submissions = list(self.database.submissions.find({"username": {"$in": list(aggregations.keys())},
                                                                "taskid": {"$in": user_input.tasks},
                                                                "courseid": course.get_id(),
                                                                "status": {"$in": ["done", "error"]}}))
