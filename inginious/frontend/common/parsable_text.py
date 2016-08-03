@@ -4,7 +4,7 @@
 # more information about the licensing of this file.
 
 """ Tools to parse text """
-import cgi
+import html
 from datetime import datetime
 
 from docutils import core, nodes
@@ -137,7 +137,7 @@ class ParsableText(object):
                 else:
                     self._parsed = self.rst(self._content, self._show_everything)
             except:
-                self._parsed = "<b>Parsing failed</b>: <pre>" + cgi.escape(self._content) + "</pre>"
+                self._parsed = "<b>Parsing failed</b>: <pre>" + html.escape(self._content) + "</pre>"
         return self._parsed
 
     def __str__(self):
