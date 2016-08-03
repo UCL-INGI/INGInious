@@ -340,7 +340,7 @@ class SubmissionManager(object, metaclass=ABCMeta):
         for submission in submissions:
             submission = self.get_input_from_submission(submission)
 
-            submission_yaml = io.StringIO(inginious.common.custom_yaml.dump(submission).encode('utf-8'))
+            submission_yaml = io.BytesIO(inginious.common.custom_yaml.dump(submission).encode('utf-8'))
 
             # Considering multiple single submissions for each user
             for username in submission["username"]:
@@ -370,7 +370,7 @@ class SubmissionManager(object, metaclass=ABCMeta):
                 if submission_yaml_fname not in tar.getnames():
 
                     info = tarfile.TarInfo(name=submission_yaml_fname)
-                    info.size = submission_yaml.len
+                    info.size = submission_yaml.getbuffer().nbytes
                     info.mtime = time.mktime(submission["submitted_on"].timetuple())
 
                     # Add file in tar archive
@@ -404,12 +404,12 @@ class SubmissionManager(object, metaclass=ABCMeta):
                                         if problem['filename'].endswith(t_ext):
                                             ext = t_ext
 
-                                subfile = io.StringIO(base64.b64decode(problem['value']))
+                                subfile = io.BytesIO(base64.b64decode(problem['value']))
                                 taskfname = base_path + str(submission["_id"]) + '/uploaded_files/' + pid + ext
 
                                 # Generate file info
                                 info = tarfile.TarInfo(name=taskfname)
-                                info.size = subfile.len
+                                info.size = subfile.getbuffer().nbytes
                                 info.mtime = time.mktime(submission["submitted_on"].timetuple())
 
                                 # Add file in tar archive
