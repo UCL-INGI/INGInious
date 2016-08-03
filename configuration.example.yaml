@@ -1,40 +1,18 @@
 # Backend
 # Can be:
 # - "local" (run containers on the same machine)
-# - "remote" (connect to distant docker daemon and auto start agents) (choose this if you use boot2docker)
-# - "remote_manual" (connect to distant and manually installed agents)
-backend: remote
+# - or an address to a distant manually-launched backend, in the form "tcp://host.be:3000", "udp://host.be:3000" or "ipc:///path/to/socket"
+backend: local
 
-# List of remote docker daemon to which the backend will try
-# to connect (backend: remote only) (the default config below is the one for boot2docker on OS X)
-docker_daemons:
-  - remote_host: "192.168.59.103"    ## Host of the docker daemon *from the webapp*
-    remote_docker_port: 2375         ## Port of the distant docker daemon *from the webapp*
-    remote_agent_port: 63456         ## A mandatory port used by the backend and the agent that will be automatically started. Needs to be
-                                     ## available on the remote host, and to be open in the firewall.
+# Only for backend: local
+local-config:
+    # debug_host: localhost  # host that will be indicated to users when they want to use the task remote debug feature. Automatically guessed by
+                             # default
+    debug_ports: 64000-64100 #port range use for remote debug feature
 
-    ## Optionnal. Enable remote container debugging via SSH.
-    ## The port needs to be available on the remote host, and to be open in the firewall.
-    #remote_agent_ssh_port: 63457
-
-    ##does the remote docker requires tls? Defaults to false
-    ##parameter can be set to true or path to the certificates
-    #use_tls: false
-
-    ##link to the docker daemon *from the host that runs the docker daemon*. Defaults to:
-    #local_location: "unix:///var/run/docker.sock"
-
-    ##path to the cgroups "mount" *from the host that runs the docker daemon*. Defaults to:
-    #cgroups_location: "/sys/fs/cgroup"
-
-    ##name that will be used to reference the agent
-    #"agent_name": "inginious-agent"
-
-# List of remote agents to which the backend will try
-# to connect (backend: remote_manual only) (the default config below is the one for boot2docker on OS X)
-#agents:
-#  - host: "192.168.59.103"
-#    port: 5001
+# URL of a node app INGInious-xterm, properly configured, that allows to run in-browser ssh debug
+# If you don't want to install/activate it, just set it to None or remove it from the file
+webterm: "https://my-host.be:8080"
 
 # MongoDB options
 mongo_opt:
@@ -43,12 +21,6 @@ mongo_opt:
 
 # Location of the task directory
 tasks_directory: ./inginious/tasks
-
-# Aliases for containers
-# Only containers listed here can be used by tasks
-containers:
-    default: ingi/inginious-c-default
-    sekexe: ingi/inginious-c-sekexe
 
 # Location of the backup directory (webapp)
 backup_directory: ./inginious/backup
@@ -70,9 +42,7 @@ maintenance: false
 # Use single minified javascript file (production) or multiple files (dev) ?
 use_minified_js: true
 
-# Activate debugging? (only used if the backend is properly configured)
-remote_debugging_active: true
-
+# Email info
 smtp:
     sendername: 'INGInious <no-reply@inginious.org>'
     host: 'smtp.gmail.com'
