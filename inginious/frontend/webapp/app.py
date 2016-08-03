@@ -171,6 +171,7 @@ def get_app(config):
     appli.default_allowed_file_extensions = default_allowed_file_extensions
     appli.default_max_file_size = default_max_file_size
     appli.backup_dir = config.get("backup_directory", './backup')
+    appli.webterm_link = config.get("webterm", None)
 
     # Init the mapping of the app
     appli.init_mapping(urls)

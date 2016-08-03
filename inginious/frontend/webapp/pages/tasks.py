@@ -65,7 +65,7 @@ class TaskPage(INGIniousPage):
                 else:
                     raise web.notfound()
         else:
-            return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_fields(), False)
+            return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_fields(), self.webterm_link)
 
     def POST(self, courseid, taskid):
         """ POST a new submission """
