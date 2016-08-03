@@ -173,7 +173,7 @@ class CourseTaskFiles(INGIniousAdminPage):
                 return self.show_tab_file(courseid, taskid, i + " is not a directory!")
 
         try:
-            open(wanted_path, "w").write(fileobj.file.read())
+            open(wanted_path, "wb").write(fileobj.file.read())
             return self.show_tab_file(courseid, taskid)
         except:
             return self.show_tab_file(courseid, taskid, "An error occurred while writing the file")
