@@ -335,4 +335,4 @@ class Client(BetterParanoidPirateClient):
         """
         Kills a running job
         """
-        self._loop.call_soon_threadsafe(self._simple_send(ClientKillJob(job_id)))
+        self._loop.call_soon_threadsafe(asyncio.ensure_future, self._simple_send(ClientKillJob(job_id)))
