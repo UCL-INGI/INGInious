@@ -7,7 +7,7 @@ import logging
 
 import zmq
 
-from common.course_factory import CourseFactory, create_factories
+from inginious.common.course_factory import CourseFactory, create_factories
 from inginious.common.message_meta import ZMQUtils
 from inginious.common.messages import BackendNewJob, BackendKillJob, BackendNewBatchJob, AgentBatchJobDone, AgentHello, AgentJobDone
 

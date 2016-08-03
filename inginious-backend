@@ -13,7 +13,7 @@ import logging
 from zmq.asyncio import ZMQEventLoop, Context
 import asyncio
 
-from backend.backend import Backend
+from inginious.backend.backend import Backend
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

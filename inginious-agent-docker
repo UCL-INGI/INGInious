@@ -15,7 +15,7 @@ import multiprocessing
 from zmq.asyncio import ZMQEventLoop, Context
 import asyncio
 
-from agent.docker_agent import DockerAgent
+from inginious.agent.docker_agent import DockerAgent
 
 
 def check_range(value):

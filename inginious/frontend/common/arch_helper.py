@@ -10,10 +10,10 @@ import threading
 
 from zmq.asyncio import ZMQEventLoop, Context
 
-from agent.docker_agent import DockerAgent
-from agent.mcq_agent import MCQAgent
-from backend.backend import Backend
-from client.client import Client
+from inginious.agent.docker_agent import DockerAgent
+from inginious.agent.mcq_agent import MCQAgent
+from inginious.backend.backend import Backend
+from inginious.client.client import Client
 
 def start_asyncio_and_zmq():
     """ Init asyncio and ZMQ. Starts a daemon thread in which the asyncio loops run.

@@ -189,7 +189,7 @@ class BackendJobDone(metaclass=MessageMeta, msgtype="backend_job_done"):
         Gives the result of a job.
     """
 
-    def __init__(self, job_id: ClientJobId, result: SPResult, grade: float, problems: Dict[str, SPResult], tests: Dict[str, any],
+    def __init__(self, job_id: ClientJobId, result: SPResult, grade: float, problems: Dict[str, SPResult], tests: Dict[str, Any],
                  custom: Dict[str, Any], archive: Optional[bytes]):
         """
         :param job_id: the client-side job id associated with this job

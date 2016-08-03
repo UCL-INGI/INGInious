@@ -10,13 +10,13 @@ import web
 from gridfs import GridFS
 from pymongo.database import Database
 
-from common.course_factory import CourseFactory
-from common.task_factory import TaskFactory
-from frontend.common.plugin_manager import PluginManager
-from frontend.common.submission_manager import SubmissionManager
-from frontend.common.template_helper import TemplateHelper
-from frontend.webapp.batch_manager import BatchManager
-from frontend.webapp.user_manager import UserManager
+from inginious.common.course_factory import CourseFactory
+from inginious.common.task_factory import TaskFactory
+from inginious.frontend.common.plugin_manager import PluginManager
+from inginious.frontend.common.submission_manager import SubmissionManager
+from inginious.frontend.common.template_helper import TemplateHelper
+from inginious.frontend.webapp.batch_manager import BatchManager
+from inginious.frontend.webapp.user_manager import UserManager
 
 
 class INGIniousPage(object):
