@@ -168,7 +168,7 @@ class SubmissionManager(object):
             max_submissions = min(max_submissions_bound, task.get_stored_submissions())
 
         if max_submissions <= 0:
-            return
+            return []
         tasks = list(self._database.submissions.find(
             {"username": username, "courseid": task.get_course_id(), "taskid": task.get_id()},
             projection=["_id", "status", "result", "grade", "submitted_on"],
