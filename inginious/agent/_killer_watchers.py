@@ -121,4 +121,7 @@ class TimeoutWatcher(KillerWatcher):
         if container_id in self.watching:
             self.watching.remove(container_id)
             self.container_had_error.add(container_id)
-            await self._loop.run_in_executor(None, lambda: self.docker_interface.kill_container(container_id))
+            try:
+                await self._loop.run_in_executor(None, lambda: self.docker_interface.kill_container(container_id))
+            except:
+                pass #is ok
