@@ -50,11 +50,11 @@ function studio_update_file_tabs(data, method)
     jQuery.ajax({
         beforeSend: function()
                     {
-                        $("#tab_files").html('Loading');
+                        $("#tab_file_list").html('Loading');
                     },
         success:    function(data)
                     {
-                        $("#tab_files").html(data);
+                        $("#tab_file_list").replaceWith(data);
                     },
         method:     method,
         data:       data,

@@ -59,7 +59,13 @@ $var Navbar: $:NavbarF()
 			</div>
 			
 			<div role="tabpanel" class="tab-pane" id="tab_files">
-                $:include.course_admin.edit_tabs.files(course,taskid,file_list)
+                <ul class="nav nav-tabs" id="edit_file_tabs" role="tablist">
+                    <li role="presentation" class="active"><a href="#tab_file_list" aria-controls="basicinfo" role="tab" data-toggle="tab"><i class="fa
+                            fa-cog fa-list-ul"></i>&nbsp; File list</a></li>
+                </ul>
+                <div id="edit_file_tabs_content" class="tab-content">
+                    $:include.course_admin.edit_tabs.files(course,taskid,file_list)
+                </div>
 			</div>
 		</div>
 	</div>
