@@ -136,9 +136,8 @@ class CourseTaskFiles(INGIniousAdminPage):
         wanted_path = self.verify_path(courseid, taskid, path)
         if wanted_path is None or not os.path.isfile(wanted_path):
             return "Internal error"
-
-        content = open(wanted_path, 'r').read()
         try:
+            content = open(wanted_path, 'r').read()
             return json.dumps({"content": content})
         except:
             return json.dumps({"error": "not-readable"})
