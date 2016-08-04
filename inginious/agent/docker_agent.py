@@ -147,6 +147,8 @@ class DockerAgent(object):
                     await ZMQUtils.send(self._docker_events_pub, EventContainerDied(container_id, retval))
                 elif i["status"] == "oom":
                     await ZMQUtils.send(self._docker_events_sub, EventContainerOOM(i["id"]))
+                else:
+                    raise TypeError(str(i))
         except:
             self._logger.exception("Exception in _watch_docker_events")
 
