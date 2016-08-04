@@ -243,7 +243,14 @@ class SubmissionManager(object, metaclass=ABCMeta):
             submission["text"] = ParsableText(submission["text"], submission["response_type"], show_everything).parse()
         if "problems" in submission:
             for problem in submission["problems"]:
-                submission["problems"][problem] = ParsableText(submission["problems"][problem], submission["response_type"], show_everything).parse()
+                if isinstance(submission["problems"][problem], str):  # fallback for old-style submissions
+                    submission["problems"][problem] = (submission.get('result', 'crash'), ParsableText(submission["problems"][problem],
+                                                                                                       submission["response_type"],
+                                                                                                       show_everything).parse())
+                else:  # new-style submission
+                    submission["problems"][problem] = (submission["problems"][problem][0], ParsableText(submission["problems"][problem][1],
+                                                                                                        submission["response_type"],
+                                                                                                        show_everything).parse())
         return submission
 
     def is_running(self, submissionid, user_check=True):

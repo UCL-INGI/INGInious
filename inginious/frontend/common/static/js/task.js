@@ -656,7 +656,12 @@ function displayTaskStudentAlertWithProblems(content, top, type, alwaysShowTop)
             var problemid = elem.id.substr(11); //skip "task_alert."
             if(problemid in content.problems)
             {
-                $(elem).html(getAlertCode(content.problems[problemid], "info", true));
+                var alert_type = "danger";
+                if(content.problems[problemid][0] == "timeout" || content.problems[problemid][0] == "overflow")
+                    alert_type = "warning";
+                if(content.problems[problemid][0] == "success")
+                    alert_type = "success";
+                $(elem).html(getAlertCode(content.problems[problemid][1], alert_type, true));
                 if(firstPos == -1 || firstPos > $(elem).offset().top)
                     firstPos = $(elem).offset().top;
             }

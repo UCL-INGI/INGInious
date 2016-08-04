@@ -1,93 +1,18 @@
 accessible: true
 author: Guillaume Derval
 context: tout à fait farfelu
-environment: default
+environment: mcq
+evaluate: best
+groups: false
 limits:
+    time: '60'
     memory: '32'
     output: '1024'
-    time: '60'
 name: Un titre d'énoncé farfelu
+network_grading: false
+order: 9
 problems:
     idFirstExercice:
-        header: |+
-            .. raw:: html
-
-                <p>
-                  The first exercice consists of blablabla
-                </p>
-
-        type: code
-        name: The first exercice
-        language: java
-    idSecondExercice:
-        header: |+
-            .. raw:: html
-
-                <p>
-                  The second exercice consists of blablabla
-                </p>
-
-        name: The second exercice
-        type: code
-        boxes:
-            text1:
-                content: |+
-                    .. raw:: html
-
-                        <code>for(i=</code>
-
-                type: text
-            for1:
-                maxChars: 3
-                type: input-integer
-            text2:
-                content: |+
-                    .. raw:: html
-
-                        <code>; i &lt;=</code>
-
-                type: text
-            for2:
-                maxChars: 10
-                type: input-decimal
-            text3:
-                content: |+
-                    .. raw:: html
-
-                        <code>;</code>
-
-                type: text
-            for3:
-                maxChars: 10
-                type: input-text
-            text4:
-                content: |+
-                    .. raw:: html
-
-                        <code>)</code>
-
-                type: text
-            text5:
-                content: |+
-                    .. raw:: html
-
-                        <br>
-                        <code>{</code><br>
-
-                type: text
-            for-content:
-                language: python
-                lines: 5
-                maxChars: 1000
-                type: multiline
-            text6:
-                content: |+
-                    .. raw:: html
-
-                        <code>}</code>
-
-                type: text
-    idThirdExercice:
         choices:
         -   valid: true
             text: It is, of course, 42!
@@ -99,22 +24,16 @@ problems:
 
         -   text: 43...
         -   text: 41...
-        limit: 3
-        name: The third exercice
         type: multiple-choice
-        error_message: '``You failed!!!``...'
-        header: |+
-            .. raw:: html
-
-                <p>
-                  The answer to life, the universe and any other things is
-                </p>
-
         multiple: true
-    idFourthExercice:
+        header: The answer to life, the universe and any other things is
+        error_message: '``You failed!!!``...'
+        limit: 3
+        name: The first exercice
+    idSecondExercice:
         choices:
-        -   valid: true
-            text: It is, of course, 42!
+        -   text: It is, of course, 42!
+            valid: true
         -   text: |+
                 .. raw:: html
 
@@ -123,15 +42,9 @@ problems:
             valid: true
         -   text: 43...
         -   text: 41...
-        name: The fourth exercice
-        header: |+
-            .. raw:: html
-
-                <p>
-                  The answer to life, the universe and any other things is
-                </p>
-
-        limit: 3
         type: multiple-choice
+        header: The answer to life, the universe and any other things is
+        limit: 3
+        name: The second exercice
+stored_submissions: 0
 weight: 1.0
-order: 9

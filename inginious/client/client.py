@@ -274,7 +274,7 @@ class Client(BetterParanoidPirateClient):
 
         if debug == "ssh" and ssh_callback is None:
             self._logger.error("SSH callback not set in %s/%s", task.get_course_id(), task.get_id())
-            callback({"result": "crash", "text": "SSH callback not set."})
+            callback(("crash", "SSH callback not set."), 0.0, {}, {}, {}, None)
             return
         # wrap ssh_callback to ensure it is called at most once, and that it can always be called to simplify code
         ssh_callback = _callable_once(ssh_callback if ssh_callback is not None else lambda: None)
@@ -283,7 +283,7 @@ class Client(BetterParanoidPirateClient):
         if environment not in self._available_containers:
             self._logger.warning("Env %s not available for task %s/%s", environment, task.get_course_id(), task.get_id())
             ssh_callback(None, None, None)  # ssh_callback must be called once
-            callback({"result": "crash", "text": "Environment not available."})
+            callback(("crash", "Environment not available."), 0.0, {}, {}, {}, None)
             return
 
         enable_network = task.allow_network_access_grading()
@@ -296,7 +296,7 @@ class Client(BetterParanoidPirateClient):
         except:
             self._logger.exception("Cannot retrieve limits for task %s/%s", task.get_course_id(), task.get_id())
             ssh_callback(None, None, None)  # ssh_callback must be called once
-            callback({"result": "crash", "text": "Error while reading task limits"})
+            callback(("crash", "Error while reading task limits"), 0.0, {}, {}, {}, None)
             return
 
         msg = ClientNewJob(job_id, task.get_course_id(), task.get_id(), inputdata, environment, enable_network, time_limit,
