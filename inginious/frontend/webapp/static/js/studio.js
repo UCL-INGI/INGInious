@@ -224,15 +224,19 @@ function studio_task_file_delete_tab(path)
     if(studio_file_editor_tabs[path] != undefined)
     {
         var editorId = -1;
-        $.each(codeEditors, function(idx, editor)
-        {
-            if(editor.getTextArea().id == studio_file_editor_tabs[path] + '_editor')
-            {
-                if(!editor.isClean() && !confirm('You have unsaved change to this file. Do you really want to close it?'))
-                    return false;
+
+        // Fetch the editor id
+        $.each(codeEditors, function(idx, editor) {
+            if(editor.getTextArea().id == studio_file_editor_tabs[path] + '_editor') {
                 editorId = idx;
             }
         });
+
+        // Check if modified
+        if(!codeEditors[editorId].isClean() && !confirm('You have unsaved change to this file. Do you really want to close it?'))
+            return false;
+
+        // Remove from list
         if(editorId != -1)
             codeEditors.splice(editorId, 1);
 
