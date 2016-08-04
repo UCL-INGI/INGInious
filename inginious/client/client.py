@@ -277,7 +277,7 @@ class Client(BetterParanoidPirateClient):
             callback(("crash", "SSH callback not set."), 0.0, {}, {}, {}, None)
             return
         # wrap ssh_callback to ensure it is called at most once, and that it can always be called to simplify code
-        ssh_callback = _callable_once(ssh_callback if ssh_callback is not None else lambda: None)
+        ssh_callback = _callable_once(ssh_callback if ssh_callback is not None else lambda _1, _2, _3: None)
 
         environment = task.get_environment()
         if environment not in self._available_containers:
