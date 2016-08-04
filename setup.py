@@ -50,8 +50,8 @@ setup(
     install_requires=install_requires,
     tests_require=test_requires,
     extras_require={
-        "cgi": ["flup"],
-        "ldap": ["simpleldap>=0.9", "pyldap>=2.4.25.1"],
+        "cgi": ["flup>=1.0.3.dev"],
+        "ldap": ["simpleldap>=0.9"],
         "test": test_requires
     },
 
