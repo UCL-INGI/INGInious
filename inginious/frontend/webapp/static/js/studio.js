@@ -232,13 +232,14 @@ function studio_task_file_delete_tab(path)
             }
         });
 
-        // Check if modified
-        if(!codeEditors[editorId].isClean() && !confirm('You have unsaved change to this file. Do you really want to close it?'))
-            return false;
+        if(editorId != -1) {
+            // Check if modified
+            if (!codeEditors[editorId].isClean() && !confirm('You have unsaved change to this file. Do you really want to close it?'))
+                return false;
 
-        // Remove from list
-        if(editorId != -1)
+            // Remove from list
             codeEditors.splice(editorId, 1);
+        }
 
         var edit_file_tabs = $('#edit_file_tabs');
         if($('a[href="#' + studio_file_editor_tabs[path] + '"]', edit_file_tabs).parent().hasClass('active'))
