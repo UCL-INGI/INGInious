@@ -14,17 +14,15 @@ import inginious
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
 install_requires = [
-    "docker-py==1.7.2",
+    "docker-py>=1.9.0",
     "docutils>=0.12",
-    "pymongo>=3.0.3",
+    "pymongo>=3.2.2",
     "PyYAML>=3.11",
-    "requests>=2.7.0",
-    "six>=1.9.0",
-    "web.py-INGI>=0.38dev1",
-    "websocket-client>=0.32.0",
-    "pylti>=0.3.2",
-    "mock >= 1.0.1",
-    "watchdog >= 0.8.3"
+    "web.py>=0.40.dev0",
+    "pylti>=0.4.1",
+    "watchdog >= 0.8.3",
+    "msgpack-python >= 0.4.7",
+    "pyzmq >= 15.3.0"
 ]
 test_requires = [
     "selenium",
@@ -53,12 +51,14 @@ setup(
     tests_require=test_requires,
     extras_require={
         "cgi": ["flup"],
-        "ldap": ["simpleldap>=0.8", "python-ldap>=2.4.19"],
+        "ldap": ["simpleldap>=0.9", "pyldap>=2.4.25.1"],
         "test": test_requires
     },
 
     scripts=[
-        'inginious-agent',
+        'inginious-agent-docker',
+        'inginious-agent-mcq',
+        'inginious-backend',
         'inginious-lti',
         'inginious-webapp',
         'inginious-install',
