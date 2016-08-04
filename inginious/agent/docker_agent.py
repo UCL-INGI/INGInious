@@ -96,8 +96,8 @@ class DockerAgent(object):
 
         # Sockets
         self._backend_socket = self._context.socket(zmq.DEALER)
-        self._docker_events_pub = self._context.socket(zmq.PUB)
-        self._docker_events_sub = self._context.socket(zmq.SUB)
+        self._docker_events_publisher = self._context.socket(zmq.PUB)
+        self._docker_events_subscriber = self._context.socket(zmq.SUB)
 
         # Watchers
         self._killer_watcher_push = PipelinePush(context, "agentpush")
@@ -109,15 +109,15 @@ class DockerAgent(object):
         # Poller
         self._poller = Poller()
         self._poller.register(self._backend_socket, zmq.POLLIN)
-        self._poller.register(self._docker_events_sub, zmq.POLLIN)
+        self._poller.register(self._docker_events_subscriber, zmq.POLLIN)
         self._poller.register(self._killer_watcher_pull.get_pull_socket(), zmq.POLLIN)
 
     async def init_watch_docker_events(self):
         """ Init everything needed to watch docker events """
         url = "inproc://docker_events"
-        self._docker_events_pub.bind(url)
-        self._docker_events_sub.connect(url)
-        self._docker_events_sub.setsockopt(zmq.SUBSCRIBE, b'')
+        self._docker_events_publisher.bind(url)
+        self._docker_events_subscriber.connect(url)
+        self._docker_events_subscriber.setsockopt(zmq.SUBSCRIBE, b'')
         self._loop.create_task(self._watch_docker_events())
 
     async def init_watcher_pipe(self):
@@ -131,7 +131,7 @@ class DockerAgent(object):
         self._killer_watcher_pull.link(self._timeout_watcher)
 
     async def _watch_docker_events(self):
-        """ Get raw docker events and convert them to more readable objects, and then give them to self._docker_events_sub """
+        """ Get raw docker events and convert them to more readable objects, and then give them to self._docker_events_subscriber """
         try:
             source = AsyncIteratorWrapper(self._docker.event_stream(filters={"event": ["die", "oom"]}))
             async for i in source:
@@ -142,9 +142,9 @@ class DockerAgent(object):
                     except:
                         self._logger.exception("Cannot parse exitCode for container %s", container_id)
                         retval = -1
-                    await ZMQUtils.send(self._docker_events_pub, EventContainerDied(container_id, retval))
+                    await ZMQUtils.send(self._docker_events_publisher, EventContainerDied(container_id, retval))
                 elif i["Type"] == "container" and i["status"] == "oom":
-                    await ZMQUtils.send(self._docker_events_pub, EventContainerOOM(i["id"]))
+                    await ZMQUtils.send(self._docker_events_publisher, EventContainerOOM(i["id"]))
                 else:
                     raise TypeError(str(i))
         except:
@@ -783,8 +783,8 @@ class DockerAgent(object):
                     await self.handle_backend_message(message)
 
                 # New docker event
-                if self._docker_events_sub in socks:
-                    message = await ZMQUtils.recv(self._docker_events_sub)
+                if self._docker_events_subscriber in socks:
+                    message = await ZMQUtils.recv(self._docker_events_subscriber)
                     await self.handle_docker_event(message)
 
                 # End of watcher pipe
