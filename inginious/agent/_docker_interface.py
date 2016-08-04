@@ -18,9 +18,10 @@ class DockerInterface(object):
         (not asyncio) Interface to Docker
     """
 
-    def __init__(self):
-        self._docker = docker.Client(**kwargs_from_env())
-
+    @property
+    def _docker(self):
+        return docker.Client(**kwargs_from_env())
+    
     def get_containers(self):
         """
         :return: a dict of available containers in the form
