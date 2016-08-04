@@ -60,8 +60,6 @@ class DockerAgent(object):
         self.tmp_dir = tmp_dir
         self.task_directory = task_directory
 
-        self._internal_job_count = 0
-
         # Delete tmp_dir, and recreate-it again
         try:
             rmtree(tmp_dir)
@@ -195,7 +193,6 @@ class DockerAgent(object):
         """
         try:
             self._logger.info("Received request for jobid %s (batch job)", message.job_id)
-            internal_job_id = self._get_new_internal_job_id()
 
             if message.container_name not in self._batch_containers:
                 self._logger.info("Backend asked for batch container %s but it is not available in this agent", message.container_name)
@@ -205,15 +202,10 @@ class DockerAgent(object):
             environment = self._batch_containers[message.container_name]["id"]
             batch_args = self._batch_containers[message.container_name]["parameters"]
 
-            container_path = os.path.join(self.tmp_dir, str(internal_job_id))  # tmp_dir/id/
+            container_path = tempfile.mkdtemp(dir=self.tmp_dir)  # tmp_dir/id/
             input_path = os.path.join(container_path, 'input')  # tmp_dir/id/input/
             output_path = os.path.join(container_path, 'output')  # tmp_dir/id/output/
-            try:
-                rmtree(container_path)
-            except:
-                pass
 
-            os.mkdir(container_path)
             os.mkdir(input_path)
             os.mkdir(output_path)
             os.chmod(container_path, 0o777)
@@ -314,20 +306,14 @@ class DockerAgent(object):
                     return
                 ssh_port = self.ssh_ports.pop()
 
-            # Remove possibly existing older folder and creates the new ones
-            internal_job_id = self._get_new_internal_job_id()
-            container_path = os.path.join(self.tmp_dir, str(internal_job_id))  # tmp_dir/id/
+            # Create directories for storing all the data for the job
+            container_path = tempfile.mkdtemp(dir=self.tmp_dir)
             task_path = os.path.join(container_path, 'task')  # tmp_dir/id/task/
             sockets_path = os.path.join(container_path, 'sockets')  # tmp_dir/id/socket/
             student_path = os.path.join(task_path, 'student')  # tmp_dir/id/task/student/
             systemfiles_path = os.path.join(task_path, 'systemfiles')  # tmp_dir/id/task/systemfiles/
-            try:
-                rmtree(container_path)
-            except:
-                pass
 
             # Create the needed directories
-            os.mkdir(container_path)
             os.mkdir(sockets_path)
             os.chmod(container_path, 0o777)
             os.chmod(sockets_path, 0o777)
@@ -796,9 +782,3 @@ class DockerAgent(object):
             return
         except KeyboardInterrupt:
             return
-
-    def _get_new_internal_job_id(self):
-        """ Get a new internal job id """
-        internal_job_id = self._internal_job_count
-        self._internal_job_count += 1
-        return internal_job_id
