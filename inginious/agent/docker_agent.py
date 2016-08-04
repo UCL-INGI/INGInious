@@ -135,6 +135,8 @@ class DockerAgent(object):
         try:
             source = AsyncIteratorWrapper(self._docker.event_stream(filters={"event": ["die", "oom"]}))
             async for i in source:
+                if isinstance(i, Exception):
+                    raise i
                 if i["status"] == "die":
                     container_id = i["id"]
                     try:

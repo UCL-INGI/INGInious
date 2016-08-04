@@ -98,7 +98,10 @@ class TimeoutWatcher(KillerWatcher):
             nano_timeout = timeout * (10 ** 9)
             async for upd in source:
                 if upd is None:
-                    return
+                    await self._kill_it_with_fire(container_id)
+                if isinstance(upd, Exception):
+                    await self._kill_it_with_fire(container_id)
+                    raise upd
                 self._logger.debug("%i", upd['cpu_stats']['cpu_usage']['total_usage'])
                 if upd['cpu_stats']['cpu_usage']['total_usage'] > nano_timeout:
                     self._logger.info("Killing container %s as it used %i CPU seconds (max was %i)",
