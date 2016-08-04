@@ -362,6 +362,10 @@ class UserManager(AbstractUserManager):
                                                            "tried": 0, "succeeded": False, "grade": 0.0, "submissionid": None}},
                                          upsert=True)
 
+    def user_can_submit(self, username, task):
+
+        return True
+
     def update_user_stats(self, username, task, submission, result_str, grade):
         """ Update stats with a new submission """
         self.user_saw_task(username, submission["courseid"], submission["taskid"])
