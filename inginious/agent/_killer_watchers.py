@@ -23,26 +23,30 @@ class KillerWatcher(PipelineElement):
 
     def __init__(self, context, name):
         super().__init__(context, name)
+        self._logger = logging.getLogger("inginious.agent.docker")
 
     async def _handle_message(self, message):
         """
         Handles a message. Dispatches it to the right method, then pushes the result in the pipeline.
         """
-        if type(message) == KWPRegisterContainer:
-            await self._register_container(message.container_id, message.max_mem, message.timeout, message.timeout_hard)
-            return message
-        elif type(message) == KWPKilledStatus:
-            if message.killed_result is None:
-                killed = await self._was_killed(message.container_id)
-                if killed is not None:
-                    return message.killed(killed)
+        try:
+            if type(message) == KWPRegisterContainer:
+                await self._register_container(message.container_id, message.max_mem, message.timeout, message.timeout_hard)
+                return message
+            elif type(message) == KWPKilledStatus:
+                if message.killed_result is None:
+                    killed = await self._was_killed(message.container_id)
+                    if killed is not None:
+                        return message.killed(killed)
+                    else:
+                        return message.not_killed()
                 else:
                     return message.not_killed()
             else:
-                return message.not_killed()
-        else:
-            # drop
-            pass
+                # drop
+                pass
+        except:
+            self._logger.exception("Exception in KillerWatcher._handle_message")
 
     @abstractmethod
     async def _was_killed(self, container_id):
@@ -68,7 +72,6 @@ class TimeoutWatcher(KillerWatcher):
         self.container_had_error = set()
         self.watching = set()
         self.docker_interface = docker_interface
-        self._logger = logging.getLogger("inginious.agent.docker")
 
     async def _was_killed(self, container_id):
         if container_id in self.watching:
@@ -89,18 +92,21 @@ class TimeoutWatcher(KillerWatcher):
         :param container_id:
         :param timeout: in seconds (cpu time)
         """
-        docker_stats = self.docker_interface.get_stats(container_id)
-        source = AsyncIteratorWrapper(docker_stats)
-        nano_timeout = timeout * (10 ** 9)
-        async for upd in source:
-            if upd is None:
-                return
-            self._logger.debug("%i", upd['cpu_stats']['cpu_usage']['total_usage'])
-            if upd['cpu_stats']['cpu_usage']['total_usage'] > nano_timeout:
-                self._logger.info("Killing container %s as it used %i CPU seconds (max was %i)",
-                                  container_id, int(upd['cpu_stats']['cpu_usage']['total_usage'] / (10 ** 9)), timeout)
-                await self._kill_it_with_fire(container_id)
-                return
+        try:
+            docker_stats = self.docker_interface.get_stats(container_id)
+            source = AsyncIteratorWrapper(docker_stats)
+            nano_timeout = timeout * (10 ** 9)
+            async for upd in source:
+                if upd is None:
+                    return
+                self._logger.debug("%i", upd['cpu_stats']['cpu_usage']['total_usage'])
+                if upd['cpu_stats']['cpu_usage']['total_usage'] > nano_timeout:
+                    self._logger.info("Killing container %s as it used %i CPU seconds (max was %i)",
+                                      container_id, int(upd['cpu_stats']['cpu_usage']['total_usage'] / (10 ** 9)), timeout)
+                    await self._kill_it_with_fire(container_id)
+                    return
+        except:
+            self._logger.exception("Exception in _handle_container_timeout")
 
     async def _handle_container_hard_timeout(self, container_id, hard_timeout):
         """
