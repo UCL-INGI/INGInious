@@ -39,5 +39,5 @@ class AsyncIteratorWrapper(object):
             for i in self._it:
                 self._loop.call_soon_threadsafe(asyncio.ensure_future, self._add_to_queue(i))
         except Exception as e:
-            self._loop.call_soon_threadsafe(asyncio.ensure_future, self._add_to_queue(e))
+            pass
         self._loop.call_soon_threadsafe(asyncio.ensure_future, self._add_to_queue(self._last_item))

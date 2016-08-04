@@ -135,9 +135,7 @@ class DockerAgent(object):
         try:
             source = AsyncIteratorWrapper(self._docker.event_stream(filters={"event": ["die", "oom"]}))
             async for i in source:
-                if isinstance(i, Exception):
-                    raise i
-                if i["status"] == "die":
+                if i["Type"] == "container" and i["status"] == "die":
                     container_id = i["id"]
                     try:
                         retval = int(i["Actor"]["Attributes"]["exitCode"])
@@ -145,8 +143,8 @@ class DockerAgent(object):
                         self._logger.exception("Cannot parse exitCode for container %s", container_id)
                         retval = -1
                     await ZMQUtils.send(self._docker_events_pub, EventContainerDied(container_id, retval))
-                elif i["status"] == "oom":
-                    await ZMQUtils.send(self._docker_events_sub, EventContainerOOM(i["id"]))
+                elif i["Type"] == "container" and i["status"] == "oom":
+                    await ZMQUtils.send(self._docker_events_pub, EventContainerOOM(i["id"]))
                 else:
                     raise TypeError(str(i))
         except:
@@ -510,6 +508,8 @@ class DockerAgent(object):
                             write_stream.close()
                             sock.close_socket()
                             return
+        except asyncio.IncompleteReadError:
+            self._logger.debug("Container output ended with an IncompleteReadError; It was probably killed.")
         except:
             self._logger.exception("Exception while reading container %s output", container_id)
 
@@ -735,7 +735,7 @@ class DockerAgent(object):
                 if message.container_id in self._containers_running or message.container_id in self._student_containers_running:
                     self._logger.info("Container %s did OOM, killing it", message.container_id)
                     self._containers_killed[message.container_id] = "overflow"
-                    await self._loop.run_in_executor(None, self._docker.kill_container(message.container_id))
+                    await self._loop.run_in_executor(None, lambda: self._docker.kill_container(message.container_id))
         except:
             self._logger.exception("Exception in handle_docker_event")
 
