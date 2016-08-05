@@ -12,7 +12,7 @@ from datetime import datetime
 from re import _pattern_type
 from time import time
 
-from bson.binary import Binary
+from bson.binary import Binary, USER_DEFINED_SUBTYPE
 from web.session import Store
 
 valid_key_types = {str}
@@ -87,11 +87,11 @@ class MongoStore(Store):
         self.collection.ensure_index(_atime)
 
     def encode(self, sessiondict):
-        return dict((k, Binary(Store.encode(self, v)) if needs_encode(v) else v)
+        return dict((k, Binary(Store.encode(self, v), USER_DEFINED_SUBTYPE) if needs_encode(v) else v)
                     for (k, v) in sessiondict.items())
 
     def decode(self, sessiondict):
-        return dict((k, Store.decode(self, v) if isinstance(v, Binary) else v)
+        return dict((k, Store.decode(self, v) if isinstance(v, Binary) and v.subtype == USER_DEFINED_SUBTYPE else v)
                     for (k, v) in sessiondict.items())
 
     def __contains__(self, sessionid):
