@@ -13,7 +13,7 @@ from pymongo import MongoClient
 import pymongo
 import web
 
-from frontend.common.arch_helper import create_arch, start_asyncio_and_zmq
+from inginious.frontend.common.arch_helper import create_arch, start_asyncio_and_zmq
 from inginious.frontend.common.session_mongodb import MongoStore
 from inginious.frontend.common.static_middleware import StaticMiddleware
 from inginious.frontend.common.plugin_manager import PluginManager
