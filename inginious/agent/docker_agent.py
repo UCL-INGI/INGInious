@@ -633,8 +633,12 @@ class DockerAgent(object):
             self._loop.run_in_executor(None, lambda: self._docker.remove_container(container_id))
 
             # Delete folders
-            rmtree(container_path)
-
+            try:
+                rmtree(container_path)
+            except PermissionError:
+                self._logger.debug("Cannot remove old container path!")
+                pass # todo: run a docker container to force removal
+            
             # Return!
             await self.send_job_result(message.job_id, result, error_msg, grade, problems, tests, custom, archive)
 
