@@ -252,7 +252,7 @@ class CourseTaskFiles(INGIniousAdminPage):
                     file_stat = os.stat(os.path.join(root, fname))
                     info.size = file_stat.st_size
                     info.mtime = file_stat.st_mtime
-                    tar.addfile(info, fileobj=open(os.path.join(root, fname), 'r'))
+                    tar.addfile(info, fileobj=open(os.path.join(root, fname), 'rb'))
             tar.close()
             tmpfile.seek(0)
             web.header('Content-Type', 'application/x-gzip', unique=True)
@@ -263,4 +263,4 @@ class CourseTaskFiles(INGIniousAdminPage):
             mime_type = mimetypes.guess_type(wanted_path)
             web.header('Content-Type', mime_type[0])
             web.header('Content-Disposition', 'attachment; filename="' + os.path.split(wanted_path)[1] + '"', unique=True)
-            return open(wanted_path, 'r')
+            return open(wanted_path, 'rb')
