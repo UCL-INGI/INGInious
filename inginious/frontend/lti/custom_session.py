@@ -119,7 +119,7 @@ class CustomSession(object):
             rand = os.urandom(16)
             now = time.time()
             secret_key = self._config.secret_key
-            session_id = sha1("%s%s%s%s" % (rand, now, utils.safestr(web.ctx.ip), secret_key))
+            session_id = sha1(("%s%s%s%s" % (rand, now, utils.safestr(web.ctx.ip), secret_key)).encode("utf-8"))
             session_id = session_id.hexdigest()
             if session_id not in self.store:
                 break

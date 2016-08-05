@@ -51,7 +51,7 @@ class UserManager(AbstractUserManager):
         """ Return a tuple (courseid, taskid), representing the task to which the current user is authenticated. If there are no user
         connected, returns None """
         if not self.session_logged_in():
-            return None
+            return None, None
         return self._get_session_dict()["task"]
 
     def session_consumer_key(self):
