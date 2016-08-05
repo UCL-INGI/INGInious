@@ -143,4 +143,28 @@ def update_database(database, gridfs, course_factory, user_manager):
 
         db_version = 9
 
+    if db_version < 10:
+        logger.info("Updating database to db_version 10")
+        triplets = list(database.submissions.aggregate([{"$unwind": "$username"}, {"$group": {"_id": {"username": "$username", "taskid": "$taskid", "courseid": "$courseid"}}}]))
+        for triplet in triplets:
+            data = triplet['_id']
+            user_task = database.user_tasks.find_one(data)
+            if not user_task:
+                submissions = list(database.submissions.find(data))
+                data['tried'] = 0
+                data['succeeded'] = False
+                data['grade'] = -1
+                data['submissionid'] = None
+                for submission in submissions:
+                    data['tried'] += 1
+                    if "result" in submission and submission["result"] == "success":
+                        data['succeeded'] = True
+                    if "grade" in submission and data['grade'] < submission['grade']:
+                        data['grade'] = submission['grade']
+                        data['submissionid'] = submission['_id']
+
+                database.user_tasks.insert(data)
+
+        db_version = 10
+
     database.db_version.update({}, {"$set": {"db_version": db_version}}, upsert=True)
