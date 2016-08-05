@@ -13,12 +13,12 @@ from pylti.common import verify_request_common
 import web
 from pymongo.database import Database
 
-from common.course_factory import CourseFactory
-from common.task_factory import TaskFactory
-from frontend.common.plugin_manager import PluginManager
-from frontend.common.submission_manager import SubmissionManager
-from frontend.common.template_helper import TemplateHelper
-from frontend.lti.user_manager import UserManager
+from inginious.common.course_factory import CourseFactory
+from inginious.common.task_factory import TaskFactory
+from inginious.frontend.common.plugin_manager import PluginManager
+from inginious.frontend.common.submission_manager import SubmissionManager
+from inginious.frontend.common.template_helper import TemplateHelper
+from inginious.frontend.lti.user_manager import UserManager
 
 
 class LTIPage(object):
