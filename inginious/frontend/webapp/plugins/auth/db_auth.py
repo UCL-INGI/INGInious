@@ -30,7 +30,7 @@ class DatabaseAuthMethod(AuthMethod):
 
     def auth(self, login_data):
         username = login_data["login"].strip()
-        password_hash = hashlib.sha512(login_data["password"]).hexdigest()
+        password_hash = hashlib.sha512(login_data["password"].encode("utf-8")).hexdigest()
 
         user = self._database.users.find_one({"username": username, "password": password_hash, "activate": {"$exists": False}})
 
@@ -119,8 +119,8 @@ class RegistrationPage(INGIniousPage):
                 else:
                     msg = "This email address is already in use !"
             else:
-                passwd_hash = hashlib.sha512(data["passwd"]).hexdigest()
-                activate_hash = hashlib.sha512(str(random.getrandbits(256))).hexdigest()
+                passwd_hash = hashlib.sha512(data["passwd"].encode("utf-8")).hexdigest()
+                activate_hash = hashlib.sha512(str(random.getrandbits(256)).encode("utf-8")).hexdigest()
                 self.database.users.insert({"username": data["username"],
                                             "realname": data["realname"],
                                             "email": data["email"],
@@ -153,7 +153,7 @@ To activate your account, please click on the following link :
             msg = "Invalid email format."
 
         if not error:
-            reset_hash = hashlib.sha512(str(random.getrandbits(256))).hexdigest()
+            reset_hash = hashlib.sha512(str(random.getrandbits(256)).encode("utf-8")).hexdigest()
             user = self.database.users.find_one_and_update({"email": data["recovery_email"]}, {"$set": {"reset": reset_hash}})
             if user is None:
                 error = True
@@ -185,7 +185,7 @@ Someone (probably you) asked to reset your INGInious password. If this was you, 
             msg = "Passwords don't match !"
 
         if not error:
-            passwd_hash = hashlib.sha512(data["passwd"]).hexdigest()
+            passwd_hash = hashlib.sha512(data["passwd"].encode("utf-8")).hexdigest()
             user = self.database.users.find_one_and_update({"reset": data["reset_hash"]},
                                                            {"$set": {"password": passwd_hash}, "$unset": {"reset": True}})
             if user is None:

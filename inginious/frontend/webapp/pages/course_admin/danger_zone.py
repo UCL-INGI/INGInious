@@ -65,15 +65,15 @@ class CourseDangerZonePage(INGIniousAdminPage):
         filepath = os.path.join(self.backup_dir, courseid, backup + ".zip")
         with zipfile.ZipFile(filepath, "r") as zipf:
 
-            aggregations = bson.json_util.loads(zipf.read("aggregations.json"))
+            aggregations = bson.json_util.loads(zipf.read("aggregations.json").decode("utf-8"))
             if len(aggregations) > 0:
                 self.database.aggregations.insert(aggregations)
 
-            user_tasks = bson.json_util.loads(zipf.read("user_tasks.json"))
+            user_tasks = bson.json_util.loads(zipf.read("user_tasks.json").decode("utf-8"))
             if len(user_tasks) > 0:
                 self.database.user_tasks.insert(user_tasks)
 
-            submissions = bson.json_util.loads(zipf.read("submissions.json"))
+            submissions = bson.json_util.loads(zipf.read("submissions.json").decode("utf-8"))
             for submission in submissions:
                 for key in ["input", "archive"]:
                     if key in submission and type(submission[key]) == bson.objectid.ObjectId:
@@ -145,7 +145,7 @@ class CourseDangerZonePage(INGIniousAdminPage):
 
     def page(self, course, msg="", error=False):
         """ Get all data and display the page """
-        thehash = hashlib.sha512(str(random.getrandbits(256))).hexdigest()
+        thehash = hashlib.sha512(str(random.getrandbits(256)).encode("utf-8")).hexdigest()
         self.user_manager.set_session_token(thehash)
 
         backups = []
