@@ -1,6 +1,11 @@
 inginious.frontend package
 ==========================
 
+.. automodule:: inginious.frontend
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Subpackages
 -----------
 
@@ -10,10 +15,3 @@ Subpackages
     inginious.frontend.lti
     inginious.frontend.webapp
 
-Module contents
----------------
-
-.. automodule:: inginious.frontend
-    :members:
-    :undoc-members:
-    :show-inheritance:

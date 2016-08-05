@@ -1,6 +1,11 @@
 inginious.frontend.common package
 =================================
 
+.. automodule:: inginious.frontend.common
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Subpackages
 -----------
 
@@ -11,10 +16,10 @@ Subpackages
 Submodules
 ----------
 
-inginious.frontend.common.backend_interface module
---------------------------------------------------
+inginious.frontend.common.arch_helper module
+--------------------------------------------
 
-.. automodule:: inginious.frontend.common.backend_interface
+.. automodule:: inginious.frontend.common.arch_helper
     :members:
     :undoc-members:
     :show-inheritance:
@@ -107,10 +112,10 @@ inginious.frontend.common.tasks_code_boxes module
     :undoc-members:
     :show-inheritance:
 
-inginious.frontend.common.templates module
-------------------------------------------
+inginious.frontend.common.template_helper module
+------------------------------------------------
 
-.. automodule:: inginious.frontend.common.templates
+.. automodule:: inginious.frontend.common.template_helper
     :members:
     :undoc-members:
     :show-inheritance:
@@ -123,19 +128,4 @@ inginious.frontend.common.user_manager module
     :undoc-members:
     :show-inheritance:
 
-inginious.frontend.common.webpy_fake_mapping module
----------------------------------------------------
 
-.. automodule:: inginious.frontend.common.webpy_fake_mapping
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: inginious.frontend.common
-    :members:
-    :undoc-members:
-    :show-inheritance:

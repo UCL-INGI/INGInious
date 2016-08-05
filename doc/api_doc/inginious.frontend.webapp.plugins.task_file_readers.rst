@@ -1,6 +1,11 @@
 inginious.frontend.webapp.plugins.task_file_readers package
 ===========================================================
 
+.. automodule:: inginious.frontend.webapp.plugins.task_file_readers
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
 
@@ -21,10 +26,3 @@ inginious.frontend.webapp.plugins.task_file_readers.rst_reader module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: inginious.frontend.webapp.plugins.task_file_readers
-    :members:
-    :undoc-members:
-    :show-inheritance:

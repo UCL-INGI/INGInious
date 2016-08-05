@@ -1,6 +1,11 @@
 inginious.frontend.webapp.pages.api package
 ===========================================
 
+.. automodule:: inginious.frontend.webapp.pages.api
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
 
@@ -45,10 +50,3 @@ inginious.frontend.webapp.pages.api.tasks module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: inginious.frontend.webapp.pages.api
-    :members:
-    :undoc-members:
-    :show-inheritance:

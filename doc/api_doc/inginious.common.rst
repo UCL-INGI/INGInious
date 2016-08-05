@@ -1,6 +1,11 @@
 inginious.common package
 ========================
 
+.. automodule:: inginious.common
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Subpackages
 -----------
 
@@ -11,6 +16,14 @@ Subpackages
 
 Submodules
 ----------
+
+inginious.common.asyncio_utils module
+-------------------------------------
+
+.. automodule:: inginious.common.asyncio_utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 inginious.common.base module
 ----------------------------
@@ -60,6 +73,30 @@ inginious.common.hook_manager module
     :undoc-members:
     :show-inheritance:
 
+inginious.common.log module
+---------------------------
+
+.. automodule:: inginious.common.log
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+inginious.common.message_meta module
+------------------------------------
+
+.. automodule:: inginious.common.message_meta
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+inginious.common.messages module
+--------------------------------
+
+.. automodule:: inginious.common.messages
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 inginious.common.task_factory module
 ------------------------------------
 
@@ -93,10 +130,3 @@ inginious.common.tasks_problems module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: inginious.common
-    :members:
-    :undoc-members:
-    :show-inheritance:

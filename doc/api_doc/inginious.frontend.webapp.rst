@@ -1,6 +1,11 @@
 inginious.frontend.webapp package
 =================================
 
+.. automodule:: inginious.frontend.webapp
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Subpackages
 -----------
 
@@ -86,10 +91,3 @@ inginious.frontend.webapp.user_manager module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: inginious.frontend.webapp
-    :members:
-    :undoc-members:
-    :show-inheritance:

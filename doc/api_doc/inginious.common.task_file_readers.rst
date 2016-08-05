@@ -1,6 +1,11 @@
 inginious.common.task_file_readers package
 ==========================================
 
+.. automodule:: inginious.common.task_file_readers
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
 
@@ -21,10 +26,3 @@ inginious.common.task_file_readers.yaml_reader module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: inginious.common.task_file_readers
-    :members:
-    :undoc-members:
-    :show-inheritance:

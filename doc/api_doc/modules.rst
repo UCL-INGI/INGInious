@@ -1,5 +1,5 @@
-inginious
-=========
+.
+=
 
 .. toctree::
    :maxdepth: 4
