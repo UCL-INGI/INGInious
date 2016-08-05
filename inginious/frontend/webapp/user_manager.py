@@ -5,6 +5,8 @@
 
 """ Manages users data and session """
 from abc import ABCMeta, abstractmethod
+from datetime import datetime
+from datetime import timedelta
 
 from inginious.frontend.common.user_manager import AbstractUserManager
 
@@ -362,16 +364,12 @@ class UserManager(AbstractUserManager):
                                                            "tried": 0, "succeeded": False, "grade": 0.0, "submissionid": None}},
                                          upsert=True)
 
-    def user_can_submit(self, username, task):
-
-        return True
-
     def update_user_stats(self, username, task, submission, result_str, grade):
         """ Update stats with a new submission """
         self.user_saw_task(username, submission["courseid"], submission["taskid"])
 
         old_submission = self._database.user_tasks.find_one_and_update(
-            {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]}, {"$inc": {"tried": 1}})
+            {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]}, {"$inc": {"tried": 1, "tokens.amount": 1}})
 
         # Check if the submission is the default download
         set_default = task.get_evaluate() == 'last' or \
@@ -446,17 +444,60 @@ class UserManager(AbstractUserManager):
         return (self.course_is_open_to_user(task.get_course(), username) and task._accessible.after_start()) or \
                self.has_staff_rights_on_course(task.get_course(), username)
 
-    def task_can_user_submit(self, task, username=None):
+    def task_can_user_submit(self, task, username=None, only_check=None):
         """ returns true if the user can submit his work for this task """
+        """ :param only_check : only checks for 'groups', 'tokens', or None if all checks"""
         if username is None:
             username = self.session_username()
 
-        aggregation = self._database.aggregations.find_one({"courseid": task.get_course_id(), "groups.students": username})
-        group_filter = (aggregation is not None and task.is_group_task()) or not task.is_group_task()
+        # Check if course access is ok
+        course_registered = self.course_is_open_to_user(task.get_course(), username)
+        # Check if task accessible to user
+        task_accessible = task._accessible.is_open()
+        # User has staff rights ?
+        staff_right = self.has_staff_rights_on_course(task.get_course(), username)
 
-        return (self.course_is_open_to_user(task.get_course(),
-                                            username) and task._accessible.is_open() and group_filter) or self.has_staff_rights_on_course(
-            task.get_course(), username)
+        # Check for group
+        aggregation = self._database.aggregations.find_one(
+            {"courseid": task.get_course_id(), "groups.students": self.session_username()},
+            {"groups": {"$elemMatch": {"students": self.session_username()}}})
+
+        if not only_check or only_check == 'groups':
+            group_filter = (aggregation is not None and task.is_group_task()) or not task.is_group_task()
+        else:
+            group_filter = True
+
+        students = aggregation["groups"][0]["students"] if task.is_group_task() else [self.session_username()]
+
+
+        # Check for token availability
+        enough_tokens = True
+        timenow = datetime.now()
+        for student in students:
+            if not only_check or only_check == 'tokens':
+                user_task = self._database.user_tasks.find_one({"courseid": task.get_course_id(), "taskid": task.get_id(), "username": student})
+                submission_limit = task.get_submission_limit()
+                if user_task is not None and "tokens" in user_task:
+                    if submission_limit == {"amount": -1, "period": -1}:
+                        enough_tokens = True and enough_tokens
+                    elif submission_limit["period"] <= 0:
+                        enough_tokens = user_task["tokens"]["amount"] < submission_limit["amount"]
+                    else:
+                        if user_task["tokens"]["amount"] < submission_limit["amount"]:
+                            enough_tokens = True and enough_tokens
+                        elif user_task["tokens"]["date"] < timenow - timedelta(hours=submission_limit["period"]):
+                            enough_tokens = True and enough_tokens
+                            self._database.user_tasks.find_one_and_update(user_task, {"$set": {"tokens": {"amount": 0, "date": datetime.now()}}})
+                        else:
+                            enough_tokens = False and enough_tokens
+                else:
+                    enough_tokens = True and enough_tokens
+                    self._database.user_tasks.find_one_and_update(user_task, {
+                        "$set": {"tokens": {"amount": 0, "date": datetime.now()}}})
+            else:
+                enough_tokens = True and enough_tokens
+
+        return (course_registered and task_accessible and group_filter and enough_tokens) or staff_right
 
     def get_course_aggregations(self, course):
         """ Returns a list of the course aggregations"""

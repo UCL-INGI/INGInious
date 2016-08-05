@@ -227,7 +227,7 @@ class CourseEditTask(INGIniousAdminPage):
             # Submission limits
             if "submission_limit" in data:
                 if data["submission_limit"] == "none":
-                    {"amount": -1, "period": -1}
+                    result = {"amount": -1, "period": -1}
                 elif data["submission_limit"] == "hard":
                     try:
                         result = {"amount": int(data["submission_limit_hard"]), "period": -1}
