@@ -213,11 +213,37 @@ class CourseEditTask(INGIniousAdminPage):
 
             # Submision storage
             if "store_all" in data:
-                stored_submissions = int(data["stored_submissions"])
+                try:
+                    stored_submissions = int(data["stored_submissions"])
+                except:
+                    return json.dumps(
+                        {"status": "error", "message": "The number of stored submission must be positive!"})
+
                 if data["store_all"] == "false" and stored_submissions <= 0:
                     return json.dumps({"status": "error", "message": "The number of stored submission must be positive!"})
                 data["stored_submissions"] = 0 if data["store_all"] == "true" else stored_submissions
                 del data['store_all']
+
+            # Submission limits
+            if "submission_limit" in data:
+                if data["submission_limit"] == "none":
+                    result = {"amount": -1, "period": -1}
+                elif data["submission_limit"] == "hard":
+                    try:
+                        result = {"amount": int(data["submission_limit_hard"]), "period": -1}
+                    except:
+                        return json.dumps({"status": "error", "message": "Invalid submission limit!"})
+
+                else:
+                    try:
+                        result = {"amount": int(data["submission_limit_soft_0"]), "period": int(data["submission_limit_soft_1"])}
+                    except:
+                        return json.dumps({"status": "error", "message": "Invalid submission limit!"})
+
+                del data["submission_limit_hard"]
+                del data["submission_limit_soft_0"]
+                del data["submission_limit_soft_1"]
+                data["submission_limit"] = result
 
             # Accessible
             if data["accessible"] == "custom":

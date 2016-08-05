@@ -171,7 +171,7 @@ class APISubmissions(APIAuthenticatedPage):
 
         # Verify rights
         if not self.user_manager.task_can_user_submit(task, username):
-            raise APIForbidden("Deadline reached")
+            raise APIForbidden("You are not allowed to submit for this task")
 
         init_var = self.list_multiple_multiple_choices_and_files(task)
         user_input = task.adapt_input_for_backend(web.input(**init_var))
@@ -181,6 +181,7 @@ class APISubmissions(APIAuthenticatedPage):
 
         # Get debug info if the current user is an admin
         debug = self.user_manager.has_admin_rights_on_course(course, username)
+
 
         # Start the submission
         submissionid, _ = self.submission_manager.add_job(task, user_input, debug)

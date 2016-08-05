@@ -27,11 +27,11 @@ class TaskPage(INGIniousPage):
         is_admin = self.user_manager.has_admin_rights_on_course(course, self.user_manager.session_username())
 
         # Check if task is done per group/team
-        students = None
         if task.is_group_task() and not is_admin:
-            for index, group in enumerate(self.user_manager.get_course_user_aggregation(course)["groups"]):
-                if self.user_manager.session_username() in group["students"]:
-                    students = group["students"]
+            group = self.database.aggregations.find_one(
+                {"courseid": task.get_course_id(), "groups.students": self.user_manager.session_username()},
+                {"groups": {"$elemMatch": {"students": self.user_manager.session_username()}}})
+            students = group["groups"][0]["students"]
         else:
             students = [self.user_manager.session_username()]
 
@@ -101,13 +101,13 @@ class TaskPage(INGIniousPage):
                 submissionid = user_task.get('submissionid', None)
                 eval_submission = self.database.submissions.find_one({'_id': ObjectId(submissionid)}) if submissionid else None
 
-                students = None
                 if task.is_group_task() and not self.user_manager.has_admin_rights_on_course(course, username):
-                    for index, group in enumerate(self.user_manager.get_course_user_aggregation(course)["groups"]):
-                        if self.user_manager.session_username() in group["students"]:
-                            students = group["students"]
+                    group = self.database.aggregations.find_one(
+                        {"courseid": task.get_course_id(), "groups.students": self.user_manager.session_username()},
+                        {"groups": {"$elemMatch": {"students": self.user_manager.session_username()}}})
+                    students = group["groups"][0]["students"]
                 else:
-                    students = [username]
+                    students = [self.user_manager.session_username()]
 
                 # Display the task itself
                 return self.template_helper.get_renderer().task(course, task,
