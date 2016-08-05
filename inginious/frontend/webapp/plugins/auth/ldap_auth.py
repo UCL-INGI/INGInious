@@ -53,9 +53,9 @@ class LdapAuthMethod(AuthMethod):
             request = self._request.format(login)
             user_data = conn.get(request)
             if conn.authenticate(user_data.dn, password):
-                email = user_data["mail"][0]
+                email = user_data["mail"][0].decode('utf8')
                 username = self._prefix + login
-                realname = user_data["cn"][0]
+                realname = user_data["cn"][0].decode('utf8')
 
                 return (username, realname, email)
             else:
@@ -92,8 +92,8 @@ class LdapAuthMethod(AuthMethod):
                     login = username[len(self._prefix):]
                     request = self._request.format(login)
                     user_data = conn.get(request)
-                    email = user_data["mail"][0]
-                    realname = user_data["cn"][0]
+                    email = user_data["mail"][0].decode('utf8')
+                    realname = user_data["cn"][0].decode('utf8')
 
                     retval[username] = (realname, email)
                 except:
