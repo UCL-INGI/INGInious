@@ -15,15 +15,14 @@ from time import time
 from bson.binary import Binary
 from web.session import Store
 
-valid_key_types = set((str, str))
-atomic_types = set((bool, int, int, float, str, str, type(None),
-                    _pattern_type, datetime))
+valid_key_types = {str}
+atomic_types = {bool, int, float, str, bytes, type(None), _pattern_type, datetime}
 
 
 def needs_encode(obj):
     '''
     >>> from re import compile
-    >>> atomics = (True, 1, 1L, 1.0, '', u'', None, compile(''), datetime.now())
+    >>> atomics = (True, 1, 1.0, '', None, compile(''), datetime.now(), b'')
     >>> any(needs_encode(i) for i in atomics)
     False
     >>> needs_encode([1, 2, 3])
@@ -37,6 +36,8 @@ def needs_encode(obj):
     >>> needs_encode({'1': {'2': 3}})
     False
     >>> needs_encode({'1': [2]})
+    False
+    >>> needs_encode(b'1')
     False
 
     Objects that don't round trip need encoding::
@@ -56,6 +57,8 @@ def needs_encode(obj):
     True
     >>> needs_encode({'1': {None: True}})
     True
+
+
     '''
     obtype = type(obj)
     if obtype in atomic_types:
