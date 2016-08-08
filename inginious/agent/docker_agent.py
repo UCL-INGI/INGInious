@@ -16,7 +16,6 @@ from typing import Dict, Any, Optional
 
 import msgpack
 import zmq
-from zmq.asyncio import Poller
 
 from inginious.common.base import id_checker
 from inginious.agent._docker_interface import DockerInterface
@@ -101,10 +100,6 @@ class DockerAgent(object):
         self._timeout_watcher = TimeoutWatcher(self._docker)
 
         self._containers_killed = dict()
-
-        # Poller
-        self._poller = Poller()
-        self._poller.register(self._backend_socket, zmq.POLLIN)
 
 
     async def _watch_docker_events(self):
@@ -612,13 +607,8 @@ class DockerAgent(object):
         # And then run the agent
         try:
             while True:
-                socks = await self._poller.poll()
-                socks = dict(socks)
-
-                # New message from backend
-                if self._backend_socket in socks:
-                    message = await ZMQUtils.recv(self._backend_socket)
-                    await self.handle_backend_message(message)
+                message = await ZMQUtils.recv(self._backend_socket)
+                await self.handle_backend_message(message)
         except asyncio.CancelledError:
             return
         except KeyboardInterrupt:
