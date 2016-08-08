@@ -26,7 +26,7 @@ from inginious.common.filesystems.provider import FileSystemProvider
 from inginious.common.message_meta import ZMQUtils
 
 from inginious.common.messages import BackendNewJob, AgentJobStarted, BackendKillJob, AgentHello, BackendJobId, AgentJobDone, \
-    SPResult, EventContainerDied, EventContainerOOM, AgentJobSSHDebug, Ping, Pong
+    SPResult, AgentJobSSHDebug, Ping, Pong
 
 
 class DockerAgent(object):
@@ -96,8 +96,6 @@ class DockerAgent(object):
         # Sockets
         self._backend_socket = self._context.socket(zmq.DEALER)
         self._backend_socket.ipv6 = True
-        self._docker_events_publisher = self._context.socket(zmq.PUB)
-        self._docker_events_subscriber = self._context.socket(zmq.SUB)
 
         # Watchers
         self._timeout_watcher = TimeoutWatcher(self._docker)
@@ -107,15 +105,7 @@ class DockerAgent(object):
         # Poller
         self._poller = Poller()
         self._poller.register(self._backend_socket, zmq.POLLIN)
-        self._poller.register(self._docker_events_subscriber, zmq.POLLIN)
 
-    async def init_watch_docker_events(self):
-        """ Init everything needed to watch docker events """
-        url = "inproc://docker_events"
-        self._docker_events_publisher.bind(url)
-        self._docker_events_subscriber.connect(url)
-        self._docker_events_subscriber.setsockopt(zmq.SUBSCRIBE, b'')
-        self._loop.create_task(self._watch_docker_events())
 
     async def _watch_docker_events(self):
         """ Get raw docker events and convert them to more readable objects, and then give them to self._docker_events_subscriber """
@@ -129,9 +119,19 @@ class DockerAgent(object):
                     except:
                         self._logger.exception("Cannot parse exitCode for container %s", container_id)
                         retval = -1
-                    await ZMQUtils.send(self._docker_events_publisher, EventContainerDied(container_id, retval))
+
+                    if container_id in self._containers_running:
+                        self._loop.create_task(self.handle_job_closing(container_id, retval))
+                    elif container_id in self._student_containers_running:
+                        self._loop.create_task(self.handle_student_job_closing(container_id, retval))
+                    elif container_id in self._batch_containers_running:
+                        self._loop.create_task(self.handle_batch_job_closing(container_id, retval))
                 elif i["Type"] == "container" and i["status"] == "oom":
-                    await ZMQUtils.send(self._docker_events_publisher, EventContainerOOM(i["id"]))
+                    container_id = i["id"]
+                    if container_id in self._containers_running or container_id in self._student_containers_running:
+                        self._logger.info("Container %s did OOM, killing it", container_id)
+                        self._containers_killed[container_id] = "overflow"
+                        self._loop.create_task(self._loop.run_in_executor(None, lambda: self._docker.kill_container(container_id)))
                 else:
                     raise TypeError(str(i))
         except:
@@ -579,24 +579,6 @@ class DockerAgent(object):
         except:
             self._logger.exception("Exception in handle_kill_job")
 
-    async def handle_docker_event(self, message):
-        """ Handles events from Docker, notably `die` and `oom` """
-        try:
-            if type(message) == EventContainerDied:
-                if message.container_id in self._containers_running:
-                    self._loop.create_task(self.handle_job_closing(message.container_id, message.retval))
-                elif message.container_id in self._student_containers_running:
-                    self._loop.create_task(self.handle_student_job_closing(message.container_id, message.retval))
-                elif message.container_id in self._batch_containers_running:
-                    self._loop.create_task(self.handle_batch_job_closing(message.container_id, message.retval))
-            elif type(message) == EventContainerOOM:
-                if message.container_id in self._containers_running or message.container_id in self._student_containers_running:
-                    self._logger.info("Container %s did OOM, killing it", message.container_id)
-                    self._containers_killed[message.container_id] = "overflow"
-                    await self._loop.run_in_executor(None, lambda: self._docker.kill_container(message.container_id))
-        except:
-            self._logger.exception("Exception in handle_docker_event")
-
     async def send_job_result(self, job_id: BackendJobId, result: str, text: str = "", grade: float = None, problems: Dict[str, SPResult] = None,
                               tests: Dict[str, Any] = None, custom: Dict[str, Any] = None, archive: Optional[bytes] = None,
                               stdout: Optional[str] = None, stderr: Optional[str] = None):
@@ -621,7 +603,7 @@ class DockerAgent(object):
         self._backend_socket.connect(self._backend_addr)
 
         # Init Docker events watcher
-        await self.init_watch_docker_events()
+        self._loop.create_task(self._watch_docker_events())
 
         # Tell the backend we are up and have `nb_sub_agents` threads available
         self._logger.info("Saying hello to the backend")
@@ -637,11 +619,6 @@ class DockerAgent(object):
                 if self._backend_socket in socks:
                     message = await ZMQUtils.recv(self._backend_socket)
                     await self.handle_backend_message(message)
-
-                # New docker event
-                if self._docker_events_subscriber in socks:
-                    message = await ZMQUtils.recv(self._docker_events_subscriber)
-                    await self.handle_docker_event(message)
         except asyncio.CancelledError:
             return
         except KeyboardInterrupt:
