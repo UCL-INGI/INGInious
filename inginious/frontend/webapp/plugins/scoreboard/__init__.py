@@ -206,8 +206,8 @@ def init(plugin_manager, _, _2, _3):
                   name: "Another scoreboard"
                   reverse: True #reverse the score (less is better)
     """
-    page_pattern_course = r'/scoreboard/(.+)'
-    page_pattern_scoreboard = r'/scoreboard/(.+)/(.+)'
+    page_pattern_course = r'/scoreboard/([a-z0-9A-Z\-_]+)'
+    page_pattern_scoreboard = r'/scoreboard/([a-z0-9A-Z\-_]+)/([0-9]+)'
     plugin_manager.add_page(page_pattern_course, ScoreBoardCourse)
     plugin_manager.add_page(page_pattern_scoreboard, ScoreBoard)
     plugin_manager.add_hook('course_menu', course_menu)
