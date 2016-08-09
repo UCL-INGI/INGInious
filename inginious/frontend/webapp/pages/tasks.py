@@ -114,7 +114,7 @@ class TaskPage(INGIniousPage):
                                                                 self.submission_manager.get_user_submissions(task),
                                                                 students, eval_submission, user_task, self.webterm_link)
         else:
-            return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_fields())
+            return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_fields(), False)
 
     def POST(self, courseid, taskid):
         """ POST a new submission """
