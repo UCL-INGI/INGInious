@@ -214,14 +214,14 @@ class CourseEditTask(INGIniousAdminPage):
             # Submision storage
             if "store_all" in data:
                 try:
-                    stored_submissions = int(data["stored_submissions"])
+                    stored_submissions = data["stored_submissions"]
+                    data["stored_submissions"] = 0 if data["store_all"] == "true" else int(stored_submissions)
                 except:
                     return json.dumps(
                         {"status": "error", "message": "The number of stored submission must be positive!"})
 
-                if data["store_all"] == "false" and stored_submissions <= 0:
+                if data["store_all"] == "false" and data["stored_submissions"] <= 0:
                     return json.dumps({"status": "error", "message": "The number of stored submission must be positive!"})
-                data["stored_submissions"] = 0 if data["store_all"] == "true" else stored_submissions
                 del data['store_all']
 
             # Submission limits
