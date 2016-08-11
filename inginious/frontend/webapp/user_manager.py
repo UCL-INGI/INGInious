@@ -467,7 +467,7 @@ class UserManager(AbstractUserManager):
         else:
             group_filter = True
 
-        students = aggregation["groups"][0]["students"] if task.is_group_task() else [self.session_username()]
+        students = aggregation["groups"][0]["students"] if (aggregation is not None and task.is_group_task()) else [self.session_username()]
 
 
         # Check for token availability
