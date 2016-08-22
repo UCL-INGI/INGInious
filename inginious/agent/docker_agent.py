@@ -12,54 +12,47 @@ import tarfile
 import tempfile
 import psutil
 from shutil import rmtree, copytree
-from typing import Dict, Any, Optional
 
 import msgpack
-import zmq
 
 from inginious.common.base import id_checker
+from inginious.agent.agent import Agent, CannotCreateJobException
 from inginious.agent._docker_interface import DockerInterface
 from inginious.agent._timeout_watcher import TimeoutWatcher
 from inginious.common.asyncio_utils import AsyncIteratorWrapper
 from inginious.common.filesystems.provider import FileSystemProvider
-from inginious.common.message_meta import ZMQUtils
-
-from inginious.common.messages import BackendNewJob, AgentJobStarted, BackendKillJob, AgentHello, BackendJobId, AgentJobDone, \
-    SPResult, AgentJobSSHDebug, Ping, Pong
+from inginious.common.messages import BackendNewJob, BackendKillJob
 
 
-class DockerAgent(object):
-    def __init__(self, context, backend_addr, friendly_name, nb_sub_agents, tasks_fs: FileSystemProvider, ssh_host=None, ssh_ports=None,
-                 tmp_dir="./agent_tmp"):
+class DockerAgent(Agent):
+    def __init__(self, context, backend_addr, friendly_name, concurrency, tasks_fs: FileSystemProvider, ssh_host=None, ssh_ports=None, tmp_dir="./agent_tmp"):
         """
         :param context: ZeroMQ context for this process
         :param backend_addr: address of the backend (for example, "tcp://127.0.0.1:2222")
         :param friendly_name: a string containing a friendly name to identify agent
-        :param nb_sub_agents: nb of slots available for this agent
-        :param tasks_fs: FileSystemProvider for the course/tasks
+        :param concurrency: number of simultaneous jobs that can be run by this agent
+        :param tasks_fs: FileSystemProvider for the course / tasks
         :param ssh_host: hostname/ip/... to which external client should connect to access to an ssh remote debug session
         :param ssh_ports: iterable containing ports to which the docker instance can assign ssh servers (for remote debugging)
         :param tmp_dir: temp dir that is used by the agent to start new containers
         """
+        super(DockerAgent, self).__init__(context, backend_addr, friendly_name, concurrency, tasks_fs)
         self._logger = logging.getLogger("inginious.agent.docker")
 
-        self._logger.info("Starting agent")
+        self._max_memory_per_slot = int(psutil.virtual_memory().total/concurrency/1024/1024)
 
-        self._backend_addr = backend_addr
-        self._context = context
-        self._loop = asyncio.get_event_loop()
-        self._friendly_name = friendly_name
-        self._nb_sub_agents = nb_sub_agents
-        self._max_memory_per_slot = int(psutil.virtual_memory().total/nb_sub_agents/1024/1024)
-
-        # data about running containers
+        # Data about running containers
         self._containers_running = {}
-        self._student_containers_running = {}
         self._container_for_job = {}
+
+        self._student_containers_running = {}
         self._student_containers_for_job = {}
 
-        self.tmp_dir = tmp_dir
         self.tasks_fs = tasks_fs
+        self._containers_killed = dict()
+
+        # Temp dir
+        self._tmp_dir = tmp_dir
 
         # Delete tmp_dir, and recreate-it again
         try:
@@ -80,27 +73,25 @@ class DockerAgent(object):
         self._containers = self._docker.get_containers()
 
         # SSH remote debug
-        self.ssh_host = ssh_host
-        if self.ssh_host is None and len(self._containers) != 0:
+        self._ssh_host = ssh_host
+        if self._ssh_host is None and len(self._containers) != 0:
             self._logger.info("Guessing external host IP")
-            self.ssh_host = self._docker.get_host_ip(next(iter(self._containers.values()))["id"])
-        if self.ssh_host is None:
+            self._ssh_host = self._docker.get_host_ip(next(iter(self._containers.values()))["id"])
+        if self._ssh_host is None:
             self._logger.warning("Cannot find external host IP. Please indicate it in the configuration. Remote SSH debug has been deactivated.")
             ssh_ports = None
         else:
-            self._logger.info("External address for SSH remote debug is %s", self.ssh_host)
-        self.ssh_ports = set(ssh_ports) if ssh_ports is not None else set()
-        self.running_ssh_debug = {}  # container_id : ssh_port
+            self._logger.info("External address for SSH remote debug is %s", self._ssh_host)
 
-        # Sockets
-        self._backend_socket = self._context.socket(zmq.DEALER)
-        self._backend_socket.ipv6 = True
+        self._ssh_ports = set(ssh_ports) if ssh_ports is not None else set()
+        self._running_ssh_debug = {}  # container_id : ssh_port
 
         # Watchers
         self._timeout_watcher = TimeoutWatcher(self._docker)
 
-        self._containers_killed = dict()
-
+    @property
+    def environments(self):
+        return self._containers
 
     async def _watch_docker_events(self):
         """ Get raw docker events and convert them to more readable objects, and then give them to self._docker_events_subscriber """
@@ -126,30 +117,16 @@ class DockerAgent(object):
                     if container_id in self._containers_running or container_id in self._student_containers_running:
                         self._logger.info("Container %s did OOM, killing it", container_id)
                         self._containers_killed[container_id] = "overflow"
-                        self._loop.create_task(self._loop.run_in_executor(None, lambda: self._docker.kill_container(container_id)))
+                        try:
+                            self._loop.create_task(self._loop.run_in_executor(None, lambda: self._docker.kill_container(container_id)))
+                        except:  # this call can sometimes fail, and that is normal.
+                            pass
                 else:
                     raise TypeError(str(i))
         except:
             self._logger.exception("Exception in _watch_docker_events")
 
-    async def handle_backend_message(self, message):
-        """Dispatch messages received from clients to the right handlers"""
-        message_handlers = {
-            BackendNewJob: self.handle_new_job,
-            BackendKillJob: self.handle_kill_job,
-            Ping: self.handle_ping
-        }
-        try:
-            func = message_handlers[message.__class__]
-        except:
-            raise TypeError("Unknown message type %s" % message.__class__)
-        self._loop.create_task(func(message))
-
-    async def handle_ping(self, _: Ping):
-        """ Handle an Ping message. Pong the backend """
-        await ZMQUtils.send(self._backend_socket, Pong())
-
-    async def handle_new_job(self, message: BackendNewJob):
+    async def new_job(self, message: BackendNewJob):
         """
         Handles a new job: starts the grading container
         """
@@ -197,20 +174,20 @@ class DockerAgent(object):
                 hard_time_limit = 30 * 60
 
                 # select a port
-                if len(self.ssh_ports) == 0:
+                if len(self._ssh_ports) == 0:
                     self._logger.warning("User asked for an ssh debug but no ports are available")
                     await self.send_job_result(message.job_id, "crash", 'No ports are available for SSH debug right now. Please retry later.')
                     return
-                ssh_port = self.ssh_ports.pop()
+                ssh_port = self._ssh_ports.pop()
 
             # Create directories for storing all the data for the job
             try:
-                container_path = tempfile.mkdtemp(dir=self.tmp_dir)
+                container_path = tempfile.mkdtemp(dir=self._tmp_dir)
             except Exception as e:
                 self._logger.error("Cannot make container temp directory! %s", str(e), exc_info=True)
                 await self.send_job_result(message.job_id, "crash", 'Cannot make container temp directory.')
                 if ssh_port is not None:
-                    self.ssh_ports.add(ssh_port)
+                    self._ssh_ports.add(ssh_port)
                 return
 
             task_path = os.path.join(container_path, 'task')  # tmp_dir/id/task/
@@ -240,7 +217,7 @@ class DockerAgent(object):
                 await self.send_job_result(message.job_id, "crash", 'Cannot create container.')
                 await self._loop.run_in_executor(None, lambda: rmtree(container_path))
                 if ssh_port is not None:
-                    self.ssh_ports.add(ssh_port)
+                    self._ssh_ports.add(ssh_port)
                 return
 
             # Store info
@@ -249,7 +226,7 @@ class DockerAgent(object):
             self._container_for_job[message.job_id] = container_id
             self._student_containers_for_job[message.job_id] = set()
             if ssh_port is not None:
-                self.running_ssh_debug[container_id] = ssh_port
+                self._running_ssh_debug[container_id] = ssh_port
 
             try:
                 # Start the container
@@ -259,8 +236,8 @@ class DockerAgent(object):
                 await self.send_job_result(message.job_id, "crash", 'Cannot start container')
                 await self._loop.run_in_executor(None, lambda: rmtree(container_path))
                 if ssh_port is not None:
-                    self.ssh_ports.add(ssh_port)
-                return
+                    self._ssh_ports.add(ssh_port)
+                raise CannotCreateJobException('Cannot start container')
 
             # Talk to the container
             self._loop.create_task(self.handle_running_container(message.job_id, container_id, message.inputdata, debug, ssh_port,
@@ -270,11 +247,8 @@ class DockerAgent(object):
 
             # Verify the time limit
             await self._timeout_watcher.register_container(container_id, time_limit, hard_time_limit)
-
-            # Tell the backend/client the job has started
-            await ZMQUtils.send(self._backend_socket, AgentJobStarted(message.job_id))
         except:
-            self._logger.exception("Exception in handle_new_job")
+            self._logger.exception("Exception in new_job")
 
     async def create_student_container(self, job_id, parent_container_id, sockets_path, student_path, systemfiles_path, socket_id, environment_name,
                                        memory_limit, time_limit, hard_time_limit, share_network, write_stream):
@@ -384,8 +358,8 @@ class DockerAgent(object):
                                                                                      time_limit, hard_time_limit, share_network, write_stream))
                             elif msg["type"] == "ssh_key":
                                 # send the data to the backend (and client)
-                                self._logger.info("%s %s", self.running_ssh_debug[container_id], str(msg))
-                                await ZMQUtils.send(self._backend_socket, AgentJobSSHDebug(job_id, self.ssh_host, ssh_port, msg["ssh_key"]))
+                                self._logger.info("%s %s", self._running_ssh_debug[container_id], str(msg))
+                                await self.send_ssh_job_info(job_id, self._ssh_host, ssh_port, msg["ssh_key"])
                             elif msg["type"] == "result":
                                 # last message containing the results of the container
                                 future_results.set_result(msg["result"])
@@ -426,11 +400,6 @@ class DockerAgent(object):
             # Delete remaining student containers
             if job_id in self._student_containers_for_job:  # if it does not exists, then the parent container has closed
                 self._student_containers_for_job[job_id].remove(container_id)
-
-            # Allow other container to reuse the ssh port this container has finished to use
-            if container_id in self.running_ssh_debug:
-                self.ssh_ports.add(self.running_ssh_debug[container_id])
-                del self.running_ssh_debug[container_id]
 
             killed = await self._timeout_watcher.was_killed(container_id)
             if container_id in self._containers_killed:
@@ -480,11 +449,16 @@ class DockerAgent(object):
                 asyncio.ensure_future(self._loop.run_in_executor(None, close_and_delete))
             del self._student_containers_for_job[message.job_id]
 
+            # Allow other container to reuse the ssh port this container has finished to use
+            if container_id in self._running_ssh_debug:
+                self._ssh_ports.add(self._running_ssh_debug[container_id])
+                del self._running_ssh_debug[container_id]
+
             # Verify if the container was killed, either by the client, by an OOM or by a timeout
             killed = await self._timeout_watcher.was_killed(container_id)
             if container_id in self._containers_killed:
                 killed = self._containers_killed[container_id]
-                self.ssh_ports.add(self.running_ssh_debug[container_id])
+                self._ssh_ports.add(self._running_ssh_debug[container_id])
                 del self._containers_killed[container_id]
 
             stdout = ""
@@ -563,7 +537,7 @@ class DockerAgent(object):
         except:
             self._logger.exception("Exception in handle_job_closing")
 
-    async def handle_kill_job(self, message: BackendKillJob):
+    async def kill_job(self, message: BackendKillJob):
         """ Handles `kill` messages. Kill things. """
         try:
             if message.job_id in self._container_for_job:
@@ -574,42 +548,8 @@ class DockerAgent(object):
         except:
             self._logger.exception("Exception in handle_kill_job")
 
-    async def send_job_result(self, job_id: BackendJobId, result: str, text: str = "", grade: float = None, problems: Dict[str, SPResult] = None,
-                              tests: Dict[str, Any] = None, custom: Dict[str, Any] = None, archive: Optional[bytes] = None,
-                              stdout: Optional[str] = None, stderr: Optional[str] = None):
-        """ Send the result of a job back to the backend """
-        if grade is None:
-            if result == "success":
-                grade = 100.0
-            else:
-                grade = 0.0
-        if problems is None:
-            problems = {}
-        if custom is None:
-            custom = {}
-        if tests is None:
-            tests = {}
-
-        await ZMQUtils.send(self._backend_socket, AgentJobDone(job_id, (result, text), round(grade, 2), problems, tests, custom, archive, stdout, stderr))
-
-    async def run_dealer(self):
-        """ Run the agent """
-        self._logger.info("Agent started")
-        self._backend_socket.connect(self._backend_addr)
-
+    async def run(self):
         # Init Docker events watcher
         self._loop.create_task(self._watch_docker_events())
 
-        # Tell the backend we are up and have `nb_sub_agents` threads available
-        self._logger.info("Saying hello to the backend")
-        await ZMQUtils.send(self._backend_socket, AgentHello(self._friendly_name, self._nb_sub_agents, self._containers))
-
-        # And then run the agent
-        try:
-            while True:
-                message = await ZMQUtils.recv(self._backend_socket)
-                await self.handle_backend_message(message)
-        except asyncio.CancelledError:
-            return
-        except KeyboardInterrupt:
-            return
+        await super(DockerAgent, self).run()

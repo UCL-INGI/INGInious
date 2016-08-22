@@ -86,7 +86,7 @@ if __name__ == "__main__":
 
     # Run!
     try:
-        loop.run_until_complete(agent.run_dealer())
+        loop.run_until_complete(agent.run())
     except:
         pass
     finally:
