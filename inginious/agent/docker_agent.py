@@ -552,6 +552,12 @@ class DockerAgent(object):
                 await self._write_to_container_stdin(write_stream, {"type": "run_student_retval", "retval": retval, "socket_id": socket_id})
             except:
                 pass  # parent container closed
+
+            # Do not forget to remove the container
+            try:
+                self._loop.run_in_executor(None, lambda: self._docker.remove_container(container_id))
+            except:
+                pass  # ignore
         except:
             self._logger.exception("Exception in handle_student_job_closing_p1")
 
@@ -570,7 +576,13 @@ class DockerAgent(object):
 
             # Close sub containers
             for student_container_id in self._student_containers_for_job[message.job_id]:
-                asyncio.ensure_future(self._loop.run_in_executor(None, lambda: self._docker.kill_container(student_container_id)))
+                def close_and_delete():
+                    try:
+                        self._docker.kill_container(student_container_id)
+                        self._docker.remove_container(student_container_id)
+                    except:
+                        pass  # ignore
+                asyncio.ensure_future(self._loop.run_in_executor(None, close_and_delete))
             del self._student_containers_for_job[message.job_id]
 
             await ZMQUtils.send(self._killer_watcher_push.get_push_socket(),
