@@ -259,8 +259,7 @@ class TaskPageStaticDownload(INGIniousPage):
                     mimetypes.init()
                     mime_type = mimetypes.guess_type(file_path)
                     web.header('Content-Type', mime_type[0])
-                    with open(file_path) as static_file:
-                        return static_file.read()
+                    return open(file_path, 'rb')
                 else:
                     raise web.notfound()
             except:
