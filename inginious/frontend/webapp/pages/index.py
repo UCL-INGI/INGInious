@@ -19,7 +19,7 @@ class IndexPage(INGIniousPage):
         if self.user_manager.session_logged_in():
             user_input = web.input()
             if "logoff" in user_input:
-                self.user_manager.disconnect_user()
+                self.user_manager.disconnect_user(web.ctx['ip'])
                 return self.call_index(False)
             else:
                 return self.call_main()
@@ -30,7 +30,7 @@ class IndexPage(INGIniousPage):
         """ POST request: login """
         user_input = web.input()
         if "@authid" in user_input:  # connect
-            if self.user_manager.auth_user(int(user_input["@authid"]), user_input):
+            if self.user_manager.auth_user(int(user_input["@authid"]), user_input, web.ctx['ip']):
                 return self.call_main()
             else:
                 return self.call_index(True)

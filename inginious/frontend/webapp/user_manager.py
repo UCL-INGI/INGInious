@@ -4,6 +4,7 @@
 # more information about the licensing of this file.
 
 """ Manages users data and session """
+import logging
 from abc import ABCMeta, abstractmethod
 from datetime import datetime
 from datetime import timedelta
@@ -84,6 +85,7 @@ class UserManager(AbstractUserManager):
         self._database = database
         self._superadmins = superadmins
         self._auth_methods = []
+        self._logger = logging.getLogger("inginious.webapp.users")
 
     ##############################################
     #           User session management          #
@@ -156,10 +158,11 @@ class UserManager(AbstractUserManager):
         """
         return {i: (am.get_name(), am.needed_fields()) for i, am in enumerate(self._auth_methods)}
 
-    def auth_user(self, auth_method_id, input):
+    def auth_user(self, auth_method_id, input, ip_addr):
         """
         :param auth_method_id: the auth method id, as provided by get_auth_methods_inputs()
         :param input: the input of the user, should respect what was given by get_auth_methods_inputs()
+        :param ip_addr: the ip address of the client, that will be logged
         :raise AuthInvalidInputException
         :return: True if the user successfully authenticated, False else
         """
@@ -167,12 +170,18 @@ class UserManager(AbstractUserManager):
             raise AuthInvalidMethodException()
         info = self._auth_methods[auth_method_id].auth(input)
         if info is not None:
+            self._logger.info("User %s connected - %s - %s - %s", info[0], info[1], info[2], ip_addr)
             self._set_session(info[0], info[1], info[2])
             return True
         return False
 
-    def disconnect_user(self):
-        """ Disconnects the user currently logged-in """
+    def disconnect_user(self, ip_addr):
+        """
+        Disconnects the user currently logged-in
+        :param ip_addr: the ip address of the client, that will be logged
+        """
+        if self.session_logged_in():
+            self._logger.info("User %s disconnected - %s - %s - %s", self.session_username(), self.session_realname(), self.session_email(), ip_addr)
         self._destroy_session()
 
     def get_users_info(self, usernames):
