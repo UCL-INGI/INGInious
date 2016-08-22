@@ -6,6 +6,7 @@
 """ LDAP plugin """
 
 import simpleldap
+import logging
 
 from inginious.frontend.webapp.user_manager import AuthMethod
 
@@ -15,7 +16,7 @@ class LdapAuthMethod(AuthMethod):
     LDAP auth method
     """
 
-    def __init__(self, name, host, port, encryption, require_cert, base_dn, request, prefix):
+    def __init__(self, name, host, port, encryption, require_cert, base_dn, request, prefix, mail, cn):
         if encryption not in ["none", "ssl", "tls"]:
             raise Exception("Unknown encryption method {}".format(encryption))
         if encryption == "none":
@@ -24,6 +25,7 @@ class LdapAuthMethod(AuthMethod):
         if port == 0:
             port = None
 
+        self._logger = logging.getLogger('inginious.webapp.plugin.auth.ldap')
         self._name = name
         self._host = host
         self._port = port
@@ -32,6 +34,8 @@ class LdapAuthMethod(AuthMethod):
         self._base_dn = base_dn
         self._request = request
         self._prefix = prefix
+        self._mail = mail
+        self._cn = cn
 
     def get_name(self):
         return self._name
@@ -47,19 +51,24 @@ class LdapAuthMethod(AuthMethod):
                 return None
 
             # Connect to the ldap
+            self._logger.debug('Connecting to ' + self._host + ", port" + str(self._port) )
             conn = simpleldap.Connection(self._host, port=self._port, encryption=self._encryption,
                                          require_cert=self._require_cert, search_defaults={"base_dn": self._base_dn})
+            self._logger.info('Connected to ' + self._host + ", port" + str(self._port) )
             request = self._request.format(login)
             user_data = conn.get(request)
             if conn.authenticate(user_data.dn, password):
-                email = user_data["mail"][0]
+                self._logger.debug('Auth worked, data is ' + str(user_data))
+                email = user_data[self._mail][0]
                 username = self._prefix + login
-                realname = user_data["cn"][0]
+                realname = user_data[self._cn][0]
 
                 return (username, realname, email)
             else:
+                self._logger.debug('Auth Failed')
                 return None
-        except:
+        except Exception as e:
+            self._logger.debug('Auth Exception:' + str(e))
             return None
 
     def needed_fields(self):
@@ -139,5 +148,7 @@ def init(plugin_manager, _, _2, conf):
                          conf.get('require_cert', True),
                          conf.get('base_dn', ''),
                          conf.get('request', "uid={},ou=People"),
-                         conf.get('prefix', ''))
+                         conf.get('prefix', ''),
+                         conf.get('mail', 'mail'),
+                         conf.get('cn', 'cn'))
     plugin_manager.register_auth_method(obj)
