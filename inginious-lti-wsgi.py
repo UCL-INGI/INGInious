@@ -18,7 +18,7 @@ os.environ['INGInious_CONFIG_LTI'] = '/var/www/INGInious/configuration.lti.yaml'
 
 if os.getenv('INGInious_PATH_LTI'):
     sys.path.append(os.getenv('INGInious_PATH_LTI'))
-    os.chdir(os.getenv('INGInious_CONFIG_LTI'))
+    os.chdir(os.getenv('INGInious_PATH_LTI'))
 
 import signal
 import logging
