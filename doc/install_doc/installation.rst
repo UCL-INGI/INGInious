@@ -341,6 +341,7 @@ The following Apache configuration is suitable to run e.g. the LTI service
 assuming the source repository is in `/var/www/INGInious`.
 
 ::
+
     WSGIPythonPath /var/www/INGInious/
     
     # This is a desired solution, but does not work.
