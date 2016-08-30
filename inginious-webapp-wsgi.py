@@ -42,6 +42,7 @@ else:
     raise Exception("No configuration file found")
 
 config=load_json_or_yaml(configFile)
+init_logging(config.get('log_level', 'INFO'))
 app, close_app_func = inginious.frontend.webapp.app.get_app(hostname=None,
                                                             port=None,
                                                             sshhost=None,

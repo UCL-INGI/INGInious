@@ -43,6 +43,7 @@ else:
     raise Exception("No configuration file found")
 
 config=load_json_or_yaml(configFile)
+init_logging(config.get('log_level', 'INFO'))
 app, close_app_func = inginious.frontend.lti.app.get_app(config=config)
 func = app.wsgifunc()
 func = CustomLogMiddleware(func, logging.getLogger("inginious.webapp.requests"))
