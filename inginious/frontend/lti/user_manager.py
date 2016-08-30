@@ -117,21 +117,11 @@ class UserManager(AbstractUserManager):
         grades =  self._database.submissions.find({"username": username, "courseid": task.get_course_id(),
                                                    "taskid": task.get_id(),
                                                    "status": "done"})
-
-        #
-        # Backwards compatability - if it's not specified, it should be max
-        #
-        grader = task.get_lti_grader_method() or 'max'
+        grader = task.get_evaluate()
         if grader == 'last':
             val = list(grades.sort([("submitted_on", pymongo.DESCENDING)]).limit(1))
-        elif grader == 'first':
-            val = list(grades.sort([("submitted_on", pymongo.ASCENDING)]).limit(1))
-        elif grader == 'max':
-            val = list(grades.sort([("grade", pymongo.ASCENDING)]).limit(1))
-        elif grader == 'min':
-            val = list(grades.sort([("grade", pymongo.DESCENDING)]).limit(1))
         else:
-            val = list(grades.limit(1))
+            val = list(grades.sort([("grade", pymongo.ASCENDING)]).limit(1))
         return val
 
 
