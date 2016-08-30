@@ -50,8 +50,10 @@ if __name__ == "__main__":
 
     base = os.path.abspath(os.path.join(mounted_dir, "../"))
     if not os.path.exists(base):
+        logger.debug("mkdir " + base)
         os.makedirs(base)
     if not os.path.exists(mounted_dir):
+        logger.debug("symlink " + mounted_dir)
         os.symlink("/agent_volume", mounted_dir)
 
     agent_ssh_port = os.environ.get('AGENT_SSH_PORT')

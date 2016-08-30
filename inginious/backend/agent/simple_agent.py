@@ -251,6 +251,8 @@ class SimpleAgent(object):
         # Wait for completion
         return_value = self._wait_for_container_completion(docker_connection, container_id, None)
 
+        self.logger.debug("Docker completes with return_value " +str(return_value))
+
         # If docker cannot do anything...
         if return_value == -1:
             self.logger.info("Container for job id %s crashed", job_id)
@@ -263,8 +265,8 @@ class SimpleAgent(object):
         try:
             stdout = str(docker_connection.logs(container_id, stdout=True, stderr=False))
             stderr = str(docker_connection.logs(container_id, stdout=True, stderr=False))
-        except:
-            self.logger.warning("Cannot get back stdout of container %s!", container_id)
+        except Exception as e:
+            self.logger.warning("Cannot get back stdout of container %s (%s)!", container_id, str(e))
             rmtree(container_path)
             return {'retval': -1, "stderr": 'Cannot retrieve stdout/stderr from container'}
 
@@ -307,6 +309,8 @@ class SimpleAgent(object):
         except:
             self.logger.warning("Cannot connect to Docker!")
             return {'result': 'crash', 'text': 'Cannot connect to Docker'}
+
+        self.logger.debug("Connected to docker....")
 
         # Get back the task data (for the limits)
         try:
@@ -432,6 +436,8 @@ class SimpleAgent(object):
             self.logger.info("Container for job id %s crashed", job_id)
             error_occured = True
 
+        self.logger.debug("Docker completes, check ssh...")
+
         if debug == "ssh":
             self._handle_container_ssh_close(job_id)
 
@@ -452,15 +458,17 @@ class SimpleAgent(object):
         else:
             # Get logs back
             try:
+                self.logger.debug("About to get stdout of container..")
                 stdout = str(docker_connection.logs(container_id, stdout=True, stderr=False))
-                self.logger.debug(stdout)
+                self.logger.debug("Got stdout as **" + stdout + "**")
                 if debug == "ssh":  # skip the first line of the output, that contained the ssh key
                     stdout = "\n".join(stdout.split("\n")[1:])
-                self.logger.debug(stdout)
+                self.logger.debug("About to JSON it (can fail if not valid json)...")
                 result = json.loads(stdout)
             except Exception as e:
                 self.logger.warning("Cannot get back stdout of container %s! (%s)", container_id, str(e))
                 result = {'result': 'crash', 'text': 'The grader did not return a readable output'}
+
 
         # Close RPyC server
         student_container_management.close()

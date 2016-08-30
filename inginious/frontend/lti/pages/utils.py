@@ -9,6 +9,7 @@ import hashlib
 
 from pylti.common import verify_request_common
 import web
+import logging
 
 
 class LTIPage(object):
@@ -45,6 +46,7 @@ class LTIPage(object):
         self.default_max_file_size = default_max_file_size
         self.containers = containers
         self.consumers = consumers
+        self.logger = logging.getLogger('lti.pages.utils')
 
 class LTINotConnectedException(Exception):
     pass
@@ -73,15 +75,19 @@ class LTIAuthenticatedPage(LTIPage):
         raise web.notacceptable()
 
     def LTI_GET_NOT_CONNECTED(self, *args, **kwargs):
+        self.logger.info('ERROR: LTI_GET_NOT_CONNECTED')
         raise web.notfound("Your session expired. Please reload the page.")
 
     def LTI_POST_NOT_CONNECTED(self, *args, **kwargs):
+        self.logger.info('ERROR: LTI_POST_NOT_CONNECTED')
         raise web.notfound("Your session expired. Please reload the page.")
 
     def LTI_GET_NO_RIGHTS(self, *args, **kwargs):
+        self.logger.info('ERROR: LTI_GET_NO_RIGHTS')
         raise web.notfound("You do not have the rights to view this page.")
 
     def LTI_POST_NO_RIGHTS(self, *args, **kwargs):
+        self.logger.info('ERROR: LTI_POST_NOT_CONNECTED')
         raise web.notfound("You do not have the rights to view this page.")
 
     def required_role(self, method="POST"):
@@ -103,6 +109,7 @@ class LTIAuthenticatedPage(LTIPage):
         except LTINoRightsException:
             return self.LTI_POST_NO_RIGHTS(*args, **kwargs)
         except Exception as e:
+            self.logger.debug('ERROR: POST ' + str(e))
             raise
             raise web.notfound(str(e))
         return self.LTI_POST(*args, **kwargs)
@@ -116,6 +123,7 @@ class LTIAuthenticatedPage(LTIPage):
         except LTINoRightsException:
             return self.LTI_GET_NO_RIGHTS(*args, **kwargs)
         except Exception as e:
+            self.logger.debug('ERROR: GET ' + str(e))
             raise
             raise web.notfound(str(e))
         return self.LTI_GET(*args, **kwargs)
@@ -148,6 +156,7 @@ class LTILaunchPage(LTIPage):
         try:
             self._parse_lti_data(courseid, taskid)
         except Exception as e:
+            self.logger.info('ERROR: POST exception ' + str(e))
             raise web.notfound(str(e))
         return self.LAUNCH_POST(*args, **kwargs)
 
@@ -158,12 +167,15 @@ class LTILaunchPage(LTIPage):
     def _parse_lti_data(self, courseid, taskid):
         """ Verify and parse the data for the LTI basic launch """
         post_input = web.webapi.rawinput("POST")
+        self.logger.debug('_parse_lti_data:'  + str(post_input))
         try:
             verified = verify_request_common(self.consumers, web.ctx.home + web.ctx.fullpath, "POST", {}, post_input)
-        except:
+        except Exception as e:
+            self.logger.info('Can not authenticate request for ' + str(post_input))
             raise Exception("Cannot authentify request (1)")
 
         if verified:
+            self.logger.debug('parse_lit_data for ' + str(post_input))
             user_id = post_input["user_id"]
             roles = post_input.get("roles", "Student").split(",")
             realname = self._find_realname(post_input)
@@ -173,12 +185,16 @@ class LTILaunchPage(LTIPage):
             consumer_key = post_input["oauth_consumer_key"]
 
             if lis_outcome_service_url is None:
+                self.logger.info('Error: lis_outcome_service_url is None')
                 raise Exception("INGInious needs the parameter lis_outcome_service_url in the LTI basic-launch-request")
             if outcome_result_id is None:
+                self.logger.info('Error: lis_outcome_result_id is None')
                 raise Exception("INGInious needs the parameter lis_result_sourcedid in the LTI basic-launch-request")
 
-            self.user_manager.lti_auth(user_id, roles, realname, email, courseid, taskid, consumer_key, lis_outcome_service_url, outcome_result_id)
+            self.user_manager.lti_auth(user_id, roles, realname, email, courseid, taskid,
+                                       consumer_key, lis_outcome_service_url, outcome_result_id)
         else:
+            self.logger.info('ERROR: not verified')
             raise Exception("Cannot authentify request (2)")
 
     def _find_realname(self, post_input):

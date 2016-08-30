@@ -44,12 +44,12 @@ class LisOutcomeManager(threading.Thread):
 
                 try:
                     grade = self._user_manager.get_task_grade(self._course_factory.get_task(courseid, taskid), username)
-                    grade = grade / 100
+                    grade = grade / 100.0
                     if grade > 1:
                         grade = 1
                     if grade < 0:
                         grade = 0
-                except:
+                except Exception as e:
                     self._logger.error("An exception occured while getting a grade in LisOutcomeManager.", exc_info=True)
                     continue
 

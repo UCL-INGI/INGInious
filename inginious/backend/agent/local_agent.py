@@ -18,16 +18,17 @@ class LocalAgent(SimpleAgent):
 
     def __init__(self, image_aliases, task_directory, course_factory, task_factory, tmp_dir="./agent_tmp"):
         # Start a logger specific to this agent
-        logger = logging.getLogger("agent")
-        logger.setLevel(logging.INFO)
+        self.logger = logging.getLogger("agent")
+        self.logger.setLevel(logging.INFO)
         ch = logging.StreamHandler()
         ch.setLevel(logging.INFO)
         formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
         ch.setFormatter(formatter)
-        logger.addHandler(ch)
+        self.logger.addHandler(ch)
 
         # Choose a socket
         tmp_socket_dir = tempfile.mkdtemp()  # TODO: should be in tmp_dir, but it is deleted while we wait for Docker 1.9.0 and user namespaces
+        self.logger.debug("Create tmp_socket_dir at " + tmp_socket_dir)
         self.ssh_sock_path = os.path.join(tmp_socket_dir, 'ssh.sock')
 
         SimpleAgent.__init__(self, task_directory, course_factory, task_factory, self.ssh_sock_path, tmp_dir)
@@ -59,7 +60,6 @@ class LocalAgent(SimpleAgent):
         :param ssh_callback: ssh callback function. Takes two parameters: (conn_id, private_key). Is only called if debug == "ssh".
         :param final_callback: Callback function called when the job is done; one argument: the result.
         """
-
         t = threading.Thread(target=lambda: self._handle_job_threaded(job_id, course_id, task_id, inputdata, debug, ssh_callback, final_callback))
         t.daemon = True
         t.start()
@@ -97,6 +97,7 @@ class LocalAgent(SimpleAgent):
 
     def _handle_job_threaded(self, job_id, course_id, task_id, inputdata, debug, ssh_callback, final_callback):
         try:
+            self.logger.debug("Launch job " + str(job_id))
             result = self.handle_job(job_id, course_id, task_id, inputdata, debug, ssh_callback)
             final_callback(result)
         except:
