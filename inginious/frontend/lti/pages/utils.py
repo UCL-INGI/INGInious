@@ -165,6 +165,10 @@ class LTILaunchPage(LTIPage):
 
         if verified:
             user_id = post_input["user_id"]
+            if 'ext_user_username' in post_input:
+                ext_user_username = post_input['ext_user_username']
+            else:
+                ext_user_username = user_id
             roles = post_input.get("roles", "Student").split(",")
             realname = self._find_realname(post_input)
             email = post_input.get("lis_person_contact_email_primary", "")
@@ -177,7 +181,7 @@ class LTILaunchPage(LTIPage):
             if outcome_result_id is None:
                 raise Exception("INGInious needs the parameter lis_result_sourcedid in the LTI basic-launch-request")
 
-            self.user_manager.lti_auth(user_id, roles, realname, email, courseid, taskid, consumer_key, lis_outcome_service_url, outcome_result_id)
+            self.user_manager.lti_auth(user_id, roles, realname, email, courseid, taskid, consumer_key, lis_outcome_service_url, outcome_result_id, ext_user_username)
         else:
             raise Exception("Cannot authentify request (2)")
 
