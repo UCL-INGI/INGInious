@@ -556,24 +556,24 @@ class SimpleAgent(object):
         return True
 
     def _student_container_get_stdin(self, container_id):
-        self.logger.info("Getting stdin of student container")
+        self.logger.debug("Getting stdin of student container")
         try:
             docker_connection = docker.Client(**kwargs_from_env())
         except:
-            self.logger.warning("Cannot connect to Docker!")
+            self.logger.error("Cannot connect to Docker!")
             return None
 
         stdin = docker_connection.attach_socket(container_id, {'stdin': 1, 'stderr': 0, 'stdout': 0, 'stream': 1})
-        self.logger.info("Returning stdin of student container")
+        self.logger.debug("Returning stdin of student container")
         return stdin
 
     def _student_container_close(self, container_id, container_set):
-        self.logger.info("Closing student container")
+        self.logger.debug("Closing student container")
 
         try:
             docker_connection = docker.Client(**kwargs_from_env())
         except:
-            self.logger.warning("Cannot connect to Docker!")
+            self.logger.error("Cannot connect to Docker!")
             return 254
 
         # Wait for completion
@@ -711,5 +711,5 @@ class SimpleAgent(object):
             docker_connection.kill(container_id)
             return True
         except Exception as e:
-            self.logger.info("Cannot kill container %s: %s", container_id, str(e))
+            self.logger.error("Cannot kill container %s: %s", container_id, str(e))
             return False
