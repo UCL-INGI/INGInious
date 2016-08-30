@@ -12,6 +12,9 @@ import shutil
 
 from inginious.frontend.lti.pages.utils import LTIAuthenticatedPage
 
+##
+## This needs to be provided by a config parameter, but i'm not certain how yet - dcg
+##
 if os.path.exists(os.path.join("lti_download", "tmp")):
     shutil.rmtree(os.path.join("lti_download", "tmp"))
 os.mkdir(os.path.join("lti_download", "tmp"))

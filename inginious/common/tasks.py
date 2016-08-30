@@ -56,6 +56,7 @@ class Task(object):
         for problemid in self._data['problems']:
             self._problems.append(self._create_task_problem(problemid, self._data['problems'][problemid], task_problem_types))
 
+
     def input_is_consistent(self, task_input, default_allowed_extension, default_max_size):
         """ Check if an input for a task is consistent. Return true if this is case, false else """
         for problem in self._problems:
