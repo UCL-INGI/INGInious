@@ -150,7 +150,7 @@ def get_app(config, active_callback=None):
     if lti_user_name not in ['user_id', 'ext_user_username'] :
         lti_user_name = 'user_id'
 
-    user_manager = UserManager(CustomSession(appli, MongoStore(database, 'sessions')), database)
+    user_manager = UserManager(CustomSession(appli, MongoStore(database, 'sessions')), database, lti_user_name)
 
     backend_interface.update_pending_jobs(database)
 
