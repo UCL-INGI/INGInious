@@ -140,14 +140,30 @@ def get_app(config, active_callback=None):
 
     course_factory, task_factory = create_factories(task_directory, plugin_manager, FrontendCourse, FrontendTask)
 
-    user_manager = UserManager(CustomSession(appli, MongoStore(database, 'sessions')), database)
+    #
+    # Allow user config to over-rider the username strong in Mongo.
+    # This is enabled by most LMS's such as Moodle, and the ext_user_username
+    # is the "login name" for the user, which is typically the same as
+    # would be authenticated by logging into the course via ldap
+    #
+    lti_user_name = config.get('lti_user_name', 'user_id')
+    if lti_user_name not in ['user_id', 'ext_user_username'] :
+        lti_user_name = 'user_id'
+
+    user_manager = UserManager(CustomSession(appli, MongoStore(database, 'sessions')), database, lti_user_name)
 
     backend_interface.update_pending_jobs(database)
 
     job_manager = backend_interface.create_job_manager(config, plugin_manager,
                                                        task_directory, course_factory, task_factory)
 
-    lis_outcome_manager = LisOutcomeManager(database, user_manager, course_factory, config["lti"])
+    autoenroll = False
+    if "autoenroll" in config:
+        print "Set autoenroll"
+        autoenroll = config["autoenroll"]
+
+    lis_outcome_manager = LisOutcomeManager(database, user_manager, course_factory, task_factory, 
+                                            config["lti"], autoenroll)
 
     submission_manager = LTISubmissionManager(job_manager, user_manager, database, gridfs, plugin_manager,
                                               config.get('nb_submissions_kept', 5), lis_outcome_manager)
@@ -163,7 +179,10 @@ def get_app(config, active_callback=None):
     template_helper.add_to_template_globals("default_max_file_size", default_max_file_size)
 
     # Not found page
-    appli.notfound = lambda: web.notfound(template_helper.get_renderer().notfound('Page not found'))
+    if config.get('log_level', 'DEBUG') == 'DEBUG':
+        appli.notfound = lambda: web.internalerror()
+    else:
+        appli.notfound = lambda: web.notfound(template_helper.get_renderer().notfound('Page not found'))
 
     # Init the mapping of the app
     appli.init_mapping(WebPyCustomMapping(dict(urls), plugin_manager,

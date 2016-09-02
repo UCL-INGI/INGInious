@@ -62,6 +62,24 @@ The different entries are :
     See :ref:`plugins` for detailed information on available plugins, including their configuration.
 
 .. _configuration.example.yaml: https://github.com/UCL-INGI/INGInious/blob/master/configuration.example.yaml
+
+LTI Configuration reference
+=======================
+The LTI interface uses most of the same configuration options as the webapp as well as the following:
+
+``lti``
+    A list of LTI consumer key and secret values
+
+``lti_user_name``
+    The LTI field used to identify the user. By default this is "user_id", which for many LMS system would be
+    the numeric ID of the user. It can be set to `ext_user_username` which is often a unique username.
+
+``autoenroll``
+    If true, submissions pass through LTI have the user be automatically enrolled in the class, allowing
+    downloading of submissions and bulk operations if needed.
+
+.. _configuration.example.yaml: https://github.com/UCL-INGI/INGInious/blob/master/configuration.lti.example.yaml
+
 .. _docker-py API: https://github.com/docker/docker-py/blob/master/docs/api.md#client-api
 
 .. _plugins:
