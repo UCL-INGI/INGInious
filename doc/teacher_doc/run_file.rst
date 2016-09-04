@@ -48,9 +48,9 @@ Every argument is optionnal.
                                assigned. Unused if *-f* is not set.
 -g, --grade GRADE              the grade. Should be a floating point number between 0(no points) and
                                100(all points) (bonuses, up to 200, are allowed).
--c, --custom CUSTOM:VAL        add a value VAL to the "custom" dictionnary, with key CUSTOM, which is stored in DB.
+-c, --custom CUSTOM            add a value VAL to the "custom" dictionnary, with key KEY, where CUSTOM is ``KEY:VAL``, which is stored in DB.
                                Useful for plugins.
--j, --custom-json CUSTOM:VAL   same as ```--custom``` but VAL is a json-encoded dictionnary
+-j, --custom-json CUSTOM   same as ```--custom``` but VAL is a json-encoded dictionnary
 
 The *feedback* command can be called multiple times.
 
@@ -81,6 +81,14 @@ For instance, the following command will inform that the student succeeded:
 
     feedback-result success
 
+**In Python** : the equivalent command can be directly obtained with:
+
+.. code-block:: python
+
+    from inginious import feedback
+    feedback.set_global_result("success") # Set global result to success
+    feedback.set_problem_result("failed", "q1") # Set 'q1' subproblem result to failed
+
 feedback-grade
 ``````````````
 The *feedback-grade* command sets the submission grade and uses the following syntax:
@@ -97,6 +105,12 @@ an 87.8% grade to the student:
 
     feedback-grade 87.8
 
+**In Python** : the equivalent command can be directly obtained with:
+
+.. code-block:: python
+
+    from inginious import feedback
+    feedback.set_grade(87.8) # Set the grade to 87.8%
 
 feedback-msg
 ````````````
@@ -116,6 +130,14 @@ used as follows:
 ::
 
     feedback-msg -ae -m "This is the correct answer.\n\nWell done!"
+
+**In Python** : the equivalent command can be directly obtained with:
+
+.. code-block:: python
+
+    from inginious import feedback
+    feedback.set_global_feedback("Well done !") # Set global feedback text to `Well done !`
+    feedback.set_problem_feedback("This is not correct.", "q1") # Set 'q1' problem feedback to `This is not correct.`
 
 reStructuredText helper commands
 --------------------------------
@@ -139,6 +161,14 @@ For instance, the command can be used as follows:
 
     cat test.java | rst-code -l java | feedback-msg -a
 
+**In Python** : the equivalent command can be directly obtained with:
+
+.. code-block:: python
+
+    from inginious import rst
+    codeblock = rst.get_codeblock("java", "int a = 42;") # Java codeblock with `int a = 42;` code
+    feedback.set_global_feedback(codeblock, True) # Appends the codeblock to the global feedback
+
 rst-image
 `````````
 
@@ -155,6 +185,14 @@ the the image filename. The output is written on the standard output. For instan
 ::
 
     rst-image generated.png | feedback -a
+
+**In Python** : the equivalent command can be directly obtained with:
+
+.. code-block:: python
+
+    from inginious import rst
+    imgblock = rst.get_imageblock("smiley.png") # RST block with image
+    feedback.set_global_feedback(imgblock, True) # Appends the image block to the global feedback
 
 
 rst-msgblock
@@ -179,6 +217,14 @@ be used as follows:
 
     rst-msgblock -c info -m "This is a note" | feedback -ae
 
+**In Python** : the equivalent command can be directly obtained with:
+
+.. code-block:: python
+
+    from inginious import rst
+    admonition = rst.get_admonition("success", "Yeah!", "Well done!") # RST message block of class "success" and title "Yeah!"
+    feedback.set_global_feedback(admonition, True) # Appends the block to the global feedback
+
 rst-indent
 ``````````
 The *rst-indent* command is used to handle the indentation of the given text. It has the following optional arguments:
@@ -196,6 +242,14 @@ inside a list item, for instance :
 
      rst-image generated.png | rst-indent | feedback -a
 
+**In Python** : the equivalent command can be directly obtained with:
+
+.. code-block:: python
+
+    from inginious import rst
+    rawhtml = rst.indent_block(1, "<p>A paragraph!</p>", "\t") # Indent the HTML code with 1 unit of tabulations
+    feedback.set_global_feedback(".. raw::\n\n" + rawhtml, True) # Appends the block to the global feedback
+
 Input commands
 --------------
 
@@ -210,7 +264,7 @@ For example, for the problem id "pid", the command to run is:
 
 When a problem is defined with several boxes, the argument becomes *pid/bid* where "pid"
 stands for the problem id and "bid" for "box id". If the problem is a file upload, the problem id can be appended
-with *:filename* or *:value" to retrieve its filename or value.
+with ``:filename`` or ``:value`` to retrieve its filename or value.
 
 Note that *getinput* can also retrieve the username/group of the user that submitted the task. You simply have to run
 ::
@@ -220,6 +274,15 @@ Note that *getinput* can also retrieve the username/group of the user that submi
 If the submission is made as a user, it will contain the username. It it's made as a group,
 it will contain the list of the user's usernames in the
 group, joined with ','.
+
+
+**In Python** : the equivalent command can be directly obtained with:
+
+.. code-block:: python
+
+    from inginious import input
+    thecode = input.get_input("q1") # Fetch the code for problem `q1`
+
 
 parsetemplate
 `````````````
@@ -249,6 +312,15 @@ Example of template file (in java)
 
 To access the filename and text content of a submitted file, the *problemid* can be
 followed by a *:filename* or *:value* suffix.
+
+
+**In Python** : the equivalent command can be directly obtained with:
+
+.. code-block:: python
+
+    from inginious import input
+    thecode = input.pasrse_template("student.c") # Parse the `student.c` template file
+    thecode = input.pasrse_template("template.c", "student.c") # Parse the `template.c` template file and save the parsed file into `student.c`
 
 .. _run_student:
 
