@@ -15,13 +15,15 @@ from pymongo import ReturnDocument
 
 
 class LisOutcomeManager(threading.Thread):
-    def __init__(self, database, user_manager, course_factory, lti_consumers):
+    def __init__(self, database, user_manager, course_factory, task_factory, lti_consumers, autoenroll):
         super(LisOutcomeManager, self).__init__()
         self.daemon = True
         self._database = database
         self._user_manager = user_manager
         self._course_factory = course_factory
+        self._task_factory = task_factory
         self._lti_consumers = lti_consumers
+        self._autoenroll = autoenroll
         self._queue = Queue.Queue()
         self._stopped = False
         self._logger = logging.getLogger("inginious.lti.outcome_manager")
@@ -40,16 +42,16 @@ class LisOutcomeManager(threading.Thread):
                 time.sleep(0.5)
                 data = self._queue.get()
 
-                mongo_id, username, courseid, taskid, consumer_key, service_url, result_id, nb_attempt = data
+                mongo_id, username, courseid, taskid, consumer_key, service_url, \
+                result_id, nb_attempt, result, grade, realname, email = data
 
-                try:
-                    grade = self._user_manager.get_task_grade(self._course_factory.get_task(courseid, taskid), username)
-                    grade = grade / 100
+                try: 
+                    grade = grade / 100.0
                     if grade > 1:
                         grade = 1
                     if grade < 0:
                         grade = 0
-                except:
+                except Exception as e:
                     self._logger.error("An exception occured while getting a grade in LisOutcomeManager.", exc_info=True)
                     continue
 
@@ -74,9 +76,13 @@ class LisOutcomeManager(threading.Thread):
     def _add_to_queue(self, mongo_entry):
         self._queue.put((mongo_entry["_id"], mongo_entry["username"], mongo_entry["courseid"],
                          mongo_entry["taskid"], mongo_entry["consumer_key"], mongo_entry["service_url"],
-                         mongo_entry["result_id"], mongo_entry["nb_attempt"]))
+                         mongo_entry["result_id"], mongo_entry["nb_attempt"],
+                         mongo_entry["result"], mongo_entry["grade"],
+                         mongo_entry["realname"], mongo_entry["email"]
+                     ))
 
-    def add(self, username, courseid, taskid, consumer_key, service_url, result_id):
+    def add(self, username, courseid, taskid, consumer_key, service_url, result_id, 
+            result, grade, realname, email, submission):
         """ Add a job in the queue
         :param username:
         :param courseid:
@@ -87,12 +93,25 @@ class LisOutcomeManager(threading.Thread):
         """
         search = {"username": username, "courseid": courseid,
                   "taskid": taskid, "service_url": service_url,
-                  "consumer_key": consumer_key, "result_id": result_id}
+                  "consumer_key": consumer_key, "result_id": result_id,
+                  "result" : result, "grade" : grade,
+                  "realname" : realname, "email" : email}
 
         entry = self._database.lis_outcome_queue.find_one_and_update(search, {"$set": {"nb_attempt": 0}},
                                                                      return_document=ReturnDocument.BEFORE, upsert=True)
         if entry is None:  # and it should be
             self._add_to_queue(self._database.lis_outcome_queue.find_one(search))
+            
+            if self._autoenroll:
+                self._logger.debug("Adding " + username + " to course and submitting grade of " + str(grade))
+                course = self._course_factory.get_course(courseid)
+                if course:
+                    task = self._task_factory.get_task(course, taskid)
+                    if task:
+                        self._user_manager.course_register_user(course, username, email, realname)
+                        self._user_manager.update_user_stats(username, task, submission, result, grade)
+                        self._logger.debug("Added..")
+
 
     def _delete(self, mongo_id):
         """
