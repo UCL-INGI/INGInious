@@ -84,7 +84,7 @@ class CourseEditAggregation(INGIniousAdminPage):
             aggregation = self.database.aggregations.find_one({"_id": ObjectId(aggregationid), "courseid": course.get_id()})
 
         # Check tutors
-        new_data["tutors"] = [tutor for tutor in new_data["tutors"] if tutor in course.get_tutors()]
+        new_data["tutors"] = [tutor for tutor in new_data["tutors"] if tutor in course.get_staff()]
 
         students, groups, errored_students = [], [], []
 
