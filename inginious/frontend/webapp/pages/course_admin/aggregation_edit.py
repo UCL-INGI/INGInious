@@ -50,7 +50,7 @@ class CourseEditAggregation(INGIniousAdminPage):
         ]))
 
         student_list = dict([(student["students"], student) for student in student_list])
-        users_info = self.user_manager.get_users_info(student_list.keys() + tutor_list)
+        users_info = self.user_manager.get_users_info(list(student_list.keys()) + tutor_list)
 
         if aggregationid:
             # Order the non-registered students
