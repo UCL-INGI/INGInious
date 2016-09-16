@@ -9,7 +9,8 @@ import hashlib
 from typing import List, Dict
 
 from gridfs import GridFS
-from pylti.common import verify_request_common
+# from pylti.common import verify_request_common TODO re-add me once PR has been accepted by PyLTI devs
+from inginious.common.customlibs.pylti import verify_request_common
 import web
 from pymongo.database import Database
 

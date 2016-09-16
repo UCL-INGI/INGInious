@@ -10,7 +10,8 @@ import queue
 import uuid
 import time
 
-import pylti.common
+# import pylti.common as lti TODO re-add me once PR has been accepted by PyLTI devs
+import inginious.common.customlibs.pylti as lti
 from pymongo import ReturnDocument
 
 
@@ -54,8 +55,8 @@ class LisOutcomeManager(threading.Thread):
                     continue
 
                 try:
-                    xml = pylti.common.generate_request_xml(str(uuid.uuid1()), "replaceResult", result_id, grade)
-                    if pylti.common.post_message(self._lti_consumers, consumer_key, service_url, xml):
+                    xml = lti.generate_request_xml(str(uuid.uuid1()), "replaceResult", result_id, grade)
+                    if lti.post_message(self._lti_consumers, consumer_key, service_url, xml):
                         self._delete(mongo_id)
                         self._logger.debug("Successfully sent grade to TC: %s" % str(data))
                         continue
