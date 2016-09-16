@@ -6,7 +6,8 @@
 """ LDAP plugin """
 from collections import OrderedDict
 
-import simpleldap
+# import simpleldap TODO re-add me once the PR has been accepted by devs of simpleldap
+import inginious.common.customlibs.simpleldap as simpleldap  # TODO remove me once the PR has been accepted by devs of simpleldap
 
 from inginious.frontend.webapp.user_manager import AuthMethod
 
