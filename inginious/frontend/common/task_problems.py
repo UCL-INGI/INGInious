@@ -14,9 +14,8 @@ from inginious.common.tasks_problems import BasicProblem, BasicCodeProblem, Code
 from inginious.frontend.common.tasks_code_boxes import DisplayableInputBox, DisplayableMultilineBox, DisplayableTextBox, DisplayableFileBox
 
 
-class DisplayableBasicProblem(BasicProblem):
+class DisplayableBasicProblem(BasicProblem, metaclass=ABCMeta):
     """Basic problem """
-    __metaclass__ = ABCMeta
 
     def __init__(self, task, problemid, content):
         super(DisplayableBasicProblem, self).__init__(task, problemid, content)

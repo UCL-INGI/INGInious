@@ -19,7 +19,7 @@ class test_tasks_basic(object):
 
     def test_task_loading(self):
         '''Tests if a course file loads correctly'''
-        print "\033[1m-> common-tasks: task loading\033[0m"
+        print("\033[1m-> common-tasks: task loading\033[0m")
         t = self.course_factory.get_task('test', 'task1')
         assert t.get_environment() == 'default'
         assert t.get_id() == 'task1'
@@ -53,7 +53,7 @@ class test_tasks_basic(object):
                                             {"environment": "default", "limits": {"time": "a string!"}},
                                             'fake_path')
             a = t.get_limits()
-            print a
+            print(a)
         except Exception as e:
             assert str(e) == "Invalid limit"
             return
@@ -124,7 +124,7 @@ class test_tasks_problems(object):
 
     def test_problem_types(self):
         '''Tests if problem types are correctly recognized'''
-        print "\033[1m-> common-tasks: problem types parsing\033[0m"
+        print("\033[1m-> common-tasks: problem types parsing\033[0m")
         t = self.course_factory.get_task('test2', 'task1')
         assert t.get_problems()[0].get_type() == 'match'
 
@@ -136,7 +136,7 @@ class test_tasks_problems(object):
 
     def test_multiple_choice(self):
         '''Tests multiple choice problems methods'''
-        print "\033[1m-> common-tasks: multiple-choice parsing\033[0m"
+        print("\033[1m-> common-tasks: multiple-choice parsing\033[0m")
         p = self.course_factory.get_task('test2', 'task3').get_problems()[0]
         assert p.allow_multiple()
 
@@ -151,7 +151,7 @@ class test_tasks_problems(object):
 
     def test_match(self):
         '''Tests match problems methods'''
-        print "\033[1m-> common-tasks: match-problem loading\033[0m"
+        print("\033[1m-> common-tasks: match-problem loading\033[0m")
         p = self.course_factory.get_task('test2', 'task1').get_problems()[0]
 
         # Check correct and incorrect answer
@@ -165,7 +165,7 @@ class test_tasks_problems(object):
 
     def test_code(self):
         '''Tests code problems methods'''
-        print "\033[1m-> common-tasks: code-problem parsing\033[0m"
+        print("\033[1m-> common-tasks: code-problem parsing\033[0m")
         p = self.course_factory.get_task('test', 'task1').get_problems()[0]
 
         # Check random form input
@@ -180,13 +180,13 @@ class test_tasks_boxes(object):
 
     def test_number_boxes(self):
         '''Tests if get_boxes returns the correct number of boxes'''
-        print "\033[1m-> common-tasks: problem boxes count\033[0m"
+        print("\033[1m-> common-tasks: problem boxes count\033[0m")
         p = self.course_factory.get_task('test2', 'task4').get_problems()[0]
         assert len(p.get_boxes()) == 12
 
     def test_filebox(self):
         '''Tests filebox methods'''
-        print "\033[1m-> common-tasks: filebox problem type\033[0m"
+        print("\033[1m-> common-tasks: filebox problem type\033[0m")
         p = self.course_factory.get_task('test2', 'task4').get_problems()[0]
         box = p.get_boxes()[11]
         assert box.get_type() == 'file'
@@ -200,7 +200,7 @@ class test_tasks_boxes(object):
 
     def test_integer_inputbox(self):
         '''Tests integer inputbox methods'''
-        print "\033[1m-> common-tasks: integer box problem type\033[0m"
+        print("\033[1m-> common-tasks: integer box problem type\033[0m")
         p = self.course_factory.get_task('test2', 'task4').get_problems()[0]
         box = p.get_boxes()[1]
         assert box.get_type() == 'input' and box._input_type == 'integer'
@@ -213,7 +213,7 @@ class test_tasks_boxes(object):
 
     def test_decimal_inputbox(self):
         '''Tests decimal inputbox methods'''
-        print "\033[1m-> common-tasks: decimal box problem type\033[0m"
+        print("\033[1m-> common-tasks: decimal box problem type\033[0m")
         p = self.course_factory.get_task('test2', 'task4').get_problems()[0]
         box = p.get_boxes()[3]
         assert box.get_type() == 'input' and box._input_type == 'decimal'
@@ -226,7 +226,7 @@ class test_tasks_boxes(object):
 
     def test_text_inputbox(self):
         '''Tests text inputbox methods'''
-        print "\033[1m-> common-tasks: text-input box problem type\033[0m"
+        print("\033[1m-> common-tasks: text-input box problem type\033[0m")
         p = self.course_factory.get_task('test2', 'task4').get_problems()[0]
         box = p.get_boxes()[5]
         assert box.get_type() == 'input' and box._input_type == 'text'
@@ -239,7 +239,7 @@ class test_tasks_boxes(object):
 
     def test_multiline_inputbox(self):
         '''Tests multiline inputbox methods'''
-        print "\033[1m-> common-tasks: multiline box problem type\033[0m"
+        print("\033[1m-> common-tasks: multiline box problem type\033[0m")
         p = self.course_factory.get_task('test2', 'task4').get_problems()[0]
         box = p.get_boxes()[8]
         assert box.get_type() == 'multiline'

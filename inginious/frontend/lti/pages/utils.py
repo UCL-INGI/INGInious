@@ -6,9 +6,19 @@
 """ Some utils for all the pages """
 import abc
 import hashlib
+from typing import List, Dict
 
+from gridfs import GridFS
 from pylti.common import verify_request_common
 import web
+from pymongo.database import Database
+
+from inginious.common.course_factory import CourseFactory
+from inginious.common.task_factory import TaskFactory
+from inginious.frontend.common.plugin_manager import PluginManager
+from inginious.frontend.common.submission_manager import SubmissionManager
+from inginious.frontend.common.template_helper import TemplateHelper
+from inginious.frontend.lti.user_manager import UserManager
 
 
 class LTIPage(object):
@@ -17,39 +27,66 @@ class LTIPage(object):
     Contains references to the PluginManager, the CourseFactory, and the SubmissionManager
     """
 
-    def __init__(self, plugin_manager, course_factory, task_factory, submission_manager, user_manager, template_helper, database,
-                 gridfs, default_allowed_file_extensions, default_max_file_size, containers, consumers):
-        """
-        Init the page
-        :type plugin_manager: inginious.frontend.common.plugin_manager.PluginManager
-        :type course_factory: inginious.common.course_factory.CourseFactory
-        :type task_factory: inginious.common.task_factory.TaskFactory
-        :type submission_manager: inginious.frontend.common.submission_manager.SubmissionManager
-        :type user_manager: inginious.frontend.lti.user_manager.UserManager
-        :type template_helper: inginious.frontend.common.template_helper.TemplateHelper
-        :type database: pymongo.database.Database
-        :type gridfs: gridfs.GridFS
-        :type default_allowed_file_extensions: list(str)
-        :type default_max_file_size: int
-        :type containers: list(str)
-        """
-        self.plugin_manager = plugin_manager
-        self.course_factory = course_factory
-        self.task_factory = task_factory
-        self.submission_manager = submission_manager
-        self.user_manager = user_manager
-        self.template_helper = template_helper
-        self.database = database
-        self.gridfs = gridfs
-        self.default_allowed_file_extensions = default_allowed_file_extensions
-        self.default_max_file_size = default_max_file_size
-        self.containers = containers
-        self.consumers = consumers
+    @property
+    def app(self):
+        return web.ctx.app_stack[0]
+
+    @property
+    def plugin_manager(self) -> PluginManager:
+        return self.app.plugin_manager
+
+    @property
+    def course_factory(self) -> CourseFactory:
+        return self.app.course_factory
+
+    @property
+    def task_factory(self) -> TaskFactory:
+        return self.app.task_factory
+
+    @property
+    def submission_manager(self) -> SubmissionManager:
+        return self.app.submission_manager
+
+    @property
+    def user_manager(self) -> UserManager:
+        return self.app.user_manager
+
+    @property
+    def template_helper(self) -> TemplateHelper:
+        return self.app.template_helper
+
+    @property
+    def database(self) -> Database:
+        return self.app.database
+
+    @property
+    def gridfs(self) -> GridFS:
+        return self.app.gridfs
+
+    @property
+    def default_allowed_file_extensions(self) -> List[str]:
+        return self.app.default_allowed_file_extensions
+
+    @property
+    def default_max_file_size(self) -> int:
+        return self.app.default_max_file_size
+
+    @property
+    def containers(self) -> List[str]:
+        return self.app.submission_manager.get_available_environments()
+
+    @property
+    def consumers(self) -> Dict[str, Dict[str, str]]:
+        return self.app.consumers
+
 
 class LTINotConnectedException(Exception):
     pass
+
+
 class LTINoRightsException(Exception):
     pass
+
 
 class LTIAuthenticatedPage(LTIPage):
     """ A page that needs to be authentified by the TC """
@@ -58,11 +95,8 @@ class LTIAuthenticatedPage(LTIPage):
     tutor_role = ("Mentor",) + admin_role
     learner_role = ("Student", "Learner", "Member") + tutor_role
 
-    def __init__(self, plugin_manager, course_factory, task_factory, submission_manager, user_manager, template_helper, database,
-                 gridfs, default_allowed_file_extensions, default_max_file_size, containers, consumers):
-        super(LTIAuthenticatedPage, self).__init__(plugin_manager, course_factory, task_factory, submission_manager, user_manager, template_helper,
-                                                   database,
-                                                   gridfs, default_allowed_file_extensions, default_max_file_size, containers, consumers)
+    def __init__(self):
+        super(LTIAuthenticatedPage, self).__init__()
         self.course = None
         self.task = None
 
@@ -103,7 +137,6 @@ class LTIAuthenticatedPage(LTIPage):
         except LTINoRightsException:
             return self.LTI_POST_NO_RIGHTS(*args, **kwargs)
         except Exception as e:
-            raise
             raise web.notfound(str(e))
         return self.LTI_POST(*args, **kwargs)
 
@@ -116,7 +149,6 @@ class LTIAuthenticatedPage(LTIPage):
         except LTINoRightsException:
             return self.LTI_GET_NO_RIGHTS(*args, **kwargs)
         except Exception as e:
-            raise
             raise web.notfound(str(e))
         return self.LTI_GET(*args, **kwargs)
 
@@ -136,14 +168,11 @@ class LTIAuthenticatedPage(LTIPage):
         except:
             raise LTINotConnectedException()
 
-class LTILaunchPage(LTIPage):
-    __metaclass__ = abc.ABCMeta
 
-    def __init__(self, plugin_manager, course_factory, task_factory, submission_manager, user_manager, template_helper, database,
-                 gridfs, default_allowed_file_extensions, default_max_file_size, containers, consumers):
-        super(LTILaunchPage, self).__init__(plugin_manager, course_factory, task_factory, submission_manager, user_manager, template_helper, database,
-                                            gridfs, default_allowed_file_extensions, default_max_file_size, containers, consumers)
-
+class LTILaunchPage(LTIPage, metaclass=abc.ABCMeta):
+    """
+    Page called by the TC to start an INGInious session
+    """
     def POST(self, courseid, taskid, *args, **kwargs):
         try:
             self._parse_lti_data(courseid, taskid)

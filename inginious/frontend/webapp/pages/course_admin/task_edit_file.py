@@ -95,7 +95,7 @@ class CourseTaskFiles(INGIniousAdminPage):
                     insert_dict[f] = None
 
         def recur_print(current, level, current_name):
-            iteritems = sorted(current.iteritems())
+            iteritems = sorted(current.items())
             # First, the files
             recur_print.flattened += [(level, False, f, os.path.join(current_name, f)) for f, t in iteritems if t is None]
             # Then, the dirs
@@ -136,10 +136,8 @@ class CourseTaskFiles(INGIniousAdminPage):
         wanted_path = self.verify_path(courseid, taskid, path)
         if wanted_path is None or not os.path.isfile(wanted_path):
             return "Internal error"
-
-        content = open(wanted_path, 'r').read()
         try:
-            content.decode('utf-8')
+            content = open(wanted_path, 'r').read()
             return json.dumps({"content": content})
         except:
             return json.dumps({"error": "not-readable"})
@@ -174,7 +172,7 @@ class CourseTaskFiles(INGIniousAdminPage):
                 return self.show_tab_file(courseid, taskid, i + " is not a directory!")
 
         try:
-            open(wanted_path, "w").write(fileobj.file.read())
+            open(wanted_path, "wb").write(fileobj.file.read())
             return self.show_tab_file(courseid, taskid)
         except:
             return self.show_tab_file(courseid, taskid, "An error occurred while writing the file")
@@ -254,7 +252,7 @@ class CourseTaskFiles(INGIniousAdminPage):
                     file_stat = os.stat(os.path.join(root, fname))
                     info.size = file_stat.st_size
                     info.mtime = file_stat.st_mtime
-                    tar.addfile(info, fileobj=open(os.path.join(root, fname), 'r'))
+                    tar.addfile(info, fileobj=open(os.path.join(root, fname), 'rb'))
             tar.close()
             tmpfile.seek(0)
             web.header('Content-Type', 'application/x-gzip', unique=True)
@@ -265,4 +263,4 @@ class CourseTaskFiles(INGIniousAdminPage):
             mime_type = mimetypes.guess_type(wanted_path)
             web.header('Content-Type', mime_type[0])
             web.header('Content-Disposition', 'attachment; filename="' + os.path.split(wanted_path)[1] + '"', unique=True)
-            return open(wanted_path, 'r')
+            return open(wanted_path, 'rb')

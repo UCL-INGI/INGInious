@@ -5,8 +5,9 @@ FROM centos
 RUN \
     yum -y update && \
     yum -y install epel-release && \
-    yum -y install docker python-pip gcc python-devel git && \
-    pip install pytidylib docutils rpyc cgroup-utils pyyaml docker-py
+    yum -y install docker python34 python34-pip gcc python34-devel git python34-setuptools  && \
+    easy_install-3.4 pip && \
+    pip3.4 install pytidylib docutils git+https://github.com/tomerfiliba/rpyc.git git+https://github.com/peo3/cgroup-utils.git pyyaml docker-py
     
 VOLUME /agent_volume
 VOLUME /sys/fs/cgroup

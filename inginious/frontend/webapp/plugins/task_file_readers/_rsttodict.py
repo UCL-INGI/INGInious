@@ -54,9 +54,9 @@ class BaseDirective(Directive):
 class QuestionDirective(BaseDirective):
     required_arguments = 1
     option_spec = {
-        'type': unicode,
-        'language': unicode,
-        'answer': unicode,
+        'type': str,
+        'language': str,
+        'answer': str,
         'multiple': bool,
         'limit': int
     }
@@ -73,7 +73,7 @@ class QuestionDirective(BaseDirective):
             node.header = node.header[:match.start()].strip()
         else:
             node.header = node.header.strip()
-        for option, value in self.options.items():
+        for option, value in list(self.options.items()):
             setattr(node, option, value)
         return [node]
 
@@ -81,15 +81,15 @@ class QuestionDirective(BaseDirective):
 class BoxDirective(Directive):
     has_content = True
     option_spec = {
-        'type': unicode,
+        'type': str,
         'maxchars': int,
         'lines': int,
-        'language': unicode
+        'language': str
     }
 
     def run(self):
         node = Box()
-        for option, value in self.options.items():
+        for option, value in list(self.options.items()):
             setattr(node, option, value)
         node.content = '\n'.join(self.content)
         return [node]
@@ -130,14 +130,14 @@ class TitleParser(Parser):
 
 class Writer(UnfilteredWriter):
     docinfo_types = {
-        'context': unicode,
+        'context': str,
         'order': int,
-        'name': unicode,
-        'accessible': unicode,
+        'name': str,
+        'accessible': str,
         'limit-time': int,
         'limit-memory': int,
         'limit-output': int,
-        'environment': unicode
+        'environment': str
     }
 
     parser = None
@@ -221,7 +221,7 @@ class Writer(UnfilteredWriter):
         boxes = collections.OrderedDict()
         bid = 1
         for box in question.traverse(Box):
-            boxId = 'boxId' + unicode(bid)
+            boxId = 'boxId' + str(bid)
             boxes[boxId] = {}
             for option in BoxDirective.option_spec:
                 value = getattr(box, option)

@@ -50,7 +50,7 @@ class CourseEditAggregation(INGIniousAdminPage):
         ]))
 
         student_list = dict([(student["students"], student) for student in student_list])
-        users_info = self.user_manager.get_users_info(student_list.keys() + tutor_list)
+        users_info = self.user_manager.get_users_info(list(student_list.keys()) + tutor_list)
 
         if aggregationid:
             # Order the non-registered students
@@ -84,7 +84,7 @@ class CourseEditAggregation(INGIniousAdminPage):
             aggregation = self.database.aggregations.find_one({"_id": ObjectId(aggregationid), "courseid": course.get_id()})
 
         # Check tutors
-        new_data["tutors"] = [tutor for tutor in new_data["tutors"] if tutor in course.get_tutors()]
+        new_data["tutors"] = [tutor for tutor in new_data["tutors"] if tutor in course.get_staff()]
 
         students, groups, errored_students = [], [], []
 

@@ -76,7 +76,7 @@ class CourseEditTask(INGIniousAdminPage):
     @classmethod
     def contains_is_html(cls, data):
         """ Detect if the problem has at least one "xyzIsHTML" key """
-        for key, val in data.iteritems():
+        for key, val in data.items():
             if key.endswith("IsHTML"):
                 return True
             if isinstance(val, (OrderedDict, dict)) and cls.contains_is_html(val):
@@ -96,7 +96,7 @@ class CourseEditTask(INGIniousAdminPage):
             OrderedDict([('q0', OrderedDict([('a', 1), ('b', OrderedDict([('c', 2)]))])), ('q1', OrderedDict([('first', 1), ('second', 2)]))])
         """
         o_dictionary = OrderedDict()
-        for key, val in dictionary.iteritems():
+        for key, val in dictionary.items():
             if key.startswith(prefix):
                 o_dictionary[key[len(prefix):].strip()] = val
         dictionary = o_dictionary
@@ -107,7 +107,7 @@ class CourseEditTask(INGIniousAdminPage):
             return dictionary[""]
         else:
             return_dict = OrderedDict()
-            for key, val in dictionary.iteritems():
+            for key, val in dictionary.items():
                 ret = re.search(r"^\[([^\]]+)\](.*)$", key)
                 if ret is None:
                     continue
@@ -124,7 +124,7 @@ class CourseEditTask(INGIniousAdminPage):
                 problem_content[field] = True
 
         if "choices" in problem_content:
-            problem_content["choices"] = [val for _, val in sorted(problem_content["choices"].iteritems(), key=lambda x: int(x[0]))]
+            problem_content["choices"] = [val for _, val in sorted(iter(problem_content["choices"].items()), key=lambda x: int(x[0]))]
             for choice in problem_content["choices"]:
                 if "valid" in choice:
                     choice["valid"] = True
@@ -183,7 +183,7 @@ class CourseEditTask(INGIniousAdminPage):
             problems = self.dict_from_prefix("problem", data)
             limits = self.dict_from_prefix("limits", data)
 
-            data = {key: val for key, val in data.iteritems() if not key.startswith("problem") and not key.startswith("limits")}
+            data = {key: val for key, val in data.items() if not key.startswith("problem") and not key.startswith("limits")}
             del data["@action"]
 
             if data["@filetype"] not in self.task_factory.get_available_task_file_extensions():
@@ -196,7 +196,7 @@ class CourseEditTask(INGIniousAdminPage):
 
             # Order the problems (this line also deletes @order from the result)
             data["problems"] = OrderedDict([(key, self.parse_problem(val))
-                                            for key, val in sorted(problems.iteritems(), key=lambda x: int(x[1]['@order']))])
+                                            for key, val in sorted(iter(problems.items()), key=lambda x: int(x[1]['@order']))])
             data["limits"] = limits
             if "hard_time" in data["limits"] and data["limits"]["hard_time"] == "":
                 del data["limits"]["hard_time"]
@@ -213,11 +213,37 @@ class CourseEditTask(INGIniousAdminPage):
 
             # Submision storage
             if "store_all" in data:
-                stored_submissions = int(data["stored_submissions"])
-                if data["store_all"] == "false" and stored_submissions <= 0:
+                try:
+                    stored_submissions = data["stored_submissions"]
+                    data["stored_submissions"] = 0 if data["store_all"] == "true" else int(stored_submissions)
+                except:
+                    return json.dumps(
+                        {"status": "error", "message": "The number of stored submission must be positive!"})
+
+                if data["store_all"] == "false" and data["stored_submissions"] <= 0:
                     return json.dumps({"status": "error", "message": "The number of stored submission must be positive!"})
-                data["stored_submissions"] = 0 if data["store_all"] == "true" else stored_submissions
                 del data['store_all']
+
+            # Submission limits
+            if "submission_limit" in data:
+                if data["submission_limit"] == "none":
+                    result = {"amount": -1, "period": -1}
+                elif data["submission_limit"] == "hard":
+                    try:
+                        result = {"amount": int(data["submission_limit_hard"]), "period": -1}
+                    except:
+                        return json.dumps({"status": "error", "message": "Invalid submission limit!"})
+
+                else:
+                    try:
+                        result = {"amount": int(data["submission_limit_soft_0"]), "period": int(data["submission_limit_soft_1"])}
+                    except:
+                        return json.dumps({"status": "error", "message": "Invalid submission limit!"})
+
+                del data["submission_limit_hard"]
+                del data["submission_limit_soft_0"]
+                del data["submission_limit_soft_1"]
+                data["submission_limit"] = result
 
             # Accessible
             if data["accessible"] == "custom":

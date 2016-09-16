@@ -95,7 +95,7 @@ def update_database(database, gridfs, course_factory, user_manager):
             classrooms[group["course_id"]]["groups"].append({"size": group["size"], "students": group["users"]})
             classrooms[group["course_id"]]["tutors"] = classrooms[group["course_id"]]["tutors"].union(group["tutors"])
 
-        for i, classroom in classrooms.iteritems():
+        for i, classroom in classrooms.items():
             classroom["tutors"] = list(classroom["tutors"])
             database.classrooms.insert(classroom)
 
@@ -142,5 +142,53 @@ def update_database(database, gridfs, course_factory, user_manager):
                                                {"$set": {"submissionid": None}})
 
         db_version = 9
+
+    # Consistency bug : submissions must have a user task associated
+    if db_version < 10:
+        logger.info("Updating database to db_version 10")
+        triplets = list(database.submissions.aggregate([{"$unwind": "$username"}, {"$group": {"_id": {"username": "$username", "taskid": "$taskid", "courseid": "$courseid"}}}]))
+        for triplet in triplets:
+            data = triplet['_id']
+            user_task = database.user_tasks.find_one(data)
+            if not user_task:
+                submissions = list(database.submissions.find(data))
+                data['tried'] = 0
+                data['succeeded'] = False
+                data['grade'] = -1
+                data['submissionid'] = None
+                for submission in submissions:
+                    data['tried'] += 1
+                    if "result" in submission and submission["result"] == "success":
+                        data['succeeded'] = True
+                    if "grade" in submission and data['grade'] < submission['grade']:
+                        data['grade'] = submission['grade']
+                        data['submissionid'] = submission['_id']
+
+                database.user_tasks.insert(data)
+
+        db_version = 10
+
+    # Fix consistency bug in v9 and v10 : crashed submissions could also be set submission
+    if db_version < 11:
+        logger.info("Updating database to db_version 11")
+        user_tasks = list(database.user_tasks.find())
+
+        for user_task in user_tasks:
+            username = user_task['username']
+            taskid = user_task['taskid']
+            courseid = user_task['courseid']
+
+            if user_task["submissionid"] is None:
+                tasks = list(database.submissions.find(
+                    {"username": username, "courseid": courseid, "taskid": taskid},
+                    projection=["_id", "status", "result", "grade", "submitted_on"],
+                    sort=[('submitted_on', pymongo.DESCENDING)]))
+                if len(tasks) > 0:
+                    # No set submission and len(submissions) > 0 should not happen
+                    # As update 9 fixed this for successful submissions, all these have crashed, set the first one
+                    database.user_tasks.update_one({"username": username, "courseid": courseid, "taskid": taskid},
+                                                   {"$set": {"submissionid": tasks[0]["_id"]}})
+
+        db_version = 11
 
     database.db_version.update({}, {"$set": {"db_version": db_version}}, upsert=True)

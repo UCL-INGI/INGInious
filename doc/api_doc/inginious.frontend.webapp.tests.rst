@@ -1,6 +1,11 @@
 inginious.frontend.webapp.tests package
 =======================================
 
+.. automodule:: inginious.frontend.webapp.tests
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
 
@@ -37,10 +42,3 @@ inginious.frontend.webapp.tests.TestTaskSubmission module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: inginious.frontend.webapp.tests
-    :members:
-    :undoc-members:
-    :show-inheritance:

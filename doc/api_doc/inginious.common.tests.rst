@@ -1,6 +1,11 @@
 inginious.common.tests package
 ==============================
 
+.. automodule:: inginious.common.tests
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
 
@@ -45,10 +50,3 @@ inginious.common.tests.TestTask module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: inginious.common.tests
-    :members:
-    :undoc-members:
-    :show-inheritance:

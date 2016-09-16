@@ -1,6 +1,11 @@
 inginious.frontend.lti package
 ==============================
 
+.. automodule:: inginious.frontend.lti
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Subpackages
 -----------
 
@@ -16,6 +21,14 @@ inginious.frontend.lti.app module
 ---------------------------------
 
 .. automodule:: inginious.frontend.lti.app
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+inginious.frontend.lti.custom_session module
+--------------------------------------------
+
+.. automodule:: inginious.frontend.lti.custom_session
     :members:
     :undoc-members:
     :show-inheritance:
@@ -53,10 +66,3 @@ inginious.frontend.lti.user_manager module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: inginious.frontend.lti
-    :members:
-    :undoc-members:
-    :show-inheritance:

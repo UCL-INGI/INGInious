@@ -8,7 +8,6 @@ import logging
 import os
 import tempfile
 import tarfile
-import copy
 from datetime import datetime
 
 from bson.objectid import ObjectId
@@ -22,14 +21,13 @@ class BatchManager(object):
         Manages batch jobs. Store them in DB and communicates with the inginious.backend to start them.
     """
 
-    def __init__(self, job_manager, database, gridfs, submission_manager, user_manager, task_directory, batch_containers):
-        self._job_manager = job_manager
+    def __init__(self, client, database, gridfs, submission_manager, user_manager, task_directory):
+        self._client = client
         self._database = database
         self._gridfs = gridfs
         self._submission_manager = submission_manager
         self._user_manager = user_manager
         self._task_directory = task_directory
-        self._batch_container = batch_containers
         self._logger = logging.getLogger("inginious.batch")
 
     def _get_course_data(self, course):
@@ -72,49 +70,55 @@ class BatchManager(object):
                  }
                 )
         """
-        if container_name not in self._batch_container:
+        if container_name not in self._client.get_batch_containers_metadata():
             raise Exception("This batch container is not allowed to be started")
 
-        metadata = copy.deepcopy(self._job_manager.get_batch_container_metadata(container_name))
+        metadata = self._client.get_batch_containers_metadata()[container_name]
         if metadata != (None, None, None):
-            for key, val in metadata[2].iteritems():
+            for key, val in metadata["parameters"].items():
                 if "description" in val:
                     val["description"] = ParsableText(val["description"].replace('\\n', '\n').replace('\\t', '\t'), 'rst').parse()
-            metadata = (metadata[0], ParsableText(metadata[1].replace('\\n', '\n').replace('\\t', '\t'), 'rst').parse(), metadata[2])
+            metadata = (container_name, ParsableText(metadata["description"].replace('\\n', '\n').replace('\\t', '\t'), 'rst').parse(),
+                        metadata["parameters"])
         return metadata
 
     def get_all_batch_containers_metadata(self):
         """
             Returns the arguments needed for all batch containers.
-            :returns: a dict, containing as keys the container image names, and as value tuples in the form
-                ("container title",
-                 "container description in restructuredtext",
-                 {"key":
-                    {
-                     "type:" "file", #or "text",
-                     "path": "path/to/file/inside/input/dir", #not mandatory in file, by default "key"
-                     "name": "name of the field", #not mandatory in file, default "key"
-                     "description": "a short description of what this field is used for", #not mandatory, default ""
-                     "custom_key1": "custom_value1",
-                     ...
+            :returns:
+                a dict of dict in the form
+                {
+                    "container title": {
+                        "description": "container description in restructuredtext",
+                        "parameters": {
+                            "key":
+                            {
+                                "type:" "file", #or "text",
+                                "path": "path/to/file/inside/input/dir", #not mandatory in file, by default "key"
+                                "name": "name of the field", #not mandatory in file, default "key"
+                                "description": "a short description of what this field is used for", #not mandatory, default ""
+                                "custom_key1": "custom_value1",
+                                ...
+                            }
+                        }
                     }
-                 }
-                )
+                }
         """
-        return {container_name: self.get_batch_container_metadata(container_name) for container_name in self._batch_container}
+        return self._client.get_batch_containers_metadata()
 
     def add_batch_job(self, course, container_name, inputdata, launcher_name=None, send_mail=None):
         """
             Add a job in the queue and returns a batch job id.
-            inputdata is a dict containing all the keys of get_batch_container_metadata(container_name)[2] BUT the keys "course" and "submission" IF their
+            inputdata is a dict containing all the keys of get_batch_container_metadata(container_name)["parameters"] BUT the keys "course" and
+            "submission" IF their
             type is "file". (the content of the course and the submission will be automatically included by this function.)
             The values associated are file-like objects for "file" types and  strings for "text" types.
         """
 
-        if container_name not in self._batch_container:
+        if container_name not in self._client.get_batch_containers_metadata():
             raise Exception("This batch container is not allowed to be started")
 
-        container_args = self._job_manager.get_batch_container_metadata(container_name)[2]
+        container_args = self._client.get_batch_containers_metadata()[container_name]["parameters"]
         if container_args is None:
             raise Exception("This batch container is not available")
 
@@ -139,26 +143,28 @@ class BatchManager(object):
 
         launcher_name = launcher_name or "plugin"
 
-        self._job_manager.new_batch_job(container_name, inputdata, lambda r: self._batch_job_done_callback(batch_job_id, r, send_mail),
-                                        launcher_name="Frontend - {}".format(launcher_name))
+        self._client.new_batch_job(container_name, inputdata,
+                                   lambda retval, stdout, stderr, file:
+                                   self._batch_job_done_callback(batch_job_id, retval, stdout, stderr, file, send_mail),
+                                   launcher_name="Frontend - {}".format(launcher_name))
 
         return batch_job_id
 
-    def _batch_job_done_callback(self, batch_job_id, result, send_mail=None):
+    def _batch_job_done_callback(self, batch_job_id, retval, stdout, stderr, file, send_mail=None):
         """ Called when the batch job with id jobid has finished.
-            result is a dictionnary, containing:
-
-            - {"retval": 0, "stdout": "...", "stderr": "...", "file": "..."}
-                if everything went well.(where file is a tgz file containing the content of the / output folder from the container)
-            - {"retval": "...", "stdout": "...", "stderr": "..."}
-                if the container crashed (retval is an int != 0)
-            - {"retval": -1, "stderr": "the error message"}
-                if the container failed to start
+            :param retval: an integer, the return value of the command in the container
+            :param stdout: stdout of the container
+            :param stderr: stderr of the container
+            :param file: tgz as bytes. Can be None if retval < 0
         """
 
-        # If there is a tgz file to save, put it in gridfs
-        if "file" in result:
-            result["file"] = self._gridfs.put(result["file"].read())
+        result = {
+            "retval": retval,
+            "stdout": stdout,
+            "stderr": stderr,
+        }
+        if file is not None:
+            result["file"] = self._gridfs.put(file)
 
         # Save submission to database
         self._database.batch_jobs.update(

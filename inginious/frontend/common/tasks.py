@@ -33,11 +33,11 @@ class FrontendTask(inginious.common.tasks.Task):
         self._context = ParsableText(self._data.get('context', ""), "rst")
 
         # Authors
-        if isinstance(self._data.get('author'), basestring):  # verify if author is a string
+        if isinstance(self._data.get('author'), str):  # verify if author is a string
             self._author = [self._data['author']]
         elif isinstance(self._data.get('author'), list):  # verify if author is a list
             for author in self._data['author']:
-                if not isinstance(author, basestring):  # authors must be strings
+                if not isinstance(author, str):  # authors must be strings
                     raise Exception("This task has an invalid author")
             self._author = self._data['author']
         else:

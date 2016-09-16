@@ -30,7 +30,7 @@ class TestCustomLoad(object):
         """)
         loaded = yaml.load(open(os.path.join(self.dir_path, "input.yaml"), "r"))
         assert type(loaded) == OrderedDict
-        assert loaded.keys() == ["the", "order", "of", "the_", "keys", "is", "important"]
+        assert list(loaded.keys()) == ["the", "order", "of", "the_", "keys", "is", "important"]
 
     def test_load_string(self):
         loaded = yaml.load("""
@@ -43,7 +43,7 @@ class TestCustomLoad(object):
         important: d
         """)
         assert type(loaded) == OrderedDict
-        assert loaded.keys() == ["the", "order", "of", "the_", "keys", "is", "important"]
+        assert list(loaded.keys()) == ["the", "order", "of", "the_", "keys", "is", "important"]
 
 
 class TestCustomWrite(object):
@@ -59,7 +59,7 @@ class TestCustomWrite(object):
 
         loaded = yaml.load(open(os.path.join(self.dir_path, "output.yaml"), "r"))
         assert type(loaded) == OrderedDict
-        assert loaded.keys() == ["the", "order", "is", "important"]
+        assert list(loaded.keys()) == ["the", "order", "is", "important"]
 
     def test_write_string(self):
         d = OrderedDict([("the", "a"), ("order", "z"), ("is", "b"), ("important", "y")])
@@ -67,7 +67,7 @@ class TestCustomWrite(object):
 
         loaded = yaml.load(string)
         assert type(loaded) == OrderedDict
-        assert loaded.keys() == ["the", "order", "is", "important"]
+        assert list(loaded.keys()) == ["the", "order", "is", "important"]
 
     def test_write_long_str(self):
         d = {"key": """This is a very long string

@@ -13,7 +13,7 @@ import os.path
 from copy import deepcopy
 
 try:
-    import cPickle as pickle
+    import pickle as pickle
 except ImportError:
     import pickle
 try:
@@ -119,7 +119,7 @@ class CustomSession(object):
             rand = os.urandom(16)
             now = time.time()
             secret_key = self._config.secret_key
-            session_id = sha1("%s%s%s%s" % (rand, now, utils.safestr(web.ctx.ip), secret_key))
+            session_id = sha1(("%s%s%s%s" % (rand, now, utils.safestr(web.ctx.ip), secret_key)).encode("utf-8"))
             session_id = session_id.hexdigest()
             if session_id not in self.store:
                 break
@@ -199,7 +199,7 @@ class DiskStore(Store):
 
     def _get_path(self, key):
         if os.path.sep in key:
-            raise ValueError, "Bad key: %s" % repr(key)
+            raise ValueError("Bad key: %s" % repr(key))
         return os.path.join(self.root, key)
 
     def __contains__(self, key):
@@ -212,7 +212,7 @@ class DiskStore(Store):
             pickled = open(path).read()
             return self.decode(pickled)
         else:
-            raise KeyError, key
+            raise KeyError(key)
 
     def __setitem__(self, key, value):
         path = self._get_path(key)
@@ -315,7 +315,7 @@ class ShelfStore:
 
     def cleanup(self, timeout):
         now = time.time()
-        for k in self.shelf.keys():
+        for k in list(self.shelf.keys()):
             atime, v = self.shelf[k]
             if now - atime > timeout:
                 del self[k]

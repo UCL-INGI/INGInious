@@ -51,12 +51,12 @@ class ScoreBoard(INGIniousPage):
             raise web.notfound()
 
         # Convert scoreboard_content
-        if isinstance(scoreboard_content, basestring):
+        if isinstance(scoreboard_content, str):
             scoreboard_content = OrderedDict((scoreboard_content, 1))
         if isinstance(scoreboard_content, list):
             scoreboard_content = OrderedDict([(entry, 1) for entry in scoreboard_content])
         if not isinstance(scoreboard_content, OrderedDict):
-            scoreboard_content = OrderedDict(scoreboard_content.iteritems())
+            scoreboard_content = OrderedDict(iter(scoreboard_content.items()))
 
         # Get task names
         task_names = {}
@@ -69,7 +69,7 @@ class ScoreBoard(INGIniousPage):
         # Get all submissions
         results = self.database.submissions.find({
             "courseid": courseid,
-            "taskid": {"$in": scoreboard_content.keys()},
+            "taskid": {"$in": list(scoreboard_content.keys())},
             "custom.score": {"$exists": True},
             "result": "success"
         }, ["taskid", "username", "custom.score"])
@@ -105,15 +105,15 @@ class ScoreBoard(INGIniousPage):
 
         # Get user names
         users_realname = {}
-        for username, userinfo in self.user_manager.get_users_info(users).iteritems():
+        for username, userinfo in self.user_manager.get_users_info(users).items():
             users_realname[username] = userinfo[0] if userinfo else username
 
         # Compute overall result per user, and sort them
         overall_result_per_user = {}
-        for key, val in result_per_user.iteritems():
+        for key, val in result_per_user.items():
             total = 0
             solved = 0
-            for taskid, coef in scoreboard_content.iteritems():
+            for taskid, coef in scoreboard_content.items():
                 if taskid in val:
                     total += val[taskid]*coef
                     solved += 1
@@ -129,7 +129,7 @@ class ScoreBoard(INGIniousPage):
             header = ["", "Student(s)", "Score"]
             emphasized_columns = [2]
         else:
-            header = ["", "Student(s)", "Solved", "Total score"] + [task_names[taskid] for taskid in scoreboard_content.keys()]
+            header = ["", "Student(s)", "Solved", "Total score"] + [task_names[taskid] for taskid in list(scoreboard_content.keys())]
             emphasized_columns = [2, 3]
 
         # Lines
@@ -206,8 +206,8 @@ def init(plugin_manager, _, _2, _3):
                   name: "Another scoreboard"
                   reverse: True #reverse the score (less is better)
     """
-    page_pattern_course = r'/scoreboard/(.+)'
-    page_pattern_scoreboard = r'/scoreboard/(.+)/(.+)'
+    page_pattern_course = r'/scoreboard/([a-z0-9A-Z\-_]+)'
+    page_pattern_scoreboard = r'/scoreboard/([a-z0-9A-Z\-_]+)/([0-9]+)'
     plugin_manager.add_page(page_pattern_course, ScoreBoardCourse)
     plugin_manager.add_page(page_pattern_scoreboard, ScoreBoard)
     plugin_manager.add_hook('course_menu', course_menu)

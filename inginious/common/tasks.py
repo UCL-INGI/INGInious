@@ -64,7 +64,7 @@ class Task(object):
         return True
 
     def get_environment(self):
-        """ Returns the environment in which the job manager have to launch this task"""
+        """ Returns the environment in which the agent have to launch this task"""
         return self._environment
 
     def get_id(self):
@@ -105,7 +105,7 @@ class Task(object):
             1st: True the input is **currently** valid. (may become invalid after running the code), False else
             2nd: True if the input needs to be run in the VM, False else
             3rd: Main message, as a list (that can be join with \n or <br/> for example)
-            4th: Problem specific message, as a dictionnary
+            4th: Problem specific message, as a dictionnary (tuple of result/text)
             5th: Number of errors in the multiple choices
         """
         valid = True
@@ -122,7 +122,7 @@ class Task(object):
             if problem_main_message is not None:
                 main_message.append(problem_main_message)
             if problem_s_messages is not None:
-                problem_messages[problem.get_id()] = problem_s_messages
+                problem_messages[problem.get_id()] = (("success" if problem_is_valid else "failed"), problem_s_messages)
             multiple_choice_error_count += problem_mc_error_count
         return valid, need_launch, main_message, problem_messages, multiple_choice_error_count
 

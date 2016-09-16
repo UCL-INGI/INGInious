@@ -44,7 +44,7 @@ class CourseStudentTaskSubmission(INGIniousAdminPage):
                 }
                 if isinstance(problem, DisplayableCodeFileProblem):
                     try:
-                        data["content"] = unicode(base64.b64decode(submission["input"][problem.get_id()]["value"]))
+                        data["content"] = str(base64.b64decode(submission["input"][problem.get_id()]["value"]))
                     except:
                         data["content"] = None
                     data["base64"] = submission["input"][problem.get_id()]["value"]
@@ -62,10 +62,10 @@ class CourseStudentTaskSubmission(INGIniousAdminPage):
                             t = "valid" if choice.get("valid", False) else "invalid"
                             m = choice["text"]
                         data["content"] += "\t- %s (%s): \n\t%s\n" % (c, t, m)
-                    data["base64"] = str(base64.b64encode(unicode(submission["input"][problem.get_id()]).encode('utf-8')))
-                elif isinstance(submission["input"][problem.get_id()], basestring):
+                    data["base64"] = str(base64.b64encode(str(submission["input"][problem.get_id()]).encode('utf-8')))
+                elif isinstance(submission["input"][problem.get_id()], str):
                     data["content"] = submission["input"][problem.get_id()]
-                    data["base64"] = str(base64.b64encode(unicode(submission["input"][problem.get_id()]).encode('utf-8')))
+                    data["base64"] = str(base64.b64encode(str(submission["input"][problem.get_id()]).encode('utf-8')))
                     try:
                         data["language"] = problem.get_original_content()["language"]
                     except:
@@ -101,13 +101,13 @@ class CourseStudentTaskSubmission(INGIniousAdminPage):
                 }
                 if isinstance(submission["input"][pid], dict):  # file
                     try:
-                        data["content"] = unicode(base64.b64decode(submission["input"][pid]["value"]))
+                        data["content"] = str(base64.b64decode(submission["input"][pid]["value"]))
                     except:
                         data["content"] = None
                     data["base64"] = submission["input"][pid]["value"]
-                elif isinstance(submission["input"][pid], basestring):
+                elif isinstance(submission["input"][pid], str):
                     data["content"] = submission["input"][pid]
-                    data["base64"] = str(base64.b64encode(unicode(submission["input"][pid]).encode('utf-8')))
+                    data["base64"] = str(base64.b64encode(str(submission["input"][pid]).encode('utf-8')))
                 to_display.append(data)
 
         return self.template_helper.get_renderer().course_admin.submission(course, username, task, submissionid, submission, to_display)

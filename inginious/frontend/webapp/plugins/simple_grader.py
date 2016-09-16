@@ -9,12 +9,12 @@ import re
 
 import web
 
-from inginious.backend.helpers.job_manager_buffer import JobManagerBuffer
-from inginious.backend.helpers.job_manager_sync import JobManagerSync
+from inginious.client.client_buffer import ClientBuffer
+from inginious.client.client_sync import ClientSync
 from inginious.frontend.webapp.pages.utils import INGIniousPage
 
 
-def init(plugin_manager, course_factory, job_manager, config):
+def init(plugin_manager, course_factory, client, config):
     """
         Init the external grader plugin. This simple grader allows only anonymous requests, and submissions are not stored in database.
 
@@ -116,8 +116,8 @@ def init(plugin_manager, course_factory, job_manager, config):
     page_pattern = config.get('page_pattern', '/external')
     return_fields = re.compile(config.get('return_fields', '^(result|text|problems)$'))
 
-    job_manager_buffer = JobManagerBuffer(job_manager)
-    job_manager_sync = JobManagerSync(job_manager)
+    client_buffer = ClientBuffer(client)
+    client_sync = ClientSync(client)
 
     class ExternalGrader(INGIniousPage):
 
@@ -143,7 +143,7 @@ def init(plugin_manager, course_factory, job_manager, config):
 
         def keep_only_config_return_values(self, job_return):
             """ Keep only some useful return values """
-            return {key: value for key, value in job_return.iteritems() if return_fields.match(key)}
+            return {key: value for key, value in job_return.items() if return_fields.match(key)}
 
         def POST(self):
             """ POST request """
@@ -169,22 +169,22 @@ def init(plugin_manager, course_factory, job_manager, config):
                 if post_input.get("async") is None:
                     # New sync job
                     try:
-                        job_return = job_manager_sync.new_job(task, task_input, "Plugin - Simple Grader")
+                        job_return = client_sync.new_job(task, task_input, "Plugin - Simple Grader")
                     except:
                         return json.dumps({"status": "error", "status_message": "An internal error occured"})
 
-                    return json.dumps(dict({"status": "done"}.items() + self.keep_only_config_return_values(job_return).items()))
+                    return json.dumps(dict(list({"status": "done"}.items()) + list(self.keep_only_config_return_values(job_return).items())))
                 else:
                     # New async job
-                    jobid = job_manager_buffer.new_job(task, task_input, "Plugin - Simple Grader")
+                    jobid = client_buffer.new_job(task, task_input, "Plugin - Simple Grader")
                     return json.dumps({"status": "done", "jobid": str(jobid)})
             elif "jobid" in post_input:
                 # Get status of async job
-                if job_manager_buffer.is_waiting(post_input["jobid"]):
+                if client_buffer.is_waiting(post_input["jobid"]):
                     return json.dumps({"status": "waiting"})
-                elif job_manager_buffer.is_done(post_input["jobid"]):
-                    job_return = job_manager_buffer.get_result(post_input["jobid"])
-                    return json.dumps(dict({"status": "done"}.items() + self.keep_only_config_return_values(job_return).items()))
+                elif client_buffer.is_done(post_input["jobid"]):
+                    job_return = client_buffer.get_result(post_input["jobid"])
+                    return json.dumps(dict(list({"status": "done"}.items()) + list(self.keep_only_config_return_values(job_return).items())))
                 else:
                     return json.dumps({"status": "error", "status_message": "There is no job with jobid {}".format(post_input["jobid"])})
             else:

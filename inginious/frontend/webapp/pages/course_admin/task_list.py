@@ -71,7 +71,7 @@ class CourseTaskListPage(INGIniousAdminPage):
                 output[task] = course.get_task(task)
             except Exception as inst:
                 errors.append({"taskid": task, "error": str(inst)})
-        tasks = OrderedDict(sorted(output.items(), key=lambda t: t[1].get_order()))
+        tasks = OrderedDict(sorted(list(output.items()), key=lambda t: t[1].get_order()))
 
         # Now load additionnal informations
         result = OrderedDict()

@@ -73,7 +73,7 @@ class WebAppCourse(FrontendCourse):
         return self._registration
 
     def get_tasks(self):
-        return OrderedDict(sorted(Course.get_tasks(self).items(), key=lambda t: t[1].get_order()))
+        return OrderedDict(sorted(list(Course.get_tasks(self).items()), key=lambda t: t[1].get_order()))
 
     def get_access_control_method(self):
         """ Returns either None, "username", "realname", or "email", depending on the method used to verify that users can register to the course """

@@ -64,4 +64,4 @@ class CourseAggregationInfoPage(INGIniousAdminPage):
         if "csv" in web.input():
             return make_csv(result)
 
-        return self.template_helper.get_renderer().course_admin.aggregation_info(course, aggregation, result.values())
+        return self.template_helper.get_renderer().course_admin.aggregation_info(course, aggregation, list(result.values()))

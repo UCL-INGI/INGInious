@@ -16,8 +16,8 @@ class TestHookManager(object):
         assert "<code" in rendered and "</code>" in rendered
 
     def test_unicode(self):
-        rendered = unicode(ParsableText.rst(u"""``😁``"""))
-        assert "<code" in rendered and "</code>" in rendered and u"😁" in rendered
+        rendered = str(ParsableText.rst("""``😁``"""))
+        assert "<code" in rendered and "</code>" in rendered and "😁" in rendered
 
     def test_html_tidy(self):
         rendered = ParsableText.html('<non existing tag></...>')
@@ -37,14 +37,14 @@ class TestHookManager(object):
 
         pt.parse()
         str(pt)
-        unicode(pt)
+        str(pt)
 
         ParsableText.rst = orig_rst
 
         assert fake_parser.count == 1
 
     def test_wrong_rst_injection(self):
-        rendered = unicode(ParsableText.rst(
+        rendered = str(ParsableText.rst(
             """
             makefail_
             <script type="text/javascript">alert('Eh, XSS injection!');</script>

@@ -1,6 +1,11 @@
 inginious.frontend.webapp.pages package
 =======================================
 
+.. automodule:: inginious.frontend.webapp.pages
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Subpackages
 -----------
 
@@ -12,10 +17,10 @@ Subpackages
 Submodules
 ----------
 
-inginious.frontend.webapp.pages.classroom module
-------------------------------------------------
+inginious.frontend.webapp.pages.aggregation module
+--------------------------------------------------
 
-.. automodule:: inginious.frontend.webapp.pages.classroom
+.. automodule:: inginious.frontend.webapp.pages.aggregation
     :members:
     :undoc-members:
     :show-inheritance:
@@ -61,10 +66,3 @@ inginious.frontend.webapp.pages.utils module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: inginious.frontend.webapp.pages
-    :members:
-    :undoc-members:
-    :show-inheritance:

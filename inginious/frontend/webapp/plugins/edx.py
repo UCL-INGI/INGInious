@@ -8,11 +8,11 @@ import json
 
 import web
 
-from inginious.backend.helpers.job_manager_sync import JobManagerSync
+from inginious.client.client_sync import ClientSync
 from inginious.frontend.webapp.pages.utils import INGIniousPage
 
 
-def init(plugin_manager, course_factory, job_manager, config):
+def init(plugin_manager, course_factory, client, config):
     """
         Init the edx plugin.
         Available configuration:
@@ -29,7 +29,7 @@ def init(plugin_manager, course_factory, job_manager, config):
     course = course_factory.get_course(courseid)
     page_pattern = config.get('page_pattern', '/edx')
 
-    job_manager_sync = JobManagerSync(job_manager)
+    client_sync = ClientSync(client)
 
     class EDX(INGIniousPage):
 
@@ -82,7 +82,7 @@ def init(plugin_manager, course_factory, job_manager, config):
                 return json.dumps({"correct": None, "score": 0, "msg": "<p>Internal grader error: input not consistent with task</p>"})
 
             try:
-                job_return = job_manager_sync.new_job(task, edx_input, "Plugin - EDX")
+                job_return = client_sync.new_job(task, edx_input, "Plugin - EDX")
             except:
                 return json.dumps({"correct": None, "score": 0, "msg": "<p>Internal grader error: error while grading submission</p>"})
 

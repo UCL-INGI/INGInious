@@ -6,8 +6,6 @@
 """ Some common functions for logging """
 import logging
 
-
-
 def init_logging(log_level=logging.DEBUG):
     """
     Init logging
@@ -33,6 +31,8 @@ class CustomLogMiddleware:
     """ WSGI middleware for logging the status in webpy"""
 
     def __init__(self, app, logger):
+        import web
+        self.debug_web = web.debug
         self.app = app
         self.logger = logger
         self.format = '%s - - [%s] "%s %s %s" - %s'

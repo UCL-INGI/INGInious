@@ -79,7 +79,7 @@ class ContestScoreboard(INGIniousPage):
         blackout = end - timedelta(hours=contest_data['blackout'])
 
         users = self.user_manager.get_course_registered_users(course)
-        tasks = course.get_tasks().keys()
+        tasks = list(course.get_tasks().keys())
 
         db_results = self.database.submissions.find({
             "username": {"$in": users},
@@ -130,14 +130,14 @@ class ContestScoreboard(INGIniousPage):
         # Compute current score
         for user in results:
             score = [0, 0]
-            for data in results[user]["tasks"].values():
+            for data in list(results[user]["tasks"].values()):
                 if "score" in data:
                     score[0] += 1
                     score[1] += data["score"]
             results[user]["score"] = tuple(score)
 
         # Sort everybody
-        results = OrderedDict(sorted(results.items(), key=lambda t: (-t[1]["score"][0], t[1]["score"][1])))
+        results = OrderedDict(sorted(list(results.items()), key=lambda t: (-t[1]["score"][0], t[1]["score"][1])))
 
         # Compute ranking
         old = None
@@ -217,7 +217,7 @@ class ContestAdmin(INGIniousAdminPage):
                 admin(course, contest_data, errors, False)
 
 
-def init(plugin_manager, course_factory, job_manager, _config):
+def init(plugin_manager, course_factory, client, _config):
     """
         Init the contest plugin.
         Available configuration:

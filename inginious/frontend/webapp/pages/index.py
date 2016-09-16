@@ -19,7 +19,7 @@ class IndexPage(INGIniousPage):
         if self.user_manager.session_logged_in():
             user_input = web.input()
             if "logoff" in user_input:
-                self.user_manager.disconnect_user()
+                self.user_manager.disconnect_user(web.ctx['ip'])
                 return self.call_index(False)
             else:
                 return self.call_main()
@@ -30,7 +30,7 @@ class IndexPage(INGIniousPage):
         """ POST request: login """
         user_input = web.input()
         if "@authid" in user_input:  # connect
-            if self.user_manager.auth_user(int(user_input["@authid"]), user_input):
+            if self.user_manager.auth_user(int(user_input["@authid"]), user_input, web.ctx['ip']):
                 return self.call_main()
             else:
                 return self.call_index(True)
@@ -80,14 +80,14 @@ class IndexPage(INGIniousPage):
 
         all_courses = self.course_factory.get_all_courses()
 
-        open_courses = {courseid: course for courseid, course in all_courses.iteritems()
+        open_courses = {courseid: course for courseid, course in all_courses.items()
                         if self.user_manager.course_is_open_to_user(course, username)}
-        open_courses = OrderedDict(sorted(open_courses.iteritems(), key=lambda x: x[1].get_name()))
+        open_courses = OrderedDict(sorted(iter(open_courses.items()), key=lambda x: x[1].get_name()))
 
-        registerable_courses = {courseid: course for courseid, course in all_courses.iteritems() if
+        registerable_courses = {courseid: course for courseid, course in all_courses.items() if
                                 not self.user_manager.course_is_open_to_user(course, username) and
                                 course.is_registration_possible(username, realname, email)}
 
-        registerable_courses = OrderedDict(sorted(registerable_courses.iteritems(), key=lambda x: x[1].get_name()))
+        registerable_courses = OrderedDict(sorted(iter(registerable_courses.items()), key=lambda x: x[1].get_name()))
 
         return self.template_helper.get_renderer().main(open_courses, registerable_courses, except_free_last_submissions, registration_status)

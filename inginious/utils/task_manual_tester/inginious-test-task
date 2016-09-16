@@ -31,7 +31,7 @@ def check_pid(pid):
 
 def update_input_json(test_dir, problem_ids):
     data = {}
-    for pid, is_file in problem_ids.iteritems():
+    for pid, is_file in problem_ids.items():
         content = open(os.path.join(test_dir, 'input', *pid.split('/'))).read()
         if is_file:
             data[pid] = {'filename': 'filename.something', 'value': base64.b64encode(content)}
@@ -132,7 +132,7 @@ if __name__ == "__main__":
     problem_ids = {}
     try:
         data = yaml.load(open(os.path.join(args.task, 'task.yaml')))["problems"]
-        for key, value in data.iteritems():
+        for key, value in data.items():
             if value["type"] == "code" and "boxes" in value:
                 for box in value["boxes"]:
                     if value["boxes"][box]["type"] not in ["text", "file"]:
@@ -144,7 +144,7 @@ if __name__ == "__main__":
             else:
                 problem_ids[key] = False
     except:
-        print "Cannot read task.yaml!"
+        print("Cannot read task.yaml!")
         exit(1)
 
     for pid in problem_ids:
@@ -156,16 +156,16 @@ if __name__ == "__main__":
         else:
             open(os.path.join(test_dir, "input", todo[0]), 'w')
 
-    print "----------------------------------------------------------"
-    print ""
-    print "Put your input for the task in the folder {}.".format(os.path.join(test_dir, "input"))
-    print "They will be available via the commands getinput and parsetemplate inside the container."
-    print "The output of the container will be available in the folder {}.".format(os.path.join(test_dir, "output"))
-    print "The archive made via the `archive` command inside the container are available in the folder {}.".format(os.path.join(test_dir, "archive"))
-    print ""
-    print "I will now start the container."
-    print ""
-    print "----------------------------------------------------------"
+    print("----------------------------------------------------------")
+    print("")
+    print("Put your input for the task in the folder {}.".format(os.path.join(test_dir, "input")))
+    print("They will be available via the commands getinput and parsetemplate inside the container.")
+    print("The output of the container will be available in the folder {}.".format(os.path.join(test_dir, "output")))
+    print("The archive made via the `archive` command inside the container are available in the folder {}.".format(os.path.join(test_dir, "archive")))
+    print("")
+    print("I will now start the container.")
+    print("")
+    print("----------------------------------------------------------")
 
     update_input_json(test_dir, problem_ids)
     update_output_yaml(test_dir)

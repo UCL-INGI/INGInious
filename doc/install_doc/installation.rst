@@ -14,44 +14,37 @@ Dependencies (not including Pipy packages)
 
 INGInious needs
 
-- Python_ 2.7+ (not compatible with Python 3 due to web.py)
+- Python_ 3.5+  (not compatible with Python 2.X or Python 3.4)
 - Pip
-- Docker_ 1.7+  (if you use the "local" or "remote" backend)
+- Docker_ 1.12+
 - MongoDB_
 - Libtidy
+- LibZMQ
 
 .. _Docker: https://www.docker.com
-.. _Docker_Toolbox: https://www.docker.com/products/docker-toolbox
 .. _Python: https://www.python.org/
 .. _MongoDB: http://www.mongodb.org/
 
 Installation of the dependencies
 --------------------------------
 
-Warning: Web.py
-```````````````
-
-INGInious uses a custom version of ``web.py``, called ``web.py-INGI``, that adds some features to ``web.py`` and is retrocompatible.
-If you already have ``web.py`` on your machine, run:
-
-::
-
-    $ pip uninstall web.py
-    $ pip install web.py-INGI
-
 Centos 7.0+, Fedora 22+
 ```````````````````````
 
+The first thing to do is to install Docker. All the informations are available here: `Fedora <https://docs.docker
+.com/engine/installation/linux/fedora/>`, `CentOS <https://docs.docker.com/engine/installation/linux/centos/>`.
+
+You then have to install some dependices of INGInious:
 ::
 
-    $ sudo yum install -y epel-release #CentOS only
-    $ sudo yum install -y git mongodb mongodb-server docker python-pip gcc python-devel libtidy
+    $ sudo yum install -y epel-release https://centos7.iuscommunity.org/ius-release.rpm #CentOS only
+    $ sudo yum install -y git mongodb mongodb-server gcc libtidy python35u python35u-pip python35u-devel zeromq-devel
 
 .. note::
 
     You may also add ``openldap-devel`` if you want to use the LDAP auth plugin
 
-You can then start the services ``mongod`` and ``docker``:
+You can now start the services ``mongod`` and ``docker``:
 
 ::
 
@@ -67,6 +60,9 @@ To start them on system startup, use these commands:
 
 Ubuntu 14.04+
 `````````````
+
+.. DANGER::
+    The tutorial for Ubuntu is not up-to-date. It does not reflect the recent change to Python 3. Help wanted!
 
 Please note that while CentOS, OS X and Windows are used to develop/test/use INGInious everyday, this is not the case for Ubuntu; less support will
 be given for this OS.
@@ -104,16 +100,17 @@ We use brew_ to install some packages. Packages are certainly available too via 
 ::
 
     $ brew install mongodb
-    $ brew install python
+    $ brew install python3
 
 Follow the instruction of brew to enable mongodb.
 
-Then you have to install Docker_Toolbox_. Go on their website, download the pkg and run it.
-When you start INGInious, make sure to do it into a properly configured environment.
-You can do that using the "Docker quickstart terminal" app.
+The next step is to install `Docker for Mac <https://docs.docker.com/docker-for-mac/>`.
 
 Windows 7+
 ``````````
+
+.. DANGER::
+    The tutorial for Windows is not up-to-date. It does not reflect the recent change to Python 3. Help wanted!
 
 Download and install Python_, Docker_Toolbox_ and MongoDB_.
 

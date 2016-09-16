@@ -1,6 +1,11 @@
 inginious.frontend.webapp.plugins.contests package
 ==================================================
 
+.. automodule:: inginious.frontend.webapp.plugins.contests
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
 
@@ -13,10 +18,3 @@ inginious.frontend.webapp.plugins.contests.contests module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: inginious.frontend.webapp.plugins.contests
-    :members:
-    :undoc-members:
-    :show-inheritance:

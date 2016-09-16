@@ -7,9 +7,8 @@
 from abc import ABCMeta, abstractmethod
 
 
-class AbstractTaskFileReader(object):
+class AbstractTaskFileReader(object, metaclass=ABCMeta):
     """ Manages a type of task file """
-    __metaclass__ = ABCMeta
 
     @abstractmethod
     def load(self, file_content):

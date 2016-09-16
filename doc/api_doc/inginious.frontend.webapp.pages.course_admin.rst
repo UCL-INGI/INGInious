@@ -1,8 +1,45 @@
 inginious.frontend.webapp.pages.course_admin package
 ====================================================
 
+.. automodule:: inginious.frontend.webapp.pages.course_admin
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
+
+inginious.frontend.webapp.pages.course_admin.aggregation_edit module
+--------------------------------------------------------------------
+
+.. automodule:: inginious.frontend.webapp.pages.course_admin.aggregation_edit
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+inginious.frontend.webapp.pages.course_admin.aggregation_info module
+--------------------------------------------------------------------
+
+.. automodule:: inginious.frontend.webapp.pages.course_admin.aggregation_info
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+inginious.frontend.webapp.pages.course_admin.aggregation_list module
+--------------------------------------------------------------------
+
+.. automodule:: inginious.frontend.webapp.pages.course_admin.aggregation_list
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+inginious.frontend.webapp.pages.course_admin.aggregation_task module
+--------------------------------------------------------------------
+
+.. automodule:: inginious.frontend.webapp.pages.course_admin.aggregation_task
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 inginious.frontend.webapp.pages.course_admin.batch module
 ---------------------------------------------------------
@@ -20,26 +57,10 @@ inginious.frontend.webapp.pages.course_admin.classroom_edit module
     :undoc-members:
     :show-inheritance:
 
-inginious.frontend.webapp.pages.course_admin.classroom_info module
-------------------------------------------------------------------
+inginious.frontend.webapp.pages.course_admin.danger_zone module
+---------------------------------------------------------------
 
-.. automodule:: inginious.frontend.webapp.pages.course_admin.classroom_info
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-inginious.frontend.webapp.pages.course_admin.classroom_list module
-------------------------------------------------------------------
-
-.. automodule:: inginious.frontend.webapp.pages.course_admin.classroom_list
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-inginious.frontend.webapp.pages.course_admin.classroom_task module
-------------------------------------------------------------------
-
-.. automodule:: inginious.frontend.webapp.pages.course_admin.classroom_task
+.. automodule:: inginious.frontend.webapp.pages.course_admin.danger_zone
     :members:
     :undoc-members:
     :show-inheritance:
@@ -133,10 +154,3 @@ inginious.frontend.webapp.pages.course_admin.utils module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: inginious.frontend.webapp.pages.course_admin
-    :members:
-    :undoc-members:
-    :show-inheritance:

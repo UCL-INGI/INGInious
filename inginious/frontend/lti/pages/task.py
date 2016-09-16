@@ -6,8 +6,9 @@
 """ Main page for the LTI provider. Displays a task and allow to answer to it. """
 import base64
 import json
+import logging
 import mimetypes
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 import web
 
@@ -16,6 +17,9 @@ from inginious.frontend.lti.pages.utils import LTIAuthenticatedPage
 
 
 class LTITask(LTIAuthenticatedPage):
+
+    _logger = logging.getLogger("inginious.lti.tasks")
+
     def LTI_GET_NOT_CONNECTED(self):
         return self.LTI_POST_NOT_CONNECTED()
 
@@ -44,7 +48,7 @@ class LTITask(LTIAuthenticatedPage):
             if isinstance(sinput[userinput["questionid"]], dict):
                 # File uploaded previously
                 mimetypes.init()
-                mime_type = mimetypes.guess_type(urllib.pathname2url(sinput[userinput["questionid"]]['filename']))
+                mime_type = mimetypes.guess_type(urllib.request.pathname2url(sinput[userinput["questionid"]]['filename']))
                 web.header('Content-Type', mime_type[0])
                 return base64.b64decode(sinput[userinput["questionid"]]['value'])
             else:
@@ -66,6 +70,8 @@ class LTITask(LTIAuthenticatedPage):
             debug = "Administrator" in self.user_manager.session_roles()
 
             # Start the submission
+            self._logger.info("New submission from %s - %s - %s/%s - %s", self.user_manager.session_username(),
+                              self.user_manager.session_email(), self.task.get_course_id(), self.task.get_id(), web.ctx['ip'])
             submissionid, oldsubids = self.submission_manager.add_job(self.task, userinput, debug)
 
             web.header('Content-Type', 'application/json')

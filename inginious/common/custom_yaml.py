@@ -56,7 +56,7 @@ def dump(data, stream=None, **kwds):
     def _dict_representer(dumper, data):
         return dumper.represent_mapping(
             original_yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
-            data.items())
+            list(data.items()))
 
     # Display long strings correctly
     def _long_str_representer(dumper, data):
@@ -66,16 +66,16 @@ def dump(data, stream=None, **kwds):
             data = data.replace("\t", "    ")
             # empty spaces at end of line are always useless in INGInious, and forbidden in YAML
             data = "\n".join([p.rstrip() for p in data.split("\n")])
-            return dumper.represent_scalar(u'tag:yaml.org,2002:str', data, style='|')
+            return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='|')
         else:
-            return dumper.represent_scalar(u'tag:yaml.org,2002:str', data)
+            return dumper.represent_scalar('tag:yaml.org,2002:str', data)
 
     # Default representation for some odd objects
     def _default_representer(dumper, data):
         return _long_str_representer(dumper, str(data))
 
     OrderedDumper.add_representer(str, _long_str_representer)
-    OrderedDumper.add_representer(unicode, _long_str_representer)
+    OrderedDumper.add_representer(str, _long_str_representer)
     OrderedDumper.add_representer(OrderedDict, _dict_representer)
     OrderedDumper.add_representer(None, _default_representer)
 

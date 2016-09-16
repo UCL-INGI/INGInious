@@ -29,7 +29,7 @@ class CourseTaskInfoPage(INGIniousAdminPage):
     def page(self, course, task):
         """ Get all data and display the page """
         user_list = self.user_manager.get_course_registered_users(course, False)
-        users = OrderedDict(sorted(self.user_manager.get_users_info(user_list).items(),
+        users = OrderedDict(sorted(list(self.user_manager.get_users_info(user_list).items()),
                                    key=lambda k: k[1][0] if k[1] is not None else ""))
 
         individual_results = list(self.database.user_tasks.find({"courseid": course.get_id(), "taskid": task.get_id(),
@@ -39,7 +39,7 @@ class CourseTaskInfoPage(INGIniousAdminPage):
                                                    "email": user[1] if user is not None else "",
                                                    "url": self.individual_submission_url_generator(course, task, username),
                                                    "tried": 0, "grade": 0, "status": "notviewed"})
-                                       for username, user in users.iteritems()])
+                                       for username, user in users.items()])
 
         for user in individual_results:
             individual_data[user["username"]]["tried"] = user["tried"]
@@ -97,8 +97,8 @@ class CourseTaskInfoPage(INGIniousAdminPage):
                 other_aggregations.append(aggregation)
 
         if "csv" in web.input() and web.input()["csv"] == "students":
-            return make_csv(individual_data.values())
+            return make_csv(list(individual_data.values()))
         elif "csv" in web.input() and web.input()["csv"] == "aggregations":
-            return make_csv(aggregation_data.values())
+            return make_csv(list(aggregation_data.values()))
 
         return self.template_helper.get_renderer().course_admin.task_info(course, task, individual_data.values(), [my_aggregations, other_aggregations])

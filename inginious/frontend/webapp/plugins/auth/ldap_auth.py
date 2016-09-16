@@ -4,6 +4,7 @@
 # more information about the licensing of this file.
 
 """ LDAP plugin """
+from collections import OrderedDict
 
 import simpleldap
 
@@ -39,7 +40,7 @@ class LdapAuthMethod(AuthMethod):
     def auth(self, login_data):
         try:
             # Get configuration
-            login = login_data["login"]
+            login = login_data["login"].strip().lower()
             password = login_data["password"]
 
             # do not send empty password to the LDAP
@@ -52,9 +53,9 @@ class LdapAuthMethod(AuthMethod):
             request = self._request.format(login)
             user_data = conn.get(request)
             if conn.authenticate(user_data.dn, password):
-                email = user_data["mail"][0]
+                email = user_data["mail"][0].decode('utf8')
                 username = self._prefix + login
-                realname = user_data["cn"][0]
+                realname = user_data["cn"][0].decode('utf8')
 
                 return (username, realname, email)
             else:
@@ -63,7 +64,8 @@ class LdapAuthMethod(AuthMethod):
             return None
 
     def needed_fields(self):
-        return {"input": {"login": {"type": "text", "placeholder": "Login"}, "password": {"type": "password", "placeholder": "Password"}}, "info": ""}
+        return {"input": OrderedDict((("login", {"type": "text", "placeholder": "Login"}), ("password", {"type": "password", "placeholder":
+            "Password"}))), "info": ""}
 
     def should_cache(self):
         return True
@@ -90,8 +92,8 @@ class LdapAuthMethod(AuthMethod):
                     login = username[len(self._prefix):]
                     request = self._request.format(login)
                     user_data = conn.get(request)
-                    email = user_data["mail"][0]
-                    realname = user_data["cn"][0]
+                    email = user_data["mail"][0].decode('utf8')
+                    realname = user_data["cn"][0].decode('utf8')
 
                     retval[username] = (realname, email)
                 except:

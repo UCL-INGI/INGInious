@@ -16,5 +16,5 @@ elif [ "$output" = "Hello World!" ]; then
 	feedback --result success --feedback "You solved this *difficult* task!"
 else
 	# The student failed
-	feedback --result failed --feedback "Your output is $output"
+	feedback --result failed --feedback "Your output is $output ($return_val)"
 fi

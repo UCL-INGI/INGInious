@@ -394,8 +394,8 @@ function waitForSubmission(submissionid)
                 if("status" in data && data['status'] == "waiting")
                 {
                     waitForSubmission(submissionid);
-                    if("ssh_key" in data && "ssh_conn_id" in data && "ssh_host" in data)
-                        displayRemoteDebug(submissionid, data["ssh_host"], data["ssh_conn_id"], data["ssh_key"])
+                    if("ssh_host" in data && "ssh_port" in data && "ssh_password" in data)
+                        displayRemoteDebug(submissionid, data["ssh_host"], data["ssh_port"], data["ssh_password"])
                 }
                 else if("status" in data && "result" in data && "grade" in data)
                 {
@@ -527,20 +527,40 @@ function displayTaskLoadingAlert(submissionid)
 }
 
 //Display informations for remote debugging
-function displayRemoteDebug(submissionid, ssh_host, ssh_conn_id, ssh_key)
+function displayRemoteDebug(submissionid, ssh_host, ssh_port, ssh_password)
 {
-    var pre_content = "inginious-remote-debug " + ssh_host + "\n" + ssh_conn_id + "\n" + ssh_key;
+    var pre_content = "ssh worker@" + ssh_host + " -p " + ssh_port+ " -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no";
     var task_alert = $('#task_alert');
 
-    if($('pre', task_alert).text() != pre_content)
+    //If not already set
+    if($('pre#commandssh', task_alert).text() != pre_content)
     {
-        var pre = $('<pre><pre>').text(pre_content);
-        var alert = $(getLoadingAlertCode("<b>SSH server active</b><br/>" +
-            "Please paste this command into your terminal.<br/>" +
-            "You need to have the <a href='https://pypi.python.org/pypi/INGInious/'>INGInious pip package</a> installed.<br/>",
-            submissionid));
+
+        var manual_content_1 = "Paste this command into your terminal:<br/>";
+        var pre = $('<pre id="commandssh"><pre>').text(pre_content);
+        var manual_content_2 = "The password to connect is <code>" + ssh_password + "</code><br/>";
+
+        var alert = $(getLoadingAlertCode("<b>SSH server active</b><br/>", submissionid));
         alert.attr('id', 'ssh_remote_info');
+
+        // Generate iframe
+        var webterm_link = $('#webterm_link').val();
+        if(webterm_link != undefined)
+        {
+            var full_link = webterm_link + "?host=" + ssh_host + "&port=" + ssh_port + "&password=" + ssh_password;
+            var iframe = $('<iframe>', {
+                src:         full_link,
+                id:          'iframessh',
+                frameborder: 0,
+                scrolling:   'no'
+            }).appendTo(alert);
+            manual_content_1 = "Alternatively, you can also paste this command into your terminal:<br/>";
+        }
+
+        alert.append(manual_content_1);
         alert.append(pre);
+        alert.append(manual_content_2);
+
         task_alert.empty().append(alert);
     }
 }
@@ -636,7 +656,12 @@ function displayTaskStudentAlertWithProblems(content, top, type, alwaysShowTop)
             var problemid = elem.id.substr(11); //skip "task_alert."
             if(problemid in content.problems)
             {
-                $(elem).html(getAlertCode(content.problems[problemid], "info", true));
+                var alert_type = "danger";
+                if(content.problems[problemid][0] == "timeout" || content.problems[problemid][0] == "overflow")
+                    alert_type = "warning";
+                if(content.problems[problemid][0] == "success")
+                    alert_type = "success";
+                $(elem).html(getAlertCode(content.problems[problemid][1], alert_type, true));
                 if(firstPos == -1 || firstPos > $(elem).offset().top)
                     firstPos = $(elem).offset().top;
             }

@@ -50,11 +50,11 @@ function studio_update_file_tabs(data, method)
     jQuery.ajax({
         beforeSend: function()
                     {
-                        $("#tab_files").html('Loading');
+                        $("#tab_file_list").html('Loading');
                     },
         success:    function(data)
                     {
-                        $("#tab_files").html(data);
+                        $("#tab_file_list").replaceWith(data);
                     },
         method:     method,
         data:       data,
@@ -224,17 +224,22 @@ function studio_task_file_delete_tab(path)
     if(studio_file_editor_tabs[path] != undefined)
     {
         var editorId = -1;
-        $.each(codeEditors, function(idx, editor)
-        {
-            if(editor.getTextArea().id == studio_file_editor_tabs[path] + '_editor')
-            {
-                if(!editor.isClean() && !confirm('You have unsaved change to this file. Do you really want to close it?'))
-                    return false;
+
+        // Fetch the editor id
+        $.each(codeEditors, function(idx, editor) {
+            if(editor.getTextArea().id == studio_file_editor_tabs[path] + '_editor') {
                 editorId = idx;
             }
         });
-        if(editorId != -1)
+
+        if(editorId != -1) {
+            // Check if modified
+            if (!codeEditors[editorId].isClean() && !confirm('You have unsaved change to this file. Do you really want to close it?'))
+                return false;
+
+            // Remove from list
             codeEditors.splice(editorId, 1);
+        }
 
         var edit_file_tabs = $('#edit_file_tabs');
         if($('a[href="#' + studio_file_editor_tabs[path] + '"]', edit_file_tabs).parent().hasClass('active'))

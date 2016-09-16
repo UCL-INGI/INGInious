@@ -11,9 +11,8 @@ import sys
 from inginious.common.base import id_checker
 
 
-class BasicBox(object):
+class BasicBox(object, metaclass=ABCMeta):
     """ A basic abstract problem box. A box is a small input for a problem. A problem can contain multiple boxes """
-    __metaclass__ = ABCMeta
 
     @abstractmethod
     def get_type(self):
@@ -157,7 +156,7 @@ class InputBox(BasicBox):
 
         self._optional = boxData.get("optional", False)
 
-        if "maxChars" in boxData and isinstance(boxData['maxChars'], (int, long)) and boxData['maxChars'] > 0:
+        if "maxChars" in boxData and isinstance(boxData['maxChars'], int) and boxData['maxChars'] > 0:
             self._max_chars = boxData['maxChars']
         elif "maxChars" in boxData:
             raise Exception("Invalid maxChars value in box " + boxid)
@@ -186,7 +185,7 @@ class MultilineBox(BasicBox):
 
     def __init__(self, problem, boxid, boxData):
         super(MultilineBox, self).__init__(problem, boxid, boxData)
-        if "maxChars" in boxData and isinstance(boxData['maxChars'], (int, long)) and boxData['maxChars'] > 0:
+        if "maxChars" in boxData and isinstance(boxData['maxChars'], int) and boxData['maxChars'] > 0:
             self._max_chars = boxData['maxChars']
         elif "maxChars" in boxData:
             raise Exception("Invalid maxChars value in box " + boxid)
@@ -195,7 +194,7 @@ class MultilineBox(BasicBox):
 
         self._optional = boxData.get("optional", False)
 
-        if "lines" in boxData and isinstance(boxData['lines'], (int, long)) and boxData['lines'] > 0:
+        if "lines" in boxData and isinstance(boxData['lines'], int) and boxData['lines'] > 0:
             self._lines = boxData['lines']
         elif "lines" in boxData:
             raise Exception("Invalid lines value in box " + boxid)

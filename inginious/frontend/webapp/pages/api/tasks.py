@@ -23,7 +23,7 @@ class APITasks(APIAuthenticatedPage):
                 val[key] = self._check_for_parsable_text(val2)
             return val
         if isinstance(val, dict):
-            for key, val2 in val.iteritems():
+            for key, val2 in val.items():
                 val[key] = self._check_for_parsable_text(val2)
         return val
 
@@ -73,7 +73,7 @@ class APITasks(APIAuthenticatedPage):
                 raise APINotFound("Task not found")
 
         output = []
-        for taskid, task in tasks.iteritems():
+        for taskid, task in tasks.items():
             data = {
                 "id": taskid,
                 "name": task.get_name(),

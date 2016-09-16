@@ -10,26 +10,27 @@ from inginious.frontend.common.submission_manager import SubmissionManager
 
 
 class WebAppSubmissionManager(SubmissionManager):
-    """ Manages submissions. Communicates with the database and the job manager. """
+    """ Manages submissions. Communicates with the database and the client. """
 
-    def __init__(self, job_manager, user_manager, database, gridfs, hook_manager):
+    def __init__(self, client, user_manager, database, gridfs, hook_manager):
         """
-        :type job_manager: inginious.backend.job_managers.abstract.AbstractJobManager
+        :type client: inginious.client.client.AbstractClient
         :type user_manager: inginious.frontend.common.user_manager.AbstractUserManager
         :type database: pymongo.database.Database
         :type gridfs: gridfs.GridFS
         :type hook_manager: inginious.common.hook_manager.HookManager
         :return:
         """
-        super(WebAppSubmissionManager, self).__init__(job_manager, user_manager, database, gridfs, hook_manager)
+        super(WebAppSubmissionManager, self).__init__(client, user_manager, database, gridfs, hook_manager)
 
-    def _job_done_callback(self, submissionid, task, job):
-        """ Callback called by JobManager when a job is done. Updates the submission in the database with the data returned after the completion of the job """
-        super(WebAppSubmissionManager, self)._job_done_callback(submissionid, task, job)
+    def _job_done_callback(self, submissionid, task, result, grade, problems, tests, custom, archive):
+        """ Callback called by Client when a job is done. Updates the submission in the database with the data returned after the completion of the
+        job """
+        super(WebAppSubmissionManager, self)._job_done_callback(submissionid, task, result, grade, problems, tests, custom, archive)
 
         submission = self.get_submission(submissionid, False)
         for username in submission["username"]:
-            self._user_manager.update_user_stats(username, task, submission, job)
+            self._user_manager.update_user_stats(username, task, submission, result[0], grade)
 
     def _before_submission_insertion(self, task, inputdata, debug, obj):
         username = self._user_manager.session_username()

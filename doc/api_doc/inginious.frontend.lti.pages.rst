@@ -1,8 +1,21 @@
 inginious.frontend.lti.pages package
 ====================================
 
+.. automodule:: inginious.frontend.lti.pages
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
+
+inginious.frontend.lti.pages.download module
+--------------------------------------------
+
+.. automodule:: inginious.frontend.lti.pages.download
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 inginious.frontend.lti.pages.launch module
 ------------------------------------------
@@ -29,10 +42,3 @@ inginious.frontend.lti.pages.utils module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: inginious.frontend.lti.pages
-    :members:
-    :undoc-members:
-    :show-inheritance:

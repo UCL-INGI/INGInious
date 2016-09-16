@@ -51,7 +51,7 @@ class UserManager(AbstractUserManager):
         """ Return a tuple (courseid, taskid), representing the task to which the current user is authenticated. If there are no user
         connected, returns None """
         if not self.session_logged_in():
-            return None
+            return None, None
         return self._get_session_dict()["task"]
 
     def session_consumer_key(self):
@@ -102,7 +102,7 @@ class UserManager(AbstractUserManager):
         if self._session.session_id is None:
             self.set_session_identifier(None)
 
-        for key, val in value.iteritems():
+        for key, val in value.items():
             self._session[key] = val
 
     def get_task_status(self, task, username=None):

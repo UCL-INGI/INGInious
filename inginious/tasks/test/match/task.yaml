@@ -1,7 +1,7 @@
 accessible: true
 author: Guillaume Derval
 context: This tasks aims to test the frontend-integrated grader.
-environment: default
+environment: mcq
 groups: true
 limits:
     memory: '100'

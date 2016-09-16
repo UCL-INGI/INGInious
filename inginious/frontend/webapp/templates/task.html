@@ -1,4 +1,4 @@
-$def with (course, task, submissions, students, eval_submission, user_task, remote_debug_available)
+$def with (course, task, submissions, students, eval_submission, user_task, webterm_link)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -55,6 +55,19 @@ $def ColumnF():
             <td>Attempts</td>
             <td id="task_tries">
                 $(user_task.get('tried', 0))
+            </td>
+        </tr>
+        <tr>
+            <td>Submission limit</td>
+            <td>
+                $ submission_limit = task.get_submission_limit()
+                $if submission_limit == {"amount":-1, "period":-1}:
+                    No limitation
+                $else:
+                    $submission_limit["amount"] submissions
+                    $if submission_limit["period"] > 0:
+                        <br/> every $submission_limit["period"] hour(s)
+
             </td>
         </tr>
     </table>
@@ -187,6 +200,10 @@ $if user_manager.has_admin_rights_on_course(course):
         </div>
     </div>
 
+$# Store path to webterm if given
+$if webterm_link is not None:
+    <input type="hidden" value="$webterm_link" id="webterm_link"/>
+
 <form id="task" method="post" action="/course/${task.get_course().get_id()}/${task.get_id()}" enctype="multipart/form-data"
     $for submission in submissions:
         $if submission["status"] == "waiting":
@@ -210,8 +227,11 @@ $if user_manager.has_admin_rights_on_course(course):
                 $:problem.show_input(template_helper.get_common_renderer())
             </div>
         </div>
-    $if user_manager.task_can_user_submit(task):
-        $if user_manager.has_admin_rights_on_course(course) and remote_debug_available:
+
+    $ groups_ok = user_manager.task_can_user_submit(task, user_manager.session_username(), 'groups')
+    $ tokens_ok = user_manager.task_can_user_submit(task, user_manager.session_username(), 'tokens')
+    $if groups_ok and tokens_ok:
+        $if user_manager.has_admin_rights_on_course(course):
             <input type="hidden" name="@debug-mode" id="task-debug-mode" value=""/>
             <div class="row">
                 <div class="col-xs-9 col-md-10">
@@ -228,8 +248,15 @@ $if user_manager.has_admin_rights_on_course(course):
             <button type="submit" class="btn btn-default btn-lg btn-block center-block" id="task-submit">Submit</button>
     $elif not task.get_accessible_time().is_open():
         <button type="submit" class="btn btn-default btn-lg btn-block center-block" disabled="disabled">The deadline is over, you cannot submit anymore</button>
-    $elif task.is_group_task():
-        <a href="/aggregation/$course.get_id()" class="btn btn-default btn-lg btn-block center-block">Please register in a group</a>
+    $elif task.is_group_task() and not groups_ok:
+        <a href="/aggregation/$course.get_id()" class="btn btn-default btn-lg btn-block center-block">Please register in a $('group' if course.use_classrooms() else 'team')</a>
+    $elif not tokens_ok:
+        <button type="submit" class="btn btn-default btn-lg btn-block center-block" disabled="disabled">
+            $('You' if not task.is_group_task() else 'Your group' if course.use_classrooms() else 'Your team')
+            have reached the submission limit.
+        $if task.get_submission_limit()["period"] > 0:
+            <br/> It will be refilled within the next $task.get_submission_limit()["period"] hour(s)
+        </button>
     $else:
         <button type="submit" class="btn btn-default btn-lg btn-block center-block" disabled="disabled">You are not allowed to submit</button>
 </form>

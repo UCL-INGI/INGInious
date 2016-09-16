@@ -18,7 +18,7 @@ def dict2rst(dict_obj):
         rst += dict_obj['name'] + '\n'
         rst += '=' * len(dict_obj['name']) + '\n\n'
         if 'author' in dict_obj:
-            if isinstance(dict_obj['author'], unicode):
+            if isinstance(dict_obj['author'], str):
                 rst += ':author: ' + dict_obj['author'] + '\n'
             else:
                 rst += ':author: ' + ', '.join(dict_obj['author']) + '\n'
@@ -40,7 +40,7 @@ def dict2rst(dict_obj):
     if 'context' in dict_obj:
         rst += dict_obj['context'] + '\n\n'
     if 'problems' in dict_obj:
-        for pid, problem in dict_obj['problems'].items():
+        for pid, problem in list(dict_obj['problems'].items()):
             if 'name' in problem:
                 rst += problem['name'] + '\n'
                 rst += '-' * len(problem['name']) + '\n\n'
@@ -52,7 +52,7 @@ def dict2rst(dict_obj):
             if 'header' in problem:
                 rst += tabularize(problem['header']) + '\n\n'
             if 'boxes' in problem:
-                for pid, box in problem['boxes'].items():
+                for pid, box in list(problem['boxes'].items()):
                     rst += '\t.. box:: ' + pid + '\n'
                     for option in box_options:
                         if option in box:

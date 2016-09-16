@@ -55,7 +55,7 @@ class APIAuthentication(APIPage):
         del user_input["auth_method_id"]
 
         try:
-            if self.user_manager.auth_user(int(auth_method_id), dict(user_input)):
+            if self.user_manager.auth_user(int(auth_method_id), dict(user_input), web.ctx['ip']):
                 return 200, {"status": "success", "username": self.user_manager.session_username()}
         except:
             pass

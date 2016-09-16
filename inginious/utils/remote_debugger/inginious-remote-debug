@@ -22,7 +22,7 @@ if __name__ == "__main__":
         remote_host = args.host.split(":")[0]
         remote_port = int(args.host.split(":")[1])
     except:
-        print "Invalid value for host"
+        print("Invalid value for host")
         exit(1)
 
     conn_id = sys.stdin.readline().strip()
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     tmpdir = tempfile.mkdtemp()
     with open(os.path.join(tmpdir, "key"), "w") as f:
         f.write(private_key)
-    os.chmod(os.path.join(tmpdir, "key"), 0700)
+    os.chmod(os.path.join(tmpdir, "key"), 0o700)
     
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind(("127.0.0.1", 0))
@@ -45,17 +45,17 @@ if __name__ == "__main__":
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             client.connect((remote_host, remote_port))
-            print "Connected to frontend/agent"
+            print("Connected to frontend/agent")
             client.send(conn_id + "\n")
-            print "Conn id sent to frontend/agent"
+            print("Conn id sent to frontend/agent")
             retval = ""
             while retval not in ["ok\n", "ko\n"]:
                 retval += client.recv(3)
             retval = retval.strip()
             if retval != "ok":
-                print "Cannot connect to the remote ssh server. Invalid connection id."
+                print("Cannot connect to the remote ssh server. Invalid connection id.")
                 exit(1)
-            print "Received ok"
+            print("Received ok")
             while True:
                 read, write, exception = select.select([conn, client], [], [conn, client])
                 if len(exception) != 0:
@@ -85,7 +85,7 @@ if __name__ == "__main__":
     p = Popen(args, stdin=sys.stdin, stdout=sys.stdout)
 
     conn, addr = server.accept()
-    print "Connection accepted"
+    print("Connection accepted")
     server.close()
     run_relay(conn)
 

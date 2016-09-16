@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -14,19 +14,15 @@ import inginious
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
 install_requires = [
-    "docker-py==1.7.2",
+    "docker-py>=1.9.0",
     "docutils>=0.12",
-    "plumbum>=1.5.0",
-    "pymongo>=3.0.3",
+    "pymongo>=3.2.2",
     "PyYAML>=3.11",
-    "requests>=2.7.0",
-    "rpyc>=3.3.0",
-    "six>=1.9.0",
-    "web.py-INGI>=0.38dev1",
-    "websocket-client>=0.32.0",
-    "pylti>=0.3.2",
-    "mock >= 1.0.1",
-    "watchdog >= 0.8.3"
+    "web.py>=0.40.dev0",
+    "pylti>=0.4.1",
+    "watchdog >= 0.8.3",
+    "msgpack-python >= 0.4.7",
+    "pyzmq >= 15.3.0"
 ]
 test_requires = [
     "selenium",
@@ -45,9 +41,6 @@ if sys.platform == 'win32':
 else:
     install_requires += ["sh>=1.11"]
 
-if sys.platform.startswith('linux') and not on_rtd:
-    install_requires += ["cgroup-utils>=0.5"]
-
 # Setup
 setup(
     name="INGInious",
@@ -57,13 +50,15 @@ setup(
     install_requires=install_requires,
     tests_require=test_requires,
     extras_require={
-        "cgi": ["flup"],
-        "ldap": ["simpleldap>=0.8", "python-ldap>=2.4.19"],
+        "cgi": ["flup>=1.0.3.dev"],
+        "ldap": ["simpleldap>=0.9"],
         "test": test_requires
     },
 
     scripts=[
-        'inginious-agent',
+        'inginious-agent-docker',
+        'inginious-agent-mcq',
+        'inginious-backend',
         'inginious-lti',
         'inginious-webapp',
         'inginious-install',
@@ -80,7 +75,7 @@ setup(
 
     test_suite='nose.collector',
 
-    author=u"INGInious contributors",
+    author="INGInious contributors",
     author_email="inginious@info.ucl.ac.be",
     license="AGPL 3",
     url="https://github.com/UCL-INGI/INGInious",

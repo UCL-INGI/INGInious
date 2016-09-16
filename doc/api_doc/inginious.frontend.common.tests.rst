@@ -1,6 +1,11 @@
 inginious.frontend.common.tests package
 =======================================
 
+.. automodule:: inginious.frontend.common.tests
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Submodules
 ----------
 
@@ -13,10 +18,3 @@ inginious.frontend.common.tests.TestParsableText module
     :show-inheritance:
 
 
-Module contents
----------------
-
-.. automodule:: inginious.frontend.common.tests
-    :members:
-    :undoc-members:
-    :show-inheritance:

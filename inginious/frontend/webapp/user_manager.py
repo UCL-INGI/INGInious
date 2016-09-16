@@ -4,7 +4,10 @@
 # more information about the licensing of this file.
 
 """ Manages users data and session """
+import logging
 from abc import ABCMeta, abstractmethod
+from datetime import datetime
+from datetime import timedelta
 
 from inginious.frontend.common.user_manager import AbstractUserManager
 
@@ -17,9 +20,7 @@ class AuthInvalidMethodException(Exception):
     pass
 
 
-class AuthMethod(object):
-    __metaclass__ = ABCMeta
-
+class AuthMethod(object, metaclass=ABCMeta):
     @abstractmethod
     def get_name(self):
         """
@@ -84,6 +85,7 @@ class UserManager(AbstractUserManager):
         self._database = database
         self._superadmins = superadmins
         self._auth_methods = []
+        self._logger = logging.getLogger("inginious.webapp.users")
 
     ##############################################
     #           User session management          #
@@ -156,10 +158,11 @@ class UserManager(AbstractUserManager):
         """
         return {i: (am.get_name(), am.needed_fields()) for i, am in enumerate(self._auth_methods)}
 
-    def auth_user(self, auth_method_id, input):
+    def auth_user(self, auth_method_id, input, ip_addr):
         """
         :param auth_method_id: the auth method id, as provided by get_auth_methods_inputs()
         :param input: the input of the user, should respect what was given by get_auth_methods_inputs()
+        :param ip_addr: the ip address of the client, that will be logged
         :raise AuthInvalidInputException
         :return: True if the user successfully authenticated, False else
         """
@@ -167,12 +170,18 @@ class UserManager(AbstractUserManager):
             raise AuthInvalidMethodException()
         info = self._auth_methods[auth_method_id].auth(input)
         if info is not None:
+            self._logger.info("User %s connected - %s - %s - %s", info[0], info[1], info[2], ip_addr)
             self._set_session(info[0], info[1], info[2])
             return True
         return False
 
-    def disconnect_user(self):
-        """ Disconnects the user currently logged-in """
+    def disconnect_user(self, ip_addr):
+        """
+        Disconnects the user currently logged-in
+        :param ip_addr: the ip address of the client, that will be logged
+        """
+        if self.session_logged_in():
+            self._logger.info("User %s disconnected - %s - %s - %s", self.session_username(), self.session_realname(), self.session_email(), ip_addr)
         self._destroy_session()
 
     def get_users_info(self, usernames):
@@ -187,10 +196,10 @@ class UserManager(AbstractUserManager):
         for method in self._auth_methods:
             if method.should_cache() is False:
                 infos = method.get_users_info(remaining_users)
-                for user, val in infos.iteritems():
+                for user, val in infos.items():
                     retval[user] = val
 
-        remaining_users = [username for username, val in retval.iteritems() if val is None]
+        remaining_users = [username for username, val in retval.items() if val is None]
         if len(remaining_users) == 0:
             return retval
 
@@ -199,7 +208,7 @@ class UserManager(AbstractUserManager):
         for info in infos:
             retval[info["_id"]] = (info["realname"], info["email"])
 
-        remaining_users = [username for username, val in retval.iteritems() if val is None]
+        remaining_users = [username for username, val in retval.items() if val is None]
         if len(remaining_users) == 0:
             return retval
 
@@ -207,7 +216,7 @@ class UserManager(AbstractUserManager):
         for method in self._auth_methods:
             if method.should_cache() is True:
                 infos = method.get_users_info(remaining_users)
-                for user, val in infos.iteritems():
+                for user, val in infos.items():
                     if val is not None:
                         retval[user] = val
                         self._database.user_info_cache.update_one({"_id": user}, {"$set": {"realname": val[0], "email": val[1]}}, upsert=True)
@@ -281,7 +290,7 @@ class UserManager(AbstractUserManager):
             match["username"] = {"$in": usernames}
 
         tasks = course.get_tasks()
-        match["taskid"] = {"$in": tasks.keys()}
+        match["taskid"] = {"$in": list(tasks.keys())}
 
         data = list(self._database.user_tasks.aggregate(
             [
@@ -295,7 +304,7 @@ class UserManager(AbstractUserManager):
                 }}
             ]))
 
-        user_tasks = [taskid for taskid, task in tasks.iteritems() if task.get_accessible_time().after_start()]
+        user_tasks = [taskid for taskid, task in tasks.items() if task.get_accessible_time().after_start()]
 
         retval = {username: None for username in usernames}
         for result in data:
@@ -364,22 +373,22 @@ class UserManager(AbstractUserManager):
                                                            "tried": 0, "succeeded": False, "grade": 0.0, "submissionid": None}},
                                          upsert=True)
 
-    def update_user_stats(self, username, task, submission, job):
+    def update_user_stats(self, username, task, submission, result_str, grade):
         """ Update stats with a new submission """
         self.user_saw_task(username, submission["courseid"], submission["taskid"])
 
         old_submission = self._database.user_tasks.find_one_and_update(
-            {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]}, {"$inc": {"tried": 1}})
+            {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]}, {"$inc": {"tried": 1, "tokens.amount": 1}})
 
         # Check if the submission is the default download
         set_default = task.get_evaluate() == 'last' or \
                       (task.get_evaluate() == 'student' and old_submission is None) or \
-                      (task.get_evaluate() == 'best' and old_submission.get('grade', 0.0) <= job["grade"])
+                      (task.get_evaluate() == 'best' and old_submission.get('grade', 0.0) <= grade)
 
         if set_default:
             self._database.user_tasks.find_one_and_update(
                 {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]},
-                {"$set": {"succeeded": job["result"] == "success", "grade": job["grade"],"submissionid": submission['_id']}})
+                {"$set": {"succeeded": result_str == "success", "grade": grade,"submissionid": submission['_id']}})
 
     def get_course_grade(self, course, username=None):
         """
@@ -396,7 +405,7 @@ class UserManager(AbstractUserManager):
         total_weight = 0
         grade = 0
 
-        for task_id, task in course.get_tasks().iteritems():
+        for task_id, task in course.get_tasks().items():
             if self.task_is_visible_by_user(task, username):
                 total_weight += task.get_grading_weight()
                 grade += cache["task_grades"].get(task_id, 0.0) * task.get_grading_weight()
@@ -444,17 +453,60 @@ class UserManager(AbstractUserManager):
         return (self.course_is_open_to_user(task.get_course(), username) and task._accessible.after_start()) or \
                self.has_staff_rights_on_course(task.get_course(), username)
 
-    def task_can_user_submit(self, task, username=None):
+    def task_can_user_submit(self, task, username=None, only_check=None):
         """ returns true if the user can submit his work for this task """
+        """ :param only_check : only checks for 'groups', 'tokens', or None if all checks"""
         if username is None:
             username = self.session_username()
 
-        aggregation = self._database.aggregations.find_one({"courseid": task.get_course_id(), "groups.students": username})
-        group_filter = (aggregation is not None and task.is_group_task()) or not task.is_group_task()
+        # Check if course access is ok
+        course_registered = self.course_is_open_to_user(task.get_course(), username)
+        # Check if task accessible to user
+        task_accessible = task._accessible.is_open()
+        # User has staff rights ?
+        staff_right = self.has_staff_rights_on_course(task.get_course(), username)
 
-        return (self.course_is_open_to_user(task.get_course(),
-                                            username) and task._accessible.is_open() and group_filter) or self.has_staff_rights_on_course(
-            task.get_course(), username)
+        # Check for group
+        aggregation = self._database.aggregations.find_one(
+            {"courseid": task.get_course_id(), "groups.students": self.session_username()},
+            {"groups": {"$elemMatch": {"students": self.session_username()}}})
+
+        if not only_check or only_check == 'groups':
+            group_filter = (aggregation is not None and task.is_group_task()) or not task.is_group_task()
+        else:
+            group_filter = True
+
+        students = aggregation["groups"][0]["students"] if (aggregation is not None and task.is_group_task()) else [self.session_username()]
+
+
+        # Check for token availability
+        enough_tokens = True
+        timenow = datetime.now()
+        for student in students:
+            if not only_check or only_check == 'tokens':
+                user_task = self._database.user_tasks.find_one({"courseid": task.get_course_id(), "taskid": task.get_id(), "username": student})
+                submission_limit = task.get_submission_limit()
+                if user_task is not None and "tokens" in user_task:
+                    if submission_limit == {"amount": -1, "period": -1}:
+                        enough_tokens = True and enough_tokens
+                    elif submission_limit["period"] <= 0:
+                        enough_tokens = user_task["tokens"]["amount"] < submission_limit["amount"]
+                    else:
+                        if user_task["tokens"]["amount"] < submission_limit["amount"]:
+                            enough_tokens = True and enough_tokens
+                        elif user_task["tokens"]["date"] < timenow - timedelta(hours=submission_limit["period"]):
+                            enough_tokens = True and enough_tokens
+                            self._database.user_tasks.find_one_and_update(user_task, {"$set": {"tokens": {"amount": 0, "date": datetime.now()}}})
+                        else:
+                            enough_tokens = False and enough_tokens
+                else:
+                    enough_tokens = True and enough_tokens
+                    self._database.user_tasks.find_one_and_update(user_task, {
+                        "$set": {"tokens": {"amount": 0, "date": datetime.now()}}})
+            else:
+                enough_tokens = True and enough_tokens
+
+        return (course_registered and task_accessible and group_filter and enough_tokens) or staff_right
 
     def get_course_aggregations(self, course):
         """ Returns a list of the course aggregations"""

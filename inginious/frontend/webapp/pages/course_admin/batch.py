@@ -6,7 +6,7 @@
 
 import tarfile
 import mimetypes
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import tempfile
 
 import web
@@ -159,7 +159,7 @@ class CourseBatchJobDownload(INGIniousAdminPage):
             else:  # guess a mime type and send it to the browser
                 to_dl = tar.extractfile(path).read()
                 mimetypes.init()
-                mime_type = mimetypes.guess_type(urllib.pathname2url(path))
+                mime_type = mimetypes.guess_type(urllib.request.pathname2url(path))
                 web.header('Content-Type', mime_type[0])
                 return to_dl
 

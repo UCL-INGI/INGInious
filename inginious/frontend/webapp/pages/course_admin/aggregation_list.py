@@ -79,7 +79,7 @@ class CourseAggregationListPage(INGIniousAdminPage):
         aggregations = OrderedDict()
 
         for aggregation in self.user_manager.get_course_aggregations(course):
-            aggregations[aggregation['_id']] = dict(aggregation.items() +
+            aggregations[aggregation['_id']] = dict(list(aggregation.items()) +
                                                 [("tried", 0),
                                                  ("done", 0),
                                                  ("url", self.submission_url_generator(course, aggregation['_id']))
@@ -91,7 +91,7 @@ class CourseAggregationListPage(INGIniousAdminPage):
                         "$match":
                             {
                                 "courseid": course.get_id(),
-                                "taskid": {"$in": course.get_tasks().keys()},
+                                "taskid": {"$in": list(course.get_tasks().keys())},
                                 "username": {"$in": aggregation["students"]}
                             }
                     },

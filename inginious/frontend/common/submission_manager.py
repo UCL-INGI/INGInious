@@ -10,7 +10,7 @@ import json
 import time
 import os.path
 import tarfile
-import StringIO
+import io
 import tempfile
 from datetime import datetime
 
@@ -21,25 +21,27 @@ from inginious.frontend.common.parsable_text import ParsableText
 import inginious.common.custom_yaml
 
 
-class SubmissionManager(object):
-    """ Manages submissions. Communicates with the database and the job manager. """
+class SubmissionManager(object, metaclass=ABCMeta):
+    """ Manages submissions. Communicates with the database and to the backend/agent using a Client. """
 
-    __metaclass__ = ABCMeta
-
-    def __init__(self, job_manager, user_manager, database, gridfs, hook_manager):
+    def __init__(self, client, user_manager, database, gridfs, hook_manager):
         """
-        :type job_manager: inginious.backend.job_managers.abstract.AbstractJobManager
+        :type client: inginious.client.client.AbstractClient
         :type user_manager: inginious.frontend.common.user_manager.AbstractUserManager
         :type database: pymongo.database.Database
         :type gridfs: gridfs.GridFS
         :type hook_manager: inginious.common.hook_manager.HookManager
         :return:
         """
-        self._job_manager = job_manager
+        self._client = client
         self._user_manager = user_manager
         self._database = database
         self._gridfs = gridfs
         self._hook_manager = hook_manager
+
+    def get_available_environments(self):
+        """:return a list of available environments """
+        return self._client.get_available_containers()
 
     def get_submission(self, submissionid, user_check=True):
         """ Get a submission from the database """
@@ -48,27 +50,22 @@ class SubmissionManager(object):
             return None
         return sub
 
-    def _job_done_callback(self, submissionid, task, job):
-        """ Callback called by JobManager when a job is done. Updates the submission in the database with the data returned after the completion of the job """
+    def _job_done_callback(self, submissionid, task, result, grade, problems, tests, custom, archive):
+        """ Callback called by Client when a job is done. Updates the submission in the database with the data returned after the completion of the
+        job """
         submission = self.get_submission(submissionid, False)
         submission = self.get_input_from_submission(submission)
 
         data = {
-            "status": ("done" if job["result"] == "success" or job["result"] == "failed" else "error"),  # error only if error was made by INGInious
-            "result": job["result"],
-            "grade": job["grade"],
-            "text": job.get("text", None),
-            "tests": job.get("tests", None),
-            "problems": (job["problems"] if "problems" in job else {}),
-            "archive": (self._gridfs.put(base64.b64decode(job["archive"])) if "archive" in job else None),
-            "custom": job.get("custom", {})
+            "status": ("done" if result[0] == "success" or result[0] == "failed" else "error"),  # error only if error was made by INGInious
+            "result": result[0],
+            "grade": grade,
+            "text": result[1],
+            "tests": tests,
+            "problems": problems,
+            "archive": (self._gridfs.put(archive) if archive is not None else None),
+            "custom": custom
         }
-
-        # Store additional data
-        dont_dump = ["task", "course", "input"]
-        for index in job:
-            if index not in data and index not in dont_dump:
-                data[index] = job[index]
 
         # Save submission to database
         self._database.submissions.update(
@@ -76,7 +73,8 @@ class SubmissionManager(object):
             {"$set": data, "$unset": {'jobid': ""}}
         )
 
-        self._hook_manager.call_hook("submission_done", submission=submission, job=job)
+        self._hook_manager.call_hook("submission_done", submission=submission, result=result, grade=grade, problems=problems, tests=tests,
+                                     custom=custom, archive=archive)
 
     def add_job(self, task, inputdata, debug=False):
         """
@@ -97,7 +95,7 @@ class SubmissionManager(object):
         obj = {
             "courseid": task.get_course_id(),
             "taskid": task.get_id(),
-            "input": self._gridfs.put(json.dumps(inputdata)),
+            "input": self._gridfs.put(json.dumps(inputdata),encoding="utf8"),
             "status": "waiting",
             "submitted_on": datetime.now(),
             "username": [username],
@@ -108,7 +106,7 @@ class SubmissionManager(object):
 
         submissionid = self._database.submissions.insert(obj)
 
-        # Send additionnal data to the job manager in inputdata. For now, the username and the group
+        # Send additionnal data to the client in inputdata. For now, the username and the group
         if "username" not in [p.get_id() for p in task.get_problems()]:  # do not overwrite
             inputdata["username"] = username
 
@@ -116,12 +114,14 @@ class SubmissionManager(object):
 
         self._hook_manager.call_hook("new_submission", submissionid=submissionid, submission=obj, inputdata=inputdata)
 
-        ssh_callback = None
+        ssh_callback = lambda host, port, password: None
         if debug == "ssh":
-            ssh_callback = lambda conn_id, ssh_key: self._handle_ssh_callback(submissionid, conn_id, ssh_key)
+            ssh_callback = lambda host, port, password: self._handle_ssh_callback(submissionid, host, port, password)
 
-        jobid = self._job_manager.new_job(task, inputdata, (lambda job: self._job_done_callback(submissionid, task, job)), "Frontend - {}".format(
-            username), debug, ssh_callback)
+        jobid = self._client.new_job(task, inputdata,
+                                     (lambda result, grade, problems, tests, custom, archive:
+                                      self._job_done_callback(submissionid, task, result, grade, problems, tests, custom, archive)),
+                                     "Frontend - {}".format(username), debug, ssh_callback)
 
         self._database.submissions.update(
             {"_id": submissionid, "status": "waiting"},
@@ -210,7 +210,7 @@ class SubmissionManager(object):
         to_delete = {val["_id"] for val in tasks}.difference(to_keep)
         self._database.submissions.delete_many({"_id": {"$in": list(to_delete)}})
 
-        return map(str, to_delete)
+        return list(map(str, to_delete))
 
     def get_input_from_submission(self, submission, only_input=False):
         """
@@ -223,7 +223,7 @@ class SubmissionManager(object):
             else:
                 return submission
         else:
-            inp = json.load(self._gridfs.get(submission['input']))
+            inp = json.loads(self._gridfs.get(submission['input']).read().decode('utf8'))
             if only_input:
                 return inp
             else:
@@ -243,7 +243,14 @@ class SubmissionManager(object):
             submission["text"] = ParsableText(submission["text"], submission["response_type"], show_everything).parse()
         if "problems" in submission:
             for problem in submission["problems"]:
-                submission["problems"][problem] = ParsableText(submission["problems"][problem], submission["response_type"], show_everything).parse()
+                if isinstance(submission["problems"][problem], str):  # fallback for old-style submissions
+                    submission["problems"][problem] = (submission.get('result', 'crash'), ParsableText(submission["problems"][problem],
+                                                                                                       submission["response_type"],
+                                                                                                       show_everything).parse())
+                else:  # new-style submission
+                    submission["problems"][problem] = (submission["problems"][problem][0], ParsableText(submission["problems"][problem][1],
+                                                                                                        submission["response_type"],
+                                                                                                        show_everything).parse())
         return submission
 
     def is_running(self, submissionid, user_check=True):
@@ -273,7 +280,7 @@ class SubmissionManager(object):
             return False
         if "jobid" not in submission:
             return False
-        return self._job_manager.kill_job(submission["jobid"])
+        return self._client.kill_job(submission["jobid"])
 
     def user_is_submission_owner(self, submission):
         """ Returns true if the current user is the owner of this jobid, false else """
@@ -317,7 +324,7 @@ class SubmissionManager(object):
 
     def get_user_last_submissions_for_course(self, course, limit=5, one_per_task=False):
         """ Returns a given number (default 5) of submissions of task from the course given"""
-        return self.get_user_last_submissions({"courseid": course.get_id(), "taskid": {"$in": course.get_tasks().keys()}}, limit, one_per_task)
+        return self.get_user_last_submissions({"courseid": course.get_id(), "taskid": {"$in": list(course.get_tasks().keys())}}, limit, one_per_task)
 
     def get_gridfs(self):
         """ Returns the GridFS used by the submission manager """
@@ -340,7 +347,7 @@ class SubmissionManager(object):
         for submission in submissions:
             submission = self.get_input_from_submission(submission)
 
-            submission_yaml = StringIO.StringIO(inginious.common.custom_yaml.dump(submission).encode('utf-8'))
+            submission_yaml = io.BytesIO(inginious.common.custom_yaml.dump(submission).encode('utf-8'))
 
             # Considering multiple single submissions for each user
             for username in submission["username"]:
@@ -370,7 +377,7 @@ class SubmissionManager(object):
                 if submission_yaml_fname not in tar.getnames():
 
                     info = tarfile.TarInfo(name=submission_yaml_fname)
-                    info.size = submission_yaml.len
+                    info.size = submission_yaml.getbuffer().nbytes
                     info.mtime = time.mktime(submission["submitted_on"].timetuple())
 
                     # Add file in tar archive
@@ -391,7 +398,7 @@ class SubmissionManager(object):
 
                     # If there files that were uploaded by the student, add them
                     if submission['input'] is not None:
-                        for pid, problem in submission['input'].iteritems():
+                        for pid, problem in submission['input'].items():
                             # If problem is a dict, it is a file (from the specification of the problems)
                             if isinstance(problem, dict):
                                 # Get the extension (match extensions with more than one dot too)
@@ -404,12 +411,12 @@ class SubmissionManager(object):
                                         if problem['filename'].endswith(t_ext):
                                             ext = t_ext
 
-                                subfile = StringIO.StringIO(base64.b64decode(problem['value']))
+                                subfile = io.BytesIO(base64.b64decode(problem['value']))
                                 taskfname = base_path + str(submission["_id"]) + '/uploaded_files/' + pid + ext
 
                                 # Generate file info
                                 info = tarfile.TarInfo(name=taskfname)
-                                info.size = subfile.len
+                                info.size = subfile.getbuffer().nbytes
                                 info.mtime = time.mktime(submission["submitted_on"].timetuple())
 
                                 # Add file in tar archive
@@ -420,11 +427,25 @@ class SubmissionManager(object):
         tmpfile.seek(0)
         return tmpfile
 
-    def _handle_ssh_callback(self, submission_id, conn_id, ssh_key):
+    def _handle_ssh_callback(self, submission_id, host, port, password):
         """ Handles the creation of a remote ssh server """
-        if ssh_key != "":  # ignore late calls (a bit hacky, but...)
+        if host is not None:  # ignore late calls (a bit hacky, but...)
             obj = {
-                "ssh_internal_conn_id": conn_id,
-                "ssh_key": ssh_key
+                "ssh_host": host,
+                "ssh_port": port,
+                "ssh_password": password
             }
             self._database.submissions.update_one({"_id": submission_id}, {"$set": obj})
+
+
+def update_pending_jobs(database):
+    """ Updates pending jobs status in the database """
+
+    # Updates the submissions that are waiting with the status error, as the server restarted
+    database.submissions.update({'status': 'waiting'},
+                                {"$unset": {'jobid': ""},
+                                 "$set": {'status': 'error', 'grade': 0.0, 'text': 'Internal error. Server restarted'}}, multi=True)
+
+    # Updates all batch job still running
+    database.batch_jobs.update({'result': {'$exists': False}},
+                               {"$set": {"result": {"retval": -1, "stderr": "Internal error. Server restarted"}}}, multi=True)
