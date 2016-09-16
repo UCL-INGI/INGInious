@@ -84,7 +84,7 @@ $else:
                     /> Only the last
                 </label>
             </div>
-            <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-2"><input name="stored_submissions" class="form-control input-xs" style="height:20px;" value="$(stored_submissions if stored_submissions > 0 else '')" placeholder="5" type='number'></div>
+            <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-2"><input name="stored_submissions" class="form-control input-xs" style="height:20px;padding: 0 10px;" value="$(stored_submissions if stored_submissions > 0 else '')" placeholder="5" type='number'></div>
             <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-3"><label>submission(s)</label></div>
         </div>
     </div>
@@ -105,7 +105,7 @@ $else:
                     /> Hard limit:
                 </label>
             </div>
-            <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-2"><input name="submission_limit_hard" class="form-control input-xs" style="height:20px;" value="$(submission_limit['amount'] if submission_limit['period'] == -1 and submission_limit['amount'] > 0 else '')" placeholder="5"  type='number'></div>
+            <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-2"><input name="submission_limit_hard" class="form-control input-xs" style="height:20px;padding: 0 10px;" value="$(submission_limit['amount'] if submission_limit['period'] == -1 and submission_limit['amount'] > 0 else '')" placeholder="5"  type='number'></div>
             <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-3"><label>submission(s)</label></div>
         </div>
         <div class="row">
@@ -117,9 +117,9 @@ $else:
                     /> Soft limit:
                 </label>
             </div>
-            <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-2"><input name="submission_limit_soft_0" class="form-control input-xs" style="height:20px;" value="$(submission_limit['amount'] if submission_limit['amount'] > 0 and submission_limit['period'] > 0 else '')" placeholder="5" type='number'></div>
+            <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-2"><input name="submission_limit_soft_0" class="form-control input-xs" style="height:20px;padding: 0 10px;" value="$(submission_limit['amount'] if submission_limit['amount'] > 0 and submission_limit['period'] > 0 else '')" placeholder="5" type='number'></div>
             <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-3"><label>submission(s) every</label></div>
-            <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-2"><input name="submission_limit_soft_1" class="form-control input-xs" style="height:20px;" value="$(submission_limit['period'] if submission_limit['period'] > 0 else '')" placeholder="5" type='number'></div>
+            <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-2"><input name="submission_limit_soft_1" class="form-control input-xs" style="height:20px;padding: 0 10px;" value="$(submission_limit['period'] if submission_limit['period'] > 0 else '')" placeholder="5" type='number'></div>
             <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-1"><label>hour(s)</label></div>
         </div>
     </div>
