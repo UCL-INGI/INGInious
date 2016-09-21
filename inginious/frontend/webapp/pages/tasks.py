@@ -108,10 +108,7 @@ class TaskPage(INGIniousPage):
                     group = self.database.aggregations.find_one(
                         {"courseid": task.get_course_id(), "groups.students": self.user_manager.session_username()},
                         {"groups": {"$elemMatch": {"students": self.user_manager.session_username()}}})
-                    if group is not None and len(group["groups"]) != 0:
-                        students = group["groups"][0]["students"]
-                    else:
-                        return self.template_helper.get_renderer().task_unavailable_ungrouped()
+                    students = group["groups"][0]["students"]
                 else:
                     students = [self.user_manager.session_username()]
 
