@@ -11,6 +11,7 @@ import signal
 from gridfs import GridFS
 from pymongo import MongoClient
 import web
+from web.debugerror import debugerror
 
 from inginious.frontend.common.arch_helper import create_arch, start_asyncio_and_zmq
 from inginious.frontend.common.static_middleware import StaticMiddleware
@@ -157,6 +158,10 @@ def get_app(config):
 
     # Not found page
     appli.notfound = lambda: web.notfound(template_helper.get_renderer().notfound('Page not found'))
+
+    # Enable stacktrace display if logging is at level DEBUG
+    if config.get('log_level', 'INFO') == 'DEBUG':
+        appli.internalerror = debugerror
 
     # Insert the needed singletons into the application, to allow pages to call them
     appli.plugin_manager = plugin_manager
