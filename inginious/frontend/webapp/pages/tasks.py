@@ -104,13 +104,14 @@ class TaskPage(INGIniousPage):
                 submissionid = user_task.get('submissionid', None)
                 eval_submission = self.database.submissions.find_one({'_id': ObjectId(submissionid)}) if submissionid else None
 
+                students = [self.user_manager.session_username()]
                 if task.is_group_task() and not self.user_manager.has_admin_rights_on_course(course, username):
                     group = self.database.aggregations.find_one(
                         {"courseid": task.get_course_id(), "groups.students": self.user_manager.session_username()},
                         {"groups": {"$elemMatch": {"students": self.user_manager.session_username()}}})
-                    students = group["groups"][0]["students"]
-                else:
-                    students = [self.user_manager.session_username()]
+                    if group is not None and len(group["groups"]) > 0:
+                        students = group["groups"][0]["students"]
+                    # we don't care for the other case, as the student won't be able to submit.
 
                 # Display the task itself
                 return self.template_helper.get_renderer().task(course, task,
