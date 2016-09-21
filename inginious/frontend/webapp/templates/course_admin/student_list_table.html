@@ -57,7 +57,7 @@ $ is_admin = user_manager.has_admin_rights_on_course(course)
                         <a href="$user['url']" class="btn btn-default btn-xs" title="Download submissions"
                            data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
                         $if not is_staff and is_admin:
-                            <button type="button" data-username="$user['realname']" data-type="single" data-toggle="modal" data-target="#remove_modal" class="btn btn-warning btn-xs remove_user" title="Unregister"><i class="fa fa-user-times"></i></button>
+                            <button type="button" data-username="$user['username']" data-type="single" data-toggle="modal" data-target="#remove_modal" class="btn btn-warning btn-xs remove_user" title="Unregister"><i class="fa fa-user-times"></i></button>
                     </div>
                 </td>
             </tr>
