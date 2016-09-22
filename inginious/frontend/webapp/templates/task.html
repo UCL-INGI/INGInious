@@ -25,7 +25,7 @@ $def ColumnF():
         <tr>
             <td>Status</td>
             <td id="task_status">
-                $if not eval_submission and len(submissions) == 0:
+                $if not eval_submission or len(submissions) == 0:
                     Not yet attempted
                 $elif eval_submission["status"] == "done" and eval_submission["result"] == "success":
                         Succeeded
