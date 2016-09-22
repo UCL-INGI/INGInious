@@ -95,6 +95,7 @@ class TaskPage(INGIniousPage):
                     web.header('Content-Type', 'text/plain')
                     return sinput[userinput["questionid"]]
             else:
+                # user_task always exists as we called user_saw_task before
                 user_task = self.database.user_tasks.find_one({
                     "courseid": task.get_course_id(),
                     "taskid": task.get_id(),
@@ -180,6 +181,7 @@ class TaskPage(INGIniousPage):
                         result = self.submission_manager.get_input_from_submission(result)
                         result = self.submission_manager.get_feedback_from_submission(result, show_everything=is_staff)
 
+                        # user_task always exists as we called user_saw_task before
                         user_task = self.database.user_tasks.find_one({
                                      "courseid":task.get_course_id(),
                                      "taskid": task.get_id(),

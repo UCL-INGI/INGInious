@@ -8,6 +8,7 @@ import logging
 from abc import ABCMeta, abstractmethod
 from datetime import datetime
 from datetime import timedelta
+from functools import reduce
 
 from inginious.frontend.common.user_manager import AbstractUserManager
 
@@ -454,8 +455,9 @@ class UserManager(AbstractUserManager):
                self.has_staff_rights_on_course(task.get_course(), username)
 
     def task_can_user_submit(self, task, username=None, only_check=None):
-        """ returns true if the user can submit his work for this task """
-        """ :param only_check : only checks for 'groups', 'tokens', or None if all checks"""
+        """ returns true if the user can submit his work for this task
+            :param only_check : only checks for 'groups', 'tokens', or None if all checks
+        """
         if username is None:
             username = self.session_username()
 
@@ -482,29 +484,28 @@ class UserManager(AbstractUserManager):
         # Check for token availability
         enough_tokens = True
         timenow = datetime.now()
-        for student in students:
-            if not only_check or only_check == 'tokens':
-                user_task = self._database.user_tasks.find_one({"courseid": task.get_course_id(), "taskid": task.get_id(), "username": student})
-                submission_limit = task.get_submission_limit()
-                if user_task is not None and "tokens" in user_task:
-                    if submission_limit == {"amount": -1, "period": -1}:
-                        enough_tokens = True and enough_tokens
-                    elif submission_limit["period"] <= 0:
-                        enough_tokens = user_task["tokens"]["amount"] < submission_limit["amount"]
-                    else:
-                        if user_task["tokens"]["amount"] < submission_limit["amount"]:
-                            enough_tokens = True and enough_tokens
-                        elif user_task["tokens"]["date"] < timenow - timedelta(hours=submission_limit["period"]):
-                            enough_tokens = True and enough_tokens
-                            self._database.user_tasks.find_one_and_update(user_task, {"$set": {"tokens": {"amount": 0, "date": datetime.now()}}})
-                        else:
-                            enough_tokens = False and enough_tokens
-                else:
-                    enough_tokens = True and enough_tokens
-                    self._database.user_tasks.find_one_and_update(user_task, {
-                        "$set": {"tokens": {"amount": 0, "date": datetime.now()}}})
+        submission_limit = task.get_submission_limit()
+        if not only_check or only_check == 'tokens':
+            if submission_limit == {"amount": -1, "period": -1}:
+                # no token limits
+                enough_tokens = True
             else:
-                enough_tokens = True and enough_tokens
+                # select users with a cache for this particular task
+                user_tasks = list(self._database.user_tasks.find({"courseid": task.get_course_id(),
+                                                                  "taskid": task.get_id(),
+                                                                  "username": {"$in": students}}))
+                # verify that they all can submit
+                def check_tokens_for_user_task(user_task):
+                    if user_task["tokens"]["amount"] < submission_limit["amount"]:
+                        return True
+                    elif submission_limit["period"] > 0 and user_task["tokens"]["date"] < timenow - timedelta(hours=submission_limit["period"]):
+                        # time limit for the tokens is reached; reset the tokens
+                        self._database.user_tasks.find_one_and_update(user_task, {"$set": {"tokens": {"amount": 0, "date": datetime.now()}}})
+                        return True
+                    else:
+                        return False
+
+                enough_tokens = reduce(lambda old,user_task: old and check_tokens_for_user_task(user_task), user_tasks, True)
 
         return (course_registered and task_accessible and group_filter and enough_tokens) or staff_right
 
