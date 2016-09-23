@@ -40,11 +40,15 @@ class CourseStudentTaskSubmission(INGIniousAdminPage):
                     "content": None,
                     "language": "plain",
                     "feedback": submission.get("problems", {}).get(problem.get_id(), None),
-                    "base64": None
+                    "base64": None,
+                    "mime": "text/plain"
                 }
                 if isinstance(problem, DisplayableCodeFileProblem):
+                    if submission["input"][problem.get_id()]["filename"].endswith(".pdf"):
+                        data["language"] = "pdf"
+                        data["mime"] = "application/pdf"
                     try:
-                        data["content"] = str(base64.b64decode(submission["input"][problem.get_id()]["value"]))
+                        data["content"] = base64.b64decode(submission["input"][problem.get_id()]["value"]).encode('utf8')
                     except:
                         data["content"] = None
                     data["base64"] = submission["input"][problem.get_id()]["value"]
@@ -81,7 +85,8 @@ class CourseStudentTaskSubmission(INGIniousAdminPage):
                     "content": None,
                     "language": "plain",
                     "feedback": submission.get("problems", {}).get(problem.get_id(), None),
-                    "base64": None
+                    "base64": None,
+                    "mime": "text/plain"
                 }
                 to_display.append(data)
 
@@ -97,11 +102,15 @@ class CourseStudentTaskSubmission(INGIniousAdminPage):
                     "content": None,
                     "language": "plain",
                     "feedback": submission.get("problems", {}).get(pid, None),
-                    "base64": None
+                    "base64": None,
+                    "mime": "text/plain"
                 }
                 if isinstance(submission["input"][pid], dict):  # file
+                    if submission["input"][pid]["filename"].endswith(".pdf"):
+                        data["language"] = "pdf"
+                        data["mime"] = "application/pdf"
                     try:
-                        data["content"] = str(base64.b64decode(submission["input"][pid]["value"]))
+                        data["content"] = base64.b64decode(submission["input"][pid]["value"]).decode('utf-8')
                     except:
                         data["content"] = None
                     data["base64"] = submission["input"][pid]["value"]
