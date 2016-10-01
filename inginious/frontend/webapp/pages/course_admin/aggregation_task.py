@@ -28,9 +28,13 @@ class CourseAggregationTaskPage(INGIniousAdminPage):
         """ Get all data and display the page """
         aggregation = self.database.aggregations.find_one({"_id": ObjectId(aggregationid)})
 
-        data = list(
-            self.database.submissions.find({"username": {"$in": aggregation["students"]}, "courseid": course.get_id(), "taskid": task.get_id()}).sort(
-                [("submitted_on", pymongo.DESCENDING)]))
+        data = list(self.database.submissions.find({"username": {"$in": aggregation["students"]},
+                                                    "courseid": course.get_id(),
+                                                    "taskid": task.get_id()},
+                                                   {"text": False,
+                                                    "response_type": False,
+                                                    "archive": False,
+                                                    "input": False}).sort([("submitted_on", pymongo.DESCENDING)]))
         data = [dict(list(f.items()) + [("url", self.submission_url_generator(course, str(f["_id"])))]) for f in data]
         if "csv" in web.input():
             return make_csv(data)
