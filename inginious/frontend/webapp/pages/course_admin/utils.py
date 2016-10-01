@@ -72,6 +72,7 @@ class UnicodeWriter(object):
         self.stream.write(data)
         # empty queue
         self.queue.truncate(0)
+        self.queue.seek(0)
 
     def writerows(self, rows):
         """ Writes multiple rows to the CSV file """
