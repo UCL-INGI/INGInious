@@ -11,13 +11,14 @@ from inginious.frontend.common.user_manager import AbstractUserManager
 
 
 class UserManager(AbstractUserManager):
-    def __init__(self, session, database):
+    def __init__(self, session, database, lti_user_name):
         """
         :type session: inginious.frontend.lti.custom_session.CustomSession
         :type database: pymongo.database.Database
         """
         self._session = session
         self._database = database
+        self._lti_user_name = lti_user_name
 
     def session_logged_in(self):
         """ Returns True if a user is currently connected in this session, False else """
@@ -72,11 +73,11 @@ class UserManager(AbstractUserManager):
             return None
         return self._get_session_dict()["outcome_result_id"]
 
-    def lti_auth(self, user_id, roles, realname, email, course_id, task_id, consumer_key, outcome_service_url, outcome_result_id):
+    def lti_auth(self, user_id, roles, realname, email, course_id, task_id, consumer_key, outcome_service_url, outcome_result_id, ext_user_username):
         """ LTI Auth """
         self._set_session_dict({
             "email": email,
-            "username": user_id,
+            "username": ext_user_username if self._lti_user_name == 'ext_user_username' else user_id,
             "realname": realname,
             "roles": roles,
             "task": (course_id, task_id),
