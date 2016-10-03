@@ -494,9 +494,10 @@ class UserManager(AbstractUserManager):
                 user_tasks = list(self._database.user_tasks.find({"courseid": task.get_course_id(),
                                                                   "taskid": task.get_id(),
                                                                   "username": {"$in": students}}))
+
                 # verify that they all can submit
                 def check_tokens_for_user_task(user_task):
-                    if user_task["tokens"]["amount"] < submission_limit["amount"]:
+                    if "tokens" not in user_task or user_task["tokens"]["amount"] < submission_limit["amount"]:
                         return True
                     elif submission_limit["period"] > 0 and user_task["tokens"]["date"] < timenow - timedelta(hours=submission_limit["period"]):
                         # time limit for the tokens is reached; reset the tokens
