@@ -120,8 +120,8 @@ class UserManager(AbstractUserManager):
         grader = task.get_evaluate()
         if grader == 'last':
             val = list(grades.sort([("submitted_on", pymongo.DESCENDING)]).limit(1))
-        else:
-            val = list(grades.sort([("grade", pymongo.ASCENDING)]).limit(1))
+        else:  # best : student selection is not supported here
+            val = list(grades.sort([("grade", pymongo.DESCENDING)]).limit(1))
         return val
 
 
