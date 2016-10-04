@@ -9,6 +9,7 @@ import json
 import logging
 import mimetypes
 import urllib.request, urllib.parse, urllib.error
+import logging
 
 import web
 
@@ -21,9 +22,11 @@ class LTITask(LTIAuthenticatedPage):
     _logger = logging.getLogger("inginious.lti.tasks")
 
     def LTI_GET_NOT_CONNECTED(self):
+        self._logger.debug('LTI_GET_NOT_CONNECTED')
         return self.LTI_POST_NOT_CONNECTED()
 
     def LTI_POST_NOT_CONNECTED(self):
+        self._logger.debug('LTI_POST_NOT_CONNECTED')
         userinput = web.input()
         if "@action" in userinput:
             web.header('Content-Type', 'application/json')
@@ -31,18 +34,23 @@ class LTITask(LTIAuthenticatedPage):
         return super(LTITask, self).LTI_POST_NOT_CONNECTED()
 
     def LTI_GET(self):
+        self._logger.debug('LTI_GET')
         return self.LTI_POST()
 
     def LTI_POST(self):
         userinput = web.input()
 
+        self._logger.debug('post with userinput=' + str(userinput))
+
         if "submissionid" in userinput and "questionid" in userinput:
             # Download a previously submitted file
             submission = self.submission_manager.get_submission(userinput["submissionid"], True)
             if submission is None:
+                self._logger.info('Error: submission not found')
                 raise web.notfound()
             sinput = self.submission_manager.get_input_from_submission(submission, True)
             if userinput["questionid"] not in sinput:
+                self._logger.info('Error: questionid not found')
                 raise web.notfound()
 
             if isinstance(sinput[userinput["questionid"]], dict):
@@ -93,6 +101,7 @@ class LTITask(LTIAuthenticatedPage):
             submission = self.submission_manager.get_feedback_from_submission(submission,
                                                                               show_everything="Administrator" in self.user_manager.session_roles())
             if not submission:
+                self._logger.info('ERROR: not submission')
                 raise web.notfound()
             web.header('Content-Type', 'application/json')
             return submission_to_json(submission, "Administrator" in self.user_manager.session_roles(), True)

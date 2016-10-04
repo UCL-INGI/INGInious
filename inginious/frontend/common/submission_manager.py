@@ -99,7 +99,8 @@ class SubmissionManager(object, metaclass=ABCMeta):
             "status": "waiting",
             "submitted_on": datetime.now(),
             "username": [username],
-            "response_type": task.get_response_type()
+            "response_type": task.get_response_type(),
+            "lti_grader_method" : task.get_lti_grader_method()
         }
 
         self._before_submission_insertion(task, inputdata, debug, obj)

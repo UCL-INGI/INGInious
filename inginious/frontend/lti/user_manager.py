@@ -106,6 +106,35 @@ class UserManager(AbstractUserManager):
         for key, val in value.items():
             self._session[key] = val
 
+    def _get_task_grade_list(self, task, username):
+        """
+        Refactoring grade extraction code to simplify ordering
+        :param task: a Task object
+        :param username: The username of the user for who we want to retrieve the grade. If None, uses self.session_username()
+        :return: list of grades
+        """
+
+        grades =  self._database.submissions.find({"username": username, "courseid": task.get_course_id(),
+                                                   "taskid": task.get_id(),
+                                                   "status": "done"})
+
+        #
+        # Backwards compatability - if it's not specified, it should be max
+        #
+        grader = task.get_lti_grader_method() or 'max'
+        if grader == 'last':
+            val = list(grades.sort([("submitted_on", pymongo.DESCENDING)]).limit(1))
+        elif grader == 'first':
+            val = list(grades.sort([("submitted_on", pymongo.ASCENDING)]).limit(1))
+        elif grader == 'max':
+            val = list(grades.sort([("grade", pymongo.ASCENDING)]).limit(1))
+        elif grader == 'min':
+            val = list(grades.sort([("grade", pymongo.DESCENDING)]).limit(1))
+        else:
+            val = list(grades.limit(1))
+        return val
+
+
     def get_task_status(self, task, username=None):
         """
         :param task: a Task object
@@ -113,10 +142,7 @@ class UserManager(AbstractUserManager):
         :return: "succeeded" if the current user solved this task, "failed" if he failed, and "notattempted" if he did not try it yet
         """
         username = username or self.session_username()
-
-        val = list(self._database.submissions.find({"username": username, "courseid": task.get_course_id(), "taskid": task.get_id(),
-                                                    "status": "done"}).sort([("grade", pymongo.DESCENDING)]).limit(1))
-
+        val = self._get_task_grade_list(task, username)
         if len(val) == 1:
             if val[0]["result"] == "success":
                 return "succeeded"
@@ -131,9 +157,7 @@ class UserManager(AbstractUserManager):
         :return: a floating point number (percentage of max grade)
         """
         username = username or self.session_username()
-
-        val = list(self._database.submissions.find({"username": username, "courseid": task.get_course_id(), "taskid": task.get_id(),
-                                                    "status": "done"}).sort([("grade", pymongo.DESCENDING)]).limit(1))
+        val = self._get_task_grade_list(task, username)
         if len(val) == 1:
             return float(val[0]["grade"])
         return 0.0

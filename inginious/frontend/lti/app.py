@@ -137,7 +137,10 @@ def get_app(config):
     template_helper.add_to_template_globals("default_max_file_size", default_max_file_size)
 
     # Not found page
-    appli.notfound = lambda: web.notfound(template_helper.get_renderer().notfound('Page not found'))
+    if config.get('log_level', 'DEBUG') == 'DEBUG':
+        appli.notfound = lambda: web.internalerror()
+    else:
+        appli.notfound = lambda: web.notfound(template_helper.get_renderer().notfound('Page not found'))
 
     # Insert the needed singletons into the application, to allow pages to call them
     appli.plugin_manager = plugin_manager

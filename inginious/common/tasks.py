@@ -56,6 +56,8 @@ class Task(object):
         for problemid in self._data['problems']:
             self._problems.append(self._create_task_problem(problemid, self._data['problems'][problemid], task_problem_types))
 
+        self._lti_grader_method = self._data.get("lti_grader_method", "max")
+
     def input_is_consistent(self, task_input, default_allowed_extension, default_max_size):
         """ Check if an input for a task is consistent. Return true if this is case, false else """
         for problem in self._problems:
@@ -74,6 +76,10 @@ class Task(object):
     def get_problems(self):
         """ Get problems contained in this task """
         return self._problems
+
+    def get_lti_grader_method(self):
+        """ Get the grader method for this task """
+        return self._lti_grader_method
 
     def get_course_id(self):
         """ Return the courseid of the course that contains this task """
