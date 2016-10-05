@@ -13,8 +13,6 @@ from datetime import datetime
 from bson.objectid import ObjectId
 import web
 
-from inginious.frontend.common.parsable_text import ParsableText
-
 
 class BatchManager(object):
     """
@@ -75,11 +73,7 @@ class BatchManager(object):
 
         metadata = self._client.get_batch_containers_metadata()[container_name]
         if metadata != (None, None, None):
-            for key, val in metadata["parameters"].items():
-                if "description" in val:
-                    val["description"] = ParsableText(val["description"].replace('\\n', '\n').replace('\\t', '\t'), 'rst').parse()
-            metadata = (container_name, ParsableText(metadata["description"].replace('\\n', '\n').replace('\\t', '\t'), 'rst').parse(),
-                        metadata["parameters"])
+            metadata = (container_name, metadata["description"], metadata["parameters"])
         return metadata
 
     def get_all_batch_containers_metadata(self):

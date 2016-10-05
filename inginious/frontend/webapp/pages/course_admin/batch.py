@@ -8,11 +8,11 @@ import tarfile
 import mimetypes
 import urllib.request, urllib.parse, urllib.error
 import tempfile
-
+import copy
 import web
 
+from inginious.frontend.common.parsable_text import ParsableText
 from inginious.frontend.webapp.pages.course_admin.utils import INGIniousAdminPage
-
 
 class CourseBatchOperations(INGIniousAdminPage):
     """ Batch operation management """
@@ -93,9 +93,12 @@ class CourseBatchJobCreate(INGIniousAdminPage):
             raise web.notfound()
 
         container_title = metadata[0]
-        container_description = metadata[1]
+        container_description = ParsableText(metadata[1].encode('utf-8').decode("unicode_escape"), 'rst')
 
-        container_args = dict(metadata[2])  # copy it
+        container_args = copy.deepcopy(metadata[2])  # copy it
+        for item, val in container_args.items():
+            if "description" in val:
+                val['description'] = ParsableText(val['description'].encode('utf-8').decode("unicode_escape"), 'rst').parse()
 
         return course, container_title, container_description, container_args
 
