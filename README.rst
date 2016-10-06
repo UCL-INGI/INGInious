@@ -36,3 +36,10 @@ Notes on security
 -----------------
 
 Docker containers can be used securely with SELinux enabled. Please do not run untrusted code without activating SELinux.
+
+Mailing list
+------------
+
+A mailing list for both usage and development discussion can be joined by registering here_.
+
+..  _here: https://sympa-2.sipr.ucl.ac.be/sympa/info/inginious
