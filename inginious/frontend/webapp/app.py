@@ -6,7 +6,6 @@
 """ Starts the webapp """
 import logging
 import os
-import signal
 
 from gridfs import GridFS
 from pymongo import MongoClient
@@ -14,11 +13,9 @@ import web
 from web.debugerror import debugerror
 
 from inginious.frontend.common.arch_helper import create_arch, start_asyncio_and_zmq
-from inginious.frontend.common.static_middleware import StaticMiddleware
 from inginious.frontend.webapp.database_updater import update_database
 from inginious.frontend.common.plugin_manager import PluginManager
 from inginious.common.course_factory import create_factories
-from inginious.common.log import init_logging, CustomLogMiddleware
 from inginious.frontend.webapp.tasks import WebAppTask
 from inginious.frontend.webapp.courses import WebAppCourse
 from inginious.frontend.webapp.submission_manager import WebAppSubmissionManager
@@ -187,53 +184,9 @@ def get_app(config):
     # Start the inginious.backend
     client.start()
 
-    return appli, lambda: _close_app(appli, mongo_client, client)
+    return appli.wsgifunc(), lambda: _close_app(appli, mongo_client, client)
 
 
-def runfcgi(func, addr=('localhost', 8000)):
-    """Runs a WSGI function as a FastCGI server."""
-    import flup.server.fcgi as flups
-
-    return flups.WSGIServer(func, multiplexed=True, bindAddress=addr, debug=False).run()
-
-
-def start_app(config, hostname="localhost", port=8080, sshhost=None, sshport=8081):
-    """
-    :type config: collections.OrderedDict
-    :type hostname: str
-    :type port: int
-    :param sshhost:
-    :type sshport: int
-    :return:
-    """
-    init_logging(config.get('log_level', 'INFO'))
-    app, close_app_func = get_app(config)
-
-    func = app.wsgifunc()
-
-    if 'SERVER_SOFTWARE' in os.environ:  # cgi
-        os.environ['FCGI_FORCE_CGI'] = 'Y'
-
-    if 'PHP_FCGI_CHILDREN' in os.environ or 'SERVER_SOFTWARE' in os.environ:  # lighttpd fastcgi
-        return runfcgi(func, None)
-
-    # Close the client when interrupting the app
-    def close_app_signal():
-        close_app_func()
-        raise KeyboardInterrupt()
-
-    signal.signal(signal.SIGINT, lambda _, _2: close_app_signal())
-    signal.signal(signal.SIGTERM, lambda _, _2: close_app_signal())
-
-    inginious_root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-    func = StaticMiddleware(func, (
-        ('/static/common/', os.path.join(inginious_root_path, 'frontend', 'common', 'static')),
-        ('/static/webapp/', os.path.join(inginious_root_path, 'frontend', 'webapp', 'static'))
-    ))
-    func = CustomLogMiddleware(func, logging.getLogger("inginious.webapp.requests"))
-    server = web.httpserver.WSGIServer((hostname, port), func)
-    logging.getLogger("inginious.webapp").info("http://%s:%d/" % (hostname, port))
-    try:
-        server.start()
-    except KeyboardInterrupt:
-        server.stop()
+def get_root_path():
+    """ Returns the INGInious root path """
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
