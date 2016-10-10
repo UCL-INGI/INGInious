@@ -71,3 +71,21 @@ Setting up other LMS
 
 INGInious has only been tested with edX and Moodle, but it should work out-of-the-box with any LMS that respects LTI 1.1.
 You are on your own for the configuration, though; but with the LTI keys and the launch URL, it should be enough to configure anything.
+
+Troubleshooting Problems
+````````````````````
+Some things to check if you're having problems:
+
+* INGInious uses PyLTI which uses oauth, oauth2 and libhttp2. The list of 
+  certificate authorities known to libhttp2 may be out of day with your
+  host operating system. In particular, as of August 2016, it does not
+  include the LetsEncrypt CA, and thus websites protected with a LetsEncrypt
+  certificate won't work (you won't be able to push grades back)
+
+* LTI uses OAuth which uses time-based replay prevention. You need to insure
+  that your webserver (LTI consumer) and LTI producer have reasonably
+  synchronous clocks.
+
+* You may find `http://ltiapps.net/test/tp.php` and `http://ltiapps.net/test/t.php`
+  useful when debugging producers and consumers.
+
