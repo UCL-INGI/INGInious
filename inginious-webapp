@@ -18,8 +18,6 @@ import logging
 os.environ['INGINIOUS_WEBAPP_CONFIG'] = os.environ.get("INGINIOUS_WEBAPP_CONFIG", "")
 os.environ['INGINIOUS_WEBAPP_HOST'] = os.environ.get("INGINIOUS_WEBAPP_HOST", "localhost")
 os.environ['INGINIOUS_WEBAPP_PORT'] = os.environ.get("INGINIOUS_WEBAPP_PORT", "8080")
-os.environ['INGINIOUS_WEBAPP_SSHHOST'] = os.environ.get("INGINIOUS_WEBAPP_SSHHOST", "")
-os.environ['INGINIOUS_WEBAPP_SSHPORT'] = os.environ.get("INGINIOUS_WEBAPP_SSHPORT", "8081")
 
 # If INGInious files are not installed in Python path
 sys.path.append(os.path.dirname(__file__))
@@ -37,24 +35,15 @@ if __name__ == "__main__":
                         help="Path to configuration file. By default: configuration.yaml or configuration.json", default=os.environ["INGINIOUS_WEBAPP_CONFIG"])
     parser.add_argument("--host", help="Host to bind to. Default is localhost.", default=os.environ["INGINIOUS_WEBAPP_HOST"])
     parser.add_argument("--port", help="Port to listen to. Default is 8080.", type=int, default=os.environ["INGINIOUS_WEBAPP_PORT"])
-    parser.add_argument("--sshhost",
-                        help="Port to listen to for container remote debugging. If you do not set it, remote debugging will be "
-                             "deactivated.", default=os.environ["INGINIOUS_WEBAPP_SSHHOST"])
-    parser.add_argument("--sshport", help="Port to listen to for container remote debugging. Default is 8081.",
-                        type=int, default=os.environ["INGINIOUS_WEBAPP_SSHPORT"])
     args = parser.parse_args()
 
     host = args.host
     port = args.port
-    sshhost = args.sshhost
-    sshport = args.sshport
     configfile = args.config
 else:
     # Parse the parameters from environment variables
     host = os.environ["INGINIOUS_WEBAPP_HOST"]
     port = os.environ["INGINIOUS_WEBAPP_PORT"]
-    sshhost = os.environ["INGINIOUS_WEBAPP_SSHHOST"]
-    sshport = os.environ["INGINIOUS_WEBAPP_SSHPORT"]
     configfile = os.environ["INGINIOUS_WEBAPP_CONFIG"]
 
 if not configfile:
