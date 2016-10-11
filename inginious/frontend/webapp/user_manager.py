@@ -497,11 +497,16 @@ class UserManager(AbstractUserManager):
 
                 # verify that they all can submit
                 def check_tokens_for_user_task(user_task):
-                    if "tokens" not in user_task or user_task["tokens"]["amount"] < submission_limit["amount"]:
-                        return True
-                    elif submission_limit["period"] > 0 and user_task["tokens"]["date"] < timenow - timedelta(hours=submission_limit["period"]):
+                    token_dict = user_task.get("tokens", {"amount": 0, "date": datetime.fromtimestamp(0)})
+                    tokens_ok = token_dict.get("amount", 0) < submission_limit["amount"]
+                    date_limited = submission_limit["period"] > 0
+                    need_reset = token_dict.get("date", datetime.fromtimestamp(0)) < timenow - timedelta(hours=submission_limit["period"])
+
+                    if date_limited and need_reset:
                         # time limit for the tokens is reached; reset the tokens
                         self._database.user_tasks.find_one_and_update(user_task, {"$set": {"tokens": {"amount": 0, "date": datetime.now()}}})
+                        return True
+                    elif tokens_ok:
                         return True
                     else:
                         return False
