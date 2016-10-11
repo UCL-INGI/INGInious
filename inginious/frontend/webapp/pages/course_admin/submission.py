@@ -19,6 +19,16 @@ class CourseStudentTaskSubmission(INGIniousAdminPage):
         course, task = self.get_course_and_check_rights(courseid, taskid)
         return self.page(course, username, task, submissionid)
 
+    def POST(self, courseid, username, taskid, submissionid):
+        course, task = self.get_course_and_check_rights(courseid, taskid)
+
+        if "replay" in web.input():
+            submission = self.submission_manager.get_submission(submissionid, False)
+            self.submission_manager.replay_job(task, submission)
+
+        return self.page(course, username, task, submissionid)
+
+
     def page(self, course, username, task, submissionid):
         """ Get all data and display the page """
         submission = self.submission_manager.get_submission(submissionid, False)

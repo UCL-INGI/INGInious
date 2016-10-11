@@ -32,6 +32,7 @@ $var Navbar: $:NavbarF()
 <h2>Submission $submissionid[0:10] - "$:task.get_name()" - $user_realname ($username)</h2>
 <div class="alert alert-info text-center">
     This page show what was shown to the student when (s)he made his/her submission. <br/>
+    <form method="post">
     <br/>
     <a href="javascript:$$('.student_view').slideToggle()" class="btn btn-sm btn-block btn-primary">
         <i class="fa fa-filter fa-fw"></i> Click here to hide/display context informations
@@ -40,6 +41,10 @@ $var Navbar: $:NavbarF()
         <a href="/admin/$course.get_id()/download?submission=$submissionid" class="btn btn-sm btn-block btn-primary">
             <i class="fa fa-download fa-fw"></i> Download full submission
         </a>
+        <button type="submit" name="replay" class="btn btn-sm btn-block btn-primary">
+            <i class="fa fa-refresh fa-fw"></i> Replay submission
+        </button>
+    </form>
 </div>
 <div class="student_view">
     $:task.get_context()

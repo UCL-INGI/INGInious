@@ -130,6 +130,40 @@ class SubmissionManager(object, metaclass=ABCMeta):
 
         return submissionid, to_remove
 
+    def replay_job(self, task, submission):
+        """
+        Replay a submission: add the same job in the queue, keeping submission id, submission date and input data
+        :param submission: Submission to replay
+        """
+        if not self._user_manager.session_logged_in():
+            raise Exception("A user must be logged in to submit an object")
+
+        # Don't enable ssh debug
+        ssh_callback = lambda host, port, password: None
+        debug = False
+
+        # Load input data and add username to dict
+        inputdata = json.loads(self._gridfs.get(submission["input"]).read().decode("utf-8"), encoding="utf8")
+        if "username" not in [p.get_id() for p in task.get_problems()]:  # do not overwrite
+            inputdata["username"] = submission["username"][0]  # TODO: this may be inconsistent with add_job
+
+        # Remove the submission archive : it will be regenerated
+        if submission["archive"] is not None:
+            self._gridfs.delete(submission["archive"])
+
+        jobid = self._client.new_job(task, inputdata,
+                                     (lambda result, grade, problems, tests, custom, archive:
+                                      self._job_done_callback(submission["_id"], task, result, grade, problems, tests,
+                                                              custom, archive)),
+                                     "Frontend - {}".format(submission["username"]), debug, ssh_callback)
+
+        # Clean the submission document in db
+        self._database.submissions.update(
+            {"_id": submission["_id"]},
+            {"$set": {"jobid": jobid, "status": "waiting", "response_type": task.get_response_type()},
+             "$unset": {"result": "", "grade": "", "text": "", "tests": "", "problems": "", "archive": "", "custom": ""}
+             })
+
     def _before_submission_insertion(self, task, inputdata, debug, obj):
         """
         Called before any new submission is inserted into the database. Allows you to modify obj, the new document that will be inserted into the
