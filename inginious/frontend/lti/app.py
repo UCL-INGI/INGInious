@@ -161,50 +161,9 @@ def get_app(config):
     # Start the Client
     client.start()
 
-    return appli, lambda: _close_app(appli, mongo_client, client, lis_outcome_manager)
+    return appli.wsgifunc(), lambda: _close_app(appli, mongo_client, client, lis_outcome_manager)
 
 
-def runfcgi(func, addr=('localhost', 8000)):
-    """Runs a WSGI function as a FastCGI server."""
-    import flup.server.fcgi as flups
-
-    return flups.WSGIServer(func, multiplexed=True, bindAddress=addr, debug=False).run()
-
-
-def start_app(config, hostname="localhost", port=8080):
-    """
-        Get and start the application. config_file is the path to the configuration file.
-    """
-    init_logging(config.get('log_level', 'INFO'))
-
-    app, close_app_func = get_app(config)
-
-    func = app.wsgifunc()
-
-    if 'SERVER_SOFTWARE' in os.environ:  # cgi
-        os.environ['FCGI_FORCE_CGI'] = 'Y'
-
-    if 'PHP_FCGI_CHILDREN' in os.environ or 'SERVER_SOFTWARE' in os.environ:  # lighttpd fastcgi
-        return runfcgi(func, None)
-
-    # Close the client when interrupting the app
-    def close_app_signal():
-        close_app_func()
-        raise KeyboardInterrupt()
-
-    signal.signal(signal.SIGINT, lambda _, _2: close_app_signal())
-    signal.signal(signal.SIGTERM, lambda _, _2: close_app_signal())
-
-    inginious_root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-    func = StaticMiddleware(func, (
-        ('/static/common/', os.path.join(inginious_root_path, 'frontend', 'common', 'static')),
-        ('/static/lti/', os.path.join(inginious_root_path, 'frontend', 'lti', 'static'))
-    ))
-
-    func = CustomLogMiddleware(func, logging.getLogger("inginious.lti.requests"))
-    server = web.httpserver.WSGIServer((hostname, port), func)
-    logging.getLogger("inginious.lti").info("http://%s:%d/" % (hostname, port))
-    try:
-        server.start()
-    except KeyboardInterrupt:
-        server.stop()
+def get_root_path():
+    """ Returns the INGInious root path """
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))

@@ -8,30 +8,89 @@
 """ Starts the webapp """
 
 import os
+import sys
 import argparse
+import web
+import signal
+import logging
+
+# Apache wsgi module only set env vars when a request is done
+os.environ['INGINIOUS_WEBAPP_CONFIG'] = os.environ.get("INGINIOUS_WEBAPP_CONFIG", "")
+os.environ['INGINIOUS_WEBAPP_HOST'] = os.environ.get("INGINIOUS_WEBAPP_HOST", "localhost")
+os.environ['INGINIOUS_WEBAPP_PORT'] = os.environ.get("INGINIOUS_WEBAPP_PORT", "8080")
+
+# If INGInious files are not installed in Python path
+sys.path.append(os.path.dirname(__file__))
+
+from inginious.frontend.common.static_middleware import StaticMiddleware
+from inginious.common.log import init_logging, CustomLogMiddleware
 from inginious.common.base import load_json_or_yaml
 
 import inginious.frontend.webapp.app
 
 if __name__ == "__main__":
+    # Parse the paramaters from command line arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config", help="Path to configuration file. By default: configuration.yaml or configuration.json")
-    parser.add_argument("--host", help="Host to bind to. Default is localhost.", default="localhost")
-    parser.add_argument("--port", help="Port to listen to. Default is 8080.", type=int, default=8080)
-    parser.add_argument("--sshhost", help="Port to listen to for container remote debugging. If you do not set it, remote debugging will be "
-                                          "deactivated.", default=None)
-    parser.add_argument("--sshport", help="Port to listen to for container remote debugging. Default is 8081.", type=int, default = 8081)
+    parser.add_argument("--config",
+                        help="Path to configuration file. By default: configuration.yaml or configuration.json", default=os.environ["INGINIOUS_WEBAPP_CONFIG"])
+    parser.add_argument("--host", help="Host to bind to. Default is localhost.", default=os.environ["INGINIOUS_WEBAPP_HOST"])
+    parser.add_argument("--port", help="Port to listen to. Default is 8080.", type=int, default=os.environ["INGINIOUS_WEBAPP_PORT"])
     args = parser.parse_args()
 
-    config = None
-    if args.config is None:
-        if os.path.isfile("./configuration.yaml"):
-            config = "./configuration.yaml"
-        elif os.path.isfile("./configuration.json"):
-            config = "./configuration.json"
-        else:
-            raise Exception("No configuration file found")
-    else:
-        config = args.config
+    host = args.host
+    port = args.port
+    configfile = args.config
+else:
+    # Parse the parameters from environment variables
+    host = os.environ["INGINIOUS_WEBAPP_HOST"]
+    port = os.environ["INGINIOUS_WEBAPP_PORT"]
+    configfile = os.environ["INGINIOUS_WEBAPP_CONFIG"]
 
-    inginious.frontend.webapp.app.start_app(load_json_or_yaml(config), hostname=args.host, port=args.port, sshhost=args.sshhost, sshport=args.sshport)
+if not configfile:
+    if os.path.isfile("./configuration.yaml"):
+        configfile = "./configuration.yaml"
+    elif os.path.isfile("./configuration.json"):
+        configfile = "./configuration.json"
+    else:
+        raise Exception("No configuration file found")
+
+# Load configuration and application (!!! For mod_wsgi, application identifier must be present)
+config = load_json_or_yaml(configfile)
+application, close_app_func = inginious.frontend.webapp.app.get_app(config)
+
+# Init logging
+init_logging(config.get('log_level', 'INFO'))
+logging.getLogger("inginious.webapp").info("http://%s:%d/" % (host, int(port)))
+
+if 'SERVER_SOFTWARE' in os.environ:  # cgi
+    os.environ['FCGI_FORCE_CGI'] = 'Y'
+
+if 'PHP_FCGI_CHILDREN' in os.environ or 'SERVER_SOFTWARE' in os.environ:  # lighttpd fastcgi
+    import flup.server.fcgi as flups
+    flups.WSGIServer(application, multiplexed=True, bindAddress=None, debug=False).run()
+
+# Launch the integrated websever if app launched in cmd line
+if __name__ == "__main__":
+    # Close the client when interrupting the app
+    def close_app_signal():
+        close_app_func()
+        raise KeyboardInterrupt()
+
+    signal.signal(signal.SIGINT, lambda _, _2: close_app_signal())
+    signal.signal(signal.SIGTERM, lambda _, _2: close_app_signal())
+
+    # Add static redirection and request log
+    root_path = inginious.frontend.webapp.app.get_root_path()
+    application = StaticMiddleware(application, (
+        ('/static/common/', os.path.join(root_path, 'frontend', 'common', 'static')),
+        ('/static/webapp/', os.path.join(root_path, 'frontend', 'webapp', 'static'))
+    ))
+    application = CustomLogMiddleware(application, logging.getLogger("inginious.webapp.requests"))
+
+    # Launch the app
+    server = web.httpserver.WSGIServer((args.host, int(args.port)), application)
+    try:
+        server.start()
+    except KeyboardInterrupt:
+        server.stop()
+

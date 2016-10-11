@@ -322,3 +322,80 @@ Finally, start the server:
     $ sudo chkconfig lighttpd on
     $ sudo service lighttpd start
 
+
+Using Apache (on CentOS 7.0)
+----------------------------
+
+You may also want to use Apache. You should install `mod_wsgi`.
+WSGI interfaces are supported through `inginious-webapp` and `inginious-lti` scripts.
+Due to limitations in the way that Apache passes environment variables to WSGI
+scripts (after requests), **these scripts need to be modified** to indicate the configuration files and the
+code path for your installation.
+
+You will need to add user `apache` to the docker group.
+
+The following Apache configuration is suitable to run e.g. the LTI service
+assuming the source repository is in `/var/www/INGInious`.
+
+::
+
+    WSGIPythonPath /var/www/INGInious/
+    
+    # This is a desired solution, but does not work.
+    # See https://gist.github.com/GrahamDumpleton/b380652b768e81a7f60c
+    # for alternate solutions
+    
+    #SetEnv INGInious_CONFIG_LTI /var/www/INGInious/configuration.lti.yaml
+    #SetEnv INGInious_PATH_LTI /var/www/INGInious/
+    
+    Listen 8080
+    <VirtualHost *:8080>
+        ServerName yourhost.com
+        Redirect temp / https://yourhost.com:8443/
+    </VirtualHost>
+    
+    Listen 8443
+    <VirtualHost *:8443>
+    
+        ServerName yourhost.com
+        ServerAdmin help@yourhost.com
+    
+        WSGIDaemonProcess inginious-lti user=apache group=apache threads=5
+        WSGIProcessGroup inginious-lti
+        WSGIScriptAlias / /var/www/INGInious/inginious-lti
+        WSGIScriptReloading On
+    
+        Alias /static/common /var/www/INGInious/inginious/frontend/common/static
+        Alias /static/webapp /var/www/INGInious/inginious/frontend/webapp/static
+        Alias /static/lti /var/www/INGInious/inginious/frontend/lti/static
+    
+        AddType text/html .py
+    
+        <Directory /var/www/INGInious>
+            Order deny,allow
+                  Allow from all
+            </Directory>
+    
+        # This is necessary to prevent logging to Inginious usernames/passwords
+      	# from clients makign reeusts to the token.php endpoint (e.g. Inginious
+            # Android App, COG, etc)
+    	SetEnvIf Request_URI "token.php" dontlog
+    
+        ErrorLog /var/log/httpd/inginious-lti-error-ssl.log
+        CustomLog /var/log/httpd/inginious-lti-access-ssl.log combined env=!dontlog
+        CustomLog /var/log/httpd/inginious-lti-request-ssl.log \
+    	          "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b" \
+    		  env=!dontlog
+    
+        SSLEngine on
+        SSLCertificateFile      /etc/ssl/your.crt
+        SSLCertificateChainFile /etc/ssl/your.chain
+        SSLCertificateKeyFile   /etc/ssl/your.key
+    
+        SetEnvIf User-Agent ".*MSIE.*" nokeepalive ssl-unclean-shutdown
+    		  
+        ServerSignature On
+    
+    </VirtualHost>
+    
+    # vim: syntax=apache ts=4 sw=4 sts=4 sr noet
