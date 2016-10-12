@@ -110,13 +110,13 @@ Windows 7+
 ``````````
 
 .. DANGER::
-    The tutorial for Windows is not up-to-date. It does not reflect the recent change to Python 3. Help wanted!
+    INGInious rely on Docker to run containers. While Docker is supported on Windows 10 (version 1607), INGInious does not
+    provide support for Windows containers yet.
 
-Download and install Python_, Docker_Toolbox_ and MongoDB_.
+The recommended way to run INGInious under Windows is by using a Linux virtual machine, for much more simplicity. One can
+also only run the Docker agent under a Linux virtual machine and run the backend and selected frontend under Windows.
 
-
-A docker machine (use the docker quickstart terminal) and MongoDB must be running to run INGInious. To run MongoDB as a service, please refer to th
-appropriate documentation.
+In the later case, you'll need to install Python 3.5+, MongoDB, LibTidy and LibZMQ.
 
 .. _Installpip:
 
@@ -222,11 +222,11 @@ If you use the LTI frontend, you have to add it to your LMS: follow the instruct
 .. _production:
 .. _lighttpd:
 
-Using lighttpd (on CentOS 7.0)
+Using lighttpd (on CentOS 7.x)
 ------------------------------
 
 In production environments, you can use lighttpd in replacement of the built-in Python server.
-This guide is made for CentOS 7.0.
+This guide is made for CentOS 7.x.
 
 Install lighttpd with fastcgi:
 
@@ -249,15 +249,6 @@ Create a folder for INGInious, for example /var/www/INGInious, and allow lighttp
     $ chown -R lighttpd:lighthttpd /var/www/INGInious
 
 Now, Run the ``inginious-install`` command (see :ref:`config`).
-Next, create a file named ``start-webapp.sh``, run ``chmod +x`` on it, and put inside:
-
-::
-
-    #! /bin/bash
-    cd /var/www/INGInious
-    inginious-webapp
-
-Replace ``webapp`` by ``lti`` if you want to use the LTI frontend.
 
 Once this is done, we can configure lighttpd. First, the file */etc/lighttpd/lighttpd.conf*. Modify the document root:
 
@@ -286,16 +277,18 @@ You can then replace the content of fastcgi.conf with:
     server.modules   += ( "mod_rewrite" )
 
     alias.url = (
-        "/static/webapp/" => "/usr/lib/python2.7/site-packages/inginious/frontend/webapp/static/",
-        "/static/common/" => "/usr/lib/python2.7/site-packages/inginious/frontend/common/static/"
+        "/static/webapp/" => "/usr/lib/python3.5/site-packages/inginious/frontend/webapp/static/",
+        "/static/common/" => "/usr/lib/python3.5/site-packages/inginious/frontend/common/static/"
     )
 
     fastcgi.server = ( "/inginious-webapp" =>
         (( "socket" => "/tmp/fastcgi.socket",
-            "bin-path" => "/var/www/INGInious/start-webapp.sh",
+            "bin-path" => "inginious-webapp",
             "max-procs" => 1,
             "bin-environment" => (
-                "REAL_SCRIPT_NAME" => "",
+                "INGINIOUS_WEBAPP_HOST" => "0.0.0.0",
+                "INGINIOUS_WEBAPP_PORT" => 80,
+                "INGINIOUS_WEBAPP_CONFIG" => "/var/www/INGInious/configuration.yaml",
                 "DOCKER_HOST" => "tcp://192.168.59.103:2375"
             ),
             "check-local" => "disable"
@@ -309,11 +302,16 @@ You can then replace the content of fastcgi.conf with:
 
 Replace ``webapp`` by ``lti`` if you want to use the `LTI frontend`_.
 
-Please note that the ``DOCKER_HOST`` env variable is only needed if you use the ``backend=local`` option. It should reflect your current
-configuration. To know the value to set, start a terminal that has access to the docker daemon (the terminal should be able to run ``docker info``)
-, and write ``$ echo $DOCKER_HOST``. If it returns nothing, just drop the line ``"DOCKER_HOST" => "tcp://192.168.59.103:2375"`` from the
-configuration of Lighttpd. Else, put the value return by the command in the configuration. It is possible that may need to do the same for the env
-variable ``DOCKER_CERT_PATH`` and ``DOCKER_TLS_VERIFY`` too.
+In this configuration file, some environment variables are passed.
+
+- The ``DOCKER_HOST`` env variable is only needed if
+  you use the ``backend=local`` option. It should reflect your current configuration. To know the value to set, start a
+  terminal that has access to the docker daemon (the terminal should be able to run ``docker info``), and write ``$ echo $DOCKER_HOST``.
+  If it returns nothing, just drop the line ``"DOCKER_HOST" => "tcp://192.168.59.103:2375"`` from the
+  configuration of lighttpd. Otherwise, put the value return by the command in the configuration. It is possible
+  that may need to do the same for the env variable ``DOCKER_CERT_PATH`` and ``DOCKER_TLS_VERIFY`` too.
+- The ``INGINIOUS_WEBAPP`` or ``INGINIOUS_LTI`` (according to your config) prefixed environment variables are used to
+  replace the default command line parameters.
 
 Finally, start the server:
 
@@ -323,7 +321,7 @@ Finally, start the server:
     $ sudo service lighttpd start
 
 
-Using Apache (on CentOS 7.0)
+Using Apache (on CentOS 7.x)
 ----------------------------
 
 You may also want to use Apache. You should install `mod_wsgi`.
@@ -345,8 +343,7 @@ assuming the source repository is in `/var/www/INGInious`.
     # See https://gist.github.com/GrahamDumpleton/b380652b768e81a7f60c
     # for alternate solutions
     
-    #SetEnv INGInious_CONFIG_LTI /var/www/INGInious/configuration.lti.yaml
-    #SetEnv INGInious_PATH_LTI /var/www/INGInious/
+    #SetEnv INGINIOUS_LTI_CONFIG /var/www/INGInious/configuration.lti.yaml
     
     Listen 8080
     <VirtualHost *:8080>
@@ -397,5 +394,3 @@ assuming the source repository is in `/var/www/INGInious`.
         ServerSignature On
     
     </VirtualHost>
-    
-    # vim: syntax=apache ts=4 sw=4 sts=4 sr noet
