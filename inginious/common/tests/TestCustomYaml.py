@@ -55,9 +55,11 @@ class TestCustomWrite(object):
 
     def test_write_ordereddict(self):
         d = OrderedDict([("the", "a"), ("order", "z"), ("is", "b"), ("important", "y")])
-        yaml.dump(d, open(os.path.join(self.dir_path, "output.yaml"), "w"))
+        with open(os.path.join(self.dir_path, "output.yaml"), "w") as f:
+            yaml.dump(d, f)
 
-        loaded = yaml.load(open(os.path.join(self.dir_path, "output.yaml"), "r"))
+        with open(os.path.join(self.dir_path, "output.yaml"), "r") as f:
+            loaded = yaml.load(f)
         assert type(loaded) == OrderedDict
         assert list(loaded.keys()) == ["the", "order", "is", "important"]
 

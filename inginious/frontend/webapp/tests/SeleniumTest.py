@@ -16,7 +16,8 @@ from selenium.webdriver.support import expected_conditions as EC
 import web
 from pyvirtualdisplay import Display
 
-from inginious.frontend.webapp.app import get_app, StaticMiddleware
+from inginious.frontend.common.static_middleware import StaticMiddleware
+from inginious.frontend.webapp.app import get_app
 
 TEST_ENV = os.environ.get("TEST_ENV", None)
 CUSTOM_SELENIUM_EXECUTOR = os.environ.get("CUSTOM_SELENIUM_EXECUTOR", None)
@@ -30,10 +31,10 @@ def _start_frontend(config, host, port, ssh_port):
     def active_callback():
         semaphore.release()
 
-    app, close_app_func = get_app(host, port, host, ssh_port, config, active_callback)
+    func, close_app_func = get_app(config)
 
     inginious_root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
-    func = StaticMiddleware(app.wsgifunc(), (
+    func = StaticMiddleware(func, (
         ('/static/common/', os.path.join(inginious_root_path, 'frontend', 'common', 'static')),
         ('/static/webapp/', os.path.join(inginious_root_path, 'frontend', 'webapp', 'static'))
     ))
