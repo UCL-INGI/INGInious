@@ -86,8 +86,14 @@ $for key, problem in enumerate(to_display):
         </div>
         <div class="panel-body">
             $if problem["feedback"] is not None:
-                <div class="alert alert-info">
-                    $:problem["feedback"]
+                $if problem["feedback"][0] == "success":
+                    $ color="success"
+                $elif problem["feedback"][0] in ["timeout", "overflow"]:
+                    $ color="warning"
+                $else:
+                    $ color="danger"
+                <div class="alert alert-$color">
+                    $:problem["feedback"][1]
                 </div>
             <div class="student_view">
                 $:problem["context"]
