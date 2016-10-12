@@ -4,7 +4,8 @@
 # more information about the licensing of this file.
 
 """ Manages submissions """
-import pymongo
+import json
+from datetime import datetime
 
 from inginious.frontend.common.submission_manager import SubmissionManager
 
@@ -23,14 +24,14 @@ class WebAppSubmissionManager(SubmissionManager):
         """
         super(WebAppSubmissionManager, self).__init__(client, user_manager, database, gridfs, hook_manager)
 
-    def _job_done_callback(self, submissionid, task, result, grade, problems, tests, custom, archive):
+    def _job_done_callback(self, submissionid, task, result, grade, problems, tests, custom, archive, newsub=True):
         """ Callback called by Client when a job is done. Updates the submission in the database with the data returned after the completion of the
         job """
         super(WebAppSubmissionManager, self)._job_done_callback(submissionid, task, result, grade, problems, tests, custom, archive)
 
         submission = self.get_submission(submissionid, False)
         for username in submission["username"]:
-            self._user_manager.update_user_stats(username, task, submission, result[0], grade)
+            self._user_manager.update_user_stats(username, task, submission, result[0], grade, newsub)
 
     def _before_submission_insertion(self, task, inputdata, debug, obj):
         username = self._user_manager.session_username()
@@ -58,3 +59,50 @@ class WebAppSubmissionManager(SubmissionManager):
 
     def _always_keep_best(self):
         return False
+
+    def replay_job(self, task, submission, copy=False, debug=False):
+        """
+        Replay a submission: add the same job in the queue, keeping submission id, submission date and input data
+        :param submission: Submission to replay
+        :param copy: If copy is true, the submission will be copied to admin submissions before replay
+        :param debug: If debug is true, more debug data will be saved
+        """
+        if not self._user_manager.session_logged_in():
+            raise Exception("A user must be logged in to submit an object")
+
+        # Don't enable ssh debug
+        ssh_callback = lambda host, port, password: None
+        if debug == "ssh":
+            ssh_callback = lambda host, port, password: self._handle_ssh_callback(submission["_id"], host, port, password)
+
+        # Load input data and add username to dict
+        inputdata = json.loads(self._gridfs.get(submission["input"]).read().decode("utf-8"), encoding="utf8")
+
+        # Remove the submission archive : it will be regenerated
+        if submission["archive"] is not None:
+            self._gridfs.delete(submission["archive"])
+
+        if not copy:
+            submissionid = submission["_id"]
+            username = submission["username"][0] # TODO: this may be inconsistent with add_job
+        else:
+            del submission["_id"]
+            username = self._user_manager.session_username()
+            submission["username"] = [username]
+            submission["submitted_on"] = datetime.now()
+            submissionid = self._database.submissions.insert(submission)
+
+        if "username" not in [p.get_id() for p in task.get_problems()]:  # do not overwrite
+            inputdata["username"] = username
+
+        jobid = self._client.new_job(task, inputdata,
+                                     (lambda result, grade, problems, tests, custom, archive:
+                                      self._job_done_callback(submissionid, task, result, grade, problems, tests, custom, archive, copy)),
+                                     "Frontend - {}".format(submission["username"]), debug, ssh_callback)
+
+        # Clean the submission document in db
+        self._database.submissions.update(
+            {"_id": submission["_id"]},
+            {"$set": {"jobid": jobid, "status": "waiting", "response_type": task.get_response_type()},
+             "$unset": {"result": "", "grade": "", "text": "", "tests": "", "problems": "", "archive": "", "custom": ""}
+             })

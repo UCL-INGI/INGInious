@@ -374,12 +374,15 @@ class UserManager(AbstractUserManager):
                                                            "tried": 0, "succeeded": False, "grade": 0.0, "submissionid": None}},
                                          upsert=True)
 
-    def update_user_stats(self, username, task, submission, result_str, grade):
+    def update_user_stats(self, username, task, submission, result_str, grade, newsub):
         """ Update stats with a new submission """
         self.user_saw_task(username, submission["courseid"], submission["taskid"])
 
-        old_submission = self._database.user_tasks.find_one_and_update(
-            {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]}, {"$inc": {"tried": 1, "tokens.amount": 1}})
+        if newsub:
+            old_submission = self._database.user_tasks.find_one_and_update(
+                {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]}, {"$inc": {"tried": 1, "tokens.amount": 1}})
+        else:
+            old_submission = submission
 
         # Check if the submission is the default download
         set_default = task.get_evaluate() == 'last' or \
