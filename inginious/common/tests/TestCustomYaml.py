@@ -19,16 +19,18 @@ class TestCustomLoad(object):
         shutil.rmtree(self.dir_path)
 
     def test_load_ordereddict(self):
-        open(os.path.join(self.dir_path, "input.yaml"), "w").write("""
-        the: a
-        order: z
-        of: b
-        the_: y
-        keys: c
-        is: x
-        important: d
-        """)
-        loaded = yaml.load(open(os.path.join(self.dir_path, "input.yaml"), "r"))
+        with open(os.path.join(self.dir_path, "input.yaml"), "w") as f:
+            f.write("""
+            the: a
+            order: z
+            of: b
+            the_: y
+            keys: c
+            is: x
+            important: d
+            """)
+        with open(os.path.join(self.dir_path, "input.yaml"), "r") as f:
+            loaded = yaml.load(f)
         assert type(loaded) == OrderedDict
         assert list(loaded.keys()) == ["the", "order", "of", "the_", "keys", "is", "important"]
 

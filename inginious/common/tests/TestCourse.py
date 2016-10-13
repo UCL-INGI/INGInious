@@ -86,7 +86,8 @@ class TestCourseWrite(object):
 
     def test_course_update(self):
         os.mkdir(os.path.join(self.dir_path, "test"))
-        open(os.path.join(self.dir_path, "test", "course.yaml"), "w").write("""
+        with open(os.path.join(self.dir_path, "test", "course.yaml"), "w") as f:
+            f.write("""
 name: "a"
 admins: ["a"]
 accessible: "1970-01-01/2033-01-01"

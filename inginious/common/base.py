@@ -20,10 +20,11 @@ def id_checker(id_to_test):
 
 def load_json_or_yaml(file_path):
     """ Load JSON or YAML depending on the file extension. Returns a dict """
-    if os.path.splitext(file_path)[1] == ".json":
-        return json.load(open(file_path, "r"))
-    else:
-        return inginious.common.custom_yaml.load(open(file_path, "r"))
+    with open(file_path, "r") as f:
+        if os.path.splitext(file_path)[1] == ".json":
+            return json.load(f)
+        else:
+            return inginious.common.custom_yaml.load(f)
 
 
 def write_json_or_yaml(file_path, content):

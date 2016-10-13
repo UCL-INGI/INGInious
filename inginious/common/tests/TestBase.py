@@ -38,7 +38,8 @@ class TestJSONYAMLReaderWriter(object):
         shutil.rmtree(self.dir_path)
 
     def test_json_read(self):
-        open(os.path.join(self.dir_path, "input.json"), "w").write('{"key1":"data1","key2":{"key3":[1,2]}}')
+        with open(os.path.join(self.dir_path, "input.json"), "w") as f:
+            f.write('{"key1":"data1","key2":{"key3":[1,2]}}')
         assert load_json_or_yaml(os.path.join(self.dir_path, "input.json")) == {'key1': 'data1', 'key2': {'key3': [1, 2]}}
 
     def test_json_write(self):
@@ -46,13 +47,14 @@ class TestJSONYAMLReaderWriter(object):
         assert load_json_or_yaml(os.path.join(self.dir_path, "output.json")) == {'key1': 'data1', 'key2': {'key3': [1, 2]}}
 
     def test_yaml_read(self):
-        open(os.path.join(self.dir_path, "input.yaml"), "w").write("""
-        key1: data1
-        key2:
-            key3:
-                - 1
-                - 2
-        """)
+        with open(os.path.join(self.dir_path, "input.yaml"), "w") as f:
+            f.write("""
+            key1: data1
+            key2:
+                key3:
+                    - 1
+                    - 2
+            """)
         assert load_json_or_yaml(os.path.join(self.dir_path, "input.yaml")) == {'key1': 'data1', 'key2': {'key3': [1, 2]}}
 
     def test_yaml_write(self):
@@ -70,11 +72,12 @@ class TestDirectoryHash(object):
         shutil.rmtree(self.dir_path)
 
     def test_hash_file(self):
-        tmp = tempfile.TemporaryFile()
-        tmp.write("some random text")
-        tmp.flush()
-        tmp.seek(0)
-        assert hash_file(tmp) == "07671a038c0eb43723d421693b073c3b"
+        with tempfile.TemporaryFile() as tmp:
+            tmp.write(b"some random text")
+            tmp.flush()
+            tmp.seek(0)
+            the_hash = hash_file(tmp)
+        assert the_hash == "07671a038c0eb43723d421693b073c3b"
 
     def test_directory_content_with_hash(self):
         test_dir = os.path.join(self.dir_path, "test1")
@@ -85,13 +88,16 @@ class TestDirectoryHash(object):
 
         goal = {}
 
-        open(os.path.join(test_dir, "file1"), "w").write("random text 1")
+        with open(os.path.join(test_dir, "file1"), "w") as f:
+            f.write("random text 1")
         goal["file1"] = ("d7e62e68f60f6974309b263192d5fea2", os.stat(os.path.join(test_dir, "file1")).st_mode)
 
-        open(os.path.join(test_dir, "file2"), "w").write("random text 2")
+        with open(os.path.join(test_dir, "file2"), "w") as f:
+            f.write("random text 2")
         goal["file2"] = ("5ae848320fda7796dc2f3a1a68300e07", os.stat(os.path.join(test_dir, "file2")).st_mode)
 
-        open(os.path.join(test_dir, "subdir", "file3"), "w").write("random text 3")
+        with open(os.path.join(test_dir, "subdir", "file3"), "w") as f:
+            f.write("random text 3")
         goal["subdir/file3"] = ("312aa75e0816015cdb5ef1989de7bf3f", os.stat(os.path.join(test_dir, "subdir", "file3")).st_mode)
 
         # Test the function
@@ -103,12 +109,19 @@ class TestDirectoryHash(object):
         # Create data
         os.mkdir(test_dir)
         os.mkdir(os.path.join(test_dir, "subdir"))
-        open(os.path.join(test_dir, "file1"), "w").write("random text 1")
-        open(os.path.join(test_dir, "file2"), "w").write("random text 2")
-        open(os.path.join(test_dir, "subdir", "file3"), "w").write("random text 3")
-        open(os.path.join(test_dir, "file4"), "w").write("random text 4")
-        open(os.path.join(test_dir, "file5"), "w").write("random text 5")
-        open(os.path.join(test_dir, "file6"), "w").write("random text 6")
+
+        with open(os.path.join(test_dir, "file1"), "w") as f:
+            f.write("random text 1")
+        with open(os.path.join(test_dir, "file2"), "w") as f:
+            f.write("random text 2")
+        with open(os.path.join(test_dir, "subdir", "file3"), "w") as f:
+            f.write("random text 3")
+        with open(os.path.join(test_dir, "file4"), "w") as f:
+            f.write("random text 4")
+        with open(os.path.join(test_dir, "file5"), "w") as f:
+            f.write("random text 5")
+        with open(os.path.join(test_dir, "file6"), "w") as f:
+            f.write("random text 6")
 
         l1 = directory_content_with_hash(test_dir)
         l2 = copy.deepcopy(l1)
