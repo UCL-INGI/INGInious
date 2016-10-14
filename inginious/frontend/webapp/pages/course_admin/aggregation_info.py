@@ -18,9 +18,9 @@ class CourseAggregationInfoPage(INGIniousAdminPage):
         course, _ = self.get_course_and_check_rights(courseid)
         return self.page(course, aggregationid)
 
-    def submission_url_generator(self, course, aggregationid, taskid):
+    def submission_url_generator(self, aggregationid, taskid):
         """ Generates a submission url """
-        return "/admin/" + course.get_id() + "/download?format=taskid%2Faggregation&tasks=" + taskid + "&aggregations=" + str(aggregationid)
+        return "?format=taskid%2Faggregation&tasks=" + taskid + "&aggregations=" + str(aggregationid)
 
     def page(self, course, aggregationid):
         """ Get all data and display the page """
@@ -48,7 +48,7 @@ class CourseAggregationInfoPage(INGIniousAdminPage):
 
         tasks = course.get_tasks()
         result = dict([(taskid, {"taskid": taskid, "name": tasks[taskid].get_name(), "tried": 0, "status": "notviewed",
-                                 "grade": 0, "url": self.submission_url_generator(course, aggregationid, taskid)}) for taskid in tasks])
+                                 "grade": 0, "url": self.submission_url_generator(aggregationid, taskid)}) for taskid in tasks])
 
         for taskdata in data:
             if taskdata["_id"] in result:

@@ -19,15 +19,15 @@ class CourseStudentTaskPage(INGIniousAdminPage):
         course, task = self.get_course_and_check_rights(courseid, taskid)
         return self.page(course, username, task)
 
-    def submission_url_generator(self, course, submissionid):
+    def submission_url_generator(self, submissionid):
         """ Generates a submission url """
-        return "/admin/" + course.get_id() + "/download?submission=" + submissionid
+        return "?submission=" + submissionid
 
     def page(self, course, username, task):
         """ Get all data and display the page """
         data = list(self.database.submissions.find({"username": username, "courseid": course.get_id(), "taskid": task.get_id()}).sort(
             [("submitted_on", pymongo.DESCENDING)]))
-        data = [dict(list(f.items()) + [("url", self.submission_url_generator(course, str(f["_id"])))]) for f in data]
+        data = [dict(list(f.items()) + [("url", self.submission_url_generator(str(f["_id"])))]) for f in data]
         if "csv" in web.input():
             return make_csv(data)
         return self.template_helper.get_renderer().course_admin.student_task(course, username, task, data)

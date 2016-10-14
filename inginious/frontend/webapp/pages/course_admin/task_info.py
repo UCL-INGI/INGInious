@@ -18,13 +18,13 @@ class CourseTaskInfoPage(INGIniousAdminPage):
         course, task = self.get_course_and_check_rights(courseid, taskid)
         return self.page(course, task)
 
-    def individual_submission_url_generator(self, course, task, task_data):
+    def individual_submission_url_generator(self, task, task_data):
         """ Generates a submission url """
-        return "/admin/" + course.get_id() + "/download?format=taskid%2Fusername&users=" + task_data + "&tasks=" + task.get_id()
+        return "?format=taskid%2Fusername&users=" + task_data + "&tasks=" + task.get_id()
 
-    def aggregation_submission_url_generator(self, course, task, aggregation):
+    def aggregation_submission_url_generator(self, task, aggregation):
         """ Generates a submission url """
-        return "/admin/" + course.get_id() + "/download?format=taskid%2Faggregation&aggregations=" + str(aggregation['_id']) + "&tasks=" + task.get_id()
+        return "?format=taskid%2Faggregation&aggregations=" + str(aggregation['_id']) + "&tasks=" + task.get_id()
 
     def page(self, course, task):
         """ Get all data and display the page """
@@ -37,7 +37,7 @@ class CourseTaskInfoPage(INGIniousAdminPage):
 
         individual_data = OrderedDict([(username, {"username": username, "realname": user[0] if user is not None else "",
                                                    "email": user[1] if user is not None else "",
-                                                   "url": self.individual_submission_url_generator(course, task, username),
+                                                   "url": self.individual_submission_url_generator(task, username),
                                                    "tried": 0, "grade": 0, "status": "notviewed"})
                                        for username, user in users.items()])
 
@@ -54,7 +54,7 @@ class CourseTaskInfoPage(INGIniousAdminPage):
         aggregation_data = OrderedDict()
         for aggregation in self.user_manager.get_course_aggregations(course):
             aggregation_data[aggregation['_id']] = {"_id": aggregation['_id'], "description": aggregation['description'],
-                                                "url": self.aggregation_submission_url_generator(course, task, aggregation),
+                                                "url": self.aggregation_submission_url_generator(task, aggregation),
                                                 "tried": 0, "grade": 0, "status": "notviewed",
                                                 "tutors": aggregation["tutors"], "groups": aggregation["groups"]}
 
