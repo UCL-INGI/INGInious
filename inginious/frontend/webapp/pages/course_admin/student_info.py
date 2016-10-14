@@ -43,4 +43,6 @@ class CourseStudentInfoPage(INGIniousAdminPage):
 
         if "csv" in web.input():
             return make_csv(result)
-        return self.template_helper.get_renderer().course_admin.student_info(course, username, list(result.values()))
+
+        results = sorted(list(result.values()), key=lambda result: tasks[result["taskid"]].get_order())
+        return self.template_helper.get_renderer().course_admin.student_info(course, username, results)
