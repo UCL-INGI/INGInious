@@ -48,6 +48,8 @@ $var Navbar: $:NavbarF()
     	<tr
             $if succeeded:
                 class="success"
+            $elif submission['status'] == 'waiting':
+                class="warning"
             $else:
                 class="danger"
         >
@@ -60,6 +62,8 @@ $var Navbar: $:NavbarF()
             <td>
                 $if succeeded:
                     Succeeded
+                $elif submission['status'] == 'waiting':
+                    Waiting
                 $else:
                     Failed
                 ($submission.get("grade",0.0)%)

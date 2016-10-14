@@ -27,7 +27,7 @@ class WebAppSubmissionManager(SubmissionManager):
     def _job_done_callback(self, submissionid, task, result, grade, problems, tests, custom, archive, newsub=True):
         """ Callback called by Client when a job is done. Updates the submission in the database with the data returned after the completion of the
         job """
-        super(WebAppSubmissionManager, self)._job_done_callback(submissionid, task, result, grade, problems, tests, custom, archive)
+        super(WebAppSubmissionManager, self)._job_done_callback(submissionid, task, result, grade, problems, tests, custom, archive, newsub)
 
         submission = self.get_submission(submissionid, False)
         for username in submission["username"]:
@@ -79,7 +79,7 @@ class WebAppSubmissionManager(SubmissionManager):
         inputdata = json.loads(self._gridfs.get(submission["input"]).read().decode("utf-8"), encoding="utf8")
 
         # Remove the submission archive : it will be regenerated
-        if submission["archive"] is not None:
+        if submission.get("archive", None) is not None:
             self._gridfs.delete(submission["archive"])
 
         if not copy:

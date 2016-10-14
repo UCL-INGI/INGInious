@@ -9,6 +9,7 @@ from abc import ABCMeta, abstractmethod
 from datetime import datetime
 from datetime import timedelta
 from functools import reduce
+import pymongo
 
 from inginious.frontend.common.user_manager import AbstractUserManager
 
@@ -381,18 +382,30 @@ class UserManager(AbstractUserManager):
         if newsub:
             old_submission = self._database.user_tasks.find_one_and_update(
                 {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]}, {"$inc": {"tried": 1, "tokens.amount": 1}})
+
+            # Check if the submission is the default download
+            set_default = task.get_evaluate() == 'last' or \
+                          (task.get_evaluate() == 'student' and old_submission is None) or \
+                          (task.get_evaluate() == 'best' and old_submission.get('grade', 0.0) <= grade)
+
+            if set_default:
+                self._database.user_tasks.find_one_and_update(
+                    {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]},
+                    {"$set": {"succeeded": result_str == "success", "grade": grade, "submissionid": submission['_id']}})
         else:
-            old_submission = submission
+            old_submission = self._database.user_tasks.find_one(
+                {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]})
 
-        # Check if the submission is the default download
-        set_default = task.get_evaluate() == 'last' or \
-                      (task.get_evaluate() == 'student' and old_submission is None) or \
-                      (task.get_evaluate() == 'best' and old_submission.get('grade', 0.0) <= grade)
+            if task.get_evaluate() == 'best':
+                # Set the best submission as the default one
+                def_sub = list(self._database.submissions.find({"username": username, "courseid": task.get_course_id(),
+                                                    "taskid": task.get_id(),
+                                                    "status": "done"}).sort([("grade", pymongo.DESCENDING)]).limit(1))[0]
 
-        if set_default:
-            self._database.user_tasks.find_one_and_update(
-                {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]},
-                {"$set": {"succeeded": result_str == "success", "grade": grade,"submissionid": submission['_id']}})
+                self._database.user_tasks.find_one_and_update(
+                    {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]},
+                    {"$set": {"succeeded": def_sub["result"], "grade": def_sub["grade"], "submissionid": def_sub['_id']}})
+
 
     def get_course_grade(self, course, username=None):
         """

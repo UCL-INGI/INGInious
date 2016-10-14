@@ -55,6 +55,7 @@ urls = (
     r'/admin/([^/]+)/edit/task/([^/]+)', 'inginious.frontend.webapp.pages.course_admin.task_edit.CourseEditTask',
     r'/admin/([^/]+)/edit/task/([^/]+)/files', 'inginious.frontend.webapp.pages.course_admin.task_edit_file.CourseTaskFiles',
     r'/admin/([^/]+)/download', 'inginious.frontend.webapp.pages.course_admin.download.CourseDownloadSubmissions',
+    r'/admin/([^/]+)/replay', 'inginious.frontend.webapp.pages.course_admin.replay.CourseReplaySubmissions',
     r'/admin/([^/]+)/danger', 'inginious.frontend.webapp.pages.course_admin.danger_zone.CourseDangerZonePage',
     r'/api/v0/auth_methods', 'inginious.frontend.webapp.pages.api.auth_methods.APIAuthMethods',
     r'/api/v0/authentication', 'inginious.frontend.webapp.pages.api.authentication.APIAuthentication',
