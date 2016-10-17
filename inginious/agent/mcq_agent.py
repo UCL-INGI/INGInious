@@ -62,13 +62,13 @@ class MCQAgent(object):
             task = self.course_factory.get_task(msg.course_id, msg.task_id)
         except:
             await ZMQUtils.send(self._backend_socket, AgentJobDone(msg.job_id, ("crash", "Task is not available on this agent"), 0.0, {}, {}, {},
-                                                                   None))
+                                                                   None, "", ""))
             self._logger.error("Task %s/%s not available on this agent", msg.course_id, msg.task_id)
             return
 
         result, need_emul, text, problems, error_count = task.check_answer(msg.inputdata)
         if need_emul:
-            await ZMQUtils.send(self._backend_socket, AgentJobDone(msg.job_id, ("crash", "Task wrongly configured as a MCQ"), 0.0, {}, {}, {}, None))
+            await ZMQUtils.send(self._backend_socket, AgentJobDone(msg.job_id, ("crash", "Task wrongly configured as a MCQ"), 0.0, {}, {}, {}, None, "", ""))
             self._logger.warning("Task %s/%s is not a pure MCQ but has env=MCQ", msg.course_id, msg.task_id)
             return
 
@@ -80,7 +80,7 @@ class MCQAgent(object):
 
         await ZMQUtils.send(self._backend_socket, AgentJobDone(msg.job_id,
                                                                (("success" if result else "failed"), "\n".join(text)),
-                                                               grade, problems, {}, {}, None))
+                                                               grade, problems, {}, {}, None, "", ""))
 
     async def run_dealer(self):
         """ Run the agent """

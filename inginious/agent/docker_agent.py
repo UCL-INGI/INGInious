@@ -602,6 +602,8 @@ class DockerAgent(object):
                 self._logger.warning("Container %s that has finished(p2) was not launched by this agent", str(container_id))
                 return
 
+            stdout = ""
+            stderr = ""
             result = "crash" if retval == -1 else None
             error_msg = None
             grade = None
@@ -618,6 +620,8 @@ class DockerAgent(object):
                 # Get logs back
                 try:
                     return_value = await future_results
+                    stdout = return_value.get("stdout", "")
+                    stderr = return_value.get("stderr", "")
                     result = return_value.get("result", "error")
                     error_msg = return_value.get("text", "")
                     grade = return_value.get("grade", None)
@@ -652,7 +656,7 @@ class DockerAgent(object):
                 pass # todo: run a docker container to force removal
             
             # Return!
-            await self.send_job_result(message.job_id, result, error_msg, grade, problems, tests, custom, archive)
+            await self.send_job_result(message.job_id, result, error_msg, grade, problems, tests, custom, archive, stdout, stderr)
 
             # Do not forget to remove data from internal state
             del self._container_for_job[message.job_id]
@@ -717,7 +721,7 @@ class DockerAgent(object):
         try:
             if message.job_id in self._container_for_job:
                 self._containers_killed[self._container_for_job[message.job_id]] = "killed"
-                await self._loop.run_in_executor(None, self._docker.kill_container(self._container_for_job[message.job_id]))
+                await self._loop.run_in_executor(None, self._docker.kill_container, self._container_for_job[message.job_id])
             else:
                 self._logger.warning("Cannot kill container for job %s because it is not running", str(message.job_id))
         except:
@@ -742,7 +746,8 @@ class DockerAgent(object):
             self._logger.exception("Exception in handle_docker_event")
 
     async def send_job_result(self, job_id: BackendJobId, result: str, text: str = "", grade: float = None, problems: Dict[str, SPResult] = None,
-                              tests: Dict[str, Any] = None, custom: Dict[str, Any] = None, archive: Optional[bytes] = None):
+                              tests: Dict[str, Any] = None, custom: Dict[str, Any] = None, archive: Optional[bytes] = None,
+                              stdout: Optional[str] = None, stderr: Optional[str] = None):
         """ Send the result of a job back to the backend """
         if grade is None:
             if result == "success":
@@ -756,7 +761,7 @@ class DockerAgent(object):
         if tests is None:
             tests = {}
 
-        await ZMQUtils.send(self._backend_socket, AgentJobDone(job_id, (result, text), grade, problems, tests, custom, archive))
+        await ZMQUtils.send(self._backend_socket, AgentJobDone(job_id, (result, text), grade, problems, tests, custom, archive, stdout, stderr))
 
     async def run_dealer(self):
         """ Run the agent """

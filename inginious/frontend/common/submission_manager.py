@@ -50,7 +50,7 @@ class SubmissionManager(object, metaclass=ABCMeta):
             return None
         return sub
 
-    def _job_done_callback(self, submissionid, task, result, grade, problems, tests, custom, archive, newsub=False):
+    def _job_done_callback(self, submissionid, task, result, grade, problems, tests, custom, archive, stdout, stderr, newsub=False):
         """ Callback called by Client when a job is done. Updates the submission in the database with the data returned after the completion of the
         job """
         submission = self.get_submission(submissionid, False)
@@ -64,7 +64,9 @@ class SubmissionManager(object, metaclass=ABCMeta):
             "tests": tests,
             "problems": problems,
             "archive": (self._gridfs.put(archive) if archive is not None else None),
-            "custom": custom
+            "custom": custom,
+            "stdout": stdout,
+            "stderr": stderr
         }
 
         # Save submission to database
@@ -119,8 +121,8 @@ class SubmissionManager(object, metaclass=ABCMeta):
             ssh_callback = lambda host, port, password: self._handle_ssh_callback(submissionid, host, port, password)
 
         jobid = self._client.new_job(task, inputdata,
-                                     (lambda result, grade, problems, tests, custom, archive:
-                                      self._job_done_callback(submissionid, task, result, grade, problems, tests, custom, archive)),
+                                     (lambda result, grade, problems, tests, custom, archive, stdout, stderr:
+                                      self._job_done_callback(submissionid, task, result, grade, problems, tests, custom, archive, stdout, stderr, False)),
                                      "Frontend - {}".format(username), debug, ssh_callback)
 
         self._database.submissions.update(

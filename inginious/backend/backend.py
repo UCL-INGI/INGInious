@@ -146,7 +146,7 @@ class Backend(object):
             del self._waiting_jobs[(client_addr, message.job_id, "grade")]
             # Do not forget to send a JobDone
             await ZMQUtils.send_with_addr(self._client_socket, client_addr, BackendJobDone(message.job_id, ("killed", "You killed the job"),
-                                                                                           0, {}, {}, {}, None))
+                                                                                           0, {}, {}, {}, None, "", ""))
         # If the job is running, transmit the info to the agent
         elif (client_addr, message.job_id) in self._job_running:
             agent_addr = self._job_running[(client_addr, message.job_id)]
@@ -305,7 +305,8 @@ class Backend(object):
         # Sent the data back to the client
         await ZMQUtils.send_with_addr(self._client_socket, message.job_id[0], BackendJobDone(message.job_id[1], message.result,
                                                                                              message.grade, message.problems,
-                                                                                             message.tests, message.custom, message.archive))
+                                                                                             message.tests, message.custom, message.archive,
+                                                                                             message.stdout, message.stderr))
 
         # The agent is available now
         self._available_agents.append(agent_addr)

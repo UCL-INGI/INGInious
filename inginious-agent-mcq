@@ -9,12 +9,11 @@
 
 import argparse
 import logging
-import os
 
 from zmq.asyncio import ZMQEventLoop, Context
 import asyncio
 
-from agent.mcq_agent import MCQAgent
+from inginious.agent.mcq_agent import MCQAgent
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

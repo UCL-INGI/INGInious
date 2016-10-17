@@ -24,10 +24,10 @@ class WebAppSubmissionManager(SubmissionManager):
         """
         super(WebAppSubmissionManager, self).__init__(client, user_manager, database, gridfs, hook_manager)
 
-    def _job_done_callback(self, submissionid, task, result, grade, problems, tests, custom, archive, newsub=True):
+    def _job_done_callback(self, submissionid, task, result, grade, problems, tests, custom, archive, stdout, stderr, newsub=True):
         """ Callback called by Client when a job is done. Updates the submission in the database with the data returned after the completion of the
         job """
-        super(WebAppSubmissionManager, self)._job_done_callback(submissionid, task, result, grade, problems, tests, custom, archive, newsub)
+        super(WebAppSubmissionManager, self)._job_done_callback(submissionid, task, result, grade, problems, tests, custom, archive, stdout, stderr, newsub)
 
         submission = self.get_submission(submissionid, False)
         for username in submission["username"]:
@@ -96,8 +96,8 @@ class WebAppSubmissionManager(SubmissionManager):
             inputdata["username"] = username
 
         jobid = self._client.new_job(task, inputdata,
-                                     (lambda result, grade, problems, tests, custom, archive:
-                                      self._job_done_callback(submissionid, task, result, grade, problems, tests, custom, archive, copy)),
+                                     (lambda result, grade, problems, tests, custom, archive, stdout, stderr:
+                                      self._job_done_callback(submissionid, task, result, grade, problems, tests, custom, archive, stdout, stderr, copy)),
                                      "Frontend - {}".format(submission["username"]), debug, ssh_callback)
 
         # Clean the submission document in db
