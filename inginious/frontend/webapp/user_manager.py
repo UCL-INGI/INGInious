@@ -400,11 +400,12 @@ class UserManager(AbstractUserManager):
                 # Set the best submission as the default one
                 def_sub = list(self._database.submissions.find({"username": username, "courseid": task.get_course_id(),
                                                     "taskid": task.get_id(),
-                                                    "status": "done"}).sort([("grade", pymongo.DESCENDING)]).limit(1))[0]
+                                                    "status": "done"}).sort([("grade", pymongo.DESCENDING)]).limit(1))
 
-                self._database.user_tasks.find_one_and_update(
-                    {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]},
-                    {"$set": {"succeeded": def_sub["result"], "grade": def_sub["grade"], "submissionid": def_sub['_id']}})
+                if len(def_sub) > 0:
+                    self._database.user_tasks.find_one_and_update(
+                        {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]},
+                        {"$set": {"succeeded": def_sub[0]["result"], "grade": def_sub[0]["grade"], "submissionid": def_sub[0]['_id']}})
 
 
     def get_course_grade(self, course, username=None):

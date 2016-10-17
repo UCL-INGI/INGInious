@@ -30,23 +30,27 @@ class CourseReplaySubmissions(INGIniousSubmissionAdminPage):
         else:
             # Replay several submissions, check input
             tasks = course.get_tasks()
-            for i in tasks:
+            error = False
+            msg = "Selected submissions were set for replay."
+            for i in user_input.tasks:
                 if i not in tasks.keys():
-                    raise web.notfound()
+                    msg = "Task with id " + i + " does not exist !"
+                    error = True
 
-            # Load submissions
-            submissions, _ = self.get_selected_submissions(course, user_input.filter_type, user_input.tasks, user_input.users, user_input.aggregations, user_input.type)
-            for submission in submissions:
-                self.submission_manager.replay_job(tasks[submission["taskid"]], submission)
+            if not error:
+                # Load submissions
+                submissions, _ = self.get_selected_submissions(course, user_input.filter_type, user_input.tasks, user_input.users, user_input.aggregations, user_input.type)
+                for submission in submissions:
+                    self.submission_manager.replay_job(tasks[submission["taskid"]], submission)
 
-        return self.show_page(course, web.input())
+            return self.show_page(course, web.input(), msg, error)
 
     def GET(self, courseid):
         """ GET request """
         course, _ = self.get_course_and_check_rights(courseid)
         return self.show_page(course, web.input())
 
-    def show_page(self, course, user_input):
+    def show_page(self, course, user_input, msg="", error=False):
         # Load task list
         tasks, user_data, aggregations, tutored_aggregations,\
         tutored_users, checked_tasks, checked_users, show_aggregations = self.show_page_params(course, user_input)
@@ -55,4 +59,4 @@ class CourseReplaySubmissions(INGIniousSubmissionAdminPage):
                                                                          tasks, user_data, aggregations,
                                                                          tutored_aggregations, tutored_users,
                                                                          checked_tasks, checked_users,
-                                                                         show_aggregations)
+                                                                         show_aggregations, msg, error)
