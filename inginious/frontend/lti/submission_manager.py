@@ -33,8 +33,8 @@ class LTISubmissionManager(SubmissionManager):
         self.lis_outcome_data_lock.release()
         return self._delete_exceeding_submissions(self._user_manager.session_username(), task, self._max_submissions)
 
-    def _job_done_callback(self, submissionid, task, result, grade, problems, tests, custom, archive):
-        super(LTISubmissionManager, self)._job_done_callback(submissionid, task, result, grade, problems, tests, custom, archive)
+    def _job_done_callback(self, submissionid, task, result, grade, problems, tests, custom, archive, newsub=False):
+        super(LTISubmissionManager, self)._job_done_callback(submissionid, task, result, grade, problems, tests, custom, archive, newsub)
 
         # Send data to the TC
         self.lis_outcome_data_lock.acquire()

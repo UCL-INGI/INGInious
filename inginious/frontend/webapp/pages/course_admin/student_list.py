@@ -42,9 +42,9 @@ class CourseStudentListPage(INGIniousAdminPage):
                 pass
         return self.page(course)
 
-    def submission_url_generator(self, course, username):
+    def submission_url_generator(self, username):
         """ Generates a submission url """
-        return "/admin/" + course.get_id() + "/download?format=taskid%2Fusername&users=" + username
+        return "?format=taskid%2Fusername&users=" + username
 
     def page(self, course, error="", post=False):
         """ Get all data and display the page """
@@ -58,7 +58,7 @@ class CourseStudentListPage(INGIniousAdminPage):
             "username": username, "realname": user[0] if user is not None else "",
             "email": user[1] if user is not None else "", "total_tasks": 0,
             "task_grades": {"answer": 0, "match": 0}, "task_succeeded": 0, "task_tried": 0, "total_tries": 0,
-            "grade": 0, "url": self.submission_url_generator(course, username)}) for username, user in users.items()])
+            "grade": 0, "url": self.submission_url_generator(username)}) for username, user in users.items()])
 
         for username, data in self.user_manager.get_course_caches(list(users.keys()), course).items():
             user_data[username].update(data if data is not None else {})

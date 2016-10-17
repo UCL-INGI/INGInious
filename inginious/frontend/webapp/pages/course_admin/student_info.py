@@ -17,9 +17,9 @@ class CourseStudentInfoPage(INGIniousAdminPage):
         course, _ = self.get_course_and_check_rights(courseid)
         return self.page(course, username)
 
-    def submission_url_generator(self, course, username, taskid):
+    def submission_url_generator(self, username, taskid):
         """ Generates a submission url """
-        return "/admin/" + course.get_id() + "/download?format=taskid%2Fusername&tasks=" + taskid + "&users=" + username
+        return "?format=taskid%2Fusername&tasks=" + taskid + "&users=" + username
 
     def page(self, course, username):
         """ Get all data and display the page """
@@ -28,7 +28,7 @@ class CourseStudentInfoPage(INGIniousAdminPage):
         tasks = course.get_tasks()
         result = dict([(taskid, {"taskid": taskid, "name": tasks[taskid].get_name(),
                                  "tried": 0, "status": "notviewed", "grade": 0,
-                                 "url": self.submission_url_generator(course, username, taskid)}) for taskid in tasks])
+                                 "url": self.submission_url_generator(username, taskid)}) for taskid in tasks])
 
         for taskdata in data:
             if taskdata["taskid"] in result:
@@ -43,4 +43,6 @@ class CourseStudentInfoPage(INGIniousAdminPage):
 
         if "csv" in web.input():
             return make_csv(result)
-        return self.template_helper.get_renderer().course_admin.student_info(course, username, list(result.values()))
+
+        results = sorted(list(result.values()), key=lambda result: tasks[result["taskid"]].get_order())
+        return self.template_helper.get_renderer().course_admin.student_info(course, username, results)

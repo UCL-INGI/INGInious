@@ -20,9 +20,9 @@ class CourseAggregationTaskPage(INGIniousAdminPage):
         course, task = self.get_course_and_check_rights(courseid, taskid)
         return self.page(course, aggregationid, task)
 
-    def submission_url_generator(self, course, submissionid):
+    def submission_url_generator(self, submissionid):
         """ Generates a submission url """
-        return "/admin/" + course.get_id() + "/download?submission=" + submissionid
+        return "?submission=" + submissionid
 
     def page(self, course, aggregationid, task):
         """ Get all data and display the page """
@@ -35,7 +35,7 @@ class CourseAggregationTaskPage(INGIniousAdminPage):
                                                     "response_type": False,
                                                     "archive": False,
                                                     "input": False}).sort([("submitted_on", pymongo.DESCENDING)]))
-        data = [dict(list(f.items()) + [("url", self.submission_url_generator(course, str(f["_id"])))]) for f in data]
+        data = [dict(list(f.items()) + [("url", self.submission_url_generator(str(f["_id"])))]) for f in data]
         if "csv" in web.input():
             return make_csv(data)
 

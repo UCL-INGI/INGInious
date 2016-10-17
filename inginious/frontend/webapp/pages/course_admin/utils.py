@@ -6,12 +6,13 @@
 """ Utilities for administration pages """
 
 import io
-import io
 import codecs
 import csv
 
 import web
-
+from bson.objectid import ObjectId
+from inginious.common.base import id_checker
+from collections import OrderedDict
 from inginious.frontend.webapp.pages.utils import INGIniousPage
 
 
@@ -49,6 +50,106 @@ class INGIniousAdminPage(INGIniousPage):
         except:
             raise web.notfound()
 
+
+class INGIniousSubmissionAdminPage(INGIniousAdminPage):
+    """
+    An INGIniousAdminPage containing some common methods between download/replay pages
+    """
+
+    def _validate_list(self, usernames):
+        """ Prevent MongoDB injections by verifying arrays sent to it """
+        for i in usernames:
+            if not id_checker(i):
+                raise web.notfound()
+
+    def get_selected_submissions(self, course, filter_type, selected_tasks, users, aggregations, stype):
+        """
+        Returns the submissions that have been selected by the admin
+        :param course: course
+        :param filter_type: users or aggregations
+        :param selected_tasks: selected tasks id
+        :param users: selected usernames
+        :param aggregations: selected aggregations
+        :param stype: single or all submissions
+        :return:
+        """
+        if filter_type == "users":
+            self._validate_list(users)
+            aggregations = list(self.database.aggregations.find({"courseid": course.get_id(),
+                                                                 "students": {"$in": users}}))
+        else:
+            self._validate_list(aggregations)
+            aggregations = list(
+                self.database.aggregations.find({"_id": {"$in": [ObjectId(cid) for cid in aggregations]}}))
+
+        # Tweak if not using classrooms : classroom['students'] may content ungrouped users
+        aggregations = dict([(username,
+                              aggregation if course.use_classrooms() or (
+                              username in aggregation['groups'][0]["students"]) else None
+                              ) for aggregation in aggregations for username in aggregation["students"]])
+
+        if stype == "single":
+            user_tasks = list(self.database.user_tasks.find({"username": {"$in": list(aggregations.keys())},
+                                                             "taskid": {"$in": selected_tasks},
+                                                             "courseid": course.get_id()}))
+
+            submissionsid = [user_task['submissionid'] for user_task in user_tasks]
+            submissions = list(self.database.submissions.find({"_id": {"$in": submissionsid}}))
+        else:
+            submissions = list(self.database.submissions.find({"username": {"$in": list(aggregations.keys())},
+                                                               "taskid": {"$in": selected_tasks},
+                                                               "courseid": course.get_id(),
+                                                               "status": {"$in": ["done", "error"]}}))
+
+        return submissions, aggregations
+
+    def show_page_params(self, course, user_input):
+        tasks = sorted(list(course.get_tasks().items()), key=lambda task: task[1].get_order())
+
+        user_list = self.user_manager.get_course_registered_users(course, False)
+        users = OrderedDict(sorted(list(self.user_manager.get_users_info(user_list).items()),
+                                   key=lambda k: k[1][0] if k[1] is not None else ""))
+        user_data = OrderedDict(
+            [(username, user[0] if user is not None else username) for username, user in users.items()])
+
+        aggregations = self.user_manager.get_course_aggregations(course)
+        tutored_aggregations = [str(aggregation["_id"]) for aggregation in aggregations if
+                                self.user_manager.session_username() in aggregation["tutors"] and len(
+                                    aggregation['groups']) > 0]
+
+        tutored_users = []
+        for aggregation in aggregations:
+            for username in aggregation["students"]:
+                # If no classrooms used, only students inside groups
+                if self.user_manager.session_username() in aggregation["tutors"] and \
+                        (course.use_classrooms() or
+                             (len(aggregation['groups']) > 0 and username in aggregation['groups'][0]['students'])):
+                    tutored_users += [username]
+
+        checked_tasks = list(course.get_tasks().keys())
+        checked_users = list(user_data.keys())
+        checked_aggregations = [aggregation['_id'] for aggregation in aggregations]
+        show_aggregations = False
+
+        if "tasks" in user_input:
+            checked_tasks = user_input.tasks.split(',')
+        if "users" in user_input:
+            checked_users = user_input.users.split(',')
+        if "aggregations" in user_input:
+            checked_aggregations = user_input.aggregations.split(',')
+            show_aggregations = True
+        if "tutored" in user_input:
+            if user_input.tutored == "aggregations":
+                checked_aggregations = tutored_aggregations
+                show_aggregations = True
+            elif user_input.tutored == "users":
+                checked_users = tutored_users
+                show_aggregations = True
+
+        for aggregation in aggregations:
+            aggregation['checked'] = str(aggregation['_id']) in checked_aggregations
+
+        return tasks, user_data, aggregations, tutored_aggregations, tutored_users, checked_tasks, checked_users, show_aggregations
 
 class UnicodeWriter(object):
     """
@@ -149,13 +250,13 @@ def get_menu(course, current, renderer, plugin_manager, user_manager):
 
     default_entries += [("students", "<i class='fa fa-user fa-fw'></i>&nbsp; Students"),
                         ("aggregations", "<i class='fa fa-group fa-fw'></i>&nbsp; " +
-                         ("Classrooms" if course.use_classrooms() else "Teams"))]
-
-    default_entries += [("tasks", "<i class='fa fa-tasks fa-fw'></i>&nbsp; Tasks"),
+                         ("Classrooms" if course.use_classrooms() else "Teams")),
+                        ("tasks", "<i class='fa fa-tasks fa-fw'></i>&nbsp; Tasks"),
                         ("download", "<i class='fa fa-download fa-fw'></i>&nbsp; Download submissions")]
 
     if user_manager.has_admin_rights_on_course(course):
-        default_entries += [("danger", "<i class='fa fa-bomb fa-fw'></i>&nbsp; Danger zone")]
+        default_entries += [("replay", "<i class='fa fa-refresh fa-fw'></i>&nbsp; Replay submissions"),
+                             ("danger", "<i class='fa fa-bomb fa-fw'></i>&nbsp; Danger zone")]
 
     # Hook should return a tuple (link,name) where link is the relative link from the index of the course administration.
     additionnal_entries = [entry for entry in plugin_manager.call_hook('course_admin_menu', course=course) if entry is not None]

@@ -34,6 +34,9 @@ $var Navbar: $:NavbarF()
                     <a href="/admin/${course.get_id()}/download?format=taskid%2Fusername&users=$username"
                        class="btn btn-danger btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa
                        fa-download"></i></a>
+                    <a href="/admin/${course.get_id()}/replay?format=taskid%2Fusername&users=$username"
+                       class="btn btn-danger btn-xs" title="Replay all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa
+                       fa-refresh"></i></a>
                     <a href="/admin/${course.get_id()}/student/${username}?csv" class="btn btn-info btn-xs" title="Download
                        CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
                 </div>
@@ -66,8 +69,10 @@ $var Navbar: $:NavbarF()
                 <div class="btn-group" role="group">
     			    <a href="/admin/${course.get_id()}/student/$username/$task['taskid']" class="btn btn-default btn-xs" title="View submissions"
                        data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
-                    <a href="$task['url']" class="btn btn-default btn-xs" title="Download submissions"
+                    <a href="/admin/${course.get_id()}/download$task['url']" class="btn btn-default btn-xs" title="Download submissions"
                        data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                    <a href="/admin/${course.get_id()}/replay$task['url']" class="btn btn-default btn-xs" title="Replay submissions"
+                       data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
                 </div>
     		</td>
     	</tr>

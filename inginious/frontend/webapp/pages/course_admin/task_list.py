@@ -35,9 +35,9 @@ class CourseTaskListPage(INGIniousAdminPage):
 
         return self.page(course)
 
-    def submission_url_generator(self, course, taskid):
+    def submission_url_generator(self, taskid):
         """ Generates a submission url """
-        return "/admin/" + course.get_id() + "/download?format=taskid%2Fusername&tasks=" + taskid
+        return "?format=taskid%2Fusername&tasks=" + taskid
 
     def page(self, course):
         """ Get all data and display the page """
@@ -77,7 +77,7 @@ class CourseTaskListPage(INGIniousAdminPage):
         result = OrderedDict()
         for taskid in tasks:
             result[taskid] = {"name": tasks[taskid].get_name(), "viewed": 0, "attempted": 0, "attempts": 0, "succeeded": 0,
-                              "url": self.submission_url_generator(course, taskid)}
+                              "url": self.submission_url_generator(taskid)}
         for entry in data:
             if entry["_id"] in result:
                 result[entry["_id"]]["viewed"] = entry["viewed"]

@@ -36,6 +36,9 @@ $var Navbar: $:NavbarF()
                     <a href="/admin/${course.get_id()}/download?format=taskid%2Faggregation&aggregations=${aggregation['_id']}&tasks=${task.get_id()}"
                        class="btn btn-danger btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa
                        fa-download"></i></a>
+                    <a href="/admin/${course.get_id()}/replay?format=taskid%2Faggregation&aggregations=${aggregation['_id']}&tasks=${task.get_id()}"
+                       class="btn btn-warning btn-xs" title="Replay all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa
+                       fa-refresh"></i></a>
                     <a href="/admin/${course.get_id()}/aggregation/${aggregation['_id']}/${task.get_id()}?csv" class="btn btn-info btn-xs" title="Download
                        CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
                 </div>
@@ -48,6 +51,8 @@ $var Navbar: $:NavbarF()
     	<tr
             $if succeeded:
                 class="success"
+            $elif submission['status'] == 'waiting':
+                class="warning"
             $else:
                 class="danger"
         >
@@ -57,9 +62,11 @@ $var Navbar: $:NavbarF()
             </td>
     		<td>$submission["_id"]</td>
             <td>$submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S")</td>
-            <td>
+            <td id="status">
                 $if succeeded:
                     Succeeded
+                $elif submission['status'] == 'waiting':
+                    Waiting
                 $else:
                     Failed
                 ($submission.get("grade",0.0)%)
@@ -69,23 +76,28 @@ $var Navbar: $:NavbarF()
                     <a href="/admin/$course.get_id()/student/$submission['username'][0]/$task.get_id()/$submission['_id']"
                        class="btn btn-default btn-xs" title="View submission" data-toggle="tooltip" data-placement="bottom"><i class="fa
                        fa-search"></i></a>
-                    <a href="$submission['url']" class="btn btn-default btn-xs" title="Download submission" data-toggle="tooltip"
+                    <a href="/admin/${course.get_id()}/download$submission['url']" class="btn btn-default btn-xs" title="Download submission" data-toggle="tooltip"
                        data-placement="bottom"><i class="fa fa-download"></i></a>
+                    <a class="replay btn btn-default btn-xs" title="Replay submission" data-toggle="tooltip" data-submissionid="$submission['_id']"
+                       data-placement="bottom"><i class="fa fa-refresh"></i></a>
                 </div>
             </td>
     	</tr>
     </tbody>
 </table>
 
-<div class="modal fade" id="modal_feedback" tabindex="-1" role="dialog" aria-labelledby="modal_feedback_label" aria-hidden="true">
-	<div class="modal-dialog modal-lg">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h3 class="modal-title" id="modal_feedback_label">Feedback shown to the student(s)</h3>
-			</div>
-			<div class="modal-body" id="modal_feedback_content">
-			</div>
-		</div>
-	</div>
-</div>
+<script language="javascript">
+    $$(".replay").click (function (event) {
+        var row = $$(this).rparent(3);
+        $$.ajax({
+            type: "POST",
+            url: "/admin/${course.get_id()}/replay",
+            data: "submission=" + $$(this).data("submissionid"),
+            success: function(data) {
+                row.find("#status").text("Waiting (0.0%)");
+                row.removeClass();
+                row.addClass("warning");
+            }
+        });
+    });
+</script>

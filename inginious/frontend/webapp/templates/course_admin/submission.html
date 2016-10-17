@@ -29,33 +29,63 @@ $def NavbarF():
     </ol>
 $var Navbar: $:NavbarF()
 
-<h2>Submissions $submissionid[0:10] - "$:task.get_name()" - $user_realname ($username)</h2>
+<h2>Submission $submissionid[0:10] - "$:task.get_name()" - $user_realname ($username)</h2>
 <div class="alert alert-info text-center">
     This page show what was shown to the student when (s)he made his/her submission. <br/>
-    <br/>
-    <a href="javascript:$$('.student_view').slideToggle()" class="btn btn-sm btn-block btn-primary">
-        <i class="fa fa-filter fa-fw"></i> Click here to hide/display context informations
-    </a>
-    <a href="/admin/$course.get_id()/download?submission=$submissionid" class="btn btn-sm btn-block btn-primary">
-        <i class="fa fa-download fa-fw"></i> Download full submission
-    </a>
+    <form method="post">
+        <div class="row">
+            <div class="col-md-12" style="margin:2px 0px 2px 0px;">
+                <a href="javascript:$$('.student_view').slideToggle()" class="btn btn-sm btn-block btn-primary">
+                    <i class="fa fa-filter fa-fw"></i> Click here to hide/display context informations
+                </a>
+            </div>
+            $if "result"  in submission:
+                <div class="col-md-12" style="margin:2px 0px 2px 0px;">
+                    <a href="/admin/$course.get_id()/download?submission=$submissionid" class="btn btn-sm btn-block btn-primary">
+                        <i class="fa fa-download fa-fw"></i> Download full submission
+                    </a>
+                </div>
+
+            <div class="col-md-4" style="margin:2px 0px 2px 0px;">
+                <button type="submit" name="replay" class="btn btn-sm btn-block btn-primary">
+                    <i class="fa fa-refresh fa-fw"></i> Replay submission
+                </button>
+            </div>
+            <div class="col-md-4" style="margin:2px 0px 2px 0px;">
+                <button type="submit" name="replay-copy" class="btn btn-sm btn-block btn-primary">
+                    <i class="fa fa-copy fa-fw"></i> Replay as $user_manager.session_realname()
+                </button>
+            </div>
+            <div class="col-md-4" style="margin:2px 0px 2px 0px;">
+                <button type="submit" name="replay-debug" class="btn btn-sm btn-block btn-primary">
+                    <i class="fa fa-terminal fa-fw"></i> Replay/debug as $user_manager.session_realname()
+                </button>
+            </div>
+
+        </div>
+    </form>
 </div>
 <div class="student_view">
     $:task.get_context()
 </div>
-$if submission["result"] == "success":
+$if "result" not in submission:
+    $ color="warning"
+$elif submission["result"] == "success":
     $ color="success"
 $elif submission["result"] in ["timeout", "overflow"]:
     $ color="warning"
 $else:
     $ color="danger"
 <div class="alert alert-$color">
-    Result: $submission["result"]<br/>
-    Grade: $submission["grade"] %
-    $if submission["text"]:
-        <br/>
-        <br/>
-        $:submission["text"]
+    $if "result" not in submission:
+        Grading in progress...
+    $else:
+        Result:  $submission["result"] <br/>
+        Grade: $submission["grade"] %
+        $if submission["text"]:
+            <br/>
+            <br/>
+            $:submission["text"]
 </div>
 $for key, problem in enumerate(to_display):
     <div class="panel panel-default">

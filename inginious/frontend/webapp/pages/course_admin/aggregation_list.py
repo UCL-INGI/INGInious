@@ -70,9 +70,9 @@ class CourseAggregationListPage(INGIniousAdminPage):
 
         return self.page(course, msg, error)
 
-    def submission_url_generator(self, course, aggregationid):
+    def submission_url_generator(self, aggregationid):
         """ Generates a submission url """
-        return "/admin/" + course.get_id() + "/download?format=taskid%2Faggregation&aggregations=" + str(aggregationid)
+        return "?format=taskid%2Faggregation&aggregations=" + str(aggregationid)
 
     def page(self, course, msg="", error=False):
         """ Get all data and display the page """
@@ -82,7 +82,7 @@ class CourseAggregationListPage(INGIniousAdminPage):
             aggregations[aggregation['_id']] = dict(list(aggregation.items()) +
                                                 [("tried", 0),
                                                  ("done", 0),
-                                                 ("url", self.submission_url_generator(course, aggregation['_id']))
+                                                 ("url", self.submission_url_generator(aggregation['_id']))
                                                  ])
 
             data = list(self.database.submissions.aggregate(

@@ -1,0 +1,77 @@
+$def with (user_data, aggregations, tutored_aggregations, tutored_users, checked_users, show_aggregations, use_classrooms)
+
+$#
+$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+$# more information about the licensing of this file.
+$#
+
+$if show_aggregations:
+    <input type="hidden" name="filter_type" id="filter_type" value="aggregations"/>
+$else:
+    <input type="hidden" name="filter_type" id="filter_type" value="users"/>
+
+<div class="panel" id="panel-download-user-aggregation">
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation"
+            $if not show_aggregations:
+                class="active"
+        >
+            <a href="#user_filter" aria-controls="user_filter" role="tab" data-toggle="tab">Select students</a>
+        </li>
+        <li role="presentation"
+            $if show_aggregations:
+                class="active"
+        >
+            <a href="#aggregation_filter" aria-controls="aggregation_filter" role="tab" data-toggle="tab">Select $('classroom' if use_classrooms else 'team')s</a>
+        </li>
+    </ul>
+    <div class="btn-group download-tabs-user-aggregation">
+        <button type="button" class="btn btn-primary btn-xs" onclick="download_page_select(true, this)">Select all</button>
+        <button type="button" class="btn btn-primary btn-xs" onclick="download_page_select(false, this)">Deselect all</button>
+        $if len(tutored_users) != 0 or len(tutored_aggregations) != 0:
+            <button type="button" class="btn btn-primary btn-xs" onclick="download_page_select_tutor(this,
+                        ['$'\',\''.join(tutored_users)'],
+                        ['$'\',\''.join(tutored_aggregations)'])">Tutored only</button>
+    </div>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane
+            $if not show_aggregations:
+                active
+        " id="user_filter">
+            $if len(user_data) == 0:
+                <div class="alert alert-warning">No user to display</div>
+            $else:
+                <ul class="list-group checked-list-box">
+                    $for userid, username in user_data.items():
+                    <li class="list-group-item" data-value="$userid" data-name="users"
+                        $if userid in checked_users:
+                            data-checked="true"
+                    >$username</li>
+                </ul>
+        </div>
+        <div role="tabpanel" class="tab-pane
+            $if show_aggregations:
+                active
+        " id="aggregation_filter">
+            $if len(aggregations) == 0:
+                <div class="alert alert-warning">No $('classroom' if use_classrooms else 'team') to display</div>
+            $else:
+                <ul class="list-group checked-list-box">
+                    $for aggregation in aggregations:
+                        $if use_classrooms or len(aggregation['groups']) > 0:
+                            <li class="list-group-item" data-value="$aggregation['_id']" data-name="aggregations" data-checked="$('true' if aggregation['checked'] else 'false')">
+                            $aggregation['description']
+                            </li>
+                </ul>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $$(function(){
+        $$('#panel-download-user-aggregation').find('a[data-toggle="tab"]').on('shown.bs.tab', function(e)
+        {
+            if($$(e.target).attr('href') == "#aggregation_filter") $$('#filter_type').val('aggregations');
+            else $$('#filter_type').val('users');
+        });
+    });
+</script>
