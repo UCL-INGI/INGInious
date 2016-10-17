@@ -62,7 +62,7 @@ $var Navbar: $:NavbarF()
             </td>
     		<td>$submission["_id"]</td>
             <td>$submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S")</td>
-            <td>
+            <td id="status">
                 $if succeeded:
                     Succeeded
                 $elif submission['status'] == 'waiting':
@@ -78,7 +78,7 @@ $var Navbar: $:NavbarF()
                        fa-search"></i></a>
                     <a href="/admin/${course.get_id()}/download$submission['url']" class="btn btn-default btn-xs" title="Download submission" data-toggle="tooltip"
                        data-placement="bottom"><i class="fa fa-download"></i></a>
-                    <a class="btn btn-default btn-xs" title="Replay submission" data-toggle="tooltip"
+                    <a class="replay btn btn-default btn-xs" title="Replay submission" data-toggle="tooltip" data-submissionid="$submission['_id']"
                        data-placement="bottom"><i class="fa fa-refresh"></i></a>
                 </div>
             </td>
@@ -86,15 +86,18 @@ $var Navbar: $:NavbarF()
     </tbody>
 </table>
 
-<div class="modal fade" id="modal_feedback" tabindex="-1" role="dialog" aria-labelledby="modal_feedback_label" aria-hidden="true">
-	<div class="modal-dialog modal-lg">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h3 class="modal-title" id="modal_feedback_label">Feedback shown to the student(s)</h3>
-			</div>
-			<div class="modal-body" id="modal_feedback_content">
-			</div>
-		</div>
-	</div>
-</div>
+<script language="javascript">
+    $$(".replay").click (function (event) {
+        var row = $$(this).rparent(3);
+        $$.ajax({
+            type: "POST",
+            url: "/admin/${course.get_id()}/replay",
+            data: "submission=" + $$(this).data("submissionid"),
+            success: function(data) {
+                row.find("#status").text("Waiting (0.0%)");
+                row.removeClass();
+                row.addClass("warning");
+            }
+        });
+    });
+</script>

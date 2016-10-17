@@ -4,7 +4,8 @@
 # more information about the licensing of this file.
 
 
-from collections import OrderedDict
+from bson.objectid import ObjectId
+import json
 import web
 from inginious.frontend.webapp.pages.course_admin.utils import INGIniousSubmissionAdminPage
 
@@ -17,16 +18,26 @@ class CourseReplaySubmissions(INGIniousSubmissionAdminPage):
         course, _ = self.get_course_and_check_rights(courseid)
         user_input = web.input(tasks=[], aggregations=[], users=[])
 
-        # Check input
-        tasks = course.get_tasks()
-        for i in tasks:
-            if i not in tasks.keys():
+        if "submission" in user_input:
+            # Replay a unique submission
+            submission = self.database.submissions.find_one({"_id": ObjectId(user_input.submission)})
+            if submission is None:
                 raise web.notfound()
 
-        # Load submissions
-        submissions, _ = self.get_selected_submissions(course, user_input.filter_type, user_input.tasks, user_input.users, user_input.aggregations, user_input.type)
-        for submission in submissions:
-            self.submission_manager.replay_job(tasks[submission["taskid"]], submission)
+            web.header('Content-Type', 'application/json')
+            self.submission_manager.replay_job(course.get_task(submission["taskid"]), submission)
+            return json.dumps({"status": "waiting"})
+        else:
+            # Replay several submissions, check input
+            tasks = course.get_tasks()
+            for i in tasks:
+                if i not in tasks.keys():
+                    raise web.notfound()
+
+            # Load submissions
+            submissions, _ = self.get_selected_submissions(course, user_input.filter_type, user_input.tasks, user_input.users, user_input.aggregations, user_input.type)
+            for submission in submissions:
+                self.submission_manager.replay_job(tasks[submission["taskid"]], submission)
 
         return self.show_page(course, web.input())
 
