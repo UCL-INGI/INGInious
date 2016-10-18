@@ -405,7 +405,7 @@ class UserManager(AbstractUserManager):
                 if len(def_sub) > 0:
                     self._database.user_tasks.find_one_and_update(
                         {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]},
-                        {"$set": {"succeeded": def_sub[0]["result"], "grade": def_sub[0]["grade"], "submissionid": def_sub[0]['_id']}})
+                        {"$set": {"succeeded": def_sub[0]["result"] == "success", "grade": def_sub[0]["grade"], "submissionid": def_sub[0]['_id']}})
 
 
     def get_course_grade(self, course, username=None):
