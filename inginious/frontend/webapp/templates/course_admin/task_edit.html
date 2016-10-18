@@ -8,8 +8,8 @@ $#
 $var title: Edit $taskid
 
 $def ColumnF():
-    <div id="task_edit_submit_status"></div>
     $:template_helper.call('course_admin_menu',course=course,current='tasks')
+    <button class="btn btn-primary btn-block task_edit_submit_button" type="button" onclick="studio_submit()"><i class="fa fa-save"></i> Save changes</button>
 $var Column: $:ColumnF()
 
 $def NavbarF():
@@ -27,10 +27,12 @@ $var Navbar: $:NavbarF()
     Edit task "$taskid"
     <div class="pull-right">
         <div class="btn-group">
+            <button class="btn btn-primary btn-success btn-sm task_edit_submit_button" type="button" onclick="studio_submit()"><i class="fa fa-save"></i> Save changes</button>
             <a id="switch" class="btn-sm btn btn-info" href="/course/$course.get_id()/$taskid"><i class="fa fa-search"></i> View task</a>
         </div>
     </div>
 </h2>
+<div id="task_edit_submit_status"></div>
 <form id="edit_task_form" method="post" enctype="multipart/form-data" class="form-horizontal">
     <input type="hidden" name="@action" value="edit_task"/>
     
@@ -69,6 +71,7 @@ $var Navbar: $:NavbarF()
 			</div>
 		</div>
 	</div>
+    <button class="btn btn-primary btn-block task_edit_submit_button" type="button" onclick="studio_submit()"><i class="fa fa-save"></i> Save changes</button>
 </form>
 
 <!-- Must be out of the form -->
