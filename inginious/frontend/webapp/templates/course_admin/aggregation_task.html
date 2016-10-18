@@ -10,6 +10,7 @@ $var title: $:task.get_name() - $:aggregation["description"] - $:course.get_name
 $var Column: $:template_helper.call('course_admin_menu',course=course,current='aggregations')
 
 $ use_classrooms = course.use_classrooms()
+$ is_admin = user_manager.has_admin_rights_on_course(course)
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
@@ -36,9 +37,10 @@ $var Navbar: $:NavbarF()
                     <a href="/admin/${course.get_id()}/download?format=taskid%2Faggregation&aggregations=${aggregation['_id']}&tasks=${task.get_id()}"
                        class="btn btn-danger btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa
                        fa-download"></i></a>
-                    <a href="/admin/${course.get_id()}/replay?format=taskid%2Faggregation&aggregations=${aggregation['_id']}&tasks=${task.get_id()}"
-                       class="btn btn-warning btn-xs" title="Replay all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa
-                       fa-refresh"></i></a>
+                    $if is_admin:
+                        <a href="/admin/${course.get_id()}/replay?format=taskid%2Faggregation&aggregations=${aggregation['_id']}&tasks=${task.get_id()}"
+                           class="btn btn-warning btn-xs" title="Replay all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa
+                           fa-refresh"></i></a>
                     <a href="/admin/${course.get_id()}/aggregation/${aggregation['_id']}/${task.get_id()}?csv" class="btn btn-info btn-xs" title="Download
                        CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
                 </div>
@@ -78,26 +80,28 @@ $var Navbar: $:NavbarF()
                        fa-search"></i></a>
                     <a href="/admin/${course.get_id()}/download$submission['url']" class="btn btn-default btn-xs" title="Download submission" data-toggle="tooltip"
                        data-placement="bottom"><i class="fa fa-download"></i></a>
-                    <a class="replay btn btn-default btn-xs" title="Replay submission" data-toggle="tooltip" data-submissionid="$submission['_id']"
-                       data-placement="bottom"><i class="fa fa-refresh"></i></a>
+                    $if is_admin:
+                        <a class="replay btn btn-default btn-xs" title="Replay submission" data-toggle="tooltip" data-submissionid="$submission['_id']"
+                           data-placement="bottom"><i class="fa fa-refresh"></i></a>
                 </div>
             </td>
     	</tr>
     </tbody>
 </table>
 
-<script language="javascript">
-    $$(".replay").click (function (event) {
-        var row = $$(this).rparent(3);
-        $$.ajax({
-            type: "POST",
-            url: "/admin/${course.get_id()}/replay",
-            data: "submission=" + $$(this).data("submissionid"),
-            success: function(data) {
-                row.find("#status").text("Waiting (0.0%)");
-                row.removeClass();
-                row.addClass("warning");
-            }
+$if is_admin:
+    <script language="javascript">
+        $$(".replay").click (function (event) {
+            var row = $$(this).rparent(3);
+            $$.ajax({
+                type: "POST",
+                url: "/admin/${course.get_id()}/replay",
+                data: "submission=" + $$(this).data("submissionid"),
+                success: function(data) {
+                    row.find("#status").text("Waiting (0.0%)");
+                    row.removeClass();
+                    row.addClass("warning");
+                }
+            });
         });
-    });
-</script>
+    </script>

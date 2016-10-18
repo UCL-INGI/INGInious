@@ -27,10 +27,10 @@ class TaskPage(INGIniousPage):
 
     def set_selected_submission(self, course, task, submissionid):
         submission = self.submission_manager.get_submission(submissionid)
-        is_admin = self.user_manager.has_admin_rights_on_course(course, self.user_manager.session_username())
+        is_staff = self.user_manager.has_staff_rights_on_course(course, self.user_manager.session_username())
 
         # Check if task is done per group/team
-        if task.is_group_task() and not is_admin:
+        if task.is_group_task() and not is_staff:
             group = self.database.aggregations.find_one(
                 {"courseid": task.get_course_id(), "groups.students": self.user_manager.session_username()},
                 {"groups": {"$elemMatch": {"students": self.user_manager.session_username()}}})

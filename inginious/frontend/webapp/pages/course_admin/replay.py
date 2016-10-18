@@ -15,7 +15,7 @@ class CourseReplaySubmissions(INGIniousSubmissionAdminPage):
 
     def POST(self, courseid):
         """ GET request """
-        course, _ = self.get_course_and_check_rights(courseid)
+        course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         user_input = web.input(tasks=[], aggregations=[], users=[])
 
         if "submission" in user_input:
@@ -47,7 +47,7 @@ class CourseReplaySubmissions(INGIniousSubmissionAdminPage):
 
     def GET(self, courseid):
         """ GET request """
-        course, _ = self.get_course_and_check_rights(courseid)
+        course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         return self.show_page(course, web.input())
 
     def show_page(self, course, user_input, msg="", error=False):

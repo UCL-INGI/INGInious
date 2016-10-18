@@ -10,6 +10,7 @@ $var title: $:aggregation["description"] - $:course.get_name()
 $var Column: $:template_helper.call('course_admin_menu',course=course,current='aggregations')
 
 $ use_classrooms = course.use_classrooms()
+$ is_admin = user_manager.has_admin_rights_on_course(course)
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
@@ -35,9 +36,10 @@ $var Navbar: $:NavbarF()
                     <a href="/admin/${course.get_id()}/download?format=taskid%2Faggregation&aggregations=$aggregation['_id']"
                        class="btn btn-danger btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa
                        fa-download"></i></a>
-                    <a href="/admin/${course.get_id()}/replay?format=taskid%2Faggregation&aggregations=$aggregation['_id']"
-                       class="btn btn-warning btn-xs" title="Replay all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa
-                       fa-refresh"></i></a>
+                    $if is_admin:
+                        <a href="/admin/${course.get_id()}/replay?format=taskid%2Faggregation&aggregations=$aggregation['_id']"
+                           class="btn btn-warning btn-xs" title="Replay all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa
+                           fa-refresh"></i></a>
                     <a href="/admin/${course.get_id()}/aggregation/${aggregation['_id']}?csv" class="btn btn-info btn-xs" title="Download
                        CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
                 </div>
@@ -72,8 +74,9 @@ $var Navbar: $:NavbarF()
                        data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
                     <a href="/admin/$course.get_id()/download$task['url']" class="btn btn-default btn-xs" title="Download submissions"
                        data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                    <a href="/admin/$course.get_id()/replay$task['url']" class="btn btn-default btn-xs" title="Replay submissions"
-                       data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
+                    $if is_admin:
+                        <a href="/admin/$course.get_id()/replay$task['url']" class="btn btn-default btn-xs" title="Replay submissions"
+                           data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
                 </div>
     		</td>
     	</tr>

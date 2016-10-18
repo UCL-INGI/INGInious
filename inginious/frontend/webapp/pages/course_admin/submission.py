@@ -21,20 +21,20 @@ class CourseStudentTaskSubmission(INGIniousAdminPage):
 
     def POST(self, courseid, username, taskid, submissionid):
         course, task = self.get_course_and_check_rights(courseid, taskid)
+        is_admin = self.user_manager.has_admin_rights_on_course(course)
 
         webinput = web.input()
         submission = self.submission_manager.get_submission(submissionid, False)
-        if "replay" in webinput:
+        if "replay" in webinput and is_admin:
             self.submission_manager.replay_job(task, submission)
-        elif "replay-copy" in webinput:
+        elif "replay-copy" in webinput:  # Authorized for tutors
             self.submission_manager.replay_job(task, submission, True)
             web.seeother("/course/" + courseid + "/" + taskid)
-        elif "replay-debug" in webinput:
+        elif "replay-debug" in webinput and is_admin:
             self.submission_manager.replay_job(task, submission, True, "ssh")
             web.seeother("/course/" + courseid + "/" + taskid)
 
         return self.page(course, username, task, submissionid)
-
 
     def page(self, course, username, task, submissionid):
         """ Get all data and display the page """

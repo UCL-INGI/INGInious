@@ -10,6 +10,7 @@ $var title: $:task.get_name() - $:course.get_name()
 $var Column: $:template_helper.call('course_admin_menu',course=course,current='tasks')
 
 $ use_classrooms = course.use_classrooms()
+$ is_admin = user_manager.has_admin_rights_on_course(course)
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
@@ -42,8 +43,9 @@ $var Navbar: $:NavbarF()
                                     <div class="btn-group" role="group">
                                         <a href="/admin/${course.get_id()}/download?format=taskid%2Fusername&tasks=$task.get_id()" class="btn btn-danger
                                             btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                                        <a href="/admin/${course.get_id()}/replay?format=taskid%2Fusername&tasks=$task.get_id()" class="btn btn-warning
-                                            btn-xs" title="Replay all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
+                                        $if is_admin:
+                                            <a href="/admin/${course.get_id()}/replay?format=taskid%2Fusername&tasks=$task.get_id()" class="btn btn-warning
+                                                btn-xs" title="Replay all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
                                         <a href="/admin/${course.get_id()}/task/${task.get_id()}?csv=students" class="btn btn-info btn-xs" title="Download CSV"
                                            data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
                                     </div>
@@ -84,8 +86,9 @@ $var Navbar: $:NavbarF()
                                            submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
                                         <a href="/admin/${course.get_id()}/download$user['url']" class="btn btn-default btn-xs" title="Download
                                            submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                                        <a href="/admin/${course.get_id()}/replay$user['url']" class="btn btn-default btn-xs" title="Replay
-                                           submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
+                                        $if is_admin:
+                                            <a href="/admin/${course.get_id()}/replay$user['url']" class="btn btn-default btn-xs" title="Replay
+                                               submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
                                     </div>
                                 </td>
                             </tr>
@@ -103,8 +106,9 @@ $var Navbar: $:NavbarF()
                                     <div class="btn-group" role="group">
                                         <a href="/admin/${course.get_id()}/download?format=taskid%2Faggregation&tasks=$task.get_id()" class="btn btn-danger
                                             btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                                        <a href="/admin/${course.get_id()}/replay?format=taskid%2Faggregation&tasks=$task.get_id()" class="btn btn-warning
-                                            btn-xs" title="Replay all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
+                                        $if is_admin:
+                                            <a href="/admin/${course.get_id()}/replay?format=taskid%2Faggregation&tasks=$task.get_id()" class="btn btn-warning
+                                                btn-xs" title="Replay all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
                                         <a href="/admin/${course.get_id()}/task/${task.get_id()}?csv=aggregations" class="btn btn-info btn-xs" title="Download CSV"
                                            data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
                                     </div>
@@ -149,8 +153,9 @@ $var Navbar: $:NavbarF()
                                                    submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
                                                 <a href="/admin/${course.get_id()}/download$aggregation['url']" class="btn btn-default btn-xs" title="Download
                                                    submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                                                <a href="/admin/${course.get_id()}/replay$aggregation['url']" class="btn btn-default btn-xs" title="Replay
-                                                   submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
+                                                $if is_admin:
+                                                    <a href="/admin/${course.get_id()}/replay$aggregation['url']" class="btn btn-default btn-xs" title="Replay
+                                                       submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
                                             </div>
                                         </td>
                                     </tr>

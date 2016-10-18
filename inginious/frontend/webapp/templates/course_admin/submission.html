@@ -7,7 +7,7 @@ $#
 
 $ user_realname= user_manager.get_user_realname(username)
 $var title: $:task.get_name() - $:user_realname - $:course.get_name()
-
+$ is_admin = user_manager.has_admin_rights_on_course(course)
 $var Column: $:template_helper.call('course_admin_menu',course=course,current='students')
 
 $def NavbarF():
@@ -46,21 +46,23 @@ $var Navbar: $:NavbarF()
                     </a>
                 </div>
 
-            <div class="col-md-4" style="margin:2px 0px 2px 0px;">
-                <button type="submit" name="replay" class="btn btn-sm btn-block btn-primary">
-                    <i class="fa fa-refresh fa-fw"></i> Replay submission
-                </button>
-            </div>
-            <div class="col-md-4" style="margin:2px 0px 2px 0px;">
+            $if is_admin:
+                <div class="col-md-4" style="margin:2px 0px 2px 0px;">
+                    <button type="submit" name="replay" class="btn btn-sm btn-block btn-primary">
+                        <i class="fa fa-refresh fa-fw"></i> Replay submission
+                    </button>
+                </div>
+            <div class="col-md-$('4' if is_admin else '12')" style="margin:2px 0px 2px 0px;">
                 <button type="submit" name="replay-copy" class="btn btn-sm btn-block btn-primary">
                     <i class="fa fa-copy fa-fw"></i> Replay as $user_manager.session_realname()
                 </button>
             </div>
-            <div class="col-md-4" style="margin:2px 0px 2px 0px;">
-                <button type="submit" name="replay-debug" class="btn btn-sm btn-block btn-primary">
-                    <i class="fa fa-terminal fa-fw"></i> Replay/debug as $user_manager.session_realname()
-                </button>
-            </div>
+            $if is_admin:
+                <div class="col-md-4" style="margin:2px 0px 2px 0px;">
+                    <button type="submit" name="replay-debug" class="btn btn-sm btn-block btn-primary">
+                        <i class="fa fa-terminal fa-fw"></i> Replay/debug as $user_manager.session_realname()
+                    </button>
+                </div>
 
         </div>
     </form>
