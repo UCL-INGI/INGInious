@@ -8,55 +8,59 @@ $#
 <!-- these divs are templates used by the javascript code to display problems -->
 <div id="subproblem_templates" style="display:none">
     <div id="subproblem_code">
-        <div class="panel panel-default" id="subproblem_well_PID">
-            <div class="panel-heading">Problem id: <span id="pid-PID">PID</span></div>
-            <div class="panel-body">
-                <input type="hidden" class="subproblem_order" name="problem[PID][@order]" value="ORDER"/>
-                <div class="form-group">
-                    <label for="name-PID" class="col-sm-2 control-label">Name</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="A title for this question"/>
+        <div class="panel panel-default" id="subproblem_well_PID" >
+            <div class="panel-heading" role="tab" id="heading_PID">
+                <div class="row">
+                    <div class="col-md-10" >
+                        <span role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_PID" aria-controls="collapse_PID">
+                            <i class="fa fa-bars"></i> Problem id: <span id="pid-PID">PID</span>
+                        </span>
+                    </div>
+                    <div class="col-md-2">
+                        <a style="margin: 0px 4px 0px; cursor:pointer;" class="pull-right" type="button" onclick="studio_subproblem_delete('PID')"><i class="fa fa-lg fa-trash-o"></i></a>
+                        <a style="margin: 0px 4px 0px; cursor:pointer;" class="pull-right" type="button" onclick="studio_subproblem_down('PID')"><i class="fa fa-lg fa-arrow-down"></i></a>
+                        <a style="margin: 0px 4px 0px; cursor:pointer;" class="pull-right" type="button" onclick="studio_subproblem_up('PID')"><i class="fa fa-lg fa-arrow-up"></i></a>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="header-PID" class="col-sm-2 control-label">Context</label>
-                    <div class="col-sm-10">
-                        <textarea id="header-PID" class="form-control" name="problem[PID][header]"></textarea>
+            </div>
+            <div id="collapse_PID" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading_PID">
+                <div class="panel-body">
+                    <input type="hidden" class="subproblem_order" name="problem[PID][@order]" value="ORDER"/>
+                    <div class="form-group">
+                        <label for="name-PID" class="col-sm-2 control-label">Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="A title for this question"/>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="language-PID" class="col-sm-2 control-label">Language</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="language-PID" name="problem[PID][language]" placeholder="Language used in this question (c/c++/java/python/oz/...)"/>
+                    <div class="form-group">
+                        <label for="header-PID" class="col-sm-2 control-label">Context</label>
+                        <div class="col-sm-10">
+                            <textarea id="header-PID" class="form-control" name="problem[PID][header]"></textarea>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="type-PID" class="col-sm-2 control-label">Type</label>
-                    <div class="col-sm-10">
-                        <select class="form-control" id="type-PID" name="problem[PID][type]">
-                            <option value="code">Multiline code</option>
-                            <option value="code-single-line">Single-line code</option>
-                        </select>
+                    <div class="form-group">
+                        <label for="language-PID" class="col-sm-2 control-label">Language</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="language-PID" name="problem[PID][language]" placeholder="Language used in this question (c/c++/java/python/oz/...)"/>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="optional-PID" class="col-sm-2 control-label">Optional?</label>
+                    <div class="form-group">
+                        <label for="type-PID" class="col-sm-2 control-label">Type</label>
+                        <div class="col-sm-10">
+                            <select class="form-control" id="type-PID" name="problem[PID][type]">
+                                <option value="code">Multiline code</option>
+                                <option value="code-single-line">Single-line code</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="optional-PID" class="col-sm-2 control-label">Optional?</label>
 
-                    <div class="col-sm-10">
-                        <div class="checkbox"><label>
-                            <input type="checkbox" id="optional-PID" name="problem[PID][optional]"/>&nbsp;
-                        </label></div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="col-sm-4">
-                        <button class="btn btn-danger btn-sm btn-block" type="button" onclick="studio_subproblem_delete('PID')"><i class="fa fa-remove"></i> Delete subproblem</button>
-                    </div>
-                    <div class="col-sm-4">
-                        <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_subproblem_up('PID')"><i class="fa fa-arrow-up"></i> Up</button>
-                    </div>
-                    <div class="col-sm-4">
-                        <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_subproblem_down('PID')"><i class="fa fa-arrow-down"></i> Down</button>
+                        <div class="col-sm-10">
+                            <div class="checkbox"><label>
+                                <input type="checkbox" id="optional-PID" name="problem[PID][optional]"/>&nbsp;
+                            </label></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -64,51 +68,55 @@ $#
     </div>
     <div id="subproblem_code_file">
         <div class="panel panel-default" id="subproblem_well_PID">
-            <div class="panel-heading">Problem id: <span id="pid-PID">PID</span></div>
-            <div class="panel-body">
-                <input type="hidden" class="subproblem_order" name="problem[PID][@order]" value="ORDER"/>
-                <div class="form-group">
-                    <label for="name-PID" class="col-sm-2 control-label">Name</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="A title for this question"/>
+            <div class="panel-heading" role="tab" id="heading_PID">
+                <div class="row">
+                    <div class="col-md-10" >
+                        <span role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_PID" aria-controls="collapse_PID">
+                            <i class="fa fa-bars"></i> Problem id: <span id="pid-PID">PID</span>
+                        </span>
+                    </div>
+                    <div class="col-md-2">
+                        <a style="margin: 0px 4px 0px; cursor:pointer;" class="pull-right" type="button" onclick="studio_subproblem_delete('PID')"><i class="fa fa-lg fa-trash-o"></i></a>
+                        <a style="margin: 0px 4px 0px; cursor:pointer;" class="pull-right" type="button" onclick="studio_subproblem_down('PID')"><i class="fa fa-lg fa-arrow-down"></i></a>
+                        <a style="margin: 0px 4px 0px; cursor:pointer;" class="pull-right" type="button" onclick="studio_subproblem_up('PID')"><i class="fa fa-lg fa-arrow-up"></i></a>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="header-PID" class="col-sm-2 control-label">Context</label>
-                    <div class="col-sm-10">
-                        <textarea id="header-PID" class="form-control" name="problem[PID][header]"></textarea>
+            </div>
+            <div id="collapse_PID" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading_PID">
+                <div class="panel-body">
+                    <input type="hidden" class="subproblem_order" name="problem[PID][@order]" value="ORDER"/>
+                    <div class="form-group">
+                        <label for="name-PID" class="col-sm-2 control-label">Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="A title for this question"/>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="extensions-PID" class="col-sm-2 control-label">Allowed file extensions (including the dot, separated by spaces)</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="extensions-PID" name="problem[PID][allowed_exts]" placeholder=".txt,.zip,.gz"/>
+                    <div class="form-group">
+                        <label for="header-PID" class="col-sm-2 control-label">Context</label>
+                        <div class="col-sm-10">
+                            <textarea id="header-PID" class="form-control" name="problem[PID][header]"></textarea>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="maxsize-PID" class="col-sm-2 control-label">Maximum file size (in bytes)</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="maxsize-PID" name="problem[PID][max_size]" placeholder="1000000"/>
+                    <div class="form-group">
+                        <label for="extensions-PID" class="col-sm-2 control-label">Allowed file extensions (including the dot, separated by spaces)</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="extensions-PID" name="problem[PID][allowed_exts]" placeholder=".txt,.zip,.gz"/>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-2 control-label">Type</label>
-                    <div class="col-sm-10">
-                        <select class="form-control" disabled="disabled">
-                            <option value="code-file">File upload</option>
-                        </select>
-                        <input type="hidden" name="problem[PID][type]" value="code-file"/>
+                    <div class="form-group">
+                        <label for="maxsize-PID" class="col-sm-2 control-label">Maximum file size (in bytes)</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="maxsize-PID" name="problem[PID][max_size]" placeholder="1000000"/>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <div class="col-sm-4">
-                        <button class="btn btn-danger btn-sm btn-block" type="button" onclick="studio_subproblem_delete('PID')"><i class="fa fa-remove"></i> Delete subproblem</button>
-                    </div>
-                    <div class="col-sm-4">
-                        <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_subproblem_up('PID')"><i class="fa fa-arrow-up"></i> Up</button>
-                    </div>
-                    <div class="col-sm-4">
-                        <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_subproblem_down('PID')"><i class="fa fa-arrow-down"></i> Down</button>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">Type</label>
+                        <div class="col-sm-10">
+                            <select class="form-control" disabled="disabled">
+                                <option value="code-file">File upload</option>
+                            </select>
+                            <input type="hidden" name="problem[PID][type]" value="code-file"/>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -116,37 +124,41 @@ $#
     </div>
     <div id="subproblem_match">
         <div class="panel panel-default" id="subproblem_well_PID">
-            <div class="panel-heading">Problem id: <span id="pid-PID">PID</span></div>
-            <div class="panel-body">
-                <input type="hidden" name="problem[PID][type]" value="match"/>
-                <input type="hidden" class="subproblem_order" name="problem[PID][@order]" value="ORDER"/>
-                <div class="form-group">
-                    <label for="name-PID" class="col-sm-2 control-label">Name</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="A title for this question"/>
+            <div class="panel-heading" role="tab" id="heading_PID">
+                <div class="row">
+                    <div class="col-md-10" >
+                        <span role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_PID" aria-controls="collapse_PID">
+                            <i class="fa fa-bars"></i> Problem id: <span id="pid-PID">PID</span>
+                        </span>
+                    </div>
+                    <div class="col-md-2">
+                        <a style="margin: 0px 4px 0px; cursor:pointer;" class="pull-right" type="button" onclick="studio_subproblem_delete('PID')"><i class="fa fa-lg fa-trash-o"></i></a>
+                        <a style="margin: 0px 4px 0px; cursor:pointer;" class="pull-right" type="button" onclick="studio_subproblem_down('PID')"><i class="fa fa-lg fa-arrow-down"></i></a>
+                        <a style="margin: 0px 4px 0px; cursor:pointer;" class="pull-right" type="button" onclick="studio_subproblem_up('PID')"><i class="fa fa-lg fa-arrow-up"></i></a>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="header-PID" class="col-sm-2 control-label">Context</label>
-                    <div class="col-sm-10">
-                        <textarea id="header-PID" class="form-control" name="problem[PID][header]"></textarea>
+            </div>
+            <div id="collapse_PID" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading_PID">
+                <div class="panel-body">
+                    <input type="hidden" name="problem[PID][type]" value="match"/>
+                    <input type="hidden" class="subproblem_order" name="problem[PID][@order]" value="ORDER"/>
+                    <div class="form-group">
+                        <label for="name-PID" class="col-sm-2 control-label">Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="A title for this question"/>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="answer-PID" class="col-sm-2 control-label">Answer</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="answer-PID" name="problem[PID][answer]" placeholder="Answer of this question"/>
+                    <div class="form-group">
+                        <label for="header-PID" class="col-sm-2 control-label">Context</label>
+                        <div class="col-sm-10">
+                            <textarea id="header-PID" class="form-control" name="problem[PID][header]"></textarea>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <div class="col-sm-4">
-                        <button class="btn btn-danger btn-sm btn-block" type="button" onclick="studio_subproblem_delete('PID')"><i class="fa fa-remove"></i> Delete subproblem</button>
-                    </div>
-                    <div class="col-sm-4">
-                        <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_subproblem_up('PID')"><i class="fa fa-arrow-up"></i> Up</button>
-                    </div>
-                    <div class="col-sm-4">
-                        <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_subproblem_down('PID')"><i class="fa fa-arrow-down"></i> Down</button>
+                    <div class="form-group">
+                        <label for="answer-PID" class="col-sm-2 control-label">Answer</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="answer-PID" name="problem[PID][answer]" placeholder="Answer of this question"/>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -154,86 +166,90 @@ $#
     </div>
     <div id="subproblem_multiple_choice">
         <div class="panel panel-default" id="subproblem_well_PID">
-            <div class="panel-heading">Problem id: <span id="pid-PID">PID</span></div>
-            <div class="panel-body">
-                <input type="hidden" name="problem[PID][type]" value="multiple-choice"/>
-                <input type="hidden" class="subproblem_order" name="problem[PID][@order]" value="ORDER"/>
-                <div class="form-group">
-                    <label for="name-PID" class="col-sm-2 control-label">Name</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="A title for this question"/>
+            <div class="panel-heading" role="tab" id="heading_PID">
+                <div class="row">
+                    <div class="col-md-10" >
+                        <span role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_PID" aria-controls="collapse_PID">
+                            <i class="fa fa-bars"></i> Problem id: <span id="pid-PID">PID</span>
+                        </span>
+                    </div>
+                    <div class="col-md-2">
+                        <a style="margin: 0px 4px 0px; cursor:pointer;" class="pull-right" type="button" onclick="studio_subproblem_delete('PID')"><i class="fa fa-lg fa-trash-o"></i></a>
+                        <a style="margin: 0px 4px 0px; cursor:pointer;" class="pull-right" type="button" onclick="studio_subproblem_down('PID')"><i class="fa fa-lg fa-arrow-down"></i></a>
+                        <a style="margin: 0px 4px 0px; cursor:pointer;" class="pull-right" type="button" onclick="studio_subproblem_up('PID')"><i class="fa fa-lg fa-arrow-up"></i></a>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="header-PID" class="col-sm-2 control-label">Context</label>
-                    <div class="col-sm-10">
-                        <textarea id="header-PID" class="form-control" name="problem[PID][header]"></textarea>
+            </div>
+            <div id="collapse_PID" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading_PID">
+                <div class="panel-body">
+                    <input type="hidden" name="problem[PID][type]" value="multiple-choice"/>
+                    <input type="hidden" class="subproblem_order" name="problem[PID][@order]" value="ORDER"/>
+                    <div class="form-group">
+                        <label for="name-PID" class="col-sm-2 control-label">Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="A title for this question"/>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="multiple-PID" class="col-sm-2 control-label">Can select multiple answers</label>
-                    <div class="col-sm-10">
-                        <div class="checkbox"><label>
-                            <input type="checkbox" id="multiple-PID" name="problem[PID][multiple]"/>&nbsp;
-                        </label></div>
+                    <div class="form-group">
+                        <label for="header-PID" class="col-sm-2 control-label">Context</label>
+                        <div class="col-sm-10">
+                            <textarea id="header-PID" class="form-control" name="problem[PID][header]"></textarea>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="centralize-PID" class="col-sm-2 control-label">Count error only at top of the page?</label>
-                    <div class="col-sm-10">
-                        <div class="checkbox"><label>
-                            <input type="checkbox" id="centralize-PID" name="problem[PID][centralize]"/>&nbsp;
-                        </label></div>
+                    <div class="form-group">
+                        <label for="multiple-PID" class="col-sm-2 control-label">Can select multiple answers</label>
+                        <div class="col-sm-10">
+                            <div class="checkbox"><label>
+                                <input type="checkbox" id="multiple-PID" name="problem[PID][multiple]"/>&nbsp;
+                            </label></div>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="limit-PID" class="col-sm-2 control-label">Number of choices to display (0 = all choices)</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="limit-PID" name="problem[PID][limit]" placeholder="0"/>
+                    <div class="form-group">
+                        <label for="centralize-PID" class="col-sm-2 control-label">Count error only at top of the page?</label>
+                        <div class="col-sm-10">
+                            <div class="checkbox"><label>
+                                <input type="checkbox" id="centralize-PID" name="problem[PID][centralize]"/>&nbsp;
+                            </label></div>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="success_message-PID" class="col-sm-2 control-label">Success message</label>
+                    <div class="form-group">
+                        <label for="limit-PID" class="col-sm-2 control-label">Number of choices to display (0 = all choices)</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="limit-PID" name="problem[PID][limit]" placeholder="0"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="success_message-PID" class="col-sm-2 control-label">Success message</label>
 
-                    <div class="col-sm-10">
-                        <textarea id="success_message-PID" class="form-control" name="problem[PID][success_message]"
-                                  placeholder="An optionnal success message"></textarea>
+                        <div class="col-sm-10">
+                            <textarea id="success_message-PID" class="form-control" name="problem[PID][success_message]"
+                                      placeholder="An optionnal success message"></textarea>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="error_message-PID" class="col-sm-2 control-label">Error message</label>
+                    <div class="form-group">
+                        <label for="error_message-PID" class="col-sm-2 control-label">Error message</label>
 
-                    <div class="col-sm-10">
-                        <textarea id="error_message-PID" class="form-control" name="problem[PID][error_message]"
-                                  placeholder="An optionnal error message"></textarea>
+                        <div class="col-sm-10">
+                            <textarea id="error_message-PID" class="form-control" name="problem[PID][error_message]"
+                                      placeholder="An optionnal error message"></textarea>
+                        </div>
                     </div>
-                </div>
-                <div class="col-sm-12">
-                    <h4 style="text-align: center">Choices</h4>
-                    <div id="choices-PID">
+                    <div class="col-sm-12">
+                        <h4 style="text-align: center">Choices</h4>
+                        <div id="choices-PID">
 
-                    </div>
-                    <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_create_choice('PID',{})">
-                        <i class="fa fa-plus"></i> Add new choice
-                    </button>
-                    <div style="height:30px"></div>
-                </div>
-                <div class="form-group">
-                    <div class="col-sm-4">
-                        <button class="btn btn-danger btn-sm btn-block" type="button" onclick="studio_subproblem_delete('PID')"><i class="fa fa-remove"></i> Delete subproblem</button>
-                    </div>
-                    <div class="col-sm-4">
-                        <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_subproblem_up('PID')"><i class="fa fa-arrow-up"></i> Up</button>
-                    </div>
-                    <div class="col-sm-4">
-                        <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_subproblem_down('PID')"><i class="fa fa-arrow-down"></i> Down</button>
+                        </div>
+                        <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_create_choice('PID',{})">
+                            <i class="fa fa-plus"></i> Add new choice
+                        </button>
+                        <div style="height:30px"></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <div id="subproblem_multiple_choice_choice">
-        <div class="panel panel-primary">
+        <div class="panel panel-default">
             <div class="panel-body">
                 <div class="row">
                     <div class="form-group">
@@ -270,37 +286,41 @@ $#
     </div>
     <div id="subproblem_custom">
         <div class="panel panel-default" id="subproblem_well_PID">
-            <div class="panel-heading">Problem id: <span id="pid-PID">PID</span></div>
-            <div class="panel-body">
-                <input type="hidden" name="problem[PID][type]" value="custom"/>
-                <input type="hidden" class="subproblem_order" name="problem[PID][@order]" value="ORDER"/>
-                <div class="form-group">
-                    <label for="name-PID" class="col-sm-2 control-label">Name</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="A title for this question"/>
+            <div class="panel-heading" role="tab" id="heading_PID">
+                <div class="row">
+                    <div class="col-md-10" >
+                        <span role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_PID" aria-controls="collapse_PID">
+                            <i class="fa fa-bars"></i> Problem id: <span id="pid-PID">PID</span>
+                        </span>
+                    </div>
+                    <div class="col-md-2">
+                        <a style="margin: 0px 4px 0px; cursor:pointer;" class="pull-right" type="button" onclick="studio_subproblem_delete('PID')"><i class="fa fa-lg fa-trash-o"></i></a>
+                        <a style="margin: 0px 4px 0px; cursor:pointer;" class="pull-right" type="button" onclick="studio_subproblem_down('PID')"><i class="fa fa-lg fa-arrow-down"></i></a>
+                        <a style="margin: 0px 4px 0px; cursor:pointer;" class="pull-right" type="button" onclick="studio_subproblem_up('PID')"><i class="fa fa-lg fa-arrow-up"></i></a>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="header-PID" class="col-sm-2 control-label">Context</label>
-                    <div class="col-sm-10">
-                        <textarea id="header-PID" class="form-control" name="problem[PID][header]"></textarea>
+            </div>
+            <div id="collapse_PID" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading_PID">
+                <div class="panel-body">
+                    <input type="hidden" name="problem[PID][type]" value="custom"/>
+                    <input type="hidden" class="subproblem_order" name="problem[PID][@order]" value="ORDER"/>
+                    <div class="form-group">
+                        <label for="name-PID" class="col-sm-2 control-label">Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="A title for this question"/>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="custom-PID" class="col-sm-2 control-label">Custom data (YAML)</label>
-                    <div class="col-sm-10">
-                        <textarea id="custom-PID" class="form-control" name="problem[PID][custom]"></textarea>
+                    <div class="form-group">
+                        <label for="header-PID" class="col-sm-2 control-label">Context</label>
+                        <div class="col-sm-10">
+                            <textarea id="header-PID" class="form-control" name="problem[PID][header]"></textarea>
+                        </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <div class="col-sm-4">
-                        <button class="btn btn-danger btn-sm btn-block" type="button" onclick="studio_subproblem_delete('PID')"><i class="fa fa-remove"></i> Delete subproblem</button>
-                    </div>
-                    <div class="col-sm-4">
-                        <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_subproblem_up('PID')"><i class="fa fa-arrow-up"></i> Up</button>
-                    </div>
-                    <div class="col-sm-4">
-                        <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_subproblem_down('PID')"><i class="fa fa-arrow-down"></i> Down</button>
+                    <div class="form-group">
+                        <label for="custom-PID" class="col-sm-2 control-label">Custom data (YAML)</label>
+                        <div class="col-sm-10">
+                            <textarea id="custom-PID" class="form-control" name="problem[PID][custom]"></textarea>
+                        </div>
                     </div>
                 </div>
             </div>

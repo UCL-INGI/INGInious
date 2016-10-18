@@ -372,7 +372,8 @@ function studio_create_new_subproblem()
 function studio_create_from_template(template, pid)
 {
     var tpl = $(template).html().replace(/PID/g, pid);
-    $('#new_subproblem').before(tpl);
+    $('#accordion').append(tpl);
+    $('.collapse').collapse('hide');
 }
 
 /**
@@ -561,9 +562,12 @@ function studio_delete_choice(pid, choice)
 function studio_subproblem_up(pid)
 {
     var well = $(studio_get_problem(pid));
-    var prev = well.prev(".well.row");
-    if(prev.length)
-        well.detach().insertBefore(prev);
+    var prev = well.prev();
+    if(prev.length) {
+        well.fadeOut(400, function() {
+            well.detach().insertBefore(prev).fadeIn(400);
+        });
+    }
 }
 
 /**
@@ -573,9 +577,12 @@ function studio_subproblem_up(pid)
 function studio_subproblem_down(pid)
 {
     var well = $(studio_get_problem(pid));
-    var next = well.next(".well.row");
-    if(next.length)
-        well.detach().insertAfter(next);
+    var next = well.next();
+    if(next.length) {
+        well.fadeOut(400, function() {
+            well.detach().insertAfter(next).fadeIn(400);
+        });
+    }
 }
 
 /**
