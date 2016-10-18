@@ -75,9 +75,17 @@ form#task label {
 #task_alert .alert#ssh_remote_info pre {
   font-size: 10px;
   margin-right: 50px;
+  -moz-user-select: all;
+  -webkit-user-select: all;
+  user-select: all;
 }
 #task_alert .alert#ssh_remote_info pre:before {
   content: "$ ";
+}
+#task_alert .alert#ssh_remote_info code {
+  -moz-user-select: all;
+  -webkit-user-select: all;
+  user-select: all;
 }
 #task_alert .kill-submission-btn {
   position: absolute;
