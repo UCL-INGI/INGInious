@@ -54,7 +54,7 @@ for repo in config['repos']:
     sh.cd(scriptdir)
     try:
         out = ssh_add(os.path.abspath(repo['keyfile']))
-        print_output(out.stderr)
+        print_output(out.stderr.decode('utf-8'))
     except:
         print('\x1b[31;1mERROR: Failed to load keyfile, or to add it with ssh-add\033[0m')
         exit(1)
@@ -64,7 +64,7 @@ for repo in config['repos']:
     if not os.path.exists(maindir + "/" + repo['course']):
         print('\x1b[33;1m--> Cloning repository\033[0m')
         out = git.clone(repo['url'], maindir + "/" + repo['course'])
-        print_output(out.stdout)
+        print_output(out.stdout.decode('utf-8'))
     else:
         print('\x1b[1m--> Synchronizing repository\033[0m')
         
@@ -77,16 +77,16 @@ for repo in config['repos']:
         # Check for something to commit
         if git.status('-s'):
             out = git.commit("-a", "-m", "Automatic synchronization from INGInious")
-            print_output(out.stdout)
-            print_output(out.stderr)
+            print_output(out.stdout.decode('utf-8'))
+            print_output(out.stderr.decode('utf-8'))
             if not out.exit_code == 0:
                 exit(1)
         
 
         # Pull recursively, keeping the INGInious version of changes
         out = git.pull("--no-edit","-s", "recursive", "-X", "theirs")
-        print_output(out.stdout)
-        print_output(out.stderr)
+        print_output(out.stdout.decode('utf-8'))
+        print_output(out.stderr.decode('utf-8'))
         if not out.exit_code == 0:
             exit(1)
         
@@ -97,6 +97,6 @@ for repo in config['repos']:
     print('\x1b[1m--> Remove private key with ssh-add \033[0m')
     sh.cd(scriptdir)
     out = ssh_add("-d", os.path.abspath(repo['keyfile']))
-    print_output(out.stderr)
+    print_output(out.stderr.decode('utf-8'))
     if not out.exit_code == 0:
         exit(1)

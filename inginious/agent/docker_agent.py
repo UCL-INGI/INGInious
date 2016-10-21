@@ -691,7 +691,7 @@ class DockerAgent(object):
             try:
                 stdout, stderr = await self._loop.run_in_executor(None, lambda: self._docker.get_logs(container_id))
             except:
-                self.logger.warning("Cannot get back stdout of container %s!", container_id)
+                self._logger.warning("Cannot get back stdout of container %s!", container_id)
                 rmtree(container_path)
                 await ZMQUtils.send(self._backend_socket, AgentBatchJobDone(message.job_id, -1, 'Cannot retrieve stdout/stderr from container', "", None))
                 return
