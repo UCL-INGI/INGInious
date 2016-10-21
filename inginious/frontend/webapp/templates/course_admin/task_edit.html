@@ -9,7 +9,7 @@ $var title: Edit $taskid
 
 $def ColumnF():
     $:template_helper.call('course_admin_menu',course=course,current='tasks')
-    <button class="btn btn-primary btn-block task_edit_submit_button" type="button" onclick="studio_submit()"><i class="fa fa-save"></i> Save changes</button>
+    <a href="#task_edit_submit_status" class="btn btn-primary btn-block task_edit_submit_button" type="button" onclick="studio_submit()"><i class="fa fa-save"></i> Save changes</a>
 $var Column: $:ColumnF()
 
 $def NavbarF():
@@ -71,7 +71,6 @@ $var Navbar: $:NavbarF()
             </div>
         </div>
     </div>
-    <button class="btn btn-primary btn-block task_edit_submit_button" type="button" onclick="studio_submit()"><i class="fa fa-save"></i> Save changes</button>
 </form>
 
 <!-- Must be out of the form -->
