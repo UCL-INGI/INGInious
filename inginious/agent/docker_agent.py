@@ -575,7 +575,8 @@ class DockerAgent(object):
             self._containers_ending[container_id] = (message, container_path, retval, future_results)
 
             # Close sub containers
-            for student_container_id in self._student_containers_for_job[message.job_id]:
+            for student_container_id_loop in self._student_containers_for_job[message.job_id]:
+                student_container_id = student_container_id_loop
                 def close_and_delete():
                     try:
                         self._docker.kill_container(student_container_id)
