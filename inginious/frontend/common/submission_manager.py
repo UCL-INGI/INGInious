@@ -50,7 +50,7 @@ class SubmissionManager(object, metaclass=ABCMeta):
             return None
         return sub
 
-    def _job_done_callback(self, submissionid, task, result, grade, problems, tests, custom, archive, stdout, stderr, newsub=False):
+    def _job_done_callback(self, submissionid, task, result, grade, problems, tests, custom, archive, stdout, stderr, newsub=True):
         """ Callback called by Client when a job is done. Updates the submission in the database with the data returned after the completion of the
         job """
         submission = self.get_submission(submissionid, False)
@@ -122,7 +122,7 @@ class SubmissionManager(object, metaclass=ABCMeta):
 
         jobid = self._client.new_job(task, inputdata,
                                      (lambda result, grade, problems, tests, custom, archive, stdout, stderr:
-                                      self._job_done_callback(submissionid, task, result, grade, problems, tests, custom, archive, stdout, stderr, False)),
+                                      self._job_done_callback(submissionid, task, result, grade, problems, tests, custom, archive, stdout, stderr, True)),
                                      "Frontend - {}".format(username), debug, ssh_callback)
 
         self._database.submissions.update(
