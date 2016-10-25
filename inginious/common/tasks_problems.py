@@ -119,10 +119,10 @@ class BasicCodeProblem(BasicProblem):
             raise Exception("Invalid box _id " + boxid)
         if "type" not in box_content:
             raise Exception("Box " + boxid + " does not have a type")
-        try:
-            return self._box_types[box_content["type"]](self, boxid, box_content)
-        except:
-            raise Exception("Unknow box type " + box_content["type"] + "for box _id " + boxid)
+        if box_content["type"] not in self._box_types:
+            raise Exception("Unknown box type " + box_content["type"] + "for box _id " + boxid)
+
+        return self._box_types[box_content["type"]](self, boxid, box_content)
 
     def check_answer(self, _):
         return None, None, None, 0

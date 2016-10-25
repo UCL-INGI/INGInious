@@ -201,9 +201,9 @@ class MultilineBox(BasicBox):
         else:
             self._lines = 8
 
-        if "language" in boxData and re.match(r'[a-z0-9\-_\.]+$', boxData["language"], re.IGNORECASE):
-            self._language = boxData["language"]
-        elif "language" in boxData:
+        if re.match(r'[a-z0-9\-_\.]+$', boxData.get("language", ""), re.IGNORECASE):
+            self._language = boxData.get("language", "")
+        elif boxData.get("language", ""):
             raise Exception("Invalid language " + boxData["language"])
         else:
             self._language = "plain"
