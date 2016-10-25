@@ -77,16 +77,22 @@ class INGIniousSubmissionAdminPage(INGIniousAdminPage):
             self._validate_list(users)
             aggregations = list(self.database.aggregations.find({"courseid": course.get_id(),
                                                                  "students": {"$in": users}}))
+            # Tweak if not using classrooms : classroom['students'] may content ungrouped users
+            aggregations = dict([(username,
+                                  aggregation if course.use_classrooms() or (
+                                      username in aggregation['groups'][0]["students"]) else None
+                                  ) for aggregation in aggregations for username in users])
+
         else:
             self._validate_list(aggregations)
             aggregations = list(
                 self.database.aggregations.find({"_id": {"$in": [ObjectId(cid) for cid in aggregations]}}))
 
-        # Tweak if not using classrooms : classroom['students'] may content ungrouped users
-        aggregations = dict([(username,
-                              aggregation if course.use_classrooms() or (
-                              username in aggregation['groups'][0]["students"]) else None
-                              ) for aggregation in aggregations for username in aggregation["students"]])
+            # Tweak if not using classrooms : classroom['students'] may content ungrouped users
+            aggregations = dict([(username,
+                                  aggregation if course.use_classrooms() or (
+                                  username in aggregation['groups'][0]["students"]) else None
+                                  ) for aggregation in aggregations for username in aggregation["students"]])
 
         if stype == "single":
             user_tasks = list(self.database.user_tasks.find({"username": {"$in": list(aggregations.keys())},
