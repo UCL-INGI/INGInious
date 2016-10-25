@@ -12,31 +12,49 @@ from inginious.frontend.webapp.pages.utils import INGIniousPage
 class CoursePage(INGIniousPage):
     """ Course page """
 
+    def get_course(self, courseid):
+        """ Check rights and return the course """
+        if not self.user_manager.session_logged_in():
+            raise web.seeother('/index')
+
+        try:
+            course = self.course_factory.get_course(courseid)
+        except:
+            if web.config.debug:
+                raise
+            else:
+                raise web.notfound()
+
+        return course
+
+    def POST(self, courseid):
+        """ POST request """
+        course = self.get_course(courseid)
+
+        user_input = web.input()
+        if "unregister" in user_input:
+            self.user_manager.course_unregister_user(course, self.user_manager.session_username())
+            raise web.seeother('/index')
+
+        return self.show_page(course)
+
     def GET(self, courseid):
         """ GET request """
+        course = self.get_course(courseid)
+        return self.show_page(course)
 
-        if self.user_manager.session_logged_in():
-            try:
-                course = self.course_factory.get_course(courseid)
-                if not self.user_manager.course_is_open_to_user(course):
-                    return self.template_helper.get_renderer().course_unavailable()
-                else:
-                    last_submissions = self.submission_manager.get_user_last_submissions_for_course(course, one_per_task=True)
-                    except_free_last_submissions = []
-                    for submission in last_submissions:
-                        try:
-                            submission["task"] = course.get_task(submission['taskid'])
-                            except_free_last_submissions.append(submission)
-                        except:
-                            pass
-
-                    return self.template_helper.get_renderer().course(course, except_free_last_submissions)
-            except web.seeother:
-                raise
-            except:
-                if web.config.debug:
-                    raise
-                else:
-                    raise web.notfound()
+    def show_page(self, course):
+        """ Prepares and shows the course page """
+        if not self.user_manager.course_is_open_to_user(course):
+            return self.template_helper.get_renderer().course_unavailable()
         else:
-            return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_fields(), False)
+            last_submissions = self.submission_manager.get_user_last_submissions_for_course(course, one_per_task=True)
+            except_free_last_submissions = []
+            for submission in last_submissions:
+                try:
+                    submission["task"] = course.get_task(submission['taskid'])
+                    except_free_last_submissions.append(submission)
+                except:
+                    pass
+
+            return self.template_helper.get_renderer().course(course, except_free_last_submissions)

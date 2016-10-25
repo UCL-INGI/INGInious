@@ -61,12 +61,6 @@ class IndexPage(INGIniousPage):
                     registration_status = self.user_manager.course_register_user(course, username, user_input.get("register_password", None))
             except:
                 registration_status = False
-        if "unregister_courseid" in user_input:
-            try:
-                course = self.course_factory.get_course(user_input["unregister_courseid"])
-                self.user_manager.course_unregister_user(course, username)
-            except:
-                pass
 
         # Display
         last_submissions = self.submission_manager.get_user_last_submissions({}, 5, True)

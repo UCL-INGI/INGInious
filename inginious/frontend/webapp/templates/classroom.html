@@ -52,9 +52,7 @@ $def ColumnF():
         </div>
     $else:
         <div class="list-group">
-            <a class="list-group-item list-group-item-info" href="/?unregister_courseid=$course.get_id()">
-                <i class="fa fa-user-times fa-fw"></i>&nbsp; Unregister from this course
-            </a>
+            $:include.unregister_button(course)
         </div>
 $var Column: $:ColumnF()
 

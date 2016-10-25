@@ -46,8 +46,6 @@ $# Start content
                     $open_courses[courseid].get_name()
                     $if not open_courses[courseid].is_open_to_non_staff():
                         - <b>course not shown to students</b>
-                    $if not user_manager.course_is_user_registered(open_courses[courseid]) and not open_courses[courseid].can_students_choose_group():
-                        - <b>waiting for group attribution (<a  href="/?unregister_courseid=$courseid">unregister</a>)</b>
                 </div>
                 <div class="col-xs-12 col-md-5">
                     <div class="progress">
