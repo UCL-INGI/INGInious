@@ -9,6 +9,7 @@ from abc import ABCMeta, abstractmethod
 from datetime import datetime
 from datetime import timedelta
 from functools import reduce
+from natsort import natsorted
 import pymongo
 
 from inginious.frontend.common.user_manager import AbstractUserManager
@@ -534,7 +535,7 @@ class UserManager(AbstractUserManager):
 
     def get_course_aggregations(self, course):
         """ Returns a list of the course aggregations"""
-        return list(self._database.aggregations.find({"courseid": course.get_id()}).sort("description"))
+        return natsorted(list(self._database.aggregations.find({"courseid": course.get_id()})), key=lambda x: x["description"])
 
     def get_course_user_aggregation(self, course, username=None):
         """ Returns the classroom whose username belongs to

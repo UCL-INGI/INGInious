@@ -22,7 +22,8 @@ install_requires = [
     #"pylti>=0.4.1", # TODO re-add me once PyLTI PR is accepted
     "watchdog >= 0.8.3",
     "msgpack-python >= 0.4.7",
-    "pyzmq >= 15.3.0"
+    "pyzmq >= 15.3.0",
+    "natsort >= 5.0.1"
 ]
 
 # for custom PyLTI: TODO remove me once PyLTI PR is accepted

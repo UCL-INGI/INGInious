@@ -145,7 +145,7 @@ class CourseEditAggregation(INGIniousAdminPage):
                 raise web.notfound()
         else:
             student_list, tutor_list, users_info = self.get_user_lists(course)
-            aggregations = list(self.database.aggregations.find({"courseid": course.get_id()}))
+            aggregations = self.user_manager.get_course_aggregations(course)
             if course.use_classrooms():
                 raise web.notfound()
             else:
