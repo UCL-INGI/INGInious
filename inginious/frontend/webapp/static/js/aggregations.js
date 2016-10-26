@@ -156,7 +156,8 @@ function aggregation_delete(id)
 
 function aggregations_delete() {
     $("#groups .group").each(function(i) {
-        aggregation_delete($(this).attr("id"));
+        if(i!=0) // first .group must not be deleted : non-grouped/non-teamed
+            aggregation_delete($(this).attr("id"));
     });
 }
 

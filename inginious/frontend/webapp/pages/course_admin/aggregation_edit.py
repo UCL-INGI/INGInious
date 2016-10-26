@@ -171,10 +171,10 @@ class CourseEditAggregation(INGIniousAdminPage):
 
             for classid in data["delete"]:
                 # Get the aggregation
-                aggregation = self.database.aggregations.find_one({"_id": ObjectId(classid), "courseid": courseid})
+                aggregation = self.database.aggregations.find_one({"_id": ObjectId(classid), "courseid": courseid}) if ObjectId.is_valid(classid) else None
 
                 if aggregation is None:
-                    msg = "Classroom not found."
+                    msg = "Classroom" if course.use_classrooms() else "Team" + " with id " + classid + "not found."
                     error = True
                 elif aggregation['default'] and aggregationid:
                     msg = "You can't remove your default classroom."
@@ -225,7 +225,7 @@ class CourseEditAggregation(INGIniousAdminPage):
                     msg += "<li>" + student + "</li>"
                 msg += "</ul>"
                 error = True
-            else:
+            elif not error:
                 msg = "Classroom updated." if course.use_classrooms() else "Teams updated."
         except:
             msg = 'An error occurred while parsing the data.'
