@@ -469,9 +469,9 @@ class DockerAgent(object):
                             if msg["type"] == "run_student":
                                 # start a new student container
                                 environment = msg["environment"] or orig_env
-                                memory_limit = msg["memory_limit"] or orig_memory_limit
-                                time_limit = msg["time_limit"] or orig_time_limit
-                                hard_time_limit = msg["hard_time_limit"] or orig_hard_time_limit
+                                memory_limit = min(msg["memory_limit"] or orig_memory_limit, orig_memory_limit)
+                                time_limit = min(msg["time_limit"] or orig_time_limit, orig_time_limit)
+                                hard_time_limit = min(msg["hard_time_limit"] or orig_hard_time_limit, orig_hard_time_limit)
                                 share_network = msg["share_network"]
                                 socket_id = msg["socket_id"]
                                 assert "/" not in socket_id  # ensure task creator do not try to break the agent :-(
