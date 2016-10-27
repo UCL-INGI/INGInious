@@ -78,13 +78,13 @@ class WebAppSubmissionManager(SubmissionManager):
         # Load input data and add username to dict
         inputdata = json.loads(self._gridfs.get(submission["input"]).read().decode("utf-8"), encoding="utf8")
 
-        # Remove the submission archive : it will be regenerated
-        if submission.get("archive", None) is not None:
-            self._gridfs.delete(submission["archive"])
-
         if not copy:
             submissionid = submission["_id"]
             username = submission["username"][0] # TODO: this may be inconsistent with add_job
+
+            # Remove the submission archive : it will be regenerated
+            if submission.get("archive", None) is not None:
+                self._gridfs.delete(submission["archive"])
         else:
             del submission["_id"]
             username = self._user_manager.session_username()
