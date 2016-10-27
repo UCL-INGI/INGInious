@@ -94,6 +94,16 @@ class SubmissionManager(object, metaclass=ABCMeta):
 
         username = self._user_manager.session_username()
 
+        # Prevent student from submitting several submissions together
+        waiting_submission = self._database.submissions.find_one({
+            "courseid": task.get_course_id(),
+            "taskid": task.get_id(),
+            "username": username,
+            "status": "waiting"})
+
+        if waiting_submission is not None:
+            raise Exception("A submission is already pending for this task!")
+
         obj = {
             "courseid": task.get_course_id(),
             "taskid": task.get_id(),

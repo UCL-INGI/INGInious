@@ -78,12 +78,17 @@ class LTITask(LTIAuthenticatedPage):
             debug = "Administrator" in self.user_manager.session_roles()
 
             # Start the submission
-            self._logger.info("New submission from %s - %s - %s/%s - %s", self.user_manager.session_username(),
-                              self.user_manager.session_email(), self.task.get_course_id(), self.task.get_id(), web.ctx['ip'])
-            submissionid, oldsubids = self.submission_manager.add_job(self.task, userinput, debug)
+            try:
+                submissionid, oldsubids = self.submission_manager.add_job(self.task, userinput, debug)
+                self._logger.info("New submission from %s - %s - %s/%s - %s", self.user_manager.session_username(),
+                                  self.user_manager.session_email(), self.task.get_course_id(), self.task.get_id(),
+                                  web.ctx['ip'])
+                web.header('Content-Type', 'application/json')
+                return json.dumps({"status": "ok", "submissionid": str(submissionid), "remove": oldsubids})
+            except Exception as ex:
+                web.header('Content-Type', 'application/json')
+                return json.dumps({"status": "error", "text": str(ex)})
 
-            web.header('Content-Type', 'application/json')
-            return json.dumps({"status": "ok", "submissionid": str(submissionid), "remove": oldsubids})
         elif "@action" in userinput and userinput["@action"] == "check" and "submissionid" in userinput:
             if self.submission_manager.is_done(userinput['submissionid']):
                 web.header('Content-Type', 'application/json')

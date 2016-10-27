@@ -164,13 +164,18 @@ class TaskPage(INGIniousPage):
                         del userinput['@debug-mode']
 
                     # Start the submission
-                    self._logger.info("New submission from %s - %s - %s/%s - %s", self.user_manager.session_username(),
-                                      self.user_manager.session_email(), task.get_course_id(), task.get_id(), web.ctx['ip'])
+                    try:
+                        submissionid, oldsubids = self.submission_manager.add_job(task, userinput, debug)
+                        self._logger.info("New submission from %s - %s - %s/%s - %s",
+                                          self.user_manager.session_username(),
+                                          self.user_manager.session_email(), task.get_course_id(), task.get_id(),
+                                          web.ctx['ip'])
+                        web.header('Content-Type', 'application/json')
+                        return json.dumps({"status": "ok", "submissionid": str(submissionid), "remove": oldsubids})
+                    except Exception as ex:
+                        web.header('Content-Type', 'application/json')
+                        return json.dumps({"status": "error", "text": str(ex)})
 
-                    submissionid, oldsubids = self.submission_manager.add_job(task, userinput, debug)
-
-                    web.header('Content-Type', 'application/json')
-                    return json.dumps({"status": "ok", "submissionid": str(submissionid), "remove": oldsubids})
                 elif "@action" in userinput and userinput["@action"] == "check" and "submissionid" in userinput:
                     result = self.submission_manager.get_submission(userinput['submissionid'])
                     if result is None:

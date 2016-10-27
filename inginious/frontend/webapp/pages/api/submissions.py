@@ -7,7 +7,7 @@
 
 import web
 
-from inginious.frontend.webapp.pages.api._api_page import APIAuthenticatedPage, APINotFound, APIForbidden, APIInvalidArguments
+from inginious.frontend.webapp.pages.api._api_page import APIAuthenticatedPage, APINotFound, APIForbidden, APIInvalidArguments, APIError
 from inginious.common.tasks_code_boxes import FileBox
 from inginious.common.tasks_problems import MultipleChoiceProblem, BasicCodeProblem
 
@@ -184,9 +184,11 @@ class APISubmissions(APIAuthenticatedPage):
 
 
         # Start the submission
-        submissionid, _ = self.submission_manager.add_job(task, user_input, debug)
-
-        return 200, {"submissionid": str(submissionid)}
+        try:
+            submissionid, _ = self.submission_manager.add_job(task, user_input, debug)
+            return 200, {"submissionid": str(submissionid)}
+        except Exception as ex:
+            raise APIError(str(ex))
 
     def list_multiple_multiple_choices_and_files(self, task):
         """ List problems in task that expect and array as input """
