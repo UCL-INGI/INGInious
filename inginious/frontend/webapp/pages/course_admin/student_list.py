@@ -37,7 +37,7 @@ class CourseStudentListPage(INGIniousAdminPage):
                 pass
         elif "register" in data:
             try:
-                self.user_manager.course_register_user(course, data["username"], '', True)
+                self.user_manager.course_register_user(course, data["username"].strip(), '', True)
             except:
                 pass
         return self.page(course)

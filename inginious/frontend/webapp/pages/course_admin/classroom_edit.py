@@ -68,9 +68,11 @@ class CourseEditClassroom(INGIniousAdminPage):
         student_list, tutor_list, other_students, users_info = self.get_user_lists(course, classroomid)
 
         # Check tutors
-        new_data["tutors"] = [tutor for tutor in new_data["tutors"] if tutor in tutor_list]
+        new_data["tutors"] = [tutor for tutor in map(str.strip, new_data["tutors"]) if tutor in tutor_list]
 
         students, groups, errored_students = [], [], []
+
+        new_data["students"] = map(str.strip, new_data["students"])
 
         # Check the students
         for student in new_data["students"]:
@@ -99,7 +101,7 @@ class CourseEditClassroom(INGIniousAdminPage):
 
         # Check the groups
         for group in new_data["groups"]:
-            group["students"] = [student for student in group["students"] if student in new_data["students"]]
+            group["students"] = [student for student in map(str.strip, group["students"]) if student in new_data["students"]]
             if len(group["students"]) <= group["size"]:
                 groups.append(group)
 
