@@ -10,12 +10,12 @@ import os
 import struct
 import tarfile
 import tempfile
+import psutil
 from shutil import rmtree, copytree
 from typing import Dict, Any, Optional
 
 import msgpack
 import zmq
-from msgpack import Unpacker
 from zmq.asyncio import Poller
 
 from inginious.agent._docker_interface import DockerInterface
@@ -46,6 +46,7 @@ class DockerAgent(object):
         self._context = context
         self._loop = asyncio.get_event_loop()
         self._nb_sub_agents = nb_sub_agents
+        self._max_memory_per_slot = int(psutil.virtual_memory().total/nb_sub_agents/1024/1024)
 
         # data about running containers
         self._containers_running = {}
@@ -282,8 +283,13 @@ class DockerAgent(object):
                                            'persists, please contact your course administrator.')
                 return
 
+            # Check for realistic memory limit value
             if mem_limit < 20:
                 mem_limit = 20
+            elif mem_limit > self._max_memory_per_slot:
+                self._logger.warning("Task %s/%s ask for too much memory (%dMB)! Available: %dMB", course_id, task_id, mem_limit, self._max_memory_per_slot)
+                await self.send_job_result(message.job_id, "crash", 'Not enough memory on agent (available: %dMB). Please contact your course administrator.' % self._max_memory_per_slot)
+                return
 
             if environment_name not in self._containers:
                 self._logger.warning("Task %s/%s ask for an unknown environment %s (not in aliases)", course_id, task_id, environment_name)
@@ -506,7 +512,7 @@ class DockerAgent(object):
         future_results.set_result(None)
 
     async def handle_student_job_closing_p1(self, container_id, retval):
-        """ First part of the tudent container ending handler. Ask the killer pipeline if they killed the container that recently died. Do some cleaning. """
+        """ First part of the student container ending handler. Ask the killer pipeline if they killed the container that recently died. Do some cleaning. """
         try:
             self._logger.debug("Closing student (p1) for %s", container_id)
             try:
