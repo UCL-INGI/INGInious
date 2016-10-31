@@ -397,8 +397,7 @@ class UserManager(AbstractUserManager):
             old_submission = self._database.user_tasks.find_one(
                 {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]})
 
-            if task.get_evaluate() == 'best':
-                # Set the best submission as the default one
+            if task.get_evaluate() == 'best':  # if best, update cache consequently (with best submission)
                 def_sub = list(self._database.submissions.find({"username": username, "courseid": task.get_course_id(),
                                                     "taskid": task.get_id(),
                                                     "status": "done"}).sort([("grade", pymongo.DESCENDING)]).limit(1))
@@ -407,6 +406,10 @@ class UserManager(AbstractUserManager):
                     self._database.user_tasks.find_one_and_update(
                         {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]},
                         {"$set": {"succeeded": def_sub[0]["result"] == "success", "grade": def_sub[0]["grade"], "submissionid": def_sub[0]['_id']}})
+            elif old_submission["submissionid"] == submission["_id"]:  # otherwise, update cache if needed
+                self._database.user_tasks.find_one_and_update(
+                    {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]},
+                    {"$set": {"succeeded": submission["result"] == "success", "grade": submission["grade"]}})
 
 
     def get_course_grade(self, course, username=None):
@@ -578,6 +581,7 @@ class UserManager(AbstractUserManager):
             self._database.aggregations.find_one_and_update({"courseid": course.get_id(), "default": True},
                                                           {"$push": {"students": username}})
 
+        self._logger.info("User %s registered to course %s", username, course.get_id())
         return True
 
     def course_unregister_user(self, course, username=None):
@@ -598,6 +602,8 @@ class UserManager(AbstractUserManager):
         self._database.aggregations.find_one_and_update(
             {"courseid": course.get_id(), "students": username},
             {"$pull": {"students": username}})
+
+        self._logger.info("User %s unregistered from course %s", username, course.get_id())
 
     def course_is_open_to_user(self, course, username=None):
         """
