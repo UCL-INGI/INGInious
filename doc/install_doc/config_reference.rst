@@ -92,7 +92,7 @@ Example of configuration:
 ldap_auth
 !!!!!!!!!
 
-Uses an LDAP server for authenticating users.
+Uses an LDAP server to authenticate users.
 
 Example of configuration:
 ::
@@ -113,22 +113,13 @@ Most of the parameters are self-explaining, but:
 ``prefix``
 	a prefix that will be added in the internal username used in INGInious. Useful if you have multiple auth methods with usernames used in more than one method.
 
-edX plugin
-``````````
+db_auth
+!!!!!!!
 
-Note: the edx plugin is deprecated. Use the `LTI frontend`_ instead.
+Uses the MongoDB database to authenticate users. Provides a basic email-verification based registration and password
+recovery. It does not support manual user management yet. The superadmin has to register the same way other users do.
 
-Provides a *passive* grader for edX XQueue. More information is available on the :doc:`edX <./teacher_doc/edX>` page in this documentation.
-Here is an example of configuration:
+Example of configuration:
 ::
 	plugins:
-	  - plugin_module: frontend.plugins.edx,
-            courseid: "LouvainX",
-            page_pattern: "/grader"
-
-``courseid``
-	courseid is the id of the course that you want to provide to edX.
-	(Please note that you can have multiple instances of the edX plugin, allowing you to use it for more than one course)
-``page_pattern``:
-	pages that will lead to the edX grader. Can be a simple string or a regex. Note that if you use multiple edX plugin instances,
-	page_patterns have to be unique.
+	  - plugin_module: frontend.plugins.auth.db_auth
