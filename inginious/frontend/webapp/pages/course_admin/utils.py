@@ -99,7 +99,7 @@ class INGIniousSubmissionAdminPage(INGIniousAdminPage):
                                                              "taskid": {"$in": selected_tasks},
                                                              "courseid": course.get_id()}))
 
-            submissionsid = [user_task['submissionid'] for user_task in user_tasks]
+            submissionsid = [user_task['submissionid'] for user_task in user_tasks if user_task['submissionid'] is not None]
             submissions = list(self.database.submissions.find({"_id": {"$in": submissionsid}}))
         else:
             submissions = list(self.database.submissions.find({"username": {"$in": list(aggregations.keys())},

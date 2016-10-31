@@ -6,7 +6,6 @@
 """ Task page """
 import base64
 import json
-import logging
 import mimetypes
 import os
 import posixpath
@@ -22,8 +21,6 @@ from inginious.frontend.webapp.pages.utils import INGIniousPage
 
 class TaskPage(INGIniousPage):
     """ Display a task (and allow to reload old submission/file uploaded during a submission) """
-
-    _logger = logging.getLogger("inginious.webapp.tasks")
 
     def set_selected_submission(self, course, task, submissionid):
         submission = self.submission_manager.get_submission(submissionid)
@@ -166,10 +163,6 @@ class TaskPage(INGIniousPage):
                     # Start the submission
                     try:
                         submissionid, oldsubids = self.submission_manager.add_job(task, userinput, debug)
-                        self._logger.info("New submission from %s - %s - %s/%s - %s",
-                                          self.user_manager.session_username(),
-                                          self.user_manager.session_email(), task.get_course_id(), task.get_id(),
-                                          web.ctx['ip'])
                         web.header('Content-Type', 'application/json')
                         return json.dumps({"status": "ok", "submissionid": str(submissionid), "remove": oldsubids})
                     except Exception as ex:

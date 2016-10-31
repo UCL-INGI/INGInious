@@ -7,12 +7,14 @@
 
 import web
 from bson.objectid import ObjectId
-
+import logging
 from inginious.frontend.webapp.pages.utils import INGIniousPage
 
 
 class AggregationPage(INGIniousPage):
     """ Aggregation page """
+
+    _logger = logging.getLogger("inginious.webapp.aggregations")
 
     def GET(self, courseid):
         """ GET request """
@@ -44,6 +46,7 @@ class AggregationPage(INGIniousPage):
                                 aggregation["groups"][index]["students"].remove(username)
                         aggregation["groups"][int(data["register_group"])]["students"].append(username)
                     self.database.aggregations.replace_one({"courseid": course.get_id(), "students": username}, aggregation)
+                    self._logger.info("User %s registered to group %s/%s/%s", username, courseid, aggregation["description"], data["register_group"])
                 else:
                     error = True
                     msg = "Couldn't register to the specified group."
@@ -68,6 +71,8 @@ class AggregationPage(INGIniousPage):
                 if new_aggregation is None:
                     error = True
                     msg = "Couldn't register to the specified group."
+                else:
+                    self._logger.info("User %s registered to team %s/%s", username, courseid, aggregation["description"])
             else:
                 error = True
                 msg = "You are not allowed to change group."
@@ -80,6 +85,7 @@ class AggregationPage(INGIniousPage):
                         if username in group["students"]:
                             aggregation["groups"][index]["students"].remove(username)
                     self.database.aggregations.replace_one({"courseid": course.get_id(), "students": username}, aggregation)
+                    self._logger.info("User %s unregistered from group/team %s/%s", username, courseid, aggregation["description"])
                 else:
                     error = True
                     msg = "You're not registered in a group."

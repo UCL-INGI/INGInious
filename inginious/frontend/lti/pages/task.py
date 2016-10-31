@@ -80,9 +80,6 @@ class LTITask(LTIAuthenticatedPage):
             # Start the submission
             try:
                 submissionid, oldsubids = self.submission_manager.add_job(self.task, userinput, debug)
-                self._logger.info("New submission from %s - %s - %s/%s - %s", self.user_manager.session_username(),
-                                  self.user_manager.session_email(), self.task.get_course_id(), self.task.get_id(),
-                                  web.ctx['ip'])
                 web.header('Content-Type', 'application/json')
                 return json.dumps({"status": "ok", "submissionid": str(submissionid), "remove": oldsubids})
             except Exception as ex:

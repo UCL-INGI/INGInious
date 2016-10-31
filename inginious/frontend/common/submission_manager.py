@@ -12,6 +12,8 @@ import os.path
 import tarfile
 import io
 import tempfile
+import web
+import logging
 from datetime import datetime
 
 from bson.objectid import ObjectId
@@ -38,6 +40,7 @@ class SubmissionManager(object, metaclass=ABCMeta):
         self._database = database
         self._gridfs = gridfs
         self._hook_manager = hook_manager
+        self._logger = logging.getLogger("inginious.webapp.submissions")
 
     def get_available_environments(self):
         """:return a list of available environments """
@@ -139,6 +142,10 @@ class SubmissionManager(object, metaclass=ABCMeta):
             {"_id": submissionid, "status": "waiting"},
             {"$set": {"jobid": jobid}}
         )
+
+        self._logger.info("New submission from %s - %s - %s/%s - %s", self._user_manager.session_username(),
+                          self._user_manager.session_email(), task.get_course_id(), task.get_id(),
+                          web.ctx['ip'])
 
         return submissionid, to_remove
 

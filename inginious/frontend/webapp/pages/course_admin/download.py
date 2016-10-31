@@ -5,11 +5,14 @@
 
 from bson.objectid import ObjectId
 import web
+import logging
 from inginious.frontend.webapp.pages.course_admin.utils import INGIniousSubmissionAdminPage
 
 
 class CourseDownloadSubmissions(INGIniousSubmissionAdminPage):
     """ Batch operation management """
+
+    _logger = logging.getLogger("inginious.webapp.download")
 
     def valid_formats(self, course):
         return [
@@ -37,6 +40,7 @@ class CourseDownloadSubmissions(INGIniousSubmissionAdminPage):
         submissions, aggregations = self.get_selected_submissions(course, user_input.filter_type, user_input.tasks,
                                                     user_input.users, user_input.aggregations, user_input.type)
 
+        self._logger.info("Downloading %d submissions from course %s", len(submissions), courseid)
         web.header('Content-Type', 'application/x-gzip', unique=True)
         web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)
         return self.submission_manager.get_submission_archive(submissions, list(reversed(user_input.format.split('/'))), aggregations)
@@ -48,15 +52,17 @@ class CourseDownloadSubmissions(INGIniousSubmissionAdminPage):
 
         # First, check for a particular submission
         if "submission" in user_input:
-            submissions = list(self.database.submissions.find({"_id": ObjectId(user_input.submission),
-                                                               "courseid": course.get_id(),
-                                                               "status": {"$in": ["done", "error"]}}))
-            if len(submissions) != 1:
+            submission = self.database.submissions.find_one({"_id": ObjectId(user_input.submission),
+                                                             "courseid": course.get_id(),
+                                                             "status": {"$in": ["done", "error"]}})
+            if submission is None:
                 raise web.notfound()
 
+            self._logger.info("Downloading submission %s - %s - %s - %s", submission['_id'], submission['courseid'],
+                              submission['taskid'], submission['username'])
             web.header('Content-Type', 'application/x-gzip', unique=True)
             web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)
-            return self.submission_manager.get_submission_archive(submissions, [], {})
+            return self.submission_manager.get_submission_archive([submission], [], {})
 
         # Else, display the complete page
 

@@ -5,6 +5,7 @@
 
 """ Manages submissions """
 import json
+
 from datetime import datetime
 
 from inginious.frontend.common.submission_manager import SubmissionManager
@@ -106,3 +107,10 @@ class WebAppSubmissionManager(SubmissionManager):
             {"$set": {"jobid": jobid, "status": "waiting", "response_type": task.get_response_type()},
              "$unset": {"result": "", "grade": "", "text": "", "tests": "", "problems": "", "archive": "", "custom": ""}
              })
+
+        if not copy:
+            self._logger.info("Replaying submission %s - %s - %s - %s", submission["username"], submission["courseid"],
+                              submission["taskid"], submission["_id"])
+        else:
+            self._logger.info("Copying submission %s - %s - %s - %s as %s", submission["username"], submission["courseid"],
+                              submission["taskid"], submission["_id"], self._user_manager.session_username())
