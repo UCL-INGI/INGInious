@@ -74,7 +74,6 @@ setup(
         'inginious/utils/task_auto_tester/inginious-auto-test-task',
         'inginious/utils/task_converter/inginious-old-task-converter',
         'inginious/utils/task_manual_tester/inginious-test-task',
-        'inginious/utils/remote_debugger/inginious-remote-debug',
         'inginious/utils/container_update/inginious-container-update'
     ],
 

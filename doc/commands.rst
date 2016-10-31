@@ -20,7 +20,6 @@ Task tests commands
     commands_doc/inginious-test-task
     commands_doc/inginious-check-task
     commands_doc/inginious-auto-test-task
-    commands_doc/inginious-remote-debug
 
 Utilities
 ---------
