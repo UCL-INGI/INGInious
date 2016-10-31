@@ -13,12 +13,14 @@ import os
 import datetime
 import zipfile
 import glob
+import logging
 
 from inginious.frontend.webapp.pages.course_admin.utils import INGIniousAdminPage
 
 
 class CourseDangerZonePage(INGIniousAdminPage):
     """ Course administration page: list of classrooms """
+    _logger = logging.getLogger("inginious.webapp.danger_zone")
 
     def wipe_course(self, courseid):
         submissions = self.database.submissions.find({"courseid": courseid})
@@ -31,6 +33,8 @@ class CourseDangerZonePage(INGIniousAdminPage):
         self.database.user_tasks.remove({"courseid": courseid})
         self.database.submissions.remove({"courseid": courseid})
 
+        self._logger.info("Course %s wiped.", courseid)
+
     def dump_course(self, courseid):
         """ Create a zip file containing all information about a given course in database and then remove it from db"""
         filepath = os.path.join(self.backup_dir, courseid, datetime.datetime.now().strftime("%Y%m%d.%H%M%S") + ".zip")
@@ -39,13 +43,13 @@ class CourseDangerZonePage(INGIniousAdminPage):
             os.makedirs(os.path.dirname(filepath))
 
         with zipfile.ZipFile(filepath, "w", allowZip64=True) as zipf:
-            aggregations = self.database.aggregations.find({"courseid": courseid}, {"_id": 0})
+            aggregations = self.database.aggregations.find({"courseid": courseid})
             zipf.writestr("aggregations.json", bson.json_util.dumps(aggregations), zipfile.ZIP_DEFLATED)
 
-            user_tasks = self.database.user_tasks.find({"courseid": courseid}, {"_id": 0})
+            user_tasks = self.database.user_tasks.find({"courseid": courseid})
             zipf.writestr("user_tasks.json", bson.json_util.dumps(user_tasks), zipfile.ZIP_DEFLATED)
 
-            submissions = self.database.submissions.find({"courseid": courseid}, {"_id": 0})
+            submissions = self.database.submissions.find({"courseid": courseid})
             zipf.writestr("submissions.json", bson.json_util.dumps(submissions), zipfile.ZIP_DEFLATED)
 
             submissions.rewind()
@@ -56,6 +60,7 @@ class CourseDangerZonePage(INGIniousAdminPage):
                         infile = self.submission_manager.get_gridfs().get(submission[key])
                         zipf.writestr(key + "/" + str(submission[key]) + ".data", infile.read(), zipfile.ZIP_DEFLATED)
 
+        self._logger.info("Course %s dumped to backup directory.", courseid)
         self.wipe_course(courseid)
 
     def restore_course(self, courseid, backup):
@@ -81,6 +86,8 @@ class CourseDangerZonePage(INGIniousAdminPage):
 
             if len(submissions) > 0:
                 self.database.submissions.insert(submissions)
+
+        self._logger.info("Course %s restored from backup directory.", courseid)
 
     def GET(self, courseid):
         """ GET request """
