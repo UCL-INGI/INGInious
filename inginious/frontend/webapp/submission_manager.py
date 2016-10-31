@@ -5,7 +5,7 @@
 
 """ Manages submissions """
 import json
-
+import logging
 from datetime import datetime
 
 from inginious.frontend.common.submission_manager import SubmissionManager
@@ -24,6 +24,7 @@ class WebAppSubmissionManager(SubmissionManager):
         :return:
         """
         super(WebAppSubmissionManager, self).__init__(client, user_manager, database, gridfs, hook_manager)
+        self._logger = logging.getLogger("inginious.webapp.submissions")
 
     def _job_done_callback(self, submissionid, task, result, grade, problems, tests, custom, archive, stdout, stderr, newsub=True):
         """ Callback called by Client when a job is done. Updates the submission in the database with the data returned after the completion of the

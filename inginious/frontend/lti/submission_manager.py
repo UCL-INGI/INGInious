@@ -5,8 +5,7 @@
 
 """ A custom Submission Manager that removes exceeding submissions """
 import threading
-
-import pymongo
+import logging
 
 from inginious.frontend.common.submission_manager import SubmissionManager
 
@@ -20,6 +19,7 @@ class LTISubmissionManager(SubmissionManager):
         self.lis_outcome_data = {}
         self.lis_outcome_data_lock = threading.Lock()
         self.lis_outcome_manager = lis_outcome_manager
+        self._logger = logging.getLogger("inginious.lti.submissions")
 
     def add_job(self, task, inputdata, debug=False):
         debug = bool(debug)  # do not allow "ssh" here

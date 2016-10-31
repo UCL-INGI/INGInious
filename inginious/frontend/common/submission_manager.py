@@ -13,7 +13,6 @@ import tarfile
 import io
 import tempfile
 import web
-import logging
 from datetime import datetime
 
 from bson.objectid import ObjectId
@@ -40,7 +39,7 @@ class SubmissionManager(object, metaclass=ABCMeta):
         self._database = database
         self._gridfs = gridfs
         self._hook_manager = hook_manager
-        self._logger = logging.getLogger("inginious.webapp.submissions")
+        self._logger = None
 
     def get_available_environments(self):
         """:return a list of available environments """
