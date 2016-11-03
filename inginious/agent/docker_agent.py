@@ -226,7 +226,7 @@ class DockerAgent(object):
                     elif batch_args[key]["type"] == "file":
                         if isinstance(input_data[key], str):
                             raise Exception("Invalid value for inputdata: the value for key {} should be a file object".format(key))
-                        open(os.path.join(input_path, batch_args[key]["path"]), 'w').write(input_data[key].read())
+                        open(os.path.join(input_path, batch_args[key]["path"]), 'wb').write(input_data[key])
             except:
                 rmtree(container_path)
                 self._logger.info("Invalid input for batch container %s in job %s", message.container_name, message.job_id)

@@ -48,7 +48,7 @@ class BatchManager(object):
         submissions = list(self._database.submissions.find(db_args))
         if best_only != "0":
             submissions = self._submission_manager.keep_best_submission(submissions)
-        return self._submission_manager.get_submission_archive(submissions, list(reversed(folders.split('/'))), {})
+        return self._submission_manager.get_submission_archive(submissions, list(reversed(folders.split('/'))), {}).read()
 
     def get_batch_container_metadata(self, container_name):
         """

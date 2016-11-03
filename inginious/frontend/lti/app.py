@@ -156,7 +156,7 @@ def get_app(config):
     appli.init_mapping(urls)
 
     # Loads plugins
-    plugin_manager.load(client, appli, course_factory, task_factory, database, user_manager, config.get("plugins", []))
+    plugin_manager.load(client, appli, course_factory, task_factory, database, user_manager, submission_manager, config.get("plugins", []))
 
     # Start the Client
     client.start()
