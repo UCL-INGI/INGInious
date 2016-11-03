@@ -24,12 +24,13 @@ class PluginManager(HookManager):
         self._database = None
         self._user_manager = None
 
-    def load(self, client, webpy_app, course_factory, task_factory, database, user_manager, config):
+    def load(self, client, webpy_app, course_factory, task_factory, database, user_manager, submission_manager, config):
         """ Loads the plugin manager. Must be done after the initialisation of the client """
         self._app = webpy_app
         self._task_factory = task_factory
         self._database = database
         self._user_manager = user_manager
+        self._submission_manager = submission_manager
         self._loaded = True
         for entry in config:
             module = importlib.import_module(entry["plugin_module"])
@@ -64,3 +65,6 @@ class PluginManager(HookManager):
 
     def get_database(self):
         return self._database
+
+    def get_submission_manager(self):
+        return self._submission_manager
