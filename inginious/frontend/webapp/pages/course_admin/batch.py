@@ -66,7 +66,7 @@ class CourseBatchJobCreate(INGIniousAdminPage):
                     if key not in batch_input:
                         raise Exception("It lacks a field")
                     if container_args[key]["type"] == "file":
-                        batch_input[key] = batch_input[key].file
+                        batch_input[key] = batch_input[key].file.read()
         except:
             errors.append("Please fill all the fields.")
 

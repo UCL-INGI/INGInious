@@ -36,7 +36,7 @@ class BatchManager(object):
         tar.add(dir_path, "/", True)
         tar.close()
         tmpfile.seek(0)
-        return tmpfile
+        return tmpfile.read()
 
     def _get_submissions_data(self, course, tasks, folders, eval_only):
         """ Returns a file-like object to a tgz archive containing all the submissions made by the students for the course """
@@ -50,7 +50,7 @@ class BatchManager(object):
             submissions = list(self._database.submissions.find({"_id": {"$in": submissionsid}}))
         else:
             submissions = list(self._database.submissions.find(db_args))
-        return self._submission_manager.get_submission_archive(submissions, list(reversed(folders.split('/'))), {})
+        return self._submission_manager.get_submission_archive(submissions, list(reversed(folders.split('/'))), {}).read()
 
     def get_batch_container_metadata(self, container_name):
         """
