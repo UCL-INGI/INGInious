@@ -1,4 +1,4 @@
-$def with (course,task,submissions)
+$def with (course,task,submissions,is_admin)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -48,7 +48,7 @@ $def ColumnF():
     </table>
 
     <h3>Submissions</h3>
-    <div id="submissions_restrictsize">
+    <div id="submissions_restrictsize" style="margin-bottom:0px;">
 	    <ul id="submissions" class="list-group">
 	        $if submissions:
 	            $for submission in submissions:
@@ -70,9 +70,44 @@ $def ColumnF():
 	            <li class="list-group-item disabled submission-empty">No submissions</li>
 	    </ul>
     </div>
-    <p>
         <small>Please note that for performance reasons, INGInious may not keep all your submissions indefinitely.</small>
-    </p>
+    $if is_admin:
+        <h3>Administration</h3>
+        <h4>Download submissions</h4>
+        <div id="resulttest"></div>
+        <form id="donwload">
+            <div class="form-group">
+                <label for="tasksel">Task(s)</label>
+                <select class="form-control input-sm" id="tasksel">
+                    <option value="current">This task</option>
+                    <option value="all">All tasks</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="usersel">User(s)</label>
+                <select class="form-control input-sm" id="usersel">
+                    <option value="mine">Just me</option>
+                    <option value="all">All users</option>
+                </select>
+            </div>
+            <a id="downloadbtn" class="btn btn-primary btn-block btn-sm">Download</a>
+        </form>
+        <script>
+            $$("#downloadbtn").click(function(e){
+                e.preventDefault();
+                var tasksel = $$("#tasksel option:selected").val();
+                var usersel = $$("#usersel option:selected").val();
+                $$.ajax({type: "GET",
+                        url: "/$user_manager.get_session_identifier()/download/" + tasksel + "/" + usersel,
+                        success:function(result){
+                            $$("#resulttest").html(getAlertCode(result, "warning", true));
+                        },
+                        error: function(xhr, status, error) {
+                          alert(xhr.responseText);
+                        }
+                });
+            });
+        </script>
 $var Column: $:ColumnF()
 
 $# Start content

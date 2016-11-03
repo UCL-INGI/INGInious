@@ -42,6 +42,8 @@ class LTITask(LTIAuthenticatedPage):
 
         self._logger.debug('post with userinput=' + str(userinput))
 
+        is_admin = any(x in self.admin_role for x in self.user_manager.session_roles())
+
         if "submissionid" in userinput and "questionid" in userinput:
             # Download a previously submitted file
             submission = self.submission_manager.get_submission(userinput["submissionid"], True)
@@ -74,12 +76,9 @@ class LTITask(LTIAuthenticatedPage):
                                                               "to upload. Your responses were not tested."})
             del userinput['@action']
 
-            # Get debug info if the current user is an admin
-            debug = "Administrator" in self.user_manager.session_roles()
-
             # Start the submission
             try:
-                submissionid, oldsubids = self.submission_manager.add_job(self.task, userinput, debug)
+                submissionid, oldsubids = self.submission_manager.add_job(self.task, userinput, is_admin)
                 web.header('Content-Type', 'application/json')
                 return json.dumps({"status": "ok", "submissionid": str(submissionid), "remove": oldsubids})
             except Exception as ex:
@@ -92,8 +91,8 @@ class LTITask(LTIAuthenticatedPage):
                 result = self.submission_manager.get_submission(userinput['submissionid'])
                 result = self.submission_manager.get_input_from_submission(result)
                 result = self.submission_manager.get_feedback_from_submission(result,
-                                                                              show_everything="Administrator" in self.user_manager.session_roles())
-                return submission_to_json(result, "Administrator" in self.user_manager.session_roles())
+                                                                              show_everything=is_admin)
+                return submission_to_json(result, is_admin)
             else:
                 web.header('Content-Type', 'application/json')
                 return json.dumps({'status': "waiting"})
@@ -101,16 +100,16 @@ class LTITask(LTIAuthenticatedPage):
             submission = self.submission_manager.get_submission(userinput["submissionid"])
             submission = self.submission_manager.get_input_from_submission(submission)
             submission = self.submission_manager.get_feedback_from_submission(submission,
-                                                                              show_everything="Administrator" in self.user_manager.session_roles())
+                                                                              show_everything=is_admin)
             if not submission:
                 self._logger.info('ERROR: not submission')
                 raise web.notfound()
             web.header('Content-Type', 'application/json')
-            return submission_to_json(submission, "Administrator" in self.user_manager.session_roles(), True)
+            return submission_to_json(submission, is_admin, True)
         elif "@action" in userinput and userinput["@action"] == "kill" and "submissionid" in userinput:
             self.submission_manager.kill_running_submission(userinput["submissionid"])  # ignore return value
             web.header('Content-Type', 'application/json')
             return json.dumps({'status': 'done'})
         else:
             # Display the task itself
-            return self.template_helper.get_renderer().task(self.course, self.task, self.submission_manager.get_user_submissions(self.task))
+            return self.template_helper.get_renderer().task(self.course, self.task, self.submission_manager.get_user_submissions(self.task), is_admin)
