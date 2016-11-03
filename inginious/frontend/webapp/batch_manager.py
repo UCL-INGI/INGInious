@@ -38,16 +38,18 @@ class BatchManager(object):
         tmpfile.seek(0)
         return tmpfile
 
-    def _get_submissions_data(self, course, tasks, folders, best_only):
+    def _get_submissions_data(self, course, tasks, folders, eval_only):
         """ Returns a file-like object to a tgz archive containing all the submissions made by the students for the course """
         users = self._user_manager.get_course_registered_users(course)
 
-        db_args = {"courseid": course.get_id(), "username": {"$in": users}, "status": {"$in": ["done", "error"]}}
+        db_args = {"courseid": course.get_id(), "username": {"$in": users}}
         if tasks is not None:
             db_args["taskid"] = {"$in": tasks}
-        submissions = list(self._database.submissions.find(db_args))
-        if best_only != "0":
-            submissions = self._submission_manager.keep_best_submission(submissions)
+        if eval_only:
+            submissionsid = [user_task["submissionid"] for user_task in self._database.user_tasks.find(db_args)]
+            submissions = list(self._database.submissions.find({"_id": {"$in": submissionsid}}))
+        else:
+            submissions = list(self._database.submissions.find(db_args))
         return self._submission_manager.get_submission_archive(submissions, list(reversed(folders.split('/'))), {})
 
     def get_batch_container_metadata(self, container_name):
