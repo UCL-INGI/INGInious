@@ -12,13 +12,6 @@ import shutil
 
 from inginious.frontend.lti.pages.utils import LTIAuthenticatedPage
 
-##
-## This needs to be provided by a config parameter, but i'm not certain how yet - dcg
-##
-if os.path.exists(os.path.join("lti_download", "tmp")):
-    shutil.rmtree(os.path.join("lti_download", "tmp"))
-os.mkdir(os.path.join("lti_download", "tmp"))
-
 download_status = []
 
 
@@ -39,23 +32,24 @@ class LTIDownload(LTIAuthenticatedPage):
         dl_tag = len(download_status)
         download_status.append("starting")
 
-        thread = ArchiverThread(dl_tag, self.database.submissions.find(search_dict), self.submission_manager.get_submission_archive)
+        thread = ArchiverThread(dl_tag, self.database.submissions.find(search_dict), self.submission_manager.get_submission_archive, self.app.download_directory)
         thread.start()
 
         return "Progress can be displayed at download/"+str(dl_tag)
 
 
 class ArchiverThread(Thread):
-    def __init__(self, dl_tag, submissions, get_submission_archive):
-        self.dl_tag = dl_tag
-        self.submission = list(submissions) #copy
-        self.get_submission_archive = get_submission_archive
+    def __init__(self, dl_tag, submissions, get_submission_archive, download_directory):
         super(ArchiverThread, self).__init__()
+        self.dl_tag = dl_tag
+        self.submission = list(submissions)  # copy
+        self.get_submission_archive = get_submission_archive
+        self.download_directory = download_directory
 
     def run(self):
         download_status[self.dl_tag] = "listing submissions"
         self.get_submission_archive(self.iterate_and_update(), ['taskid', 'username'], [],
-                                    open(os.path.join("lti_download", "tmp", str(self.dl_tag) + ".tgz"), "w"))
+                                    open(os.path.join(self.download_directory, str(self.dl_tag) + ".tgz"), "wb"))
         download_status[self.dl_tag] = "done"
 
     def iterate_and_update(self):
@@ -80,6 +74,6 @@ class LTIDownloadStatus(LTIAuthenticatedPage):
         if download_status[dl_tag] == "done":
             web.header('Content-Type', 'application/x-gzip', unique=True)
             web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)
-            return open(os.path.join("lti_download", "tmp", str(dl_tag)+".tgz"))
+            return open(os.path.join(self.app.download_directory, str(dl_tag)+".tgz"), 'rb').read()
         else:
             return str(download_status[dl_tag])

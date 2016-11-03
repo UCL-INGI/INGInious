@@ -5,12 +5,25 @@
 
 """ Custom installer for the LTI frontend """
 import uuid
-
+import os
 import inginious.frontend.common.installer
 
 
 class Installer(inginious.frontend.common.installer.Installer):
     """ Custom installer for the LTI frontend """
+
+    def configure_download_directory(self):
+        """ Configure backup directory """
+        self._display_question("Please choose a directory in which to store the download files. Default : lti_download")
+        download_directory = None
+        while download_directory is None:
+            download_directory = self._ask_with_default("Download directory", "lti_download")
+            if not os.path.exists(download_directory):
+                self._display_error("Path does not exists")
+                if self._ask_boolean("Would you like to retry?", True):
+                    download_directory = None
+
+        return {"download_directory": download_directory}
 
     def frontend_specific_configuration(self, options):
         """ Modify the options for a specific frontend. Should return the new option dict """
@@ -43,6 +56,11 @@ class Installer(inginious.frontend.common.installer.Installer):
                 break
             except:
                 self._display_warning("Invalid integer")
+
+        self._display_header("DOWNLOAD DIRECTORY")
+        self._display_info("LTI module prepares the downloadable archive in a temporary folder before downloading it.")
+        download_directory_opt = self.configure_download_directory()
+        options.update(download_directory_opt)
 
         return options
 

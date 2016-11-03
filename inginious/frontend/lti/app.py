@@ -89,6 +89,7 @@ def get_app(config):
     config = _put_configuration_defaults(config)
 
     task_directory = config["tasks_directory"]
+    download_directory = config.get("download_directory", "lti_download")
     default_allowed_file_extensions = config['allowed_file_extensions']
     default_max_file_size = config['max_file_size']
 
@@ -151,6 +152,7 @@ def get_app(config):
     appli.default_allowed_file_extensions = default_allowed_file_extensions
     appli.default_max_file_size = default_max_file_size
     appli.consumers = config["lti"]
+    appli.download_directory = download_directory
 
     # Init the mapping of the app
     appli.init_mapping(urls)
