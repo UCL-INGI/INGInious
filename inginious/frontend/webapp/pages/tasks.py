@@ -26,6 +26,10 @@ class TaskPage(INGIniousPage):
         submission = self.submission_manager.get_submission(submissionid)
         is_staff = self.user_manager.has_staff_rights_on_course(course, self.user_manager.session_username())
 
+        # Do not enable submission selection after deadline
+        if not task.get_accessible_time().is_open() and not is_staff:
+            return False
+
         # Check if task is done per group/team
         if task.is_group_task() and not is_staff:
             group = self.database.aggregations.find_one(
