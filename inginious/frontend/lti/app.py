@@ -31,8 +31,7 @@ from inginious.frontend.common.submission_manager import update_pending_jobs
 urls = (
     r"/launch/([a-zA-Z0-9\-_]+)/([a-zA-Z0-9\-_]+)", "inginious.frontend.lti.pages.launch.LTILaunchTask",
     r"/([a-zA-Z0-9\-_]+)/task", "inginious.frontend.lti.pages.task.LTITask",
-    r"/([a-zA-Z0-9\-_]+)/download/(current|all)/(mine|all)", "inginious.frontend.lti.pages.download.LTIDownload",
-    r"/([a-zA-Z0-9\-_]+)/download/([0-9]+)", "inginious.frontend.lti.pages.download.LTIDownloadStatus",
+    r"/([a-zA-Z0-9\-_]+)/download", "inginious.frontend.lti.pages.download.LTIDownload"
 )
 
 def _put_configuration_defaults(config):
@@ -153,6 +152,7 @@ def get_app(config):
     appli.default_max_file_size = default_max_file_size
     appli.consumers = config["lti"]
     appli.download_directory = download_directory
+    appli.download_status = {}
 
     # Init the mapping of the app
     appli.init_mapping(urls)

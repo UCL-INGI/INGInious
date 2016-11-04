@@ -20,18 +20,11 @@ class WebAppTask(FrontendTask):
         # _accessible
         self._accessible = AccessibleTime(self._data.get("accessible", None))
 
-        # Order
-        self._order = int(self._data.get('order', -1))
-
         # Group task
         self._groups = bool(self._data.get("groups", False))
 
         # Submission limits
         self._submission_limit = self._data.get("submission_limit", {"amount": -1, "period": -1})
-
-    def get_order(self):
-        """ Get the position of this task in the course """
-        return self._order
 
     def get_grading_weight(self):
         """ Get the relative weight of this task in the grading """

@@ -12,8 +12,5 @@ $(function()
 
 function init_lti()
 {
-    // Fix sidebar rendering issue
-    var height = Math.max($('#lti-sidebar-inner').height(), $('#content').height());
-    $('#lti-sidebar-inner').height(height);
-    $('#content').height(height);
+
 }

@@ -5,75 +5,131 @@
 
 """ Main page for the LTI provider. Displays a task and allow to answer to it. """
 from threading import Thread
-
+import pymongo
 import web
+import hashlib
+import random
 import os
-import shutil
+from collections import OrderedDict
 
+from inginious.common.base import id_checker
 from inginious.frontend.lti.pages.utils import LTIAuthenticatedPage
-
-download_status = []
 
 
 class LTIDownload(LTIAuthenticatedPage):
     def required_role(self, method="POST"):
         return self.admin_role
 
-    def LTI_GET(self, users_arg, tasks_arg):
-        all_users = users_arg == "all"
-        all_tasks = tasks_arg == "all"
+    def _validate_list(self, usernames):
+        """ Prevent MongoDB injections by verifying arrays sent to it """
+        for i in usernames:
+            if not id_checker(i):
+                raise web.notfound()
 
-        search_dict = {"courseid": self.course.get_id(), "status": {"$in": ["done", "error"]}}
-        if not all_tasks:
-            search_dict["taskid"] = self.task.get_id()
-        if not all_users:
-            search_dict["username"] = self.user_manager.session_username()
+    def valid_formats(self, course):
+        return ["taskid/username", "username/taskid"]
 
-        dl_tag = len(download_status)
-        download_status.append("starting")
+    def get_selected_submissions(self, course, selected_tasks, users, stype):
+        """
+        Returns the submissions that have been selected by the admin
+        :param course: course
+        :param selected_tasks: selected tasks id
+        :param users: selected usernames
+        :param stype: single or all submissions
+        :return:
+        """
+        self._validate_list(users)
+        submissionsid = []
+        if stype == "single":
+            tasks = self.course.get_tasks()
+            for taskid in selected_tasks:
+                task = tasks[taskid]
+                if task.get_evaluate() == "last":
+                    submissionsid.extend([result["submissionid"] for result in self.database.submissions.aggregate([
+                        {"$unwind": "$username"},
+                        {"$match": {"username": {"$in": users}, "taskid": task.get_id(),
+                                    "courseid": course.get_id(), "status": {"$in": ["done", "error"]}}},
+                        {"$sort": {"submitted_on": pymongo.DESCENDING}},
+                        {"$group": {"_id": "$username", "submissionid": {"$first": "$_id"},
+                                    "submitted_on": {"$first": "$submitted_on"}}}
+                    ])])
+                else:  #best
+                    submissionsid.extend([result["submissionid"] for result in self.database.submissions.aggregate([
+                        {"$unwind": "$username"},
+                        {"$match": {"username": {"$in": users}, "taskid": task.get_id(),
+                                    "courseid": course.get_id(), "status": {"$in": ["done", "error"]}}},
+                        {"$sort": {"grade": pymongo.DESCENDING}},
+                        {"$group": {"_id": "$username", "submissionid": {"$first": "$_id"},
+                                    "grade": {"$first": "$grade"}}}
+                    ])])
 
-        thread = ArchiverThread(dl_tag, self.database.submissions.find(search_dict), self.submission_manager.get_submission_archive, self.app.download_directory)
+            submissions = list(self.database.submissions.find({"_id": {"$in": submissionsid}}))
+        else:
+            submissions = list(self.database.submissions.find({"username": {"$in": users},
+                                                               "taskid": {"$in": selected_tasks},
+                                                               "courseid": course.get_id(),
+                                                               "status": {"$in": ["done", "error"]}}))
+        return submissions
+
+    def LTI_POST(self):
+        user_input = web.input(tasks=[], users=[])
+
+        if "type" not in user_input or "format" not in user_input or user_input.format not in self.valid_formats(self.course):
+            raise web.notfound()
+
+        tasks = list(self.course.get_tasks().keys())
+        for i in user_input.tasks:
+            if i not in tasks:
+                raise web.notfound()
+
+        # Load submissions
+        submissions = self.get_selected_submissions(self.course, user_input.tasks, user_input.users, user_input.type)
+
+        dl_tag = hashlib.md5(str(random.getrandbits(256)).encode("utf-8")).hexdigest() + ".tgz"
+
+        self.app.download_status[dl_tag] = False
+
+        thread = ArchiverThread(self.app.download_status, dl_tag, submissions, self.submission_manager.get_submission_archive,
+                                os.path.join(self.app.download_directory, dl_tag), list(reversed(user_input.format.split('/'))))
         thread.start()
 
-        return "Progress can be displayed at download/"+str(dl_tag)
+        return "Progress can be displayed at " + self.user_manager.get_session_identifier() + "/download?archive="+ dl_tag
+
+    def LTI_GET(self):
+        user_input = web.input()
+
+        if "archive" in user_input:
+            dl_tag = user_input.archive
+            if dl_tag not in self.app.download_status:
+                return "This archive does not exists"
+
+            if self.app.download_status[dl_tag]:
+                web.header('Content-Type', 'application/x-gzip', unique=True)
+                web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)
+                return open(os.path.join(self.app.download_directory, dl_tag), 'rb').read()
+            else:
+                return str(self.app.download_status[dl_tag])
+
+        tasks = sorted(list(self.course.get_tasks().items()), key=lambda task: task[1].get_order())
+
+        user_list = self.database.submissions.aggregate([{"$unwind": "$username"},{"$group": {"_id": "$username"}}])
+        user_data = OrderedDict(
+            [(user['_id'], user['_id']) for user in user_list])
+
+        return self.template_helper.get_renderer().download(self.course, self.task.get_id(), tasks, user_data, self.valid_formats(self.course))
 
 
 class ArchiverThread(Thread):
-    def __init__(self, dl_tag, submissions, get_submission_archive, download_directory):
+    def __init__(self, dl_status, dl_tag, submissions, get_submission_archive, filename, format):
         super(ArchiverThread, self).__init__()
+        self.dl_status = dl_status
         self.dl_tag = dl_tag
-        self.submission = list(submissions)  # copy
+        self.submissions = list(submissions)  # copy
         self.get_submission_archive = get_submission_archive
-        self.download_directory = download_directory
+        self.filename = filename
+        self.format = format
 
     def run(self):
-        download_status[self.dl_tag] = "listing submissions"
-        self.get_submission_archive(self.iterate_and_update(), ['taskid', 'username'], [],
-                                    open(os.path.join(self.download_directory, str(self.dl_tag) + ".tgz"), "wb"))
-        download_status[self.dl_tag] = "done"
-
-    def iterate_and_update(self):
-        idx = 0
-        total = len(self.submission)
-        while len(self.submission) != 0:
-            s = self.submission.pop()
-            idx += 1
-            download_status[self.dl_tag] = "archiving "+str(idx)+"/"+str(total)
-            yield s
-
-
-class LTIDownloadStatus(LTIAuthenticatedPage):
-    def required_role(self, method="POST"):
-        return self.admin_role
-
-    def LTI_GET(self, dl_tag):
-        dl_tag = int(dl_tag)
-        if dl_tag < 0 or dl_tag >= len(download_status):
-            return "This archive does not exists"
-
-        if download_status[dl_tag] == "done":
-            web.header('Content-Type', 'application/x-gzip', unique=True)
-            web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)
-            return open(os.path.join(self.app.download_directory, str(dl_tag)+".tgz"), 'rb').read()
-        else:
-            return str(download_status[dl_tag])
+        self.dl_status[self.dl_tag] = False
+        self.get_submission_archive(self.submissions, self.format, [], open(self.filename, "wb"))
+        self.dl_status[self.dl_tag] = True
