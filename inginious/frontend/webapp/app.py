@@ -47,7 +47,6 @@ urls = (
     r'/admin/([^/]+)/aggregations', 'inginious.frontend.webapp.pages.course_admin.aggregation_list.CourseAggregationListPage',
     r'/admin/([^/]+)/aggregation/([^/]+)', 'inginious.frontend.webapp.pages.course_admin.aggregation_info.CourseAggregationInfoPage',
     r'/admin/([^/]+)/aggregation/([^/]+)/([^/]+)', 'inginious.frontend.webapp.pages.course_admin.aggregation_task.CourseAggregationTaskPage',
-    r'/admin/([^/]+)/aggregation/([^/]+)/([^/]+)/([^/]+)', 'inginious.frontend.webapp.pages.course_admin.aggregation_task.SubmissionDownloadFeedback',
     r'/admin/([^/]+)/tasks', 'inginious.frontend.webapp.pages.course_admin.task_list.CourseTaskListPage',
     r'/admin/([^/]+)/task/([^/]+)', 'inginious.frontend.webapp.pages.course_admin.task_info.CourseTaskInfoPage',
     r'/admin/([^/]+)/edit/aggregation/([^/]+)', 'inginious.frontend.webapp.pages.course_admin.aggregation_edit.CourseEditAggregation',

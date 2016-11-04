@@ -31,20 +31,3 @@ class CourseStudentTaskPage(INGIniousAdminPage):
         if "csv" in web.input():
             return make_csv(data)
         return self.template_helper.get_renderer().course_admin.student_task(course, username, task, data)
-
-
-class SubmissionDownloadFeedback(INGIniousAdminPage):
-    def GET(self, courseid, username, taskid, submissionid):
-        """ GET request """
-        course, task = self.get_course_and_check_rights(courseid, taskid)
-        return self.page(course, username, task, submissionid)
-
-    def page(self, course, username, task, submissionid):
-        submission = self.submission_manager.get_submission(submissionid, False)
-        submission = self.submission_manager.get_feedback_from_submission(submission, show_everything=True)
-        if username not in submission["username"] or submission["courseid"] != course.get_id() or submission["taskid"] != task.get_id():
-            return json.dumps({"status": "error", "text": "You do not have the rights to access to this submission"})
-        elif "jobid" in submission:
-            return json.dumps({"status": "ok", "text": "Submission is still running"})
-        else:
-            return json.dumps({"status": "ok", "data": submission}, default=str)
