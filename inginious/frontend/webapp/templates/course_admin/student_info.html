@@ -62,14 +62,16 @@ $var Navbar: $:NavbarF()
                 $elif task["status"] == "notattempted":
                     Not attempted (viewed)
                 $elif task["status"] == "succeeded":
-                    Succeeded ($task["grade"]%)
+                    <a href="/admin/${course.get_id()}/student/$username/$task['taskid']/$task['submissionid']" title="View evaluation submission"
+                        data-toggle="tooltip" data-placement="bottom">Succeeded ($task["grade"]%)</a>
                 $else:
-                    Failed ($task["grade"]%)
+                    <a href="/admin/${course.get_id()}/student/$username/$task['taskid']/$task['submissionid']" title="View evaluation submission"
+                        data-toggle="tooltip" data-placement="bottom">Failed ($task["grade"]%)</a>
             </td>
             <td>$task["tried"]</td>
     		<td>
                 <div class="btn-group" role="group">
-    			    <a href="/admin/${course.get_id()}/student/$username/$task['taskid']" class="btn btn-default btn-xs" title="View submissions"
+                    <a href="/admin/${course.get_id()}/student/$username/$task['taskid']" class="btn btn-default btn-xs" title="View all submissions"
                        data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
                     <a href="/admin/${course.get_id()}/download$task['url']" class="btn btn-default btn-xs" title="Download submissions"
                        data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>

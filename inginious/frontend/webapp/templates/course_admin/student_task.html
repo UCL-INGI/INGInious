@@ -1,4 +1,4 @@
-$def with (course,username,task,data)
+$def with (course,username,task,data,submissionid)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -27,6 +27,7 @@ $var Navbar: $:NavbarF()
 <table class="table">
     <thead>
         <tr>
+            <th></th>
             <th>id</th>
             <th>submitted on</th>
             <th>result</th>
@@ -56,6 +57,11 @@ $var Navbar: $:NavbarF()
             $else:
                 class="danger"
         >
+            <td>
+                $if submission["_id"] == submissionid:
+                    <i class="fa fa-star" title="Evaluation submission"
+                       data-toggle="tooltip" data-placement="bottom"></i>
+            </td>
     		<td>$submission["_id"]</td>
             <td>$submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S")</td>
             <td id="status">

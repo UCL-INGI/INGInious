@@ -30,4 +30,8 @@ class CourseStudentTaskPage(INGIniousAdminPage):
         data = [dict(list(f.items()) + [("url", self.submission_url_generator(str(f["_id"])))]) for f in data]
         if "csv" in web.input():
             return make_csv(data)
-        return self.template_helper.get_renderer().course_admin.student_task(course, username, task, data)
+
+        user_task = self.database.user_tasks.find_one({"username": username, "courseid": course.get_id(), "taskid": task.get_id()})
+        submissionid = None if not user_task else user_task.get("submissionid", None)
+
+        return self.template_helper.get_renderer().course_admin.student_task(course, username, task, data, submissionid)

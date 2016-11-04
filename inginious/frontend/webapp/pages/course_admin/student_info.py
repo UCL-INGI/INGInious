@@ -40,6 +40,7 @@ class CourseStudentInfoPage(INGIniousAdminPage):
                 else:
                     result[taskdata["taskid"]]["status"] = "failed"
                 result[taskdata["taskid"]]["grade"] = taskdata["grade"]
+                result[taskdata["taskid"]]["submissionid"] = str(taskdata["submissionid"])
 
         if "csv" in web.input():
             return make_csv(result)
