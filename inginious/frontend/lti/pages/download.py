@@ -10,6 +10,7 @@ import web
 import hashlib
 import random
 import os
+import json
 from collections import OrderedDict
 
 from inginious.common.base import id_checker
@@ -74,6 +75,13 @@ class LTIDownload(LTIAuthenticatedPage):
     def LTI_POST(self):
         user_input = web.input(tasks=[], users=[])
 
+        if "status" in user_input:
+            dl_tag = user_input.get("tag", "")
+            if dl_tag not in self.app.download_status:
+                return json.dumps({"status": "error", "msg": "This archive does not exist."})
+            else:
+                return json.dumps({"status": "done", "result": self.app.download_status[dl_tag]})
+
         if "type" not in user_input or "format" not in user_input or user_input.format not in self.valid_formats(self.course):
             raise web.notfound()
 
@@ -93,22 +101,19 @@ class LTIDownload(LTIAuthenticatedPage):
                                 os.path.join(self.app.download_directory, dl_tag), list(reversed(user_input.format.split('/'))))
         thread.start()
 
-        return "Progress can be displayed at " + self.user_manager.get_session_identifier() + "/download?archive="+ dl_tag
+        return json.dumps({"status": "done", "tag":  dl_tag, "session": self.user_manager.get_session_identifier()})
 
     def LTI_GET(self):
         user_input = web.input()
 
         if "archive" in user_input:
             dl_tag = user_input.archive
-            if dl_tag not in self.app.download_status:
-                return "This archive does not exists"
+            if not self.app.download_status.get(dl_tag, False):
+                raise web.notfound()
 
-            if self.app.download_status[dl_tag]:
-                web.header('Content-Type', 'application/x-gzip', unique=True)
-                web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)
-                return open(os.path.join(self.app.download_directory, dl_tag), 'rb').read()
-            else:
-                return str(self.app.download_status[dl_tag])
+            web.header('Content-Type', 'application/x-gzip', unique=True)
+            web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)
+            return open(os.path.join(self.app.download_directory, dl_tag), 'rb').read()
 
         tasks = sorted(list(self.course.get_tasks().items()), key=lambda task: task[1].get_order())
 
