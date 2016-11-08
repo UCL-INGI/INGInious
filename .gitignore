@@ -6,7 +6,8 @@ sessions*
 repo_submissions
 configuration.yaml
 configuration.*.yaml
-!inginious/configuration.example.yaml
+!configuration.example.yaml
+!configuration.lti.example.yaml
 dump
 doc/_*
 utils/task_manual_tester/tests/
