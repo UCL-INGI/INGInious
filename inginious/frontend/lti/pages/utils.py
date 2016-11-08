@@ -24,8 +24,6 @@ from inginious.frontend.common.template_helper import TemplateHelper
 from inginious.frontend.lti.user_manager import UserManager
 
 
-
-
 class LTIPage(object):
     """
     A base for all the pages of the INGInious LTI tool provider.
@@ -202,9 +200,13 @@ class LTILaunchPage(LTIPage, metaclass=abc.ABCMeta):
     def _parse_lti_data(self, courseid, taskid):
         """ Verify and parse the data for the LTI basic launch """
         post_input = web.webapi.rawinput("POST")
-        self.logger.debug('_parse_lti_data:'  + str(post_input))
+        self.logger.debug('_parse_lti_data:' + str(post_input))
+
+        # Parse consumer list and keep allowed consumers for the course
+        authorized_consumers = dict([(key, consumer) for key, consumer in self.consumers.items() if
+                                     courseid in consumer.get("courses", courseid)])
         try:
-            verified = verify_request_common(self.consumers, web.ctx.home + web.ctx.fullpath, "POST", {}, post_input)
+            verified = verify_request_common(authorized_consumers, web.ctx.home + web.ctx.fullpath, "POST", {}, post_input)
         except Exception as e:
             self.logger.info('Can not authenticate request for ' + str(post_input))
             raise Exception("Cannot authentify request (1)")

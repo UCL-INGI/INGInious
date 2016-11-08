@@ -6,7 +6,6 @@
 """ Starts the webapp """
 import logging
 import os
-import signal
 
 from gridfs import GridFS
 from pymongo import MongoClient
@@ -15,10 +14,8 @@ import web
 
 from inginious.frontend.common.arch_helper import create_arch, start_asyncio_and_zmq
 from inginious.frontend.common.session_mongodb import MongoStore
-from inginious.frontend.common.static_middleware import StaticMiddleware
 from inginious.frontend.common.plugin_manager import PluginManager
 from inginious.common.course_factory import create_factories
-from inginious.common.log import init_logging, CustomLogMiddleware
 from inginious.frontend.common.tasks import FrontendTask
 from inginious.frontend.common.courses import FrontendCourse
 from inginious.frontend.common.template_helper import TemplateHelper
