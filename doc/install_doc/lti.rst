@@ -17,9 +17,15 @@ Here is an example of configuration:
             secret: a_very_secret_password
         consumer_key_2:
             secret: wow_such_secret
+            courses:
+                - my_course
 
 This obviously defines two LTI keys, ``consumer_key_1`` and ``consumer_key_2``, with passwords ``a_very_secret_password`` and
 ``wow_such_secret``.
+
+By default, consumer keys allow accessing all courses data from the consumer. If you want a consumer to be restricted to
+only one course data, use the ``courses`` field and specify the list of courses to give access to. This is illustrated in
+the example with ``consumer_key_2``.
 
 Setting up your LMS
 -------------------

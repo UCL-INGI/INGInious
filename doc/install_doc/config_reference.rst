@@ -3,9 +3,8 @@ Configuration reference
 
 (Note: the best way to configure INGInious is to use ``inginious-install``. See :ref:`config`.)
 
-Configuring INGInious is done via a file named ``configuration.yaml``.
-To get you started, a file named `configuration.example.yaml <https://github.com/UCL-INGI/INGInious/blob/master/configuration.example.yaml>`_ is provided.
-The file contains detailed explanations, and is kept up to date with INGInious, while this documentation may not.
+Configuring INGInious is done via a file named ``configuration.yaml`` or ``configuration.lti.yaml``.
+To get started, files named ``configuration.example.yaml`` and ``configuration.lti.example.yaml`` are provided.
 
 .. literalinclude:: ../../configuration.example.yaml
     :language: yaml
@@ -39,7 +38,7 @@ The different entries are :
 
     ``debug_host``
         Host to which the users should connect in order to access to the debug ssh for containers. Most of the time, just do not indicate this
-        option: the address will be automagically guessed.
+        option: the address will be automatically guessed.
 
     ``debug_ports``
         Range of port, in the form ``64100-64200``, to which INGInious can bind SSH debug containers, to allow remote debugging. By default, it is
@@ -48,21 +47,79 @@ The different entries are :
     ``tmp_dir``
         A directory whose absolute path must be available by the docker daemon and INGInious at the same time. By default, it is ``./agent_tmp``.
 
+``mongo_opt``
+    MongoDB client configuration.
+
+    ``host``
+        MongoDB server address. If your database is user/password-protected, use the following syntax: ``mongodb://USER:PASSWORD@HOSTNAME/DB_NAME``
+
+    ``database``
+        You can change the database name if you want multiple instances or in the case of conflict.
+
+``log_level``
+    Can be set to ``INFO``, ``WARN``, or ``DEBUG``. Specifies the logging verbosity.
+
+``use_minified_js``
+    Set to ``true`` to use the minified version of Javascript scripts, ``false`` otherwise.
+
+Webapp-specific configuration
+-----------------------------
+
+``superadmins``
+    A list of super-administrators who have admin access on the whole stored content.
+
+``maintenance``
+    Set to ``true`` if the webapp must be disabled.
+
+``backup_directory``
+    Path to the directory where are courses backup are stored in cases of data wiping.
+
 ``webterm``
     Address of a INGInious-xterm app (see INGInious-xterm on GitHub). If set, it allows to use in-browser task debug via ssh.
     You have to configure INGInious-xterm according to your configuration of ``local-config.debug_host`` and ``local-config.debug_ports`` or in
     your agent, in order to make the system work properly. Note that if your run the frontend in HTTPS, INGInious-xterm should also run in HTTPS.
 
-``mongo_opt``
-    Quite self-explanatory.
-    You can change the database name if you want multiple instances of in the improbable case of conflict.
-
 ``plugins``
     A list of plugin modules together with configuration options.
     See :ref:`plugins` for detailed information on available plugins, including their configuration.
 
+``smtp``
+    Mails can be send by batch containers at the end of the job execution.
+
+    ``sendername``
+        Email sender name, e.g. : ``INGInious <no-reply@inginious.org>``
+
+    ``host``
+        SMTP server.
+
+    ``port``
+        SMTP port.
+
+    ``username``
+        SMTP username.
+
+    ``password``
+        SMTP password.
+
+    ``starttls``
+        Set to ``true`` if TLS is needed.
+
 .. _configuration.example.yaml: https://github.com/UCL-INGI/INGInious/blob/master/configuration.example.yaml
 .. _docker-py API: https://github.com/docker/docker-py/blob/master/docs/api.md#client-api
+
+LTI-specific configuration
+--------------------------
+The LTI interface uses most of the same configuration options as the webapp as well as the following:
+
+``lti``
+    A list of LTI consumer key and secret values.
+
+``lti_user_name``
+    The LTI field used to identify the user. By default this is `user_id`, which for many LMS system would be
+    the numeric ID of the user. It can be set to `ext_user_username` which is often a unique username.
+
+``download_directory``
+    The path to the directory where downloads are stored temporarily during the archive is being prepared.
 
 .. _plugins:
 

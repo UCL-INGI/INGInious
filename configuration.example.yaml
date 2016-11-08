@@ -4,15 +4,14 @@
 # - or an address to a distant manually-launched backend, in the form "tcp://host.be:3000", "udp://host.be:3000" or "ipc:///path/to/socket"
 backend: local
 
+# Logging level
+log_level: INFO
+
 # Only for backend: local
 local-config:
     # debug_host: localhost  # host that will be indicated to users when they want to use the task remote debug feature. Automatically guessed by
                              # default
     debug_ports: 64000-64100 #port range use for remote debug feature
-
-# URL of a node app INGInious-xterm, properly configured, that allows to run in-browser ssh debug
-# If you don't want to install/activate it, just set it to None or remove it from the file
-webterm: "https://my-host.be:8080"
 
 # MongoDB options
 mongo_opt:
@@ -21,6 +20,13 @@ mongo_opt:
 
 # Location of the task directory
 tasks_directory: ./inginious/tasks
+
+# Use single minified javascript file (production) or multiple files (dev) ?
+use_minified_js: true
+
+# URL of a node app INGInious-xterm, properly configured, that allows to run in-browser ssh debug
+# If you don't want to install/activate it, just set it to None or remove it from the file
+webterm: "https://my-host.be:8080"
 
 # Location of the backup directory (webapp)
 backup_directory: ./inginious/backup
@@ -32,15 +38,12 @@ plugins:
         # register the user "test" with the password "test"
         test: test
 
-# Super admins: list of user names that can do everything in the backend
+# Superadmins: list of user names that are administrators on all courses
 superadmins:
   - test
 
 # Disable INGInious?
 maintenance: false
-
-# Use single minified javascript file (production) or multiple files (dev) ?
-use_minified_js: true
 
 # Email info
 smtp:
