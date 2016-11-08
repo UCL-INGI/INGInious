@@ -1,3 +1,5 @@
+.. _inginious-lti:
+
 inginious-lti
 =============
 
@@ -13,14 +15,17 @@ but also as a FastCGI backend.
 .. option:: --config
 
    Specify the configuration file to use. By default, it is configuration.lti.yaml.
+   This can also be specified via the ``INGINIOUS_LTI_CONFIG`` environment variable.
 
 .. option:: --host HOST
 
    Specify the host to which to bind to. By default, it is localhost.
+   This can also be specified via the ``INGINIOUS_LTI_HOST`` environment variable.
 
 .. option:: --port PORT
 
    Specify the port to which to bind to. By default, it is 8080.
+   This can also be specified via the ``INGINIOUS_LTI_PORT`` environment variable.
 
 .. option:: -h, --help
 

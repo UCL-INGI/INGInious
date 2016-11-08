@@ -1,3 +1,5 @@
+.. _inginious-install:
+
 inginious-install
 =================
 

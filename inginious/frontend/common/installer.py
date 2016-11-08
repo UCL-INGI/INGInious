@@ -116,8 +116,7 @@ class Installer(object, metaclass=abc.ABCMeta):
         options.update(task_directory_opt)
 
         self._display_header("CONTAINERS")
-        containers_opt = self.configure_containers(options)
-        options.update(containers_opt)
+        self.configure_containers(options)
 
         self._display_header("MISC")
         misc_opt = self.configure_misc()
@@ -368,30 +367,26 @@ class Installer(object, metaclass=abc.ABCMeta):
             ("sekexe", "Can run an user-mode-linux for advanced tasks")
         ]
 
-        default_download = ["default", "java8scala"]
+        default_download = ["default"]
 
         self._display_question("The tool will now propose to download some base container image for multiple languages.")
         self._display_question("Please note that the download of these images can take a lot of time, so choose only the images you need")
 
-        options = {"containers": {}}
         to_download = []
         for container_name, description in containers:
             if self._ask_boolean("Download %s (%s) ?" % (container_name, description), container_name in default_download):
                 to_download.append("ingi/inginious-c-%s" % container_name)
-                options["containers"][container_name] = "ingi/inginious-c-%s" % container_name
 
         self.download_containers(to_download, current_options)
 
-        wants = self._ask_boolean("To you want to manually add some images?", False)
+        wants = self._ask_boolean("Do you want to manually add some images?", False)
         while wants:
             image = self._ask_with_default("Container image name (leave this field empty to skip)", "")
             if image == "":
                 break
             alias = self._ask_with_default("Container alias in INGInious tasks", image)
-            options["containers"][alias] = image
 
         self._display_info("Configuration of the containers done.")
-        return options
 
     #######################################
     #                MISC                 #

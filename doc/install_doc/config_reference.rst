@@ -1,3 +1,5 @@
+.. _ConfigReference:
+
 Configuration reference
 =======================
 

@@ -4,18 +4,15 @@ Installation and deployment
 Supported platforms
 -------------------
 
-INGInious is primarily intended to run on Linux (kernel 3.10+), but it is also compatible with Windows 7+ and OS X 10.9+ thanks to
+INGInious is intended to run on Linux (kernel 3.10+), but can also be run on Windows and macOS thanks to
 the Docker toolbox.
 
-Supported Linux distribution includes CentOS 7.x (*recommended OS to run INGInious*), Fedora 22+ and Ubuntu 14.04+.
+Dependencies setup
+------------------
 
-Dependencies (not including Pipy packages)
-------------------------------------------
+INGInious needs:
 
-INGInious needs
-
-- Python_ 3.5+  (not compatible with Python 2.X or Python 3.4)
-- Pip
+- Python_ (with pip) **3.5+**
 - Docker_ 1.12+
 - MongoDB_
 - Libtidy
@@ -25,70 +22,53 @@ INGInious needs
 .. _Python: https://www.python.org/
 .. _MongoDB: http://www.mongodb.org/
 
-Installation of the dependencies
---------------------------------
+RHEL/Cent OS 7.0+, Fedora 24+
+`````````````````````````````
 
-Centos 7.0+, Fedora 22+
-```````````````````````
-
-The first thing to do is to install Docker. All the informations are available here: `Fedora <https://docs.docker
-.com/engine/installation/linux/fedora/>`, `CentOS <https://docs.docker.com/engine/installation/linux/centos/>`.
-
-You then have to install some dependices of INGInious:
+The previously mentioned dependencies can be installed, for Cent OS 7.0+ :
 ::
 
-    $ sudo yum install -y epel-release https://centos7.iuscommunity.org/ius-release.rpm #CentOS only
-    $ sudo yum install -y git mongodb mongodb-server gcc libtidy python35u python35u-pip python35u-devel zeromq-devel
+    # curl -fsSL https://get.docker.com/ | sh #This will setup the Docker repo
+    # yum install -y epel-release https://centos7.iuscommunity.org/ius-release.rpm
+    # yum install -y git mongodb mongodb-server gcc libtidy python35u python35u-pip python35u-devel zeromq-devel
 
-.. note::
-
-    You may also add ``openldap-devel`` if you want to use the LDAP auth plugin
-
-You can now start the services ``mongod`` and ``docker``:
-
+Or, for Fedora 24+:
 ::
 
-    $ sudo service mongod start
-    $ sudo service docker start
+    # curl -fsSL https://get.docker.com/ | sh #This will setup the Docker repo
+    # dnf install -y git mongodb mongodb-server gcc libtidy python3 python3-pip python3-devel zeromq-devel
 
-To start them on system startup, use these commands:
-
-::
-
-    $ sudo chkconfig mongod on
-    $ sudo chkconfig docker on
-
-Ubuntu 14.04+
-`````````````
+You may also add ``openldap-devel`` if you want to use the LDAP auth plugin.
 
 .. DANGER::
-    The tutorial for Ubuntu is not up-to-date. It does not reflect the recent change to Python 3. Help wanted!
+    Due to compatibility issues, it is recommended to disable SELinux on the target machine.
 
-Please note that while CentOS, OS X and Windows are used to develop/test/use INGInious everyday, this is not the case for Ubuntu; less support will
-be given for this OS.
-
+You can now start and enable the ``mongod`` and ``docker`` services:
 ::
 
-    $ sudo apt-get update
-    $ sudo apt-get install git mongodb docker python gcc python-dev pip
+    # systemctl start mongod
+    # systemctl enable mongod
+    # systemctl start docker
+    # systemctl enable docker
 
-.. note::
+Ubuntu 16.04+
+`````````````
 
-    You may also add ``libldap2-dev libsasl2-dev libssl-dev`` if you want to use the LDAP auth plugin)
-
-You can then start the services ``mongod`` and ``docker``:
-
+The previously mentioned dependencies can be installed, for Ubuntu 16.04+:
 ::
 
-    $ sudo initctl mongodb start
-    $ sudo initctl docker start
+    # curl -fsSL https://get.docker.com/ | sh #This will setup the Docker repo
+    # apt-get install git mongodb gcc tidy python3 python3-pip python3-dev libzmq-dev
 
-To start them on system startup, use these commands:
+You may also add ``libldap2-dev libsasl2-dev libssl-dev`` if you want to use the LDAP auth plugin)
 
+You can now start and enable the ``mongod`` and ``docker`` services:
 ::
 
-    $ sudo chkconfig mongod on
-    $ sudo chkconfig docker on
+    # systemctl start mongodb
+    # systemctl enable mongodb
+    # systemctl start docker
+    # systemctl enable docker
 
 OS X 10.9+
 ``````````
@@ -106,8 +86,8 @@ Follow the instruction of brew to enable mongodb.
 
 The next step is to install `Docker for Mac <https://docs.docker.com/docker-for-mac/>`.
 
-Windows 7+
-``````````
+Windows
+```````
 
 .. DANGER::
     INGInious rely on Docker to run containers. While Docker is supported on Windows 10 (version 1607), INGInious does not
@@ -120,107 +100,86 @@ In the later case, you'll need to install Python 3.5+, MongoDB, LibTidy and LibZ
 
 .. _Installpip:
 
-Installation of INGInious
--------------------------
+Installing INGInious
+--------------------
 
-Pip+Git
-```````
-
-This is the recommended method of installation. It will allow you to use the last development revision of INGInious (as INGInious is a relatively
-recent project, it is better to use dev version, which have a lot more functionnalities and bugfixes than old beta version from pipy).
-
+The recommended setup is to install INGInious via pip and the master branch of the INGInious git repository.
+This allows you to use the latest development version. This version is currently the supported one for issues.
 ::
 
-    $ pip install --upgrade git+https://github.com/UCL-INGI/INGInious.git
+    $ pip3 install --upgrade git+https://github.com/UCL-INGI/INGInious.git
 
-Run the same command to upgrade.
+This will automatically upgrade an existing version.
 
 .. note::
 
-   If you plan to use INGInious in production, you may want to enable the LDAP plugin or use CGI instead of the web.py default webserver.
+   You may want to enable the LDAP plugin or use (F)CGI instead of the web.py default webserver.
    In this case, you have to install more packages: simply add ``[cgi]``, ``[ldap]`` or ``[cgi,ldap]`` to the above command, depending on your needs:
 
    ::
 
-       $ pip install --upgrade git+https://github.com/UCL-INGI/INGInious.git[cgi,ldap]
+       $ pip3 install --upgrade git+https://github.com/UCL-INGI/INGInious.git[cgi,ldap]
 
-
-Pip+Pipy
-````````
-
-You can install a somewhat beta version from pipy. Please note that as INGInious is still a young project, you may have more problems with the
-version from pipy than with the development version.
-
+Some previous releases are also published on Pipy. However, no support is provided for these versions now. To install
+the latest previous release:
 ::
 
     $ pip install --upgrade inginious
 
-Run the same command to upgrade.
-
-.. note::
-
-    See the note above if you plan to use CGI or LDAP.
-
-Git
-```
-
-You can also clone INGInious manually. This is the recommended setup for developpers.
-
-::
-
-    $ git clone https://www.github.com/UCL-INGI/INGInious.git
-
-To update, run
-
-::
-
-    $ git pull
-
-You may need to add some tools to your PATH.
-
 .. _config:
 
-Configuring and starting INGInious
-----------------------------------
+Configuring INGInious
+---------------------
 
 INGInious comes with two frontends:
 
 .. _LTI Frontend:
 
-* The LTI frontend, which allows to interface with Learning Management System via the LTI_ specification. Any LMS supporting LTI_ is compatible.
-  This includes Moodle, edX and Coursera, among many others.
+* The LTI frontend, which allows to interface with Learning Management System via the LTI_ specification.
+  Any LMS supporting LTI_ is compatible. This includes Moodle, edX and Coursera, among many others.
 
 .. _LTI: http://www.imsglobal.org/LTI/v1p1/ltiIMGv1p1.html
 .. _Web App:
 
-* The Web App, a mini-LMS made for on-site courses. It offers statistics, group management, and the INGInious Studio, that allows to modify and
-  test your tasks directly in your browser.
+* The Web App, a mini-LMS made for on-site courses. It provides statistics, group management, and the INGInious studio,
+  that allows to modify and test your tasks directly in your browser.
 
-You can use one, or both. Each of them have to be configured independently, with the commands
-
+You can use one, or both. Each of them have to be configured independently. This can be done automatically with the
+``inginious-install`` CLI. To configure the LTI frontend:
 ::
 
     $ inginious-install lti
-    $ # or ...
-    $ inginious-install webapp
 
-Run one (or both) of these commands in the directory that will become the INGInious root directory.
-Follow the on-screen instructions.
-
-Once this is done, you can run your frontend:
-
+To configure the Web App frontend:
 ::
 
-    $ inginious-lti
-    $ #or ...
-    $ inginious-webapp
+    $ inginious-install webapp
 
-This will open a small Python web server and display the url on which it is bind in the console.
+This will help you create the configuration file in the current directory. For manual configuration and details, see
+:ref:`ConfigReference`.
+
+The detailed ``inginious-install`` reference can be found at :ref:`inginious-install`.
+
+Running INGInious
+-----------------
+
+During the configuration step, you were asked to setup either a local or remote backend. In the former case, the frontend
+will automatically start a local backend and grading agents.
+
+With local backend/agent
+````````````````````````
+To run the frontend(s), please use the ``inginious-lti`` or ``inginious-webapp`` CLI. This will open a small Python
+web server and display the url on which it is bind in the console. Some parameters (configuration file, host, port)
+can be specified. Details are available at :ref:`inginious-lti` and :ref:`inginious-webapp`.
 
 If you use the LTI frontend, you have to add it to your LMS: follow the instructions in :ref:`configure_LTI`.
 
+With remote backend/agent
+`````````````````````````
+
 .. _production:
 .. _lighttpd:
+
 
 Using lighttpd (on CentOS 7.x)
 ------------------------------

@@ -1,3 +1,5 @@
+.. _configure_LTI:
+
 Configuring the LTI frontend
 ============================
 
@@ -59,7 +61,8 @@ Under edition mode, select ``add an activity``, choose ``external tool``, and co
 
 Directly click on ``Show more...``. Fill in the activity name.
 
-The ``Launch URL`` is, if your server is located at ``https://HOST:PORT/``, and you want to load the task ``task_id`` from the course ``course_id``:
+The ``Launch URL`` is, if your server is located at ``https://HOST:PORT/``, and you want to load the task ``task_id``
+from the course ``course_id``:
 
 ::
 
