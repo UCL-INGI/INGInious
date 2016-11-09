@@ -87,7 +87,7 @@ if __name__ == "__main__":
     application = CustomLogMiddleware(application, logging.getLogger("inginious.lti.requests"))
 
     # Launch the app
-    server = web.httpserver.WSGIServer((args.host, int(args.port)), application)
+    server = web.httpserver.WSGIServer((host, int(port)), application)
     try:
         server.start()
     except KeyboardInterrupt:
