@@ -14,9 +14,8 @@ class TemplateHelper(object):
 
     _base_helpers = {}  # see __init__
     WEB_CTX_KEY = "inginious_tpl_helper"
-    INGINIOUS_ROOT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 
-    def __init__(self, plugin_manager, default_template_dir, default_layout, use_minified=True):
+    def __init__(self, plugin_manager, root_dir, default_template_dir, default_layout, use_minified=True):
         self._base_helpers = {"header_hook": (lambda **kwargs: self._generic_hook('header_html', **kwargs)),
                               "course_menu": (lambda **kwargs: self._generic_hook('course_menu', **kwargs)),
                               "task_menu": (lambda **kwargs: self._generic_hook('task_menu', **kwargs)),
@@ -24,9 +23,7 @@ class TemplateHelper(object):
                               "javascript_footer": (lambda **_: self._javascript_helper("footer")),
                               "css": (lambda **_: self._css_helper())}
         self._plugin_manager = plugin_manager
-        self._template_dir = default_template_dir
-        self._layout = default_layout
-
+        self._root_dir = root_dir
         self._template_globals = {}
 
         self._default_renderer = self.get_custom_template_renderer(default_template_dir, default_layout)
@@ -37,10 +34,6 @@ class TemplateHelper(object):
         self.add_to_template_globals("template_helper", self)
         self.add_to_template_globals("plugin_manager", plugin_manager)
         self.add_to_template_globals("use_minified", use_minified)
-
-    def get_inginious_root(self):
-        """ Returns the absolute root of the sources of INGInious"""
-        return self.INGINIOUS_ROOT_PATH
 
     def get_renderer(self, with_layout=True):
         """ Get the default renderer """
@@ -58,7 +51,7 @@ class TemplateHelper(object):
         """ Create a template renderer on templates in the directory specified.
             *base* is the base layout name.
         """
-        return web.template.render(os.path.join(self.INGINIOUS_ROOT_PATH, dir_path), globals=self._template_globals, base=base)
+        return web.template.render(os.path.join(self._root_dir, dir_path), globals=self._template_globals, base=base)
 
     def call(self, name, **kwargs):
         helpers = dict(list(self._base_helpers.items()) + self._plugin_manager.call_hook("template_helper"))

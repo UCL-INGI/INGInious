@@ -123,7 +123,7 @@ def get_app(config):
     submission_manager = LTISubmissionManager(client, user_manager, database, gridfs, plugin_manager,
                                               config.get('nb_submissions_kept', 5), lis_outcome_manager)
 
-    template_helper = TemplateHelper(plugin_manager, 'frontend/lti/templates', 'layout', config.get('use_minified_js', True))
+    template_helper = TemplateHelper(plugin_manager, get_root_path(), 'frontend/lti/templates', 'layout', config.get('use_minified_js', True))
 
     # Update the database
     update_database(database)

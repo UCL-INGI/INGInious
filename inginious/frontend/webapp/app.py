@@ -130,7 +130,7 @@ def get_app(config):
     batch_manager = BatchManager(client, database, gridfs, submission_manager, user_manager,
                                  task_directory)
 
-    template_helper = TemplateHelper(plugin_manager, 'frontend/webapp/templates', 'layout', config.get('use_minified_js', True))
+    template_helper = TemplateHelper(plugin_manager, get_root_path(), 'frontend/webapp/templates', 'layout', config.get('use_minified_js', True))
 
     # Init web mail
     smtp_conf = config.get('smtp', None)
