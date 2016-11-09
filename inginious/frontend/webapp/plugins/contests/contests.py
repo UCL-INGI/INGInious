@@ -61,7 +61,7 @@ def course_menu(course, template_helper):
         start = datetime.strptime(contest_data['start'], "%Y-%m-%d %H:%M:%S")
         end = datetime.strptime(contest_data['end'], "%Y-%m-%d %H:%M:%S")
         blackout = end - timedelta(hours=contest_data['blackout'])
-        return str(template_helper.get_custom_template_renderer('webapp/plugins/contests').course_menu(course, start, end, blackout))
+        return str(template_helper.get_custom_renderer('frontend/webapp/plugins/contests', layout=False).course_menu(course, start, end, blackout))
     else:
         return None
 
@@ -152,7 +152,7 @@ class ContestScoreboard(INGIniousPage):
                 results[user]["rank"] = current_rank
                 results[user]["displayed_rank"] = ""
 
-        return self.template_helper.get_custom_template_renderer('webapp/plugins/contests', '../../templates/layout'). \
+        return self.template_helper.get_custom_renderer('frontend/webapp/plugins/contests').\
             scoreboard(course, start, end, blackout, tasks, results, activity)
 
 
@@ -163,8 +163,7 @@ class ContestAdmin(INGIniousAdminPage):
         """ GET request: simply display the form """
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         contest_data = get_contest_data(course)
-        return self.template_helper.get_custom_template_renderer('webapp/plugins/contests', '../../templates/layout'). \
-            admin(course, contest_data, None, False)
+        return self.template_helper.get_custom_renderer('frontend/webapp/plugins/contests').admin(course, contest_data, None, False)
 
     def POST(self, courseid):
         """ POST request: update the settings """
@@ -210,11 +209,9 @@ class ContestAdmin(INGIniousAdminPage):
 
         if len(errors) == 0:
             save_contest_data(course, contest_data)
-            return self.template_helper.get_custom_template_renderer('webapp/plugins/contests', '../../templates/layout'). \
-                admin(course, contest_data, None, True)
+            return self.template_helper.get_custom_renderer('frontend/webapp/plugins/contests').admin(course, contest_data, None, True)
         else:
-            return self.template_helper.get_custom_template_renderer('webapp/plugins/contests', '../../templates/layout'). \
-                admin(course, contest_data, errors, False)
+            return self.template_helper.get_custom_renderer('frontend/webapp/plugins/contests').admin(course, contest_data, errors, False)
 
 
 def init(plugin_manager, course_factory, client, _config):

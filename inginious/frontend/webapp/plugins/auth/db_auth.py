@@ -84,7 +84,7 @@ class RegistrationPage(INGIniousPage):
             else:
                 reset = {"hash": data["reset"], "username": user["username"], "realname": user["realname"]}
 
-        return self.template_helper.get_custom_template_renderer('frontend/webapp/templates', 'layout').register(reset, msg, error)
+        return self.template_helper.get_renderer().register(reset, msg, error)
 
     def register_user(self, data):
         """ Parses input and register user """
@@ -209,7 +209,7 @@ Someone (probably you) asked to reset your INGInious password. If this was you, 
         elif "resetpasswd" in data:
             msg, error = self.reset_passwd(data)
 
-        return self.template_helper.get_custom_template_renderer('frontend/webapp/templates', 'layout').register(reset, msg, error)
+        return self.template_helper.get_renderer().register(reset, msg, error)
 
 
 def init(plugin_manager, _, _2, conf):

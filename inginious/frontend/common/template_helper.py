@@ -7,15 +7,27 @@
 import os
 
 import web
-
+import inginious
 
 class TemplateHelper(object):
     """ Class accessible from templates that calls function defined in the Python part of the code. """
 
-    _base_helpers = {}  # see __init__
-    WEB_CTX_KEY = "inginious_tpl_helper"
+    """
+    _WEB_CTX_KEY is the name of the key in web.ctx that stores entries made available to the whole
+    current thread. It allows to store javascript/css "addons" that will be displayed later when the
+    templates are rendered
+    """
+    _WEB_CTX_KEY = "inginious_tpl_helper"
 
-    def __init__(self, plugin_manager, root_dir, default_template_dir, default_layout, use_minified=True):
+    def __init__(self, plugin_manager, default_template_dir, default_layout, use_minified=True):
+        """
+        Init the Template Helper
+        :param plugin_manager: an instance of a PluginManager
+        :param default_template_dir: the path to the template dir. If it is not absolute, it will be taken from the root of the inginious package.
+        :param default_layout: the path to the layout. If it is not absolute, it will be taken from the root of the inginious package.
+        :param use_minified: weither to use minified js/css or not. Use True in production, False in dev envs.
+        """
+
         self._base_helpers = {"header_hook": (lambda **kwargs: self._generic_hook('header_html', **kwargs)),
                               "course_menu": (lambda **kwargs: self._generic_hook('course_menu', **kwargs)),
                               "task_menu": (lambda **kwargs: self._generic_hook('task_menu', **kwargs)),
@@ -23,21 +35,19 @@ class TemplateHelper(object):
                               "javascript_footer": (lambda **_: self._javascript_helper("footer")),
                               "css": (lambda **_: self._css_helper())}
         self._plugin_manager = plugin_manager
-        self._root_dir = root_dir
+        self._template_dir = default_template_dir
+        self._layout = default_layout
+
         self._template_globals = {}
 
-        self._default_renderer = self.get_custom_template_renderer(default_template_dir, default_layout)
-        self._default_renderer_nolayout = self.get_custom_template_renderer(default_template_dir)
-        self._default_common_renderer = self.get_custom_template_renderer(os.path.join(os.path.dirname(__file__), "templates"))
+        self._default_renderer = self.get_custom_renderer(default_template_dir)
+        self._default_renderer_nolayout = self.get_custom_renderer(default_template_dir, layout=False)
+        self._default_common_renderer = self.get_custom_renderer(os.path.join(os.path.dirname(__file__), "templates"), layout=False)
 
         self.add_to_template_globals("include", self._default_renderer_nolayout)
         self.add_to_template_globals("template_helper", self)
         self.add_to_template_globals("plugin_manager", plugin_manager)
         self.add_to_template_globals("use_minified", use_minified)
-
-    def get_inginious_root(self):
-        """ Returns the absolute root of the INGInious sources"""
-        return self._root_dir
 
     def get_renderer(self, with_layout=True):
         """ Get the default renderer """
@@ -51,11 +61,27 @@ class TemplateHelper(object):
         """ Add a variable to will be accessible in the templates """
         self._template_globals[name] = value
 
-    def get_custom_template_renderer(self, dir_path, base=None):
-        """ Create a template renderer on templates in the directory specified.
-            *base* is the base layout name.
+    def get_custom_renderer(self, dir_path, layout=True):
         """
-        return web.template.render(os.path.join(self._root_dir, dir_path), globals=self._template_globals, base=base)
+        Create a template renderer on templates in the directory specified, and returns it.
+        :param dir_path: the path to the template dir. If it is not absolute, it will be taken from the root of the inginious package.
+        :param layout: can either be True (use the base layout of the running app), False (use no layout at all), or the path to the layout to use.
+                       If this path is relative, it is taken from the INGInious package root.
+        """
+
+        # if dir_path/base is a absolute path, os.path.join(something, an_absolute_path) returns an_absolute_path.
+        root_path = inginious.get_root_path()
+
+        if isinstance(layout, str):
+            layout_path = os.path.join(root_path, layout)
+        elif layout is True:
+            layout_path = os.path.join(root_path, self._layout)
+        else:
+            layout_path = None
+
+        return web.template.render(os.path.join(root_path, dir_path),
+                                   globals=self._template_globals,
+                                   base=layout_path)
 
     def call(self, name, **kwargs):
         helpers = dict(list(self._base_helpers.items()) + self._plugin_manager.call_hook("template_helper"))
@@ -101,11 +127,11 @@ class TemplateHelper(object):
 
     def _get_ctx(self):
         """ Get web.ctx object for the Template helper """
-        if self.WEB_CTX_KEY not in web.ctx:
-            web.ctx[self.WEB_CTX_KEY] = {
+        if self._WEB_CTX_KEY not in web.ctx:
+            web.ctx[self._WEB_CTX_KEY] = {
                 "javascript": {"footer": [], "header": []},
                 "css": []}
-        return web.ctx.get(self.WEB_CTX_KEY)
+        return web.ctx.get(self._WEB_CTX_KEY)
 
     def _generic_hook(self, name, **kwargs):
         """ A generic hook that links the TemplateHelper with PluginManager """
