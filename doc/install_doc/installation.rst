@@ -178,11 +178,14 @@ With remote backend/agent
 `````````````````````````
 
 .. _production:
+
+Webserver configuration
+-----------------------
+
 .. _lighttpd:
 
-
-Using lighttpd (on CentOS 7.x)
-------------------------------
+Using lighttpd
+``````````````
 
 In production environments, you can use lighttpd in replacement of the built-in Python server.
 This guide is made for CentOS 7.x.
@@ -193,30 +196,29 @@ Install lighttpd with fastcgi:
 
     $ sudo yum install lighttpd lighttpd-fastcgi
 
-Put the lighttpd user in the necessary groups, to allow it to launch new containers and to connect to mongodb:
+Add the ``lighttpd`` user in the necessary groups, to allow it to launch new containers and to connect to mongodb:
 
 ::
 
     $ usermod -aG docker lighttpd
     $ usermod -aG mongodb lighttpd
 
-Create a folder for INGInious, for example /var/www/INGInious, and allow lighttpd to do whatever he wants inside:
+Create a folder for INGInious, for example ``/var/www/INGInious``, and change the directory owner to ``lighttpd``:
 
 ::
 
     $ mkdir -p /var/www/INGInious
     $ chown -R lighttpd:lighthttpd /var/www/INGInious
 
-Now, Run the ``inginious-install`` command (see :ref:`config`).
+Put your configuration file in that folder, as well as your tasks, backup, download, and temporary (if local backend)
+directories (see :ref:`config` for more details on these folders).
 
-Once this is done, we can configure lighttpd. First, the file */etc/lighttpd/lighttpd.conf*. Modify the document root:
-
+Once this is done, we can configure lighttpd. First, the file ``/etc/lighttpd/lighttpd.conf``. Modify the document root:
 ::
 
     server.document-root = "/var/www/INGInious"
 
 Next, in module.conf, load theses modules:
-
 ::
 
     server.modules = (
@@ -225,11 +227,9 @@ Next, in module.conf, load theses modules:
     )
 
     include "conf.d/compress.conf"
-
     include "conf.d/fastcgi.conf"
 
 You can then replace the content of fastcgi.conf with:
-
 ::
 
     server.modules   += ( "mod_fastcgi" )
@@ -255,19 +255,20 @@ You can then replace the content of fastcgi.conf with:
     )
 
     url.rewrite-once = (
-        "^/(.*)$" => "/inginious-webapp/$1",
-        "^/favicon.ico$" => "/static/common/favicon.ico",
+        "^/favicon.ico$" => "/static/common/icons/favicon.ico",
+        "^/static/(.*)$" => "/static/$1",
+        "^/(.*)$" => "/inginious-webapp/$1"
     )
 
 Replace ``webapp`` by ``lti`` if you want to use the `LTI frontend`_.
 
 In this configuration file, some environment variables are passed.
 
-- The ``DOCKER_HOST`` env variable is only needed if
-  you use the ``backend=local`` option. It should reflect your current configuration. To know the value to set, start a
+- The ``DOCKER_HOST`` env variable is only needed if you do not use local backend. Otherwise,
+  it should reflect your current configuration. To know the value to set, start a
   terminal that has access to the docker daemon (the terminal should be able to run ``docker info``), and write ``$ echo $DOCKER_HOST``.
   If it returns nothing, just drop the line ``"DOCKER_HOST" => "tcp://192.168.59.103:2375"`` from the
-  configuration of lighttpd. Otherwise, put the value return by the command in the configuration. It is possible
+  configuration of lighttpd. Otherwise, put the value returned by the command in the configuration. It is possible
   that may need to do the same for the env variable ``DOCKER_CERT_PATH`` and ``DOCKER_TLS_VERIFY`` too.
 - The ``INGINIOUS_WEBAPP`` or ``INGINIOUS_LTI`` (according to your config) prefixed environment variables are used to
   replace the default command line parameters.
@@ -276,80 +277,74 @@ Finally, start the server:
 
 ::
 
-    $ sudo chkconfig lighttpd on
-    $ sudo service lighttpd start
+    # systemctl enable lighttpd
+    # systemctl start lighttpd
 
+.. _apache:
 
-Using Apache (on CentOS 7.x)
-----------------------------
+Using Apache
+````````````
 
-You may also want to use Apache. You should install `mod_wsgi`.
-WSGI interfaces are supported through `inginious-webapp` and `inginious-lti` scripts.
-Due to limitations in the way that Apache passes environment variables to WSGI
-scripts (after requests), **these scripts need to be modified** to indicate the configuration files and the
-code path for your installation.
+You may also want to use Apache. You should install `mod_wsgi`. WSGI interfaces are supported through `inginious-webapp`
+and `inginious-lti` scripts. This guide is made for CentOS 7.x.
 
-You will need to add user `apache` to the docker group.
-
-The following Apache configuration is suitable to run e.g. the LTI service
-assuming the source repository is in `/var/www/INGInious`.
-
+Install the following packages (please note that the Python3.5+ version of *mod_wsgi* is required):
 ::
 
-    WSGIPythonPath /var/www/INGInious/
-    
-    # This is a desired solution, but does not work.
-    # See https://gist.github.com/GrahamDumpleton/b380652b768e81a7f60c
-    # for alternate solutions
-    
-    #SetEnv INGINIOUS_LTI_CONFIG /var/www/INGInious/configuration.lti.yaml
-    
-    Listen 8080
-    <VirtualHost *:8080>
-        ServerName yourhost.com
-        Redirect temp / https://yourhost.com:8443/
-    </VirtualHost>
-    
-    Listen 8443
-    <VirtualHost *:8443>
-    
-        ServerName yourhost.com
-        ServerAdmin help@yourhost.com
-    
-        WSGIDaemonProcess inginious-lti user=apache group=apache threads=5
-        WSGIProcessGroup inginious-lti
-        WSGIScriptAlias / /var/www/INGInious/inginious-lti
-        WSGIScriptReloading On
-    
-        Alias /static/common /var/www/INGInious/inginious/frontend/common/static
-        Alias /static/webapp /var/www/INGInious/inginious/frontend/webapp/static
-        Alias /static/lti /var/www/INGInious/inginious/frontend/lti/static
-    
-        AddType text/html .py
-    
-        <Directory /var/www/INGInious>
-            Order deny,allow
-                  Allow from all
-            </Directory>
-    
-        # This is necessary to prevent logging to Inginious usernames/passwords
-      	# from clients makign reeusts to the token.php endpoint (e.g. Inginious
-            # Android App, COG, etc)
-    	SetEnvIf Request_URI "token.php" dontlog
-    
-        ErrorLog /var/log/httpd/inginious-lti-error-ssl.log
-        CustomLog /var/log/httpd/inginious-lti-access-ssl.log combined env=!dontlog
-        CustomLog /var/log/httpd/inginious-lti-request-ssl.log \
-    	          "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b" \
-    		  env=!dontlog
-    
-        SSLEngine on
-        SSLCertificateFile      /etc/ssl/your.crt
-        SSLCertificateChainFile /etc/ssl/your.chain
-        SSLCertificateKeyFile   /etc/ssl/your.key
-    
-        SetEnvIf User-Agent ".*MSIE.*" nokeepalive ssl-unclean-shutdown
-    		  
-        ServerSignature On
-    
-    </VirtualHost>
+    # yum install httpd httpd-devel
+    # pip3.5 install mod_wsgi
+
+Add the ``apache`` user in the necessary groups, to allow it to launch new containers and to connect to mongodb:
+::
+
+    $ usermod -aG docker apache
+    $ usermod -aG mongodb apache
+
+Create a folder for INGInious, for example ``/var/www/INGInious``, and change the directory owner to ``apache``:
+::
+
+    $ mkdir -p /var/www/INGInious
+    $ chown -R apache:apache /var/www/INGInious
+
+Put your configuration file in that folder, as well as your tasks, backup, download, and temporary (if local backend)
+directories (see :ref:`config` for more details on these folders).
+
+Set the environment variables used by the INGInious CLI scripts in the Apache service environment file
+(see lighttpd_ for more details):
+::
+
+    # cat  << EOF >> /etc/sysconfig/httpd
+    INGINIOUS_WEBAPP_CONFIG="/var/www/INGInious/configuration.yaml"
+    INGINIOUS_WEBAPP_HOST="0.0.0.0"
+    INGINIOUS_WEBAPP_PORT="80"
+    EOF
+    # rm /etc/httpd/conf.d/welcome.conf
+
+Please note that the service environment file ``/etc/sysconfig/httpd`` may differ from your distribution and wether it
+uses *systemd* or *init*.
+
+You can then modify your ``/etc/httpd/conf/httpd.conf`` file to apply the following rules:
+::
+
+    DocumentRoot "/var/www/INGInious"
+
+    LoadModule wsgi_module /usr/lib64/python3.5/site-packages/mod_wsgi/server/mod_wsgi-py35.cpython-35m-x86_64-linux-gnu.so
+
+    WSGIScriptAlias / "/usr/bin/inginious-webapp"
+    WSGIScriptReloading On
+
+    Alias /static/common /usr/lib/python3.5/site-packages/inginious/frontend/common/static/
+    Alias /static/webapp /usr/lib/python3.5/site-packages/inginious/frontend/webapp/static/
+    Alias /static/lti /usr/lib/python3.5/site-packages/inginious/frontend/lti/static/
+
+    <Directory "/usr/bin">
+        <Files "inginious-webapp">
+            Require all granted
+        </Files>
+    </Directory>
+
+    <DirectoryMatch "/usr/lib/python3.5/site-packages/inginious/frontend/(.+)/static/">
+        Require all granted
+    </DirectoryMatch>
+
+Please note that the compiled *wsgi* module path may differ according to the exact Python version you are running.
