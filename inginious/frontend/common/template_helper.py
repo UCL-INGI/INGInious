@@ -35,6 +35,10 @@ class TemplateHelper(object):
         self.add_to_template_globals("plugin_manager", plugin_manager)
         self.add_to_template_globals("use_minified", use_minified)
 
+    def get_inginious_root(self):
+        """ Returns the absolute root of the INGInious sources"""
+        return self._root_dir
+
     def get_renderer(self, with_layout=True):
         """ Get the default renderer """
         return self._default_renderer if with_layout else self._default_renderer_nolayout

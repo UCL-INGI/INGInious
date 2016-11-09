@@ -4,23 +4,12 @@
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
 
-
-''' Synchronization tool for INGInious Git repos
-Must be run with ssh-agent. Before adding in crontab, add the followong 
-lines to .ssh/config for user who runs the scripts :
- 
-    Host *
-        StrictHostKeyChecking no
-
-This tells SSH not to check host keys, we always trust the remote servers'''
-
 import sys
 import os
 import json
 import sh
 from sh import ssh_add
 from sh import git
-from sh import cd
 
 def print_output(text):
     for line in text.strip('\n').split('\n'):
