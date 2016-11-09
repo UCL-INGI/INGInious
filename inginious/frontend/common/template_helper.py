@@ -14,6 +14,7 @@ class TemplateHelper(object):
 
     _base_helpers = {}  # see __init__
     WEB_CTX_KEY = "inginious_tpl_helper"
+    INGINIOUS_ROOT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 
     def __init__(self, plugin_manager, default_template_dir, default_layout, use_minified=True):
         self._base_helpers = {"header_hook": (lambda **kwargs: self._generic_hook('header_html', **kwargs)),
@@ -37,6 +38,10 @@ class TemplateHelper(object):
         self.add_to_template_globals("plugin_manager", plugin_manager)
         self.add_to_template_globals("use_minified", use_minified)
 
+    def get_inginious_root(self):
+        """ Returns the absolute root of the sources of INGInious"""
+        return self.INGINIOUS_ROOT_PATH
+
     def get_renderer(self, with_layout=True):
         """ Get the default renderer """
         return self._default_renderer if with_layout else self._default_renderer_nolayout
@@ -53,8 +58,7 @@ class TemplateHelper(object):
         """ Create a template renderer on templates in the directory specified.
             *base* is the base layout name.
         """
-        base_dir_path = os.path.join(os.path.dirname(__file__), '../..')  # INGInious root
-        return web.template.render(os.path.join(base_dir_path, dir_path), globals=self._template_globals, base=base)
+        return web.template.render(os.path.join(self.INGINIOUS_ROOT_PATH, dir_path), globals=self._template_globals, base=base)
 
     def call(self, name, **kwargs):
         helpers = dict(list(self._base_helpers.items()) + self._plugin_manager.call_hook("template_helper"))
