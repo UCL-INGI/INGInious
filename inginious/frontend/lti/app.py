@@ -5,7 +5,6 @@
 
 """ Starts the webapp """
 import logging
-import os
 
 from gridfs import GridFS
 from pymongo import MongoClient

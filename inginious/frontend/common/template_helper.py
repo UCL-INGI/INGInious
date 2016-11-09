@@ -12,11 +12,9 @@ import inginious
 class TemplateHelper(object):
     """ Class accessible from templates that calls function defined in the Python part of the code. """
 
-    """
-    _WEB_CTX_KEY is the name of the key in web.ctx that stores entries made available to the whole
-    current thread. It allows to store javascript/css "addons" that will be displayed later when the
-    templates are rendered
-    """
+    # _WEB_CTX_KEY is the name of the key in web.ctx that stores entries made available to the whole
+    # current thread. It allows to store javascript/css "addons" that will be displayed later when the
+    # templates are rendered
     _WEB_CTX_KEY = "inginious_tpl_helper"
 
     def __init__(self, plugin_manager, default_template_dir, default_layout, use_minified=True):

@@ -4,15 +4,11 @@
 # more information about the licensing of this file.
 
 """ Starts the webapp """
-import logging
-import os
-
 from gridfs import GridFS
 from pymongo import MongoClient
 import web
 from web.debugerror import debugerror
 
-import inginious
 from inginious.frontend.common.arch_helper import create_arch, start_asyncio_and_zmq
 from inginious.frontend.webapp.database_updater import update_database
 from inginious.frontend.common.plugin_manager import PluginManager
