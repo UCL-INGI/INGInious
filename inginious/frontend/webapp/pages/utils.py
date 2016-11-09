@@ -67,7 +67,7 @@ class INGIniousPage(object):
 
     @property
     def default_allowed_file_extensions(self) -> List[str]:
-        return self.app.default_allowed_file_extensions
+        return list(self.app.default_allowed_file_extensions)
 
     @property
     def default_max_file_size(self) -> int:
@@ -79,7 +79,7 @@ class INGIniousPage(object):
 
     @property
     def containers(self) -> List[str]:
-        return self.app.submission_manager.get_available_environments()
+        return list(self.app.submission_manager.get_available_environments())
 
     @property
     def webterm_link(self) -> str:

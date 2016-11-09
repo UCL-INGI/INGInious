@@ -37,7 +37,7 @@ class SessionExpired(web.HTTPError, object):
 class CustomSession(object):
     """Session management made via URL. It is a bit different from the default one: you have to call load() manually."""
     __slots__ = [
-        "store", "_initializer", "_last_cleanup_time", "_config", "_data", "session_id", "_killed",
+        "store", "_initializer", "_last_cleanup_time", "_config", "_data", "session_id", "_killed", "ip",
         "__getitem__", "__setitem__", "__delitem__"
     ]
 
