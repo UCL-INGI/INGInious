@@ -8,7 +8,7 @@ Custom Session Management
 Initial code taken from web.py (public domain)
 """
 
-import os, time, datetime, random, base64
+import os, time, datetime, base64
 import os.path
 from copy import deepcopy
 
@@ -37,7 +37,7 @@ class SessionExpired(web.HTTPError, object):
 class CustomSession(object):
     """Session management made via URL. It is a bit different from the default one: you have to call load() manually."""
     __slots__ = [
-        "store", "_initializer", "_last_cleanup_time", "_config", "_data",
+        "store", "_initializer", "_last_cleanup_time", "_config", "_data", "session_id", "_killed",
         "__getitem__", "__setitem__", "__delitem__"
     ]
 
@@ -47,6 +47,7 @@ class CustomSession(object):
         self._last_cleanup_time = 0
         self._config = utils.storage(web.config.session_parameters)
         self._data = utils.threadeddict()
+        self.session_id = None
 
         if app:
             app.add_processor(self._processor)
