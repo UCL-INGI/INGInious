@@ -175,11 +175,14 @@ class LTIAuthenticatedPage(LTIPage):
 
         try:
             course_id, task_id = self.user_manager.session_task()
-            self.course = self.course_factory.get_course(course_id)
-            self.task = self.course.get_task(task_id)
         except:
             raise LTINotConnectedException()
 
+        try:
+            self.course = self.course_factory.get_course(course_id)
+            self.task = self.course.get_task(task_id)
+        except:
+            raise web.notfound()
 
 class LTILaunchPage(LTIPage, metaclass=abc.ABCMeta):
     """
