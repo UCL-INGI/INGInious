@@ -176,6 +176,25 @@ If you use the LTI frontend, you have to add it to your LMS: follow the instruct
 
 With remote backend/agent
 `````````````````````````
+To run INInious with a remote backend (and agents), do as follows:
+
+#. On the backend host, launch the backend (see :ref:`inginious-backend`) :
+   ::
+
+        inginious-backend tcp://backend-host:2001 tcp://backend-host:2000
+
+   The agents will connect on ``tcp://backend-host:2001`` and clients on ``tcp://backend-host:2000``
+#. Possibly on different hosts, launch the Docker and MCQ agents (see :ref:`inginious-agent-docker`
+   and :ref:`inginious-agent-mcq`) :
+   ::
+
+        inginious-agent-docker tcp://backend-host:2001
+        inginious-agent-mcq tcp://backend-host:2001
+#. In you INGInious frontend configuration file (see :ref:`ConfigReference`), set ``backend`` to :
+   ::
+
+        backend: tcp://backend-host:2000
+#. Run your preferred frontend using :ref:`inginious-lti` or :ref:`inginious-webapp` (or both).
 
 .. _production:
 
@@ -194,21 +213,21 @@ Install lighttpd with fastcgi:
 
 ::
 
-    $ sudo yum install lighttpd lighttpd-fastcgi
+    # yum install lighttpd lighttpd-fastcgi
 
 Add the ``lighttpd`` user in the necessary groups, to allow it to launch new containers and to connect to mongodb:
 
 ::
 
-    $ usermod -aG docker lighttpd
-    $ usermod -aG mongodb lighttpd
+    # usermod -aG docker lighttpd
+    # usermod -aG mongodb lighttpd
 
 Create a folder for INGInious, for example ``/var/www/INGInious``, and change the directory owner to ``lighttpd``:
 
 ::
 
-    $ mkdir -p /var/www/INGInious
-    $ chown -R lighttpd:lighthttpd /var/www/INGInious
+    # mkdir -p /var/www/INGInious
+    # chown -R lighttpd:lighthttpd /var/www/INGInious
 
 Put your configuration file in that folder, as well as your tasks, backup, download, and temporary (if local backend)
 directories (see :ref:`config` for more details on these folders).
@@ -297,14 +316,14 @@ Install the following packages (please note that the Python3.5+ version of *mod_
 Add the ``apache`` user in the necessary groups, to allow it to launch new containers and to connect to mongodb:
 ::
 
-    $ usermod -aG docker apache
-    $ usermod -aG mongodb apache
+    # usermod -aG docker apache
+    # usermod -aG mongodb apache
 
 Create a folder for INGInious, for example ``/var/www/INGInious``, and change the directory owner to ``apache``:
 ::
 
-    $ mkdir -p /var/www/INGInious
-    $ chown -R apache:apache /var/www/INGInious
+    # mkdir -p /var/www/INGInious
+    # chown -R apache:apache /var/www/INGInious
 
 Put your configuration file in that folder, as well as your tasks, backup, download, and temporary (if local backend)
 directories (see :ref:`config` for more details on these folders).

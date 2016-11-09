@@ -11,6 +11,17 @@ Frontend commands
     commands_doc/inginious-webapp
     commands_doc/inginious-lti
 
+Backend commands
+----------------
+
+.. toctree::
+    :maxdepth: 2
+
+    commands_doc/inginious-agent-docker
+    commands_doc/inginious-agent-mcq
+    commands_doc/inginious-backend
+
+
 Task tests commands
 -------------------
 
@@ -30,12 +41,3 @@ Utilities
     commands_doc/inginious-synchronize
     commands_doc/inginious-old-task-converter
     commands_doc/inginious-container-update
-
-
-Other commands
---------------
-
-.. toctree::
-    :maxdepth: 2
-
-    commands_doc/inginious-agent
