@@ -14,6 +14,8 @@ class TemplateHelper(object):
 
     _base_helpers = {}  # see __init__
     WEB_CTX_KEY = "inginious_tpl_helper"
+
+    """ The absolute path to inginious package"""
     INGINIOUS_ROOT_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 
     def __init__(self, plugin_manager, default_template_dir, default_layout, use_minified=True):
@@ -37,10 +39,6 @@ class TemplateHelper(object):
         self.add_to_template_globals("template_helper", self)
         self.add_to_template_globals("plugin_manager", plugin_manager)
         self.add_to_template_globals("use_minified", use_minified)
-
-    def get_inginious_root(self):
-        """ Returns the absolute root of the sources of INGInious"""
-        return self.INGINIOUS_ROOT_PATH
 
     def get_renderer(self, with_layout=True):
         """ Get the default renderer """
