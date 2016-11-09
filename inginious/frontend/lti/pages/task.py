@@ -9,7 +9,6 @@ import json
 import logging
 import mimetypes
 import urllib.request, urllib.parse, urllib.error
-import logging
 
 import web
 

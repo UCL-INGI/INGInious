@@ -84,7 +84,7 @@ We use brew_ to install some packages. Packages are certainly available too via 
 
 Follow the instruction of brew to enable mongodb.
 
-The next step is to install `Docker for Mac <https://docs.docker.com/docker-for-mac/>`.
+The next step is to install `Docker for Mac <https://docs.docker.com/docker-for-mac/>`_.
 
 Windows
 ```````

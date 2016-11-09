@@ -36,7 +36,6 @@ class CustomLogMiddleware:
         self.app = app
         self.logger = logger
         self.format = '%s - - [%s] "%s %s %s" - %s'
-        import web
         self._web_debug = web.debug
 
     def __call__(self, environ, start_response):

@@ -384,7 +384,6 @@ class Installer(object, metaclass=abc.ABCMeta):
             image = self._ask_with_default("Container image name (leave this field empty to skip)", "")
             if image == "":
                 break
-            alias = self._ask_with_default("Container alias in INGInious tasks", image)
 
         self._display_info("Configuration of the containers done.")
 
