@@ -313,7 +313,15 @@ class DockerAgent(object):
                 ssh_port = self.ssh_ports.pop()
 
             # Create directories for storing all the data for the job
-            container_path = tempfile.mkdtemp(dir=self.tmp_dir)
+            try:
+                container_path = tempfile.mkdtemp(dir=self.tmp_dir)
+            except Exception as e:
+                self._logger.error("Cannot make container temp directory! %s", str(e), exc_info=True)
+                await self.send_job_result(message.job_id, "crash", 'Cannot make container temp directory.')
+                if ssh_port is not None:
+                    self.ssh_ports.add(ssh_port)
+                return
+
             task_path = os.path.join(container_path, 'task')  # tmp_dir/id/task/
             sockets_path = os.path.join(container_path, 'sockets')  # tmp_dir/id/socket/
             student_path = os.path.join(task_path, 'student')  # tmp_dir/id/task/student/
@@ -338,7 +346,7 @@ class DockerAgent(object):
                                                                                                             task_path, sockets_path, ssh_port))
             except Exception as e:
                 self._logger.warning("Cannot create container! %s", str(e), exc_info=True)
-                await self.send_job_result(message.job_id, "crash", 'Cannot start container')
+                await self.send_job_result(message.job_id, "crash", 'Cannot create container.')
                 rmtree(container_path)
                 if ssh_port is not None:
                     self.ssh_ports.add(ssh_port)
