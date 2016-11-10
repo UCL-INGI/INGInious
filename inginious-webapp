@@ -80,7 +80,7 @@ if __name__ == "__main__":
     signal.signal(signal.SIGTERM, lambda _, _2: close_app_signal())
 
     # Add static redirection and request log
-    root_path = inginious.frontend.webapp.app.get_root_path()
+    root_path = inginious.get_root_path()
     application = StaticMiddleware(application, (
         ('/static/common/', os.path.join(root_path, 'frontend', 'common', 'static')),
         ('/static/webapp/', os.path.join(root_path, 'frontend', 'webapp', 'static'))
@@ -88,7 +88,7 @@ if __name__ == "__main__":
     application = CustomLogMiddleware(application, logging.getLogger("inginious.webapp.requests"))
 
     # Launch the app
-    server = web.httpserver.WSGIServer((args.host, int(args.port)), application)
+    server = web.httpserver.WSGIServer((host, int(port)), application)
     try:
         server.start()
     except KeyboardInterrupt:

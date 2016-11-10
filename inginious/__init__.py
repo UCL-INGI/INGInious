@@ -4,4 +4,11 @@
 # more information about the licensing of this file.
 #
 
+import os
+
 __version__ = "0.3a2.dev0"
+
+
+def get_root_path():
+    """ Returns the INGInious root path """
+    return os.path.abspath(os.path.dirname(__file__))

@@ -4,9 +4,6 @@
 # more information about the licensing of this file.
 
 """ Starts the webapp """
-import logging
-import os
-
 from gridfs import GridFS
 from pymongo import MongoClient
 import web
@@ -130,7 +127,8 @@ def get_app(config):
     batch_manager = BatchManager(client, database, gridfs, submission_manager, user_manager,
                                  task_directory)
 
-    template_helper = TemplateHelper(plugin_manager, get_root_path(), 'frontend/webapp/templates', 'layout', config.get('use_minified_js', True))
+    template_helper = TemplateHelper(plugin_manager, 'frontend/webapp/templates', 'frontend/webapp/templates/layout',
+                                     config.get('use_minified_js', True))
 
     # Init web mail
     smtp_conf = config.get('smtp', None)
@@ -185,8 +183,3 @@ def get_app(config):
     client.start()
 
     return appli.wsgifunc(), lambda: _close_app(appli, mongo_client, client)
-
-
-def get_root_path():
-    """ Returns the INGInious root path """
-    return os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
