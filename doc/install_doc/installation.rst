@@ -120,11 +120,11 @@ This will automatically upgrade an existing version.
 
        $ pip3 install --upgrade git+https://github.com/UCL-INGI/INGInious.git[cgi,ldap]
 
-Some previous releases are also published on Pipy. However, no support is provided for these versions now. To install
+Some releases are also published on Pipy. However, no support is provided for these versions now. To install
 the latest previous release:
 ::
 
-    $ pip install --upgrade inginious
+    $ pip3 install --upgrade inginious
 
 .. _config:
 
@@ -261,11 +261,11 @@ You can then replace the content of fastcgi.conf with:
 
     fastcgi.server = ( "/inginious-webapp" =>
         (( "socket" => "/tmp/fastcgi.socket",
-            "bin-path" => "inginious-webapp",
+            "bin-path" => "/usr/bin/inginious-webapp",
             "max-procs" => 1,
             "bin-environment" => (
                 "INGINIOUS_WEBAPP_HOST" => "0.0.0.0",
-                "INGINIOUS_WEBAPP_PORT" => 80,
+                "INGINIOUS_WEBAPP_PORT" => "80",
                 "INGINIOUS_WEBAPP_CONFIG" => "/var/www/INGInious/configuration.yaml",
                 "DOCKER_HOST" => "tcp://192.168.59.103:2375"
             ),

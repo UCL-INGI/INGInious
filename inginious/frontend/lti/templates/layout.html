@@ -102,7 +102,7 @@ $#
     <script type="text/javascript">
         // Fix rendering issues
         var height = Math.max($$('body').height(), Math.max($$('#lti-sidebar-inner').height(), $$('body').parent().height()));
-        $$('#content').height(height);
+        $$('#content').css("min-height", height);
     </script>
     $:template_helper.call('javascript_footer')
 </div>

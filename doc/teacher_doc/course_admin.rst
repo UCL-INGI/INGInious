@@ -1,10 +1,8 @@
 Course administration
 =====================
 
-NOTE: this page is old and needs a complete rewrite.
-
 As a course administrator, you can simply access its management
-page by clicking on "Manage" in the task list page the course.
+page by clicking on "Course administration" in the main course page.
 
 Students submissions
 --------------------
@@ -40,21 +38,41 @@ More information about groups_ possibilities can be found below.
 
 Downloading submissions
 ```````````````````````
-All views allows you to download a set of submissions, from a specific
-submission to all submissions related to one course. You can choose
-to download either the last (correct if succeded) submissions or all the
-submissions available.
 
-Submissions are downloadable as gzip tarball (.tgz) files. You may need
-some third-party software if your operating system does not support this
-format natively. The files contain, for each submissions, a test file
-with extension *test* and
+Student submissions can be downloaded from the *Download submissions* and statistics pages or the submission
+inspection page. You are able to only download the set of evaluation submissions (according to the task parameters)
+or all the submissions.
+
+Submissions are downloadable as gzip tarball (.tgz) files. You may need some third-party software if your operating
+system does not support this format natively. The files contain, for each submissions, a test file
+with extension *test* containing the all the submission metadata and the associated archive folder containing all the
+files that have been exported using the ``archive`` API (See :ref:`run file`).
+
+Replaying submissions
+`````````````````````
+Student submissions can be replayed either from the *Replay submissions* and statistics pages or the
+submission inspection page. Different replay scheme are available:
+
+- As replacement of the current student submission result. This is the default scheme for the *Replay submissions* page.
+  When replayed, submission input are put back in the grading queue. When the job is completed, the newly computed
+  result will replace the old one. This is useful if you want to change the grading scripts during or after the assignment
+  period and want all students to be graded the same way. You can replay only the evaluation submission or all submissions.
+  However, please note that if replayed, the best submission can be replaced by an older best submission.
+- As a personal copy. This mode is only available from the submission inspection page and copy the student input to
+  generate a new personal copy. This is useful for debugging if a problem occur with a specific student submission.
+  Submission copy is also available with SSH debug mode.
+
+.. WARNING::
+    This feature is currently under testing. As the same job queue is used for standard submissions and submission
+    replay, it is recommended not to launch huge replay jobs on a very active INGInious instance.
+
 
 Task edition
 ------------
 
-All tasks can be edited on-line. To access the task editor, just click
-on "Edit task" on the task page or from the main administration page.
+All tasks can be edited from the webapp. To access the task editor, just click
+on *Edit task* on the task page or from the main administration page.
+
 Task problems containing boxes are not graphically editable due to
 their high modularity. These kinds of problem editable on-line in YAML
 format.
@@ -73,8 +91,13 @@ When editing a multiple choice problem, you're asked if the student is
 shown a multiple-answers- or single-answer-problem and which of the
 possible choices is (are) good answer(s).
 
-Uploading task files
-````````````````````
+Task files
+``````````
+
+Task files can be created, uploaded and modified from the task edition page.
+Only text-base files can be edited from the webapp. Binary files can however be uploaded.
+
+The behaviour of the *Move* action is Unix-like : it can be used for renaming files.
 
 .. _groups:
 
@@ -103,7 +126,7 @@ registration also). Course structures can be backed up if necessary from the
 classrooms/teams administration pages.
 
 Creation and edition
-`````````````````````
+````````````````````
 
 Classrooms and teams are created and edited from the web app in the course
 administration.
@@ -215,7 +238,7 @@ Teams YAML structure
 Backup course structure
 ```````````````````````
 
-Course structures (classrooms or teams) can be exporte for backup or manual
+Course structures (classrooms or teams) can be exported for backup or manual
 edition via the classroom/team list page in the course administration pages.
 Simply click on the "*Download structure*" button. The download file will have
 the same format as described above.

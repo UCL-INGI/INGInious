@@ -1,36 +1,5 @@
-Testing a task
-==============
-
-Directly in the container
--------------------------
-
-You can build a container by yourself and test your scripts directly
-inside the container. To do so, you have to:
-
-- Download and install Docker_ (using, for example, the Docker Toolbox)
-- Download the source of the containers you use.
-- Build all the containers you need by using the command
-  ::
-
-    sudo docker build -t inginious/containerfolder containerfolder
-
-  Take care of the dependencies between the containers.
-- Now that your container are built, you can now start one:
-  ::
-
-    sudo docker run -v ~/taskDirectory:/ro/task -t -i inginious/youcontainer /bin/bash
-
-  Where *~/taskDirectory* is the folder containing your task data.
-- You can then play inside the container. You have all powers inside the
-  container.
-  Remember that after you quit the container, any data you modified will
-  be lost.
-
-.. _Docker: https://www.docker.com/
-.. _docker-osx: https://github.com/noplay/docker-osx
-
 Unit-tests on tasks
--------------------
+===================
 
 You can test your tasks thanks to several tools included in the default
 INGInious environment. Almost everything can be tested :
@@ -43,7 +12,7 @@ INGInious environment. Almost everything can be tested :
 Tests can be described with test files, as described below.
 
 Defining a new unit test
-````````````````````````
+------------------------
 If you want to test your own assertions, you can use the tool
 *definetest* in your task code. This command must be called with the
 following syntax :
@@ -57,7 +26,7 @@ you want to test at a given execution point. The *value* argument is of
 type string.
 
 Creating a new test file
-````````````````````````
+------------------------
 Now you've defined some tags for which you want to assert the value
 correctness, you can define some test files. These must be written in
 YAML with the following syntax. It must be like this :
@@ -92,7 +61,7 @@ you don't want to test the correctness of your standard output or
 feedback, just omit these fields in the expected output file.
 
 Generated test files
-````````````````````
+--------------------
 Tests files are automatically generated with each submission, and are
 included in the downloadable archive with the extension *.test*.
 This can avoid spending much time on writing them as they are
@@ -106,7 +75,7 @@ required by the description given above. These information are for
 internal INGInious usage and can be ignored and removed from the files.
 
 Testing a task with test files
-``````````````````````````````
+------------------------------
 
 To test your task, you need to put your tests files together in the task
 directory with extension *.test*. For instance, *test1.test* and

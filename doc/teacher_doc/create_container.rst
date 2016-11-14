@@ -1,3 +1,5 @@
+.. _new_container:
+
 Creating a new container image
 ==============================
 

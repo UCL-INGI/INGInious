@@ -3,16 +3,13 @@
 Creating a new task
 ===================
 
-Guides
--------
-
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
 
    task_tuto
    best_practices
 
-Documentation
+Task reference
 --------------
 
 .. toctree::
@@ -20,3 +17,10 @@ Documentation
 
    task_file
    run_file
+
+.. toctree::
+   :maxdepth: 2
+
+   share_files
+   system_files
+   testing
