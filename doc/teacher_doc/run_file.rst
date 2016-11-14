@@ -1,4 +1,4 @@
-.. _run file:
+.. _run_file:
 
 Run file
 ========

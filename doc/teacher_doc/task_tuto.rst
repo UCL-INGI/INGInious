@@ -106,4 +106,4 @@ in the webapp in the *Task files* tab of the *Edit task* page.
       $ chmod +x helloworld/run
 
 
-More documentation is available here: :doc:`run file`.
+More documentation is available here: :ref:`run_file`.

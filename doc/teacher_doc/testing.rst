@@ -82,13 +82,4 @@ directory with extension *.test*. For instance, *test1.test* and
 *test2.test* are valid filenames.
 
 Once your test files are written, you can launch the test with the
-command-line tool *test_task* from the INGInious distribution, with the
-following calling syntax :
-
-::
-    testtask [-v|--verbose] course_id/task_id
-
-where *verbose* is used to print the complete standard output produced
-by the execution of your task and *task_folder* is the folder which
-contains the task files (please note that the *.task* file associated
-with the task must be found in the parent directory).
+command-line tool :ref:`inginious-auto-test-task`.

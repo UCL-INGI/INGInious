@@ -5,22 +5,21 @@
 # more information about the licensing of this file.
 
 import difflib
-import getopt
+import argparse
 import glob
 import os
 import sys
-import threading
+import time
 
+# If INGInious files are not installed in Python path
 sys.path.append(os.path.join(os.path.abspath(os.path.dirname(os.path.realpath(__file__))),'..','..'))
 
-import inginious.common.courses
 import inginious.common.tasks
 from inginious.common.base import load_json_or_yaml
 from inginious.common.course_factory import create_factories
-from inginious.backend.job_managers.remote_manual_agent import RemoteManualAgentJobManager
-from inginious.common.hook_manager import HookManager
-from inginious.frontend.common import backend_interface
 from inginious.frontend.common.parsable_text import ParsableText
+from inginious.frontend.common.arch_helper import create_arch, start_asyncio_and_zmq
+from inginious.client.client_sync import ClientSync
 
 
 def job_done_callback(result, filename, inputfiles, data):
@@ -51,22 +50,22 @@ def job_done_callback(result, filename, inputfiles, data):
                 print('\t' + line.strip('\n'))
 
     if 'result' in data and data['result']:
-        if data['result'] != result['result']:
+        if data['result'] != result['result'][0]:
             noprob = False
             print("\033[1m-> Result doesn't match :\033[0m")
             print("\t Expected result : " + data['result'])
-            print("\t Actual result : " + result['result'])
+            print("\t Actual result : " + result['result'][0])
 
     if 'text' in data and data['text']:
-        if not 'text' in result:
+        if not result['result'][1]:
             noprob = False
             print("\033[1m-> No global feedback given \033[0m")
             print("\t Expected result : " + data['text'])
-        elif data['text'].strip() != result['text'].strip():
+        elif data['text'].strip() != result['result'][1].strip():
             noprob = False
             print("\033[1m-> Global feedback doesn't match :\033[0m")
             print("\t Expected result : " + data['text'])
-            print("\t Actual result : " + result['text'])
+            print("\t Actual result : " + result['result'][1])
 
     if 'problems' in data and data['problems']:
         if not 'problems' in result:
@@ -77,12 +76,17 @@ def job_done_callback(result, filename, inputfiles, data):
                 if not problem in result['problems']:
                     noprob = False
                     print("\033[1m-> No feedback for problem id " + problem + " given \033[0m")
-                    print("\t Expected result : " + data['problems'][problem])
-                elif data['problems'][problem].strip() != result['problems'][problem].strip():
+                    print("\t Expected result : " + data['problems'][problem][0] + "\n\t" + data['problems'][problem][1])
+                elif data['problems'][problem][0].strip() != result['problems'][problem][0].strip():
+                    noprob = False
+                    print("\033[1m-> Result for problem id " + problem + " doesn't match :\033[0m")
+                    print("\t Expected result : " + data['problems'][problem][0])
+                    print("\t Actual result : " + result['problems'][problem][0])
+                elif data['problems'][problem][1].strip() != result['problems'][problem][1].strip():
                     noprob = False
                     print("\033[1m-> Feedback for problem id " + problem + " doesn't match :\033[0m")
-                    print("\t Expected result : " + data['problems'][problem])
-                    print("\t Actual result : " + result['problems'][problem])
+                    print("\t Expected result : " + data['problems'][problem][1])
+                    print("\t Actual result : " + result['problems'][problem][1])
 
     if 'tests' in data and data['tests']:
         if not 'tests' in result:
@@ -104,33 +108,25 @@ def job_done_callback(result, filename, inputfiles, data):
         print("\033[32;1m-> All tests passed \033[0m")
 
     job_done_callback.jobs_done += 1
-    jobs_semaphore.release()
 
 job_done_callback.jobs_done = 0
 
 
-def get_config():
-    if os.path.isfile("./configuration.yaml"):
-        configfile = "./configuration.yaml"
-    elif os.path.isfile("./configuration.json"):
-        configfile = "./configuration.json"
-    else:
-        raise Exception("No configuration file found")
+def get_config(configfile):
+    if not configfile:
+        if os.path.isfile("./configuration.yaml"):
+            configfile = "./configuration.yaml"
+        elif os.path.isfile("./configuration.json"):
+            configfile = "./configuration.json"
+        else:
+            raise Exception("No configuration file found")
 
     return load_json_or_yaml(configfile)
 
 
 def launch_job(filename, data, inputfiles):
-    job_manager.new_job(task, data["input"],
-                        (lambda job: job_done_callback(job, filename, inputfiles, data)),
-                        "Task tester",
-                        True)
-
-
-def usage():
-    print("Usage : test_task [-v|--verbose]  course_id/task_id")
-    print("Verbose mode prints the entire standard output from the task")
-    sys.exit(1)
+    result, grade, problems, tests, custom, archive, stdout, stderr = job_manager.new_job(task, data["input"], "Task tester", True)
+    job_done_callback({"result":result, "grade": grade, "problems": problems, "tests": tests, "custom": custom, "archive": archive, "stdout": stdout, "stderr": stderr}, filename, inputfiles, data)
 
 
 def parse_text(task, job_result):
@@ -142,67 +138,39 @@ def parse_text(task, job_result):
 
 if __name__ == "__main__":
 
-    # We need to be sudo to run docker
-    if not os.name == 'nt':
-        euid = os.geteuid()
-        if euid != 0:
-            print("Script not started as root. Exiting...")
-            exit(2)
-
-    # Read arguments from the command line
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], 'v', ['verbose'])
-        if not args:
-            usage()
-    except getopt.GetoptError as e:
-        print(e)
-        sys.exit(1)
-
-    verbose = False
-    for opt, arg in opts:
-        if opt in ('-v', '--verbose'):
-            verbose = True
+    parser = argparse.ArgumentParser()
+    parser.add_argument("courseid", help="Course id of the task to test")
+    parser.add_argument("taskid", help="Task id of the task to test")
+    parser.add_argument("-c", "--config", help="Configuration file", default="")
+    parser.add_argument("-v", "--verbose", help="Display more output", action='store_true')
+    args = parser.parse_args()
 
     # Read input argument
-    ids = args[0].split('/')
-    courseid = ids[0]
-    taskid = ids[1]
+    verbose = args.verbose
+    courseid = args.courseid
+    taskid = args.taskid
+    config = get_config(args.config)
 
-    # Load configuration
-    config = get_config()
-
-    # Initialize course/task factory and job manager
+    # Initialize course/task factory
     task_directory = config["tasks_directory"]
-    backend_type = config.get("backend", "local")
     course_factory, task_factory = create_factories(task_directory)
-    hook_manager = HookManager()
 
-    jm_semaphore = threading.Semaphore(0)
+    # Initialize client
+    zmq_context, asyncio_thread = start_asyncio_and_zmq()
+    client = create_arch(config, task_directory, zmq_context)
+    client.start()
 
-    def release_jm_sem(agent):
-        """ release """
-        jm_semaphore.release()
-        print("Sync done")
-
-    hook_manager.add_hook("job_manager_agent_sync_done", release_jm_sem)
-
-    job_manager = backend_interface.create_job_manager(config, hook_manager, task_directory, course_factory, task_factory, True)
-    job_manager.start()
+    # Get the client synchronous
+    job_manager = ClientSync(client)
 
     # Open the taskfile
     task = course_factory.get_course(courseid).get_task(taskid)
-    limits = task.get_limits()
 
     # List inputfiles
     inputfiles = glob.glob(task_directory + "/" + courseid + "/" + taskid + '/*.test')
 
-    # Ensure job manager is entirely loaded
-    # TODO : Hook (for all types of job managers...)
-    if isinstance(job_manager, RemoteManualAgentJobManager):
-        print("Waiting for sync")
-        jm_semaphore.acquire()
-
-    jobs_semaphore = threading.Semaphore(0)
+    # Wait for the agent to load containers
+    time.sleep(2)
 
     for filename in inputfiles:
         filename = os.path.basename(filename)
@@ -215,12 +183,7 @@ if __name__ == "__main__":
             exit(2)
 
         data = inginious.common.custom_yaml.load(inputfile)
-        data['limits'] = limits
-
         launch_job(filename, data, inputfiles)
 
-    for filename in inputfiles:
-        jobs_semaphore.acquire()
-
-    job_manager.close()
+    client.close()
     sys.exit(0)

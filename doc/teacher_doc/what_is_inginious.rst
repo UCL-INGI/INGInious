@@ -30,7 +30,7 @@ For simplicity, tasks are grouped by courses (see :ref:`course`).
 Usually, an INGInious course has one task per assignment.
 
 A submission is a set of deliverables (chunks of code, files, archives, etc.) that correspond each to one of the (sub)questions of the task.
-These files are made available to the *run file* (see :ref:`run file`), a special script provided by the task.
+These files are made available to the *run file* (see :ref:`run_file`), a special script provided by the task.
 That script is responsible for providing feedback on the submission by compiling, executing or applying any form of checking and testing to the deliverables.
 In its simplest form, the feedback consists of either *success* or *failed*.
 

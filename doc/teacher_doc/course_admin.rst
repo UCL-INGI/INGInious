@@ -46,7 +46,7 @@ or all the submissions.
 Submissions are downloadable as gzip tarball (.tgz) files. You may need some third-party software if your operating
 system does not support this format natively. The files contain, for each submissions, a test file
 with extension *test* containing the all the submission metadata and the associated archive folder containing all the
-files that have been exported using the ``archive`` API (See :ref:`run file`).
+files that have been exported using the ``archive`` API (See :ref:`run_file`).
 
 Replaying submissions
 `````````````````````
