@@ -22,9 +22,6 @@ commands (also available as python libraries) to interact with the backend.
 By default, the script is run inside the container in the /task directory, by a non-root
 user. You can modify the container to change this (and everything else).
 
-Usable commands in the *run* file
-=================================
-
 Feedback commands
 -----------------
 

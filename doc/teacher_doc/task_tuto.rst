@@ -48,7 +48,7 @@ Most of the fields are self-explanatory. Some remarks:
 - Problem ``question1`` have its ``type`` field that equals to ``code``, which means the student must enter some code
   to answer the question. Other types exists, such as multiple-choice.
 - The field ``limits`` are the limits that the task cannot exceed. The ``time`` is in seconds, and ``memory`` and
-   ``output`` are in MB.
+  ``output`` are in MB.
 - The ``environment`` field is intended to change the environment where the tasks run. The available environments are
   those you downloaded during installation or those you created by creating a grading container.
   Please see :doc:`create_container`.

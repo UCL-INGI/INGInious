@@ -7,20 +7,8 @@ Creating a new task
    :maxdepth: 2
 
    task_tuto
-   best_practices
-
-Task reference
---------------
-
-.. toctree::
-   :maxdepth: 3
-
-   task_file
-   run_file
-
-.. toctree::
-   :maxdepth: 2
-
+   task_ref
    share_files
    system_files
    testing
+   best_practices
