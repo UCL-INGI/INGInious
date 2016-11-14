@@ -20,7 +20,7 @@ import argparse
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--taskdir", help="Path to the directory where the courses are stored. Default to ./tasks")
+    parser.add_argument("--taskdir", help="Path to the directory where the courses are stored. Default to ./tasks", default="./tasks")
     parser.add_argument("course", help="Course id")
     parser.add_argument("task", help="Task id")
     args = parser.parse_args()
