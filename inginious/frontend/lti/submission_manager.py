@@ -21,10 +21,6 @@ class LTISubmissionManager(SubmissionManager):
         self.lis_outcome_manager = lis_outcome_manager
         self._logger = logging.getLogger("inginious.lti.submissions")
 
-    def add_job(self, task, inputdata, debug=False):
-        debug = bool(debug)  # do not allow "ssh" here
-        return super(LTISubmissionManager, self).add_job(task, inputdata, debug)
-
     def _after_submission_insertion(self, task, inputdata, debug, submission, submissionid):
         self.lis_outcome_data_lock.acquire()
         self.lis_outcome_data[submissionid] = (self._user_manager.session_consumer_key(),
