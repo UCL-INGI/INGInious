@@ -28,9 +28,8 @@ Task tests commands
 .. toctree::
     :maxdepth: 2
 
-    commands_doc/inginious-test-task
     commands_doc/inginious-check-task
-    commands_doc/inginious-auto-test-task
+    commands_doc/inginious-test-task
 
 Utilities
 ---------
