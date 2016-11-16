@@ -133,31 +133,35 @@ This section presents a short overview of the main plugins available. All the pl
 
 Auth plugins
 ````````````
-You need at least one auth plugin activated. For now, two are provided by default: auth.demo_auth and auth.ldap_auth.
+You need at least one auth plugin activated.
 
 demo_auth
 !!!!!!!!!
 
 Provides a simple authentification method, mainly for demo purposes, with username/password pairs stored directly in the config file.
 
-Example of configuration:
+To enable this plugin, add to your configuration file:
 ::
-	plugins:
-	  - plugin_module: frontend.plugins.auth.demo_auth
-    	    users:
+
+    plugins:
+        - plugin_module: inginious.frontend.webapp.plugins.auth.demo_auth
+            users:
                 username1: "password1"
                 username2: "password2"
                 username3: "password3"
+
+Each key/value pair in the ``users`` field corresponds to a new username/password user.
 
 ldap_auth
 !!!!!!!!!
 
 Uses an LDAP server to authenticate users.
 
-Example of configuration:
+To enable this plugin, add to your configuration file:
 ::
-	plugins:
-	  - plugin_module: frontend.plugins.auth.ldap_auth
+
+    plugins:
+        - plugin_module: inginious.frontend.webapp.plugins.auth.ldap_auth
             host: "your.ldap.server.com"
             encryption": "ssl" #can be tls or none
             base_dn: "ou=People,dc=info,dc=ucl,dc=ac,dc=be"
@@ -169,9 +173,9 @@ Example of configuration:
 Most of the parameters are self-explaining, but:
 
 ``request``
-	is the request made to the LDAP server to search the user to authentify. "{}" is replaced by the username indicated by the user.
+    is the request made to the LDAP server to search the user to authentify. "{}" is replaced by the username indicated by the user.
 ``prefix``
-	a prefix that will be added in the internal username used in INGInious. Useful if you have multiple auth methods with usernames used in more than one method.
+    a prefix that will be added in the internal username used in INGInious. Useful if you have multiple auth methods with usernames used in more than one method.
 
 db_auth
 !!!!!!!
@@ -179,7 +183,38 @@ db_auth
 Uses the MongoDB database to authenticate users. Provides a basic email-verification based registration and password
 recovery. It does not support manual user management yet. The superadmin has to register the same way other users do.
 
-Example of configuration:
+To enable this plugin, add to your configuration file:
 ::
-	plugins:
-	  - plugin_module: frontend.plugins.auth.db_auth
+
+    plugins:
+        - plugin_module: inginious.frontend.webapp.plugins.auth.db_auth
+
+Scoreboard plugin
+`````````````````
+
+This plugin allows to generate course/tasks scoreboards. To enable the plugin, add to your configuration file:
+::
+
+    plugins:
+        - plugin_module: inginious.frontend.webapp.plugins.scoreboard
+
+To define a new scoreboard, an additional field ``scoreboard`` must be defined in the ``course.yaml`` file
+associated to a course (See :ref:`course`). For instance:
+::
+
+    scoreboard:
+        - content: ["taskid1"]
+          name: "Scoreboard task 1"
+        - content: ["taskid2", "taskid3"] # sum of both score is taken as overall score
+          name: "Scoreboard for task 2 and 3"
+        - content: {"taskid4": 2, "taskid5": 3} # overall score is 2*score of taskid4 + 3*score of taskid5
+          name: "Another scoreboard"
+          reverse: True
+
+This defines three scoreboards for the course. The first one will create a scoreboard for task id ``taskid1`` and will
+be displayed as ``Scoreboard task 1``. The second one will create a scoreboard for ``taskid2`` and ``taskid3`` where
+both scores are added. The last one is more complex and will create a reversed scoreboard for task ``taskid4`` and
+``taskid5`` where both scores are wieghted by factor ``2`` and ``3``, respectively.
+
+Please note that the score used by this plugin for each task must be generated via a key/value custom feedback
+(see :ref:`feedback-custom`) using the ``score`` key. Only the *succeeded* tasks are taken into account.
