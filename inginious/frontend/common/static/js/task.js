@@ -24,6 +24,7 @@ function init_task_page(evaluate)
 
     if(task_form.attr("data-wait-submission"))
     {
+        loadOldSubmissionInput(task_form.attr("data-wait-submission"), false);
         blurTaskForm();
         resetAlerts();
         displayTaskLoadingAlert();
@@ -225,7 +226,7 @@ function clickOnSubmission()
 {
     if(loadingSomething)
         return;
-    loadOldSubmissionInput($(this).attr('data-submission-id'));
+    loadOldSubmissionInput($(this).attr('data-submission-id'), true);
     $('body').removeClass('sidebar-active');
 }
 
@@ -699,7 +700,7 @@ function getAlertCode(content, type, dismissible)
 }
 
 //Load an old submission input
-function loadOldSubmissionInput(id)
+function loadOldSubmissionInput(id, with_feedback)
 {
     if(loadingSomething)
         return;
@@ -715,7 +716,8 @@ function loadOldSubmissionInput(id)
             if("status" in data && data['status'] == "ok" && "input" in data)
             {
                 unblurTaskForm();
-                loadOldFeedback(data);
+                if(with_feedback)
+                    loadOldFeedback(data);
                 loadInput(id, data['input']);
             }
             else
