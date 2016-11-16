@@ -53,7 +53,8 @@ The different entries are :
     MongoDB client configuration.
 
     ``host``
-        MongoDB server address. If your database is user/password-protected, use the following syntax: ``mongodb://USER:PASSWORD@HOSTNAME/DB_NAME``
+        MongoDB server address. If your database is user/password-protected, use the following syntax:
+        ``mongodb://USER:PASSWORD@HOSTNAME/DB_NAME``
 
     ``database``
         You can change the database name if you want multiple instances or in the case of conflict.
@@ -63,6 +64,11 @@ The different entries are :
 
 ``use_minified_js``
     Set to ``true`` to use the minified version of Javascript scripts, ``false`` otherwise.
+
+``webterm``
+    Link to the INGInious xterm app with the following syntax: ``http[s]://host:port``.
+    If set, it allows to use in-browser task debug via ssh. (See :ref:`_webterm_setup` for
+    more information)
 
 Webapp-specific configuration
 -----------------------------
@@ -75,11 +81,6 @@ Webapp-specific configuration
 
 ``backup_directory``
     Path to the directory where are courses backup are stored in cases of data wiping.
-
-``webterm``
-    Address of a INGInious-xterm app (see INGInious-xterm on GitHub). If set, it allows to use in-browser task debug via ssh.
-    You have to configure INGInious-xterm according to your configuration of ``local-config.debug_host`` and ``local-config.debug_ports`` or in
-    your agent, in order to make the system work properly. Note that if your run the frontend in HTTPS, INGInious-xterm should also run in HTTPS.
 
 ``plugins``
     A list of plugin modules together with configuration options.

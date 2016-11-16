@@ -1,4 +1,4 @@
-$def with (course,task,submissions,is_admin)
+$def with (course,task,submissions,is_admin,webterm_link)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -113,6 +113,9 @@ $if is_admin:
             data-wait-submission="$submission['_id']"
             $break
 >
+    $# Store path to webterm if given
+    $if webterm_link is not None:
+        <input type="hidden" value="$webterm_link" id="webterm_link"/>
     <input type="hidden" name="@action" value="submit"/>
     $for key, problem in enumerate(task.get_problems()):
         <div class="panel panel-default">

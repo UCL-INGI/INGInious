@@ -201,16 +201,15 @@ $if user_manager.has_admin_rights_on_course(course):
         </div>
     </div>
 
-$# Store path to webterm if given
-$if webterm_link is not None:
-    <input type="hidden" value="$webterm_link" id="webterm_link"/>
-
 <form id="task" method="post" action="/course/${task.get_course().get_id()}/${task.get_id()}" enctype="multipart/form-data"
     $for submission in submissions:
         $if submission["status"] == "waiting":
             data-wait-submission="$submission['_id']"
             $break
 >
+    $# Store path to webterm if given
+    $if webterm_link is not None:
+        <input type="hidden" value="$webterm_link" id="webterm_link"/>
     <input type="hidden" name="@action" value="submit"/>
     $for key, problem in enumerate(task.get_problems()):
         <div class="panel panel-default">

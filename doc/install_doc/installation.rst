@@ -196,6 +196,33 @@ To run INInious with a remote backend (and agents), do as follows:
         backend: tcp://backend-host:2000
 #. Run your preferred frontend using :ref:`inginious-lti` or :ref:`inginious-webapp` (or both).
 
+.. _webterm_setup:
+
+Webterm setup
+-------------
+
+An optional web terminal can be used with INGInious to load the remote SSH debug session. This rely on an external tool.
+
+To install this tool :
+::
+
+    $ git clone https://github.com/UCL-INGI/INGInious-xterm
+    $ cd INGInious-xterm && npm install
+
+You can then launch the tool by running:
+::
+
+    $ npm start bind_hostname bind_port debug_host:debug_ports
+
+This will launch the app on ``http://bind_hostname:bind_port``. The ``debug_host`` and ``debug_ports`` parameters are
+the debug paramaters on the local (see :ref:`ConfigReference`) or remote (see :ref:`inginious-agent-docker`) Docker agent.
+
+To make the INGInious frontend aware of that application, update your configuration file by setting the ``webterm``
+field to ``http://bind_hostname:bind_port`` (see :ref:`ConfigReference`).
+
+For more information on this tool, please see `INGInious-xterm <https://github.com/UCL-INGI/INGInious-xterm>`_. Please
+note that INGInious-xterm must be launched using SSL if the frontend is launched using SSL.
+
 .. _production:
 
 Webserver configuration

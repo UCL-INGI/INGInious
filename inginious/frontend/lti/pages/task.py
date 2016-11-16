@@ -128,4 +128,4 @@ class LTITask(LTIAuthenticatedPage):
             return json.dumps({'status': 'done'})
         else:
             # Display the task itself
-            return self.template_helper.get_renderer().task(self.course, self.task, self.submission_manager.get_user_submissions(self.task), is_admin)
+            return self.template_helper.get_renderer().task(self.course, self.task, self.submission_manager.get_user_submissions(self.task), is_admin, self.webterm_link)

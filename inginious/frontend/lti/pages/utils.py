@@ -86,6 +86,10 @@ class LTIPage(object):
     def logger(self) -> logging.Logger:
         return logging.getLogger('inginious.lti.pages.utils')
 
+    @property
+    def webterm_link(self) -> str:
+        return self.app.webterm_link
+
 class LTINotConnectedException(Exception):
     pass
 

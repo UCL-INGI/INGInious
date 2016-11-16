@@ -149,6 +149,7 @@ def get_app(config):
     appli.consumers = config["lti"]
     appli.download_directory = download_directory
     appli.download_status = {}
+    appli.webterm_link = config.get("webterm", None)
 
     # Init the mapping of the app
     appli.init_mapping(urls)
