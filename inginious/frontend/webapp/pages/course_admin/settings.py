@@ -29,10 +29,10 @@ class CourseSettings(INGIniousAdminPage):
             course_content['name'] = data['name']
             if course_content['name'] == "":
                 errors.append('Invalid name')
-            course_content['admins'] = data['admins'].split(',')
+            course_content['admins'] = list(map(str.strip, data['admins'].split(',')))
             if not self.user_manager.user_is_superadmin() and self.user_manager.session_username() not in course_content['admins']:
                 errors.append('You cannot remove yourself from the administrators of this course')
-            course_content['tutors'] = data['tutors'].split(',')
+            course_content['tutors'] = list(map(str.strip, data['tutors'].split(',')))
             if len(course_content['tutors']) == 1 and course_content['tutors'][0].strip() == "":
                 course_content['tutors'] = []
 
