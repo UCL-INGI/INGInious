@@ -21,95 +21,15 @@ def init(plugin_manager, course_factory, client, config):
         Available configuration:
         ::
 
-            {
-                "plugin_module": "webapp.plugins.simple_grader",
-                "courseid": "external",
-                "page_pattern": "/external",
-                "return_fields": "^(result|text|problems)$"
-            }
+            plugins:
+                - plugin_module: inginious.frontend.webapp.plugins.simple_grader
+                  courseid : "external"
+                  page_pattern: "/external"
+                  return_fields: "^(result|text|problems)$"
 
         The grader will only return fields that are in the job return dict if their key match return_fields.
 
-        Different types of request are available
-
-        New synchronized job
-            External submissions must take the form of a POST request on the url defined by *page_pattern*.
-            This POST must contains two data field:
-
-            - *taskid*: the task id of the task
-
-            - *input*: the input for the task, in JSON. The input is a dictionary filled with problemid:problem_answer pairs.
-
-            The return value will contains the standard return fields of an INGInious inginious.backend job plus a "status" field that will
-            contain "ok".
-
-            If an internal error occurs, it will return a dictionary containing
-
-            ::
-
-                {
-                    "status": "error",
-                    "status_message": "A message containing a simple description of the error"
-                }
-
-        New asynchronous job
-            This POST request allows new jobs to be treated asynchronously.
-            It must contains three data fields:
-
-            - *taskid*: the task id of the task
-
-            - *input*: the input for the task, in JSON. The input is a dictionary filled with problemid:problem_answer pairs.
-
-            - *async*: field that indicate that the job must be launched asynchronously. Only have to be present, content is not read.
-
-            The return value will be a dictionnary containing:
-
-            ::
-
-                {
-
-                    "status": "done",
-                    "jobid": "the jobid of the async job. Will be needed to get the results."
-                }
-
-            or
-
-            ::
-
-                {
-                    "status": "error",
-                    "status_message": "A message describing the error"
-                }
-
-        Get status of asynchronous job
-            Given a jobid in input (as field of the POST request) and will return either:
-
-            ::
-
-                {
-                    "status": "waiting"
-                }
-
-            or
-
-            ::
-
-                {
-                    "status": "error",
-                    "status_message": "A message describing the error"
-                }
-
-            or
-
-            ::
-
-                {
-                    "status": "done",
-                    "...":"..."
-                }
-
-            Where *...* are the results of the job, as defined in the "return_fields" config value.
-
+        Different types of request are available : see documentation
     """
     courseid = config.get('courseid', 'external')
     course = course_factory.get_course(courseid)
@@ -133,8 +53,8 @@ def init(plugin_manager, course_factory, client, config):
                 </head>
                 <body>
                     <form method="post">
-                        <textarea style="width:100%; height:400px;" name="input">{"student_response":"{Browse 'Hello World!'}"}</textarea><br/>
-                        <input type="text" name="taskid" value="HelloWorld"/> (taskid)<br/>
+                        <textarea style="width:100%; height:400px;" name="input">{"question1":"print 'Hello World!'"}</textarea><br/>
+                        <input type="text" name="taskid" value="helloworld"/> (taskid)<br/>
                         <input type="checkbox" name="async"/> async?<br/>
                         <input type="submit"/>
                     </form>
@@ -169,7 +89,8 @@ def init(plugin_manager, course_factory, client, config):
                 if post_input.get("async") is None:
                     # New sync job
                     try:
-                        job_return = client_sync.new_job(task, task_input, "Plugin - Simple Grader")
+                        result, grade, problems, tests, custom, archive, stdout, stderr = client_sync.new_job(task, task_input, "Plugin - Simple Grader")
+                        job_return = {"result":result, "grade": grade, "problems": problems, "tests": tests, "custom": custom, "archive": archive, "stdout": stdout, "stderr": stderr}
                     except:
                         return json.dumps({"status": "error", "status_message": "An internal error occured"})
 
@@ -183,7 +104,9 @@ def init(plugin_manager, course_factory, client, config):
                 if client_buffer.is_waiting(post_input["jobid"]):
                     return json.dumps({"status": "waiting"})
                 elif client_buffer.is_done(post_input["jobid"]):
-                    job_return = client_buffer.get_result(post_input["jobid"])
+                    result, grade, problems, tests, custom, archive, stdout, stderr = client_buffer.get_result(post_input["jobid"])
+                    job_return = {"result": result, "grade": grade, "problems": problems, "tests": tests,
+                                  "custom": custom, "archive": archive, "stdout": stdout, "stderr": stderr}
                     return json.dumps(dict(list({"status": "done"}.items()) + list(self.keep_only_config_return_values(job_return).items())))
                 else:
                     return json.dumps({"status": "error", "status_message": "There is no job with jobid {}".format(post_input["jobid"])})

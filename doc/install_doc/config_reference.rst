@@ -232,3 +232,106 @@ To enable the plugin, add to your configuration file:
 A new configuration page named *Contest* appears on the administration page. To enable the contest mode, check the
 *Enable contest plugin* box on the appropriate course. Please note that the plugin will override the task
 accessibility dates.
+
+Simple grader plugin
+````````````````````
+
+This simple grader allows anonymous POST requests without storing submissions in database.
+
+To enable the plugin, add to your configuration file:
+::
+
+    plugins:
+        - plugin_module: inginious.frontend.webapp.plugins.simple_grader
+          courseid : "external"
+          page_pattern: "/external"
+          return_fields: "^(result|text|problems)$"
+
+- ``courseid`` is the course id you want to expose to the simple grader.
+
+- ``page_pattern`` is the URL at which you want to make the simple grader available.
+
+- ``return_fields`` is a regular expression matching the submission fields that can be returned via the simple grader.
+
+A demonstration POST form will be available at the ``page_pattern`` specified URL.
+
+New synchronized job
+!!!!!!!!!!!!!!!!!!!!
+
+External submissions must take the form of a POST request on the url defined by *page_pattern*.
+This POST must contains two data field:
+
+- ``taskid``: the task id of the task
+
+- ``input``: the input for the task, in JSON. The input is a dictionary filled with problemid:problem_answer pairs.
+
+The return value will contains the standard return fields of an INGInious inginious.backend job plus a "status" field that will
+contain "ok".
+
+If an internal error occurs, it will return a dictionary containing
+
+::
+
+    {
+        "status": "error",
+        "status_message": "A message containing a simple description of the error"
+    }
+
+New asynchronous job
+!!!!!!!!!!!!!!!!!!!!
+
+This POST request allows new jobs to be treated asynchronously.
+It must contains three data fields:
+
+- ``taskid``: the task id of the task
+
+- ``input``: the input for the task, in JSON. The input is a dictionary filled with problemid:problem_answer pairs.
+
+- ``async``: field that indicate that the job must be launched asynchronously. Only have to be present, content is not read.
+
+The return value will be a dictionnary containing:
+
+::
+
+    {
+
+        "status": "done",
+        "jobid": "the jobid of the async job. Will be needed to get the results."
+    }
+
+or
+
+::
+
+    {
+        "status": "error",
+        "status_message": "A message describing the error"
+    }
+
+Get status of asynchronous job
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Given a jobid in input (as field of the POST request) and will return either:
+::
+
+    {
+        "status": "waiting"
+    }
+
+or
+::
+
+    {
+        "status": "error",
+        "status_message": "A message describing the error"
+    }
+
+or
+::
+
+    {
+        "status": "done",
+        "...":"..."
+    }
+
+Where ``...`` are the results of the job, as defined in the ``return_fields`` configuration value.
