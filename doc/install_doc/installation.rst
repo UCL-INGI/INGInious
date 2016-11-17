@@ -230,6 +230,13 @@ Webserver configuration
 
 .. _lighttpd:
 
+.. WARNING::
+    In configurations below, environment variables accessible to the application must be explicitly repeated.
+    **If you use a local backend with remote Docker daemon**, you may need to set the ``DOCKER_HOST`` variable.
+    To know the value to set, start a terminal that has access to the docker daemon (the terminal should be able to run
+    ``docker info``), and write ``echo $DOCKER_HOST``. If it returns nothing, just ignore this comment. It is possible
+    that you may need to do the same for the env variable ``DOCKER_CERT_PATH`` and ``DOCKER_TLS_VERIFY`` too.
+
 Using lighttpd
 ``````````````
 
@@ -293,8 +300,7 @@ You can then replace the content of fastcgi.conf with:
             "bin-environment" => (
                 "INGINIOUS_WEBAPP_HOST" => "0.0.0.0",
                 "INGINIOUS_WEBAPP_PORT" => "80",
-                "INGINIOUS_WEBAPP_CONFIG" => "/var/www/INGInious/configuration.yaml",
-                "DOCKER_HOST" => "tcp://192.168.59.103:2375"
+                "INGINIOUS_WEBAPP_CONFIG" => "/var/www/INGInious/configuration.yaml"
             ),
             "check-local" => "disable"
         ))
@@ -308,16 +314,8 @@ You can then replace the content of fastcgi.conf with:
 
 Replace ``webapp`` by ``lti`` if you want to use the `LTI frontend`_.
 
-In this configuration file, some environment variables are passed.
-
-- The ``DOCKER_HOST`` env variable is only needed if you do not use local backend. Otherwise,
-  it should reflect your current configuration. To know the value to set, start a
-  terminal that has access to the docker daemon (the terminal should be able to run ``docker info``), and write ``$ echo $DOCKER_HOST``.
-  If it returns nothing, just drop the line ``"DOCKER_HOST" => "tcp://192.168.59.103:2375"`` from the
-  configuration of lighttpd. Otherwise, put the value returned by the command in the configuration. It is possible
-  that may need to do the same for the env variable ``DOCKER_CERT_PATH`` and ``DOCKER_TLS_VERIFY`` too.
-- The ``INGINIOUS_WEBAPP`` or ``INGINIOUS_LTI`` (according to your config) prefixed environment variables are used to
-  replace the default command line parameters.
+The ``INGINIOUS_WEBAPP`` or ``INGINIOUS_LTI`` (according to your config) prefixed environment variables are used to
+replace the default command line parameters. See :ref:`inginious-lti` and :ref:`inginious-webapp` for more details.
 
 Finally, start the server:
 
