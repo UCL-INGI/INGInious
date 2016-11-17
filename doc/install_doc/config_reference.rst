@@ -3,7 +3,8 @@
 Configuration reference
 =======================
 
-(Note: the best way to configure INGInious is to use ``inginious-install``. See :ref:`config`.)
+.. HINT::
+    The best way to configure INGInious is to use ``inginious-install``. See :ref:`config`.
 
 Configuring INGInious is done via a file named ``configuration.yaml`` or ``configuration.lti.yaml``.
 To get started, files named ``configuration.example.yaml`` and ``configuration.lti.example.yaml`` are provided.
@@ -297,7 +298,6 @@ The return value will be a dictionnary containing:
 ::
 
     {
-
         "status": "done",
         "jobid": "the jobid of the async job. Will be needed to get the results."
     }
@@ -322,6 +322,7 @@ Given a jobid in input (as field of the POST request) and will return either:
     }
 
 or
+
 ::
 
     {
@@ -330,6 +331,7 @@ or
     }
 
 or
+
 ::
 
     {
@@ -337,7 +339,7 @@ or
         "...":"..."
     }
 
-Where ``...`` are the results of the job, as defined in the ``return_fields`` configuration value.
+where ``...`` are the results of the job, as defined in the ``return_fields`` configuration value.
 
 Git Repo plugin (``webapp``, ``lti``)
 `````````````````````````````````````
