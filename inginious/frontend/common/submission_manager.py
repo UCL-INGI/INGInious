@@ -17,6 +17,7 @@ from datetime import datetime
 
 from bson.objectid import ObjectId
 import pymongo
+from pymongo.collection import ReturnDocument
 
 from inginious.frontend.common.parsable_text import ParsableText
 import inginious.common.custom_yaml
@@ -72,13 +73,13 @@ class SubmissionManager(object, metaclass=ABCMeta):
         }
 
         # Save submission to database
-        self._database.submissions.update(
+        submission = self._database.submissions.find_one_and_update(
             {"_id": submission["_id"]},
-            {"$set": data, "$unset": {'jobid': ""}}
+            {"$set": data, "$unset": {'jobid': ""}},
+            return_document=ReturnDocument.AFTER
         )
 
-        self._hook_manager.call_hook("submission_done", submission=submission, result=result, grade=grade, problems=problems, tests=tests,
-                                     custom=custom, archive=archive)
+        self._hook_manager.call_hook("submission_done", submission=submission, archive=archive, newsub=newsub)
 
     def add_job(self, task, inputdata, debug=False):
         """

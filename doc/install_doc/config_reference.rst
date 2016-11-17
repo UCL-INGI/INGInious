@@ -70,6 +70,11 @@ The different entries are :
     If set, it allows to use in-browser task debug via ssh. (See :ref:`_webterm_setup` for
     more information)
 
+``plugins``
+    A list of plugin modules together with configuration options.
+    See :ref:`plugins` for detailed information on available plugins, including their configuration.
+    Please note that the usage of at least one authentication plugin is mandatory for the webapp.
+
 Webapp-specific configuration
 -----------------------------
 
@@ -81,10 +86,6 @@ Webapp-specific configuration
 
 ``backup_directory``
     Path to the directory where are courses backup are stored in cases of data wiping.
-
-``plugins``
-    A list of plugin modules together with configuration options.
-    See :ref:`plugins` for detailed information on available plugins, including their configuration.
 
 ``smtp``
     Mails can be send by batch containers at the end of the job execution.
@@ -129,10 +130,12 @@ The LTI interface uses most of the same configuration options as the webapp as w
 Plugins
 -------
 
-This section presents a short overview of the main plugins available. All the plugins are located in the folder frontend/plugins, and provide extensive documentation in their "init" method.
+Several plugins are available to complete the INGInious feature set. Some of them are only compatible with the webapp,
+while others are compatible with both webapp and LTI application.
 
-Auth plugins
-````````````
+Auth plugins (``webapp``)
+`````````````````````````
+
 You need at least one auth plugin activated.
 
 demo_auth
@@ -189,8 +192,8 @@ To enable this plugin, add to your configuration file:
     plugins:
         - plugin_module: inginious.frontend.webapp.plugins.auth.db_auth
 
-Scoreboard plugin
-`````````````````
+Scoreboard plugin (``webapp``)
+``````````````````````````````
 
 This plugin allows to generate course/tasks scoreboards. To enable the plugin, add to your configuration file:
 ::
@@ -219,8 +222,8 @@ both scores are added. The last one is more complex and will create a reversed s
 The score used by this plugin for each task must be generated via a key/value custom feedback
 (see :ref:`feedback-custom`) using the ``score`` key. Only the *succeeded* tasks are taken into account.
 
-Contests plugin
-```````````````
+Contests plugin (``webapp``)
+````````````````````````````
 
 This plugin allows to manage an ACM/ICPC like contest inside a course between students.
 To enable the plugin, add to your configuration file:
@@ -233,8 +236,8 @@ A new configuration page named *Contest* appears on the administration page. To 
 *Enable contest plugin* box on the appropriate course. Please note that the plugin will override the task
 accessibility dates.
 
-Simple grader plugin
-````````````````````
+Simple grader plugin (``webapp``, ``lti``)
+``````````````````````````````````````````
 
 This simple grader allows anonymous POST requests without storing submissions in database.
 
@@ -336,8 +339,8 @@ or
 
 Where ``...`` are the results of the job, as defined in the ``return_fields`` configuration value.
 
-Git Repo plugin
-```````````````
+Git Repo plugin (``webapp``, ``lti``)
+`````````````````````````````````````
 This plugin allows saving submissions history in a Git repository, according to the following path pattern :
 ``courseid/taskid/username``. The version kept in the head of branch is the latest submission made.
 
@@ -350,8 +353,8 @@ To enable this plugin, add to your configuration file:
 
 The ``repo_directory`` parameter specify the path to the repository that must be initialized before configuration.
 
-Task file readers plugin
-````````````````````````
+Task file readers plugin (``webapp``, ``lti``)
+``````````````````````````````````````````````
 It is possible to store task files in other formats than YAML. **However, these plugins are provided for
 retro-compatibility with previous supported formats, which are deprecated. You therefore use these plugins at your own
 risks**.

@@ -44,9 +44,9 @@ class SubmissionGitSaver(threading.Thread):
         plugin_manager.add_hook('submission_done', self.add)
         self._logger.info("SubmissionGitSaver started")
 
-    def add(self, submission, result, grade, problems, tests, custom, archive):
+    def add(self, submission, archive, newsub):
         """ Add a new submission to the repo (add the to queue, will be saved async)"""
-        self.queue.put((submission, result, grade, problems, tests, custom, archive))
+        self.queue.put((submission, submission["result"], submission["grade"], submission["problems"], submission["tests"], submission["custom"], archive))
 
     def run(self):
         while True:

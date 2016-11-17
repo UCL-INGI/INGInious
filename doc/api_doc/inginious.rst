@@ -10,6 +10,7 @@ Subpackages
 -----------
 
 .. toctree::
+    :maxdepth: 2
 
     inginious.agent
     inginious.backend
