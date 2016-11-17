@@ -59,14 +59,12 @@ def init(plugin_manager, _, _2, conf):
         Available configuration:
         ::
 
-            {
-                "plugin_module": "webapp.plugins.auth.demo_auth",
-                "users":
-                {
-                    "username1":"password1",
-                    "username2":"password2"
-                }
-            }
+            plugins:
+                - plugin_module": "inginious.frontend.webapp.plugins.auth.demo_auth
+                  users:
+                        username1: "password1",
+                        username2: "password2"
+
     """
 
     plugin_manager.register_auth_method(DemoAuthMethod(conf.get('name', 'Demo'), conf.get('users', {})))

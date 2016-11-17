@@ -349,3 +349,27 @@ To enable this plugin, add to your configuration file:
           repo_directory: "./repo_submissions"
 
 The ``repo_directory`` parameter specify the path to the repository that must be initialized before configuration.
+
+Task file readers plugin
+````````````````````````
+It is possible to store task files in other formats than YAML. **However, these plugins are provided for
+retro-compatibility with previous supported formats, which are deprecated. You therefore use these plugins at your own
+risks**.
+
+JSON
+!!!!
+
+To enable the JSON task file format:
+::
+
+    plugins:
+        - plugin_module: inginious.frontend.webapp.plugins.task_file_readers.json_reader
+
+RST
+!!!
+
+To enable the reStructuredText task file format:
+::
+
+    plugins:
+        - plugin_module: inginious.frontend.webapp.plugins.task_file_readers.rst_reader

@@ -29,9 +29,8 @@ def init(plugin_manager, _, _2, _3):
         Init the plugin. Configuration:
         ::
 
-            {
-                "plugin_module": "webapp.plugins.task_files_manager.json_manager"
-            }
+            plugins:
+                - plugin_module: inginious.frontend.webapp.plugins.task_file_readers.rst_reader
     """
 
     plugin_manager.add_task_file_manager(TaskRSTFileReader())
