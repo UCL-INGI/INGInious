@@ -192,7 +192,7 @@ def init(plugin_manager, _, _2, _3):
         Available configuration in configuration.yaml:
         ::
 
-            - plugin_module: "webapp.plugins.scoreboard"
+            - plugin_module: "inginious.frontend.webapp.plugins.scoreboard"
 
         Available configuration in course.yaml:
         ::

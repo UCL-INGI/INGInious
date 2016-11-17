@@ -5,17 +5,17 @@ $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
-$var title: $:course.get_name() - Settings
+$var title: $:course.get_name() - Contest settings
 
 $var Column: $:template_helper.call('course_admin_menu',course=course,current='contest')
 
 $def NavbarF():
-<ol class="nav navbar-nav nav-breadcrumb">
-    <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
-    <li><a href="/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
-        <i class="fa fa-user-secret"></i></a></li>
-    <li class="active"><a href="#"><i class="fa fa-trophy"></i> Contest plugin <span class="sr-only">(current)</span></a></li>
-</ol>
+    <ol class="nav navbar-nav nav-breadcrumb">
+        <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
+        <li><a href="/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+            <i class="fa fa-user-secret"></i></a></li>
+        <li class="active"><a href="#"><i class="fa fa-trophy"></i> Contest plugin <span class="sr-only">(current)</span></a></li>
+    </ol>
 $var Navbar: $:NavbarF()
 
 <h2>Contest settings</h2>

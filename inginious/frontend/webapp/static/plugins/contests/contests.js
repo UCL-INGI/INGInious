@@ -18,7 +18,7 @@ function contest_starting_time()
 	}).on('finish.countdown', function(event)
 	{
 		location.reload(); //reload the page
-		$(this).html('<b>Contest started!</b>').parent().addClass('disabled');
+		$(this).html('<b>Contest started!</b>');
 	});
 }
 
@@ -33,7 +33,7 @@ function contest_remaining_time()
 		$(this).html("Time remaining: "+event.strftime(format));
 	}).on('finish.countdown', function(event)
 	{
-		$(this).html('<b>Contest ended!</b>').parent().addClass('disabled');
+		$(this).html('<b>Contest ended!</b>');
 	});
 }
 
@@ -48,6 +48,6 @@ function contest_blackout_time()
 		$(this).html("Blackout in "+event.strftime(format));
 	}).on('finish.countdown', function(event)
 	{
-		$(this).html('<b>Blackout</b>').parent().addClass('disabled');
+		$(this).html('<b>Blackout</b>');
 	});
 }

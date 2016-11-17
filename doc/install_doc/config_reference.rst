@@ -216,5 +216,19 @@ be displayed as ``Scoreboard task 1``. The second one will create a scoreboard f
 both scores are added. The last one is more complex and will create a reversed scoreboard for task ``taskid4`` and
 ``taskid5`` where both scores are wieghted by factor ``2`` and ``3``, respectively.
 
-Please note that the score used by this plugin for each task must be generated via a key/value custom feedback
+The score used by this plugin for each task must be generated via a key/value custom feedback
 (see :ref:`feedback-custom`) using the ``score`` key. Only the *succeeded* tasks are taken into account.
+
+Contests plugin
+```````````````
+
+This plugin allows to manage an ACM/ICPC like contest inside a course between students.
+To enable the plugin, add to your configuration file:
+::
+
+    plugins:
+        - plugin_module: inginious.frontend.webapp.plugins.contests
+
+A new configuration page named *Contest* appears on the administration page. To enable the contest mode, check the
+*Enable contest plugin* box on the appropriate course. Please note that the plugin will override the task
+accessibility dates.
