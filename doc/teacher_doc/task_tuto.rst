@@ -20,11 +20,12 @@ If you are using the webapp, this procedure can be done using the graphical inte
 
 Manually
 ````````
+This is only possible if the administrator has given access to the course directory to the course administrator.
 
 The task description is a YAML file describing everything that INGInious needs to know to verify the input of the student.
-Here is a simple task description. Put this file with the name *task.yaml* in a newly created *helloworld* folder in
+Here is a simple task description. Put this file with the name ``task.yaml`` in a newly created ``helloworld`` folder in
 your course directory.
-::
+.. code-block:: yaml
 
     author: "The INGInious authors"
     accessible: true
@@ -75,7 +76,7 @@ in the webapp in the *Task files* tab of the *Edit task* page.
 
 #. Create the ``run`` file. This file will be the script that is launched when the task is started. Here we will create
    a *bash* script, that parses the template and verifies its content.
-   ::
+   .. code-block:: bash
 
        #! /bin/bash
 

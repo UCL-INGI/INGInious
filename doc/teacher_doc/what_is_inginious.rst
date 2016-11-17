@@ -2,9 +2,9 @@ What is INGInious?
 ==================
 
 INGInious provides a simple and secure way to execute and test untrusted code.
-It has been developed by the INGI_ department (UCL_) to grade programming assignments.
-The whole tool is written in Python_ (version 3.5+).
-Behind the scenes, it relies on Docker_ to provide secure execution environments and on MongoDB_ to keep track of submissions.
+It has been developed by the INGI_ department (`Université catholique de Louvain`_) to automatic grading of programming
+assignments. The whole tool is written in Python_ (version 3.5+) and relies on Docker_ to provide secure execution
+environments and on MongoDB_ to keep track of submissions.
 
 INGInious is completely language-agnostic and is able to run anything. Currently, this is limited to Linux programs as only
 Linux containers are provided and supported.
@@ -15,7 +15,7 @@ INGInious also provides an LTI_ module, allowing its integration to your existin
 .. _Python: http://www.python.org
 .. _Docker: https://www.docker.com
 .. _INGI: http://www.uclouvain.be/ingi.html
-.. _UCL: http://www.uclouvain.be
+.. _`Université catholique de Louvain`: http://www.uclouvain.be
 .. _MongoDB: http://www.mongodb.com
 .. _Moodle: http://moodle.org
 .. _edX: https://www.edx.org

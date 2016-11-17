@@ -3,13 +3,13 @@
 Task description files
 ======================
 
-Inside a course folder (see :ref:`course`) tasks must have
-(for example with *taskname* as task id) a folder named
-*taskname*, and, inside this folder, a file named *task.yaml*.
+Inside a course folder (see :ref:`course`), tasks are identified by subdirectories named by their task id and containing
+a ``task.yaml`` file. For instance, this file, for a task with id ``taskid1``, should be placed in a ``taskid1``
+subdirectory.
 
-``task.yaml`` is a YAML file containing informations about the task.
+``task.yaml`` is a YAML file containing information about the task.
 
-::
+.. code-block:: yaml
 
     author: Your name
     context: |-
@@ -118,7 +118,7 @@ sent to a container where a script made by the teaching team corrects it.
 
 Here is a simple example for a code problem
 
-::
+.. code-block:: yaml
 
     type: code
     language: c
@@ -142,7 +142,7 @@ Single code line problems
 
 ``type: code-single-line`` is simply a code box that allows a single line as input.
 
-::
+.. code-block:: yaml
 
     type: code-single-line
     language: c
@@ -161,7 +161,7 @@ Advanced code problem
 
 Advanced code problems are available:
 
-::
+.. code-block:: yaml
 
     type: code
     header: some text
@@ -195,7 +195,7 @@ Match problems
 Match problem are input that allows a single-line input from the student and that
 returns if the student entered exactly the text given in the "answer" field.
 
-::
+.. code-block:: yaml
 
     name: The answer
     type: match
@@ -208,7 +208,7 @@ directly with the id of the problem.
 Multiple choice problems
 ````````````````````````
 
-::
+.. code-block:: yaml
 
     name: An exercice
     type: multiple-choice
