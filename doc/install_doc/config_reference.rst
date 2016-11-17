@@ -335,3 +335,17 @@ or
     }
 
 Where ``...`` are the results of the job, as defined in the ``return_fields`` configuration value.
+
+Git Repo plugin
+```````````````
+This plugin allows saving submissions history in a Git repository, according to the following path pattern :
+``courseid/taskid/username``. The version kept in the head of branch is the latest submission made.
+
+To enable this plugin, add to your configuration file:
+::
+
+    plugins:
+        - plugin_module: inginious.frontend.webapp.plugins.git_repo
+          repo_directory: "./repo_submissions"
+
+The ``repo_directory`` parameter specify the path to the repository that must be initialized before configuration.

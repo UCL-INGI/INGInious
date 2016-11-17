@@ -7,9 +7,15 @@
 import sys
 import os
 import json
-import sh
-from sh import ssh_add
-from sh import git
+
+if sys.platform == 'win32':
+    import pbs
+    git = pbs.Command('git')
+    ssh_add = pbs.Command('ssh-add')
+else:
+    import sh
+    from sh import ssh_add
+    from sh import git
 
 def print_output(text):
     for line in text.strip('\n').split('\n'):

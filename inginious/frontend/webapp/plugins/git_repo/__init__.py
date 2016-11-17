@@ -6,16 +6,19 @@
 """ A plugin that allows to save submissions to a Git repository """
 import queue
 import io
-import base64
+import sys
 import logging
 import os.path
 import shutil
 import tarfile
 import threading
-
-from sh import git  # pylint: disable=no-name-in-module
-
 import inginious.common.custom_yaml
+
+if sys.platform == 'win32':
+    import pbs
+    git = pbs.Command('git')
+else:
+    from sh import git  # pylint: disable=no-name-in-module
 
 
 class SubmissionGitSaver(threading.Thread):
@@ -64,7 +67,7 @@ class SubmissionGitSaver(threading.Thread):
         if not os.path.exists(os.path.join(self.repopath, submission["courseid"], submission["taskid"])):
             os.mkdir(os.path.join(self.repopath, submission["courseid"], submission["taskid"]))
         # Idem with the username, but empty it
-        dirname = os.path.join(self.repopath, submission["courseid"], submission["taskid"], submission["username"])
+        dirname = os.path.join(self.repopath, submission["courseid"], submission["taskid"], str.join("-", submission["username"]))
         if os.path.exists(dirname):
             shutil.rmtree(dirname)
         os.mkdir(dirname)
@@ -79,14 +82,14 @@ class SubmissionGitSaver(threading.Thread):
         open(os.path.join(dirname, 'result.yaml'), "w+").write(inginious.common.custom_yaml.dump(result_obj))
         if archive is not None:
             os.mkdir(os.path.join(dirname, 'output'))
-            tar = tarfile.open(mode='r:gz', fileobj=io.StringIO(archive))
+            tar = tarfile.open(mode='r:gz', fileobj=io.BytesIO(archive))
             tar.extractall(os.path.join(dirname, 'output'))
             tar.close()
 
         self.git.add('--all', '.')
         title = " - ".join([str(submission["courseid"]) + "/" + str(submission["taskid"]),
                             str(submission["_id"]),
-                            submission["username"],
+                            str.join("-", submission["username"]),
                             ("success" if result[0] == "success" else "failed")])
         self.git.commit('-m', title)
 
@@ -98,10 +101,9 @@ def init(plugin_manager, _, _2, config):
         Available configuration:
         ::
 
-            {
-                "plugin_module": "webapp.plugins.git_repo",
-                "repo_directory": "./repo_submissions"
-            }
+            plugins:
+                - plugin_module: inginious.frontend.webapp.plugins.git_repo
+                  repo_directory: "./repo_submissions"
 
     """
     submission_git_saver = SubmissionGitSaver(plugin_manager, config)
