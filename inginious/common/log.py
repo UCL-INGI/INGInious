@@ -24,7 +24,7 @@ def get_course_logger(coursename):
     :param coursename: the course id
     :return: a logger object associated to a specific course
     """
-    return logging.getLogger("inginious.course"+coursename)
+    return logging.getLogger("inginious.course."+coursename)
 
 
 class CustomLogMiddleware:

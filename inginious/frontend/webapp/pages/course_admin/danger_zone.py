@@ -89,6 +89,22 @@ class CourseDangerZonePage(INGIniousAdminPage):
 
         self._logger.info("Course %s restored from backup directory.", courseid)
 
+    def delete_course(self, courseid):
+        """ Erase all course data """
+        # Wipes the course (delete database)
+        self.wipe_course(courseid)
+
+        # Deletes the course from the factory (entire folder)
+        self.course_factory.delete_course(courseid)
+
+        # Removes backup
+        filepath = os.path.join(self.backup_dir, courseid)
+        if os.path.exists(os.path.dirname(filepath)):
+            for backup in glob.glob(os.path.join(filepath, '*.zip')):
+                os.remove(backup)
+
+        self._logger.info("Course %s files erased.", courseid)
+
     def GET(self, courseid):
         """ GET request """
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
@@ -117,11 +133,11 @@ class CourseDangerZonePage(INGIniousAdminPage):
         error = False
 
         data = web.input()
-        if "wipeall" in data:
-            if not data["token"] == self.user_manager.session_token():
-                msg = "Operation aborted due to invalid token."
-                error = True
-            elif not data["courseid"] == courseid:
+        if not data.get("token", "") == self.user_manager.session_token():
+            msg = "Operation aborted due to invalid token."
+            error = True
+        elif "wipeall" in data:
+            if not data.get("courseid", "") == courseid:
                 msg = "Wrong course id."
                 error = True
             else:
@@ -132,10 +148,7 @@ class CourseDangerZonePage(INGIniousAdminPage):
                     msg = "An error occured while dumping course from database."
                     error = True
         elif "restore" in data:
-            if not data["token"] == self.user_manager.session_token():
-                msg = "Operation aborted due to invalid token."
-                error = True
-            elif "backupdate" not in data:
+            if "backupdate" not in data:
                 msg = "No backup date selected."
                 error = True
             else:
@@ -144,17 +157,24 @@ class CourseDangerZonePage(INGIniousAdminPage):
                     self.restore_course(courseid, data["backupdate"])
                     msg = "Course restored to date : " + dt.strftime("%Y-%m-%d %H:%M:%S") + "."
                 except:
-                    raise
                     msg = "An error occured while restoring backup."
                     error = True
+        elif "deleteall" in data:
+            if not data.get("courseid", "") == courseid:
+                msg = "Wrong course id."
+                error = True
+            else:
+                try:
+                    self.delete_course(courseid)
+                    web.seeother('/index')
+                except:
+                    msg = "An error occured while deleting the course data."
+                    error = True
+
 
         return self.page(course, msg, error)
 
-    def page(self, course, msg="", error=False):
-        """ Get all data and display the page """
-        thehash = hashlib.sha512(str(random.getrandbits(256)).encode("utf-8")).hexdigest()
-        self.user_manager.set_session_token(thehash)
-
+    def get_backup_list(self, course):
         backups = []
 
         filepath = os.path.join(self.backup_dir, course.get_id())
@@ -164,7 +184,16 @@ class CourseDangerZonePage(INGIniousAdminPage):
                     basename = os.path.basename(backup)[0:-4]
                     dt = datetime.datetime.strptime(basename, "%Y%m%d.%H%M%S").strftime("%Y-%m-%d %H:%M:%S")
                     backups.append({"file": basename, "date": dt})
-                except: # Wrong format
+                except:  # Wrong format
                     pass
+
+        return backups
+
+    def page(self, course, msg="", error=False):
+        """ Get all data and display the page """
+        thehash = hashlib.sha512(str(random.getrandbits(256)).encode("utf-8")).hexdigest()
+        self.user_manager.set_session_token(thehash)
+
+        backups = self.get_backup_list(course)
 
         return self.template_helper.get_renderer().course_admin.danger_zone(course, thehash, backups, msg, error)

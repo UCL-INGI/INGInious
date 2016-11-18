@@ -5,6 +5,7 @@
 
 """ Factory for loading courses from disk """
 import os
+import shutil
 
 from inginious.common.log import get_course_logger
 from inginious.common.courses import Course
@@ -100,7 +101,7 @@ class CourseFactory(object):
         :param courseid: the course id of the course
         :param init_content: initial descriptor content
         :raise InvalidNameException or CourseAlreadyExistsException
-        Create a new course folder and set initial descriptor content
+        Create a new course folder and set initial descriptor content, folder can already exist
         """
         if not id_checker(courseid):
             raise InvalidNameException("Course with invalid name: " + courseid)
@@ -115,6 +116,25 @@ class CourseFactory(object):
         else:
             raise CourseAlreadyExistsException("Course with id " + courseid+ " already exists.")
 
+        get_course_logger(courseid).info("Course %s created in the factory.", courseid)
+
+    def delete_course(self, courseid):
+        """
+        :param courseid: the course id of the course
+        :raise InvalidNameException or CourseNotFoundException
+        Erase the content of the course folder
+        """
+        if not id_checker(courseid):
+            raise InvalidNameException("Course with invalid name: " + courseid)
+
+        course_directory = os.path.join(self._tasks_directory, courseid)
+
+        if not os.path.exists(course_directory):
+            raise CourseNotFoundException()
+
+        shutil.rmtree(course_directory)
+
+        get_course_logger(courseid).info("Course %s erased from the factory.", courseid)
 
     def _cache_update_needed(self, courseid):
         """

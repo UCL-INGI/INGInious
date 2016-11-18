@@ -122,7 +122,6 @@ class UserManager(AbstractUserManager):
             return None
         return self._session.token
 
-
     def set_session_token(self, token):
         """ Sets the token of the current user in the session, if one is open."""
         if self.session_logged_in():
