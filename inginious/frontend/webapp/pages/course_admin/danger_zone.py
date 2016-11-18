@@ -102,7 +102,7 @@ class CourseDangerZonePage(INGIniousAdminPage):
                 raise web.notfound()
 
             web.header('Content-Type', 'application/zip', unique=True)
-            web.header('Content-Disposition', 'attachment; filename="lol.zip"', unique=True)
+            web.header('Content-Disposition', 'attachment; filename="' + data["download"] + '.zip' + '"', unique=True)
 
             return open(filepath, 'rb')
 

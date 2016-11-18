@@ -4,7 +4,6 @@
 # more information about the licensing of this file.
 
 """ Factory for loading courses from disk """
-import logging
 import os
 
 from inginious.common.log import get_course_logger
@@ -13,7 +12,7 @@ from inginious.common.base import id_checker, load_json_or_yaml, write_json_or_y
 from inginious.common.task_factory import TaskFactory
 from inginious.common.tasks import Task
 from inginious.common.hook_manager import HookManager
-from inginious.common.exceptions import InvalidNameException, CourseNotFoundException, CourseUnreadableException
+from inginious.common.exceptions import InvalidNameException, CourseNotFoundException, CourseUnreadableException, CourseAlreadyExistsException
 
 
 class CourseFactory(object):
@@ -95,6 +94,27 @@ class CourseFactory(object):
             return base_file + ".json"
         else:
             raise CourseNotFoundException()
+
+    def create_course(self, courseid, init_content):
+        """
+        :param courseid: the course id of the course
+        :param init_content: initial descriptor content
+        :raise InvalidNameException or CourseAlreadyExistsException
+        Create a new course folder and set initial descriptor content
+        """
+        if not id_checker(courseid):
+            raise InvalidNameException("Course with invalid name: " + courseid)
+
+        course_directory = os.path.join(self._tasks_directory, courseid)
+        if not os.path.exists(course_directory):
+            os.mkdir(course_directory)
+
+        base_file = os.path.join(course_directory, "course")
+        if not os.path.isfile(base_file + ".yaml") and not os.path.isfile(base_file + ".json") :
+            write_json_or_yaml(os.path.join(course_directory, "course.yaml"), init_content)
+        else:
+            raise CourseAlreadyExistsException("Course with id " + courseid+ " already exists.")
+
 
     def _cache_update_needed(self, courseid):
         """

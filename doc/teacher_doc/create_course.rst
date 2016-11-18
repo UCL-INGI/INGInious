@@ -32,6 +32,13 @@ able to configure the course by themselves.
 Using the webapp
 ````````````````
 
+#. As a super-administrator, go to the bottom of the course list and enter a new course id, for instance ``demo``,
+   and click on *Create new course*. A newly created hidden  course named *demo* appears on the list.
+#. Click on that course, and then on *Course administration* to change the course parameters, add course
+   administrators and tasks.
+
+Please note that, if you give access to the course directory to course administrators, you still have to do some
+manual work for this to be effective.
 
 Manually
 ````````

@@ -49,18 +49,26 @@ class IndexPage(INGIniousPage):
         realname = self.user_manager.session_realname()
         email = self.user_manager.session_email()
 
-        # Handle registration to a course
         user_input = web.input()
-        registration_status = None
+        success = None
+
+        # Handle registration to a course
         if "register_courseid" in user_input and user_input["register_courseid"] != "":
             try:
                 course = self.course_factory.get_course(user_input["register_courseid"])
                 if not course.is_registration_possible(username, realname, email):
-                    registration_status = False
+                    success = False
                 else:
-                    registration_status = self.user_manager.course_register_user(course, username, user_input.get("register_password", None))
+                    success = self.user_manager.course_register_user(course, username, user_input.get("register_password", None))
             except:
-                registration_status = False
+                success = False
+        elif "new_courseid" in user_input and self.user_manager.user_is_superadmin():
+            try:
+                courseid = user_input["new_courseid"]
+                self.course_factory.create_course(courseid, {"name": courseid, "accessible": False})
+                success = True
+            except:
+                success = False
 
         # Display
         last_submissions = self.submission_manager.get_user_last_submissions({}, 5, True)
@@ -84,4 +92,4 @@ class IndexPage(INGIniousPage):
 
         registerable_courses = OrderedDict(sorted(iter(registerable_courses.items()), key=lambda x: x[1].get_name()))
 
-        return self.template_helper.get_renderer().main(open_courses, registerable_courses, except_free_last_submissions, registration_status)
+        return self.template_helper.get_renderer().main(open_courses, registerable_courses, except_free_last_submissions, success)

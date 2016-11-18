@@ -166,7 +166,7 @@ class TaskFactory(object):
 
         for ext, task_file_manager in self._task_file_managers.items():
             if os.path.isfile(base_file + "." + ext):
-                return (base_file + "." + ext, ext, task_file_manager)
+                return base_file + "." + ext, ext, task_file_manager
 
         raise TaskNotFoundException()
 
