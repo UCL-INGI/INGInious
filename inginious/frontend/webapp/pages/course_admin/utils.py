@@ -278,6 +278,6 @@ class CourseRedirect(INGIniousAdminPage):
         else:
             raise web.seeother('/admin/{}/settings'.format(courseid))
 
-    def POST(self, courseid):
+    def POST_AUTH(self, courseid):
         """ POST request """
-        return self.GET(courseid)
+        return self.GET_AUTH(courseid)

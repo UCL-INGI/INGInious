@@ -91,6 +91,12 @@ class INGIniousAuthPage(INGIniousPage):
     Augmented version of INGIniousPage that checks if user is authenticated.
     """
 
+    def POST_AUTH(self, *args, **kwargs):
+        raise web.notacceptable()
+
+    def GET_AUTH(self, *args, **kwargs):
+        raise web.notacceptable()
+
     def GET(self, *args, **kwargs):
         """
         Checks if user is authenticated and calls GET_AUTH or performs logout.

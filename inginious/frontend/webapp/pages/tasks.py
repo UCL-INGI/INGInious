@@ -57,8 +57,8 @@ class TaskPage(INGIniousAuthPage):
         # Fetch the course
         try:
             course = self.course_factory.get_course(courseid)
-        except exceptions.CourseNotFoundException as e:
-            raise web.notfound()
+        except exceptions.CourseNotFoundException as ex:
+            raise web.notfound(str(ex))
 
         if not self.user_manager.course_is_open_to_user(course, username):
             return self.template_helper.get_renderer().course_unavailable()
@@ -66,8 +66,8 @@ class TaskPage(INGIniousAuthPage):
         # Fetch the task
         try:
             task = course.get_task(taskid)
-        except exceptions.TaskNotFoundException as e:
-            raise web.notfound()
+        except exceptions.TaskNotFoundException as ex:
+            raise web.notfound(str(ex))
 
         if not self.user_manager.task_is_visible_by_user(task, username):
             return self.template_helper.get_renderer().task_unavailable()
@@ -180,10 +180,10 @@ class TaskPage(INGIniousAuthPage):
 
                     # user_task always exists as we called user_saw_task before
                     user_task = self.database.user_tasks.find_one({
-                                 "courseid":task.get_course_id(),
-                                 "taskid": task.get_id(),
-                                 "username": self.user_manager.session_username()
-                             })
+                        "courseid":task.get_course_id(),
+                        "taskid": task.get_id(),
+                        "username": self.user_manager.session_username()
+                    })
 
                     submissionid = user_task.get('submissionid', None)
                     default_submission = self.database.submissions.find_one({'_id': ObjectId(submissionid)}) if submissionid else None

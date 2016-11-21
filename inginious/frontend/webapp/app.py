@@ -103,7 +103,7 @@ def get_app(config):
                                          config.get('use_minified_js', True))
         appli.template_helper = template_helper
         appli.init_mapping(urls_maintenance)
-        return appli.wsgifunc(), lambda: appli.stop()
+        return appli.wsgifunc(), appli.stop
 
     task_directory = config["tasks_directory"]
     default_allowed_file_extensions = config['allowed_file_extensions']

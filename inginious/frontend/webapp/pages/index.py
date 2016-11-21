@@ -15,10 +15,11 @@ class IndexPage(INGIniousAuthPage):
     """ Index page """
 
     def GET_AUTH(self):
+        """ Display main course list page """
         return self.show_page(None)
 
     def POST_AUTH(self):
-        """ Display main page (only when logged) """
+        """ Parse course registration or course creation and display the course list page """
 
         username = self.user_manager.session_username()
         realname = self.user_manager.session_realname()
@@ -48,7 +49,7 @@ class IndexPage(INGIniousAuthPage):
         return self.show_page(success)
 
     def show_page(self, success):
-
+        """  Display main course list page """
         username = self.user_manager.session_username()
         realname = self.user_manager.session_realname()
         email = self.user_manager.session_email()

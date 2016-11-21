@@ -39,6 +39,7 @@ def sort_func(overall_result_per_user, reversed):
 
 
 class ScoreBoard(INGIniousAuthPage):
+    """ Page displaying the different available scoreboards """
     def GET_AUTH(self, courseid, scoreboardid):
         """ GET request """
         course = self.course_factory.get_course(courseid)
