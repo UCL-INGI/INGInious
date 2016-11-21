@@ -776,7 +776,7 @@ class DockerAgent(object):
         if tests is None:
             tests = {}
 
-        await ZMQUtils.send(self._backend_socket, AgentJobDone(job_id, (result, text), grade, problems, tests, custom, archive, stdout, stderr))
+        await ZMQUtils.send(self._backend_socket, AgentJobDone(job_id, (result, text), round(grade, 2), problems, tests, custom, archive, stdout, stderr))
 
     async def run_dealer(self):
         """ Run the agent """

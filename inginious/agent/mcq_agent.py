@@ -80,7 +80,7 @@ class MCQAgent(object):
 
         await ZMQUtils.send(self._backend_socket, AgentJobDone(msg.job_id,
                                                                (("success" if result else "failed"), "\n".join(text)),
-                                                               grade, problems, {}, {}, None, "", ""))
+                                                               round(grade, 2), problems, {}, {}, None, "", ""))
 
     async def run_dealer(self):
         """ Run the agent """
