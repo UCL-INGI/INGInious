@@ -7,6 +7,7 @@
 import pymongo
 import logging
 
+
 def update_database(database, gridfs, course_factory, user_manager):
     """
     Checks the database version and update the db if necessary
@@ -190,5 +191,9 @@ def update_database(database, gridfs, course_factory, user_manager):
                                                    {"$set": {"submissionid": tasks[0]["_id"]}})
 
         db_version = 11
+
+    if db_version < 12:
+        database.submissions.create_index([("grade", pymongo.DESCENDING), ("submitted_on", pymongo.DESCENDING)])
+        db_version = 12
 
     database.db_version.update({}, {"$set": {"db_version": db_version}}, upsert=True)
