@@ -21,7 +21,7 @@ from inginious.frontend.webapp.pages.course_admin.utils import INGIniousAdminPag
 class CourseTaskFiles(INGIniousAdminPage):
     """ Edit a task """
 
-    def GET(self, courseid, taskid):
+    def GET_AUTH(self, courseid, taskid):
         """ Edit a task """
         if not id_checker(taskid):
             raise Exception("Invalid task id")
@@ -42,7 +42,7 @@ class CourseTaskFiles(INGIniousAdminPage):
         else:
             return self.show_tab_file(courseid, taskid)
 
-    def POST(self, courseid, taskid):
+    def POST_AUTH(self, courseid, taskid):
         """ Upload or modify a file """
         if not id_checker(taskid):
             raise Exception("Invalid task id")

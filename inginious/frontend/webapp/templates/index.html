@@ -39,7 +39,7 @@ $# Start content
                             in active
                         " id="login-$authid">
                         <p>
-                            <form role="form" action="/index" method="post">
+                            <form role="form" method="post">
                                 <input type="hidden" name="@authid" value="$authid"/>
                                 $for name, data in fields["input"].items():
                                     $if data["type"] == "password":

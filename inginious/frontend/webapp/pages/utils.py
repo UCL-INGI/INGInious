@@ -84,3 +84,41 @@ class INGIniousPage(object):
     @property
     def webterm_link(self) -> str:
         return self.app.webterm_link
+
+
+class INGIniousAuthPage(INGIniousPage):
+    """
+    Augmented version of INGIniousPage that checks if user is authenticated.
+    """
+
+    def GET(self, *args, **kwargs):
+        """
+        Checks if user is authenticated and calls GET_AUTH or performs logout.
+        Otherwise, returns the login template.
+        """
+        if self.user_manager.session_logged_in():
+            user_input = web.input()
+            if "logoff" in user_input:
+                self.user_manager.disconnect_user(web.ctx['ip'])
+                return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_fields(), False)
+            else:
+                return self.GET_AUTH(*args, **kwargs)
+        else:
+            return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_fields(), False)
+
+    def POST(self, *args, **kwargs):
+        """
+        Checks if user is authenticated and calls POST_AUTH or performs login and calls GET_AUTH.
+        Otherwise, returns the login template.
+        """
+        if self.user_manager.session_logged_in():
+            return self.POST_AUTH(*args, **kwargs)
+        else:
+            user_input = web.input()
+            if "@authid" in user_input:
+                if self.user_manager.auth_user(int(user_input["@authid"]), user_input, web.ctx['ip']):
+                    return self.GET_AUTH(*args, **kwargs)
+                else:
+                    return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_fields(), True)
+            else:
+                return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_fields(), False)

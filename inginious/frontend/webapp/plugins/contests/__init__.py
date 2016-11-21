@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 import pymongo
 import web
 
-from inginious.frontend.webapp.pages.utils import INGIniousPage
+from inginious.frontend.webapp.pages.utils import INGIniousAuthPage
 from inginious.frontend.webapp.pages.course_admin.utils import INGIniousAdminPage
 
 
@@ -59,10 +59,10 @@ def course_menu(course, template_helper):
         return None
 
 
-class ContestScoreboard(INGIniousPage):
+class ContestScoreboard(INGIniousAuthPage):
     """ Displays the scoreboard of the contest """
 
-    def GET(self, courseid):
+    def GET_AUTH(self, courseid):
         course = self.course_factory.get_course(courseid)
         contest_data = get_contest_data(course)
         if not contest_data['enabled']:
@@ -159,13 +159,13 @@ class ContestAdmin(INGIniousAdminPage):
         course_content["contest_settings"] = contest_data
         self.course_factory.update_course_descriptor_content(course.get_id(), course_content)
 
-    def GET(self, courseid):
+    def GET_AUTH(self, courseid):
         """ GET request: simply display the form """
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         contest_data = get_contest_data(course)
         return self.template_helper.get_custom_renderer('frontend/webapp/plugins/contests').admin(course, contest_data, None, False)
 
-    def POST(self, courseid):
+    def POST_AUTH(self, courseid):
         """ POST request: update the settings """
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         contest_data = get_contest_data(course)

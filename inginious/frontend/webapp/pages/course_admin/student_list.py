@@ -13,12 +13,12 @@ from inginious.frontend.webapp.pages.course_admin.utils import make_csv, INGInio
 class CourseStudentListPage(INGIniousAdminPage):
     """ Course administration page: list of registered students """
 
-    def GET(self, courseid):
+    def GET_AUTH(self, courseid):
         """ GET request """
         course, _ = self.get_course_and_check_rights(courseid)
         return self.page(course)
 
-    def POST(self, courseid):
+    def POST_AUTH(self, courseid):
         """ POST request """
         course, _ = self.get_course_and_check_rights(courseid, None, False)
         data = web.input()

@@ -8,41 +8,16 @@ from collections import OrderedDict
 
 import web
 
-from inginious.frontend.webapp.pages.utils import INGIniousPage
+from inginious.frontend.webapp.pages.utils import INGIniousAuthPage
 
 
-class IndexPage(INGIniousPage):
+class IndexPage(INGIniousAuthPage):
     """ Index page """
 
-    def GET(self):
-        """ GET request """
-        if self.user_manager.session_logged_in():
-            user_input = web.input()
-            if "logoff" in user_input:
-                self.user_manager.disconnect_user(web.ctx['ip'])
-                return self.call_index(False)
-            else:
-                return self.call_main()
-        else:
-            return self.call_index(False)
+    def GET_AUTH(self):
+        return self.show_page(None)
 
-    def POST(self):
-        """ POST request: login """
-        user_input = web.input()
-        if "@authid" in user_input:  # connect
-            if self.user_manager.auth_user(int(user_input["@authid"]), user_input, web.ctx['ip']):
-                return self.call_main()
-            else:
-                return self.call_index(True)
-        elif self.user_manager.session_logged_in():  # register for a course
-            return self.call_main()
-        else:
-            return self.call_index(False)
-
-    def call_index(self, error):
-        return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_fields(), error)
-
-    def call_main(self):
+    def POST_AUTH(self):
         """ Display main page (only when logged) """
 
         username = self.user_manager.session_username()
@@ -69,6 +44,14 @@ class IndexPage(INGIniousPage):
                 success = True
             except:
                 success = False
+
+        return self.show_page(success)
+
+    def show_page(self, success):
+
+        username = self.user_manager.session_username()
+        realname = self.user_manager.session_realname()
+        email = self.user_manager.session_email()
 
         # Display
         last_submissions = self.submission_manager.get_user_last_submissions({}, 5, True)

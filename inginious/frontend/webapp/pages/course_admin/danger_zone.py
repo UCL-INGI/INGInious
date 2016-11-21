@@ -105,7 +105,7 @@ class CourseDangerZonePage(INGIniousAdminPage):
 
         self._logger.info("Course %s files erased.", courseid)
 
-    def GET(self, courseid):
+    def GET_AUTH(self, courseid):
         """ GET request """
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
 
@@ -125,7 +125,7 @@ class CourseDangerZonePage(INGIniousAdminPage):
         else:
             return self.page(course)
 
-    def POST(self, courseid):
+    def POST_AUTH(self, courseid):
         """ POST request """
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
 

@@ -13,7 +13,7 @@ from inginious.frontend.webapp.pages.course_admin.utils import INGIniousSubmissi
 class CourseReplaySubmissions(INGIniousSubmissionAdminPage):
     """ Replay operation management """
 
-    def POST(self, courseid):
+    def POST_AUTH(self, courseid):
         """ GET request """
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         user_input = web.input(tasks=[], aggregations=[], users=[])
@@ -45,7 +45,7 @@ class CourseReplaySubmissions(INGIniousSubmissionAdminPage):
 
             return self.show_page(course, web.input(), msg, error)
 
-    def GET(self, courseid):
+    def GET_AUTH(self, courseid):
         """ GET request """
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         return self.show_page(course, web.input())

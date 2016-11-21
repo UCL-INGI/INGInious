@@ -9,11 +9,11 @@
 from collections import OrderedDict
 import web
 
-from inginious.frontend.webapp.pages.utils import INGIniousPage
+from inginious.frontend.webapp.pages.utils import INGIniousAuthPage
 
 
-class ScoreBoardCourse(INGIniousPage):
-    def GET(self, courseid):
+class ScoreBoardCourse(INGIniousAuthPage):
+    def GET_AUTH(self, courseid):
         """ GET request """
         course = self.course_factory.get_course(courseid)
         scoreboards = course.get_descriptor().get('scoreboard', [])
@@ -28,6 +28,7 @@ class ScoreBoardCourse(INGIniousPage):
 
         return self.template_helper.get_custom_renderer('frontend/webapp/plugins/scoreboard').main(course, names)
 
+
 def sort_func(overall_result_per_user, reversed):
     def sf(user):
         score = overall_result_per_user[user]["total"]
@@ -36,8 +37,9 @@ def sort_func(overall_result_per_user, reversed):
         return (-solved, (-score if not reversed else score))
     return sf
 
-class ScoreBoard(INGIniousPage):
-    def GET(self, courseid, scoreboardid):
+
+class ScoreBoard(INGIniousAuthPage):
+    def GET_AUTH(self, courseid, scoreboardid):
         """ GET request """
         course = self.course_factory.get_course(courseid)
         scoreboards = course.get_descriptor().get('scoreboard', [])
@@ -171,6 +173,7 @@ def course_menu(course, template_helper):
     else:
         return None
 
+
 def task_menu(course, task, template_helper):
     """ Displays the link to the scoreboards on the task page, if the plugin is activated for this course and the task is used in scoreboards """
     scoreboards = course.get_descriptor().get('scoreboard', [])
@@ -185,6 +188,7 @@ def task_menu(course, task, template_helper):
         return None
     except:
         return None
+
 
 def init(plugin_manager, _, _2, _3):
     """

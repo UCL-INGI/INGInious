@@ -24,7 +24,7 @@ from inginious.frontend.webapp.pages.course_admin.utils import INGIniousAdminPag
 class CourseEditTask(INGIniousAdminPage):
     """ Edit a task """
 
-    def GET(self, courseid, taskid):
+    def GET_AUTH(self, courseid, taskid):
         """ Edit a task """
         if not id_checker(taskid):
             raise Exception("Invalid task id")
@@ -163,7 +163,7 @@ class CourseEditTask(INGIniousAdminPage):
 
         return problem_content
 
-    def POST(self, courseid, taskid):
+    def POST_AUTH(self, courseid, taskid):
         """ Edit a task """
         if not id_checker(taskid) or not id_checker(courseid):
             raise Exception("Invalid course/task id")
