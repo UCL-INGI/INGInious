@@ -65,7 +65,7 @@ urls = (
 )
 
 urls_maintenance = (
-    '/.*', 'webapp.pages.maintenance.MaintenancePage'
+    '/.*', 'inginious.frontend.webapp.pages.maintenance.MaintenancePage'
 )
 
 
@@ -95,15 +95,19 @@ def get_app(config):
     """
     config = _put_configuration_defaults(config)
 
+    appli = web.application((), globals(), autoreload=False)
+
     if config.get("maintenance", False):
-        appli = web.application(urls_maintenance, globals(), autoreload=False)
-        return appli
+        template_helper = TemplateHelper(PluginManager(), 'frontend/webapp/templates',
+                                         'frontend/webapp/templates/layout',
+                                         config.get('use_minified_js', True))
+        appli.template_helper = template_helper
+        appli.init_mapping(urls_maintenance)
+        return appli.wsgifunc(), lambda: appli.stop()
 
     task_directory = config["tasks_directory"]
     default_allowed_file_extensions = config['allowed_file_extensions']
     default_max_file_size = config['max_file_size']
-
-    appli = web.application((), globals(), autoreload=False)
 
     zmq_context, asyncio_thread = start_asyncio_and_zmq()
 

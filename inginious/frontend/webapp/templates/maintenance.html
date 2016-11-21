@@ -5,12 +5,13 @@ $# more information about the licensing of this file.
 $#
 <html lang="en">
 <head>
-    <meta charset="utf-8">
+        <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="INGInious">
     <meta name="author" content="">
     <link rel="icon" href="/static/common/icons/favicon.ico">
+    <link rel="mask-icon" href="/static/common/icons/wb.svg" color="#5E932E">
 
     <title>INGInious - maintenance in progress</title>
 
@@ -25,7 +26,12 @@ $#
     <link href="/static/common/css/codemirror.css" rel="stylesheet">
 
     <!-- JQuery -->
-    <script src="/static/common/js/jquery.min.js"></script>
+$if use_minified:
+    <script src="/static/webapp/js/all-minified.js"></script>
+$else:
+    <script src="/static/common/js/libs/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/static/common/js/libs/jquery.form.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="/static/common/js/common.js" type="text/javascript" charset="utf-8"></script>
 
     <!-- Icons -->
     <link rel="shortcut icon" href="/static/common/icons/favicon.ico">
@@ -58,7 +64,7 @@ $#
                             class="icon-bar"></span> <span class="icon-bar"></span> <span
                             class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="/index"><img src="/static/common/icons/favicon-96x96.png" alt="logo"/>INGInious</a>
+                    <a class="navbar-brand" href="/index"><img src="/static/common/images/header.png" alt="logo"/> INGInious</a>
                 </div>
                 <div class="collapse navbar-collapse">
 
@@ -80,25 +86,18 @@ $#
         <div class="navbar navbar-default navbar-static-top" style="position:absolute; width:100%" role="navigation">
             <div class="container-fluid">
                 <div class="navbar-header" style="width: 100%">
-                    <p class="navbar-text">&copy; 2014-2016 Université Catholique de Louvain</p>
-
-                    <p class="navbar-text navbar-right"><a href="https://github.com/UCL-INGI/INGInious">INGInious is distributed under AGPL
-                        license</a></p>
+                    <p class="navbar-text">&copy; 2014-2016 Universit&eacute; catholique de Louvain</p>
+                    <div class="navbar-right">
+                        <p class="navbar-text">
+                            <a target="_blank" href="http://www.inginious.org" class="navbar-link">
+                                INGInious is distributed under AGPL license
+                            </a>
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
 
     </div>
-    <!-- Bootstrap core JavaScript -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="/static/common/js/jquery.form.min.js" type="text/javascript" charset="utf-8"></script>
-    <script src="/static/common/js/codemirror/codemirror.js" type="text/javascript" charset="utf-8"></script>
-    <script src="/static/common/js/bootstrap.min.js"></script>
-    <script src="/static/common/js/bootstrap-datetimepicker.min.js"></script>
-    <script src="/static/webapp/js/INGInious.js"></script>
-    <script src="/static/webapp/js/INGIniousStudio.js"></script>
-    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-    <script type="text/javascript">google.load('visualization', '1.0', {'packages': ['corechart']});</script>
 </body>
 </html>
