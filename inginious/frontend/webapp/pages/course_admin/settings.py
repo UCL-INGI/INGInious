@@ -12,12 +12,12 @@ from inginious.frontend.webapp.pages.course_admin.utils import INGIniousAdminPag
 class CourseSettings(INGIniousAdminPage):
     """ Couse settings """
 
-    def GET_AUTH(self, courseid):
+    def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         return self.page(course)
 
-    def POST_AUTH(self, courseid):
+    def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request """
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
 

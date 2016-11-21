@@ -15,7 +15,7 @@ from inginious.frontend.webapp.pages.course_admin.utils import make_csv, INGInio
 class CourseAggregationListPage(INGIniousAdminPage):
     """ Course administration page: list of aggregations """
 
-    def GET_AUTH(self, courseid):
+    def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
         course, _ = self.get_course_and_check_rights(courseid)
 
@@ -41,7 +41,7 @@ class CourseAggregationListPage(INGIniousAdminPage):
 
         return self.page(course)
 
-    def POST_AUTH(self, courseid):
+    def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request """
         course, _ = self.get_course_and_check_rights(courseid)
 

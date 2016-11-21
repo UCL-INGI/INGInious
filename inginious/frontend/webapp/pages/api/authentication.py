@@ -15,7 +15,7 @@ class APIAuthentication(APIPage):
         Endpoint /api/v0/authentication
     """
 
-    def API_GET(self):
+    def API_GET(self):  # pylint: disable=arguments-differ
         """
             Returns {"authenticated": false} or {"authenticated": true, "username": "your_username"} (always 200 OK)
         """
@@ -24,7 +24,7 @@ class APIAuthentication(APIPage):
         else:
             return 200, {"authenticated": False}
 
-    def API_POST(self):
+    def API_POST(self):  # pylint: disable=arguments-differ
         """
             Authenticates the remote client. Takes as input:
 
@@ -44,7 +44,7 @@ class APIAuthentication(APIPage):
         """
 
         user_input = web.input()
-        if not "auth_method_id" in user_input:
+        if "auth_method_id" not in user_input:
             raise APIInvalidArguments()
 
         try:

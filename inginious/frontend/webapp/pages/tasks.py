@@ -50,7 +50,7 @@ class TaskPage(INGIniousAuthPage):
         else:
             return False
 
-    def GET_AUTH(self, courseid, taskid):
+    def GET_AUTH(self, courseid, taskid):  # pylint: disable=arguments-differ
         """ GET request """
         username = self.user_manager.session_username()
 
@@ -119,7 +119,7 @@ class TaskPage(INGIniousAuthPage):
                                                             self.submission_manager.get_user_submissions(task),
                                                             students, eval_submission, user_task, self.webterm_link)
 
-    def POST_AUTH(self, courseid, taskid):
+    def POST_AUTH(self, courseid, taskid):  # pylint: disable=arguments-differ
         """ POST a new submission """
         username = self.user_manager.session_username()
         try:
@@ -233,7 +233,7 @@ class TaskPage(INGIniousAuthPage):
 class TaskPageStaticDownload(INGIniousAuthPage):
     """ Allow to download files stored in the task folder """
 
-    def GET_AUTH(self, courseid, taskid, path):
+    def GET_AUTH(self, courseid, taskid, path):  # pylint: disable=arguments-differ
         """ GET request """
         try:
             course = self.course_factory.get_course(courseid)

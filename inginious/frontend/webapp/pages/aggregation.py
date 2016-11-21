@@ -16,7 +16,7 @@ class AggregationPage(INGIniousAuthPage):
 
     _logger = logging.getLogger("inginious.webapp.aggregations")
 
-    def GET_AUTH(self, courseid):
+    def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
 
         course = self.course_factory.get_course(courseid)

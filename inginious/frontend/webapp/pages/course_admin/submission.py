@@ -15,12 +15,12 @@ from inginious.frontend.webapp.pages.course_admin.utils import INGIniousAdminPag
 class CourseStudentTaskSubmission(INGIniousAdminPage):
     """ List information about a task done by a student """
 
-    def GET_AUTH(self, courseid, username, taskid, submissionid):
+    def GET_AUTH(self, courseid, username, taskid, submissionid):  # pylint: disable=arguments-differ
         """ GET request """
         course, task = self.get_course_and_check_rights(courseid, taskid)
         return self.page(course, username, task, submissionid)
 
-    def POST_AUTH(self, courseid, username, taskid, submissionid):
+    def POST_AUTH(self, courseid, username, taskid, submissionid):  # pylint: disable=arguments-differ
         course, task = self.get_course_and_check_rights(courseid, taskid)
         is_admin = self.user_manager.has_admin_rights_on_course(course)
 

@@ -62,7 +62,7 @@ def course_menu(course, template_helper):
 class ContestScoreboard(INGIniousAuthPage):
     """ Displays the scoreboard of the contest """
 
-    def GET_AUTH(self, courseid):
+    def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         course = self.course_factory.get_course(courseid)
         contest_data = get_contest_data(course)
         if not contest_data['enabled']:
@@ -159,13 +159,13 @@ class ContestAdmin(INGIniousAdminPage):
         course_content["contest_settings"] = contest_data
         self.course_factory.update_course_descriptor_content(course.get_id(), course_content)
 
-    def GET_AUTH(self, courseid):
+    def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request: simply display the form """
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         contest_data = get_contest_data(course)
         return self.template_helper.get_custom_renderer('frontend/webapp/plugins/contests').admin(course, contest_data, None, False)
 
-    def POST_AUTH(self, courseid):
+    def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request: update the settings """
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         contest_data = get_contest_data(course)

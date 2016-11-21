@@ -14,11 +14,11 @@ from inginious.frontend.webapp.pages.utils import INGIniousAuthPage
 class IndexPage(INGIniousAuthPage):
     """ Index page """
 
-    def GET_AUTH(self):
+    def GET_AUTH(self):  # pylint: disable=arguments-differ
         """ Display main course list page """
         return self.show_page(None)
 
-    def POST_AUTH(self):
+    def POST_AUTH(self):  # pylint: disable=arguments-differ
         """ Parse course registration or course creation and display the course list page """
 
         username = self.user_manager.session_username()

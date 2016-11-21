@@ -13,7 +13,9 @@ from inginious.frontend.webapp.pages.utils import INGIniousAuthPage
 
 
 class ScoreBoardCourse(INGIniousAuthPage):
-    def GET_AUTH(self, courseid):
+    """ Page displaying the different available scoreboards for the course """
+
+    def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
         course = self.course_factory.get_course(courseid)
         scoreboards = course.get_descriptor().get('scoreboard', [])
@@ -39,8 +41,9 @@ def sort_func(overall_result_per_user, reversed):
 
 
 class ScoreBoard(INGIniousAuthPage):
-    """ Page displaying the different available scoreboards """
-    def GET_AUTH(self, courseid, scoreboardid):
+    """ Page displaying a specific scoreboard """
+
+    def GET_AUTH(self, courseid, scoreboardid):  # pylint: disable=arguments-differ
         """ GET request """
         course = self.course_factory.get_course(courseid)
         scoreboards = course.get_descriptor().get('scoreboard', [])

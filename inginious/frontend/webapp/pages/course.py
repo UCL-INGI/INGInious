@@ -21,7 +21,7 @@ class CoursePage(INGIniousAuthPage):
 
         return course
 
-    def POST_AUTH(self, courseid):
+    def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request """
         course = self.get_course(courseid)
 
@@ -32,7 +32,7 @@ class CoursePage(INGIniousAuthPage):
 
         return self.show_page(course)
 
-    def GET_AUTH(self, courseid):
+    def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
         course = self.get_course(courseid)
         return self.show_page(course)

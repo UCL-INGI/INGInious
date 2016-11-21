@@ -68,31 +68,31 @@ class APIPage(INGIniousPage):
         """ Returns 405 Invalid Method to the client """
         raise APIInvalidMethod(self._guess_available_methods())
 
-    def API_GET(self, *args, **kwargs):
+    def API_GET(self, *args, **kwargs):  # pylint: disable=unused-argument
         """ API GET request. Should be overridden by subclasses """
         self.invalid_method()
 
-    def API_PUT(self, *args, **kwargs):
+    def API_PUT(self, *args, **kwargs):  # pylint: disable=unused-argument
         """ API PUT request. Should be overridden by subclasses """
         self.invalid_method()
 
-    def API_POST(self, *args, **kwargs):
+    def API_POST(self, *args, **kwargs):  # pylint: disable=unused-argument
         """ API POST request. Should be overridden by subclasses """
         self.invalid_method()
 
-    def API_DELETE(self, *args, **kwargs):
+    def API_DELETE(self, *args, **kwargs):  # pylint: disable=unused-argument
         """ API DELETE request. Should be overridden by subclasses """
         self.invalid_method()
 
-    def API_PATCH(self, *args, **kwargs):
+    def API_PATCH(self, *args, **kwargs):  # pylint: disable=unused-argument
         """ API PATCH request. Should be overridden by subclasses """
         self.invalid_method()
 
-    def API_HEAD(self, *args, **kwargs):
+    def API_HEAD(self, *args, **kwargs):  # pylint: disable=unused-argument
         """ API HEAD request. Should be overridden by subclasses """
         self.invalid_method()
 
-    def API_OPTIONS(self, *args, **kwargs):
+    def API_OPTIONS(self, *args, **kwargs):  # pylint: disable=unused-argument
         """ API OPTIONS request. Should be overridden by subclasses """
         self.invalid_method()
 

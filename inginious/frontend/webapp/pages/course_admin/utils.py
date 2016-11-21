@@ -270,7 +270,7 @@ def get_menu(course, current, renderer, plugin_manager, user_manager):
 class CourseRedirect(INGIniousAdminPage):
     """ Redirect admins to /settings and tutors to /task """
 
-    def GET_AUTH(self, courseid):
+    def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
         course, _ = self.get_course_and_check_rights(courseid)
         if self.user_manager.session_username() in course.get_tutors():
@@ -278,6 +278,6 @@ class CourseRedirect(INGIniousAdminPage):
         else:
             raise web.seeother('/admin/{}/settings'.format(courseid))
 
-    def POST_AUTH(self, courseid):
+    def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request """
         return self.GET_AUTH(courseid)

@@ -17,7 +17,7 @@ from inginious.frontend.webapp.pages.course_admin.utils import INGIniousAdminPag
 class CourseBatchOperations(INGIniousAdminPage):
     """ Batch operation management """
 
-    def GET_AUTH(self, courseid):
+    def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
 
         course, _ = self.get_course_and_check_rights(courseid)
@@ -47,12 +47,12 @@ class CourseBatchOperations(INGIniousAdminPage):
 class CourseBatchJobCreate(INGIniousAdminPage):
     """ Creates new batch jobs """
 
-    def GET_AUTH(self, courseid, container_name):
+    def GET_AUTH(self, courseid, container_name):  # pylint: disable=arguments-differ
         """ GET request """
         course, container_title, container_description, container_args = self.get_basic_info(courseid, container_name)
         return self.page(course, container_name, container_title, container_description, container_args)
 
-    def POST_AUTH(self, courseid, container_name):
+    def POST_AUTH(self, courseid, container_name):  # pylint: disable=arguments-differ
         """ POST request """
         course, container_title, container_description, container_args = self.get_basic_info(courseid, container_name)
         errors = []
@@ -116,7 +116,7 @@ class CourseBatchJobCreate(INGIniousAdminPage):
 class CourseBatchJobDownload(INGIniousAdminPage):
     """ Get the file of a batch job """
 
-    def GET_AUTH(self, courseid, bid, path=""):
+    def GET_AUTH(self, courseid, bid, path=""):  # pylint: disable=arguments-differ
         """ GET request """
 
         course, _ = self.get_course_and_check_rights(courseid)
@@ -170,7 +170,7 @@ class CourseBatchJobDownload(INGIniousAdminPage):
 class CourseBatchJobSummary(INGIniousAdminPage):
     """ Get the summary of a batch job """
 
-    def GET_AUTH(self, courseid, bid):
+    def GET_AUTH(self, courseid, bid):  # pylint: disable=arguments-differ
         """ GET request """
 
         course, _ = self.get_course_and_check_rights(courseid)

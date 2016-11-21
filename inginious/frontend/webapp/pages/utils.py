@@ -27,62 +27,77 @@ class INGIniousPage(object):
 
     @property
     def app(self):
+        """ Returns the web application singleton """
         return web.ctx.app_stack[0]
 
     @property
     def plugin_manager(self) -> PluginManager:
+        """ Returns the plugin manager singleton """
         return self.app.plugin_manager
 
     @property
     def course_factory(self) -> CourseFactory:
+        """ Returns the course factory singleton """
         return self.app.course_factory
 
     @property
     def task_factory(self) -> TaskFactory:
+        """ Returns the task factory singleton """
         return self.app.task_factory
 
     @property
     def submission_manager(self) -> SubmissionManager:
+        """ Returns the submission manager singleton"""
         return self.app.submission_manager
 
     @property
     def batch_manager(self) -> BatchManager:
+        """ Returns the batch manager singleton """
         return self.app.batch_manager
 
     @property
     def user_manager(self) -> UserManager:
+        """ Returns the user manager singleton """
         return self.app.user_manager
 
     @property
     def template_helper(self) -> TemplateHelper:
+        """ Returns the Template Helper singleton """
         return self.app.template_helper
 
     @property
     def database(self) -> Database:
+        """ Returns the database singleton """
         return self.app.database
 
     @property
     def gridfs(self) -> GridFS:
+        """ Returns the GridFS singleton """
         return self.app.gridfs
 
     @property
     def default_allowed_file_extensions(self) -> List[str]:
+        """ List of allowed file extensions """
         return self.app.default_allowed_file_extensions
 
     @property
     def default_max_file_size(self) -> int:
+        """ Default maximum file size for upload """
         return self.app.default_max_file_size
 
     @property
     def backup_dir(self) -> str:
+        """ Backup directory """
         return self.app.backup_dir
 
     @property
     def containers(self) -> List[str]:
+        """ Available containers """
         return self.app.submission_manager.get_available_environments()
 
     @property
     def webterm_link(self) -> str:
+        """ Returns the link to the web terminal """
         return self.app.webterm_link
 
 
@@ -91,10 +106,10 @@ class INGIniousAuthPage(INGIniousPage):
     Augmented version of INGIniousPage that checks if user is authenticated.
     """
 
-    def POST_AUTH(self, *args, **kwargs):
+    def POST_AUTH(self, *args, **kwargs):  # pylint: disable=unused-argument
         raise web.notacceptable()
 
-    def GET_AUTH(self, *args, **kwargs):
+    def GET_AUTH(self, *args, **kwargs):  # pylint: disable=unused-argument
         raise web.notacceptable()
 
     def GET(self, *args, **kwargs):

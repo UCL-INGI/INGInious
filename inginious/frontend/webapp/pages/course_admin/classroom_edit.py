@@ -115,7 +115,7 @@ class CourseEditClassroom(INGIniousAdminPage):
 
         return classroom, errored_students
 
-    def GET_AUTH(self, courseid, classroomid):
+    def GET_AUTH(self, courseid, classroomid):  # pylint: disable=arguments-differ
         """ Edit a classroom """
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=True)
         student_list, tutor_list, other_students, users_info = self.get_user_lists(course, classroomid)
@@ -127,7 +127,7 @@ class CourseEditClassroom(INGIniousAdminPage):
         else:
             raise web.notfound()
 
-    def POST_AUTH(self, courseid, classroomid):
+    def POST_AUTH(self, courseid, classroomid):  # pylint: disable=arguments-differ
         """ Edit a classroom """
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=True)
 
