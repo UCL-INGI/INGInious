@@ -7,7 +7,9 @@
 
 import os
 import codecs
+import shutil
 
+from inginious.common.log import get_course_logger
 from inginious.common.tasks import Task
 from inginious.common.base import id_checker
 from inginious.common.task_file_readers.yaml_reader import TaskYAMLFileReader
@@ -225,3 +227,24 @@ class TaskFactory(object):
                 to_drop.append(tid)
         for tid in to_drop:
             del self._cache[(courseid, tid)]
+
+    def delete_task(self, courseid, taskid):
+        """
+        :param courseid: the course id of the course
+        :param taskid: the task id of the task
+        :raise InvalidNameException or CourseNotFoundException
+        Erase the content of the task folder
+        """
+        if not id_checker(courseid):
+            raise InvalidNameException("Course with invalid name: " + courseid)
+        if not id_checker(taskid):
+            raise InvalidNameException("Task with invalid name: " + taskid)
+
+        task_directory = os.path.join(self._tasks_directory, courseid, taskid)
+
+        if not os.path.exists(task_directory):
+            raise TaskNotFoundException()
+
+        shutil.rmtree(task_directory)
+
+        get_course_logger(courseid).info("Task %s erased from the factory.", taskid)
