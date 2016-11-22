@@ -148,6 +148,7 @@ def get_app(config):
     update_database(database, gridfs, course_factory, user_manager)
 
     # Add some helpers for the templates
+    template_helper.add_to_template_globals("get_homepath", lambda: web.ctx.homepath)
     template_helper.add_to_template_globals("user_manager", user_manager)
     template_helper.add_to_template_globals("default_allowed_file_extensions", default_allowed_file_extensions)
     template_helper.add_to_template_globals("default_max_file_size", default_max_file_size)

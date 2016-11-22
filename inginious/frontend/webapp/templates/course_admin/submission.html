@@ -12,19 +12,19 @@ $var Column: $:template_helper.call('course_admin_menu',course=course,current='s
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
-        <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
+        <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
         <li>
-            <a href="/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+            <a href="$get_homepath()/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
                 <i class="fa fa-user-secret"></i>
             </a>
         </li>
         <li>
-            <a href="/admin/$course.get_id()/students" title="Students" data-toggle="tooltip" data-placement="bottom">
+            <a href="$get_homepath()/admin/$course.get_id()/students" title="Students" data-toggle="tooltip" data-placement="bottom">
                 <i class="fa fa-user"></i>
             </a>
         </li>
-        <li><a href="/admin/$course.get_id()/student/$username">$user_realname</a></li>
-        <li><a href="/admin/$course.get_id()/student/$username/$task.get_id()">$:task.get_name()</a></li>
+        <li><a href="$get_homepath()/admin/$course.get_id()/student/$username">$user_realname</a></li>
+        <li><a href="$get_homepath()/admin/$course.get_id()/student/$username/$task.get_id()">$:task.get_name()</a></li>
         <li class="active"><a href="#">$submissionid[0:10] <span class="sr-only">(current)</span></a></li>
     </ol>
 $var Navbar: $:NavbarF()
@@ -41,7 +41,7 @@ $var Navbar: $:NavbarF()
             </div>
             $if "result"  in submission:
                 <div class="col-md-12" style="margin:2px 0px 2px 0px;">
-                    <a href="/admin/$course.get_id()/download?submission=$submissionid" class="btn btn-sm btn-block btn-primary">
+                    <a href="$get_homepath()/admin/$course.get_id()/download?submission=$submissionid" class="btn btn-sm btn-block btn-primary">
                         <i class="fa fa-download fa-fw"></i> Download full submission
                     </a>
                 </div>

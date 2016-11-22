@@ -167,6 +167,7 @@ class CourseEditTask(INGIniousAdminPage):
         return problem_content
 
     def wipe_task(self, courseid, taskid):
+        """ Wipe the data associated to the taskid from DB"""
         submissions = self.database.submissions.find({"courseid": courseid, "taskid": taskid})
         for submission in submissions:
             for key in ["input", "archive"]:

@@ -30,11 +30,10 @@ def modify_task_data(course, taskid, data):
 
 def additional_headers():
     """ Additional HTML headers """
-    return """
-        <link href="/static/webapp/plugins/contests/scoreboard.css" rel="stylesheet">
-        <script src="/static/webapp/plugins/contests/jquery.countdown.min.js"></script>
-        <script src="/static/webapp/plugins/contests/contests.js"></script>
-    """
+    return '<link href="' + web.ctx.homepath \
+           + '/static/webapp/plugins/contests/scoreboard.css" rel="stylesheet">' \
+             '<script src="' + web.ctx.homepath + '/static/webapp/plugins/contests/jquery.countdown.min.js"></script>' \
+             '<script src="' + web.ctx.homepath + '/static/webapp/plugins/contests/contests.js"></script>'
 
 
 def get_contest_data(course):

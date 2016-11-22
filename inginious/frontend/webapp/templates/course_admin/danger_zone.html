@@ -13,8 +13,8 @@ $var Column: $:ColumnF()
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
-        <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
-        <li><a href="/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+        <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
+        <li><a href="$get_homepath()/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-user-secret"></i></a></li>
         <li class="active"><a href="#">Danger zone <span class="sr-only">(current)</span></a></li>
     </ol>

@@ -12,8 +12,8 @@ $ is_admin = user_manager.has_admin_rights_on_course(course)
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
-        <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
-        <li><a href="/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+        <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
+        <li><a href="$get_homepath()/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-user-secret"></i></a></li>
         <li class="active"><a href="#"><i class="fa fa-tasks"></i> Tasks <span class="sr-only">(current)</span></a></li>
     </ol>
@@ -39,9 +39,9 @@ $var Navbar: $:NavbarF()
             <th># attempts</th>
             <th>
                 <div class="btn-group" role="group">
-                    <a href="/admin/${course.get_id()}/download?format=taskid%2Fusername" class="btn btn-danger btn-xs" title="Download
+                    <a href="$get_homepath()/admin/${course.get_id()}/download?format=taskid%2Fusername" class="btn btn-danger btn-xs" title="Download
                        all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                    <a href="/admin/${course.get_id()}/tasks?csv" class="btn btn-info btn-xs" title="Download
+                    <a href="$get_homepath()/admin/${course.get_id()}/tasks?csv" class="btn btn-info btn-xs" title="Download
                        CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
                 </div>
             </th>
@@ -51,7 +51,7 @@ $var Navbar: $:NavbarF()
     $for taskid in data:
     	<tr>
     		<td>
-    			<a href="/admin/${course.get_id()}/task/$taskid">$data[taskid]["name"]</a>
+    			<a href="$get_homepath()/admin/${course.get_id()}/task/$taskid">$data[taskid]["name"]</a>
                 <input type="hidden" name="task" value="$taskid">
     		</td>
     		<td>$data[taskid]["viewed"]</td>
@@ -61,14 +61,14 @@ $var Navbar: $:NavbarF()
     		<td style="min-width:120px">
                 <div class="btn-group" role="group">
                     $if is_admin:
-                        <a href="/admin/${course.get_id()}/edit/task/$taskid" class="btn btn-primary btn-xs" title="Edit task" data-toggle="tooltip"
+                        <a href="$get_homepath()/admin/${course.get_id()}/edit/task/$taskid" class="btn btn-primary btn-xs" title="Edit task" data-toggle="tooltip"
                            data-placement="bottom"><i class="fa fa-edit"></i></a>
-                    <a href="/admin/${course.get_id()}/task/$taskid" class="btn btn-default btn-xs" title="View results" data-toggle="tooltip"
+                    <a href="$get_homepath()/admin/${course.get_id()}/task/$taskid" class="btn btn-default btn-xs" title="View results" data-toggle="tooltip"
                        data-placement="bottom"><i class="fa fa-users"></i></a>
-                    <a href="/admin/${course.get_id()}/download$data[taskid]['url']" class="btn btn-default btn-xs" title="Download submissions"
+                    <a href="$get_homepath()/admin/${course.get_id()}/download$data[taskid]['url']" class="btn btn-default btn-xs" title="Download submissions"
                        data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
                     $if is_admin:
-                        <a href="/admin/${course.get_id()}/replay$data[taskid]['url']" class="btn btn-default btn-xs" title="Replay submissions"
+                        <a href="$get_homepath()/admin/${course.get_id()}/replay$data[taskid]['url']" class="btn btn-default btn-xs" title="Replay submissions"
                            data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
                 </div>
     		</td>

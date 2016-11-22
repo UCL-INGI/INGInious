@@ -9,7 +9,7 @@ $var title: $:course.get_name() - Scoreboard
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
-        <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
+        <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
         <li class="active"><a href="#"><i class="fa fa-trophy"></i> Scoreboard <span class="sr-only">(current)</span></a></li>
     </ol>
 $var Navbar: $:NavbarF()
@@ -45,7 +45,7 @@ $if start <= start.now():
 	        <th class="contest_contestant">Contestant</th>
 	        <th colspan="2" class="contest_score_header">Score</th>
 	        $for taskid in tasks:
-	            <th class="contest_task"><a href="/course/${course.get_id()}/$taskid">$taskid</a></th>
+	            <th class="contest_task"><a href="$get_homepath()/course/${course.get_id()}/$taskid">$taskid</a></th>
 	    </tr>
 	    $for username, data in results.items():
 	        <tr>

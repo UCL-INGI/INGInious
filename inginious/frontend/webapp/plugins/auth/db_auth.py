@@ -40,9 +40,14 @@ class DatabaseAuthMethod(AuthMethod):
             return None
 
     def needed_fields(self):
-        return {"input": OrderedDict((("login", {"type": "text", "placeholder": "Login"}), ("password", {"type": "password", "placeholder":
-            "Password"}))), "info": """<div class="text-center"><a href="/register">Register</a> / <a href="/register#lostpasswd">Lost password
-            ?</a></div>"""}
+        return {
+            "input": OrderedDict((
+                ("login", {"type": "text", "placeholder": "Login"}),
+                ("password", {"type": "password", "placeholder": "Password"}))),
+            "info": '<div class="text-center"><a href="' + web.ctx.homepath +
+                    '/register">Register</a> / <a href="' + web.ctx.homepath +
+                    '/register#lostpasswd">Lost password?</a></div>'
+        }
 
     def should_cache(self):
         return False

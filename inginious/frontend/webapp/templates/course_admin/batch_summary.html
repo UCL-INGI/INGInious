@@ -11,10 +11,10 @@ $var Column: $:template_helper.call('course_admin_menu',course=course,current='b
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
-        <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
-        <li><a href="/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+        <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
+        <li><a href="$get_homepath()/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-user-secret"></i></a></li>
-        <li><a href="/admin/$course.get_id()/batch" title="Batch operations" data-toggle="tooltip" data-placement="bottom">
+        <li><a href="$get_homepath()/admin/$course.get_id()/batch" title="Batch operations" data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-rocket"></i></a></li>
         <li class="active"><a href="#">Summary of job $bid[:10] <span class="sr-only">(current)</span></a></li>
     </ol>
@@ -66,12 +66,12 @@ $if file_list is not None:
     <div class="panel panel-default">
         <div class="panel-heading">
             Files returned
-            <a href="/admin/$course.get_id()/batch/download/$bid" class="btn btn-success btn-sm" data-toggle="tooltip" data-placement="bottom"
+            <a href="$get_homepath()/admin/$course.get_id()/batch/download/$bid" class="btn btn-success btn-sm" data-toggle="tooltip" data-placement="bottom"
                title="download results"><i class="fa fa-download"></i></a>
         </div>
         <div class="list-group">
             $for p in file_list:
-                <a href="/admin/$course.get_id()/batch/download/$bid/$p" class="list-group-item">$p</a>
+                <a href="$get_homepath()/admin/$course.get_id()/batch/download/$bid/$p" class="list-group-item">$p</a>
         </div>
     </div>
 

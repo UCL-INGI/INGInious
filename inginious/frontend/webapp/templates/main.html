@@ -24,7 +24,7 @@ $def ColumnF():
                     $else:
                         list-group-item-danger
                     "
-                    href="/course/$submission['courseid']/$submission['taskid']">
+                    href="$get_homepath()/course/$submission['courseid']/$submission['taskid']">
                     <b>$submission["task"].get_course().get_name()</b>: $submission["task"].get_name()
                 </a>
         $else:
@@ -74,7 +74,7 @@ $if user_manager.user_is_superadmin():
             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
             Failed to create the course.
         </div>
-    <form class="form row" role="form" action="/" method="post">
+    <form class="form row" role="form" action="$get_homepath()/" method="post">
         <div class="form-group col-sm-8">
             <label class="sr-only" for="new_courseid">Course</label>
             <input name="new_courseid" type="text" class="form-control" id="new_courseid" placeholder="New course id">
@@ -95,7 +95,7 @@ $else:
             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
             Registration failed. Please check that you properly typed the password.
         </div>
-    <form class="form row" role="form" action="/" method="post">
+    <form class="form row" role="form" action="$get_homepath()/" method="post">
         <div class="form-group col-sm-8">
             <label class="sr-only" for="register_courseid">Course</label>
             <select class="form-control" id="register_courseid" name="register_courseid">
