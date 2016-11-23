@@ -300,7 +300,8 @@ You can then replace the content of fastcgi.conf with:
             "bin-environment" => (
                 "INGINIOUS_WEBAPP_HOST" => "0.0.0.0",
                 "INGINIOUS_WEBAPP_PORT" => "80",
-                "INGINIOUS_WEBAPP_CONFIG" => "/var/www/INGInious/configuration.yaml"
+                "INGINIOUS_WEBAPP_CONFIG" => "/var/www/INGInious/configuration.yaml",
+                "REAL_SCRIPT_NAME" => ""
             ),
             "check-local" => "disable"
         ))
@@ -316,6 +317,11 @@ Replace ``webapp`` by ``lti`` if you want to use the `LTI frontend`_.
 
 The ``INGINIOUS_WEBAPP`` or ``INGINIOUS_LTI`` (according to your config) prefixed environment variables are used to
 replace the default command line parameters. See :ref:`inginious-lti` and :ref:`inginious-webapp` for more details.
+
+The ``REAL_SCRIPT_NAME`` environment variable must be specified under lighttpd if you plan to access the application
+from another path than the specified one. In this case, lighttpd forces to set a non-root path ``/inginious-webapp``,
+while a root access if wanted, in order to serve static files correctly. Therefore, this environment variable is set
+to an empty string in addition to the rewrite rule.
 
 Finally, start the server:
 
