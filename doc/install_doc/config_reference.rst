@@ -89,7 +89,7 @@ Webapp-specific configuration
     Path to the directory where are courses backup are stored in cases of data wiping.
 
 ``smtp``
-    Mails can be send by batch containers at the end of the job execution.
+    Mails can be sent by batch containers at the end of the job execution, or by plugins.
 
     ``sendername``
         Email sender name, e.g. : ``INGInious <no-reply@inginious.org>``
@@ -192,6 +192,9 @@ To enable this plugin, add to your configuration file:
 
     plugins:
         - plugin_module: inginious.frontend.webapp.plugins.auth.db_auth
+
+For mails to be sent by the registration module, you need to configure the ``smtp`` parameter of your configuration
+file.
 
 Scoreboard plugin (``webapp``)
 ``````````````````````````````
