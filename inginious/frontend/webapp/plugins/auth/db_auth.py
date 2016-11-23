@@ -44,8 +44,8 @@ class DatabaseAuthMethod(AuthMethod):
             "input": OrderedDict((
                 ("login", {"type": "text", "placeholder": "Login"}),
                 ("password", {"type": "password", "placeholder": "Password"}))),
-            "info": '<div class="text-center"><a href="' + web.ctx.homepath +
-                    '/register">Register</a> / <a href="' + web.ctx.homepath +
+            "info": '<div class="text-center"><a href="' + web.ctx.home +
+                    '/register">Register</a> / <a href="' + web.ctx.home +
                     '/register#lostpasswd">Lost password?</a></div>'
         }
 
@@ -136,7 +136,7 @@ class RegistrationPage(INGIniousPage):
                                  """Welcome on INGInious !
 
 To activate your account, please click on the following link :
-""" + web.ctx.homedomain + "/register?activate=" + activate_hash)
+""" + web.ctx.home + "/register?activate=" + activate_hash)
                     msg = "You are succesfully registered. An email has been sent to you for activation."
                 except:
                     error = True
@@ -169,7 +169,7 @@ To activate your account, please click on the following link :
                                  "Dear " + user["realname"] + """,
 
 Someone (probably you) asked to reset your INGInious password. If this was you, please click on the following link :
-""" + web.ctx.homedomain + "/register?reset=" + reset_hash)
+""" + web.ctx.home + "/register?reset=" + reset_hash)
                     msg = "An email has been sent to you to reset your password."
                 except:
                     error = True
