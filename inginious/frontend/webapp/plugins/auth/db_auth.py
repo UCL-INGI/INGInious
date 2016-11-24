@@ -13,7 +13,7 @@ from collections import OrderedDict
 import web
 
 from inginious.frontend.webapp.user_manager import AuthMethod
-from inginious.frontend.webapp.pages.utils import INGIniousPage
+from inginious.frontend.webapp.pages.utils import INGIniousPage, INGIniousAuthPage
 
 
 class DatabaseAuthMethod(AuthMethod):
@@ -83,7 +83,7 @@ class RegistrationPage(INGIniousPage):
         elif "reset" in data:
             msg, error, reset = self.get_reset_data(data)
 
-        return self.template_helper.get_renderer().register(reset, msg, error)
+        return self.template_helper.get_custom_renderer('frontend/webapp/plugins/auth/db_auth').register(reset, msg, error)
 
     def get_reset_data(self, data):
         """ Returns the user info to reset """
@@ -236,7 +236,94 @@ Someone (probably you) asked to reset your INGInious password. If this was you, 
         elif "resetpasswd" in data:
             msg, error = self.reset_passwd(data)
 
-        return self.template_helper.get_renderer().register(reset, msg, error)
+        return self.template_helper.get_custom_renderer('frontend/webapp/plugins/auth/db_auth').register(reset, msg, error)
+
+
+class ProfilePage(INGIniousAuthPage):
+
+    def save_profile(self, data):
+        """ Save user profile modifications """
+        error = False
+        msg = ""
+
+        # Check input format
+        if len(data["oldpasswd"]) > 0 and len(data["passwd"]) < 6:
+            error = True
+            msg = "Password too short."
+        elif len(data["oldpasswd"]) > 0 and data["passwd"] != data["passwd2"]:
+            error = True
+            msg = "Passwords don't match !"
+        elif len(data["oldpasswd"]) > 0 :
+            oldpasswd_hash = hashlib.sha512(data["oldpasswd"].encode("utf-8")).hexdigest()
+            passwd_hash = hashlib.sha512(data["passwd"].encode("utf-8")).hexdigest()
+            result = self.database.users.find_one_and_update({"username": self.user_manager.session_username(),
+                                                              "password": oldpasswd_hash},
+                                                             {"$set": {
+                                                                 "password": passwd_hash,
+                                                                 "realname": data["realname"]}
+                                                             })
+            if not result:
+                error = True
+                msg = "Incorrect old pasword."
+            else:
+                msg = "Profile updated."
+        else:
+            result = self.database.users.find_one_and_update({"username": self.user_manager.session_username()},
+                                                             {"$set": {"realname": data["realname"]}})
+            if not result:
+                error = True
+                msg = "Incorrect username."
+            else:
+                self.user_manager.set_session_realname(data["realname"])
+                msg = "Profile updated."
+
+        return msg, error
+
+    def delete_account(self, data):
+        """ Delete account from DB """
+        error = False
+        msg = ""
+        username = self.user_manager.session_username()
+
+        # Check input format
+        result = self.database.users.find_one_and_delete({"username": username,
+                                                          "email": data.get("delete_email", "")})
+        if not result:
+            error = True
+            msg = "The specified email is incorrect."
+        else:
+            self.database.submissions.remove({"username": username})
+            self.database.user_tasks.remove({"username": username})
+
+            all_courses = self.course_factory.get_all_courses()
+
+            for courseid, course in all_courses.items():
+                if self.user_manager.course_is_open_to_user(course, username):
+                    self.user_manager.course_unregister_user(course, username)
+
+            self.user_manager.disconnect_user(web.ctx['ip'])
+            raise web.seeother("/index")
+
+        return msg, error
+
+    def GET_AUTH(self):  # pylint: disable=arguments-differ
+        """ GET request """
+        return self.template_helper.get_custom_renderer('frontend/webapp/plugins/auth/db_auth').profile("", False)
+
+    def POST_AUTH(self):  # pylint: disable=arguments-differ
+        """ POST request """
+        msg = ""
+        error = False
+        data = web.input()
+        if "save" in data:
+            msg, error = self.save_profile(data)
+        elif "delete" in data:
+            msg, error = self.delete_account(data)
+
+        return self.template_helper.get_custom_renderer('frontend/webapp/plugins/auth/db_auth').profile(msg, error)
+
+def main_menu(template_helper):
+    return str(template_helper.get_custom_renderer('frontend/webapp/plugins/auth/db_auth', layout=False).main_menu())
 
 
 def init(plugin_manager, _, _2, conf):
@@ -245,4 +332,6 @@ def init(plugin_manager, _, _2, conf):
     """
 
     plugin_manager.register_auth_method(DatabaseAuthMethod(conf.get('name', 'WebApp'), plugin_manager.get_database()))
+    plugin_manager.add_hook("main_menu", main_menu)
     plugin_manager.add_page('/register', RegistrationPage)
+    plugin_manager.add_page('/profile', ProfilePage)

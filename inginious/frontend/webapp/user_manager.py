@@ -127,6 +127,11 @@ class UserManager(AbstractUserManager):
         if self.session_logged_in():
             self._session.token = token
 
+    def set_session_realname(self, realname):
+        """ Sets the real name of the current user in the session, if one is open."""
+        if self.session_logged_in():
+            self._session.realname = realname
+
     def _set_session(self, username, realname, email):
         """ Init the session """
         self._session.loggedin = True
