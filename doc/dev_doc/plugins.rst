@@ -98,6 +98,13 @@ Each hook available in INGInious is described here, starting with its name and p
     Used to add links to the administration menu. This hook should return a tuple (link,name) 
     where link is the relative link from the index of the course administration.
     You can also return None.
+``main_menu`` (``template_helper``)
+    ``template_helper`` : :ref:`inginious.frontend.common.template_helper.TemplateHelper`
+
+    Returns : HTML or None.
+
+    Allows to add HTML to the menu displayed on the main (course list) page. ``template_helper`` is an object
+    of type TemplateHelper, that can be useful to render templates.
 ``course_menu`` (``course``, ``template_helper``)
     ``course`` : :ref:`inginious.frontend.common.courses.FrontendCourse`
 

@@ -30,6 +30,7 @@ $def ColumnF():
         $else:
             <a class="list-group-item disabled submission-empty">No submissions</a>
     </div>
+    $:template_helper.call('main_menu', template_helper=template_helper)
 $var Column: $:ColumnF()
 
 $# Start content
