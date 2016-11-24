@@ -118,7 +118,13 @@ Each hook available in INGInious is described here, starting with its name and p
 
     Allows to add HTML to the menu displayed on the course page. ``course`` is the course object related to the page. ``task``
     is the task object related to the page. ``template_helper`` is an object of type TemplateHelper, that can be useful to render templates.
+``welcome_text`` (``template_helper``)
+    ``template_helper`` : :ref:`inginious.frontend.common.template_helper.TemplateHelper`
 
+    Returns : HTML or None.
+
+    Allows to add HTML to the login/welcome page. ``template_helper`` is an object
+    of type TemplateHelper, that can be useful to render templates.
 ``javascript_header``
     Returns : List of path to Javascript files.
 
