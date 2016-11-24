@@ -69,27 +69,46 @@ class RegistrationPage(INGIniousPage):
     """ Registration page for DB authentication """
 
     def GET(self):
+        """ Handles GET request """
+        if self.user_manager.session_logged_in():
+            raise web.notfound()
+
         error = False
         reset = None
         msg = ""
         data = web.input()
 
         if "activate" in data:
-            user = self.database.users.find_one_and_update({"activate": data["activate"]}, {"$unset": {"activate": True}})
-            if user is None:
-                error = True
-                msg = "Invalid activation hash."
-            else:
-                msg = "You are now activated. You can proceed to login."
+            msg, error = self.activate_user(data)
         elif "reset" in data:
-            user = self.database.users.find_one({"reset": data["reset"]})
-            if user is None:
-                error = True
-                msg = "Invalid reset hash."
-            else:
-                reset = {"hash": data["reset"], "username": user["username"], "realname": user["realname"]}
+            msg, error, reset = self.get_reset_data(data)
 
         return self.template_helper.get_renderer().register(reset, msg, error)
+
+    def get_reset_data(self, data):
+        """ Returns the user info to reset """
+        error = False
+        reset = None
+        user = self.database.users.find_one({"reset": data["reset"]})
+        if user is None:
+            error = True
+            msg = "Invalid reset hash."
+        else:
+            reset = {"hash": data["reset"], "username": user["username"], "realname": user["realname"]}
+
+        return msg, error, reset
+
+    def activate_user(self, data):
+        """ Activates user """
+        error = False
+        user = self.database.users.find_one_and_update({"activate": data["activate"]}, {"$unset": {"activate": True}})
+        if user is None:
+            error = True
+            msg = "Invalid activation hash."
+        else:
+            msg = "You are now activated. You can proceed to login."
+
+        return msg, error
 
     def register_user(self, data):
         """ Parses input and register user """
@@ -203,6 +222,9 @@ Someone (probably you) asked to reset your INGInious password. If this was you, 
 
     def POST(self):
         """ Handles POST request """
+        if self.user_manager.session_logged_in():
+            raise web.notfound()
+
         reset = None
         msg = ""
         error = False
