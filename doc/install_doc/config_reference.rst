@@ -192,9 +192,10 @@ To enable this plugin, add to your configuration file:
 
     plugins:
         - plugin_module: inginious.frontend.webapp.plugins.auth.db_auth
+          allow_deletion: true
 
 For mails to be sent by the registration module, you need to configure the ``smtp`` parameter of your configuration
-file.
+file. `allow_deletion` parameter can be used to specify if users can delete their accounts from INGInious.
 
 Scoreboard plugin (``webapp``)
 ``````````````````````````````

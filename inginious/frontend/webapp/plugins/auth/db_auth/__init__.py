@@ -15,6 +15,8 @@ import web
 from inginious.frontend.webapp.user_manager import AuthMethod
 from inginious.frontend.webapp.pages.utils import INGIniousPage, INGIniousAuthPage
 
+allow_deletion = True
+
 
 class DatabaseAuthMethod(AuthMethod):
     """
@@ -283,6 +285,10 @@ class ProfilePage(INGIniousAuthPage):
         """ Delete account from DB """
         error = False
         msg = ""
+
+        if not allow_deletion:
+            return "Not allowed.", True
+
         username = self.user_manager.session_username()
 
         # Check input format
@@ -308,7 +314,7 @@ class ProfilePage(INGIniousAuthPage):
 
     def GET_AUTH(self):  # pylint: disable=arguments-differ
         """ GET request """
-        return self.template_helper.get_custom_renderer('frontend/webapp/plugins/auth/db_auth').profile("", False)
+        return self.template_helper.get_custom_renderer('frontend/webapp/plugins/auth/db_auth').profile("", False, allow_deletion)
 
     def POST_AUTH(self):  # pylint: disable=arguments-differ
         """ POST request """
@@ -320,7 +326,8 @@ class ProfilePage(INGIniousAuthPage):
         elif "delete" in data:
             msg, error = self.delete_account(data)
 
-        return self.template_helper.get_custom_renderer('frontend/webapp/plugins/auth/db_auth').profile(msg, error)
+        return self.template_helper.get_custom_renderer('frontend/webapp/plugins/auth/db_auth').profile(msg, error, allow_deletion)
+
 
 def main_menu(template_helper):
     return str(template_helper.get_custom_renderer('frontend/webapp/plugins/auth/db_auth', layout=False).main_menu())
@@ -330,7 +337,9 @@ def init(plugin_manager, _, _2, conf):
     """
         Allow authentication from database
     """
+    global allow_deletion
 
+    allow_deletion = conf.get("allow_deletion", False)
     plugin_manager.register_auth_method(DatabaseAuthMethod(conf.get('name', 'WebApp'), plugin_manager.get_database()))
     plugin_manager.add_hook("main_menu", main_menu)
     plugin_manager.add_page('/register', RegistrationPage)
