@@ -14,6 +14,7 @@ import web
 
 from inginious.frontend.webapp.user_manager import AuthMethod
 from inginious.frontend.webapp.pages.utils import INGIniousPage, INGIniousAuthPage
+from pymongo.collection import ReturnDocument
 
 allow_deletion = True
 
@@ -166,6 +167,7 @@ To activate your account, please click on the following link :
         return msg, error
 
     def lost_passwd(self, data):
+        """ Send a reset link to user to recover its password """
         error = False
         msg = ""
 
@@ -199,6 +201,7 @@ Someone (probably you) asked to reset your INGInious password. If this was you, 
         return msg, error
 
     def reset_passwd(self, data):
+        """ Reset the user password """
         error = False
         msg = ""
 
@@ -243,8 +246,9 @@ Someone (probably you) asked to reset your INGInious password. If this was you, 
 
 class ProfilePage(INGIniousAuthPage):
 
-    def save_profile(self, data):
+    def save_profile(self, userdata, data):
         """ Save user profile modifications """
+        result = userdata
         error = False
         msg = ""
 
@@ -263,7 +267,8 @@ class ProfilePage(INGIniousAuthPage):
                                                              {"$set": {
                                                                  "password": passwd_hash,
                                                                  "realname": data["realname"]}
-                                                             })
+                                                             },
+                                                             return_document=ReturnDocument.AFTER)
             if not result:
                 error = True
                 msg = "Incorrect old pasword."
@@ -271,7 +276,8 @@ class ProfilePage(INGIniousAuthPage):
                 msg = "Profile updated."
         else:
             result = self.database.users.find_one_and_update({"username": self.user_manager.session_username()},
-                                                             {"$set": {"realname": data["realname"]}})
+                                                             {"$set": {"realname": data["realname"]}},
+                                                             return_document=ReturnDocument.AFTER)
             if not result:
                 error = True
                 msg = "Incorrect username."
@@ -279,7 +285,7 @@ class ProfilePage(INGIniousAuthPage):
                 self.user_manager.set_session_realname(data["realname"])
                 msg = "Profile updated."
 
-        return msg, error
+        return result, msg, error
 
     def delete_account(self, data):
         """ Delete account from DB """
@@ -314,23 +320,36 @@ class ProfilePage(INGIniousAuthPage):
 
     def GET_AUTH(self):  # pylint: disable=arguments-differ
         """ GET request """
+        userdata = self.database.users.find_one({"username": self.user_manager.session_username()})
+
+        if not userdata:
+            raise web.notfound()
+
         return self.template_helper.get_custom_renderer('frontend/webapp/plugins/auth/db_auth').profile("", False, allow_deletion)
 
     def POST_AUTH(self):  # pylint: disable=arguments-differ
         """ POST request """
+        userdata = self.database.users.find_one({"username": self.user_manager.session_username()})
+
+        if not userdata:
+            raise web.notfound()
+
         msg = ""
         error = False
         data = web.input()
         if "save" in data:
-            msg, error = self.save_profile(data)
+            userdata, msg, error = self.save_profile(userdata, data)
         elif "delete" in data:
             msg, error = self.delete_account(data)
 
         return self.template_helper.get_custom_renderer('frontend/webapp/plugins/auth/db_auth').profile(msg, error, allow_deletion)
 
 
-def main_menu(template_helper):
-    return str(template_helper.get_custom_renderer('frontend/webapp/plugins/auth/db_auth', layout=False).main_menu())
+def main_menu(template_helper, database):
+    """ Returns the additional main menu """
+    def is_user_in_db(username):
+        return True if database.users.find_one({"username": username}) else False
+    return str(template_helper.get_custom_renderer('frontend/webapp/plugins/auth/db_auth', layout=False).main_menu(is_user_in_db))
 
 
 def init(plugin_manager, _, _2, conf):
@@ -341,6 +360,6 @@ def init(plugin_manager, _, _2, conf):
 
     allow_deletion = conf.get("allow_deletion", False)
     plugin_manager.register_auth_method(DatabaseAuthMethod(conf.get('name', 'WebApp'), plugin_manager.get_database()))
-    plugin_manager.add_hook("main_menu", main_menu)
+    plugin_manager.add_hook("main_menu", lambda template_helper: main_menu(template_helper, plugin_manager.get_database()))
     plugin_manager.add_page('/register', RegistrationPage)
     plugin_manager.add_page('/profile', ProfilePage)
