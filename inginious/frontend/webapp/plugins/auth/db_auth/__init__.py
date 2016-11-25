@@ -245,6 +245,7 @@ Someone (probably you) asked to reset your INGInious password. If this was you, 
 
 
 class ProfilePage(INGIniousAuthPage):
+    """ Profile page for DB-authenticated users"""
 
     def save_profile(self, userdata, data):
         """ Save user profile modifications """
