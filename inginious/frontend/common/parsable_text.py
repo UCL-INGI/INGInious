@@ -75,6 +75,10 @@ class _CustomHTMLWriter(html4css1.Writer, object):
     class _CustomHTMLTranslator(html4css1.HTMLTranslator, object):
         """ A custom HTML translator """
 
+        def visit_container(self, node):
+            """ Custom version of visit_container that do not put 'container' in div class"""
+            self.body.append(self.starttag(node, 'div'))
+
         def visit_literal(self, node):
             """ A custom version of visit_literal that uses the balise <code> instead of <tt>. """
             # special case: "code" role
