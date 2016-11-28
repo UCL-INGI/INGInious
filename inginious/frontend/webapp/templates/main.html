@@ -41,7 +41,7 @@ $# Start content
                 $if not user_manager.course_is_user_registered(open_courses[courseid]) and not open_courses[courseid].can_students_choose_group():
                     <div class="list-group-item row disabled">
                 $else:
-                    <a href="course/$courseid" class="list-group-item row">
+                    <a href="$get_homepath()/course/$courseid" class="list-group-item row">
 
                 <div class="col-xs-12 col-md-7">
                     $open_courses[courseid].get_name()
