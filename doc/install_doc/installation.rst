@@ -266,12 +266,7 @@ Create a folder for INGInious, for example ``/var/www/INGInious``, and change th
 Put your configuration file in that folder, as well as your tasks, backup, download, and temporary (if local backend)
 directories (see :ref:`config` for more details on these folders).
 
-Once this is done, we can configure lighttpd. First, the file ``/etc/lighttpd/lighttpd.conf``. Modify the document root:
-::
-
-    server.document-root = "/var/www/INGInious"
-
-Next, in module.conf, load theses modules:
+Once this is done, we can configure lighttpd. First, the file ``/etc/lighttpd/modules.conf``, to load these modules:
 ::
 
     server.modules = (
@@ -375,8 +370,6 @@ uses *systemd* or *init*.
 
 You can then modify your ``/etc/httpd/conf/httpd.conf`` file to apply the following rules:
 ::
-
-    DocumentRoot "/var/www/INGInious"
 
     LoadModule wsgi_module /usr/lib64/python3.5/site-packages/mod_wsgi/server/mod_wsgi-py35.cpython-35m-x86_64-linux-gnu.so
 
