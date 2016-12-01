@@ -4,6 +4,8 @@
 # more information about the licensing of this file.
 
 """ Main page for the LTI provider. Displays a task and allow to answer to it. """
+import os
+import posixpath
 import base64
 import json
 import logging
@@ -129,3 +131,34 @@ class LTITask(LTIAuthenticatedPage):
         else:
             # Display the task itself
             return self.template_helper.get_renderer().task(self.course, self.task, self.submission_manager.get_user_submissions(self.task), is_admin, self.webterm_link)
+
+
+class LTITaskPageStaticDownload(LTIAuthenticatedPage):
+    """ Allow to download files stored in the task folder """
+
+    def LTI_GET(self, taskid, path):  # pylint: disable=arguments-differ
+        """ GET request """
+        try:
+            if not taskid == self.task.get_id():
+                raise web.notfound()
+
+            path_norm = posixpath.normpath(urllib.parse.unquote(path))
+            public_folder_path = os.path.normpath(os.path.realpath(os.path.join(self.task.get_directory_path(), "public")))
+            file_path = os.path.normpath(os.path.realpath(os.path.join(public_folder_path, path_norm)))
+
+            # Verify that we are still inside the public directory
+            if os.path.normpath(os.path.commonprefix([public_folder_path, file_path])) != public_folder_path:
+                raise web.notfound()
+
+            if os.path.isfile(file_path):
+                mimetypes.init()
+                mime_type = mimetypes.guess_type(file_path)
+                web.header('Content-Type', mime_type[0])
+                return open(file_path, 'rb')
+            else:
+                raise web.notfound()
+        except:
+            if web.config.debug:
+                raise
+            else:
+                raise web.notfound()

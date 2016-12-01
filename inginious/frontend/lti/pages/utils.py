@@ -137,6 +137,14 @@ class LTIAuthenticatedPage(LTIPage):
     def LTI_GET(self, *args, **kwargs):  # pylint: disable=unused-argument
         raise web.notacceptable()
 
+    def LTI_GET_NOT_CONNECTED(self, *args, **kwargs):  # pylint: disable=unused-argument
+        self.logger.info('ERROR: LTI_GET_NOT_CONNECTED')
+        raise web.notfound("Your session expired. Please reload the page.")
+
+    def LTI_POST_NOT_CONNECTED(self, *args, **kwargs):  # pylint: disable=unused-argument
+        self.logger.info('ERROR: LTI_POST_NOT_CONNECTED')
+        raise web.notfound("Your session expired. Please reload the page.")
+
     def required_role(self, method="POST"):  # pylint: disable=unused-argument
         """ Allow to override the minimal access right needed for this page. Method can be either "POST" or "GET" """
         return self.learner_role
@@ -153,8 +161,7 @@ class LTIAuthenticatedPage(LTIPage):
         try:
             self._verify_lti_status("POST")
         except LTINotConnectedException:
-            self.logger.info('ERROR: LTI_POST_NOT_CONNECTED')
-            raise web.notfound("Your session expired. Please reload the page.")
+            return self.LTI_POST_NOT_CONNECTED(*args, **kwargs)
         except LTINoRightsException:
             self.logger.info('ERROR: LTI_POST_NOT_CONNECTED')
             raise web.notfound("You do not have the rights to view this page.")
@@ -168,8 +175,7 @@ class LTIAuthenticatedPage(LTIPage):
         try:
             self._verify_lti_status("GET")
         except LTINotConnectedException:
-            self.logger.info('ERROR: LTI_GET_NOT_CONNECTED')
-            raise web.notfound("Your session expired. Please reload the page.")
+            return self.LTI_GET_NOT_CONNECTED(*args, **kwargs)
         except LTINoRightsException:
             self.logger.info('ERROR: LTI_GET_NO_RIGHTS')
             raise web.notfound("You do not have the rights to view this page.")

@@ -27,7 +27,8 @@ from inginious.frontend.common.submission_manager import update_pending_jobs
 urls = (
     r"/launch/([a-zA-Z0-9\-_]+)/([a-zA-Z0-9\-_]+)", "inginious.frontend.lti.pages.launch.LTILaunchTask",
     r"/([a-zA-Z0-9\-_]+)/task", "inginious.frontend.lti.pages.task.LTITask",
-    r"/([a-zA-Z0-9\-_]+)/download", "inginious.frontend.lti.pages.download.LTIDownload"
+    r"/([a-zA-Z0-9\-_]+)/download", "inginious.frontend.lti.pages.download.LTIDownload",
+    r'/([a-zA-Z0-9\-_]+)/([^/]+)/(.*)', 'inginious.frontend.lti.pages.task.LTITaskPageStaticDownload'
 )
 
 def _put_configuration_defaults(config):
