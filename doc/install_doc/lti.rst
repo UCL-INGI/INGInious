@@ -32,8 +32,8 @@ the example with ``consumer_key_2``.
 Setting up your LMS
 -------------------
 
-Setting up edX
-``````````````
+Setting up (Open) edX
+`````````````````````
 
 edX provides `a good tutorial on how to install LTI components`_.
 
@@ -50,7 +50,7 @@ The ``launch url`` is, if your server is located at ``https://HOST:PORT/``, and 
 
     https://HOST:PORT/launch/course_id/task_id
 
-Please note that for now, edX *needs* https. This means you will probably have to buy a certificate.
+Please note that, for now, official edX *needs* https. You also need to set the LTI activity to accept a score back from INGInious, without which the activity won't launch.
 
 .. _a good tutorial on how to install LTI components: http://edx-partner-course-staff.readthedocs.org/en/latest/exercises_tools/lti_component.html
 
