@@ -6,4 +6,3 @@ recursive-include inginious/frontend/*/templates *
 recursive-include inginious/frontend/webapp/plugins/contests *
 recursive-include inginious/frontend/webapp/plugins/scoreboard *
 recursive-include inginious/frontend/webapp/plugins/auth/db_auth *
-recursive-include inginious/utils *
