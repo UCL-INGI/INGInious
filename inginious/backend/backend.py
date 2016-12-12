@@ -67,6 +67,7 @@ class Backend(object):
 
         self._registered_clients = set()  # addr of registered clients
         self._available_agents = []  # addr of available agents
+        self._ping_count = {} # ping count per addr of agents
         self._waiting_jobs = OrderedDict()  # rb queue for waiting jobs format:[(client_addr_as_bytes, Union[ClientNewJob,ClientNewBatchJob])]
         self._job_running = {}  # indicates on which agent which job is running. format: {BackendJobId:addr_as_bytes}
         self._batch_job_running = {}  # indicates on which agent which job is running. format: {BackendJobId:addr_as_bytes}
@@ -80,6 +81,7 @@ class Backend(object):
             AgentJobStarted: self.handle_agent_job_started,
             AgentJobDone: self.handle_agent_job_done,
             AgentJobSSHDebug: self.handle_agent_job_ssh_debug,
+            Pong: self._handle_pong
         }
         try:
             func = message_handlers[message.__class__]
@@ -346,6 +348,7 @@ class Backend(object):
         self._logger.info("Backend started")
         self._agent_socket.bind(self._agent_addr)
         self._client_socket.bind(self._client_addr)
+        self._loop.call_later(1, asyncio.ensure_future, self._do_ping())
 
         try:
             while True:
@@ -366,3 +369,23 @@ class Backend(object):
             return
         except KeyboardInterrupt:
             return
+
+    async def _handle_pong(self, agent_addr, _ : Pong):
+        """ Handle a pong """
+        self._ping_count[agent_addr] = 0
+
+    async def _do_ping(self):
+        """ Ping the agents """
+        for agent_addr in set(self._available_agents):
+            ping_count = self._ping_count.get(agent_addr, 0)
+            if ping_count > 5:
+                self._logger.warning("Agent %s does not respond: removing from list.", agent_addr)
+                self._available_agents = [agent for agent in self._available_agents if agent != agent_addr]
+                await self._recover_jobs(agent_addr)
+            else:
+                self._ping_count[agent_addr] = ping_count + 1
+                await ZMQUtils.send_with_addr(self._agent_socket, agent_addr, Ping())
+        self._loop.call_later(1, asyncio.ensure_future, self._do_ping())
+
+    async def _recover_jobs(self, agent_addr):
+        pass
