@@ -151,7 +151,7 @@ class Backend(object):
                                                                                            0.0, {}, {}, {}, None, "", ""))
         # If the job is running, transmit the info to the agent
         elif (client_addr, message.job_id) in self._job_running:
-            agent_addr = self._job_running[(client_addr, message.job_id)]
+            agent_addr, _ = self._job_running[(client_addr, message.job_id)]
             await ZMQUtils.send_with_addr(self._agent_socket, agent_addr, BackendKillJob((client_addr, message.job_id)))
         else:
             self._logger.warning("Client %s attempted to kill unknown job %s", str(client_addr), str(message.job_id))
@@ -188,7 +188,7 @@ class Backend(object):
 
             if typestr == "grade" and isinstance(job_msg, ClientNewJob):
                 job_id = (client_addr, job_msg.job_id)
-                self._job_running[job_id] = agent_addr
+                self._job_running[job_id] = agent_addr, job_msg
                 self._logger.info("Sending job %s %s to agent %s", client_addr, job_msg.job_id, agent_addr)
                 await ZMQUtils.send_with_addr(self._agent_socket, agent_addr, BackendNewJob(job_id, job_msg.course_id, job_msg.task_id,
                                                                                             job_msg.inputdata, job_msg.environment,
@@ -197,7 +197,7 @@ class Backend(object):
                                                                                             job_msg.debug))
             elif typestr == "batch":
                 job_id = (client_addr, job_msg.job_id)
-                self._batch_job_running[job_id] = agent_addr
+                self._batch_job_running[job_id] = agent_addr, job_msg
                 self._logger.info("Sending batch job %s %s to agent %s", client_addr, job_msg.job_id, agent_addr)
                 await ZMQUtils.send_with_addr(self._agent_socket, agent_addr, BackendNewBatchJob(job_id, job_msg.container_name, job_msg.input_data))
 
@@ -388,4 +388,15 @@ class Backend(object):
         self._loop.call_later(1, asyncio.ensure_future, self._do_ping())
 
     async def _recover_jobs(self, agent_addr):
-        pass
+        """ Recover the jobs sent to a crashed agent """
+        for (client_addr, job_id), (agent, job_msg) in reversed(list(self._job_running.items())):
+            if agent == agent_addr:
+                self._waiting_jobs[(client_addr, job_id, "grade")] = job_msg
+                del self._job_running[(client_addr, job_id)]
+
+        for (client_addr, job_id), (agent, job_msg) in reversed(list(self._batch_job_running.items())):
+            if agent == agent_addr:
+                self._waiting_jobs[(client_addr, job_id, "batch")] = job_msg
+                del self._batch_job_running[(client_addr, job_id)]
+
+        await self.update_queue()
