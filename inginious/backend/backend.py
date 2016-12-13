@@ -66,6 +66,7 @@ class Backend(object):
         self._containers_on_agent = {}
 
         self._registered_clients = set()  # addr of registered clients
+        self._registered_agents = []  # addr of registered agents
         self._available_agents = []  # addr of available agents
         self._ping_count = {} # ping count per addr of agents
         self._waiting_jobs = OrderedDict()  # rb queue for waiting jobs format:[(client_addr_as_bytes, Union[ClientNewJob,ClientNewBatchJob])]
@@ -210,6 +211,7 @@ class Backend(object):
         """
         self._logger.info("Agent %s said hello", agent_addr)
 
+        self._registered_agents.append(agent_addr)
         for i in range(0, message.available_job_slots):
             self._available_agents.append(agent_addr)
 
@@ -376,11 +378,12 @@ class Backend(object):
 
     async def _do_ping(self):
         """ Ping the agents """
-        for agent_addr in set(self._available_agents):
+        for agent_addr in reversed(self._registered_agents):
             ping_count = self._ping_count.get(agent_addr, 0)
             if ping_count > 5:
                 self._logger.warning("Agent %s does not respond: removing from list.", agent_addr)
                 self._available_agents = [agent for agent in self._available_agents if agent != agent_addr]
+                self._registered_agents.remove(agent_addr)
                 await self._recover_jobs(agent_addr)
             else:
                 self._ping_count[agent_addr] = ping_count + 1
