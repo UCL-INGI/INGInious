@@ -101,6 +101,7 @@ def get_app(config):
         template_helper = TemplateHelper(PluginManager(), 'frontend/webapp/templates',
                                          'frontend/webapp/templates/layout',
                                          config.get('use_minified_js', True))
+        template_helper.add_to_template_globals("get_homepath", lambda: web.ctx.homepath)
         appli.template_helper = template_helper
         appli.init_mapping(urls_maintenance)
         return appli.wsgifunc(), appli.stop
