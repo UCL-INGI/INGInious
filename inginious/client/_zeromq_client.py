@@ -26,6 +26,7 @@ class BetterParanoidPirateClient(object, metaclass=abc.ABCMeta):
         self._context = context
         self._router_addr = router_addr
         self._socket = self._context.socket(zmq.DEALER)
+        self._socket.ipv6 = True
         self._loop = asyncio.get_event_loop()
 
         self._msgs_registered = {}

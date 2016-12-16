@@ -96,6 +96,7 @@ class DockerAgent(object):
 
         # Sockets
         self._backend_socket = self._context.socket(zmq.DEALER)
+        self._backend_socket.ipv6 = True
         self._docker_events_publisher = self._context.socket(zmq.PUB)
         self._docker_events_subscriber = self._context.socket(zmq.SUB)
 

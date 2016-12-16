@@ -31,6 +31,10 @@ class Backend(object):
         self._client_socket = context.socket(zmq.ROUTER)
         self._logger = logging.getLogger("inginious.backend")
 
+        # Enable support for ipv6
+        self._agent_socket.ipv6 = True
+        self._client_socket.ipv6 = True
+
         self._poller = Poller()
         self._poller.register(self._agent_socket, zmq.POLLIN)
         self._poller.register(self._client_socket, zmq.POLLIN)
