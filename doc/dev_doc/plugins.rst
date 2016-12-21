@@ -142,6 +142,13 @@ Each hook available in INGInious is described here, starting with its name and p
 
     Used to add Javascript files in the footer. 
     Should return the path to a Javascript file (relative to the root of INGInious).
+``modify_course_data`` (``courseid``, ``data``)
+    ``courseid`` : Course id of the course to modify
+
+    ``data`` : Dictionary of the course file data after reading the file
+
+    Allows to modify the course description before the returning the Course object.
+    Changes are not saved to disk.
 ``modify_task_data`` (``course``, ``taskid``, ``data``)
     ``course`` : :ref:`inginious.frontend.common.courses.FrontendCourse`
 
