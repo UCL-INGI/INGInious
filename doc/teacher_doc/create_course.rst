@@ -124,6 +124,9 @@ the webapp. Here are the possible fields to set:
   When this field is defined, users can only register to the course between the defined period.
   It takes the same arguments as ``accessible``.
 
+- ``allow_unregister``
+  If this field is defined and set to ``false``, then students are not allowed to auto-unregister from the course.
+
 - ``registration_password``
   A password that is asked upon registration to the course. If empty or not defined, no password will be asked.
 

@@ -62,7 +62,8 @@ $def ColumnF():
                 $else:
                     Teams management
             </a>
-            $:include.unregister_button(course)
+            $if course.allow_unregister():
+                $:include.unregister_button(course)
         </div>
 $var Column: $:ColumnF()
 

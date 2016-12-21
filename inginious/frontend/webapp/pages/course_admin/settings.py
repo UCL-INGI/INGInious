@@ -55,6 +55,8 @@ class CourseSettings(INGIniousAdminPage):
             except:
                 errors.append('Invalid accessibility dates')
 
+            course_content['allow_unregister'] = True if data["allow_unregister"] == "true" else False
+
             if data["registration"] == "custom":
                 course_content['registration'] = "{}/{}".format(data["registration_start"], data["registration_end"])
             elif data["registration"] == "true":
