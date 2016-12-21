@@ -8,6 +8,7 @@
 import os
 import codecs
 import shutil
+import copy
 
 from inginious.common.log import get_course_logger
 from inginious.common.tasks import Task
@@ -38,7 +39,10 @@ class TaskFactory(object):
             raise InvalidNameException("Task with invalid name: " + taskid)
         if self._cache_update_needed(course, taskid):
             self._update_cache(course, taskid)
-        return self._cache[(course.get_id(), taskid)][0]
+
+        task_content = copy.deepcopy(self._cache[(course.get_id(), taskid)][0])
+        self._hook_manager.call_hook('modify_task_data', course=course, taskid=taskid, data=task_content)
+        return self._task_class(course, taskid, task_content, self.get_directory_path(course.get_id(), taskid))
 
     def get_task_descriptor_content(self, courseid, taskid):
         """
@@ -211,10 +215,7 @@ class TaskFactory(object):
         except Exception as e:
             raise TaskUnreadableException(str(e))
 
-        self._hook_manager.call_hook('modify_task_data', course=course, taskid=taskid, data=task_content)
-
-        task = self._task_class(course, taskid, task_content, self.get_directory_path(course.get_id(), taskid))
-        self._cache[(course.get_id(), taskid)] = (task, os.stat(path_to_descriptor).st_mtime)
+        self._cache[(course.get_id(), taskid)] = (task_content, os.stat(path_to_descriptor).st_mtime)
 
     def update_cache_for_course(self, courseid):
         """
