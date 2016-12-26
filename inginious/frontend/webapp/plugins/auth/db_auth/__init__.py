@@ -92,6 +92,7 @@ class RegistrationPage(INGIniousPage):
         """ Returns the user info to reset """
         error = False
         reset = None
+        msg = ""
         user = self.database.users.find_one({"reset": data["reset"]})
         if user is None:
             error = True
