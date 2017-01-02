@@ -1,4 +1,4 @@
-$def with (course,submissions)
+$def with (course,submissions, tasks, tasks_data, grade)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -12,7 +12,6 @@ $def ColumnF():
     $:template_helper.call('course_menu', course=course, template_helper=template_helper)
     <h3>Current grade</h3>
     <div class="progress">
-        $ grade=user_manager.get_course_grade(course)
         <div class="progress-bar progress-bar-success" aria-valuenow="$int(grade)" aria-valuemin="0" aria-valuemax="100" style="width: $grade%">
             $int(grade)%
         </div>
@@ -34,7 +33,7 @@ $def ColumnF():
                         list-group-item-danger
                     "
                     href="$get_homepath()/course/$submission['courseid']/$submission['taskid']">
-                    $submission['task'].get_name()
+                    $submission['taskname']
                 </a>
         $else:
             <a class="list-group-item disabled submission-empty">No submissions</a>
@@ -76,16 +75,16 @@ $var Navbar: $:NavbarF()
 $# Start content
 <h2>$course.get_name() - List of exercises</h2>
 <div class="list-group list-group-progress" style="margin-left: 16px; margin-right: 16px;">
-    $for taskid, task in course.get_tasks().items()
-        $if user_manager.task_is_visible_by_user(task):
-            $ status=user_manager.get_task_status(task)
-            $ completion=user_manager.get_task_grade(task)
+    $for taskid, task in tasks.items()
+        $if tasks_data[taskid]["visible"]:
+            $ succeeded=tasks_data[taskid]["succeeded"]
+            $ completion=tasks_data[taskid]["grade"]
             <a href="$get_homepath()/course/$course.get_id()/$taskid" class="row list-group-item
                 $if not task.is_visible_by_students() or not task.get_accessible_time().is_open():
                     disabled
                 ">
                 <div class="col-xs-12 col-md-7">
-                    $if status == "succeeded":
+                    $if succeeded:
                         <i style="color:#468847; position: absolute; left: -5px;" class="fa fa-check"></i>
                     $task.get_name()
                     $if not task.is_visible_by_students():

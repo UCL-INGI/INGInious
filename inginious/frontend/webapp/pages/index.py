@@ -54,21 +54,21 @@ class IndexPage(INGIniousAuthPage):
         realname = self.user_manager.session_realname()
         email = self.user_manager.session_email()
 
-        # Display
-        last_submissions = self.submission_manager.get_user_last_submissions({}, 5, True)
-        except_free_last_submissions = []
-        for submission in last_submissions:
-            try:
-                submission["task"] = self.course_factory.get_course(submission['courseid']).get_task(submission['taskid'])
-                except_free_last_submissions.append(submission)
-            except:
-                pass
-
         all_courses = self.course_factory.get_all_courses()
 
+        # Display
         open_courses = {courseid: course for courseid, course in all_courses.items()
                         if self.user_manager.course_is_open_to_user(course, username)}
         open_courses = OrderedDict(sorted(iter(open_courses.items()), key=lambda x: x[1].get_name()))
+
+        last_submissions = self.submission_manager.get_user_last_submissions(5, {"courseid": {"$in": list(open_courses.keys())}})
+        except_free_last_submissions = []
+        for submission in last_submissions:
+            try:
+                submission["task"] = open_courses[submission['courseid']].get_task(submission['taskid'])
+                except_free_last_submissions.append(submission)
+            except:
+                pass
 
         registerable_courses = {courseid: course for courseid, course in all_courses.items() if
                                 not self.user_manager.course_is_open_to_user(course, username) and

@@ -6,13 +6,14 @@ $# more information about the licensing of this file.
 $#
 
 $var title:  $:course.get_name()
+$ username = user_manager.session_username()
 
 $# Left column content
 $def ColumnF():
     $:template_helper.call('course_menu',course=course, template_helper=template_helper)
     <h3>Current grade</h3>
     <div class="progress">
-        $ grade=user_manager.get_course_grade(course)
+        $ grade=user_manager.get_course_cache(username, course)["grade"]
         <div class="progress-bar progress-bar-success" aria-valuenow="$int(grade)" aria-valuemin="0" aria-valuemax="100" style="width: $grade%">
             $int(grade)%
         </div>
@@ -34,26 +35,15 @@ $def ColumnF():
                         list-group-item-danger
                     "
                     href="$get_homepath()/course/$submission['courseid']/$submission['taskid']">
-                    $submission['task'].get_name()
+                    $submission['taskname']
                 </a>
         $else:
             <a class="list-group-item disabled submission-empty">No submissions</a>
     </div>
-    $if user_manager.has_staff_rights_on_course(course):
-        $if not course.is_open_to_non_staff():
-            <div class="alert alert-warning" role="alert">
-                This course is currently invisible for students. 
-                You can change this by modifying the "accessibility" option in the configuration of the course.
-            </div>
-        <div class="list-group">
-            <a class="list-group-item list-group-item-info" href="$get_homepath()/admin/$course.get_id()">
-                <i class="fa fa-user-secret fa-fw"></i>&nbsp; Course administration
-            </a>
-        </div>
-    $else:
-        <div class="list-group">
+    <div class="list-group">
+        $if course.allow_unregister():
             $:include.unregister_button(course)
-        </div>
+    </div>
 $var Column: $:ColumnF()
 
 $def NavbarF():

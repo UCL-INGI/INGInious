@@ -318,32 +318,23 @@ class SubmissionManager(object, metaclass=ABCMeta):
         cursor.sort([("submitted_on", -1)])
         return list(cursor)
 
-    def get_user_last_submissions(self, query, limit, one_per_task=False):
+    def get_user_last_submissions(self, limit=5, request={}):
         """ Get last submissions of a user """
-        if not self._user_manager.session_logged_in():
-            raise Exception("A user must be logged in to get his submissions")
-        request = query.copy()
         request.update({"username": self._user_manager.session_username()})
 
-        # We only want the last x task tried, modify the request
-        if one_per_task is True:
-            data = self._database.submissions.aggregate([
-                {"$match": request},
-                {"$sort": {"submitted_on": pymongo.DESCENDING}},
-                {"$group": {"_id": {"courseid": "$courseid", "taskid": "$taskid"}, "orig_id": {"$first": "$_id"},
-                            "submitted_on": {"$first": "$submitted_on"}}},
-                {"$sort": {"submitted_on": pymongo.DESCENDING}},
-                {"$limit": limit}
-            ])
-            request = {"_id": {"$in": [d["orig_id"] for d in list(data)]}}
+        # We only want the last x unique tasks tried, modify the request
+        data = self._database.submissions.aggregate([
+            {"$match": request},
+            {"$sort": {"submitted_on": pymongo.DESCENDING}},
+            {"$group": {"_id": {"courseid": "$courseid", "taskid": "$taskid"}, "orig_id": {"$first": "$_id"},
+                        "submitted_on": {"$first": "$submitted_on"}, "result": {"$first": "$result"},
+                        "status" : {"$first": "$status"}, "courseid": {"$first": "$courseid"},
+                        "taskid": {"$first": "$taskid"}}},
+            {"$sort": {"submitted_on": pymongo.DESCENDING}},
+            {"$limit": limit}
+        ])
 
-        cursor = self._database.submissions.find(request)
-        cursor.sort([("submitted_on", -1)]).limit(limit)
-        return list(cursor)
-
-    def get_user_last_submissions_for_course(self, course, limit=5, one_per_task=False):
-        """ Returns a given number (default 5) of submissions of task from the course given"""
-        return self.get_user_last_submissions({"courseid": course.get_id(), "taskid": {"$in": list(course.get_tasks().keys())}}, limit, one_per_task)
+        return list(data)
 
     def get_gridfs(self):
         """ Returns the GridFS used by the submission manager """

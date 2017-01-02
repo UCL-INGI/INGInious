@@ -90,17 +90,13 @@ class AggregationPage(INGIniousAuthPage):
                 error = True
                 msg = "You are not allowed to change group."
 
-        last_submissions = self.submission_manager.get_user_last_submissions_for_course(course, one_per_task=True)
-        except_free_last_submissions = []
+        tasks = course.get_tasks()
+        last_submissions = self.submission_manager.get_user_last_submissions(5, {"courseid": courseid, "taskid": {"$in": list(tasks.keys())}})
         for submission in last_submissions:
-            try:
-                submission["task"] = course.get_task(submission['taskid'])
-                except_free_last_submissions.append(submission)
-            except:
-                pass
+            submission["taskname"] = tasks[submission['taskid']].get_name()
 
         aggregation = self.user_manager.get_course_user_aggregation(course)
-        aggregations = list(self.database.aggregations.find({"courseid": course.get_id()}))
+        aggregations = self.user_manager.get_course_aggregations(course)
         users = self.user_manager.get_users_info(self.user_manager.get_course_registered_users(course))
 
         if course.use_classrooms():
@@ -110,8 +106,8 @@ class AggregationPage(INGIniousAuthPage):
                     mygroup = group
                     mygroup["index"] = index + 1
 
-            return self.template_helper.get_renderer().classroom(course, except_free_last_submissions, aggregation, users,
+            return self.template_helper.get_renderer().classroom(course, last_submissions, aggregation, users,
                                                                  mygroup, msg, error, change)
         else:
-            return self.template_helper.get_renderer().team(course, except_free_last_submissions, aggregations, users,
+            return self.template_helper.get_renderer().team(course, last_submissions, aggregations, users,
                                                             aggregation, msg, error)

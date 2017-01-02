@@ -416,32 +416,6 @@ class UserManager(AbstractUserManager):
                     {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]},
                     {"$set": {"succeeded": submission["result"] == "success", "grade": submission["grade"]}})
 
-
-    def get_course_grade(self, course, username=None):
-        """
-        :param course: a Course object
-        :param username: The username of the user for who we want to retrieve the grade. If None, uses self.session_username()
-        :return: a floating point number (percentage of max grade)
-        """
-        if username is None:
-            username = self.session_username()
-
-        cache = self.get_course_cache(username, course)
-        if cache is None:
-            return 0
-        total_weight = 0
-        grade = 0
-
-        for task_id, task in course.get_tasks().items():
-            if self.task_is_visible_by_user(task, username):
-                total_weight += task.get_grading_weight()
-                grade += cache["task_grades"].get(task_id, 0.0) * task.get_grading_weight()
-
-        if total_weight == 0:
-            return 0
-
-        return grade / total_weight
-
     def get_task_status(self, task, username=None):
         """
         :param task: a Task object
