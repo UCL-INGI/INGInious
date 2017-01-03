@@ -62,7 +62,7 @@ class APICourses(APIAuthenticatedPage):
                 }
                 if self.user_manager.course_is_open_to_user(course, username):
                     data["tasks"] = {taskid: task.get_name() for taskid, task in course.get_tasks().items()}
-                    data["grade"] = self.get_course_cache(username, course)["grade"]
+                    data["grade"] = self.user_manager.get_course_cache(username, course)["grade"]
                 output.append(data)
 
         return 200, output

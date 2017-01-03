@@ -313,7 +313,7 @@ class UserManager(AbstractUserManager):
 
         user_tasks = [taskid for taskid, task in tasks.items() if task.get_accessible_time().after_start()]
 
-        retval = {username: None for username in usernames}
+        retval = {username: {"total_tasks": 0, "task_succeeded": 0, "task_grades": [], "grade": 0.0} for username in usernames}
         for result in data:
             result["total_tasks"] = len(user_tasks)
             result["task_succeeded"] = len(set(result["task_succeeded"]).intersection(user_tasks))
@@ -415,36 +415,6 @@ class UserManager(AbstractUserManager):
                 self._database.user_tasks.find_one_and_update(
                     {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]},
                     {"$set": {"succeeded": submission["result"] == "success", "grade": submission["grade"]}})
-
-    def get_task_status(self, task, username=None):
-        """
-        :param task: a Task object
-        :param username: The username of the user for who we want to retrieve the grade. If None, uses self.session_username()
-        :return: "succeeded" if the current user solved this task, "failed" if he failed, and "notattempted" if he did not try it yet
-        """
-        if username is None:
-            username = self.session_username()
-
-        task_cache = self.get_task_cache(username, task.get_course_id(), task.get_id())
-        if task_cache is None:
-            return "notviewed"
-        if task_cache["tried"] == 0:
-            return "notattempted"
-        return "succeeded" if task_cache["succeeded"] else "failed"
-
-    def get_task_grade(self, task, username=None):
-        """
-        :param task: a Task object
-        :param username: The username of the user for who we want to retrieve the grade. If None, uses self.session_username()
-        :return: a floating point number (percentage of max grade)
-        """
-        if username is None:
-            username = self.session_username()
-
-        task_cache = self.get_task_cache(username, task.get_course_id(), task.get_id())
-        if task_cache is None:
-            return 0.0
-        return task_cache.get("grade", 0.0)
 
     def task_is_visible_by_user(self, task, username=None):
         """ Returns true if the task is visible by the user """

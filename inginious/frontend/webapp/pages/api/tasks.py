@@ -74,13 +74,15 @@ class APITasks(APIAuthenticatedPage):
 
         output = []
         for taskid, task in tasks.items():
+            task_cache = self.user_manager.get_task_cache(self.user_manager.session_username(), task.get_course_id(), task.get_id())
+
             data = {
                 "id": taskid,
                 "name": task.get_name(),
                 "authors": task.get_authors(),
                 "deadline": task.get_deadline(),
-                "status": self.user_manager.get_task_status(task),
-                "grade": self.user_manager.get_task_grade(task),
+                "status": "notviewed" if task_cache is None else "notattempted" if task_cache["tried"] == 0 else "succeeded" if task_cache["succeeded"] else "failed",
+                "grade": task_cache.get("grade", 0.0) if task_cache is not None else 0.0,
                 "grade_weight": task.get_grading_weight(),
                 "context": task.get_context().original_content(),
                 "problems": []

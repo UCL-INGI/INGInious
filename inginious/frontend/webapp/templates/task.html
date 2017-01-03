@@ -44,7 +44,7 @@ $def ColumnF():
         <tr>
             <td>Grade</td>
             <td>
-                <span id="task_grade">$user_manager.get_task_grade(task)</span>%
+                <span id="task_grade">$user_task.get('grade', 0)</span>%
             </td>
         </tr>
         <tr>
