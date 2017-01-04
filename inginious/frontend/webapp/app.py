@@ -4,9 +4,6 @@
 # more information about the licensing of this file.
 
 """ Starts the webapp """
-import logging
-import os
-
 from gridfs import GridFS
 from pymongo import MongoClient
 import web
@@ -68,7 +65,7 @@ urls = (
 )
 
 urls_maintenance = (
-    '/.*', 'webapp.pages.maintenance.MaintenancePage'
+    '/.*', 'inginious.frontend.webapp.pages.maintenance.MaintenancePage'
 )
 
 
@@ -98,15 +95,20 @@ def get_app(config):
     """
     config = _put_configuration_defaults(config)
 
+    appli = web.application((), globals(), autoreload=False)
+
     if config.get("maintenance", False):
-        appli = web.application(urls_maintenance, globals(), autoreload=False)
-        return appli
+        template_helper = TemplateHelper(PluginManager(), 'frontend/webapp/templates',
+                                         'frontend/webapp/templates/layout',
+                                         config.get('use_minified_js', True))
+        template_helper.add_to_template_globals("get_homepath", lambda: web.ctx.homepath)
+        appli.template_helper = template_helper
+        appli.init_mapping(urls_maintenance)
+        return appli.wsgifunc(), appli.stop
 
     task_directory = config["tasks_directory"]
     default_allowed_file_extensions = config['allowed_file_extensions']
     default_max_file_size = config['max_file_size']
-
-    appli = web.application((), globals(), autoreload=False)
 
     zmq_context, asyncio_thread = start_asyncio_and_zmq()
 
@@ -130,7 +132,8 @@ def get_app(config):
     batch_manager = BatchManager(client, database, gridfs, submission_manager, user_manager,
                                  task_directory)
 
-    template_helper = TemplateHelper(plugin_manager, get_root_path(), 'frontend/webapp/templates', 'layout', config.get('use_minified_js', True))
+    template_helper = TemplateHelper(plugin_manager, 'frontend/webapp/templates', 'frontend/webapp/templates/layout',
+                                     config.get('use_minified_js', True))
 
     # Init web mail
     smtp_conf = config.get('smtp', None)
@@ -146,6 +149,7 @@ def get_app(config):
     update_database(database, gridfs, course_factory, user_manager)
 
     # Add some helpers for the templates
+    template_helper.add_to_template_globals("get_homepath", lambda: web.ctx.homepath)
     template_helper.add_to_template_globals("user_manager", user_manager)
     template_helper.add_to_template_globals("default_allowed_file_extensions", default_allowed_file_extensions)
     template_helper.add_to_template_globals("default_max_file_size", default_max_file_size)
@@ -185,8 +189,3 @@ def get_app(config):
     client.start()
 
     return appli.wsgifunc(), lambda: _close_app(appli, mongo_client, client)
-
-
-def get_root_path():
-    """ Returns the INGInious root path """
-    return os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))

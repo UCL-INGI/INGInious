@@ -7,6 +7,7 @@ import base64
 
 import web
 
+from os import path
 from inginious.frontend.common.task_problems import DisplayableCodeFileProblem, DisplayableMultipleChoiceProblem
 from inginious.frontend.webapp.pages.course_admin.utils import INGIniousAdminPage
 
@@ -14,12 +15,12 @@ from inginious.frontend.webapp.pages.course_admin.utils import INGIniousAdminPag
 class CourseStudentTaskSubmission(INGIniousAdminPage):
     """ List information about a task done by a student """
 
-    def GET(self, courseid, username, taskid, submissionid):
+    def GET_AUTH(self, courseid, username, taskid, submissionid):  # pylint: disable=arguments-differ
         """ GET request """
         course, task = self.get_course_and_check_rights(courseid, taskid)
         return self.page(course, username, task, submissionid)
 
-    def POST(self, courseid, username, taskid, submissionid):
+    def POST_AUTH(self, courseid, username, taskid, submissionid):  # pylint: disable=arguments-differ
         course, task = self.get_course_and_check_rights(courseid, taskid)
         is_admin = self.user_manager.has_admin_rights_on_course(course)
 
@@ -61,10 +62,11 @@ class CourseStudentTaskSubmission(INGIniousAdminPage):
                     "mime": "text/plain"
                 }
                 if isinstance(problem, DisplayableCodeFileProblem):
-                    if submission["input"][problem.get_id()]["filename"].endswith(".pdf"):
-                        data["language"] = "pdf"
-                        data["mime"] = "application/pdf"
+                    extension = path.splitext(submission["input"][problem.get_id()]["filename"])[1]
                     try:
+                        if extension in [".zip", ".pdf", ".tgz"]:
+                            data["language"] = extension[1:]
+                            data["mime"] = "application/" + extension[1:]
                         data["content"] = base64.b64decode(submission["input"][problem.get_id()]["value"]).encode('utf8')
                     except:
                         data["content"] = None
@@ -83,10 +85,10 @@ class CourseStudentTaskSubmission(INGIniousAdminPage):
                             t = "valid" if choice.get("valid", False) else "invalid"
                             m = choice["text"]
                         data["content"] += "\t- %s (%s): \n\t%s\n" % (c, t, m)
-                    data["base64"] = str(base64.b64encode(str(submission["input"][problem.get_id()]).encode('utf-8')))
+                    data["base64"] = base64.b64encode(str(submission["input"][problem.get_id()]).encode('utf-8')).decode('utf-8')
                 elif isinstance(submission["input"][problem.get_id()], str):
                     data["content"] = submission["input"][problem.get_id()]
-                    data["base64"] = str(base64.b64encode(str(submission["input"][problem.get_id()]).encode('utf-8')))
+                    data["base64"] = base64.b64encode(str(submission["input"][problem.get_id()]).encode('utf-8')).decode('utf-8')
                     try:
                         data["language"] = problem.get_original_content()["language"]
                     except:
@@ -123,17 +125,18 @@ class CourseStudentTaskSubmission(INGIniousAdminPage):
                     "mime": "text/plain"
                 }
                 if isinstance(submission["input"][pid], dict):  # file
-                    if submission["input"][pid]["filename"].endswith(".pdf"):
-                        data["language"] = "pdf"
-                        data["mime"] = "application/pdf"
+                    extension = path.splitext(submission["input"][problem.get_id()]["filename"])[1]
                     try:
+                        if extension in [".zip", ".pdf", ".tgz"]:
+                            data["language"] = extension[1:]
+                            data["mime"] = "application/" + extension[1:]
                         data["content"] = base64.b64decode(submission["input"][pid]["value"]).decode('utf-8')
                     except:
                         data["content"] = None
                     data["base64"] = submission["input"][pid]["value"]
                 elif isinstance(submission["input"][pid], str):
                     data["content"] = submission["input"][pid]
-                    data["base64"] = str(base64.b64encode(str(submission["input"][pid]).encode('utf-8')))
+                    data["base64"] = base64.b64encode(str(submission["input"][pid]).encode('utf-8')).decode('utf-8')
                 to_display.append(data)
 
         return self.template_helper.get_renderer().course_admin.submission(course, username, task, submissionid, submission, to_display)

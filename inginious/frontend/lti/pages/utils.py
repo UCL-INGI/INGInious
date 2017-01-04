@@ -5,7 +5,6 @@
 
 """ Some utils for all the pages """
 import abc
-import hashlib
 from typing import List, Dict
 
 from gridfs import GridFS
@@ -32,65 +31,91 @@ class LTIPage(object):
 
     @property
     def app(self):
+        """ Returns the web application singleton """
         return web.ctx.app_stack[0]
 
     @property
     def plugin_manager(self) -> PluginManager:
+        """ Returns the plugin manager singleton """
         return self.app.plugin_manager
 
     @property
     def course_factory(self) -> CourseFactory:
+        """ Returns the course factory singleton """
         return self.app.course_factory
 
     @property
     def task_factory(self) -> TaskFactory:
+        """ Returns the task factory singleton """
         return self.app.task_factory
 
     @property
     def submission_manager(self) -> SubmissionManager:
+        """ Returns the submission manager singleton"""
         return self.app.submission_manager
 
     @property
     def user_manager(self) -> UserManager:
+        """ Returns the user manager singleton """
         return self.app.user_manager
 
     @property
     def template_helper(self) -> TemplateHelper:
+        """ Returns the Template Helper singleton """
         return self.app.template_helper
 
     @property
     def database(self) -> Database:
+        """ Returns the database singleton """
         return self.app.database
 
     @property
     def gridfs(self) -> GridFS:
+        """ Returns the GridFS singleton """
         return self.app.gridfs
 
     @property
     def default_allowed_file_extensions(self) -> List[str]:
+        """ List of allowed file extensions """
         return self.app.default_allowed_file_extensions
 
     @property
     def default_max_file_size(self) -> int:
+        """ Default maximum file size for upload """
         return self.app.default_max_file_size
 
     @property
     def containers(self) -> List[str]:
+        """ Available containers """
         return self.app.submission_manager.get_available_environments()
 
     @property
     def consumers(self) -> Dict[str, Dict[str, str]]:
+        """ Consumers keys """
         return self.app.consumers
 
     @property
     def logger(self) -> logging.Logger:
+        """ Logger """
         return logging.getLogger('inginious.lti.pages.utils')
 
+    @property
+    def webterm_link(self) -> str:
+        """ Returns the link to the web terminal """
+        return self.app.webterm_link
+
+
 class LTINotConnectedException(Exception):
+    """
+    Exception risen when user is not authenticated
+    """
     pass
 
 
 class LTINoRightsException(Exception):
+    """
+    Exception risen when the page cannot be seen by current user
+    """
     pass
 
 
@@ -106,33 +131,26 @@ class LTIAuthenticatedPage(LTIPage):
         self.course = None
         self.task = None
 
-    def LTI_POST(self, *args, **kwargs):
+    def LTI_POST(self, *args, **kwargs):  # pylint: disable=unused-argument
         raise web.notacceptable()
 
-    def LTI_GET(self, *args, **kwargs):
+    def LTI_GET(self, *args, **kwargs):  # pylint: disable=unused-argument
         raise web.notacceptable()
 
-    def LTI_GET_NOT_CONNECTED(self, *args, **kwargs):
+    def LTI_GET_NOT_CONNECTED(self, *args, **kwargs):  # pylint: disable=unused-argument
         self.logger.info('ERROR: LTI_GET_NOT_CONNECTED')
         raise web.notfound("Your session expired. Please reload the page.")
 
-    def LTI_POST_NOT_CONNECTED(self, *args, **kwargs):
+    def LTI_POST_NOT_CONNECTED(self, *args, **kwargs):  # pylint: disable=unused-argument
         self.logger.info('ERROR: LTI_POST_NOT_CONNECTED')
         raise web.notfound("Your session expired. Please reload the page.")
 
-    def LTI_GET_NO_RIGHTS(self, *args, **kwargs):
-        self.logger.info('ERROR: LTI_GET_NO_RIGHTS')
-        raise web.notfound("You do not have the rights to view this page.")
-
-    def LTI_POST_NO_RIGHTS(self, *args, **kwargs):
-        self.logger.info('ERROR: LTI_POST_NOT_CONNECTED')
-        raise web.notfound("You do not have the rights to view this page.")
-
-    def required_role(self, method="POST"):
+    def required_role(self, method="POST"):  # pylint: disable=unused-argument
         """ Allow to override the minimal access right needed for this page. Method can be either "POST" or "GET" """
         return self.learner_role
 
     def verify_role(self, roles, method):
+        """ Check if"""
         for role in self.required_role(method):
             if role in roles:
                 return True
@@ -145,7 +163,8 @@ class LTIAuthenticatedPage(LTIPage):
         except LTINotConnectedException:
             return self.LTI_POST_NOT_CONNECTED(*args, **kwargs)
         except LTINoRightsException:
-            return self.LTI_POST_NO_RIGHTS(*args, **kwargs)
+            self.logger.info('ERROR: LTI_POST_NOT_CONNECTED')
+            raise web.notfound("You do not have the rights to view this page.")
         except Exception as e:
             self.logger.debug('ERROR: POST ' + str(e))
             raise web.notfound(str(e))
@@ -158,7 +177,8 @@ class LTIAuthenticatedPage(LTIPage):
         except LTINotConnectedException:
             return self.LTI_GET_NOT_CONNECTED(*args, **kwargs)
         except LTINoRightsException:
-            return self.LTI_GET_NO_RIGHTS(*args, **kwargs)
+            self.logger.info('ERROR: LTI_GET_NO_RIGHTS')
+            raise web.notfound("You do not have the rights to view this page.")
         except Exception as e:
             self.logger.debug('ERROR: GET ' + str(e))
             raise web.notfound(str(e))
@@ -183,6 +203,7 @@ class LTIAuthenticatedPage(LTIPage):
             self.task = self.course.get_task(task_id)
         except:
             raise web.notfound()
+
 
 class LTILaunchPage(LTIPage, metaclass=abc.ABCMeta):
     """

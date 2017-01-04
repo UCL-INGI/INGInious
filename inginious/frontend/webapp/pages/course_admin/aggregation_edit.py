@@ -154,12 +154,12 @@ class CourseEditAggregation(INGIniousAdminPage):
                                                                                         users_info, aggregations, msg,
                                                                                         error)
 
-    def GET(self, courseid, aggregationid=''):
+    def GET_AUTH(self, courseid, aggregationid=''):  # pylint: disable=arguments-differ
         """ Edit a aggregation """
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=True)
         return self.display_page(course, aggregationid)
 
-    def POST(self, courseid, aggregationid=''):
+    def POST_AUTH(self, courseid, aggregationid=''):  # pylint: disable=arguments-differ
         """ Edit a aggregation """
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=True)
 

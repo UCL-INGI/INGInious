@@ -3,13 +3,13 @@
 Task description files
 ======================
 
-Inside a course folder (see `Creating a new course`) tasks must have
-(for example with *taskname* as task id) a folder named
-*taskname*, and, inside this folder, a file named *task.yaml*.
+Inside a course folder (see :ref:`course`), tasks are identified by subdirectories named by their task id and containing
+a ``task.yaml`` file. For instance, this file, for a task with id ``taskid1``, should be placed in a ``taskid1``
+subdirectory.
 
-*task.yaml* is a YAML file containing informations about the task.
+``task.yaml`` is a YAML file containing information about the task.
 
-::
+.. code-block:: yaml
 
     author: Your name
     context: |-
@@ -31,58 +31,81 @@ Inside a course folder (see `Creating a new course`) tasks must have
     network_grading: False
 
 
--   *author*, *context*, *order*, *name*, *language* and *header* are only needed
+-   ``author``, ``context``, ``order``, ``name``, ``language`` and ``header`` are only needed
     if you use the frontend.
-    *context* and *header* are parsed using restructuredText [#]_ .
+    ``context`` and ``header`` are parsed using restructuredText.
 
--   *order* is an integer, used by the frontend to sort the task list. Task are sorted
+-   ``order`` is an integer, used by the frontend to sort the task list. Task are sorted
     in increasing value of *order*.
 
--   *accessible* describes when the task is accessible to student. This field is not
+-   ``weight`` is a decimal value indicating the weight of the task score to use to compute the total course score.
+
+-   ``accessible`` describes when the task is accessible to student. This field is not
     mandatory (by default, the task is visible) and can contain the following values:
 
-    *true*
+    ``true``
         the task is always accessible
-    *false*
+    ``false``
         the task is never accessible
-    *"START"*
+    ``"START"``
         where *START* is a valid date, like "2014-05-10 10:11:12", or "2014-06-18".
         The task is only accessible after *START*.
-    *"/END"*
+    ``"/END"``
         where *END* is a valid date, like "2014-05-10 10:11:12", or "2014-06-18".
         The task is only accessible before *END*.
-    *"START/END"*
+    ``"START/END"``
         where *START* and *END* are valid dates, like "2014-05-10 10:11:12", or
         "2014-06-18". The task is only accessible between *START* and *END*.
 
--   *problems* describes sub-problems of this task. This field is mandatory and must contain
+-   ``problems`` describes sub-problems of this task. This field is mandatory and must contain
     at least one problem. Problem types are described in the following section
     `Problem types`_. Each problem must have an id which is alphanumeric and unique.
 
--   *limits* contains the limits that will be applied on the grading container. ```time```
-    is the CPU timeout in seconds, and ```hard_time``` is the timeout in real time. 
+-   ``limits`` contains the limits that will be applied on the grading container. ``time``
+    is the CPU timeout in seconds, and ``hard_time`` is the timeout in real time.
     
-    By default, ```hard_time``` is defined to be to 3*```time```. This can leads to problems
+    By default, ``hard_time`` is defined to be to 3*``time``. This can leads to problems
     when INGInious is under heavy load, but allow to detect processes that do too much system
     interruptions (sleep calls or IO)
     
-    ```memory``` is the maximum memory allowed to the container.
+    ``memory`` is the maximum memory allowed to the container.
     
     Please note that the limits of the student containers (container that you start inside
     the grading container) will use these limits by default.
     
--   *environment* is the name of the Docker container in which the grading code will run.
+-   ``environment`` is the name of the Docker container in which the grading code will run.
     This field is only needed if there is code to correct; a multiple-choice question does
     not need it. This environment will be used by default for the student containers.
 
--   *groups* allows to indicate if the submission is to be done individually or per groups/teams.
+-   ``groups`` allows to indicate if the submission is to be done individually or per groups/teams.
     (see Classrooms and Teams).
 
--   *network_grading* indicates if the grading container should have access to the net. This
+-   ``network_grading`` indicates if the grading container should have access to the net. This
     is not the case by default.
 
-.. [#] There are some options about using HTML instead of restructuredText, but they
-       are purposely not documented :-)
+-  ``evaluate`` indicates the submission that must be used for evaluation. This can be either:
+
+   ``best``
+       This is the default value. In this case, the best submission is used.
+   ``last``
+       In this case, the last submission is used.
+   ``student``
+       In this case, the student can select the submission for evaluation. This allows student to select the submission
+       for evaluation without submitting it again or if submission replays are planned.
+       This feature is not available in the LTI module due to LTI specifications limitations, and will be considered as
+       best submission.
+
+- ``submission_limit`` indicates the amount of submissions a student can make within a certain period of time.
+  It is composed of two fields:
+
+  - ``amount`` is an integer value indicating the amount of submission. A value of ``-1`` corresponds to an infinite
+    amount of submissions.
+  - ``period`` is an integer value indicating the length of the submission period in hours. A value of ``-1`` corresponds
+    to an infinite period. At the end of this period, the student can submit ``amount`` submissions again during
+    ``period`` hours.
+
+- ``stored_submissions`` indicates the amount of submissions that must be saved in the submission history. A value of
+  ``0`` keeps all the submissions.
 
 Problem types
 -------------
@@ -90,12 +113,12 @@ Problem types
 Code problems
 `````````````
 
-*"type"="code"* problems allows students to submit their code. The code is then
+``type: code`` problems allows students to submit their code. The code is then
 sent to a container where a script made by the teaching team corrects it.
 
 Here is a simple example for a code problem
 
-::
+.. code-block:: yaml
 
     type: code
     language: c
@@ -117,9 +140,9 @@ id of the problem.
 Single code line problems
 `````````````````````````
 
-*"type":"code-single-line"* is simply a code box that allows a single line as input.
+``type: code-single-line`` is simply a code box that allows a single line as input.
 
-::
+.. code-block:: yaml
 
     type: code-single-line
     language: c
@@ -138,7 +161,7 @@ Advanced code problem
 
 Advanced code problems are available:
 
-::
+.. code-block:: yaml
 
     type: code
     header: some text
@@ -172,7 +195,7 @@ Match problems
 Match problem are input that allows a single-line input from the student and that
 returns if the student entered exactly the text given in the "answer" field.
 
-::
+.. code-block:: yaml
 
     name: The answer
     type: match
@@ -185,7 +208,7 @@ directly with the id of the problem.
 Multiple choice problems
 ````````````````````````
 
-::
+.. code-block:: yaml
 
     name: An exercice
     type: multiple-choice

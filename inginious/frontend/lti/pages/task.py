@@ -4,6 +4,8 @@
 # more information about the licensing of this file.
 
 """ Main page for the LTI provider. Displays a task and allow to answer to it. """
+import os
+import posixpath
 import base64
 import json
 import logging
@@ -75,9 +77,16 @@ class LTITask(LTIAuthenticatedPage):
                                                               "to upload. Your responses were not tested."})
             del userinput['@action']
 
+            # Get debug info if the current user is an admin
+            debug = is_admin
+            if "@debug-mode" in userinput:
+                if userinput["@debug-mode"] == "ssh" and debug:
+                    debug = "ssh"
+                del userinput['@debug-mode']
+
             # Start the submission
             try:
-                submissionid, oldsubids = self.submission_manager.add_job(self.task, userinput, is_admin)
+                submissionid, oldsubids = self.submission_manager.add_job(self.task, userinput, debug)
                 web.header('Content-Type', 'application/json')
                 return json.dumps({"status": "ok", "submissionid": str(submissionid), "remove": oldsubids})
             except Exception as ex:
@@ -85,7 +94,11 @@ class LTITask(LTIAuthenticatedPage):
                 return json.dumps({"status": "error", "text": str(ex)})
 
         elif "@action" in userinput and userinput["@action"] == "check" and "submissionid" in userinput:
-            if self.submission_manager.is_done(userinput['submissionid']):
+            result = self.submission_manager.get_submission(userinput['submissionid'])
+            if result is None:
+                web.header('Content-Type', 'application/json')
+                return json.dumps({'status': "error"})
+            elif self.submission_manager.is_done(result):
                 web.header('Content-Type', 'application/json')
                 result = self.submission_manager.get_submission(userinput['submissionid'])
                 result = self.submission_manager.get_input_from_submission(result)
@@ -94,7 +107,13 @@ class LTITask(LTIAuthenticatedPage):
                 return submission_to_json(result, is_admin)
             else:
                 web.header('Content-Type', 'application/json')
-                return json.dumps({'status': "waiting"})
+                if "ssh_host" in result:
+                    return json.dumps({'status': "waiting",
+                                       'ssh_host': result["ssh_host"],
+                                       'ssh_port': result["ssh_port"],
+                                       'ssh_password': result["ssh_password"]})
+                else:
+                    return json.dumps({'status': "waiting"})
         elif "@action" in userinput and userinput["@action"] == "load_submission_input" and "submissionid" in userinput:
             submission = self.submission_manager.get_submission(userinput["submissionid"])
             submission = self.submission_manager.get_input_from_submission(submission)
@@ -111,4 +130,35 @@ class LTITask(LTIAuthenticatedPage):
             return json.dumps({'status': 'done'})
         else:
             # Display the task itself
-            return self.template_helper.get_renderer().task(self.course, self.task, self.submission_manager.get_user_submissions(self.task), is_admin)
+            return self.template_helper.get_renderer().task(self.course, self.task, self.submission_manager.get_user_submissions(self.task), is_admin, self.webterm_link)
+
+
+class LTITaskPageStaticDownload(LTIAuthenticatedPage):
+    """ Allow to download files stored in the task folder """
+
+    def LTI_GET(self, taskid, path):  # pylint: disable=arguments-differ
+        """ GET request """
+        try:
+            if not taskid == self.task.get_id():
+                raise web.notfound()
+
+            path_norm = posixpath.normpath(urllib.parse.unquote(path))
+            public_folder_path = os.path.normpath(os.path.realpath(os.path.join(self.task.get_directory_path(), "public")))
+            file_path = os.path.normpath(os.path.realpath(os.path.join(public_folder_path, path_norm)))
+
+            # Verify that we are still inside the public directory
+            if os.path.normpath(os.path.commonprefix([public_folder_path, file_path])) != public_folder_path:
+                raise web.notfound()
+
+            if os.path.isfile(file_path):
+                mimetypes.init()
+                mime_type = mimetypes.guess_type(file_path)
+                web.header('Content-Type', mime_type[0])
+                return open(file_path, 'rb')
+            else:
+                raise web.notfound()
+        except:
+            if web.config.debug:
+                raise
+            else:
+                raise web.notfound()

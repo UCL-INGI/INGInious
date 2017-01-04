@@ -14,10 +14,10 @@ $var Column: $:ColumnF()
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
-        <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
-        <li><a href="/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+        <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
+        <li><a href="$get_homepath()/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-user-secret"></i></a></li>
-        <li><a href="/admin/$course.get_id()/tasks" title="Tasks" data-toggle="tooltip" data-placement="bottom">
+        <li><a href="$get_homepath()/admin/$course.get_id()/tasks" title="Tasks" data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-tasks"></i></a></li>
         <li class="active"><a href="#">Edit task "$taskid" <span class="sr-only">(current)</span></a></li>
     </ol>
@@ -28,7 +28,7 @@ $var Navbar: $:NavbarF()
     <div class="pull-right">
         <div class="btn-group">
             <button class="btn btn-primary btn-success btn-sm task_edit_submit_button" type="button" onclick="studio_submit()"><i class="fa fa-save"></i> Save changes</button>
-            <a id="switch" class="btn-sm btn btn-info" href="/course/$course.get_id()/$taskid"><i class="fa fa-search"></i> View task</a>
+            <a id="switch" class="btn-sm btn btn-info" href="$get_homepath()/course/$course.get_id()/$taskid"><i class="fa fa-search"></i> View task</a>
         </div>
     </div>
 </h2>
@@ -69,9 +69,35 @@ $var Navbar: $:NavbarF()
                     $:include.course_admin.edit_tabs.files(course,taskid,file_list)
                 </div>
             </div>
+
         </div>
     </div>
+    <a href="#task_edit_submit_status" class="btn btn-primary btn-block task_edit_submit_button" type="button" onclick="studio_submit()"><i class="fa fa-save"></i> Save changes</a>
 </form>
+<div id="delete_modal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Delete task</h4>
+                </div>
+                <div class="modal-body">
+                    <p>This will <b>permanently</b> remove the task and its files from INGInious.</p>
+                    <div class="checkbox">
+                        <label>
+                          <input type="checkbox" name="wipe"> Wipe all submissions
+                        </label>
+                      </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="submit" name="delete" class="btn btn-danger">Delete task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <!-- Must be out of the form -->
 $:include.course_admin.edit_tabs.subproblem_templates(contains_is_html)

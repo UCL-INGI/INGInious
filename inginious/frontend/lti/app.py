@@ -5,7 +5,6 @@
 
 """ Starts the webapp """
 import logging
-import os
 
 from gridfs import GridFS
 from pymongo import MongoClient
@@ -28,7 +27,8 @@ from inginious.frontend.common.submission_manager import update_pending_jobs
 urls = (
     r"/launch/([a-zA-Z0-9\-_]+)/([a-zA-Z0-9\-_]+)", "inginious.frontend.lti.pages.launch.LTILaunchTask",
     r"/([a-zA-Z0-9\-_]+)/task", "inginious.frontend.lti.pages.task.LTITask",
-    r"/([a-zA-Z0-9\-_]+)/download", "inginious.frontend.lti.pages.download.LTIDownload"
+    r"/([a-zA-Z0-9\-_]+)/download", "inginious.frontend.lti.pages.download.LTIDownload",
+    r'/([a-zA-Z0-9\-_]+)/([^/]+)/(.*)', 'inginious.frontend.lti.pages.task.LTITaskPageStaticDownload'
 )
 
 def _put_configuration_defaults(config):
@@ -123,12 +123,13 @@ def get_app(config):
     submission_manager = LTISubmissionManager(client, user_manager, database, gridfs, plugin_manager,
                                               config.get('nb_submissions_kept', 5), lis_outcome_manager)
 
-    template_helper = TemplateHelper(plugin_manager, get_root_path(), 'frontend/lti/templates', 'layout', config.get('use_minified_js', True))
+    template_helper = TemplateHelper(plugin_manager, 'frontend/lti/templates', 'frontend/lti/templates/layout', config.get('use_minified_js', True))
 
     # Update the database
     update_database(database)
 
     # Add some helpers for the templates
+    template_helper.add_to_template_globals("get_homepath", lambda: web.ctx.homepath)
     template_helper.add_to_template_globals("user_manager", user_manager)
     template_helper.add_to_template_globals("default_allowed_file_extensions", default_allowed_file_extensions)
     template_helper.add_to_template_globals("default_max_file_size", default_max_file_size)
@@ -150,6 +151,7 @@ def get_app(config):
     appli.consumers = config["lti"]
     appli.download_directory = download_directory
     appli.download_status = {}
+    appli.webterm_link = config.get("webterm", None)
 
     # Init the mapping of the app
     appli.init_mapping(urls)
@@ -161,8 +163,3 @@ def get_app(config):
     client.start()
 
     return appli.wsgifunc(), lambda: _close_app(appli, mongo_client, client, lis_outcome_manager)
-
-
-def get_root_path():
-    """ Returns the INGInious root path """
-    return os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))

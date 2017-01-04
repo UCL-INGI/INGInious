@@ -6,39 +6,33 @@
 """ Course page """
 import web
 
-from inginious.frontend.webapp.pages.utils import INGIniousPage
+from inginious.frontend.webapp.pages.utils import INGIniousAuthPage
 
 
-class CoursePage(INGIniousPage):
+class CoursePage(INGIniousAuthPage):
     """ Course page """
 
     def get_course(self, courseid):
-        """ Check rights and return the course """
-        if not self.user_manager.session_logged_in():
-            raise web.seeother('/index')
-
+        """ Return the course """
         try:
             course = self.course_factory.get_course(courseid)
         except:
-            if web.config.debug:
-                raise
-            else:
-                raise web.notfound()
+            raise web.notfound()
 
         return course
 
-    def POST(self, courseid):
+    def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request """
         course = self.get_course(courseid)
 
         user_input = web.input()
-        if "unregister" in user_input:
+        if "unregister" in user_input and course.allow_unregister():
             self.user_manager.course_unregister_user(course, self.user_manager.session_username())
             raise web.seeother('/index')
 
         return self.show_page(course)
 
-    def GET(self, courseid):
+    def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
         course = self.get_course(courseid)
         return self.show_page(course)

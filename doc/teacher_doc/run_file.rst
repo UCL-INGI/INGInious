@@ -1,4 +1,4 @@
-.. _run file:
+.. _run_file:
 
 Run file
 ========
@@ -21,9 +21,6 @@ commands (also available as python libraries) to interact with the backend.
 
 By default, the script is run inside the container in the /task directory, by a non-root
 user. You can modify the container to change this (and everything else).
-
-Usable commands in the *run* file
-=================================
 
 Feedback commands
 -----------------
@@ -138,6 +135,33 @@ used as follows:
     from inginious import feedback
     feedback.set_global_feedback("Well done !") # Set global feedback text to `Well done !`
     feedback.set_problem_feedback("This is not correct.", "q1") # Set 'q1' problem feedback to `This is not correct.`
+
+.. _feedback-custom:
+
+feedback-custom
+```````````````
+The *feedback-custom* command sets a pair of key/value custom feedback, mainly used with plugins,
+and uses the following syntax :
+
+::
+
+    feedback-custom [-j|--json] key value
+
+The ``--json`` parameter indicates if ``value`` must be parsed as a JSON string.
+Please refer to the plugin documentation to know which value you have to set for ``key`` and ``value`` parameters.
+
+For instance, the following command set the value ``56`` to the ``score`` key:
+
+::
+
+    feedback-custom score 56
+
+**In Python** : the equivalent command can be directly obtained with:
+
+.. code-block:: python
+
+    from inginious import feedback
+    feedback.set_custom_value("score", 56) # Set the `score` key to value 56
 
 reStructuredText helper commands
 --------------------------------

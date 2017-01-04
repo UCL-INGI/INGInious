@@ -13,12 +13,12 @@ from inginious.frontend.webapp.pages.course_admin.utils import make_csv, INGInio
 class CourseTaskListPage(INGIniousAdminPage):
     """ List informations about all tasks """
 
-    def GET(self, courseid):
+    def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
         course, _ = self.get_course_and_check_rights(courseid)
         return self.page(course)
 
-    def POST(self, courseid):
+    def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request """
         course, _ = self.get_course_and_check_rights(courseid)
         data = web.input(task=[])

@@ -1,11 +1,11 @@
-$def with (open_courses,registrable_courses,submissions,registration_status)
+$def with (open_courses,registrable_courses,submissions,success)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
-$var title: My profile
+$var title: My courses
 
 $# Left column content
 $def ColumnF():
@@ -24,12 +24,13 @@ $def ColumnF():
                     $else:
                         list-group-item-danger
                     "
-                    href="/course/$submission['courseid']/$submission['taskid']">
+                    href="$get_homepath()/course/$submission['courseid']/$submission['taskid']">
                     <b>$submission["task"].get_course().get_name()</b>: $submission["task"].get_name()
                 </a>
         $else:
             <a class="list-group-item disabled submission-empty">No submissions</a>
     </div>
+    $:template_helper.call('main_menu', template_helper=template_helper)
 $var Column: $:ColumnF()
 
 $# Start content
@@ -40,7 +41,7 @@ $# Start content
                 $if not user_manager.course_is_user_registered(open_courses[courseid]) and not open_courses[courseid].can_students_choose_group():
                     <div class="list-group-item row disabled">
                 $else:
-                    <a href="course/$courseid" class="list-group-item row">
+                    <a href="$get_homepath()/course/$courseid" class="list-group-item row">
 
                 <div class="col-xs-12 col-md-7">
                     $open_courses[courseid].get_name()
@@ -63,26 +64,53 @@ $# Start content
         <a href="#register" class="list-group-item row disabled">You are not registered to any course</a>
 </div>
 <hr/>
-<h3>Register for a course</h3>
-$if registration_status == True:
-    <div class="alert alert-success" role="alert">Registration complete.</div>
-$elif registration_status == False:
-    <div class="alert alert-danger" role="alert">Registration failed. Please check that you properly typed the password.</div>
-<form class="form row" role="form" action="/" method="post">
-    <div class="form-group col-sm-8">
-        <label class="sr-only" for="register_courseid">Course</label>
-        <select class="form-control" id="register_courseid" name="register_courseid">
-            <option value="">Select a course</option>
-            $for courseid, course in registrable_courses.items():
-                <option value="$courseid"
-                $if course.is_password_needed_for_registration():
-                    data-password="1"
-                >$course.get_name()</option>
-        </select>
-    </div>
-    <div class="form-group col-sm-4">
-        <label class="sr-only" for="register_password">Password</label>
-        <input class="form-control" type="text" id="register_password" name="register_password" disabled="disabled" placeholder="Password">
-    </div>
-    <div class="col-sm-12"><button type="submit" class="btn btn-block btn-default">Register</button></div>
-</form>
+$if user_manager.user_is_superadmin():
+    $if success == True:
+        <div class="alert alert-success alert-dismissable" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            Course created.
+        </div>
+    $if success == False:
+        <div class="alert alert-danger alert-dismissable" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            Failed to create the course.
+        </div>
+    <form class="form row" role="form" action="$get_homepath()/" method="post">
+        <div class="form-group col-sm-8">
+            <label class="sr-only" for="new_courseid">Course</label>
+            <input name="new_courseid" type="text" class="form-control" id="new_courseid" placeholder="New course id">
+        </div>
+        <div class="form-group col-sm-4">
+            <button type="submit" class="btn btn-block btn-primary">Create new course</button>
+        </div>
+    </form>
+$else:
+    <h3>Register for a course</h3>
+    $if success == True:
+        <div class="alert alert-success alert-dismissable" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            Registration complete.
+        </div>
+    $elif success == False:
+        <div class="alert alert-danger alert-dismissable" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            Registration failed. Please check that you properly typed the password.
+        </div>
+    <form class="form row" role="form" action="$get_homepath()/" method="post">
+        <div class="form-group col-sm-8">
+            <label class="sr-only" for="register_courseid">Course</label>
+            <select class="form-control" id="register_courseid" name="register_courseid">
+                <option value="">Select a course</option>
+                $for courseid, course in registrable_courses.items():
+                    <option value="$courseid"
+                    $if course.is_password_needed_for_registration():
+                        data-password="1"
+                    >$course.get_name()</option>
+            </select>
+        </div>
+        <div class="form-group col-sm-4">
+            <label class="sr-only" for="register_password">Password</label>
+            <input class="form-control" type="text" id="register_password" name="register_password" disabled="disabled" placeholder="Password">
+        </div>
+        <div class="col-sm-12"><button type="submit" class="btn btn-block btn-default">Register</button></div>
+    </form>

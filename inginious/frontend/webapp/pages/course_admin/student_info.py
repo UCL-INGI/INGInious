@@ -12,7 +12,7 @@ from inginious.frontend.webapp.pages.course_admin.utils import make_csv, INGInio
 class CourseStudentInfoPage(INGIniousAdminPage):
     """ List information about a student """
 
-    def GET(self, courseid, username):
+    def GET_AUTH(self, courseid, username):  # pylint: disable=arguments-differ
         """ GET request """
         course, _ = self.get_course_and_check_rights(courseid)
         return self.page(course, username)

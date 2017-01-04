@@ -6,7 +6,8 @@
 """ Shared methods for the command line tool that installs the frontends """
 import abc
 import os
-import shutil
+import tarfile
+import urllib.request
 
 import docker
 from docker.utils import kwargs_from_env
@@ -303,7 +304,7 @@ class Installer(object, metaclass=abc.ABCMeta):
 
     def configure_task_directory(self):
         """ Configure task directory """
-        self._display_question("Please choose a directory in which to store the course/task files. By default, the tool will them in the current "
+        self._display_question("Please choose a directory in which to store the course/task files. By default, the tool will put them in the current "
                                "directory")
         task_directory = None
         while task_directory is None:
@@ -314,12 +315,20 @@ class Installer(object, metaclass=abc.ABCMeta):
                     task_directory = None
 
         if os.path.exists(task_directory):
-            self._display_question("The tool can create a test course in order to let you discover INGInious.")
-            if self._ask_boolean("Would you like to copy the test course?", True):
+            self._display_question("Demonstration tasks can be downloaded to let you discover INGInious.")
+            if self._ask_boolean("Would you like to download them ?", True):
                 try:
-                    shutil.copytree(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'tasks', 'test'),
-                                    os.path.join(task_directory, 'test'))
-                    self._display_info("Successfully copied the test course")
+                    filename, _ = urllib.request.urlretrieve("https://api.github.com/repos/UCL-INGI/INGInious-demo-tasks/tarball")
+                    with tarfile.open(filename, mode="r:gz") as thetarfile:
+                        members = thetarfile.getmembers()
+                        commonpath = os.path.commonpath([tarinfo.name for tarinfo in members])
+
+                        for member in members:
+                            member.name = member.name[len(commonpath) + 1:]
+                            if member.name:
+                                thetarfile.extract(member, task_directory)
+
+                    self._display_info("Successfully downloaded and copied demonstration tasks.")
                 except Exception as e:
                     self._display_error("An error occured while copying the directory: %s" % str(e))
         else:

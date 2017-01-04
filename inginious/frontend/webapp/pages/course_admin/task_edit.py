@@ -7,9 +7,11 @@
 from collections import OrderedDict
 import copy
 import json
+import bson
 import os.path
 import re
 from zipfile import ZipFile
+import logging
 
 import web
 
@@ -23,8 +25,9 @@ from inginious.frontend.webapp.pages.course_admin.utils import INGIniousAdminPag
 
 class CourseEditTask(INGIniousAdminPage):
     """ Edit a task """
+    _logger = logging.getLogger("inginious.webapp.task_edit")
 
-    def GET(self, courseid, taskid):
+    def GET_AUTH(self, courseid, taskid):  # pylint: disable=arguments-differ
         """ Edit a task """
         if not id_checker(taskid):
             raise Exception("Invalid task id")
@@ -163,17 +166,37 @@ class CourseEditTask(INGIniousAdminPage):
 
         return problem_content
 
-    def POST(self, courseid, taskid):
+    def wipe_task(self, courseid, taskid):
+        """ Wipe the data associated to the taskid from DB"""
+        submissions = self.database.submissions.find({"courseid": courseid, "taskid": taskid})
+        for submission in submissions:
+            for key in ["input", "archive"]:
+                if key in submission and type(submission[key]) == bson.objectid.ObjectId:
+                    self.submission_manager.get_gridfs().delete(submission[key])
+
+        self.database.aggregations.remove({"courseid": courseid, "taskid": taskid})
+        self.database.user_tasks.remove({"courseid": courseid, "taskid": taskid})
+        self.database.submissions.remove({"courseid": courseid, "taskid": taskid})
+
+        self._logger.info("Task %s/%s wiped.", courseid, taskid)
+
+    def POST_AUTH(self, courseid, taskid):  # pylint: disable=arguments-differ
         """ Edit a task """
         if not id_checker(taskid) or not id_checker(courseid):
             raise Exception("Invalid course/task id")
 
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
+        data = web.input(task_file={})
 
-        # Parse content
+        # Delete task ?
+        if "delete" in data:
+            self.task_factory.delete_task(courseid, taskid)
+            if data.get("wipe", False):
+                self.wipe_task(courseid, taskid)
+            raise web.seeother("/admin/"+courseid+"/tasks")
+
+        # Else, parse content
         try:
-            data = web.input(task_file={})
-
             try:
                 task_zip = data.get("task_file").file
             except:

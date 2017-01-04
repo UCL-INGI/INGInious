@@ -14,7 +14,7 @@ from inginious.frontend.webapp.pages.course_admin.utils import make_csv, INGInio
 class CourseStudentTaskPage(INGIniousAdminPage):
     """ List information about a task done by a student """
 
-    def GET(self, courseid, username, taskid):
+    def GET_AUTH(self, courseid, username, taskid):  # pylint: disable=arguments-differ
         """ GET request """
         course, task = self.get_course_and_check_rights(courseid, taskid)
         return self.page(course, username, task)

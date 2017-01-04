@@ -1,4 +1,0 @@
-#!/bin/sh
-./test.sh
-definetest test1 "This is a test!"
-archive --add test.sh

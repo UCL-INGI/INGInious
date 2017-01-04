@@ -33,6 +33,7 @@ class WebAppCourse(FrontendCourse):
             self._registration_ac_list = self._content.get('registration_ac_list', [])
             self._groups_student_choice = self._content.get("groups_student_choice", False)
             self._use_classrooms = self._content.get('use_classrooms', True)
+            self._allow_unregister = self._content.get('allow_unregister', True)
         except:
             raise Exception("Course has an invalid description: " + self.get_id())
 
@@ -102,3 +103,7 @@ class WebAppCourse(FrontendCourse):
         elif self.get_access_control_method() == "email":
             return email in self.get_access_control_list()
         return False
+
+    def allow_unregister(self):
+        """ Returns True if students can unregister from course """
+        return self._allow_unregister

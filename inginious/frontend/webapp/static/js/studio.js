@@ -101,11 +101,11 @@ function studio_task_file_upload()
     $('#task_upload_form').ajaxSubmit({
         beforeSend: function()
                     {
-                        $("#tab_files").html('Loading');
+                        $("#tab_file_list").html('Loading');
                     },
         success:    function(data)
                     {
-                        $("#tab_files").html(data);
+                        $("#tab_file_list").replaceWith(data);
                     },
         url:        location.pathname + "/files"
     });
@@ -148,8 +148,7 @@ function studio_task_file_open_tab(path)
                               return;
                           }
 
-                          newtab.html('<form>' + '<textarea id="' + tab_id + '_editor" class="form-control"></textarea>' +
-                              '<button type="button" id="' + tab_id + '_button" class="btn btn-primary btn-block">Save</button></form>');
+                          newtab.html('<textarea id="' + tab_id + '_editor" class="form-control"></textarea>');
 
                           var newtab_editor = $("#" + tab_id + '_editor');
                           newtab_editor.val(data['content']);
@@ -186,26 +185,7 @@ function studio_task_file_open_tab(path)
                           else
                               mode = mode["mode"];
 
-                          var editor = registerCodeEditor(newtab_editor[0], mode, 20);
-                          $("#" + tab_id + '_button').click(function()
-                          {
-                              jQuery.ajax({
-                                  success:  function(data)
-                                            {
-                                                if("error" in data)
-                                                    studio_display_task_submit_message("An error occurred while saving the file", "danger", true);
-                                                else
-                                                {
-                                                    editor.markClean();
-                                                    studio_display_task_submit_message("File saved.", "success", true);
-                                                }
-                                            },
-                                  url:      location.pathname + "/files",
-                                  method:   "POST",
-                                  dataType: "json",
-                                  data:     {"path": path, "action": "edit_save", "content": editor.getValue()}
-                              });
-                          });
+                          registerCodeEditor(newtab_editor[0], mode, 20);
                       },
             method:   "GET",
             dataType: "json",
@@ -267,7 +247,7 @@ function studio_display_task_submit_message(content, type, dismissible)
             {
                 $(this).remove();
             });
-        }, 2000);
+        }, 3000);
     }
 }
 
@@ -288,38 +268,59 @@ function studio_submit()
         $(elem).val(index);
     });
 
-    $('form#edit_task_form').ajaxSubmit(
-        {
-            dataType: 'json',
-            success:  function(data)
-                      {
-                          if("status" in data && data["status"] == "ok")
-                          {
-                              studio_display_task_submit_message("Task saved.", "success", true);
-                              $('.task_edit_submit_button').attr('disabled', false);
-                              studio_submitting = false;
-                          }
-                          else if("message" in data)
-                          {
-                              studio_display_task_submit_message(data["message"], "danger", true);
-                              $('.task_edit_submit_button').attr('disabled', false);
-                              studio_submitting = false;
-                          }
-                          else
-                          {
-                              studio_display_task_submit_message("An internal error occured", "danger", true);
-                              $('.task_edit_submit_button').attr('disabled', false);
-                              studio_submitting = false;
-                          }
-                      },
-            error:    function()
-                      {
-                          studio_display_task_submit_message("An internal error occured", "danger", true);
-                          $('.task_edit_submit_button').attr('disabled', false);
-                          studio_submitting = false;
-                      }
-        });
+    var error = "";
     $('.task_edit_submit_button').attr('disabled', true);
+
+    $.each(codeEditors, function(idx, editor) {
+
+        // Fetch the editor id
+        var path = "";
+        $.each(studio_file_editor_tabs, function(tpath, id) {
+            if(editor.getTextArea().id == studio_file_editor_tabs[tpath] + '_editor') {
+                path = tpath;
+            }
+        });
+
+        if(path) {
+            jQuery.ajax({
+                success: function (data) {
+                    if ("error" in data)
+                        error += "<li>An error occurred while saving the file " + path + "</li>";
+                    else
+                        editor.markClean();
+                },
+                url: location.pathname + "/files",
+                method: "POST",
+                dataType: "json",
+                data: {"path": path, "action": "edit_save", "content": editor.getValue()},
+                async: false
+            });
+        }
+    });
+
+    $('form#edit_task_form').ajaxSubmit({
+        dataType: 'json',
+        success: function (data) {
+            if ("status" in data && data["status"] == "ok")
+                error += "";
+            else if ("message" in data)
+                error += "<li>" + data["message"] + "</li>";
+            else
+                error += "<li>An internal error occured</li>";
+        },
+        error: function () {
+            error += "<li>An internal error occuredn</li>";
+        },
+        async: false
+    });
+
+    if(error)
+        studio_display_task_submit_message("Some error(s) occurred when saving the task: <ul>" + error + "</ul>", "danger", true);
+    else
+        studio_display_task_submit_message("Task saved.", "success", true);
+
+    $('.task_edit_submit_button').attr('disabled', false);
+    studio_submitting = false;
 }
 
 /**

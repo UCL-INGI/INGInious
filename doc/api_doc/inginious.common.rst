@@ -33,6 +33,8 @@ inginious.common.base module
     :undoc-members:
     :show-inheritance:
 
+.. _inginious.common.course_factory:
+
 inginious.common.course_factory module
 --------------------------------------
 
@@ -64,6 +66,8 @@ inginious.common.exceptions module
     :members:
     :undoc-members:
     :show-inheritance:
+
+.. _inginious.common.hook_manager:
 
 inginious.common.hook_manager module
 ------------------------------------

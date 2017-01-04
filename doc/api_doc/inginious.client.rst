@@ -9,6 +9,8 @@ inginious.client package
 Submodules
 ----------
 
+.. _inginious.client.client:
+
 inginious.client.client module
 ------------------------------
 

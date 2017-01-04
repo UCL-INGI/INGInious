@@ -32,8 +32,8 @@ the example with ``consumer_key_2``.
 Setting up your LMS
 -------------------
 
-Setting up edX
-``````````````
+Setting up (Open) edX
+`````````````````````
 
 edX provides `a good tutorial on how to install LTI components`_.
 
@@ -50,7 +50,7 @@ The ``launch url`` is, if your server is located at ``https://HOST:PORT/``, and 
 
     https://HOST:PORT/launch/course_id/task_id
 
-Please note that for now, edX *needs* https. This means you will probably have to buy a certificate.
+Please note that, for now, official edX *needs* https. You also need to set the LTI activity to accept a score back from INGInious, without which the activity won't launch.
 
 .. _a good tutorial on how to install LTI components: http://edx-partner-course-staff.readthedocs.org/en/latest/exercises_tools/lti_component.html
 
@@ -79,22 +79,5 @@ Setting up other LMS
 ````````````````````
 
 INGInious has only been tested with edX and Moodle, but it should work out-of-the-box with any LMS that respects LTI 1.1.
-You are on your own for the configuration, though; but with the LTI keys and the launch URL, it should be enough to configure anything.
-
-Troubleshooting Problems
-````````````````````
-Some things to check if you're having problems:
-
-* INGInious uses PyLTI which uses oauth, oauth2 and libhttp2. The list of 
-  certificate authorities known to libhttp2 may be out of day with your
-  host operating system. In particular, as of August 2016, it does not
-  include the LetsEncrypt CA, and thus websites protected with a LetsEncrypt
-  certificate won't work (you won't be able to push grades back)
-
-* LTI uses OAuth which uses time-based replay prevention. You need to insure
-  that your webserver (LTI consumer) and LTI producer have reasonably
-  synchronous clocks.
-
-* You may find `http://ltiapps.net/test/tp.php` and `http://ltiapps.net/test/t.php`
-  useful when debugging producers and consumers.
-
+You are on your own for the configuration, though; but with the LTI keys and the launch URL, it should be
+enough to configure anything.

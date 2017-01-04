@@ -5,7 +5,7 @@ $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
-$var title: $:course.get_name() - Download submissions
+$var title: $:course.get_name() - Replay submissions
 
 $var Column: $:template_helper.call('course_admin_menu',course=course,current='replay')
 
@@ -13,8 +13,8 @@ $ use_classrooms = course.use_classrooms()
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
-        <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
-        <li><a href="/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+        <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
+        <li><a href="$get_homepath()/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-user-secret"></i></a></li>
         <li class="active"><a href="#"><i class="fa fa-refresh"></i> Replay submissions <span class="sr-only">(current)</span></a></li>
     </ol>
@@ -37,7 +37,7 @@ $else:
         $msg
     </div>
 
-<form method="post" action="/admin/$course.get_id()/replay">
+<form method="post" action="$get_homepath()/admin/$course.get_id()/replay">
     $:include.course_admin.submissions_tabs.tasks(tasks, checked_tasks, "replay")
     $:include.course_admin.submissions_tabs.users(user_data, aggregations, tutored_aggregations, tutored_users, checked_users, show_aggregations, use_classrooms)
 

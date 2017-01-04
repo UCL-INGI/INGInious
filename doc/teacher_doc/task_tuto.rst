@@ -1,18 +1,35 @@
 Tutorial
 ========
 
-In this document we will describe how to create a simple task, that checks that a code in python returns "Hello World!".
+In this document we will describe how to create a simple task, that checks that a code in Python returns "Hello World!".
 
 Creating the task description
 -----------------------------
 
-The task description is a small YAML file describing everything that INGInious needs to know to verify the input of the student.
+Using the webapp
+````````````````
 
-Here is a simple task description. Put this file with the name *task.yaml* in a newly created *helloworld* folder in your course directory.
+If you are using the webapp, this procedure can be done using the graphical interface:
 
-::
+#. Go to the *Course administration/Tasks* page, enter ``helloworld`` as a new task id and click on *Create new task*.
+#. In the *Basic settings* tab, set the task name to ``Hello World!`` and put some context and author name. Container
+   setup can be left with default parameters.
+#. In the *Subproblems* tab, add a new *code*-type problem with problem id ``question1``.
+#. Set some problem name and context, and set language to ``python``.
+#. Save changes and go to *Task files* tab.
 
-    author: "Guillaume Derval"
+Manually
+````````
+This is only possible if the administrator has given access to the course directory to the course administrator.
+
+The task description is a YAML file describing everything that INGInious needs to know to verify the input of the student.
+Here is a simple task description. Put this file with the name ``task.yaml`` in a newly created ``helloworld`` folder in
+your course directory.
+
+.. code-block:: yaml
+
+    author: "The INGInious authors"
+    accessible: true
     name: "Hello World!"
     context: "In this task, you will have to write a python script that displays 'Hello World!'."
     problems:
@@ -25,67 +42,71 @@ Here is a simple task description. Put this file with the name *task.yaml* in a 
         time: 10
         memory: 50
         output: 1000
-    environment: "default"
+    environment: default
 
 Most of the fields are self-explanatory. Some remarks:
 
-- "problems" is a dictionnary of problem. Each problem must have an unique id, for example here "question1".
-- the problem "question1" have its "type" field that equals to "code", which means the student must enter some code to answer the question. Other types exists, such as multiple-choice.
-- "limits" are the limits that the task cannot exceed. The "time" is in second, and "memory" and "output" are in kilobytes.
-- if you do not have any special need (other languages than python or c/c++), you do not need to change the "environment" field. It is intended to change the environment where the tasks run. Please see :doc:`create_container`.
+- The field ``problems`` is a dictionary of problems. Each problem must have an unique id, for example here ``question1``.
+- Problem ``question1`` have its ``type`` field that equals to ``code``, which means the student must enter some code
+  to answer the question. Other types exists, such as multiple-choice.
+- The field ``limits`` are the limits that the task cannot exceed. The ``time`` is in seconds, and ``memory`` and
+  ``output`` are in MB.
+- The ``environment`` field is intended to change the environment where the tasks run. The available environments are
+  those you downloaded during installation or those you created by creating a grading container.
+  Please see :doc:`create_container`.
+
+More documentation is available here: :doc:`create_task`.
 
 Creating the run file
 ---------------------
 
-In your task folder, you will put every file needed to test the input of the student.
+In your task folder, you will put every file needed to test the input of the student. This folder content can be shown
+in the webapp in the *Task files* tab of the *Edit task* page.
 
-Let's first create a template, where we will put the code of the student.
+#. Create a template file ``template.py``, where we will put the code of the student.
+   ::
 
-::
+       def func():
+           @    @question1@@
 
-    def func():
-	@	@question1@@
+           func()
+   The syntax is very simple: put a first ``@`` on the line where you want to put the code of the student.
+   Then indent the line and write a second ``@``. Now write the problem id of the problem you want to take the input
+   from (``question1``) then write another ``@``, write a possible suffix (not used here), and then finish the line
+   with a last ``@``.
 
-	func()
+#. Create the ``run`` file. This file will be the script that is launched when the task is started. Here we will create
+   a *bash* script, that parses the template and verifies its content.
 
-Name the file *template.py* for example. The syntax is very simple: put a first *@* on the line where you want to put the code of the student. Then indent the line and write a second *@*.
-Now write the problem id of the problem you want to take the input from (*question1*) then write another *@*, write a possible suffix (not used here), and then finish the line with a last *@*.
+   .. code-block:: bash
 
-Now we can create the file called *run*. *run* will be the script that is launched when the task is started. Here we will create a *bash* script, that parses the template and verifies its content.
+       #! /bin/bash
 
-::
+       # This line parses the template and put the result in studentcode.py
+       parsetemplate --output studentcode.py template.py
 
-	#! /bin/bash
+       # Verify the output of the code...
+       output=$(run_student python studentcode.py)
+       if [ "$output" = "Hello World!" ]; then
+           # The student succeeded
+           feedback-result success
+           feedback-msg -m "You solved this difficult task!"
+       else
+           # The student failed
+           feedback-result failed
+           feedback-msg -m "Your output is $output"
+       fi
+   Here we use three commands provided by INGInious, ``parsetemplate``, ``run_student`` and ``feedback``.
+   The code is self-explanatory; just notice the usage of ``run_student`` that ask INGInious (precisely the Docker agent)
+   to start a new *student container* and run inside the command ``python studentcode.py``.
 
-	# This line parses the template and put the result in studentcode.py
-	parsetemplate --output studentcode.py template.py
+   Please note that the ``run_student`` command is fully configurable: you can change the environment on which you run
+   the task, define new timeouts, memory limits, ... See :ref:`run_student` for more details.
 
-	# Verify the output of the code...
-	output=$(run_student python studentcode.py)
-	if [ "$output" = "Hello World!" ]; then
-		# The student succeeded
-		feedback --result success --feedback "You solved this difficult task!"
-	else
-		# The student failed
-		feedback --result failed --feedback "Your output is $output"
-	fi
+#. If not using the webapp, don't forget to give the ``run`` file the execution rights:
+   ::
 
-Here we use three commands provided by INGInious, *parsetemplate*, *run_student* and *feedback*. The code is self-explanatory;
-just notice the usage of *run_student* that ask INGInious (precisely the agent) to start a new *student container* and run inside the command
-*python studentcode.py*.
+      $ chmod +x helloworld/run
 
-Please note that the *run_student* command is fully configurable: you can change the environment on which you run the task, define new timeouts,
-memory limits, ... See :ref:`run_student` for more details.
 
-Put this content at the path helloworld/run and don't forget to give it the execution rights:
-
-::
-
-	$ chmod +x helloworld/run
-
-Test it
--------
-
-Your code should now work properly, you can restart the INGInious frontend and test it :-)
-
-More documentation is available here: :doc:`create_task`.
+More documentation is available here: :ref:`run_file`.

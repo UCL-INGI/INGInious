@@ -84,11 +84,11 @@ $def ColumnF():
                 You can change this by modifying the "accessible" option in the configuration of the task.
             </div>
         <div class="list-group">
-            <a class="list-group-item list-group-item-info" href="/admin/$course.get_id()/task/$task.get_id()">
+            <a class="list-group-item list-group-item-info" href="$get_homepath()/admin/$course.get_id()/task/$task.get_id()">
                 <i class="fa fa-tasks fa-fw"></i>&nbsp; View submissions
             </a>
             $if user_manager.has_admin_rights_on_course(course):
-                <a class="list-group-item list-group-item-info" href="/admin/$course.get_id()/edit/task/$task.get_id()">
+                <a class="list-group-item list-group-item-info" href="$get_homepath()/admin/$course.get_id()/edit/task/$task.get_id()">
                     <i class="fa fa-edit fa-fw"></i>&nbsp; Edit task
                 </a>
                 <a style="cursor:pointer;" class="list-group-item list-group-item-info" data-toggle="modal" data-target="#modal-debug">
@@ -104,7 +104,7 @@ $def ColumnF():
                 $else:
                     <i class="fa fa-chevron-right fa-fw"></i>&nbsp; <b>$user_manager.session_realname()</b>
             </div>
-            <a class="list-group-item list-group-item-info" href="/aggregation/$course.get_id()">
+            <a class="list-group-item list-group-item-info" href="$get_homepath()/aggregation/$course.get_id()">
                 <i class="fa fa-group fa-fw"></i>&nbsp;
                 $ myaggregation = user_manager.get_course_user_aggregation(course)
                 $if course.use_classrooms():
@@ -171,7 +171,7 @@ $var Column: $:ColumnF()
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
-        <li><a href="/course/$task.get_course().get_id()">$task.get_course().get_name()</a></li>
+        <li><a href="$get_homepath()/course/$task.get_course().get_id()">$task.get_course().get_name()</a></li>
         <li class="active"><a href="#">$task.get_name() <span class="sr-only">(current)</span></a></li>
     </ol>
 $var Navbar: $:NavbarF()
@@ -201,16 +201,15 @@ $if user_manager.has_admin_rights_on_course(course):
         </div>
     </div>
 
-$# Store path to webterm if given
-$if webterm_link is not None:
-    <input type="hidden" value="$webterm_link" id="webterm_link"/>
-
-<form id="task" method="post" action="/course/${task.get_course().get_id()}/${task.get_id()}" enctype="multipart/form-data"
+<form id="task" method="post" action="$get_homepath()/course/${task.get_course().get_id()}/${task.get_id()}" enctype="multipart/form-data"
     $for submission in submissions:
         $if submission["status"] == "waiting":
             data-wait-submission="$submission['_id']"
             $break
 >
+    $# Store path to webterm if given
+    $if webterm_link is not None:
+        <input type="hidden" value="$webterm_link" id="webterm_link"/>
     <input type="hidden" name="@action" value="submit"/>
     $for key, problem in enumerate(task.get_problems()):
         <div class="panel panel-default">
@@ -250,7 +249,7 @@ $if webterm_link is not None:
     $elif not task.get_accessible_time().is_open():
         <button type="submit" class="btn btn-default btn-lg btn-block center-block" disabled="disabled">The deadline is over, you cannot submit anymore</button>
     $elif task.is_group_task() and not groups_ok:
-        <a href="/aggregation/$course.get_id()" class="btn btn-default btn-lg btn-block center-block">Please register in a $('group' if course.use_classrooms() else 'team')</a>
+        <a href="$get_homepath()/aggregation/$course.get_id()" class="btn btn-default btn-lg btn-block center-block">Please register in a $('group' if course.use_classrooms() else 'team')</a>
     $elif not tokens_ok:
         <button type="submit" class="btn btn-default btn-lg btn-block center-block" disabled="disabled">
             $('You' if not task.is_group_task() else 'Your group' if course.use_classrooms() else 'Your team')

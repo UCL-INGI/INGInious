@@ -64,7 +64,13 @@ class PluginManager(HookManager):
         self._user_manager.register_auth_method(auth_method)
 
     def get_database(self):
+        """ Returns the frontend database"""
         return self._database
 
     def get_submission_manager(self):
+        """ Returns the submission manager"""
         return self._submission_manager
+
+    def get_user_manager(self):
+        """ Returns the user manager"""
+        return self._user_manager

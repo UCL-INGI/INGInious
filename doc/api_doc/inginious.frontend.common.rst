@@ -1,3 +1,5 @@
+.. _inginious.frontend.common:
+
 inginious.frontend.common package
 =================================
 
@@ -24,6 +26,8 @@ inginious.frontend.common.arch_helper module
     :undoc-members:
     :show-inheritance:
 
+.. _inginious.frontend.common.courses.FrontendCourse:
+
 inginious.frontend.common.courses module
 ----------------------------------------
 
@@ -47,6 +51,8 @@ inginious.frontend.common.parsable_text module
     :members:
     :undoc-members:
     :show-inheritance:
+
+.. _inginious.frontend.common.plugin_manager:
 
 inginious.frontend.common.plugin_manager module
 -----------------------------------------------
@@ -96,6 +102,8 @@ inginious.frontend.common.task_problems module
     :undoc-members:
     :show-inheritance:
 
+.. _inginious.frontend.common.tasks.FrontendTask:
+
 inginious.frontend.common.tasks module
 --------------------------------------
 
@@ -111,6 +119,8 @@ inginious.frontend.common.tasks_code_boxes module
     :members:
     :undoc-members:
     :show-inheritance:
+
+.. _inginious.frontend.common.template_helper.TemplateHelper:
 
 inginious.frontend.common.template_helper module
 ------------------------------------------------

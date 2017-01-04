@@ -22,6 +22,10 @@ class CourseUnreadableException(Exception):
     pass
 
 
+class CourseAlreadyExistsException(Exception):
+    pass
+
+
 class TaskUnreadableException(Exception):
     pass
 

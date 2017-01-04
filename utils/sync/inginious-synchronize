@@ -1,0 +1,97 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+# more information about the licensing of this file.
+
+import sys
+import os
+import json
+
+if sys.platform == 'win32':
+    import pbs
+    git = pbs.Command('git')
+    ssh_add = pbs.Command('ssh-add')
+else:
+    import sh
+    from sh import ssh_add
+    from sh import git
+
+def print_output(text):
+    for line in text.strip('\n').split('\n'):
+        print('\t' + line)
+
+# Change current dir for source file dir
+scriptdir = os.path.dirname(os.path.abspath(__file__))
+sh.cd(scriptdir)
+
+# Open configuration file
+try:
+    config = json.load(open(os.environ.get('INGINIOUS_SYNC_CONFIG', 'synchronize.json'), 'r'))
+    maindir = os.path.abspath(config['maindir'])
+    print('\x1b[33;1m-> Synchronization dir. : ' + maindir + ' \033[0m')
+except:
+    print('\x1b[31;1mERROR: Failed to load configuration file\033[0m')
+    exit(1)
+    
+# Configure git
+try:
+    git.config("--global", "user.name", "INGInious")
+    git.config("--global", "user.email", "no-reply@inginious.info.ucl.ac.be")
+except:
+    print('\x1b[31;1mERROR: Failed to configure Git. Is Git installed ?\033[0m')
+    exit(1)  
+
+for repo in config['repos']:
+    print('\x1b[33;1m-> Synchronizing course repository : ' + repo['course'] + ' \033[0m')
+    # Add private key with ssh add
+    print('\x1b[1m--> Add private key with ssh-add \033[0m')
+    sh.cd(scriptdir)
+    try:
+        out = ssh_add(os.path.abspath(repo['keyfile']))
+        print_output(out.stderr.decode('utf-8'))
+    except:
+        print('\x1b[31;1mERROR: Failed to load keyfile, or to add it with ssh-add\033[0m')
+        exit(1)
+    
+    
+    # Check if repo must be cloned
+    if not os.path.exists(maindir + "/" + repo['course']):
+        print('\x1b[33;1m--> Cloning repository\033[0m')
+        out = git.clone(repo['url'], maindir + "/" + repo['course'])
+        print_output(out.stdout.decode('utf-8'))
+    else:
+        print('\x1b[1m--> Synchronizing repository\033[0m')
+        
+        # Change working dir to the repo path
+        sh.cd(maindir + "/" + repo['course'])
+        
+        # Add all the files to git and commit
+        out = git.add("-A", '.')
+        
+        # Check for something to commit
+        if git.status('-s'):
+            out = git.commit("-a", "-m", "Automatic synchronization from INGInious")
+            print_output(out.stdout.decode('utf-8'))
+            print_output(out.stderr.decode('utf-8'))
+            if not out.exit_code == 0:
+                exit(1)
+        
+
+        # Pull recursively, keeping the INGInious version of changes
+        out = git.pull("--no-edit","-s", "recursive", "-X", "theirs")
+        print_output(out.stdout.decode('utf-8'))
+        print_output(out.stderr.decode('utf-8'))
+        if not out.exit_code == 0:
+            exit(1)
+        
+        # Push
+        out = git.push()
+        
+    # Remove private key with ssh add
+    print('\x1b[1m--> Remove private key with ssh-add \033[0m')
+    sh.cd(scriptdir)
+    out = ssh_add("-d", os.path.abspath(repo['keyfile']))
+    print_output(out.stderr.decode('utf-8'))
+    if not out.exit_code == 0:
+        exit(1)

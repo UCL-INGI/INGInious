@@ -21,7 +21,7 @@ from inginious.frontend.webapp.pages.course_admin.utils import INGIniousAdminPag
 class CourseTaskFiles(INGIniousAdminPage):
     """ Edit a task """
 
-    def GET(self, courseid, taskid):
+    def GET_AUTH(self, courseid, taskid):  # pylint: disable=arguments-differ
         """ Edit a task """
         if not id_checker(taskid):
             raise Exception("Invalid task id")
@@ -42,7 +42,7 @@ class CourseTaskFiles(INGIniousAdminPage):
         else:
             return self.show_tab_file(courseid, taskid)
 
-    def POST(self, courseid, taskid):
+    def POST_AUTH(self, courseid, taskid):  # pylint: disable=arguments-differ
         """ Upload or modify a file """
         if not id_checker(taskid):
             raise Exception("Invalid task id")
@@ -146,7 +146,7 @@ class CourseTaskFiles(INGIniousAdminPage):
         """ Save an edited file """
         wanted_path = self.verify_path(courseid, taskid, path)
         if wanted_path is None or not os.path.isfile(wanted_path):
-            return "Internal error"
+            return json.dumps({"error": True})
 
         try:
             with codecs.open(wanted_path, "w", "utf-8") as f:

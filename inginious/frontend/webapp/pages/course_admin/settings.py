@@ -12,12 +12,12 @@ from inginious.frontend.webapp.pages.course_admin.utils import INGIniousAdminPag
 class CourseSettings(INGIniousAdminPage):
     """ Couse settings """
 
-    def GET(self, courseid):
+    def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         return self.page(course)
 
-    def POST(self, courseid):
+    def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request """
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
 
@@ -29,10 +29,10 @@ class CourseSettings(INGIniousAdminPage):
             course_content['name'] = data['name']
             if course_content['name'] == "":
                 errors.append('Invalid name')
-            course_content['admins'] = data['admins'].split(',')
+            course_content['admins'] = list(map(str.strip, data['admins'].split(',')))
             if not self.user_manager.user_is_superadmin() and self.user_manager.session_username() not in course_content['admins']:
                 errors.append('You cannot remove yourself from the administrators of this course')
-            course_content['tutors'] = data['tutors'].split(',')
+            course_content['tutors'] = list(map(str.strip, data['tutors'].split(',')))
             if len(course_content['tutors']) == 1 and course_content['tutors'][0].strip() == "":
                 course_content['tutors'] = []
 
@@ -54,6 +54,8 @@ class CourseSettings(INGIniousAdminPage):
                 AccessibleTime(course_content['accessible'])
             except:
                 errors.append('Invalid accessibility dates')
+
+            course_content['allow_unregister'] = True if data["allow_unregister"] == "true" else False
 
             if data["registration"] == "custom":
                 course_content['registration'] = "{}/{}".format(data["registration_start"], data["registration_end"])

@@ -13,40 +13,37 @@ import web
 from bson.objectid import ObjectId
 from inginious.common.base import id_checker
 from collections import OrderedDict
-from inginious.frontend.webapp.pages.utils import INGIniousPage
+from inginious.frontend.webapp.pages.utils import INGIniousAuthPage
 
 
-class INGIniousAdminPage(INGIniousPage):
+class INGIniousAdminPage(INGIniousAuthPage):
     """
-    An improved version of INGIniousPage that checks rights for the administration
+    An improved version of INGIniousAuthPage that checks rights for the administration
     """
 
     def get_course_and_check_rights(self, courseid, taskid=None, allow_all_staff=True):
-        """ Returns the course with id ```courseid``` and the task with id ```taskid```, and verify the rights of the user.
+        """ Returns the course with id ``courseid`` and the task with id ``taskid``, and verify the rights of the user.
             Raise web.notfound() when there is no such course of if the users has not enough rights.
 
             :param courseid: the course on which to check rights
-            :param taskid: If not None, returns also the task with id ```taskid```
+            :param taskid: If not None, returns also the task with id ``taskid``
             :param allow_all_staff: allow admins AND tutors to see the page. If false, all only admins.
             :returns (Course, Task)
         """
 
         try:
-            if self.user_manager.session_logged_in():
-                course = self.course_factory.get_course(courseid)
-                if allow_all_staff:
-                    if not self.user_manager.has_staff_rights_on_course(course):
-                        raise web.notfound()
-                else:
-                    if not self.user_manager.has_admin_rights_on_course(course):
-                        raise web.notfound()
-
-                if taskid is None:
-                    return (course, None)
-                else:
-                    return (course, course.get_task(taskid))
+            course = self.course_factory.get_course(courseid)
+            if allow_all_staff:
+                if not self.user_manager.has_staff_rights_on_course(course):
+                    raise web.notfound()
             else:
-                raise web.notfound()
+                if not self.user_manager.has_admin_rights_on_course(course):
+                    raise web.notfound()
+
+            if taskid is None:
+                return course, None
+            else:
+                return course, course.get_task(taskid)
         except:
             raise web.notfound()
 
@@ -273,7 +270,7 @@ def get_menu(course, current, renderer, plugin_manager, user_manager):
 class CourseRedirect(INGIniousAdminPage):
     """ Redirect admins to /settings and tutors to /task """
 
-    def GET(self, courseid):
+    def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
         course, _ = self.get_course_and_check_rights(courseid)
         if self.user_manager.session_username() in course.get_tutors():
@@ -281,6 +278,6 @@ class CourseRedirect(INGIniousAdminPage):
         else:
             raise web.seeother('/admin/{}/settings'.format(courseid))
 
-    def POST(self, courseid):
+    def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request """
-        return self.GET(courseid)
+        return self.GET_AUTH(courseid)

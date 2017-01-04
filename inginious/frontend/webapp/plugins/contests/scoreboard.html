@@ -8,32 +8,36 @@ $#
 $var title: $:course.get_name() - Scoreboard
 
 $def NavbarF():
-<ol class="nav navbar-nav nav-breadcrumb">
-    <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
-    <li class="active"><a href="#"><i class="fa fa-trophy"></i> Scoreboard <span class="sr-only">(current)</span></a></li>
-</ol>
+    <ol class="nav navbar-nav nav-breadcrumb">
+        <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
+        <li class="active"><a href="#"><i class="fa fa-trophy"></i> Scoreboard <span class="sr-only">(current)</span></a></li>
+    </ol>
 $var Navbar: $:NavbarF()
 
 $if end > end.now():
     <meta http-equiv="refresh" content="30" />
 
-<h2>$course.get_name()</h2>
-<div class="pull-right well">
-    Contest starts: $start.strftime('%d/%m/%Y %H:%M:%S')<br/>
-    Contest ends: $end.strftime('%d/%m/%Y %H:%M:%S')<br/>
-    <br/>
-    $if start > start.now():
-        <span class="contest_starting_time" starts-at="$start.strftime('%Y-%m-%d %H:%M:%S')"></span>
-    $else:
-        <span class="contest_remaining_time" ends-at="$end.strftime('%Y-%m-%d %H:%M:%S')"></span>
-        $if blackout != end:
-            <br/><span class="contest_blackout_time" blackout-at="$blackout.strftime('%Y-%m-%d %H:%M:%S')"></span>
-    $if end > end.now():
-        <br/>
-        <br/>
-        The scoreboard will refresh every 30 seconds.
+<h2>$course.get_name() - Scoreboard</h2>
+<div class="well">
+    <div class="row">
+        <div class="col-md-4" style="margin-top:2px;">
+            Contest starts: $start.strftime('%d/%m/%Y %H:%M:%S')<br/>
+            Contest ends: $end.strftime('%d/%m/%Y %H:%M:%S')<br/>
+        </div>
+        <div class="col-md-4" style="margin-top:2px;">
+            $if start > start.now():
+                <span class="contest_starting_time" starts-at="$start.strftime('%Y-%m-%d %H:%M:%S')"></span>
+            $else:
+                <span class="contest_remaining_time" ends-at="$end.strftime('%Y-%m-%d %H:%M:%S')"></span>
+                $if blackout != end:
+                    <br/><span class="contest_blackout_time" blackout-at="$blackout.strftime('%Y-%m-%d %H:%M:%S')"></span>
+        </div>
+        <div class="col-md-4" style="margin-top:2px;">
+            $if end > end.now():
+                The scoreboard will refresh every 30 seconds.
+        </div>
+    </div>
 </div>
-<h3>Scoreboard</h3>
 $if start <= start.now():
 	<table class="contest_scoreboard">
 	    <tr>
@@ -41,7 +45,7 @@ $if start <= start.now():
 	        <th class="contest_contestant">Contestant</th>
 	        <th colspan="2" class="contest_score_header">Score</th>
 	        $for taskid in tasks:
-	            <th class="contest_task"><a href="/course/${course.get_id()}/$taskid">$taskid</a></th>
+	            <th class="contest_task"><a href="$get_homepath()/course/${course.get_id()}/$taskid">$taskid</a></th>
 	    </tr>
 	    $for username, data in results.items():
 	        <tr>

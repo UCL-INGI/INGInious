@@ -2,28 +2,23 @@ What is INGInious?
 ==================
 
 INGInious provides a simple and secure way to execute and test untrusted code.
-It has been developed by the INGI_ department (UCL_) to grade programming assignments.
-The whole tool is written in Python_ (version 2).
-Behind the scenes, it relies on Docker_ to provide secure execution environments and on MongoDB_ to keep track of submissions.
+It has been developed by the INGI_ department (`Université catholique de Louvain`_) to automatic grading of programming
+assignments. The whole tool is written in Python_ (version 3.5+) and relies on Docker_ to provide secure execution
+environments and on MongoDB_ to keep track of submissions.
 
-INGInious is completely language-agnostic: if you can execute some code on a Linux machine, INGInious will be able to run it.
-A container shipping Wine_ could even grade a '.exe'!
+INGInious is completely language-agnostic and is able to run anything. Currently, this is limited to Linux programs as only
+Linux containers are provided and supported.
 
-INGInious also provides tools to work directly with edX, and will be soon compatible with more MOOC platforms.
+INGInious also provides an LTI_ module, allowing its integration to your existing (Open) edX_, Moodle_,... courses.
 
-As of July 2015, it is used both directly by the teaching staff of INGI_ for more than ten courses, and is used by two MOOCs, Louv1.1x_
-and Louv1.2x_.
-
+.. _LTI: http://www.imsglobal.org/LTI/v1p1/ltiIMGv1p1.html
 .. _Python: http://www.python.org
 .. _Docker: https://www.docker.com
 .. _INGI: http://www.uclouvain.be/ingi.html
-.. _UCL: http://www.uclouvain.be
+.. _`Université catholique de Louvain`: http://www.uclouvain.be
 .. _MongoDB: http://www.mongodb.com
-.. _Wine: http://www.winehq.org
+.. _Moodle: http://moodle.org
 .. _edX: https://www.edx.org
-.. _Louv1.1x: https://www.edx.org/course/louvainx/louvainx-louv1-1x-paradigms-computer-2751
-.. _Louv1.2x: https://www.edx.org/course/louvainx/louvainx-louv1-2x-paradigms-computer-4436
-
 
 How does INGInious work?
 ------------------------
@@ -35,7 +30,7 @@ For simplicity, tasks are grouped by courses (see :ref:`course`).
 Usually, an INGInious course has one task per assignment.
 
 A submission is a set of deliverables (chunks of code, files, archives, etc.) that correspond each to one of the (sub)questions of the task.
-These files are made available to the *run file* (see :ref:`run file`), a special script provided by the task.
+These files are made available to the *run file* (see :ref:`run_file`), a special script provided by the task.
 That script is responsible for providing feedback on the submission by compiling, executing or applying any form of checking and testing to the deliverables.
 In its simplest form, the feedback consists of either *success* or *failed*.
 
@@ -102,8 +97,5 @@ is also limited.
 Compatibility
 -------------
 
-INGInious provides two compatibly layers with the non-longer-maintained Pythia Project.
-Tools to convert old Pythia tasks to INGInious tasks are available in the folder
-`dev_tools`.
-
-The converted tasks are then 100% compatible with INGInious.
+INGInious provides two compatibility layers with Pythia v0 and v1. Except the task description file which has to be
+updated, everything is 100% compatible with INGInious.

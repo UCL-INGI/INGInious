@@ -7,7 +7,10 @@
 
 import os
 import codecs
+import shutil
+import copy
 
+from inginious.common.log import get_course_logger
 from inginious.common.tasks import Task
 from inginious.common.base import id_checker
 from inginious.common.task_file_readers.yaml_reader import TaskYAMLFileReader
@@ -36,7 +39,10 @@ class TaskFactory(object):
             raise InvalidNameException("Task with invalid name: " + taskid)
         if self._cache_update_needed(course, taskid):
             self._update_cache(course, taskid)
-        return self._cache[(course.get_id(), taskid)][0]
+
+        task_content = copy.deepcopy(self._cache[(course.get_id(), taskid)][0])
+        self._hook_manager.call_hook('modify_task_data', course=course, taskid=taskid, data=task_content)
+        return self._task_class(course, taskid, task_content, self.get_directory_path(course.get_id(), taskid))
 
     def get_task_descriptor_content(self, courseid, taskid):
         """
@@ -166,7 +172,7 @@ class TaskFactory(object):
 
         for ext, task_file_manager in self._task_file_managers.items():
             if os.path.isfile(base_file + "." + ext):
-                return (base_file + "." + ext, ext, task_file_manager)
+                return base_file + "." + ext, ext, task_file_manager
 
         raise TaskNotFoundException()
 
@@ -209,10 +215,7 @@ class TaskFactory(object):
         except Exception as e:
             raise TaskUnreadableException(str(e))
 
-        self._hook_manager.call_hook('modify_task_data', course=course, taskid=taskid, data=task_content)
-
-        task = self._task_class(course, taskid, task_content, self.get_directory_path(course.get_id(), taskid))
-        self._cache[(course.get_id(), taskid)] = (task, os.stat(path_to_descriptor).st_mtime)
+        self._cache[(course.get_id(), taskid)] = (task_content, os.stat(path_to_descriptor).st_mtime)
 
     def update_cache_for_course(self, courseid):
         """
@@ -225,3 +228,24 @@ class TaskFactory(object):
                 to_drop.append(tid)
         for tid in to_drop:
             del self._cache[(courseid, tid)]
+
+    def delete_task(self, courseid, taskid):
+        """
+        :param courseid: the course id of the course
+        :param taskid: the task id of the task
+        :raise InvalidNameException or CourseNotFoundException
+        Erase the content of the task folder
+        """
+        if not id_checker(courseid):
+            raise InvalidNameException("Course with invalid name: " + courseid)
+        if not id_checker(taskid):
+            raise InvalidNameException("Task with invalid name: " + taskid)
+
+        task_directory = os.path.join(self._tasks_directory, courseid, taskid)
+
+        if not os.path.exists(task_directory):
+            raise TaskNotFoundException()
+
+        shutil.rmtree(task_directory)
+
+        get_course_logger(courseid).info("Task %s erased from the factory.", taskid)

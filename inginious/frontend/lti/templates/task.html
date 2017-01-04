@@ -1,4 +1,4 @@
-$def with (course,task,submissions,is_admin)
+$def with (course,task,submissions,is_admin,webterm_link)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -77,7 +77,7 @@ $def ColumnF():
             <a style="cursor:pointer;" class="list-group-item list-group-item-info" data-toggle="modal" data-target="#modal-debug" onclick="$$('body').removeClass('sidebar-active');">
                 <i class="fa fa-wrench fa-fw"></i>&nbsp;Debug information
             </a>
-            <a class="list-group-item list-group-item-info" href="/$user_manager.get_session_identifier()/download">
+            <a class="list-group-item list-group-item-info" href="$get_homepath()/$user_manager.get_session_identifier()/download">
                 <i class="fa fa-download fa-fw"></i>&nbsp;Download submissions
             </a>
         </div>
@@ -113,6 +113,9 @@ $if is_admin:
             data-wait-submission="$submission['_id']"
             $break
 >
+    $# Store path to webterm if given
+    $if webterm_link is not None:
+        <input type="hidden" value="$webterm_link" id="webterm_link"/>
     <input type="hidden" name="@action" value="submit"/>
     $for key, problem in enumerate(task.get_problems()):
         <div class="panel panel-default">
@@ -130,6 +133,20 @@ $if is_admin:
                 $:problem.show_input(template_helper.get_common_renderer())
             </div>
         </div>
+    $if is_admin:
+        <input type="hidden" name="@debug-mode" id="task-debug-mode" value=""/>
+            <div class="row">
+                <div class="col-xs-9 col-md-10">
+                    <button type="submit" class="btn btn-default btn-lg btn-block center-block" id="task-submit">Submit</button>
+                </div>
+                <div class="col-xs-3 col-md-2">
+                    <button type="button" class="btn btn-info btn-lg btn-block center-block" id="task-submit-debug" data-toggle="tooltip"
+                            data-placement="top" title="Start remote SSH console with this input">
+                        <i class="fa fa-terminal"></i>
+                    </button>
+                </div>
+            </div>
+    $else:
     <button type="submit" class="btn btn-default btn-lg btn-block center-block" id="task-submit">Submit</button>
 </form>
 

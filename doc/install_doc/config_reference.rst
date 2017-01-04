@@ -3,7 +3,8 @@
 Configuration reference
 =======================
 
-(Note: the best way to configure INGInious is to use ``inginious-install``. See :ref:`config`.)
+.. HINT::
+    The best way to configure INGInious is to use ``inginious-install``. See :ref:`config`.
 
 Configuring INGInious is done via a file named ``configuration.yaml`` or ``configuration.lti.yaml``.
 To get started, files named ``configuration.example.yaml`` and ``configuration.lti.example.yaml`` are provided.
@@ -53,7 +54,8 @@ The different entries are :
     MongoDB client configuration.
 
     ``host``
-        MongoDB server address. If your database is user/password-protected, use the following syntax: ``mongodb://USER:PASSWORD@HOSTNAME/DB_NAME``
+        MongoDB server address. If your database is user/password-protected, use the following syntax:
+        ``mongodb://USER:PASSWORD@HOSTNAME/DB_NAME``
 
     ``database``
         You can change the database name if you want multiple instances or in the case of conflict.
@@ -63,6 +65,16 @@ The different entries are :
 
 ``use_minified_js``
     Set to ``true`` to use the minified version of Javascript scripts, ``false`` otherwise.
+
+``webterm``
+    Link to the INGInious xterm app with the following syntax: ``http[s]://host:port``.
+    If set, it allows to use in-browser task debug via ssh. (See :ref:`_webterm_setup` for
+    more information)
+
+``plugins``
+    A list of plugin modules together with configuration options.
+    See :ref:`plugins` for detailed information on available plugins, including their configuration.
+    Please note that the usage of at least one authentication plugin is mandatory for the webapp.
 
 Webapp-specific configuration
 -----------------------------
@@ -76,17 +88,8 @@ Webapp-specific configuration
 ``backup_directory``
     Path to the directory where are courses backup are stored in cases of data wiping.
 
-``webterm``
-    Address of a INGInious-xterm app (see INGInious-xterm on GitHub). If set, it allows to use in-browser task debug via ssh.
-    You have to configure INGInious-xterm according to your configuration of ``local-config.debug_host`` and ``local-config.debug_ports`` or in
-    your agent, in order to make the system work properly. Note that if your run the frontend in HTTPS, INGInious-xterm should also run in HTTPS.
-
-``plugins``
-    A list of plugin modules together with configuration options.
-    See :ref:`plugins` for detailed information on available plugins, including their configuration.
-
 ``smtp``
-    Mails can be send by batch containers at the end of the job execution.
+    Mails can be sent by batch containers at the end of the job execution, or by plugins.
 
     ``sendername``
         Email sender name, e.g. : ``INGInious <no-reply@inginious.org>``
@@ -128,35 +131,41 @@ The LTI interface uses most of the same configuration options as the webapp as w
 Plugins
 -------
 
-This section presents a short overview of the main plugins available. All the plugins are located in the folder frontend/plugins, and provide extensive documentation in their "init" method.
+Several plugins are available to complete the INGInious feature set. Some of them are only compatible with the webapp,
+while others are compatible with both webapp and LTI application.
 
-Auth plugins
-````````````
-You need at least one auth plugin activated. For now, two are provided by default: auth.demo_auth and auth.ldap_auth.
+Auth plugins (``webapp``)
+`````````````````````````
+
+You need at least one auth plugin activated.
 
 demo_auth
 !!!!!!!!!
 
 Provides a simple authentification method, mainly for demo purposes, with username/password pairs stored directly in the config file.
 
-Example of configuration:
+To enable this plugin, add to your configuration file:
 ::
-	plugins:
-	  - plugin_module: frontend.plugins.auth.demo_auth
-    	    users:
+
+    plugins:
+        - plugin_module: inginious.frontend.webapp.plugins.auth.demo_auth
+            users:
                 username1: "password1"
                 username2: "password2"
                 username3: "password3"
+
+Each key/value pair in the ``users`` field corresponds to a new username/password user.
 
 ldap_auth
 !!!!!!!!!
 
 Uses an LDAP server to authenticate users.
 
-Example of configuration:
+To enable this plugin, add to your configuration file:
 ::
-	plugins:
-	  - plugin_module: frontend.plugins.auth.ldap_auth
+
+    plugins:
+        - plugin_module: inginious.frontend.webapp.plugins.auth.ldap_auth
             host: "your.ldap.server.com"
             encryption": "ssl" #can be tls or none
             base_dn: "ou=People,dc=info,dc=ucl,dc=ac,dc=be"
@@ -168,9 +177,9 @@ Example of configuration:
 Most of the parameters are self-explaining, but:
 
 ``request``
-	is the request made to the LDAP server to search the user to authentify. "{}" is replaced by the username indicated by the user.
+    is the request made to the LDAP server to search the user to authentify. "{}" is replaced by the username indicated by the user.
 ``prefix``
-	a prefix that will be added in the internal username used in INGInious. Useful if you have multiple auth methods with usernames used in more than one method.
+    a prefix that will be added in the internal username used in INGInious. Useful if you have multiple auth methods with usernames used in more than one method.
 
 db_auth
 !!!!!!!
@@ -178,7 +187,198 @@ db_auth
 Uses the MongoDB database to authenticate users. Provides a basic email-verification based registration and password
 recovery. It does not support manual user management yet. The superadmin has to register the same way other users do.
 
-Example of configuration:
+To enable this plugin, add to your configuration file:
 ::
-	plugins:
-	  - plugin_module: frontend.plugins.auth.db_auth
+
+    plugins:
+        - plugin_module: inginious.frontend.webapp.plugins.auth.db_auth
+          allow_deletion: true
+
+For mails to be sent by the registration module, you need to configure the ``smtp`` parameter of your configuration
+file. `allow_deletion` parameter can be used to specify if users can delete their accounts from INGInious.
+
+Scoreboard plugin (``webapp``)
+``````````````````````````````
+
+This plugin allows to generate course/tasks scoreboards. To enable the plugin, add to your configuration file:
+::
+
+    plugins:
+        - plugin_module: inginious.frontend.webapp.plugins.scoreboard
+
+To define a new scoreboard, an additional field ``scoreboard`` must be defined in the ``course.yaml`` file
+associated to a course (See :ref:`course`). For instance:
+::
+
+    scoreboard:
+        - content: ["taskid1"]
+          name: "Scoreboard task 1"
+        - content: ["taskid2", "taskid3"] # sum of both score is taken as overall score
+          name: "Scoreboard for task 2 and 3"
+        - content: {"taskid4": 2, "taskid5": 3} # overall score is 2*score of taskid4 + 3*score of taskid5
+          name: "Another scoreboard"
+          reverse: True
+
+This defines three scoreboards for the course. The first one will create a scoreboard for task id ``taskid1`` and will
+be displayed as ``Scoreboard task 1``. The second one will create a scoreboard for ``taskid2`` and ``taskid3`` where
+both scores are added. The last one is more complex and will create a reversed scoreboard for task ``taskid4`` and
+``taskid5`` where both scores are wieghted by factor ``2`` and ``3``, respectively.
+
+The score used by this plugin for each task must be generated via a key/value custom feedback
+(see :ref:`feedback-custom`) using the ``score`` key. Only the *succeeded* tasks are taken into account.
+
+Contests plugin (``webapp``)
+````````````````````````````
+
+This plugin allows to manage an ACM/ICPC like contest inside a course between students.
+To enable the plugin, add to your configuration file:
+::
+
+    plugins:
+        - plugin_module: inginious.frontend.webapp.plugins.contests
+
+A new configuration page named *Contest* appears on the administration page. To enable the contest mode, check the
+*Enable contest plugin* box on the appropriate course. Please note that the plugin will override the task
+accessibility dates.
+
+Simple grader plugin (``webapp``, ``lti``)
+``````````````````````````````````````````
+
+This simple grader allows anonymous POST requests without storing submissions in database.
+
+To enable the plugin, add to your configuration file:
+::
+
+    plugins:
+        - plugin_module: inginious.frontend.webapp.plugins.simple_grader
+          courseid : "external"
+          page_pattern: "/external"
+          return_fields: "^(result|text|problems)$"
+
+- ``courseid`` is the course id you want to expose to the simple grader.
+
+- ``page_pattern`` is the URL at which you want to make the simple grader available.
+
+- ``return_fields`` is a regular expression matching the submission fields that can be returned via the simple grader.
+
+A demonstration POST form will be available at the ``page_pattern`` specified URL.
+
+New synchronized job
+!!!!!!!!!!!!!!!!!!!!
+
+External submissions must take the form of a POST request on the url defined by *page_pattern*.
+This POST must contains two data field:
+
+- ``taskid``: the task id of the task
+
+- ``input``: the input for the task, in JSON. The input is a dictionary filled with problemid:problem_answer pairs.
+
+The return value will contains the standard return fields of an INGInious inginious.backend job plus a "status" field that will
+contain "ok".
+
+If an internal error occurs, it will return a dictionary containing
+
+::
+
+    {
+        "status": "error",
+        "status_message": "A message containing a simple description of the error"
+    }
+
+New asynchronous job
+!!!!!!!!!!!!!!!!!!!!
+
+This POST request allows new jobs to be treated asynchronously.
+It must contains three data fields:
+
+- ``taskid``: the task id of the task
+
+- ``input``: the input for the task, in JSON. The input is a dictionary filled with problemid:problem_answer pairs.
+
+- ``async``: field that indicate that the job must be launched asynchronously. Only have to be present, content is not read.
+
+The return value will be a dictionnary containing:
+
+::
+
+    {
+        "status": "done",
+        "jobid": "the jobid of the async job. Will be needed to get the results."
+    }
+
+or
+
+::
+
+    {
+        "status": "error",
+        "status_message": "A message describing the error"
+    }
+
+Get status of asynchronous job
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Given a jobid in input (as field of the POST request) and will return either:
+::
+
+    {
+        "status": "waiting"
+    }
+
+or
+
+::
+
+    {
+        "status": "error",
+        "status_message": "A message describing the error"
+    }
+
+or
+
+::
+
+    {
+        "status": "done",
+        "...":"..."
+    }
+
+where ``...`` are the results of the job, as defined in the ``return_fields`` configuration value.
+
+Git Repo plugin (``webapp``, ``lti``)
+`````````````````````````````````````
+This plugin allows saving submissions history in a Git repository, according to the following path pattern :
+``courseid/taskid/username``. The version kept in the head of branch is the latest submission made.
+
+To enable this plugin, add to your configuration file:
+::
+
+    plugins:
+        - plugin_module: inginious.frontend.webapp.plugins.git_repo
+          repo_directory: "./repo_submissions"
+
+The ``repo_directory`` parameter specify the path to the repository that must be initialized before configuration.
+
+Task file readers plugin (``webapp``, ``lti``)
+``````````````````````````````````````````````
+It is possible to store task files in other formats than YAML. **However, these plugins are provided for
+retro-compatibility with previous supported formats, which are deprecated. You therefore use these plugins at your own
+risks**.
+
+JSON
+!!!!
+
+To enable the JSON task file format:
+::
+
+    plugins:
+        - plugin_module: inginious.frontend.webapp.plugins.task_file_readers.json_reader
+
+RST
+!!!
+
+To enable the reStructuredText task file format:
+::
+
+    plugins:
+        - plugin_module: inginious.frontend.webapp.plugins.task_file_readers.rst_reader

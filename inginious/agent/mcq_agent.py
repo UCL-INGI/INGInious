@@ -9,7 +9,7 @@ import zmq
 
 from inginious.common.course_factory import CourseFactory, create_factories
 from inginious.common.message_meta import ZMQUtils
-from inginious.common.messages import BackendNewJob, BackendKillJob, BackendNewBatchJob, AgentBatchJobDone, AgentHello, AgentJobDone
+from inginious.common.messages import BackendNewJob, BackendKillJob, BackendNewBatchJob, AgentBatchJobDone, AgentHello, AgentJobDone, Ping, Pong
 
 
 class MCQAgent(object):
@@ -39,12 +39,17 @@ class MCQAgent(object):
             BackendNewBatchJob: self.handle_new_batch_job,
             BackendNewJob: self.handle_new_job,
             BackendKillJob: self.handle_kill_job,
+            Ping: self.handle_ping
         }
         try:
             func = message_handlers[message.__class__]
         except:
             raise TypeError("Unknown message type %s" % message.__class__)
         self._loop.create_task(func(message))
+
+    async def handle_ping(self, _ : Ping):
+        """ Handle a Ping message. Pong the backend """
+        await ZMQUtils.send(self._backend_socket, Pong())
 
     async def handle_new_batch_job(self, msg: BackendNewBatchJob):
         """ Handle a batch job message. Should not be called. Ever. """
@@ -59,6 +64,7 @@ class MCQAgent(object):
     async def handle_new_job(self, msg: BackendNewJob):
         """ Handles a new job. Returns immediately the result of the MCQ """
         try:
+            self._logger.info("Received request for jobid %s", msg.job_id)
             task = self.course_factory.get_task(msg.course_id, msg.task_id)
         except:
             await ZMQUtils.send(self._backend_socket, AgentJobDone(msg.job_id, ("crash", "Task is not available on this agent"), 0.0, {}, {}, {},
@@ -82,7 +88,7 @@ class MCQAgent(object):
 
         await ZMQUtils.send(self._backend_socket, AgentJobDone(msg.job_id,
                                                                (("success" if result else "failed"), "\n".join(text)),
-                                                               grade, problems, {}, {}, None, "", ""))
+                                                               round(grade, 2), problems, {}, {}, None, "", ""))
 
     async def run_dealer(self):
         """ Run the agent """

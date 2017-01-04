@@ -22,7 +22,7 @@ class CourseDownloadSubmissions(INGIniousSubmissionAdminPage):
             "aggregation/taskid"
         ]
 
-    def POST(self, courseid):
+    def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
         course, _ = self.get_course_and_check_rights(courseid)
 
@@ -45,7 +45,7 @@ class CourseDownloadSubmissions(INGIniousSubmissionAdminPage):
         web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)
         return self.submission_manager.get_submission_archive(submissions, list(reversed(user_input.format.split('/'))), aggregations)
 
-    def GET(self, courseid):
+    def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
         course, _ = self.get_course_and_check_rights(courseid)
         user_input = web.input()

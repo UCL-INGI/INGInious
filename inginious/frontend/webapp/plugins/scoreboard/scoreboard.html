@@ -9,8 +9,8 @@ $var title: $:course.get_name() - Available scoreboards
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
-        <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
-        <li><a href="/scoreboard/$course.get_id()"><i class="fa fa-trophy"></i></a></li>
+        <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
+        <li><a href="$get_homepath()/scoreboard/$course.get_id()"><i class="fa fa-trophy"></i></a></li>
         <li class="active"><a href="#">$scoreboard_name <span class="sr-only">(current)</span></a></li>
     </ol>
 $var Navbar: $:NavbarF()

@@ -118,17 +118,16 @@ def init(plugin_manager, _, _2, conf):
         Available configuration:
         ::
 
-            {
-                "plugin_module": "webapp.plugins.auth.ldap_auth",
-                "host": "ldap.test.be",
-                "port": 0,
-                "encryption": "ssl",
-                "base_dn": "o=test,c=be",
-                "request": "uid={}",
-                "prefix": "",
-                "name": "LDAP Login",
-                "require_cert": true
-            }
+            plugins:
+                - plugin_module": "webapp.plugins.auth.ldap_auth",
+                  host: "ldap.test.be",
+                  port: 0,
+                  encryption: "ssl",
+                  base_dn: "o=test,c=be",
+                  request: "uid={}",
+                  prefix: "",
+                  name: "LDAP Login",
+                  require_cert: true
 
         *host*
             The host of the ldap server

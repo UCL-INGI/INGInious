@@ -7,7 +7,7 @@ $#
 
 <div class="list-group">
     $for link, name in entries:
-        <a href="/admin/${course.get_id()}/${link}" class="list-group-item
+        <a href="$get_homepath()/admin/${course.get_id()}/${link}" class="list-group-item
         $if link=='danger':
             list-group-item-danger
 

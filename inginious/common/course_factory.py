@@ -4,8 +4,9 @@
 # more information about the licensing of this file.
 
 """ Factory for loading courses from disk """
-import logging
 import os
+import shutil
+import copy
 
 from inginious.common.log import get_course_logger
 from inginious.common.courses import Course
@@ -13,7 +14,7 @@ from inginious.common.base import id_checker, load_json_or_yaml, write_json_or_y
 from inginious.common.task_factory import TaskFactory
 from inginious.common.tasks import Task
 from inginious.common.hook_manager import HookManager
-from inginious.common.exceptions import InvalidNameException, CourseNotFoundException, CourseUnreadableException
+from inginious.common.exceptions import InvalidNameException, CourseNotFoundException, CourseUnreadableException, CourseAlreadyExistsException
 
 
 class CourseFactory(object):
@@ -36,7 +37,10 @@ class CourseFactory(object):
             raise InvalidNameException("Course with invalid name: " + courseid)
         if self._cache_update_needed(courseid):
             self._update_cache(courseid)
-        return self._cache[courseid][0]
+
+        course_descriptor = copy.deepcopy(self._cache[courseid][0])
+        self._hook_manager.call_hook('modify_course_data', courseid=courseid, data=course_descriptor)
+        return self._course_class(courseid, course_descriptor, self._task_factory)
 
     def get_task(self, courseid, taskid):
         """
@@ -96,6 +100,46 @@ class CourseFactory(object):
         else:
             raise CourseNotFoundException()
 
+    def create_course(self, courseid, init_content):
+        """
+        :param courseid: the course id of the course
+        :param init_content: initial descriptor content
+        :raise InvalidNameException or CourseAlreadyExistsException
+        Create a new course folder and set initial descriptor content, folder can already exist
+        """
+        if not id_checker(courseid):
+            raise InvalidNameException("Course with invalid name: " + courseid)
+
+        course_directory = os.path.join(self._tasks_directory, courseid)
+        if not os.path.exists(course_directory):
+            os.mkdir(course_directory)
+
+        base_file = os.path.join(course_directory, "course")
+        if not os.path.isfile(base_file + ".yaml") and not os.path.isfile(base_file + ".json") :
+            write_json_or_yaml(os.path.join(course_directory, "course.yaml"), init_content)
+        else:
+            raise CourseAlreadyExistsException("Course with id " + courseid+ " already exists.")
+
+        get_course_logger(courseid).info("Course %s created in the factory.", courseid)
+
+    def delete_course(self, courseid):
+        """
+        :param courseid: the course id of the course
+        :raise InvalidNameException or CourseNotFoundException
+        Erase the content of the course folder
+        """
+        if not id_checker(courseid):
+            raise InvalidNameException("Course with invalid name: " + courseid)
+
+        course_directory = os.path.join(self._tasks_directory, courseid)
+
+        if not os.path.exists(course_directory):
+            raise CourseNotFoundException()
+
+        shutil.rmtree(course_directory)
+
+        get_course_logger(courseid).info("Course %s erased from the factory.", courseid)
+
     def _cache_update_needed(self, courseid):
         """
         :param courseid: the (valid) course id of the course
@@ -124,7 +168,7 @@ class CourseFactory(object):
             course_descriptor = load_json_or_yaml(path_to_descriptor)
         except Exception as e:
             raise CourseUnreadableException(str(e))
-        self._cache[courseid] = (self._course_class(courseid, course_descriptor, self._task_factory), os.stat(path_to_descriptor).st_mtime)
+        self._cache[courseid] = (course_descriptor, os.stat(path_to_descriptor).st_mtime)
         self._task_factory.update_cache_for_course(courseid)
 
 

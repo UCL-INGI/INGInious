@@ -1,3 +1,5 @@
+.. _inginious-synchronize:
+
 inginious-synchronize
 =====================
 

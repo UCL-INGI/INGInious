@@ -18,6 +18,10 @@ from inginious.frontend.lti.pages.utils import LTIAuthenticatedPage
 
 
 class LTIDownload(LTIAuthenticatedPage):
+    """
+    Download page for LTI submissions
+    """
+
     def required_role(self, method="POST"):
         return self.admin_role
 
@@ -27,7 +31,8 @@ class LTIDownload(LTIAuthenticatedPage):
             if not id_checker(i):
                 raise web.notfound()
 
-    def valid_formats(self, course):
+    def valid_formats(self):
+        """ Returns the supported download formats"""
         return ["taskid/username", "username/taskid"]
 
     def get_selected_submissions(self, course, selected_tasks, users, stype):
@@ -82,7 +87,7 @@ class LTIDownload(LTIAuthenticatedPage):
             else:
                 return json.dumps({"status": "done", "result": self.app.download_status[dl_tag]})
 
-        if "type" not in user_input or "format" not in user_input or user_input.format not in self.valid_formats(self.course):
+        if "type" not in user_input or "format" not in user_input or user_input.format not in self.valid_formats():
             raise web.notfound()
 
         tasks = list(self.course.get_tasks().keys())
@@ -117,24 +122,28 @@ class LTIDownload(LTIAuthenticatedPage):
 
         tasks = sorted(list(self.course.get_tasks().items()), key=lambda task: task[1].get_order())
 
-        user_list = self.database.submissions.aggregate([{"$unwind": "$username"},{"$group": {"_id": "$username"}}])
+        user_list = self.database.submissions.aggregate([{"$unwind": "$username"}, {"$group": {"_id": "$username"}}])
         user_data = OrderedDict(
             [(user['_id'], user['_id']) for user in user_list])
 
-        return self.template_helper.get_renderer().download(self.course, self.task.get_id(), tasks, user_data, self.valid_formats(self.course))
+        return self.template_helper.get_renderer().download(self.course, self.task.get_id(), tasks, user_data, self.valid_formats())
 
 
 class ArchiverThread(Thread):
-    def __init__(self, dl_status, dl_tag, submissions, get_submission_archive, filename, format):
+    """
+    Thread exporting a list of selected submissions into an archive file
+    """
+
+    def __init__(self, dl_status, dl_tag, submissions, get_submission_archive, filename, sformat):
         super(ArchiverThread, self).__init__()
         self.dl_status = dl_status
         self.dl_tag = dl_tag
         self.submissions = list(submissions)  # copy
         self.get_submission_archive = get_submission_archive
         self.filename = filename
-        self.format = format
+        self.sformat = sformat
 
     def run(self):
         self.dl_status[self.dl_tag] = False
-        self.get_submission_archive(self.submissions, self.format, [], open(self.filename, "wb"))
+        self.get_submission_archive(self.submissions, self.sformat, [], open(self.filename, "wb"))
         self.dl_status[self.dl_tag] = True

@@ -9,7 +9,7 @@ $var title: $:course.get_name() - Available scoreboards
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
-        <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
+        <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
         <li class="active"><a href="#"><i class="fa fa-trophy"></i> Scoreboards <span class="sr-only">(current)</span></a></li>
     </ol>
 $var Navbar: $:NavbarF()
@@ -18,7 +18,7 @@ $var Navbar: $:NavbarF()
 <div class="list-group">
     $if len(scoreboards):
         $for sid, name in scoreboards.items():
-            <a href="/scoreboard/$course.get_id()/$sid" class="list-group-item">$name</a>
+            <a href="$get_homepath()/scoreboard/$course.get_id()/$sid" class="list-group-item">$name</a>
     $else:
         <a href="#" class="list-group-item disabled">No scoreboards have been defined for this course</a>
 </div>

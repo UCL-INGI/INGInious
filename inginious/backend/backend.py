@@ -31,6 +31,10 @@ class Backend(object):
         self._client_socket = context.socket(zmq.ROUTER)
         self._logger = logging.getLogger("inginious.backend")
 
+        # Enable support for ipv6
+        self._agent_socket.ipv6 = True
+        self._client_socket.ipv6 = True
+
         self._poller = Poller()
         self._poller.register(self._agent_socket, zmq.POLLIN)
         self._poller.register(self._client_socket, zmq.POLLIN)
@@ -66,7 +70,9 @@ class Backend(object):
         self._containers_on_agent = {}
 
         self._registered_clients = set()  # addr of registered clients
+        self._registered_agents = []  # addr of registered agents
         self._available_agents = []  # addr of available agents
+        self._ping_count = {} # ping count per addr of agents
         self._waiting_jobs = OrderedDict()  # rb queue for waiting jobs format:[(client_addr_as_bytes, Union[ClientNewJob,ClientNewBatchJob])]
         self._job_running = {}  # indicates on which agent which job is running. format: {BackendJobId:addr_as_bytes}
         self._batch_job_running = {}  # indicates on which agent which job is running. format: {BackendJobId:addr_as_bytes}
@@ -80,6 +86,7 @@ class Backend(object):
             AgentJobStarted: self.handle_agent_job_started,
             AgentJobDone: self.handle_agent_job_done,
             AgentJobSSHDebug: self.handle_agent_job_ssh_debug,
+            Pong: self._handle_pong
         }
         try:
             func = message_handlers[message.__class__]
@@ -149,7 +156,7 @@ class Backend(object):
                                                                                            0.0, {}, {}, {}, None, "", ""))
         # If the job is running, transmit the info to the agent
         elif (client_addr, message.job_id) in self._job_running:
-            agent_addr = self._job_running[(client_addr, message.job_id)]
+            agent_addr, _ = self._job_running[(client_addr, message.job_id)]
             await ZMQUtils.send_with_addr(self._agent_socket, agent_addr, BackendKillJob((client_addr, message.job_id)))
         else:
             self._logger.warning("Client %s attempted to kill unknown job %s", str(client_addr), str(message.job_id))
@@ -186,7 +193,7 @@ class Backend(object):
 
             if typestr == "grade" and isinstance(job_msg, ClientNewJob):
                 job_id = (client_addr, job_msg.job_id)
-                self._job_running[job_id] = agent_addr
+                self._job_running[job_id] = agent_addr, job_msg
                 self._logger.info("Sending job %s %s to agent %s", client_addr, job_msg.job_id, agent_addr)
                 await ZMQUtils.send_with_addr(self._agent_socket, agent_addr, BackendNewJob(job_id, job_msg.course_id, job_msg.task_id,
                                                                                             job_msg.inputdata, job_msg.environment,
@@ -195,7 +202,7 @@ class Backend(object):
                                                                                             job_msg.debug))
             elif typestr == "batch":
                 job_id = (client_addr, job_msg.job_id)
-                self._batch_job_running[job_id] = agent_addr
+                self._batch_job_running[job_id] = agent_addr, job_msg
                 self._logger.info("Sending batch job %s %s to agent %s", client_addr, job_msg.job_id, agent_addr)
                 await ZMQUtils.send_with_addr(self._agent_socket, agent_addr, BackendNewBatchJob(job_id, job_msg.container_name, job_msg.input_data))
 
@@ -208,6 +215,7 @@ class Backend(object):
         """
         self._logger.info("Agent %s said hello", agent_addr)
 
+        self._registered_agents.append(agent_addr)
         for i in range(0, message.available_job_slots):
             self._available_agents.append(agent_addr)
 
@@ -346,6 +354,7 @@ class Backend(object):
         self._logger.info("Backend started")
         self._agent_socket.bind(self._agent_addr)
         self._client_socket.bind(self._client_addr)
+        self._loop.call_later(1, asyncio.ensure_future, self._do_ping())
 
         try:
             while True:
@@ -366,3 +375,35 @@ class Backend(object):
             return
         except KeyboardInterrupt:
             return
+
+    async def _handle_pong(self, agent_addr, _ : Pong):
+        """ Handle a pong """
+        self._ping_count[agent_addr] = 0
+
+    async def _do_ping(self):
+        """ Ping the agents """
+        for agent_addr in reversed(self._registered_agents):
+            ping_count = self._ping_count.get(agent_addr, 0)
+            if ping_count > 5:
+                self._logger.warning("Agent %s does not respond: removing from list.", agent_addr)
+                self._available_agents = [agent for agent in self._available_agents if agent != agent_addr]
+                self._registered_agents.remove(agent_addr)
+                await self._recover_jobs(agent_addr)
+            else:
+                self._ping_count[agent_addr] = ping_count + 1
+                await ZMQUtils.send_with_addr(self._agent_socket, agent_addr, Ping())
+        self._loop.call_later(1, asyncio.ensure_future, self._do_ping())
+
+    async def _recover_jobs(self, agent_addr):
+        """ Recover the jobs sent to a crashed agent """
+        for (client_addr, job_id), (agent, job_msg) in reversed(list(self._job_running.items())):
+            if agent == agent_addr:
+                self._waiting_jobs[(client_addr, job_id, "grade")] = job_msg
+                del self._job_running[(client_addr, job_id)]
+
+        for (client_addr, job_id), (agent, job_msg) in reversed(list(self._batch_job_running.items())):
+            if agent == agent_addr:
+                self._waiting_jobs[(client_addr, job_id, "batch")] = job_msg
+                del self._batch_job_running[(client_addr, job_id)]
+
+        await self.update_queue()

@@ -120,11 +120,11 @@ This will automatically upgrade an existing version.
 
        $ pip3 install --upgrade git+https://github.com/UCL-INGI/INGInious.git[cgi,ldap]
 
-Some previous releases are also published on Pipy. However, no support is provided for these versions now. To install
+Some releases are also published on Pipy. However, no support is provided for these versions now. To install
 the latest previous release:
 ::
 
-    $ pip install --upgrade inginious
+    $ pip3 install --upgrade inginious
 
 .. _config:
 
@@ -196,12 +196,46 @@ To run INInious with a remote backend (and agents), do as follows:
         backend: tcp://backend-host:2000
 #. Run your preferred frontend using :ref:`inginious-lti` or :ref:`inginious-webapp` (or both).
 
+.. _webterm_setup:
+
+Webterm setup
+-------------
+
+An optional web terminal can be used with INGInious to load the remote SSH debug session. This rely on an external tool.
+
+To install this tool :
+::
+
+    $ git clone https://github.com/UCL-INGI/INGInious-xterm
+    $ cd INGInious-xterm && npm install
+
+You can then launch the tool by running:
+::
+
+    $ npm start bind_hostname bind_port debug_host:debug_ports
+
+This will launch the app on ``http://bind_hostname:bind_port``. The ``debug_host`` and ``debug_ports`` parameters are
+the debug paramaters on the local (see :ref:`ConfigReference`) or remote (see :ref:`inginious-agent-docker`) Docker agent.
+
+To make the INGInious frontend aware of that application, update your configuration file by setting the ``webterm``
+field to ``http://bind_hostname:bind_port`` (see :ref:`ConfigReference`).
+
+For more information on this tool, please see `INGInious-xterm <https://github.com/UCL-INGI/INGInious-xterm>`_. Please
+note that INGInious-xterm must be launched using SSL if the frontend is launched using SSL.
+
 .. _production:
 
 Webserver configuration
 -----------------------
 
 .. _lighttpd:
+
+.. WARNING::
+    In configurations below, environment variables accessible to the application must be explicitly repeated.
+    **If you use a local backend with remote Docker daemon**, you may need to set the ``DOCKER_HOST`` variable.
+    To know the value to set, start a terminal that has access to the docker daemon (the terminal should be able to run
+    ``docker info``), and write ``echo $DOCKER_HOST``. If it returns nothing, just ignore this comment. It is possible
+    that you may need to do the same for the env variable ``DOCKER_CERT_PATH`` and ``DOCKER_TLS_VERIFY`` too.
 
 Using lighttpd
 ``````````````
@@ -232,12 +266,7 @@ Create a folder for INGInious, for example ``/var/www/INGInious``, and change th
 Put your configuration file in that folder, as well as your tasks, backup, download, and temporary (if local backend)
 directories (see :ref:`config` for more details on these folders).
 
-Once this is done, we can configure lighttpd. First, the file ``/etc/lighttpd/lighttpd.conf``. Modify the document root:
-::
-
-    server.document-root = "/var/www/INGInious"
-
-Next, in module.conf, load theses modules:
+Once this is done, we can configure lighttpd. First, the file ``/etc/lighttpd/modules.conf``, to load these modules:
 ::
 
     server.modules = (
@@ -261,13 +290,13 @@ You can then replace the content of fastcgi.conf with:
 
     fastcgi.server = ( "/inginious-webapp" =>
         (( "socket" => "/tmp/fastcgi.socket",
-            "bin-path" => "inginious-webapp",
+            "bin-path" => "/usr/bin/inginious-webapp",
             "max-procs" => 1,
             "bin-environment" => (
                 "INGINIOUS_WEBAPP_HOST" => "0.0.0.0",
-                "INGINIOUS_WEBAPP_PORT" => 80,
+                "INGINIOUS_WEBAPP_PORT" => "80",
                 "INGINIOUS_WEBAPP_CONFIG" => "/var/www/INGInious/configuration.yaml",
-                "DOCKER_HOST" => "tcp://192.168.59.103:2375"
+                "REAL_SCRIPT_NAME" => ""
             ),
             "check-local" => "disable"
         ))
@@ -281,16 +310,13 @@ You can then replace the content of fastcgi.conf with:
 
 Replace ``webapp`` by ``lti`` if you want to use the `LTI frontend`_.
 
-In this configuration file, some environment variables are passed.
+The ``INGINIOUS_WEBAPP`` or ``INGINIOUS_LTI`` (according to your config) prefixed environment variables are used to
+replace the default command line parameters. See :ref:`inginious-lti` and :ref:`inginious-webapp` for more details.
 
-- The ``DOCKER_HOST`` env variable is only needed if you do not use local backend. Otherwise,
-  it should reflect your current configuration. To know the value to set, start a
-  terminal that has access to the docker daemon (the terminal should be able to run ``docker info``), and write ``$ echo $DOCKER_HOST``.
-  If it returns nothing, just drop the line ``"DOCKER_HOST" => "tcp://192.168.59.103:2375"`` from the
-  configuration of lighttpd. Otherwise, put the value returned by the command in the configuration. It is possible
-  that may need to do the same for the env variable ``DOCKER_CERT_PATH`` and ``DOCKER_TLS_VERIFY`` too.
-- The ``INGINIOUS_WEBAPP`` or ``INGINIOUS_LTI`` (according to your config) prefixed environment variables are used to
-  replace the default command line parameters.
+The ``REAL_SCRIPT_NAME`` environment variable must be specified under lighttpd if you plan to access the application
+from another path than the specified one. In this case, lighttpd forces to set a non-root path ``/inginious-webapp``,
+while a root access if wanted, in order to serve static files correctly. Therefore, this environment variable is set
+to an empty string in addition to the rewrite rule.
 
 Finally, start the server:
 
@@ -344,8 +370,6 @@ uses *systemd* or *init*.
 
 You can then modify your ``/etc/httpd/conf/httpd.conf`` file to apply the following rules:
 ::
-
-    DocumentRoot "/var/www/INGInious"
 
     LoadModule wsgi_module /usr/lib64/python3.5/site-packages/mod_wsgi/server/mod_wsgi-py35.cpython-35m-x86_64-linux-gnu.so
 

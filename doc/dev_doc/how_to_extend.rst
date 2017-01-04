@@ -1,12 +1,6 @@
 How to extend INGInious
 =======================
 
-Creating plugins
-----------------
-
-INGInious' frontend has a simple plugin system that allow to register some hooks and
-create new pages. Documentation about that is available in the :doc:`frontend.plugins`.
-
 Creating a new frontend
 -----------------------
 

@@ -33,7 +33,7 @@ $def ColumnF():
                     $else:
                         list-group-item-danger
                     "
-                    href="/course/$submission['courseid']/$submission['taskid']">
+                    href="$get_homepath()/course/$submission['courseid']/$submission['taskid']">
                     $submission['task'].get_name()
                 </a>
         $else:
@@ -46,7 +46,7 @@ $def ColumnF():
                 You can change this by modifying the "accessibility" option in the configuration of the course.
             </div>
         <div class="list-group">
-            <a class="list-group-item list-group-item-info" href="/admin/$course.get_id()">
+            <a class="list-group-item list-group-item-info" href="$get_homepath()/admin/$course.get_id()">
                 <i class="fa fa-user-secret fa-fw"></i>&nbsp; Course administration
             </a>
         </div>
@@ -58,7 +58,7 @@ $var Column: $:ColumnF()
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
-        <li><a  href="/course/$course.get_id()">$course.get_name()</a></li>
+        <li><a  href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
         <li class="active"><a href="#"><i class="fa fa-group"></i>
             $classroom["description"]
             <span class="sr-only">(current)</span></a>

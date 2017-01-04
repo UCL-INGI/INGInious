@@ -13,8 +13,8 @@ $ is_admin = user_manager.has_admin_rights_on_course(course)
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
-        <li><a href="/course/$course.get_id()">$course.get_name()</a></li>
-        <li><a href="/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+        <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
+        <li><a href="$get_homepath()/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-user-secret"></i></a></li>
         <li class="active">
             <a href="#">
@@ -77,9 +77,9 @@ $var Navbar: $:NavbarF()
             <th># task done</th>
             <th>
                 <div class="btn-group" role="group">
-                    <a href="/admin/${course.get_id()}/download?format=taskid%2Faggregation" class="btn btn-danger btn-xs" title="Download
+                    <a href="$get_homepath()/admin/${course.get_id()}/download?format=taskid%2Faggregation" class="btn btn-danger btn-xs" title="Download
                        all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                    <a href="/admin/${course.get_id()}/aggregations?csv" class="btn btn-info btn-xs" title="Download
+                    <a href="$get_homepath()/admin/${course.get_id()}/aggregations?csv" class="btn btn-info btn-xs" title="Download
                        CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
                 </div>
             </th>
@@ -97,7 +97,7 @@ $var Navbar: $:NavbarF()
                 $if course.use_classrooms() or len(aggregation['groups']) > 0:
                     <tr>
                         <td>
-                            <a href="/admin/${course.get_id()}/aggregation/$aggregation['_id']">$aggregation["description"]</a>
+                            <a href="$get_homepath()/admin/${course.get_id()}/aggregation/$aggregation['_id']">$aggregation["description"]</a>
                         </td>
                         <td>$(len(aggregation["students"]) if course.use_classrooms() else len(aggregation["groups"][0]["students"]))</td>
                         <td>$aggregation["tried"]</td>
@@ -105,14 +105,14 @@ $var Navbar: $:NavbarF()
                         <td>
                             <div class="btn-group" role="group">
                                 $if course.use_classrooms():
-                                    <a href="/admin/${course.get_id()}/edit/aggregation/$aggregation['_id']" class="btn btn-primary btn-xs" title="Edit classroom" data-toggle="tooltip"
+                                    <a href="$get_homepath()/admin/${course.get_id()}/edit/aggregation/$aggregation['_id']" class="btn btn-primary btn-xs" title="Edit classroom" data-toggle="tooltip"
                                        data-placement="bottom"><i class="fa fa-edit"></i></a>
-                                <a href="/admin/${course.get_id()}/aggregation/$aggregation['_id']" class="btn btn-default btn-xs" title="View submissions" data-toggle="tooltip"
+                                <a href="$get_homepath()/admin/${course.get_id()}/aggregation/$aggregation['_id']" class="btn btn-default btn-xs" title="View submissions" data-toggle="tooltip"
                                    data-placement="bottom"><i class="fa fa-search"></i></a>
-                                <a href="/admin/${course.get_id()}/download$aggregation['url']" class="btn btn-default btn-xs" title="Download submissions"
+                                <a href="$get_homepath()/admin/${course.get_id()}/download$aggregation['url']" class="btn btn-default btn-xs" title="Download submissions"
                                    data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
                                 $if is_admin:
-                                    <a href="/admin/${course.get_id()}/replay$aggregation['url']" class="btn btn-default btn-xs" title="Replay submissions"
+                                    <a href="$get_homepath()/admin/${course.get_id()}/replay$aggregation['url']" class="btn btn-default btn-xs" title="Replay submissions"
                                        data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
                             </div>
                         </td>

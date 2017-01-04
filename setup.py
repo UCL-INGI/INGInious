@@ -69,12 +69,11 @@ setup(
         'inginious-lti',
         'inginious-webapp',
         'inginious-install',
-        'inginious/utils/check_task_description/inginious-check-task',
-        'inginious/utils/sync/inginious-synchronize',
-        'inginious/utils/task_auto_tester/inginious-auto-test-task',
-        'inginious/utils/task_converter/inginious-old-task-converter',
-        'inginious/utils/task_manual_tester/inginious-test-task',
-        'inginious/utils/container_update/inginious-container-update'
+        'utils/check_task_description/inginious-check-task',
+        'utils/sync/inginious-synchronize',
+        'utils/task_tester/inginious-test-task',
+        'utils/task_converter/inginious-old-task-converter',
+        'utils/container_update/inginious-container-update'
     ],
 
     include_package_data=True,

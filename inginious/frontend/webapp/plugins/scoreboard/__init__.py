@@ -9,11 +9,13 @@
 from collections import OrderedDict
 import web
 
-from inginious.frontend.webapp.pages.utils import INGIniousPage
+from inginious.frontend.webapp.pages.utils import INGIniousAuthPage
 
 
-class ScoreBoardCourse(INGIniousPage):
-    def GET(self, courseid):
+class ScoreBoardCourse(INGIniousAuthPage):
+    """ Page displaying the different available scoreboards for the course """
+
+    def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
         course = self.course_factory.get_course(courseid)
         scoreboards = course.get_descriptor().get('scoreboard', [])
@@ -26,7 +28,8 @@ class ScoreBoardCourse(INGIniousPage):
         if len(names) == 0:
             raise web.notfound()
 
-        return self.template_helper.get_custom_template_renderer('frontend/webapp/plugins/scoreboard', '../../templates/layout').main(course, names)
+        return self.template_helper.get_custom_renderer('frontend/webapp/plugins/scoreboard').main(course, names)
+
 
 def sort_func(overall_result_per_user, reversed):
     def sf(user):
@@ -36,8 +39,11 @@ def sort_func(overall_result_per_user, reversed):
         return (-solved, (-score if not reversed else score))
     return sf
 
-class ScoreBoard(INGIniousPage):
-    def GET(self, courseid, scoreboardid):
+
+class ScoreBoard(INGIniousAuthPage):
+    """ Page displaying a specific scoreboard """
+
+    def GET_AUTH(self, courseid, scoreboardid):  # pylint: disable=arguments-differ
         """ GET request """
         course = self.course_factory.get_course(courseid)
         scoreboards = course.get_descriptor().get('scoreboard', [])
@@ -158,7 +164,7 @@ class ScoreBoard(INGIniousPage):
 
             table.append(line)
 
-        renderer = self.template_helper.get_custom_template_renderer('frontend/webapp/plugins/scoreboard', '../../templates/layout')
+        renderer = self.template_helper.get_custom_renderer('frontend/webapp/plugins/scoreboard')
         return renderer.scoreboard(course, scoreboardid, scoreboard_name, header, table, emphasized_columns)
 
 
@@ -167,9 +173,10 @@ def course_menu(course, template_helper):
     scoreboards = course.get_descriptor().get('scoreboard', [])
 
     if scoreboards != []:
-        return str(template_helper.get_custom_template_renderer('frontend/webapp/plugins/scoreboard').course_menu(course))
+        return str(template_helper.get_custom_renderer('frontend/webapp/plugins/scoreboard', layout=False).course_menu(course))
     else:
         return None
+
 
 def task_menu(course, task, template_helper):
     """ Displays the link to the scoreboards on the task page, if the plugin is activated for this course and the task is used in scoreboards """
@@ -181,10 +188,11 @@ def task_menu(course, task, template_helper):
                 tolink.append((sid, scoreboard["name"]))
 
         if tolink:
-            return str(template_helper.get_custom_template_renderer('frontend/webapp/plugins/scoreboard').task_menu(course, tolink))
+            return str(template_helper.get_custom_renderer('frontend/webapp/plugins/scoreboard', layout=False).task_menu(course, tolink))
         return None
     except:
         return None
+
 
 def init(plugin_manager, _, _2, _3):
     """
@@ -192,7 +200,7 @@ def init(plugin_manager, _, _2, _3):
         Available configuration in configuration.yaml:
         ::
 
-            - plugin_module: "webapp.plugins.scoreboard"
+            - plugin_module: "inginious.frontend.webapp.plugins.scoreboard"
 
         Available configuration in course.yaml:
         ::

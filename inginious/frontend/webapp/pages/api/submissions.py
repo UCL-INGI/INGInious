@@ -71,7 +71,7 @@ class APISubmissionSingle(APIAuthenticatedPage):
         Endpoint /api/v0/courses/[a-zA-Z_\-\.0-9]+/tasks/[a-zA-Z_\-\.0-9]+/submissions/[a-zA-Z_\-\.0-9]+
     """
 
-    def API_GET(self, courseid, taskid, submissionid):
+    def API_GET(self, courseid, taskid, submissionid):  # pylint: disable=arguments-differ
         """
             List all the submissions that the connected user made. Returns list of the form
 
@@ -108,7 +108,7 @@ class APISubmissions(APIAuthenticatedPage):
         Endpoint /api/v0/courses/[a-zA-Z_\-\.0-9]+/tasks/[a-zA-Z_\-\.0-9]+/submissions
     """
 
-    def API_GET(self, courseid, taskid):
+    def API_GET(self, courseid, taskid):  # pylint: disable=arguments-differ
         """
             List all the submissions that the connected user made. Returns dicts in the form
 
@@ -139,7 +139,7 @@ class APISubmissions(APIAuthenticatedPage):
 
         return _get_submissions(self.course_factory, self.submission_manager, self.user_manager, courseid, taskid, with_input)
 
-    def API_POST(self, courseid, taskid):
+    def API_POST(self, courseid, taskid):  # pylint: disable=arguments-differ
         """
             Creates a new submissions. Takes as (POST) input the key of the subproblems, with the value assigned each time.
 
@@ -188,7 +188,7 @@ class APISubmissions(APIAuthenticatedPage):
             submissionid, _ = self.submission_manager.add_job(task, user_input, debug)
             return 200, {"submissionid": str(submissionid)}
         except Exception as ex:
-            raise APIError(str(ex))
+            raise APIError(500, str(ex))
 
     def list_multiple_multiple_choices_and_files(self, task):
         """ List problems in task that expect and array as input """

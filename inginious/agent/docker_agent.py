@@ -24,7 +24,8 @@ from inginious.agent._pipeline import PipelinePush, PipelinePull
 from inginious.common.asyncio_utils import AsyncIteratorWrapper
 from inginious.common.message_meta import ZMQUtils
 from inginious.common.messages import BackendNewJob, AgentJobStarted, BackendNewBatchJob, BackendKillJob, AgentHello, BackendJobId, AgentJobDone, \
-    KWPRegisterContainer, KWPKilledStatus, SPResult, EventContainerDied, EventContainerOOM, AgentJobSSHDebug, AgentBatchJobDone, AgentBatchJobStarted
+    KWPRegisterContainer, KWPKilledStatus, SPResult, EventContainerDied, EventContainerOOM, AgentJobSSHDebug, AgentBatchJobDone, AgentBatchJobStarted, \
+    Ping, Pong
 
 
 class DockerAgent(object):
@@ -95,6 +96,7 @@ class DockerAgent(object):
 
         # Sockets
         self._backend_socket = self._context.socket(zmq.DEALER)
+        self._backend_socket.ipv6 = True
         self._docker_events_publisher = self._context.socket(zmq.PUB)
         self._docker_events_subscriber = self._context.socket(zmq.SUB)
 
@@ -155,6 +157,7 @@ class DockerAgent(object):
             BackendNewBatchJob: self.handle_new_batch_job,
             BackendNewJob: self.handle_new_job,
             BackendKillJob: self.handle_kill_job,
+            Ping: self.handle_ping
         }
         try:
             func = message_handlers[message.__class__]
@@ -187,6 +190,10 @@ class DockerAgent(object):
     async def handle_kwp_register_container(self, message: KWPRegisterContainer):
         # ignore
         pass
+
+    async def handle_ping(self, _: Ping):
+        """ Handle an Ping message. Pong the backend """
+        await ZMQUtils.send(self._backend_socket, Pong())
 
     async def handle_new_batch_job(self, message: BackendNewBatchJob):
         """
@@ -776,7 +783,7 @@ class DockerAgent(object):
         if tests is None:
             tests = {}
 
-        await ZMQUtils.send(self._backend_socket, AgentJobDone(job_id, (result, text), grade, problems, tests, custom, archive, stdout, stderr))
+        await ZMQUtils.send(self._backend_socket, AgentJobDone(job_id, (result, text), round(grade, 2), problems, tests, custom, archive, stdout, stderr))
 
     async def run_dealer(self):
         """ Run the agent """
