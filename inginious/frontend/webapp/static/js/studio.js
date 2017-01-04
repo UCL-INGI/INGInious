@@ -30,6 +30,21 @@ function studio_load(data)
         studio_init_template(template, pid, problem);
     });
 
+    // Hacky fix for codemirror in collapsable elements
+    var collapsable = $('.collapse');
+    collapsable.on('show.bs.collapse', function()
+    {
+        var t = this;
+        setTimeout(function()
+        {
+            $('.CodeMirror', t).each(function(i, el)
+            {
+                el.CodeMirror.refresh();
+            });
+        }, 10);
+    });
+    collapsable.collapse('hide');
+
     $('form#edit_task_form').on('submit', function()
     {
         studio_submit();
@@ -373,8 +388,8 @@ function studio_create_new_subproblem()
 function studio_create_from_template(template, pid)
 {
     var tpl = $(template).html().replace(/PID/g, pid);
-    $('#accordion').append(tpl);
-    $('.collapse').collapse('hide');
+    var tplElem = $(tpl);
+    $('#accordion').append(tplElem);
 }
 
 /**
