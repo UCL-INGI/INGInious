@@ -11,7 +11,7 @@ from inginious.common.tasks_problems import CodeProblem, CodeSingleLineProblem, 
 class Task(object):
     """ Contains the data for a task """
 
-    def __init__(self, course, taskid, content, directory_path, task_problem_types=None):
+    def __init__(self, course, taskid, content, directory_path, hook_manager, task_problem_types=None):
         """
             Init the task. course is a Course object, taskid the task id, and content is a dictionnary containing the data needed to initialize the Task object.
             If init_data is None, the data will be taken from the course tasks' directory.
@@ -19,6 +19,7 @@ class Task(object):
         self._course = course
         self._taskid = taskid
         self._directory_path = directory_path
+        self._hook_manager = hook_manager
 
         task_problem_types = task_problem_types or {"code": CodeProblem, "code-single-line": CodeSingleLineProblem, "code-file": CodeFileProblem,
                                                     "multiple-choice": MultipleChoiceProblem, "match": MatchProblem}
@@ -93,11 +94,13 @@ class Task(object):
 
     def get_limits(self):
         """ Return the limits of this task """
-        return self._limits
+        vals = self._hook_manager.call_hook('task_limits', course=self.get_course(), task=self, default=self._limits)
+        return vals[0] if len(vals) else self._limits
 
     def allow_network_access_grading(self):
         """ Return True if the grading container should have access to the network """
-        return self._network_grading
+        vals = self._hook_manager.call_hook('task_network_grading', course=self.get_course(), task=self, default=self._network_grading)
+        return vals[0] if len(vals) else self._network_grading
 
     def get_response_type(self):
         """ Returns the method used to parse the output of the task: HTML or rst """

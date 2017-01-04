@@ -14,7 +14,7 @@ from inginious.frontend.common.task_problems import DisplayableCodeProblem, Disp
 class FrontendTask(inginious.common.tasks.Task):
     """ A task that stores additional context information """
 
-    def __init__(self, course, taskid, content, directory_path, task_problem_types=None):
+    def __init__(self, course, taskid, content, directory_path, hook_manager, task_problem_types=None):
         # We load the descriptor of the task here to allow plugins to modify settings of the task before it is read by the Task constructor
         if not id_checker(taskid):
             raise Exception("Task with invalid id: " + course.get_id() + "/" + taskid)
@@ -26,7 +26,7 @@ class FrontendTask(inginious.common.tasks.Task):
             "multiple-choice": DisplayableMultipleChoiceProblem,
             "match": DisplayableMatchProblem}
 
-        super(FrontendTask, self).__init__(course, taskid, content, directory_path, task_problem_types)
+        super(FrontendTask, self).__init__(course, taskid, content, directory_path, hook_manager, task_problem_types)
 
         self._name = self._data.get('name', 'Task {}'.format(self.get_id()))
 
@@ -55,7 +55,8 @@ class FrontendTask(inginious.common.tasks.Task):
 
     def get_context(self):
         """ Get the context(description) of this task """
-        return self._context
+        vals = self._hook_manager.call_hook('task_context', course=self.get_course(), task=self, default=self._context)
+        return vals[0] if len(vals) else self._context
 
     def get_authors(self):
         """ Return the list of this task's authors """

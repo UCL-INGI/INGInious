@@ -5,11 +5,13 @@
 
 """ Contains the class Course and utility functions """
 
+import copy
+
 
 class Course(object):
     """ Represents a course """
 
-    def __init__(self, courseid, content_description, task_factory):
+    def __init__(self, courseid, content_description, task_factory, hook_manager):
         """
         :param courseid: the course id
         :param content_description: a dict with all the infos of this course
@@ -18,6 +20,7 @@ class Course(object):
         self._id = courseid
         self._content = content_description
         self._task_factory = task_factory
+        self._hook_manager = hook_manager
 
     def get_id(self):
         """ Return the _id of this course """
@@ -33,4 +36,4 @@ class Course(object):
 
     def get_descriptor(self):
         """ Get (a copy) the description of the course """
-        return self._content.copy()
+        return copy.deepcopy(self._content)

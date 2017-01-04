@@ -14,6 +14,7 @@ import web
 
 from inginious.frontend.webapp.pages.utils import INGIniousAuthPage
 from inginious.frontend.webapp.pages.course_admin.utils import INGIniousAdminPage
+from inginious.frontend.webapp.accessible_time import AccessibleTime
 
 
 def add_admin_menu(course):
@@ -21,11 +22,12 @@ def add_admin_menu(course):
     return ('contest', '<i class="fa fa-trophy fa-fw"></i>&nbsp; Contest')
 
 
-def modify_task_data(course, taskid, data):
-    """ Modify the availability of tasks during contests """
+def task_accessibility(course, task, default):
     contest_data = get_contest_data(course)
     if contest_data['enabled']:
-        data['accessible'] = contest_data['start'] + '/'
+        return AccessibleTime(contest_data['start'] + '/')
+    else:
+        return default
 
 
 def additional_headers():
@@ -227,6 +229,6 @@ def init(plugin_manager, course_factory, client, _config):
     plugin_manager.add_page('/contest/([^/]+)', ContestScoreboard)
     plugin_manager.add_page('/admin/([^/]+)/contest', ContestAdmin)
     plugin_manager.add_hook('course_admin_menu', add_admin_menu)
-    plugin_manager.add_hook('modify_task_data', modify_task_data)
+    plugin_manager.add_hook('task_accessibility', task_accessibility)
     plugin_manager.add_hook('header_html', additional_headers)
     plugin_manager.add_hook('course_menu', course_menu)

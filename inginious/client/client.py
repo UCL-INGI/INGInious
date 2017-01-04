@@ -291,7 +291,7 @@ class Client(BetterParanoidPirateClient):
         try:
             limits = task.get_limits()
             time_limit = int(limits.get('time', 20))
-            hard_time_limit = int(limits.get('time_hard', 3 * time_limit))
+            hard_time_limit = int(limits.get('hard_time', 3 * time_limit))
             mem_limit = int(limits.get('memory', 200))
         except:
             self._logger.exception("Cannot retrieve limits for task %s/%s", task.get_course_id(), task.get_id())

@@ -302,7 +302,7 @@ class CourseEditTask(INGIniousAdminPage):
 
         directory_path = self.task_factory.get_directory_path(courseid, taskid)
         try:
-            WebAppTask(course, taskid, data, directory_path)
+            WebAppTask(course, taskid, data, directory_path, self.plugin_manager)
         except Exception as message:
             return json.dumps({"status": "error", "message": "Invalid data: {}".format(str(message))})
 

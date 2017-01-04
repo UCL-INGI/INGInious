@@ -8,14 +8,12 @@
 import os
 import codecs
 import shutil
-import copy
 
 from inginious.common.log import get_course_logger
 from inginious.common.tasks import Task
 from inginious.common.base import id_checker
 from inginious.common.task_file_readers.yaml_reader import TaskYAMLFileReader
 from inginious.common.exceptions import InvalidNameException, TaskNotFoundException, TaskUnreadableException, TaskReaderNotFoundException
-
 
 class TaskFactory(object):
     """ Load courses from disk """
@@ -40,9 +38,7 @@ class TaskFactory(object):
         if self._cache_update_needed(course, taskid):
             self._update_cache(course, taskid)
 
-        task_content = copy.deepcopy(self._cache[(course.get_id(), taskid)][0])
-        self._hook_manager.call_hook('modify_task_data', course=course, taskid=taskid, data=task_content)
-        return self._task_class(course, taskid, task_content, self.get_directory_path(course.get_id(), taskid))
+        return self._cache[(course.get_id(), taskid)][0]
 
     def get_task_descriptor_content(self, courseid, taskid):
         """
@@ -215,7 +211,10 @@ class TaskFactory(object):
         except Exception as e:
             raise TaskUnreadableException(str(e))
 
-        self._cache[(course.get_id(), taskid)] = (task_content, os.stat(path_to_descriptor).st_mtime)
+        self._cache[(course.get_id(), taskid)] = (
+            self._task_class(course, taskid, task_content, self.get_directory_path(course.get_id(), taskid), self._hook_manager),
+            os.stat(path_to_descriptor).st_mtime
+        )
 
     def update_cache_for_course(self, courseid):
         """

@@ -15,8 +15,8 @@ from inginious.frontend.webapp.accessible_time import AccessibleTime
 class WebAppCourse(FrontendCourse):
     """ A course with some modification for users """
 
-    def __init__(self, courseid, content, task_factory):
-        super(WebAppCourse, self).__init__(courseid, content, task_factory)
+    def __init__(self, courseid, content, task_factory, hook_manager):
+        super(WebAppCourse, self).__init__(courseid, content, task_factory, hook_manager)
 
         if self._content.get('nofrontend', False):
             raise Exception("That course is not allowed to be displayed directly in the webapp")
@@ -51,11 +51,11 @@ class WebAppCourse(FrontendCourse):
 
     def is_open_to_non_staff(self):
         """ Returns true if the course is accessible by users that are not administrator of this course """
-        return self._accessible.is_open()
+        return self.get_accessibility().is_open()
 
     def is_registration_possible(self, username, realname, email):
         """ Returns true if users can register for this course """
-        return self._accessible.is_open() and self._registration.is_open() and self.is_user_accepted_by_access_control(username, realname, email)
+        return self.get_accessibility().is_open() and self._registration.is_open() and self.is_user_accepted_by_access_control(username, realname, email)
 
     def is_password_needed_for_registration(self):
         """ Returns true if a password is needed for registration """
@@ -67,7 +67,8 @@ class WebAppCourse(FrontendCourse):
 
     def get_accessibility(self):
         """ Return the AccessibleTime object associated with the accessibility of this course """
-        return self._accessible
+        vals = self._hook_manager.call_hook('course_accessibility', course=self, default=self._accessible)
+        return vals[0] if len(vals) else self._accessible
 
     def get_registration_accessibility(self):
         """ Return the AccessibleTime object associated with the registration """

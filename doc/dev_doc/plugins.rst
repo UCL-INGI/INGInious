@@ -142,22 +142,54 @@ Each hook available in INGInious is described here, starting with its name and p
 
     Used to add Javascript files in the footer. 
     Should return the path to a Javascript file (relative to the root of INGInious).
-``modify_course_data`` (``courseid``, ``data``)
-    ``courseid`` : Course id of the course to modify
+``course_accessibility`` (``course``, ``default``)
+    Returns: inginious.frontend.webapp.accessible_time.AccessibleTime
 
-    ``data`` : Dictionary of the course file data after reading the file
+    ``course`` : inginious.common.courses.Course
 
-    Allows to modify the course description before the returning the Course object.
-    Changes are not saved to disk.
-``modify_task_data`` (``course``, ``taskid``, ``data``)
-    ``course`` : :ref:`inginious.frontend.common.courses.FrontendCourse`
+    ``default`` : Default value as specified in the configuration
 
-    ``taskid`` : Task id of the task to modify
+    Overrides the course accessibility.
+``task_accessibility`` (``course``, ``taskid``, ``default``)
+    Returns: inginious.frontend.webapp.accessible_time.AccessibleTime
 
-    ``data`` : Dictionary of the task file data after reading the file
+    ``course`` : inginious.common.courses.Course
 
-    Allows to modify the task description before the returning the Task object.
-    Changes are not saved to disk.
+    ``task`` : inginious.common.tasks.Task
+
+    ``default`` : Default value as specified in the configuration
+
+    Overrides the task accessibility
+``task_limits`` (``course``, ``taskid``, ``default``)
+    Returns: Task limits dictionary
+
+    ``course`` : inginious.common.courses.Course
+
+    ``task`` : inginious.common.tasks.Task
+
+    ``default`` : Default value as specified in the configuration
+
+    Overrides the task limits
+``task_context`` (``course``, ``taskid``, ``default``)
+    Returns: inginious.frontend.common.parsable_text.ParsableText
+
+    ``course`` : inginious.common.courses.Course
+
+    ``task`` : inginious.common.tasks.Task
+
+    ``default`` : Default value as specified in the configuration
+
+    Overrides the task context
+``task_network_grading`` (``course``, ``taskid``, ``default``)
+    Returns: True or False
+
+    ``course`` : inginious.common.courses.Course
+
+    ``task`` : inginious.common.tasks.Task
+
+    ``default`` : Default value as specified in the configuration
+
+    Overrides the task network-enable option
 ``new_submission`` (``submissionid``, ``submission``, ``inputdata``)
     ``submissionid`` : ObjectId corresponding to the submission recently saved in database.
 

@@ -6,7 +6,6 @@
 """ Factory for loading courses from disk """
 import os
 import shutil
-import copy
 
 from inginious.common.log import get_course_logger
 from inginious.common.courses import Course
@@ -38,9 +37,7 @@ class CourseFactory(object):
         if self._cache_update_needed(courseid):
             self._update_cache(courseid)
 
-        course_descriptor = copy.deepcopy(self._cache[courseid][0])
-        self._hook_manager.call_hook('modify_course_data', courseid=courseid, data=course_descriptor)
-        return self._course_class(courseid, course_descriptor, self._task_factory)
+        return self._cache[courseid][0]
 
     def get_task(self, courseid, taskid):
         """
@@ -168,7 +165,7 @@ class CourseFactory(object):
             course_descriptor = load_json_or_yaml(path_to_descriptor)
         except Exception as e:
             raise CourseUnreadableException(str(e))
-        self._cache[courseid] = (course_descriptor, os.stat(path_to_descriptor).st_mtime)
+        self._cache[courseid] = (self._course_class(courseid, course_descriptor, self._task_factory, self._hook_manager), os.stat(path_to_descriptor).st_mtime)
         self._task_factory.update_cache_for_course(courseid)
 
 

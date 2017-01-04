@@ -11,8 +11,8 @@ from inginious.frontend.webapp.accessible_time import AccessibleTime
 class WebAppTask(FrontendTask):
     """ A task that stores additional context information, specific to the web app """
 
-    def __init__(self, course, taskid, content, directory_path, task_problem_types=None):
-        super(WebAppTask, self).__init__(course, taskid, content, directory_path, task_problem_types)
+    def __init__(self, course, taskid, content, directory_path, hook_manager, task_problem_types=None):
+        super(WebAppTask, self).__init__(course, taskid, content, directory_path, hook_manager, task_problem_types)
 
         # Grade weight
         self._weight = float(self._data.get("weight", 1.0))
@@ -32,20 +32,21 @@ class WebAppTask(FrontendTask):
 
     def get_accessible_time(self):
         """  Get the accessible time of this task """
-        return self._accessible
+        vals = self._hook_manager.call_hook('task_accessibility', course=self.get_course(), task=self, default=self._accessible)
+        return vals[0] if len(vals) else self._accessible
 
     def is_visible_by_students(self):
         """ Returns true if the task is accessible by all students that are not administrator of the course """
-        return self.get_course().is_open_to_non_staff() and self._accessible.after_start()
+        return self.get_course().is_open_to_non_staff() and self.get_accessible_time().after_start()
 
     def get_deadline(self):
         """ Returns a string containing the deadline for this task """
-        if self._accessible.is_always_accessible():
+        if self.get_accessible_time().is_always_accessible():
             return "No deadline"
-        elif self._accessible.is_never_accessible():
+        elif self.get_accessible_time().is_never_accessible():
             return "It's too late"
         else:
-            return self._accessible.get_end_date().strftime("%d/%m/%Y %H:%M:%S")
+            return self.get_accessible_time().get_end_date().strftime("%d/%m/%Y %H:%M:%S")
 
     def is_group_task(self):
         """ Indicates if the task submission mode is per groups """

@@ -564,7 +564,7 @@ class UserManager(AbstractUserManager):
         if username is None:
             username = self.session_username()
 
-        return (course._accessible.is_open() and self.course_is_user_registered(course, username)) \
+        return (course.get_accessibility().is_open() and self.course_is_user_registered(course, username)) \
                or self.has_staff_rights_on_course(course, username)
 
     def course_is_user_registered(self, course, username=None):
