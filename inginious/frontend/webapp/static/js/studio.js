@@ -183,7 +183,7 @@ function studio_task_file_open_tab(path)
                               }
                           }
                           else
-                              mode = mode["mode"];
+                              mode = mode["name"];
 
                           registerCodeEditor(newtab_editor[0], mode, 20);
                       },
