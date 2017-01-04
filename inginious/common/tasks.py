@@ -109,30 +109,33 @@ class Task(object):
 
     def check_answer(self, task_input):
         """
-            Verify the answers in task_input. Returns five values
+            Verify the answers in task_input. Returns six values
             1st: True the input is **currently** valid. (may become invalid after running the code), False else
             2nd: True if the input needs to be run in the VM, False else
             3rd: Main message, as a list (that can be join with \n or <br/> for example)
             4th: Problem specific message, as a dictionnary (tuple of result/text)
-            5th: Number of errors in the multiple choices
+            5th: Number of subproblems that (already) contain errors. <= Number of subproblems
+            6th: Number of errors in MCQ problems. Not linked to the number of subproblems
         """
         valid = True
         need_launch = False
         main_message = []
         problem_messages = {}
+        error_count = 0
         multiple_choice_error_count = 0
         for problem in self._problems:
             problem_is_valid, problem_main_message, problem_s_messages, problem_mc_error_count = problem.check_answer(task_input)
             if problem_is_valid is None:
                 need_launch = True
             elif problem_is_valid == False:
+                error_count += 1
                 valid = False
             if problem_main_message is not None:
                 main_message.append(problem_main_message)
             if problem_s_messages is not None:
                 problem_messages[problem.get_id()] = (("success" if problem_is_valid else "failed"), problem_s_messages)
             multiple_choice_error_count += problem_mc_error_count
-        return valid, need_launch, main_message, problem_messages, multiple_choice_error_count
+        return valid, need_launch, main_message, problem_messages, error_count, multiple_choice_error_count
 
     def _create_task_problem(self, problemid, problem_content, task_problem_types):
         """Creates a new instance of the right class for a given problem."""

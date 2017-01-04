@@ -30,7 +30,7 @@ class BasicProblem(object, metaclass=ABCMeta):
             the first is either True, False or None, indicating respectively that the answer is valid, invalid, or need to be sent to VM
             the second is the error message assigned to the task, if any (unused for now)
             the third is the error message assigned to this problem, if any
-            this fourth is the number of error if this problem is a multi-box problem. Must be an integer (0)
+            the fourth is the number of errors in MCQ; should be zero when not a MCQ.
         """
         return True, None, None, 0
 
@@ -250,12 +250,15 @@ class MultipleChoiceProblem(BasicProblem):
     def check_answer(self, taskInput):
         valid = True
         msgs = []
+        invalid_count = 0
         if self._multiple:
             for choice in self._choices:
                 if choice["valid"] and not choice["index"] in taskInput[self.get_id()] and not str(choice["index"]) in taskInput[self.get_id()]:
                     valid = False
+                    invalid_count += 1
                 elif not choice["valid"] and (choice["index"] in taskInput[self.get_id()] or str(choice["index"]) in taskInput[self.get_id()]):
                     valid = False
+                    invalid_count += 1
             for i in taskInput[self.get_id()]:
                 feedback = self.get_choice_with_index(int(i))["feedback"]
                 if feedback is not None:
@@ -263,6 +266,8 @@ class MultipleChoiceProblem(BasicProblem):
         else:
             choice = self.get_choice_with_index(int(taskInput[self.get_id()]))
             valid = choice["valid"]
+            if not valid:
+                invalid_count += 1
             if choice["feedback"] is not None:
                 msgs.append(choice["feedback"])
 
@@ -273,9 +278,9 @@ class MultipleChoiceProblem(BasicProblem):
                 msgs = ["Wrong answer. Make sure to select all the valid possibilities" if self._multiple else "Wrong answer"] + msgs
 
             if len(msgs) != 0:
-                return False, None, "\n\n".join(msgs), 1
+                return False, None, "\n\n".join(msgs), invalid_count
             else:
-                return False, None, None, 1
+                return False, None, None, invalid_count
 
         if self._success_message is not None:
             msgs = [self._success_message] + msgs

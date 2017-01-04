@@ -66,14 +66,16 @@ class MCQAgent(object):
             self._logger.error("Task %s/%s not available on this agent", msg.course_id, msg.task_id)
             return
 
-        result, need_emul, text, problems, error_count = task.check_answer(msg.inputdata)
+        result, need_emul, text, problems, error_count, mcq_error_count = task.check_answer(msg.inputdata)
         if need_emul:
             await ZMQUtils.send(self._backend_socket, AgentJobDone(msg.job_id, ("crash", "Task wrongly configured as a MCQ"), 0.0, {}, {}, {}, None, "", ""))
             self._logger.warning("Task %s/%s is not a pure MCQ but has env=MCQ", msg.course_id, msg.task_id)
             return
 
         if error_count != 0:
-            text.append("You have %i errors in the multiple choice questions" % error_count)
+            text.append("You have %i wrong answer(s)." % error_count)
+        if mcq_error_count != 0:
+            text.append("\n\nAmong them, you have %i invalid answers in the multiple choice questions" % mcq_error_count)
 
         nb_subproblems = len(task.get_problems())
         grade = 100.0 * float(nb_subproblems - error_count) / float(nb_subproblems)
