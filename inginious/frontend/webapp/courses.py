@@ -107,4 +107,5 @@ class WebAppCourse(FrontendCourse):
 
     def allow_unregister(self):
         """ Returns True if students can unregister from course """
-        return self._allow_unregister
+        vals = self._hook_manager.call_hook('course_allow_unregister', course=self, default=self._allow_unregister)
+        return vals[0] if len(vals) else self._allow_unregister
