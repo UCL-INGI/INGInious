@@ -244,7 +244,7 @@ class DockerAgent(object):
             try:
                 container_id = await self._loop.run_in_executor(None, lambda: self._docker.create_batch_container(environment, input_path, output_path))
             except:
-                rmtree(container_path)
+                await self._loop.run_in_executor(None, lambda: rmtree(container_path))
                 self._logger.info("Cannot create container %s for batch job %s", message.container_name, message.job_id)
                 await ZMQUtils.send(self._backend_socket, AgentBatchJobDone(message.job_id, -1, "Cannot create container", "", None))
                 return
@@ -256,7 +256,7 @@ class DockerAgent(object):
             try:
                 await self._loop.run_in_executor(None, lambda: self._docker.start_container(container_id))
             except:
-                rmtree(container_path)
+                await self._loop.run_in_executor(None, lambda: rmtree(container_path))
                 self._logger.info("Cannot start container %s %s for batch job %s", message.container_name, container_id, message.job_id)
                 await ZMQUtils.send(self._backend_socket, AgentBatchJobDone(message.job_id, -1, "Cannot start container", "", None))
                 return
@@ -340,7 +340,7 @@ class DockerAgent(object):
             os.chmod(sockets_path, 0o777)
 
             # TODO: avoid copy
-            copytree(os.path.join(self.task_directory, course_id, task_id), task_path)
+            await self._loop.run_in_executor(None, lambda: copytree(os.path.join(self.task_directory, course_id, task_id), task_path))
             os.chmod(task_path, 0o777)
 
             if not os.path.exists(student_path):
@@ -354,7 +354,7 @@ class DockerAgent(object):
             except Exception as e:
                 self._logger.warning("Cannot create container! %s", str(e), exc_info=True)
                 await self.send_job_result(message.job_id, "crash", 'Cannot create container.')
-                rmtree(container_path)
+                await self._loop.run_in_executor(None, lambda: rmtree(container_path))
                 if ssh_port is not None:
                     self.ssh_ports.add(ssh_port)
                 return
@@ -373,7 +373,7 @@ class DockerAgent(object):
             except Exception as e:
                 self._logger.warning("Cannot start container! %s", str(e), exc_info=True)
                 await self.send_job_result(message.job_id, "crash", 'Cannot start container')
-                rmtree(container_path)
+                await self._loop.run_in_executor(None, lambda: rmtree(container_path))
                 if ssh_port is not None:
                     self.ssh_ports.add(ssh_port)
                 return
@@ -672,7 +672,7 @@ class DockerAgent(object):
 
             # Delete folders
             try:
-                rmtree(container_path)
+                await self._loop.run_in_executor(None, lambda: rmtree(container_path))
             except PermissionError:
                 self._logger.debug("Cannot remove old container path!")
                 pass # todo: run a docker container to force removal
@@ -705,7 +705,7 @@ class DockerAgent(object):
 
             if retval == -1:
                 self._logger.info("Batch container for job id %s crashed", message.job_id)
-                rmtree(container_path)
+                await self._loop.run_in_executor(None, lambda: rmtree(container_path))
                 await ZMQUtils.send(self._backend_socket, AgentBatchJobDone(message.job_id, -1, "Container crashed at startup", "", None))
                 return
 
@@ -714,7 +714,7 @@ class DockerAgent(object):
                 stdout, stderr = await self._loop.run_in_executor(None, lambda: self._docker.get_logs(container_id))
             except:
                 self._logger.warning("Cannot get back stdout of container %s!", container_id)
-                rmtree(container_path)
+                await self._loop.run_in_executor(None, lambda: rmtree(container_path))
                 await ZMQUtils.send(self._backend_socket, AgentBatchJobDone(message.job_id, -1, 'Cannot retrieve stdout/stderr from container', "", None))
                 return
 
@@ -727,13 +727,13 @@ class DockerAgent(object):
                     tmpfile.flush()
                     tmpfile.seek(0)
                 except:
-                    rmtree(container_path)
+                    await self._loop.run_in_executor(None, lambda:rmtree(container_path))
                     await ZMQUtils.send(self._backend_socket,
                                         AgentBatchJobDone(message.job_id, -1, 'The agent was unable to archive the /output directory', "", None))
                     return
 
                 # And then return!
-                rmtree(container_path)
+                await self._loop.run_in_executor(None, lambda: rmtree(container_path))
                 await ZMQUtils.send(self._backend_socket, AgentBatchJobDone(message.job_id, retval, stdout, stderr, tmpfile.read()))
         except:
             self._logger.exception("Exception in handle_batch_job_closing")
