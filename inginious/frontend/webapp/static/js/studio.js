@@ -31,7 +31,7 @@ function studio_load(data)
     });
 
     // Hacky fix for codemirror in collapsable elements
-    var collapsable = $('.collapse');
+    var collapsable = $('#tab_subproblems').find('.collapse');
     collapsable.on('show.bs.collapse', function()
     {
         var t = this;
@@ -43,7 +43,10 @@ function studio_load(data)
             });
         }, 10);
     });
-    collapsable.collapse('hide');
+
+    // Must be done *after* the event definition
+    if(collapsable.length != 1)
+        collapsable.collapse('hide');
 
     $('form#edit_task_form').on('submit', function()
     {
