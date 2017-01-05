@@ -58,15 +58,15 @@ class CoursePage(INGIniousAuthPage):
             for taskid, task in tasks.items():
                 tasks_data[taskid] = {"visible": task.get_accessible_time().after_start() or is_admin, "succeeded": False,
                                       "grade": 0.0}
-                tasks_score[1] += task.get_grading_weight() if tasks_data[taskid]["visible"] else 0.0
+                tasks_score[1] += task.get_grading_weight() if tasks_data[taskid]["visible"] else 0
 
             for user_task in user_tasks:
                 tasks_data[user_task["taskid"]]["succeeded"] = user_task["succeeded"]
                 tasks_data[user_task["taskid"]]["grade"] = user_task["grade"]
 
                 weighted_score = user_task["grade"]*tasks[user_task["taskid"]].get_grading_weight()
-                tasks_score[0] += weighted_score if tasks_data[user_task["taskid"]]["visible"] else 0.0
+                tasks_score[0] += weighted_score if tasks_data[user_task["taskid"]]["visible"] else 0
 
-            course_grade = tasks_score[0]/tasks_score[1] if tasks_score[1] > 0 else 0.0
+            course_grade = tasks_score[0]/tasks_score[1] if tasks_score[1] > 0 else 0
 
             return self.template_helper.get_renderer().course(course, last_submissions, tasks, tasks_data, course_grade)

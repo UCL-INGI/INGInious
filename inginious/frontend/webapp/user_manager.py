@@ -313,7 +313,7 @@ class UserManager(AbstractUserManager):
 
         user_tasks = [taskid for taskid, task in tasks.items() if task.get_accessible_time().after_start()]
 
-        retval = {username: {"total_tasks": 0, "task_succeeded": 0, "task_grades": [], "grade": 0.0} for username in usernames}
+        retval = {username: {"total_tasks": 0, "task_succeeded": 0, "task_grades": [], "grade": 0} for username in usernames}
         for result in data:
             result["total_tasks"] = len(user_tasks)
             result["task_succeeded"] = len(set(result["task_succeeded"]).intersection(user_tasks))

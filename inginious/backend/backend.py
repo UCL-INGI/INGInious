@@ -299,25 +299,28 @@ class Backend(object):
 
     async def handle_agent_job_started(self, agent_addr, message: AgentJobStarted):
         """Handle an AgentJobStarted message. Send the data back to the client"""
-        self._logger.debug("job %s %s started on agent %s", message.job_id[0], message.job_id[1], agent_addr)
+        self._logger.debug("Job %s %s started on agent %s", message.job_id[0], message.job_id[1], agent_addr)
         await ZMQUtils.send_with_addr(self._client_socket, message.job_id[0], BackendJobStarted(message.job_id[1]))
 
     async def handle_agent_job_done(self, agent_addr, message: AgentJobDone):
         """Handle an AgentJobDone message. Send the data back to the client, and start new job if needed"""
 
-        self._logger.debug("job %s %s finished on agent %s", message.job_id[0], message.job_id[1], agent_addr)
+        if agent_addr in self._registered_agents:
+            self._logger.info("Job %s %s finished on agent %s", message.job_id[0], message.job_id[1], agent_addr)
 
-        # Remove the job from the list of running jobs
-        del self._job_running[message.job_id]
+            # Remove the job from the list of running jobs
+            del self._job_running[message.job_id]
 
-        # Sent the data back to the client
-        await ZMQUtils.send_with_addr(self._client_socket, message.job_id[0], BackendJobDone(message.job_id[1], message.result,
-                                                                                             message.grade, message.problems,
-                                                                                             message.tests, message.custom, message.archive,
-                                                                                             message.stdout, message.stderr))
+            # Sent the data back to the client
+            await ZMQUtils.send_with_addr(self._client_socket, message.job_id[0], BackendJobDone(message.job_id[1], message.result,
+                                                                                                 message.grade, message.problems,
+                                                                                                 message.tests, message.custom, message.archive,
+                                                                                                 message.stdout, message.stderr))
 
-        # The agent is available now
-        self._available_agents.append(agent_addr)
+            # The agent is available now
+            self._available_agents.append(agent_addr)
+        else:
+            self._logger.warning("Job result %s %s from non-registered agent %s", message.job_id[0], message.job_id[1], agent_addr)
 
         # update the queue
         await self.update_queue()
@@ -329,23 +332,26 @@ class Backend(object):
 
     async def handle_agent_batch_job_started(self, agent_addr, message: AgentBatchJobStarted):
         """Handle an AgentBatchJobStarted message. Send the data back to the client"""
-        self._logger.debug("batch job %s %s started on agent %s", message.job_id[0], message.job_id[1], agent_addr)
+        self._logger.debug("Batch job %s %s started on agent %s", message.job_id[0], message.job_id[1], agent_addr)
         await ZMQUtils.send_with_addr(self._client_socket, message.job_id[0], BackendBatchJobStarted(message.job_id[1]))
 
     async def handle_agent_batch_job_done(self, agent_addr, message: AgentBatchJobDone):
         """Handle an AgentBatchJobDone message. Send the data back to the client, and start new job if needed"""
 
-        self._logger.debug("batch job %s %s finished on agent %s", message.job_id[0], message.job_id[1], agent_addr)
+        if agent_addr in self._registered_agents:
+            self._logger.info("Batch job %s %s finished on agent %s", message.job_id[0], message.job_id[1], agent_addr)
 
-        # Remove the job from the list of running jobs
-        del self._batch_job_running[message.job_id]
+            # Remove the job from the list of running jobs
+            del self._batch_job_running[message.job_id]
 
-        # Sent the data back to the client
-        await ZMQUtils.send_with_addr(self._client_socket, message.job_id[0], BackendBatchJobDone(message.job_id[1], message.retval,
-                                                                                                  message.stdout, message.stderr, message.file))
+            # Sent the data back to the client
+            await ZMQUtils.send_with_addr(self._client_socket, message.job_id[0], BackendBatchJobDone(message.job_id[1], message.retval,
+                                                                                                      message.stdout, message.stderr, message.file))
 
-        # The agent is available now
-        self._available_agents.append(agent_addr)
+            # The agent is available now
+            self._available_agents.append(agent_addr)
+        else:
+            self._logger.warning("Batch job result %s %s from non-registered agent %s", message.job_id[0], message.job_id[1], agent_addr)
 
         # update the queue
         await self.update_queue()
