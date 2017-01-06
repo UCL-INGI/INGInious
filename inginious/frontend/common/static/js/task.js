@@ -61,8 +61,8 @@ function blurTaskForm()
         editor.setOption("readOnly", true);
     });
     var task_form = $('form#task');
-    $("input, button", task_form).attr("disabled", "disabled");
-    task_form.addClass('form-blur');
+    $("input, button", task_form).attr("disabled", "disabled").addClass('form-blur');
+    //task_form.addClass('form-blur');
     loadingSomething = true;
 }
 
@@ -73,8 +73,8 @@ function unblurTaskForm()
         editor.setOption("readOnly", false);
     });
     var task_form = $('form#task');
-    $("input, button", task_form).removeAttr("disabled");
-    task_form.removeClass('form-blur');
+    $("input, button", task_form).removeAttr("disabled").removeClass('form-blur');
+    //task_form.removeClass('form-blur');
     loadingSomething = false;
 }
 
