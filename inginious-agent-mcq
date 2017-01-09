@@ -18,6 +18,7 @@ from inginious.agent.mcq_agent import MCQAgent
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("backend", help="Address to the backend, in the form protocol://host:port. For example, tcp://127.0.0.1:2000", type=str)
+    parser.add_argument("--friendly-name", help="Friendly name to help identify agent.", default="", type=str)
     parser.add_argument("--tasks", help="Path to the task directory. "
                                         "By default, it is ./tasks. You must ensure that this directory is synchronized at any time"
                                         "with the backend and the client", default="./tasks")
@@ -40,7 +41,7 @@ if __name__ == "__main__":
     context = Context()
 
     # Create agent
-    agent = MCQAgent(context, args.backend, args.tasks)
+    agent = MCQAgent(context, args.backend, args.friendly_name, args.tasks)
 
     # Run!
     try:

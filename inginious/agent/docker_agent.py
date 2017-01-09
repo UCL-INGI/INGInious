@@ -29,10 +29,11 @@ from inginious.common.messages import BackendNewJob, AgentJobStarted, BackendNew
 
 
 class DockerAgent(object):
-    def __init__(self, context, backend_addr, nb_sub_agents, task_directory, ssh_host=None, ssh_ports=None, tmp_dir="./agent_tmp"):
+    def __init__(self, context, backend_addr, friendly_name, nb_sub_agents, task_directory, ssh_host=None, ssh_ports=None, tmp_dir="./agent_tmp"):
         """
         :param context: ZeroMQ context for this process
         :param backend_addr: address of the backend (for example, "tcp://127.0.0.1:2222")
+        :param friendly_name: a string containing a friendly name to identify agent
         :param nb_sub_agents: nb of slots available for this agent
         :param task_directory: path to the task directory
         :param ssh_host: hostname/ip/... to which external client should connect to access to an ssh remote debug session
@@ -46,6 +47,7 @@ class DockerAgent(object):
         self._backend_addr = backend_addr
         self._context = context
         self._loop = asyncio.get_event_loop()
+        self._friendly_name = friendly_name
         self._nb_sub_agents = nb_sub_agents
         self._max_memory_per_slot = int(psutil.virtual_memory().total/nb_sub_agents/1024/1024)
 
@@ -798,7 +800,7 @@ class DockerAgent(object):
 
         # Tell the backend we are up and have `nb_sub_agents` threads available
         self._logger.info("Saying hello to the backend")
-        await ZMQUtils.send(self._backend_socket, AgentHello(self._nb_sub_agents, self._containers, self._batch_containers))
+        await ZMQUtils.send(self._backend_socket, AgentHello(self._friendly_name, self._nb_sub_agents, self._containers, self._batch_containers))
 
         # And then run the agent
         try:

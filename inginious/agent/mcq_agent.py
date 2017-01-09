@@ -13,12 +13,12 @@ from inginious.common.messages import BackendNewJob, BackendKillJob, BackendNewB
 
 
 class MCQAgent(object):
-    def __init__(self, context, backend_addr, task_directory):
+    def __init__(self, context, backend_addr, friendly_name, task_directory):
         """
         :param context: ZeroMQ context for this process
         :param backend_addr: address of the backend (for example, "tcp://127.0.0.1:2222")
-        :param course_factory: course factory
-        :param task_factory: task factory
+        :param friendly_name: a string containing a friendly name to identify agent
+        :param task_directory: path to the task directory
         """
         self._logger = logging.getLogger("inginious.agent.mcq")
 
@@ -26,12 +26,15 @@ class MCQAgent(object):
         self._context = context
         self._loop = asyncio.get_event_loop()
 
+        self._friendly_name = friendly_name
+
         # Create a course factory
         course_factory, _ = create_factories(task_directory)
         self.course_factory = course_factory
 
         # Sockets
         self._backend_socket = self._context.socket(zmq.DEALER)
+        self._backend_socket.ipv6 = True
 
     async def handle_backend_message(self, message):
         """Dispatch messages received from clients to the right handlers"""
@@ -97,7 +100,7 @@ class MCQAgent(object):
 
         # Tell the backend we are up
         self._logger.info("Saying hello to the backend")
-        await ZMQUtils.send(self._backend_socket, AgentHello(1, {"mcq": {"id": "mcq", "created": 0}}, {}))
+        await ZMQUtils.send(self._backend_socket, AgentHello(self._friendly_name, 1, {"mcq": {"id": "mcq", "created": 0}}, {}))
 
         # And then run the agent
         try:

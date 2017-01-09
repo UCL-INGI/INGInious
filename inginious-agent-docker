@@ -49,6 +49,7 @@ def check_negative(value):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("backend", help="Address to the backend, in the form protocol://host:port. For example, tcp://127.0.0.1:2000", type=str)
+    parser.add_argument("--friendly-name", help="Friendly name to help identify agent.", default="", type=str)
     parser.add_argument("--debug-host", help="Host used for job remote debugging. Should be an IP or an hostname. If not filled in, "
                                              "it will be automatically guessed", default=None, type=str)
     parser.add_argument("--debug-ports", help="Range of port for job remote debugging. By default it is 64120-64130", type=check_range, default="64120-64130")
@@ -81,7 +82,7 @@ if __name__ == "__main__":
     context = Context()
 
     # Create agent
-    agent = DockerAgent(context, args.backend, args.concurrency, args.tasks, ssh_host=args.debug_host, ssh_ports=args.debug_ports,
+    agent = DockerAgent(context, args.backend, args.friendly_name, args.concurrency, args.tasks, ssh_host=args.debug_host, ssh_ports=args.debug_ports,
                         tmp_dir=args.tmpdir)
 
     # Run!
