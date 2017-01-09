@@ -542,11 +542,6 @@ class DockerAgent(object):
                 self._student_containers_for_job[job_id].remove(container_id)
             self._student_containers_ending[container_id] = (job_id, parent_container_id, socket_id, write_stream, retval)
 
-            # Allow other container to reuse the ssh port this container has finished to use
-            if container_id in self.running_ssh_debug:
-                self.ssh_ports.add(self.running_ssh_debug[container_id])
-                del self.running_ssh_debug[container_id]
-
             await ZMQUtils.send(self._killer_watcher_push.get_push_socket(),
                                 KWPKilledStatus(container_id, self._containers_killed[container_id] if container_id in self._containers_killed else None))
         except:
@@ -606,6 +601,11 @@ class DockerAgent(object):
                         pass  # ignore
                 asyncio.ensure_future(self._loop.run_in_executor(None, close_and_delete))
             del self._student_containers_for_job[message.job_id]
+
+            # Allow other container to reuse the ssh port this container has finished to use
+            if container_id in self.running_ssh_debug:
+                self.ssh_ports.add(self.running_ssh_debug[container_id])
+                del self.running_ssh_debug[container_id]
 
             await ZMQUtils.send(self._killer_watcher_push.get_push_socket(),
                                 KWPKilledStatus(container_id, self._containers_killed[container_id] if container_id in self._containers_killed else None))
