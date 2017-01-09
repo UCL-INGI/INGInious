@@ -50,7 +50,7 @@ class CoursePage(INGIniousAuthPage):
                     submission["taskname"] = tasks[submission['taskid']].get_name()
 
             tasks_data = {}
-            user_tasks = self.database.user_tasks.find({"username": username, "courseid": course.get_id()})
+            user_tasks = self.database.user_tasks.find({"username": username, "courseid": course.get_id(), "taskid": {"$in": list(tasks.keys())}})
             is_admin = self.user_manager.has_staff_rights_on_course(course, username)
 
             tasks_score = [0.0, 0.0]
