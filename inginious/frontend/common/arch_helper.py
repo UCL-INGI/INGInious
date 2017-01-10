@@ -78,8 +78,8 @@ def create_arch(configuration, task_directory, context):
 
         client = Client(context, "inproc://backend_client")
         backend = Backend(context, "inproc://backend_agent", "inproc://backend_client")
-        agent_docker = DockerAgent(context, "inproc://backend_agent", concurrency, task_directory, debug_host, debug_ports, tmp_dir)
-        agent_mcq = MCQAgent(context, "inproc://backend_agent", task_directory)
+        agent_docker = DockerAgent(context, "inproc://backend_agent", "Docker - Local agent", concurrency, task_directory, debug_host, debug_ports, tmp_dir)
+        agent_mcq = MCQAgent(context, "inproc://backend_agent", "MCQ - Local agent", task_directory)
 
         asyncio.ensure_future(agent_docker.run_dealer())
         asyncio.ensure_future(agent_mcq.run_dealer())
