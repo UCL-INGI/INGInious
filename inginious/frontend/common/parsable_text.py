@@ -110,6 +110,12 @@ class _CustomHTMLWriter(html4css1.Writer, object):
             # Content already processed:
             raise nodes.SkipNode
 
+        def starttag(self, node, tagname, suffix='\n', empty=False, **attributes):
+            """ Ensures all links to outside this instance of INGInious have target='_blank' """
+            if tagname == 'a' and "href" in attributes and not attributes["href"].startswith('#'):
+                attributes["target"] = "_blank"
+            return html4css1.HTMLTranslator.starttag(self, node, tagname, suffix, empty, **attributes)
+
 
 class ParsableText(object):
     """Allow to parse a string with different parsers"""
