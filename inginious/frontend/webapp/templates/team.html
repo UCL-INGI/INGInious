@@ -93,7 +93,7 @@ $if len(myteam["groups"]) > 0 and username in myteam["groups"][0]["students"]:
                 $if users[user] is not None:
                     $users[user][0]
                     <div class="pull-right">
-                        <a href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="Send an email">
+                        <a class="mailto" href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="Send an email">
                             <i class="fa fa-envelope-o"></i>
                         </a>
                     </div>
@@ -112,7 +112,7 @@ $if len(myteam["groups"]) > 0 and username in myteam["groups"][0]["students"]:
                         $if users[user] is not None:
                             $users[user][0]
                             <div class="pull-right">
-                                <a href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="Send an email">
+                                <a class="mailto" href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="Send an email">
                                     <i class="fa fa-envelope-o"></i>
                                 </a>
                             </div>
@@ -171,7 +171,7 @@ $if not len(teams) == 0:
                             $if users[user] is not None:
                                 $users[user][0]
                                 <div class="pull-right">
-                                    <a href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="Send an email">
+                                    <a class="mailto" href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="Send an email">
                                         <i class="fa fa-envelope-o"></i>
                                     </a>
                                 </div>
@@ -190,7 +190,7 @@ $if not len(teams) == 0:
                                 $if users[user] is not None:
                                     $users[user][0]
                                     <div class="pull-right">
-                                        <a href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="Send an email">
+                                        <a class="mailto" href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="Send an email">
                                             <i class="fa fa-envelope-o"></i>
                                         </a>
                                     </div>
