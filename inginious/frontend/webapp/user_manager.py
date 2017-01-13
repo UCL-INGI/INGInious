@@ -297,7 +297,8 @@ class UserManager(AbstractUserManager):
             match["username"] = {"$in": usernames}
 
         tasks = course.get_tasks()
-        match["taskid"] = {"$in": list(tasks.keys())}
+        taskids = tasks.keys()
+        match["taskid"] = {"$in": list(taskids)}
 
         data = list(self._database.user_tasks.aggregate(
             [
@@ -311,25 +312,23 @@ class UserManager(AbstractUserManager):
                 }}
             ]))
 
-        user_tasks = [taskid for taskid, task in tasks.items() if task.get_accessible_time().after_start()]
+        student_visible_taskids = [taskid for taskid, task in tasks.items() if task.get_accessible_time().after_start()]
+        course_staff = course.get_staff()
+        retval = {username: {"task_succeeded": 0, "task_grades": [], "grade": 0} for username in usernames}
 
-        retval = {username: {"total_tasks": 0, "task_succeeded": 0, "task_grades": [], "grade": 0} for username in usernames}
         for result in data:
-            result["total_tasks"] = len(user_tasks)
-            result["task_succeeded"] = len(set(result["task_succeeded"]).intersection(user_tasks))
-            result["task_grades"] = {dg["taskid"]: dg["grade"] for dg in result["task_grades"] if dg["taskid"] in user_tasks}
+            username = result["_id"]
+            visible_tasks = student_visible_taskids if username not in course_staff else taskids
+            result["task_succeeded"] = len(set(result["task_succeeded"]).intersection(visible_tasks))
+            result["task_grades"] = {dg["taskid"]: dg["grade"] for dg in result["task_grades"] if dg["taskid"] in visible_tasks}
 
             total_weight = 0
             grade = 0
-
-            for task_id in user_tasks:
+            for task_id in visible_tasks:
                 total_weight += tasks[task_id].get_grading_weight()
                 grade += result["task_grades"].get(task_id, 0.0) * tasks[task_id].get_grading_weight()
 
             result["grade"] = int(grade / total_weight) if total_weight > 0 else 0
-
-            username = result["_id"]
-            del result["_id"]
             retval[username] = result
 
         return retval
