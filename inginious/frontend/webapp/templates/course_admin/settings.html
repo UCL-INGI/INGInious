@@ -82,25 +82,26 @@ $elif saved:
     <div class="form-group">
         <label for="accessible" class="col-sm-2 control-label">Accessibility</label>
         <div class="col-sm-10">
+            $ at = course.get_accessibility(False)
             <label>
                 <input type="radio" value="false" name="accessible"
-                    $if course.get_accessibility().is_never_accessible():
+                    $if at.is_never_accessible():
                         checked="checked"
                 /> Course hidden from students
             </label><br/>
             <label>
                 <input type="radio" value="true" name="accessible"
-                    $if course.get_accessibility().is_always_accessible():
+                    $if at.is_always_accessible():
                         checked="checked"
                 /> Always accessible
             </label><br/>
             <label>
                 <input type="radio" value="custom" name="accessible"
-                    $if not course.get_accessibility().is_never_accessible() and not course.get_accessibility().is_always_accessible():
+                    $if not at.is_never_accessible() and not at.is_always_accessible():
                         checked="checked"
                 /> Custom:
             </label>
-            $ at = course.get_accessibility()
+
             <div class="row">
                 <div class="col-xs-2 col-lg-2"><label class="control-label">From</label></div>
                 <div class="col-xs-10 col-lg-4">
@@ -173,16 +174,17 @@ $elif saved:
     </div>
     <div class="form-group">
         <label for="groups_student_choice" class="col-sm-2 control-label">Allow auto-unregistration</label>
+        $ allow_unregister = course.allow_unregister(False)
         <div class="col-sm-10">
             <label>
                 <input type="radio" value="true" name="allow_unregister"
-                    $if course.allow_unregister():
+                    $if allow_unregister:
                         checked="checked"
                 /> Yes
             </label><br/>
             <label>
                 <input type="radio" value="false" name="allow_unregister" id="allow_unregister"
-                    $if not course.allow_unregister():
+                    $if not allow_unregister:
                         checked="checked"
                 /> No
             </label>

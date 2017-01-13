@@ -65,10 +65,10 @@ class WebAppCourse(FrontendCourse):
         """ Returns the password needed for registration (None if there is no password) """
         return self._registration_password
 
-    def get_accessibility(self):
+    def get_accessibility(self, plugin_override=True):
         """ Return the AccessibleTime object associated with the accessibility of this course """
         vals = self._hook_manager.call_hook('course_accessibility', course=self, default=self._accessible)
-        return vals[0] if len(vals) else self._accessible
+        return vals[0] if len(vals) and plugin_override else self._accessible
 
     def get_registration_accessibility(self):
         """ Return the AccessibleTime object associated with the registration """
@@ -105,7 +105,7 @@ class WebAppCourse(FrontendCourse):
             return email in self.get_access_control_list()
         return False
 
-    def allow_unregister(self):
+    def allow_unregister(self, plugin_override=True):
         """ Returns True if students can unregister from course """
         vals = self._hook_manager.call_hook('course_allow_unregister', course=self, default=self._allow_unregister)
-        return vals[0] if len(vals) else self._allow_unregister
+        return vals[0] if len(vals) and plugin_override else self._allow_unregister

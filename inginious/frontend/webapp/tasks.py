@@ -30,10 +30,10 @@ class WebAppTask(FrontendTask):
         """ Get the relative weight of this task in the grading """
         return self._weight
 
-    def get_accessible_time(self):
+    def get_accessible_time(self, plugin_override=True):
         """  Get the accessible time of this task """
         vals = self._hook_manager.call_hook('task_accessibility', course=self.get_course(), task=self, default=self._accessible)
-        return vals[0] if len(vals) else self._accessible
+        return vals[0] if len(vals) and plugin_override else self._accessible
 
     def is_visible_by_students(self):
         """ Returns true if the task is accessible by all students that are not administrator of the course """
