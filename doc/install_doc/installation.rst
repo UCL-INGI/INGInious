@@ -118,7 +118,7 @@ This will automatically upgrade an existing version.
 
    ::
 
-       $ pip3 install --upgrade git+https://github.com/UCL-INGI/INGInious.git[cgi,ldap]
+       $ pip3 install --upgrade git+https://github.com/UCL-INGI/INGInious.git#egg=INGInious[cgi,ldap]
 
 Some releases are also published on Pipy. However, no support is provided for these versions now. To install
 the latest previous release:
