@@ -328,7 +328,7 @@ class UserManager(AbstractUserManager):
                 total_weight += tasks[task_id].get_grading_weight()
                 grade += result["task_grades"].get(task_id, 0.0) * tasks[task_id].get_grading_weight()
 
-            result["grade"] = int(grade / total_weight) if total_weight > 0 else 0
+            result["grade"] = round(grade / total_weight) if total_weight > 0 else 0
             retval[username] = result
 
         return retval

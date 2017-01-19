@@ -95,7 +95,7 @@ $# Start content
                 <div class="col-xs-12 col-md-5">
                     <div class="progress">
                         <div class="progress-bar progress-bar-success" aria-valuenow="$int(completion)" aria-valuemin="0" aria-valuemax="100" style="width: $completion%">
-                            $int(completion)%
+                            $(int(completion) if completion.is_integer() else completion)%
                         </div>
                     </div>
                 </div>

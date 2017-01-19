@@ -67,6 +67,6 @@ class CoursePage(INGIniousAuthPage):
                 weighted_score = user_task["grade"]*tasks[user_task["taskid"]].get_grading_weight()
                 tasks_score[0] += weighted_score if tasks_data[user_task["taskid"]]["visible"] else 0
 
-            course_grade = tasks_score[0]/tasks_score[1] if tasks_score[1] > 0 else 0
+            course_grade = round(tasks_score[0]/tasks_score[1]) if tasks_score[1] > 0 else 0
 
             return self.template_helper.get_renderer().course(course, last_submissions, tasks, tasks_data, course_grade)
