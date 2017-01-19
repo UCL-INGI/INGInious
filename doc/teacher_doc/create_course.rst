@@ -29,6 +29,11 @@ Tutorial
 Creating courses is reserved to the super-administrators (See :ref:`ConfigReference`). Course administrators are then
 able to configure the course by themselves.
 
+.. note::
+
+    Demonstration tasks are made available for download `here <https://github.com/UCL-INGI/INGInious-demo-tasks>`_. They
+    can also be downloaded and installed automatically via the :ref:`inginious-install` script.
+
 Using the webapp
 ````````````````
 

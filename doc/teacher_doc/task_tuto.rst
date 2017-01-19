@@ -3,6 +3,11 @@ Tutorial
 
 In this document we will describe how to create a simple task, that checks that a code in Python returns "Hello World!".
 
+.. note::
+
+    Demonstration tasks are made available for download `here <https://github.com/UCL-INGI/INGInious-demo-tasks>`_. They
+    can also be downloaded and installed automatically via the :ref:`inginious-install` script.
+
 Creating the task description
 -----------------------------
 
@@ -83,10 +88,10 @@ in the webapp in the *Task files* tab of the *Edit task* page.
        #! /bin/bash
 
        # This line parses the template and put the result in studentcode.py
-       parsetemplate --output studentcode.py template.py
+       parsetemplate --output student/studentcode.py template.py
 
        # Verify the output of the code...
-       output=$(run_student python studentcode.py)
+       output=$(run_student python student/studentcode.py)
        if [ "$output" = "Hello World!" ]; then
            # The student succeeded
            feedback-result success

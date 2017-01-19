@@ -354,7 +354,10 @@ run_student
 *run_student* allows the *run file* to start, at will, sub-containers. This makes you able to secure the grading,
 making sure the untrusted code made by the student don't interact with yours.
 
-run_student is fully configurable; you can change the container image (environment), set new timeouts, new memory
+The sub-container is launched with a different user who has read-write accesses to the task ``student`` 
+subdirectory. Only the changes made in that directory will remain in the main container.
+
+*run_student* is fully configurable; you can change the container image (environment), set new timeouts, new memory
 limits, ... And you can call it as many time as you want.
 
 --container CONTAINER             Name of the container to use. The default is the same as the current container.
