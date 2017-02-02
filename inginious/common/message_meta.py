@@ -11,7 +11,7 @@ class MessageMeta(type):
     """
         A MetaClass for messages
 
-        Provides full type checking on both side of the communication.
+        Provides message checking on both side of the communication.
 
         Each class depending from this MetaClass MUST have a __init__ function that takes only
         arguments that are type-hinted, and that ONLY assign the argument to self, under the SAME
@@ -85,11 +85,6 @@ class MessageMeta(type):
             # Get the message content
             message_content = {x[0]: y for (x, y) in zip(parameters.items(), args)}
 
-            # Verify it
-            for field, value in message_content.items():
-                if not issubclass(value.__class__, parameters[field].annotation):
-                    raise TypeError("field %s should be of type %s" % (field, parameters[field].annotation))
-
             # Ask the init function to fill himself __dict__
             old_init(self, *args, **kwargs)
 
@@ -126,11 +121,7 @@ class MessageMeta(type):
             if force or MessageMeta.DEBUG:
                 content_present = set(self.__dict__.keys()) == needed_keys
                 type_ok = self.type == msgtype
-                content_ok = True
-                for field, value in self.__dict__.items():
-                    if field != "type" and not issubclass(value.__class__, parameters[field].annotation):
-                        content_ok = False
-                return content_present and type_ok and content_ok
+                return content_present and type_ok
             return True
 
         def dump(self):
