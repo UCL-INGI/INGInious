@@ -1,0 +1,88 @@
+$def with (jobs_running, jobs_waiting, from_timestamp)
+
+$#
+$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+$# more information about the licensing of this file.
+$#
+
+$var title: Job queue
+
+$# Start content
+$def NavbarF():
+    <ol class="nav navbar-nav nav-breadcrumb">
+        <li class="active"><a href="#"><i class="fa fa-dashboard"></i> Job queue
+            <span class="sr-only">(current)</span></a>
+        </li>
+    </ol>
+$var Navbar: $:NavbarF()
+
+<h2>Job queue</h2>
+This page shows a <strong>snapshot</strong> of the job queue.
+
+<h3>Running jobs</h3>
+$if jobs_running is not None and len(jobs_running) > 0:
+    <table class="table table-striped">
+        <tr>
+            <th>Type</th>
+            <th>Local client</th>
+            <th>Agent name</th>
+            <th>Name</th>
+            <th>Launcher name</th>
+            <th>Started at</th>
+            <th>Timeout at</th>
+        </tr>
+        $for (job_id, is_current_client_job, agent_name, is_batch, info, launcher, started_at, max_end) in jobs_running:
+            <tr>
+                <td data-toggle="tooltip" data-placement="right" title="$job_id">
+                    $if is_batch:
+                        Batch
+                    $else:
+                        Task
+                </td>
+                <td>
+                    $if is_current_client_job:
+                        Yes
+                    $else:
+                        No
+                </td>
+                <td>$agent_name</td>
+                <td>$info</td>
+                <td>$launcher</td>
+                <td>$from_timestamp(started_at).strftime("%d/%m/%Y %H:%M:%S")</td>
+                <td>$from_timestamp(max_end).strftime("%d/%m/%Y %H:%M:%S")</td>
+            </tr>
+    </table>
+$else:
+    There are no jobs running
+
+<h3>Jobs in queue</h3>
+$if jobs_waiting is not None and len(jobs_waiting) > 0:
+    <table class="table table-striped">
+        <tr>
+            <th>Type</th>
+            <th>Local</th>
+            <th>Name</th>
+            <th>Launcher name</th>
+            <th>Maximum runtime in seconds</th>
+        </tr>
+        $for (job_id, is_current_client_job, is_batch, info, launcher, max_end) in jobs_waiting:
+        <tr>
+            <td data-toggle="tooltip" data-placement="right" title="$job_id">
+                $if is_batch:
+                    Batch
+                $else:
+                    Task
+            </td>
+            <td>
+                $if is_current_client_job:
+                    Yes
+                $else:
+                    No
+            </td>
+            <td>$info</td>
+            <td>$launcher</td>
+            <td>$max_end</td>
+        </tr>
+    </table>
+$else:
+    There are no jobs waiting in queue

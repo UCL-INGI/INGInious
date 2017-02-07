@@ -136,6 +136,9 @@ class TaskPage(INGIniousAuthPage):
             is_staff = self.user_manager.has_staff_rights_on_course(course, username)
             is_admin = self.user_manager.has_admin_rights_on_course(course, username)
 
+            # TODO: this is nearly the same as the code in the webapp.
+            # We should refactor this.
+
             userinput = web.input()
             if "@action" in userinput and userinput["@action"] == "submit":
                 # Verify rights
@@ -198,8 +201,12 @@ class TaskPage(INGIniousAuthPage):
                                            'ssh_host': result["ssh_host"],
                                            'ssh_port': result["ssh_port"],
                                            'ssh_password': result["ssh_password"]})
-                    else:
-                        return json.dumps({'status': "waiting"})
+                    # Here we are waiting. Let's send some useful information.
+                    waiting_data = self.submission_manager.get_job_queue_info(result["jobid"]) if "jobid" in result else None
+                    if waiting_data is not None:
+                        nb_tasks_before, approx_wait_time = waiting_data
+                        return json.dumps({'status': "waiting", 'nb_tasks_before': nb_tasks_before, 'approx_wait_time': approx_wait_time})
+                    return json.dumps({'status': "waiting"})
             elif "@action" in userinput and userinput["@action"] == "load_submission_input" and "submissionid" in userinput:
                 submission = self.submission_manager.get_submission(userinput["submissionid"])
                 submission = self.submission_manager.get_input_from_submission(submission)
