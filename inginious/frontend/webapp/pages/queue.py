@@ -3,7 +3,7 @@
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
 
-""" Maintenance page """
+""" Job queue status page """
 
 from inginious.frontend.webapp.pages.utils import INGIniousAuthPage
 from datetime import datetime

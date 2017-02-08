@@ -382,7 +382,7 @@ function submitTask(with_ssh)
     displayTaskLoadingAlert(null, null);
     updateTaskStatus("Waiting for verification", 0);
     $('html, body').animate({
-        scrollTop: task_alert.offset().top - 100
+        scrollTop: $('#task_alert').offset().top - 100
     }, 200);
 }
 
@@ -531,9 +531,9 @@ function displayTaskLoadingAlert(submission_wait_data, submissionid)
         var nb_tasks_before = submission_wait_data["nb_tasks_before"];
         var wait_time = Math.round(submission_wait_data["approx_wait_time"]);
         if(nb_tasks_before == -1 && wait_time <= 0)
-            content += "<b>The genius snake is evaluating your answer right now.<b/> (almost done, we promise!)";
+            content += "<b>INGInious is currently grading your answers.<b/> (almost done)";
         else if(nb_tasks_before == -1)
-            content += "<b>The genius snake is evaluating your answer right now.<b/> (Approx. wait time: "+wait_time+" seconds)";
+            content += "<b>INGInious is currently grading your answers.<b/> (Approx. wait time: "+wait_time+" seconds)";
         else if(nb_tasks_before == 0)
             content += "<b>You are next in the waiting queue!</b>";
         else if(nb_tasks_before == 1)
