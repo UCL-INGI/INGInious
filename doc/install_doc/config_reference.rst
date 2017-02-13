@@ -181,6 +181,48 @@ Most of the parameters are self-explaining, but:
 ``prefix``
     a prefix that will be added in the internal username used in INGInious. Useful if you have multiple auth methods with usernames used in more than one method.
 
+
+saml2_auth
+!!!!!!!!!!
+
+Uses a SAML2-compliant identity provider (such as Shibboleth IdP) to authenticate users.
+
+To enable this plugin, add to your configuration file:
+::
+
+    plugins:
+        - plugin_module: inginious.frontend.webapp.plugins.auth.saml2_auth
+            strict: true
+            sp:
+                entityId: "<your_entity_id>"
+                x509cert: "<your_cert>"
+                privateKey: "<your_private_key>"
+            idp:
+                entityId: "https://idp.testshib.org/idp/shibboleth"
+                singleSignOnService:
+                    url: "https://idp.testshib.org/idp/profile/SAML2/Redirect/SSO"
+                    binding: "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+                x509cert: "<idp_cert>"
+                additionalX509certs:
+                    - "<idp_cert>"
+            security:
+                 metadataValidUntil: ""
+                 metadataCacheDuration: ""
+            attributes:
+                 cn: "urn:oid:2.5.4.3"
+                 email: "urn:oid:1.3.6.1.4.1.5923.1.1.1.6"
+                 uid: "urn:oid:0.9.2342.19200300.100.1.1"
+
+Your IdP is required to provide at least attributes corresponding to the username, the complete name and the email address.
+Use the ``attributes`` entry for the mapping. The ``additionalX509certs`` is a plugin-specific entry to specify several
+certificates in case your IdP is able to use more than one.
+
+This plugin mainly relies on python3-saml_ package and configuration parameters are interoperable.
+Please refer to the package documentation for more detailed configuration parameters. The SP Attribute Consuming Service (ACS)
+is automatically configured by the plugin.
+
+.. _python3-saml: https://github.com/onelogin/python3-saml/
+
 db_auth
 !!!!!!!
 

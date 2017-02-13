@@ -38,7 +38,8 @@ Or, for Fedora 24+:
     # curl -fsSL https://get.docker.com/ | sh #This will setup the Docker repo
     # dnf install -y git mongodb mongodb-server gcc libtidy python3 python3-pip python3-devel zeromq-devel
 
-You may also add ``openldap-devel`` if you want to use the LDAP auth plugin.
+You may also add ``openldap-devel`` if you want to use the LDAP auth plugin and
+``xmlsec1-openssl-devel libtool-ltdl-devel`` for the SAML2 auth plugin.
 
 .. DANGER::
     Due to compatibility issues, it is recommended to disable SELinux on the target machine.
@@ -60,7 +61,8 @@ The previously mentioned dependencies can be installed, for Ubuntu 16.04+:
     # curl -fsSL https://get.docker.com/ | sh #This will setup the Docker repo
     # apt-get install git mongodb gcc tidy python3 python3-pip python3-dev libzmq-dev
 
-You may also add ``libldap2-dev libsasl2-dev libssl-dev`` if you want to use the LDAP auth plugin)
+You may also add ``libldap2-dev libsasl2-dev libssl-dev`` if you want to use the LDAP auth plugin and
+``libxmlsec1-dev libltdl-dev`` for the SAML2 auth plugin
 
 You can now start and enable the ``mongod`` and ``docker`` services:
 ::
@@ -113,8 +115,8 @@ This will automatically upgrade an existing version.
 
 .. note::
 
-   You may want to enable the LDAP plugin or use (F)CGI instead of the web.py default webserver.
-   In this case, you have to install more packages: simply add ``[cgi]``, ``[ldap]`` or ``[cgi,ldap]`` to the above command, depending on your needs:
+   You may want to enable the LDAP/SAML2 plugin or use (F)CGI instead of the web.py default webserver.
+   In this case, you have to install more packages: simply add ``[cgi]``, ``[ldap]`` or ``[saml2]`` to the above command, depending on your needs:
 
    ::
 
