@@ -45,6 +45,9 @@ class LTITask(LTIAuthenticatedPage):
 
         is_admin = any(x in self.admin_role for x in self.user_manager.session_roles())
 
+        # TODO: this is nearly the same as the code in the webapp.
+        # We should refactor this.
+
         if "submissionid" in userinput and "questionid" in userinput:
             # Download a previously submitted file
             submission = self.submission_manager.get_submission(userinput["submissionid"], True)
@@ -112,8 +115,12 @@ class LTITask(LTIAuthenticatedPage):
                                        'ssh_host': result["ssh_host"],
                                        'ssh_port': result["ssh_port"],
                                        'ssh_password': result["ssh_password"]})
-                else:
-                    return json.dumps({'status': "waiting"})
+                # Here we are waiting. Let's send some useful information.
+                waiting_data = self.submission_manager.get_job_queue_info(result["jobid"]) if "jobid" in result else None
+                if waiting_data is not None:
+                    nb_tasks_before, approx_wait_time = waiting_data
+                    return json.dumps({'status': "waiting", 'nb_tasks_before': nb_tasks_before, 'approx_wait_time': approx_wait_time})
+                return json.dumps({'status': "waiting"})
         elif "@action" in userinput and userinput["@action"] == "load_submission_input" and "submissionid" in userinput:
             submission = self.submission_manager.get_submission(userinput["submissionid"])
             submission = self.submission_manager.get_input_from_submission(submission)

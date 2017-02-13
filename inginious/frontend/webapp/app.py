@@ -30,6 +30,7 @@ urls = (
     r'/course/([^/]+)/([^/]+)', 'inginious.frontend.webapp.pages.tasks.TaskPage',
     r'/course/([^/]+)/([^/]+)/(.*)', 'inginious.frontend.webapp.pages.tasks.TaskPageStaticDownload',
     r'/aggregation/([^/]+)', 'inginious.frontend.webapp.pages.aggregation.AggregationPage',
+    r'/queue', 'inginious.frontend.webapp.pages.queue.QueuePage',
     r'/admin/([^/]+)', 'inginious.frontend.webapp.pages.course_admin.utils.CourseRedirect',
     r'/admin/([^/]+)/settings', 'inginious.frontend.webapp.pages.course_admin.settings.CourseSettings',
     r'/admin/([^/]+)/batch', 'inginious.frontend.webapp.pages.course_admin.batch.CourseBatchOperations',

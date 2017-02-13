@@ -6,13 +6,15 @@ import asyncio
 import logging
 from collections import OrderedDict
 
+import time
 import zmq
 from zmq.asyncio import Poller
 
 from inginious.common.message_meta import ZMQUtils
 from inginious.common.messages import BackendNewJob, AgentJobStarted, AgentBatchJobStarted, AgentBatchJobDone, AgentJobDone, AgentJobSSHDebug, \
     BackendJobDone, BackendJobStarted, BackendJobSSHDebug, BackendBatchJobStarted, BackendBatchJobDone, ClientNewJob, ClientNewBatchJob, \
-    BackendNewBatchJob, ClientKillJob, BackendKillJob, AgentHello, ClientHello, BackendUpdateContainers, Unknown, Ping, Pong
+    BackendNewBatchJob, ClientKillJob, BackendKillJob, AgentHello, ClientHello, BackendUpdateContainers, Unknown, Ping, Pong, ClientGetQueue, \
+    BackendGetQueue
 
 
 class Backend(object):
@@ -74,8 +76,9 @@ class Backend(object):
         self._available_agents = []  # addr of available agents
         self._ping_count = {} # ping count per addr of agents
         self._waiting_jobs = OrderedDict()  # rb queue for waiting jobs format:[(client_addr_as_bytes, Union[ClientNewJob,ClientNewBatchJob])]
-        self._job_running = {}  # indicates on which agent which job is running. format: {BackendJobId:addr_as_bytes}
-        self._batch_job_running = {}  # indicates on which agent which job is running. format: {BackendJobId:addr_as_bytes}
+        self._job_running = {}  # indicates on which agent which job is running. format: {BackendJobId:(addr_as_bytes,ClientNewJob,start_time)}
+        self._batch_job_running = {}  # indicates on which agent which job is running. format: {BackendJobId:(addr_as_bytes,ClientNewBatchJob,
+                                      # start_time)}
 
     async def handle_agent_message(self, agent_addr, message):
         """Dispatch messages received from agents to the right handlers"""
@@ -107,6 +110,7 @@ class Backend(object):
             ClientNewBatchJob: self.handle_client_new_batch_job,
             ClientNewJob: self.handle_client_new_job,
             ClientKillJob: self.handle_client_kill_job,
+            ClientGetQueue: self.handle_client_get_queue,
             Ping: self.handle_client_ping
         }
         try:
@@ -156,10 +160,37 @@ class Backend(object):
                                                                                            0.0, {}, {}, {}, None, "", ""))
         # If the job is running, transmit the info to the agent
         elif (client_addr, message.job_id) in self._job_running:
-            agent_addr, _ = self._job_running[(client_addr, message.job_id)]
+            agent_addr = self._job_running[(client_addr, message.job_id)][0]
             await ZMQUtils.send_with_addr(self._agent_socket, agent_addr, BackendKillJob((client_addr, message.job_id)))
         else:
             self._logger.warning("Client %s attempted to kill unknown job %s", str(client_addr), str(message.job_id))
+
+    async def handle_client_get_queue(self, client_addr, _: ClientGetQueue):
+        """ Handles a ClientGetQueue message. Send back info about the job queue"""
+        #jobs_running: a list of tuples in the form
+        #(job_id, is_current_client_job, agent_name, is_batch, info, launcher, started_at, max_end)
+        jobs_running = list()
+
+        for backend_job_id, content in self._job_running.items():
+            jobs_running.append((content[1].job_id, backend_job_id[0] == client_addr, self._registered_agents[content[0]],
+                                 False, content[1].course_id+"/"+content[1].task_id,
+                                 content[1].launcher, int(content[2]), int(content[2])+content[1].time_limit))
+        for backend_job_id, content in self._batch_job_running.items():
+            jobs_running.append((content[1].job_id, backend_job_id[0] == client_addr, self._registered_agents[content[0]],
+                                 True, content[1].container_name, content[1].launcher, int(content[2]), -1))
+
+        #jobs_waiting: a list of tuples in the form
+        #(job_id, is_current_client_job, is_batch, info, launcher, max_time)
+        jobs_waiting = list()
+
+        for job_client_addr, msg in self._waiting_jobs.items():
+            if isinstance(msg, ClientNewJob):
+                jobs_waiting.append((msg.job_id, job_client_addr[0] == client_addr, False, msg.course_id+"/"+msg.task_id, msg.launcher,
+                                     msg.time_limit))
+            elif isinstance(msg, ClientNewBatchJob):
+                jobs_waiting.append((msg.job_id, job_client_addr[0] == client_addr, True, msg.container_name, msg.launcher, -1))
+
+        await ZMQUtils.send_with_addr(self._client_socket, client_addr, BackendGetQueue(jobs_running, jobs_waiting))
 
     async def update_queue(self):
         """
@@ -193,7 +224,7 @@ class Backend(object):
 
             if typestr == "grade" and isinstance(job_msg, ClientNewJob):
                 job_id = (client_addr, job_msg.job_id)
-                self._job_running[job_id] = agent_addr, job_msg
+                self._job_running[job_id] = (agent_addr, job_msg, time.time())
                 self._logger.info("Sending job %s %s to agent %s", client_addr, job_msg.job_id, agent_addr)
                 await ZMQUtils.send_with_addr(self._agent_socket, agent_addr, BackendNewJob(job_id, job_msg.course_id, job_msg.task_id,
                                                                                             job_msg.inputdata, job_msg.environment,
@@ -202,7 +233,7 @@ class Backend(object):
                                                                                             job_msg.debug))
             elif typestr == "batch":
                 job_id = (client_addr, job_msg.job_id)
-                self._batch_job_running[job_id] = agent_addr, job_msg
+                self._batch_job_running[job_id] = (agent_addr, job_msg, time.time())
                 self._logger.info("Sending batch job %s %s to agent %s", client_addr, job_msg.job_id, agent_addr)
                 await ZMQUtils.send_with_addr(self._agent_socket, agent_addr, BackendNewBatchJob(job_id, job_msg.container_name, job_msg.input_data))
 
@@ -402,12 +433,12 @@ class Backend(object):
 
     async def _recover_jobs(self, agent_addr):
         """ Recover the jobs sent to a crashed agent """
-        for (client_addr, job_id), (agent, job_msg) in reversed(list(self._job_running.items())):
+        for (client_addr, job_id), (agent, job_msg, _) in reversed(list(self._job_running.items())):
             if agent == agent_addr:
                 self._waiting_jobs[(client_addr, job_id, "grade")] = job_msg
                 del self._job_running[(client_addr, job_id)]
 
-        for (client_addr, job_id), (agent, job_msg) in reversed(list(self._batch_job_running.items())):
+        for (client_addr, job_id), (agent, job_msg, _) in reversed(list(self._batch_job_running.items())):
             if agent == agent_addr:
                 self._waiting_jobs[(client_addr, job_id, "batch")] = job_msg
                 del self._batch_job_running[(client_addr, job_id)]

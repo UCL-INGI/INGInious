@@ -34,6 +34,8 @@ class BetterParanoidPirateClient(object, metaclass=abc.ABCMeta):
         self._handlers_registered = {Pong.__msgtype__: self._handle_pong, Unknown.__msgtype__: self._handle_unknown}
         self._transactions = {}
 
+        self._restartable_tasks = [] # a list of asyncio task that should be closed each time the client restarts
+
         self._ping_count = 0
 
     def _register_handler(self, recv_msg, coroutine_recv):
@@ -115,12 +117,22 @@ class BetterParanoidPirateClient(object, metaclass=abc.ABCMeta):
         await self._reconnect()
 
     async def _do_ping(self):
-        if self._ping_count > 10:
-            await self._reconnect()
-        else:
-            self._ping_count += 1
-            await ZMQUtils.send(self._socket, Ping())
-            self._loop.call_later(1, asyncio.ensure_future, self._do_ping())
+        """
+        Task that ensures Pings are sent periodically to the distant server
+        :return:
+        """
+        try:
+            while True:
+                await asyncio.sleep(1)
+                if self._ping_count > 10:
+                    await self._reconnect()
+                else:
+                    self._ping_count += 1
+                    await ZMQUtils.send(self._socket, Ping())
+        except asyncio.CancelledError:
+            return
+        except KeyboardInterrupt:
+            return
 
     @abc.abstractmethod
     async def _on_disconnect(self):
@@ -154,22 +166,32 @@ class BetterParanoidPirateClient(object, metaclass=abc.ABCMeta):
         # 2. Call on_disconnect
         await self._on_disconnect()
 
-        # 3. Restart socket
+        # 3. Stop tasks
+        for task in self._restartable_tasks:
+            task.cancel()
+        self._restartable_tasks = []
+
+        # 4. Restart socket
         self._socket.disconnect(self._router_addr)
 
-        # 4. Re-do start sequence
+        # 5. Re-do start sequence
         await self.client_start()
 
     async def client_start(self):
         """
         Starts the client
         """
-
         await self._start_socket()
         await self._on_connect()
+
         self._ping_count = 0
-        self._loop.create_task(self._run_socket())
-        self._loop.call_later(1, asyncio.ensure_future, self._do_ping())
+
+        # Start the loops, and don't forget to add them to the list of asyncio task to close when the client restarts
+        task_socket = self._loop.create_task(self._run_socket())
+        task_ping = self._loop.create_task(self._do_ping())
+
+        self._restartable_tasks.append(task_ping)
+        self._restartable_tasks.append(task_socket)
 
     async def _start_socket(self):
         """
