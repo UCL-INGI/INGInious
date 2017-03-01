@@ -56,16 +56,16 @@ class LdapAuthMethod(AuthMethod):
             self._logger.debug('Connecting to ' + self._host + ", port " + str(self._port) )
             conn = simpleldap.Connection(self._host, port=self._port, encryption=self._encryption,
                                          require_cert=self._require_cert, search_defaults={"base_dn": self._base_dn})
-            self._logger.info('Connected to ' + self._host + ", port " + str(self._port) )
+            self._logger.debug('Connected to ' + self._host + ", port " + str(self._port) )
         except Exception as e:
-            self._logger.info("Can't initialze connection to " + self._host + ': ' + str(e))
+            self._logger.debug("Can't initialze connection to " + self._host + ': ' + str(e))
             return None
 
         try:
             request = self._request.format(login)
             user_data = conn.get(request)
-        except Exception as e:
-            self._logger.info("Can't get user data: " + str(e))
+        except Exception as _:
+            self._logger.exception("Can't get user data")
             return None
 
         if conn.authenticate(user_data.dn, password):
@@ -75,9 +75,9 @@ class LdapAuthMethod(AuthMethod):
                 realname = user_data[self._cn][0].decode('utf8')
                 return (username, realname, email)
             except KeyError as e:
-                self._logger.info("Can't get field " + str(e) + " from your LDAP server")
+                self._logger.error("Can't get field " + str(e) + " from your LDAP server")
             except Exception as e:
-                self._logger.info("Can't get some user fields: " + str(e))
+                self._logger.exception("Can't get some user fields")
         else:
             self._logger.debug('Auth Failed')
             return None
@@ -102,9 +102,9 @@ class LdapAuthMethod(AuthMethod):
             self._logger.debug('Connecting to ' + self._host + ", port " + str(self._port) )
             conn = simpleldap.Connection(self._host, port=self._port, encryption=self._encryption,
                                          require_cert=self._require_cert, search_defaults={"base_dn": self._base_dn})
-            self._logger.info('Connected to ' + self._host + ", port " + str(self._port) )
-        except Exception as e:
-            self._logger.info("Can't initialze connection to " + self._host + ': ' + str(e))
+            self._logger.debug('Connected to ' + self._host + ", port " + str(self._port) )
+        except Exception as _:
+            self._logger.exception("Can't initialze connection to " + self._host + ':')
             return retval
 
         # Search for users
@@ -115,20 +115,19 @@ class LdapAuthMethod(AuthMethod):
                     request = self._request.format(login)
                     user_data = conn.get(request)
                 except Exception as e:
-                    self._logger.info("Can't get users info: " + str(e))
-                    return retval
+                    # this may be an expected behaviour
+                    continue
 
                 try:
                     email = user_data[self._mail][0].decode('utf8')
                     realname = user_data[self._cn][0].decode('utf8')
                     retval[username] = (realname, email)
-                except:
-                    except KeyError as e:
-                        self._logger.info("Can't get field " + str(e) + " from your LDAP server")
-                        return retval
-                    except Exception as e:
-                        self._logger.info("Can't get some user fields: " + str(e))
-                        return retval
+                except KeyError as e:
+                    self._logger.error("Can't get field " + str(e) + " from your LDAP server")
+                    continue
+                except Exception as _:
+                    self._logger.exception("Can't get some user fields")
+                    continue
 
         return retval
 
