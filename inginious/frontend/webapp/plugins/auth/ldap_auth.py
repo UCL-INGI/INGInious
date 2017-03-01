@@ -99,9 +99,12 @@ class LdapAuthMethod(AuthMethod):
 
         # Connect to the ldap
         try:
+            self._logger.debug('Connecting to ' + self._host + ", port " + str(self._port) )
             conn = simpleldap.Connection(self._host, port=self._port, encryption=self._encryption,
                                          require_cert=self._require_cert, search_defaults={"base_dn": self._base_dn})
-        except:
+            self._logger.info('Connected to ' + self._host + ", port " + str(self._port) )
+        except Exception as e:
+            self._logger.info("Can't initialze connection to " + self._host + ': ' + str(e))
             return retval
 
         # Search for users
@@ -111,12 +114,21 @@ class LdapAuthMethod(AuthMethod):
                     login = username[len(self._prefix):]
                     request = self._request.format(login)
                     user_data = conn.get(request)
-                    email = user_data["mail"][0].decode('utf8')
-                    realname = user_data["cn"][0].decode('utf8')
+                except Exception as e:
+                    self._logger.info("Can't get users info: " + str(e))
+                    return retval
 
+                try:
+                    email = user_data[self._mail][0].decode('utf8')
+                    realname = user_data[self._cn][0].decode('utf8')
                     retval[username] = (realname, email)
                 except:
-                    pass
+                    except KeyError as e:
+                        self._logger.info("Can't get field " + str(e) + " from your LDAP server")
+                        return retval
+                    except Exception as e:
+                        self._logger.info("Can't get some user fields: " + str(e))
+                        return retval
 
         return retval
 
