@@ -27,7 +27,7 @@ The following schema shows the basic architecture of INGInious:
 Scalability of Docker hosts
 ---------------------------
 In order to share the work between multiple servers, INGInious can use multiple agents, as shown in the following schema.
-The completely horizontal scalability is (nearly) without additionnal configuration, and can be made fully automatic with a bit of work.
+The completely horizontal scalability is (nearly) without additional configuration, and can be made fully automatic with a bit of work.
 
 .. image:: /dev_doc/inginious_arch_docker.png
     :align: center

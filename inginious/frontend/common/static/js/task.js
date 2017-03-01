@@ -271,7 +271,7 @@ function taskFormValid()
     {
         var filename = $(this).val().split(/(\\|\/)/g).pop();
 
-        //file input fields cannot be optionnal
+        //file input fields cannot be optional
         if(filename == "")
         {
             answered_to_all = false;
@@ -635,7 +635,7 @@ function displayTimeOutAlert(content)
 function displayTaskErrorAlert(content)
 {
     displayTaskStudentAlertWithProblems(content,
-        "<b>An internal error occured. Please retry later. If the error persists, send an email to the course administrator.</b>",
+        "<b>An internal error occurred. Please retry later. If the error persists, send an email to the course administrator.</b>",
         "danger", false);
 }
 

@@ -51,7 +51,7 @@ class LisOutcomeManager(threading.Thread):
                     if grade < 0:
                         grade = 0
                 except Exception as e:
-                    self._logger.error("An exception occured while getting a grade in LisOutcomeManager.", exc_info=True)
+                    self._logger.error("An exception occurred while getting a grade in LisOutcomeManager.", exc_info=True)
                     continue
 
                 try:
@@ -61,13 +61,13 @@ class LisOutcomeManager(threading.Thread):
                         self._logger.debug("Successfully sent grade to TC: %s" % str(data))
                         continue
                 except Exception as e:
-                    self._logger.error("An exception occured while sending a grade to the TC." + str(e), exc_info=True)
+                    self._logger.error("An exception occurred while sending a grade to the TC." + str(e), exc_info=True)
 
                 if nb_attempt < 5:
-                    self._logger.debug("An error occured while sending a grade to the TC. Retrying...")
+                    self._logger.debug("An error occurred while sending a grade to the TC. Retrying...")
                     self._increment_attempt(mongo_id)
                 else:
-                    self._logger.error("An error occured while sending a grade to the TC. Maximum number of retries reached.")
+                    self._logger.error("An error occurred while sending a grade to the TC. Maximum number of retries reached.")
                     self._delete(mongo_id)
         except KeyboardInterrupt:
             pass

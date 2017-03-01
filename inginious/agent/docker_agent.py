@@ -464,7 +464,7 @@ class DockerAgent(object):
         try:
             read_stream, write_stream = await asyncio.open_connection(sock=sock.get_socket())
         except:
-            self._logger.exception("Exception occured while creating read/write stream to container")
+            self._logger.exception("Exception occurred while creating read/write stream to container")
             return None
 
         # Send hello msg

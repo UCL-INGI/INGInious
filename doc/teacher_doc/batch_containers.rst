@@ -31,7 +31,7 @@ create an argument with type ``file`` and ``key`` respectively equal to ``course
 
 The file mounted on the given path will then be a ``.tar.gz`` archive.
 
-For the ``submissions``, two additionnal metaparameters can be defined:
+For the ``submissions``, two additional metaparameters can be defined:
 
 ``folder_format``
     Indicates how submissions will be stored in the tgz. Correct values are

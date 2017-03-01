@@ -170,7 +170,7 @@ class BackendBatchJobDone(metaclass=MessageMeta, msgtype="backend_batch_job_done
             1-255 if the container crashed (it is the return value of the main command of the batch job)
         :param stdout: stdout of the job
         :param stderr: stderr of the job
-        :param file: tgz file (as a bytestring) of the content of the batch job container after completion, or None if an error occured
+        :param file: tgz file (as a bytestring) of the content of the batch job container after completion, or None if an error occurred
         """
         self.job_id = job_id
         self.retval = retval
@@ -426,7 +426,7 @@ class AgentBatchJobDone(metaclass=MessageMeta, msgtype="agent_batch_job_done"):
             1-255 if the container crashed (it is the return value of the main command of the batch job)
         :param stdout: stdout of the job
         :param stderr: stderr of the job
-        :param file: tgz file (as a bytestring) of the content of the batch job container after completion, or None if an error occured
+        :param file: tgz file (as a bytestring) of the content of the batch job container after completion, or None if an error occurred
         """
         self.job_id = job_id
         self.retval = retval

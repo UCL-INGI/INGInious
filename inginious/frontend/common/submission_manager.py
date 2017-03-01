@@ -121,7 +121,7 @@ class SubmissionManager(object, metaclass=ABCMeta):
 
         submissionid = self._database.submissions.insert(obj)
 
-        # Send additionnal data to the client in inputdata. For now, the username and the group
+        # Send additional data to the client in inputdata. For now, the username and the group
         if "username" not in [p.get_id() for p in task.get_problems()]:  # do not overwrite
             inputdata["username"] = username
 
@@ -292,7 +292,7 @@ class SubmissionManager(object, metaclass=ABCMeta):
         """ Attempt to kill the remote job associated with this submission id.
         :param submissionid:
         :param user_check: Check if the current user owns this submission
-        :return: True if the job was killed, False if an error occured
+        :return: True if the job was killed, False if an error occurred
         """
         submission = self.get_submission(submissionid, user_check)
         if not submission:

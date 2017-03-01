@@ -262,7 +262,7 @@ class Client(BetterParanoidPirateClient):
             # NB: original ssh_callback was wrapped with _callable_once
             await self._loop.run_in_executor(None, lambda: ssh_callback(None, None, None))
         except:
-            self._logger.exception("Error occured while calling ssh_callback for job %s", job_id)
+            self._logger.exception("Error occurred while calling ssh_callback for job %s", job_id)
 
         # Call the callback
         try:
@@ -274,7 +274,7 @@ class Client(BetterParanoidPirateClient):
         try:
             await self._loop.run_in_executor(None, lambda: ssh_callback(message.host, message.port, message.password))
         except:
-            self._logger.exception("Error occured while calling ssh_callback for job %s", message.job_id)
+            self._logger.exception("Error occurred while calling ssh_callback for job %s", message.job_id)
 
     async def _handle_batch_job_abort(self, job_id: str, callback):
         await self._handle_batch_job_done(BackendBatchJobDone(job_id, -1, "Backend unavailable, retry later", "", None), callback)

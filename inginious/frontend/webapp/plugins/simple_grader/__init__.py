@@ -92,7 +92,7 @@ def init(plugin_manager, course_factory, client, config):
                         result, grade, problems, tests, custom, archive, stdout, stderr = client_sync.new_job(task, task_input, "Plugin - Simple Grader")
                         job_return = {"result":result, "grade": grade, "problems": problems, "tests": tests, "custom": custom, "archive": archive, "stdout": stdout, "stderr": stderr}
                     except:
-                        return json.dumps({"status": "error", "status_message": "An internal error occured"})
+                        return json.dumps({"status": "error", "status_message": "An internal error occurred"})
 
                     return json.dumps(dict(list({"status": "done"}.items()) + list(self.keep_only_config_return_values(job_return).items())))
                 else:

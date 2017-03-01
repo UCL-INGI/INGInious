@@ -29,7 +29,7 @@ feedback (obsolete since v0.4)
 ``````````````````````````````
 
 The *feedback* command allows you to set the result of your tests.
-Every argument is optionnal.
+Every argument is optional.
 
 -r, --result STATUS            set the result to STATUS. STATUS can be
                                - success (the student succeeded the task),
@@ -367,7 +367,7 @@ limits, ... And you can call it as many time as you want.
 --share-network                   Share the network stack of the grading container with the student container. This is not the case by
                                   default. If the container container has network access, this will also be the case for the student!
 
-Beyond these optionnals args, *run_student* also takes an additionnal (mandatory) arguments: the command to be run in the new container.
+Beyond these optionals args, *run_student* also takes an additional (mandatory) arguments: the command to be run in the new container.
 
 More technically, please note that:
 
@@ -375,7 +375,7 @@ More technically, please note that:
 - There are special return values:
     - 252 means that the command was killed due to an out-of-memory
     - 253 means that the command timed out
-    - 254 means that an error occured while running the proxy
+    - 254 means that an error occurred while running the proxy
 
 archive
 -------
@@ -383,7 +383,7 @@ archive
 *archive* allows you to put some data in an archive that will be returned to the frontend
 and stored in the database for future reading. You can put there debug data, for example.
 
-The command takes some arguments, which are all optionnal:
+The command takes some arguments, which are all optional:
 
 -o, --outsubdir DIRECTORY           will put the file (specified with -a or -r)in the
                                     specified sub-directory in the output archive

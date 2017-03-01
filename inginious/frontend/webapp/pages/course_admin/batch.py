@@ -76,7 +76,7 @@ class CourseBatchJobCreate(INGIniousAdminPage):
                                                  self.user_manager.session_username(),
                                                  self.user_manager.session_email())
             except:
-                errors.append("An error occured while starting the job")
+                errors.append("An error occurred while starting the job")
 
         if len(errors) == 0:
             raise web.seeother('/admin/{}/batch'.format(courseid))

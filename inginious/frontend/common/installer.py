@@ -96,7 +96,7 @@ class Installer(object, metaclass=abc.ABCMeta):
                 self._display_info("Backend chosen: local. Testing the configuration.")
                 options = self._ask_local_config()
                 if not self.test_local_docker_conf():
-                    self._display_error("An error occured while testing the configuration. Please make sure you are able do run `docker info` in "
+                    self._display_error("An error occurred while testing the configuration. Please make sure you are able do run `docker info` in "
                                         "your command line, and environment parameters like DOCKER_HOST are correctly set.")
                     if self._ask_boolean("Would you like to continue anyway?", False):
                         break
@@ -330,7 +330,7 @@ class Installer(object, metaclass=abc.ABCMeta):
 
                     self._display_info("Successfully downloaded and copied demonstration tasks.")
                 except Exception as e:
-                    self._display_error("An error occured while copying the directory: %s" % str(e))
+                    self._display_error("An error occurred while copying the directory: %s" % str(e))
         else:
             self._display_warning("Skipping copying the 'test' course because the task dir does not exists")
 
@@ -355,7 +355,7 @@ class Installer(object, metaclass=abc.ABCMeta):
                     self._display_info("Downloading image %s. This can take some time." % image)
                     docker_connection.pull(image + ":latest")
                 except Exception as e:
-                    self._display_error("An error occured while pulling the image: %s." % str(e))
+                    self._display_error("An error occurred while pulling the image: %s." % str(e))
         else:
             self._display_warning("This installation tool does not support the backend configuration directly, if it's not local. You will have to "
                                   "pull the images by yourself. Here is the list: %s" % str(to_download))
