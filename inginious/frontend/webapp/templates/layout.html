@@ -96,12 +96,23 @@ $:template_helper.call('header_hook')
                     $if "Navbar" in content:
                         $:content.Navbar
                     $if user_manager.session_logged_in():
-                        <div class="navbar-right">
-                            <ul class="nav navbar-nav">
-                                <li><p class="navbar-text">Logged in as $user_manager.session_realname()</p></li>
-                                <li><a href="$get_homepath()/index?logoff" id="logoff_button" class="navbar-link"><i class="fa fa-sign-out"></i> Log off</a></li>
-                            </ul>
-                        </div>
+                        <ol class="nav navbar-nav navbar-right">
+                            <li class="dropdown">
+                                <a class="dropdown-toggle" role="button" data-toggle="dropdown">
+                                    <i class="fa fa-user fa-fw"></i> $user_manager.session_realname() <span class="caret"></span>
+                                </a>
+                                <ul class="dropdown-menu">
+
+
+                                    <li><a href="$get_homepath()/index" class="navbar-link"><i class="fa fa-list fa-fw"></i> Course list</a></li>
+                                    <li><a href="$get_homepath()/profile" class="navbar-link"><i class="fa fa-gears fa-fw"></i> Preferences</a></li>
+                                    <li role="separator" class="divider"></li>
+                                    <li><a href="$get_homepath()/queue" class="navbar-link"><i class="fa fa-dashboard fa-fw"></i> Service status</a></li>
+                                    <li role="separator" class="divider"></li>
+                                    <li><a href="$get_homepath()/index?logoff" id="logoff_button" class="navbar-link"><i class="fa fa-sign-out"></i> Log out</a></li>
+                                </ul>
+                            </li>
+                        </ol>
                 </div>
             </div>
         </div>
@@ -122,7 +133,7 @@ $:template_helper.call('header_hook')
                         </div>
                     </div>
                 </div>
-                <!--<div class="footer_push"></div>-->
+                <div class="footer_push"></div>
         </div>
     </div>
     <div id="footer">
@@ -130,14 +141,13 @@ $:template_helper.call('header_hook')
             <div class="container-fluid">
                 <div class="navbar-header" style="width: 100%">
                     <p class="navbar-text">
-                        &copy; 2014-2017 Universit&eacute; catholique de Louvain -
-                        <a target="_blank" href="http://www.inginious.org" class="navbar-link">
-                            INGInious is distributed under AGPL license
-                        </a>
+                        &copy; 2014-2017 Universit&eacute; catholique de Louvain
                     </p>
                     <div class="navbar-right">
                         <p class="navbar-text">
-                            <a href="$get_homepath()/queue" class="navbar-link">Status</a>
+                            <a target="_blank" href="http://www.inginious.org" class="navbar-link">
+                                INGInious is distributed under AGPL license
+                            </a>
                         </p>
                     </div>
                 </div>

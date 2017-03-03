@@ -35,7 +35,7 @@ class DatabaseAuthMethod(AuthMethod):
         username = login_data["login"].strip()
         password_hash = hashlib.sha512(login_data["password"].encode("utf-8")).hexdigest()
 
-        user = self._database.users.find_one({"username": username, "password": password_hash, "activate": {"$exists": False}})
+        user = self._database.users.find_one({"_id": username, "password": password_hash, "activate": {"$exists": False}})
 
         if user is not None:
             return username, user["realname"], user["email"]
@@ -62,9 +62,9 @@ class DatabaseAuthMethod(AuthMethod):
             {username: None} else
         """
         retval = {username: None for username in usernames}
-        data = self._database.users.find({"username": {"$in": usernames}})
+        data = self._database.users.find({"_id": {"$in": usernames}})
         for user in data:
-            retval[user["username"]] = (user["realname"], user["email"])
+            retval[user["_id"]] = (user["realname"], user["email"])
         return retval
 
 
@@ -98,7 +98,7 @@ class RegistrationPage(INGIniousPage):
             error = True
             msg = "Invalid reset hash."
         else:
-            reset = {"hash": data["reset"], "username": user["username"], "realname": user["realname"]}
+            reset = {"hash": data["reset"], "_id": user["_id"], "realname": user["realname"]}
 
         return msg, error, reset
 
@@ -149,7 +149,7 @@ class RegistrationPage(INGIniousPage):
             else:
                 passwd_hash = hashlib.sha512(data["passwd"].encode("utf-8")).hexdigest()
                 activate_hash = hashlib.sha512(str(random.getrandbits(256)).encode("utf-8")).hexdigest()
-                self.database.users.insert({"username": data["username"],
+                self.database.users.insert({"_id": data["username"],
                                             "realname": data["realname"],
                                             "email": data["email"],
                                             "password": passwd_hash,
@@ -245,115 +245,6 @@ Someone (probably you) asked to reset your INGInious password. If this was you, 
         return self.template_helper.get_custom_renderer('frontend/webapp/plugins/auth/db_auth').register(reset, msg, error)
 
 
-class ProfilePage(INGIniousAuthPage):
-    """ Profile page for DB-authenticated users"""
-
-    def save_profile(self, userdata, data):
-        """ Save user profile modifications """
-        result = userdata
-        error = False
-        msg = ""
-
-        # Check input format
-        if len(data["oldpasswd"]) > 0 and len(data["passwd"]) < 6:
-            error = True
-            msg = "Password too short."
-        elif len(data["oldpasswd"]) > 0 and data["passwd"] != data["passwd2"]:
-            error = True
-            msg = "Passwords don't match !"
-        elif len(data["oldpasswd"]) > 0 :
-            oldpasswd_hash = hashlib.sha512(data["oldpasswd"].encode("utf-8")).hexdigest()
-            passwd_hash = hashlib.sha512(data["passwd"].encode("utf-8")).hexdigest()
-            result = self.database.users.find_one_and_update({"username": self.user_manager.session_username(),
-                                                              "password": oldpasswd_hash},
-                                                             {"$set": {
-                                                                 "password": passwd_hash,
-                                                                 "realname": data["realname"]}
-                                                             },
-                                                             return_document=ReturnDocument.AFTER)
-            if not result:
-                error = True
-                msg = "Incorrect old pasword."
-            else:
-                msg = "Profile updated."
-        else:
-            result = self.database.users.find_one_and_update({"username": self.user_manager.session_username()},
-                                                             {"$set": {"realname": data["realname"]}},
-                                                             return_document=ReturnDocument.AFTER)
-            if not result:
-                error = True
-                msg = "Incorrect username."
-            else:
-                self.user_manager.set_session_realname(data["realname"])
-                msg = "Profile updated."
-
-        return result, msg, error
-
-    def delete_account(self, data):
-        """ Delete account from DB """
-        error = False
-        msg = ""
-
-        if not allow_deletion:
-            return "Not allowed.", True
-
-        username = self.user_manager.session_username()
-
-        # Check input format
-        result = self.database.users.find_one_and_delete({"username": username,
-                                                          "email": data.get("delete_email", "")})
-        if not result:
-            error = True
-            msg = "The specified email is incorrect."
-        else:
-            self.database.submissions.remove({"username": username})
-            self.database.user_tasks.remove({"username": username})
-
-            all_courses = self.course_factory.get_all_courses()
-
-            for courseid, course in all_courses.items():
-                if self.user_manager.course_is_open_to_user(course, username):
-                    self.user_manager.course_unregister_user(course, username)
-
-            self.user_manager.disconnect_user(web.ctx['ip'])
-            raise web.seeother(self.app.get_homepath() + "/index")
-
-        return msg, error
-
-    def GET_AUTH(self):  # pylint: disable=arguments-differ
-        """ GET request """
-        userdata = self.database.users.find_one({"username": self.user_manager.session_username()})
-
-        if not userdata:
-            raise web.notfound()
-
-        return self.template_helper.get_custom_renderer('frontend/webapp/plugins/auth/db_auth').profile("", False, allow_deletion)
-
-    def POST_AUTH(self):  # pylint: disable=arguments-differ
-        """ POST request """
-        userdata = self.database.users.find_one({"username": self.user_manager.session_username()})
-
-        if not userdata:
-            raise web.notfound()
-
-        msg = ""
-        error = False
-        data = web.input()
-        if "save" in data:
-            userdata, msg, error = self.save_profile(userdata, data)
-        elif "delete" in data:
-            msg, error = self.delete_account(data)
-
-        return self.template_helper.get_custom_renderer('frontend/webapp/plugins/auth/db_auth').profile(msg, error, allow_deletion)
-
-
-def main_menu(template_helper, database):
-    """ Returns the additional main menu """
-    def is_user_in_db(username):
-        return True if database.users.find_one({"username": username}) else False
-    return str(template_helper.get_custom_renderer('frontend/webapp/plugins/auth/db_auth', layout=False).main_menu(is_user_in_db))
-
-
 def init(plugin_manager, _, _2, conf):
     """
         Allow authentication from database
@@ -362,6 +253,4 @@ def init(plugin_manager, _, _2, conf):
 
     allow_deletion = conf.get("allow_deletion", False)
     plugin_manager.register_auth_method(DatabaseAuthMethod(conf.get('name', 'WebApp'), plugin_manager.get_database()))
-    plugin_manager.add_hook("main_menu", lambda template_helper: main_menu(template_helper, plugin_manager.get_database()))
     plugin_manager.add_page('/register', RegistrationPage)
-    plugin_manager.add_page('/profile', ProfilePage)

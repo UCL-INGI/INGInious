@@ -122,7 +122,7 @@ class SAMLPage(INGIniousPage):
 
             # Initialize session in user manager and update cache
             self.user_manager._set_session(username, realname, email)
-            self.database.user_info_cache.update_one({"_id": username}, {"$set": {"realname": realname, "email": email}}, upsert=True)
+            self.database.users.update_one({"_id": username}, {"$set": {"realname": realname, "email": email}}, upsert=True)
             self.user_manager._logger.info("User %s connected - %s - %s - %s", username, realname, email, web.ctx.ip)
 
             # Redirect to desired url

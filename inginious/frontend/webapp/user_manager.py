@@ -269,7 +269,7 @@ class UserManager(AbstractUserManager):
             return retval
 
         # If this is not the case, look in the cache
-        infos = self._database.user_info_cache.find({"_id": {"$in": remaining_users}})
+        infos = self._database.users.find({"_id": {"$in": remaining_users}})
         for info in infos:
             retval[info["_id"]] = (info["realname"], info["email"])
 
@@ -281,11 +281,10 @@ class UserManager(AbstractUserManager):
         for method in self._auth_methods:
             if method.should_cache() is True:
                 infos = method.get_users_info(remaining_users)
-                if infos is not None:
-                    for user, val in infos.items():
-                        if val is not None:
-                            retval[user] = val
-                            self._database.user_info_cache.update_one({"_id": user}, {"$set": {"realname": val[0], "email": val[1]}}, upsert=True)
+                for user, val in infos.items():
+                    if val is not None:
+                        retval[user] = val
+                        self._database.users.update_one({"_id": user}, {"$set": {"realname": val[0], "email": val[1]}}, upsert=True)
 
         return retval
 
