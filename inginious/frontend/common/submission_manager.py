@@ -322,19 +322,44 @@ class SubmissionManager(object, metaclass=ABCMeta):
         """ Get last submissions of a user """
         request.update({"username": self._user_manager.session_username()})
 
-        # We only want the last x unique tasks tried, modify the request
+        # Before, submissions were first sorted by submission date, then grouped
+        # and then resorted by submission date before limiting. Actually, grouping
+        # and pushing, keeping the max date, followed by result filtering is much more
+        # efficient
         data = self._database.submissions.aggregate([
             {"$match": request},
-            {"$sort": {"submitted_on": pymongo.DESCENDING}},
-            {"$group": {"_id": {"courseid": "$courseid", "taskid": "$taskid"}, "orig_id": {"$first": "$_id"},
-                        "submitted_on": {"$first": "$submitted_on"}, "result": {"$first": "$result"},
-                        "status" : {"$first": "$status"}, "courseid": {"$first": "$courseid"},
-                        "taskid": {"$first": "$taskid"}}},
+            {"$group": {"_id": {"courseid": "$courseid", "taskid": "$taskid"},
+                        "submitted_on": {"$max": "$submitted_on"},
+                        "submissions": {"$push": {
+                            "_id": "$_id",
+                            "result": "$result",
+                            "status" : "$status",
+                            "courseid": "$courseid",
+                            "taskid": "$taskid",
+                            "submitted_on": "$submitted_on"
+                        }},
+            }},
+            {"$project": {
+                "submitted_on": 1,
+                "submissions": {
+                    # This could be replaced by $filter if mongo v3.2 is set as dependency
+                    "$setDifference": [
+                        {"$map": {
+                            "input": "$submissions",
+                            "as": "submission",
+                            "in": {
+                                "$cond": [{"$eq": ["$submitted_on", "$$submission.submitted_on"]}, "$$submission", False]
+                            }
+                        }},
+                        [False]
+                    ]
+                }
+            }},
             {"$sort": {"submitted_on": pymongo.DESCENDING}},
             {"$limit": limit}
         ])
 
-        return list(data)
+        return [item["submissions"][0] for item in data]
 
     def get_gridfs(self):
         """ Returns the GridFS used by the submission manager """
