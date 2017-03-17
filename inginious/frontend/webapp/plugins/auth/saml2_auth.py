@@ -29,7 +29,9 @@ class SAMLAuthMethod(AuthMethod):
     def get_name(self):
         return self._name
 
-    def auth(self, login_data):
+    def auth(self, login_data, callback):
+        global settings
+        settings["callback"] = callback
         auth = OneLogin_Saml2_Auth(prepare_request(), settings)
         raise web.seeother(auth.login(web.ctx.path + web.ctx.query.rsplit("?logoff")[0]))
 
@@ -38,19 +40,6 @@ class SAMLAuthMethod(AuthMethod):
             "input": {},
             "info": ''
         }
-
-    def should_cache(self):
-        """ SAML-SSO always put connected people in cache at login-time"""
-        return True
-
-    def get_users_info(self, usernames):
-        """
-        SAML SSO does not enable searching for user data, it relies on the cache !
-        :param usernames: a list of usernames
-        :return: a dict containing key/pairs {username: None}
-        """
-        return {username: None for username in usernames}
-
 
 def prepare_request():
     """ Prepare SAML request """
@@ -121,9 +110,7 @@ class SAMLPage(INGIniousPage):
             email = attrs[settings["attributes"]["email"]][0]
 
             # Initialize session in user manager and update cache
-            self.user_manager._set_session(username, realname, email)
-            self.database.users.update_one({"_id": username}, {"$set": {"realname": realname, "email": email}}, upsert=True)
-            self.user_manager._logger.info("User %s connected - %s - %s - %s", username, realname, email, web.ctx.ip)
+            settings["callback"]((username, realname, email))
 
             # Redirect to desired url
             self_url = OneLogin_Saml2_Utils.get_self_url(req)

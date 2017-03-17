@@ -52,29 +52,6 @@ class AuthMethod(object, metaclass=ABCMeta):
         """
         return {}
 
-    def should_cache(self):
-        """
-        :return: True if the results of the get_user(s)_info methods should be cached
-        """
-        return True
-
-    def get_user_info(self, username):
-        """
-        :param username:
-        :return: (realname, email) if the user is available with this auth method, None else
-        """
-        info = self.get_users_info([username])
-        return info[username] if info is not None else None
-
-    @abstractmethod
-    def get_users_info(self, usernames):
-        """
-        :param usernames: a list of usernames
-        :return: a dict containing key/pairs {username: (realname, email)} if the user is available with this auth method,
-            {username: None} else
-        """
-        return None
-
 
 class UserManager(AbstractUserManager):
     def __init__(self, session_dict, database, superadmins):
@@ -232,12 +209,19 @@ class UserManager(AbstractUserManager):
         """
         if len(self._auth_methods) <= auth_method_id:
             raise AuthInvalidMethodException()
-        info = self._auth_methods[auth_method_id].auth(input)
-        if info is not None:
-            self._logger.info("User %s connected - %s - %s - %s", info[0], info[1], info[2], ip_addr)
-            self._set_session(info[0], info[1], info[2])
-            return True
-        return False
+        return self._auth_methods[auth_method_id].auth(input, lambda data: self.end_auth(data, ip_addr))
+
+    def end_auth(self, data, ip_addr):
+        """
+        :param result:
+        :param data:
+        :param success:
+        :param failure:
+        :return:
+        """
+        self._database.users.update_one({"_id": data[0]}, {"$set": {"realname": data[1], "email": data[2]}}, upsert=True)
+        self._logger.info("User %s connected - %s - %s - %s", data[0], data[1], data[2], ip_addr)
+        self._set_session(data[0], data[1], data[2])
 
     def disconnect_user(self, ip_addr):
         """
@@ -256,35 +240,9 @@ class UserManager(AbstractUserManager):
         retval = {username: None for username in usernames}
         remaining_users = usernames
 
-        # First, look in non cached auth methods for the user
-        for method in self._auth_methods:
-            if method.should_cache() is False:
-                infos = method.get_users_info(remaining_users)
-                if infos is not None:
-                    for user, val in infos.items():
-                        retval[user] = val
-
-        remaining_users = [username for username, val in retval.items() if val is None]
-        if len(remaining_users) == 0:
-            return retval
-
-        # If this is not the case, look in the cache
         infos = self._database.users.find({"_id": {"$in": remaining_users}})
         for info in infos:
             retval[info["_id"]] = (info["realname"], info["email"])
-
-        remaining_users = [username for username, val in retval.items() if val is None]
-        if len(remaining_users) == 0:
-            return retval
-
-        # If it's still not the case, ask the other auth methods
-        for method in self._auth_methods:
-            if method.should_cache() is True:
-                infos = method.get_users_info(remaining_users)
-                for user, val in infos.items():
-                    if val is not None:
-                        retval[user] = val
-                        self._database.users.update_one({"_id": user}, {"$set": {"realname": val[0], "email": val[1]}}, upsert=True)
 
         return retval
 

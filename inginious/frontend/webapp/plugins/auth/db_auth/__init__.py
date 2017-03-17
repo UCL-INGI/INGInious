@@ -31,16 +31,17 @@ class DatabaseAuthMethod(AuthMethod):
     def get_name(self):
         return self._name
 
-    def auth(self, login_data):
+    def auth(self, login_data, callback):
         username = login_data["login"].strip()
         password_hash = hashlib.sha512(login_data["password"].encode("utf-8")).hexdigest()
 
         user = self._database.users.find_one({"_id": username, "password": password_hash, "activate": {"$exists": False}})
 
         if user is not None:
-            return username, user["realname"], user["email"]
+            callback((username, user["realname"], user["email"]))
+            return True
         else:
-            return None
+            return False
 
     def needed_fields(self):
         return {
@@ -51,22 +52,6 @@ class DatabaseAuthMethod(AuthMethod):
                     '/register">Register</a> / <a href="' + web.ctx.home +
                     '/register#lostpasswd">Lost password?</a></div>'
         }
-
-    def should_cache(self):
-        return False
-
-    def get_users_info(self, usernames):
-        """
-        :param usernames: a list of usernames
-        :return: a dict containing key/pairs {username: (realname, email)} if the user is available with this auth method,
-            {username: None} else
-        """
-        retval = {username: None for username in usernames}
-        data = self._database.users.find({"_id": {"$in": usernames}})
-        for user in data:
-            retval[user["_id"]] = (user["realname"], user["email"])
-        return retval
-
 
 class RegistrationPage(INGIniousPage):
     """ Registration page for DB authentication """

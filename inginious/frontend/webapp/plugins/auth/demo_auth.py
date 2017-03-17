@@ -14,41 +14,26 @@ class DemoAuthMethod(AuthMethod):
     An example auth method
     """
 
-    def __init__(self, name, users):
+    def __init__(self, name, users, ):
         self._name = name
         self._users = users
 
     def get_name(self):
         return self._name
 
-    def auth(self, login_data):
+    def auth(self, login_data, callback):
         login = login_data["login"].strip()
         password = login_data["password"]
 
         if self._users.get(login) == password:
-            return (login, login, "{}@inginious.org".format(login))
+            callback((login, login, "{}@inginious.org".format(login)))
+            return True
         else:
-            return None
+            return False
 
     def needed_fields(self):
         return {"input": OrderedDict((("login", {"type": "text", "placeholder": "Login"}), ("password", {"type": "password", "placeholder":
             "Password"}))), "info": ""}
-
-    def should_cache(self):
-        return False
-
-    def get_users_info(self, usernames):
-        """
-        :param usernames: a list of usernames
-        :return: a dict containing key/pairs {username: (realname, email)} if the user is available with this auth method,
-            {username: None} else
-        """
-        retval = {username: None for username in usernames}
-        for username in retval:
-            if username in self._users:
-                retval[username] = (username, "{}@inginious.org".format(username))
-        return retval
-
 
 def init(plugin_manager, _, _2, conf):
     """
