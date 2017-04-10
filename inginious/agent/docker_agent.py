@@ -18,7 +18,7 @@ import msgpack
 import zmq
 from zmq.asyncio import Poller
 
-from common.filesystems.provider import FileSystemProvider
+from inginious.common.filesystems.provider import FileSystemProvider
 from inginious.common.base import id_checker
 from inginious.agent._docker_interface import DockerInterface
 from inginious.agent._killer_watchers import TimeoutWatcher
