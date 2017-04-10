@@ -13,12 +13,12 @@ from inginious.common.messages import BackendNewJob, BackendKillJob, AgentHello,
 
 
 class MCQAgent(object):
-    def __init__(self, context, backend_addr, friendly_name, task_directory):
+    def __init__(self, context, backend_addr, friendly_name, tasks_filesystem):
         """
         :param context: ZeroMQ context for this process
         :param backend_addr: address of the backend (for example, "tcp://127.0.0.1:2222")
         :param friendly_name: a string containing a friendly name to identify agent
-        :param task_directory: path to the task directory
+        :param tasks_filesystem: FileSystemProvider to the course/tasks
         """
         self._logger = logging.getLogger("inginious.agent.mcq")
 
@@ -29,7 +29,7 @@ class MCQAgent(object):
         self._friendly_name = friendly_name
 
         # Create a course factory
-        course_factory, _ = create_factories(task_directory)
+        course_factory, _ = create_factories(tasks_filesystem)
         self.course_factory = course_factory
 
         # Sockets

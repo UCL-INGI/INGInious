@@ -9,6 +9,7 @@ from pymongo import MongoClient
 import web
 from web.debugerror import debugerror
 
+from inginious.common.filesystems.local import LocalFSProvider
 from inginious.frontend.common.arch_helper import create_arch, start_asyncio_and_zmq
 from inginious.frontend.webapp.cookieless_app import CookieLessCompatibleApplication
 from inginious.frontend.webapp.database_updater import update_database
@@ -131,17 +132,19 @@ def get_app(config):
     # Init the different parts of the app
     plugin_manager = PluginManager()
 
-    course_factory, task_factory = create_factories(task_directory, plugin_manager, WebAppCourse, WebAppTask)
+    fs_provider = LocalFSProvider(task_directory)
+    course_factory, task_factory = create_factories(fs_provider, plugin_manager, WebAppCourse, WebAppTask)
 
     user_manager = UserManager(appli.get_session(), database, config.get('superadmins', []))
 
     update_pending_jobs(database)
 
-    client = create_arch(config, task_directory, zmq_context)
+    client = create_arch(config, fs_provider, zmq_context)
 
     lti_outcome_manager = LTIOutcomeManager(database, user_manager, course_factory)
 
     submission_manager = WebAppSubmissionManager(client, user_manager, database, gridfs, plugin_manager, lti_outcome_manager)
+
 
     template_helper = TemplateHelper(plugin_manager, user_manager, 'frontend/webapp/templates',
                                      'frontend/webapp/templates/layout',

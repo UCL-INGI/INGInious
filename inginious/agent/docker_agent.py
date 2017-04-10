@@ -18,6 +18,7 @@ import msgpack
 import zmq
 from zmq.asyncio import Poller
 
+from common.filesystems.provider import FileSystemProvider
 from inginious.common.base import id_checker
 from inginious.agent._docker_interface import DockerInterface
 from inginious.agent._killer_watchers import TimeoutWatcher
@@ -29,13 +30,14 @@ from inginious.common.messages import BackendNewJob, AgentJobStarted, BackendKil
 
 
 class DockerAgent(object):
-    def __init__(self, context, backend_addr, friendly_name, nb_sub_agents, task_directory, ssh_host=None, ssh_ports=None, tmp_dir="./agent_tmp"):
+    def __init__(self, context, backend_addr, friendly_name, nb_sub_agents, tasks_fs: FileSystemProvider, ssh_host=None, ssh_ports=None,
+                 tmp_dir="./agent_tmp"):
         """
         :param context: ZeroMQ context for this process
         :param backend_addr: address of the backend (for example, "tcp://127.0.0.1:2222")
         :param friendly_name: a string containing a friendly name to identify agent
         :param nb_sub_agents: nb of slots available for this agent
-        :param task_directory: path to the task directory
+        :param tasks_fs: FileSystemProvider for the course/tasks
         :param ssh_host: hostname/ip/... to which external client should connect to access to an ssh remote debug session
         :param ssh_ports: iterable containing ports to which the docker instance can assign ssh servers (for remote debugging)
         :param tmp_dir: temp dir that is used by the agent to start new containers
@@ -60,7 +62,7 @@ class DockerAgent(object):
         self._student_containers_for_job = {}
 
         self.tmp_dir = tmp_dir
-        self.task_directory = task_directory
+        self.tasks_fs = tasks_fs
 
         # Delete tmp_dir, and recreate-it again
         try:
@@ -210,7 +212,8 @@ class DockerAgent(object):
             hard_time_limit = message.hard_time_limit or time_limit * 3
             mem_limit = message.mem_limit
 
-            if not os.path.exists(os.path.join(self.task_directory, course_id, task_id)):
+            task_fs = self.tasks_fs.from_subfolder(course_id).from_subfolder(task_id)
+            if not task_fs.exists():
                 self._logger.warning("Task %s/%s unavailable on this agent", course_id, task_id)
                 await self.send_job_result(message.job_id, "crash",
                                            'Task unavailable on agent. Please retry later, the agents should synchronize soon. If the error '
@@ -267,7 +270,7 @@ class DockerAgent(object):
             os.chmod(sockets_path, 0o777)
 
             # TODO: avoid copy
-            await self._loop.run_in_executor(None, lambda: copytree(os.path.join(self.task_directory, course_id, task_id), task_path))
+            await self._loop.run_in_executor(None, lambda: task_fs.copy_from(None, task_path))
             os.chmod(task_path, 0o777)
 
             if not os.path.exists(student_path):

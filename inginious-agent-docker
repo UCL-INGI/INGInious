@@ -15,6 +15,7 @@ import multiprocessing
 from zmq.asyncio import ZMQEventLoop, Context
 import asyncio
 
+from inginious.common.filesystems.local import LocalFSProvider
 from inginious.agent.docker_agent import DockerAgent
 
 
@@ -82,8 +83,8 @@ if __name__ == "__main__":
     context = Context()
 
     # Create agent
-    agent = DockerAgent(context, args.backend, args.friendly_name, args.concurrency, args.tasks, ssh_host=args.debug_host, ssh_ports=args.debug_ports,
-                        tmp_dir=args.tmpdir)
+    agent = DockerAgent(context, args.backend, args.friendly_name, args.concurrency, LocalFSProvider(args.tasks), ssh_host=args.debug_host,
+                        ssh_ports=args.debug_ports, tmp_dir=args.tmpdir)
 
     # Run!
     try:

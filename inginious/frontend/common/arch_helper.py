@@ -10,6 +10,7 @@ import threading
 
 from zmq.asyncio import ZMQEventLoop, Context
 
+from inginious.common.filesystems.local import LocalFSProvider
 from inginious.agent.docker_agent import DockerAgent
 from inginious.agent.mcq_agent import MCQAgent
 from inginious.backend.backend import Backend
@@ -44,11 +45,11 @@ def _run_asyncio(loop, zmq_context):
         loop.close()
         zmq_context.destroy(1000)
 
-def create_arch(configuration, task_directory, context):
+def create_arch(configuration, tasks_fs, context):
     """ Helper that can start a simple complete INGInious arch locally if needed, or a client to a remote backend.
         Intended to be used on command line, makes uses of exit() and the logger inginious.frontend.
     :param configuration: configuration dict
-    :param task_directory: path to the task directory
+    :param tasks_fs: FileSystemProvider to the courses/tasks folders
     :param context: a ZMQ context
     :param is_testing: boolean
     :return: a Client object
@@ -78,8 +79,8 @@ def create_arch(configuration, task_directory, context):
 
         client = Client(context, "inproc://backend_client")
         backend = Backend(context, "inproc://backend_agent", "inproc://backend_client")
-        agent_docker = DockerAgent(context, "inproc://backend_agent", "Docker - Local agent", concurrency, task_directory, debug_host, debug_ports, tmp_dir)
-        agent_mcq = MCQAgent(context, "inproc://backend_agent", "MCQ - Local agent", task_directory)
+        agent_docker = DockerAgent(context, "inproc://backend_agent", "Docker - Local agent", concurrency, tasks_fs, debug_host, debug_ports, tmp_dir)
+        agent_mcq = MCQAgent(context, "inproc://backend_agent", "MCQ - Local agent", tasks_fs)
 
         asyncio.ensure_future(agent_docker.run_dealer())
         asyncio.ensure_future(agent_mcq.run_dealer())

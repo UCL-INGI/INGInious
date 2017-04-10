@@ -4,6 +4,7 @@
 # more information about the licensing of this file.
 
 """ Pages that allow editing of tasks """
+import tempfile
 from collections import OrderedDict
 import copy
 import json
@@ -300,26 +301,26 @@ class CourseEditTask(INGIniousAdminPage):
         except:
             pass
 
-        directory_path = self.task_factory.get_directory_path(courseid, taskid)
+        task_fs = self.task_factory.get_task_fs(courseid, taskid)
+        task_fs.ensure_exists()
         try:
-            WebAppTask(course, taskid, data, directory_path, self.plugin_manager)
+            WebAppTask(course, taskid, data, task_fs, self.plugin_manager)
         except Exception as message:
             return json.dumps({"status": "error", "message": "Invalid data: {}".format(str(message))})
-
-        if not os.path.exists(directory_path):
-            os.mkdir(directory_path)
 
         if task_zip:
             try:
                 zipfile = ZipFile(task_zip)
-            except Exception as message:
+            except Exception as _:
                 return json.dumps({"status": "error", "message": "Cannot read zip file. Files were not modified"})
 
-            try:
-                zipfile.extractall(directory_path)
-            except Exception as message:
-                return json.dumps(
-                    {"status": "error", "message": "There was a problem while extracting the zip archive. Some files may have been modified"})
+            with tempfile.TemporaryDirectory() as tmpdirname:
+                try:
+                    zipfile.extractall(tmpdirname)
+                except Exception as _:
+                    return json.dumps(
+                        {"status": "error", "message": "There was a problem while extracting the zip archive. Some files may have been modified"})
+                task_fs.copy_to(tmpdirname)
 
         self.task_factory.delete_all_possible_task_files(courseid, taskid)
         self.task_factory.update_task_descriptor_content(courseid, taskid, data, force_extension=file_ext)

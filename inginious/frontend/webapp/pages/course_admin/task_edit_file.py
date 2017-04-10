@@ -67,76 +67,79 @@ class CourseTaskFiles(INGIniousAdminPage):
         """ Returns a flattened version of all the files inside the task directory, excluding the files task.* and hidden files.
             It returns a list of tuples, of the type (Integer Level, Boolean IsDirectory, String Name, String CompleteName)
         """
-        path = task_factory.get_directory_path(courseid, taskid)
-        if not os.path.exists(path):
+        task_fs = task_factory.get_task_fs(courseid, taskid)
+        if not task_fs.exists():
             return []
-        result_dict = {}
-        for root, _, files in os.walk(path):
-            rel_root = os.path.normpath(os.path.relpath(root, path))
-            insert_dict = result_dict
-            if rel_root != ".":
-                hidden_dir = False
-                for i in rel_root.split(os.path.sep):
-                    if i.startswith("."):
-                        hidden_dir = True
-                        break
-                    if i not in insert_dict:
-                        insert_dict[i] = {}
-                    insert_dict = insert_dict[i]
-                if hidden_dir:
-                    continue
-            for f in files:
-                # Do not follow symlinks and do not take into account task describers
-                if not os.path.islink(os.path.join(root, f)) and \
-                        not (root == path and os.path.splitext(f)[0] == "task"
-                             and os.path.splitext(f)[1][1:] in task_factory.get_available_task_file_extensions()) \
-                        and not f.startswith("."):
-                    insert_dict[f] = None
+
+        tmp_out = {}
+        entries = task_fs.list(True, True, True)
+        for entry in entries:
+            if os.path.splitext(entry)[0] == "task" and os.path.splitext(entry)[1][1:] in task_factory.get_available_task_file_extensions():
+                continue
+
+            data = entry.split("/")
+            is_directory = False
+            if data[-1] == "":
+                is_directory = True
+                data = data[0:len(data)-1]
+            cur_pos = 0
+            tree_pos = tmp_out
+            while cur_pos != len(data):
+                if data[cur_pos] not in tree_pos:
+                    tree_pos[data[cur_pos]] = {} if is_directory or cur_pos != len(data) - 1 else None
+                tree_pos = tree_pos[data[cur_pos]]
+                cur_pos += 1
 
         def recur_print(current, level, current_name):
             iteritems = sorted(current.items())
             # First, the files
-            recur_print.flattened += [(level, False, f, os.path.join(current_name, f)) for f, t in iteritems if t is None]
+            recur_print.flattened += [(level, False, f, current_name+"/"+f) for f, t in iteritems if t is None]
             # Then, the dirs
             for name, sub in iteritems:
                 if sub is not None:
-                    recur_print.flattened.append((level, True, name, os.path.join(current_name, name)))
-                    recur_print(sub, level + 1, os.path.join(current_name, name))
-
+                    recur_print.flattened.append((level, True, name, current_name+"/"+name))
+                    recur_print(sub, level + 1, current_name + "/" + name)
         recur_print.flattened = []
-        recur_print(result_dict, 0, '')
+        recur_print(tmp_out, 0, '')
         return recur_print.flattened
 
     def verify_path(self, courseid, taskid, path, new_path=False):
         """ Return the real wanted path (relative to the INGInious root) or None if the path is not valid/allowed """
-
-        task_dir_path = self.task_factory.get_directory_path(courseid, taskid)
+        task_fs = self.task_factory.get_task_fs(courseid, taskid)
         # verify that the dir exists
-        if not os.path.exists(task_dir_path):
+        if not task_fs.exists():
             return None
-        wanted_path = os.path.normpath(os.path.join(task_dir_path, path))
-        rel_wanted_path = os.path.relpath(wanted_path, task_dir_path)  # normalized
-        # verify that the path we want exists and is withing the directory we want
-        if (new_path == os.path.exists(wanted_path)) or os.path.islink(wanted_path) or rel_wanted_path.startswith('..'):
+
+        # all path given to this part of the application must start with a "/", let's remove it
+        if not path.startswith("/"):
             return None
+        path = path[1:len(path)]
+
+        if ".." in path:
+            return None
+
+        if task_fs.exists(path) == new_path:
+            return None
+
         # do not allow touching the task.* file
-        if os.path.splitext(rel_wanted_path)[0] == "task" and os.path.splitext(rel_wanted_path)[1][1:] in \
+        if os.path.splitext(path)[0] == "task" and os.path.splitext(path)[1][1:] in \
                 self.task_factory.get_available_task_file_extensions():
             return None
+
         # do not allow hidden dir/files
-        if rel_wanted_path != ".":
-            for i in rel_wanted_path.split(os.path.sep):
+        if path != ".":
+            for i in path.split(os.path.sep):
                 if i.startswith("."):
                     return None
-        return wanted_path
+        return path
 
     def action_edit(self, courseid, taskid, path):
         """ Edit a file """
         wanted_path = self.verify_path(courseid, taskid, path)
-        if wanted_path is None or not os.path.isfile(wanted_path):
+        if wanted_path is None:
             return "Internal error"
         try:
-            content = open(wanted_path, 'r').read()
+            content = self.task_factory.get_task_fs(courseid, taskid).get(wanted_path).decode("utf-8")
             return json.dumps({"content": content})
         except:
             return json.dumps({"error": "not-readable"})
@@ -144,64 +147,60 @@ class CourseTaskFiles(INGIniousAdminPage):
     def action_edit_save(self, courseid, taskid, path, content):
         """ Save an edited file """
         wanted_path = self.verify_path(courseid, taskid, path)
-        if wanted_path is None or not os.path.isfile(wanted_path):
+        if wanted_path is None:
             return json.dumps({"error": True})
-
         try:
-            with codecs.open(wanted_path, "w", "utf-8") as f:
-                f.write(content)
+            self.task_factory.get_task_fs(courseid, taskid).put(wanted_path, content.encode("utf-8"))
             return json.dumps({"ok": True})
         except:
             return json.dumps({"error": True})
 
     def action_upload(self, courseid, taskid, path, fileobj):
         """ Upload a file """
-
+        # the path is given by the user. Let's normalize it
+        path = path.strip()
+        if not path.startswith("/"):
+            path = "/" + path
         wanted_path = self.verify_path(courseid, taskid, path, True)
         if wanted_path is None:
             return self.show_tab_file(courseid, taskid, "Invalid new path")
-        curpath = self.task_factory.get_directory_path(courseid, taskid)
-        rel_path = os.path.relpath(wanted_path, curpath)
 
-        for i in rel_path.split(os.path.sep)[:-1]:
-            curpath = os.path.join(curpath, i)
-            if not os.path.exists(curpath):
-                os.mkdir(curpath)
-            if not os.path.isdir(curpath):
-                return self.show_tab_file(courseid, taskid, i + " is not a directory!")
-
+        task_fs = self.task_factory.get_task_fs(courseid, taskid)
         try:
-            open(wanted_path, "wb").write(fileobj.file.read())
-            return self.show_tab_file(courseid, taskid)
+            task_fs.put(wanted_path, fileobj.file.read())
         except:
             return self.show_tab_file(courseid, taskid, "An error occurred while writing the file")
+        return self.show_tab_file(courseid, taskid)
 
     def action_create(self, courseid, taskid, path):
         """ Delete a file or a directory """
+        # the path is given by the user. Let's normalize it
+        path = path.strip()
+        if not path.startswith("/"):
+            path = "/" + path
 
-        want_directory = path.strip().endswith("/")
+        want_directory = path.endswith("/")
 
         wanted_path = self.verify_path(courseid, taskid, path, True)
         if wanted_path is None:
             return self.show_tab_file(courseid, taskid, "Invalid new path")
-        curpath = self.task_factory.get_directory_path(courseid, taskid)
-        rel_path = os.path.relpath(wanted_path, curpath)
 
-        for i in rel_path.split(os.path.sep)[:-1]:
-            curpath = os.path.join(curpath, i)
-            if not os.path.exists(curpath):
-                os.mkdir(curpath)
-            if not os.path.isdir(curpath):
-                return self.show_tab_file(courseid, taskid, i + " is not a directory!")
-        if rel_path.split(os.path.sep)[-1] != "":
-            if want_directory:
-                os.mkdir(os.path.join(curpath, rel_path.split(os.path.sep)[-1]))
-            else:
-                open(os.path.join(curpath, rel_path.split(os.path.sep)[-1]), 'a')
+        task_fs = self.task_factory.get_task_fs(courseid, taskid)
+        if want_directory:
+            task_fs.from_subfolder(wanted_path).ensure_exists()
+        else:
+            task_fs.put(wanted_path, b"")
         return self.show_tab_file(courseid, taskid)
 
     def action_rename(self, courseid, taskid, path, new_path):
         """ Delete a file or a directory """
+        # normalize
+        path = path.strip()
+        new_path = new_path.strip()
+        if not path.startswith("/"):
+            path = "/" + path
+        if not new_path.startswith("/"):
+            new_path = "/" + new_path
 
         old_path = self.verify_path(courseid, taskid, path)
         if old_path is None:
@@ -212,27 +211,31 @@ class CourseTaskFiles(INGIniousAdminPage):
             return self.show_tab_file(courseid, taskid, "Invalid new path")
 
         try:
-            shutil.move(old_path, wanted_path)
+            self.task_factory.get_task_fs(courseid, taskid).move(old_path, wanted_path)
             return self.show_tab_file(courseid, taskid)
         except:
             return self.show_tab_file(courseid, taskid, "An error occurred while moving the files")
 
     def action_delete(self, courseid, taskid, path):
         """ Delete a file or a directory """
+        # normalize
+        path = path.strip()
+        if not path.startswith("/"):
+            path = "/" + path
 
         wanted_path = self.verify_path(courseid, taskid, path)
         if wanted_path is None:
             return self.show_tab_file(courseid, taskid, "Internal error")
 
         # special case: cannot delete current directory of the task
-        if "." == os.path.relpath(wanted_path, self.task_factory.get_directory_path(courseid, taskid)):
+        if "/" == wanted_path:
             return self.show_tab_file(courseid, taskid, "Internal error")
 
-        if os.path.isdir(wanted_path):
-            shutil.rmtree(wanted_path)
-        else:
-            os.unlink(wanted_path)
-        return self.show_tab_file(courseid, taskid)
+        try:
+            self.task_factory.get_task_fs(courseid, taskid).delete(wanted_path, True)
+            return self.show_tab_file(courseid, taskid)
+        except:
+            return self.show_tab_file(courseid, taskid, "An error occurred while deleting the files")
 
     def action_download(self, courseid, taskid, path):
         """ Download a file or a directory """
@@ -241,25 +244,13 @@ class CourseTaskFiles(INGIniousAdminPage):
         if wanted_path is None:
             raise web.notfound()
 
-        # if the user want a dir:
-        if os.path.isdir(wanted_path):
-            tmpfile = tempfile.TemporaryFile()
-            tar = tarfile.open(fileobj=tmpfile, mode='w:gz')
-            for root, _, files in os.walk(wanted_path):
-                for fname in files:
-                    info = tarfile.TarInfo(name=os.path.join(os.path.relpath(root, wanted_path), fname))
-                    file_stat = os.stat(os.path.join(root, fname))
-                    info.size = file_stat.st_size
-                    info.mtime = file_stat.st_mtime
-                    tar.addfile(info, fileobj=open(os.path.join(root, fname), 'rb'))
-            tar.close()
-            tmpfile.seek(0)
-            web.header('Content-Type', 'application/x-gzip', unique=True)
-            web.header('Content-Disposition', 'attachment; filename="dir.tgz"', unique=True)
-            return tmpfile
+        task_fs = self.task_factory.get_task_fs(courseid, taskid)
+        (method, mimetype_or_none, file_or_url) = task_fs.distribute(wanted_path)
+
+        if method == "local":
+            web.header('Content-Type', mimetype_or_none)
+            return file_or_url
+        elif method == "url":
+            raise web.redirect(file_or_url)
         else:
-            mimetypes.init()
-            mime_type = mimetypes.guess_type(wanted_path)
-            web.header('Content-Type', mime_type[0])
-            web.header('Content-Disposition', 'attachment; filename="' + os.path.split(wanted_path)[1] + '"', unique=True)
-            return open(wanted_path, 'rb')
+            raise web.notfound()

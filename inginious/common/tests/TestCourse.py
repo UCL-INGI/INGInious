@@ -7,12 +7,14 @@ import os
 import tempfile
 import shutil
 
+from inginious.common.filesystems.local import LocalFSProvider
 from inginious.common.course_factory import create_factories
 
 
 class TestCourse(object):
     def setUp(self):
-        self.course_factory, _ = create_factories(os.path.join(os.path.dirname(__file__), 'tasks'))
+        fs = LocalFSProvider(os.path.join(os.path.dirname(__file__), 'tasks'))
+        self.course_factory, _ = create_factories(fs)
 
     def test_course_loading(self):
         '''Tests if a course file loads correctly'''
@@ -79,7 +81,8 @@ class TestCourseWrite(object):
 
     def setUp(self):
         self.dir_path = tempfile.mkdtemp()
-        self.course_factory, _ = create_factories(self.dir_path)
+        fs = LocalFSProvider(self.dir_path)
+        self.course_factory, _ = create_factories(fs)
 
     def tearDown(self):
         shutil.rmtree(self.dir_path)

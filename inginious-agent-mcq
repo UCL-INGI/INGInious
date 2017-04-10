@@ -13,6 +13,7 @@ import logging
 from zmq.asyncio import ZMQEventLoop, Context
 import asyncio
 
+from inginious.common.filesystems.local import LocalFSProvider
 from inginious.agent.mcq_agent import MCQAgent
 
 if __name__ == "__main__":
@@ -41,7 +42,7 @@ if __name__ == "__main__":
     context = Context()
 
     # Create agent
-    agent = MCQAgent(context, args.backend, args.friendly_name, args.tasks)
+    agent = MCQAgent(context, args.backend, args.friendly_name, LocalFSProvider(args.tasks))
 
     # Run!
     try:
