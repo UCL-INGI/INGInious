@@ -32,25 +32,11 @@ class AuthMethod(object, metaclass=ABCMeta):
         return ""
 
     @abstractmethod
-    def auth(self, user_input):
+    def get_link(self):
         """
-        :param user_input: the input of the user, respecting the value given by self.needed_input()
-        :return: (username, realname, email) if the user credentials are correct, None else
+        :return: The authentication link
         """
-        return None
-
-    @abstractmethod
-    def needed_fields(self):
-        """
-        :return: a dictionary containing as key the name of the input (in the HTML sense of name), and, as value, a dictionary containing two fields:
-
-            placeholder
-                the placeholder for the input
-
-            type
-                text or password
-        """
-        return {}
+        return ""
 
 
 class UserManager(AbstractUserManager):
@@ -197,7 +183,7 @@ class UserManager(AbstractUserManager):
         """
         :return: a dict, containing the auth method id as key, and a tuple (name, needed fields) for each auth method
         """
-        return {i: (am.get_name(), am.needed_fields()) for i, am in enumerate(self._auth_methods)}
+        return {i: (am.get_name(), am.get_link()) for i, am in enumerate(self._auth_methods)}
 
     def auth_user(self, auth_method_id, input, ip_addr):
         """

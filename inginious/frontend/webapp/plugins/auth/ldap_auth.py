@@ -6,11 +6,15 @@
 """ LDAP plugin """
 from collections import OrderedDict
 
-# import simpleldap TODO re-add me once the PR has been accepted by devs of simpleldap
-import inginious.common.customlibs.simpleldap as simpleldap  # TODO remove me once the PR has been accepted by devs of simpleldap
+import ldap3
 import logging
+import web
 
 from inginious.frontend.webapp.user_manager import AuthMethod
+from inginious.frontend.webapp.pages.utils import INGIniousPage, INGIniousAuthPage
+
+settings = {}
+logger = logging.getLogger('inginious.webapp.plugin.auth.ldap')
 
 
 class LdapAuthMethod(AuthMethod):
@@ -18,74 +22,73 @@ class LdapAuthMethod(AuthMethod):
     LDAP auth method
     """
 
-    def __init__(self, name, host, port, encryption, require_cert, base_dn, request, prefix, mail, cn):
-        if encryption not in ["none", "ssl", "tls"]:
-            raise Exception("Unknown encryption method {}".format(encryption))
-        if encryption == "none":
-            encryption = None
-
-        if port == 0:
-            port = None
-
-        self._logger = logging.getLogger('inginious.webapp.plugin.auth.ldap')
+    def __init__(self, name, link):
         self._name = name
-        self._host = host
-        self._port = port
-        self._encryption = encryption
-        self._require_cert = require_cert
-        self._base_dn = base_dn
-        self._request = request
-        self._prefix = prefix
-        self._mail = mail
-        self._cn = cn
+        self._link = link
 
     def get_name(self):
         return self._name
 
-    def auth(self, login_data, callback):
+    def get_link(self):
+        return self._link
+
+
+class AuthenticationPage(INGIniousPage):
+    def GET(self):
+        self.user_manager._session['redir_url'] = web.ctx.env.get('HTTP_REFERER', '/').rsplit("?logoff")[0]
+        return """
+        <html><body><form method="post"><input type="text" name="login"/>
+        <input type="password" name="password"/><input type="submit" value="Submit"></form></body></html>"""
+
+    def POST(self):
         # Get configuration
+        login_data = web.input()
         login = login_data["login"].strip().lower()
         password = login_data["password"]
 
         # do not send empty password to the LDAP
         if password.rstrip() == "":
-            return False
+            return """<html><body>empty password</body></html>"""
 
         try:
             # Connect to the ldap
-            self._logger.debug('Connecting to ' + self._host + ", port " + str(self._port) )
-            conn = simpleldap.Connection(self._host, port=self._port, encryption=self._encryption,
-                                         require_cert=self._require_cert, search_defaults={"base_dn": self._base_dn})
-            self._logger.debug('Connected to ' + self._host + ", port " + str(self._port) )
+            logger.debug('Connecting to ' + settings['host'] + ", port " + str(settings['port']))
+            conn = ldap3.Connection(ldap3.Server(settings['host'], port=settings['port'], use_ssl=settings["encryption"] == 'ssl',
+                                                 get_info=ldap3.ALL), auto_bind=True)
+            logger.debug('Connected to ' + settings['host'] + ", port " + str(settings['port']))
         except Exception as e:
-            self._logger.debug("Can't initialze connection to " + self._host + ': ' + str(e))
-            return False
+            logger.exception("Can't initialze connection to " + settings['host'] + ': ' + str(e))
+            return """<html><body>cannot contact host</body></html>"""
+
 
         try:
-            request = self._request.format(login)
-            user_data = conn.get(request)
-        except Exception as _:
-            self._logger.exception("Can't get user data")
-            return False
+            request = settings["request"].format(login)
+            conn.search(settings["base_dn"], request, attributes=["cn", "mail"])
+            user_data = conn.response[0]
+        except Exception as ex:
+            logger.exception("Can't get user data : " + str(ex))
+            conn.unbind()
+            return """<html><body>user not found</body></html>"""
 
-        if conn.authenticate(user_data.dn, password):
+        redirect_url = "/"
+        if conn.rebind(user_data['dn'], password=password):
             try:
-                email = user_data[self._mail][0].decode('utf8')
-                username = self._prefix + login
-                realname = user_data[self._cn][0].decode('utf8')
-                callback((username, realname, email))
-                return True
+                email = user_data["attributes"][settings.get("mail", "mail")][0]
+                username = settings.get("prefix", "") + login
+                realname = user_data["attributes"][settings.get("cn", "cn")][0]
+                self.user_manager.end_auth((username, realname, email), web.ctx.ip)
+                redirect_url = self.user_manager._session['redir_url']
             except KeyError as e:
-                self._logger.error("Can't get field " + str(e) + " from your LDAP server")
+                logger.error("Can't get field " + str(e) + " from your LDAP server")
             except Exception as e:
-                self._logger.exception("Can't get some user fields")
+                logger.exception("Can't get some user fields")
         else:
-            self._logger.debug('Auth Failed')
-            return False
+            logger.debug('Auth Failed')
+            conn.unbind()
+            return """<html><body>authentication failed</body></html>"""
 
-    def needed_fields(self):
-        return {"input": OrderedDict((("login", {"type": "text", "placeholder": "Login"}), ("password", {"type": "password", "placeholder":
-            "Password"}))), "info": ""}
+        conn.unbind()
+        raise web.seeother(redirect_url)
 
 def init(plugin_manager, _, _2, conf):
     """
@@ -117,15 +120,17 @@ def init(plugin_manager, _, _2, conf):
         *require_cert*
             true if a certificate is needed.
     """
+    global settings
+    settings = conf
 
-    obj = LdapAuthMethod(conf.get('name', 'LDAP Login'),
-                         conf.get('host', "ldap.test.be"),
-                         conf.get('port', 0),
-                         conf.get('encryption', "none"),
-                         conf.get('require_cert', True),
-                         conf.get('base_dn', ''),
-                         conf.get('request', "uid={},ou=People"),
-                         conf.get('prefix', ''),
-                         conf.get('mail', 'mail'),
-                         conf.get('cn', 'cn'))
-    plugin_manager.register_auth_method(obj)
+    encryption = conf.get("encryption", "none")
+    if encryption not in ["none", "ssl", "tls"]:
+        raise Exception("Unknown encryption method {}".format(encryption))
+    if encryption == "none":
+        conf["encryption"] = None
+
+    if conf.get("port", 0) == 0:
+        conf["port"] = None
+
+    plugin_manager.add_page('/auth/ldap', AuthenticationPage)
+    plugin_manager.register_auth_method( LdapAuthMethod(conf.get('name', 'LDAP Login'), "/auth/ldap"))

@@ -22,24 +22,22 @@ class SAMLAuthMethod(AuthMethod):
     SAML SSO auth method
     """
 
-    def __init__(self, name, settings):
+    def __init__(self, name, link):
         self._name = name
-        self._settings = settings
+        self._link = link
 
     def get_name(self):
         return self._name
 
-    def auth(self, login_data, callback):
-        global settings
-        settings["callback"] = callback
-        auth = OneLogin_Saml2_Auth(prepare_request(), settings)
-        raise web.seeother(auth.login(web.ctx.path + web.ctx.query.rsplit("?logoff")[0]))
+    def get_link(self):
+        return self._link
 
-    def needed_fields(self):
-        return {
-            "input": {},
-            "info": ''
-        }
+
+class AuthenticationPage(INGIniousPage):
+     def GET(self):
+        auth = OneLogin_Saml2_Auth(prepare_request(), settings)
+        raise web.seeother(auth.login(web.ctx.env.get('HTTP_REFERER','/').rsplit("?logoff")[0]))
+
 
 def prepare_request():
     """ Prepare SAML request """
@@ -110,7 +108,7 @@ class SAMLPage(INGIniousPage):
             email = attrs[settings["attributes"]["email"]][0]
 
             # Initialize session in user manager and update cache
-            settings["callback"]((username, realname, email))
+            self.user_manager.end_auth((username, realname, email), web.ctx.ip)
 
             # Redirect to desired url
             self_url = OneLogin_Saml2_Utils.get_self_url(req)
@@ -126,4 +124,5 @@ def init(plugin_manager, course_factory, client, conf):
     settings = conf
     plugin_manager.add_page('/SAML/Metadata', MetadataPage)
     plugin_manager.add_page('/SAML/ACS', SAMLPage)
-    plugin_manager.register_auth_method(SAMLAuthMethod(conf.get('name', 'SAML Login'), settings))
+    plugin_manager.add_page('/auth/saml', AuthenticationPage)
+    plugin_manager.register_auth_method(SAMLAuthMethod(conf.get('name', 'SAML Login'), "/auth/saml"))

@@ -23,41 +23,25 @@ $# Start content
                     <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
                     Invalid login/password
                 </div>
-            
-            $if len(auth_methods) > 1:
-                <ul class="nav nav-tabs nav-justified" role="tablist">
-                    $for authid, (name, _) in auth_methods.items():
-                        <li 
-                            $if authid == 0:
-                                class="active"
-                        ><a href="#login-$authid" role="tab" data-toggle="tab">$name</a></li>
-                </ul>
-            
-            <!-- Tab panes -->
-            <div class="tab-content">
-                $for authid, (_, fields) in auth_methods.items():
-                    <div class="tab-pane fade
-                        $if authid == 0:
-                            in active
-                        " id="login-$authid">
-                        <p>
-                            <form role="form" method="post">
-                                <input type="hidden" name="@authid" value="$authid"/>
-                                $for name, data in fields["input"].items():
-                                    $if data["type"] == "password":
-                                        $ type="password"
-                                    $else:
-                                        $ type="text"
-                                    <div class="form-group">
-                                        <label>$:data["placeholder"]</label> <input type="$type" class="form-control" name="$name" placeholder="$data['placeholder']">
-                                    </div>
 
-                                $if fields["info"]:
-                                    <div style="margin-bottom: 5px">$:fields["info"]</div>
-                                <button type="submit" class="btn btn-primary btn-block">Log in</button>
-                            </form>
-                        </p>
+            <form role="form" method="post">
+                <div class="form-group">
+                    <label>Username</label> <input type="text" class="form-control" name="login" placeholder="Username">
+                </div>
+                <div class="form-group">
+                    <label>Password <a href="/register#lostpasswd">Lost password?</a></label> <input type="password" class="form-control" name="password" placeholder="Password">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Log in</button>
+            </form>
+
+            <hr/>
+            $for authid, (name, link) in auth_methods.items():
+                $if authid % 3 == 0:
+                    <div class="row">
+
+                <div class="col-md-4"><a href="$link">$name</a></div>
+
+                $if authid % 3 == 2 or authid == len(auth_methods.items()) - 1:
                     </div>
-            </div>
         </div>
     </div>

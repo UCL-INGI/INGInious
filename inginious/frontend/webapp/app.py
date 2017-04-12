@@ -191,7 +191,6 @@ def get_app(config):
 
     # Loads plugins
     plugin_manager.load(client, appli, course_factory, task_factory, database, user_manager, submission_manager, config.get("plugins", []))
-    plugin_manager.register_auth_method(DatabaseAuthMethod('INGInious login', database))
 
     # Start the inginious.backend
     client.start()

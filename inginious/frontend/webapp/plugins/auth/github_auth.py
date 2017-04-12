@@ -25,25 +25,24 @@ class GithubAuthMethod(AuthMethod):
     Github auth method
     """
 
-    def __init__(self, name, user_manager):
+    def __init__(self, name, link):
         self._name = name
-        self._user_manager = user_manager
+        self._link = link
 
     def get_name(self):
         return self._name
 
-    def auth(self, login_data, callback):
+    def get_link(self):
+        return self._link
+
+
+class AuthenticationPage(INGIniousPage):
+    def GET(self):
         github = OAuth2Session(client_id)
         authorization_url, state = github.authorization_url(authorization_base_url)
-        self._user_manager._session['oauth_state'] = state
-        self._user_manager._session['redir_url'] = web.ctx.path + web.ctx.query.rsplit("?logoff")[0]
+        self.user_manager._session['oauth_state'] = state
+        self.user_manager._session['redir_url'] = web.ctx.env.get('HTTP_REFERER','/').rsplit("?logoff")[0]
         raise web.seeother(authorization_url)
-
-    def needed_fields(self):
-        return {
-            "input": {},
-            "info": ''
-        }
 
 
 class CallbackPage(INGIniousPage):
@@ -71,5 +70,6 @@ def init(plugin_manager, course_factory, client, conf):
     client_id = conf.get("client_id", "")
     client_secret = conf.get("client_secret", "")
 
-    plugin_manager.add_page('/oauth/github-callback', CallbackPage)
-    plugin_manager.register_auth_method(GithubAuthMethod(conf.get('name', 'Github Login'), plugin_manager.get_user_manager()))
+    plugin_manager.add_page('/auth/github-callback', CallbackPage)
+    plugin_manager.add_page('/auth/github', AuthenticationPage)
+    plugin_manager.register_auth_method(GithubAuthMethod(conf.get('name', 'Github Login'), "/auth/github"))

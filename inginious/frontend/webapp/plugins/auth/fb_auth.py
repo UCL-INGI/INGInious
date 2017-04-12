@@ -25,31 +25,30 @@ class FacebookAuthMethod(AuthMethod):
     Facebook auth method
     """
 
-    def __init__(self, name, user_manager):
+    def __init__(self, name, link):
         self._name = name
-        self._user_manager = user_manager
+        self._link = link
 
     def get_name(self):
         return self._name
 
-    def auth(self, login_data, callback):
-        facebook = OAuth2Session(client_id, redirect_uri=web.ctx.home + "/oauth/fb-callback")
+    def get_link(self):
+        return self._link
+
+
+class AuthenticationPage(INGIniousPage):
+    def GET(self):
+        facebook = OAuth2Session(client_id, redirect_uri=web.ctx.home + "/auth/facebook-callback")
         facebook = facebook_compliance_fix(facebook)
         authorization_url, state = facebook.authorization_url(authorization_base_url)
-        self._user_manager._session['oauth_state'] = state
-        self._user_manager._session['redir_url'] = web.ctx.path + web.ctx.query.rsplit("?logoff")[0]
+        self.user_manager._session['oauth_state'] = state
+        self.user_manager._session['redir_url'] = web.ctx.env.get('HTTP_REFERER','/').rsplit("?logoff")[0]
         raise web.seeother(authorization_url)
-
-    def needed_fields(self):
-        return {
-            "input": {},
-            "info": ''
-        }
 
 
 class CallbackPage(INGIniousPage):
     def GET(self):
-        facebook = OAuth2Session(client_id, state=self.user_manager._session['oauth_state'], redirect_uri= web.ctx.home + "/oauth/fb-callback")
+        facebook = OAuth2Session(client_id, state=self.user_manager._session['oauth_state'], redirect_uri= web.ctx.home + "/auth/facebook-callback")
         try:
             facebook.fetch_token(token_url, client_secret=client_secret, authorization_response=web.ctx.home + web.ctx.fullpath)
             r = facebook.get('https://graph.facebook.com/me?fields=id,name,email')
@@ -70,5 +69,6 @@ def init(plugin_manager, course_factory, client, conf):
     client_id = conf.get("client_id", "")
     client_secret = conf.get("client_secret", "")
 
-    plugin_manager.add_page('/oauth/fb-callback', CallbackPage)
-    plugin_manager.register_auth_method(FacebookAuthMethod(conf.get('name', 'Facebook Login'), plugin_manager.get_user_manager()))
+    plugin_manager.add_page('/auth/facebook-callback', CallbackPage)
+    plugin_manager.add_page('/auth/facebook', AuthenticationPage)
+    plugin_manager.register_auth_method(FacebookAuthMethod(conf.get('name', 'Facebook Login'), "/auth/facebook"))
