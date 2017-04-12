@@ -1,5 +1,6 @@
 # coding=utf-8
 from abc import ABCMeta, abstractmethod
+from datetime import datetime
 
 
 class NotFoundException(Exception):
@@ -10,11 +11,37 @@ class FileSystemProvider(object, metaclass=ABCMeta):
     """ Provides tools to access a given filesystem. The filesystem may be distant, and subclasses of FileSystemProvider should take care of 
         doing appropriate caching.
     """
+
+    @classmethod
+    @abstractmethod
+    def get_needed_args(cls):
+        """ Returns a list of arguments needed to create a FileSystemProvider. In the form 
+            {
+                "arg1": (int, False, "description1"),
+                "arg2: (str, True, "description2")
+            }
+            
+            The first part of the tuple is the type, the second indicates if the arg is mandatory
+            Only int and str are supported as types.
+        """
+        pass
+
+    @classmethod
+    @abstractmethod
+    def init_from_args(cls, **args):
+        """ Given the args from get_needed_args, creates the FileSystemProvider """
+        pass
+
     def __init__(self, prefix):
         """ Init the filesystem provider with a given prefix. """
         self.prefix = prefix
         if not self.prefix.endswith("/"):
             self.prefix += "/"
+
+    def _checkpath(self, path):
+        """ Checks that a given path is valid. If it's not, raises NotFoundException """
+        if path.startswith("/") or ".." in path or path.strip() != path:
+            raise NotFoundException()
 
     @abstractmethod
     def from_subfolder(self, subfolder):
@@ -40,8 +67,11 @@ class FileSystemProvider(object, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def get(self, filepath):
-        """ Get the content of a file. Raises NotFoundException if the file does not exists or cannot be retrieved """
+    def get(self, filepath, timestamp:datetime=None):
+        """ Get the content of a file. Raises NotFoundException if the file does not exists or cannot be retrieved.
+            If timestamp is not None, it gives an indication to the cache that the file must have been retrieved from the (possibly distant) 
+            filesystem since the timestamp.
+        """
         pass
 
     @abstractmethod
@@ -50,8 +80,8 @@ class FileSystemProvider(object, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def delete(self, filepath=None, recursive=True):
-        """ Delete a path. If filepath is None, then the prefix will be deleted. """
+    def delete(self, filepath=None):
+        """ Delete a path recursively. If filepath is None, then the prefix will be deleted. """
         pass
 
     @abstractmethod
@@ -61,7 +91,7 @@ class FileSystemProvider(object, metaclass=ABCMeta):
 
     @abstractmethod
     def move(self, src, dest):
-        """ Move path src to path dest, recursively """
+        """ Move path src to path dest, recursively. Dest must not exist """
         pass
 
     @abstractmethod

@@ -18,12 +18,12 @@ import msgpack
 import zmq
 from zmq.asyncio import Poller
 
-from inginious.common.filesystems.provider import FileSystemProvider
 from inginious.common.base import id_checker
 from inginious.agent._docker_interface import DockerInterface
 from inginious.agent._killer_watchers import TimeoutWatcher
 from inginious.agent._pipeline import PipelinePush, PipelinePull
 from inginious.common.asyncio_utils import AsyncIteratorWrapper
+from inginious.common.filesystems.provider import FileSystemProvider
 from inginious.common.message_meta import ZMQUtils
 from inginious.common.messages import BackendNewJob, AgentJobStarted, BackendKillJob, AgentHello, BackendJobId, AgentJobDone, \
     KWPRegisterContainer, KWPKilledStatus, SPResult, EventContainerDied, EventContainerOOM, AgentJobSSHDebug, Ping, Pong

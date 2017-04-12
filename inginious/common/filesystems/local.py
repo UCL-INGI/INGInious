@@ -8,15 +8,32 @@ from inginious.common.filesystems.provider import FileSystemProvider, NotFoundEx
 
 
 class LocalFSProvider(FileSystemProvider):
+    @classmethod
+    def get_needed_args(cls):
+        """ Returns a list of arguments needed to create a FileSystemProvider. In the form 
+            {
+                "arg1": (int, False, "description1"),
+                "arg2: (str, True, "description2")
+            }
+
+            The first part of the tuple is the type, the second indicates if the arg is mandatory
+            Only int and str are supported as types.
+        """
+        return {
+            "location": (str, True, "On-disk path to the directory containing courses/tasks")
+        }
+
+    @classmethod
+    def init_from_args(cls, location):
+        """ Given the args from get_needed_args, creates the FileSystemProvider """
+        return LocalFSProvider(location)
+
     def __init__(self, prefix):
         super().__init__(prefix)
 
     def from_subfolder(self, subfolder):
+        self._checkpath(subfolder)
         return LocalFSProvider(self.prefix + "/" + subfolder)
-
-    def _checkpath(self, path):
-        if path.startswith("/") or ".." in path:
-            raise NotFoundException()
 
     def exists(self, path=None):
         if path is None:
@@ -39,7 +56,7 @@ class LocalFSProvider(FileSystemProvider):
             content = content.encode("utf-8")
         open(fullpath, 'wb').write(content)
 
-    def get(self, filepath):
+    def get(self, filepath, timestamp=None):
         self._checkpath(filepath)
         return open(os.path.join(self.prefix, filepath), 'rb').read()
 
@@ -65,7 +82,7 @@ class LocalFSProvider(FileSystemProvider):
         isdir = lambda x: '/' if os.path.isdir(os.path.join(self.prefix, x)) else ''
         return [f+isdir(f) for f in output]
 
-    def delete(self, filepath=None, recursive=False):
+    def delete(self, filepath=None):
         if filepath is None:
             filepath = self.prefix
         else:
@@ -108,20 +125,14 @@ class LocalFSProvider(FileSystemProvider):
             src = os.path.join(self.prefix, src)
         self._recursive_overwrite(src, dest_disk)
 
-    def _recursive_overwrite(self, src, dest, ignore=None):
+    def _recursive_overwrite(self, src, dest):
         if os.path.isdir(src):
             if not os.path.isdir(dest):
                 os.makedirs(dest)
             files = os.listdir(src)
-            if ignore is not None:
-                ignored = ignore(src, files)
-            else:
-                ignored = set()
             for f in files:
-                if f not in ignored:
-                    self._recursive_overwrite(os.path.join(src, f),
-                                              os.path.join(dest, f),
-                                              ignore)
+                self._recursive_overwrite(os.path.join(src, f),
+                                          os.path.join(dest, f))
         else:
             shutil.copyfile(src, dest)
 

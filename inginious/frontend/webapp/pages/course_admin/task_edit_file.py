@@ -97,7 +97,7 @@ class CourseTaskFiles(INGIniousAdminPage):
             # Then, the dirs
             for name, sub in iteritems:
                 if sub is not None:
-                    recur_print.flattened.append((level, True, name, current_name+"/"+name))
+                    recur_print.flattened.append((level, True, name, current_name+"/"+name+"/"))
                     recur_print(sub, level + 1, current_name + "/" + name)
         recur_print.flattened = []
         recur_print(tmp_out, 0, '')
@@ -232,7 +232,7 @@ class CourseTaskFiles(INGIniousAdminPage):
             return self.show_tab_file(courseid, taskid, "Internal error")
 
         try:
-            self.task_factory.get_task_fs(courseid, taskid).delete(wanted_path, True)
+            self.task_factory.get_task_fs(courseid, taskid).delete(wanted_path)
             return self.show_tab_file(courseid, taskid)
         except:
             return self.show_tab_file(courseid, taskid, "An error occurred while deleting the files")
