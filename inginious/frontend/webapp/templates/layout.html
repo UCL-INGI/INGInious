@@ -16,7 +16,7 @@ $#
 <link rel="icon" href="$get_homepath(True)/static/common/icons/favicon.ico">
 <link rel="mask-icon" href="$get_homepath(True)/static/common/icons/wb.svg" color="#5E932E">
 
-<title>INGInious - $content.title</title>
+<title>$content.title | INGInious</title>
 
 <!-- Bootstrap -->
 <link href="$get_homepath(True)/static/common/css/bootstrap.min.css" rel="stylesheet">
@@ -102,8 +102,6 @@ $:template_helper.call('header_hook')
                                     <i class="fa fa-user fa-fw"></i> $user_manager.session_realname() <span class="caret"></span>
                                 </a>
                                 <ul class="dropdown-menu">
-
-
                                     <li><a href="$get_homepath()/index" class="navbar-link"><i class="fa fa-list fa-fw"></i> Course list</a></li>
                                     <li><a href="$get_homepath()/profile" class="navbar-link"><i class="fa fa-gears fa-fw"></i> Preferences</a></li>
                                     <li role="separator" class="divider"></li>
@@ -113,6 +111,12 @@ $:template_helper.call('header_hook')
                                 </ul>
                             </li>
                         </ol>
+                    $else:
+                        <ol class="nav navbar-nav navbar-right">
+                            <li><a href="$get_homepath()/register" class="navbar-link"><i class="fa fa-pencil fa-fw"></i> Register</a></li>
+                            <li><a href="$get_homepath()/index" class="navbar-link"><i class="fa fa-sign-in fa-fw"></i> Log in</a></li>
+                        </ol>
+
                 </div>
             </div>
         </div>

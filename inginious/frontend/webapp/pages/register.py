@@ -16,9 +16,6 @@ from inginious.frontend.webapp.user_manager import AuthMethod
 from inginious.frontend.webapp.pages.utils import INGIniousPage, INGIniousAuthPage
 from pymongo.collection import ReturnDocument
 
-allow_deletion = True
-
-
 class DatabaseAuthMethod(AuthMethod):
     """
     MongoDB Database auth method
@@ -35,7 +32,7 @@ class DatabaseAuthMethod(AuthMethod):
         username = login_data["login"].strip()
         password_hash = hashlib.sha512(login_data["password"].encode("utf-8")).hexdigest()
 
-        user = self._database.users.find_one({"_id": username, "password": password_hash, "activate": {"$exists": False}})
+        user = self._database.users.find_one({"username": username, "password": password_hash, "activate": {"$exists": False}})
 
         if user is not None:
             callback((username, user["realname"], user["email"]))
@@ -48,10 +45,10 @@ class DatabaseAuthMethod(AuthMethod):
             "input": OrderedDict((
                 ("login", {"type": "text", "placeholder": "Login"}),
                 ("password", {"type": "password", "placeholder": "Password"}))),
-            "info": '<div class="text-center"><a href="' + web.ctx.home +
-                    '/register">Register</a> / <a href="' + web.ctx.home +
-                    '/register#lostpasswd">Lost password?</a></div>'
+            "info": '<small><a href="' + web.ctx.home +
+                    '/register#lostpasswd">Lost password?</a></small>'
         }
+
 
 class RegistrationPage(INGIniousPage):
     """ Registration page for DB authentication """
@@ -71,7 +68,7 @@ class RegistrationPage(INGIniousPage):
         elif "reset" in data:
             msg, error, reset = self.get_reset_data(data)
 
-        return self.template_helper.get_custom_renderer('frontend/webapp/plugins/auth/db_auth').register(reset, msg, error)
+        return self.template_helper.get_renderer().register(reset, msg, error)
 
     def get_reset_data(self, data):
         """ Returns the user info to reset """
@@ -83,7 +80,7 @@ class RegistrationPage(INGIniousPage):
             error = True
             msg = "Invalid reset hash."
         else:
-            reset = {"hash": data["reset"], "_id": user["_id"], "realname": user["realname"]}
+            reset = {"hash": data["reset"], "username": user["username"], "realname": user["realname"]}
 
         return msg, error, reset
 
@@ -134,7 +131,7 @@ class RegistrationPage(INGIniousPage):
             else:
                 passwd_hash = hashlib.sha512(data["passwd"].encode("utf-8")).hexdigest()
                 activate_hash = hashlib.sha512(str(random.getrandbits(256)).encode("utf-8")).hexdigest()
-                self.database.users.insert({"_id": data["username"],
+                self.database.users.insert({"username": data["username"],
                                             "realname": data["realname"],
                                             "email": data["email"],
                                             "password": passwd_hash,
@@ -227,15 +224,4 @@ Someone (probably you) asked to reset your INGInious password. If this was you, 
         elif "resetpasswd" in data:
             msg, error = self.reset_passwd(data)
 
-        return self.template_helper.get_custom_renderer('frontend/webapp/plugins/auth/db_auth').register(reset, msg, error)
-
-
-def init(plugin_manager, _, _2, conf):
-    """
-        Allow authentication from database
-    """
-    global allow_deletion
-
-    allow_deletion = conf.get("allow_deletion", False)
-    plugin_manager.register_auth_method(DatabaseAuthMethod(conf.get('name', 'WebApp'), plugin_manager.get_database()))
-    plugin_manager.add_page('/register', RegistrationPage)
+        return self.template_helper.get_renderer().register(reset, msg, error)

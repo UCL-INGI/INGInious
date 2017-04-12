@@ -219,7 +219,7 @@ class UserManager(AbstractUserManager):
         :param failure:
         :return:
         """
-        self._database.users.update_one({"_id": data[0]}, {"$set": {"realname": data[1], "email": data[2]}}, upsert=True)
+        self._database.users.update_one({"username": data[0]}, {"$set": {"realname": data[1], "email": data[2]}}, upsert=True)
         self._logger.info("User %s connected - %s - %s - %s", data[0], data[1], data[2], ip_addr)
         self._set_session(data[0], data[1], data[2])
 
@@ -240,9 +240,9 @@ class UserManager(AbstractUserManager):
         retval = {username: None for username in usernames}
         remaining_users = usernames
 
-        infos = self._database.users.find({"_id": {"$in": remaining_users}})
+        infos = self._database.users.find({"username": {"$in": remaining_users}})
         for info in infos:
-            retval[info["_id"]] = (info["realname"], info["email"])
+            retval[info["username"]] = (info["realname"], info["email"])
 
         return retval
 

@@ -5,7 +5,7 @@ $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
-$var title: Connexion
+$var title: Welcome
 
 $# Start content
     <div class="row">
@@ -49,7 +49,7 @@ $# Start content
                                     $else:
                                         $ type="text"
                                     <div class="form-group">
-                                        <label>$data["placeholder"]</label> <input type="$type" class="form-control" name="$name" placeholder="$data['placeholder']">
+                                        <label>$:data["placeholder"]</label> <input type="$type" class="form-control" name="$name" placeholder="$data['placeholder']">
                                     </div>
 
                                 $if fields["info"]:

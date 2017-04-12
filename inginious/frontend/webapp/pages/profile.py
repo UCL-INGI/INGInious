@@ -62,7 +62,7 @@ class ProfilePage(INGIniousAuthPage):
         username = self.user_manager.session_username()
 
         # Check input format
-        result = self.database.users.find_one_and_delete({"_id": username,
+        result = self.database.users.find_one_and_delete({"username": username,
                                                           "email": data.get("delete_email", "")})
         if not result:
             error = True
@@ -84,7 +84,7 @@ class ProfilePage(INGIniousAuthPage):
 
     def GET_AUTH(self):  # pylint: disable=arguments-differ
         """ GET request """
-        userdata = self.database.users.find_one({"_id": self.user_manager.session_username()})
+        userdata = self.database.users.find_one({"username": self.user_manager.session_username()})
 
         if not userdata:
             raise web.notfound()
