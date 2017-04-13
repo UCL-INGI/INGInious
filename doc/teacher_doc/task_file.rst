@@ -169,7 +169,7 @@ Advanced code problems are available:
     boxes:
         boxId1:
             type: text
-            content: Some additionnal text
+            content: Some additional text
         boxId2:
             type: input-text
             maxChars: 10

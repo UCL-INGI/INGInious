@@ -18,6 +18,7 @@ import msgpack
 import zmq
 from zmq.asyncio import Poller
 
+from inginious.common.base import id_checker
 from inginious.agent._docker_interface import DockerInterface
 from inginious.agent._killer_watchers import TimeoutWatcher
 from inginious.agent._pipeline import PipelinePush, PipelinePull
@@ -463,7 +464,7 @@ class DockerAgent(object):
         try:
             read_stream, write_stream = await asyncio.open_connection(sock=sock.get_socket())
         except:
-            self._logger.exception("Exception occured while creating read/write stream to container")
+            self._logger.exception("Exception occurred while creating read/write stream to container")
             return None
 
         # Send hello msg
@@ -644,6 +645,21 @@ class DockerAgent(object):
                 # Get logs back
                 try:
                     return_value = await future_results
+
+                    # Accepted types for return dict
+                    accepted_types = {"stdout": str, "stderr": str, "result": str, "text": str, "grade": float,
+                                      "problems": dict, "custom": dict, "tests": dict, "archive": str}
+
+                    # Check dict content
+                    for key, item in return_value.items():
+                        if not isinstance(item, accepted_types[key]):
+                            raise Exception("Feedback file is badly formatted.")
+                        elif accepted_types[key] == dict:
+                            for sub_key, sub_item in item.items():
+                                if not id_checker(sub_key) or isinstance(sub_item, dict):
+                                    raise Exception("Feedback file is badly formatted.")
+
+                    # Set output fields
                     stdout = return_value.get("stdout", "")
                     stderr = return_value.get("stderr", "")
                     result = return_value.get("result", "error")
@@ -656,9 +672,9 @@ class DockerAgent(object):
                     if archive is not None:
                         archive = base64.b64decode(archive)
                 except Exception as e:
-                    self._logger.exception("Cannot get back stdout of container %s! (%s)", container_id, str(e))
+                    self._logger.exception("Cannot get back output of container %s! (%s)", container_id, str(e))
                     result = "crash"
-                    error_msg = 'The grader did not return a readable output'
+                    error_msg = 'The grader did not return a readable output : {}'.format(str(e))
 
             # Default values
             if error_msg is None:

@@ -2,7 +2,7 @@
 #
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
-from typing import Dict, Optional, Any, Union, Tuple
+from typing import Dict, Optional, Any, Union, Tuple, List
 
 from inginious.common.message_meta import MessageMeta
 
@@ -104,6 +104,13 @@ class ClientKillJob(metaclass=MessageMeta, msgtype="client_kill_job"):
         self.job_id = job_id
 
 
+class ClientGetQueue(metaclass=MessageMeta, msgtype="client_get_queue"):
+    """
+       Ask the backend to send the status of its job queue
+    """
+
+    def __init__(self): pass
+
 #################################################################
 #                                                               #
 #                      Backend to Client                        #
@@ -163,7 +170,7 @@ class BackendBatchJobDone(metaclass=MessageMeta, msgtype="backend_batch_job_done
             1-255 if the container crashed (it is the return value of the main command of the batch job)
         :param stdout: stdout of the job
         :param stderr: stderr of the job
-        :param file: tgz file (as a bytestring) of the content of the batch job container after completion, or None if an error occured
+        :param file: tgz file (as a bytestring) of the content of the batch job container after completion, or None if an error occurred
         """
         self.job_id = job_id
         self.retval = retval
@@ -238,6 +245,36 @@ class BackendJobSSHDebug(metaclass=MessageMeta, msgtype="backend_job_ssh_debug")
         self.port = port
         self.password = password
 
+class BackendGetQueue(metaclass=MessageMeta, msgtype="backend_get_queue"):
+    """
+        Send the status of the job queue to the client
+    """
+    def __init__(self, jobs_running: List[Tuple[ClientJobId, bool, str, bool, str, str, int, int]],
+                       jobs_waiting: List[Tuple[ClientJobId, bool, bool, str, str, int]]):
+        """
+        :param jobs_running: a list of tuples in the form
+            (job_id, is_current_client_job, is_batch, info, launcher, started_at, max_end)
+            where
+            - job_id is a job id. It may be from another client.
+            - is_current_client_job is a boolean indicating if the client that asked the request has started the job
+            - agent_name is the agent name
+            - is_batch is True if the job is a batch job, false else
+            - info is either the batch container name if is_batch is True, or "courseid/taskid"
+            - launcher is the name of the launcher, which may be anything
+            - started_at the time (in seconds since UNIX epoch) at which the job started
+            - max_end the time at which the job will timeout (in seconds since UNIX epoch), or -1 if no timeout is set
+        :param jobs_waiting: a list of tuples in the form
+            (job_id, is_current_client_job, is_batch, info, launcher, max_time)
+            where
+            - job_id is a job id. It may be from another client.
+            - is_current_client_job is a boolean indicating if the client that asked the request has started the job
+            - is_batch is True if the job is a batch job, false else
+            - info is either the batch container name if is_batch is True, or "courseid/taskid"
+            - launcher is the name of the launcher, which may be anything
+            - max_time the maximum time that can be used, or -1 if no timeout is set
+        """
+        self.jobs_running = jobs_running
+        self.jobs_waiting = jobs_waiting
 
 #################################################################
 #                                                               #
@@ -389,7 +426,7 @@ class AgentBatchJobDone(metaclass=MessageMeta, msgtype="agent_batch_job_done"):
             1-255 if the container crashed (it is the return value of the main command of the batch job)
         :param stdout: stdout of the job
         :param stderr: stderr of the job
-        :param file: tgz file (as a bytestring) of the content of the batch job container after completion, or None if an error occured
+        :param file: tgz file (as a bytestring) of the content of the batch job container after completion, or None if an error occurred
         """
         self.job_id = job_id
         self.retval = retval

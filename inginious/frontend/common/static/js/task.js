@@ -27,7 +27,7 @@ function init_task_page(evaluate)
         loadOldSubmissionInput(task_form.attr("data-wait-submission"), false);
         blurTaskForm();
         resetAlerts();
-        displayTaskLoadingAlert();
+        displayTaskLoadingAlert(null, null);
         waitForSubmission(task_form.attr("data-wait-submission"));
     }
 
@@ -271,7 +271,7 @@ function taskFormValid()
     {
         var filename = $(this).val().split(/(\\|\/)/g).pop();
 
-        //file input fields cannot be optionnal
+        //file input fields cannot be optional
         if(filename == "")
         {
             answered_to_all = false;
@@ -345,7 +345,7 @@ function submitTask(with_ssh)
                       {
                           if("status" in data && data["status"] == "ok" && "submissionid" in data)
                           {
-                              displayTaskLoadingAlert(data['submissionid']);
+                              displayTaskLoadingAlert(null, data["submissionid"]);
                               incrementTries();
                               displayNewSubmission(data['submissionid']);
                               waitForSubmission(data['submissionid']);
@@ -379,8 +379,11 @@ function submitTask(with_ssh)
 
     blurTaskForm();
     resetAlerts();
-    displayTaskLoadingAlert(null);
+    displayTaskLoadingAlert(null, null);
     updateTaskStatus("Waiting for verification", 0);
+    $('html, body').animate({
+        scrollTop: $('#task_alert').offset().top - 100
+    }, 200);
 }
 
 //Wait for a job to end
@@ -397,6 +400,8 @@ function waitForSubmission(submissionid)
                     waitForSubmission(submissionid);
                     if("ssh_host" in data && "ssh_port" in data && "ssh_password" in data)
                         displayRemoteDebug(submissionid, data["ssh_host"], data["ssh_port"], data["ssh_password"])
+                    else
+                        displayTaskLoadingAlert(data, submissionid);
                 }
                 else if("status" in data && "result" in data && "grade" in data)
                 {
@@ -518,13 +523,27 @@ function getLoadingAlertCode(content, submissionid)
 }
 
 //Displays a loading alert in task form
-function displayTaskLoadingAlert(submissionid)
+function displayTaskLoadingAlert(submission_wait_data, submissionid)
 {
     var task_alert = $('#task_alert');
-    task_alert.html(getLoadingAlertCode("<b>Verifying your answers...</b>", submissionid));
-    $('html, body').animate({
-        scrollTop: task_alert.offset().top - 100
-    }, 200);
+    var content = '<i class="fa fa-spinner fa-pulse fa-fw" aria-hidden="true"></i> ';
+    if(submission_wait_data != null && "nb_tasks_before" in submission_wait_data && "approx_wait_time" in submission_wait_data) {
+        var nb_tasks_before = submission_wait_data["nb_tasks_before"];
+        var wait_time = Math.round(submission_wait_data["approx_wait_time"]);
+        if(nb_tasks_before == -1 && wait_time <= 0)
+            content += "<b>INGInious is currently grading your answers.<b/> (almost done)";
+        else if(nb_tasks_before == -1)
+            content += "<b>INGInious is currently grading your answers.<b/> (Approx. wait time: "+wait_time+" seconds)";
+        else if(nb_tasks_before == 0)
+            content += "<b>You are next in the waiting queue!</b>";
+        else if(nb_tasks_before == 1)
+            content += "<b>There is one task in front of you in the waiting queue.</b>";
+        else
+            content += "<b>There are " + nb_tasks_before + " tasks in front of you in the waiting queue.</b>";
+    }
+    else
+        content += "<b>Your submission has been sent...</b>";
+    task_alert.html(getLoadingAlertCode(content, submissionid));
 }
 
 //Display informations for remote debugging
@@ -616,7 +635,7 @@ function displayTimeOutAlert(content)
 function displayTaskErrorAlert(content)
 {
     displayTaskStudentAlertWithProblems(content,
-        "<b>An internal error occured. Please retry later. If the error persists, send an email to the course administrator.</b>",
+        "<b>An internal error occurred. Please retry later. If the error persists, send an email to the course administrator.</b>",
         "danger", false);
 }
 

@@ -162,7 +162,7 @@ class Installer(inginious.frontend.common.installer.Installer):
         auth_opts = self.configure_authentication()
         options.update(auth_opts)
 
-        self._display_info("You may want to add additionnal plugins to the configuration file.")
+        self._display_info("You may want to add additional plugins to the configuration file.")
 
         self._display_info("We will now add superadmin users.")
         options["superadmins"] = []

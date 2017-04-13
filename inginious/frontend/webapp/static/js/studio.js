@@ -324,10 +324,10 @@ function studio_submit()
             else if ("message" in data)
                 error += "<li>" + data["message"] + "</li>";
             else
-                error += "<li>An internal error occured</li>";
+                error += "<li>An internal error occurred</li>";
         },
         error: function () {
-            error += "<li>An internal error occuredn</li>";
+            error += "<li>An internal error occurred</li>";
         },
         async: false
     });
@@ -659,12 +659,12 @@ function studio_get_feedback(sid)
         }
         else
         {
-            $('#modal_feedback_content').text('An error occured while retrieving the submission');
+            $('#modal_feedback_content').text('An error occurred while retrieving the submission');
         }
         loadingSomething = false;
     }).fail(function()
     {
-        $('#modal_feedback_content').text('An error occured while retrieving the submission');
+        $('#modal_feedback_content').text('An error occurred while retrieving the submission');
         loadingSomething = false;
     });
 }

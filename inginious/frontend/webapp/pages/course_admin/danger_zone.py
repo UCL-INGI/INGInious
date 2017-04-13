@@ -145,7 +145,7 @@ class CourseDangerZonePage(INGIniousAdminPage):
                     self.dump_course(courseid)
                     msg = "All course data have been deleted."
                 except:
-                    msg = "An error occured while dumping course from database."
+                    msg = "An error occurred while dumping course from database."
                     error = True
         elif "restore" in data:
             if "backupdate" not in data:
@@ -157,7 +157,7 @@ class CourseDangerZonePage(INGIniousAdminPage):
                     self.restore_course(courseid, data["backupdate"])
                     msg = "Course restored to date : " + dt.strftime("%Y-%m-%d %H:%M:%S") + "."
                 except:
-                    msg = "An error occured while restoring backup."
+                    msg = "An error occurred while restoring backup."
                     error = True
         elif "deleteall" in data:
             if not data.get("courseid", "") == courseid:
@@ -168,7 +168,7 @@ class CourseDangerZonePage(INGIniousAdminPage):
                     self.delete_course(courseid)
                     web.seeother('/index')
                 except:
-                    msg = "An error occured while deleting the course data."
+                    msg = "An error occurred while deleting the course data."
                     error = True
 
 

@@ -19,7 +19,7 @@ class HookManager(object):
         try:
             return callback(*args, **kwargs)
         except Exception as e:
-            self._logger.exception("An exception occured while calling a hook! ",exc_info=True)
+            self._logger.exception("An exception occurred while calling a hook! ",exc_info=True)
             return None
 
     def add_hook(self, name, callback):

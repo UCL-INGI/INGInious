@@ -7,9 +7,11 @@ import logging
 import uuid
 from abc import abstractmethod, ABCMeta
 
+import time
+
 from inginious.client._zeromq_client import BetterParanoidPirateClient
 from inginious.common.messages import ClientHello, BackendUpdateContainers, BackendBatchJobDone, BackendBatchJobStarted, BackendJobStarted, \
-    BackendJobDone, BackendJobSSHDebug, ClientNewBatchJob, ClientNewJob, ClientKillJob
+    BackendJobDone, BackendJobSSHDebug, ClientNewBatchJob, ClientNewJob, ClientKillJob, ClientGetQueue, BackendGetQueue
 
 
 def _callable_once(func):
@@ -67,16 +69,6 @@ class AbstractClient(object, metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def get_waiting_jobs_count(self):
-        """Returns the total number of waiting jobs in the Client. This count is not real-time, and can be based on a local cache. """
-        pass
-
-    @abstractmethod
-    def get_waiting_batch_jobs_count(self):
-        """Returns the total number of waiting jobs in the Client. This count is not real-time, and can be based on a local cache. """
-        pass
-
-    @abstractmethod
     def new_job(self, task, inputdata, callback, launcher_name="Unknown", debug=False, ssh_callback=None):
         """ Add a new job. Every callback will be called once and only once.
 
@@ -119,15 +111,59 @@ class AbstractClient(object, metaclass=ABCMeta):
         """
         pass
 
+    @abstractmethod
+    def get_job_queue_snapshot(self):
+        """ Get a snapshot of the remote backend job queue. May be a cached version.
+            May not contain recent jobs. May return None if no snapshot is available
+
+        Return a tuple of two lists (or None, None):
+        jobs_running: a list of tuples in the form
+            (job_id, is_current_client_job, is_batch, info, launcher, started_at, max_end)
+            where
+            - job_id is a job id. It may be from another client.
+            - is_current_client_job is a boolean indicating if the client that asked the request has started the job
+            - agent_name is the agent name
+            - is_batch is True if the job is a batch job, false else
+            - info is either the batch container name if is_batch is True, or "courseid/taskid"
+            - launcher is the name of the launcher, which may be anything
+            - started_at the time (in seconds since UNIX epoch) at which the job started
+            - max_end the time at which the job will timeout (in seconds since UNIX epoch), or -1 if no timeout is set
+        jobs_waiting: a list of tuples in the form
+            (job_id, is_current_client_job, is_batch, info, launcher, max_time)
+            where
+            - job_id is a job id. It may be from another client.
+            - is_current_client_job is a boolean indicating if the client that asked the request has started the job
+            - is_batch is True if the job is a batch job, false else
+            - info is either the batch container name if is_batch is True, or "courseid/taskid"
+            - launcher is the name of the launcher, which may be anything
+            - max_time the maximum time that can be used, or -1 if no timeout is set
+        """
+        pass
+
+    @abstractmethod
+    def get_job_queue_info(self, jobid):
+        """
+        :param jobid: the jobid of a *task*.
+        :return: If the submission is in the queue, then returns a tuple (nb tasks before running (or -1 if running), approx wait time in seconds)
+                 Else, returns None
+        """
+        pass
 
 class Client(BetterParanoidPirateClient):
-    def __init__(self, context, backend_addr):
+    def __init__(self, context, backend_addr, queue_update = 10):
+        """
+        Init a new RRR.
+        :param context: 0MQ context
+        :param backend_addr: 0MQ address of the backend
+        :param queue_update: interval in seconds between two updates of the distant queue. Set to something <= 0 to disable updates.
+        """
         super().__init__(context, backend_addr)
         self._logger = logging.getLogger("inginious.client")
         self._available_containers = []
         self._available_batch_containers = []
 
         self._register_handler(BackendUpdateContainers, self._handle_update_containers)
+        self._register_handler(BackendGetQueue, self._handle_job_queue_update)
         self._register_transaction(ClientNewBatchJob, BackendBatchJobDone, self._handle_batch_job_done, self._handle_batch_job_abort,
                                    lambda x: x.job_id, [
                                        (BackendBatchJobStarted, self._handle_batch_job_started)
@@ -137,6 +173,63 @@ class Client(BetterParanoidPirateClient):
                                        (BackendJobStarted, self._handle_job_started),
                                        (BackendJobSSHDebug, self._handle_job_ssh_debug)
                                    ])
+
+        self._queue_update_timer = queue_update
+        self._queue_update_last_attempt = 0              # nb of time we waited _queue_update_timer seconds for a reply
+        self._queue_update_last_attempt_max = 3
+        self._queue_cache = None
+        self._queue_job_cache = {} #format is job_id: (nb_tasks_before (can be -1 == running), approx_wait_time_in_seconds)
+
+    async def _ask_queue_update(self):
+        """ Send a ClientGetQueue message to the backend, if one is not already sent """
+        try:
+            while True:
+                await asyncio.sleep(self._queue_update_timer)
+                if self._queue_update_last_attempt == 0 or self._queue_update_last_attempt > self._queue_update_last_attempt_max:
+                    if self._queue_update_last_attempt:
+                        self._logger.error("Asking for a job queue update despite previous update not yet received")
+                    else:
+                        self._logger.debug("Asking for a job queue update")
+
+                    self._queue_update_last_attempt = 1
+                    await self._simple_send(ClientGetQueue())
+                else:
+                    self._logger.error("Not asking for a job queue update as previous update not yet received")
+        except asyncio.CancelledError:
+            return
+        except KeyboardInterrupt:
+            return
+
+    async def _handle_job_queue_update(self, message: BackendGetQueue):
+        """ Handles a BackendGetQueue containing a snapshot of the job queue """
+        self._logger.debug("Received job queue update")
+        self._queue_update_last_attempt = 0
+        self._queue_cache = message
+
+        # Do some precomputation
+        new_job_queue_cache = {}
+        # format is job_id: (nb_jobs_before, max_remaining_time)
+        for (job_id, is_local, _, is_batch, _2, _3, _4, max_end) in message.jobs_running:
+            if is_local and not is_batch:
+                new_job_queue_cache[job_id] = (-1, max_end - time.time())
+        wait_time = 0
+        nb_tasks = 0
+        for (job_id, is_local, is_batch, _, _2, timeout) in message.jobs_waiting:
+            if timeout > 0:
+                wait_time += timeout
+            if is_local and not is_batch:
+                new_job_queue_cache[job_id] = (nb_tasks, wait_time)
+            nb_tasks += 1
+
+        self._queue_job_cache = new_job_queue_cache
+
+    def get_job_queue_snapshot(self):
+        if self._queue_cache is not None:
+            return self._queue_cache.jobs_running, self._queue_cache.jobs_waiting
+        return None, None
+
+    def get_job_queue_info(self, jobid):
+        return self._queue_job_cache.get(jobid)
 
     async def _handle_update_containers(self, message: BackendUpdateContainers):
         self._available_batch_containers = message.available_batch_containers
@@ -169,7 +262,7 @@ class Client(BetterParanoidPirateClient):
             # NB: original ssh_callback was wrapped with _callable_once
             await self._loop.run_in_executor(None, lambda: ssh_callback(None, None, None))
         except:
-            self._logger.exception("Error occured while calling ssh_callback for job %s", job_id)
+            self._logger.exception("Error occurred while calling ssh_callback for job %s", job_id)
 
         # Call the callback
         try:
@@ -181,7 +274,7 @@ class Client(BetterParanoidPirateClient):
         try:
             await self._loop.run_in_executor(None, lambda: ssh_callback(message.host, message.port, message.password))
         except:
-            self._logger.exception("Error occured while calling ssh_callback for job %s", message.job_id)
+            self._logger.exception("Error occurred while calling ssh_callback for job %s", message.job_id)
 
     async def _handle_batch_job_abort(self, job_id: str, callback):
         await self._handle_batch_job_done(BackendBatchJobDone(job_id, -1, "Backend unavailable, retry later", "", None), callback)
@@ -197,6 +290,7 @@ class Client(BetterParanoidPirateClient):
         self._available_containers = []
         self._available_batch_containers = []
         await self._simple_send(ClientHello("me"))
+        self._restartable_tasks.append(self._loop.create_task(self._ask_queue_update()))
         self._logger.info("Connecting to backend")
 
     def start(self):
@@ -235,16 +329,6 @@ class Client(BetterParanoidPirateClient):
         Return the list of available containers for grading
         """
         return self._available_containers
-
-    def get_waiting_jobs_count(self):
-        """Returns the total number of waiting jobs in the Client. This count is not real-time, and can be based on a local cache. """
-        # TODO
-        return 0
-
-    def get_waiting_batch_jobs_count(self):
-        """Returns the total number of waiting jobs in the Client. This count is not real-time, and can be based on a local cache. """
-        # TODO
-        return 0
 
     def new_job(self, task, inputdata, callback, launcher_name="Unknown", debug=False, ssh_callback=None):
         """ Add a new job. Every callback will be called once and only once.

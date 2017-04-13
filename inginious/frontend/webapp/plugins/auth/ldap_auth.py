@@ -43,33 +43,43 @@ class LdapAuthMethod(AuthMethod):
         return self._name
 
     def auth(self, login_data):
+        # Get configuration
+        login = login_data["login"].strip().lower()
+        password = login_data["password"]
+
+        # do not send empty password to the LDAP
+        if password.rstrip() == "":
+            return None
+
         try:
-            # Get configuration
-            login = login_data["login"].strip().lower()
-            password = login_data["password"]
-
-            # do not send empty password to the LDAP
-            if password.rstrip() == "":
-                return None
-
             # Connect to the ldap
-            self._logger.debug('Connecting to ' + self._host + ", port" + str(self._port) )
+            self._logger.debug('Connecting to ' + self._host + ", port " + str(self._port) )
             conn = simpleldap.Connection(self._host, port=self._port, encryption=self._encryption,
                                          require_cert=self._require_cert, search_defaults={"base_dn": self._base_dn})
-            self._logger.info('Connected to ' + self._host + ", port" + str(self._port) )
+            self._logger.debug('Connected to ' + self._host + ", port " + str(self._port) )
+        except Exception as e:
+            self._logger.debug("Can't initialze connection to " + self._host + ': ' + str(e))
+            return None
+
+        try:
             request = self._request.format(login)
             user_data = conn.get(request)
-            if conn.authenticate(user_data.dn, password):
+        except Exception as _:
+            self._logger.exception("Can't get user data")
+            return None
+
+        if conn.authenticate(user_data.dn, password):
+            try:
                 email = user_data[self._mail][0].decode('utf8')
                 username = self._prefix + login
                 realname = user_data[self._cn][0].decode('utf8')
-
                 return (username, realname, email)
-            else:
-                self._logger.debug('Auth Failed')
-                return None
-        except Exception as e:
-            self._logger.debug('Auth Exception:' + str(e))
+            except KeyError as e:
+                self._logger.error("Can't get field " + str(e) + " from your LDAP server")
+            except Exception as e:
+                self._logger.exception("Can't get some user fields")
+        else:
+            self._logger.debug('Auth Failed')
             return None
 
     def needed_fields(self):
@@ -89,9 +99,12 @@ class LdapAuthMethod(AuthMethod):
 
         # Connect to the ldap
         try:
+            self._logger.debug('Connecting to ' + self._host + ", port " + str(self._port) )
             conn = simpleldap.Connection(self._host, port=self._port, encryption=self._encryption,
                                          require_cert=self._require_cert, search_defaults={"base_dn": self._base_dn})
-        except:
+            self._logger.debug('Connected to ' + self._host + ", port " + str(self._port) )
+        except Exception as _:
+            self._logger.exception("Can't initialze connection to " + self._host + ':')
             return retval
 
         # Search for users
@@ -101,12 +114,20 @@ class LdapAuthMethod(AuthMethod):
                     login = username[len(self._prefix):]
                     request = self._request.format(login)
                     user_data = conn.get(request)
-                    email = user_data["mail"][0].decode('utf8')
-                    realname = user_data["cn"][0].decode('utf8')
+                except Exception as e:
+                    # this may be an expected behaviour
+                    continue
 
+                try:
+                    email = user_data[self._mail][0].decode('utf8')
+                    realname = user_data[self._cn][0].decode('utf8')
                     retval[username] = (realname, email)
-                except:
-                    pass
+                except KeyError as e:
+                    self._logger.error("Can't get field " + str(e) + " from your LDAP server")
+                    continue
+                except Exception as _:
+                    self._logger.exception("Can't get some user fields")
+                    continue
 
         return retval
 
