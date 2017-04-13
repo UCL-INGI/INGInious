@@ -4,7 +4,6 @@
 # more information about the licensing of this file.
 
 """ Factory for loading courses from disk """
-from inginious.common.filesystems.local import LocalFSProvider
 from inginious.common.filesystems.provider import FileSystemProvider
 from inginious.common.log import get_course_logger
 from inginious.common.courses import Course
@@ -55,7 +54,7 @@ class CourseFactory(object):
         :return: the content of the dict that describes the course
         """
         path = self._get_course_descriptor_path(courseid)
-        return loads_json_or_yaml(path, self._filesystem.get(path))
+        return loads_json_or_yaml(path, self._filesystem.get(path).decode("utf-8"))
 
     def update_course_descriptor_content(self, courseid, content):
         """
@@ -167,7 +166,7 @@ class CourseFactory(object):
         """
         path_to_descriptor = self._get_course_descriptor_path(courseid)
         try:
-            course_descriptor = loads_json_or_yaml(path_to_descriptor, self._filesystem.get(path_to_descriptor))
+            course_descriptor = loads_json_or_yaml(path_to_descriptor, self._filesystem.get(path_to_descriptor).decode("utf8"))
             last_modification = self._filesystem.get_last_modification_time(path_to_descriptor)
         except Exception as e:
             raise CourseUnreadableException(str(e))
