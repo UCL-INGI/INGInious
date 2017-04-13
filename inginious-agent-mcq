@@ -8,14 +8,13 @@
 """ Starts an agent """
 
 import argparse
-import importlib
 import logging
 
 import sys
 from zmq.asyncio import ZMQEventLoop, Context
 import asyncio
 
-from inginious.common.filesystems.local import LocalFSProvider
+from inginious.common.entrypoints import get_args_and_filesystem
 from inginious.agent.mcq_agent import MCQAgent
 
 if __name__ == "__main__":
@@ -25,54 +24,8 @@ if __name__ == "__main__":
 
     parser.add_argument("-v", "--verbose", help="increase output verbosity",
                         action="store_true")
-    fs_group = parser.add_mutually_exclusive_group()
-    fs_group.add_argument("--tasks", help="Path to the task directory. "
-                                        "By default, it is ./tasks. You must ensure that this directory is synchronized at any time"
-                                        "with the backend and the client. Either this option or --fs must be indicated, but not both.",
-                        type=str, default="./tasks")
-    fs_group.add_argument("--fs", help="(advanced users only) A full Python include path to a FileSystemProvider class, to be used a the filesystem "
-                                    "provider. Using a FSProvider will add new args to be filled. Either --fs or --tasks must be filled, "
-                                    "but not both.",
-                       type=str)
-    parser.add_argument("--fs-help", help="Display help to fill arguments for --fs. Only checked if --fs is filled.", action="store_true")
 
-    # Partial parsing of the args, to get the value of --fs
-    args = parser.parse_known_args()[0]
-
-    # check fs
-    if args.fs is not None:
-        fs_include = args.fs.split(".")
-
-        try:
-            module = importlib.import_module(".".join(fs_include[:-1]))
-            fs_class = getattr(module, fs_include[-1])
-            fs_args_needed = fs_class.get_needed_args()
-        except:
-            print("Unable to load class "+args.fs, file=sys.stderr)
-            raise
-
-        fs_args_group = parser.add_argument_group("FSProvider arguments")
-        for arg_name, (arg_type, arg_required, arg_desc) in fs_args_needed.items():
-            fs_args_group.add_argument("--fs-"+arg_name, type=arg_type, help=arg_desc, required=arg_required)
-        if args.fs_help:
-            parser.parse_args(["--help"])
-        args = parser.parse_args()
-
-        returned_args = {}
-        for arg_name in fs_args_needed:
-            val = getattr(args, ("fs-" + arg_name).replace("-", "_"))
-            if val is not None:
-                returned_args[arg_name] = val
-
-        try:
-            fsprovider = fs_class.init_from_args(**returned_args)
-        except:
-            print("Unable to load class " + args.fs, file=sys.stderr)
-            raise
-    else:
-        # Verify that everything can finally be parsed
-        args = parser.parse_args()
-        fsprovider = LocalFSProvider(args.tasks)
+    (args, fsprovider) = get_args_and_filesystem(parser)
 
     # create logger
     logger = logging.getLogger("inginious")

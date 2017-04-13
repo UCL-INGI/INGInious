@@ -4,14 +4,12 @@
 # more information about the licensing of this file.
 
 """ Starts the webapp """
-import importlib
-import sys
-
 from gridfs import GridFS
 from pymongo import MongoClient
 import web
 from web.debugerror import debugerror
 
+from inginious.common.entrypoints import filesystem_from_config_dict
 from inginious.common.filesystems.local import LocalFSProvider
 from inginious.frontend.common.arch_helper import create_arch, start_asyncio_and_zmq
 from inginious.frontend.webapp.cookieless_app import CookieLessCompatibleApplication
@@ -126,7 +124,6 @@ def get_app(config):
         appli.init_mapping(urls_maintenance)
         return appli.wsgifunc(), appli.stop
 
-    task_directory = config["tasks_directory"]
     default_allowed_file_extensions = config['allowed_file_extensions']
     default_max_file_size = config['max_file_size']
 
@@ -137,31 +134,7 @@ def get_app(config):
 
     # Create the FS provider
     if "fs" in config:
-        if "module" not in config["fs"]:
-            print("Key 'module' should be defined for the filesystem provider ('fs' configuration option)", file=sys.stderr)
-            exit(1)
-        fs_include = config["fs"]["module"].split(".")
-        try:
-            module = importlib.import_module(".".join(fs_include[:-1]))
-            fs_class = getattr(module, fs_include[-1])
-            fs_args_needed = fs_class.get_needed_args()
-        except:
-            print("Unable to load class " + config["fs"]["module"], file=sys.stderr)
-            raise
-
-        fs_args = {}
-        for arg_name, (arg_type, arg_required, _) in fs_args_needed.items():
-            if arg_name in config["fs"]:
-                fs_args[arg_name] = arg_type(config["fs"][arg_name])
-            elif arg_required:
-                print("fs option {} is required".format(arg_name), file=sys.stderr)
-                exit(1)
-
-        try:
-            fs_provider = fs_class.init_from_args(**fs_args)
-        except:
-            print("Unable to load class " + config["fs"]["module"], file=sys.stderr)
-            raise
+        fs_provider = filesystem_from_config_dict(config["fs"])
     else:
         task_directory = config["tasks_directory"]
         fs_provider = LocalFSProvider(task_directory)
