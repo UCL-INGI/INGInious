@@ -62,7 +62,7 @@ class CourseAggregationListPage(INGIniousAdminPage):
                                                                  {"$set": {"default": True}})
                     msg = "Default classroom changed."
                 else:  # default, but with no classroom detected
-                    msg = "Invalid classromm selected."
+                    msg = "Invalid classroom selected."
             else:
                 msg = "You have no rights to add/change classrooms"
                 error = True
