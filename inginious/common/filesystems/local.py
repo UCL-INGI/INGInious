@@ -8,6 +8,9 @@ from inginious.common.filesystems.provider import FileSystemProvider, NotFoundEx
 
 
 class LocalFSProvider(FileSystemProvider):
+    """
+    A FileSystemProvider that uses a real on-disk filesystem
+    """
     @classmethod
     def get_needed_args(cls):
         """ Returns a list of arguments needed to create a FileSystemProvider. In the form 
@@ -126,6 +129,9 @@ class LocalFSProvider(FileSystemProvider):
         self._recursive_overwrite(src, dest_disk)
 
     def _recursive_overwrite(self, src, dest):
+        """
+        Copy src to dest, recursively and with file overwrite.
+        """
         if os.path.isdir(src):
             if not os.path.isdir(dest):
                 os.makedirs(dest)
