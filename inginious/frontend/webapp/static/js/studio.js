@@ -10,9 +10,9 @@
 function studio_create_new_task()
 {
     var task_id = $('#new_task_id');
-    if(!task_id.val().match(/^[a-zA-Z0-9\._\-]+$/))
+    if(!task_id.val().match(/^[a-zA-Z0-9_\-]+$/))
     {
-        alert('Task id should only contain alphanumeric characters (in addition to ".", "_" and "-").');
+        alert('Task id should only contain alphanumeric characters (in addition to "_" and "-").');
         return;
     }
     window.location.href = window.location.href + "/../edit/task/" + task_id.val()
@@ -367,9 +367,9 @@ function studio_create_new_subproblem()
 {
     var new_subproblem_pid = $('#new_subproblem_pid').val();
     var new_subproblem_type = $('#new_subproblem_type').val();
-    if(!new_subproblem_pid.match(/^[a-zA-Z0-9\._\-]+$/))
+    if(!new_subproblem_pid.match(/^[a-zA-Z0-9_\-]+$/))
     {
-        alert('Problem id should only contain alphanumeric characters (in addition to ".", "_" and "-").');
+        alert('Problem id should only contain alphanumeric characters (in addition to "_" and "-").');
         return;
     }
 
