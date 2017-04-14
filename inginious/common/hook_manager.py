@@ -18,7 +18,7 @@ class HookManager(object):
         """ A wrapper that remove all exceptions raised from hooks """
         try:
             return callback(*args, **kwargs)
-        except Exception as e:
+        except Exception:
             self._logger.exception("An exception occurred while calling a hook! ",exc_info=True)
             return None
 

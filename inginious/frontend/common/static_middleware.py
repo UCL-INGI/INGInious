@@ -36,8 +36,8 @@ class StaticApp(web.httpserver.StaticApp, object):
         words = [_f for _f in words if _f]
         path = self.base_path
         for word in words:
-            drive, word = os.path.splitdrive(word)
-            head, word = os.path.split(word)
+            _, word = os.path.splitdrive(word)
+            _, word = os.path.split(word)
             if word in (os.curdir, os.pardir):
                 continue
             path = os.path.join(path, word)

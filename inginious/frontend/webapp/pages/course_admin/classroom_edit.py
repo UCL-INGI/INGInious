@@ -65,7 +65,7 @@ class CourseEditClassroom(INGIniousAdminPage):
 
     def update_classroom(self, course, classroomid, new_data):
         """ Update classroom and returns a list of errored students"""
-        student_list, tutor_list, other_students, users_info = self.get_user_lists(course, classroomid)
+        student_list, tutor_list, other_students, _ = self.get_user_lists(course, classroomid)
 
         # Check tutors
         new_data["tutors"] = [tutor for tutor in map(str.strip, new_data["tutors"]) if tutor in tutor_list]

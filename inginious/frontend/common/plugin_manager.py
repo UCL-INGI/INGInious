@@ -23,6 +23,7 @@ class PluginManager(HookManager):
         self._task_factory = None
         self._database = None
         self._user_manager = None
+        self._submission_manager = None
 
     def load(self, client, webpy_app, course_factory, task_factory, database, user_manager, submission_manager, config):
         """ Loads the plugin manager. Must be done after the initialisation of the client """

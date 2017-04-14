@@ -247,8 +247,7 @@ class Backend(object):
         self._logger.info("Agent %s (%s) said hello", agent_addr, message.friendly_name)
 
         self._registered_agents[agent_addr] = message.friendly_name
-        for i in range(0, message.available_job_slots):
-            self._available_agents.append(agent_addr)
+        self._available_agents.extend([agent_addr for _ in range(0, message.available_job_slots)])
 
         self._batch_containers_on_agent[agent_addr] = message.available_batch_containers.keys()
         self._containers_on_agent[agent_addr] = message.available_containers.keys()

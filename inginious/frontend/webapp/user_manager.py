@@ -422,7 +422,7 @@ class UserManager(AbstractUserManager):
         if username is None:
             username = self.session_username()
 
-        return (self.course_is_open_to_user(task.get_course(), username) and task._accessible.after_start()) or \
+        return (self.course_is_open_to_user(task.get_course(), username) and task.get_accessible_time().after_start()) or \
                self.has_staff_rights_on_course(task.get_course(), username)
 
     def task_can_user_submit(self, task, username=None, only_check=None):
@@ -435,7 +435,7 @@ class UserManager(AbstractUserManager):
         # Check if course access is ok
         course_registered = self.course_is_open_to_user(task.get_course(), username)
         # Check if task accessible to user
-        task_accessible = task._accessible.is_open()
+        task_accessible = task.get_accessible_time().is_open()
         # User has staff rights ?
         staff_right = self.has_staff_rights_on_course(task.get_course(), username)
 
@@ -518,7 +518,7 @@ class UserManager(AbstractUserManager):
         if not force:
             if not course.is_registration_possible(username, realname, email):
                 return False
-            if course.is_password_needed_for_registration() and course._registration_password != password:
+            if course.is_password_needed_for_registration() and course.get_registration_password() != password:
                 return False
         if self.course_is_open_to_user(course, username):
             return False  # already registered?

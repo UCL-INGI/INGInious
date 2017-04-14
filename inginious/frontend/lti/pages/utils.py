@@ -231,12 +231,12 @@ class LTILaunchPage(LTIPage, metaclass=abc.ABCMeta):
                                      courseid in consumer.get("courses", courseid)])
         try:
             verified = verify_request_common(authorized_consumers, web.ctx.home + web.ctx.fullpath, "POST", {}, post_input)
-        except Exception as e:
-            self.logger.info('Can not authenticate request for ' + str(post_input))
+        except Exception:
+            self.logger.info('Can not authenticate request for %s', str(post_input))
             raise Exception("Cannot authentify request (1)")
 
         if verified:
-            self.logger.debug('parse_lit_data for ' + str(post_input))
+            self.logger.debug('parse_lit_data for %s', str(post_input))
             user_id = post_input["user_id"]
             if 'ext_user_username' in post_input:
                 ext_user_username = post_input['ext_user_username']
