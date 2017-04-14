@@ -78,7 +78,7 @@ $def ColumnF():
                 This course is currently invisible for students. 
                 You can change this by modifying the "accessible" option in the configuration of the course.
             </div>
-        $if not task.is_visible_by_students():
+        $if not task.get_accessible_time().after_start():
             <div class="alert alert-warning" role="alert">
                 This task is currently invisible for students. 
                 You can change this by modifying the "accessible" option in the configuration of the task.
