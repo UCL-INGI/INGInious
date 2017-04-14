@@ -318,8 +318,11 @@ class SubmissionManager(object, metaclass=ABCMeta):
         cursor.sort([("submitted_on", -1)])
         return list(cursor)
 
-    def get_user_last_submissions(self, limit=5, request={}):
+    def get_user_last_submissions(self, limit=5, request=None):
         """ Get last submissions of a user """
+        if request is None:
+            request = {}
+
         request.update({"username": self._user_manager.session_username()})
 
         # Before, submissions were first sorted by submission date, then grouped

@@ -167,7 +167,7 @@ def run_tests():
     print()
 
     print("----------------- Dump test")
-    obj2_dump = obj2.dump()
+    obj2_dump = obj2.dump()  # pylint: disable=no-member
     print(obj2_dump)
     print()
 
