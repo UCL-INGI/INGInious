@@ -111,7 +111,7 @@ def get_app(config):
     default_allowed_file_extensions = config['allowed_file_extensions']
     default_max_file_size = config['max_file_size']
 
-    zmq_context, asyncio_thread = start_asyncio_and_zmq()
+    zmq_context, _ = start_asyncio_and_zmq()
 
     # Init the different parts of the app
     plugin_manager = PluginManager()

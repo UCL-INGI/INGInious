@@ -53,7 +53,8 @@ class SubmissionManager(object, metaclass=ABCMeta):
             return None
         return sub
 
-    def _job_done_callback(self, submissionid, task, result, grade, problems, tests, custom, archive, stdout, stderr, newsub=True):
+    def _job_done_callback(self, submissionid, task, result, grade, problems,
+                           tests, custom, archive, stdout, stderr, newsub=True):  # pylint: disable=unused-argument
         """ Callback called by Client when a job is done. Updates the submission in the database with the data returned after the completion of the
         job """
         submission = self.get_submission(submissionid, False)

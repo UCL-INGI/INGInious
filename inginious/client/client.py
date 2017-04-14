@@ -238,7 +238,7 @@ class Client(BetterParanoidPirateClient):
         self._logger.debug("Containers: %s", str(self._available_containers))
         self._logger.debug("Batch containers: %s", str(self._available_batch_containers))
 
-    async def _handle_batch_job_started(self, message: BackendBatchJobStarted, **kwargs):
+    async def _handle_batch_job_started(self, message: BackendBatchJobStarted, **kwargs):  # pylint: disable=unused-argument
         self._logger.debug("Batch job %s started", message.job_id)
 
     async def _handle_batch_job_done(self, message: BackendBatchJobDone, callback):
@@ -248,12 +248,12 @@ class Client(BetterParanoidPirateClient):
         try:
             callback(message.retval, message.stdout, message.stderr, message.file)
         except Exception as e:
-            self._logger.exception("Failed to call the callback function for jobid {}: {}".format(message.job_id, repr(e)), exc_info=True)
+            self._logger.exception("Failed to call the callback function for jobid %s: %s", message.job_id, repr(e), exc_info=True)
 
-    async def _handle_job_started(self, message: BackendJobStarted, **kwargs):
+    async def _handle_job_started(self, message: BackendJobStarted, **kwargs):  # pylint: disable=unused-argument
         self._logger.debug("Job %s started", message.job_id)
 
-    async def _handle_job_done(self, message: BackendJobDone, task, callback, ssh_callback):
+    async def _handle_job_done(self, message: BackendJobDone, task, callback, ssh_callback):  # pylint: disable=unused-argument
         self._logger.debug("Job %s done", message.job_id)
         job_id = message.job_id
 
@@ -268,9 +268,9 @@ class Client(BetterParanoidPirateClient):
         try:
             callback(message.result, message.grade, message.problems, message.tests, message.custom, message.archive, message.stdout, message.stderr)
         except Exception as e:
-            self._logger.exception("Failed to call the callback function for jobid {}: {}".format(job_id, repr(e)), exc_info=True)
+            self._logger.exception("Failed to call the callback function for jobid %s: %s", job_id, repr(e), exc_info=True)
 
-    async def _handle_job_ssh_debug(self, message: BackendJobSSHDebug, ssh_callback, **kwargs):
+    async def _handle_job_ssh_debug(self, message: BackendJobSSHDebug, ssh_callback, **kwargs):  # pylint: disable=unused-argument
         try:
             await self._loop.run_in_executor(None, lambda: ssh_callback(message.host, message.port, message.password))
         except:

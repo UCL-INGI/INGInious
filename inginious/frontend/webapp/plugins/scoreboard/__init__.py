@@ -31,12 +31,12 @@ class ScoreBoardCourse(INGIniousAuthPage):
         return self.template_helper.get_custom_renderer('frontend/webapp/plugins/scoreboard').main(course, names)
 
 
-def sort_func(overall_result_per_user, reversed):
+def sort_func(overall_result_per_user, reverse):
     def sf(user):
         score = overall_result_per_user[user]["total"]
         solved = overall_result_per_user[user]["solved"]
 
-        return (-solved, (-score if not reversed else score))
+        return (-solved, (-score if not reverse else score))
     return sf
 
 

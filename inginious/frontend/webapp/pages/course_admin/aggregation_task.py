@@ -3,8 +3,6 @@
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
 
-import json
-
 import pymongo
 import web
 from bson.objectid import ObjectId

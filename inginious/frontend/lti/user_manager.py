@@ -5,7 +5,6 @@
 
 """ Manages users data and session """
 import pymongo
-import web
 
 from inginious.frontend.common.user_manager import AbstractUserManager
 

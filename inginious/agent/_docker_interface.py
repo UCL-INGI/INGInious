@@ -276,7 +276,7 @@ class FixDockerSocket():
         Returns a valid socket.socket object
         """
         try:
-            return self.docker_py_sock._sock
+            return self.docker_py_sock._sock  # pylint: disable=protected-access
         except AttributeError:
             return self.docker_py_sock
 
@@ -286,7 +286,7 @@ class FixDockerSocket():
         :return:
         """
         try:
-            self.docker_py_sock._sock.close()
+            self.docker_py_sock._sock.close()  # pylint: disable=protected-access
         except AttributeError:
             pass
         self.docker_py_sock.close()
