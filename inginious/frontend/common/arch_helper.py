@@ -10,7 +10,6 @@ import threading
 
 from zmq.asyncio import ZMQEventLoop, Context
 
-from inginious.common.filesystems.local import LocalFSProvider
 from inginious.agent.docker_agent import DockerAgent
 from inginious.agent.mcq_agent import MCQAgent
 from inginious.backend.backend import Backend

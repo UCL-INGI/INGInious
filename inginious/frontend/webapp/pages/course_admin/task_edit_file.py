@@ -4,13 +4,8 @@
 # more information about the licensing of this file.
 
 """ Allow to create/edit/delete/move/download files associated to tasks """
-import codecs
 import json
-import mimetypes
 import os.path
-import shutil
-import tarfile
-import tempfile
 
 import web
 

@@ -9,7 +9,6 @@ from collections import OrderedDict
 import copy
 import json
 import bson
-import os.path
 import re
 from zipfile import ZipFile
 import logging
@@ -311,13 +310,13 @@ class CourseEditTask(INGIniousAdminPage):
         if task_zip:
             try:
                 zipfile = ZipFile(task_zip)
-            except Exception as _:
+            except Exception:
                 return json.dumps({"status": "error", "message": "Cannot read zip file. Files were not modified"})
 
             with tempfile.TemporaryDirectory() as tmpdirname:
                 try:
                     zipfile.extractall(tmpdirname)
-                except Exception as _:
+                except Exception:
                     return json.dumps(
                         {"status": "error", "message": "There was a problem while extracting the zip archive. Some files may have been modified"})
                 task_fs.copy_to(tmpdirname)
