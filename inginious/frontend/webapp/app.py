@@ -10,6 +10,7 @@ import web
 from web.debugerror import debugerror
 
 from inginious.frontend.common.arch_helper import create_arch, start_asyncio_and_zmq
+from inginious.frontend.webapp.cookieless_app import CookieLessCompatibleApplication
 from inginious.frontend.webapp.database_updater import update_database
 from inginious.frontend.common.plugin_manager import PluginManager
 from inginious.common.course_factory import create_factories
@@ -96,13 +97,17 @@ def get_app(config):
     """
     config = _put_configuration_defaults(config)
 
-    appli = web.application((), globals(), autoreload=False)
+    mongo_client = MongoClient(host=config.get('mongo_opt', {}).get('host', 'localhost'))
+    database = mongo_client[config.get('mongo_opt', {}).get('database', 'INGInious')]
+    gridfs = GridFS(database)
+
+    appli = CookieLessCompatibleApplication(MongoStore(database, 'sessions'))
 
     if config.get("maintenance", False):
         template_helper = TemplateHelper(PluginManager(), 'frontend/webapp/templates',
                                          'frontend/webapp/templates/layout',
                                          config.get('use_minified_js', True))
-        template_helper.add_to_template_globals("get_homepath", lambda: web.ctx.homepath)
+        template_helper.add_to_template_globals("get_homepath", appli.get_homepath)
         appli.template_helper = template_helper
         appli.init_mapping(urls_maintenance)
         return appli.wsgifunc(), appli.stop
@@ -116,13 +121,9 @@ def get_app(config):
     # Init the different parts of the app
     plugin_manager = PluginManager()
 
-    mongo_client = MongoClient(host=config.get('mongo_opt', {}).get('host', 'localhost'))
-    database = mongo_client[config.get('mongo_opt', {}).get('database', 'INGInious')]
-    gridfs = GridFS(database)
-
     course_factory, task_factory = create_factories(task_directory, plugin_manager, WebAppCourse, WebAppTask)
 
-    user_manager = UserManager(web.session.Session(appli, MongoStore(database, 'sessions')), database, config.get('superadmins', []))
+    user_manager = UserManager(appli.get_session(), database, config.get('superadmins', []))
 
     update_pending_jobs(database)
 
@@ -150,7 +151,7 @@ def get_app(config):
     update_database(database, gridfs, course_factory, user_manager)
 
     # Add some helpers for the templates
-    template_helper.add_to_template_globals("get_homepath", lambda: web.ctx.homepath)
+    template_helper.add_to_template_globals("get_homepath", appli.get_homepath)
     template_helper.add_to_template_globals("user_manager", user_manager)
     template_helper.add_to_template_globals("default_allowed_file_extensions", default_allowed_file_extensions)
     template_helper.add_to_template_globals("default_max_file_size", default_max_file_size)
