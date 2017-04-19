@@ -54,7 +54,7 @@ class CourseEditTask(INGIniousAdminPage):
         for pid in task_data.get("problems", {}):
             problem = task_data["problems"][pid]
             if (problem["type"] == "code" and "boxes" in problem) or problem["type"] not in (
-                    "code", "code-single-line", "code-file", "match", "multiple-choice"):
+                    "code", "code-single-line", "code-file", "match", "multiple-choice", "blockly"):
                 problem_copy = copy.deepcopy(problem)
                 for i in ["name", "header"]:
                     if i in problem_copy:
@@ -163,6 +163,34 @@ class CourseEditTask(INGIniousAdminPage):
                 raise Exception("Invalid YAML in custom content")
             problem_content.update(custom_content)
             del problem_content["custom"]
+
+        # Blockly related checks
+        if "options" in problem_content:
+            blockly_options = ['collapse', 'comments', 'disable', 'trashcan', 'horizontalLayout', 'css',
+                               'oneBasedIndex', 'readOnly', 'rtl', 'scrollbars', 'sounds', 'visual']
+            problem_options = problem_content['options']
+            for option in blockly_options:
+                if option in problem_options:
+                    problem_options[option] = True
+
+            if "grid" in problem_options:
+                grid_options = problem_options["grid"]
+                grid_options["snap"] = True if "snap" in grid_options else False
+                grid_options["length"] = int(grid_options["length"]) if "length" in grid_options else 3
+                grid_options["colour"] = grid_options["colour"] if "colour" in grid_options else "#ccc"
+                grid_options["spacing"] = int(grid_options["spacing"]) if "spacing" in grid_options else 20
+            if "zoom" in problem_options:
+                zoom_options = problem_options["zoom"]
+                zoom_options["scaleSpeed"] = float(zoom_options["scaleSpeed"]) if "scaleSpeed" in zoom_options else 1.2
+                zoom_options["controls"] = True if "controls" in zoom_options else False
+                zoom_options["minScale"] = float(zoom_options["minScale"]) if "minScale" in zoom_options else 0.3
+                zoom_options["startScale"] = float(zoom_options["startScale"]) if "startScale" in zoom_options else 1.0
+                zoom_options["wheel"] = True if "wheel" in zoom_options else False
+                zoom_options["maxScale"] = float(zoom_options["maxScale"]) if "maxScale" in zoom_options else 3.0
+        if "files" in problem_content:
+            problem_content["files"] = [val for _, val in sorted(iter(problem_content["files"].items()), key=lambda x: int(x[0])) if val != ""]
+        if "blocks_files" in problem_content:
+            problem_content["blocks_files"] = [val for _, val in sorted(iter(problem_content["blocks_files"].items()), key=lambda x: int(x[0])) if val != ""]
 
         return problem_content
 

@@ -1,0 +1,127 @@
+$def with (inputId,name, language, toolbox,filenames,workspace,options)
+
+$#
+$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+$# more information about the licensing of this file.
+$#
+
+<!-- Bootstrap modal fullscreen related stylesheet -->
+<link rel="stylesheet" href="$get_homepath()/static/common/css/bootstrap-modal-fullscreen.css">
+<link rel="stylesheet" href="$get_homepath()/static/common/css/bootstrap-modal-transparent.css">
+
+<div id="blocklyInterpreterAlert" class="alert alert-danger" style="display:none;">
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+  <strong>Erreur d'exécution</strong> <p id="blocklyInterpreterAlertText"></p>
+</div>
+
+<!-- Workspace on the page -->
+<div id="blocklyButtonsRow" class="row">
+    <div id="blocklyButtons" class="col-xs-8">
+        <button id="playButton" type="button" class="btn btn-success" style="margin-left:5px;margin-bottom:5px;margin-top:5px;border-radius:10px;border:1px solid transparent;"><span class="glyphicon glyphicon-play"></span> Tester le code</button>
+        <button id="stopButton" type="button" class="btn btn-danger" style="display:none;margin-left:5px;margin-bottom:5px;margin-top:5px;border-radius:10px;border:1px solid transparent;"><span class="glyphicon glyphicon-pause"></span> Arrêter</button>
+        <button id="resetButton" type="button" class="btn btn-danger" style="display:none;margin-left:5px;margin-bottom:5px;margin-top:5px;border-radius:10px;border:1px solid transparent;"><span class="glyphicon glyphicon-repeat"></span> Recommencer</button>
+        <div class="btn-group">
+            <button id="blockModeButtons" type="button" class="btn btn-default active"><span class="glyphicon glyphicon-th-large"></span> Blocks</button>
+            <button id="splitModeButtons" type="button" class="btn btn-default"><span class="glyphicon glyphicon-resize-horizontal"></span> Split</button>
+            <button id="textModeButtons" type="button" class="btn btn-default"><span class="glyphicon glyphicon-pencil"></span> Text</button>
+        </div>
+        <button type="button" id="buttonFullscreen" disabled="true" class="btn btn-default" data-toggle="modal" data-target="#blocklyModal" style="margin-left:5px;margin-bottom:5px;margin-top:5px;border-radius:10px;border:1px solid transparent;"><span class="glyphicon glyphicon-modal-window"></span> Plein écran</button>
+    </div>
+    <div id="blocklyBlocksText" class="col-xs-4" style="margin-top:10px;">
+        <p id="blocksLimitText" class="text-info">Il vous reste <b id="blocksLimitNumber"></b> bloc(s)</p>
+    </div>
+</div>
+<div class="row">
+  <div class="col-xs-12" id="blocklyApp">
+      <div class="row">
+          <div id="blocklyAppLeft" style="height:480px">
+              <div id="blocklyAppWorkspace" style="height:100%;">
+                  <div id="blocklyDiv" style="height:90%;min-height:480px;width:100%;"></div>
+              </div>
+              <div id="blocklyAppEditor" style="display:none;height:100%;">
+                  <textarea name="$inputId" id="codeArea"
+                  type="text"
+                  style="display:none;"
+                  data-x-language="$language"
+                  ></textarea>
+              </div>
+        </div>
+          <div id="blocklyAppRight" class="col-xs-2">
+              <div id="visualization">
+                  <svg xmlns="http://www.w3.org/2000/svg" version="1.1" id="blocklySvgZone" style="display:none;">
+                      <g id="look">
+                        <path d="M 0,-15 a 15 15 0 0 1 15 15" />
+                        <path d="M 0,-35 a 35 35 0 0 1 35 35" />
+                        <path d="M 0,-55 a 55 55 0 0 1 55 55" />
+                      </g>
+                  </svg>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
+
+
+<!-- Modal with a bigger workspace -->
+<div id="blocklyModal" class="modal modal-fullscreen fade" role="dialog" tabindex="-1">
+    <div class="modal-dialog" style="width:100vw;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">$name</h4>
+            </div>
+            <div id="blocklyModalBody" class="modal-body" style="height:80vh;">
+                <div class="row">
+                    <div id="blocklyButtonsModal" class="col-xs-12">
+                    </div>
+                </div>
+                <div id="blocklyAppModal" style="height:100%;">
+                    <div class="row" style="height:100%;">
+                        <div id="blocklyAppModalLeft" style="height:100%;">
+                        </div>
+                        <div id="blocklyAppModalRight">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<textarea name="blockly" id="blocklyXmlArea"
+    type="text"
+    style="display:none;"
+    data-x-language="xml"
+></textarea>
+
+<!-- Code for the full screen modal -->
+<script src="$get_homepath()/static/common/js/bootstrap-modal-backdrop.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Blockly official JavaScript -->
+<script src="$get_homepath()/static/common/js/blockly/blockly_compressed.js" type="text/javascript" charset="utf-8"></script>
+<script src="$get_homepath()/static/common/js/blockly/blocks_compressed.js" type="text/javascript" charset="utf-8"></script>
+<script src="$get_homepath()/static/common/js/blockly/python_compressed.js" type="text/javascript" charset="utf-8"></script>
+<script src="$get_homepath()/static/common/js/blockly/javascript_compressed.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- Blockly French Translation -->
+<script src="$get_homepath()/static/common/js/blockly/msg/js/fr.js" type="text/javascript" charset="utf-8"></script>
+
+$if filenames is not None:
+    $for filename in filenames:
+        <script src="$filename" type="text/javascript" charset="utf-8"></script>
+
+<script type="text/javascript">
+var blocklyToolbox = `$:toolbox`;
+var blocklyOptions = $:options;
+var blocklyWorkspaceBlocks = `$:workspace`;
+</script>
+
+<!-- Local JavaScript -->
+<script src="$get_homepath()/static/common/js/blockly/blockly.js" type="text/javascript" charset="utf-8"></script>
+
+<!-- JS Interpreter to run code locally -->
+
+<script src="$get_homepath()/static/common/js/JS-Interpreter/acorn_interpreter.js" type="text/javascript" charset="utf-8"></script>

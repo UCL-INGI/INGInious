@@ -8,7 +8,7 @@ from inginious.common.base import id_checker
 import inginious.common.tasks
 from inginious.frontend.common.parsable_text import ParsableText
 from inginious.frontend.common.task_problems import DisplayableCodeProblem, DisplayableCodeFileProblem, DisplayableCodeSingleLineProblem, \
-    DisplayableMultipleChoiceProblem, DisplayableMatchProblem
+    DisplayableMultipleChoiceProblem, DisplayableMatchProblem, DisplayableBlocklyProblem
 
 
 class FrontendTask(inginious.common.tasks.Task):
@@ -24,7 +24,8 @@ class FrontendTask(inginious.common.tasks.Task):
             "code-file": DisplayableCodeFileProblem,
             "code-single-line": DisplayableCodeSingleLineProblem,
             "multiple-choice": DisplayableMultipleChoiceProblem,
-            "match": DisplayableMatchProblem}
+            "match": DisplayableMatchProblem,
+            "blockly": DisplayableBlocklyProblem}
 
         super(FrontendTask, self).__init__(course, taskid, content, directory_path, hook_manager, task_problem_types)
 

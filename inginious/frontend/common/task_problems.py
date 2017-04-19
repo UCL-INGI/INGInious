@@ -10,8 +10,8 @@ from random import shuffle
 
 from inginious.frontend.common.parsable_text import ParsableText
 from inginious.common.tasks_problems import BasicProblem, BasicCodeProblem, CodeProblem, CodeSingleLineProblem, MatchProblem, MultipleChoiceProblem, \
-    CodeFileProblem
-from inginious.frontend.common.tasks_code_boxes import DisplayableInputBox, DisplayableMultilineBox, DisplayableTextBox, DisplayableFileBox
+    CodeFileProblem, BlocklyProblem
+from inginious.frontend.common.tasks_code_boxes import DisplayableInputBox, DisplayableMultilineBox, DisplayableTextBox, DisplayableFileBox, DisplayableBlocklyBox
 
 
 class DisplayableBasicProblem(BasicProblem, metaclass=ABCMeta):
@@ -47,7 +47,8 @@ class DisplayableBasicCodeProblem(BasicCodeProblem, DisplayableBasicProblem):
         "input-integer": DisplayableInputBox,
         "multiline": DisplayableMultilineBox,
         "text": DisplayableTextBox,
-        "file": DisplayableFileBox}
+        "file": DisplayableFileBox,
+        "blockly": DisplayableBlocklyBox}
 
     def adapt_input_for_backend(self, input_data):
         for box in self._boxes:
@@ -140,3 +141,8 @@ class DisplayableMatchProblem(MatchProblem, DisplayableBasicProblem):
     def show_input(self, renderer):
         """ Show MatchProblem """
         return str(renderer.tasks.match(self.get_id()))
+
+class DisplayableBlocklyProblem(BlocklyProblem, DisplayableBasicCodeProblem):
+    """ A displayable blockly problem """
+    def __init__(self, task, problemid, content):
+        super(DisplayableBlocklyProblem, self).__init__(task, problemid, content)

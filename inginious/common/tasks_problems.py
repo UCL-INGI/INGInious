@@ -7,7 +7,7 @@
 from abc import ABCMeta, abstractmethod
 
 from inginious.common.base import id_checker
-from inginious.common.tasks_code_boxes import InputBox, MultilineBox, TextBox, FileBox
+from inginious.common.tasks_code_boxes import InputBox, MultilineBox, TextBox, FileBox, BlocklyBox
 
 
 class BasicProblem(object, metaclass=ABCMeta):
@@ -111,7 +111,7 @@ class BasicCodeProblem(BasicProblem):
         return True
 
     _box_types = {"input-text": InputBox, "input-decimal": InputBox, "input-integer": InputBox, "multiline": MultilineBox, "text": TextBox,
-                  "file": FileBox}
+                  "file": FileBox, "blockly": BlocklyBox}
 
     def _create_box(self, boxid, box_content):
         """ Create adequate box """
@@ -289,3 +289,23 @@ class MultipleChoiceProblem(BasicProblem):
             return True, None, "\n\n".join(msgs), 0
         else:
             return True, None, None, 0
+
+class BlocklyProblem(CodeProblem):
+    """
+    Blockly problem
+    """
+
+    def __init__(self, task, problemid, content):
+        super(BlocklyProblem, self).__init__(task, problemid, content)
+        self._boxes = [self._create_box("", {"type": "blockly",
+                                             "language": content["language"],
+                                             "optional": content.get("optional", False),
+                                             "toolbox": content.get("toolbox", ""),
+                                             "files": content.get("files", []),
+                                             "blocks_files": content.get("blocks_files", []),
+                                             "options": content.get("options", []),
+                                             "workspace": content.get("workspace", ""),
+                                            })]
+
+    def get_type(self):
+        return "blockly"

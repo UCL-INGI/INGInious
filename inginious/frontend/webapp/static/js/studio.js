@@ -357,6 +357,9 @@ function studio_get_template_for_problem(problem)
         return "#subproblem_match";
     else if(problem["type"] == "multiple-choice")
         return "#subproblem_multiple_choice";
+    else if (problem["type"] == "blockly") {
+        return "#subproblem_blockly";
+    }
     return "#subproblem_custom";
 }
 
@@ -439,6 +442,9 @@ function studio_init_template(template, pid, problem)
         case "#subproblem_multiple_choice":
             studio_init_template_multiple_choice(well, pid, problem);
             break;
+        case "#subproblem_blockly":
+            studio_init_template_blockly(well, pid, problem);
+            break;
     }
 }
 
@@ -484,6 +490,292 @@ function studio_init_template_custom(well, pid, problem)
     if("custom" in problem)
         val = problem["custom"];
     registerCodeEditor($('#custom-' + pid)[0], 'yaml', 10).setValue(val);
+}
+
+/**
+ * Init a blockly template
+ * @param well: the DOM element containing the input fields
+ * @param pid
+ * @param problem
+ */
+function studio_init_template_blockly(well, pid, problem)
+{
+    var val = "";
+    if ("language" in problem) {
+        $('#language-' + pid, well).val(problem["language"]);
+    }
+    var toolbox_editor = registerCodeEditor($('#toolbox-' + pid)[0], 'xml', 10);
+    if ("toolbox" in problem) {
+        toolbox_editor.setValue(problem["toolbox"]);
+    } else {
+        toolbox_editor.setValue('<xml xmlns="http://www.w3.org/1999/xhtml" style="display: none;"></xml>');
+    }
+    var workspace_editor = registerCodeEditor($('#workspace-' + pid)[0], 'xml', 10);
+    if ("workspace" in problem) {
+        workspace_editor.setValue(problem["workspace"]);
+    } else {
+        workspace_editor.setValue('<xml xmlns="http://www.w3.org/1999/xhtml" style="display:none"></xml>');
+    }
+
+    var options;
+    if ("options" in problem) {
+        options = problem["options"];
+    } else{
+        options = {};
+    }
+
+    if ("visual" in options) {
+        $("#visual-" + pid).prop('checked', options["visual"]);
+    } else { // default value for visual
+        $("#visual-" + pid).prop('checked', false);
+    }
+    if ("collapse" in options) {
+        $("#collapse-" + pid).prop('checked', options["collapse"]);
+    } else { // default value for collapse
+        $("#collapse-" + pid).prop('checked', false);
+    }
+    if ("comments" in options) {
+        $("#comments-" + pid).prop('checked', options["comments"]);
+    } else { // default value for comments
+        $("#comments-" + pid).prop('checked', false);
+    }
+    if ("disable" in options) {
+        $("#disable-" + pid).prop('checked', options["disable"]);
+    } else { // default value for disable
+        $("#disable-" + pid).prop('checked', false);
+    }
+    if ("maxBlocks" in options) {
+        $("#maxBlocks-" + pid).val(options["maxBlocks"]);
+    } else { // By default, maxBlocks is set to Infinity
+        $("#maxBlocks-" + pid).val("Infinity");
+    }
+    if ("trashcan" in options) {
+        $("#trashcan-" + pid).prop('checked', options["trashcan"]);
+    } else { // default value for trashcan
+        $("#trashcan-" + pid).prop('checked', true);
+    }
+    if ("horizontalLayout" in options) {
+        $("#horizontalLayout-" + pid).prop('checked', options["horizontalLayout"]);
+    } else { // default value for horizontal layout
+        $("#horizontalLayout-" + pid).prop('checked', false);
+    }
+    if ("toolboxPosition" in options && (options["toolboxPosition"] === "start" || options["toolboxPosition"] === "end")) {
+        $("#toolboxPosition-" + pid).val(options["toolboxPosition"]);
+    } else { // assign default value
+        $("#toolboxPosition-" + pid).val("start");
+    }
+    if ("css" in options) {
+        $("#css-" + pid).prop('checked', options["css"]);
+    } else { // default value for css
+        $("#css-" + pid).prop('checked', true);
+    }
+    if ("rtl" in options) {
+        $("#rtl-" + pid).prop('checked', options["rtl"]);
+    } else { // default value for rtl
+        $("#rtl-" + pid).prop('checked', false);
+    }
+    if ("scrollbars" in options) {
+        $("#scrollbars-" + pid).prop('checked', options["scrollbars"]);
+    } else { // default value for scrollbars
+        $("#scrollbars-" + pid).prop('checked', true);
+    }
+    if ("sounds" in options) {
+        $("#sounds-" + pid).prop('checked', options["sounds"]);
+    } else { // default value for sounds
+        $("#sounds-" + pid).prop('checked', true);
+    }
+    if ("media" in options) {
+        $("#media-" + pid).val(options["media"]);
+    } else { // Default value for media
+        $("#media-" + pid).val("/static/common/js/blockly/media/");
+    }
+    if ("oneBasedIndex" in options) {
+        $("#oneBasedIndex-" + pid).prop('checked', options["oneBasedIndex"]);
+    } else { // default value for one-based index
+        $("#oneBasedIndex-" + pid).prop('checked', true);
+    }
+    if ("readOnly" in options) {
+        $("#readOnly-" + pid).prop('checked', options["readOnly"]);
+    } else { // default value for read only
+        $("#readOnly-" + pid).prop('checked', false);
+    }
+    var grid_options;
+    if ("grid" in options) {
+        // If grid is set, display the grid options
+        var row = $("#subproblem_blockly_grid").html();
+        var new_row_content = row.replace(/PID/g, pid);
+        $('#grid-' + pid).parent().parent().parent().append(new_row_content);
+        grid_options = options["grid"];
+        $("#grid-" + pid).prop('checked', true);
+    } else {
+        grid_options = {};
+        $("#grid-" + pid).prop('checked', false);
+    }
+    if ("spacing" in grid_options) {
+        $("#gridSpacing-" + pid).val(grid_options["spacing"]);
+    } else { // default value for grid spacing
+    $("#gridSpacing-" + pid).val("20");
+    }
+    if ("length" in grid_options) {
+        $("#gridLength-" + pid).val(grid_options["length"]);
+    } else { // default value for grid spacing
+        $("#gridLength-" + pid).val("3");
+    }
+    if ("colour" in grid_options) {
+        $("#gridColour-" + pid).val(grid_options["colour"]);
+    } else { // default value for grid spacing
+        $("#gridColour-" + pid).val("#ccc");
+    }
+    if ("snap" in grid_options) {
+        $("#gridSnap-" + pid).prop('checked', grid_options["snap"]);
+    } else { // default value for grid spacing
+        $("#gridSnap-" + pid).prop('checked', true);
+    }
+
+    $('#grid-' + pid).change(function() {
+        if ($(this).is(":checked")) {
+            var row = $("#subproblem_blockly_grid").html();
+            var new_row_content = row.replace(/PID/g, pid);
+            $(this).parent().parent().parent().append(new_row_content);
+        } else {
+            $(this).parent().parent().parent().html($(this).parent().parent().detach());
+        }
+    });
+
+    var zoom_options;
+    if ("zoom" in options) {
+        var row = $("#subproblem_blockly_zoom").html();
+        var new_row_content = row.replace(/PID/g, pid);
+        $('#zoom-' + pid).parent().parent().parent().append(new_row_content);
+        $("#zoom-" + pid).prop('checked', true);
+        zoom_options = options["zoom"];
+    } else {
+        zoom_options = {}
+        $("#zoom-" + pid).prop('checked', false);
+    }
+
+    if ("controls" in zoom_options) {
+        $("#zoomControls-" + pid).prop('checked', zoom_options["controls"]);
+    } else { // default value for zoom controls
+        $("#zoomControls-" + pid).prop('checked', true);
+    }
+    if ("wheel" in zoom_options) {
+        $("#zoomWheel-" + pid).prop('checked', zoom_options["wheel"]);
+    } else { // default value for zoom wheel
+        $("#zoomWheel-" + pid).prop('checked', false);
+    }
+    if ("startScale" in zoom_options) {
+        $("#zoomStartScale-" + pid).val(zoom_options["startScale"]);
+    } else { // default value for start scale
+        $("#zoomStartScale-" + pid).val("1.0");
+    }
+    if ("maxScale" in zoom_options) {
+        $("#zoomMaxScale-" + pid).val(zoom_options["maxScale"]);
+    } else { // default value for max scale
+        $("#zoomMaxScale-" + pid).val("3.0");
+    }
+    if ("minScale" in zoom_options) {
+        $("#zoomMinScale-" + pid).val(zoom_options["minScale"]);
+    } else { // default value for min scale
+        $("#zoomMinScale-" + pid).val("0.3");
+    }
+    if ("scaleSpeed" in zoom_options) {
+        $("#zoomScaleSpeed-" + pid).val(zoom_options["scaleSpeed"]);
+    } else { // default value for zoom
+        $("#zoomScaleSpeed-" + pid).val("1.2");
+    }
+
+    $('#zoom-' + pid).change(function() {
+        if ($(this).is(":checked")) {
+            var row = $("#subproblem_blockly_zoom").html();
+            var new_row_content = row.replace(/PID/g, pid);
+            $(this).parent().parent().parent().append(new_row_content);
+        } else {
+            $(this).parent().parent().parent().html($(this).parent().parent().detach());
+        }
+    });
+
+    if ("files" in problem) {
+        jQuery.each(problem["files"], function(index, elem)
+        {
+            studio_create_javascript_files(pid, elem);
+        });
+    }
+    if ("blocks_files" in problem) {
+        jQuery.each(problem["blocks_files"], function(index, elem)
+        {
+            studio_create_blocks_files(pid, elem);
+        });
+    }
+
+    var factoryController;
+    $('#blockFactoryModal').on('shown.bs.modal', function() {
+        // FIXME Next line is a fix, please monitor https://github.com/google/blockly/issues/56
+        $(document).off('focusin.modal');
+
+        $("#blockFactoryModalBody").html($("#subproblem_blockly_factory").detach());
+
+        var basicToolbox = Toolbox.FULL;
+        var toolbox = $("#toolbox-code").text();
+        var workspaceBlocks = $("#workspace-code").text();
+
+        factoryController = new FactoryController('blocklyFactory', basicToolbox, problem["toolbox"], workspaceBlocks);
+        var preview = new Preview(factoryController);
+        factoryController.setPreview(preview);
+        factoryController.injectWorkspaces();
+    });
+
+    $('#blockFactoryModal').on('hidden.bs.modal', function() {
+        // If you want this behavior to be BEFORE the visual part, use hide.bs.modal, if after use hidden.bs.modal
+        // When the modal is closed, the workspace (from the initial page must be updated)
+        factoryController.dispose();
+    });
+
+}
+
+/**
+ * Create a new input for the name of a file
+ * @param pid
+ * @param filename
+ */
+function studio_create_javascript_files(pid, filename)
+{
+    var index = 0;
+    while($('#file-' + pid + '-' + index).length != 0)
+        index++;
+
+    var row = $("#subproblem_blockly_files").html();
+    var new_row_content = row.replace(/PID/g, pid).replace(/INDEX/g, index);
+    var new_row = $("<div></div>").attr('id', 'blocklyFiles-' + index + '-' + pid).html(new_row_content);
+    $("#javascript_files-" + pid).append(new_row);
+
+    if (jQuery.type(filename) === "string") {
+        $("#file-" + pid + "-" + index).val(filename);
+    } else {
+        $("#file-" + pid + "-" + index).val("");
+    }
+}
+
+function studio_create_blocks_files(pid, filename)
+{
+    var index = 0;
+    while($('#file-' + pid + '-' + index).length != 0)
+        index++;
+
+    var row = $("#subproblem_blocks_files").html();
+    var new_row_content = row.replace(/PID/g, pid).replace(/INDEX/g, index);
+    var new_row = $("<div></div>").attr('id', 'blocklyFiles-' + index + '-' + pid).html(new_row_content);
+    $("#javascript_blocks_files-" + pid).append(new_row);
+
+    if (jQuery.type(filename) === "string") {
+        $("#file-" + pid + "-" + index).val(filename);
+        var script = $("<script>");
+        script.prop("charset", "utf-8");
+        script.prop("src", "/course/" + course + "/" + taskid + "/" + filename);
+        $("#collapse-" + pid).append(script);
+    } else {
+        $("#file-" + pid + "-" + index).val("");
+    }
 }
 
 /**

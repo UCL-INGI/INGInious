@@ -207,3 +207,35 @@ class MultilineBox(BasicBox):
             raise Exception("Invalid language " + boxData["language"])
         else:
             self._language = "plain"
+
+
+class BlocklyBox(MultilineBox):
+    """
+        Blockly box.
+    """
+
+    def get_type(self):
+        return "blockly"
+
+    def __init__(self, problem, boxid, boxData):
+        super(BlocklyBox, self).__init__(problem, boxid, boxData)
+        if "toolbox" in boxData:
+            self._toolbox = boxData["toolbox"]
+        else:
+            self._toolbox = "<xml></xml>"
+        if "workspace" in boxData:
+            self._workspace = boxData["workspace"]
+        if "options" in boxData:
+            self._options = boxData["options"]
+        if "files" in boxData:
+            self._files = boxData["files"]
+        if "blocks_files" in boxData:
+            if self._files:
+                self._files += boxData["blocks_files"]
+            else:
+                self._files = boxData["blocks_files"]
+
+    def input_is_consistent(self, taskInput, default_allowed_extension, default_max_size):
+        if not MultilineBox.input_is_consistent(self, taskInput, default_allowed_extension, default_max_size):
+            return False
+        return True
