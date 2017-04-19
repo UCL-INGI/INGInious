@@ -1,5 +1,47 @@
 var Toolbox = function() {
+};
 
+Toolbox.CORE_BLOCKS = ["lists", "lists_create_empty", "lists_create_with",
+    "lists_create_with_container", "lists_create_with_item", "lists_repeat",
+    "lists_length", "lists_isEmpty", "lists_indexOf", "lists_getIndex",
+    "lists_setIndex", "lists_getSublist", "lists_sort", "lists_split", "math",
+    "math_number", "math_arithmetic", "math_single", "math_trig",
+    "math_constant", "math_number_property", "math_change", "math_round",
+    "math_on_list", "math_modulo", "math_constrain", "math_random_int",
+    "math_random_float", "variables", "variables_get", "variables_set",
+    "colour", "colour_picker", "colour_random", "colour_rgb", "colour_blend",
+    "procedures", "procedures_defnoreturn", "procedures_defreturn",
+    "procedures_mutatorcontainer", "procedures_mutatorarg",
+    "procedures_callnoreturn", "procedures_callreturn", "procedures_ifreturn",
+    "texts", "text", "text_join", "text_create_join_container",
+    "text_create_join_item", "text_append", "text_length", "text_isEmpty",
+    "text_indexOf", "text_charAt", "text_getSubstring", "text_changeCase",
+    "text_trim", "text_print", "text_prompt_ext", "text_prompt", "loops",
+    "controls_repeat_ext", "controls_repeat", "controls_whileUntil",
+    "controls_for", "controls_forEach", "controls_flow_statements", "logic",
+    "controls_if", "controls_if_if", "controls_if_elseif", "controls_if_else",
+    "controls_ifelse", "logic_compare", "logic_operation", "logic_negate",
+    "logic_boolean", "logic_null", "logic_ternary"];
+
+Toolbox.get_unknown_blocks = function(workspace) {
+    var unknownCategory = $("<category>");
+    unknownCategory.attr('id', 'catUnknown');
+    unknownCategory.attr('colour', '30');
+    unknownCategory.attr('name', 'Block Library');
+    var blockNames = Object.keys(Blockly.Blocks);
+    for (var i = 0, len = blockNames.length; i < len; i++) {
+        var blockName = blockNames[i];
+        if (Toolbox.CORE_BLOCKS.indexOf(blockName) === -1) {
+            var block;
+            try {
+                block = $(Blockly.Xml.blockToDom(workspace.newBlock(blockName)));
+            } catch (err) {
+                console.error("Unable to import", blockName, " because of ", err);
+            }
+            block && unknownCategory.append(block);
+        }
+    }
+    return unknownCategory;
 };
 
 Toolbox.LOGIC_CATEGORY =

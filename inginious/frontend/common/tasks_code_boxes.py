@@ -94,7 +94,7 @@ class DisplayableBlocklyBox(BlocklyBox, DisplayableBox):
         """ Show BlocklyBox """
         task_directory = self.get_problem().get_task().get_id()
         filenames = []
-        for filename in self._files:
+        for filename in self._files + self._blocks_files:
             filenames.append(str(task_directory) + "/" + str(filename))
         toolbox = self._toolbox
         return str(renderer.tasks.blockly(self.get_complete_id(), self.get_problem().get_name(), self._language, toolbox, filenames, self._workspace, json.dumps(self._options)))

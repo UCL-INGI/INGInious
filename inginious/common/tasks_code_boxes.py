@@ -230,10 +230,7 @@ class BlocklyBox(MultilineBox):
         if "files" in boxData:
             self._files = boxData["files"]
         if "blocks_files" in boxData:
-            if self._files:
-                self._files += boxData["blocks_files"]
-            else:
-                self._files = boxData["blocks_files"]
+            self._blocks_files = boxData["blocks_files"]
 
     def input_is_consistent(self, taskInput, default_allowed_extension, default_max_size):
         if not MultilineBox.input_is_consistent(self, taskInput, default_allowed_extension, default_max_size):

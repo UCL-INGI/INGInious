@@ -7,6 +7,11 @@ $#
 
 $var title: $:task.get_name() - $:task.get_course().get_name()
 
+<script type="text/javascript">
+var course = "$course.get_id()";
+var taskid = "$task.get_id()";
+</script>
+
 $# Left column content
 $def ColumnF():
     <h3>Information</h3>
@@ -75,12 +80,12 @@ $def ColumnF():
         <h3>Administration</h3>
         $if not course.is_open_to_non_staff():
             <div class="alert alert-warning" role="alert">
-                This course is currently invisible for students. 
+                This course is currently invisible for students.
                 You can change this by modifying the "accessible" option in the configuration of the course.
             </div>
         $if not task.is_visible_by_students():
             <div class="alert alert-warning" role="alert">
-                This task is currently invisible for students. 
+                This task is currently invisible for students.
                 You can change this by modifying the "accessible" option in the configuration of the task.
             </div>
         <div class="list-group">

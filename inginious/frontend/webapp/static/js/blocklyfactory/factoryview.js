@@ -20,8 +20,8 @@ var FactoryView = function(controller, id) {
     this.workspaceTab = BootstrapElement.tab('workspaceFactory', 'Workspace');
     this.tabList.append(this.toolboxTab);
     this.tabList.append(this.workspaceTab);
-    this.toolboxTextarea = $("#toolbox-code");
-    this.workspaceTextarea = $("#workspace-code");
+    this.toolboxTextarea = $("#toolbox-code").next('.CodeMirror')[0].CodeMirror;
+    this.workspaceTextarea = $("#workspace-code").next('.CodeMirror')[0].CodeMirror;
 
     /* Left part  */
     this.tabContent = BootstrapElement.tabContent();
@@ -48,7 +48,7 @@ var FactoryView = function(controller, id) {
     this.editCategoryButton = this.createEditCategoryButton();
     this.middleDiv.append(this.editCategoryButton);
     this.selectedCategory = null;
-    this.categoriesName = this.controller.getToolboxCategories(this.toolboxTextarea.text());
+    this.categoriesName = this.controller.getToolboxCategories(this.toolboxTextarea.getValue());
     this.categoriesList = this.createCategoryList(this.categoriesName);
     if (this.categoriesName.length > 0) this.setSelectedCategory(this.categoriesName[0]);
     this.middleDiv.prepend(this.categoriesList);
@@ -85,10 +85,14 @@ FactoryView.prototype.createWorkspaceDiv = function(divId) {
     return div;
 };
 
-FactoryView.prototype.injectPreviewWorkspace = function(toolbox) {
-    return Blockly.inject(this.previewWorkspaceDiv[0], {
-        toolbox: toolbox
-    });
+FactoryView.prototype.injectPreviewWorkspace = function(toolbox, workspaceBlocks, options) {
+    var workspaceOptions = $.extend({toolbox: toolbox}, options);
+    var workspace = Blockly.inject(this.previewWorkspaceDiv[0], workspaceOptions);
+    Blockly.Events.disable();
+    Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(workspaceBlocks), workspace);
+    Blockly.Events.enable();
+    workspace.cleanUp();
+    return workspace;
 };
 
 FactoryView.prototype.injectToolboxWorkspace = function(toolbox) {
@@ -112,14 +116,16 @@ FactoryView.prototype.injectToolboxWorkspace = function(toolbox) {
     });
     if (this.categoriesName.length === 0) {
         var dom = Blockly.Xml.textToDom(this.controller.getToolboxXml());
+        Blockly.Events.disable();
         Blockly.Xml.domToWorkspace(dom, workspace);
+        Blockly.Events.enable();
         workspace.cleanUp();
     }
     return workspace;
 };
 
-FactoryView.prototype.injectPreloadWorkspace = function(toolbox) {
-    return Blockly.inject(this.preloadWorkspaceDiv[0], {
+FactoryView.prototype.injectPreloadWorkspace = function(toolbox, workspaceBlocks) {
+    var workspace = Blockly.inject(this.preloadWorkspaceDiv[0], {
         toolbox: toolbox,
         grid: {
             spacing: 20,
@@ -137,6 +143,11 @@ FactoryView.prototype.injectPreloadWorkspace = function(toolbox) {
         },
         trashcan: true
     });
+    Blockly.Events.disable();
+    Blockly.Xml.domToWorkspace(Blockly.Xml.textToDom(workspaceBlocks), workspace);
+    Blockly.Events.enable();
+    workspace.cleanUp();
+    return workspace;
 };
 
 FactoryView.prototype.onToolboxTabClick = function() {

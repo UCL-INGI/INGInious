@@ -1,9 +1,10 @@
-var FactoryController = function(id, basicToolbox, workspaceBlocks) {
+var FactoryController = function(id, basicToolbox, workspaceBlocks, options) {
     this.view = new FactoryView(this, id);
     this.toolboxFactory = new ToolboxFactory(this);
     this.workspaceFactory = new WorkspaceFactory(this);
     this.basicToolbox = basicToolbox;
     this.workspaceBlocks = workspaceBlocks;
+    this.options = options;
     this.preview = null;
     this.previewWorkspace = null;
     this.toolboxWorkspace = null;
@@ -18,11 +19,15 @@ FactoryController.prototype.dispose = function() {
 };
 
 FactoryController.prototype.injectWorkspaces = function () {
-    this.previewWorkspace = this.view.injectPreviewWorkspace(this.getToolboxXml());
+    this.previewWorkspace = this.view.injectPreviewWorkspace(this.getToolboxXml(), this.getWorkspaceXml(), this.options);
+    var toolbox_with_unknown = Toolbox.get_unknown_blocks(this.previewWorkspace);
+    var basicToolbox = $(this.basicToolbox);
+    basicToolbox.append(toolbox_with_unknown);
+    this.basicToolbox = basicToolbox[0];
     this.toolboxWorkspace = this.view.injectToolboxWorkspace(this.basicToolbox);
     this.toolboxFactory.setWorkspace(this.toolboxWorkspace);
     this.toolboxFactory.addWorkspaceListeners();
-    this.preloadWorkspace = this.view.injectPreloadWorkspace(this.basicToolbox);
+    this.preloadWorkspace = this.view.injectPreloadWorkspace(this.basicToolbox, this.getWorkspaceXml());
     this.workspaceFactory.setWorkspace(this.preloadWorkspace);
     this.workspaceFactory.addWorkspaceListeners();
 };
@@ -46,19 +51,19 @@ FactoryController.prototype.updatePreview = function(updateToolbox) {
     }
     var dom = Blockly.Xml.textToDom(this.getWorkspaceXml());
     this.previewWorkspace.clear();
+    Blockly.Events.disable();
     Blockly.Xml.domToWorkspace(dom, this.previewWorkspace);
+    Blockly.Events.enable();
     this.previewWorkspace.cleanUp();
 };
 
 FactoryController.prototype.getToolboxXml = function() {
-    var editor = this.view.toolboxTextarea.next('.CodeMirror')[0].CodeMirror;
-    return editor.getValue();
+    return this.view.toolboxTextarea.getValue();
 };
 
 FactoryController.prototype.setToolboxXml = function(xml) {
     var cleanXml = this.cleanXml(xml);
-    var editor = this.view.toolboxTextarea.next('.CodeMirror')[0].CodeMirror;
-    editor.setValue(cleanXml);
+    this.view.toolboxTextarea.setValue(cleanXml);
     this.updatePreview(true);
 };
 
@@ -91,14 +96,12 @@ FactoryController.prototype.getToolboxCategoryXml = function(categoryName) {
 };
 
 FactoryController.prototype.getWorkspaceXml = function() {
-    var editor = this.view.workspaceTextarea.next('.CodeMirror')[0].CodeMirror;
-    return editor.getValue();
+    return this.view.workspaceTextarea.getValue();
 };
 
 FactoryController.prototype.setWorkspaceXml = function(xml) {
     var cleanXml = this.cleanXml(xml);
-    var editor = this.view.workspaceTextarea.next('.CodeMirror')[0].CodeMirror;
-    editor.setValue(cleanXml);
+    this.view.workspaceTextarea.setValue(cleanXml);
     this.updatePreview(false);
 };
 

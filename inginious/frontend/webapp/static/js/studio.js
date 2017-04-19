@@ -719,7 +719,7 @@ function studio_init_template_blockly(well, pid, problem)
         var toolbox = $("#toolbox-code").text();
         var workspaceBlocks = $("#workspace-code").text();
 
-        factoryController = new FactoryController('blocklyFactory', basicToolbox, problem["toolbox"], workspaceBlocks);
+        factoryController = new FactoryController('blocklyFactory', basicToolbox, problem["toolbox"], workspaceBlocks, problem["options"]);
         var preview = new Preview(factoryController);
         factoryController.setPreview(preview);
         factoryController.injectWorkspaces();
@@ -751,6 +751,10 @@ function studio_create_javascript_files(pid, filename)
 
     if (jQuery.type(filename) === "string") {
         $("#file-" + pid + "-" + index).val(filename);
+        var script = $("<script>");
+        script.prop("charset", "utf-8");
+        script.prop("src", "/course/" + course + "/" + taskid + "/" + filename);
+        $("#collapse_" + pid).append(script);
     } else {
         $("#file-" + pid + "-" + index).val("");
     }
@@ -772,7 +776,7 @@ function studio_create_blocks_files(pid, filename)
         var script = $("<script>");
         script.prop("charset", "utf-8");
         script.prop("src", "/course/" + course + "/" + taskid + "/" + filename);
-        $("#collapse-" + pid).append(script);
+        $("#collapse_" + pid).append(script);
     } else {
         $("#file-" + pid + "-" + index).val("");
     }
