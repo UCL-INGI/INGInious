@@ -161,7 +161,7 @@ class CookieLessCompatibleSession(object):
     def _validate_ip(self):
         # check for change of IP
         if self._data["session_id"] and self.get('ip', None) != web.ctx.ip:
-            if not self._config.ignore_change_ip:
+            if not self._config.ignore_change_ip or self._data["cookieless"] is True:
                 return self.expired()
 
     def _save_cookieless(self):
