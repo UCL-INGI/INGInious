@@ -75,7 +75,7 @@ class LTIPage(object):
         return self.app.gridfs
 
     @property
-    def default_allowed_file_extensions(self) -> List[str]:
+    def default_allowed_file_extensions(self) -> List[str]:  # pylint: disable=invalid-sequence-index
         """ List of allowed file extensions """
         return self.app.default_allowed_file_extensions
 
@@ -85,7 +85,7 @@ class LTIPage(object):
         return self.app.default_max_file_size
 
     @property
-    def containers(self) -> List[str]:
+    def containers(self) -> List[str]:  # pylint: disable=invalid-sequence-index
         """ Available containers """
         return self.app.submission_manager.get_available_environments()
 
@@ -231,12 +231,12 @@ class LTILaunchPage(LTIPage, metaclass=abc.ABCMeta):
                                      courseid in consumer.get("courses", courseid)])
         try:
             verified = verify_request_common(authorized_consumers, web.ctx.home + web.ctx.fullpath, "POST", {}, post_input)
-        except Exception as e:
-            self.logger.info('Can not authenticate request for ' + str(post_input))
+        except Exception:
+            self.logger.info('Can not authenticate request for %s', str(post_input))
             raise Exception("Cannot authentify request (1)")
 
         if verified:
-            self.logger.debug('parse_lit_data for ' + str(post_input))
+            self.logger.debug('parse_lit_data for %s', str(post_input))
             user_id = post_input["user_id"]
             if 'ext_user_username' in post_input:
                 ext_user_username = post_input['ext_user_username']

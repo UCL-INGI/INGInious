@@ -44,7 +44,7 @@ class SubmissionGitSaver(threading.Thread):
         plugin_manager.add_hook('submission_done', self.add)
         self._logger.info("SubmissionGitSaver started")
 
-    def add(self, submission, archive, newsub):
+    def add(self, submission, archive, _):
         """ Add a new submission to the repo (add the to queue, will be saved async)"""
         self.queue.put((submission, submission["result"], submission["grade"], submission["problems"], submission["tests"], submission["custom"], archive))
 
@@ -56,7 +56,7 @@ class SubmissionGitSaver(threading.Thread):
             except Exception as inst:
                 self._logger.exception("Exception in JobSaver: " + str(inst), exc_info=True)
 
-    def save(self, submission, result, grade, problems, tests, custom, archive):
+    def save(self, submission, result, grade, problems, tests, custom, archive):  # pylint: disable=unused-argument
         """ saves a new submission in the repo (done async) """
         # Save submission to repo
         self._logger.info("Save submission " + str(submission["_id"]) + " to git repo")

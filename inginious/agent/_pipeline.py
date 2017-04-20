@@ -15,7 +15,7 @@ from inginious.common.message_meta import ZMQUtils
 
 
 class PipelineBase(object):
-    def __init__(self, _context, _name):
+    def __init__(self, _context, _name):  # pylint: disable=unused-argument
         super().__init__()
 
 

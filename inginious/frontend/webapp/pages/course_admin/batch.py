@@ -96,7 +96,7 @@ class CourseBatchJobCreate(INGIniousAdminPage):
         container_description = ParsableText(metadata[1].encode('utf-8').decode("unicode_escape"), 'rst')
 
         container_args = copy.deepcopy(metadata[2])  # copy it
-        for item, val in container_args.items():
+        for val in container_args.values():
             if "description" in val:
                 val['description'] = ParsableText(val['description'].encode('utf-8').decode("unicode_escape"), 'rst').parse()
 
@@ -119,7 +119,7 @@ class CourseBatchJobDownload(INGIniousAdminPage):
     def GET_AUTH(self, courseid, bid, path=""):  # pylint: disable=arguments-differ
         """ GET request """
 
-        course, _ = self.get_course_and_check_rights(courseid)
+        self.get_course_and_check_rights(courseid) # simply verify rights
         batch_job = self.batch_manager.get_batch_job_status(bid)
 
         if batch_job is None:

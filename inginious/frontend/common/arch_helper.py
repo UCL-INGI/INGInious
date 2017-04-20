@@ -86,7 +86,7 @@ def create_arch(configuration, task_directory, context):
         asyncio.ensure_future(backend.run())
     elif backend_link in ["remote", "remote_manuel", "docker_machine"]: #old-style config
         logger.error("Value '%s' for the 'backend' option is configuration.yaml is not supported anymore. \n"
-                     "Have a look at the 'update' section of the INGInious documentation in order to upgrade your configuration.yaml" % backend_link)
+                     "Have a look at the 'update' section of the INGInious documentation in order to upgrade your configuration.yaml", backend_link)
         exit(1)
         return None #... pycharm returns a warning else :-(
     else:
@@ -98,6 +98,6 @@ def create_arch(configuration, task_directory, context):
     for c in old_style_configs:
         if c in configuration:
             logger.warning("Option %s in configuration.yaml is not used anymore.\n"
-                           "Have a look at the 'update' section of the INGInious documentation in order to upgrade your configuration.yaml" % c)
+                           "Have a look at the 'update' section of the INGInious documentation in order to upgrade your configuration.yaml", c)
 
     return client

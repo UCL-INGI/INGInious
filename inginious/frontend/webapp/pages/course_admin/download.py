@@ -14,7 +14,7 @@ class CourseDownloadSubmissions(INGIniousSubmissionAdminPage):
 
     _logger = logging.getLogger("inginious.webapp.download")
 
-    def valid_formats(self, course):
+    def valid_formats(self):
         return [
             "taskid/username",
             "taskid/aggregation",
@@ -28,7 +28,7 @@ class CourseDownloadSubmissions(INGIniousSubmissionAdminPage):
 
         user_input = web.input(tasks=[], aggregations=[], users=[])
 
-        if "filter_type" not in user_input or "type" not in user_input or "format" not in user_input or user_input.format not in self.valid_formats(course):
+        if "filter_type" not in user_input or "type" not in user_input or "format" not in user_input or user_input.format not in self.valid_formats():
             raise web.notfound()
 
         tasks = list(course.get_tasks().keys())
@@ -69,8 +69,8 @@ class CourseDownloadSubmissions(INGIniousSubmissionAdminPage):
         tasks, user_data, aggregations, tutored_aggregations,\
         tutored_users, checked_tasks, checked_users, show_aggregations = self.show_page_params(course, user_input)
 
-        chosen_format = self.valid_formats(course)[0]
-        if "format" in user_input and user_input.format in self.valid_formats(course):
+        chosen_format = self.valid_formats()[0]
+        if "format" in user_input and user_input.format in self.valid_formats():
             chosen_format = user_input.format
             if "aggregation" in chosen_format:
                 show_aggregations = True
@@ -78,5 +78,5 @@ class CourseDownloadSubmissions(INGIniousSubmissionAdminPage):
         return self.template_helper.get_renderer().course_admin.download(course, tasks, user_data, aggregations,
                                                                          tutored_aggregations, tutored_users,
                                                                          checked_tasks, checked_users,
-                                                                         self.valid_formats(course), chosen_format,
+                                                                         self.valid_formats(), chosen_format,
                                                                          show_aggregations)

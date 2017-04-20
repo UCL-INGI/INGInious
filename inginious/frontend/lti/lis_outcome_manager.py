@@ -50,25 +50,25 @@ class LisOutcomeManager(threading.Thread):
                         grade = 1
                     if grade < 0:
                         grade = 0
-                except Exception as e:
+                except Exception:
                     self._logger.error("An exception occurred while getting a grade in LisOutcomeManager.", exc_info=True)
                     continue
 
                 try:
                     xml = lti.generate_request_xml(str(uuid.uuid1()), "replaceResult", result_id, grade)
                     if lti.post_message(self._lti_consumers, consumer_key, service_url, xml):
-                        self._delete(mongo_id)
-                        self._logger.debug("Successfully sent grade to TC: %s" % str(data))
+                        self._delete_in_db(mongo_id)
+                        self._logger.debug("Successfully sent grade to TC: %s", str(data))
                         continue
-                except Exception as e:
-                    self._logger.error("An exception occurred while sending a grade to the TC." + str(e), exc_info=True)
+                except Exception:
+                    self._logger.error("An exception occurred while sending a grade to the TC.", exc_info=True)
 
                 if nb_attempt < 5:
                     self._logger.debug("An error occurred while sending a grade to the TC. Retrying...")
                     self._increment_attempt(mongo_id)
                 else:
                     self._logger.error("An error occurred while sending a grade to the TC. Maximum number of retries reached.")
-                    self._delete(mongo_id)
+                    self._delete_in_db(mongo_id)
         except KeyboardInterrupt:
             pass
 
@@ -95,7 +95,7 @@ class LisOutcomeManager(threading.Thread):
         if entry is None:  # and it should be
             self._add_to_queue(self._database.lis_outcome_queue.find_one(search))
 
-    def _delete(self, mongo_id):
+    def _delete_in_db(self, mongo_id):
         """
         Delete an element from the queue in the database
         :param mongo_id:

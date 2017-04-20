@@ -51,7 +51,7 @@ class TaskFactory(object):
             raise InvalidNameException("Course with invalid name: " + courseid)
         if not id_checker(taskid):
             raise InvalidNameException("Task with invalid name: " + taskid)
-        path_to_descriptor, descriptor_ext, descriptor_manager = self._get_task_descriptor_info(courseid, taskid)
+        path_to_descriptor, _, descriptor_manager = self._get_task_descriptor_info(courseid, taskid)
         try:
             with codecs.open(path_to_descriptor, 'r', 'utf-8') as fd:
                 task_content = descriptor_manager.load(fd.read())
@@ -204,7 +204,7 @@ class TaskFactory(object):
         :param taskid: a (valid) task id
         :raise InvalidNameException, TaskNotFoundException, TaskUnreadableException
         """
-        path_to_descriptor, descriptor_ext, descriptor_reader = self._get_task_descriptor_info(course.get_id(), taskid)
+        path_to_descriptor, _, descriptor_reader = self._get_task_descriptor_info(course.get_id(), taskid)
         try:
             with codecs.open(path_to_descriptor, 'r', 'utf-8') as fd:
                 task_content = descriptor_reader.load(fd.read())

@@ -30,7 +30,7 @@ class MessageMeta(type):
     _registered_messages = {}
     DEBUG = True
 
-    def __new__(cls, name, bases, namespace, **kargs):
+    def __new__(cls, name, bases, namespace, **kargs):  # pylint: disable=unused-argument
         return super().__new__(cls, name, bases, namespace)
 
     @classmethod
@@ -48,7 +48,7 @@ class MessageMeta(type):
         except:
             raise TypeError("Unknown message type") from None
 
-        if not obj._verify():
+        if not obj._verify():  # pylint: disable=protected-access
             raise TypeError("Invalid message content")
 
         return obj
@@ -74,7 +74,7 @@ class MessageMeta(type):
 
         # check that all types have annotations
         for field in parameters:
-            if parameters[field].annotation == inspect._empty:
+            if parameters[field].annotation == inspect._empty:  # pylint: disable=protected-access
                 raise TypeError("All types should be annotated")
 
         cls._registered_messages[msgtype] = cls
@@ -167,7 +167,7 @@ def run_tests():
     print()
 
     print("----------------- Dump test")
-    obj2_dump = obj2.dump()
+    obj2_dump = obj2.dump()  # pylint: disable=no-member
     print(obj2_dump)
     print()
 

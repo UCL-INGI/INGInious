@@ -125,7 +125,7 @@ class CourseStudentTaskSubmission(INGIniousAdminPage):
                     "mime": "text/plain"
                 }
                 if isinstance(submission["input"][pid], dict):  # file
-                    extension = path.splitext(submission["input"][problem.get_id()]["filename"])[1]
+                    extension = path.splitext(submission["input"][pid]["filename"])[1]
                     try:
                         if extension in [".zip", ".pdf", ".tgz"]:
                             data["language"] = extension[1:]
