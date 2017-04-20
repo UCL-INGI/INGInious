@@ -31,7 +31,7 @@ class BetterParanoidPirateClient(object, metaclass=abc.ABCMeta):
 
         self._msgs_registered = {}
         self._msgs_registered_inv = {}
-        self._handlers_registered = {Pong.__msgtype__: self._handle_pong, Unknown.__msgtype__: self._handle_unknown}
+        self._handlers_registered = {Pong.__msgtype__: self._handle_pong, Unknown.__msgtype__: self._handle_unknown}  # pylint: disable=no-member
         self._transactions = {}
 
         self._restartable_tasks = [] # a list of asyncio task that should be closed each time the client restarts

@@ -76,7 +76,7 @@ class INGIniousPage(object):
         return self.app.gridfs
 
     @property
-    def default_allowed_file_extensions(self) -> List[str]:
+    def default_allowed_file_extensions(self) -> List[str]:  # pylint: disable=invalid-sequence-index
         """ List of allowed file extensions """
         return self.app.default_allowed_file_extensions
 
@@ -91,7 +91,7 @@ class INGIniousPage(object):
         return self.app.backup_dir
 
     @property
-    def containers(self) -> List[str]:
+    def containers(self) -> List[str]:  # pylint: disable=invalid-sequence-index
         """ Available containers """
         return self.app.submission_manager.get_available_environments()
 

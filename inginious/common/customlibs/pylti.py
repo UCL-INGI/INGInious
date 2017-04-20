@@ -291,7 +291,7 @@ def verify_request_common(consumers, url, method, headers, params):
     if headers.get('X-Forwarded-Proto', 'http') == 'https':
         url = url.replace('http:', 'https:', 1)
 
-    oauth_request = Request_Fix_Duplicate.from_request(
+    oauth_request = Request_Fix_Duplicate.from_request(  # pylint: disable=no-member
         method,
         url,
         headers=dict(headers),

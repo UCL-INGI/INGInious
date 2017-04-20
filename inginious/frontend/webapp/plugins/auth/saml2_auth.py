@@ -30,7 +30,6 @@ class SAMLAuthMethod(AuthMethod):
         return self._name
 
     def auth(self, login_data):
-        global settings
         auth = OneLogin_Saml2_Auth(prepare_request(), settings)
         raise web.seeother(auth.login(web.ctx.path + web.ctx.query.rsplit("?logoff")[0]))
 
@@ -94,7 +93,6 @@ class MetadataPage:
 
 class SAMLPage(INGIniousPage):
     def POST(self):
-        global settings
         req = prepare_request()
         input_data = web.input()
 
@@ -132,7 +130,7 @@ class SAMLPage(INGIniousPage):
             if 'RelayState' in input_data and self_url != input_data['RelayState']:
                 raise web.seeother(auth.redirect_to(input_data['RelayState']))
         else:
-            logging.getLogger('inginious.webapp.plugin.auth.saml').error("Errors while processing response : ", ", ".join(errors))
+            logging.getLogger('inginious.webapp.plugin.auth.saml').error("Errors while processing response : " + ", ".join(errors))
             raise web.seeother("/")
 
 

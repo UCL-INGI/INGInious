@@ -8,7 +8,7 @@ import pymongo
 import logging
 
 
-def update_database(database, gridfs, course_factory, user_manager):
+def update_database(database, gridfs, course_factory, user_manager):  # pylint: disable=unused-argument
     """
     Checks the database version and update the db if necessary
     :param course_factory: the course factory
@@ -49,7 +49,8 @@ def update_database(database, gridfs, course_factory, user_manager):
                 for u in r['usernames']:
                     user_manager.course_register_user(course, u, force=True)
             except:
-                logger.error("There was an error while updating the database. Some users may have been unregistered from the course {}".format(r['_id']))
+                logger.error("There was an error while updating the database. Some users may have been unregistered from the course %s",
+                             str(r['_id']))
         db_version = 2
 
     if db_version < 3:
@@ -96,7 +97,7 @@ def update_database(database, gridfs, course_factory, user_manager):
             classrooms[group["course_id"]]["groups"].append({"size": group["size"], "students": group["users"]})
             classrooms[group["course_id"]]["tutors"] = classrooms[group["course_id"]]["tutors"].union(group["tutors"])
 
-        for i, classroom in classrooms.items():
+        for classroom in classrooms.values():
             classroom["tutors"] = list(classroom["tutors"])
             database.classrooms.insert(classroom)
 

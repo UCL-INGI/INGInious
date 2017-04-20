@@ -91,7 +91,7 @@ def get_app(config):
 
     appli = web.application((), globals(), autoreload=False)
 
-    zmq_context, asyncio_thread = start_asyncio_and_zmq()
+    zmq_context, _ = start_asyncio_and_zmq()
 
     # Init the different parts of the app
     plugin_manager = PluginManager()

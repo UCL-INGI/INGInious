@@ -474,13 +474,13 @@ class DockerAgent(object):
         try:
             while not read_stream.at_eof():
                 msg_header = await read_stream.readexactly(8)
-                type, length = struct.unpack_from('>BxxxL', msg_header)  # format imposed by docker in the attach endpoint
+                outtype, length = struct.unpack_from('>BxxxL', msg_header)  # format imposed by docker in the attach endpoint
                 if length != 0:
                     content = await read_stream.readexactly(length)
-                    if type == 1:  # stdout
+                    if outtype == 1:  # stdout
                         buffer += content
 
-                    if type == 2:  # stderr
+                    if outtype == 2:  # stderr
                         self._logger.debug("Received stderr from containers:\n%s", content)
 
                     # 4 first bytes are the lenght of the message. If we have a complete message...
@@ -556,7 +556,7 @@ class DockerAgent(object):
             container_id = killed_msg.container_id
             self._logger.debug("Closing student (p2) for %s", container_id)
             try:
-                job_id, parent_container_id, socket_id, write_stream, retval = self._student_containers_ending[container_id]
+                _, parent_container_id, socket_id, write_stream, retval = self._student_containers_ending[container_id]
                 del self._student_containers_ending[container_id]
             except:
                 self._logger.warning("Student container %s that has finished(p2) was not launched by this agent", str(container_id))
@@ -595,8 +595,8 @@ class DockerAgent(object):
 
             # Close sub containers
             for student_container_id_loop in self._student_containers_for_job[message.job_id]:
-                student_container_id = student_container_id_loop
-                def close_and_delete():
+                # little hack to ensure the value of student_container_id_loop is copied into the closure
+                def close_and_delete(student_container_id=student_container_id_loop):
                     try:
                         self._docker.kill_container(student_container_id)
                         self._docker.remove_container(student_container_id)
@@ -693,7 +693,7 @@ class DockerAgent(object):
                 await self._loop.run_in_executor(None, lambda: rmtree(container_path))
             except PermissionError:
                 self._logger.debug("Cannot remove old container path!")
-                pass # todo: run a docker container to force removal
+                # todo: run a docker container to force removal
             
             # Return!
             await self.send_job_result(message.job_id, result, error_msg, grade, problems, tests, custom, archive, stdout, stderr)
@@ -741,7 +741,7 @@ class DockerAgent(object):
                 try:
                     tar = tarfile.open(fileobj=tmpfile, mode='w:gz')
                     await self._loop.run_in_executor(None, lambda: tar.add(output_path, '/', True))
-                    await self._loop.run_in_executor(None, lambda: tar.close())
+                    await self._loop.run_in_executor(None, tar.close)
                     tmpfile.flush()
                     tmpfile.seek(0)
                 except:

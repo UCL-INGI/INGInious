@@ -255,11 +255,13 @@ class DockerInterface(object):
         """
         self._docker.kill(container_id, signal)
 
-    def event_stream(self, filters={}):
+    def event_stream(self, filters=None):
         """
         :param filters: filters to apply on messages. See docker api.
         :return: an iterable that contains events from docker. See the docker api for content.
         """
+        if filters is None:
+            filters = {}
         return self._docker.events(decode=True, filters=filters)
 
 class FixDockerSocket():
@@ -274,7 +276,7 @@ class FixDockerSocket():
         Returns a valid socket.socket object
         """
         try:
-            return self.docker_py_sock._sock
+            return self.docker_py_sock._sock  # pylint: disable=protected-access
         except AttributeError:
             return self.docker_py_sock
 
@@ -284,7 +286,7 @@ class FixDockerSocket():
         :return:
         """
         try:
-            self.docker_py_sock._sock.close()
+            self.docker_py_sock._sock.close()  # pylint: disable=protected-access
         except AttributeError:
             pass
         self.docker_py_sock.close()

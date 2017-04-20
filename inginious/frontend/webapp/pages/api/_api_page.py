@@ -117,6 +117,7 @@ class APIError(Exception):
     """ Standard API Error """
 
     def __init__(self, status_code, return_value):
+        super(APIError, self).__init__()
         self.status_code = status_code
         self.return_value = return_value
 

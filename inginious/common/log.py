@@ -47,7 +47,6 @@ class CustomLogMiddleware:
         return self.app(environ, xstart_response)
 
     def log(self, status, environ):
-        outfile = environ.get('wsgi.errors', self._web_debug)
         req = environ.get('PATH_INFO', '_')
         protocol = environ.get('ACTUAL_SERVER_PROTOCOL', '-')
         method = environ.get('REQUEST_METHOD', '-')

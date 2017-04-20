@@ -72,7 +72,7 @@ class _CustomHTMLWriter(html4css1.Writer, object):
         html4css1.Writer.__init__(self)
         self.translator_class = self._CustomHTMLTranslator
 
-    class _CustomHTMLTranslator(html4css1.HTMLTranslator, object):
+    class _CustomHTMLTranslator(html4css1.HTMLTranslator, object):  # pylint: disable=abstract-method
         """ A custom HTML translator """
 
         def visit_container(self, node):
@@ -159,7 +159,7 @@ class ParsableText(object):
         return self.parse()
 
     @classmethod
-    def html(cls, string, show_everything=False):
+    def html(cls, string, show_everything=False):  # pylint: disable=unused-argument
         """Parses HTML"""
         out, _ = tidylib.tidy_fragment(string)
         return out

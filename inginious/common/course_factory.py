@@ -77,7 +77,7 @@ class CourseFactory(object):
         for courseid in course_ids:
             try:
                 output[courseid] = self.get_course(courseid)
-            except Exception as e:  # todo log the error
+            except Exception:
                 get_course_logger(courseid).warning("Cannot open course", exc_info=True)
         return output
 

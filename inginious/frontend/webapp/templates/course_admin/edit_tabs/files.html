@@ -1,4 +1,4 @@
-$def with (course,taskid,file_list)
+$def with (course,taskid,file_list,error)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -6,6 +6,10 @@ $# more information about the licensing of this file.
 $#
 
 <div role="tabpanel" class="tab-pane active" id="tab_file_list">
+    $if error is not None:
+        <div class="alert alert-danger" role="alert" style="text-align: center;">
+            $error
+        </div>
     <table class="table table-bordered table-condensed">
         <tr>
             <th class="col-sm-8">Path</th>

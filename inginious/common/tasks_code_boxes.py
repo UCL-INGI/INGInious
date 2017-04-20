@@ -27,7 +27,7 @@ class BasicBox(object, metaclass=ABCMeta):
         """ Return the _id of this box """
         return self._id
 
-    def input_is_consistent(self, task_input, default_allowed_extension, default_max_size):
+    def input_is_consistent(self, task_input, default_allowed_extension, default_max_size):  # pylint: disable=unused-argument
         """ Check if an input for this box is consistent. Return true if this is case, false else """
         try:
             return self.get_complete_id() in task_input

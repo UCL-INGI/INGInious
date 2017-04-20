@@ -17,12 +17,12 @@ from inginious.frontend.webapp.pages.course_admin.utils import INGIniousAdminPag
 from inginious.frontend.webapp.accessible_time import AccessibleTime
 
 
-def add_admin_menu(course):
+def add_admin_menu(_):
     """ Add a menu for the contest settings in the administration """
     return ('contest', '<i class="fa fa-trophy fa-fw"></i>&nbsp; Contest')
 
 
-def task_accessibility(course, task, default):
+def task_accessibility(course, _, default):
     contest_data = get_contest_data(course)
     if contest_data['enabled']:
         return AccessibleTime(contest_data['start'] + '/')
@@ -215,7 +215,7 @@ class ContestAdmin(INGIniousAdminPage):
             return self.template_helper.get_custom_renderer('frontend/webapp/plugins/contests').admin(course, contest_data, errors, False)
 
 
-def init(plugin_manager, course_factory, client, _config):
+def init(plugin_manager, course_factory, client, config):  # pylint: disable=unused-argument
     """
         Init the contest plugin.
         Available configuration:
