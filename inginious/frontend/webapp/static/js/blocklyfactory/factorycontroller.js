@@ -106,11 +106,18 @@ FactoryController.prototype.setWorkspaceXml = function(xml) {
 };
 
 FactoryController.prototype.cleanXml = function(xmlText) {
+    var cleanChildren = function(elem) {
+        var children = elem.children();
+        for (var i = 0, len = children.length; i < len; i++) {
+            var child = $(children[i]);
+            child.removeAttr('id');
+            child.removeAttr('x');
+            child.removeAttr('y');
+            cleanChildren(child);
+        }
+    };
     var xml = $(xmlText);
-    var blocks = xml.find("block");
-    blocks.removeAttr('id');
-    blocks.removeAttr('x');
-    blocks.removeAttr('y');
+    cleanChildren(xml);
     return xml[0].outerHTML;
 };
 
@@ -192,7 +199,7 @@ FactoryController.prototype.createToolboxCategory = function() {
 
         // Set root blocks into the new category
         if (rootBlocks.length !== 0) {
-            var xml = Blockly.Xml.workspaceToDom(this.toolboxWorkspace);
+            var xml = Blockly.Xml.workspaceToDom(this.toolboxWorkspace, true);
             var xmlText = Blockly.Xml.domToPrettyText(xml);
             var cleanXml = this.cleanXml(xmlText);
             this.setToolboxCategoryXml(selectedCategory, cleanXml);

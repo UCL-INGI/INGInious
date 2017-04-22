@@ -87,7 +87,7 @@ BlocklyTask.prototype.display = function() {
     /* Show the limit of blocks that can be dragged in the workspace
      * or do not show if there is no limit.
      */
-    if ("maxBlocks" in this.options && this.options.maxBlocks !== Infinity && this.options.maxBlocks !== 'Infinity') {
+    if ("maxBlocks" in this.options && this.options.maxBlocks && this.options.maxBlocks !== Infinity && this.options.maxBlocks !== 'Infinity') {
         this.blocksLimitNumber.text(this.options.maxBlocks);
     } else {
         this.blocksLimitText.hide();
@@ -244,6 +244,10 @@ BlocklyTask.prototype.onWorkspaceChange = function(self) {
     };
 };
 
+/**
+ * @return a function that should be called when the fullscreen modal for
+ * a blockly task is opened.
+ */
 BlocklyTask.prototype.onModalOpen = function(self) {
     return function() {
         // FIXME Next line is a fix, please monitor https://github.com/google/blockly/issues/56
@@ -293,6 +297,9 @@ BlocklyTask.prototype.onModalClose = function(self) {
     };
 };
 
+/**
+ * Shows only the blockly workspace (should be the default behavior)
+ */
 BlocklyTask.prototype.onWorkspaceMode = function() {
     this.blocklyAppWorkspace.removeClass();
     this.blocklyAppWorkspace.addClass("col-xs-12");
@@ -303,6 +310,10 @@ BlocklyTask.prototype.onWorkspaceMode = function() {
     this.workspace.render();
 };
 
+/**
+ * Split the workspace in two: half blocks and half text.
+ * Text is not editable.
+ */
 BlocklyTask.prototype.onSplitMode = function() {
     this.blocklyAppWorkspace.removeClass();
     this.blocklyAppWorkspace.addClass("col-xs-6");
@@ -318,6 +329,10 @@ BlocklyTask.prototype.onSplitMode = function() {
     this.workspace.render();
 };
 
+/**
+ * Show code as text (hide the workspace).
+ * Text is not editable.
+ */
 BlocklyTask.prototype.onTextMode = function() {
     this.blocklyAppWorkspace.removeClass();
     this.blocklyAppWorkspace.hide();
@@ -330,7 +345,11 @@ BlocklyTask.prototype.onTextMode = function() {
     this.editor.refresh();
 };
 
-BlocklyTaskInterpreter = function(task) {
+/**
+ * @constructor
+ * @param task: a BlocklyTask object
+ */
+var BlocklyTaskInterpreter = function(task) {
     this.task = task;
     this.workspace = this.task.workspace;
     this.highlightPause = false;
@@ -367,6 +386,10 @@ BlocklyTaskInterpreter.prototype.init = function(self) {
     };
 };
 
+/**
+ * Translate block into javascript and links this.interpreter to a new interpreter
+ * of the code.
+ */
 BlocklyTaskInterpreter.prototype.parseCode = function() {
     // Generate JavaScript code and parse it.
     Blockly.JavaScript.STATEMENT_PREFIX = 'highlightBlock(%1);\n';
@@ -379,11 +402,17 @@ BlocklyTaskInterpreter.prototype.parseCode = function() {
     this.workspace.highlightBlock(null);
 };
 
+/**
+ * Start the execution of the code produced by blocks in the workspace.
+ */
 BlocklyTaskInterpreter.prototype.start = function() {
     this.parseCode();
     this.stepCode(this);
 };
 
+/**
+ * Stop the code execution.
+ */
 BlocklyTaskInterpreter.prototype.stop = function() {
     if (this.timeout !== null) {
         window.clearTimeout(this.timeout);
@@ -391,6 +420,9 @@ BlocklyTaskInterpreter.prototype.stop = function() {
     this.workspace.highlightBlock(null);
 };
 
+/**
+ * Execute a step of the code
+ */
 BlocklyTaskInterpreter.prototype.stepCode = function(self) {
     var ok;
     try {
@@ -414,11 +446,19 @@ BlocklyTaskInterpreter.prototype.stepCode = function(self) {
     }
 };
 
+/**
+ * Highlight a block
+ * @param id: id of the block to be highlighted
+ */
 BlocklyTaskInterpreter.prototype.highlightBlock = function(id) {
     this.workspace.highlightBlock(id);
     this.highlightPause = true;
 };
 
+/**
+ * Show a message above the blockly workspace during 10 seconds.
+ * @param message: the string to be displayed
+ */
 BlocklyTaskInterpreter.alert = function(message) {
     var blocklyInterpreterAlert = $("#blocklyInterpreterAlert");
     var blocklyInterpreterAlertText = $("#blocklyInterpreterAlertText");

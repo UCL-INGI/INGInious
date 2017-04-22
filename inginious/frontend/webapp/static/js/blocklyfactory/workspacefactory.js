@@ -13,7 +13,7 @@ WorkspaceFactory.prototype.onWorkspaceChange = function(event) {
     if (event.type == Blockly.Events.CREATE ||
         event.type == Blockly.Events.DELETE ||
         event.type == Blockly.Events.CHANGE) {
-        var xml = Blockly.Xml.workspaceToDom(this.workspace);
+        var xml = Blockly.Xml.workspaceToDom(this.workspace, true);
         var xml_text = Blockly.Xml.domToPrettyText(xml);
         this.controller.setWorkspaceXml(xml_text);
     }

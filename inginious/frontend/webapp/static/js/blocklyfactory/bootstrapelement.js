@@ -1,6 +1,11 @@
 var BootstrapElement = function() {
 };
 
+/**
+ * @param id: the id of the button
+ * @param content: HTML or string that will be inside the button
+ * @return a new bootstrap default button with the given id and content
+ */
 BootstrapElement.button = function(id, content) {
     var button = $("<button>");
     button.addClass('btn');
@@ -14,6 +19,12 @@ BootstrapElement.button = function(id, content) {
     return button;
 };
 
+/**
+ * @param red: an integer (between 0 and 255)
+ * @param green: an integer (between 0 and 255)
+ * @param blue: an integer (between 0 and 255)
+ * @return a new square (in a div element) that corresponds to the color
+ */
 BootstrapElement.colorSquare = function(red, green, blue) {
     var div = $('<div>');
     div.css('border', '1px solid #000');
@@ -24,6 +35,10 @@ BootstrapElement.colorSquare = function(red, green, blue) {
     return div;
 };
 
+/**
+ * @param size: an integer (between 1 and 12)
+ * @return a new bootstrap column div of the given size
+ */
 BootstrapElement.column = function(size) {
     var div = $('<div>');
     div.addClass('col-xs-' + size);
@@ -178,6 +193,11 @@ BootstrapElement.tabPane = function(divId) {
     return div;
 };
 
+/**
+ * @param id: the id of the textarea
+ * @param content: text to be inserted in the textarea
+ * @return a new textarea with the given id and the given content
+ */
 BootstrapElement.textArea = function(id, content) {
     var textarea = $('<textarea>');
     textarea.attr('id', id);

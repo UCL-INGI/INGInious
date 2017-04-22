@@ -698,13 +698,13 @@ function studio_init_template_blockly(well, pid, problem)
     if ("files" in problem) {
         jQuery.each(problem["files"], function(index, elem)
         {
-            studio_create_javascript_files(pid, elem);
+            studio_create_blockly_js_files(pid, elem);
         });
     }
     if ("blocks_files" in problem) {
         jQuery.each(problem["blocks_files"], function(index, elem)
         {
-            studio_create_blocks_files(pid, elem);
+            studio_create_blockly_blocks_files(pid, elem);
         });
     }
 
@@ -738,7 +738,7 @@ function studio_init_template_blockly(well, pid, problem)
  * @param pid
  * @param filename
  */
-function studio_create_javascript_files(pid, filename)
+function studio_create_blockly_js_files(pid, filename)
 {
     var index = 0;
     while($('#file-' + pid + '-' + index).length != 0)
@@ -760,7 +760,7 @@ function studio_create_javascript_files(pid, filename)
     }
 }
 
-function studio_create_blocks_files(pid, filename)
+function studio_create_blockly_blocks_files(pid, filename)
 {
     var index = 0;
     while($('#file-' + pid + '-' + index).length != 0)
