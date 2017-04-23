@@ -1,8 +1,8 @@
-var FactoryView = function(controller, id) {
+var FactoryView = function(controller, id, pid) {
     this.controller = controller;
     this.div = $('#' + id);
     this.div.addClass('col-xs-12');
-    this.div.css('height', '70vh');
+    this.div.css('height', '60vh');
     this.factoryDiv = this.createColumn('Factory');
     this.div.append(this.factoryDiv);
     this.middleDiv = this.createColumn('');
@@ -20,8 +20,8 @@ var FactoryView = function(controller, id) {
     this.workspaceTab = BootstrapElement.tab('workspaceFactory', 'Workspace');
     this.tabList.append(this.toolboxTab);
     this.tabList.append(this.workspaceTab);
-    this.toolboxTextarea = $("#toolbox-code").next('.CodeMirror')[0].CodeMirror;
-    this.workspaceTextarea = $("#workspace-code").next('.CodeMirror')[0].CodeMirror;
+    this.toolboxTextarea = $("#toolbox-" + pid).next('.CodeMirror')[0].CodeMirror;
+    this.workspaceTextarea = $("#workspace-" + pid).next('.CodeMirror')[0].CodeMirror;
 
     /* Left part  */
     this.tabContent = BootstrapElement.tabContent();
@@ -53,6 +53,23 @@ var FactoryView = function(controller, id) {
     if (this.categoriesName.length > 0) this.setSelectedCategory(this.categoriesName[0]);
     this.middleDiv.prepend(this.categoriesList);
 
+    /* Blocks properties buttons */
+    this.deletableButton = this.createMakeDeletableButton();
+    this.middleDiv.append(this.deletableButton);
+    this.undeletableButton = this.createMakeUndeletableButton();
+    this.middleDiv.append(this.undeletableButton);
+    this.movableButton = this.createMakeMovableButton();
+    this.middleDiv.append(this.movableButton);
+    this.unmovableButton = this.createMakeUnmovableButton();
+    this.middleDiv.append(this.unmovableButton);
+    this.enableButton = this.createMakeEnabledButton();
+    this.middleDiv.append(this.enableButton);
+    this.disableButton = this.createMakeDisabledButton();
+    this.middleDiv.append(this.disableButton);
+    this.editableButton = this.createMakeEditableButton();
+    this.middleDiv.append(this.editableButton);
+    this.uneditableButton = this.createMakeUneditableButton();
+    this.middleDiv.append(this.uneditableButton);
 
     this.toolboxTab.on('shown.bs.tab', this.onToolboxTabClick.bind(this));
     this.workspaceTab.on('shown.bs.tab', this.onWorkspaceTabClick.bind(this));
@@ -151,11 +168,31 @@ FactoryView.prototype.injectPreloadWorkspace = function(toolbox, workspaceBlocks
 };
 
 FactoryView.prototype.onToolboxTabClick = function() {
+    this.addButton.show();
+    this.removeButton.show();
+    this.moveUpButton.show();
+    this.moveDownButton.show();
+    this.editCategoryButton.show();
+    this.categoriesList.show();
+    this.deletableButton.hide();
+    this.undeletableButton.hide();
+    this.movableButton.hide();
+    this.unmovableButton.hide();
+    this.enableButton.hide();
+    this.disableButton.hide();
+    this.editableButton.hide();
+    this.uneditableButton.hide();
     Blockly.svgResize(this.controller.toolboxWorkspace);
     this.controller.toolboxWorkspace.render();
 };
 
 FactoryView.prototype.onWorkspaceTabClick = function() {
+    this.addButton.hide();
+    this.removeButton.hide();
+    this.moveUpButton.hide();
+    this.moveDownButton.hide();
+    this.editCategoryButton.hide();
+    this.categoriesList.hide();
     Blockly.svgResize(this.controller.preloadWorkspace);
     this.controller.preloadWorkspace.render();
 };
@@ -392,4 +429,124 @@ FactoryView.prototype.moveDownCategory = function() {
             $(categories[i+1]).after(categoryItem.detach());
         }
     }
+};
+
+FactoryView.prototype.createMakeUndeletableButton = function() {
+    var btn = BootstrapElement.button(undefined, "Make undeletable");
+
+    btn.on('click.simple', function() {
+        if (Blockly.selected) {
+            Blockly.selected.setDeletable(false);
+            this.controller.savePreloadWorkspace();
+            this.deletableButton.show();
+            this.undeletableButton.hide();
+        }
+    }.bind(this));
+
+    btn.hide();
+    return btn;
+};
+
+FactoryView.prototype.createMakeDeletableButton = function() {
+    var btn = BootstrapElement.button(undefined, "Make deletable");
+
+    btn.on('click.simple', function() {
+        if (Blockly.selected) {
+            Blockly.selected.setDeletable(true);
+            this.controller.savePreloadWorkspace();
+            this.undeletableButton.show();
+            this.deletableButton.hide();
+        }
+    }.bind(this));
+
+    btn.hide();
+    return btn;
+};
+
+FactoryView.prototype.createMakeMovableButton = function() {
+    var btn = BootstrapElement.button(undefined, "Make movable");
+
+    btn.on("click.simple", function() {
+        if (Blockly.selected) {
+            Blockly.selected.setMovable(true);
+            this.controller.savePreloadWorkspace();
+            this.unmovableButton.show();
+            this.movableButton.hide();
+        }
+    }.bind(this));
+
+    btn.hide();
+    return btn;
+};
+
+FactoryView.prototype.createMakeUnmovableButton = function() {
+    var btn = BootstrapElement.button(undefined, "Make unmovable");
+
+    btn.on("click.simple", function() {
+        if (Blockly.selected) {
+            Blockly.selected.setMovable(false);
+            this.controller.savePreloadWorkspace();
+            this.movableButton.show();
+            this.unmovableButton.hide();
+        }
+    }.bind(this));
+
+    btn.hide();
+    return btn;
+};
+
+FactoryView.prototype.createMakeEnabledButton = function() {
+    var btn = BootstrapElement.button(undefined, "Enable");
+
+    btn.on('click.simple', function() {
+        this.enableButton.hide();
+        Blockly.selected.setDisabled(false);
+        this.controller.savePreloadWorkspace();
+        this.disableButton.show();
+    }.bind(this));
+
+    btn.hide();
+    return btn;
+};
+
+FactoryView.prototype.createMakeDisabledButton = function() {
+    var btn = BootstrapElement.button(undefined, "Disable");
+
+    btn.on('click.simple', function() {
+        this.disableButton.hide();
+        Blockly.selected.setDisabled(true);
+        this.controller.savePreloadWorkspace();
+        this.enableButton.show();
+    }.bind(this));
+
+    btn.hide();
+    return btn;
+};
+
+FactoryView.prototype.createMakeEditableButton = function() {
+    var btn = BootstrapElement.button(undefined, "Make editable");
+
+    btn.on('click.simple', function() {
+        this.editableButton.hide();
+        Blockly.selected.setEditable(true);
+        this.controller.savePreloadWorkspace();
+        this.uneditableButton.show();
+    }.bind(this));
+
+    btn.hide();
+    return btn;
+};
+
+FactoryView.prototype.createMakeUneditableButton = function() {
+    var btn = BootstrapElement.button(undefined, "Make uneditable");
+
+    btn.on('click.simple', function() {
+        this.uneditableButton.hide();
+        Blockly.selected.setEditable(false);
+        this.controller.savePreloadWorkspace();
+        this.editableButton.show();
+    }.bind(this));
+
+    btn.hide();
+    return btn;
 };

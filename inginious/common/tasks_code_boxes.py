@@ -233,6 +233,4 @@ class BlocklyBox(MultilineBox):
             self._blocks_files = boxData["blocks_files"]
 
     def input_is_consistent(self, taskInput, default_allowed_extension, default_max_size):
-        if not MultilineBox.input_is_consistent(self, taskInput, default_allowed_extension, default_max_size):
-            return False
-        return True
+        return MultilineBox.input_is_consistent(self, taskInput, default_allowed_extension, default_max_size)

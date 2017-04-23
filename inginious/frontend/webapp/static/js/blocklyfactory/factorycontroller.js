@@ -1,5 +1,5 @@
-var FactoryController = function(id, basicToolbox, workspaceBlocks, options) {
-    this.view = new FactoryView(this, id);
+var FactoryController = function(id, basicToolbox, workspaceBlocks, options, pid) {
+    this.view = new FactoryView(this, id, pid);
     this.toolboxFactory = new ToolboxFactory(this);
     this.workspaceFactory = new WorkspaceFactory(this);
     this.basicToolbox = basicToolbox;
@@ -103,6 +103,13 @@ FactoryController.prototype.setWorkspaceXml = function(xml) {
     var cleanXml = this.cleanXml(xml);
     this.view.workspaceTextarea.setValue(cleanXml);
     this.updatePreview(false);
+};
+
+FactoryController.prototype.savePreloadWorkspace = function() {
+    var xml, xml_text;
+    xml = Blockly.Xml.workspaceToDom(this.preloadWorkspace, true);
+    xml_text = Blockly.Xml.domToPrettyText(xml);
+    this.setWorkspaceXml(xml_text);
 };
 
 FactoryController.prototype.cleanXml = function(xmlText) {
