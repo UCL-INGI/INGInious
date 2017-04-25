@@ -17,18 +17,18 @@ $#
 <!-- Workspace on the page -->
 <div id="blocklyButtonsRow" class="row">
     <div id="blocklyButtons" class="col-xs-8">
-        <button id="playButton" type="button" class="btn btn-success" style="margin-left:5px;margin-bottom:5px;margin-top:5px;border-radius:10px;border:1px solid transparent;"><span class="glyphicon glyphicon-play"></span> Tester le code</button>
-        <button id="stopButton" type="button" class="btn btn-danger" style="display:none;margin-left:5px;margin-bottom:5px;margin-top:5px;border-radius:10px;border:1px solid transparent;"><span class="glyphicon glyphicon-pause"></span> Arrêter</button>
-        <button id="resetButton" type="button" class="btn btn-danger" style="display:none;margin-left:5px;margin-bottom:5px;margin-top:5px;border-radius:10px;border:1px solid transparent;"><span class="glyphicon glyphicon-repeat"></span> Recommencer</button>
+        <button id="playButton" type="button" class="btn btn-success" style="margin-left:5px;margin-bottom:5px;margin-top:5px;border-radius:10px;border:1px solid transparent;"><span class="glyphicon glyphicon-play"></span> Run code</button>
+        <button id="stopButton" type="button" class="btn btn-danger" style="display:none;margin-left:5px;margin-bottom:5px;margin-top:5px;border-radius:10px;border:1px solid transparent;"><span class="glyphicon glyphicon-pause"></span> Stop</button>
+        <button id="resetButton" type="button" class="btn btn-danger" style="display:none;margin-left:5px;margin-bottom:5px;margin-top:5px;border-radius:10px;border:1px solid transparent;"><span class="glyphicon glyphicon-repeat"></span> Restart</button>
         <div class="btn-group">
             <button id="blockModeButtons" type="button" class="btn btn-default active"><span class="glyphicon glyphicon-th-large"></span> Blocks</button>
             <button id="splitModeButtons" type="button" class="btn btn-default"><span class="glyphicon glyphicon-resize-horizontal"></span> Split</button>
             <button id="textModeButtons" type="button" class="btn btn-default"><span class="glyphicon glyphicon-pencil"></span> Text</button>
         </div>
-        <button type="button" id="buttonFullscreen" disabled="true" class="btn btn-default" data-toggle="modal" data-target="#blocklyModal" style="margin-left:5px;margin-bottom:5px;margin-top:5px;border-radius:10px;border:1px solid transparent;"><span class="glyphicon glyphicon-modal-window"></span> Plein écran</button>
+        <button type="button" id="buttonFullscreen" disabled="true" class="btn btn-default" data-toggle="modal" data-target="#blocklyModal" style="margin-left:5px;margin-bottom:5px;margin-top:5px;border-radius:10px;border:1px solid transparent;"><span class="glyphicon glyphicon-modal-window"></span> Toggle full screen</button>
     </div>
     <div id="blocklyBlocksText" class="col-xs-4" style="margin-top:10px;">
-        <p id="blocksLimitText" class="text-info">Il vous reste <b id="blocksLimitNumber"></b> bloc(s)</p>
+        <p id="blocksLimitText" class="text-info">You have <b id="blocksLimitNumber"></b> block(s) left.</p>
     </div>
 </div>
 <div class="row">
@@ -106,8 +106,8 @@ $#
 <script src="$get_homepath()/static/common/js/blockly/python_compressed.js" type="text/javascript" charset="utf-8"></script>
 <script src="$get_homepath()/static/common/js/blockly/javascript_compressed.js" type="text/javascript" charset="utf-8"></script>
 
-<!-- Blockly French Translation -->
-<script src="$get_homepath()/static/common/js/blockly/msg/js/fr.js" type="text/javascript" charset="utf-8"></script>
+<!-- Blockly English Translation -->
+<script src="$get_homepath()/static/common/js/blockly/msg/js/en.js" type="text/javascript" charset="utf-8"></script>
 
 $if filenames is not None:
     $for filename in filenames:

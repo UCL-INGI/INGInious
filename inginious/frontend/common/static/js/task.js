@@ -788,9 +788,9 @@ function loadInput(submissionid, input)
 
         if(id in input)
         {
-            if($(this).attr('type') != "checkbox" && $(this).attr('type') != "radio" && $(this).attr('type') != "file")
+            if($(this).attr('type') != "checkbox" && $(this).attr('type') != "radio" && $(this).attr('type') != "file" && $(this).attr('type') != "blockly")
                 $(this).prop('value', input[id]);
-            else if($(this).attr('type') == "checkbox" && jQuery.isArray(input[id]) && $.inArray($(this).prop('value'), input[id]) >= 0)
+            else if ($(this).attr('type') == "checkbox" && jQuery.isArray(input[id]) && $.inArray($(this).prop('value'), input[id]) >= 0)
                 $(this).prop('checked', true);
             else if($(this).attr('type') == "radio" && $(this).prop('value') == input[id])
                 $(this).prop('checked', true);
@@ -809,6 +809,46 @@ function loadInput(submissionid, input)
         else
             $(this).prop('value', '');
     });
+
+    $('form#task div#blocklyDiv').each(
+        function() {
+
+            if($(this).attr('type') == "hidden") //do not try to change @action
+                return;
+
+            if ("blockly" in input) {
+                Blockly.getMainWorkspace().clear();
+                var xml = Blockly.Xml.textToDom(input["blockly"]);
+                Blockly.Xml.domToWorkspace(xml, Blockly.getMainWorkspace());
+            }
+        }
+    );
+
+    $('#blocklyXmlArea').each(
+        function() {
+
+            if($(this).attr('type') == "hidden") //do not try to change @action
+                return;
+
+            if ("blockly" in input) {
+                $(this).prop('value', input["blockly"]);
+            }
+        }
+    );
+
+    $('form#task textarea#codeArea').each(
+        function() {
+
+            if($(this).attr('type') == "hidden") //do not try to change @action
+                return;
+
+            var id = $(this).attr('name');
+
+            if (id in input) {
+                $(this).prop('value', input[id]);
+            }
+        }
+    );
 
     $.each(codeEditors, function()
     {
