@@ -546,10 +546,10 @@ function studio_init_template_blockly(well, pid, problem) {
         $("#grid-" + pid).prop('checked', false);
     }
 
-    $("#gridSpacing-" + pid).val("spacing" in grid_options ? grid_options.spacing : "20");
-    $("#gridLength-" + pid).val("length" in grid_options ? grid_options.length : "3");
-    $("#gridColour-" + pid).val("colour" in grid_options ? grid_options.colour : "#ccc");
-    $("#gridSnap-" + pid).prop('checked', "snap" in grid_options ? grid_options.snap : true);
+    $("#gridSpacing-" + pid).val("spacing" in gridOptions ? gridOptions.spacing : "20");
+    $("#gridLength-" + pid).val("length" in gridOptions ? gridOptions.length : "3");
+    $("#gridColour-" + pid).val("colour" in gridOptions ? gridOptions.colour : "#ccc");
+    $("#gridSnap-" + pid).prop('checked', "snap" in gridOptions ? gridOptions.snap : true);
 
     $('#grid-' + pid).change(function() {
         if ($(this).is(":checked")) {
