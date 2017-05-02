@@ -819,3 +819,9 @@ function loadInput(submissionid, input)
             this.setValue("");
     })
 }
+
+function lintCode(language, problemId){
+    var editor =  getEditorForProblemId(problemId);
+    var code = editor.getValue();
+    alert(language + " " + code);
+}
