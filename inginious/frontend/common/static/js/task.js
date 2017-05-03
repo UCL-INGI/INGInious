@@ -820,15 +820,25 @@ function loadInput(submissionid, input)
     })
 }
 
+function lintCode(language, problemId, callback){
+  var editor =  getEditorForProblemId(problemId);
+  var code = editor.getValue();
+  var apiUrl = "http://localhost:4567/" + language;
+  callback = callback || getCallbackForLanguage(language);
+
+  $.post(apiUrl, { code: code }, callback);
+}
+
+function getCallbackForLanguage(language){
+  if(language == "cpp") return makeNewTabFromResponse;
+  return defaultCallback;
+}
+
 function makeNewTabFromResponse(response, status){
   var newTabUrl = "data:text/html," + encodeURIComponent(response);
   var newWindow = window.open(newTabUrl, '_blank');
 }
 
-function lintCode(language, problemId){
-  var editor =  getEditorForProblemId(problemId);
-  var code = editor.getValue();
-  var api_url = "http://localhost:4567/" + language;
-
-  $.post(api_url, { code: code }, makeNewTabFromResponse);
+function defaultCallback(response, status){
+  alert(response + "\n\nresponse_status: " + status);
 }
