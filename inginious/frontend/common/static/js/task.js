@@ -820,8 +820,15 @@ function loadInput(submissionid, input)
     })
 }
 
+function makeNewTabFromResponse(response, status){
+  var newTabUrl = "data:text/html," + encodeURIComponent(response);
+  var newWindow = window.open(newTabUrl, '_blank');
+}
+
 function lintCode(language, problemId){
-    var editor =  getEditorForProblemId(problemId);
-    var code = editor.getValue();
-    alert(language + " " + code);
+  var editor =  getEditorForProblemId(problemId);
+  var code = editor.getValue();
+  var api_url = "http://localhost:4567/" + language;
+
+  $.post(api_url, { code: code }, makeNewTabFromResponse);
 }
