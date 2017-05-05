@@ -88,6 +88,7 @@ function registerCodeEditor(textarea, lang, lines)
         lineWrapping:      true,
         gutters:           ["CodeMirror-lint-markers", "CodeMirror-linenumbers", "CodeMirror-foldgutter"],
         indentUnit:        2,
+        tabSize:           2,
         viewportMargin:    Infinity,
         theme:             "inginious",
         lint:              true

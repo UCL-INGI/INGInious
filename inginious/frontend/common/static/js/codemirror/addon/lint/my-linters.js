@@ -12,30 +12,21 @@
   function(CodeMirror) {
     "use strict";
 
-    function lint(code){
-      var found = [];
-      found.push({
-        from: CodeMirror.Pos(1-1, 0),
-        to: CodeMirror.Pos(2-1, 0),
-        severity: "warning",
-        message: "Package name contains upper case characters"
-      });
+    var clikeLanguageDict = {};
+    clikeLanguageDict["text/x-java"] = "java";
+    clikeLanguageDict["text/x-c++src"] = "cpp";
+    clikeLanguageDict["text/x-csrc"] = "c";
 
-      found.push({
-        from: CodeMirror.Pos(6-1, 0),
-        to: CodeMirror.Pos(7-1, 0),
-        severity: "warning",
-        message: "Avoid unused imports such as 'java.util.Scanner'"
-      });
+    function getLanguageFromMode(mode) {
+      if(mode.name == "clike")
+        return clikeLanguageDict[mode.helperType];
+      return mode.name;
+    }
 
-      found.push({
-        from: CodeMirror.Pos(15-1, 0),
-        to: CodeMirror.Pos(16-1, 0),
-        severity: "warning",
-        message: "This class has too many methods, consider refactoring it."
-      });
-
-      return found;
+    function lint(code, options, editor){
+      var language = getLanguageFromMode(editor.getMode());
+      var errors_and_warnings = [];
+      return errors_and_warnings;
     }
 
     CodeMirror.registerHelper("lint", "text/x-java", lint);
