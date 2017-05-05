@@ -86,14 +86,11 @@ function registerCodeEditor(textarea, lang, lines)
         matchBrackets:     true,
         autoCloseBrackets: true,
         lineWrapping:      true,
-        gutters:           ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
-        indentUnit:        4,
+        gutters:           ["CodeMirror-lint-markers", "CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+        indentUnit:        2,
         viewportMargin:    Infinity,
         theme:             "inginious",
-        lint:              function()
-                           {
-                               return []
-                           }
+        lint:              true
     });
 
     if(is_single)
@@ -109,8 +106,8 @@ function registerCodeEditor(textarea, lang, lines)
     editor.setSize(null, min_editor_height + "px");
     onEditorViewportChange(min_editor_height, editor); //immediately trigger a size update
 
-    if(mode["mode"] != "plain")
-        CodeMirror.autoLoadMode(editor, mode["mode"]);
+    //if(mode["mode"] != "plain")
+    //    CodeMirror.autoLoadMode(editor, mode["mode"]);
 
     codeEditors.push(editor);
     return editor;

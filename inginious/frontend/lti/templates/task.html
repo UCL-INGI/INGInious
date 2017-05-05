@@ -23,7 +23,7 @@ $def ColumnF():
                     Not yet attempted
                 $else:
                     $ succeeded=False
-                    $ waiting=False   
+                    $ waiting=False
                     $for submission in submissions:
                         $if submission["status"] == "done" and submission["result"] == "success":
                             $ succeeded=True
