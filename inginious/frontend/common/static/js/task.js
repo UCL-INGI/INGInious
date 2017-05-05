@@ -820,11 +820,17 @@ function loadInput(submissionid, input)
     })
 }
 
+var updateLintingCallback = function(editor){
+  return function(response, status){
+    editor.updateLintStatus(response);
+  }
+}
+
 function lintCode(language, problemId, callback){
   var editor =  getEditorForProblemId(problemId);
   var code = editor.getValue();
   var apiUrl = "http://localhost:4567/" + language;
-  callback = callback || getCallbackForLanguage(language);
+  callback = callback || updateLintingCallback(editor);
 
   $.post(apiUrl, { code: code }, callback);
 }
