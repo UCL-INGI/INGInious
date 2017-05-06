@@ -90,7 +90,7 @@ function registerCodeEditor(textarea, lang, lines)
         indentUnit:        2,
         tabSize:           2,
         cursorHeight:      0.85,
-        viewportMargin:    Infinity,
+        viewportMargin:    20,
         theme:             "inginious",
         lint:              true
     });
@@ -118,10 +118,10 @@ function registerCodeEditor(textarea, lang, lines)
 // Verify if the size of each code editor is sufficient
 function onEditorViewportChange(min_editor_height, cm)
 {
-    if(cm.getScrollInfo()["height"] > min_editor_height)
-        cm.setSize(null, "auto");
-    else
-        cm.setSize(null, min_editor_height + "px");
+    //if(cm.getScrollInfo()["height"] > min_editor_height)
+    //    cm.setSize(null, "auto");
+    //else
+    cm.setSize(null, "500" + "px");
 }
 
 // Apply parent function recursively
