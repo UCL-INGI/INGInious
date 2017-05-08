@@ -820,27 +820,30 @@ function loadInput(submissionid, input)
     })
 }
 
-var updateLintingCallback = function(editor){
-  return function(response, status){
-    editor.updateLintStatus(response);
-  }
-}
-
 function lintCode(language, problemId, callback){
   var editor =  getEditorForProblemId(problemId);
   var code = editor.getValue();
   var apiUrl = "http://localhost:4567/" + language;
-  callback = callback || updateLintingCallback(editor);
+  callback = callback || getCallbackForLanguage(language, editor);
 
   $.post(apiUrl, { code: code }, callback);
 }
 
-function getCallbackForLanguage(language){
-  if(language == "cpp") return makeNewTabFromResponse;
+function getCallbackForLanguage(language, editor){
+  if(language == "cpp" || language == "java")
+    return updateLintingCallback(editor);
+
   return defaultCallback;
 }
 
-function makeNewTabFromResponse(response, status){
+var updateLintingCallback = function(editor){
+  return function(response, status){
+    var errors_and_warnings = JSON.parse(response);
+    editor.updateLintStatus(errors_and_warnings);
+  }
+}
+
+function makeNewTabFromResponseCallback(response, status){
   var newTabUrl = "data:text/html," + encodeURIComponent(response);
   var newWindow = window.open(newTabUrl, '_blank');
 }

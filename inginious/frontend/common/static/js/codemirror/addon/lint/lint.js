@@ -244,8 +244,6 @@
   });
 
   CodeMirror.defineExtension("updateLintStatus", function(errors_and_warnings){
-    errors_and_warnings = [{"from":{"line":0,"ch":0,"sticky":null},"to":{"line":1,"ch":0,"sticky":null},"severity":"warning","message":"Package name contains upper case characters"},{"from":{"line":5,"ch":0,"sticky":null},"to":{"line":6,"ch":0,"sticky":null},"severity":"warning","message":"Avoid unused imports such as 'java.util.Scanner'"},{"from":{"line":14,"ch":0,"sticky":null},"to":{"line":15,"ch":0,"sticky":null},"severity":"warning","message":"This class has too many methods, consider refactoring it."}];
-    //alert(errors_and_warnings);
     updateLinting(this, errors_and_warnings);
   });
 
