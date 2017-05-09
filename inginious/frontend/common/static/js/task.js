@@ -830,9 +830,9 @@ function lintCode(language, problemId, callback){
 }
 
 function getCallbackForLanguage(language, editor){
-  if(language == "cpp" || language == "java")
-    return updateLintingCallback(editor);
-
+  if(language == "java") return updateLintingCallback(editor);
+  if(language == "python") return updateLintingCallback(editor);
+  if(language == "cpp") return makeNewTabFromResponseCallback;
   return defaultCallback;
 }
 
