@@ -285,6 +285,9 @@ form#task label {
 .list-group.list-group-progress * {
   line-height: 22px;
 }
+.list-group-item {
+  cursor: pointer;
+}
 .nav-breadcrumb li {
   max-width: 250px;
 }
