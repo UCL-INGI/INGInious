@@ -393,3 +393,89 @@ You can then modify your ``/etc/httpd/conf/httpd.conf`` file to apply the follow
     </DirectoryMatch>
 
 Please note that the compiled *wsgi* module path may differ according to the exact Python version you are running.
+
+Using Nginx
+```````````
+
+A simple configuration for Nginx server handling static contents with reverse proxy can be done also. This guide is made for CentOS 7.x.
+Assume your webapp is listening to host 127.0.0.1 at port 8080.  (One can daemonize by tools like `forever`)
+
+Install the fllowing packages:
+::
+
+  # yum install nginx
+
+Edit the file `/etc/nginx/nginx.conf` and comment the default http server:
+::
+
+  #    server {
+  #        listen       80 default_server;
+  #        # listen       [::]:80 default_server;
+  #        server_name  _;
+  #        root         /usr/share/nginx/html;
+  #
+  #        # Load configuration files for the default server block.
+  #        include /etc/nginx/default.d/*.conf;
+  #
+  #        location / {
+  #           include /etc/nginx/fastcgi_params;
+  #           fastcgi_pass 127.0.0.1:10025;
+  #        }
+  #
+  #        error_page 404 /404.html;
+  #            location = /40x.html {
+  #        }
+  #
+  #        error_page 500 502 503 504 /50x.html;
+  #            location = /50x.html {
+  #        }
+  #    }
+
+Create the file `/etc/nginx/conf.d/inginious-webapp.conf`:
+::
+
+  upstream inginious-cluster{
+    server 127.0.0.1:8080 fail_timeout=0;
+    # Create as many as you need
+    #server 127.0.0.1:8081 fail_timeout=0;
+    #server 127.0.0.1:8082 fail_timeout=0;
+  }
+
+  server{
+    listen 80 default_server;
+    server_name _;
+
+    location ^~ /static/common/ {
+      alias /usr/lib/python3.5/site-packages/inginious/frontend/common/static/;
+    }
+
+    location ^~ /static/webapp/ {
+      alias /usr/lib/python3.5/site-packages/inginious/frontend/webapp/static/;
+    }
+
+    location ^~ /static/lti/ {
+      alias /usr/lib/python3.5/site-packages/inginious/frontend/lti/static/;
+    }
+
+    location / {
+
+      proxy_redirect     off;
+      proxy_set_header   Host $host;
+      proxy_set_header   X-Real-IP $remote_addr;
+      proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header   X-Forwarded-Host $server_name;
+
+      if (!-f $request_filename) {
+        proxy_pass http://inginious-cluster;
+        break;
+      }
+    }
+
+  }
+
+Add necessary protections like SSL.
+
+Finally, start the nginx server:
+::
+  # systemctl enable nginx
+  # systemctl start nginx
