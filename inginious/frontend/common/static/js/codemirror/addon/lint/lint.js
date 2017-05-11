@@ -132,8 +132,7 @@
     }, passOptions, cm);
   }
 
-  function startLinting(cm) {
-    return;
+  function startLinting(cm){
     var state = cm.state.lint, options = state.options;
     var passOptions = options.options || options; // Support deprecated passing of `options` property in options
     var getAnnotations = options.getAnnotations || cm.getHelper(CodeMirror.Pos(0, 0), "lint");
