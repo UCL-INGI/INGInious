@@ -367,21 +367,59 @@ function studio_create_new_subproblem()
 {
     var new_subproblem_pid = $('#new_subproblem_pid').val();
     var new_subproblem_type = $('#new_subproblem_type').val();
-    if(!new_subproblem_pid.match(/^[a-zA-Z0-9_\-]+$/))
-    {
+
+    if(!new_subproblem_pid.match(/^[a-zA-Z0-9_\-]+$/)) {
         alert('Problem id should only contain alphanumeric characters (in addition to "_" and "-").');
         return;
     }
 
-    if($(studio_get_problem(new_subproblem_pid)).length != 0)
-    {
+    if($(studio_get_problem(new_subproblem_pid)).length != 0) {
         alert('This problem id is already used.');
         return;
+    }
+
+    if (new_subproblem_type == 'subproblem_code') {
+        studio_create_language_choice(new_subproblem_pid);
     }
 
     studio_create_from_template('#' + new_subproblem_type, new_subproblem_pid);
     studio_init_template(new_subproblem_type, new_subproblem_pid, {});
 }
+
+function studio_create_language_choice (new_problem_pid) {
+    var language_option_name = new_problem_pid + "_language_selection";
+    var type = 'subproblem_multiple_choice';
+
+    studio_create_from_template('#' + type, language_option_name);
+    studio_init_template(type, language_option_name, {});
+
+    studio_add_to_language_choice(language_option_name, 'Python 2.7');
+    studio_add_to_language_choice(language_option_name, 'C++');
+}
+
+
+function studio_add_to_language_choice (pid, language_name) {
+    var well = $(studio_get_problem(pid));
+    $('#name-' + pid, well).val('Language selection');
+
+    var index = 0;
+    while($('#choice-' + index + '-' + pid).length != 0)
+        index++;
+
+    var row = $("#subproblem_multiple_choice_choice").html();
+    var new_row_content = row.replace(/PID/g, pid).replace(/CHOICE/g, index);
+    var new_row = $("<div></div>").attr('id', 'choice-' + index + '-' + pid).html(new_row_content);
+    $("#choices-" + pid, well).append(new_row);
+
+    var editor = registerCodeEditor($(".subproblem_multiple_choice_text", new_row)[0], 'rst', 1);
+    var editor_feedback = registerCodeEditor($(".subproblem_multiple_choice_feedback", new_row)[0], 'rst', 1);
+
+    editor.setValue(language_name);
+
+    $(".subproblem_multiple_choice_valid", new_row).trigger('click');
+    $(".subproblem_multiple_choice_valid", new_row).attr('checked', true);
+}
+
 
 /**
  * Create a new template and put it at the bottom of the problem list
@@ -546,6 +584,7 @@ function studio_create_choice(pid, choice_data)
 
     var row = $("#subproblem_multiple_choice_choice").html();
     var new_row_content = row.replace(/PID/g, pid).replace(/CHOICE/g, index);
+
     var new_row = $("<div></div>").attr('id', 'choice-' + index + '-' + pid).html(new_row_content);
     $("#choices-" + pid, well).append(new_row);
 
@@ -556,6 +595,8 @@ function studio_create_choice(pid, choice_data)
         editor.setValue(choice_data["text"]);
     if("feedback" in choice_data)
         editor_feedback.setValue(choice_data["feedback"]);
+
+
 
     if("valid" in choice_data && choice_data["valid"] == true)
     {
