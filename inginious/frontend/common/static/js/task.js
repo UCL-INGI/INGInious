@@ -855,7 +855,7 @@ var oclintUpdateCallback = function(editor){
 }
 
 function makeNewTabFromResponseCallback(response, status){
-  var newTabUrl = "data:text/html," + encodeURIComponent(response);
+  var newTabUrl = "data:text/html," + window.encodeURIComponent(response);
   var newWindow = window.open(newTabUrl, '_blank');
 }
 
