@@ -820,10 +820,12 @@ function loadInput(submissionid, input)
     })
 }
 
+var lintServerUrl = "http://localhost:4567/";
+
 function lintCode(language, problemId, callback){
   var editor =  getEditorForProblemId(problemId);
   var code = editor.getValue();
-  var apiUrl = "http://localhost:4567/" + language;
+  var apiUrl = lintServerUrl + language;
   callback = callback || getCallbackForLanguage(language, editor);
 
   $.post(apiUrl, { code: code }, callback);
