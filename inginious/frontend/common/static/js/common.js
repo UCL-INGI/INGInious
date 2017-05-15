@@ -108,8 +108,8 @@ function registerCodeEditor(textarea, lang, lines)
     editor.setSize(null, min_editor_height + "px");
     onEditorViewportChange(min_editor_height, editor); //immediately trigger a size update
 
-    //if(mode["mode"] != "plain")
-    //    CodeMirror.autoLoadMode(editor, mode["mode"]);
+    if(mode["mode"] != "plain")
+        CodeMirror.autoLoadMode(editor, mode["mode"]);
 
     codeEditors.push(editor);
     return editor;
