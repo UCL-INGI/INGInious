@@ -819,3 +819,8 @@ function loadInput(submissionid, input)
             this.setValue("");
     })
 }
+
+function changeSubmissionLanguage (option) {
+    
+
+}

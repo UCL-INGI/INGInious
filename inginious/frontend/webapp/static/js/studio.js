@@ -373,53 +373,39 @@ function studio_create_new_subproblem()
         return;
     }
 
+    if (new_subproblem_pid.includes("_language_selection")) {
+        alert('Problem id cannot contain \"_language_selection\" as substring');
+        return;
+    }
+
     if($(studio_get_problem(new_subproblem_pid)).length != 0) {
         alert('This problem id is already used.');
         return;
     }
 
-    if (new_subproblem_type == 'subproblem_code') {
-        studio_create_language_choice(new_subproblem_pid);
-    }
-
     studio_create_from_template('#' + new_subproblem_type, new_subproblem_pid);
     studio_init_template(new_subproblem_type, new_subproblem_pid, {});
+
+    if (new_subproblem_type == 'subproblem_code') {
+        studio_create_language_choice(new_subproblem_pid);
+    }   
 }
 
 function studio_create_language_choice (new_problem_pid) {
-    var language_option_name = new_problem_pid + "_language_selection";
+    var language_option_pid = new_problem_pid + "_language_selection";
     var type = 'subproblem_multiple_choice';
 
-    studio_create_from_template('#' + type, language_option_name);
-    studio_init_template(type, language_option_name, {});
-
-    studio_add_to_language_choice(language_option_name, 'Python 2.7');
-    studio_add_to_language_choice(language_option_name, 'C++');
+    studio_create_from_template('#' + type, language_option_pid);
+    studio_init_template('#' + type, language_option_pid, 
+        {
+            choices: 
+                [
+                {text: "Python 2.7", valid: true},
+                {text: "C++", valid: true}
+                ]
+        }
+    );
 }
-
-
-function studio_add_to_language_choice (pid, language_name) {
-    var well = $(studio_get_problem(pid));
-    $('#name-' + pid, well).val('Language selection');
-
-    var index = 0;
-    while($('#choice-' + index + '-' + pid).length != 0)
-        index++;
-
-    var row = $("#subproblem_multiple_choice_choice").html();
-    var new_row_content = row.replace(/PID/g, pid).replace(/CHOICE/g, index);
-    var new_row = $("<div></div>").attr('id', 'choice-' + index + '-' + pid).html(new_row_content);
-    $("#choices-" + pid, well).append(new_row);
-
-    var editor = registerCodeEditor($(".subproblem_multiple_choice_text", new_row)[0], 'rst', 1);
-    var editor_feedback = registerCodeEditor($(".subproblem_multiple_choice_feedback", new_row)[0], 'rst', 1);
-
-    editor.setValue(language_name);
-
-    $(".subproblem_multiple_choice_valid", new_row).trigger('click');
-    $(".subproblem_multiple_choice_valid", new_row).attr('checked', true);
-}
-
 
 /**
  * Create a new template and put it at the bottom of the problem list
@@ -495,7 +481,6 @@ function studio_init_template_code(well, pid, problem)
     if("optional" in problem && problem["optional"])
         $('#optional-' + pid, well).attr('checked', true);
 }
-
 /**
  * Init a code_file template
  * @param well: the DOM element containing the input fields
@@ -563,6 +548,17 @@ function studio_init_template_multiple_choice(well, pid, problem)
     registerCodeEditor($('#success_message-' + pid)[0], 'rst', 1).setValue(success_message);
     registerCodeEditor($('#error_message-' + pid)[0], 'rst', 1).setValue(error_message);
 
+    if (pid.includes("_language_selection")) {
+        $("#divname-" + pid).hide();
+        $("#divcontext-" + pid).hide();
+        $("#divmultiple-" + pid).hide();
+        $("#divcentralize-" + pid).hide();
+        $("#divlimit-" + pid).hide();
+        $("#divsuccess_message-" + pid).hide();
+        $("#diverror_message-" + pid).hide();
+        $("#divdelete-" + pid).hide();
+    }
+
     jQuery.each(problem["choices"], function(index, elem)
     {
         studio_create_choice(pid, elem);
@@ -596,12 +592,16 @@ function studio_create_choice(pid, choice_data)
     if("feedback" in choice_data)
         editor_feedback.setValue(choice_data["feedback"]);
 
-
-
     if("valid" in choice_data && choice_data["valid"] == true)
     {
         $(".subproblem_multiple_choice_valid", new_row).trigger('click');
         $(".subproblem_multiple_choice_valid", new_row).attr('checked', true);
+    }
+
+    if (pid.includes("_language_selection")) {
+        $("#divchoice-feedback-" + pid + '-' + index).hide();
+        $("#divvalid-" + pid + '-' + index).hide();
+        $("#divdelete-" + pid + '-' + index).attr("class", "col-sm-6 col-sm-offset-3");
     }
 }
 
@@ -638,6 +638,7 @@ function studio_subproblem_down(pid)
 {
     var well = $(studio_get_problem(pid));
     var next = well.next();
+
     if(next.length) {
         well.fadeOut(400, function() {
             well.detach().insertAfter(next).fadeIn(400);
@@ -655,6 +656,22 @@ function studio_subproblem_delete(pid)
     if(!confirm("Are you sure that you want to delete this subproblem?"))
         return;
     var codeEditors_todelete = [];
+    $.each(codeEditors, function(i, editor)
+    {
+        if(jQuery.contains(well[0], editor.getTextArea()))
+            codeEditors_todelete.push(i);
+    });
+    $.each(codeEditors_todelete, function(_, editor_idx)
+    {
+        codeEditors.splice(editor_idx, 1);
+    });
+    well.detach();
+
+    well = $(studio_get_problem(pid + "_language_selection"));
+    if (well.length == 0)
+        return;
+
+    codeEditors_todelete = [];
     $.each(codeEditors, function(i, editor)
     {
         if(jQuery.contains(well[0], editor.getTextArea()))
