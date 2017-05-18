@@ -383,12 +383,12 @@ function studio_create_new_subproblem()
         return;
     }
 
-    studio_create_from_template('#' + new_subproblem_type, new_subproblem_pid);
-    studio_init_template(new_subproblem_type, new_subproblem_pid, {});
-
     if (new_subproblem_type == 'subproblem_code') {
         studio_create_language_choice(new_subproblem_pid);
     }   
+
+    studio_create_from_template('#' + new_subproblem_type, new_subproblem_pid);
+    studio_init_template(new_subproblem_type, new_subproblem_pid, {});
 }
 
 function studio_create_language_choice (new_problem_pid) {
@@ -398,6 +398,7 @@ function studio_create_language_choice (new_problem_pid) {
     studio_create_from_template('#' + type, language_option_pid);
     studio_init_template('#' + type, language_option_pid, 
         {
+            name: "Language selection",
             choices: 
                 [
                 {text: "Python 2.7", valid: true},
