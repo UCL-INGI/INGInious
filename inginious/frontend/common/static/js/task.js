@@ -854,7 +854,7 @@ function visualizeCode(language, problemId){
         + "&py=" + getUrlFromLanguage(language)
         + "&rawInputLstJSON=%5B%5D"
         + "&codeDivHeight=400"
-        + "&codeDivWidth=350"
+        + "&codeDivWidth=500"
         + optionsFromLanguage(language);
 
     iframe.src = iframeSrc;
