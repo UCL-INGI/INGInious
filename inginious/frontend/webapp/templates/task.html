@@ -230,6 +230,23 @@ $if user_manager.has_admin_rights_on_course(course):
         $if problem.get_type() == "code":
             <button type="button" onclick="lintCode('$problem.get_language()', '$problem.get_id()')">Linter</button>
             <button type="button" onclick="visualizeCode('$problem.get_language()', '$problem.get_id()')">Visualize</button>
+            <a data-toggle="modal" href="#tallModal">Wide, Tall Content</a>
+            <div id="tallModal" class="modal modal-wide fade">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Modal title</h4>
+                    </div>
+                    <div class="modal-body">
+                        <iframe width="100%" height="900" frameborder="0" src="http://pythontutor.com/iframe-embed.html#code=%23%20Calculating%20square%20roots%20by%20Newton's%20method,%20inspired%20by%20SICP%0A%23%20%20%20http%3A//mitpress.mit.edu/sicp/full-text/book/book-Z-H-10.html%23%25_sec_1.1.7%0A%0Adef%20sqrt%28x%29%3A%0A%20%20%20%20def%20average%28a,%20b%29%3A%0A%20%20%20%20%20%20%20%20return%20%28a%20%2B%20b%29%20/%202.0%0A%0A%20%20%20%20def%20is_good_enough%28guess%29%3A%0A%20%20%20%20%20%20%20%20return%20%28abs%28%28guess%20*%20guess%29%20-%20x%29%20%3C%200.001%29%0A%0A%20%20%20%20def%20improve%28guess%29%3A%0A%20%20%20%20%20%20%20%20return%20average%28guess,%20x%20/%20guess%29%0A%0A%20%20%20%20def%20sqrt_iter%28guess%29%3A%0A%20%20%20%20%20%20%20%20if%20is_good_enough%28guess%29%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20guess%0A%20%20%20%20%20%20%20%20else%3A%0A%20%20%20%20%20%20%20%20%20%20%20%20return%20sqrt_iter%28improve%28guess%29%29%0A%0A%20%20%20%20return%20sqrt_iter%281.0%29%0A%0A%0Aans%20%3D%20sqrt%289%29&codeDivHeight=400&codeDivWidth=350&cumulative=false&curInstr=0&heapPrimitives=false&origin=opt-frontend.js&py=2&rawInputLstJSON=%5B%5D&textReferences=false"> </iframe>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                    </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div><!-- /.modal -->
 
     $ groups_ok = user_manager.task_can_user_submit(task, user_manager.session_username(), 'groups')
     $ tokens_ok = user_manager.task_can_user_submit(task, user_manager.session_username(), 'tokens')
