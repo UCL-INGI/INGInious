@@ -832,7 +832,7 @@ function getUrlFromLanguage(language){
 
 function serverFromLanguage(language){
     if(language == "java") return "https://cscircles.cemc.uwaterloo.ca/java_visualize/#code=";
-    return visualizeServer + "visualize.html#code=";
+    return visualizeServer + "iframe-embed.html#code=";
 }
 
 function optionsFromLanguage(language){
@@ -845,15 +845,26 @@ function visualizeCode(language, problemId){
     var code = editor.getValue();
     var encoded = window.encodeURIComponent(code);
 
-    var newTabUrl = serverFromLanguage(language)
+    var modalBody = document.getElementById("modal-" + problemId).getElementsByClassName("modal-body")[0];
+
+    var iframe = document.createElement('iframe');
+    var iframeSrc = serverFromLanguage(language)
         + encoded
         + "&mode=edit"
         + "&py=" + getUrlFromLanguage(language)
-        + "&rawInputLstJSON=%5B%5D";
+        + "&rawInputLstJSON=%5B%5D"
+        + "&codeDivHeight=400"
+        + "&codeDivWidth=350"
         + optionsFromLanguage(language);
 
-    var newTab = window.open(newTabUrl, '_blank');
-    newTab.focus();
+    iframe.src = iframeSrc;
+    iframe.height = "900";
+    iframe.width="100%";
+    iframe.frameborder="0";
+
+   
+    $(modalBody).empty();
+    modalBody.appendChild(iframe);
 }
 
 function lintCode(language, problemId, callback){
