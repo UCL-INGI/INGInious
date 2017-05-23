@@ -823,10 +823,21 @@ function loadInput(submissionid, input)
 var lintServerUrl = "http://localhost:4567/";
 var visualizeServer = "http://pythontutor.com/";
 
+
 function getUrlFromLanguage(language){
     if(language == "javascript") return "js";
     if(language == "python") return "2";
     return language;
+}
+
+function serverFromLanguage(language){
+    if(language == "java") return "https://cscircles.cemc.uwaterloo.ca/java_visualize/#code=";
+    return visualizeServer + "visualize.html#code=";
+}
+
+function optionsFromLanguage(language){
+    if(language == "java") return "&stdin=Input+here";
+    return "";
 }
 
 function visualizeCode(language, problemId){
@@ -834,12 +845,12 @@ function visualizeCode(language, problemId){
     var code = editor.getValue();
     var encoded = window.encodeURIComponent(code);
 
-    var newTabUrl = visualizeServer
-        + "visualize.html#code="
+    var newTabUrl = serverFromLanguage(language)
         + encoded
         + "&mode=edit"
         + "&py=" + getUrlFromLanguage(language)
         + "&rawInputLstJSON=%5B%5D";
+        + optionsFromLanguage(language);
 
     var newTab = window.open(newTabUrl, '_blank');
     newTab.focus();
