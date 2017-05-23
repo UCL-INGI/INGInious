@@ -853,12 +853,12 @@ function visualizeCode(language, problemId){
         + "&mode=edit"
         + "&py=" + getUrlFromLanguage(language)
         + "&rawInputLstJSON=%5B%5D"
-        + "&codeDivHeight=400"
+        + "&codeDivHeight=450"
         + "&codeDivWidth=500"
         + optionsFromLanguage(language);
 
     iframe.src = iframeSrc;
-    iframe.height = "900";
+    iframe.height = "650";
     iframe.width="100%";
     iframe.frameborder="0";
 
