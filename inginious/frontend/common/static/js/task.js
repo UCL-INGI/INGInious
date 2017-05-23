@@ -864,6 +864,7 @@ function visualizeCode(language, problemId){
 
    
     $(modalBody).empty();
+    modalBody.innerHTML = "Plase wait while we excecute your code, this may take up to 10 seconds";
     modalBody.appendChild(iframe);
 }
 
