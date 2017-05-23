@@ -821,6 +821,29 @@ function loadInput(submissionid, input)
 }
 
 var lintServerUrl = "http://localhost:4567/";
+var visualizeServer = "http://pythontutor.com/";
+
+function getUrlFromLanguage(language){
+    if(language == "javascript") return "js";
+    if(language == "python") return "2";
+    return language;
+}
+
+function visualizeCode(language, problemId){
+    var editor =  getEditorForProblemId(problemId);
+    var code = editor.getValue();
+    var encoded = window.encodeURIComponent(code);
+
+    var newTabUrl = visualizeServer
+        + "visualize.html#code="
+        + encoded
+        + "&mode=edit"
+        + "&py=" + getUrlFromLanguage(language)
+        + "&rawInputLstJSON=%5B%5D";
+
+    var newTab = window.open(newTabUrl, '_blank');
+    newTab.focus();
+}
 
 function lintCode(language, problemId, callback){
   var editor =  getEditorForProblemId(problemId);
