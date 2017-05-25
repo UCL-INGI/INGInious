@@ -820,53 +820,64 @@ function loadInput(submissionid, input)
     })
 }
 
-var lintServerUrl = "http://localhost:4567/";
-var visualizeServer = "http://pythontutor.com/";
+var defaultVisualServer = "http://pythontutor.com/";
+var javaVisualServer = "https://cscircles.cemc.uwaterloo.ca/";
 
+function visualizeCode(language, problemId){
+    var editor =  getEditorForProblemId(problemId);
+    var code = editor.getValue();
+    var iframe = iFrameFromCode(code, language);
+    showIFrameIntoModal(iframe, problemId);
+}
 
-function getUrlFromLanguage(language){
+function iFrameFromCode(code, language){
+    var iframe = document.createElement('iframe');
+    iframe.src = iFrameUrl(code, language);
+    iframe.height = "650";
+    iframe.width = "100%";
+    iframe.frameborder = "0";
+    return iframe;
+}
+
+function showIFrameIntoModal(iframe, problemId){
+    var modal = document.getElementById("modal-" + problemId);
+    var modalBody = modal.getElementsByClassName("modal-body")[0];
+    $(modalBody).empty();
+    modalBody.innerHTML = "Plase wait while we excecute your code, this may take up to 10 seconds";
+    modalBody.appendChild(iframe);
+}
+
+function iFrameUrl(code, language){
+    var codeToURI = window.encodeURIComponent(code);
+    var url = visualServer(language)
+        + codeToURI
+        + "&mode=edit"
+        + "&py=" + languageURIName(language)
+        + "&rawInputLstJSON=%5B%5D"
+        + "&codeDivHeight=450"
+        + "&codeDivWidth=500"
+        + additionalOptions(language);
+    return url;
+}
+
+function visualServer(language){
+    if(language == "java") return javaVisualServer + "java_visualize/#code=";
+    return defaultVisualServer + "iframe-embed.html#code=";
+}
+
+function languageURIName(language){
     if(language == "javascript") return "js";
     if(language == "python") return "2";
     return language;
 }
 
-function serverFromLanguage(language){
-    if(language == "java") return "https://cscircles.cemc.uwaterloo.ca/java_visualize/#code=";
-    return visualizeServer + "iframe-embed.html#code=";
-}
-
-function optionsFromLanguage(language){
+function additionalOptions(language){
     if(language == "java") return "&stdin=Input+here";
     return "";
 }
 
-function visualizeCode(language, problemId){
-    var editor =  getEditorForProblemId(problemId);
-    var code = editor.getValue();
-    var encoded = window.encodeURIComponent(code);
 
-    var modalBody = document.getElementById("modal-" + problemId).getElementsByClassName("modal-body")[0];
-
-    var iframe = document.createElement('iframe');
-    var iframeSrc = serverFromLanguage(language)
-        + encoded
-        + "&mode=edit"
-        + "&py=" + getUrlFromLanguage(language)
-        + "&rawInputLstJSON=%5B%5D"
-        + "&codeDivHeight=450"
-        + "&codeDivWidth=500"
-        + optionsFromLanguage(language);
-
-    iframe.src = iframeSrc;
-    iframe.height = "650";
-    iframe.width="100%";
-    iframe.frameborder="0";
-
-   
-    $(modalBody).empty();
-    modalBody.innerHTML = "Plase wait while we excecute your code, this may take up to 10 seconds";
-    modalBody.appendChild(iframe);
-}
+var lintServerUrl = "http://localhost:4567/";
 
 function lintCode(language, problemId, callback){
   var editor =  getEditorForProblemId(problemId);
