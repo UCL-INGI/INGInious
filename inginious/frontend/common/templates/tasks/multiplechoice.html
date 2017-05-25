@@ -3,7 +3,7 @@ $def with (pid,checkbox,choices)
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
-$#DisplayableCodeFileProblem
+$# 
 
 $for choice in choices:
     $if checkbox:
@@ -15,9 +15,6 @@ $for choice in choices:
     $else:
         <div class="radio">
             <label>
-                $if "_language_selection" in pid:
-                    <input type="radio" name="$pid" value="$choice['index']"" onclick="changeSubmissionLanguage(value)"/> $:choice['text']
-                $else:
-                    <input type="radio" name="$pid" value="$choice['index']""/> $:choice['text']
+                <input type="radio" name="$pid" value="$choice['index']""/> $:choice['text']
             </label>
         </div>

@@ -158,7 +158,7 @@ class CodeProblem(BasicCodeProblem):
         super(CodeProblem, self).__init__(task, problemid, content)
         if "boxes" in content:
             self._boxes = []
-            for boxid, box_content in content['boxes'].items():
+            for boxid, box_content in content['boxes'].items(): 
                 if boxid == "":
                     raise Exception("Empty box ids are not allowed")
                 self._boxes.append(self._create_box(boxid, box_content))
@@ -172,6 +172,15 @@ class CodeProblem(BasicCodeProblem):
     def get_type(self):
         return "code"
 
+class CodeMultipleLanguagesProblem(CodeProblem):
+    """Code problem with multile languages"""
+
+    def __init__(self, task, problemid, content):
+        super(CodeMultipleLanguagesProblem, self).__init__(task, problemid, content)
+        self._languages = content["languages"]
+
+    def get_type(self):
+        return "code-multiple-languages"
 
 class MultipleChoiceProblem(BasicProblem):
     """Multiple choice problems"""

@@ -319,6 +319,7 @@ function studio_submit()
     $('form#edit_task_form').ajaxSubmit({
         dataType: 'json',
         success: function (data) {
+            console.log(data);
             if ("status" in data && data["status"] == "ok")
                 error += "";
             else if ("message" in data)
@@ -347,6 +348,8 @@ function studio_submit()
  */
 function studio_get_template_for_problem(problem)
 {
+    if (problem["type"] == "code-multiple-languages")
+        return "#subproblem_code_multiple_languages";
     if((problem["type"] == "code" && !problem["boxes"]) || problem["type"] == "code-single-line")
         return "#subproblem_code";
     else if(problem["type"] == "code-file")
@@ -373,39 +376,13 @@ function studio_create_new_subproblem()
         return;
     }
 
-    if (new_subproblem_pid.includes("_language_selection")) {
-        alert('Problem id cannot contain \"_language_selection\" as substring');
-        return;
-    }
-
     if($(studio_get_problem(new_subproblem_pid)).length != 0) {
         alert('This problem id is already used.');
         return;
     }
 
-    if (new_subproblem_type == 'subproblem_code') {
-        studio_create_language_choice(new_subproblem_pid);
-    }   
-
     studio_create_from_template('#' + new_subproblem_type, new_subproblem_pid);
     studio_init_template(new_subproblem_type, new_subproblem_pid, {});
-}
-
-function studio_create_language_choice (new_problem_pid) {
-    var language_option_pid = new_problem_pid + "_language_selection";
-    var type = 'subproblem_multiple_choice';
-
-    studio_create_from_template('#' + type, language_option_pid);
-    studio_init_template('#' + type, language_option_pid, 
-        {
-            name: "Language selection",
-            choices: 
-                [
-                {text: "Python 2.7", valid: true},
-                {text: "C++", valid: true}
-                ]
-        }
-    );
 }
 
 /**
@@ -452,6 +429,9 @@ function studio_init_template(template, pid, problem)
         case "#subproblem_code":
             studio_init_template_code(well, pid, problem);
             break;
+        case "#subproblem_code_multiple_languages":
+            studio_init_template_code_multiple_languages(well, pid, problem);
+            break;
         case "#subproblem_code_file":
             studio_init_template_code_file(well, pid, problem);
             break;
@@ -482,6 +462,28 @@ function studio_init_template_code(well, pid, problem)
     if("optional" in problem && problem["optional"])
         $('#optional-' + pid, well).attr('checked', true);
 }
+
+/**
+ * Init a code template with multiple languages
+ * @param well: the DOM element containing the input fields
+ * @param pid
+ * @param problem
+ */
+function studio_init_template_code_multiple_languages(well, pid, problem)
+{
+    if("type" in problem)
+        $('#type-' + pid, well).val(problem["type"]);
+    if("optional" in problem && problem["optional"])
+        $('#optional-' + pid, well).attr('checked', true);
+
+    if ("languages" in problem) {
+        jQuery.each(problem["languages"], function(language, allowed) {
+            if (allowed)
+                $("#" + language + "-" + pid, well).attr("checked", true);
+        });
+    }
+}
+
 /**
  * Init a code_file template
  * @param well: the DOM element containing the input fields

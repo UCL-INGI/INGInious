@@ -1,0 +1,17 @@
+$def with (dropdownId, languages)
+
+$#
+$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+$# more information about the licensing of this file.
+$# 
+
+<div class="container">
+	<label>Language</label>
+	<select name="$dropdownId" class="col-sm-4 btn dropdown-toggle">
+	  	$for language in languages:
+			<option value="$language">
+				$language
+			</option>
+	</select>	
+</div>
+

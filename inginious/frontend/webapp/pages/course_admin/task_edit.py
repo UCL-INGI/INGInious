@@ -53,8 +53,7 @@ class CourseEditTask(INGIniousAdminPage):
         # custom problem-type:
         for pid in task_data.get("problems", {}):
             problem = task_data["problems"][pid]
-            if (problem["type"] == "code" and "boxes" in problem) or problem["type"] not in (
-                    "code", "code-single-line", "code-file", "match", "multiple-choice"):
+            if ((problem["type"] == "code" or problem["type"] == "code-multiple-languages") and "boxes" in problem) or problem["type"] not in ("code", "code-single-line", "code-file", "match", "multiple-choice"):
                 problem_copy = copy.deepcopy(problem)
                 for i in ["name", "header"]:
                     if i in problem_copy:
@@ -125,6 +124,11 @@ class CourseEditTask(INGIniousAdminPage):
         for field in ["optional", "multiple", "centralize"]:
             if field in problem_content:
                 problem_content[field] = True
+
+        # Check for a language to submit a problem
+        if "languages" in problem_content:
+            for language in problem_content["languages"]:
+                problem_content["languages"][language] = True
 
         if "choices" in problem_content:
             problem_content["choices"] = [val for _, val in sorted(iter(problem_content["choices"].items()), key=lambda x: int(x[0]))]
