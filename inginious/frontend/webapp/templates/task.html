@@ -75,12 +75,12 @@ $def ColumnF():
         <h3>Administration</h3>
         $if not course.is_open_to_non_staff():
             <div class="alert alert-warning" role="alert">
-                This course is currently invisible for students. 
+                This course is currently invisible for students.
                 You can change this by modifying the "accessible" option in the configuration of the course.
             </div>
         $if not task.get_accessible_time().after_start():
             <div class="alert alert-warning" role="alert">
-                This task is currently invisible for students. 
+                This task is currently invisible for students.
                 You can change this by modifying the "accessible" option in the configuration of the task.
             </div>
         <div class="list-group">
@@ -227,6 +227,8 @@ $if user_manager.has_admin_rights_on_course(course):
                 $:problem.show_input(template_helper.get_common_renderer())
             </div>
         </div>
+        $if problem.get_type() == "code":
+            <button type="button" onclick="lintCode('$problem.get_language()', '$problem.get_id()')">Linter</button>
 
     $ groups_ok = user_manager.task_can_user_submit(task, user_manager.session_username(), 'groups')
     $ tokens_ok = user_manager.task_can_user_submit(task, user_manager.session_username(), 'tokens')

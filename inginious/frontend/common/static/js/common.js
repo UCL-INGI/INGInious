@@ -86,14 +86,13 @@ function registerCodeEditor(textarea, lang, lines)
         matchBrackets:     true,
         autoCloseBrackets: true,
         lineWrapping:      true,
-        gutters:           ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
-        indentUnit:        4,
-        viewportMargin:    Infinity,
+        gutters:           ["CodeMirror-lint-markers", "CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+        indentUnit:        2,
+        tabSize:           2,
+        cursorHeight:      0.85,
+        viewportMargin:    20,
         theme:             "inginious",
-        lint:              function()
-                           {
-                               return []
-                           }
+        lint:              true
     });
 
     if(is_single)
@@ -104,25 +103,14 @@ function registerCodeEditor(textarea, lang, lines)
         cm.save();
     });
 
-    var min_editor_height = (21 * lines);
-    editor.on("viewportChange", function(cm) { onEditorViewportChange(min_editor_height, cm); });
-    editor.setSize(null, min_editor_height + "px");
-    onEditorViewportChange(min_editor_height, editor); //immediately trigger a size update
+    var max_editor_height = "500";
+    editor.setSize(null, max_editor_height + "px");
 
     if(mode["mode"] != "plain")
         CodeMirror.autoLoadMode(editor, mode["mode"]);
 
     codeEditors.push(editor);
     return editor;
-}
-
-// Verify if the size of each code editor is sufficient
-function onEditorViewportChange(min_editor_height, cm)
-{
-    if(cm.getScrollInfo()["height"] > min_editor_height)
-        cm.setSize(null, "auto");
-    else
-        cm.setSize(null, min_editor_height + "px");
 }
 
 // Apply parent function recursively
