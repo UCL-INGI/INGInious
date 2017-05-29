@@ -39,7 +39,6 @@
     <p><textarea id="code-js">var widgets = []
 function updateHints() {
   editor.operation(function(){
-    var a
     for (var i = 0; i < widgets.length; ++i)
       editor.removeLineWidget(widgets[i]);
     widgets.length = 0;
@@ -160,7 +159,7 @@ li.last {
     gutters: ["CodeMirror-lint-markers"],
     lint: true
   });
-
+  
   var editor_css = CodeMirror.fromTextArea(document.getElementById("code-css"), {
     lineNumbers: true,
     mode: "css",

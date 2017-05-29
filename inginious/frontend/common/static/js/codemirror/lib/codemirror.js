@@ -4024,6 +4024,36 @@ function maybeClipScrollbars(cm) {
   }
 }
 
+function selectionSnapshot(cm) {
+  if (cm.hasFocus()) { return null }
+  var active = activeElt();
+  if (!active || !contains(cm.display.lineDiv, active)) { return null }
+  var result = {activeElt: active};
+  if (window.getSelection) {
+    var sel = window.getSelection();
+    if (sel.anchorNode && sel.extend && contains(cm.display.lineDiv, sel.anchorNode)) {
+      result.anchorNode = sel.anchorNode;
+      result.anchorOffset = sel.anchorOffset;
+      result.focusNode = sel.focusNode;
+      result.focusOffset = sel.focusOffset;
+    }
+  }
+  return result
+}
+
+function restoreSelection(snapshot) {
+  if (!snapshot || !snapshot.activeElt || snapshot.activeElt == activeElt()) { return }
+  snapshot.activeElt.focus();
+  if (snapshot.anchorNode && contains(document.body, snapshot.anchorNode) && contains(document.body, snapshot.focusNode)) {
+    var sel = window.getSelection(), range$$1 = document.createRange();
+    range$$1.setEnd(snapshot.anchorNode, snapshot.anchorOffset);
+    range$$1.collapse(false);
+    sel.removeAllRanges();
+    sel.addRange(range$$1);
+    sel.extend(snapshot.focusNode, snapshot.focusOffset);
+  }
+}
+
 // Does the actual updating of the line display. Bails out
 // (returning false) when there is nothing to be done and forced is
 // false.
@@ -4073,14 +4103,14 @@ function updateDisplayIfNeeded(cm, update) {
 
   // For big changes, we hide the enclosing element during the
   // update, since that speeds up the operations on most browsers.
-  var focused = activeElt();
+  var selSnapshot = selectionSnapshot(cm);
   if (toUpdate > 4) { display.lineDiv.style.display = "none"; }
   patchDisplay(cm, display.updateLineNumbers, update.dims);
   if (toUpdate > 4) { display.lineDiv.style.display = ""; }
   display.renderedView = display.view;
   // There might have been a widget with a focused element that got
   // hidden or updated, if so re-focus it.
-  if (focused && activeElt() != focused && focused.offsetHeight) { focused.focus(); }
+  restoreSelection(selSnapshot);
 
   // Prevent selection and cursors from interfering with the scroll
   // width and height.
@@ -8961,7 +8991,7 @@ TextareaInput.prototype.showSelection = function (drawn) {
 // Reset the input to correspond to the selection (or to be empty,
 // when not typing and nothing is selected)
 TextareaInput.prototype.reset = function (typing) {
-  if (this.contextMenuPending) { return }
+  if (this.contextMenuPending || this.composing) { return }
   var minimal, selected, cm = this.cm, doc = cm.doc;
   if (cm.somethingSelected()) {
     this.prevInput = "";

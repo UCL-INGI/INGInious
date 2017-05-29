@@ -92,7 +92,8 @@ function registerCodeEditor(textarea, lang, lines)
         cursorHeight:      0.85,
         viewportMargin:    20,
         theme:             "inginious",
-        lint:              true
+        lint:              true,
+        extraKeys:         { "Ctrl-Space": "autocomplete" }
     });
 
     if(is_single)
