@@ -390,9 +390,6 @@
       resolved.supportsSelection = true
       return resolved
     } else if (words = cm.getHelper(cm.getCursor(), "hintWords")) {
-      if( CodeMirror.hint.genericHint ) {
-        return function(cm) { return CodeMirror.hint.genericHint(cm) }
-      }
       return function(cm) { return CodeMirror.hint.fromList(cm, {words: words}) }
     } else if (CodeMirror.hint.anyword) {
       return function(cm, options) { return CodeMirror.hint.anyword(cm, options) }

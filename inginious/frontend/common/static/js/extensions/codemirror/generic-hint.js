@@ -76,6 +76,8 @@
       to: Pos(cursor.line, editor.getTokenAt(cursor).end)
     };
   }
-
-  CodeMirror.registerHelper("hint", "genericHint", genericHint);
+  
+  CodeMirror.registerHelper("hint", "python", genericHint);
+  CodeMirror.registerHelper("hint", "clike", genericHint);
+  CodeMirror.registerHelper("hint", "ruby", genericHint);
 });
