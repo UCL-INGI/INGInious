@@ -227,24 +227,6 @@ $if user_manager.has_admin_rights_on_course(course):
                 $:problem.show_input(template_helper.get_common_renderer())
             </div>
         </div>
-        $if problem.get_type() == "code":
-            <button type="button" onclick="lintCode('$problem.get_language()', '$problem.get_id()')">Linter</button>
-            <button type="button" data-toggle="modal" data-target="#modal-$problem.get_id()" onclick="visualizeCode('$problem.get_language()', '$problem.get_id()')">Visualize</button>
-            <div id="modal-$problem.get_id()" class="modal modal-wide fade">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">Visualize your code!</h4>
-                    </div>
-                    <div class="modal-body">
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-                    </div>
-                    </div><!-- /.modal-content -->
-                </div><!-- /.modal-dialog -->
-            </div><!-- /.modal -->
 
     $ groups_ok = user_manager.task_can_user_submit(task, user_manager.session_username(), 'groups')
     $ tokens_ok = user_manager.task_can_user_submit(task, user_manager.session_username(), 'tokens')
