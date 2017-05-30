@@ -834,22 +834,13 @@ function lintCode(language, problemId, callback){
 function getCallbackForLanguage(language, editor){
   if(language == "java") return updateLintingCallback(editor);
   if(language == "python") return updateLintingCallback(editor);
-  if(language == "cpp") return oclintUpdateCallback(editor);
+  if(language == "cpp") return updateLintingCallback(editor);
   return defaultCallback;
 }
 
 var updateLintingCallback = function(editor){
   return function(response, status){
     var errors_and_warnings = JSON.parse(response);
-    editor.updateLintStatus(errors_and_warnings);
-  }
-}
-
-var oclintUpdateCallback = function(editor){
-  return function(response, status){
-    var oclint_errors = JSON.parse(response);
-    var oclint_converter = new OclintConverter(oclint_errors);
-    var errors_and_warnings = oclint_converter.convert();
     editor.updateLintStatus(errors_and_warnings);
   }
 }
@@ -862,46 +853,3 @@ function makeNewTabFromResponseCallback(response, status){
 function defaultCallback(response, status){
   alert(response + "\n\nresponse_status: " + status);
 }
-
-var OclintConverter = (function(json){
-  function OclintConverter(json){
-    this.json = json;
-  }
-
-  function severity_from_priority(priority){
-    if(priority >= 2) return "warning";
-    return "error";
-  }
-
-  function getMessage(oclint_error){
-    if(oclint_error.message != "") return oclint_error.message;
-    return oclint_error.rule;
-  }
-
-  OclintConverter.prototype.convert = function(){
-    var errors = [];
-    var oclint_errors = this.json.violation;
-
-    for(var i = 0 ; i < oclint_errors.length ; i++){
-      errors.push({
-        "message":  getMessage(oclint_errors[i]),
-        "severity": severity_from_priority(oclint_errors[i].priority),
-        "from": {
-          "line": oclint_errors[i].startLine - 1,
-          "ch": oclint_errors[i].startColumn - 1,
-          "sticky": null
-        },
-        "to": {
-          "line": oclint_errors[i].endLine - 1,
-          "ch": oclint_errors[i].endColumn - 1,
-          "sticky": null
-        }
-      });
-    }
-
-    return errors;
-  }
-
-  return OclintConverter;
-}());
-
