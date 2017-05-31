@@ -87,7 +87,10 @@ class DisplayableCodeMultipleLanguagesProblem(CodeMultipleLanguagesProblem, Disp
             allowed_languages.append(language)
         dropdown_id = self.get_id() + "/language"
 
-        return str(renderer.tasks.multiplelanguage(dropdown_id, allowed_languages)) + super(DisplayableCodeMultipleLanguagesProblem, self).show_input(renderer)
+        standard_code_problem_render = super(DisplayableCodeMultipleLanguagesProblem, self).show_input(renderer)
+        multiple_language_render = str(renderer.tasks.multiplelanguage(dropdown_id, allowed_languages, self.get_id()))
+
+        return standard_code_problem_render + multiple_language_render
 
 
 class DisplayableCodeFileProblem(CodeFileProblem, DisplayableBasicCodeProblem):

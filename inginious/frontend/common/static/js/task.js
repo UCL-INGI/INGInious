@@ -820,9 +820,30 @@ function loadInput(submissionid, input)
     })
 }
 
-function changeSubmissionLanguage (option) {
-    
+function changeSubmissionLanguage(problemId){
+    var language = getLanguageForProblemId(problemId);
+    var editor = getEditorForProblemId(problemId);
 
+    var codemirrorLanguages = {
+        "java7": "java",
+        "js": "javascript",
+        "cpp": "cpp",
+        "python": "python",
+        "ruby": "ruby"
+    }
+
+    var mode = CodeMirror.findModeByName(codemirrorLanguages[language]);
+    if(mode == undefined)
+        alert("wrong");
+
+    editor.setOption("mode", mode.mime);
+    CodeMirror.autoLoadMode(editor, mode["mode"]);
+    editor.updateLintStatus([]);
+}
+
+function getLanguageForProblemId(problemId){
+    var dropdown = document.getElementById(problemId + '/language');
+    return dropdown.options[dropdown.selectedIndex].value
 }
 
 var defaultVisualServer = "http://pythontutor.com/";
