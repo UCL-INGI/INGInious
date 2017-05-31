@@ -823,7 +823,13 @@ function loadInput(submissionid, input)
 function changeSubmissionLanguage(problemId){
     var language = getLanguageForProblemId(problemId);
     var editor = getEditorForProblemId(problemId);
+    var mode = CodeMirror.findModeByName(language);
+    editor.setOption("mode", mode.mime);
+    CodeMirror.autoLoadMode(editor, mode["mode"]);
+    editor.updateLintStatus([]);
+}
 
+function getLanguageForProblemId(problemId){
     var codemirrorLanguages = {
         "java7": "java",
         "js": "javascript",
@@ -832,24 +838,18 @@ function changeSubmissionLanguage(problemId){
         "ruby": "ruby"
     }
 
-    var mode = CodeMirror.findModeByName(codemirrorLanguages[language]);
-    if(mode == undefined)
-        alert("wrong");
-
-    editor.setOption("mode", mode.mime);
-    CodeMirror.autoLoadMode(editor, mode["mode"]);
-    editor.updateLintStatus([]);
-}
-
-function getLanguageForProblemId(problemId){
     var dropdown = document.getElementById(problemId + '/language');
-    return dropdown.options[dropdown.selectedIndex].value
+    var backEndLanguage = dropdown.options[dropdown.selectedIndex].value;
+    return codemirrorLanguages[backEndLanguage];
 }
 
 var defaultVisualServer = "http://pythontutor.com/";
 var javaVisualServer = "https://cscircles.cemc.uwaterloo.ca/";
 
 function visualizeCode(language, problemId){
+    if(language == "plain")
+        language = getLanguageForProblemId(problemId);
+
     var editor =  getEditorForProblemId(problemId);
     var code = editor.getValue();
     var iframe = iFrameFromCode(code, language);
@@ -906,6 +906,8 @@ function additionalOptions(language){
 var lintServerUrl = "http://localhost:4567/";
 
 function lintCode(language, problemId, callback){
+  if(language == "plain")
+    language = getLanguageForProblemId(problemId);
   var editor =  getEditorForProblemId(problemId);
   var code = editor.getValue();
   var apiUrl = lintServerUrl + language;
