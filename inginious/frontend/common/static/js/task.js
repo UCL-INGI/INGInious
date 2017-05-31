@@ -824,3 +824,145 @@ function changeSubmissionLanguage (option) {
     
 
 }
+
+var defaultVisualServer = "http://pythontutor.com/";
+var javaVisualServer = "https://cscircles.cemc.uwaterloo.ca/";
+
+function visualizeCode(language, problemId){
+    var editor =  getEditorForProblemId(problemId);
+    var code = editor.getValue();
+    var iframe = iFrameFromCode(code, language);
+    showIFrameIntoModal(iframe, problemId);
+}
+
+function iFrameFromCode(code, language){
+    var iframe = document.createElement('iframe');
+    iframe.src = iFrameUrl(code, language);
+    iframe.height = "650";
+    iframe.width = "100%";
+    iframe.frameborder = "0";
+    return iframe;
+}
+
+function showIFrameIntoModal(iframe, problemId){
+    var modal = document.getElementById("modal-" + problemId);
+    var modalBody = modal.getElementsByClassName("modal-body")[0];
+    $(modalBody).empty();
+    modalBody.innerHTML = "Plase wait while we excecute your code, this may take up to 10 seconds";
+    modalBody.appendChild(iframe);
+}
+
+function iFrameUrl(code, language){
+    var codeToURI = window.encodeURIComponent(code);
+    var url = visualServer(language)
+        + codeToURI
+        + "&mode=edit"
+        + "&py=" + languageURIName(language)
+        + "&rawInputLstJSON=%5B%5D"
+        + "&codeDivHeight=450"
+        + "&codeDivWidth=500"
+        + additionalOptions(language);
+    return url;
+}
+
+function visualServer(language){
+    if(language == "java") return javaVisualServer + "java_visualize/#code=";
+    return defaultVisualServer + "iframe-embed.html#code=";
+}
+
+function languageURIName(language){
+    if(language == "javascript") return "js";
+    if(language == "python") return "2";
+    return language;
+}
+
+function additionalOptions(language){
+    if(language == "java") return "&stdin=Input+here";
+    return "";
+}
+
+
+var lintServerUrl = "http://localhost:4567/";
+
+function lintCode(language, problemId, callback){
+  var editor =  getEditorForProblemId(problemId);
+  var code = editor.getValue();
+  var apiUrl = lintServerUrl + language;
+  callback = callback || getCallbackForLanguage(language, editor);
+
+  $.post(apiUrl, { code: code }, callback);
+}
+
+function getCallbackForLanguage(language, editor){
+  if(language == "java") return updateLintingCallback(editor);
+  if(language == "python") return updateLintingCallback(editor);
+  if(language == "cpp") return oclintUpdateCallback(editor);
+  return defaultCallback;
+}
+
+var updateLintingCallback = function(editor){
+  return function(response, status){
+    var errors_and_warnings = JSON.parse(response);
+    editor.updateLintStatus(errors_and_warnings);
+  }
+}
+
+var oclintUpdateCallback = function(editor){
+  return function(response, status){
+    var oclint_errors = JSON.parse(response);
+    var oclint_converter = new OclintConverter(oclint_errors);
+    var errors_and_warnings = oclint_converter.convert();
+    editor.updateLintStatus(errors_and_warnings);
+  }
+}
+
+function makeNewTabFromResponseCallback(response, status){
+  var newTabUrl = "data:text/html," + window.encodeURIComponent(response);
+  var newWindow = window.open(newTabUrl, '_blank');
+}
+
+function defaultCallback(response, status){
+  alert(response + "\n\nresponse_status: " + status);
+}
+
+var OclintConverter = (function(json){
+  function OclintConverter(json){
+    this.json = json;
+  }
+
+  function severity_from_priority(priority){
+    if(priority >= 2) return "warning";
+    return "error";
+  }
+
+  function getMessage(oclint_error){
+    if(oclint_error.message != "") return oclint_error.message;
+    return oclint_error.rule;
+  }
+
+  OclintConverter.prototype.convert = function(){
+    var errors = [];
+    var oclint_errors = this.json.violation;
+
+    for(var i = 0 ; i < oclint_errors.length ; i++){
+      errors.push({
+        "message":  getMessage(oclint_errors[i]),
+        "severity": severity_from_priority(oclint_errors[i].priority),
+        "from": {
+          "line": oclint_errors[i].startLine - 1,
+          "ch": oclint_errors[i].startColumn - 1,
+          "sticky": null
+        },
+        "to": {
+          "line": oclint_errors[i].endLine - 1,
+          "ch": oclint_errors[i].endColumn - 1,
+          "sticky": null
+        }
+      });
+    }
+
+    return errors;
+  }
+
+  return OclintConverter;
+}());

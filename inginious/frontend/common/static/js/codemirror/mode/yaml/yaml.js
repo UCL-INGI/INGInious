@@ -17,7 +17,6 @@ CodeMirror.defineMode("yaml", function() {
   var keywordRegex = new RegExp("\\b(("+cons.join(")|(")+"))$", 'i');
 
   return {
-    fold: "indent",
     token: function(stream, state) {
       var ch = stream.peek();
       var esc = state.escaped;
@@ -114,5 +113,6 @@ CodeMirror.defineMode("yaml", function() {
 });
 
 CodeMirror.defineMIME("text/x-yaml", "yaml");
+CodeMirror.defineMIME("text/yaml", "yaml");
 
 });
