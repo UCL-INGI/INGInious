@@ -839,6 +839,9 @@ function getLanguageForProblemId(problemId){
     }
 
     var dropdown = document.getElementById(problemId + '/language');
+    if(dropdown == null)
+        return "plain";
+
     var backEndLanguage = dropdown.options[dropdown.selectedIndex].value;
     return codemirrorLanguages[backEndLanguage];
 }

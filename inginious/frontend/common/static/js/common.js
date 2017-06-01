@@ -10,7 +10,11 @@ function init_common()
     colorizeStaticCode();
     $('.code-editor').each(function(index, elem)
     {
-        registerCodeEditor(elem, $(elem).attr('data-x-language'), $(elem).attr('data-x-lines'));
+        var language = $(elem).attr('data-x-language')
+        if(language == "plain")
+            language = getLanguageForProblemId($(elem).attr("name"));
+
+        registerCodeEditor(elem, language, $(elem).attr('data-x-lines'));
     });
 
     //Fix a bug with codemirror and bootstrap tabs
