@@ -817,7 +817,19 @@ function loadInput(submissionid, input)
             this.setValue(input[name], -1);
         else
             this.setValue("");
+        setDropDownWithTheRightLanguage(name, input[name + "/language"]);
+        changeSubmissionLanguage(name);
     })
+}
+
+function setDropDownWithTheRightLanguage(problemId, language) {
+    if(!language)
+      return;
+    var dropdown = document.getElementById(problemId + '/language');
+    if(!dropdown)
+        return;
+
+    dropdown.value = language;
 }
 
 function changeSubmissionLanguage(problemId){
