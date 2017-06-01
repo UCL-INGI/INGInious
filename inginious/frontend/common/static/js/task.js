@@ -405,8 +405,10 @@ function waitForSubmission(submissionid)
                 }
                 else if("status" in data && "result" in data && "grade" in data)
                 {
-                    if("debug" in data)
+                    if("debug" in data) {
                         displayDebugInfo(data["debug"]);
+                        displayOutputDiff(data["debug"]);
+                    }
 
                     if(data['result'] == "failed")
                     {
@@ -489,6 +491,7 @@ function displayDebugInfo(info)
 {
     displayDebugInfoRecur(info, $('#task_debug'));
 }
+
 function displayDebugInfoRecur(info, box)
 {
     var data = $(document.createElement('dl'));
@@ -507,6 +510,37 @@ function displayDebugInfoRecur(info, box)
             displayDebugInfoRecur(elem, content);
         else
             content.text(elem);
+    });
+}
+
+function displayOutputDiff(debugInfo)
+{
+    var container = $('#task_diff');
+    var data = $(document.createElement('dl'));
+    data.text(" ");
+    container.html(data);
+
+    var files_feedback = debugInfo;
+    files_feedback = (files_feedback["custom"] || {});
+    files_feedback = (JSON.parse(files_feedback["additional_info"]) || {});
+    files_feedback = (files_feedback["files_feedback"] || []);
+
+    jQuery.each(files_feedback, function(index, elem)
+    {
+        var namebox = $(document.createElement('dt'));
+        var content = $(document.createElement('dd'));
+        data.append(namebox);
+        data.append(content);
+
+        namebox.text("Test case " + (index + 1));
+        var collapseId = "collapseDiffAdmin" + index;
+        var diff = elem["diff"] || '';
+        var html = '<a class="btn btn-default btn-link btn-xs" role="button"' +
+          'data-toggle="collapse" href="#' + collapseId + '" aria-expanded="false" ' +
+          'aria-controls="' + collapseId + '">Expand diff</a>' +
+          '<div class="collapse" id="' + collapseId + '"><pre>' + diff + '</pre></div>';
+
+        content.html(html);
     });
 }
 
@@ -756,8 +790,10 @@ function loadOldFeedback(data)
 {
     if("status" in data && "result" in data)
     {
-        if("debug" in data)
+        if("debug" in data) {
             displayDebugInfo(data["debug"]);
+            displayOutputDiff(data["debug"]);
+        }
 
         if(data['result'] == "failed")
             displayTaskStudentErrorAlert(data);

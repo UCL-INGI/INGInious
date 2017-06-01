@@ -1,0 +1,6 @@
+#task_alert .alert-danger
+{
+    background-color: #f2dede;
+    color: #f04124;
+    border: 1px solid #dddddd;
+}
