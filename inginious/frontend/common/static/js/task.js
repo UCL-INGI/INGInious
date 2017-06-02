@@ -956,3 +956,35 @@ function makeNewTabFromResponseCallback(response, status){
 function defaultCallback(response, status){
   alert(response + "\n\nresponse_status: " + status);
 }
+
+function runCustomInput (inputId) {
+    var runInputCallBack = function (data) {
+        if ('status' in data && data['status'] == 'done') {
+            if ('result' in data) {
+                if(data['result'] == "failed"){
+                    displayTaskStudentErrorAlert(data);
+                    unblurTaskForm();
+                }
+                else if(data['result'] == "success") {
+                    displayTaskStudentSuccessAlert(data);
+                    unblurTaskForm();
+                }
+            }
+        }
+    }
+
+    var taskForm = new FormData($('form#task')[0]);
+    taskForm.set("@action", "run_custom_input");
+    var taskUrl = $('form#task').attr("action");
+    $.ajax({
+            url: taskUrl,
+            method: "POST",
+            dataType: 'json',
+            data: taskForm,
+            processData: false,
+            contentType: false,
+            success: runInputCallBack,
+            error: function(er){}
+    });
+}
+
