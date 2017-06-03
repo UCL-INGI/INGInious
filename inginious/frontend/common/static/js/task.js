@@ -867,13 +867,13 @@ function visualizeCode(language, problemId){
 
     var editor =  getEditorForProblemId(problemId);
     var code = editor.getValue();
-    var iframe = iFrameFromCode(code, language);
+    var iframe = createIFrameFromCode(code, language);
     showIFrameIntoModal(iframe, problemId);
 }
 
-function iFrameFromCode(code, language){
+function createIFrameFromCode(code, language){
     var iframe = document.createElement('iframe');
-    iframe.src = iFrameUrl(code, language);
+    iframe.src = generateVisualizerUrl(code, language);
     iframe.height = "650";
     iframe.width = "100%";
     iframe.frameborder = "0";
@@ -888,7 +888,7 @@ function showIFrameIntoModal(iframe, problemId){
     modalBody.appendChild(iframe);
 }
 
-function iFrameUrl(code, language){
+function generateVisualizerUrl(code, language){
     var codeToURI = window.encodeURIComponent(code);
     var url = visualServer(language)
         + codeToURI
