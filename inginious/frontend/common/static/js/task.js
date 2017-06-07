@@ -817,8 +817,11 @@ function loadInput(submissionid, input)
             this.setValue(input[name], -1);
         else
             this.setValue("");
-        setDropDownWithTheRightLanguage(name, input[name + "/language"]);
-        changeSubmissionLanguage(name);
+
+        if(input[name + "/language"]){
+            setDropDownWithTheRightLanguage(name, input[name + "/language"]);
+            changeSubmissionLanguage(name);
+        }
     })
 }
 
@@ -858,7 +861,7 @@ function getLanguageForProblemId(problemId){
     return codemirrorLanguages[backEndLanguage];
 }
 
-var defaultVisualServer = "http://pythontutor.com/";
+var defaultVisualServer = "http://127.0.0.1:8003/";
 var javaVisualServer = "https://cscircles.cemc.uwaterloo.ca/";
 
 function visualizeCode(language, problemId){
@@ -903,7 +906,7 @@ function generateVisualizerUrl(code, language){
 
 function visualServer(language){
     if(language == "java") return javaVisualServer + "java_visualize/#code=";
-    return defaultVisualServer + "iframe-embed.html#code=";
+    return defaultVisualServer + "with_input.html#code=";
 }
 
 function languageURIName(language){
