@@ -897,7 +897,6 @@ function generateVisualizerUrl(code, language){
         + codeToURI
         + "&mode=edit"
         + "&py=" + languageURIName(language)
-        + "&rawInputLstJSON=%5B%5D"
         + "&codeDivHeight=450"
         + "&codeDivWidth=500"
         + additionalOptions(language);
@@ -906,7 +905,7 @@ function generateVisualizerUrl(code, language){
 
 function visualServer(language){
     if(language == "java") return javaVisualServer + "java_visualize/#code=";
-    return defaultVisualServer + "with_input.html#code=";
+    return defaultVisualServer + "iframe-embed.html#code=";
 }
 
 function languageURIName(language){
@@ -917,7 +916,7 @@ function languageURIName(language){
 
 function additionalOptions(language){
     if(language == "java") return "&stdin=Input+here";
-    return "";
+    return "&rawInputLstJSON=%5B%22Some+string+as+input+baby+%22%2C+%22+yeay%21%21%22%5D";
 }
 
 
