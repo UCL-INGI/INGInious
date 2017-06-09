@@ -5,12 +5,15 @@ $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $# 
 
-	<select
+<select
 	onchange="changeSubmissionLanguage('$problemid')"
 	name="$dropdownId"
 	id="$dropdownId">
-	  	$for language in languages:
-			<option value="$language">
-				$language
-			</option>
-	</select>
+	$for language in languages:
+		<option value="$language">
+			$language
+		</option>
+</select>
+
+<textarea style="width: 235px; height: 194px;" id="userInput-$problemid" placeholder="insert your input here">
+</textarea>
