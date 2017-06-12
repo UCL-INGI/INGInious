@@ -655,6 +655,14 @@ function displayTaskStudentSuccessAlert(content)
         "success", true);
 }
 
+//Displays a custom input run alert in task form
+function displayCustomInputAlert(content)
+{
+    displayTaskStudentAlertWithProblems(content,
+        "<b>Custom run output:</b>",
+        "success", true);
+}
+
 //Displays a student error alert in task form
 function displayTaskStudentAlertWithProblems(content, top, type, alwaysShowTop)
 {
@@ -966,12 +974,14 @@ function runCustomInput (inputId) {
                     unblurTaskForm();
                 }
                 else if(data['result'] == "success") {
-                    displayTaskStudentSuccessAlert(data);
+                    displayCustomInputAlert(data);
                     unblurTaskForm();
                 }
             }
         }
     }
+
+    blurTaskForm();
 
     var taskForm = new FormData($('form#task')[0]);
     taskForm.set("@action", "run_custom_input");

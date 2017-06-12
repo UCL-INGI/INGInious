@@ -1,5 +1,12 @@
 $def with (customInputId)
 
 <br>
-<textarea name="$customInputId"></textarea>
-<button type="button" class="btn btn-default btn-lg btn-block center-block" onclick="runCustomInput('$customInputId');">Run</button>
+<br>
+
+<div class="panel panel-default">
+	<textarea name="$customInputId"
+          class="code-editor form-control"
+          data-x-language="None"
+	></textarea>
+	<button type="button" class="btn btn-md btn-block" onclick="runCustomInput('$customInputId');">Run custom input</button>	
+</div>
