@@ -939,7 +939,7 @@ var PythonTutor = (function () {
     };
 
     PythonTutor.prototype.inputFromTextArea = function() {
-        var text = $("#userInput-" + this.problemId).val();
+        var text = document.getElementById("custominput-" + this.problemId + "/input").value;
         var lines = text.split("\n");
         return window.encodeURIComponent(JSON.stringify(lines));
     }
