@@ -870,65 +870,87 @@ function getLanguageForProblemId(problemId){
     return codemirrorLanguages[backEndLanguage];
 }
 
-var defaultVisualServer = "http://127.0.0.1:8003/";
-var javaVisualServer = "https://cscircles.cemc.uwaterloo.ca/";
+var PythonTutor = (function () {
+    function PythonTutor(problemId, language) {
+        this.defaultVisualServer = "http://127.0.0.1:8003/";
+        this.javaVisualServer = "https://cscircles.cemc.uwaterloo.ca/";
+
+        this.problemId = problemId;
+        this.code = getEditorForProblemId(problemId).getValue();
+
+        if (language == "plain")
+            language = getLanguageForProblemId(this.problemId);
+
+        this.language = language;
+    }
+
+    PythonTutor.prototype.visualize = function () {
+        var iframe = this.createIFrameFromCode();
+        this.showIFrameIntoModal(iframe);
+    };
+
+    PythonTutor.prototype.createIFrameFromCode = function () {
+        var iframe = document.createElement('iframe');
+        iframe.src = this.generateVisualizerUrl();
+        iframe.height = "650";
+        iframe.width = "100%";
+        iframe.frameborder = "0";
+        return iframe;
+    };
+
+    PythonTutor.prototype.showIFrameIntoModal = function (iframe) {
+        var modal = document.getElementById("modal-" + this.problemId);
+        var modalBody = modal.getElementsByClassName("modal-body")[0];
+        $(modalBody).empty();
+        modalBody.innerHTML = "Plase wait while we excecute your code, this may take up to 10 seconds";
+        modalBody.appendChild(iframe);
+    };
+
+    PythonTutor.prototype.generateVisualizerUrl = function () {
+        var codeToURI = window.encodeURIComponent(this.code);
+        var url = this.visualServer()
+            + codeToURI
+            + "&mode=edit"
+            + "&py=" + this.languageURIName()
+            + "&codeDivHeight=450"
+            + "&codeDivWidth=500"
+            + this.additionalOptions();
+        return url;
+    };
+
+    PythonTutor.prototype.visualServer = function () {
+        if (this.language == "java")
+            return this.javaVisualServer + "java_visualize/#code=";
+        return this.defaultVisualServer + "iframe-embed.html#code=";
+    };
+
+    PythonTutor.prototype.languageURIName = function () {
+        if (this.language == "javascript")
+            return "js";
+        if (this.language == "python")
+            return "2";
+        return this.language;
+    };
+
+    PythonTutor.prototype.additionalOptions = function () {
+        if (this.language == "java")
+            return "&stdin=Input+here";
+        return "&rawInputLstJSON=" + this.inputFromTextArea();
+    };
+
+    PythonTutor.prototype.inputFromTextArea = function() {
+        var text = $("#userInput-" + this.problemId).val();
+        var lines = text.split("\n");
+        return window.encodeURIComponent(JSON.stringify(lines));
+    }
+
+    return PythonTutor;
+}());
 
 function visualizeCode(language, problemId){
-    if(language == "plain")
-        language = getLanguageForProblemId(problemId);
-
-    var editor =  getEditorForProblemId(problemId);
-    var code = editor.getValue();
-    var iframe = createIFrameFromCode(code, language);
-    showIFrameIntoModal(iframe, problemId);
+    var pythonTutor = new PythonTutor(problemId, language);
+    pythonTutor.visualize();
 }
-
-function createIFrameFromCode(code, language){
-    var iframe = document.createElement('iframe');
-    iframe.src = generateVisualizerUrl(code, language);
-    iframe.height = "650";
-    iframe.width = "100%";
-    iframe.frameborder = "0";
-    return iframe;
-}
-
-function showIFrameIntoModal(iframe, problemId){
-    var modal = document.getElementById("modal-" + problemId);
-    var modalBody = modal.getElementsByClassName("modal-body")[0];
-    $(modalBody).empty();
-    modalBody.innerHTML = "Plase wait while we excecute your code, this may take up to 10 seconds";
-    modalBody.appendChild(iframe);
-}
-
-function generateVisualizerUrl(code, language){
-    var codeToURI = window.encodeURIComponent(code);
-    var url = visualServer(language)
-        + codeToURI
-        + "&mode=edit"
-        + "&py=" + languageURIName(language)
-        + "&rawInputLstJSON=%5B%5D"
-        + "&codeDivHeight=450"
-        + "&codeDivWidth=500"
-        + additionalOptions(language);
-    return url;
-}
-
-function visualServer(language){
-    if(language == "java") return javaVisualServer + "java_visualize/#code=";
-    return defaultVisualServer + "with_input.html#code=";
-}
-
-function languageURIName(language){
-    if(language == "javascript") return "js";
-    if(language == "python") return "2";
-    return language;
-}
-
-function additionalOptions(language){
-    if(language == "java") return "&stdin=Input+here";
-    return "";
-}
-
 
 var lintServerUrl = "http://localhost:4567/";
 
