@@ -140,7 +140,29 @@ class TaskPage(INGIniousAuthPage):
             # We should refactor this.
 
             userinput = web.input()
-            if "@action" in userinput and userinput["@action"] == "submit":
+            if "@action" in userinput and userinput["@action"] == "run_custom_input":
+                try:
+                    result, grade, problems, tests, custom, archive, stdout, stderr = self.submission_manager.add_unsaved_job(task, userinput)
+
+                    data = {
+                        "status": ("done" if result[0] == "success" or result[0] == "failed" else "error"),
+                        "result": result[0],
+                        "grade": grade,
+                        "text": result[1],
+                        "tests": tests,
+                        "problems": problems,
+                        "stdout": stdout,
+                        "stderr": stderr
+                    }
+
+                    web.header('Content-Type', 'application/json')
+                    return json.dumps(data)
+
+                except Exception as ex:
+                    web.header('Content-Type', 'application/json')
+                    return json.dumps({"status": "error", "text": str(ex)})
+
+            elif "@action" in userinput and userinput["@action"] == "submit":
                 # Verify rights
                 if not self.user_manager.task_can_user_submit(task, username):
                     return json.dumps({"status": "error", "text": "You are not allowed to submit for this task."})

@@ -252,7 +252,8 @@ function taskFormValid()
 
     form.find('textarea,input[type="text"]').each(function()
     {
-        if($(this).attr('name') != undefined) //skip codemirror's internal textareas
+        var checkIfAnswered = $(this).attr('name') != undefined && !$(this).attr('id').includes("custominput");
+        if(checkIfAnswered) //skip codemirror's internal textareas and customimput areas
         {
             if($(this).val() == "" && $(this).attr('data-optional') != "True")
                 answered_to_all = false;
@@ -271,8 +272,8 @@ function taskFormValid()
     {
         var filename = $(this).val().split(/(\\|\/)/g).pop();
 
-        //file input fields cannot be optional
-        if(filename == "")
+        //file input fields cannot be optional (unless it is an input defined for submitting using a link)
+        if(!$(this).attr("id").includes("filelink") && filename == "")
         {
             answered_to_all = false;
             return;
@@ -655,6 +656,14 @@ function displayTaskStudentSuccessAlert(content)
         "success", true);
 }
 
+//Displays a custom input run alert in task form
+function displayCustomInputAlert(content)
+{
+    displayTaskStudentAlertWithProblems(content,
+        "<b>Custom run output:</b>",
+        "success", true);
+}
+
 //Displays a student error alert in task form
 function displayTaskStudentAlertWithProblems(content, top, type, alwaysShowTop)
 {
@@ -977,4 +986,63 @@ function makeNewTabFromResponseCallback(response, status){
 
 function defaultCallback(response, status){
   alert(response + "\n\nresponse_status: " + status);
+}
+
+function runCustomInput (inputId) {
+    var runInputCallBack = function (data) {
+        if ('status' in data && data['status'] == 'done') {
+            if ('result' in data) {
+                if(data['result'] == "failed"){
+                    displayTaskStudentErrorAlert(data);
+                    unblurTaskForm();
+                }
+                else if(data['result'] == "success") {
+                    displayCustomInputAlert(data);
+                    unblurTaskForm();
+                }
+            }
+        }
+    }
+
+    blurTaskForm();
+
+    var taskForm = new FormData($('form#task')[0]);
+    taskForm.set("@action", "run_custom_input");
+    var taskUrl = $('form#task').attr("action");
+    $.ajax({
+            url: taskUrl,
+            method: "POST",
+            dataType: 'json',
+            data: taskForm,
+            processData: false,
+            contentType: false,
+            success: runInputCallBack,
+            error: function(er){}
+    });
+}
+
+function uploadfile (inputId) {
+    var inputFileId = "filelink-" + inputId;
+    var inputFile = $("#"+inputFileId);
+
+    var input = document.getElementById(inputFileId);
+    input.addEventListener("change", function(event){    
+        var reader = new FileReader();        
+        reader.onload = function(event){
+          var contents = event.target.result;        
+          document.getElementById(inputId).value = contents;            
+        };        
+        reader.readAsText(input.files[0]);        
+      }, false);
+
+    inputFile.click();
+}
+
+function toggleElement (id) {
+    var element = document.getElementById(id);
+    if (element.style.display === 'none') {
+        element.style.display = 'block';
+    } else {
+        element.style.display = 'none';
+    }
 }
