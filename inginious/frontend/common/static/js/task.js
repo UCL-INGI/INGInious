@@ -252,7 +252,8 @@ function taskFormValid()
 
     form.find('textarea,input[type="text"]').each(function()
     {
-        if($(this).attr('name') != undefined) //skip codemirror's internal textareas
+        var checkIfAnswered = $(this).attr('name') != undefined && !$(this).attr('id').includes("custominput");
+        if(checkIfAnswered) //skip codemirror's internal textareas and customimput areas
         {
             if($(this).val() == "" && $(this).attr('data-optional') != "True")
                 answered_to_all = false;
@@ -271,8 +272,8 @@ function taskFormValid()
     {
         var filename = $(this).val().split(/(\\|\/)/g).pop();
 
-        //file input fields cannot be optional
-        if(filename == "")
+        //file input fields cannot be optional (unless it is an input defined for submitting using a link)
+        if(!$(this).attr("id").includes("filelink") && filename == "")
         {
             answered_to_all = false;
             return;
@@ -999,7 +1000,7 @@ function runCustomInput (inputId) {
 }
 
 function uploadfile (inputId) {
-    var inputFileId = "file-" + inputId;
+    var inputFileId = "filelink-" + inputId;
     var inputFile = $("#"+inputFileId);
 
     var input = document.getElementById(inputFileId);
