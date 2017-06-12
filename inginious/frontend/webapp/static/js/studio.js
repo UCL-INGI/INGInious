@@ -319,7 +319,6 @@ function studio_submit()
     $('form#edit_task_form').ajaxSubmit({
         dataType: 'json',
         success: function (data) {
-            console.log(data);
             if ("status" in data && data["status"] == "ok")
                 error += "";
             else if ("message" in data)
@@ -551,17 +550,6 @@ function studio_init_template_multiple_choice(well, pid, problem)
     registerCodeEditor($('#success_message-' + pid)[0], 'rst', 1).setValue(success_message);
     registerCodeEditor($('#error_message-' + pid)[0], 'rst', 1).setValue(error_message);
 
-    if (pid.includes("_language_selection")) {
-        $("#divname-" + pid).hide();
-        $("#divcontext-" + pid).hide();
-        $("#divmultiple-" + pid).hide();
-        $("#divcentralize-" + pid).hide();
-        $("#divlimit-" + pid).hide();
-        $("#divsuccess_message-" + pid).hide();
-        $("#diverror_message-" + pid).hide();
-        $("#divdelete-" + pid).hide();
-    }
-
     jQuery.each(problem["choices"], function(index, elem)
     {
         studio_create_choice(pid, elem);
@@ -583,7 +571,6 @@ function studio_create_choice(pid, choice_data)
 
     var row = $("#subproblem_multiple_choice_choice").html();
     var new_row_content = row.replace(/PID/g, pid).replace(/CHOICE/g, index);
-
     var new_row = $("<div></div>").attr('id', 'choice-' + index + '-' + pid).html(new_row_content);
     $("#choices-" + pid, well).append(new_row);
 
@@ -599,12 +586,6 @@ function studio_create_choice(pid, choice_data)
     {
         $(".subproblem_multiple_choice_valid", new_row).trigger('click');
         $(".subproblem_multiple_choice_valid", new_row).attr('checked', true);
-    }
-
-    if (pid.includes("_language_selection")) {
-        $("#divchoice-feedback-" + pid + '-' + index).hide();
-        $("#divvalid-" + pid + '-' + index).hide();
-        $("#divdelete-" + pid + '-' + index).attr("class", "col-sm-6 col-sm-offset-3");
     }
 }
 
@@ -659,22 +640,6 @@ function studio_subproblem_delete(pid)
     if(!confirm("Are you sure that you want to delete this subproblem?"))
         return;
     var codeEditors_todelete = [];
-    $.each(codeEditors, function(i, editor)
-    {
-        if(jQuery.contains(well[0], editor.getTextArea()))
-            codeEditors_todelete.push(i);
-    });
-    $.each(codeEditors_todelete, function(_, editor_idx)
-    {
-        codeEditors.splice(editor_idx, 1);
-    });
-    well.detach();
-
-    well = $(studio_get_problem(pid + "_language_selection"));
-    if (well.length == 0)
-        return;
-
-    codeEditors_todelete = [];
     $.each(codeEditors, function(i, editor)
     {
         if(jQuery.contains(well[0], editor.getTextArea()))
