@@ -998,3 +998,28 @@ function runCustomInput (inputId) {
     });
 }
 
+function uploadfile (inputId) {
+    var inputFileId = "file-" + inputId;
+    var inputFile = $("#"+inputFileId);
+
+    var input = document.getElementById(inputFileId);
+    input.addEventListener("change", function(event){    
+        var reader = new FileReader();        
+        reader.onload = function(event){
+          var contents = event.target.result;        
+          document.getElementById(inputId).value = contents;            
+        };        
+        reader.readAsText(input.files[0]);        
+      }, false);
+
+    inputFile.click();
+}
+
+function toggleElement (id) {
+    var element = document.getElementById(id);
+    if (element.style.display === 'none') {
+        element.style.display = 'block';
+    } else {
+        element.style.display = 'none';
+    }
+}

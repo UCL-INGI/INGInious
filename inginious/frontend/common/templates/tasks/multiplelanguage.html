@@ -1,16 +1,23 @@
-$def with (dropdownId, languages, problemid)
+$def with (inputId, dropdownId, languages, problemid)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $# 
 
+<br>
+<div class="row panel-body">
+	<input type="file" id="file-$inputId" style="display: none;" />
+	Paste your code or <a href="#" id="fileupload-$inputId" onclick="uploadfile('$inputId')">upload it from file</a>	
+	<br>
 	<select
-	onchange="changeSubmissionLanguage('$problemid')"
-	name="$dropdownId"
-	id="$dropdownId">
+		class="col-sm-4 btn dropdown-toggle"
+		onchange="changeSubmissionLanguage('$problemid')"
+		name="$dropdownId"
+		id="$dropdownId">
 	  	$for language in languages:
 			<option value="$language">
 				$language
 			</option>
-	</select>
+	</select>	
+</div>
