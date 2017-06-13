@@ -53,8 +53,8 @@ class CourseEditTask(INGIniousAdminPage):
         # custom problem-type:
         for pid in task_data.get("problems", {}):
             problem = task_data["problems"][pid]
-            shouldCopyProblem = ((problem["type"] == "code" or problem["type"] == "code-multiple-languages") and "boxes" in problem) or problem["type"] not in ("code", "code-single-line", "code-file", "match", "multiple-choice")
-            if shouldCopyProblem:
+            if (problem["type"] == "code" and "boxes" in problem) or problem["type"] not in (
+                    "code", "code-single-line", "code-file", "match", "multiple-choice"):
                 problem_copy = copy.deepcopy(problem)
                 for i in ["name", "header"]:
                     if i in problem_copy:

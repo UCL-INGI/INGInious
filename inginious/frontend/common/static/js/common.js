@@ -8,13 +8,18 @@ function init_common()
 {
     //Init CodeMirror
     colorizeStaticCode();
-    $('.code-editor').each(function(index, elem)
+    $('.code-editor').each(function(index, boxMultilineTextArea)
     {
-        var language = $(elem).attr('data-x-language')
-        if(language == "plain")
-            language = getLanguageForProblemId($(elem).attr("name"));
+        var editorLines = $(boxMultilineTextArea).attr('data-x-lines');
+        var language = $(boxMultilineTextArea).attr('data-x-language');
 
-        registerCodeEditor(elem, language, $(elem).attr('data-x-lines'));
+        var shouldGetLanguageFromDropdown = (language == "plain");
+        if(shouldGetLanguageFromDropdown){
+            var problemId = $(boxMultilineTextArea).attr("name");
+            language = getLanguageForProblemId(problemId);
+        }
+
+        registerCodeEditor(boxMultilineTextArea, language, editorLines);
     });
 
     //Fix a bug with codemirror and bootstrap tabs

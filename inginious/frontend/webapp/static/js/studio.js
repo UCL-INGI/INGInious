@@ -369,13 +369,14 @@ function studio_create_new_subproblem()
 {
     var new_subproblem_pid = $('#new_subproblem_pid').val();
     var new_subproblem_type = $('#new_subproblem_type').val();
-
-    if(!new_subproblem_pid.match(/^[a-zA-Z0-9_\-]+$/)) {
+    if(!new_subproblem_pid.match(/^[a-zA-Z0-9_\-]+$/))
+    {
         alert('Problem id should only contain alphanumeric characters (in addition to "_" and "-").');
         return;
     }
 
-    if($(studio_get_problem(new_subproblem_pid)).length != 0) {
+    if($(studio_get_problem(new_subproblem_pid)).length != 0)
+    {
         alert('This problem id is already used.');
         return;
     }
@@ -622,7 +623,6 @@ function studio_subproblem_down(pid)
 {
     var well = $(studio_get_problem(pid));
     var next = well.next();
-
     if(next.length) {
         well.fadeOut(400, function() {
             well.detach().insertAfter(next).fadeIn(400);
