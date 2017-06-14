@@ -882,6 +882,7 @@ var PythonTutor = (function () {
             language = getLanguageForProblemId(this.problemId);
 
         this.language = language;
+        this.input = document.getElementById("custominput-" + this.problemId + "/input").value;
     }
 
     PythonTutor.prototype.visualize = function () {
@@ -907,41 +908,49 @@ var PythonTutor = (function () {
     };
 
     PythonTutor.prototype.generateVisualizerUrl = function () {
-        if(this.language == "java"){
-            var data = {
-                "user_script": this.code,
-                "options":{"showStringsAsValues":true,"showAllFields":false},
-                "args":[],
-                "stdin": document.getElementById("custominput-" + this.problemId + "/input").value
-            };
+        if(this.language == "java")
+            return this.generateJavaUrl();
+        else
+            return this.generateGenericUrl();
+    };
 
-            return this.visualServer()
-                + window.encodeURIComponent(JSON.stringify(data))
-                + "&cumulative=false"
-                + "&heapPrimitives=false"
-                + "&drawParentPointers=false"
-                + "&textReferences=false"
-                + "&showOnlyOutputs=false"
-                + "&py=3"
-                + "&curInstr=0"
-                + "&resizeContainer=true"
-                + "&highlightLines=true"
-                + "&rightStdout=true"
-                + "&codeDivHeight=450"
-                + "&codeDivWidth=500";
-        }
+    PythonTutor.prototype.generateJavaUrl = function () {
+        var data = {
+            "user_script": this.code,
+            "options":{"showStringsAsValues":true,"showAllFields":false},
+            "args":[],
+            "stdin": this.input
+        };
+
+        return this.serverResource()
+            + window.encodeURIComponent(JSON.stringify(data))
+            + "&cumulative=false"
+            + "&heapPrimitives=false"
+            + "&drawParentPointers=false"
+            + "&textReferences=false"
+            + "&showOnlyOutputs=false"
+            + "&py=3"
+            + "&curInstr=0"
+            + "&resizeContainer=true"
+            + "&highlightLines=true"
+            + "&rightStdout=true"
+            + "&codeDivHeight=450"
+            + "&codeDivWidth=500";
+    };
+
+    PythonTutor.prototype.generateGenericUrl = function () {
         var codeToURI = window.encodeURIComponent(this.code);
-        var url = this.visualServer()
+        var url = this.serverResource()
             + codeToURI
             + "&mode=edit"
             + "&py=" + this.languageURIName()
             + "&codeDivHeight=450"
             + "&codeDivWidth=500"
-            + this.additionalOptions();
+            + "&rawInputLstJSON=" + this.encodedInputArray();
         return url;
     };
 
-    PythonTutor.prototype.visualServer = function () {
+    PythonTutor.prototype.serverResource = function () {
         if (this.language == "java")
             return this.javaVisualServer + "java_visualize/iframe-embed.html?faking_cpp=false#data=";
         return this.defaultVisualServer + "iframe-embed.html#code=";
@@ -955,17 +964,10 @@ var PythonTutor = (function () {
         return this.language;
     };
 
-    PythonTutor.prototype.additionalOptions = function () {
-        if (this.language == "java")
-            return "&stdin=Input+here";
-        return "&rawInputLstJSON=" + this.inputFromTextArea();
+    PythonTutor.prototype.encodedInputArray = function() {
+        var inputAsArray = this.input.split("\n");
+        return window.encodeURIComponent(JSON.stringify(inputAsArray));
     };
-
-    PythonTutor.prototype.inputFromTextArea = function() {
-        var text = document.getElementById("custominput-" + this.problemId + "/input").value;
-        var lines = text.split("\n");
-        return window.encodeURIComponent(JSON.stringify(lines));
-    }
 
     return PythonTutor;
 }());
