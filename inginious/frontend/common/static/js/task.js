@@ -907,6 +907,29 @@ var PythonTutor = (function () {
     };
 
     PythonTutor.prototype.generateVisualizerUrl = function () {
+        if(this.language == "java"){
+            var data = {
+                "user_script": this.code,
+                "options":{"showStringsAsValues":true,"showAllFields":false},
+                "args":[],
+                "stdin": document.getElementById("custominput-" + this.problemId + "/input").value
+            };
+
+            return this.visualServer()
+                + window.encodeURIComponent(JSON.stringify(data))
+                + "&cumulative=false"
+                + "&heapPrimitives=false"
+                + "&drawParentPointers=false"
+                + "&textReferences=false"
+                + "&showOnlyOutputs=false"
+                + "&py=3"
+                + "&curInstr=0"
+                + "&resizeContainer=true"
+                + "&highlightLines=true"
+                + "&rightStdout=true"
+                + "&codeDivHeight=450"
+                + "&codeDivWidth=500";
+        }
         var codeToURI = window.encodeURIComponent(this.code);
         var url = this.visualServer()
             + codeToURI
@@ -920,7 +943,7 @@ var PythonTutor = (function () {
 
     PythonTutor.prototype.visualServer = function () {
         if (this.language == "java")
-            return this.javaVisualServer + "java_visualize/#code=";
+            return this.javaVisualServer + "java_visualize/iframe-embed.html?faking_cpp=false#data=";
         return this.defaultVisualServer + "iframe-embed.html#code=";
     };
 
