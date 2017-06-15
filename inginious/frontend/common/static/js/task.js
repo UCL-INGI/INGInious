@@ -513,6 +513,41 @@ function displayDebugInfoRecur(info, box)
     });
 }
 
+function parseOutputDiff(diff) {
+  var result = [];
+  var lines = diff.split('\n');
+
+  for(var i = 0; i < lines.length; ++i) {
+    var line = lines[i];
+    var output = null;
+
+    if (line.startsWith("---")) {
+      output = '<span class="diff-seq-1">' + line.substring(3) + '</span>';
+    } else if (line.startsWith("+++")) {
+      output = '<span class="diff-seq-2">' + line.substring(3) + '</span>';
+    } else if (line.startsWith("@@")) {
+      output = '<span class="diff-position-control">' + line + '</span>';
+    } else if (line.startsWith("-")) {
+      output = '<span class="diff-seq-1">' + line.substring(1) + '</span>';
+    } else if (line.startsWith("+")) {
+      output = '<span class="diff-seq-2">' + line.substring(1) + '</span>';
+    } else if (line.startsWith(" ") || line === "") {
+      output = '<span class="diff-common">' + line.substring(1) + '</span>';
+    } else {
+      throw new Error("Unable to parse diff line: " + line);
+    }
+
+    result.push(output);
+  }
+
+  return result.join("\n");
+}
+
+function updateDiffBlock(blockId) {
+  var block = $("#" + blockId);
+  block.html(parseOutputDiff(block.html()));
+}
+
 function displayOutputDiff(debugInfo)
 {
     var container = $('#task_diff');
@@ -524,21 +559,24 @@ function displayOutputDiff(debugInfo)
     files_feedback = (files_feedback["custom"] || {});
     files_feedback = JSON.parse(files_feedback["additional_info"] || "{}");
     files_feedback = (files_feedback["files_feedback"] || []);
+    var count = 0;
 
-    jQuery.each(files_feedback, function(index, elem)
+    jQuery.each(files_feedback, function(key, elem)
     {
         var namebox = $(document.createElement('dt'));
         var content = $(document.createElement('dd'));
         data.append(namebox);
         data.append(content);
 
-        namebox.text("Test case " + (index + 1));
-        var collapseId = "collapseDiffAdmin" + index;
+        namebox.text("Test case " + key);
+        var collapseId = "collapseDiffAdmin" + count;
+        count++;
+
         var diff = elem["diff"] || '';
         var html = '<a class="btn btn-default btn-link btn-xs" role="button"' +
           'data-toggle="collapse" href="#' + collapseId + '" aria-expanded="false" ' +
           'aria-controls="' + collapseId + '">Expand diff</a>' +
-          '<div class="collapse" id="' + collapseId + '"><pre>' + diff + '</pre></div>';
+          '<div class="collapse" id="' + collapseId + '"><pre>' + parseOutputDiff(diff) + '</pre></div>';
 
         content.html(html);
     });
@@ -991,4 +1029,10 @@ function makeNewTabFromResponseCallback(response, status){
 
 function defaultCallback(response, status){
   alert(response + "\n\nresponse_status: " + status);
+}
+
+if (!String.prototype.startsWith) {
+    String.prototype.startsWith = function(searchString, position) {
+      return this.substr(position || 0, searchString.length) === searchString;
+  };
 }

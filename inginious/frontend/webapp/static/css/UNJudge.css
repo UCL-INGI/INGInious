@@ -12,3 +12,21 @@
 .modal-wide .modal-body {
   overflow-y: auto;
 }
+
+.diff-seq-1 {
+  background-color: #f2dede;
+}
+
+.diff-seq-2 {
+  background-color: #dff0d8;
+}
+
+.diff-common {
+  color: #000;
+}
+
+.diff-position-control {
+  background-color: #d9edf7;
+  font-style: italic;
+  font-weight: bold;
+}
