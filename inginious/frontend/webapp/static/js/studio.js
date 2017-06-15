@@ -694,3 +694,56 @@ function studio_get_feedback(sid)
         loadingSomething = false;
     });
 }
+
+var studio_grader_test_case_sequence = 0;
+
+function studio_add_test_case_from_form()
+{
+    studio_add_test_case({
+      "input_file": $("#grader_test_case_in").val(),
+      "output_file": $("#grader_test_case_out").val()
+    });
+}
+
+function studio_add_test_case(test_case)
+{
+    test_case = $.extend({
+      "input_file": null,
+      "output_file": null,
+      "weight": 1.0,
+      "diff_shown": false
+    }, test_case);
+
+    var test_id = studio_grader_test_case_sequence;
+
+    var inputFile = test_case["input_file"];
+    var outputFile = test_case["output_file"];
+
+    if (!inputFile || !outputFile) {
+      return;
+    }
+
+    var template = $("#test_case_template").html().replace(/TID/g, test_id);
+
+    var templateElement = $(template);
+    templateElement.find("#grader_test_cases_" + test_id + "_input_file").val(inputFile);
+    templateElement.find("#grader_test_cases_" + test_id + "_output_file").val(outputFile);
+    templateElement.find("#grader_test_cases_" + test_id + "_weight").val(
+      test_case["weight"]);
+    templateElement.find("#grader_test_cases_" + test_id + "_diff_shown").prop('checked',
+      test_case["diff_shown"]);
+
+    $('#grader_test_cases_container').append(templateElement);
+
+    studio_grader_test_case_sequence++;
+}
+
+function studio_load_grader_test_cases(test_cases) {
+    $.each(test_cases, function(_, test_case) {
+      studio_add_test_case(test_case);
+    });
+}
+
+function studio_remove_test_case(id) {
+    $("#grader_test_cases_" + id).remove();
+}
