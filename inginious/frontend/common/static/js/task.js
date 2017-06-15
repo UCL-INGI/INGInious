@@ -48,13 +48,22 @@ function init_task_page(evaluate)
     $('input[id^="filelink"]').each(function() {
         var inputId = $(this).attr('id');
         var textareaId = inputId.replace("filelink-", "");
-        var input = document.getElementById(inputId);
-        var textarea = document.getElementById(textareaId);
+        var input = this;
+        var codeMirrorArea = $('#'+textareaId).hasClass("code-editor");
+        var textarea = $('#'+textareaId)[0];
         $(this).change(function(e) {
             var reader = new FileReader();        
             reader.onload = function(event) {
                 var contents = event.target.result;     
-                textarea.value = contents;
+
+                if (codeMirrorArea) {
+                    $.each(codeEditors, function() {
+                        var name = this.getTextArea().name;
+                        if (name === textareaId)
+                            this.setValue(contents, -1);
+                    })
+                } else
+                    textarea.value = contents;    
             };        
             reader.readAsText(input.files[0]); 
         });
