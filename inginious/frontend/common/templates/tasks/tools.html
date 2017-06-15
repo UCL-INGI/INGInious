@@ -23,9 +23,9 @@ $def with (inputId, language, customInputId)
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->  
 
-    <button class="btn" type="button" onclick="toggleElement('custominputpanel-$inputId')">Custom input</button>    
+    <button class="btn" type="button" onclick="toggleElement('compileandrun-$inputId')">Custom test</button>    
     <br><br>
-    <div id="custominputpanel-$inputId" style="display: none">
+    <div id="compileandrun-$inputId" style="display: none">
       <input type="file" id="filelink-custominput-$inputId" style="display: none;" />
       Paste your input or <a href="#" id="link-custominput-$inputId">load it from file</a>  
       <br>
@@ -37,7 +37,7 @@ $def with (inputId, language, customInputId)
           placeholder="Your input goes here"
       ></textarea>
       <br>
-      <button type="button" class="btn btn-md btn-block" onclick="runCustomInput('$customInputId')">Run custom input</button>
+      <button type="button" class="btn btn-md btn-block" onclick="compileAndRun('$customInputId')">Compile and run</button>
     </div>
 
   </div>

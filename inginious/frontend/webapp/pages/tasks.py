@@ -140,7 +140,7 @@ class TaskPage(INGIniousAuthPage):
             # We should refactor this.
 
             userinput = web.input()
-            if "@action" in userinput and userinput["@action"] == "run_custom_input":
+            if "@action" in userinput and userinput["@action"] == "customtest":
                 try:
                     result, grade, problems, tests, custom, archive, stdout, stderr = self.submission_manager.add_unsaved_job(task, userinput)
 

@@ -550,10 +550,10 @@ function getLoadingAlertCode(content, submissionid)
 {
     var kill_button = "";
     if(submissionid != null)
-        kill_button =   "<button type='button' onclick='killSubmission(\""+submissionid+"\")' class='btn btn-danger kill-submission-btn btn-small'>"+
-                            "<i class='fa fa-close'></i>"+
+        kill_button = "<button type='button' onclick='killSubmission(\""+submissionid+"\")' class='btn btn-danger kill-submission-btn btn-small'>"+
+                        "<i class='fa fa-close'></i>"+
                         "</button>";
-    var div_content =   "<div class='loading-alert'>"+content+"</div>";
+    var div_content = "<div class='loading-alert'>"+content+"</div>";
     return getAlertCode(kill_button + div_content, "info", false);
 }
 
@@ -579,6 +579,13 @@ function displayTaskLoadingAlert(submission_wait_data, submissionid)
     else
         content += "<b>Your submission has been sent...</b>";
     task_alert.html(getLoadingAlertCode(content, submissionid));
+}
+
+function displayTaskWaitingForUnsavedJob () {
+    var task_alert = $('#task_alert');
+    var content = '<i class="fa fa-spinner fa-pulse fa-fw" aria-hidden="true"></i> <b>Evaluating...</b>';
+    var div_content =   "<div class='loading-alert'>"+content+"</div>";
+    task_alert.html(getAlertCode(div_content, "info", false));
 }
 
 //Display informations for remote debugging
@@ -690,14 +697,28 @@ function displayTaskStudentSuccessAlert(content)
         "success", true);
 }
 
-//Displays a custom input run alert in task form
-function displayCustomInputAlert(content)
+//Displays a custom test alert in task form
+function displayCustomTestAlert(content)
 {
     displayTaskStudentAlertWithProblems(content,
-        "<b>Custom run output:</b>",
-        "success", true);
+        '<b>Custom test output:</b>',
+        "customtest", true);
 }
 
+function getTextAreaAlertCode (top, content) {
+    var textarea = $(document.createElement("textarea"));
+    textarea.prop('readonly', true);
+    textarea.text(content);
+    textarea.attr('rows', 6);
+    textarea.addClass("form-control");
+    textarea.css("background-color", "#fff");
+    return '<div class="alert fade in alert-info role="alert">' + 
+            '<button type="button" class="close" data-dismiss="alert">' +
+            '<span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>' +
+            top + $("<div></div>").append(textarea).html() + 
+            '</div>';
+}
+    
 //Displays a student error alert in task form
 function displayTaskStudentAlertWithProblems(content, top, type, alwaysShowTop)
 {
@@ -708,9 +729,14 @@ function displayTaskStudentAlertWithProblems(content, top, type, alwaysShowTop)
 
     if("text" in content && content.text != "")
     {
-        task_alert.html(getAlertCode(top + "<br/>" + content.text, type, true));
+        if (type === "customtest") 
+            task_alert.html(getTextAreaAlertCode(top + "<br/><br/> ", content.text));
+        else
+            task_alert.html(getAlertCode(top + "<br/> " + content.text, type, true));
         firstPos = task_alert.offset().top;
     }
+    if (type == "customtest")
+        type = "info";
 
     if("problems" in content)
     {
@@ -1047,26 +1073,25 @@ function defaultCallback(response, status){
   alert(response + "\n\nresponse_status: " + status);
 }
 
-function runCustomInput (inputId) {
+function compileAndRun (inputId) {
     var runInputCallBack = function (data) {
         if ('status' in data && data['status'] == 'done') {
             if ('result' in data) {
-                if(data['result'] == "failed"){
-                    displayTaskStudentErrorAlert(data);
-                    unblurTaskForm();
-                }
-                else if(data['result'] == "success") {
-                    displayCustomInputAlert(data);
-                    unblurTaskForm();
-                }
+                displayCustomTestAlert(data);
+                unblurTaskForm();
             }
         }
     }
 
     blurTaskForm();
+    resetAlerts();
+    displayTaskWaitingForUnsavedJob();
+    $('html, body').animate({
+        scrollTop: $('#task_alert').offset().top - 100
+    }, 200);
 
     var taskForm = new FormData($('form#task')[0]);
-    taskForm.set("@action", "run_custom_input");
+    taskForm.set("@action", "customtest");
     var taskUrl = $('form#task').attr("action");
     $.ajax({
             url: taskUrl,
