@@ -88,7 +88,7 @@ class DisplayableCodeMultipleLanguagesProblem(CodeMultipleLanguagesProblem, Disp
 
         standard_code_problem_render = super(DisplayableCodeMultipleLanguagesProblem, self).show_input(renderer)
         multiple_language_render = str(renderer.tasks.multiplelanguage(self.get_id(), dropdown_id, allowed_languages, self.get_id()))
-        tools_renderer = str(renderer.tasks.tools(self.get_id(), "None", custom_input_id))
+        tools_renderer = str(renderer.tasks.tools(self.get_id(), "plain", custom_input_id))
 
         return multiple_language_render + standard_code_problem_render + tools_renderer
 
