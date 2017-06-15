@@ -522,9 +522,9 @@ function parseOutputDiff(diff) {
     var output = null;
 
     if (line.startsWith("---")) {
-      output = '<span class="diff-seq-1">' + line.substring(3) + '</span>';
+      output = '<span class="diff-seq-1">' + line.substring(4) + '</span>';
     } else if (line.startsWith("+++")) {
-      output = '<span class="diff-seq-2">' + line.substring(3) + '</span>';
+      output = '<span class="diff-seq-2">' + line.substring(4) + '</span>';
     } else if (line.startsWith("@@")) {
       output = '<span class="diff-position-control">' + line + '</span>';
     } else if (line.startsWith("-")) {
@@ -559,27 +559,30 @@ function displayOutputDiff(debugInfo)
     files_feedback = (files_feedback["custom"] || {});
     files_feedback = JSON.parse(files_feedback["additional_info"] || "{}");
     files_feedback = (files_feedback["files_feedback"] || []);
-    var count = 0;
 
-    jQuery.each(files_feedback, function(key, elem)
-    {
-        var namebox = $(document.createElement('dt'));
-        var content = $(document.createElement('dd'));
-        data.append(namebox);
-        data.append(content);
+    var keys = $.map(files_feedback, function(element, index) { return index; });
+    keys.sort();
 
-        namebox.text("Test case " + key);
-        var collapseId = "collapseDiffAdmin" + count;
-        count++;
+    for (var i = 0; i < keys.length; ++i) {
+      var key = keys[i];
+      var element = files_feedback[key];
 
-        var diff = elem["diff"] || '';
-        var html = '<a class="btn btn-default btn-link btn-xs" role="button"' +
-          'data-toggle="collapse" href="#' + collapseId + '" aria-expanded="false" ' +
-          'aria-controls="' + collapseId + '">Expand diff</a>' +
-          '<div class="collapse" id="' + collapseId + '"><pre>' + parseOutputDiff(diff) + '</pre></div>';
+      var namebox = $(document.createElement('dt'));
+      var content = $(document.createElement('dd'));
+      data.append(namebox);
+      data.append(content);
 
-        content.html(html);
-    });
+      namebox.text("Test case " + key);
+      var collapseId = "collapseDiffAdmin" + i;
+
+      var diff = element["diff"] || '';
+      var html = '<a class="btn btn-default btn-link btn-xs" role="button"' +
+        'data-toggle="collapse" href="#' + collapseId + '" aria-expanded="false" ' +
+        'aria-controls="' + collapseId + '">Expand diff</a>' +
+        '<div class="collapse" id="' + collapseId + '"><pre>' + parseOutputDiff(diff) + '</pre></div>';
+
+      content.html(html);
+    }
 }
 
 //Get the code for a "loading" alert, with a button to kill the current submission
