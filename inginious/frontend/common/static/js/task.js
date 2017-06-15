@@ -942,7 +942,7 @@ var PythonTutor = (function () {
             language = getLanguageForProblemId(this.problemId);
 
         this.language = language;
-        this.input = document.getElementById("custominput-" + this.problemId + "/input").value;
+        this.input = document.getElementById("custominput-" + this.problemId).value;
     }
 
     PythonTutor.prototype.visualize = function () {
