@@ -522,7 +522,7 @@ function displayOutputDiff(debugInfo)
 
     var files_feedback = debugInfo;
     files_feedback = (files_feedback["custom"] || {});
-    files_feedback = (JSON.parse(files_feedback["additional_info"]) || {});
+    files_feedback = JSON.parse(files_feedback["additional_info"] || "{}");
     files_feedback = (files_feedback["files_feedback"] || []);
 
     jQuery.each(files_feedback, function(index, elem)
