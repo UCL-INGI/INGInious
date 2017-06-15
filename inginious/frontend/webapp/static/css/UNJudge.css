@@ -4,3 +4,11 @@
     color: #f04124;
     border: 1px solid #dddddd;
 }
+
+.modal.modal-wide .modal-dialog {
+  width: 90%;
+}
+
+.modal-wide .modal-body {
+  overflow-y: auto;
+}
