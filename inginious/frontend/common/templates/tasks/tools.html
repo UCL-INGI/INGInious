@@ -23,22 +23,21 @@ $def with (inputId, language, customInputId)
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->  
 
-    <button class="btn" type="button" onclick="toggleElement('custominput-$inputId')">Custom input</button>    
+    <button class="btn" type="button" onclick="toggleElement('custominputpanel-$inputId')">Custom input</button>    
     <br><br>
-    <div id="custominput-$inputId" class="panel panel-default" style="display: none">
-      <div class="panel-body">
-        <!-- <input type="file" id="filelink-custominput-$inputId" style="display: none;" />
-        Paste your input or <a href="#" id="fileupload-custominput-$inputId" onclick="uploadfile('custominput-$inputId')">upload it from file</a>  --> 
-        <br>
-        <textarea
-            id="custominput-$customInputId"
-            name="$customInputId"
-            rows="10"
-            class="form-control"
-        ></textarea>
-        <br>
-        <button type="button" class="btn btn-md btn-block" onclick="runCustomInput('$customInputId')">Run custom input</button>
-      </div>
+    <div id="custominputpanel-$inputId" style="display: none">
+      <input type="file" id="filelink-custominput-$inputId" style="display: none;" />
+      Paste your input or <a href="#" id="link-custominput-$inputId">upload it from file</a>  
+      <br>
+      <textarea
+          id="custominput-$inputId"
+          name="$customInputId"
+          rows="10"
+          class="form-control"
+          placeholder="Your input goes here"
+      ></textarea>
+      <br>
+      <button type="button" class="btn btn-md btn-block" onclick="runCustomInput('$customInputId')">Run custom input</button>
     </div>
 
   </div>

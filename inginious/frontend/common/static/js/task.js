@@ -35,6 +35,30 @@ function init_task_page(evaluate)
         $(this).on('click', clickOnSubmission);
         $(this).find('a').on('click', selectSubmission);
     });
+
+    $('a[id^="link"]').each(function() {
+        var id = $(this).attr('id');
+        $(this).click(function(e) {
+            var inputId = "file" + id;
+            $("#"+inputId).click();
+            e.preventDefault(); 
+        });
+    });
+
+    $('input[id^="filelink"]').each(function() {
+        var inputId = $(this).attr('id');
+        var textareaId = inputId.replace("filelink-", "");
+        var input = document.getElementById(inputId);
+        var textarea = document.getElementById(textareaId);
+        $(this).change(function(e) {
+            var reader = new FileReader();        
+            reader.onload = function(event) {
+                var contents = event.target.result;     
+                textarea.value = contents;
+            };        
+            reader.readAsText(input.files[0]); 
+        });
+    });
 }
 
 var evaluatedSubmission = 'best';
@@ -273,9 +297,10 @@ function taskFormValid()
         var filename = $(this).val().split(/(\\|\/)/g).pop();
 
         //file input fields cannot be optional (unless it is an input defined for submitting using a link)
-        if(!$(this).attr("id").includes("filelink") && filename == "")
-        {
-            answered_to_all = false;
+        if(filename == "") {
+            var idDefined = $(this).get(0).hasAttribute('id');
+            if (!idDefined || !$(this).attr("id").includes("filelink"))
+                answered_to_all = false;
             return;
         }
 
@@ -1019,23 +1044,6 @@ function runCustomInput (inputId) {
             success: runInputCallBack,
             error: function(er){}
     });
-}
-
-function uploadfile (inputId) {
-    var inputFileId = "filelink-" + inputId;
-    var inputFile = $("#"+inputFileId);
-
-    var input = document.getElementById(inputFileId);
-    input.addEventListener("change", function(event){    
-        var reader = new FileReader();        
-        reader.onload = function(event){
-          var contents = event.target.result;        
-          document.getElementById(inputId).value = contents;            
-        };        
-        reader.readAsText(input.files[0]);        
-      }, false);
-
-    inputFile.click();
 }
 
 function toggleElement (id) {
