@@ -177,6 +177,15 @@ class CodeProblem(BasicCodeProblem):
     def get_language(self):
         return self._language
 
+class CodeMultipleLanguagesProblem(CodeProblem):
+    """Code problem with multile languages"""
+
+    def __init__(self, task, problemid, content):
+        super(CodeMultipleLanguagesProblem, self).__init__(task, problemid, content)
+        self._languages = content["languages"]
+
+    def get_type(self):
+        return "code-multiple-languages"
 
 class MultipleChoiceProblem(BasicProblem):
     """Multiple choice problems"""

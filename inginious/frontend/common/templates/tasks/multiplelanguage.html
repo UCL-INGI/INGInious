@@ -1,0 +1,16 @@
+$def with (dropdownId, languages, problemid)
+
+$#
+$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+$# more information about the licensing of this file.
+$# 
+
+<select
+	onchange="changeSubmissionLanguage('$problemid')"
+	name="$dropdownId"
+	id="$dropdownId">
+	$for language in languages:
+		<option value="$language">
+			$language
+		</option>
+</select>

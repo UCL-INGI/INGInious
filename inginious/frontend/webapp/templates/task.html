@@ -227,8 +227,6 @@ $if user_manager.has_admin_rights_on_course(course):
                 $:problem.show_input(template_helper.get_common_renderer())
             </div>
         </div>
-        $if problem.get_type() == "code":
-            <button type="button" onclick="lintCode('$problem.get_language()', '$problem.get_id()')">Linter</button>
 
     $ groups_ok = user_manager.task_can_user_submit(task, user_manager.session_username(), 'groups')
     $ tokens_ok = user_manager.task_can_user_submit(task, user_manager.session_username(), 'tokens')

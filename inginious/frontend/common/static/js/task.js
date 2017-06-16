@@ -817,12 +817,115 @@ function loadInput(submissionid, input)
             this.setValue(input[name], -1);
         else
             this.setValue("");
+
+        if(input[name + "/language"]){
+            setDropDownWithTheRightLanguage(name, input[name + "/language"]);
+            changeSubmissionLanguage(name);
+        }
     })
 }
+
+function setDropDownWithTheRightLanguage(problemId, language) {
+    if(!language)
+      return;
+    var dropdown = document.getElementById(problemId + '/language');
+    if(!dropdown)
+        return;
+
+    dropdown.value = language;
+}
+
+function changeSubmissionLanguage(problemId){
+    var language = getLanguageForProblemId(problemId);
+    var editor = getEditorForProblemId(problemId);
+    var mode = CodeMirror.findModeByName(language);
+    editor.setOption("mode", mode.mime);
+    CodeMirror.autoLoadMode(editor, mode["mode"]);
+    editor.updateLintStatus([]);
+}
+
+function getLanguageForProblemId(problemId){
+    var codemirrorLanguages = {
+        "java7": "java",
+        "js": "javascript",
+        "cpp": "cpp",
+        "python": "python",
+        "ruby": "ruby"
+    }
+
+    var dropdown = document.getElementById(problemId + '/language');
+    if(dropdown == null)
+        return "plain";
+
+    var backEndLanguage = dropdown.options[dropdown.selectedIndex].value;
+    return codemirrorLanguages[backEndLanguage];
+}
+
+var defaultVisualServer = "http://127.0.0.1:8003/";
+var javaVisualServer = "https://cscircles.cemc.uwaterloo.ca/";
+
+function visualizeCode(language, problemId){
+    if(language == "plain")
+        language = getLanguageForProblemId(problemId);
+
+    var editor =  getEditorForProblemId(problemId);
+    var code = editor.getValue();
+    var iframe = createIFrameFromCode(code, language);
+    showIFrameIntoModal(iframe, problemId);
+}
+
+function createIFrameFromCode(code, language){
+    var iframe = document.createElement('iframe');
+    iframe.src = generateVisualizerUrl(code, language);
+    iframe.height = "650";
+    iframe.width = "100%";
+    iframe.frameborder = "0";
+    return iframe;
+}
+
+function showIFrameIntoModal(iframe, problemId){
+    var modal = document.getElementById("modal-" + problemId);
+    var modalBody = modal.getElementsByClassName("modal-body")[0];
+    $(modalBody).empty();
+    modalBody.innerHTML = "Plase wait while we excecute your code, this may take up to 10 seconds";
+    modalBody.appendChild(iframe);
+}
+
+function generateVisualizerUrl(code, language){
+    var codeToURI = window.encodeURIComponent(code);
+    var url = visualServer(language)
+        + codeToURI
+        + "&mode=edit"
+        + "&py=" + languageURIName(language)
+        + "&rawInputLstJSON=%5B%5D"
+        + "&codeDivHeight=450"
+        + "&codeDivWidth=500"
+        + additionalOptions(language);
+    return url;
+}
+
+function visualServer(language){
+    if(language == "java") return javaVisualServer + "java_visualize/#code=";
+    return defaultVisualServer + "with_input.html#code=";
+}
+
+function languageURIName(language){
+    if(language == "javascript") return "js";
+    if(language == "python") return "2";
+    return language;
+}
+
+function additionalOptions(language){
+    if(language == "java") return "&stdin=Input+here";
+    return "";
+}
+
 
 var lintServerUrl = "http://localhost:4567/";
 
 function lintCode(language, problemId, callback){
+  if(language == "plain")
+    language = getLanguageForProblemId(problemId);
   var editor =  getEditorForProblemId(problemId);
   var code = editor.getValue();
   var apiUrl = lintServerUrl + language;
