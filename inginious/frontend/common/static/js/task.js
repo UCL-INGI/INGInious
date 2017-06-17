@@ -539,6 +539,8 @@ function parseOutputDiff(diff) {
       output = '<span class="diff-additional-output">' + line.substring(1) + '</span>';
     } else if (line.startsWith(" ") || line === "") {
       output = '<span class="diff-common">' + line.substring(1) + '</span>';
+    } else if (line.startsWith("...")) {
+      output = '<span class="diff-position-control">' + line '</span>';
     } else {
       throw new Error("Unable to parse diff line: " + line);
     }
