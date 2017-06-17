@@ -584,7 +584,7 @@ function displayOutputDiff(debugInfo)
       var diff = element["diff"] || '';
       var html = '<a class="btn btn-default btn-link btn-xs" role="button"' +
         'data-toggle="collapse" href="#' + collapseId + '" aria-expanded="false" ' +
-        'aria-controls="' + collapseId + '">Expand diff</a>' +
+        'aria-controls="' + collapseId + '">Toggle diff</a>' +
         '<div class="collapse" id="' + collapseId + '"><pre>' + parseOutputDiff(diff) + '</pre></div>';
 
       content.html(html);
