@@ -518,8 +518,8 @@ function parseOutputDiff(diff) {
   var lines = diff.split('\n');
 
   // Convention
-  result.push('<strong>Legend:</strong> <span class="diff-seq-1">Only in the expected output</span> ' +
-    '<span class="diff-seq-2">Only in your output</span> ' +
+  result.push('<strong>Legend:</strong> <span class="diff-missing-output">Only in the expected output</span> ' +
+    '<span class="diff-additional-output">Only in your output</span> ' +
     '<span class="diff-common">Common</span> ' +
     '<span class="diff-position-control">Context information</span>');
 
@@ -528,15 +528,15 @@ function parseOutputDiff(diff) {
     var output = null;
 
     if (line.startsWith("---")) {
-      output = '<span class="diff-seq-1">' + line.substring(4) + '</span>';
+      output = '<span class="diff-missing-output">' + line.substring(4) + '</span>';
     } else if (line.startsWith("+++")) {
-      output = '<span class="diff-seq-2">' + line.substring(4) + '</span>';
+      output = '<span class="diff-additional-output">' + line.substring(4) + '</span>';
     } else if (line.startsWith("@@")) {
       output = '<span class="diff-position-control">' + line + '</span>';
     } else if (line.startsWith("-")) {
-      output = '<span class="diff-seq-1">' + line.substring(1) + '</span>';
+      output = '<span class="diff-missing-output">' + line.substring(1) + '</span>';
     } else if (line.startsWith("+")) {
-      output = '<span class="diff-seq-2">' + line.substring(1) + '</span>';
+      output = '<span class="diff-additional-output">' + line.substring(1) + '</span>';
     } else if (line.startsWith(" ") || line === "") {
       output = '<span class="diff-common">' + line.substring(1) + '</span>';
     } else {

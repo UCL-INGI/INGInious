@@ -13,11 +13,11 @@
   overflow-y: auto;
 }
 
-.diff-seq-1 {
+.diff-missing-output {
   background-color: #f2dede;
 }
 
-.diff-seq-2 {
+.diff-additional-output {
   background-color: #f3e28d;
 }
 

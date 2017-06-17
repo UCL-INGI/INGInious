@@ -189,6 +189,89 @@ class CourseEditTask(INGIniousAdminPage):
 
         return test_case_content
 
+    def preprocess_grader_data(self, data):
+        try:
+            data["grader_diff_max_lines"] = int(data["grader_diff_max_lines"])
+        except:
+            return json.dumps({"status": "error", "message": "'Maximum diff lines' must be an integer"})
+
+        if data["grader_diff_max_lines"] <= 0:
+            return json.dumps({"status": "error", "message": "'Maximum diff lines' must be positive"})
+
+        try:
+            data["grader_diff_context_lines"] = int(data["grader_diff_context_lines"])
+        except:
+            return json.dumps({"status": "error", "message": "'Diff context lines' must be an integer"})
+
+        if data["grader_diff_context_lines"] <= 0:
+            return json.dumps({"status": "error", "message": "'Diff context lines' must be positive"})
+
+        data["grader_compute_diffs"] = "grader_compute_diffs" in data
+        data["generate_grader"] = "generate_grader" in data
+
+        grader_test_cases = self.dict_from_prefix("grader_test_cases", data) or OrderedDict()
+
+        # Remove test-case dirty entries.
+        keys_to_remove = [key for key, _ in data.items() if key.startswith("grader_test_cases_")]
+        for key in keys_to_remove:
+            del data[key]
+
+        data["grader_test_cases"] = [self.parse_grader_test_case(val) for _, val in grader_test_cases.items()]
+        data["grader_test_cases"].sort(key=lambda test_case: (test_case["input_file"], test_case["output_file"]))
+
+        if len(set(test_case["input_file"] for test_case in data["grader_test_cases"])) != len(data["grader_test_cases"]):
+            return json.dumps({"status": "error", "message": "Duplicated input files in grader"})
+
+        return None
+
+    def postprocess_grader_data(self, data, directory_path):
+        for test_case in data["grader_test_cases"]:
+            if not os.path.isfile(os.path.join(directory_path, test_case["input_file"])):
+                return json.dumps(
+                    {"status": "error", "message": "Grader input file does not exist: " + test_case["input_file"]})
+
+            if not os.path.isfile(os.path.join(directory_path, test_case["output_file"])):
+                return json.dumps(
+                    {"status": "error", "message": "Grader output file does not exist: " + test_case["output_file"]})
+
+        if data["generate_grader"]:
+            if data["grader_problem_id"] not in data["problems"]:
+                return json.dumps({"status": "error", "message": "Grader: problem does not exist"})
+
+            if data["problems"][data["grader_problem_id"]]["type"] != 'code-multiple-languages':
+                return json.dumps({"status": "error",
+                    "message": "Grader: only Code Multiple Languages problems are supported"})
+
+            current_directory = os.path.dirname(__file__)
+            run_file_template_path = os.path.join(current_directory, '../../templates/course_admin/run_file_template.txt')
+            run_file_template = None
+
+            with open(run_file_template_path, "r") as f:
+                run_file_template = f.read()
+
+            target_run_file = os.path.join(directory_path, 'run')
+
+            subproblem_id = data["grader_problem_id"]
+            test_cases = [(test_case["input_file"], test_case["output_file"]) for test_case in data["grader_test_cases"]]
+            weights = [test_case["weight"] for test_case in data["grader_test_cases"]]
+            options = {
+                "compute_diff": data["grader_compute_diffs"],
+                "diff_max_lines": data["grader_diff_max_lines"],
+                "diff_context_lines": data["grader_diff_context_lines"],
+                "output_diff_for": [test_case["input_file"] for test_case in data["grader_test_cases"]
+                    if test_case["diff_shown"]]
+            }
+
+            if len(test_cases) == 0:
+                return json.dumps(
+                    {"status": "error", "message": "You must provide test cases to autogenerate the grader"})
+
+            with open(target_run_file, "w") as f:
+                f.write(run_file_template.format(
+                    repr(subproblem_id), repr(test_cases), repr(options), repr(weights)))
+
+        return None
+
     def wipe_task(self, courseid, taskid):
         """ Wipe the data associated to the taskid from DB"""
         submissions = self.database.submissions.find({"courseid": courseid, "taskid": taskid})
@@ -325,34 +408,9 @@ class CourseEditTask(INGIniousAdminPage):
 
         directory_path = self.task_factory.get_directory_path(courseid, taskid)
 
-        # Grader generation
-        try:
-            data["grader_diff_max_lines"] = int(data["grader_diff_max_lines"])
-        except:
-            return json.dumps({"status": "error", "message": "'Maximum diff lines' must be an integer"})
-
-        if data["grader_diff_max_lines"] <= 0:
-            return json.dumps({"status": "error", "message": "'Maximum diff lines' must be positive"})
-
-        try:
-            data["grader_diff_context_lines"] = int(data["grader_diff_context_lines"])
-        except:
-            return json.dumps({"status": "error", "message": "'Diff context lines' must be an integer"})
-
-        if data["grader_diff_context_lines"] <= 0:
-            return json.dumps({"status": "error", "message": "'Diff context lines' must be positive"})
-
-        data["grader_compute_diffs"] = "grader_compute_diffs" in data
-        data["generate_grader"] = "generate_grader" in data
-
-        grader_test_cases = self.dict_from_prefix("grader_test_cases", data) or OrderedDict()
-        data = {key: val for key, val in data.items() if not key.startswith("grader_test_cases_")}
-
-        data["grader_test_cases"] = [self.parse_grader_test_case(val) for _, val in grader_test_cases.items()]
-        data["grader_test_cases"].sort(key=lambda test_case: (test_case["input_file"], test_case["output_file"]))
-
-        if len(set(test_case["input_file"] for test_case in data["grader_test_cases"])) != len(data["grader_test_cases"]):
-            return json.dumps({"status": "error", "message": "Duplicated input files in grader"})
+        error = self.preprocess_grader_data(data)
+        if error is not None:
+            return error
 
         try:
             WebAppTask(course, taskid, data, directory_path, self.plugin_manager)
@@ -375,50 +433,9 @@ class CourseEditTask(INGIniousAdminPage):
                     {"status": "error", "message": "There was a problem while extracting the zip archive. Some files may have been modified"})
 
 
-        for test_case in data["grader_test_cases"]:
-            if not os.path.isfile(os.path.join(directory_path, test_case["input_file"])):
-                return json.dumps(
-                    {"status": "error", "message": "Grader input file does not exist: " + test_case["input_file"]})
-
-            if not os.path.isfile(os.path.join(directory_path, test_case["output_file"])):
-                return json.dumps(
-                    {"status": "error", "message": "Grader output file does not exist: " + test_case["output_file"]})
-
-        if data["generate_grader"]:
-            if data["grader_problem_id"] not in data["problems"]:
-                return json.dumps({"status": "error", "message": "Grader: problem does not exist"})
-
-            if data["problems"][data["grader_problem_id"]]["type"] != 'code-multiple-languages':
-                return json.dumps({"status": "error",
-                    "message": "Grader: only Code Multiple Languages problems are supported"})
-
-            current_directory = os.path.dirname(__file__)
-            run_file_template_path = os.path.join(current_directory, '../../templates/course_admin/run_file_template.txt')
-            run_file_template = None
-
-            with open(run_file_template_path, "r") as f:
-                run_file_template = f.read()
-
-            target_run_file = os.path.join(directory_path, 'run')
-
-            subproblem_id = data["grader_problem_id"]
-            test_cases = [(test_case["input_file"], test_case["output_file"]) for test_case in data["grader_test_cases"]]
-            weights = [test_case["weight"] for test_case in data["grader_test_cases"]]
-            options = {
-                "compute_diff": data["grader_compute_diffs"],
-                "diff_max_lines": data["grader_diff_max_lines"],
-                "diff_context_lines": data["grader_diff_context_lines"],
-                "output_diff_for": [test_case["input_file"] for test_case in data["grader_test_cases"]
-                    if test_case["diff_shown"]]
-            }
-
-            if len(test_cases) == 0:
-                return json.dumps(
-                    {"status": "error", "message": "You must provide test cases to autogenerate the grader"})
-
-            with open(target_run_file, "w") as f:
-                f.write(run_file_template.format(
-                    repr(subproblem_id), repr(test_cases), repr(options), repr(weights)))
+        error = self.postprocess_grader_data(data, directory_path)
+        if error is not None:
+            return error
 
         self.task_factory.delete_all_possible_task_files(courseid, taskid)
         self.task_factory.update_task_descriptor_content(courseid, taskid, data, force_extension=file_ext)
