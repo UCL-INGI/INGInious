@@ -45,7 +45,7 @@ $#
     <label for="grader_diff_max_lines" class="col-sm-4 control-label">Maximum diff lines</label>
     <div class="col-sm-8">
         <input type="number" min="10" class="form-control" id="grader_diff_max_lines" name="grader_diff_max_lines"
-          value="${task_data.get('grader_diff_max_lines','')}">
+          value="${task_data.get('grader_diff_max_lines', 100)}">
     </div>
 </div>
 
@@ -53,7 +53,7 @@ $#
     <label for="grader_diff_context_lines" class="col-sm-4 control-label">Diff context lines</label>
     <div class="col-sm-8">
         <input type="number" min="3" class="form-control" id="grader_diff_context_lines" name="grader_diff_context_lines"
-          value="${task_data.get('grader_diff_context_lines','')}">
+          value="${task_data.get('grader_diff_context_lines', 3)}">
     </div>
 </div>
 
