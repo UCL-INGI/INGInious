@@ -326,13 +326,6 @@ class CourseEditTask(INGIniousAdminPage):
         directory_path = self.task_factory.get_directory_path(courseid, taskid)
 
         # Grader generation
-        if data["grader_problem_id"] not in data["problems"]:
-            return json.dumps({"status": "error", "message": "Grader: problem does not exist"})
-
-        if data["problems"][data["grader_problem_id"]]["type"] != 'code-multiple-languages':
-            return json.dumps({"status": "error",
-                "message": "Grader: only Code Multiple Languages problems are supported"})
-
         try:
             data["grader_diff_max_lines"] = int(data["grader_diff_max_lines"])
         except:
@@ -392,6 +385,13 @@ class CourseEditTask(INGIniousAdminPage):
                     {"status": "error", "message": "Grader output file does not exist: " + test_case["output_file"]})
 
         if data["generate_grader"]:
+            if data["grader_problem_id"] not in data["problems"]:
+                return json.dumps({"status": "error", "message": "Grader: problem does not exist"})
+
+            if data["problems"][data["grader_problem_id"]]["type"] != 'code-multiple-languages':
+                return json.dumps({"status": "error",
+                    "message": "Grader: only Code Multiple Languages problems are supported"})
+
             current_directory = os.path.dirname(__file__)
             run_file_template_path = os.path.join(current_directory, '../../templates/course_admin/run_file_template.txt')
             run_file_template = None
