@@ -517,6 +517,12 @@ function parseOutputDiff(diff) {
   var result = [];
   var lines = diff.split('\n');
 
+  // Convention
+  result.push('<strong>Legend:</strong> <span class="diff-seq-1">Only in the expected output</span> ' +
+    '<span class="diff-seq-2">Only in your output</span> ' +
+    '<span class="diff-common">Common</span> ' +
+    '<span class="diff-position-control">Context information</span>');
+
   for(var i = 0; i < lines.length; ++i) {
     var line = lines[i];
     var output = null;

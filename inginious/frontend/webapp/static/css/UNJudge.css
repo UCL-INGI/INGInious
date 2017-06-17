@@ -18,11 +18,11 @@
 }
 
 .diff-seq-2 {
-  background-color: #dff0d8;
+  background-color: #f3e28d;
 }
 
 .diff-common {
-  color: #000;
+  background-color: #dff0d8;
 }
 
 .diff-position-control {
