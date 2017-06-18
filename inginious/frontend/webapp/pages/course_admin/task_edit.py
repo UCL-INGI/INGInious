@@ -212,7 +212,7 @@ class CourseEditTask(INGIniousAdminPage):
         grader_test_cases = self.dict_from_prefix("grader_test_cases", data) or OrderedDict()
 
         # Remove test-case dirty entries.
-        keys_to_remove = [key for key, _ in data.items() if key.startswith("grader_test_cases_")]
+        keys_to_remove = [key for key, _ in data.items() if key.startswith("grader_test_cases[")]
         for key in keys_to_remove:
             del data[key]
 
