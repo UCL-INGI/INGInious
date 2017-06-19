@@ -747,3 +747,41 @@ function studio_load_grader_test_cases(test_cases) {
 function studio_remove_test_case(id) {
     $("#grader_test_cases_" + id).remove();
 }
+
+function studio_update_grader_problems() {
+    var container = $("#accordion");
+
+    var problems = [];
+    $.each(container.children(), function(index, value) {
+      var id = value.id;
+      var prefix = "subproblem_well_";
+      if (!id.startsWith(prefix)) {
+        throw new Error("Unable to process problem well: " + id);
+      }
+
+      var problemId = id.substring(prefix.length);
+      var type = $(value).find("[name='problem[" + problemId + "][type]']").val();
+
+      problems.push({
+        "id": problemId,
+        "type": type
+      });
+    });
+
+    var graderSelect = $("#grader_problem_id");
+    var currentlySelectedItem = graderSelect.val();
+
+    graderSelect.empty();
+    $.each(problems, function(index, problem) {
+      if (problem.type !== "code-multiple-languages") {
+        return;
+      }
+
+      graderSelect.append($("<option>", {
+        "value": problem.id,
+        "text": problem.id
+      }));
+    });
+
+    graderSelect.val(currentlySelectedItem);
+}

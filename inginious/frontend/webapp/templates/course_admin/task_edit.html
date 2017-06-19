@@ -117,5 +117,16 @@ $:include.course_admin.edit_tabs.grader_templates()
 
     grader_test_cases = $:{grader_test_cases_dump};
 
-    $$ (function(){ studio_load_grader_test_cases(grader_test_cases); });
+    $$ (function() {
+      studio_update_grader_problems();
+
+      $$ ("#grader_problem_id").val("${task_data.get('grader_problem_id', '')}");
+      studio_load_grader_test_cases(grader_test_cases);
+
+      $$('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
+        if (e.target.hash === '#tab_grader') {
+          studio_update_grader_problems();
+        }
+      });
+    });
 </script>
