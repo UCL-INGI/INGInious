@@ -785,3 +785,36 @@ function studio_update_grader_problems() {
 
     graderSelect.val(currentlySelectedItem);
 }
+
+function studio_update_grader_files()
+{
+    $.ajax({
+      success: function(files) {
+        var inputFileSelect = $("#grader_test_case_in");
+        var outputFileSelect = $("#grader_test_case_out");
+
+        inputFileSelect.empty();
+        outputFileSelect.empty();
+
+        $.each(files, function(index, file) {
+          if (file.is_directory) {
+            return;
+          }
+
+          var entry = $("<option>", {
+            "value": file.complete_name,
+            "text": file.complete_name
+          });
+
+          inputFileSelect.append(entry);
+          outputFileSelect.append(entry.clone());
+        });
+      },
+      method: "GET",
+      data: {
+        "action": "list_json"
+      },
+      dataType: "json",
+      url: location.pathname + "/files"
+    });
+}

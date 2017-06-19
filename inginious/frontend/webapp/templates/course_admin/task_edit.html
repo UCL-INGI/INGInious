@@ -126,6 +126,7 @@ $:include.course_admin.edit_tabs.grader_templates()
       $$('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
         if (e.target.hash === '#tab_grader') {
           studio_update_grader_problems();
+          studio_update_grader_files();
         }
       });
     });

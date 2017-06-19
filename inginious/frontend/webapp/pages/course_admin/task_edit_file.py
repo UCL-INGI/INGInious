@@ -39,6 +39,8 @@ class CourseTaskFiles(INGIniousAdminPage):
             return self.action_create(courseid, taskid, request.get('path'))
         elif request.get("action") == "edit" and request.get('path') is not None:
             return self.action_edit(courseid, taskid, request.get('path'))
+        elif request.get("action") == "list_json":
+            return self.action_list_json(courseid, taskid)
         else:
             return self.show_tab_file(courseid, taskid)
 
@@ -263,3 +265,16 @@ class CourseTaskFiles(INGIniousAdminPage):
             web.header('Content-Type', mime_type[0])
             web.header('Content-Disposition', 'attachment; filename="' + os.path.split(wanted_path)[1] + '"', unique=True)
             return open(wanted_path, 'rb')
+
+    def action_list_json(self, courseid, taskid):
+        file_list = self.get_task_filelist(self.task_factory, courseid, taskid)
+        result = [
+            {
+                "level": level,
+                "is_directory": is_directory,
+                "name": name,
+                "complete_name": complete_name
+            } for level, is_directory, name, complete_name in file_list
+        ]
+
+        return json.dumps(result)
