@@ -812,7 +812,7 @@ function studio_update_grader_files()
       },
       method: "GET",
       data: {
-        "action": "list_json"
+        "action": "list_as_json"
       },
       dataType: "json",
       url: location.pathname + "/files"
