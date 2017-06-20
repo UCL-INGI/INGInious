@@ -162,3 +162,9 @@ function download_page_select_tutor(panel_member, users, groups)
     $('input[name="users"]', panel_member).each(function() { $(this).prop('checked', $.inArray($(this).val(), users) != -1); });
     $('input[type="checkbox"]', panel_member).trigger('change');
 }
+
+if (!String.prototype.startsWith) {
+    String.prototype.startsWith = function(searchString, position) {
+      return this.substr(position || 0, searchString.length) === searchString;
+  };
+}
