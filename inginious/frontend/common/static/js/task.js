@@ -286,7 +286,7 @@ function taskFormValid()
     form.find('textarea,input[type="text"]').each(function()
     {
         var checkIfAnswered = $(this).attr('name') != undefined && !$(this).attr('id').includes("custominput");
-        if(checkIfAnswered) //skip codemirror's internal textareas and customimput areas
+        if(checkIfAnswered) //skip codemirror's internal textareas and custominput areas
         {
             if($(this).val() == "" && $(this).attr('data-optional') != "True")
                 answered_to_all = false;
@@ -1077,7 +1077,7 @@ function compileAndRun (inputId) {
     var runInputCallBack = function (data) {
         if ('status' in data && data['status'] == 'done') {
             if ('result' in data) {
-                displayCustomTestAlert(data);
+                $('#customoutput-'+inputId).text(data.text);
                 unblurTaskForm();
             }
         }
@@ -1085,10 +1085,7 @@ function compileAndRun (inputId) {
 
     blurTaskForm();
     resetAlerts();
-    displayTaskWaitingForUnsavedJob();
-    $('html, body').animate({
-        scrollTop: $('#task_alert').offset().top - 100
-    }, 200);
+    $('#customoutput-'+inputId).text('Running...');
 
     var taskForm = new FormData($('form#task')[0]);
     taskForm.set("@action", "customtest");
