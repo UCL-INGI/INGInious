@@ -87,6 +87,12 @@ function registerCodeEditor(textarea, lang, lines)
 
     var is_single = $(textarea).hasClass('single');
 
+    var tabToSpaces = function(codeMirrorInstance) {
+        var indentUnit = codeMirrorInstance.getOption("indentUnit");
+        var spaces = Array(indentUnit + 1).join(" ");
+        codeMirrorInstance.replaceSelection(spaces);
+    }
+
     var editor = CodeMirror.fromTextArea(textarea, {
         lineNumbers:       true,
         mode:              mode["mime"],
@@ -102,7 +108,7 @@ function registerCodeEditor(textarea, lang, lines)
         viewportMargin:    20,
         theme:             "inginious",
         lint:              true,
-        extraKeys:         { "Ctrl-Space": "autocomplete" }
+        extraKeys:         { "Ctrl-Space": "autocomplete", Tab: tabToSpaces }
     });
 
     if(is_single)
