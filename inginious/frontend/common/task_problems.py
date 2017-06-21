@@ -82,7 +82,7 @@ class DisplayableCodeMultipleLanguagesProblem(CodeMultipleLanguagesProblem, Disp
         super(DisplayableCodeMultipleLanguagesProblem, self).__init__(task, problemid, content)
 
     def show_input(self, renderer):
-        allowed_languages = list(self._languages.keys())            
+        allowed_languages = list(self._languages.keys())
         dropdown_id = self.get_id() + "/language"
         custom_input_id = self.get_id() + "/input"
 

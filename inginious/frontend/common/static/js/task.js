@@ -440,8 +440,10 @@ function waitForSubmission(submissionid)
                 }
                 else if("status" in data && "result" in data && "grade" in data)
                 {
-                    if("debug" in data)
+                    if("debug" in data) {
                         displayDebugInfo(data["debug"]);
+                        displayOutputDiff(data["debug"]);
+                    }
 
                     if(data['result'] == "failed")
                     {
@@ -524,6 +526,7 @@ function displayDebugInfo(info)
 {
     displayDebugInfoRecur(info, $('#task_debug'));
 }
+
 function displayDebugInfoRecur(info, box)
 {
     var data = $(document.createElement('dl'));
@@ -543,6 +546,86 @@ function displayDebugInfoRecur(info, box)
         else
             content.text(elem);
     });
+}
+
+function parseOutputDiff(diff) {
+  var result = [];
+  var lines = diff.split('\n');
+
+  // Convention
+  result.push('<strong>Legend:</strong> <span class="diff-missing-output">Only in the expected output</span> ' +
+    '<span class="diff-additional-output">Only in your output</span> ' +
+    '<span class="diff-common">Common</span> ' +
+    '<span class="diff-position-control">Context information</span>');
+
+  for(var i = 0; i < lines.length; ++i) {
+    var line = lines[i];
+    var output = null;
+
+    if (line.startsWith("---")) {
+      output = '<span class="diff-missing-output">' + line.substring(4) + '</span>';
+    } else if (line.startsWith("+++")) {
+      output = '<span class="diff-additional-output">' + line.substring(4) + '</span>';
+    } else if (line.startsWith("@@")) {
+      output = '<span class="diff-position-control">' + line + '</span>';
+    } else if (line.startsWith("-")) {
+      output = '<span class="diff-missing-output">' + line.substring(1) + '</span>';
+    } else if (line.startsWith("+")) {
+      output = '<span class="diff-additional-output">' + line.substring(1) + '</span>';
+    } else if (line.startsWith(" ") || line === "") {
+      output = '<span class="diff-common">' + line.substring(1) + '</span>';
+    } else if (line.startsWith("...")) {
+      output = '<span class="diff-position-control">' + line + '</span>';
+    } else {
+      throw new Error("Unable to parse diff line: " + line);
+    }
+
+    result.push(output);
+  }
+
+  return result.join("\n");
+}
+
+function updateDiffBlock(blockId) {
+  var block = $("#" + blockId);
+  block.html(parseOutputDiff(block.html()));
+}
+
+function displayOutputDiff(debugInfo)
+{
+    var container = $('#task_diff');
+    var data = $(document.createElement('dl'));
+    data.text(" ");
+    container.html(data);
+
+    var files_feedback = debugInfo;
+    files_feedback = (files_feedback["custom"] || {});
+    files_feedback = JSON.parse(files_feedback["additional_info"] || "{}");
+    files_feedback = (files_feedback["files_feedback"] || []);
+
+    var keys = $.map(files_feedback, function(element, index) { return index; });
+    keys.sort();
+
+    for (var i = 0; i < keys.length; ++i) {
+      var key = keys[i];
+      var element = files_feedback[key];
+
+      var namebox = $(document.createElement('dt'));
+      var content = $(document.createElement('dd'));
+      data.append(namebox);
+      data.append(content);
+
+      namebox.text("Test case " + key);
+      var collapseId = "collapseDiffAdmin" + i;
+
+      var diff = element["diff"] || '';
+      var html = '<a class="btn btn-default btn-link btn-xs" role="button"' +
+        'data-toggle="collapse" href="#' + collapseId + '" aria-expanded="false" ' +
+        'aria-controls="' + collapseId + '">Toggle diff</a>' +
+        '<div class="collapse" id="' + collapseId + '"><pre>' + parseOutputDiff(diff) + '</pre></div>';
+
+      content.html(html);
+    }
 }
 
 //Get the code for a "loading" alert, with a button to kill the current submission
@@ -798,8 +881,10 @@ function loadOldFeedback(data)
 {
     if("status" in data && "result" in data)
     {
-        if("debug" in data)
+        if("debug" in data) {
             displayDebugInfo(data["debug"]);
+            displayOutputDiff(data["debug"]);
+        }
 
         if(data['result'] == "failed")
             displayTaskStudentErrorAlert(data);

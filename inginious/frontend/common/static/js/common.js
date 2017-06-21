@@ -8,13 +8,18 @@ function init_common()
 {
     //Init CodeMirror
     colorizeStaticCode();
-    $('.code-editor').each(function(index, elem)
+    $('.code-editor').each(function(index, boxMultilineTextArea)
     {
-        var language = $(elem).attr('data-x-language')
-        if(language == "plain")
-            language = getLanguageForProblemId($(elem).attr("name"));
+        var editorLines = $(boxMultilineTextArea).attr('data-x-lines');
+        var language = $(boxMultilineTextArea).attr('data-x-language');
 
-        registerCodeEditor(elem, language, $(elem).attr('data-x-lines'));
+        var shouldGetLanguageFromDropdown = (language == "plain");
+        if(shouldGetLanguageFromDropdown){
+            var problemId = $(boxMultilineTextArea).attr("name");
+            language = getLanguageForProblemId(problemId);
+        }
+
+        registerCodeEditor(boxMultilineTextArea, language, editorLines);
     });
 
     //Fix a bug with codemirror and bootstrap tabs
@@ -82,6 +87,12 @@ function registerCodeEditor(textarea, lang, lines)
 
     var is_single = $(textarea).hasClass('single');
 
+    var tabToSpaces = function(codeMirrorInstance) {
+        var indentUnit = codeMirrorInstance.getOption("indentUnit");
+        var spaces = Array(indentUnit + 1).join(" ");
+        codeMirrorInstance.replaceSelection(spaces);
+    }
+
     var editor = CodeMirror.fromTextArea(textarea, {
         lineNumbers:       true,
         mode:              mode["mime"],
@@ -97,7 +108,7 @@ function registerCodeEditor(textarea, lang, lines)
         viewportMargin:    20,
         theme:             "inginious",
         lint:              true,
-        extraKeys:         { "Ctrl-Space": "autocomplete" }
+        extraKeys:         { "Ctrl-Space": "autocomplete", Tab: tabToSpaces }
     });
 
     if(is_single)
@@ -156,4 +167,10 @@ function download_page_select_tutor(panel_member, users, groups)
     $('input[name="aggregations"]', panel_member).each(function() { $(this).prop('checked', $.inArray($(this).val(),groups) != -1); });
     $('input[name="users"]', panel_member).each(function() { $(this).prop('checked', $.inArray($(this).val(), users) != -1); });
     $('input[type="checkbox"]', panel_member).trigger('change');
+}
+
+if (!String.prototype.startsWith) {
+    String.prototype.startsWith = function(searchString, position) {
+      return this.substr(position || 0, searchString.length) === searchString;
+  };
 }

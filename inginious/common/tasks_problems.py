@@ -158,7 +158,7 @@ class CodeProblem(BasicCodeProblem):
         super(CodeProblem, self).__init__(task, problemid, content)
         if "boxes" in content:
             self._boxes = []
-            for boxid, box_content in content['boxes'].items(): 
+            for boxid, box_content in content['boxes'].items():
                 if boxid == "":
                     raise Exception("Empty box ids are not allowed")
                 self._boxes.append(self._create_box(boxid, box_content))

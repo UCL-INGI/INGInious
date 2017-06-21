@@ -1,0 +1,32 @@
+#task_alert .alert-danger
+{
+    background-color: #f2dede;
+    color: #f04124;
+    border: 1px solid #dddddd;
+}
+
+.modal.modal-wide .modal-dialog {
+  width: 90%;
+}
+
+.modal-wide .modal-body {
+  overflow-y: auto;
+}
+
+.diff-missing-output {
+  background-color: #f2dede;
+}
+
+.diff-additional-output {
+  background-color: #f3e28d;
+}
+
+.diff-common {
+  background-color: #dff0d8;
+}
+
+.diff-position-control {
+  background-color: #d9edf7;
+  font-style: italic;
+  font-weight: bold;
+}

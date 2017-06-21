@@ -1,0 +1,10 @@
+#!/bin/python3
+
+from grading import graders
+
+subproblem_id = {0}
+test_cases = {1}
+options = {2}
+weights = {3}
+
+graders.grade_problem_with_partial_scores(subproblem_id, test_cases, options=options, weights=weights)

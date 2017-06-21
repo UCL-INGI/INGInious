@@ -3,18 +3,18 @@ $def with (pid,checkbox,choices)
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
-$# 
+$#
 
 $for choice in choices:
     $if checkbox:
         <div class="checkbox">
             <label>
-                <input type="checkbox" name="${pid}" value="$choice['index']" /> $:choice['text']
+                <input type="checkbox" name="${pid}" value="$choice['index']"/> $:choice['text']
             </label>
         </div>
     $else:
         <div class="radio">
             <label>
-                <input type="radio" name="$pid" value="$choice['index']" /> $:choice['text']
+                <input type="radio" name="$pid" value="$choice['index']"/> $:choice['text']
             </label>
         </div>
