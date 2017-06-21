@@ -697,28 +697,6 @@ function displayTaskStudentSuccessAlert(content)
         "success", true);
 }
 
-//Displays a custom test alert in task form
-function displayCustomTestAlert(content)
-{
-    displayTaskStudentAlertWithProblems(content,
-        '<b>Custom test output:</b>',
-        "customtest", true);
-}
-
-function getTextAreaAlertCode (top, content) {
-    var textarea = $(document.createElement("textarea"));
-    textarea.prop('readonly', true);
-    textarea.text(content);
-    textarea.attr('rows', 6);
-    textarea.addClass("form-control");
-    textarea.css("background-color", "#fff");
-    return '<div class="alert fade in alert-info role="alert">' + 
-            '<button type="button" class="close" data-dismiss="alert">' +
-            '<span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>' +
-            top + $("<div></div>").append(textarea).html() + 
-            '</div>';
-}
-    
 //Displays a student error alert in task form
 function displayTaskStudentAlertWithProblems(content, top, type, alwaysShowTop)
 {
@@ -729,14 +707,9 @@ function displayTaskStudentAlertWithProblems(content, top, type, alwaysShowTop)
 
     if("text" in content && content.text != "")
     {
-        if (type === "customtest") 
-            task_alert.html(getTextAreaAlertCode(top + "<br/><br/> ", content.text));
-        else
-            task_alert.html(getAlertCode(top + "<br/> " + content.text, type, true));
+        task_alert.html(getAlertCode(top + "<br/> " + content.text, type, true));
         firstPos = task_alert.offset().top;
     }
-    if (type == "customtest")
-        type = "info";
 
     if("problems" in content)
     {
