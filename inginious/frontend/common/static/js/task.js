@@ -537,10 +537,12 @@ function parseOutputDiff(diff) {
       output = '<span class="diff-missing-output">' + line.substring(1) + '</span>';
     } else if (line.startsWith("+")) {
       output = '<span class="diff-additional-output">' + line.substring(1) + '</span>';
-    } else if (line.startsWith(" ") || line === "") {
+    } else if (line.startsWith(" ")) {
       output = '<span class="diff-common">' + line.substring(1) + '</span>';
     } else if (line.startsWith("...")) {
       output = '<span class="diff-position-control">' + line + '</span>';
+    } else if (line === "") {
+      output = line;
     } else {
       throw new Error("Unable to parse diff line: " + line);
     }
