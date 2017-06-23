@@ -87,10 +87,18 @@ function registerCodeEditor(textarea, lang, lines)
 
     var is_single = $(textarea).hasClass('single');
 
-    var tabToSpaces = function(codeMirrorInstance) {
+    var tabToSpacesBinding = function(codeMirrorInstance) {
         var indentUnit = codeMirrorInstance.getOption("indentUnit");
         var spaces = Array(indentUnit + 1).join(" ");
         codeMirrorInstance.replaceSelection(spaces);
+    }
+
+    var changeTabsIntoSpaces = function(codeMirrorInstance, pasteEvent){
+        var code = pasteEvent.clipboardData.getData("text");
+        setCodeReplacingTabs(codeMirrorInstance, code);
+
+        //prevent codemirror to override the code pasted
+        pasteEvent.preventDefault();
     }
 
     var editor = CodeMirror.fromTextArea(textarea, {
@@ -108,7 +116,7 @@ function registerCodeEditor(textarea, lang, lines)
         viewportMargin:    20,
         theme:             "inginious",
         lint:              true,
-        extraKeys:         { "Ctrl-Space": "autocomplete", Tab: tabToSpaces }
+        extraKeys:         { "Ctrl-Space": "autocomplete", Tab: tabToSpacesBinding }
     });
 
     if(is_single)
@@ -119,6 +127,8 @@ function registerCodeEditor(textarea, lang, lines)
         cm.save();
     });
 
+    editor.on("paste", changeTabsIntoSpaces);
+
     var max_editor_height = "500";
     editor.setSize(null, max_editor_height + "px");
 
@@ -127,6 +137,13 @@ function registerCodeEditor(textarea, lang, lines)
 
     codeEditors.push(editor);
     return editor;
+}
+
+function setCodeReplacingTabs(codeMirrorInstance, code){
+    var indentUnit = codeMirrorInstance.getOption("indentUnit");
+    var spaces = Array(indentUnit + 1).join(" ");
+    var codeChanged = code.replace(/\t/g, spaces);
+    codeMirrorInstance.setValue(codeChanged);
 }
 
 // Apply parent function recursively
