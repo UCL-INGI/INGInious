@@ -36,32 +36,33 @@ function init_task_page(evaluate)
         $(this).find('a').on('click', selectSubmission);
     });
 
-    $('a[id^="link"]').each(function() {
-        var id = $(this).attr('id');
+    var codeUploadLink = $('a[id^="link"]');
+    codeUploadLink.each(function() {
+        var codeUploadLinkID = $(this).attr('id');
         $(this).click(function(e) {
-            var inputId = "file" + id;
-            $("#"+inputId).click();
+            var fileUploaderID = 'file' + codeUploadLinkID;
+            var fileUploaderElement = $('#' + fileUploaderID);
+            fileUploaderElement.click();
             e.preventDefault(); 
         });
     });
 
-    $('input[id^="filelink"]').each(function() {
-        var inputId = $(this).attr('id');
-        var textareaId = inputId.replace("filelink-", "");
+    var codeUploadInput = $('input[id^="filelink"]');
+    codeUploadInput.each(function() {
+        var codeUploadInputId = $(this).attr('id');
+        var textareaId = codeUploadInputId.replace("filelink-", "");
         var input = this;
-        var codeMirrorArea = $('#'+textareaId).hasClass("code-editor");
+        var isCodeMirrorArea = $('#'+textareaId).hasClass("code-editor");
         var textarea = $('#'+textareaId)[0];
+
         $(this).change(function(e) {
             var reader = new FileReader();        
             reader.onload = function(event) {
                 var contents = event.target.result;     
 
-                if (codeMirrorArea) {
-                    $.each(codeEditors, function() {
-                        var name = this.getTextArea().name;
-                        if (name === textareaId)
-                            this.setValue(contents, -1);
-                    })
+                if (isCodeMirrorArea) {
+                    var editor = getEditorForProblemId(textareaId);
+                    editor.setValue(contents, -1);
                 } else
                     textarea.value = contents;    
             };        
@@ -285,8 +286,8 @@ function taskFormValid()
 
     form.find('textarea,input[type="text"]').each(function()
     {
-        var checkIfAnswered = $(this).attr('name') != undefined && !$(this).attr('id').includes("custominput");
-        if(checkIfAnswered) //skip codemirror's internal textareas and custominput areas
+        var shouldCheckElement = $(this).attr('name') != undefined && !$(this).attr('id').includes("custominput");
+        if(shouldCheckElement) //skip codemirror's internal textareas and custominput areas
         {
             if($(this).val() == "" && $(this).attr('data-optional') != "True")
                 answered_to_all = false;
@@ -667,7 +668,7 @@ function displayTaskLoadingAlert(submission_wait_data, submissionid)
 function displayTaskWaitingForUnsavedJob () {
     var task_alert = $('#task_alert');
     var content = '<i class="fa fa-spinner fa-pulse fa-fw" aria-hidden="true"></i> <b>Evaluating...</b>';
-    var div_content =   "<div class='loading-alert'>"+content+"</div>";
+    var div_content = "<div class='loading-alert'>"+content+"</div>";
     task_alert.html(getAlertCode(div_content, "info", false));
 }
 
@@ -1131,11 +1132,13 @@ function defaultCallback(response, status){
   alert(response + "\n\nresponse_status: " + status);
 }
 
-function compileAndRun (inputId) {
-    var runInputCallBack = function (data) {
+function runCustomTest (inputId) {
+    var customTestOuputArea = $('#customoutput-'+inputId);
+
+    var runCustomTestCallBack = function (data) {
         if ('status' in data && data['status'] == 'done') {
             if ('result' in data) {
-                $('#customoutput-'+inputId).text(data.text);
+                customTestOuputArea.text(data.text);
                 unblurTaskForm();
             }
         }
@@ -1143,7 +1146,7 @@ function compileAndRun (inputId) {
 
     blurTaskForm();
     resetAlerts();
-    $('#customoutput-'+inputId).text('Running...');
+    customTestOuputArea.text('Running...');
 
     var taskForm = new FormData($('form#task')[0]);
     taskForm.set("@action", "customtest");
@@ -1155,7 +1158,7 @@ function compileAndRun (inputId) {
             data: taskForm,
             processData: false,
             contentType: false,
-            success: runInputCallBack,
+            success: runCustomTestCallBack,
             error: function(er){}
     });
 }
