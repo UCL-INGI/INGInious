@@ -166,12 +166,26 @@ class CodeProblem(BasicCodeProblem):
             if "language" in content:
                 self._boxes = [self._create_box("", {"type": "multiline", "language": content["language"],
                                                      "optional": content.get("optional", False)})]
+                self._language = content["language"]
             else:
                 self._boxes = [self._create_box("", {"type": "multiline", "optional": content.get("optional", False)})]
+
 
     def get_type(self):
         return "code"
 
+    def get_language(self):
+        return self._language
+
+class CodeMultipleLanguagesProblem(CodeProblem):
+    """Code problem with multile languages"""
+
+    def __init__(self, task, problemid, content):
+        super(CodeMultipleLanguagesProblem, self).__init__(task, problemid, content)
+        self._languages = content["languages"]
+
+    def get_type(self):
+        return "code-multiple-languages"
 
 class MultipleChoiceProblem(BasicProblem):
     """Multiple choice problems"""

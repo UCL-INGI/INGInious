@@ -10,7 +10,7 @@ from random import shuffle
 
 from inginious.frontend.common.parsable_text import ParsableText
 from inginious.common.tasks_problems import BasicProblem, BasicCodeProblem, CodeProblem, CodeSingleLineProblem, MatchProblem, MultipleChoiceProblem, \
-    CodeFileProblem
+    CodeFileProblem, CodeMultipleLanguagesProblem
 from inginious.frontend.common.tasks_code_boxes import DisplayableInputBox, DisplayableMultilineBox, DisplayableTextBox, DisplayableFileBox
 
 
@@ -74,6 +74,21 @@ class DisplayableCodeProblem(CodeProblem, DisplayableBasicCodeProblem):
 
     def __init__(self, task, problemid, content):
         super(DisplayableCodeProblem, self).__init__(task, problemid, content)
+
+class DisplayableCodeMultipleLanguagesProblem(CodeMultipleLanguagesProblem, DisplayableBasicCodeProblem):
+    """ A displayable code multiple language problem """
+
+    def __init__(self, task, problemid, content):
+        super(DisplayableCodeMultipleLanguagesProblem, self).__init__(task, problemid, content)
+
+    def show_input(self, renderer):
+        allowed_languages = list(self._languages.keys())
+        dropdown_id = self.get_id() + "/language"
+
+        standard_code_problem_render = super(DisplayableCodeMultipleLanguagesProblem, self).show_input(renderer)
+        multiple_language_render = str(renderer.tasks.multiplelanguage(dropdown_id, allowed_languages, self.get_id()))
+
+        return standard_code_problem_render + multiple_language_render
 
 
 class DisplayableCodeFileProblem(CodeFileProblem, DisplayableBasicCodeProblem):

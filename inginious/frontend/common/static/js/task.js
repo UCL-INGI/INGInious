@@ -405,8 +405,10 @@ function waitForSubmission(submissionid)
                 }
                 else if("status" in data && "result" in data && "grade" in data)
                 {
-                    if("debug" in data)
+                    if("debug" in data) {
                         displayDebugInfo(data["debug"]);
+                        displayOutputDiff(data["debug"]);
+                    }
 
                     if(data['result'] == "failed")
                     {
@@ -489,6 +491,7 @@ function displayDebugInfo(info)
 {
     displayDebugInfoRecur(info, $('#task_debug'));
 }
+
 function displayDebugInfoRecur(info, box)
 {
     var data = $(document.createElement('dl'));
@@ -508,6 +511,86 @@ function displayDebugInfoRecur(info, box)
         else
             content.text(elem);
     });
+}
+
+function parseOutputDiff(diff) {
+  var result = [];
+  var lines = diff.split('\n');
+
+  // Convention
+  result.push('<strong>Legend:</strong> <span class="diff-missing-output">Only in the expected output</span> ' +
+    '<span class="diff-additional-output">Only in your output</span> ' +
+    '<span class="diff-common">Common</span> ' +
+    '<span class="diff-position-control">Context information</span>');
+
+  for(var i = 0; i < lines.length; ++i) {
+    var line = lines[i];
+    var output = null;
+
+    if (line.startsWith("---")) {
+      output = '<span class="diff-missing-output">' + line.substring(4) + '</span>';
+    } else if (line.startsWith("+++")) {
+      output = '<span class="diff-additional-output">' + line.substring(4) + '</span>';
+    } else if (line.startsWith("@@")) {
+      output = '<span class="diff-position-control">' + line + '</span>';
+    } else if (line.startsWith("-")) {
+      output = '<span class="diff-missing-output">' + line.substring(1) + '</span>';
+    } else if (line.startsWith("+")) {
+      output = '<span class="diff-additional-output">' + line.substring(1) + '</span>';
+    } else if (line.startsWith(" ") || line === "") {
+      output = '<span class="diff-common">' + line.substring(1) + '</span>';
+    } else if (line.startsWith("...")) {
+      output = '<span class="diff-position-control">' + line + '</span>';
+    } else {
+      throw new Error("Unable to parse diff line: " + line);
+    }
+
+    result.push(output);
+  }
+
+  return result.join("\n");
+}
+
+function updateDiffBlock(blockId) {
+  var block = $("#" + blockId);
+  block.html(parseOutputDiff(block.html()));
+}
+
+function displayOutputDiff(debugInfo)
+{
+    var container = $('#task_diff');
+    var data = $(document.createElement('dl'));
+    data.text(" ");
+    container.html(data);
+
+    var files_feedback = debugInfo;
+    files_feedback = (files_feedback["custom"] || {});
+    files_feedback = JSON.parse(files_feedback["additional_info"] || "{}");
+    files_feedback = (files_feedback["files_feedback"] || []);
+
+    var keys = $.map(files_feedback, function(element, index) { return index; });
+    keys.sort();
+
+    for (var i = 0; i < keys.length; ++i) {
+      var key = keys[i];
+      var element = files_feedback[key];
+
+      var namebox = $(document.createElement('dt'));
+      var content = $(document.createElement('dd'));
+      data.append(namebox);
+      data.append(content);
+
+      namebox.text("Test case " + key);
+      var collapseId = "collapseDiffAdmin" + i;
+
+      var diff = element["diff"] || '';
+      var html = '<a class="btn btn-default btn-link btn-xs" role="button"' +
+        'data-toggle="collapse" href="#' + collapseId + '" aria-expanded="false" ' +
+        'aria-controls="' + collapseId + '">Toggle diff</a>' +
+        '<div class="collapse" id="' + collapseId + '"><pre>' + parseOutputDiff(diff) + '</pre></div>';
+
+      content.html(html);
+    }
 }
 
 //Get the code for a "loading" alert, with a button to kill the current submission
@@ -756,8 +839,10 @@ function loadOldFeedback(data)
 {
     if("status" in data && "result" in data)
     {
-        if("debug" in data)
+        if("debug" in data) {
             displayDebugInfo(data["debug"]);
+            displayOutputDiff(data["debug"]);
+        }
 
         if(data['result'] == "failed")
             displayTaskStudentErrorAlert(data);
@@ -817,5 +902,142 @@ function loadInput(submissionid, input)
             this.setValue(input[name], -1);
         else
             this.setValue("");
+
+        if(input[name + "/language"]){
+            setDropDownWithTheRightLanguage(name, input[name + "/language"]);
+            changeSubmissionLanguage(name);
+        }
     })
+}
+
+function setDropDownWithTheRightLanguage(problemId, language) {
+    if(!language)
+      return;
+    var dropdown = document.getElementById(problemId + '/language');
+    if(!dropdown)
+        return;
+
+    dropdown.value = language;
+}
+
+function changeSubmissionLanguage(problemId){
+    var language = getLanguageForProblemId(problemId);
+    var editor = getEditorForProblemId(problemId);
+    var mode = CodeMirror.findModeByName(language);
+    editor.setOption("mode", mode.mime);
+    CodeMirror.autoLoadMode(editor, mode["mode"]);
+    editor.updateLintStatus([]);
+}
+
+function getLanguageForProblemId(problemId){
+    var codemirrorLanguages = {
+        "java7": "java",
+        "js": "javascript",
+        "cpp": "cpp",
+        "python": "python",
+        "ruby": "ruby"
+    }
+
+    var dropdown = document.getElementById(problemId + '/language');
+    if(dropdown == null)
+        return "plain";
+
+    var backEndLanguage = dropdown.options[dropdown.selectedIndex].value;
+    return codemirrorLanguages[backEndLanguage];
+}
+
+var defaultVisualServer = "http://127.0.0.1:8003/";
+var javaVisualServer = "https://cscircles.cemc.uwaterloo.ca/";
+
+function visualizeCode(language, problemId){
+    if(language == "plain")
+        language = getLanguageForProblemId(problemId);
+
+    var editor =  getEditorForProblemId(problemId);
+    var code = editor.getValue();
+    var iframe = createIFrameFromCode(code, language);
+    showIFrameIntoModal(iframe, problemId);
+}
+
+function createIFrameFromCode(code, language){
+    var iframe = document.createElement('iframe');
+    iframe.src = generateVisualizerUrl(code, language);
+    iframe.height = "650";
+    iframe.width = "100%";
+    iframe.frameborder = "0";
+    return iframe;
+}
+
+function showIFrameIntoModal(iframe, problemId){
+    var modal = document.getElementById("modal-" + problemId);
+    var modalBody = modal.getElementsByClassName("modal-body")[0];
+    $(modalBody).empty();
+    modalBody.innerHTML = "Plase wait while we excecute your code, this may take up to 10 seconds";
+    modalBody.appendChild(iframe);
+}
+
+function generateVisualizerUrl(code, language){
+    var codeToURI = window.encodeURIComponent(code);
+    var url = visualServer(language)
+        + codeToURI
+        + "&mode=edit"
+        + "&py=" + languageURIName(language)
+        + "&rawInputLstJSON=%5B%5D"
+        + "&codeDivHeight=450"
+        + "&codeDivWidth=500"
+        + additionalOptions(language);
+    return url;
+}
+
+function visualServer(language){
+    if(language == "java") return javaVisualServer + "java_visualize/#code=";
+    return defaultVisualServer + "with_input.html#code=";
+}
+
+function languageURIName(language){
+    if(language == "javascript") return "js";
+    if(language == "python") return "2";
+    return language;
+}
+
+function additionalOptions(language){
+    if(language == "java") return "&stdin=Input+here";
+    return "";
+}
+
+
+var lintServerUrl = "http://localhost:4567/";
+
+function lintCode(language, problemId, callback){
+  if(language == "plain")
+    language = getLanguageForProblemId(problemId);
+  var editor =  getEditorForProblemId(problemId);
+  var code = editor.getValue();
+  var apiUrl = lintServerUrl + language;
+  callback = callback || getCallbackForLanguage(language, editor);
+
+  $.post(apiUrl, { code: code }, callback);
+}
+
+function getCallbackForLanguage(language, editor){
+  if(language == "java") return updateLintingCallback(editor);
+  if(language == "python") return updateLintingCallback(editor);
+  if(language == "cpp") return updateLintingCallback(editor);
+  return defaultCallback;
+}
+
+var updateLintingCallback = function(editor){
+  return function(response, status){
+    var errors_and_warnings = JSON.parse(response);
+    editor.updateLintStatus(errors_and_warnings);
+  }
+}
+
+function makeNewTabFromResponseCallback(response, status){
+  var newTabUrl = "data:text/html," + window.encodeURIComponent(response);
+  var newWindow = window.open(newTabUrl, '_blank');
+}
+
+function defaultCallback(response, status){
+  alert(response + "\n\nresponse_status: " + status);
 }

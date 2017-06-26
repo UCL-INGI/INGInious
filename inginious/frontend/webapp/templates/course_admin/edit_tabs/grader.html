@@ -1,0 +1,81 @@
+$def with (task_data)
+
+$#
+$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+$# more information about the licensing of this file.
+$#
+
+
+
+<div class="form-group">
+    <label for="generate_grader" class="col-sm-4 control-label">Automatically generate grader</label>
+
+    <div class="col-sm-8">
+        <div class="checkbox"><label>
+            <input type="checkbox" id="generate_grader" name="generate_grader"
+                   $if task_data.get('generate_grader', False):
+                       checked="checked"
+            />&nbsp;
+        </label></div>
+    </div>
+</div>
+
+<div class="form-group">
+    <label for="grader_problem_id" class="col-sm-4 control-label">Problem ID where the code is located</label>
+    <div class="col-sm-8">
+        <select class="form-control" id="grader_problem_id" name="grader_problem_id">
+
+        </select>
+    </div>
+</div>
+
+<div class="form-group">
+    <label for="grader_compute_diffs" class="col-sm-4 control-label">Compute diffs</label>
+
+    <div class="col-sm-8">
+        <div class="checkbox"><label>
+            <input type="checkbox" id="grader_compute_diffs" name="grader_compute_diffs"
+                   $if task_data.get('grader_compute_diffs', True):
+                       checked="checked"
+            />&nbsp;
+        </label></div>
+    </div>
+</div>
+
+<div class="form-group">
+    <label for="grader_diff_max_lines" class="col-sm-4 control-label">Maximum diff lines</label>
+    <div class="col-sm-8">
+        <input type="number" min="10" class="form-control" id="grader_diff_max_lines" name="grader_diff_max_lines"
+          value="${task_data.get('grader_diff_max_lines', 100)}">
+    </div>
+</div>
+
+<div class="form-group">
+    <label for="grader_diff_context_lines" class="col-sm-4 control-label">Diff context lines</label>
+    <div class="col-sm-8">
+        <input type="number" min="3" class="form-control" id="grader_diff_context_lines" name="grader_diff_context_lines"
+          value="${task_data.get('grader_diff_context_lines', 3)}">
+    </div>
+</div>
+
+<div id="grader_test_cases_container">
+</div>
+
+<div class="row" id="new_grader_test_case" style="display: flex;">
+    <div class="form-group col-xs-12">
+      <div class="col-xs-4">
+        <div><label for="grader_test_case_in" class="control-label">Input file</label></div>
+        <select class="form-control" id="grader_test_case_in" name="grader_test_case_in">
+        </select>
+      </div>
+      <div class="col-xs-4">
+        <div><label for="grader_test_case_out" class="control-label">Output file</label></div>
+        <select class="form-control" id="grader_test_case_out" name="grader_test_case_out">
+        </select>
+      </div>
+      <div class="col-xs-4" style="display: flex; height: 100%;">
+        <button type="button" class="btn btn-default btn-block" style="align-self: flex-end;"
+          onclick="studio_add_test_case_from_form();">Add</button>
+      </div>
+    </div>
+</div>
