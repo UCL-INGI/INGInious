@@ -5,12 +5,14 @@ $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $# 
 
-<br>
 <div class="row panel-body">
+    <hr/>
 	$if type == "code-multiple-languages":
 		<input type="file" id="filelink-$inputId" style="display: none;" />
 		Paste your code or <a href="#" id="link-$inputId">load it from file</a>	
-		<br>
+	$else:
+	    Select your language
+	<br>
 	<select
 		class="col-sm-4 btn dropdown-toggle"
 		onchange="changeSubmissionLanguage('$problemid')"

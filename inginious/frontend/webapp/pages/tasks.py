@@ -147,10 +147,7 @@ class TaskPage(INGIniousAuthPage):
                     data = {
                         "status": ("done" if result[0] == "success" or result[0] == "failed" else "error"),
                         "result": result[0],
-                        "grade": grade,
                         "text": result[1],
-                        "tests": tests,
-                        "problems": problems,
                         "stdout": stdout,
                         "stderr": stderr
                     }

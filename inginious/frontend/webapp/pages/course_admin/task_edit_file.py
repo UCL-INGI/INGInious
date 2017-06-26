@@ -161,7 +161,7 @@ class CourseTaskFiles(INGIniousAdminPage):
 
         wanted_path = self.verify_path(courseid, taskid, path, True)
         if wanted_path is None:
-            return self.show_tab_file(courseid, taskid, "Invalid new path")
+            return self.show_tab_file(courseid, taskid, "The folder is not in the server yet, please click 'save changes' first")
         curpath = self.task_factory.get_directory_path(courseid, taskid)
         rel_path = os.path.relpath(wanted_path, curpath)
 
@@ -185,7 +185,7 @@ class CourseTaskFiles(INGIniousAdminPage):
 
         wanted_path = self.verify_path(courseid, taskid, path, True)
         if wanted_path is None:
-            return self.show_tab_file(courseid, taskid, "Invalid new path")
+            return self.show_tab_file(courseid, taskid, "The folder is not in the server yet, please click 'save changes' first")
         curpath = self.task_factory.get_directory_path(courseid, taskid)
         rel_path = os.path.relpath(wanted_path, curpath)
 
@@ -203,7 +203,7 @@ class CourseTaskFiles(INGIniousAdminPage):
         return self.show_tab_file(courseid, taskid)
 
     def action_rename(self, courseid, taskid, path, new_path):
-        """ Delete a file or a directory """
+        """ Rename a file or a directory """
 
         old_path = self.verify_path(courseid, taskid, path)
         if old_path is None:
@@ -267,6 +267,18 @@ class CourseTaskFiles(INGIniousAdminPage):
             return open(wanted_path, 'rb')
 
     def action_list_as_json(self, courseid, taskid):
+        """
+        Returns a list of files and directories as a JSON list.
+        Each entry of the output is an object (representing a file or directory) with the following
+        properties:
+
+        - "level": Integer. Indicates the depth level of this entry.
+        - "is_directory": Boolean. Indicates whether the current entry is a directory. If False, it
+            is a file.
+        - "name": The file or directory name.
+        - "complete_name": The full path of the entry.
+        """
+        
         file_list = self.get_task_filelist(self.task_factory, courseid, taskid)
         result = [
             {
