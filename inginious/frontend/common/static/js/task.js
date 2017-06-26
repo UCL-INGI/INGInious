@@ -791,7 +791,7 @@ function displayTaskStudentAlertWithProblems(content, top, type, alwaysShowTop)
 
     if("text" in content && content.text != "")
     {
-        task_alert.html(getAlertCode(top + "<br/> " + content.text, type, true));
+        task_alert.html(getAlertCode(top + "<br/>" + content.text, type, true));
         firstPos = task_alert.offset().top;
     }
 
@@ -1139,9 +1139,10 @@ function runCustomTest (inputId) {
         if ('status' in data && data['status'] == 'done') {
             if ('result' in data) {
                 customTestOuputArea.text(data.text);
-                unblurTaskForm();
             }
         }
+
+        unblurTaskForm();
     }
 
     blurTaskForm();
@@ -1159,7 +1160,9 @@ function runCustomTest (inputId) {
             processData: false,
             contentType: false,
             success: runCustomTestCallBack,
-            error: function(er){}
+            error: function (error) {
+                unblurTaskForm();
+            }
     });
 }
 
