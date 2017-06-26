@@ -542,6 +542,8 @@ function parseOutputDiff(diff) {
     } else if (line.startsWith("...")) {
       output = '<span class="diff-position-control">' + line + '</span>';
     } else if (line === "") {
+      // The diff output includes empty lines after position control lines, so we keep them
+      // unformatted to avoid misleading the user (they are not actually part of any of the outputs)
       output = line;
     } else {
       throw new Error("Unable to parse diff line: " + line);
