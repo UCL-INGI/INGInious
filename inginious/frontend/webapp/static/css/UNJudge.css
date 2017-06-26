@@ -34,3 +34,14 @@
 .noresize {
   resize: none; 
 }
+
+.diff-common, .diff-missing-output, .diff-additional-output {
+  display: inline-block;
+
+  /* Make sure the background is shown even if the line is empty. */
+  min-height: 1em;
+  min-width: 4px;
+  margin-top: 1px;
+  margin-bottom: 1px;
+}
+

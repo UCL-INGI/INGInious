@@ -573,10 +573,14 @@ function parseOutputDiff(diff) {
       output = '<span class="diff-missing-output">' + line.substring(1) + '</span>';
     } else if (line.startsWith("+")) {
       output = '<span class="diff-additional-output">' + line.substring(1) + '</span>';
-    } else if (line.startsWith(" ") || line === "") {
+    } else if (line.startsWith(" ")) {
       output = '<span class="diff-common">' + line.substring(1) + '</span>';
     } else if (line.startsWith("...")) {
       output = '<span class="diff-position-control">' + line + '</span>';
+    } else if (line === "") {
+      // The diff output includes empty lines after position control lines, so we keep them
+      // unformatted to avoid misleading the user (they are not actually part of any of the outputs)
+      output = line;
     } else {
       throw new Error("Unable to parse diff line: " + line);
     }
