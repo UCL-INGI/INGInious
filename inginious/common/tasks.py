@@ -26,7 +26,8 @@ class Task(object):
                                                     "code-file": CodeFileProblem,
                                                     "multiple-choice": MultipleChoiceProblem,
                                                     "match": MatchProblem,
-                                                    "code-multiple-languages": CodeMultipleLanguagesProblem}
+                                                    "code-multiple-languages": CodeMultipleLanguagesProblem,
+                                                    "code-file-multiple-languages": CodeFileMultipleLanguagesProblem}
 
         self._data = content
 

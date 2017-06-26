@@ -150,6 +150,16 @@ class CodeFileProblem(BasicCodeProblem):
     def get_type(self):
         return "code-file"
 
+class CodeFileMultipleLanguagesProblem (CodeFileProblem):
+    """Code file problem with multile languages"""
+
+    def __init__(self, task, problemid, content):
+        super(CodeFileMultipleLanguagesProblem, self).__init__(task, problemid, content)
+        self._languages = content["languages"]
+
+    def get_type(self):
+        return "code-file-multiple-languages"
+
 
 class CodeProblem(BasicCodeProblem):
     """Code problem"""
