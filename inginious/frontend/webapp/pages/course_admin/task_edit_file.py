@@ -161,7 +161,7 @@ class CourseTaskFiles(INGIniousAdminPage):
 
         wanted_path = self.verify_path(courseid, taskid, path, True)
         if wanted_path is None:
-            return self.show_tab_file(courseid, taskid, "The folder is not in the server yet, please click 'save changes' first")
+            return self.show_tab_file(courseid, taskid, "Invalid new path. If this task is not created yet, please click on 'Save changes' first.")
         curpath = self.task_factory.get_directory_path(courseid, taskid)
         rel_path = os.path.relpath(wanted_path, curpath)
 
@@ -185,7 +185,7 @@ class CourseTaskFiles(INGIniousAdminPage):
 
         wanted_path = self.verify_path(courseid, taskid, path, True)
         if wanted_path is None:
-            return self.show_tab_file(courseid, taskid, "The folder is not in the server yet, please click 'save changes' first")
+            return self.show_tab_file(courseid, taskid, "Invalid new path. If this task is not created yet, please click on 'Save changes' first.")
         curpath = self.task_factory.get_directory_path(courseid, taskid)
         rel_path = os.path.relpath(wanted_path, curpath)
 
