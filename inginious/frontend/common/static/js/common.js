@@ -93,6 +93,14 @@ function registerCodeEditor(textarea, lang, lines)
         codeMirrorInstance.replaceSelection(spaces);
     }
 
+    var fixTabs = function(codeMirrorInstance, changeObj){
+        var indentUnit = codeMirrorInstance.getOption("indentUnit");
+        var spaces = Array(indentUnit + 1).join(" ");
+        changeObj.text = $.map(changeObj.text, function(line) {
+            return line.replace(/\t/g, spaces);
+        });
+    }
+
     var editor = CodeMirror.fromTextArea(textarea, {
         lineNumbers:       true,
         mode:              mode["mime"],
@@ -118,6 +126,8 @@ function registerCodeEditor(textarea, lang, lines)
     {
         cm.save();
     });
+
+    editor.on("beforeChange", fixTabs);
 
     var max_editor_height = "500";
     editor.setSize(null, max_editor_height + "px");
