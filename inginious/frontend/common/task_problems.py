@@ -84,11 +84,13 @@ class DisplayableCodeMultipleLanguagesProblem(CodeMultipleLanguagesProblem, Disp
     def show_input(self, renderer):
         allowed_languages = list(self._languages.keys())
         dropdown_id = self.get_id() + "/language"
+        custom_input_id = self.get_id() + "/input"
 
         standard_code_problem_render = super(DisplayableCodeMultipleLanguagesProblem, self).show_input(renderer)
-        multiple_language_render = str(renderer.tasks.multiplelanguage(dropdown_id, allowed_languages, self.get_id()))
+        multiple_language_render = str(renderer.tasks.multiplelanguage(self.get_id(), dropdown_id, allowed_languages, self.get_id()))
+        tools_render = str(renderer.tasks.code_tools(self.get_id(), "plain", custom_input_id))
 
-        return standard_code_problem_render + multiple_language_render
+        return multiple_language_render + standard_code_problem_render + tools_render
 
 
 class DisplayableCodeFileProblem(CodeFileProblem, DisplayableBasicCodeProblem):

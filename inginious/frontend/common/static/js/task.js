@@ -35,6 +35,40 @@ function init_task_page(evaluate)
         $(this).on('click', clickOnSubmission);
         $(this).find('a').on('click', selectSubmission);
     });
+
+    var codeUploadLink = $('a[id^="link"]');
+    codeUploadLink.each(function() {
+        var codeUploadLinkID = $(this).attr('id');
+        $(this).click(function(e) {
+            var fileUploaderID = 'file' + codeUploadLinkID;
+            var fileUploaderElement = $('#' + fileUploaderID);
+            fileUploaderElement.click();
+            e.preventDefault(); 
+        });
+    });
+
+    var codeUploadInput = $('input[id^="filelink"]');
+    codeUploadInput.each(function() {
+        var codeUploadInputId = $(this).attr('id');
+        var textareaId = codeUploadInputId.replace("filelink-", "");
+        var input = this;
+        var isCodeMirrorArea = $('#'+textareaId).hasClass("code-editor");
+        var textarea = $('#'+textareaId)[0];
+
+        $(this).change(function(e) {
+            var reader = new FileReader();        
+            reader.onload = function(event) {
+                var contents = event.target.result;     
+
+                if (isCodeMirrorArea) {
+                    var editor = getEditorForProblemId(textareaId);
+                    editor.setValue(contents, -1);
+                } else
+                    textarea.value = contents;    
+            };        
+            reader.readAsText(input.files[0]); 
+        });
+    });
 }
 
 var evaluatedSubmission = 'best';
@@ -252,7 +286,8 @@ function taskFormValid()
 
     form.find('textarea,input[type="text"]').each(function()
     {
-        if($(this).attr('name') != undefined) //skip codemirror's internal textareas
+        var shouldCheckElement = $(this).attr('name') != undefined && !$(this).attr('id').includes("custominput");
+        if(shouldCheckElement) //skip codemirror's internal textareas and custominput areas
         {
             if($(this).val() == "" && $(this).attr('data-optional') != "True")
                 answered_to_all = false;
@@ -271,10 +306,11 @@ function taskFormValid()
     {
         var filename = $(this).val().split(/(\\|\/)/g).pop();
 
-        //file input fields cannot be optional
-        if(filename == "")
-        {
-            answered_to_all = false;
+        //file input fields cannot be optional (unless it is an input defined for submitting using a link)
+        if(filename == "") {
+            var idDefined = $(this).get(0).hasAttribute('id');
+            if (!idDefined || !$(this).attr("id").includes("filelink"))
+                answered_to_all = false;
             return;
         }
 
@@ -602,10 +638,10 @@ function getLoadingAlertCode(content, submissionid)
 {
     var kill_button = "";
     if(submissionid != null)
-        kill_button =   "<button type='button' onclick='killSubmission(\""+submissionid+"\")' class='btn btn-danger kill-submission-btn btn-small'>"+
-                            "<i class='fa fa-close'></i>"+
+        kill_button = "<button type='button' onclick='killSubmission(\""+submissionid+"\")' class='btn btn-danger kill-submission-btn btn-small'>"+
+                        "<i class='fa fa-close'></i>"+
                         "</button>";
-    var div_content =   "<div class='loading-alert'>"+content+"</div>";
+    var div_content = "<div class='loading-alert'>"+content+"</div>";
     return getAlertCode(kill_button + div_content, "info", false);
 }
 
@@ -631,6 +667,13 @@ function displayTaskLoadingAlert(submission_wait_data, submissionid)
     else
         content += "<b>Your submission has been sent...</b>";
     task_alert.html(getLoadingAlertCode(content, submissionid));
+}
+
+function displayTaskWaitingForUnsavedJob () {
+    var task_alert = $('#task_alert');
+    var content = '<i class="fa fa-spinner fa-pulse fa-fw" aria-hidden="true"></i> <b>Evaluating...</b>';
+    var div_content = "<div class='loading-alert'>"+content+"</div>";
+    task_alert.html(getAlertCode(div_content, "info", false));
 }
 
 //Display informations for remote debugging
@@ -950,65 +993,112 @@ function getLanguageForProblemId(problemId){
     return codemirrorLanguages[backEndLanguage];
 }
 
-var defaultVisualServer = "http://127.0.0.1:8003/";
-var javaVisualServer = "https://cscircles.cemc.uwaterloo.ca/";
+var PythonTutor = (function () {
+    function PythonTutor(problemId, language) {
+        this.defaultVisualServer = "http://127.0.0.1:8003/";
+        this.javaVisualServer = "https://cscircles.cemc.uwaterloo.ca/";
+
+        this.problemId = problemId;
+        this.code = getEditorForProblemId(problemId).getValue();
+
+        if (language == "plain")
+            language = getLanguageForProblemId(this.problemId);
+
+        this.language = language;
+        this.input = document.getElementById("custominput-" + this.problemId).value;
+    }
+
+    PythonTutor.prototype.visualize = function () {
+        var iframe = this.createIFrameFromCode();
+        this.showIFrameIntoModal(iframe);
+    };
+
+    PythonTutor.prototype.createIFrameFromCode = function () {
+        var iframe = document.createElement('iframe');
+        iframe.src = this.generateVisualizerUrl();
+        iframe.height = "650";
+        iframe.width = "100%";
+        iframe.frameborder = "0";
+        return iframe;
+    };
+
+    PythonTutor.prototype.showIFrameIntoModal = function (iframe) {
+        var modal = document.getElementById("modal-" + this.problemId);
+        var modalBody = modal.getElementsByClassName("modal-body")[0];
+        $(modalBody).empty();
+        modalBody.innerHTML = "Plase wait while we excecute your code, this may take up to 10 seconds";
+        modalBody.appendChild(iframe);
+    };
+
+    PythonTutor.prototype.generateVisualizerUrl = function () {
+        if(this.language == "java")
+            return this.generateJavaUrl();
+        else
+            return this.generateGenericUrl();
+    };
+
+    PythonTutor.prototype.generateJavaUrl = function () {
+        var data = {
+            "user_script": this.code,
+            "options":{"showStringsAsValues":true,"showAllFields":false},
+            "args":[],
+            "stdin": this.input
+        };
+
+        return this.serverResource()
+            + window.encodeURIComponent(JSON.stringify(data))
+            + "&cumulative=false"
+            + "&heapPrimitives=false"
+            + "&drawParentPointers=false"
+            + "&textReferences=false"
+            + "&showOnlyOutputs=false"
+            + "&py=3"
+            + "&curInstr=0"
+            + "&resizeContainer=true"
+            + "&highlightLines=true"
+            + "&rightStdout=true"
+            + "&codeDivHeight=450"
+            + "&codeDivWidth=500";
+    };
+
+    PythonTutor.prototype.generateGenericUrl = function () {
+        var codeToURI = window.encodeURIComponent(this.code);
+        var url = this.serverResource()
+            + codeToURI
+            + "&mode=edit"
+            + "&py=" + this.languageURIName()
+            + "&codeDivHeight=450"
+            + "&codeDivWidth=500"
+            + "&rawInputLstJSON=" + this.encodedInputArray();
+        return url;
+    };
+
+    PythonTutor.prototype.serverResource = function () {
+        if (this.language == "java")
+            return this.javaVisualServer + "java_visualize/iframe-embed.html?faking_cpp=false#data=";
+        return this.defaultVisualServer + "iframe-embed.html#code=";
+    };
+
+    PythonTutor.prototype.languageURIName = function () {
+        if (this.language == "javascript")
+            return "js";
+        if (this.language == "python")
+            return "2";
+        return this.language;
+    };
+
+    PythonTutor.prototype.encodedInputArray = function() {
+        var inputAsArray = this.input.split("\n");
+        return window.encodeURIComponent(JSON.stringify(inputAsArray));
+    };
+
+    return PythonTutor;
+}());
 
 function visualizeCode(language, problemId){
-    if(language == "plain")
-        language = getLanguageForProblemId(problemId);
-
-    var editor =  getEditorForProblemId(problemId);
-    var code = editor.getValue();
-    var iframe = createIFrameFromCode(code, language);
-    showIFrameIntoModal(iframe, problemId);
+    var pythonTutor = new PythonTutor(problemId, language);
+    pythonTutor.visualize();
 }
-
-function createIFrameFromCode(code, language){
-    var iframe = document.createElement('iframe');
-    iframe.src = generateVisualizerUrl(code, language);
-    iframe.height = "650";
-    iframe.width = "100%";
-    iframe.frameborder = "0";
-    return iframe;
-}
-
-function showIFrameIntoModal(iframe, problemId){
-    var modal = document.getElementById("modal-" + problemId);
-    var modalBody = modal.getElementsByClassName("modal-body")[0];
-    $(modalBody).empty();
-    modalBody.innerHTML = "Plase wait while we excecute your code, this may take up to 10 seconds";
-    modalBody.appendChild(iframe);
-}
-
-function generateVisualizerUrl(code, language){
-    var codeToURI = window.encodeURIComponent(code);
-    var url = visualServer(language)
-        + codeToURI
-        + "&mode=edit"
-        + "&py=" + languageURIName(language)
-        + "&rawInputLstJSON=%5B%5D"
-        + "&codeDivHeight=450"
-        + "&codeDivWidth=500"
-        + additionalOptions(language);
-    return url;
-}
-
-function visualServer(language){
-    if(language == "java") return javaVisualServer + "java_visualize/#code=";
-    return defaultVisualServer + "with_input.html#code=";
-}
-
-function languageURIName(language){
-    if(language == "javascript") return "js";
-    if(language == "python") return "2";
-    return language;
-}
-
-function additionalOptions(language){
-    if(language == "java") return "&stdin=Input+here";
-    return "";
-}
-
 
 var lintServerUrl = "http://localhost:4567/";
 
@@ -1044,4 +1134,47 @@ function makeNewTabFromResponseCallback(response, status){
 
 function defaultCallback(response, status){
   alert(response + "\n\nresponse_status: " + status);
+}
+
+function runCustomTest (inputId) {
+    var customTestOuputArea = $('#customoutput-'+inputId);
+
+    var runCustomTestCallBack = function (data) {
+        if ('status' in data && data['status'] == 'done') {
+            if ('result' in data) {
+                customTestOuputArea.text(data.text);
+            }
+        }
+
+        unblurTaskForm();
+    }
+
+    blurTaskForm();
+    resetAlerts();
+    customTestOuputArea.text('Running...');
+
+    var taskForm = new FormData($('form#task')[0]);
+    taskForm.set("@action", "customtest");
+    var taskUrl = $('form#task').attr("action");
+    $.ajax({
+            url: taskUrl,
+            method: "POST",
+            dataType: 'json',
+            data: taskForm,
+            processData: false,
+            contentType: false,
+            success: runCustomTestCallBack,
+            error: function (error) {
+                unblurTaskForm();
+            }
+    });
+}
+
+function toggleElement (id) {
+    var element = document.getElementById(id);
+    if (element.style.display === 'none') {
+        element.style.display = 'block';
+    } else {
+        element.style.display = 'none';
+    }
 }

@@ -31,6 +31,10 @@
   font-weight: bold;
 }
 
+.noresize {
+  resize: none; 
+}
+
 .diff-common, .diff-missing-output, .diff-additional-output {
   display: inline-block;
 
@@ -40,3 +44,4 @@
   margin-top: 1px;
   margin-bottom: 1px;
 }
+
