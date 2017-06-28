@@ -148,8 +148,8 @@ class TaskPage(INGIniousAuthPage):
                         "status": ("done" if result[0] == "success" or result[0] == "failed" else "error"),
                         "result": result[0],
                         "text": result[1],
-                        "stdout": stdout,
-                        "stderr": stderr
+                        "stdout": custom.get("custom_stdout", ""),
+                        "stderr": custom.get("custom_stderr", "")
                     }
 
                     web.header('Content-Type', 'application/json')
@@ -172,7 +172,6 @@ class TaskPage(INGIniousAuthPage):
                     web.header('Content-Type', 'application/json')
                     return json.dumps({"status": "error", "text": "Please answer to all the questions and verify the extensions of the files "
                                                                   "you want to upload. Your responses were not tested."})
-                del userinput['@action']
 
                 # Get debug info if the current user is an admin
                 debug = is_admin

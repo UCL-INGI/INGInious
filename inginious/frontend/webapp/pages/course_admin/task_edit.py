@@ -251,7 +251,7 @@ class CourseEditTask(INGIniousAdminPage):
 
             target_run_file = os.path.join(directory_path, 'run')
 
-            subproblem_id = data["grader_problem_id"]
+            problem_id = data["grader_problem_id"]
             test_cases = [(test_case["input_file"], test_case["output_file"]) for test_case in data["grader_test_cases"]]
             weights = [test_case["weight"] for test_case in data["grader_test_cases"]]
             options = {
@@ -268,7 +268,8 @@ class CourseEditTask(INGIniousAdminPage):
 
             with open(target_run_file, "w") as f:
                 f.write(run_file_template.format(
-                    repr(subproblem_id), repr(test_cases), repr(options), repr(weights)))
+                    problem_id=repr(problem_id), test_cases=repr(test_cases),
+                    options=repr(options), weights=repr(weights)))
 
         return None
 

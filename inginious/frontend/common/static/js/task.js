@@ -1137,12 +1137,12 @@ function defaultCallback(response, status){
 }
 
 function runCustomTest (inputId) {
-    var customTestOuputArea = $('#customoutput-'+inputId);
+    var customTestOutputArea = $('#customoutput-'+inputId);
 
     var runCustomTestCallBack = function (data) {
         if ('status' in data && data['status'] == 'done') {
             if ('result' in data) {
-                customTestOuputArea.text(data.text);
+                customTestOutputArea.text(data.stdout);
             }
         }
 
@@ -1151,7 +1151,7 @@ function runCustomTest (inputId) {
 
     blurTaskForm();
     resetAlerts();
-    customTestOuputArea.text('Running...');
+    customTestOutputArea.text('Running...');
 
     var taskForm = new FormData($('form#task')[0]);
     taskForm.set("@action", "customtest");
