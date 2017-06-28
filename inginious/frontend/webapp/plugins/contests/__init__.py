@@ -17,12 +17,12 @@ from inginious.frontend.webapp.pages.course_admin.utils import INGIniousAdminPag
 from inginious.frontend.webapp.accessible_time import AccessibleTime
 
 
-def add_admin_menu(_):
+def add_admin_menu(course): # pylint: disable=unused-argument
     """ Add a menu for the contest settings in the administration """
     return ('contest', '<i class="fa fa-trophy fa-fw"></i>&nbsp; Contest')
 
 
-def task_accessibility(course, _, default):
+def task_accessibility(course, task, default): # pylint: disable=unused-argument
     contest_data = get_contest_data(course)
     if contest_data['enabled']:
         return AccessibleTime(contest_data['start'] + '/')
