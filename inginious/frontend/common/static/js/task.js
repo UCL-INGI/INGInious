@@ -1149,13 +1149,14 @@ function runCustomTest (inputId) {
         unblurTaskForm();
     }
 
+    var taskForm = new FormData($('form#task')[0]);
+    taskForm.set("@action", "customtest");
+    var taskUrl = $('form#task').attr("action");
+
     blurTaskForm();
     resetAlerts();
     customTestOuputArea.text('Running...');
 
-    var taskForm = new FormData($('form#task')[0]);
-    taskForm.set("@action", "customtest");
-    var taskUrl = $('form#task').attr("action");
     $.ajax({
             url: taskUrl,
             method: "POST",
