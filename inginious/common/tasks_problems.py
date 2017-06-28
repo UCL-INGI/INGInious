@@ -151,7 +151,7 @@ class CodeFileProblem(BasicCodeProblem):
         return "code-file"
 
 class CodeFileMultipleLanguagesProblem (CodeFileProblem):
-    """Code file problem with multile languages"""
+    """Code file problem with multiple languages"""
 
     def __init__(self, task, problemid, content):
         super(CodeFileMultipleLanguagesProblem, self).__init__(task, problemid, content)
@@ -188,7 +188,7 @@ class CodeProblem(BasicCodeProblem):
         return self._language
 
 class CodeMultipleLanguagesProblem(CodeProblem):
-    """Code problem with multile languages"""
+    """Code problem with multiple languages"""
 
     def __init__(self, task, problemid, content):
         super(CodeMultipleLanguagesProblem, self).__init__(task, problemid, content)
