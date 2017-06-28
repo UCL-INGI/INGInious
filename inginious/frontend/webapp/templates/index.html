@@ -31,17 +31,35 @@ $# Start content
                 <div class="form-group">
                     <label>Password <a href="/register#lostpasswd">Lost password?</a></label> <input type="password" class="form-control" name="password" placeholder="Password">
                 </div>
-                <button type="submit" class="btn btn-primary btn-block">Log in</button>
+                <button type="submit" class="btn btn-primary btn-block">Sign in</button>
             </form>
 
-            <hr/>
-            $for authid, (name, link) in auth_methods.items():
-                $if authid % 3 == 0:
+            $ auth_meths = auth_methods.items()
+            $ remaining = len(auth_meths)
+            $ on_line = min(remaining, 4)
+
+            $if remaining:
+                <hr/>
+                <h5 class="center-block text-center">Sign in with</h5>
+
+            $ authid = 0
+            $for id, auth_method in auth_meths:
+
+                $if authid % on_line == 0:
+                    $ on_line = min(remaining, 4)
                     <div class="row">
 
-                <div class="col-md-4"><a href="$link">$name</a></div>
+                <div class="col-xs-$(int(12/on_line)) text-center">
+                    <a href="/auth/$auth_method.get_id()">
+                        $:auth_method.get_imlink()
+                    </a>
+                </div>
 
-                $if authid % 3 == 2 or authid == len(auth_methods.items()) - 1:
+                $ remaining = remaining - 1
+                $if authid % on_line-1 == on_line-2:
                     </div>
+
+                $ authid += 1
+
         </div>
     </div>

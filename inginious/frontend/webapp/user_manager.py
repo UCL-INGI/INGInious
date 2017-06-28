@@ -5,11 +5,14 @@
 
 """ Manages users data and session """
 import logging
+import hashlib
+import web
 from abc import ABCMeta, abstractmethod
 from datetime import datetime
 from datetime import timedelta
 from functools import reduce
 from natsort import natsorted
+from collections import OrderedDict
 import pymongo
 
 from inginious.frontend.common.user_manager import AbstractUserManager
@@ -24,6 +27,28 @@ class AuthInvalidMethodException(Exception):
 
 
 class AuthMethod(object, metaclass=ABCMeta):
+
+    @abstractmethod
+    def get_id(self):
+        """
+        :return: The auth method id
+        """
+        return ""
+
+    @abstractmethod
+    def get_auth_link(self, user_manager):
+        """
+        :param user_manager: The user manager, for session storage
+        :return: The authentication link
+        """
+
+    @abstractmethod
+    def callback(self, user_manager):
+        """
+        :param user_manager: The user manager,  for session storage
+        :return: User tuple, or None, if failed
+        """
+
     @abstractmethod
     def get_name(self):
         """
@@ -32,9 +57,9 @@ class AuthMethod(object, metaclass=ABCMeta):
         return ""
 
     @abstractmethod
-    def get_link(self):
+    def get_imlink(self):
         """
-        :return: The authentication link
+        :return: The image link
         """
         return ""
 
@@ -50,7 +75,7 @@ class UserManager(AbstractUserManager):
         self._session = session_dict
         self._database = database
         self._superadmins = superadmins
-        self._auth_methods = []
+        self._auth_methods = OrderedDict()
         self._logger = logging.getLogger("inginious.webapp.users")
 
     ##############################################
@@ -106,6 +131,14 @@ class UserManager(AbstractUserManager):
             return self._session.lti
         return None
 
+    def session_redir_url(self):
+        """ Returns the redirection url for login """
+        return self._session.redir_url
+
+    def session_oauth_state(self):
+        """ Returns the oauth state for login """
+        return self._session.oauth_state
+
     def set_session_token(self, token):
         """ Sets the token of the current user in the session, if one is open."""
         if self.session_logged_in():
@@ -115,6 +148,14 @@ class UserManager(AbstractUserManager):
         """ Sets the real name of the current user in the session, if one is open."""
         if self.session_logged_in():
             self._session.realname = realname
+
+    def set_session_redir_url(self, redir_url):
+        """ Sets the redirection url for login """
+        self._session.redir_url = redir_url
+
+    def set_session_oauth_state(self, oauth_state):
+        """Sets the oauth state for login """
+        self._session.oauth_state = oauth_state
 
     def _set_session(self, username, realname, email):
         """ Init the session. Preserves potential LTI information. """
@@ -177,37 +218,49 @@ class UserManager(AbstractUserManager):
         Registers an authentication method
         :param auth_method: an AuthMethod object
         """
-        self._auth_methods.append(auth_method)
+        self._auth_methods[auth_method.get_id()] = auth_method
 
-    def get_auth_methods_fields(self):
+    def get_auth_method(self, auth_method_id):
         """
-        :return: a dict, containing the auth method id as key, and a tuple (name, needed fields) for each auth method
+        :param the auth method id, as provided by get_auth_methods_inputs()
+        :return: AuthMethod if it exists, otherwise None
         """
-        return {i: (am.get_name(), am.get_link()) for i, am in enumerate(self._auth_methods)}
+        return self._auth_methods.get(auth_method_id, None)
 
-    def auth_user(self, auth_method_id, input, ip_addr):
+    def get_auth_methods(self):
         """
-        :param auth_method_id: the auth method id, as provided by get_auth_methods_inputs()
-        :param input: the input of the user, should respect what was given by get_auth_methods_inputs()
-        :param ip_addr: the ip address of the client, that will be logged
-        :raise AuthInvalidInputException
-        :return: True if the user successfully authenticated, False else
+        :return: The auth methods dict
         """
-        if len(self._auth_methods) <= auth_method_id:
-            raise AuthInvalidMethodException()
-        return self._auth_methods[auth_method_id].auth(input, lambda data: self.end_auth(data, ip_addr))
+        return self._auth_methods
 
-    def end_auth(self, data, ip_addr):
+    def auth_user(self, username, password):
         """
-        :param result:
-        :param data:
-        :param success:
-        :param failure:
-        :return:
+        Authenticate the user in database
+        :param username: Username/Login
+        :param password: User password
+        :return: Returns a dict represrnting the user
         """
-        self._database.users.update_one({"username": data[0]}, {"$set": {"realname": data[1], "email": data[2]}}, upsert=True)
-        self._logger.info("User %s connected - %s - %s - %s", data[0], data[1], data[2], ip_addr)
-        self._set_session(data[0], data[1], data[2])
+        password_hash = hashlib.sha512(password.encode("utf-8")).hexdigest()
+
+        user = self._database.users.find_one(
+            {"username": username, "password": password_hash, "activate": {"$exists": False}})
+
+        if user is not None:
+            self.connect_user(username, user["realname"], user["email"])
+
+        return user
+
+    def connect_user(self, username, realname, email):
+        """
+        Opens a session for the user
+        :param username: Username
+        :param realname: User real name
+        :param email: User email
+        """
+        self._database.users.update_one({"username": username}, {"$set": {"realname": realname, "email": email}},
+                                        upsert=True)
+        self._logger.info("User %s connected - %s - %s - %s", username, realname, email, web.ctx.ip)
+        self._set_session(username, realname, email)
 
     def disconnect_user(self, ip_addr):
         """

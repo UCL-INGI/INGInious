@@ -22,7 +22,6 @@ from inginious.frontend.webapp.submission_manager import WebAppSubmissionManager
 from inginious.frontend.common.template_helper import TemplateHelper
 from inginious.frontend.webapp.user_manager import UserManager
 from inginious.frontend.common.session_mongodb import MongoStore
-from inginious.frontend.webapp.pages.register import DatabaseAuthMethod
 import inginious.frontend.webapp.pages.course_admin.utils as course_admin_utils
 from inginious.frontend.common.submission_manager import update_pending_jobs
 
@@ -30,6 +29,8 @@ urls = (
     r'/?', 'inginious.frontend.webapp.pages.index.IndexPage',
     r'/index', 'inginious.frontend.webapp.pages.index.IndexPage',
     r'/register', 'inginious.frontend.webapp.pages.register.RegistrationPage',
+    r'/auth/([^/]+)', 'inginious.frontend.webapp.pages.auth.AuthenticationPage',
+    r'/auth/([^/]+)/callback', 'inginious.frontend.webapp.pages.auth.CallbackPage',
     r'/course/([^/]+)', 'inginious.frontend.webapp.pages.course.CoursePage',
     r'/course/([^/]+)/([^/]+)', 'inginious.frontend.webapp.pages.tasks.TaskPage',
     r'/course/([^/]+)/([^/]+)/(.*)', 'inginious.frontend.webapp.pages.tasks.TaskPageStaticDownload',

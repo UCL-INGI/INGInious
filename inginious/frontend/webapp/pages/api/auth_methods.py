@@ -36,7 +36,7 @@ class APIAuthMethods(APIPage):
                     text or password
         """
         to_display = []
-        for key, (name, data) in self.user_manager.get_auth_methods_fields().items():
+        for key, (name, data) in self.user_manager.get_auth_methods().items():
             to_display.append({
                 "id": key,
                 "name": name,

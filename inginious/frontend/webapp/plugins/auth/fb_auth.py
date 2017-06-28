@@ -9,59 +9,54 @@ import web
 import json
 import os
 
-from inginious.frontend.webapp.pages.utils import INGIniousPage
 from inginious.frontend.webapp.user_manager import AuthMethod
 from requests_oauthlib import OAuth2Session
 from requests_oauthlib.compliance_fixes import facebook_compliance_fix
 
-
-client_id = ""
-client_secret = ""
 authorization_base_url = 'https://www.facebook.com/dialog/oauth?scope=public_profile,email'
 token_url = 'https://graph.facebook.com/oauth/access_token'
+
 
 class FacebookAuthMethod(AuthMethod):
     """
     Facebook auth method
     """
+    def get_auth_link(self, user_manager):
+            facebook = OAuth2Session(self._client_id, redirect_uri=web.ctx.home + self._callback_page)
+            facebook = facebook_compliance_fix(facebook)
+            authorization_url, state = facebook.authorization_url(authorization_base_url)
+            user_manager.set_session_oauth_state(state)
+            return authorization_url
 
-    def __init__(self, name, link):
+    def callback(self, user_manager):
+        facebook = OAuth2Session(self._client_id, state=user_manager.session_oauth_state(), redirect_uri=web.ctx.home + self._callback_page)
+        try:
+            facebook.fetch_token(token_url, client_secret=self._client_secret,
+                                 authorization_response=web.ctx.home + web.ctx.fullpath)
+            r = facebook.get('https://graph.facebook.com/me?fields=id,name,email')
+            profile = json.loads(r.content.decode('utf-8'))
+            return profile["id"], profile["name"], profile["email"]
+        except:
+            return None
+
+    def get_id(self):
+        return self._id
+
+    def __init__(self, id, name, client_id, client_secret):
+        self._id = id
         self._name = name
-        self._link = link
+        self._client_id = client_id
+        self._client_secret = client_secret
+        self._callback_page = '/auth/' + self._id + '/callback'
 
     def get_name(self):
         return self._name
 
-    def get_link(self):
-        return self._link
-
-
-class AuthenticationPage(INGIniousPage):
-    def GET(self):
-        facebook = OAuth2Session(client_id, redirect_uri=web.ctx.home + "/auth/facebook-callback")
-        facebook = facebook_compliance_fix(facebook)
-        authorization_url, state = facebook.authorization_url(authorization_base_url)
-        self.user_manager._session['oauth_state'] = state
-        self.user_manager._session['redir_url'] = web.ctx.env.get('HTTP_REFERER','/').rsplit("?logoff")[0]
-        raise web.seeother(authorization_url)
-
-
-class CallbackPage(INGIniousPage):
-    def GET(self):
-        facebook = OAuth2Session(client_id, state=self.user_manager._session['oauth_state'], redirect_uri= web.ctx.home + "/auth/facebook-callback")
-        try:
-            facebook.fetch_token(token_url, client_secret=client_secret, authorization_response=web.ctx.home + web.ctx.fullpath)
-            r = facebook.get('https://graph.facebook.com/me?fields=id,name,email')
-            profile = json.loads(r.content.decode('utf-8'))
-            self.user_manager.end_auth((profile["id"], profile["name"], profile["email"]), web.ctx['ip'])
-        except:
-            raise web.seeother("/")
-
-        raise web.seeother(self.user_manager._session["redir_url"])
+    def get_imlink(self):
+        return '<i class="fa fa-facebook-square" style="font-size:50px; color:#4267b2;"></i>'
 
 
 def init(plugin_manager, course_factory, client, conf):
-    global client_id, client_secret
 
     if conf.get("debug", False):
         os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
@@ -69,6 +64,4 @@ def init(plugin_manager, course_factory, client, conf):
     client_id = conf.get("client_id", "")
     client_secret = conf.get("client_secret", "")
 
-    plugin_manager.add_page('/auth/facebook-callback', CallbackPage)
-    plugin_manager.add_page('/auth/facebook', AuthenticationPage)
-    plugin_manager.register_auth_method(FacebookAuthMethod(conf.get('name', 'Facebook Login'), "/auth/facebook"))
+    plugin_manager.register_auth_method(FacebookAuthMethod(conf.get("id"), conf.get('name', 'Facebook Login'), client_id, client_secret))

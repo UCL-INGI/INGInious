@@ -3,51 +3,14 @@
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
 
-""" Database auth """
+""" Registration page"""
 
 import hashlib
 import random
 import re
-from collections import OrderedDict
-
 import web
 
-from inginious.frontend.webapp.user_manager import AuthMethod
-from inginious.frontend.webapp.pages.utils import INGIniousPage, INGIniousAuthPage
-from pymongo.collection import ReturnDocument
-
-class DatabaseAuthMethod(AuthMethod):
-    """
-    MongoDB Database auth method
-    """
-
-    def __init__(self, name, database):
-        self._name = name
-        self._database = database
-
-    def get_name(self):
-        return self._name
-
-    def auth(self, login_data, callback):
-        username = login_data["login"].strip()
-        password_hash = hashlib.sha512(login_data["password"].encode("utf-8")).hexdigest()
-
-        user = self._database.users.find_one({"username": username, "password": password_hash, "activate": {"$exists": False}})
-
-        if user is not None:
-            callback((username, user["realname"], user["email"]))
-            return True
-        else:
-            return False
-
-    def needed_fields(self):
-        return {
-            "input": OrderedDict((
-                ("login", {"type": "text", "placeholder": "Login"}),
-                ("password", {"type": "password", "placeholder": "Password"}))),
-            "info": '<small><a href="' + web.ctx.home +
-                    '/register#lostpasswd">Lost password?</a></small>'
-        }
+from inginious.frontend.webapp.pages.utils import INGIniousPage
 
 
 class RegistrationPage(INGIniousPage):
