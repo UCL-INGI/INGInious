@@ -141,6 +141,15 @@ class TaskPage(INGIniousAuthPage):
 
             userinput = web.input()
             if "@action" in userinput and userinput["@action"] == "customtest":
+                # Reparse user input with array for multiple choices
+                init_var = list_multiple_multiple_choices_and_files(task)
+                userinput = task.adapt_input_for_backend(web.input(**init_var))
+
+                if not task.input_is_consistent(userinput, self.default_allowed_file_extensions, self.default_max_file_size):
+                    web.header('Content-Type', 'application/json')
+                    return json.dumps({"status": "error", "text": "Please answer to all the questions and verify the extensions of the files "
+                                                                  "you want to upload. Your responses were not tested."})
+                
                 try:
                     result, grade, problems, tests, custom, archive, stdout, stderr = self.submission_manager.add_unsaved_job(task, userinput)
 

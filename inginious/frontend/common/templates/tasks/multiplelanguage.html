@@ -1,4 +1,4 @@
-$def with (inputId, dropdownId, languages, problemid)
+$def with (inputId, dropdownId, languages, problemid, type)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -7,8 +7,11 @@ $#
 
 <div class="row panel-body">
 	<hr/>
-	<input type="file" id="filelink-$inputId" style="display: none;" />
-	Paste your code or <a href="#" id="link-$inputId">load it from file</a>	
+	$if type == "code-multiple-languages":
+		<input type="file" id="filelink-$inputId" style="display: none;" />
+		Paste your code or <a href="#" id="link-$inputId">load it from file</a>	
+	$else:
+	    Select your language	
 	<br>
 	<select
 		class="col-sm-4 btn dropdown-toggle"

@@ -351,6 +351,8 @@ function studio_get_template_for_problem(problem)
         return "#subproblem_code_multiple_languages";
     if((problem["type"] == "code" && !problem["boxes"]) || problem["type"] == "code-single-line")
         return "#subproblem_code";
+    else if(problem["type"] == "code-file-multiple-languages")
+        return "#subproblem_code_file_multiple_languages";
     else if(problem["type"] == "code-file")
         return "#subproblem_code_file";
     else if(problem["type"] == "code")
@@ -432,6 +434,9 @@ function studio_init_template(template, pid, problem)
         case "#subproblem_code_multiple_languages":
             studio_init_template_code_multiple_languages(well, pid, problem);
             break;
+        case "#subproblem_code_file_multiple_languages":
+            studio_init_template_code_file_multiple_languages(well, pid, problem);
+            break;
         case "#subproblem_code_file":
             studio_init_template_code_file(well, pid, problem);
             break;
@@ -475,6 +480,28 @@ function studio_init_template_code_multiple_languages(well, pid, problem)
         $('#type-' + pid, well).val(problem["type"]);
     if("optional" in problem && problem["optional"])
         $('#optional-' + pid, well).attr('checked', true);
+
+    if ("languages" in problem) {
+        jQuery.each(problem["languages"], function(language, allowed) {
+            if (allowed)
+                $("#" + language + "-" + pid, well).attr("checked", true);
+        });
+    }
+}
+
+
+/**
+ * Init a code template with multiple languages
+ * @param well: the DOM element containing the input fields
+ * @param pid
+ * @param problem
+ */
+function studio_init_template_code_file_multiple_languages(well, pid, problem)
+{
+    if("max_size" in problem)
+        $('#maxsize-' + pid, well).val(problem["max_size"]);
+    if("allowed_exts" in problem)
+        $('#extensions-' + pid, well).val(problem["allowed_exts"].join());
 
     if ("languages" in problem) {
         jQuery.each(problem["languages"], function(language, allowed) {
