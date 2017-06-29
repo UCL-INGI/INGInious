@@ -43,7 +43,7 @@ function init_task_page(evaluate)
             var fileUploaderID = 'file' + codeUploadLinkID;
             var fileUploaderElement = $('#' + fileUploaderID);
             fileUploaderElement.click();
-            e.preventDefault(); 
+            e.preventDefault();
         });
     });
 
@@ -56,17 +56,17 @@ function init_task_page(evaluate)
         var textarea = $('#'+textareaId)[0];
 
         $(this).change(function(e) {
-            var reader = new FileReader();        
+            var reader = new FileReader();
             reader.onload = function(event) {
-                var contents = event.target.result;     
+                var contents = event.target.result;
 
                 if (isCodeMirrorArea) {
                     var editor = getEditorForProblemId(textareaId);
                     editor.setValue(contents, -1);
                 } else
-                    textarea.value = contents;    
-            };        
-            reader.readAsText(input.files[0]); 
+                    textarea.value = contents;
+            };
+            reader.readAsText(input.files[0]);
         });
     });
 }
@@ -738,6 +738,12 @@ function displayTaskInputErrorAlert()
 }
 
 //Displays an overflow error alert in task form
+function displayCustomTestAlertError(content)
+{
+    displayTaskStudentAlertWithProblems(content, "", "danger", false);
+}
+
+//Displays an overflow error alert in task form
 function displayOverflowAlert(content)
 {
     displayTaskStudentAlertWithProblems(content,
@@ -979,9 +985,11 @@ function changeSubmissionLanguage(problemId){
 function getLanguageForProblemId(problemId){
     var codemirrorLanguages = {
         "java7": "java",
+        "java8": "java",
         "js": "javascript",
         "cpp": "cpp",
-        "python": "python",
+        "python2": "python",
+        "python3": "python",
         "ruby": "ruby"
     }
 
@@ -1142,7 +1150,13 @@ function runCustomTest (inputId) {
     var runCustomTestCallBack = function (data) {
         if ('status' in data && data['status'] == 'done') {
             if ('result' in data) {
-                customTestOutputArea.text(data.stdout);
+                var result = data['result']
+                var output = data.stdout + data.stderr;
+                customTestOutputArea.text(output);
+
+                if (result == 'failed') {
+                    displayCustomTestAlertError(data);
+                }
             }
         }
 

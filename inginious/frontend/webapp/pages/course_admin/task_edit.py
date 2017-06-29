@@ -238,9 +238,10 @@ class CourseEditTask(INGIniousAdminPage):
             if data["grader_problem_id"] not in data["problems"]:
                 return json.dumps({"status": "error", "message": "Grader: problem does not exist"})
 
-            if data["problems"][data["grader_problem_id"]]["type"] != 'code-multiple-languages':
+            problem_type = data["problems"][data["grader_problem_id"]]["type"]
+            if problem_type != 'code-multiple-languages' and problem_type != "code-file-multiple-languages":
                 return json.dumps({"status": "error",
-                    "message": "Grader: only Code Multiple Languages problems are supported"})
+                    "message": "Grader: only Code Multiple Language and Code File Multiple Language problems are supported"})
 
             current_directory = os.path.dirname(__file__)
             run_file_template_path = os.path.join(current_directory, '../../templates/course_admin/run_file_template.txt')

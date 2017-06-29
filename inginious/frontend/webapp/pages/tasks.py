@@ -17,6 +17,7 @@ from bson.objectid import ObjectId
 from inginious.common import exceptions
 from inginious.frontend.common.task_page_helpers import submission_to_json, list_multiple_multiple_choices_and_files
 from inginious.frontend.webapp.pages.utils import INGIniousAuthPage
+from inginious.frontend.common.parsable_text import ParsableText
 
 
 class TaskPage(INGIniousAuthPage):
@@ -149,14 +150,14 @@ class TaskPage(INGIniousAuthPage):
                     web.header('Content-Type', 'application/json')
                     return json.dumps({"status": "error", "text": "Please answer to all the questions and verify the extensions of the files "
                                                                   "you want to upload. Your responses were not tested."})
-                
+
                 try:
                     result, grade, problems, tests, custom, archive, stdout, stderr = self.submission_manager.add_unsaved_job(task, userinput)
 
                     data = {
                         "status": ("done" if result[0] == "success" or result[0] == "failed" else "error"),
                         "result": result[0],
-                        "text": result[1],
+                        "text": ParsableText(result[1]).parse(),
                         "stdout": custom.get("custom_stdout", ""),
                         "stderr": custom.get("custom_stderr", "")
                     }
