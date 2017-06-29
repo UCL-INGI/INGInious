@@ -10,7 +10,7 @@ from random import shuffle
 
 from inginious.frontend.common.parsable_text import ParsableText
 from inginious.common.tasks_problems import BasicProblem, BasicCodeProblem, CodeProblem, CodeSingleLineProblem, MatchProblem, MultipleChoiceProblem, \
-    CodeFileProblem, CodeMultipleLanguagesProblem
+    CodeFileProblem, CodeMultipleLanguagesProblem, CodeFileMultipleLanguagesProblem
 from inginious.frontend.common.tasks_code_boxes import DisplayableInputBox, DisplayableMultilineBox, DisplayableTextBox, DisplayableFileBox
 
 
@@ -87,7 +87,7 @@ class DisplayableCodeMultipleLanguagesProblem(CodeMultipleLanguagesProblem, Disp
         custom_input_id = self.get_id() + "/input"
 
         standard_code_problem_render = super(DisplayableCodeMultipleLanguagesProblem, self).show_input(renderer)
-        multiple_language_render = str(renderer.tasks.multiplelanguage(self.get_id(), dropdown_id, allowed_languages, self.get_id()))
+        multiple_language_render = str(renderer.tasks.multiplelanguage(self.get_id(), dropdown_id, allowed_languages, self.get_id(), self.get_type()))
         tools_render = str(renderer.tasks.code_tools(self.get_id(), "plain", custom_input_id))
 
         return multiple_language_render + standard_code_problem_render + tools_render
@@ -98,6 +98,24 @@ class DisplayableCodeFileProblem(CodeFileProblem, DisplayableBasicCodeProblem):
 
     def __init__(self, task, problemid, content):
         super(DisplayableCodeFileProblem, self).__init__(task, problemid, content)
+
+
+class DisplayableCodeFileMultipleLanguagesProblem(CodeFileMultipleLanguagesProblem, DisplayableBasicCodeProblem):
+    """ A displayable code file problem with multiple languages """
+
+    def __init__(self, task, problemid, content):
+        super(DisplayableCodeFileMultipleLanguagesProblem, self).__init__(task, problemid, content)
+
+    def show_input(self, renderer):
+        allowed_languages = list(self._languages.keys())
+        dropdown_id = self.get_id() + "/language"
+        custom_input_id = self.get_id() + "/input"
+
+        standard_code_file_problem_render = super(DisplayableCodeFileMultipleLanguagesProblem, self).show_input(renderer)
+        multiple_language_render = str(renderer.tasks.multiplelanguage(self.get_id(), dropdown_id, allowed_languages, self.get_id(), self.get_type()))
+        tools_render = str(renderer.tasks.code_file_tools(self.get_id(), "plain", custom_input_id))
+
+        return multiple_language_render + standard_code_file_problem_render + tools_render
 
 
 class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableBasicProblem):

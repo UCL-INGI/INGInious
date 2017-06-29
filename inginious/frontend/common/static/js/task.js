@@ -95,7 +95,7 @@ function blurTaskForm()
         editor.setOption("readOnly", true);
     });
     var task_form = $('form#task');
-    $("input, button", task_form).attr("disabled", "disabled").addClass('form-blur');
+    $("input, button, select", task_form).attr("disabled", "disabled").addClass('form-blur');
     //task_form.addClass('form-blur');
     loadingSomething = true;
 }
@@ -107,7 +107,7 @@ function unblurTaskForm()
         editor.setOption("readOnly", false);
     });
     var task_form = $('form#task');
-    $("input, button", task_form).removeAttr("disabled").removeClass('form-blur');
+    $("input, button, select", task_form).removeAttr("disabled").removeClass('form-blur');
     //task_form.removeClass('form-blur');
     loadingSomething = false;
 }
@@ -1149,13 +1149,14 @@ function runCustomTest (inputId) {
         unblurTaskForm();
     }
 
+    var taskForm = new FormData($('form#task')[0]);
+    taskForm.set("@action", "customtest");
+    var taskUrl = $('form#task').attr("action");
+
     blurTaskForm();
     resetAlerts();
     customTestOutputArea.text('Running...');
 
-    var taskForm = new FormData($('form#task')[0]);
-    taskForm.set("@action", "customtest");
-    var taskUrl = $('form#task').attr("action");
     $.ajax({
             url: taskUrl,
             method: "POST",
