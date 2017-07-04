@@ -318,7 +318,7 @@ class DockerAgent(object):
                 # select a port
                 if len(self.ssh_ports) == 0:
                     self._logger.warning("User asked for an ssh debug but no ports are available")
-                    await self.send_job_result(message.job_id, "crash", 'No slots are available for SSH debug right now. Please retry later.')
+                    await self.send_job_result(message.job_id, "crash", 'No ports are available for SSH debug right now. Please retry later.')
                     return
                 ssh_port = self.ssh_ports.pop()
 

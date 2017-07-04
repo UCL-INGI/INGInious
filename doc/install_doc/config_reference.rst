@@ -167,7 +167,7 @@ To enable this plugin, add to your configuration file:
     plugins:
         - plugin_module: inginious.frontend.webapp.plugins.auth.ldap_auth
             host: "your.ldap.server.com"
-            encryption": "ssl" #can be tls or none
+            encryption: "ssl" #can be tls or none
             base_dn: "ou=People,dc=info,dc=ucl,dc=ac,dc=be"
             request: "uid={}",
             prefix: "",
