@@ -5,7 +5,7 @@
 
 """ Task """
 from inginious.common.base import id_checker
-from inginious.common.tasks_problems import CodeProblem, CodeSingleLineProblem, MultipleChoiceProblem, MatchProblem, CodeFileProblem, CodeMultipleLanguagesProblem
+from inginious.common.tasks_problems import CodeProblem, CodeSingleLineProblem, MultipleChoiceProblem, MatchProblem, CodeFileProblem, CodeMultipleLanguagesProblem, CodeFileMultipleLanguagesProblem
 
 
 class Task(object):
