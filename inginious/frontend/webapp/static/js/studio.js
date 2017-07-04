@@ -536,7 +536,7 @@ function studio_init_template_blockly(well, pid, problem) {
 
     if ("visual" in options) {
         row = $("#subproblem_blockly_visual").html();
-        new_row_content = row.replace('/PID/g', pid);
+        new_row_content = row.replace(/PID/g, pid);
         $('#visual-' + pid).parent().parent().append(new_row_content);
         visualOptions = options.visual;
         $("#visual-" + pid).prop('checked', true);
@@ -545,6 +545,7 @@ function studio_init_template_blockly(well, pid, problem) {
         $("#visual-" + pid).prop('checked', false);
     }
 
+    if (visualOptions === true) visualOptions = {position : "left"};
     $("#visualPosition-" + pid).val("position" in visualOptions ? visualOptions.position : "left");
 
     $('#visual-' + pid).change(function() {
