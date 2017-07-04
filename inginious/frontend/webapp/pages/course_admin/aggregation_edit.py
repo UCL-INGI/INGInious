@@ -157,11 +157,18 @@ class CourseEditAggregation(INGIniousAdminPage):
     def GET_AUTH(self, courseid, aggregationid=''):  # pylint: disable=arguments-differ
         """ Edit a aggregation """
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=True)
+
+        if course.is_lti():
+            raise web.notfound()
+
         return self.display_page(course, aggregationid)
 
     def POST_AUTH(self, courseid, aggregationid=''):  # pylint: disable=arguments-differ
         """ Edit a aggregation """
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=True)
+
+        if course.is_lti():
+            raise web.notfound()
 
         msg=''
         error = False
@@ -189,7 +196,7 @@ class CourseEditAggregation(INGIniousAdminPage):
                     msg = "Classroom updated."
 
             if aggregationid and aggregationid in data["delete"]:
-                raise web.seeother("/admin/" + courseid + "/aggregations")
+                raise web.seeother(self.app.get_homepath() + "/admin/" + courseid + "/aggregations")
 
         try:
             if "upload" in data:

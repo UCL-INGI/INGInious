@@ -34,8 +34,23 @@ class WebAppCourse(FrontendCourse):
             self._groups_student_choice = self._content.get("groups_student_choice", False)
             self._use_classrooms = self._content.get('use_classrooms', True)
             self._allow_unregister = self._content.get('allow_unregister', True)
+            self._is_lti = self._content.get('is_lti', False)
+            self._lti_keys = self._content.get('lti_keys', {})
         except:
             raise Exception("Course has an invalid description: " + self.get_id())
+
+        # Force some parameters if LTI is active
+        if self.is_lti():
+            self._accessible = AccessibleTime(False)
+            self._registration = AccessibleTime(False)
+            self._registration_password = None
+            self._registration_ac = None
+            self._registration_ac_list = []
+            self._groups_student_choice = False
+            self._use_classrooms = True
+            self._allow_unregister = True
+        else:
+            self._lti_keys = {}
 
     def get_staff(self):
         """ Returns a list containing the usernames of all the staff users """
@@ -92,6 +107,14 @@ class WebAppCourse(FrontendCourse):
     def use_classrooms(self):
         """ Returns True if classrooms are used """
         return self._use_classrooms
+
+    def is_lti(self):
+        """ True if the current course is in LTI mode """
+        return self._is_lti
+
+    def lti_keys(self):
+        """ {name: key} for the LTI customers """
+        return self._lti_keys
 
     def is_user_accepted_by_access_control(self, username, realname, email):
         """ Returns True if the user is allowed by the ACL """

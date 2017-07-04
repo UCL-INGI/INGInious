@@ -14,7 +14,7 @@ from inginious.frontend.common.submission_manager import SubmissionManager
 class WebAppSubmissionManager(SubmissionManager):
     """ Manages submissions. Communicates with the database and the client. """
 
-    def __init__(self, client, user_manager, database, gridfs, hook_manager):
+    def __init__(self, client, user_manager, database, gridfs, hook_manager, lti_outcome_manager):
         """
         :type client: inginious.client.client.AbstractClient
         :type user_manager: inginious.frontend.common.user_manager.AbstractUserManager
@@ -25,6 +25,7 @@ class WebAppSubmissionManager(SubmissionManager):
         """
         super(WebAppSubmissionManager, self).__init__(client, user_manager, database, gridfs, hook_manager)
         self._logger = logging.getLogger("inginious.webapp.submissions")
+        self._lti_outcome_manager = lti_outcome_manager
 
     def _job_done_callback(self, submissionid, task, result, grade, problems, tests, custom, archive, stdout, stderr, newsub=True):
         """ Callback called by Client when a job is done. Updates the submission in the database with the data returned after the completion of the
@@ -34,6 +35,15 @@ class WebAppSubmissionManager(SubmissionManager):
         submission = self.get_submission(submissionid, False)
         for username in submission["username"]:
             self._user_manager.update_user_stats(username, task, submission, result[0], grade, newsub)
+
+        if "outcome_service_url" in submission and "outcome_result_id" in submission and "outcome_consumer_key" in submission:
+            for username in submission["username"]:
+                self._lti_outcome_manager.add(username,
+                                              submission["courseid"],
+                                              submission["taskid"],
+                                              submission["outcome_consumer_key"],
+                                              submission["outcome_service_url"],
+                                              submission["outcome_result_id"])
 
     def _before_submission_insertion(self, task, inputdata, debug, obj):
         username = self._user_manager.session_username()
@@ -46,6 +56,16 @@ class WebAppSubmissionManager(SubmissionManager):
             obj.update({"username": group["groups"][0]["students"]})
         else:
             obj.update({"username": [username]})
+
+        lti_info = self._user_manager.session_lti_info()
+        if lti_info is not None:
+            outcome_service_url = lti_info["outcome_service_url"]
+            outcome_result_id = lti_info["outcome_result_id"]
+            outcome_consumer_key = lti_info["consumer_key"]
+
+            obj.update({"outcome_service_url": outcome_service_url,
+                        "outcome_result_id": outcome_result_id,
+                        "outcome_consumer_key": outcome_consumer_key})
 
     def _after_submission_insertion(self, task, inputdata, debug, submission, submissionid):
         # If we are submitting for a group, send the group (user list joined with ",") as username

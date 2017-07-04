@@ -30,10 +30,10 @@ class CourseStudentTaskSubmission(INGIniousAdminPage):
             self.submission_manager.replay_job(task, submission)
         elif "replay-copy" in webinput:  # Authorized for tutors
             self.submission_manager.replay_job(task, submission, True)
-            web.seeother("/course/" + courseid + "/" + taskid)
+            web.seeother(self.app.get_homepath() + "/course/" + courseid + "/" + taskid)
         elif "replay-debug" in webinput and is_admin:
             self.submission_manager.replay_job(task, submission, True, "ssh")
-            web.seeother("/course/" + courseid + "/" + taskid)
+            web.seeother(self.app.get_homepath() + "/course/" + courseid + "/" + taskid)
 
         return self.page(course, username, task, submissionid)
 

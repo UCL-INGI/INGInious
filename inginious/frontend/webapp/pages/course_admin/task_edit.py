@@ -193,7 +193,7 @@ class CourseEditTask(INGIniousAdminPage):
             self.task_factory.delete_task(courseid, taskid)
             if data.get("wipe", False):
                 self.wipe_task(courseid, taskid)
-            raise web.seeother("/admin/"+courseid+"/tasks")
+            raise web.seeother(self.app.get_homepath() + "/admin/"+courseid+"/tasks")
 
         # Else, parse content
         try:

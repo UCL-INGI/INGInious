@@ -79,7 +79,7 @@ class CourseBatchJobCreate(INGIniousAdminPage):
                 errors.append("An error occurred while starting the job")
 
         if len(errors) == 0:
-            raise web.seeother('/admin/{}/batch'.format(courseid))
+            raise web.seeother(self.app.get_homepath() + '/admin/{}/batch'.format(courseid))
         else:
             return self.page(course, container_name, container_title, container_description, container_args, errors)
 

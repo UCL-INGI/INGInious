@@ -18,9 +18,19 @@ from inginious.common import exceptions
 from inginious.frontend.common.task_page_helpers import submission_to_json, list_multiple_multiple_choices_and_files
 from inginious.frontend.webapp.pages.utils import INGIniousAuthPage
 
-
-class TaskPage(INGIniousAuthPage):
+class BaseTaskPage(object):
     """ Display a task (and allow to reload old submission/file uploaded during a submission) """
+
+    def __init__(self, calling_page):
+        self.cp = calling_page
+        self.submission_manager = self.cp.submission_manager
+        self.user_manager = self.cp.user_manager
+        self.database = self.cp.database
+        self.course_factory = self.cp.course_factory
+        self.template_helper = self.cp.template_helper
+        self.default_allowed_file_extensions = self.cp.default_allowed_file_extensions
+        self.default_max_file_size = self.cp.default_max_file_size
+        self.webterm_link = self.cp.webterm_link
 
     def set_selected_submission(self, course, task, submissionid):
         submission = self.submission_manager.get_submission(submissionid)
@@ -50,7 +60,7 @@ class TaskPage(INGIniousAuthPage):
         else:
             return False
 
-    def GET_AUTH(self, courseid, taskid):  # pylint: disable=arguments-differ
+    def GET_AUTH(self, courseid, taskid, isLTI):
         """ GET request """
         username = self.user_manager.session_username()
 
@@ -59,6 +69,9 @@ class TaskPage(INGIniousAuthPage):
             course = self.course_factory.get_course(courseid)
         except exceptions.CourseNotFoundException as ex:
             raise web.notfound(str(ex))
+
+        if isLTI and not self.user_manager.course_is_user_registered(course):
+            self.user_manager.course_register_user(course, force=True)
 
         if not self.user_manager.course_is_open_to_user(course, username):
             return self.template_helper.get_renderer().course_unavailable()
@@ -119,7 +132,7 @@ class TaskPage(INGIniousAuthPage):
                                                             self.submission_manager.get_user_submissions(task),
                                                             students, eval_submission, user_task, self.webterm_link)
 
-    def POST_AUTH(self, courseid, taskid):  # pylint: disable=arguments-differ
+    def POST_AUTH(self, courseid, taskid, isLTI):
         """ POST a new submission """
         username = self.user_manager.session_username()
         try:
@@ -135,9 +148,6 @@ class TaskPage(INGIniousAuthPage):
 
             is_staff = self.user_manager.has_staff_rights_on_course(course, username)
             is_admin = self.user_manager.has_admin_rights_on_course(course, username)
-
-            # TODO: this is nearly the same as the code in the webapp.
-            # We should refactor this.
 
             userinput = web.input()
             if "@action" in userinput and userinput["@action"] == "submit":
@@ -240,6 +250,10 @@ class TaskPage(INGIniousAuthPage):
 class TaskPageStaticDownload(INGIniousAuthPage):
     """ Allow to download files stored in the task folder """
 
+    def is_lti_page(self):
+        # authorize LTI sessions to download static files
+        return True
+
     def GET_AUTH(self, courseid, taskid, path):  # pylint: disable=arguments-differ
         """ GET request """
         try:
@@ -271,3 +285,11 @@ class TaskPageStaticDownload(INGIniousAuthPage):
                 raise
             else:
                 raise web.notfound()
+
+
+class TaskPage(INGIniousAuthPage):
+    def GET_AUTH(self, courseid, taskid):
+        return BaseTaskPage(self).GET_AUTH(courseid, taskid, False)
+
+    def POST_AUTH(self, courseid, taskid):
+        return BaseTaskPage(self).POST_AUTH(courseid, taskid, False)

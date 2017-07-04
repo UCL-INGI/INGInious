@@ -14,6 +14,8 @@ from inginious.frontend.webapp.cookieless_app import CookieLessCompatibleApplica
 from inginious.frontend.webapp.database_updater import update_database
 from inginious.frontend.common.plugin_manager import PluginManager
 from inginious.common.course_factory import create_factories
+
+from inginious.frontend.webapp.lti_outcome_manager import LTIOutcomeManager
 from inginious.frontend.webapp.tasks import WebAppTask
 from inginious.frontend.webapp.courses import WebAppCourse
 from inginious.frontend.webapp.submission_manager import WebAppSubmissionManager
@@ -25,7 +27,7 @@ import inginious.frontend.webapp.pages.course_admin.utils as course_admin_utils
 from inginious.frontend.common.submission_manager import update_pending_jobs
 
 urls = (
-    r'/', 'inginious.frontend.webapp.pages.index.IndexPage',
+    r'/?', 'inginious.frontend.webapp.pages.index.IndexPage',
     r'/index', 'inginious.frontend.webapp.pages.index.IndexPage',
     r'/course/([^/]+)', 'inginious.frontend.webapp.pages.course.CoursePage',
     r'/course/([^/]+)/([^/]+)', 'inginious.frontend.webapp.pages.tasks.TaskPage',
@@ -64,6 +66,8 @@ urls = (
     r'/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)/submissions', 'inginious.frontend.webapp.pages.api.submissions.APISubmissions',
     r'/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)/submissions/([a-zA-Z_\-\.0-9]+)',
         'inginious.frontend.webapp.pages.api.submissions.APISubmissionSingle',
+    r'/lti/([^/]+)/([^/]+)', 'inginious.frontend.webapp.pages.lti.LTILaunchPage',
+    r'/lti/task', 'inginious.frontend.webapp.pages.lti.LTITaskPage'
 )
 
 urls_maintenance = (
@@ -104,8 +108,10 @@ def get_app(config):
     appli = CookieLessCompatibleApplication(MongoStore(database, 'sessions'))
 
     if config.get("maintenance", False):
-        template_helper = TemplateHelper(PluginManager(), 'frontend/webapp/templates',
+        template_helper = TemplateHelper(PluginManager(), None,
+                                         'frontend/webapp/templates',
                                          'frontend/webapp/templates/layout',
+                                         'frontend/webapp/templates/layout_lti',
                                          config.get('use_minified_js', True))
         template_helper.add_to_template_globals("get_homepath", appli.get_homepath)
         appli.template_helper = template_helper
@@ -129,12 +135,16 @@ def get_app(config):
 
     client = create_arch(config, task_directory, zmq_context)
 
-    submission_manager = WebAppSubmissionManager(client, user_manager, database, gridfs, plugin_manager)
+    lti_outcome_manager = LTIOutcomeManager(database, user_manager, course_factory)
+
+    submission_manager = WebAppSubmissionManager(client, user_manager, database, gridfs, plugin_manager, lti_outcome_manager)
 
     batch_manager = BatchManager(client, database, gridfs, submission_manager, user_manager,
                                  task_directory)
 
-    template_helper = TemplateHelper(plugin_manager, 'frontend/webapp/templates', 'frontend/webapp/templates/layout',
+    template_helper = TemplateHelper(plugin_manager, user_manager, 'frontend/webapp/templates',
+                                     'frontend/webapp/templates/layout',
+                                     'frontend/webapp/templates/layout_lti',
                                      config.get('use_minified_js', True))
 
     # Init web mail
@@ -180,6 +190,7 @@ def get_app(config):
     appli.default_max_file_size = default_max_file_size
     appli.backup_dir = config.get("backup_directory", './backup')
     appli.webterm_link = config.get("webterm", None)
+    appli.lti_outcome_manager = lti_outcome_manager
 
     # Init the mapping of the app
     appli.init_mapping(urls)

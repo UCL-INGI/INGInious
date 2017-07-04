@@ -131,7 +131,7 @@ class SAMLPage(INGIniousPage):
                 raise web.seeother(auth.redirect_to(input_data['RelayState']))
         else:
             logging.getLogger('inginious.webapp.plugin.auth.saml').error("Errors while processing response : " + ", ".join(errors))
-            raise web.seeother("/")
+            raise web.seeother(self.app.get_homepath() + "/")
 
 
 def init(plugin_manager, course_factory, client, conf):

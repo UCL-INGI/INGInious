@@ -105,8 +105,6 @@ class CookieLessCompatibleSession(object):
 
         try:
             return handler()
-        except Exception as e:
-            print(e)
         finally:
             self._save()
 

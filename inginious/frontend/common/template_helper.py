@@ -17,12 +17,14 @@ class TemplateHelper(object):
     # templates are rendered
     _WEB_CTX_KEY = "inginious_tpl_helper"
 
-    def __init__(self, plugin_manager, default_template_dir, default_layout, use_minified=True):
+    def __init__(self, plugin_manager, user_manager, default_template_dir, default_layout, default_layout_lti, use_minified=True):
         """
         Init the Template Helper
         :param plugin_manager: an instance of a PluginManager
+        :param user_manager: an instance of UserManager. Can be None; in this case, LTI layout detection will never be used.
         :param default_template_dir: the path to the template dir. If it is not absolute, it will be taken from the root of the inginious package.
         :param default_layout: the path to the layout. If it is not absolute, it will be taken from the root of the inginious package.
+        :param default_layout_lti: same but for the lti layout
         :param use_minified: weither to use minified js/css or not. Use True in production, False in dev envs.
         """
 
@@ -36,11 +38,14 @@ class TemplateHelper(object):
                               "css": (lambda **_: self._css_helper())}
         self._plugin_manager = plugin_manager
         self._template_dir = default_template_dir
+        self._user_manager = user_manager # can be None!
         self._layout = default_layout
+        self._layout_lti = default_layout_lti
 
         self._template_globals = {}
 
         self._default_renderer = self.get_custom_renderer(default_template_dir)
+        self._default_renderer_lti = self.get_custom_renderer(default_template_dir, layout = self._layout_lti)
         self._default_renderer_nolayout = self.get_custom_renderer(default_template_dir, layout=False)
         self._default_common_renderer = self.get_custom_renderer(os.path.join(os.path.dirname(__file__), "templates"), layout=False)
 
@@ -48,10 +53,20 @@ class TemplateHelper(object):
         self.add_to_template_globals("template_helper", self)
         self.add_to_template_globals("plugin_manager", plugin_manager)
         self.add_to_template_globals("use_minified", use_minified)
+        self.add_to_template_globals("is_lti", self.is_lti)
+
+    def is_lti(self):
+        """ True if the current session is an LTI one """
+        return self._user_manager is not None and self._user_manager.session_lti_info() is not None
 
     def get_renderer(self, with_layout=True):
         """ Get the default renderer """
-        return self._default_renderer if with_layout else self._default_renderer_nolayout
+        if with_layout and self.is_lti():
+            return self._default_renderer_lti
+        elif with_layout:
+            return self._default_renderer
+        else:
+            return self._default_renderer_nolayout
 
     def get_common_renderer(self):
         """ Get the default renderer for templates in the inginious.frontend.common package"""

@@ -1,0 +1,119 @@
+$def with (content)
+
+$#
+$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+$# more information about the licensing of this file.
+$#
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="INGInious">
+    <meta name="author" content="">
+    <link rel="icon" href="$get_homepath(True)/static/common/icons/favicon.ico">
+    <link rel="mask-icon" href="$get_homepath(True)/static/common/icons/wb.svg" color="#5E932E">
+
+    <title>INGInious - $content.title</title>
+
+    <!-- Bootstrap -->
+    <link href="$get_homepath(True)/static/common/css/bootstrap.min.css" rel="stylesheet">
+    <link href="$get_homepath(True)/static/common/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link href="$get_homepath(True)/static/common/css/font-awesome.min.css" rel="stylesheet">
+
+    <!-- INGInious Style -->
+    <link href="$get_homepath(True)/static/webapp/css/lti.css" rel="stylesheet">
+
+    <!-- Codemirror Style -->
+    <link href="$get_homepath(True)/static/common/css/codemirror.css" rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="shortcut icon" href="$get_homepath(True)/static/common/icons/favicon.ico">
+    <link rel="apple-touch-icon" sizes="57x57" href="$get_homepath(True)/static/common/icons/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="$get_homepath(True)/static/common/icons/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="$get_homepath(True)/static/common/icons/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="$get_homepath(True)/static/common/icons/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="$get_homepath(True)/static/common/icons/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="$get_homepath(True)/static/common/icons/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="$get_homepath(True)/static/common/icons/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="$get_homepath(True)/static/common/icons/apple-touch-icon-152x152.png">
+    <link rel="icon" type="image/png" href="$get_homepath(True)/static/common/icons/favicon-196x196.png" sizes="196x196">
+    <link rel="icon" type="image/png" href="$get_homepath(True)/static/common/icons/favicon-160x160.png" sizes="160x160">
+    <link rel="icon" type="image/png" href="$get_homepath(True)/static/common/icons/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="$get_homepath(True)/static/common/icons/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="$get_homepath(True)/static/common/icons/favicon-32x32.png" sizes="32x32">
+    <meta name="msapplication-TileColor" content="#00a300">
+    <meta name="msapplication-TileImage" content="$get_homepath(True)/static/common/icons/mstile-144x144.png">
+    <meta name="msapplication-config" content="$get_homepath(True)/static/common/icons/browserconfig.xml">
+
+    $if use_minified:
+        <script src="$get_homepath(True)/static/webapp/js/all-minified.js"></script>
+    $else:
+        <script src="$get_homepath(True)/static/common/js/libs/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="$get_homepath(True)/static/common/js/libs/jquery.form.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="$get_homepath(True)/static/common/js/codemirror/codemirror.js" type="text/javascript" charset="utf-8"></script>
+        <script src="$get_homepath(True)/static/common/js/codemirror/mode/meta.js" type="text/javascript" charset="utf-8"></script>
+        <script src="$get_homepath(True)/static/common/js/libs/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="$get_homepath(True)/static/common/js/libs/bootstrap-datetimepicker.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="$get_homepath(True)/static/common/js/libs/checked-list-group.js" type="text/javascript" charset="utf-8"></script>
+        <script src="$get_homepath(True)/static/common/js/common.js" type="text/javascript" charset="utf-8"></script>
+        <script src="$get_homepath(True)/static/common/js/task.js" type="text/javascript" charset="utf-8"></script>
+        <script src="$get_homepath(True)/static/webapp/js/webapp.js" type="text/javascript" charset="utf-8"></script>
+        <script src="$get_homepath(True)/static/webapp/js/studio.js" type="text/javascript" charset="utf-8"></script>
+        <script src="$get_homepath(True)/static/webapp/js/aggregations.js" type="text/javascript" charset="utf-8"></script>
+        <script src='$get_homepath(True)/static/webapp/js/jquery-sortable.min.js' type="text/javascript" charset="utf-8"></script>
+
+    <script type="text/javascript">
+        CodeMirror.modeURL = "$get_homepath(True)/static/common/js/codemirror/mode/%N/%N.js";
+    </script>
+
+    $if "header" in content:
+    $:content.header
+
+    $:template_helper.call('css')
+    $:template_helper.call('javascript_header')
+    $:template_helper.call('header_hook')
+</head>
+
+<body role="document">
+<div id="wrapper">
+    <div id="main_container" class="container-fluid" role="main">
+        <div id="content" class="col-xs-12">
+            $:content
+            <div id="powered">
+                Powered by <a href="http://www.inginious.org" target="_blank">INGInious</a>, a free and open-source grading tool.
+            </div>
+        </div>
+        $if "Column" in content:
+            <div id="lti-sidebar">
+                <div id="lti-sidebar-btn">
+                    <button class="sidebar-open" onclick="$$('body').addClass('sidebar-active');">
+                        <i class="fa fa-angle-right"></i>
+                    </button>
+                    <button class="sidebar-close" onclick="$$('body').removeClass('sidebar-active');">
+                        <i class="fa fa-angle-left"></i>
+                    </button>
+                </div>
+                <div id="lti-sidebar-inner">
+                    <div id="lti-sidebar-content">
+                        $:content.Column
+                    </div>
+                </div>
+            </div>
+    </div>
+
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript">
+        // Fix rendering issues
+        var height = Math.max($$('body').height(), Math.max($$('#lti-sidebar-inner').height(), $$('body').parent().height()));
+        $$('#content').css("min-height", height);
+    </script>
+    $:template_helper.call('javascript_footer')
+</div>
+</body>
+</html>

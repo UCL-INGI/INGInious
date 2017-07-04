@@ -1,0 +1,130 @@
+@import "../../../common/static/css/common.less";
+
+#lti-sidebar
+{
+    width: 0px;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: #f5f5f5;
+
+    .transition(all 0.5s ease);
+
+    #lti-sidebar-btn button
+    {
+        &.sidebar-open
+        {
+            display: block;
+        }
+        &.sidebar-close
+        {
+            display: none;
+        }
+
+        width: 25px;
+        position: absolute;
+        top: 0;
+        right: -25px;
+        background-color: #f5f5f5;
+        margin: 0;
+        padding: 0;
+        border: none;
+        height: 100%;
+        border-left: 1px solid #eaeaea;
+        border-right: 1px solid #ccc;
+        font-size: 25px;
+    }
+
+    #lti-sidebar-inner
+    {
+        #lti-sidebar-content
+        {
+            width: 300px;
+            padding: 0px 15px;
+            margin: 0;
+            position: relative;
+        }
+        width: 0px;
+        overflow: hidden;
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        margin: 0;
+        padding: 0;
+
+        .transition(all 0.5s ease);
+    }
+}
+
+html
+{
+    height: 100%;
+}
+
+body.sidebar-active
+{
+    #lti-sidebar
+    {
+        width: 300px;
+        #lti-sidebar-inner
+        {
+            width: 300px;
+        }
+
+        #lti-sidebar-btn button
+        {
+            &.sidebar-open
+            {
+                display: none;
+            }
+            &.sidebar-close
+            {
+                display: block;
+            }
+        }
+    }
+
+    #content
+    {
+        left: 300px;
+        .custom_filter(blur(10px) grayscale(0.8));
+    }
+
+    position:relative;
+    min-height: 100%;
+}
+
+#main_container
+{
+    overflow: hidden;
+    position: relative;
+}
+
+#content
+{
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+    padding: 0;
+    padding-left: 30px;
+    position: relative;
+    top: 0;
+    left: 0;
+}
+
+#powered
+{
+    text-align: right;
+    font-size: 12px;
+    margin: 10px;
+
+    a
+    {
+        color: #43ac6a;
+        font-weight: bold;
+        font-family: 'Yanone Kaffeesatz', sans-serif;
+        font-size: 18px;
+    }
+}

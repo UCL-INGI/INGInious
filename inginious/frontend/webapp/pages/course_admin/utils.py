@@ -251,10 +251,13 @@ def get_menu(course, current, renderer, plugin_manager, user_manager):
         default_entries += [("settings", "<i class='fa fa-cog fa-fw'></i>&nbsp; Course settings"),
                             ("batch", "<i class='fa fa-rocket fa-fw'></i>&nbsp; Batch operations")]
 
-    default_entries += [("students", "<i class='fa fa-user fa-fw'></i>&nbsp; Students"),
-                        ("aggregations", "<i class='fa fa-group fa-fw'></i>&nbsp; " +
-                         ("Classrooms" if course.use_classrooms() else "Teams")),
-                        ("tasks", "<i class='fa fa-tasks fa-fw'></i>&nbsp; Tasks"),
+    default_entries += [("students", "<i class='fa fa-user fa-fw'></i>&nbsp; Students")]
+
+    if not course.is_lti():
+        default_entries += [("aggregations", "<i class='fa fa-group fa-fw'></i>&nbsp; " +
+                             ("Classrooms" if course.use_classrooms() else "Teams"))]
+
+    default_entries += [("tasks", "<i class='fa fa-tasks fa-fw'></i>&nbsp; Tasks"),
                         ("download", "<i class='fa fa-download fa-fw'></i>&nbsp; Download submissions")]
 
     if user_manager.has_admin_rights_on_course(course):
@@ -274,9 +277,9 @@ class CourseRedirect(INGIniousAdminPage):
         """ GET request """
         course, _ = self.get_course_and_check_rights(courseid)
         if self.user_manager.session_username() in course.get_tutors():
-            raise web.seeother('/admin/{}/tasks'.format(courseid))
+            raise web.seeother(self.app.get_homepath() + '/admin/{}/tasks'.format(courseid))
         else:
-            raise web.seeother('/admin/{}/settings'.format(courseid))
+            raise web.seeother(self.app.get_homepath() + '/admin/{}/settings'.format(courseid))
 
     def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request """
