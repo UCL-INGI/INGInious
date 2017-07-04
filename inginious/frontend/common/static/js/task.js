@@ -94,6 +94,13 @@ function blurTaskForm()
     {
         editor.setOption("readOnly", true);
     });
+
+    var custominputAreas = $('textarea[id^="custominput"]');
+    custominputAreas.each(function() {
+        $(this).attr("readonly", true);
+        $(this).css("background-color", "#fff");
+    });
+
     var task_form = $('form#task');
     $("input, button, select", task_form).attr("disabled", "disabled").addClass('form-blur');
     //task_form.addClass('form-blur');
@@ -106,6 +113,12 @@ function unblurTaskForm()
     {
         editor.setOption("readOnly", false);
     });
+
+    var custominputAreas = $('textarea[id^="custominput"]');
+    custominputAreas.each(function() {
+        $(this).attr("readonly", false);
+    });
+
     var task_form = $('form#task');
     $("input, button, select", task_form).removeAttr("disabled").removeClass('form-blur');
     //task_form.removeClass('form-blur');
@@ -740,7 +753,7 @@ function displayTaskInputErrorAlert()
 //Displays an overflow error alert in task form
 function displayCustomTestAlertError(content)
 {
-    displayTaskStudentAlertWithProblems(content, "", "danger", false);
+    displayTaskStudentAlertWithProblems(content, "<b>Custom test error</b>", "danger", false);
 }
 
 //Displays an overflow error alert in task form
@@ -1144,20 +1157,40 @@ function defaultCallback(response, status){
   alert(response + "\n\nresponse_status: " + status);
 }
 
+function getFormattedOutput (stdout, stderr) {
+    var output = "<span class='stdout-text'>" + stdout + "</span>" +
+                 "<span class='stderr-text'>" + stderr + "</span>";
+
+    return output;
+}
+
 function runCustomTest (inputId) {
     var customTestOutputArea = $('#customoutput-'+inputId);
+    var placeholderSpan = "<span class='placeholder-text'>Your output goes here</span>";
 
     var runCustomTestCallBack = function (data) {
         if ('status' in data && data['status'] == 'done') {
             if ('result' in data) {
                 var result = data['result']
-                var output = data.stdout + data.stderr;
-                customTestOutputArea.text(output);
+                var output = getFormattedOutput(data.stdout, data.stderr);
+                customTestOutputArea.html(output);
 
                 if (result == 'failed') {
                     displayCustomTestAlertError(data);
+                } else if (result == "timeout") {
+                    displayTimeOutAlert(data);
+                } else if (result == "overflow") {
+                    displayOverflowAlert(data);
+                } else if (result != "success" ){
+                    displayCustomTestAlertError(data);
                 }
             }
+        } else if ('status' in data && data['status'] == 'error') {
+            customTestOutputArea.html(placeholderSpan);
+            displayCustomTestAlertError(data);
+        } else {
+            customTestOutputArea.html(placeholderSpan);
+            displayCustomTestAlertError({});
         }
 
         unblurTaskForm();
@@ -1169,7 +1202,7 @@ function runCustomTest (inputId) {
 
     blurTaskForm();
     resetAlerts();
-    customTestOutputArea.text('Running...');
+    customTestOutputArea.html(getFormattedOutput("Running...", ""));
 
     $.ajax({
             url: taskUrl,

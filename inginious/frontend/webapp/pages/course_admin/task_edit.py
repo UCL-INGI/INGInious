@@ -239,7 +239,7 @@ class CourseEditTask(INGIniousAdminPage):
                 return json.dumps({"status": "error", "message": "Grader: problem does not exist"})
 
             problem_type = data["problems"][data["grader_problem_id"]]["type"]
-            if problem_type != 'code-multiple-languages' and problem_type != "code-file-multiple-languages":
+            if problem_type not in ['code-multiple-languages', 'code-file-multiple-languages']:
                 return json.dumps({"status": "error",
                     "message": "Grader: only Code Multiple Language and Code File Multiple Language problems are supported"})
 
