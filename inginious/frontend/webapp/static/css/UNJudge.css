@@ -57,10 +57,8 @@
 
 .stdout-text {
   color: #696969;
-  white-space: pre;
 }
 
 .stderr-text {
   color: #cd5c5c;
-  white-space: pre;
 }

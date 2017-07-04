@@ -1157,23 +1157,20 @@ function defaultCallback(response, status){
   alert(response + "\n\nresponse_status: " + status);
 }
 
-function getFormattedOutput (stdout, stderr) {
-    var output = "<span class='stdout-text'>" + stdout + "</span>" +
-                 "<span class='stderr-text'>" + stderr + "</span>";
-
-    return output;
-}
-
 function runCustomTest (inputId) {
     var customTestOutputArea = $('#customoutput-'+inputId);
     var placeholderSpan = "<span class='placeholder-text'>Your output goes here</span>";
 
     var runCustomTestCallBack = function (data) {
+        customTestOutputArea.empty();
+
         if ('status' in data && data['status'] == 'done') {
             if ('result' in data) {
-                var result = data['result']
-                var output = getFormattedOutput(data.stdout, data.stderr);
-                customTestOutputArea.html(output);
+                var result = data['result'];
+                var stdoutSpan = $("<span/>").addClass("stdout-text").text(data.stdout);
+                var stderrSpan = $("<span/>").addClass("stderr-text").text(data.stderr);
+                customTestOutputArea.append(stdoutSpan);
+                customTestOutputArea.append(stderrSpan);
 
                 if (result == 'failed') {
                     displayCustomTestAlertError(data);
@@ -1202,7 +1199,7 @@ function runCustomTest (inputId) {
 
     blurTaskForm();
     resetAlerts();
-    customTestOutputArea.html(getFormattedOutput("Running...", ""));
+    customTestOutputArea.html("Running...");
 
     $.ajax({
             url: taskUrl,
@@ -1214,6 +1211,7 @@ function runCustomTest (inputId) {
             success: runCustomTestCallBack,
             error: function (error) {
                 unblurTaskForm();
+                customTestOutputArea.html(placeholderSpan);
             }
     });
 }
