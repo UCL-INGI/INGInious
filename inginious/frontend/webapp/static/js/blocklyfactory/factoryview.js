@@ -3,11 +3,11 @@ var FactoryView = function(controller, id, pid) {
     this.div = $('#' + id);
     this.div.addClass('col-xs-12');
     this.div.css('height', '60vh');
-    this.factoryDiv = this.createColumn('Factory');
+    this.factoryDiv = this.createColumn('Factory', 6);
     this.div.append(this.factoryDiv);
-    this.middleDiv = this.createColumn('');
+    this.middleDiv = this.createColumn('', 2);
     this.div.append(this.middleDiv);
-    this.previewDiv = this.createColumn('Preview');
+    this.previewDiv = this.createColumn('Preview', 4);
     this.previewWorkspaceDiv = this.createWorkspaceDiv('previewWorkspace');
     this.previewDiv.append(this.previewWorkspaceDiv);
     this.toolboxWorkspaceDiv = this.createWorkspaceDiv('toolboxWorkspace');
@@ -82,8 +82,8 @@ FactoryView.prototype.dispose = function() {
     this.div && this.div.html('');
 };
 
-FactoryView.prototype.createColumn = function(name) {
-    var div = BootstrapElement.column(4);
+FactoryView.prototype.createColumn = function(name, size) {
+    var div = BootstrapElement.column(size);
 
     var title = $("<h2>");
     title.html(name);
