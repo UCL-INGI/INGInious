@@ -16,13 +16,10 @@ before_install:
   - sudo chmod +x /usr/sbin/policy-rc.d
   - pip install --upgrade pip
 install:
-  - curl -sSL https://get.docker.com/ | sh
   - sudo apt-get install slirp libtidy-* xvfb
   - sudo usermod -aG docker "$USER"
   - git clone git://github.com/cptactionhank/sekexe
   - pip install --process-dependency-links --upgrade .
-  - sudo mkdir /var/lib/docker
-  - sudo mkdir /etc/docker
   - sudo chmod -R 777 /var/lib/docker
   - sudo chmod -R 777 /etc/docker
   - sudo mkdir /agent_volume
