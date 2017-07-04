@@ -42,6 +42,21 @@ BlocklyTask = function(options, toolbox, workspaceBlocks) {
     this.blocklyXmlArea = $("#blocklyXmlArea");
     this.blocklyInterpreterAlert = $("#blocklyInterpreterAlert");
     this.blocklyModalBody = $("#blocklyModalBody");
+    this.executionSpeedSlider = $("#executionSpeedSlider");
+
+    this.executionSpeedSlider.css('width', '100px');
+    this.executionSpeedSlider.css('margin-top', '5px');
+    this.executionSpeedSlider.css('margin-bottom', '10px');
+
+    /* TODO move this somewhere else */
+    $(function() {
+        this.executionSpeedSlider.slider({
+            value: 60,
+            min: 15,
+            max: 100,
+            step: 5
+        });
+    }.bind(this));
 
     this.options = options;
     this.options.toolbox = toolbox;
@@ -78,7 +93,7 @@ BlocklyTask.prototype.display = function() {
         this.blocklyAppRight.addClass("class-xs-2");
         this.blocklyAppModalLeft.addClass("col-xs-9");
         this.blocklyAppModalRight.addClass("col-xs-3");
-        if ("position" in this.options.visual && this.options.visual.position == "left") {
+        if (this.options.visual !== true && "position" in this.options.visual && this.options.visual.position == "left") {
             this.blocklyAppRight.parent().prepend(this.blocklyAppRight.detach());
             this.blocklyAppModalRight.parent().prepend(this.blocklyAppModalRight.detach());
         }
@@ -445,7 +460,8 @@ BlocklyTaskInterpreter.prototype.stepCode = function(self) {
             self.task.stopButton.hide();
             self.task.resetButton.show();
         } else {
-            self.timeout = window.setTimeout(function() {self.stepCode(self); }, 60);
+            window.stepSpeed = self.task.executionSpeedSlider.slider("value");
+            self.timeout = window.setTimeout(function() {self.stepCode(self); }, window.stepSpeed);
         }
     }
 };

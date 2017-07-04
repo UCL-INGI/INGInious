@@ -8,6 +8,7 @@ $#
 <!-- Bootstrap modal fullscreen related stylesheet -->
 <link rel="stylesheet" href="$get_homepath()/static/common/css/bootstrap-modal-fullscreen.css">
 <link rel="stylesheet" href="$get_homepath()/static/common/css/bootstrap-modal-transparent.css">
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
 <div id="blocklyInterpreterAlert" class="alert alert-danger" style="display:none;">
   <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -26,6 +27,7 @@ $#
             <button id="textModeButtons" type="button" class="btn btn-default"><span class="glyphicon glyphicon-pencil"></span> Text</button>
         </div>
         <button type="button" id="buttonFullscreen" disabled="true" class="btn btn-default" data-toggle="modal" data-target="#blocklyModal" style="margin-left:5px;margin-bottom:5px;margin-top:5px;border-radius:10px;border:1px solid transparent;"><span class="glyphicon glyphicon-modal-window"></span> Toggle full screen</button>
+        <div id="executionSpeedSlider"></div>
     </div>
     <div id="blocklyBlocksText" class="col-xs-4" style="margin-top:10px;">
         <p id="blocksLimitText" class="text-info">You have <b id="blocksLimitNumber"></b> block(s) left.</p>
@@ -108,6 +110,8 @@ $#
 
 <!-- Blockly English Translation -->
 <script src="$get_homepath()/static/common/js/blockly/msg/js/en.js" type="text/javascript" charset="utf-8"></script>
+
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
 $if filenames is not None:
     $for filename in filenames:
