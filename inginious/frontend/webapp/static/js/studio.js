@@ -499,6 +499,7 @@ function studio_init_template_custom(well, pid, problem)
  * @param problem
  */
 function studio_init_template_blockly(well, pid, problem) {
+    var row, new_row_content;
     var val = "";
     $('#language-' + pid, well).val("language" in problem ? problem.language : "");
 
@@ -510,7 +511,6 @@ function studio_init_template_blockly(well, pid, problem) {
 
     var options = "options" in problem ? problem.options : {};
 
-    $("#visual-" + pid).prop('checked', "visual" in options ? options.visual : false);
     $("#collapse-" + pid).prop('checked', "collapse" in options ? options.collapse : false);
     $("#comments-" + pid).prop('checked', "comments" in options ? options.comments : false);
     $("#disable-" + pid).prop('checked', "disable" in options ? options.disable : false);
@@ -532,12 +532,37 @@ function studio_init_template_blockly(well, pid, problem) {
     $("#oneBasedIndex-" + pid).prop('checked', "oneBasedIndex" in options ? options.oneBasedIndex : true);
     $("#readOnly-" + pid).prop('checked', "readOnly" in options ? options.readOnly : false);
 
+    var visualOptions;
+
+    if ("visual" in options) {
+        row = $("#subproblem_blockly_visual").html();
+        new_row_content = row.replace('/PID/g', pid);
+        $('#visual-' + pid).parent().parent().append(new_row_content);
+        visualOptions = options.visual;
+        $("#visual-" + pid).prop('checked', true);
+    } else {
+        visualOptions = {};
+        $("#visual-" + pid).prop('checked', false);
+    }
+
+    $("#visualPosition-" + pid).val("position" in visualOptions ? visualOptions.position : "left");
+
+    $('#visual-' + pid).change(function() {
+        if ($(this).is(":checked")) {
+            var row = $("#subproblem_blockly_visual").html();
+            var new_row_content = row.replace(/PID/g, pid);
+            $(this).parent().parent().append(new_row_content);
+        } else {
+            $(this).parent().parent().html($(this).parent().detach());
+        }
+    });
+
     var gridOptions;
 
     if ("grid" in options) {
         // If grid is set, display the grid options
-        var row = $("#subproblem_blockly_grid").html();
-        var new_row_content = row.replace(/PID/g, pid);
+        row = $("#subproblem_blockly_grid").html();
+        new_row_content = row.replace(/PID/g, pid);
         $('#grid-' + pid).parent().parent().parent().append(new_row_content);
         gridOptions = options.grid;
         $("#grid-" + pid).prop('checked', true);

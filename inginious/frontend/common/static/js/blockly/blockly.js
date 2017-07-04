@@ -73,11 +73,15 @@ BlocklyTask.prototype.display = function() {
     /* Set classes to display the visualization or not,
      * depending on the options given in the task.
      */
-    if ("visual" in this.options && this.options.visual === true) {
+    if ("visual" in this.options) {
         this.blocklyAppLeft.addClass("col-xs-10");
         this.blocklyAppRight.addClass("class-xs-2");
         this.blocklyAppModalLeft.addClass("col-xs-9");
         this.blocklyAppModalRight.addClass("col-xs-3");
+        if ("position" in this.options.visual && this.options.visual.position == "left") {
+            this.blocklyAppRight.parent().prepend(this.blocklyAppRight.detach());
+            this.blocklyAppModalRight.parent().prepend(this.blocklyAppModalRight.detach());
+        }
     } else {
         this.blocklyAppLeft.addClass("col-xs-12");
         this.blocklyAppRight.hide();

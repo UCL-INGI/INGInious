@@ -167,11 +167,15 @@ class CourseEditTask(INGIniousAdminPage):
         # Blockly related checks
         if "options" in problem_content:
             blockly_options = ['collapse', 'comments', 'disable', 'trashcan', 'horizontalLayout', 'css',
-                               'oneBasedIndex', 'readOnly', 'rtl', 'scrollbars', 'sounds', 'visual']
+                               'oneBasedIndex', 'readOnly', 'rtl', 'scrollbars', 'sounds']
             problem_options = problem_content['options']
             for option in blockly_options:
                 if option in problem_options:
                     problem_options[option] = True
+
+            if "visual" in problem_options:
+                visual_options = problem_options["visual"]
+                visual_options["position"] = visual_options["position"] if "position" in visual_options else "right"
 
             if "grid" in problem_options:
                 grid_options = problem_options["grid"]
