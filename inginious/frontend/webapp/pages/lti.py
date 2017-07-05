@@ -28,6 +28,43 @@ class LTITaskPage(INGIniousAuthPage):
 
         return BaseTaskPage(self).POST_AUTH(courseid, taskid, True)
 
+
+class LTILoginPage(INGIniousPage):
+    def is_lti_page(self):
+        return True
+
+    def GET(self):
+        data = self.user_manager.session_lti_info()
+        if data is None:
+            raise web.notfound()
+
+        if self.user_manager.session_logged_in():
+            raise web.seeother(self.app.get_homepath() + "/lti/task")
+
+        return self.template_helper.get_renderer().lti_login(self.user_manager.get_auth_methods_fields(), False)
+
+    def POST(self, *args, **kwargs):
+        """
+        Checks if user is authenticated and calls POST_AUTH or performs login and calls GET_AUTH.
+        Otherwise, returns the login template.
+        """
+        data = self.user_manager.session_lti_info()
+        if data is None:
+            raise web.notfound()
+
+        if self.user_manager.session_logged_in():
+            raise web.seeother(self.app.get_homepath() + "/lti/task")
+        else:
+            user_input = web.input()
+            if "@authid" in user_input:
+                if self.user_manager.auth_user(int(user_input["@authid"]), user_input, web.ctx['ip']):
+                    raise web.seeother(self.app.get_homepath() + "/lti/task")
+                else:
+                    return self.template_helper.get_renderer().lti_login(self.user_manager.get_auth_methods_fields(), True)
+            else:
+                return self.template_helper.get_renderer().lti_login(self.user_manager.get_auth_methods_fields(), False)
+
+
 class LTILaunchPage(INGIniousPage):
     """
     Page called by the TC to start an LTI session on a given task

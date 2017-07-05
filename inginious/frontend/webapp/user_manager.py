@@ -176,7 +176,8 @@ class UserManager(AbstractUserManager):
                            ext_user_username):
         """ Creates an LTI cookieless session. Returns the new session id"""
 
-        self._session.load('') #creates a new cookieless session
+        self._destroy_session()  # don't forget to destroy the current session (cleans the threaded dict from web.py)
+        self._session.load('')  # creates a new cookieless session
         session_id = self._session.session_id
 
         self._session.lti = {
@@ -201,9 +202,8 @@ class UserManager(AbstractUserManager):
         if "lti" not in self._session:
             raise Exception("Not an LTI session")
 
-        # TODO - demo
-        self._set_session("test", "Guillaume Derval", "test@test.be")
-        return True
+        # TODO allow user to be automagically connected if the TC uses the same user id
+        return False
 
     ##############################################
     #      User searching and authentication     #
