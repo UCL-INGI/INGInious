@@ -582,6 +582,10 @@ function studio_init_template_blockly(well, pid, problem) {
             var row = $("#subproblem_blockly_grid").html();
             var new_row_content = row.replace(/PID/g, pid);
             $(this).parent().parent().parent().append(new_row_content);
+            $("#gridSpacing-" + pid).val("20");
+            $("#gridLength-" + pid).val("3");
+            $("#gridColour-" + pid).val("#ccc");
+            $("#gridSnap-" + pid).prop('checked', true);
         } else {
             $(this).parent().parent().parent().html($(this).parent().parent().detach());
         }
@@ -611,6 +615,12 @@ function studio_init_template_blockly(well, pid, problem) {
             var row = $("#subproblem_blockly_zoom").html();
             var new_row_content = row.replace(/PID/g, pid);
             $(this).parent().parent().parent().append(new_row_content);
+            $("#zoomControls-" + pid).prop('checked',  true);
+            $("#zoomWheel-" + pid).prop('checked', false);
+            $("#zoomStartScale-" + pid).val("1.0");
+            $("#zoomMaxScale-" + pid).val("3.0");
+            $("#zoomMinScale-" + pid).val("0.3");
+            $("#zoomScaleSpeed-" + pid).val("1.2");
         } else {
             $(this).parent().parent().parent().html($(this).parent().parent().detach());
         }
