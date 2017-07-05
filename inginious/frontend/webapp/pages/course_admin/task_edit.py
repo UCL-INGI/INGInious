@@ -21,7 +21,7 @@ from inginious.frontend.webapp.accessible_time import AccessibleTime
 from inginious.frontend.webapp.tasks import WebAppTask
 from inginious.frontend.webapp.pages.course_admin.task_edit_file import CourseTaskFiles
 from inginious.frontend.webapp.pages.course_admin.utils import INGIniousAdminPage
-
+from inginious.frontend.common.task_problems import DisplayableBasicCodeProblem
 
 class CourseEditTask(INGIniousAdminPage):
     """ Edit a task """
@@ -76,7 +76,8 @@ class CourseEditTask(INGIniousAdminPage):
             current_filetype,
             available_filetypes,
             AccessibleTime,
-            CourseTaskFiles.get_task_filelist(self.task_factory, courseid, taskid))
+            CourseTaskFiles.get_task_filelist(self.task_factory, courseid, taskid),
+            DisplayableBasicCodeProblem._available_languages)
 
     @classmethod
     def contains_is_html(cls, data):

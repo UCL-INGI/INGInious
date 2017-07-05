@@ -49,6 +49,12 @@ class DisplayableBasicCodeProblem(BasicCodeProblem, DisplayableBasicProblem):
         "text": DisplayableTextBox,
         "file": DisplayableFileBox}
 
+    _available_languages = {
+        "java7": "Java 7",
+        "java8": "Java 8",
+        "python2": "Python 2.7",
+        "python3": "Python 3.5"}
+
     def adapt_input_for_backend(self, input_data):
         for box in self._boxes:
             input_data = box.adapt_input_for_backend(input_data)
@@ -82,7 +88,7 @@ class DisplayableCodeMultipleLanguagesProblem(CodeMultipleLanguagesProblem, Disp
         super(DisplayableCodeMultipleLanguagesProblem, self).__init__(task, problemid, content)
 
     def show_input(self, renderer):
-        allowed_languages = list(self._languages.keys())
+        allowed_languages = {language: self._available_languages[language] for language in self._languages}
         dropdown_id = self.get_id() + "/language"
         custom_input_id = self.get_id() + "/input"
 
@@ -107,7 +113,7 @@ class DisplayableCodeFileMultipleLanguagesProblem(CodeFileMultipleLanguagesProbl
         super(DisplayableCodeFileMultipleLanguagesProblem, self).__init__(task, problemid, content)
 
     def show_input(self, renderer):
-        allowed_languages = list(self._languages.keys())
+        allowed_languages = {language: self._available_languages[language] for language in self._languages}
         dropdown_id = self.get_id() + "/language"
         custom_input_id = self.get_id() + "/input"
 

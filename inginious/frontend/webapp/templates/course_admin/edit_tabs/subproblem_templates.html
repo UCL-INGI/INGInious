@@ -1,4 +1,4 @@
-$def with (contains_is_html)
+$def with (contains_is_html, available_languages)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -361,36 +361,12 @@ $#
                     <div class="form-group">
                         <label for="languages-PID" class="col-sm-2 control-label">Languages</label>
                         <div class="col-sm-10" id="languages-PID">
-                            <div class="checkbox">
-                                <label>
-                                    <input id="cpp-PID" type="checkbox" value="cpp" name="problem[PID][languages][cpp]"/>C++
-                                </label>
-                            </div>
-                            <div class="checkbox">
-                                <label>
-                                    <input id="java7-PID" type="checkbox" value="java7" name="problem[PID][languages][java7]"/>Java 7
-                                </label>
-                            </div>
-                            <div class="checkbox">
-                                <label>
-                                    <input id="java8-PID" type="checkbox" value="java8" name="problem[PID][languages][java8]"/>Java 8
-                                </label>
-                            </div>
-                            <div class="checkbox">
-                                <label>
-                                    <input id="python2-PID" type="checkbox" value="python2" name="problem[PID][languages][python2]"/>Python 2.7
-                                </label>
-                            </div>
-                            <div class="checkbox">
-                                <label>
-                                    <input id="python3-PID" type="checkbox" value="python3" name="problem[PID][languages][python3]"/>Python 3.5
-                                </label>
-                            </div>
-                            <div class="checkbox">
-                                <label>
-                                    <input id="js-PID" type="checkbox" value="js" name="problem[PID][languages][js]"/>Javascript
-                                </label>
-                            </div>
+                            $for language in available_languages:
+                                <div class="checkbox">
+                                    <label>
+                                        <input id="$language-PID" type="checkbox" value="$language" name="problem[PID][languages][$language]"/>$available_languages[language]
+                                    </label>
+                                </div>
                         </div>
                     </div>
                     <div class="form-group">
@@ -462,36 +438,12 @@ $#
                     <div class="form-group">
                         <label for="languages-PID" class="col-sm-2 control-label">Languages</label>
                         <div class="col-sm-10" id="languages-PID">
-                            <div class="checkbox">
-                                <label>
-                                    <input id="cpp-PID" type="checkbox" value="cpp" name="problem[PID][languages][cpp]"/>C++
-                                </label>
-                            </div>
-                            <div class="checkbox">
-                                <label>
-                                    <input id="java7-PID" type="checkbox" value="java7" name="problem[PID][languages][java7]"/>Java 7
-                                </label>
-                            </div>
-                            <div class="checkbox">
-                                <label>
-                                    <input id="java8-PID" type="checkbox" value="java8" name="problem[PID][languages][java8]"/>Java 8
-                                </label>
-                            </div>
-                            <div class="checkbox">
-                                <label>
-                                    <input id="python2-PID" type="checkbox" value="python2" name="problem[PID][languages][python2]"/>Python 2.7
-                                </label>
-                            </div>
-                            <div class="checkbox">
-                                <label>
-                                    <input id="python3-PID" type="checkbox" value="python3" name="problem[PID][languages][python3]"/>Python 3.5
-                                </label>
-                            </div>
-                            <div class="checkbox">
-                                <label>
-                                    <input id="js-PID" type="checkbox" value="js" name="problem[PID][languages][js]"/>Javascript
-                                </label>
-                            </div>
+                            $for language in available_languages:
+                                <div class="checkbox">
+                                    <label>
+                                        <input id="$language-PID" type="checkbox" value="$language" name="problem[PID][languages][$language]"/>$available_languages[language]
+                                    </label>
+                                </div>
                         </div>
                     </div>
                     <div class="form-group">
