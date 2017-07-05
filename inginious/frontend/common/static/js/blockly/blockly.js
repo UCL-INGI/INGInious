@@ -47,6 +47,7 @@ BlocklyTask = function(options, toolbox, workspaceBlocks) {
     this.executionSpeedSlider.css('width', '100px');
     this.executionSpeedSlider.css('margin-top', '5px');
     this.executionSpeedSlider.css('margin-bottom', '10px');
+    this.executionSpeedSlider.css('display', 'inline-flex');
 
     /* TODO move this somewhere else */
     $(function() {
