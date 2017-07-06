@@ -58,10 +58,15 @@ class WebAppSubmissionManager(SubmissionManager):
             obj.update({"username": [username]})
 
         lti_info = self._user_manager.session_lti_info()
-        if lti_info is not None:
+        if lti_info is not None and task.get_course().lti_send_back_grade():
             outcome_service_url = lti_info["outcome_service_url"]
             outcome_result_id = lti_info["outcome_result_id"]
             outcome_consumer_key = lti_info["consumer_key"]
+
+            # safety check
+            if outcome_result_id is None or outcome_service_url is None:
+                self._logger.error("outcome_result_id or outcome_service_url is None, but grade needs to be sent back to TC! Ignoring.")
+                return
 
             obj.update({"outcome_service_url": outcome_service_url,
                         "outcome_result_id": outcome_result_id,

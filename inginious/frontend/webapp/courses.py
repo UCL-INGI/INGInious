@@ -36,6 +36,7 @@ class WebAppCourse(FrontendCourse):
             self._allow_unregister = self._content.get('allow_unregister', True)
             self._is_lti = self._content.get('is_lti', False)
             self._lti_keys = self._content.get('lti_keys', {})
+            self._lti_send_back_grade = self._content.get('lti_send_back_grade', False)
         except:
             raise Exception("Course has an invalid description: " + self.get_id())
 
@@ -51,6 +52,7 @@ class WebAppCourse(FrontendCourse):
             self._allow_unregister = True
         else:
             self._lti_keys = {}
+            self._lti_send_back_grade = False
 
     def get_staff(self):
         """ Returns a list containing the usernames of all the staff users """
@@ -114,7 +116,11 @@ class WebAppCourse(FrontendCourse):
 
     def lti_keys(self):
         """ {name: key} for the LTI customers """
-        return self._lti_keys
+        return self._lti_keys if self._is_lti else {}
+
+    def lti_send_back_grade(self):
+        """ True if the current course should send back grade to the LTI Tool Consumer """
+        return self._is_lti and self._lti_send_back_grade
 
     def is_user_accepted_by_access_control(self, username, realname, email):
         """ Returns True if the user is allowed by the ACL """

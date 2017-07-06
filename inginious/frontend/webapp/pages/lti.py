@@ -111,12 +111,14 @@ class LTILaunchPage(INGIniousPage):
             outcome_result_id = post_input.get("lis_result_sourcedid", None)
             consumer_key = post_input["oauth_consumer_key"]
 
-            if lis_outcome_service_url is None:
-                self.logger.info('Error: lis_outcome_service_url is None')
-                raise web.forbidden("INGInious needs the parameter lis_outcome_service_url in the LTI basic-launch-request")
-            if outcome_result_id is None:
-                self.logger.info('Error: lis_outcome_result_id is None')
-                raise web.forbidden("INGInious needs the parameter lis_result_sourcedid in the LTI basic-launch-request")
+            if course.lti_send_back_grade():
+                if lis_outcome_service_url is None or outcome_result_id is None:
+                    self.logger.info('Error: lis_outcome_service_url is None but lti_send_back_grade is True')
+                    raise web.forbidden("In order to send grade back to the TC, INGInious needs the parameters lis_outcome_service_url and "
+                                        "lis_outcome_result_id in the LTI basic-launch-request. Please contact your administrator.")
+            else:
+                lis_outcome_service_url = None
+                outcome_result_id = None
 
             session_id = self.user_manager.create_lti_session(user_id, roles, realname, email, courseid, taskid, consumer_key,
                                                               lis_outcome_service_url, outcome_result_id, ext_user_username)
