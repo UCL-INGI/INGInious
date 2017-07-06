@@ -293,12 +293,18 @@ with ``:filename`` or ``:value`` to retrieve its filename or value.
 Note that *getinput* can also retrieve the username/group of the user that submitted the task. You simply have to run
 ::
 
-    getinput username
+    getinput @username
 
 If the submission is made as a user, it will contain the username. It it's made as a group,
 it will contain the list of the user's usernames in the
 group, joined with ','.
 
+The two letter ISO 639-1 code of the student's language (for example `en` or `fr`) can also be retrieved using
+::
+
+    getinput @lang
+
+Note that plugins are free to add new `@`-prefixed fields to the available input using the `new_submission` hook.
 
 **In Python** : the equivalent command can be directly obtained with:
 
