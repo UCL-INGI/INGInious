@@ -43,7 +43,7 @@ function init_task_page(evaluate)
             var fileUploaderID = 'file' + codeUploadLinkID;
             var fileUploaderElement = $('#' + fileUploaderID);
             fileUploaderElement.click();
-            e.preventDefault(); 
+            e.preventDefault();
         });
     });
 
@@ -56,17 +56,17 @@ function init_task_page(evaluate)
         var textarea = $('#'+textareaId)[0];
 
         $(this).change(function(e) {
-            var reader = new FileReader();        
+            var reader = new FileReader();
             reader.onload = function(event) {
-                var contents = event.target.result;     
+                var contents = event.target.result;
 
                 if (isCodeMirrorArea) {
                     var editor = getEditorForProblemId(textareaId);
                     editor.setValue(contents, -1);
                 } else
-                    textarea.value = contents;    
-            };        
-            reader.readAsText(input.files[0]); 
+                    textarea.value = contents;
+            };
+            reader.readAsText(input.files[0]);
         });
     });
 }
@@ -94,6 +94,13 @@ function blurTaskForm()
     {
         editor.setOption("readOnly", true);
     });
+
+    var custominputAreas = $('textarea[id^="custominput"]');
+    custominputAreas.each(function() {
+        $(this).attr("readonly", true);
+        $(this).css("background-color", "#fff");
+    });
+
     var task_form = $('form#task');
     $("input, button, select", task_form).attr("disabled", "disabled").addClass('form-blur');
     //task_form.addClass('form-blur');
@@ -106,6 +113,12 @@ function unblurTaskForm()
     {
         editor.setOption("readOnly", false);
     });
+
+    var custominputAreas = $('textarea[id^="custominput"]');
+    custominputAreas.each(function() {
+        $(this).attr("readonly", false);
+    });
+
     var task_form = $('form#task');
     $("input, button, select", task_form).removeAttr("disabled").removeClass('form-blur');
     //task_form.removeClass('form-blur');
@@ -738,6 +751,12 @@ function displayTaskInputErrorAlert()
 }
 
 //Displays an overflow error alert in task form
+function displayCustomTestAlertError(content)
+{
+    displayTaskStudentAlertWithProblems(content, "<b>Custom test error</b>", "danger", false);
+}
+
+//Displays an overflow error alert in task form
 function displayOverflowAlert(content)
 {
     displayTaskStudentAlertWithProblems(content,
@@ -979,9 +998,14 @@ function changeSubmissionLanguage(problemId){
 function getLanguageForProblemId(problemId){
     var codemirrorLanguages = {
         "java7": "java",
+        "java8": "java",
         "js": "javascript",
         "cpp": "cpp",
-        "python": "python",
+        "cpp11": "cpp",
+        "c": "c",
+        "c11": "c",
+        "python2": "python",
+        "python3": "python",
         "ruby": "ruby"
     }
 
@@ -1137,13 +1161,36 @@ function defaultCallback(response, status){
 }
 
 function runCustomTest (inputId) {
-    var customTestOuputArea = $('#customoutput-'+inputId);
+    var customTestOutputArea = $('#customoutput-'+inputId);
+    var placeholderSpan = "<span class='placeholder-text'>Your output goes here</span>";
 
     var runCustomTestCallBack = function (data) {
+        customTestOutputArea.empty();
+
         if ('status' in data && data['status'] == 'done') {
             if ('result' in data) {
-                customTestOuputArea.text(data.text);
+                var result = data['result'];
+                var stdoutSpan = $("<span/>").addClass("stdout-text").text(data.stdout);
+                var stderrSpan = $("<span/>").addClass("stderr-text").text(data.stderr);
+                customTestOutputArea.append(stdoutSpan);
+                customTestOutputArea.append(stderrSpan);
+
+                if (result == 'failed') {
+                    displayCustomTestAlertError(data);
+                } else if (result == "timeout") {
+                    displayTimeOutAlert(data);
+                } else if (result == "overflow") {
+                    displayOverflowAlert(data);
+                } else if (result != "success" ){
+                    displayCustomTestAlertError(data);
+                }
             }
+        } else if ('status' in data && data['status'] == 'error') {
+            customTestOutputArea.html(placeholderSpan);
+            displayCustomTestAlertError(data);
+        } else {
+            customTestOutputArea.html(placeholderSpan);
+            displayCustomTestAlertError({});
         }
 
         unblurTaskForm();
@@ -1155,7 +1202,7 @@ function runCustomTest (inputId) {
 
     blurTaskForm();
     resetAlerts();
-    customTestOuputArea.text('Running...');
+    customTestOutputArea.html("Running...");
 
     $.ajax({
             url: taskUrl,
@@ -1167,6 +1214,7 @@ function runCustomTest (inputId) {
             success: runCustomTestCallBack,
             error: function (error) {
                 unblurTaskForm();
+                customTestOutputArea.html(placeholderSpan);
             }
     });
 }

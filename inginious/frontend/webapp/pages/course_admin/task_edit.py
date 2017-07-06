@@ -21,7 +21,7 @@ from inginious.frontend.webapp.accessible_time import AccessibleTime
 from inginious.frontend.webapp.tasks import WebAppTask
 from inginious.frontend.webapp.pages.course_admin.task_edit_file import CourseTaskFiles
 from inginious.frontend.webapp.pages.course_admin.utils import INGIniousAdminPage
-
+from inginious.frontend.common.task_problems import DisplayableBasicCodeProblem
 
 class CourseEditTask(INGIniousAdminPage):
     """ Edit a task """
@@ -76,7 +76,8 @@ class CourseEditTask(INGIniousAdminPage):
             current_filetype,
             available_filetypes,
             AccessibleTime,
-            CourseTaskFiles.get_task_filelist(self.task_factory, courseid, taskid))
+            CourseTaskFiles.get_task_filelist(self.task_factory, courseid, taskid),
+            DisplayableBasicCodeProblem._available_languages)
 
     @classmethod
     def contains_is_html(cls, data):
@@ -238,9 +239,10 @@ class CourseEditTask(INGIniousAdminPage):
             if data["grader_problem_id"] not in data["problems"]:
                 return json.dumps({"status": "error", "message": "Grader: problem does not exist"})
 
-            if data["problems"][data["grader_problem_id"]]["type"] != 'code-multiple-languages':
+            problem_type = data["problems"][data["grader_problem_id"]]["type"]
+            if problem_type not in ['code-multiple-languages', 'code-file-multiple-languages']:
                 return json.dumps({"status": "error",
-                    "message": "Grader: only Code Multiple Languages problems are supported"})
+                    "message": "Grader: only Code Multiple Language and Code File Multiple Language problems are supported"})
 
             current_directory = os.path.dirname(__file__)
             run_file_template_path = os.path.join(current_directory, '../../templates/course_admin/run_file_template.txt')
@@ -251,7 +253,7 @@ class CourseEditTask(INGIniousAdminPage):
 
             target_run_file = os.path.join(directory_path, 'run')
 
-            subproblem_id = data["grader_problem_id"]
+            problem_id = data["grader_problem_id"]
             test_cases = [(test_case["input_file"], test_case["output_file"]) for test_case in data["grader_test_cases"]]
             weights = [test_case["weight"] for test_case in data["grader_test_cases"]]
             options = {
@@ -268,7 +270,8 @@ class CourseEditTask(INGIniousAdminPage):
 
             with open(target_run_file, "w") as f:
                 f.write(run_file_template.format(
-                    repr(subproblem_id), repr(test_cases), repr(options), repr(weights)))
+                    problem_id=repr(problem_id), test_cases=repr(test_cases),
+                    options=repr(options), weights=repr(weights)))
 
         return None
 

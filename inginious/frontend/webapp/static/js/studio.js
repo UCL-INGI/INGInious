@@ -800,14 +800,13 @@ function studio_update_grader_problems() {
 
     graderSelect.empty();
     $.each(problems, function(index, problem) {
-      if (problem.type !== "code-multiple-languages") {
-        return;
+      if (problem.type === "code-multiple-languages" ||
+          problem.type === "code-file-multiple-languages") {
+          graderSelect.append($("<option>", {
+            "value": problem.id,
+            "text": problem.id
+          }));
       }
-
-      graderSelect.append($("<option>", {
-        "value": problem.id,
-        "text": problem.id
-      }));
     });
 
     graderSelect.val(currentlySelectedItem);
