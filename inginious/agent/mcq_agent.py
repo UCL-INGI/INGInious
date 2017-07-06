@@ -9,7 +9,7 @@ import zmq
 
 from inginious.common.course_factory import create_factories
 from inginious.common.message_meta import ZMQUtils
-from inginious.common.messages import BackendNewJob, BackendKillJob, BackendNewBatchJob, AgentBatchJobDone, AgentHello, AgentJobDone, Ping, Pong
+from inginious.common.messages import BackendNewJob, BackendKillJob, AgentHello, AgentJobDone, Ping, Pong
 
 
 class MCQAgent(object):
@@ -39,7 +39,6 @@ class MCQAgent(object):
     async def handle_backend_message(self, message):
         """Dispatch messages received from clients to the right handlers"""
         message_handlers = {
-            BackendNewBatchJob: self.handle_new_batch_job,
             BackendNewJob: self.handle_new_job,
             BackendKillJob: self.handle_kill_job,
             Ping: self.handle_ping
@@ -53,12 +52,6 @@ class MCQAgent(object):
     async def handle_ping(self, _ : Ping):
         """ Handle a Ping message. Pong the backend """
         await ZMQUtils.send(self._backend_socket, Pong())
-
-    async def handle_new_batch_job(self, msg: BackendNewBatchJob):
-        """ Handle a batch job message. Should not be called. Ever. """
-        ZMQUtils.send(self._backend_socket, AgentBatchJobDone(msg.job_id, -1, "This agent cannot run batch jobs", "This agent cannot run batch "
-                                                                                                                  "jobs", None))
-        self._logger.error("BackendNewBatchJob received, which does not make sense for a MCQ agent")
 
     async def handle_kill_job(self, msg: BackendKillJob):
         """ Kill a running job. But there are none, so we just ignore the message """
@@ -100,7 +93,7 @@ class MCQAgent(object):
 
         # Tell the backend we are up
         self._logger.info("Saying hello to the backend")
-        await ZMQUtils.send(self._backend_socket, AgentHello(self._friendly_name, 1, {"mcq": {"id": "mcq", "created": 0}}, {}))
+        await ZMQUtils.send(self._backend_socket, AgentHello(self._friendly_name, 1, {"mcq": {"id": "mcq", "created": 0}}))
 
         # And then run the agent
         try:

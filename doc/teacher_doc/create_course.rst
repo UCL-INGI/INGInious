@@ -95,8 +95,8 @@ the webapp. Here are the possible fields to set:
 
 - ``tutors``
   List of tutors usernames (restricted-rights teaching assistants). These users will have read-only rights on the
-  course content. They cannot change course parameters nor tasks, cannot replay submissions, launch batch operations
-  or wipe the course data. However, they can manage the classroom composition and download all the student submissions.
+  course content. They cannot change course parameters nor tasks, cannot replay submissions or wipe the course data.
+  However, they can manage the classroom composition and download all the student submissions.
 
 - ``accessible``
   When this field is defined, the course is only visible if within the defined period.

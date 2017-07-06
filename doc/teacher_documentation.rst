@@ -11,4 +11,3 @@ Contents:
    teacher_doc/create_task
    teacher_doc/create_container
    teacher_doc/course_admin
-   teacher_doc/batch_containers

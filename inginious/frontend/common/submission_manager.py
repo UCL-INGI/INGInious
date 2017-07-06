@@ -482,23 +482,21 @@ class SubmissionManager(object, metaclass=ABCMeta):
 
         Return a tuple of two lists (None, None):
         jobs_running: a list of tuples in the form
-            (job_id, is_current_client_job, is_batch, info, launcher, started_at, max_end)
+            (job_id, is_current_client_job, info, launcher, started_at, max_end)
             where
             - job_id is a job id. It may be from another client.
             - is_current_client_job is a boolean indicating if the client that asked the request has started the job
             - agent_name is the agent name
-            - is_batch is True if the job is a batch job, false else
-            - info is either the batch container name if is_batch is True, or "courseid/taskid"
+            - info is "courseid/taskid"
             - launcher is the name of the launcher, which may be anything
             - started_at the time (in seconds since UNIX epoch) at which the job started
             - max_end the time at which the job will timeout (in seconds since UNIX epoch), or -1 if no timeout is set
         jobs_waiting: a list of tuples in the form
-            (job_id, is_current_client_job, is_batch, info, launcher, max_time)
+            (job_id, is_current_client_job, info, launcher, max_time)
             where
             - job_id is a job id. It may be from another client.
             - is_current_client_job is a boolean indicating if the client that asked the request has started the job
-            - is_batch is True if the job is a batch job, false else
-            - info is either the batch container name if is_batch is True, or "courseid/taskid"
+            - info is "courseid/taskid"
             - launcher is the name of the launcher, which may be anything
             - max_time the maximum time that can be used, or -1 if no timeout is set
         """
@@ -521,7 +519,3 @@ def update_pending_jobs(database):
     database.submissions.update({'status': 'waiting'},
                                 {"$unset": {'jobid': ""},
                                  "$set": {'status': 'error', 'grade': 0.0, 'text': 'Internal error. Server restarted'}}, multi=True)
-
-    # Updates all batch job still running
-    database.batch_jobs.update({'result': {'$exists': False}},
-                               {"$set": {"result": {"retval": -1, "stderr": "Internal error. Server restarted"}}}, multi=True)
