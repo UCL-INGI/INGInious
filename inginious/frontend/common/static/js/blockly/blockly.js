@@ -53,7 +53,7 @@ BlocklyTask = function(options, toolbox, workspaceBlocks) {
     $(function() {
         this.executionSpeedSlider.slider({
             value: 60,
-            min: 15,
+            min: 5,
             max: 100,
             step: 5
         });
