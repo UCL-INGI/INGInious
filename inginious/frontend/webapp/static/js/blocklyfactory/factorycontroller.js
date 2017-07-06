@@ -45,9 +45,7 @@ FactoryController.prototype.setPreview = function(preview) {
 
 FactoryController.prototype.updatePreview = function(updateToolbox) {
     if (updateToolbox) {
-        this.previewWorkspace.dispose();
-        this.previewWorkspace = null;
-        this.previewWorkspace = this.view.injectPreviewWorkspace(this.getToolboxXml());
+        this.previewWorkspace.updateToolbox(this.getToolboxXml());
     }
     var dom = Blockly.Xml.textToDom(this.getWorkspaceXml());
     this.previewWorkspace.clear();
