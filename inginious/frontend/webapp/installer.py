@@ -26,37 +26,6 @@ class Installer(inginious.frontend.common.installer.Installer):
 
         return {"backup_directory": backup_directory}
 
-    def configure_batch_containers(self, current_options):
-        """ Configures the container dict """
-        containers = [
-            ("ingi/inginious-b-jplag", "Plagiarism detection")
-        ]
-
-        default_download = []
-
-        self._display_question("The web app supports a feature called 'batch containers' that allows to apply batch operations on all submissions "
-                               "of a course.")
-        self._display_question("Please note that the download of these images can take a lot of time, so choose only the images you need")
-
-        options = {"batch_containers": []}
-        to_download = []
-        for container_name, description in containers:
-            if self._ask_boolean("Download %s (%s) ?" % (container_name, description), container_name in default_download):
-                to_download.append(container_name)
-                options["batch_containers"].append(container_name)
-
-        self.download_containers(to_download, current_options)
-
-        wants = self._ask_boolean("To you want to manually add some images?", False)
-        while wants:
-            image = self._ask_with_default("Container image name (leave this field empty to skip)", "")
-            if image == "":
-                break
-            options["batch_containers"].append(image)
-
-        self._display_info("Configuration of the batch containers done.")
-        return options
-
     def ldap_plugin(self):
         """ Configures the LDAP plugin """
         name = self._ask_with_default("Authentication method name (will be displayed on the login page)", "LDAP")
@@ -153,10 +122,6 @@ class Installer(inginious.frontend.common.installer.Installer):
         self._display_header("BACKUP DIRECTORY")
         backup_directory_opt = self.configure_backup_directory()
         options.update(backup_directory_opt)
-
-        self._display_header("BATCH CONTAINERS")
-        batch_opts = self.configure_batch_containers(options)
-        options.update(batch_opts)
 
         self._display_header("AUTHENTIFICATION")
         auth_opts = self.configure_authentication()

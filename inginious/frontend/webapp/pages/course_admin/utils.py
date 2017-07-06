@@ -248,8 +248,7 @@ def get_menu(course, current, renderer, plugin_manager, user_manager):
     """ Returns the HTML of the menu used in the administration. ```current``` is the current page of section """
     default_entries = []
     if user_manager.has_admin_rights_on_course(course):
-        default_entries += [("settings", "<i class='fa fa-cog fa-fw'></i>&nbsp; Course settings"),
-                            ("batch", "<i class='fa fa-rocket fa-fw'></i>&nbsp; Batch operations")]
+        default_entries += [("settings", "<i class='fa fa-cog fa-fw'></i>&nbsp; Course settings")]
 
     default_entries += [("students", "<i class='fa fa-user fa-fw'></i>&nbsp; Students"),
                         ("aggregations", "<i class='fa fa-group fa-fw'></i>&nbsp; " +
