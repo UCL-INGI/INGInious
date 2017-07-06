@@ -1001,6 +1001,9 @@ function getLanguageForProblemId(problemId){
         "java8": "java",
         "js": "javascript",
         "cpp": "cpp",
+        "cpp11": "cpp",
+        "c": "c",
+        "c11": "c",
         "python2": "python",
         "python3": "python",
         "ruby": "ruby"
