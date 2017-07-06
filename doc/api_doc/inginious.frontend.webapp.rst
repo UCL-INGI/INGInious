@@ -34,13 +34,6 @@ inginious.frontend.webapp.app module
     :undoc-members:
     :show-inheritance:
 
-inginious.frontend.webapp.batch_manager module
-----------------------------------------------
-
-.. automodule:: inginious.frontend.webapp.batch_manager
-    :members:
-    :undoc-members:
-    :show-inheritance:
 
 inginious.frontend.webapp.courses module
 ----------------------------------------

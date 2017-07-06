@@ -15,7 +15,6 @@ from inginious.common.task_factory import TaskFactory
 from inginious.frontend.common.plugin_manager import PluginManager
 from inginious.frontend.common.submission_manager import SubmissionManager
 from inginious.frontend.common.template_helper import TemplateHelper
-from inginious.frontend.webapp.batch_manager import BatchManager
 from inginious.frontend.webapp.user_manager import UserManager
 
 
@@ -49,11 +48,6 @@ class INGIniousPage(object):
     def submission_manager(self) -> SubmissionManager:
         """ Returns the submission manager singleton"""
         return self.app.submission_manager
-
-    @property
-    def batch_manager(self) -> BatchManager:
-        """ Returns the batch manager singleton """
-        return self.app.batch_manager
 
     @property
     def user_manager(self) -> UserManager:
