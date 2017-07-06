@@ -107,7 +107,7 @@ class INGIniousSubmissionAdminPage(INGIniousAdminPage):
         return submissions, aggregations
 
     def show_page_params(self, course, user_input):
-        tasks = sorted(list(course.get_tasks().items()), key=lambda task: task[1].get_order())
+        tasks = sorted(list(course.get_tasks().items()), key=lambda task: (task[1].get_order(), task[1].get_id()))
 
         user_list = self.user_manager.get_course_registered_users(course, False)
         users = OrderedDict(sorted(list(self.user_manager.get_users_info(user_list).items()),

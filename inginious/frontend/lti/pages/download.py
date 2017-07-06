@@ -120,7 +120,7 @@ class LTIDownload(LTIAuthenticatedPage):
             web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)
             return open(os.path.join(self.app.download_directory, dl_tag), 'rb').read()
 
-        tasks = sorted(list(self.course.get_tasks().items()), key=lambda task: task[1].get_order())
+        tasks = sorted(list(self.course.get_tasks().items()), key=lambda task: (task[1].get_order(), task[1].get_id()))
 
         user_list = self.database.submissions.aggregate([{"$unwind": "$username"}, {"$group": {"_id": "$username"}}])
         user_data = OrderedDict(
