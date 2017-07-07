@@ -10,6 +10,7 @@ from pymongo import ReturnDocument
 
 from inginious.frontend.webapp.pages.utils import INGIniousAuthPage
 
+
 class ProfilePage(INGIniousAuthPage):
     """ Profile page for DB-authenticated users"""
 
@@ -26,11 +27,15 @@ class ProfilePage(INGIniousAuthPage):
         elif len(data["oldpasswd"]) > 0 and data["passwd"] != data["passwd2"]:
             error = True
             msg = "Passwords don't match !"
-        elif len(data["oldpasswd"]) > 0 :
+        elif len(data["oldpasswd"]) > 0 or "password" not in userdata:
             oldpasswd_hash = hashlib.sha512(data["oldpasswd"].encode("utf-8")).hexdigest()
             passwd_hash = hashlib.sha512(data["passwd"].encode("utf-8")).hexdigest()
-            result = self.database.users.find_one_and_update({"username": self.user_manager.session_username(),
-                                                              "password": oldpasswd_hash},
+
+            match = {"username": self.user_manager.session_username()}
+            if "password" in userdata:
+                match["password"] = oldpasswd_hash
+
+            result = self.database.users.find_one_and_update(match,
                                                              {"$set": {
                                                                  "password": passwd_hash,
                                                                  "realname": data["realname"]}
@@ -54,34 +59,6 @@ class ProfilePage(INGIniousAuthPage):
 
         return result, msg, error
 
-    def delete_account(self, data):
-        """ Delete account from DB """
-        error = False
-        msg = ""
-
-        username = self.user_manager.session_username()
-
-        # Check input format
-        result = self.database.users.find_one_and_delete({"username": username,
-                                                          "email": data.get("delete_email", "")})
-        if not result:
-            error = True
-            msg = "The specified email is incorrect."
-        else:
-            self.database.submissions.remove({"username": username})
-            self.database.user_tasks.remove({"username": username})
-
-            all_courses = self.course_factory.get_all_courses()
-
-            for courseid, course in all_courses.items():
-                if self.user_manager.course_is_open_to_user(course, username):
-                    self.user_manager.course_unregister_user(course, username)
-
-            self.user_manager.disconnect_user(web.ctx['ip'])
-            raise web.seeother("/index")
-
-        return msg, error
-
     def GET_AUTH(self):  # pylint: disable=arguments-differ
         """ GET request """
         userdata = self.database.users.find_one({"username": self.user_manager.session_username()})
@@ -89,7 +66,7 @@ class ProfilePage(INGIniousAuthPage):
         if not userdata:
             raise web.notfound()
 
-        return self.template_helper.get_renderer().profile("", False, True)
+        return self.template_helper.get_renderer().preferences.profile("", False)
 
     def POST_AUTH(self):  # pylint: disable=arguments-differ
         """ POST request """
@@ -103,7 +80,5 @@ class ProfilePage(INGIniousAuthPage):
         data = web.input()
         if "save" in data:
             userdata, msg, error = self.save_profile(userdata, data)
-        elif "delete" in data:
-            msg, error = self.delete_account(data)
 
-        return self.template_helper.get_renderer().profile(msg, error, True)
+        return self.template_helper.get_renderer().preferences.profile(msg, error)

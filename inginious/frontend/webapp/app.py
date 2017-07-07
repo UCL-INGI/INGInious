@@ -23,20 +23,24 @@ from inginious.frontend.common.template_helper import TemplateHelper
 from inginious.frontend.webapp.user_manager import UserManager
 from inginious.frontend.common.session_mongodb import MongoStore
 import inginious.frontend.webapp.pages.course_admin.utils as course_admin_utils
+import inginious.frontend.webapp.pages.preferences.utils as preferences_utils
 from inginious.frontend.common.submission_manager import update_pending_jobs
 
 urls = (
     r'/?', 'inginious.frontend.webapp.pages.index.IndexPage',
     r'/index', 'inginious.frontend.webapp.pages.index.IndexPage',
     r'/register', 'inginious.frontend.webapp.pages.register.RegistrationPage',
-    r'/auth/([^/]+)', 'inginious.frontend.webapp.pages.auth.AuthenticationPage',
+    r'/auth/([^/]+)/(signin|callback)', 'inginious.frontend.webapp.pages.auth.AuthenticationPage',
     r'/auth/([^/]+)/callback', 'inginious.frontend.webapp.pages.auth.CallbackPage',
     r'/course/([^/]+)', 'inginious.frontend.webapp.pages.course.CoursePage',
     r'/course/([^/]+)/([^/]+)', 'inginious.frontend.webapp.pages.tasks.TaskPage',
     r'/course/([^/]+)/([^/]+)/(.*)', 'inginious.frontend.webapp.pages.tasks.TaskPageStaticDownload',
     r'/aggregation/([^/]+)', 'inginious.frontend.webapp.pages.aggregation.AggregationPage',
     r'/queue', 'inginious.frontend.webapp.pages.queue.QueuePage',
-    r'/profile', 'inginious.frontend.webapp.pages.profile.ProfilePage',
+    r'/preferences', 'inginious.frontend.webapp.pages.preferences.utils.RedirectPage',
+    r'/preferences/profile', 'inginious.frontend.webapp.pages.preferences.profile.ProfilePage',
+    r'/preferences/bindings', 'inginious.frontend.webapp.pages.preferences.bindings.BindingsPage',
+    r'/preferences/delete', 'inginious.frontend.webapp.pages.preferences.delete.DeletePage',
     r'/admin/([^/]+)', 'inginious.frontend.webapp.pages.course_admin.utils.CourseRedirect',
     r'/admin/([^/]+)/settings', 'inginious.frontend.webapp.pages.course_admin.settings.CourseSettings',
     r'/admin/([^/]+)/students', 'inginious.frontend.webapp.pages.course_admin.student_list.CourseStudentListPage',
@@ -164,6 +168,9 @@ def get_app(config):
     template_helper.add_other("course_admin_menu",
                               lambda course, current: course_admin_utils.get_menu(course, current, template_helper.get_renderer(False),
                                                                                   plugin_manager, user_manager))
+    template_helper.add_other("preferences_menu",
+                              lambda current: preferences_utils.get_menu(current, template_helper.get_renderer(False),
+                                                                                 plugin_manager, user_manager))
 
     # Not found page
     appli.notfound = lambda: web.notfound(template_helper.get_renderer().notfound('Page not found'))

@@ -78,7 +78,7 @@ class SAMLAuthMethod(AuthMethod):
             if 'RelayState' in input_data and self_url != input_data['RelayState']:
                 redirect_url = auth.redirect_to(input_data['RelayState'])
                 # Initialize session in user manager and update cache
-                return (username, realname, email) if redirect_url == user_manager.session_redir_url() else None
+                return (str(username), realname, email) if redirect_url == user_manager.session_redir_url() else None
         else:
             logging.getLogger('inginious.webapp.plugin.auth.saml').error("Errors while processing response : ",
                                                                          ", ".join(errors))

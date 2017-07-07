@@ -6,12 +6,13 @@
 """ Auth page """
 import web
 
+from pymongo import ReturnDocument
 from inginious.frontend.webapp.pages.utils import INGIniousPage
 
 
 class AuthenticationPage(INGIniousPage):
 
-    def process(self,auth_id):
+    def process_signin(self,auth_id):
         auth_method = self.user_manager.get_auth_method(auth_id)
         if not auth_method:
             raise web.notfound()
@@ -20,16 +21,7 @@ class AuthenticationPage(INGIniousPage):
         auth_link = auth_method.get_auth_link(self.user_manager)
         raise web.seeother(auth_link)
 
-    def GET(self, auth_id):
-        return self.process(auth_id)
-
-    def POST(self, auth_id):
-        return self.process(auth_id)
-
-
-class CallbackPage(INGIniousPage):
-
-    def process(self, auth_id):
+    def process_callback(self, auth_id):
         auth_method = self.user_manager.get_auth_method(auth_id)
         if not auth_method:
             raise web.notfound()
@@ -37,13 +29,49 @@ class CallbackPage(INGIniousPage):
         user = auth_method.callback(self.user_manager)
         if user:
             username, realname, email = user
-            # TODO: Check if account linked, or create new account
-            self.user_manager.connect_user(username, realname, email)
 
-        raise web.seeother(self.user_manager.session_redir_url() if user else "/")
+            # Look for already bound auth method username
+            user_profile = self.database.users.find_one({"bindings." + auth_id: username})
 
-    def GET(self, auth_id):
-        return self.process(auth_id)
+            if user_profile and not self.user_manager.session_logged_in():
+                # Sign in
+                self.user_manager.connect_user(user_profile["username"], user_profile["realname"], user_profile["email"])
+            elif user_profile and self.user_manager.session_username() == user_profile["username"]:
+                # Logged in, refresh fields if found profile username matches session username
+                pass
+            elif user_profile:
+                # Logged in, but already linked to another account
+                pass
+            elif self.user_manager.session_logged_in():
+                # No binding, but logged: add new binding
+                self.database.users.find_one_and_update({"username": self.user_manager.session_username()},
+                                                        {"$set": {"bindings." + auth_id: [username, {}]}},
+                                                        return_document=ReturnDocument.AFTER)
 
-    def POST(self, auth_id):
-        return self.process(auth_id)
+            else:
+                # No binding, check for email
+                user_profile = self.database.users.find_one({"email": email})
+                if user_profile:
+                    # Found an email, existing user account, abort without binding
+                    pass
+                else:
+                    # New user, create an account using email address
+                    self.database.users.insert({"username": username,
+                                                "realname": realname,
+                                                "email": email,
+                                                "bindings": {auth_id: [username, {}]}})
+                    self.user_manager.connect_user(username, realname, email)
+
+        raise web.seeother(self.user_manager.session_redir_url())
+
+    def GET(self, auth_id, method):
+        if method == "signin":
+            return self.process_signin(auth_id)
+        else:
+            return self.process_callback(auth_id)
+
+    def POST(self, auth_id, method):
+        if method == "signin":
+            return self.process_signin(auth_id)
+        else:
+            return self.process_callback(auth_id)

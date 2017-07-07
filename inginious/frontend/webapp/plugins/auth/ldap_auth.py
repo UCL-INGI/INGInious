@@ -108,8 +108,39 @@ class LDAPAuthenticationPage(INGIniousPage):
 
             conn.unbind()
 
-            # TODO: remove session opening from here
-            self.user_manager.connect_user(username, realname, email)
+            # TODO: remove duplicate code for session opening from here
+
+            # Look for already bound auth method username
+            user_profile = self.database.users.find_one({"bindings." + id: username})
+
+            if user_profile and not self.user_manager.session_logged_in():
+                # Sign in
+                self.user_manager.connect_user(user_profile["username"], user_profile["realname"],
+                                               user_profile["email"])
+            elif user_profile and self.user_manager.session_username() == user_profile["username"]:
+                # Logged in, refresh fields if found profile username matches session username
+                pass
+            elif user_profile:
+                # Logged in, but already linked to another account
+                pass
+            elif self.user_manager.session_logged_in():
+                # No binding, but logged: add new binding
+                self.database.users.find_one_and_update({"username": self.user_manager.session_username()},
+                                                        {"$set": {"bindings." + id: [username, {}]}})
+
+            else:
+                # No binding, check for email
+                user_profile = self.database.users.find_one({"email": email})
+                if user_profile:
+                    # Found an email, existing user account, abort without binding
+                    pass
+                else:
+                    # New user, create an account using email address
+                    self.database.users.insert({"username": username,
+                                                "realname": realname,
+                                                "email": email,
+                                                "bindings": {id: [username, {}]}})
+                    self.user_manager.connect_user(username, realname, email)
             raise web.seeother(self.user_manager.session_redir_url())
         else:
             logger.debug('Auth Failed')

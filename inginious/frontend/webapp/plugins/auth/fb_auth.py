@@ -35,7 +35,7 @@ class FacebookAuthMethod(AuthMethod):
                                  authorization_response=web.ctx.home + web.ctx.fullpath)
             r = facebook.get('https://graph.facebook.com/me?fields=id,name,email')
             profile = json.loads(r.content.decode('utf-8'))
-            return profile["id"], profile["name"], profile["email"]
+            return str(profile["id"]), profile["name"], profile["email"]
         except:
             return None
 

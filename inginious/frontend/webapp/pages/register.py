@@ -98,7 +98,8 @@ class RegistrationPage(INGIniousPage):
                                             "realname": data["realname"],
                                             "email": data["email"],
                                             "password": passwd_hash,
-                                            "activate": activate_hash})
+                                            "activate": activate_hash,
+                                            "bindings": {}})
                 try:
                     web.sendmail(web.config.smtp_sendername, data["email"], "Welcome on INGInious",
                                  """Welcome on INGInious !
