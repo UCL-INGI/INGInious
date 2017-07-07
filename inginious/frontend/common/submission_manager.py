@@ -125,7 +125,7 @@ class SubmissionManager(object, metaclass=ABCMeta):
         # Send additional data to the client in inputdata. For now, the username and the language. New fields can be added with the
         # new_submission hook
         inputdata["@username"] = username
-        inputdata["@lang"] = "en"  # TODO
+        inputdata["@lang"] = "en_US"  # TODO
 
         to_remove = self._after_submission_insertion(task, inputdata, debug, obj, submissionid)
 
