@@ -19,7 +19,6 @@ from inginious.frontend.webapp.lti_outcome_manager import LTIOutcomeManager
 from inginious.frontend.webapp.tasks import WebAppTask
 from inginious.frontend.webapp.courses import WebAppCourse
 from inginious.frontend.webapp.submission_manager import WebAppSubmissionManager
-from inginious.frontend.webapp.batch_manager import BatchManager
 from inginious.frontend.common.template_helper import TemplateHelper
 from inginious.frontend.webapp.user_manager import UserManager
 from inginious.frontend.common.session_mongodb import MongoStore
@@ -36,11 +35,6 @@ urls = (
     r'/queue', 'inginious.frontend.webapp.pages.queue.QueuePage',
     r'/admin/([^/]+)', 'inginious.frontend.webapp.pages.course_admin.utils.CourseRedirect',
     r'/admin/([^/]+)/settings', 'inginious.frontend.webapp.pages.course_admin.settings.CourseSettings',
-    r'/admin/([^/]+)/batch', 'inginious.frontend.webapp.pages.course_admin.batch.CourseBatchOperations',
-    r'/admin/([^/]+)/batch/create/(.+)', 'inginious.frontend.webapp.pages.course_admin.batch.CourseBatchJobCreate',
-    r'/admin/([^/]+)/batch/summary/([^/]+)', 'inginious.frontend.webapp.pages.course_admin.batch.CourseBatchJobSummary',
-    r'/admin/([^/]+)/batch/download/([^/]+)', 'inginious.frontend.webapp.pages.course_admin.batch.CourseBatchJobDownload',
-    r'/admin/([^/]+)/batch/download/([^/]+)(/.*)', 'inginious.frontend.webapp.pages.course_admin.batch.CourseBatchJobDownload',
     r'/admin/([^/]+)/students', 'inginious.frontend.webapp.pages.course_admin.student_list.CourseStudentListPage',
     r'/admin/([^/]+)/student/([^/]+)', 'inginious.frontend.webapp.pages.course_admin.student_info.CourseStudentInfoPage',
     r'/admin/([^/]+)/student/([^/]+)/([^/]+)', 'inginious.frontend.webapp.pages.course_admin.student_task.CourseStudentTaskPage',
@@ -140,9 +134,6 @@ def get_app(config):
 
     submission_manager = WebAppSubmissionManager(client, user_manager, database, gridfs, plugin_manager, lti_outcome_manager)
 
-    batch_manager = BatchManager(client, database, gridfs, submission_manager, user_manager,
-                                 task_directory)
-
     template_helper = TemplateHelper(plugin_manager, user_manager, 'frontend/webapp/templates',
                                      'frontend/webapp/templates/layout',
                                      'frontend/webapp/templates/layout_lti',
@@ -182,7 +173,6 @@ def get_app(config):
     appli.course_factory = course_factory
     appli.task_factory = task_factory
     appli.submission_manager = submission_manager
-    appli.batch_manager = batch_manager
     appli.user_manager = user_manager
     appli.template_helper = template_helper
     appli.database = database

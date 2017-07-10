@@ -89,7 +89,7 @@ Webapp-specific configuration
     Path to the directory where are courses backup are stored in cases of data wiping.
 
 ``smtp``
-    Mails can be sent by batch containers at the end of the job execution, or by plugins.
+    Mails can be sent by plugins.
 
     ``sendername``
         Email sender name, e.g. : ``INGInious <no-reply@inginious.org>``

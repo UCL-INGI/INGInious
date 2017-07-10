@@ -31,14 +31,9 @@ $if jobs_running is not None and len(jobs_running) > 0:
             <th>Started at</th>
             <th>Timeout at</th>
         </tr>
-        $for (job_id, is_current_client_job, agent_name, is_batch, info, launcher, started_at, max_end) in jobs_running:
+        $for (job_id, is_current_client_job, agent_name, info, launcher, started_at, max_end) in jobs_running:
             <tr>
-                <td data-toggle="tooltip" data-placement="right" title="$job_id">
-                    $if is_batch:
-                        Batch
-                    $else:
-                        Task
-                </td>
+                <td data-toggle="tooltip" data-placement="right" title="$job_id">Task</td>
                 <td>
                     $if is_current_client_job:
                         Yes
@@ -65,14 +60,9 @@ $if jobs_waiting is not None and len(jobs_waiting) > 0:
             <th>Launcher name</th>
             <th>Maximum runtime in seconds</th>
         </tr>
-        $for (job_id, is_current_client_job, is_batch, info, launcher, max_end) in jobs_waiting:
+        $for (job_id, is_current_client_job, info, launcher, max_end) in jobs_waiting:
         <tr>
-            <td data-toggle="tooltip" data-placement="right" title="$job_id">
-                $if is_batch:
-                    Batch
-                $else:
-                    Task
-            </td>
+            <td data-toggle="tooltip" data-placement="right" title="$job_id">Task</td>
             <td>
                 $if is_current_client_job:
                     Yes
