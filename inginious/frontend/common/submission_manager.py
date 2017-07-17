@@ -122,9 +122,10 @@ class SubmissionManager(object, metaclass=ABCMeta):
 
         submissionid = self._database.submissions.insert(obj)
 
-        # Send additional data to the client in inputdata. For now, the username and the group
-        if "username" not in [p.get_id() for p in task.get_problems()]:  # do not overwrite
-            inputdata["username"] = username
+        # Send additional data to the client in inputdata. For now, the username and the language. New fields can be added with the
+        # new_submission hook
+        inputdata["@username"] = username
+        inputdata["@lang"] = "en_US"  # TODO
 
         to_remove = self._after_submission_insertion(task, inputdata, debug, obj, submissionid)
 
