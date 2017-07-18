@@ -19,16 +19,15 @@ install_requires = [
     "pymongo>=3.2.2",
     "PyYAML>=3.11",
     "web.py>=0.40.dev0",
-    #"pylti>=0.4.1", # TODO re-add me once PyLTI PR is accepted
+    "lti>=0.9.0",
+    "oauth2>=1.9.0.post1",
+    "httplib2>=0.9",
     "watchdog >= 0.8.3",
     "msgpack-python >= 0.4.7",
     "pyzmq >= 15.3.0",
     "natsort >= 5.0.1",
     "psutil >= 4.4.2"
 ]
-
-# for custom PyLTI: TODO remove me once PyLTI PR is accepted
-install_requires += ["oauth2>=1.9.0.post1", "httplib2>=0.9", "six>=1.10.0"]
 
 test_requires = [
     "selenium",
@@ -67,7 +66,6 @@ setup(
         'inginious-agent-docker',
         'inginious-agent-mcq',
         'inginious-backend',
-        'inginious-lti',
         'inginious-webapp',
         'inginious-install',
         'utils/check_task_description/inginious-check-task',
