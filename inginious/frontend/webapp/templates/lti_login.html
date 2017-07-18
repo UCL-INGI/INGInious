@@ -1,0 +1,72 @@
+$def with (auth_methods, error)
+
+$#
+$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+$# more information about the licensing of this file.
+$#
+
+$var title: Connexion
+
+$# Start content
+    <div class="row" >
+        <div class="col-lg-offset-4 col-lg-1 col-sm-offset-3 col-sm-1 text-right">
+            <img src="$get_homepath(True)/static/common/images/header.png" alt="logo" style="margin-top: 17px"/>
+        </div>
+        <div class="col-lg-3 col-sm-5">
+            <h2 class="text-center">Hello!
+                <small>Welcome on the INGInious platform.</small>
+            </h2>
+            <p class="text-center">
+
+                INGInious allows to securely grade code made by students.
+            </p>
+            <p class="text-center">Please log in using your INGInious account to see the exercice</p>
+            $:template_helper.call('welcome_text', template_helper=template_helper)
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-offset-4 col-lg-4 col-sm-offset-3 col-sm-6 well">
+            $if error:
+                <div class="alert alert-danger" role="alert">
+                    <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    Invalid login/password
+                </div>
+            
+            $if len(auth_methods) > 1:
+                <ul class="nav nav-tabs nav-justified" role="tablist">
+                    $for authid, (name, _) in auth_methods.items():
+                        <li 
+                            $if authid == 0:
+                                class="active"
+                        ><a href="#login-$authid" role="tab" data-toggle="tab">$name</a></li>
+                </ul>
+            
+            <!-- Tab panes -->
+            <div class="tab-content">
+                $for authid, (_, fields) in auth_methods.items():
+                    <div class="tab-pane fade
+                        $if authid == 0:
+                            in active
+                        " id="login-$authid">
+                        <p>
+                            <form role="form" method="post">
+                                <input type="hidden" name="@authid" value="$authid"/>
+                                $for name, data in fields["input"].items():
+                                    $if data["type"] == "password":
+                                        $ type="password"
+                                    $else:
+                                        $ type="text"
+                                    <div class="form-group">
+                                        <label>$data["placeholder"]</label> <input type="$type" class="form-control" name="$name" placeholder="$data['placeholder']">
+                                    </div>
+
+                                $if fields["info"]:
+                                    <div style="margin-bottom: 5px">$:fields["info"]</div>
+                                <button type="submit" class="btn btn-primary btn-block"><i class="fa fa-rocket" aria-hidden="true"></i> Log
+                                    in</button>
+                            </form>
+                        </p>
+                    </div>
+            </div>
+        </div>
+    </div>

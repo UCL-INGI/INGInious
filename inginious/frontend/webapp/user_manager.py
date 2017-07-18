@@ -122,6 +122,27 @@ class UserManager(AbstractUserManager):
             return None
         return self._session.token
 
+    def session_lti_info(self):
+        """ If the current session is an LTI one, returns a dict in the form 
+            {
+                "email": email,
+                "username": username
+                "realname": realname,
+                "roles": roles,
+                "task": (course_id, task_id),
+                "outcome_service_url": outcome_service_url,
+                "outcome_result_id": outcome_result_id,
+                "consumer_key": consumer_key
+            }
+            where all these data where provided by the LTI consumer, and MAY NOT be equivalent to the data
+            contained in database for the currently connected user.
+            
+            If the current session is not an LTI one, returns None.
+        """
+        if "lti" in self._session:
+            return self._session.lti
+        return None
+
     def set_session_token(self, token):
         """ Sets the token of the current user in the session, if one is open."""
         if self.session_logged_in():
@@ -133,12 +154,14 @@ class UserManager(AbstractUserManager):
             self._session.realname = realname
 
     def _set_session(self, username, realname, email):
-        """ Init the session """
+        """ Init the session. Preserves potential LTI information. """
         self._session.loggedin = True
         self._session.email = email
         self._session.username = username
         self._session.realname = realname
         self._session.token = None
+        if "lti" not in self._session:
+            self._session.lti = None
 
     def _destroy_session(self):
         """ Destroy the session """
@@ -147,6 +170,40 @@ class UserManager(AbstractUserManager):
         self._session.username = None
         self._session.realname = None
         self._session.token = None
+        self._session.lti = None
+
+    def create_lti_session(self, user_id, roles, realname, email, course_id, task_id, consumer_key, outcome_service_url, outcome_result_id,
+                           ext_user_username):
+        """ Creates an LTI cookieless session. Returns the new session id"""
+
+        self._destroy_session()  # don't forget to destroy the current session (cleans the threaded dict from web.py)
+        self._session.load('')  # creates a new cookieless session
+        session_id = self._session.session_id
+
+        self._session.lti = {
+            "email": email,
+            "username": ext_user_username if ext_user_username is not None else user_id,
+            "realname": realname,
+            "roles": roles,
+            "task": (course_id, task_id),
+            "outcome_service_url": outcome_service_url,
+            "outcome_result_id": outcome_result_id,
+            "consumer_key": consumer_key
+        }
+
+        return session_id
+
+    def attempt_lti_login(self):
+        """ Given that the current session is an LTI one (session_lti_info does not return None), attempt to find an INGInious user
+            linked to this lti username/consumer_key. If such user exists, logs in using it.
+             
+            Returns True (resp. False) if the login was successful
+        """
+        if "lti" not in self._session:
+            raise Exception("Not an LTI session")
+
+        # TODO allow user to be automagically connected if the TC uses the same user id
+        return False
 
     ##############################################
     #      User searching and authentication     #

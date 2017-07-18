@@ -197,4 +197,12 @@ def update_database(database, gridfs, course_factory, user_manager):  # pylint: 
         database.submissions.create_index([("grade", pymongo.DESCENDING), ("submitted_on", pymongo.DESCENDING)])
         db_version = 12
 
+    if db_version < 13:
+        database.nonce.create_index(
+            [("timestamp", pymongo.ASCENDING), ("nonce", pymongo.ASCENDING)],
+            unique=True
+        )
+        database.nonce.create_index("expiration", expireAfterSeconds=0)
+        db_version = 13
+
     database.db_version.update({}, {"$set": {"db_version": db_version}}, upsert=True)

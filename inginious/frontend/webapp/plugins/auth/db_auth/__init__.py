@@ -316,7 +316,7 @@ class ProfilePage(INGIniousAuthPage):
                     self.user_manager.course_unregister_user(course, username)
 
             self.user_manager.disconnect_user(web.ctx['ip'])
-            raise web.seeother("/index")
+            raise web.seeother(self.app.get_homepath() + "/index")
 
         return msg, error
 

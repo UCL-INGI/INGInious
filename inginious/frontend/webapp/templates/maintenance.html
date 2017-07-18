@@ -10,47 +10,47 @@ $#
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="INGInious">
     <meta name="author" content="">
-    <link rel="icon" href="$get_homepath()/static/common/icons/favicon.ico">
-    <link rel="mask-icon" href="$get_homepath()/static/common/icons/wb.svg" color="#5E932E">
+    <link rel="icon" href="$get_homepath(True)/static/common/icons/favicon.ico">
+    <link rel="mask-icon" href="$get_homepath(True)/static/common/icons/wb.svg" color="#5E932E">
 
     <title>INGInious - maintenance in progress</title>
 
     <!-- Bootstrap -->
-    <link href="$get_homepath()/static/common/css/bootstrap.min.css" rel="stylesheet">
-    <link href="$get_homepath()/static/common/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+    <link href="$get_homepath(True)/static/common/css/bootstrap.min.css" rel="stylesheet">
+    <link href="$get_homepath(True)/static/common/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
 
     <!-- INGInious Style -->
-    <link href="$get_homepath()/static/webapp/css/INGInious.css" rel="stylesheet">
+    <link href="$get_homepath(True)/static/webapp/css/INGInious.css" rel="stylesheet">
 
     <!-- Codemirror Style -->
-    <link href="$get_homepath()/static/common/css/codemirror.css" rel="stylesheet">
+    <link href="$get_homepath(True)/static/common/css/codemirror.css" rel="stylesheet">
 
     <!-- JQuery -->
 $if use_minified:
-    <script src="$get_homepath()/static/webapp/js/all-minified.js"></script>
+    <script src="$get_homepath(True)/static/webapp/js/all-minified.js"></script>
 $else:
-    <script src="$get_homepath()/static/common/js/libs/jquery.min.js" type="text/javascript" charset="utf-8"></script>
-    <script src="$get_homepath()/static/common/js/libs/jquery.form.min.js" type="text/javascript" charset="utf-8"></script>
-    <script src="$get_homepath()/static/common/js/common.js" type="text/javascript" charset="utf-8"></script>
+    <script src="$get_homepath(True)/static/common/js/libs/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="$get_homepath(True)/static/common/js/libs/jquery.form.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="$get_homepath(True)/static/common/js/common.js" type="text/javascript" charset="utf-8"></script>
 
     <!-- Icons -->
-    <link rel="shortcut icon" href="$get_homepath()/static/common/icons/favicon.ico">
-    <link rel="apple-touch-icon" sizes="57x57" href="$get_homepath()/static/common/icons/apple-touch-icon-57x57.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="$get_homepath()/static/common/icons/apple-touch-icon-114x114.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="$get_homepath()/static/common/icons/apple-touch-icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="$get_homepath()/static/common/icons/apple-touch-icon-144x144.png">
-    <link rel="apple-touch-icon" sizes="60x60" href="$get_homepath()/static/common/icons/apple-touch-icon-60x60.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="$get_homepath()/static/common/icons/apple-touch-icon-120x120.png">
-    <link rel="apple-touch-icon" sizes="76x76" href="$get_homepath()/static/common/icons/apple-touch-icon-76x76.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="$get_homepath()/static/common/icons/apple-touch-icon-152x152.png">
-    <link rel="icon" type="image/png" href="$get_homepath()/static/common/icons/favicon-196x196.png" sizes="196x196">
-    <link rel="icon" type="image/png" href="$get_homepath()/static/common/icons/favicon-160x160.png" sizes="160x160">
-    <link rel="icon" type="image/png" href="$get_homepath()/static/common/icons/favicon-96x96.png" sizes="96x96">
-    <link rel="icon" type="image/png" href="$get_homepath()/static/common/icons/favicon-16x16.png" sizes="16x16">
-    <link rel="icon" type="image/png" href="$get_homepath()/static/common/icons/favicon-32x32.png" sizes="32x32">
+    <link rel="shortcut icon" href="$get_homepath(True)/static/common/icons/favicon.ico">
+    <link rel="apple-touch-icon" sizes="57x57" href="$get_homepath(True)/static/common/icons/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="$get_homepath(True)/static/common/icons/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="$get_homepath(True)/static/common/icons/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="$get_homepath(True)/static/common/icons/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="$get_homepath(True)/static/common/icons/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="$get_homepath(True)/static/common/icons/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="$get_homepath(True)/static/common/icons/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="$get_homepath(True)/static/common/icons/apple-touch-icon-152x152.png">
+    <link rel="icon" type="image/png" href="$get_homepath(True)/static/common/icons/favicon-196x196.png" sizes="196x196">
+    <link rel="icon" type="image/png" href="$get_homepath(True)/static/common/icons/favicon-160x160.png" sizes="160x160">
+    <link rel="icon" type="image/png" href="$get_homepath(True)/static/common/icons/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="$get_homepath(True)/static/common/icons/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="$get_homepath(True)/static/common/icons/favicon-32x32.png" sizes="32x32">
     <meta name="msapplication-TileColor" content="#00a300">
-    <meta name="msapplication-TileImage" content="$get_homepath()/static/common/icons/mstile-144x144.png">
-    <meta name="msapplication-config" content="$get_homepath()/static/common/icons/browserconfig.xml">
+    <meta name="msapplication-TileImage" content="$get_homepath(True)/static/common/icons/mstile-144x144.png">
+    <meta name="msapplication-config" content="$get_homepath(True)/static/common/icons/browserconfig.xml">
 </head>
 
 <body role="document">
@@ -64,7 +64,7 @@ $else:
                             class="icon-bar"></span> <span class="icon-bar"></span> <span
                             class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="$get_homepath()/index"><img src="$get_homepath()/static/common/images/header.png" alt="logo"/> INGInious</a>
+                    <a class="navbar-brand" href="$get_homepath()/index"><img src="$get_homepath(True)/static/common/images/header.png" alt="logo"/> INGInious</a>
                 </div>
                 <div class="collapse navbar-collapse">
 
@@ -74,7 +74,7 @@ $else:
 
         <div class="container-fluid" role="main">
             <div id="content" class="col-xs-12">
-                <img src="$get_homepath()/static/common/images/logo_maintenance.png" style="margin:auto; display:block;"/>
+                <img src="$get_homepath(True)/static/common/images/logo_maintenance.png" style="margin:auto; display:block;"/>
                 <div class="alert alert-danger" role="alert" style="text-align: center;">
                     <b>This INGInious instance is currently under maintenance.</b> Please come back in a few minutes!
                 </div>

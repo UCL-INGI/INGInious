@@ -79,6 +79,10 @@ class CourseSettings(INGIniousAdminPage):
             if course_content['registration_ac'] == "None":
                 course_content['registration_ac'] = None
             course_content['registration_ac_list'] = data['registration_ac_list'].split("\n")
+
+            course_content['is_lti'] = 'lti' in data and data['lti'] == "true"
+            course_content['lti_keys'] = dict([x.split(":") for x in data['lti_keys'].split("\n")])
+            course_content['lti_send_back_grade'] = 'lti_send_back_grade' in data and data['lti_send_back_grade'] == "true"
         except:
             errors.append('User returned an invalid form.')
 

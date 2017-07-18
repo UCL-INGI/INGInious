@@ -39,14 +39,17 @@ $# Start content
 	$if len(open_courses) != 0:
         $ username = user_manager.session_username()
         $for courseid, course in open_courses.items():
-            <a href="$get_homepath()/course/$courseid" class="list-group-item row $('list-group-item-warning' if not course.is_open_to_non_staff() else '')">
+            <a href="$get_homepath()/course/$courseid" class="list-group-item row $(('list-group-item-warning' if not course.is_lti() else 'list-group-item-info') if not course.is_open_to_non_staff() else '')">
                 <div class="col-xs-12 col-md-8">
                     $course.get_name()
                 </div>
                 <div class="col-xs-12 col-md-4">
                     <i class="pull-right">
                         $if not course.is_open_to_non_staff():
-                            Course not shown to students -
+                            $if course.is_lti():
+                                LTI course -
+                            $else:
+                                Course not shown to students -
 
                         $if username in course.get_admins() or user_manager.user_is_superadmin():
                             Administrator

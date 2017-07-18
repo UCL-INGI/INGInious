@@ -11,21 +11,22 @@ import uuid
 import time
 
 # import pylti.common as lti TODO re-add me once PR has been accepted by PyLTI devs
+from lti import OutcomeRequest
+
 import inginious.common.customlibs.pylti as lti
 from pymongo import ReturnDocument
 
 
-class LisOutcomeManager(threading.Thread):
-    def __init__(self, database, user_manager, course_factory, lti_consumers):
-        super(LisOutcomeManager, self).__init__()
+class LTIOutcomeManager(threading.Thread):
+    def __init__(self, database, user_manager, course_factory):
+        super(LTIOutcomeManager, self).__init__()
         self.daemon = True
         self._database = database
         self._user_manager = user_manager
         self._course_factory = course_factory
-        self._lti_consumers = lti_consumers
         self._queue = queue.Queue()
         self._stopped = False
-        self._logger = logging.getLogger("inginious.lti.outcome_manager")
+        self._logger = logging.getLogger("inginious.webapp.lti_outcome_manager")
         self.start()
 
     def stop(self):
@@ -44,19 +45,28 @@ class LisOutcomeManager(threading.Thread):
                 mongo_id, username, courseid, taskid, consumer_key, service_url, result_id, nb_attempt = data
 
                 try:
-                    grade = self._user_manager.get_task_grade(self._course_factory.get_task(courseid, taskid), username)
+                    course = self._course_factory.get_course(courseid)
+                    task = course.get_task(taskid)
+
+                    consumer_secret = course.lti_keys()[consumer_key]
+
+                    grade = self._user_manager.get_task_cache(username, task.get_course_id(), task.get_id())["grade"]
                     grade = grade / 100.0
                     if grade > 1:
                         grade = 1
                     if grade < 0:
                         grade = 0
                 except Exception:
-                    self._logger.error("An exception occurred while getting a grade in LisOutcomeManager.", exc_info=True)
+                    self._logger.error("An exception occurred while getting a course/LTI secret/grade in LTIOutcomeManager.", exc_info=True)
                     continue
 
                 try:
-                    xml = lti.generate_request_xml(str(uuid.uuid1()), "replaceResult", result_id, grade)
-                    if lti.post_message(self._lti_consumers, consumer_key, service_url, xml):
+                    outcome_response = OutcomeRequest({"consumer_key": consumer_key,
+                                                       "consumer_secret": consumer_secret,
+                                                       "lis_outcome_service_url": service_url,
+                                                       "lis_result_sourcedid": result_id}).post_replace_result(grade)
+
+                    if outcome_response.code_major == "success":
                         self._delete_in_db(mongo_id)
                         self._logger.debug("Successfully sent grade to TC: %s", str(data))
                         continue

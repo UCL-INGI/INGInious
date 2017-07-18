@@ -166,7 +166,7 @@ class CourseDangerZonePage(INGIniousAdminPage):
             else:
                 try:
                     self.delete_course(courseid)
-                    web.seeother('/index')
+                    web.seeother(self.app.get_homepath() + '/index')
                 except:
                     msg = "An error occurred while deleting the course data."
                     error = True

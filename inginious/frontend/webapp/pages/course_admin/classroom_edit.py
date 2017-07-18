@@ -118,6 +118,9 @@ class CourseEditClassroom(INGIniousAdminPage):
     def GET_AUTH(self, courseid, classroomid):  # pylint: disable=arguments-differ
         """ Edit a classroom """
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=True)
+        if course.is_lti():
+            raise web.notfound()
+
         student_list, tutor_list, other_students, users_info = self.get_user_lists(course, classroomid)
         classroom = self.database.classrooms.find_one({"_id": ObjectId(classroomid), "courseid": courseid})
 
@@ -130,6 +133,9 @@ class CourseEditClassroom(INGIniousAdminPage):
     def POST_AUTH(self, courseid, classroomid):  # pylint: disable=arguments-differ
         """ Edit a classroom """
         course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=True)
+
+        if course.is_lti():
+            raise web.notfound()
 
         error = False
         data = web.input(tutors=[], groups=[], classroomfile={})
@@ -150,7 +156,7 @@ class CourseEditClassroom(INGIniousAdminPage):
                                                              }})
 
                 self.database.classrooms.delete_one({"_id": ObjectId(classroomid)})
-                raise web.seeother("/admin/" + courseid + "/classrooms")
+                raise web.seeother(self.app.get_homepath() + "/admin/" + courseid + "/classrooms")
         else:
             try:
                 if "upload" in data:
