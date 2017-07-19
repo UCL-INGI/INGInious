@@ -7,13 +7,10 @@
 import logging
 import threading
 import queue
-import uuid
 import time
 
-# import pylti.common as lti TODO re-add me once PR has been accepted by PyLTI devs
 from lti import OutcomeRequest
 
-import inginious.common.customlibs.pylti as lti
 from pymongo import ReturnDocument
 
 

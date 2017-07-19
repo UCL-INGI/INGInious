@@ -4,7 +4,7 @@ from oauthlib.oauth1 import RequestValidator
 from pymongo.errors import DuplicateKeyError
 
 
-class LTIValidator(RequestValidator):
+class LTIValidator(RequestValidator):  # pylint: disable=abstract-method
     enforce_ssl = True
     client_key_length = (1, 30)
     nonce_length = (20, 64)
