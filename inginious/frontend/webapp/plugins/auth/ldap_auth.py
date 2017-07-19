@@ -190,5 +190,5 @@ def init(plugin_manager, _, _2, conf):
         conf["port"] = None
 
     the_method = LdapAuthMethod(conf.get("id"), conf.get('name', 'LDAP Login'), conf.get("imlink", ""), conf)
-    plugin_manager.add_page('/auth/page/([^/]+)', LDAPAuthenticationPage)
+    plugin_manager.add_page(r'/auth/page/([^/]+)', LDAPAuthenticationPage)
     plugin_manager.register_auth_method(the_method)

@@ -134,6 +134,6 @@ class MetadataPage(INGIniousPage):
 
 
 def init(plugin_manager, course_factory, client, conf):
-    plugin_manager.add_page('/auth/([^/]+)/metadata', MetadataPage)
+    plugin_manager.add_page(r'/auth/([^/]+)/metadata', MetadataPage)
     plugin_manager.register_auth_method(SAMLAuthMethod(conf.get("id"), conf.get('name', 'SAML Login'), conf.get('imlink', ''), conf))
 

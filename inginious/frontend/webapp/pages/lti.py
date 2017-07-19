@@ -38,10 +38,14 @@ class LTILoginPage(INGIniousPage):
         if data is None:
             raise web.notfound()
 
+        user_profile = self.database.users.find_one({"ltibindings." + data["task"][0] + "." + data["consumer_key"]: data["username"]})
+        if user_profile:
+            self.user_manager.connect_user(user_profile["username"], user_profile["realname"], user_profile["email"])
+
         if self.user_manager.session_logged_in():
             raise web.seeother(self.app.get_homepath() + "/lti/task")
 
-        return self.template_helper.get_renderer().lti_login(self.user_manager.get_auth_methods_fields(), False)
+        return self.template_helper.get_renderer().lti_login(False)
 
     def POST(self, *args, **kwargs):
         """
@@ -56,13 +60,16 @@ class LTILoginPage(INGIniousPage):
             raise web.seeother(self.app.get_homepath() + "/lti/task")
         else:
             user_input = web.input()
-            if "@authid" in user_input:
-                if self.user_manager.auth_user(int(user_input["@authid"]), user_input, web.ctx['ip']):
+            if "login" in user_input and "password" in user_input:
+                user = self.user_manager.auth_user(user_input["login"].strip(), user_input["password"])
+                if user:
+                    self.database.users.find_one_and_update({"username": user["username"]},
+                                                            {"$set": {"ltibindings." + data["task"][0] + "." + data["consumer_key"]: data["username"]}})
                     raise web.seeother(self.app.get_homepath() + "/lti/task")
                 else:
-                    return self.template_helper.get_renderer().lti_login(self.user_manager.get_auth_methods_fields(), True)
+                    return self.template_helper.get_renderer().lti_login(True)
             else:
-                return self.template_helper.get_renderer().lti_login(self.user_manager.get_auth_methods_fields(), False)
+                return self.template_helper.get_renderer().lti_login(False)
 
 
 class LTILaunchPage(INGIniousPage):
