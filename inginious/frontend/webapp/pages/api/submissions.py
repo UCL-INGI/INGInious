@@ -5,6 +5,7 @@
 
 """ Submissions """
 
+import base64
 import web
 
 from inginious.frontend.webapp.pages.api._api_page import APIAuthenticatedPage, APINotFound, APIForbidden, APIInvalidArguments, APIError
@@ -15,7 +16,6 @@ from inginious.common.tasks_problems import MultipleChoiceProblem, BasicCodeProb
 def _get_submissions(course_factory, submission_manager, user_manager, courseid, taskid, with_input, submissionid=None):
     """
         Helper for the GET methods of the two following classes
-        :type submission_manager: inginious.frontend.webapp.submission_manager.WebAppSubmissionManager
     """
 
     try:
@@ -55,7 +55,10 @@ def _get_submissions(course_factory, submission_manager, user_manager, courseid,
         if with_input:
             data["input"] = submission_manager.get_input_from_submission(submission, True)
 
-            # TODO base64 encode files
+            # base64 encode file to allow JSON encoding
+            for d in data["input"]:
+                if isinstance(d, dict) and d.keys() == {"filename", "value"}:
+                    d["value"] = base64.b64encode(d["value"]).decode("utf8")
 
         if submission["status"] == "done":
             data["grade"] = submission.get("grade", 0)
