@@ -73,7 +73,7 @@ class BaseTaskPage(object):
         if isLTI and not self.user_manager.course_is_user_registered(course):
             self.user_manager.course_register_user(course, force=True)
 
-        if not self.user_manager.course_is_open_to_user(course, username):
+        if not self.user_manager.course_is_open_to_user(course, username, isLTI):
             return self.template_helper.get_renderer().course_unavailable()
 
         # Fetch the task
@@ -82,7 +82,7 @@ class BaseTaskPage(object):
         except exceptions.TaskNotFoundException as ex:
             raise web.notfound(str(ex))
 
-        if not self.user_manager.task_is_visible_by_user(task, username):
+        if not self.user_manager.task_is_visible_by_user(task, username, isLTI):
             return self.template_helper.get_renderer().task_unavailable()
 
         self.user_manager.user_saw_task(username, courseid, taskid)
@@ -137,11 +137,11 @@ class BaseTaskPage(object):
         username = self.user_manager.session_username()
         try:
             course = self.course_factory.get_course(courseid)
-            if not self.user_manager.course_is_open_to_user(course, username):
+            if not self.user_manager.course_is_open_to_user(course, username, isLTI):
                 return self.template_helper.get_renderer().course_unavailable()
 
             task = course.get_task(taskid)
-            if not self.user_manager.task_is_visible_by_user(task, username):
+            if not self.user_manager.task_is_visible_by_user(task, username, isLTI):
                 return self.template_helper.get_renderer().task_unavailable()
 
             self.user_manager.user_saw_task(username, courseid, taskid)
@@ -152,7 +152,7 @@ class BaseTaskPage(object):
             userinput = web.input()
             if "@action" in userinput and userinput["@action"] == "submit":
                 # Verify rights
-                if not self.user_manager.task_can_user_submit(task, username):
+                if not self.user_manager.task_can_user_submit(task, username, isLTI):
                     return json.dumps({"status": "error", "text": "You are not allowed to submit for this task."})
 
                 # Reparse user input with array for multiple choices
@@ -262,7 +262,7 @@ class TaskPageStaticDownload(INGIniousAuthPage):
                 return self.template_helper.get_renderer().course_unavailable()
 
             task = course.get_task(taskid)
-            if not self.user_manager.task_is_visible_by_user(task):
+            if not self.user_manager.task_is_visible_by_user(task):  # ignore LTI check here
                 return self.template_helper.get_renderer().task_unavailable()
 
             path_norm = posixpath.normpath(urllib.parse.unquote(path))

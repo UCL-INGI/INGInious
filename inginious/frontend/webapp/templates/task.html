@@ -230,6 +230,7 @@ $if user_manager.has_admin_rights_on_course(course):
             </div>
         </div>
 
+    $# no need to check with lti=True/False here as it was already checked by the calling python script.
     $ groups_ok = user_manager.task_can_user_submit(task, user_manager.session_username(), 'groups')
     $ tokens_ok = user_manager.task_can_user_submit(task, user_manager.session_username(), 'tokens')
     $if groups_ok and tokens_ok:

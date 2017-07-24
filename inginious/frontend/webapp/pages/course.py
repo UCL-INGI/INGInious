@@ -40,7 +40,7 @@ class CoursePage(INGIniousAuthPage):
     def show_page(self, course):
         """ Prepares and shows the course page """
         username = self.user_manager.session_username()
-        if not self.user_manager.course_is_open_to_user(course):
+        if not self.user_manager.course_is_open_to_user(course, lti=False):
             return self.template_helper.get_renderer().course_unavailable()
         else:
             tasks = course.get_tasks()

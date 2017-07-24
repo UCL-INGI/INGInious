@@ -474,23 +474,34 @@ class UserManager(AbstractUserManager):
                     {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]},
                     {"$set": {"succeeded": submission["result"] == "success", "grade": submission["grade"]}})
 
-    def task_is_visible_by_user(self, task, username=None):
-        """ Returns true if the task is visible by the user """
+    def task_is_visible_by_user(self, task, username=None, lti=None):
+        """ Returns true if the task is visible by the user
+        :param lti: indicates if the user is currently in a LTI session or not.
+            - None to ignore the check
+            - True to indicate the user is in a LTI session
+            - False to indicate the user is not in a LTI session
+            - "auto" to enable the check and take the information from the current session
+        """
         if username is None:
             username = self.session_username()
 
-        return (self.course_is_open_to_user(task.get_course(), username) and task.get_accessible_time().after_start()) or \
+        return (self.course_is_open_to_user(task.get_course(), username, lti) and task.get_accessible_time().after_start()) or \
                self.has_staff_rights_on_course(task.get_course(), username)
 
-    def task_can_user_submit(self, task, username=None, only_check=None):
+    def task_can_user_submit(self, task, username=None, only_check=None, lti=None):
         """ returns true if the user can submit his work for this task
             :param only_check : only checks for 'groups', 'tokens', or None if all checks
+            :param lti: indicates if the user is currently in a LTI session or not.
+            - None to ignore the check
+            - True to indicate the user is in a LTI session
+            - False to indicate the user is not in a LTI session
+            - "auto" to enable the check and take the information from the current session
         """
         if username is None:
             username = self.session_username()
 
         # Check if course access is ok
-        course_registered = self.course_is_open_to_user(task.get_course(), username)
+        course_registered = self.course_is_open_to_user(task.get_course(), username, lti)
         # Check if task accessible to user
         task_accessible = task.get_accessible_time().is_open()
         # User has staff rights ?
@@ -612,18 +623,33 @@ class UserManager(AbstractUserManager):
 
         self._logger.info("User %s unregistered from course %s", username, course.get_id())
 
-    def course_is_open_to_user(self, course, username=None):
+    def course_is_open_to_user(self, course, username=None, lti=None):
         """
         Checks if a user is can access a course
         :param course: a Course object
         :param username: The username of the user that we want to check. If None, uses self.session_username()
+        :param lti: indicates if the user is currently in a LTI session or not.
+            - None to ignore the check
+            - True to indicate the user is in a LTI session
+            - False to indicate the user is not in a LTI session
+            - "auto" to enable the check and take the information from the current session
         :return: True if the user can access the course, False else
         """
         if username is None:
             username = self.session_username()
+        if lti == "auto":
+            lti = self.session_lti_info() is not None
 
-        return (course.get_accessibility().is_open() and self.course_is_user_registered(course, username)) \
-               or self.has_staff_rights_on_course(course, username)
+        if self.has_staff_rights_on_course(course, username):
+            return True
+
+        if not course.get_accessibility().is_open() or not self.course_is_user_registered(course, username):
+            return False
+
+        if lti is not None and course.is_lti() != lti:
+            return False
+
+        return True
 
     def course_is_user_registered(self, course, username=None):
         """

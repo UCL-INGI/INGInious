@@ -28,7 +28,7 @@ class AggregationPage(INGIniousAuthPage):
         data = web.input()
         if self.user_manager.has_staff_rights_on_course(course):
             raise web.notfound()
-        elif not self.user_manager.course_is_open_to_user(course):
+        elif not self.user_manager.course_is_open_to_user(course, lti=False):
             return self.template_helper.get_renderer().course_unavailable()
         elif "register_group" in data:
             change = True

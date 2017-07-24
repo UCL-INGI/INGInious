@@ -23,7 +23,7 @@ def _get_submissions(course_factory, submission_manager, user_manager, courseid,
     except:
         raise APINotFound("Course not found")
 
-    if not user_manager.course_is_open_to_user(course):
+    if not user_manager.course_is_open_to_user(course, lti=False):
         raise APIForbidden("You are not registered to this course")
 
     try:
@@ -159,7 +159,7 @@ class APISubmissions(APIAuthenticatedPage):
 
         username = self.user_manager.session_username()
 
-        if not self.user_manager.course_is_open_to_user(course, username):
+        if not self.user_manager.course_is_open_to_user(course, username, False):
             raise APIForbidden("You are not registered to this course")
 
         try:
@@ -170,7 +170,7 @@ class APISubmissions(APIAuthenticatedPage):
         self.user_manager.user_saw_task(username, courseid, taskid)
 
         # Verify rights
-        if not self.user_manager.task_can_user_submit(task, username):
+        if not self.user_manager.task_can_user_submit(task, username, False):
             raise APIForbidden("You are not allowed to submit for this task")
 
         init_var = self.list_multiple_multiple_choices_and_files(task)

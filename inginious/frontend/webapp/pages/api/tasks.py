@@ -61,7 +61,7 @@ class APITasks(APIAuthenticatedPage):
         except:
             raise APINotFound("Course not found")
 
-        if not self.user_manager.course_is_open_to_user(course):
+        if not self.user_manager.course_is_open_to_user(course, lti=False):
             raise APIForbidden("You are not registered to this course")
 
         if taskid is None:

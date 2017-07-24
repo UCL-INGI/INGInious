@@ -42,7 +42,7 @@ class WebAppCourse(FrontendCourse):
 
         # Force some parameters if LTI is active
         if self.is_lti():
-            self._accessible = AccessibleTime(False)
+            self._accessible = AccessibleTime(True)
             self._registration = AccessibleTime(False)
             self._registration_password = None
             self._registration_ac = None
