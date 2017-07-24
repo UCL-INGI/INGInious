@@ -239,18 +239,12 @@ class SubmissionManager(object, metaclass=ABCMeta):
             Get the input of a submission. If only_input is False, returns the full submissions with a dictionnary object at the key "input".
             Else, returns only the dictionnary.
         """
-        if isinstance(submission.get("input", {}), dict):
-            if only_input:
-                return submission.get("input", {})
-            else:
-                return submission
+        inp = bson.BSON.decode(self._gridfs.get(submission['input']).read())
+        if only_input:
+            return inp
         else:
-            inp = bson.BSON.decode(self._gridfs.get(submission['input']).read())
-            if only_input:
-                return inp
-            else:
-                submission["input"] = inp
-                return submission
+            submission["input"] = inp
+            return submission
 
     def get_feedback_from_submission(self, submission, only_feedback=False, show_everything=False):
         """
