@@ -132,11 +132,11 @@ class INGIniousAuthPage(INGIniousPage):
         if self.user_manager.session_logged_in():
             user_input = web.input()
             if "logoff" in user_input:
-                self.user_manager.disconnect_user(web.ctx['ip'])
+                self.user_manager.disconnect_user()
                 return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods(), False)
 
             if not self.is_lti_page and self.user_manager.session_lti_info() is not None: #lti session
-                self.user_manager.disconnect_user(web.ctx['ip'])
+                self.user_manager.disconnect_user()
                 return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods(), False)
 
             return self.GET_AUTH(*args, **kwargs)
@@ -150,7 +150,7 @@ class INGIniousAuthPage(INGIniousPage):
         """
         if self.user_manager.session_logged_in():
             if not self.is_lti_page and self.user_manager.session_lti_info() is not None:  # lti session
-                self.user_manager.disconnect_user(web.ctx['ip'])
+                self.user_manager.disconnect_user()
                 return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_fields(), False)
 
             return self.POST_AUTH(*args, **kwargs)

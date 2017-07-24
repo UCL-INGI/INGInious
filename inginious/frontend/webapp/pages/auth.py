@@ -5,6 +5,7 @@
 
 """ Auth page """
 import web
+import re
 
 from pymongo import ReturnDocument
 from inginious.frontend.webapp.pages.utils import INGIniousPage
@@ -27,6 +28,7 @@ class AuthenticationPage(INGIniousPage):
             raise web.notfound()
 
         user = auth_method.callback(self.user_manager)
+
         if user:
             username, realname, email = user
 
@@ -41,7 +43,7 @@ class AuthenticationPage(INGIniousPage):
                 pass
             elif user_profile:
                 # Logged in, but already linked to another account
-                pass
+                self.logger.exception("Tried to bind an already bound account !")
             elif self.user_manager.session_logged_in():
                 # No binding, but logged: add new binding
                 self.database.users.find_one_and_update({"username": self.user_manager.session_username()},
@@ -53,7 +55,7 @@ class AuthenticationPage(INGIniousPage):
                 user_profile = self.database.users.find_one({"email": email})
                 if user_profile:
                     # Found an email, existing user account, abort without binding
-                    pass
+                    self.logger.exception("The binding email is already used by another account!")
                 else:
                     # New user, create an account using email address
                     self.database.users.insert({"username": username,
@@ -65,6 +67,8 @@ class AuthenticationPage(INGIniousPage):
         raise web.seeother(self.user_manager.session_redir_url())
 
     def GET(self, auth_id, method):
+        if self.user_manager.session_cookieless():
+            raise web.seeother("/auth/" + auth_id + "/" + method)
         if method == "signin":
             return self.process_signin(auth_id)
         else:

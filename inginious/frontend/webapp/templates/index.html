@@ -29,7 +29,7 @@ $# Start content
                     <label>Username</label> <input type="text" class="form-control" name="login" placeholder="Username">
                 </div>
                 <div class="form-group">
-                    <label>Password <a href="/register#lostpasswd">Lost password?</a></label> <input type="password" class="form-control" name="password" placeholder="Password">
+                    <label>Password <a href="$get_homepath()/register#lostpasswd">Lost password?</a></label> <input type="password" class="form-control" name="password" placeholder="Password">
                 </div>
                 <button type="submit" class="btn btn-primary btn-block">Sign in</button>
             </form>
@@ -50,7 +50,7 @@ $# Start content
                     <div class="row">
 
                 <div class="col-xs-$(int(12/on_line)) text-center">
-                    <a href="/auth/$auth_method.get_id()/signin">
+                    <a href="$get_homepath()/auth/$auth_method.get_id()/signin">
                         $:auth_method.get_imlink()
                     </a>
                 </div>

@@ -1,6 +1,9 @@
 # coding=utf-8
 
 import web
+import base64
+import pickle
+
 from inginious.common import exceptions
 from inginious.frontend.webapp.lti_request_validator import LTIValidator
 from inginious.frontend.webapp.lti_tool_provider import LTIWebPyToolProvider
@@ -29,11 +32,60 @@ class LTITaskPage(INGIniousAuthPage):
         return BaseTaskPage(self).POST_AUTH(courseid, taskid, True)
 
 
+class LTIBindPage(INGIniousAuthPage):
+    def is_lti_page(self):
+        return False
+
+    def GET_AUTH(self):
+        input_data = web.input()
+        if "sessionid" not in input_data:
+            return "beu..."
+
+        cookieless_session = self.database.sessions.find_one({"_id": input_data["sessionid"]})
+        data = pickle.loads(base64.b64decode(cookieless_session["data"]["lti"]))
+
+        return self.template_helper.get_renderer().lti_bind(False, cookieless_session["data"]["session_id"], data, "")
+
+    def POST_AUTH(self):
+        input_data = web.input()
+        if "sessionid" not in input_data:
+            return "beu..."
+
+        cookieless_session = self.database.sessions.find_one({"_id": input_data["sessionid"]})
+        data = pickle.loads(base64.b64decode(cookieless_session["data"]["lti"]))
+
+        if data:
+            user_profile = self.database.users.find_one({"username": self.user_manager.session_username()})
+            lti_user_profile = self.database.users.find_one(
+                {"ltibindings." + data["task"][0] + "." + data["consumer_key"]: data["username"]})
+            if not user_profile.get("ltibindings", {}).get(data["task"][0], {}).get(data["consumer_key"],
+                                                                                    "") and not lti_user_profile:
+                # There is no binding yet, so bind LTI to this account
+                self.database.users.find_one_and_update({"username": self.user_manager.session_username()}, {"$set": {
+                    "ltibindings." + data["task"][0] + "." + data["consumer_key"]: data["username"]}})
+            elif not (lti_user_profile and user_profile["username"] == lti_user_profile["username"]):
+                # There exists an LTI binding for another account, refuse auth!
+                self.logger.info("User %s tried to bind LTI user %s in for %s:%s, but %s is already bound.",
+                                 user_profile["username"],
+                                 data["username"],
+                                 data["task"][0],
+                                 data["consumer_key"],
+                                 user_profile.get("ltibindings", {}).get(data["task"][0], {}).get(data["consumer_key"], ""))
+                return self.template_helper.get_renderer().lti_bind(False, cookieless_session["data"]["session_id"],
+                                                                    data, "Your account is already bound with this context.")
+
+        return self.template_helper.get_renderer().lti_bind(True, cookieless_session["data"]["session_id"], data, "")
+
+
 class LTILoginPage(INGIniousPage):
     def is_lti_page(self):
         return True
 
     def GET(self):
+        """
+            Checks if user is authenticated and calls POST_AUTH or performs login and calls GET_AUTH.
+            Otherwise, returns the login template.
+        """
         data = self.user_manager.session_lti_info()
         if data is None:
             raise web.notfound()
@@ -47,29 +99,12 @@ class LTILoginPage(INGIniousPage):
 
         return self.template_helper.get_renderer().lti_login(False)
 
-    def POST(self, *args, **kwargs):
+    def POST(self):
         """
         Checks if user is authenticated and calls POST_AUTH or performs login and calls GET_AUTH.
         Otherwise, returns the login template.
         """
-        data = self.user_manager.session_lti_info()
-        if data is None:
-            raise web.notfound()
-
-        if self.user_manager.session_logged_in():
-            raise web.seeother(self.app.get_homepath() + "/lti/task")
-        else:
-            user_input = web.input()
-            if "login" in user_input and "password" in user_input:
-                user = self.user_manager.auth_user(user_input["login"].strip(), user_input["password"])
-                if user:
-                    self.database.users.find_one_and_update({"username": user["username"]},
-                                                            {"$set": {"ltibindings." + data["task"][0] + "." + data["consumer_key"]: data["username"]}})
-                    raise web.seeother(self.app.get_homepath() + "/lti/task")
-                else:
-                    return self.template_helper.get_renderer().lti_login(True)
-            else:
-                return self.template_helper.get_renderer().lti_login(False)
+        return self.GET()
 
 
 class LTILaunchPage(INGIniousPage):
@@ -107,10 +142,6 @@ class LTILaunchPage(INGIniousPage):
         if verified:
             self.logger.debug('parse_lit_data for %s', str(post_input))
             user_id = post_input["user_id"]
-            if 'ext_user_username' in post_input:
-                ext_user_username = post_input['ext_user_username']
-            else:
-                ext_user_username = user_id
             roles = post_input.get("roles", "Student").split(",")
             realname = self._find_realname(post_input)
             email = post_input.get("lis_person_contact_email_primary", "")
@@ -127,8 +158,15 @@ class LTILaunchPage(INGIniousPage):
                 lis_outcome_service_url = None
                 outcome_result_id = None
 
+            tool_name = post_input.get('tool_consumer_instance_name', 'N/A')
+            tool_desc = post_input.get('tool_consumer_instance_description', 'N/A')
+            tool_url = post_input.get('tool_consumer_instance_url', 'N/A')
+            context_title = post_input.get('context_title', 'N/A')
+            context_label = post_input.get('context_label', 'N/A')
+
             session_id = self.user_manager.create_lti_session(user_id, roles, realname, email, courseid, taskid, consumer_key,
-                                                              lis_outcome_service_url, outcome_result_id, ext_user_username)
+                                                              lis_outcome_service_url, outcome_result_id, tool_name, tool_desc, tool_url,
+                                                              context_title, context_label)
             loggedin = self.user_manager.attempt_lti_login()
 
             return session_id, loggedin

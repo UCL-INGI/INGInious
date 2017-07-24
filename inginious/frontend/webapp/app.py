@@ -69,6 +69,7 @@ urls = (
     r'/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)/submissions/([a-zA-Z_\-\.0-9]+)',
         'inginious.frontend.webapp.pages.api.submissions.APISubmissionSingle',
     r'/lti/([^/]+)/([^/]+)', 'inginious.frontend.webapp.pages.lti.LTILaunchPage',
+    r'/lti/bind', 'inginious.frontend.webapp.pages.lti.LTIBindPage',
     r'/lti/task', 'inginious.frontend.webapp.pages.lti.LTITaskPage',
     r'/lti/login', 'inginious.frontend.webapp.pages.lti.LTILoginPage'
 )

@@ -109,7 +109,7 @@ class CookieLessCompatibleSession(object):
         try:
             return handler()
         finally:
-            self._save()
+            self.save()
 
     def load(self, session_id=None):
         """ Load the session from the store.
@@ -176,7 +176,7 @@ class CookieLessCompatibleSession(object):
         else:
             self._setcookie(self._data["session_id"], expires=-1)
 
-    def _save(self):
+    def save(self):
         if self._data.get("cookieless", False):
             self._save_cookieless()
         else:
@@ -217,7 +217,7 @@ class CookieLessCompatibleSession(object):
     def expired(self):
         """Called when an expired session is atime"""
         self._data["_killed"] = True
-        self._save()
+        self.save()
         raise SessionExpired(self._config.expired_message)
 
     def kill(self):

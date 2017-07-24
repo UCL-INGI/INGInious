@@ -133,6 +133,7 @@ class LDAPAuthenticationPage(INGIniousPage):
                 user_profile = self.database.users.find_one({"email": email})
                 if user_profile:
                     # Found an email, existing user account, abort without binding
+                    logger.info("Tried to create new account using bind for existing email")
                     pass
                 else:
                     # New user, create an account using email address

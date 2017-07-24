@@ -17,7 +17,7 @@ class BindingsPage(INGIniousAuthPage):
         """ GET request """
         auth_methods = self.user_manager.get_auth_methods()
         user_data = self.database.users.find_one({"username": self.user_manager.session_username()})
-        bindings = user_data["bindings"]
+        bindings = user_data.get("bindings", {})
         return self.template_helper.get_renderer().preferences.bindings(bindings, auth_methods, "", False)
 
     def POST_AUTH(self):  # pylint: disable=arguments-differ
@@ -39,10 +39,10 @@ class BindingsPage(INGIniousAuthPage):
             if auth_binding not in auth_methods.keys():
                 error = True
                 msg = "Incorrect authentication binding."
-            elif auth_binding not in user_data["bindings"]:
+            elif auth_binding not in user_data.get("bindings", {}):
                 raise web.seeother("/auth/" + auth_binding +"/signin")
         elif "revoke_auth_binding" in user_input:
-            if len(user_data["bindings"].keys()) > 1 or "password" in user_data:
+            if len(user_data.get("bindings", {}).keys()) > 1 or "password" in user_data:
                 auth_id = user_input["revoke_auth_binding"]
                 user_data = self.database.users.find_one_and_update({"username": self.user_manager.session_username()},
                                                         {"$unset": {"bindings." + auth_id: 1}})
@@ -50,6 +50,6 @@ class BindingsPage(INGIniousAuthPage):
                 error = True
                 msg = "You must set a password before removing all bindings."
 
-        bindings = user_data["bindings"]
+        bindings = user_data.get("bindings", {})
 
         return self.template_helper.get_renderer().preferences.bindings(bindings, auth_methods, msg, error)

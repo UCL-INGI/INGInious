@@ -38,7 +38,7 @@ class DeletePage(INGIniousAuthPage):
                 if self.user_manager.course_is_open_to_user(course, username):
                     self.user_manager.course_unregister_user(course, username)
 
-            self.user_manager.disconnect_user(web.ctx['ip'])
+            self.user_manager.disconnect_user()
             raise web.seeother("/index")
 
         return msg, error

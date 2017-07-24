@@ -131,13 +131,21 @@ class UserManager(AbstractUserManager):
             return self._session.lti
         return None
 
+    def session_cookieless(self):
+        """ Indicates if the current session is cookieless """
+        return self._session.get("cookieless", False)
+
+    def session_id(self):
+        """ Returns the current session id"""
+        return self._session.get("session_id", "")
+
     def session_redir_url(self):
         """ Returns the redirection url for login """
-        return self._session.redir_url
+        return self._session.get("redir_url", "")
 
     def session_oauth_state(self):
         """ Returns the oauth state for login """
-        return self._session.oauth_state
+        return self._session.get("oauth_state", None)
 
     def set_session_token(self, token):
         """ Sets the token of the current user in the session, if one is open."""
@@ -176,8 +184,8 @@ class UserManager(AbstractUserManager):
         self._session.token = None
         self._session.lti = None
 
-    def create_lti_session(self, user_id, roles, realname, email, course_id, task_id, consumer_key, outcome_service_url, outcome_result_id,
-                           ext_user_username):
+    def create_lti_session(self, user_id, roles, realname, email, course_id, task_id, consumer_key, outcome_service_url,
+                           outcome_result_id, tool_name, tool_desc, tool_url, context_title, context_label):
         """ Creates an LTI cookieless session. Returns the new session id"""
 
         self._destroy_session()  # don't forget to destroy the current session (cleans the threaded dict from web.py)
@@ -186,13 +194,18 @@ class UserManager(AbstractUserManager):
 
         self._session.lti = {
             "email": email,
-            "username": ext_user_username if ext_user_username is not None else user_id,
+            "username": user_id,
             "realname": realname,
             "roles": roles,
             "task": (course_id, task_id),
             "outcome_service_url": outcome_service_url,
             "outcome_result_id": outcome_result_id,
-            "consumer_key": consumer_key
+            "consumer_key": consumer_key,
+            "context_title": context_title,
+            "context_label": context_label,
+            "tool_description": tool_desc,
+            "tool_name": tool_name,
+            "tool_url": tool_url
         }
 
         return session_id
@@ -245,10 +258,7 @@ class UserManager(AbstractUserManager):
         user = self._database.users.find_one(
             {"username": username, "password": password_hash, "activate": {"$exists": False}})
 
-        if user is not None:
-            self.connect_user(username, user["realname"], user["email"])
-
-        return user
+        return user if user is not None and self.connect_user(username, user["realname"], user["email"]) else None
 
     def connect_user(self, username, realname, email):
         """
@@ -257,18 +267,20 @@ class UserManager(AbstractUserManager):
         :param realname: User real name
         :param email: User email
         """
+
         self._database.users.update_one({"username": username}, {"$set": {"realname": realname, "email": email}},
                                         upsert=True)
         self._logger.info("User %s connected - %s - %s - %s", username, realname, email, web.ctx.ip)
         self._set_session(username, realname, email)
+        return True
 
-    def disconnect_user(self, ip_addr):
+    def disconnect_user(self):
         """
         Disconnects the user currently logged-in
         :param ip_addr: the ip address of the client, that will be logged
         """
         if self.session_logged_in():
-            self._logger.info("User %s disconnected - %s - %s - %s", self.session_username(), self.session_realname(), self.session_email(), ip_addr)
+            self._logger.info("User %s disconnected - %s - %s - %s", self.session_username(), self.session_realname(), self.session_email(), web.ctx.ip)
         self._destroy_session()
 
     def get_users_info(self, usernames):
