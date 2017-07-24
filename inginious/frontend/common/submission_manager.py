@@ -5,13 +5,14 @@
 
 """ Manages submissions """
 from abc import ABCMeta
-import base64
 import json
 import time
 import os.path
 import tarfile
 import io
 import tempfile
+
+import bson
 import web
 from datetime import datetime
 
@@ -111,7 +112,7 @@ class SubmissionManager(object, metaclass=ABCMeta):
         obj = {
             "courseid": task.get_course_id(),
             "taskid": task.get_id(),
-            "input": self._gridfs.put(json.dumps(inputdata),encoding="utf8"),
+            "input": self._gridfs.put(bson.BSON.encode(inputdata)),
             "status": "waiting",
             "submitted_on": datetime.now(),
             "username": [username],
@@ -244,7 +245,7 @@ class SubmissionManager(object, metaclass=ABCMeta):
             else:
                 return submission
         else:
-            inp = json.loads(self._gridfs.get(submission['input']).read().decode('utf8'))
+            inp = bson.BSON.decode(self._gridfs.get(submission['input']).read())
             if only_input:
                 return inp
             else:
@@ -451,7 +452,7 @@ class SubmissionManager(object, metaclass=ABCMeta):
                                         if problem['filename'].endswith(t_ext):
                                             ext = t_ext
 
-                                subfile = io.BytesIO(base64.b64decode(problem['value']))
+                                subfile = io.BytesIO(problem['value'])
                                 taskfname = base_path + str(submission["_id"]) + '/uploaded_files/' + pid + ext
 
                                 # Generate file info

@@ -55,6 +55,8 @@ def _get_submissions(course_factory, submission_manager, user_manager, courseid,
         if with_input:
             data["input"] = submission_manager.get_input_from_submission(submission, True)
 
+            # TODO base64 encode files
+
         if submission["status"] == "done":
             data["grade"] = submission.get("grade", 0)
             data["result"] = submission.get("result", "crash")

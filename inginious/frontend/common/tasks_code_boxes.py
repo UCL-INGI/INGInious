@@ -5,7 +5,6 @@
 
 """ Modified boxes """
 from abc import ABCMeta, abstractmethod
-import base64
 import json
 
 from inginious.common.tasks_code_boxes import TextBox, InputBox, MultilineBox, FileBox
@@ -50,7 +49,7 @@ class DisplayableFileBox(FileBox, DisplayableBox):
     def adapt_input_for_backend(self, input_data):
         try:
             input_data[self.get_complete_id()] = {"filename": input_data[self.get_complete_id()].filename,
-                                                  "value": base64.b64encode(input_data[self.get_complete_id()].value).decode('utf8')}
+                                                  "value": input_data[self.get_complete_id()].value}
         except:
             input_data[self.get_complete_id()] = {}
         return input_data
