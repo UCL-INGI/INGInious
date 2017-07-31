@@ -18,7 +18,7 @@ class RegistrationPage(INGIniousPage):
 
     def GET(self):
         """ Handles GET request """
-        if self.user_manager.session_logged_in():
+        if self.user_manager.session_logged_in() or not self.app.allow_registration:
             raise web.notfound()
 
         error = False
@@ -174,7 +174,7 @@ Someone (probably you) asked to reset your INGInious password. If this was you, 
 
     def POST(self):
         """ Handles POST request """
-        if self.user_manager.session_logged_in():
+        if self.user_manager.session_logged_in() or not self.app.allow_registration:
             raise web.notfound()
 
         reset = None

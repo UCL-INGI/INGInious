@@ -51,18 +51,19 @@ $if not user_manager.session_username():
             <label class="control-label">Email address : </label>
             <input name="email" type="text" class="form-control" value="$user_manager.session_email()" disabled>
         </div>
-        <div class="col-sm-12">
-            <label class="control-label">Old password : </label>
-            <input name="oldpasswd" type="password" class="form-control">
-        </div>
-        <div class="col-sm-6">
-            <label class="control-label">New password (min. 6 characters) : </label>
-            <input name="passwd" type="password" class="form-control">
-        </div>
-        <div class="col-sm-6">
-            <label class="control-label">Confirm new password : </label>
-            <input name="passwd2" type="password" class="form-control">
-        </div>
+        $if allow_registration:
+            <div class="col-sm-12">
+                <label class="control-label">Old password : </label>
+                <input name="oldpasswd" type="password" class="form-control">
+            </div>
+            <div class="col-sm-6">
+                <label class="control-label">New password (min. 6 characters) : </label>
+                <input name="passwd" type="password" class="form-control">
+            </div>
+            <div class="col-sm-6">
+                <label class="control-label">Confirm new password : </label>
+                <input name="passwd2" type="password" class="form-control">
+            </div>
         <div class="col-sm-12"><br />
             <button type="submit" name="save" class="btn btn-primary btn-block"><i class="fa fa-save"></i> Save my profile</button>
         </div>

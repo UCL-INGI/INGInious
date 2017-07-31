@@ -24,22 +24,24 @@ $# Start content
                     Invalid login/password
                 </div>
 
-            <form role="form" method="post">
-                <div class="form-group">
-                    <label>Username</label> <input type="text" class="form-control" name="login" placeholder="Username">
-                </div>
-                <div class="form-group">
-                    <label>Password <a href="$get_homepath()/register#lostpasswd">Lost password?</a></label> <input type="password" class="form-control" name="password" placeholder="Password">
-                </div>
-                <button type="submit" class="btn btn-primary btn-block">Sign in</button>
-            </form>
+            $if allow_registration:
+                <form role="form" method="post">
+                    <div class="form-group">
+                        <label>Username</label> <input type="text" class="form-control" name="login" placeholder="Username">
+                    </div>
+                    <div class="form-group">
+                        <label>Password <a href="$get_homepath()/register#lostpasswd">Lost password?</a></label> <input type="password" class="form-control" name="password" placeholder="Password">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Sign in</button>
+                </form>
 
             $ auth_meths = auth_methods.items()
             $ remaining = len(auth_meths)
             $ on_line = min(remaining, 4)
 
             $if remaining:
-                <hr/>
+                $if allow_registration:
+                    <hr/>
                 <h5 class="center-block text-center">Sign in with</h5>
 
             $ authid = 0

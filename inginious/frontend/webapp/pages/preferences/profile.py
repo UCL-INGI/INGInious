@@ -21,13 +21,13 @@ class ProfilePage(INGIniousAuthPage):
         msg = ""
 
         # Check input format
-        if len(data["oldpasswd"]) > 0 and len(data["passwd"]) < 6:
+        if self.app.allow_registration and len(data["oldpasswd"]) > 0 and len(data["passwd"]) < 6:
             error = True
             msg = "Password too short."
-        elif len(data["oldpasswd"]) > 0 and data["passwd"] != data["passwd2"]:
+        elif self.app.allow_registration and len(data["oldpasswd"]) > 0 and data["passwd"] != data["passwd2"]:
             error = True
             msg = "Passwords don't match !"
-        elif len(data["oldpasswd"]) > 0:
+        elif self.app.allow_registration and len(data["oldpasswd"]) > 0:
             oldpasswd_hash = hashlib.sha512(data["oldpasswd"].encode("utf-8")).hexdigest()
             passwd_hash = hashlib.sha512(data["passwd"].encode("utf-8")).hexdigest()
 

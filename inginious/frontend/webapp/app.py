@@ -163,6 +163,7 @@ def get_app(config):
 
     # Add some helpers for the templates
     template_helper.add_to_template_globals("get_homepath", appli.get_homepath)
+    template_helper.add_to_template_globals("allow_registration", config.get("allow_registration", True))
     template_helper.add_to_template_globals("user_manager", user_manager)
     template_helper.add_to_template_globals("default_allowed_file_extensions", default_allowed_file_extensions)
     template_helper.add_to_template_globals("default_max_file_size", default_max_file_size)
@@ -194,6 +195,7 @@ def get_app(config):
     appli.backup_dir = config.get("backup_directory", './backup')
     appli.webterm_link = config.get("webterm", None)
     appli.lti_outcome_manager = lti_outcome_manager
+    appli.allow_registration = config.get("allow_registration", True)
 
     # Init the mapping of the app
     appli.init_mapping(urls)
