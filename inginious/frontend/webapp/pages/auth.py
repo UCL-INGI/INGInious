@@ -58,11 +58,11 @@ class AuthenticationPage(INGIniousPage):
                     self.logger.exception("The binding email is already used by another account!")
                 else:
                     # New user, create an account using email address
-                    self.database.users.insert({"username": username,
+                    self.database.users.insert({"username": "",
                                                 "realname": realname,
                                                 "email": email,
                                                 "bindings": {auth_id: [username, {}]}})
-                    self.user_manager.connect_user(username, realname, email)
+                    self.user_manager.connect_user("", realname, email)
 
         raise web.seeother(self.user_manager.session_redir_url())
 

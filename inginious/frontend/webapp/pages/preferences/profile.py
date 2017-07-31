@@ -27,7 +27,7 @@ class ProfilePage(INGIniousAuthPage):
         elif len(data["oldpasswd"]) > 0 and data["passwd"] != data["passwd2"]:
             error = True
             msg = "Passwords don't match !"
-        elif len(data["oldpasswd"]) > 0 or "password" not in userdata:
+        elif len(data["oldpasswd"]) > 0:
             oldpasswd_hash = hashlib.sha512(data["oldpasswd"].encode("utf-8")).hexdigest()
             passwd_hash = hashlib.sha512(data["passwd"].encode("utf-8")).hexdigest()
 
@@ -46,6 +46,22 @@ class ProfilePage(INGIniousAuthPage):
                 msg = "Incorrect old pasword."
             else:
                 msg = "Profile updated."
+        elif not userdata["username"] and "username" in data:
+            found_user = self.database.users.find_one({"username": data["username"]})
+            if found_user:
+                error = True
+                msg = "Username already taken"
+            else:
+                result = self.database.users.find_one_and_update({"email": userdata["email"]},
+                                                                 {"$set": {"username": data["username"]}},
+                                                                 return_document=ReturnDocument.AFTER)
+                if not result:
+                    error = True
+                    msg = "Incorrect email."
+                else:
+                    self.user_manager.connect_user(result["username"], result["realname"], result["email"])
+                    msg = "Profile updated."
+
         else:
             result = self.database.users.find_one_and_update({"username": self.user_manager.session_username()},
                                                              {"$set": {"realname": data["realname"]}},
@@ -61,7 +77,7 @@ class ProfilePage(INGIniousAuthPage):
 
     def GET_AUTH(self):  # pylint: disable=arguments-differ
         """ GET request """
-        userdata = self.database.users.find_one({"username": self.user_manager.session_username()})
+        userdata = self.database.users.find_one({"email": self.user_manager.session_email()})
 
         if not userdata:
             raise web.notfound()
@@ -70,7 +86,7 @@ class ProfilePage(INGIniousAuthPage):
 
     def POST_AUTH(self):  # pylint: disable=arguments-differ
         """ POST request """
-        userdata = self.database.users.find_one({"username": self.user_manager.session_username()})
+        userdata = self.database.users.find_one({"email": self.user_manager.session_email()})
 
         if not userdata:
             raise web.notfound()

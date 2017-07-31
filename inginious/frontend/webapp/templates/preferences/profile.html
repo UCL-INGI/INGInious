@@ -18,6 +18,8 @@ $def NavbarF():
     </ol>
 $var Navbar: $:NavbarF()
 
+<h2>My profile</h2>
+
 $if error:
     <div class="alert alert-danger alert-dismissable">
         <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -29,13 +31,17 @@ $elif msg:
         $:msg
     </div>
 
+$if not user_manager.session_username():
+    <div class="alert alert-warning alert-dismissable">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        Please set a new username
+    </div>
 
-<h2>My profile</h2>
 <form method="post" class="form-horizontal">
     <div class="row">
         <div class="col-sm-12">
             <label class="control-label">Username : </label>
-            <input name="username" type="text" class="form-control" value="$user_manager.session_username()" disabled>
+            <input name="username" type="text" class="form-control" value="$user_manager.session_username()" $('disabled' if user_manager.session_username() else '')>
         </div>
         <div class="col-sm-12">
             <label class="control-label">Complete name : </label>

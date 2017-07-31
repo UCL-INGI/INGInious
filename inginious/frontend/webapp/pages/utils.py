@@ -135,6 +135,9 @@ class INGIniousAuthPage(INGIniousPage):
                 self.user_manager.disconnect_user()
                 return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods(), False)
 
+            if not self.user_manager.session_username() and not self.__class__.__name__ == "ProfilePage":
+                raise web.seeother("/preferences/profile")
+
             if not self.is_lti_page and self.user_manager.session_lti_info() is not None: #lti session
                 self.user_manager.disconnect_user()
                 return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods(), False)
@@ -149,6 +152,9 @@ class INGIniousAuthPage(INGIniousPage):
         Otherwise, returns the login template.
         """
         if self.user_manager.session_logged_in():
+            if not self.user_manager.session_username() and not self.__class__.__name__ == "ProfilePage":
+                raise web.seeother("/preferences/profile")
+
             if not self.is_lti_page and self.user_manager.session_lti_info() is not None:  # lti session
                 self.user_manager.disconnect_user()
                 return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_fields(), False)
