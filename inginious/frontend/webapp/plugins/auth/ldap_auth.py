@@ -9,10 +9,11 @@ from collections import OrderedDict
 import ldap3
 import logging
 import web
-import requests
 
 from inginious.frontend.webapp.user_manager import AuthMethod
-from inginious.frontend.webapp.pages.utils import INGIniousPage, INGIniousAuthPage
+from inginious.frontend.webapp.pages.utils import INGIniousPage
+from inginious.frontend.webapp.pages.auth import AuthenticationPage
+
 
 logger = logging.getLogger('inginious.webapp.plugin.auth.ldap')
 
@@ -52,7 +53,7 @@ class LdapAuthMethod(AuthMethod):
         return self._settings
 
 
-class LDAPAuthenticationPage(INGIniousPage):
+class LDAPAuthenticationPage(AuthenticationPage):
     def GET(self, id):
         settings = self.user_manager.get_auth_method(id).get_settings()
         return self.template_helper.get_custom_renderer('frontend/webapp/plugins/auth').custom_auth_form(settings,
@@ -108,40 +109,8 @@ class LDAPAuthenticationPage(INGIniousPage):
 
             conn.unbind()
 
-            # TODO: remove duplicate code for session opening from here
+            self.process_binding(id, (username, realname, email))
 
-            # Look for already bound auth method username
-            user_profile = self.database.users.find_one({"bindings." + id: username})
-
-            if user_profile and not self.user_manager.session_logged_in():
-                # Sign in
-                self.user_manager.connect_user(user_profile["username"], user_profile["realname"],
-                                               user_profile["email"])
-            elif user_profile and self.user_manager.session_username() == user_profile["username"]:
-                # Logged in, refresh fields if found profile username matches session username
-                pass
-            elif user_profile:
-                # Logged in, but already linked to another account
-                pass
-            elif self.user_manager.session_logged_in():
-                # No binding, but logged: add new binding
-                self.database.users.find_one_and_update({"username": self.user_manager.session_username()},
-                                                        {"$set": {"bindings." + id: [username, {}]}})
-
-            else:
-                # No binding, check for email
-                user_profile = self.database.users.find_one({"email": email})
-                if user_profile:
-                    # Found an email, existing user account, abort without binding
-                    logger.info("Tried to create new account using bind for existing email")
-                    pass
-                else:
-                    # New user, create an account using email address
-                    self.database.users.insert({"username": username,
-                                                "realname": realname,
-                                                "email": email,
-                                                "bindings": {id: [username, {}]}})
-                    self.user_manager.connect_user(username, realname, email)
             raise web.seeother(self.user_manager.session_redir_url())
         else:
             logger.debug('Auth Failed')

@@ -30,41 +30,44 @@ class AuthenticationPage(INGIniousPage):
         user = auth_method.callback(self.user_manager)
 
         if user:
-            username, realname, email = user
-
-            # Look for already bound auth method username
-            user_profile = self.database.users.find_one({"bindings." + auth_id: username})
-
-            if user_profile and not self.user_manager.session_logged_in():
-                # Sign in
-                self.user_manager.connect_user(user_profile["username"], user_profile["realname"], user_profile["email"])
-            elif user_profile and self.user_manager.session_username() == user_profile["username"]:
-                # Logged in, refresh fields if found profile username matches session username
-                pass
-            elif user_profile:
-                # Logged in, but already linked to another account
-                self.logger.exception("Tried to bind an already bound account !")
-            elif self.user_manager.session_logged_in():
-                # No binding, but logged: add new binding
-                self.database.users.find_one_and_update({"username": self.user_manager.session_username()},
-                                                        {"$set": {"bindings." + auth_id: [username, {}]}},
-                                                        return_document=ReturnDocument.AFTER)
-
-            else:
-                # No binding, check for email
-                user_profile = self.database.users.find_one({"email": email})
-                if user_profile:
-                    # Found an email, existing user account, abort without binding
-                    self.logger.exception("The binding email is already used by another account!")
-                else:
-                    # New user, create an account using email address
-                    self.database.users.insert({"username": "",
-                                                "realname": realname,
-                                                "email": email,
-                                                "bindings": {auth_id: [username, {}]}})
-                    self.user_manager.connect_user("", realname, email)
+            self.process_binding(auth_id, user)
 
         raise web.seeother(self.user_manager.session_redir_url())
+
+    def process_binding(self, auth_id, user):
+        username, realname, email = user
+
+        # Look for already bound auth method username
+        user_profile = self.database.users.find_one({"bindings." + auth_id: username})
+
+        if user_profile and not self.user_manager.session_logged_in():
+            # Sign in
+            self.user_manager.connect_user(user_profile["username"], user_profile["realname"], user_profile["email"])
+        elif user_profile and self.user_manager.session_username() == user_profile["username"]:
+            # Logged in, refresh fields if found profile username matches session username
+            pass
+        elif user_profile:
+            # Logged in, but already linked to another account
+            self.logger.exception("Tried to bind an already bound account !")
+        elif self.user_manager.session_logged_in():
+            # No binding, but logged: add new binding
+            self.database.users.find_one_and_update({"username": self.user_manager.session_username()},
+                                                    {"$set": {"bindings." + auth_id: [username, {}]}},
+                                                    return_document=ReturnDocument.AFTER)
+
+        else:
+            # No binding, check for email
+            user_profile = self.database.users.find_one({"email": email})
+            if user_profile:
+                # Found an email, existing user account, abort without binding
+                self.logger.exception("The binding email is already used by another account!")
+            else:
+                # New user, create an account using email address
+                self.database.users.insert({"username": "",
+                                            "realname": realname,
+                                            "email": email,
+                                            "bindings": {auth_id: [username, {}]}})
+                self.user_manager.connect_user("", realname, email)
 
     def GET(self, auth_id, method):
         if self.user_manager.session_cookieless():
