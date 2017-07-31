@@ -255,21 +255,21 @@ class Installer(object, metaclass=abc.ABCMeta):
             mongo_client = MongoClient(host=host)
         except Exception as e:
             self._display_warning("Cannot connect to MongoDB on host %s: %s" % (host, str(e)))
-            return False
+            return None
 
         try:
             database = mongo_client[database_name]
         except Exception as e:
             self._display_warning("Cannot access database %s: %s" % (database_name, str(e)))
-            return False
+            return None
 
         try:
             GridFS(database)
         except Exception as e:
             self._display_warning("Cannot access gridfs %s: %s" % (database_name, str(e)))
-            return False
+            return None
 
-        return True
+        return database
 
     def configure_mongodb(self):
         """ Configure MongoDB """

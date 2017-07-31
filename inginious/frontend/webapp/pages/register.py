@@ -186,6 +186,10 @@ Someone (probably you) asked to reset your INGInious password. If this was you, 
         elif "lostpasswd" in data:
             msg, error = self.lost_passwd(data)
         elif "resetpasswd" in data:
-            msg, error = self.reset_passwd(data)
+            msg, error, reset = self.get_reset_data(data)
+            if reset:
+                msg, error = self.reset_passwd(data)
+            if not error:
+                reset = None
 
         return self.template_helper.get_renderer().register(reset, msg, error)
