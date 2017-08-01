@@ -47,7 +47,7 @@ class DeletePage(INGIniousAuthPage):
         """ GET request """
         userdata = self.database.users.find_one({"username": self.user_manager.session_username()})
 
-        if not userdata:
+        if not userdata or not self.app.allow_deletion:
             raise web.notfound()
 
         return self.template_helper.get_renderer().preferences.delete("", False)
@@ -56,7 +56,7 @@ class DeletePage(INGIniousAuthPage):
         """ POST request """
         userdata = self.database.users.find_one({"username": self.user_manager.session_username()})
 
-        if not userdata:
+        if not userdata or not self.app.allow_deletion:
             raise web.notfound()
 
         msg = ""

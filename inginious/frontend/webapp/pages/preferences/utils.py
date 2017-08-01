@@ -8,12 +8,14 @@ import web
 from inginious.frontend.webapp.pages.utils import INGIniousAuthPage
 
 
-def get_menu(current, renderer, plugin_manager, user_manager):
+def get_menu(app, current, renderer, plugin_manager, user_manager):
     default_entries = []
 
     default_entries += [("profile", "<i class='fa fa-user fa-fw'></i>&nbsp; My profile"),
-                        ("bindings", "<i class='fa fa-id-card-o fa-fw'></i>&nbsp; Authentication bindings"),
-                        ("delete", "<i class='fa fa-user-times fa-fw'></i>&nbsp; Delete my account")]
+                        ("bindings", "<i class='fa fa-id-card-o fa-fw'></i>&nbsp; Authentication bindings")]
+
+    if app.allow_deletion:
+        default_entries += [("delete", "<i class='fa fa-user-times fa-fw'></i>&nbsp; Delete my account")]
 
     # Hook should return a tuple (link,name) where link is the relative link from the index of the course administration.
     additional_entries = [entry for entry in plugin_manager.call_hook('prefs_menu') if entry is not None]

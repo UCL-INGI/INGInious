@@ -171,7 +171,7 @@ def get_app(config):
                               lambda course, current: course_admin_utils.get_menu(course, current, template_helper.get_renderer(False),
                                                                                   plugin_manager, user_manager))
     template_helper.add_other("preferences_menu",
-                              lambda current: preferences_utils.get_menu(current, template_helper.get_renderer(False),
+                              lambda current: preferences_utils.get_menu(appli, current, template_helper.get_renderer(False),
                                                                                  plugin_manager, user_manager))
 
     # Not found page
@@ -196,6 +196,7 @@ def get_app(config):
     appli.webterm_link = config.get("webterm", None)
     appli.lti_outcome_manager = lti_outcome_manager
     appli.allow_registration = config.get("allow_registration", True)
+    appli.allow_deletion = config.get("allow_deletion", True)
 
     # Init the mapping of the app
     appli.init_mapping(urls)
