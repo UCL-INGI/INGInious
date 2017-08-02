@@ -6,7 +6,6 @@
 import os
 import re
 import json
-import base64
 
 import inginious
 
@@ -42,7 +41,7 @@ def get_input(problem):
         if len(pbsplit) > 1 and pbsplit[1] == 'filename':
             return problem_input["filename"]
         else:
-            return base64.b64decode(problem_input["value"])
+            return open(problem_input["value"], 'rb').read()
     else:
         return problem_input
 
@@ -71,7 +70,7 @@ def parse_template(input_filename, output_filename=''):
             regex = re.compile("@([^@]*)@" + displayed_field + '@([^@]*)@')
             for prefix, postfix in set(regex.findall(template)):
                 if sub == "value":
-                    text = base64.b64decode(data['input'][field][sub]).decode('utf-8')
+                    text = open(data['input'][field][sub], 'rb').read().decode('utf-8')
                 elif sub:
                     text = data['input'][field][sub]
                 else:

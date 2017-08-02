@@ -235,6 +235,23 @@ class INGIniousMainRunner(object):
 
         await self.send_intern_message({"type": "done"})
 
+    def write_inputdata(self, data):
+        unwritable_idx = 0
+        if "input" in data:
+            for d in data["input"].values():
+                try:
+                    if d.keys() == {"filename", "value"}:
+                        filename = "/.__input/__inputfile_{}".format(unwritable_idx)
+                        unwritable_idx += 1
+                        open(filename, 'wb').write(d["value"])
+                        d["value"] = filename
+                except:
+                    pass
+
+        f = open('/.__input/__inputdata.json', 'w')
+        f.write(json.dumps(data))
+        f.close()
+
     def _start_cmd_sync(self, data):
         self._logger.info("starting run")
         # Determining if debug mode or not
@@ -243,9 +260,7 @@ class INGIniousMainRunner(object):
         # Create input data directory
         if not os.path.exists("/.__input"):
             os.mkdir("/.__input")
-        f = open('/.__input/__inputdata.json', 'w')
-        f.write(json.dumps(data))
-        f.close()
+        self.write_inputdata(data)
 
         # Create tests directory
         if not os.path.exists("/.__tests"):
