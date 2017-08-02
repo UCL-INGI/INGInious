@@ -24,15 +24,18 @@ $def NavbarF():
 $var Navbar: $:NavbarF()
 
 <h2>Results for task "$task.get_name()"</h2>
-    <div role="tabpanel">
-        <ul class="nav nav-tabs" id="edit_task_tabs" role="tablist">
-                        <li role="presentation" class="active"><a href="#tab_indiv" aria-controls="basicinfo" role="tab" data-toggle="tab"><i class="fa
-                fa-user fa-fw"></i>&nbsp; Individual results</a></li>
-                        <li role="presentation"><a href="#tab_aggregation" aria-controls="container" role="tab" data-toggle="tab"><i class="fa
-                fa-users fa-fw"></i>&nbsp; $("Classroom" if use_classrooms else "Team") results</a></li>
-        </ul>
-        <div id="edit_task_tabs_content" class="tab-content">
-                <div role="tabpanel" class="tab-pane active" id="tab_indiv">
+                    $if not course.is_lti():
+                        <div role="tabpanel">
+                            <ul class="nav nav-tabs" id="edit_task_tabs" role="tablist">
+                                            <li role="presentation" class="active"><a href="#tab_indiv" aria-controls="basicinfo" role="tab" data-toggle="tab"><i class="fa
+                                    fa-user fa-fw"></i>&nbsp; Individual results</a></li>
+                                            <li role="presentation"><a href="#tab_aggregation" aria-controls="container" role="tab" data-toggle="tab"><i class="fa
+                                    fa-users fa-fw"></i>&nbsp; $("Classroom" if use_classrooms else "Team") results</a></li>
+                            </ul>
+                            <div id="edit_task_tabs_content" class="tab-content">
+                                    <div role="tabpanel" class="tab-pane active" id="tab_indiv">
+
+
                     <table class="table">
                         <thead>
                             <tr>
@@ -94,73 +97,75 @@ $var Navbar: $:NavbarF()
                             </tr>
                         </tbody>
                     </table>
-                </div>
-                <div role="tabpanel" class="tab-pane" id="tab_aggregation">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>$("Classroom" if use_classrooms else "Team")</th>
-                                <th>Status</th>
-                                <th># submissions</th>
-                                <th>
-                                    <div class="btn-group" role="group">
-                                        <a href="$get_homepath()/admin/${course.get_id()}/download?format=taskid%2Faggregation&tasks=$task.get_id()" class="btn btn-danger
-                                            btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                                        $if is_admin:
-                                            <a href="$get_homepath()/admin/${course.get_id()}/replay?format=taskid%2Faggregation&tasks=$task.get_id()" class="btn btn-warning
-                                                btn-xs" title="Replay all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
-                                        <a href="$get_homepath()/admin/${course.get_id()}/task/${task.get_id()}?csv=aggregations" class="btn btn-info btn-xs" title="Download CSV"
-                                           data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
-                                    </div>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        $ text = ["My classroom(s)","Other classroom(s)"] if use_classrooms else ["My team(s)","Other team(s)"]
-                        $for ind in range(0,2):
-                            $if len(aggregation_data[ind]) > 0:
-                                $if len(aggregation_data[0]) > 0 and len(aggregation_data[1]) > 0:
-                                    <tr>
-                                        <th colspan="5">$text[ind]</th>
-                                    </tr>
-                            $for aggregation in aggregation_data[ind]:
-                                $if course.use_classrooms() or len(aggregation['groups']) > 0:
-                                    <tr
-                                        $if aggregation["status"] == "notattempted":
-                                            class="warning"
-                                        $elif aggregation["status"] == "succeeded":
-                                            class="success"
-                                        $elif aggregation["status"] == "failed":
-                                            class="danger"
-                                    >
-                                        <td>
-                                            <a href="$get_homepath()/admin/${course.get_id()}/aggregation/$aggregation['_id']">$aggregation['description']</a>
-                                        </td>
-                                        <td>
-                                            $if aggregation["status"] == "notviewed":
-                                                Not viewed
-                                            $elif aggregation["status"] == "notattempted":
-                                                Not attempted (viewed)
+
+        $if not course.is_lti():
+                    </div>
+                    <div role="tabpanel" class="tab-pane" id="tab_aggregation">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>$("Classroom" if use_classrooms else "Team")</th>
+                                    <th>Status</th>
+                                    <th># submissions</th>
+                                    <th>
+                                        <div class="btn-group" role="group">
+                                            <a href="$get_homepath()/admin/${course.get_id()}/download?format=taskid%2Faggregation&tasks=$task.get_id()" class="btn btn-danger
+                                                btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                                            $if is_admin:
+                                                <a href="$get_homepath()/admin/${course.get_id()}/replay?format=taskid%2Faggregation&tasks=$task.get_id()" class="btn btn-warning
+                                                    btn-xs" title="Replay all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
+                                            <a href="$get_homepath()/admin/${course.get_id()}/task/${task.get_id()}?csv=aggregations" class="btn btn-info btn-xs" title="Download CSV"
+                                               data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
+                                        </div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            $ text = ["My classroom(s)","Other classroom(s)"] if use_classrooms else ["My team(s)","Other team(s)"]
+                            $for ind in range(0,2):
+                                $if len(aggregation_data[ind]) > 0:
+                                    $if len(aggregation_data[0]) > 0 and len(aggregation_data[1]) > 0:
+                                        <tr>
+                                            <th colspan="5">$text[ind]</th>
+                                        </tr>
+                                $for aggregation in aggregation_data[ind]:
+                                    $if course.use_classrooms() or len(aggregation['groups']) > 0:
+                                        <tr
+                                            $if aggregation["status"] == "notattempted":
+                                                class="warning"
                                             $elif aggregation["status"] == "succeeded":
-                                                Succeeded ($aggregation["grade"]%)
-                                            $else:
-                                                Failed ($aggregation["grade"]%)
-                                        </td>
-                                        <td>$aggregation["tried"] </td>
-                                        <td>
-                                            <div class="btn-group" role="group">
-                                                <a href="$get_homepath()/admin/${course.get_id()}/aggregation/$aggregation['_id']/$task.get_id()" class="btn btn-default btn-xs" title="View
-                                                   submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
-                                                <a href="$get_homepath()/admin/${course.get_id()}/download$aggregation['url']" class="btn btn-default btn-xs" title="Download
-                                                   submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                                                $if is_admin:
-                                                    <a href="$get_homepath()/admin/${course.get_id()}/replay$aggregation['url']" class="btn btn-default btn-xs" title="Replay
-                                                       submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                        </tbody>
-                    </table>
+                                                class="success"
+                                            $elif aggregation["status"] == "failed":
+                                                class="danger"
+                                        >
+                                            <td>
+                                                <a href="$get_homepath()/admin/${course.get_id()}/aggregation/$aggregation['_id']">$aggregation['description']</a>
+                                            </td>
+                                            <td>
+                                                $if aggregation["status"] == "notviewed":
+                                                    Not viewed
+                                                $elif aggregation["status"] == "notattempted":
+                                                    Not attempted (viewed)
+                                                $elif aggregation["status"] == "succeeded":
+                                                    Succeeded ($aggregation["grade"]%)
+                                                $else:
+                                                    Failed ($aggregation["grade"]%)
+                                            </td>
+                                            <td>$aggregation["tried"] </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a href="$get_homepath()/admin/${course.get_id()}/aggregation/$aggregation['_id']/$task.get_id()" class="btn btn-default btn-xs" title="View
+                                                       submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
+                                                    <a href="$get_homepath()/admin/${course.get_id()}/download$aggregation['url']" class="btn btn-default btn-xs" title="Download
+                                                       submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                                                    $if is_admin:
+                                                        <a href="$get_homepath()/admin/${course.get_id()}/replay$aggregation['url']" class="btn btn-default btn-xs" title="Replay
+                                                           submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-        </div>
-    </div>
+            </div>
