@@ -37,6 +37,10 @@ class AuthenticationPage(INGIniousPage):
     def process_binding(self, auth_id, user):
         username, realname, email = user
 
+        auth_method = self.user_manager.get_auth_method(auth_id)
+        if not auth_method:
+            raise web.notfound()
+
         # Look for already bound auth method username
         user_profile = self.database.users.find_one({"bindings." + auth_id: username})
 
