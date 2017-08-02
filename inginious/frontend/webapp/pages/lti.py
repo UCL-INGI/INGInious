@@ -36,23 +36,33 @@ class LTIBindPage(INGIniousAuthPage):
     def is_lti_page(self):
         return False
 
+    def fetch_lti_data(self, sessionid):
+        cookieless_session = self.app.get_session().store[sessionid]
+        data = cookieless_session["lti"]
+
+        return cookieless_session, data
+
     def GET_AUTH(self):
         input_data = web.input()
         if "sessionid" not in input_data:
-            return "beu..."
+            return self.template_helper.get_renderer().lti_bind(False, "", None, "Missing LTI session id")
 
-        cookieless_session = self.database.sessions.find_one({"_id": input_data["sessionid"]})
-        data = pickle.loads(base64.b64decode(cookieless_session["data"]["lti"]))
+        try:
+            cookieless_session, data = self.fetch_lti_data(input_data["sessionid"])
+        except KeyError as _:
+            return self.template_helper.get_renderer().lti_bind(False, "", None, "Invalid LTI session id")
 
-        return self.template_helper.get_renderer().lti_bind(False, cookieless_session["data"]["session_id"], data, "")
+        return self.template_helper.get_renderer().lti_bind(False, cookieless_session["session_id"], data, "")
 
     def POST_AUTH(self):
         input_data = web.input()
         if "sessionid" not in input_data:
-            return "beu..."
+            return self.template_helper.get_renderer().lti_bind(False, "", None, "Missing LTI session id")
 
-        cookieless_session = self.database.sessions.find_one({"_id": input_data["sessionid"]})
-        data = pickle.loads(base64.b64decode(cookieless_session["data"]["lti"]))
+        try:
+            cookieless_session, data = self.fetch_lti_data(input_data["sessionid"])
+        except KeyError as _:
+            return self.template_helper.get_renderer().lti_bind(False, "", None, "Invalid LTI session id")
 
         if data:
             user_profile = self.database.users.find_one({"username": self.user_manager.session_username()})
@@ -74,7 +84,7 @@ class LTIBindPage(INGIniousAuthPage):
                 return self.template_helper.get_renderer().lti_bind(False, cookieless_session["data"]["session_id"],
                                                                     data, "Your account is already bound with this context.")
 
-        return self.template_helper.get_renderer().lti_bind(True, cookieless_session["data"]["session_id"], data, "")
+        return self.template_helper.get_renderer().lti_bind(True, cookieless_session["session_id"], data, "")
 
 
 class LTILoginPage(INGIniousPage):
