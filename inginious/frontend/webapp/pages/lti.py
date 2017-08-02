@@ -1,8 +1,6 @@
 # coding=utf-8
 
 import web
-import base64
-import pickle
 
 from inginious.common import exceptions
 from inginious.frontend.webapp.lti_request_validator import LTIValidator
@@ -64,6 +62,13 @@ class LTIBindPage(INGIniousAuthPage):
         except KeyError as _:
             return self.template_helper.get_renderer().lti_bind(False, "", None, "Invalid LTI session id")
 
+        try:
+            course = self.course_factory.get_course(data["task"][0])
+            if data["consumer_key"] not in course.lti_keys().keys():
+                raise Exception()
+        except:
+            return self.template_helper.get_renderer().lti_bind(False, "", None, "Invalid LTI data")
+
         if data:
             user_profile = self.database.users.find_one({"username": self.user_manager.session_username()})
             lti_user_profile = self.database.users.find_one(
@@ -99,6 +104,13 @@ class LTILoginPage(INGIniousPage):
         data = self.user_manager.session_lti_info()
         if data is None:
             raise web.notfound()
+
+        try:
+            course = self.course_factory.get_course(data["task"][0])
+            if data["consumer_key"] not in course.lti_keys().keys():
+                raise Exception()
+        except:
+            return self.template_helper.get_renderer().lti_bind(False, "", None, "Invalid LTI data")
 
         user_profile = self.database.users.find_one({"ltibindings." + data["task"][0] + "." + data["consumer_key"]: data["username"]})
         if user_profile:
