@@ -1,0 +1,26 @@
+#!/bin/python3
+# -*- coding: utf-8 -*-
+#
+# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+# more information about the licensing of this file.
+
+import os
+import sys
+import json
+import argparse
+import inginious
+from inginious import feedback
+
+parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, description='Set the result of the task or specified problem.\n')
+parser.add_argument('-i', '--id', help="problem id", default="")
+parser.add_argument('result', help="result [success|failed|crash|timeout|overflow]")
+args = parser.parse_args()
+
+result = args.result
+problem = args.id
+
+# Doing the real stuff
+if not problem:
+    inginious.feedback.set_global_result(result)
+else:
+    inginious.feedback.set_problem_result(result, problem)

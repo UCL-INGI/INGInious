@@ -4,7 +4,6 @@
 # more information about the licensing of this file.
 
 """ Task page """
-import base64
 import json
 import mimetypes
 import os
@@ -102,7 +101,7 @@ class BaseTaskPage(object):
                 mimetypes.init()
                 mime_type = mimetypes.guess_type(urllib.request.pathname2url(sinput[userinput["questionid"]]['filename']))
                 web.header('Content-Type', mime_type[0])
-                return base64.b64decode(sinput[userinput["questionid"]]['value'])
+                return sinput[userinput["questionid"]]['value']
             else:
                 # Other file, download it as text
                 web.header('Content-Type', 'text/plain')

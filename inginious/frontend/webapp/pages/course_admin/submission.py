@@ -67,10 +67,10 @@ class CourseStudentTaskSubmission(INGIniousAdminPage):
                         if extension in [".zip", ".pdf", ".tgz"]:
                             data["language"] = extension[1:]
                             data["mime"] = "application/" + extension[1:]
-                        data["content"] = base64.b64decode(submission["input"][problem.get_id()]["value"]).encode('utf8')
+                        data["content"] = submission["input"][problem.get_id()]["value"].decode('utf-8')
                     except:
                         data["content"] = None
-                    data["base64"] = submission["input"][problem.get_id()]["value"]
+                    data["base64"] = base64.b64encode(submission["input"][problem.get_id()]["value"]).decode('utf-8')
                 elif isinstance(problem, DisplayableMultipleChoiceProblem):
                     data["content"] = "Multiple choice question: \n"
                     chosen = submission["input"][problem.get_id()]
@@ -130,10 +130,10 @@ class CourseStudentTaskSubmission(INGIniousAdminPage):
                         if extension in [".zip", ".pdf", ".tgz"]:
                             data["language"] = extension[1:]
                             data["mime"] = "application/" + extension[1:]
-                        data["content"] = base64.b64decode(submission["input"][pid]["value"]).decode('utf-8')
+                        data["content"] = submission["input"][pid]["value"].decode('utf-8')
                     except:
                         data["content"] = None
-                    data["base64"] = submission["input"][pid]["value"]
+                    data["base64"] = base64.b64encode(submission["input"][pid]["value"]).decode('utf-8')
                 elif isinstance(submission["input"][pid], str):
                     data["content"] = submission["input"][pid]
                     data["base64"] = base64.b64encode(str(submission["input"][pid]).encode('utf-8')).decode('utf-8')

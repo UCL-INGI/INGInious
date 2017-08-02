@@ -4,7 +4,7 @@
 # more information about the licensing of this file.
 
 """ Manages submissions """
-import json
+import bson
 import logging
 from datetime import datetime
 
@@ -103,7 +103,7 @@ class WebAppSubmissionManager(SubmissionManager):
             ssh_callback = lambda host, port, password: self._handle_ssh_callback(submission["_id"], host, port, password)
 
         # Load input data and add username to dict
-        inputdata = json.loads(self._gridfs.get(submission["input"]).read().decode("utf-8"), encoding="utf8")
+        inputdata = bson.BSON.decode(self._gridfs.get(submission["input"]).read())
 
         if not copy:
             submissionid = submission["_id"]
