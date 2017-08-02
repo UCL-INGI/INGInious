@@ -1,0 +1,61 @@
+$def with (msg, error)
+
+$#
+$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+$# more information about the licensing of this file.
+$#
+
+$var title: Delete my account
+
+$var Column: $:template_helper.call('preferences_menu',current='delete')
+
+$def NavbarF():
+    <ol class="nav navbar-nav nav-breadcrumb">
+        <li>
+            <a href="$get_homepath()/preferences" title="Preferences" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-gears"></i></a>
+        </li>
+        <li class="active"><a href="#"><i class="fa fa-user-times"></i> Delete my account <span class="sr-only">(current)</span></a></li>
+    </ol>
+$var Navbar: $:NavbarF()
+
+$if error:
+    <div class="alert alert-danger alert-dismissable">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        $:msg
+    </div>
+$elif msg:
+    <div class="alert alert-success alert-dismissable">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        $:msg
+    </div>
+
+
+<h2>Delete my account</h2>
+<form method="post" class="form-horizontal">
+    <div class="row">
+        <div class="col-sm-12">
+            <label class="control-label">To confirm, type your email address : </label>
+            <input name="delete_email" type="text" class="form-control">
+        </div>
+        <div class="col-sm-12"><br />
+            <button type="button" data-toggle="modal" data-target="#delete_modal" class="btn btn-danger btn-block"><i class="fa fa-user-times"></i> Delete my account</button>
+        </div>
+    </div>
+    <div id="delete_modal" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Delete my account</h4>
+                </div>
+                <div class="modal-body">
+                    This will also delete all your data ! Are you really sure ?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button type="submit" name="delete" class="btn btn-danger">Delete my account</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

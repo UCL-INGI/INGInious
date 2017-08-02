@@ -1,0 +1,49 @@
+$def with (success, sessionid, data, error)
+
+$#
+$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+$# more information about the licensing of this file.
+$#
+
+$var title: Bind LTI
+
+<h2>Binding to an existing LMS</h2>
+$if error:
+    <div class="alert alert-danger">
+        $error
+    </div>
+
+$if data:
+    <div class="panel panel-warning">
+      <div class="panel-heading">
+        <h3 class="panel-title">Authorization required</h3>
+      </div>
+      <div class="panel-body">
+          You are going to bind your INGInious account <strong>$user_manager.session_realname() [$user_manager.session_username()]</strong>
+          with the following LTI tool and context:
+          <ul>
+              <li><strong>Tool name:</strong> $data["tool_name"]</li>
+              <li><strong>Tool description:</strong> $data["tool_description"]</li>
+              <li><strong>Tool URL:</strong> $data["tool_url"]</li>
+              <li><strong>Tool context:</strong> $data["context_label"] - $data["context_title"]</li>
+              <li><strong>Tool identifiers:</strong> $data["username"] - $data["realname"]</li>
+          </ul>
+          This operation cannot be undone.
+      </div>
+        <div class="panel-footer text-right">
+            <div class="btn-group-sm">
+                <form method="post">
+                    <button type="submit" class="btn btn-sm btn-primary">Bind my account</button>
+                    <button type="button" onclick="window.close()" class="btn btn-sm btn-default" data-dismiss="modal">Cancel</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+$if success:
+    <script type="text/javascript">
+        window.onload = function() {
+            window.opener.location.href = "$get_homepath(True)/@$sessionid@/lti/login";
+            window.close();
+        }
+    </script>

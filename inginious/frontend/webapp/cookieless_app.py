@@ -25,6 +25,9 @@ class CookieLessCompatibleApplication(web.application):
 
     def init_mapping(self, mapping):
         self.mapping = [(r"(/@[a-f0-9A-F_]*@)?" +a, b) for a,b in utils.group(mapping, 2)]
+
+    def add_mapping(self, pattern, classname):
+        self.mapping.append((r"(/@[a-f0-9A-F_]*@)?" + pattern, classname))
     
     def _delegate(self, f, fvars, args=None):
         if args is None:
@@ -106,7 +109,7 @@ class CookieLessCompatibleSession(object):
         try:
             return handler()
         finally:
-            self._save()
+            self.save()
 
     def load(self, session_id=None):
         """ Load the session from the store.
@@ -173,7 +176,7 @@ class CookieLessCompatibleSession(object):
         else:
             self._setcookie(self._data["session_id"], expires=-1)
 
-    def _save(self):
+    def save(self):
         if self._data.get("cookieless", False):
             self._save_cookieless()
         else:
@@ -214,7 +217,7 @@ class CookieLessCompatibleSession(object):
     def expired(self):
         """Called when an expired session is atime"""
         self._data["_killed"] = True
-        self._save()
+        self.save()
         raise SessionExpired(self._config.expired_message)
 
     def kill(self):

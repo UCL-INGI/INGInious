@@ -1,8 +1,0 @@
-$def with(is_user_in_db)
-
-$if is_user_in_db(user_manager.session_username()):
-    <h3>My profile</h3>
-    <div class="list-group">
-        <div class="list-group-item list-group-item-info"><i class="fa fa-info fa-fw"></i> $user_manager.session_realname()</div>
-        <a href="$get_homepath()/profile" class="list-group-item list-group-item-info"><i class="fa fa-user fa-fw"></i> Preferences</a>
-    </div>

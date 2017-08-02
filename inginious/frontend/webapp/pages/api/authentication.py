@@ -55,8 +55,9 @@ class APIAuthentication(APIPage):
         del user_input["auth_method_id"]
 
         try:
-            if self.user_manager.auth_user(int(auth_method_id), dict(user_input), web.ctx['ip']):
-                return 200, {"status": "success", "username": self.user_manager.session_username()}
+            if "login" in user_input and "password" in user_input and \
+                            self.user_manager.auth_user(user_input["login"].strip(), user_input["password"]) is not None:
+                    return 200, {"status": "success", "username": self.user_manager.session_username()}
         except:
             pass
         return 403, {"status": "error"}

@@ -6,6 +6,8 @@
 """ Custom installer for the web app """
 
 import os
+import hashlib
+
 import inginious.frontend.common.installer
 
 
@@ -56,86 +58,53 @@ class Installer(inginious.frontend.common.installer.Installer):
             "require_cert": require_cert
         }
 
-    def test_auth_plugin(self):
-        """  Configures the demo auth plugin """
-        name = self._ask_with_default("Authentication method name (will be displayed on the login page)", "Demo")
-        users = {}
+    def configure_authentication(self, database):
+        """ Configure the authentication """
+        options = {"plugins": [], "superadmins": []}
 
-        self._display_question("Let's add some users")
+        self._display_info("We will now create the first user.")
+
+        username = self._ask_with_default("Enter the login of the superadmin", "superadmin")
+        realname = self._ask_with_default("Enter the name of the superadmin", "INGInious SuperAdmin")
+        email = self._ask_with_default("Enter the email address of the superadmin", "superadmin@inginious.org")
+        password = self._ask_with_default("Enter the password of the superadmin", "superadmin")
+
+        database.users.insert({"username": username,
+                                    "realname": realname,
+                                    "email": email,
+                                    "password": hashlib.sha512(password.encode("utf-8")).hexdigest(),
+                                    "bindings": {}})
+
+        options["superadmins"].append(username)
+
         while True:
-            name = self._ask_with_default("Username", "test")
-            password = self._ask_with_default("Password", "test")
-            users[name] = password
-            if not self._ask_boolean("Would you like to add another user?", False):
-                break
-
-        return {
-            "plugin_module": "inginious.frontend.webapp.plugins.auth.demo_auth",
-            "name": name,
-            "users": users
-        }
-
-    def db_auth_plugin(self):
-        """  Configures the db auth plugin """
-        name = self._ask_with_default("Authentication method name (will be displayed on the login page)", "WebApp")
-
-        return {
-            "plugin_module": "inginious.frontend.webapp.plugins.auth.db_auth",
-            "name": name
-        }
-
-    def configure_authentication(self):
-        """ Configure the authentication plugins """
-        options = {"plugins": []}
-        while True:
-            self._display_info("You can choose an authentication plugin between:")
-            self._display_info("- 1. Test auth plugin. This plugin allows you to test locally INGInious, "
-                               "using password defined in the config file.")
-            self._display_info("- 2. DB auth plugin. This plugin stores users on the web app database and supports"
-                               "self registration")
-            self._display_info("- 3. LDAP auth plugin. This plugin allows to connect to a distant LDAP host.")
-
-            plugin = self._ask_with_default("Enter the corresponding number to your choice", '1')
-            if plugin not in ['1', '2', '3']:
-                continue
-            elif plugin == '1':
-                options["plugins"].append(self.test_auth_plugin())
-            elif plugin == '2':
-                already_in = False
-                for p in options["plugins"]:
-                    if p["plugin_module"] == "inginious.frontend.webapp.plugins.auth.db_auth":
-                        already_in = True
-
-                if not already_in:
-                    options["plugins"].append(self.db_auth_plugin())
-                else:
-                    self._display_warning("DB auth plugin cannot be set more than once !")
-            elif plugin == '3':
-                options["plugins"].append(self.ldap_plugin())
-
             if not self._ask_boolean("Would you like to add another auth method?", False):
                 break
+
+            self._display_info("You can choose an authentication plugin between:")
+            self._display_info("- 1. LDAP auth plugin. This plugin allows to connect to a distant LDAP host.")
+
+            plugin = self._ask_with_default("Enter the corresponding number to your choice", '1')
+            if plugin not in ['1']:
+                continue
+            elif plugin == '1':
+                options["plugins"].append(self.ldap_plugin())
         return options
 
     def frontend_specific_configuration(self, options):
         """ Modify the options for a specific frontend. Should return the new option dict """
+
+        database = self.try_mongodb_opts(options["mongo_opt"]["host"], options["mongo_opt"]["database"])
+
         self._display_header("BACKUP DIRECTORY")
         backup_directory_opt = self.configure_backup_directory()
         options.update(backup_directory_opt)
 
         self._display_header("AUTHENTIFICATION")
-        auth_opts = self.configure_authentication()
+        auth_opts = self.configure_authentication(database)
         options.update(auth_opts)
 
         self._display_info("You may want to add additional plugins to the configuration file.")
-
-        self._display_info("We will now add superadmin users.")
-        options["superadmins"] = []
-        while True:
-            superadmin = self._ask_with_default("Enter the login of a superadmin (leave empty to skip this step)", "")
-            if superadmin == "":
-                break
-            options["superadmins"].append(superadmin)
 
         self._display_header("REMOTE DEBUGGING - IN BROWSER")
         self._display_info("If you want to activate the remote debugging of task in the users' browser, you have to install separately "

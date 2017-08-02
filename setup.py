@@ -56,9 +56,8 @@ setup(
     tests_require=test_requires,
     extras_require={
         "cgi": ["flup>=1.0.3.dev"],
-        #"ldap": ["simpleldap>=0.9"], TODO re-add me once simpleldap PR is accepted
+        "ldap": ["ldap3"],
         "saml2": ["python3-saml"],
-        "ldap": ["pyldap"],  # for custom simple_ldap: TODO remove me once simple_ldap PR is acceped
         "test": test_requires
     },
 

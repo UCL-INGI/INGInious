@@ -23,16 +23,24 @@ from inginious.frontend.common.template_helper import TemplateHelper
 from inginious.frontend.webapp.user_manager import UserManager
 from inginious.frontend.common.session_mongodb import MongoStore
 import inginious.frontend.webapp.pages.course_admin.utils as course_admin_utils
+import inginious.frontend.webapp.pages.preferences.utils as preferences_utils
 from inginious.frontend.common.submission_manager import update_pending_jobs
 
 urls = (
     r'/?', 'inginious.frontend.webapp.pages.index.IndexPage',
     r'/index', 'inginious.frontend.webapp.pages.index.IndexPage',
+    r'/register', 'inginious.frontend.webapp.pages.register.RegistrationPage',
+    r'/auth/([^/]+)/(signin|callback)', 'inginious.frontend.webapp.pages.auth.AuthenticationPage',
+    r'/auth/([^/]+)/callback', 'inginious.frontend.webapp.pages.auth.CallbackPage',
     r'/course/([^/]+)', 'inginious.frontend.webapp.pages.course.CoursePage',
     r'/course/([^/]+)/([^/]+)', 'inginious.frontend.webapp.pages.tasks.TaskPage',
     r'/course/([^/]+)/([^/]+)/(.*)', 'inginious.frontend.webapp.pages.tasks.TaskPageStaticDownload',
     r'/aggregation/([^/]+)', 'inginious.frontend.webapp.pages.aggregation.AggregationPage',
     r'/queue', 'inginious.frontend.webapp.pages.queue.QueuePage',
+    r'/preferences', 'inginious.frontend.webapp.pages.preferences.utils.RedirectPage',
+    r'/preferences/profile', 'inginious.frontend.webapp.pages.preferences.profile.ProfilePage',
+    r'/preferences/bindings', 'inginious.frontend.webapp.pages.preferences.bindings.BindingsPage',
+    r'/preferences/delete', 'inginious.frontend.webapp.pages.preferences.delete.DeletePage',
     r'/admin/([^/]+)', 'inginious.frontend.webapp.pages.course_admin.utils.CourseRedirect',
     r'/admin/([^/]+)/settings', 'inginious.frontend.webapp.pages.course_admin.settings.CourseSettings',
     r'/admin/([^/]+)/students', 'inginious.frontend.webapp.pages.course_admin.student_list.CourseStudentListPage',
@@ -61,6 +69,7 @@ urls = (
     r'/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)/submissions/([a-zA-Z_\-\.0-9]+)',
         'inginious.frontend.webapp.pages.api.submissions.APISubmissionSingle',
     r'/lti/([^/]+)/([^/]+)', 'inginious.frontend.webapp.pages.lti.LTILaunchPage',
+    r'/lti/bind', 'inginious.frontend.webapp.pages.lti.LTIBindPage',
     r'/lti/task', 'inginious.frontend.webapp.pages.lti.LTITaskPage',
     r'/lti/login', 'inginious.frontend.webapp.pages.lti.LTILoginPage'
 )
@@ -154,12 +163,16 @@ def get_app(config):
 
     # Add some helpers for the templates
     template_helper.add_to_template_globals("get_homepath", appli.get_homepath)
+    template_helper.add_to_template_globals("allow_registration", config.get("allow_registration", True))
     template_helper.add_to_template_globals("user_manager", user_manager)
     template_helper.add_to_template_globals("default_allowed_file_extensions", default_allowed_file_extensions)
     template_helper.add_to_template_globals("default_max_file_size", default_max_file_size)
     template_helper.add_other("course_admin_menu",
                               lambda course, current: course_admin_utils.get_menu(course, current, template_helper.get_renderer(False),
                                                                                   plugin_manager, user_manager))
+    template_helper.add_other("preferences_menu",
+                              lambda current: preferences_utils.get_menu(appli, current, template_helper.get_renderer(False),
+                                                                                 plugin_manager, user_manager))
 
     # Not found page
     appli.notfound = lambda: web.notfound(template_helper.get_renderer().notfound('Page not found'))
@@ -182,6 +195,8 @@ def get_app(config):
     appli.backup_dir = config.get("backup_directory", './backup')
     appli.webterm_link = config.get("webterm", None)
     appli.lti_outcome_manager = lti_outcome_manager
+    appli.allow_registration = config.get("allow_registration", True)
+    appli.allow_deletion = config.get("allow_deletion", True)
 
     # Init the mapping of the app
     appli.init_mapping(urls)

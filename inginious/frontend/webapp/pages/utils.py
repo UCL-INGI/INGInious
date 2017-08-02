@@ -8,6 +8,7 @@ from typing import List, Dict
 
 import logging
 import web
+import hashlib
 from gridfs import GridFS
 from pymongo.database import Database
 
@@ -131,16 +132,19 @@ class INGIniousAuthPage(INGIniousPage):
         if self.user_manager.session_logged_in():
             user_input = web.input()
             if "logoff" in user_input:
-                self.user_manager.disconnect_user(web.ctx['ip'])
-                return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_fields(), False)
+                self.user_manager.disconnect_user()
+                return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods(), False)
+
+            if not self.user_manager.session_username() and not self.__class__.__name__ == "ProfilePage":
+                raise web.seeother("/preferences/profile")
 
             if not self.is_lti_page and self.user_manager.session_lti_info() is not None: #lti session
-                self.user_manager.disconnect_user(web.ctx['ip'])
-                return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_fields(), False)
+                self.user_manager.disconnect_user()
+                return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods(), False)
 
             return self.GET_AUTH(*args, **kwargs)
         else:
-            return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_fields(), False)
+            return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods(), False)
 
     def POST(self, *args, **kwargs):
         """
@@ -148,17 +152,21 @@ class INGIniousAuthPage(INGIniousPage):
         Otherwise, returns the login template.
         """
         if self.user_manager.session_logged_in():
+            if not self.user_manager.session_username() and not self.__class__.__name__ == "ProfilePage":
+                raise web.seeother("/preferences/profile")
+
             if not self.is_lti_page and self.user_manager.session_lti_info() is not None:  # lti session
-                self.user_manager.disconnect_user(web.ctx['ip'])
+                self.user_manager.disconnect_user()
                 return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_fields(), False)
 
             return self.POST_AUTH(*args, **kwargs)
         else:
             user_input = web.input()
-            if "@authid" in user_input:
-                if self.user_manager.auth_user(int(user_input["@authid"]), user_input, web.ctx['ip']):
+            if "login" in user_input and "password" in user_input:
+                if self.user_manager.auth_user(user_input["login"].strip(), user_input["password"]) is not None:
                     return self.GET_AUTH(*args, **kwargs)
                 else:
-                    return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_fields(), True)
+                    return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods(), True)
             else:
-                return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_fields(), False)
+                return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods(), False)
+
