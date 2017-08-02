@@ -43,7 +43,7 @@ class ProfilePage(INGIniousAuthPage):
                                                              return_document=ReturnDocument.AFTER)
             if not result:
                 error = True
-                msg = "Incorrect old pasword."
+                msg = "Incorrect old password."
             else:
                 msg = "Profile updated."
         elif not userdata["username"] and "username" in data:
