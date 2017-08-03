@@ -72,8 +72,8 @@ class Agent(object, metaclass=ABCMeta):
         self.__running_job = {}
         self.__running_batch_job = set()
 
-    @abstractproperty
     @property
+    @abstractmethod
     def environments(self):
         """
         :return: a dict of available environments (containers most of the time) in the form
