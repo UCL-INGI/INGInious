@@ -11,14 +11,14 @@ from inginious.common.tasks_problems import CodeProblem, CodeSingleLineProblem, 
 class Task(object):
     """ Contains the data for a task """
 
-    def __init__(self, course, taskid, content, directory_path, hook_manager, task_problem_types=None):
+    def __init__(self, course, taskid, content, task_fs, hook_manager, task_problem_types=None):
         """
             Init the task. course is a Course object, taskid the task id, and content is a dictionnary containing the data needed to initialize the Task object.
             If init_data is None, the data will be taken from the course tasks' directory.
         """
         self._course = course
         self._taskid = taskid
-        self._directory_path = directory_path
+        self._fs = task_fs
         self._hook_manager = hook_manager
 
         task_problem_types = task_problem_types or {"code": CodeProblem, "code-single-line": CodeSingleLineProblem, "code-file": CodeFileProblem,
@@ -106,9 +106,9 @@ class Task(object):
         """ Returns the method used to parse the output of the task: HTML or rst """
         return "HTML" if self._response_is_html else "rst"
 
-    def get_directory_path(self):
-        """ Returns the path to the directory containing the files related to the task """
-        return self._directory_path
+    def get_fs(self):
+        """ Returns a FileSystemProvider which points to the folder of this task """
+        return self._fs
 
     def check_answer(self, task_input):
         """

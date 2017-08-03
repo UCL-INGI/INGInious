@@ -6,7 +6,6 @@
 """ Task page """
 import json
 import mimetypes
-import os
 import posixpath
 import urllib.request, urllib.parse, urllib.error
 
@@ -265,20 +264,19 @@ class TaskPageStaticDownload(INGIniousAuthPage):
                 return self.template_helper.get_renderer().task_unavailable()
 
             path_norm = posixpath.normpath(urllib.parse.unquote(path))
-            public_folder_path = os.path.normpath(os.path.realpath(os.path.join(task.get_directory_path(), "public")))
-            file_path = os.path.normpath(os.path.realpath(os.path.join(public_folder_path, path_norm)))
 
-            # Verify that we are still inside the public directory
-            if os.path.normpath(os.path.commonprefix([public_folder_path, file_path])) != public_folder_path:
-                raise web.notfound()
+            public_folder = task.get_fs().from_subfolder("public")
+            (method, mimetype_or_none, file_or_url) = public_folder.distribute(path_norm, False)
 
-            if os.path.isfile(file_path):
-                mimetypes.init()
-                mime_type = mimetypes.guess_type(file_path)
-                web.header('Content-Type', mime_type[0])
-                return open(file_path, 'rb')
+            if method == "local":
+                web.header('Content-Type', mimetype_or_none)
+                return file_or_url
+            elif method == "url":
+                raise web.redirect(file_or_url)
             else:
                 raise web.notfound()
+        except web.HTTPError as error_or_redirect:
+            raise error_or_redirect
         except:
             if web.config.debug:
                 raise
