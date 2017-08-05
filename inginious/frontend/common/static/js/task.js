@@ -1141,6 +1141,7 @@ function getCallbackForLanguage(language, editor){
   if(language == "java") return updateLintingCallback(editor);
   if(language == "python") return updateLintingCallback(editor);
   if(language == "cpp") return updateLintingCallback(editor);
+  if(language == "c") return updateLintingCallback(editor);
   return defaultCallback;
 }
 
