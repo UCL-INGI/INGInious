@@ -7,8 +7,11 @@
 from gridfs import GridFS
 from pymongo import MongoClient
 import web
+import gettext
+import builtins
 from web.debugerror import debugerror
 
+from inginious import get_root_path
 from inginious.common.entrypoints import filesystem_from_config_dict
 from inginious.common.filesystems.local import LocalFSProvider
 from inginious.frontend.common.arch_helper import create_arch, start_asyncio_and_zmq
@@ -127,7 +130,7 @@ def get_app(config):
     default_allowed_file_extensions = config['allowed_file_extensions']
     default_max_file_size = config['max_file_size']
 
-    zmq_context, _ = start_asyncio_and_zmq()
+    zmq_context, __ = start_asyncio_and_zmq()
 
     # Init the different parts of the app
     plugin_manager = PluginManager()
@@ -151,11 +154,16 @@ def get_app(config):
 
     submission_manager = WebAppSubmissionManager(client, user_manager, database, gridfs, plugin_manager, lti_outcome_manager)
 
-
     template_helper = TemplateHelper(plugin_manager, user_manager, 'frontend/webapp/templates',
                                      'frontend/webapp/templates/layout',
                                      'frontend/webapp/templates/layout_lti',
                                      config.get('use_minified_js', True))
+
+    #Init gettext
+    for lang in ["en", "fr"]:
+        appli.add_translation(lang, gettext.translation('messages', get_root_path() + '/frontend/webapp/i18n', [lang]))
+
+    builtins.__dict__['_'] = appli.gettext
 
     # Init web mail
     smtp_conf = config.get('smtp', None)
@@ -171,6 +179,7 @@ def get_app(config):
     update_database(database, gridfs, course_factory, user_manager)
 
     # Add some helpers for the templates
+    template_helper.add_to_template_globals("_", _)
     template_helper.add_to_template_globals("get_homepath", appli.get_homepath)
     template_helper.add_to_template_globals("allow_registration", config.get("allow_registration", True))
     template_helper.add_to_template_globals("user_manager", user_manager)
