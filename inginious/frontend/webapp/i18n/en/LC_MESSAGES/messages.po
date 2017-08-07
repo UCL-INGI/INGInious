@@ -2659,4 +2659,3 @@ msgstr ""
 #: inginious/frontend/webapp/templates/preferences/profile.html:75
 msgid "Save my profile"
 msgstr ""
-

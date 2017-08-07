@@ -2773,4 +2773,3 @@ msgstr "Confirmez le nouveau mot de passe :"
 #: inginious/frontend/webapp/templates/preferences/profile.html:75
 msgid "Save my profile"
 msgstr "Sauvegarder mon profil"
-
