@@ -11,20 +11,20 @@ $#
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Unregister from $course.get_name()</h4>
+                    <h4 class="modal-title">$:_("Unregister from {}").format(course.get_name())</h4>
                 </div>
                 <div class="modal-body">
-                    <h6><b>This will keep your submissions saved but will remove you from your classroom/teams.</b></h6>
-                    <h6>Are you sure ?</h6>
+                    <h6><b>$:_("This will keep your submissions saved but will remove you from your classroom/teams.")</b></h6>
+                    <h6>$:_("Are you sure ?")</h6>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                    <button type="submit" name="unregister" class="btn btn-danger">Unregister</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">$:_("Cancel")</button>
+                    <button type="submit" name="unregister" class="btn btn-danger">$:_("Unregister")</button>
                 </div>
             </div>
         </div>
     </div>
     <button type="button" data-toggle="modal" data-target="#unregister_modal" class="list-group-item list-group-item-info">
-        <i class="fa fa-user-times fa-fw"></i>&nbsp; Unregister from this course
+        <i class="fa fa-user-times fa-fw"></i>&nbsp; $:_("Unregister from this course")
     </button>
 </form>

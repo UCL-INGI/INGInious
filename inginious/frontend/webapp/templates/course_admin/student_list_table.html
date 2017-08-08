@@ -12,18 +12,18 @@ $ is_admin = user_manager.has_admin_rights_on_course(course)
         <thead>
             <tr>
                 $if is_staff:
-                    <th>member</th>
+                    <th>$:_("member")</th>
                 $else:
-                    <th>student</th>
-                <th># task tried</th>
-                <th># task done</th>
-                <th>current grade</th>
+                    <th>$:_("student")</th>
+                <th>$:_("# task tried")</th>
+                <th>$:_("# task done")</th>
+                <th>$:_("current grade")</th>
                 <th>
                     <div class="btn-group" role="group">
                         <a href="$get_homepath()/admin/${course.get_id()}/download?format=taskid%2Fusername" class="btn btn-danger btn-xs"
-                           title="Download  all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                        <a href="$get_homepath()/admin/${course.get_id()}/students?csv" class="btn btn-info btn-xs" title="Download
-                           CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
+                           title="$:_('Download  all submissions')" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                        <a href="$get_homepath()/admin/${course.get_id()}/students?csv" class="btn btn-info btn-xs"
+                           title="$:_('Download CSV')" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
                         $if not is_staff and is_admin:
                             <button type="button" data-toggle="modal" data-username="all students" data-type="all" data-target="#remove_modal" class="btn btn-warning btn-xs remove_user" title="Unregister all"><i class="fa fa-user-times"></i></button>
                     </div>
@@ -51,12 +51,12 @@ $ is_admin = user_manager.has_admin_rights_on_course(course)
                 </td>
                 <td>
                     <div class="btn-group" role="group">
-                        <a href="$get_homepath()/admin/${course.get_id()}/student/$user['username']" class="btn btn-default btn-xs" title="View submissions"
+                        <a href="$get_homepath()/admin/${course.get_id()}/student/$user['username']" class="btn btn-default btn-xs" title="$:_('View submissions')"
                            data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
-                        <a href="$get_homepath()/admin/${course.get_id()}/download$user['url']" class="btn btn-default btn-xs" title="Download submissions"
+                        <a href="$get_homepath()/admin/${course.get_id()}/download$user['url']" class="btn btn-default btn-xs" title="$:_('Download submissions')"
                            data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
                         $if is_admin:
-                            <a href="$get_homepath()/admin/${course.get_id()}/replay$user['url']" class="btn btn-default btn-xs" title="Replay submissions"
+                            <a href="$get_homepath()/admin/${course.get_id()}/replay$user['url']" class="btn btn-default btn-xs" title="$:_('Replay submissions')"
                                data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
                             <button type="button" data-username="$user['username']" data-type="single" data-toggle="modal" data-target="#remove_modal" class="btn btn-warning btn-xs remove_user" title="Unregister"><i class="fa fa-user-times"></i></button>
                     </div>
@@ -71,16 +71,16 @@ $ is_admin = user_manager.has_admin_rights_on_course(course)
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title">Unregister <span class="username"></span></h4>
+                        <h4 class="modal-title">$:_("Unregister") <span class="username"></span></h4>
                     </div>
                     <div class="modal-body">
-                        <p>This will remove <span class="username"></span> from the course. Are you sure ?</p>
+                        <p>$:_("This will remove {} from the course. Are you sure ?").format('<span class="username"></span>')</p>
                     </div>
                     <div class="modal-footer">
                         <input type="hidden" name="type" id="type">
                         <input type="hidden" name="username" id="username">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                        <button type="submit" name="remove" class="btn btn-danger">Remove <span class="username"></span></button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">$:_("Cancel")</button>
+                        <button type="submit" name="remove" class="btn btn-danger">$:_("Remove {}").format('<span class="username"></span>')</button>
                     </div>
                 </div>
             </div>

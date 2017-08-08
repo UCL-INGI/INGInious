@@ -12,11 +12,11 @@ $#
         </div>
     <table class="table table-bordered table-condensed">
         <tr>
-            <th class="col-sm-8">Path</th>
-            <th class="col-sm-1">Download</th>
-            <th class="col-sm-1">Edit</th>
-            <th class="col-sm-1">Move</th>
-            <th class="col-sm-1">Delete</th>
+            <th class="col-sm-8">$:_("Path")</th>
+            <th class="col-sm-1">$:_("Download")</th>
+            <th class="col-sm-1">$:_("Edit")</th>
+            <th class="col-sm-1">$:_("Move")</th>
+            <th class="col-sm-1">$:_("Delete")</th>
         </tr>
         <tr>
             <td><i class="fa fa-folder-open"></i>&nbsp;/</td>
@@ -31,7 +31,7 @@ $#
             <tr data-x-path="$complete_name">
                 <td>
                     $for i in range(level+1):
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        $:("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;")
                     $if is_directory:
                         <i class="fa fa-folder-open"></i>&nbsp;
                     $name
@@ -56,8 +56,8 @@ $#
             </tr>
         <tr>
             <th colspan="5" style="text-align:right">
-                <a href="#" onclick="studio_task_file_create(); return false;" class="btn btn-sm btn-info">Create a new file</a>
-                <a href="#" onclick="$$('#modal_file_upload').modal('show'); return false;" class="btn btn-sm btn-info">Upload a file</a>
+                <a href="#" onclick="studio_task_file_create(); return false;" class="btn btn-sm btn-info">$:_("Create a new file")</a>
+                <a href="#" onclick="$$('#modal_file_upload').modal('show'); return false;" class="btn btn-sm btn-info">$:_("Upload a file")</a>
             </th>
         </tr>
     </table>

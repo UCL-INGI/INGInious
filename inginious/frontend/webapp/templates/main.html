@@ -5,11 +5,11 @@ $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
-$var title: My courses
+$var title: $:_("My courses")
 
 $# Left column content
 $def ColumnF():
-    <h3>Last tried exercises</h3>
+    <h3>$:_("Last tried exercises")</h3>
     
     <div class="list-group">
         $if submissions:
@@ -28,13 +28,13 @@ $def ColumnF():
                     <b>$submission["task"].get_course().get_name()</b>: $submission["task"].get_name()
                 </a>
         $else:
-            <a class="list-group-item disabled submission-empty">No submissions</a>
+            <a class="list-group-item disabled submission-empty">$:_("No submissions")</a>
     </div>
     $:template_helper.call('main_menu', template_helper=template_helper)
 $var Column: $:ColumnF()
 
 $# Start content
-<h2>My courses</h2>
+<h2>$:_("My courses")</h2>
 <div class="list-group list-group-progress" style="margin-left: 16px; margin-right: 16px;">
 	$if len(open_courses) != 0:
         $ username = user_manager.session_username()
@@ -47,60 +47,60 @@ $# Start content
                     <i class="pull-right">
                         $if not course.is_open_to_non_staff():
                             $if course.is_lti():
-                                LTI course -
+                                $:_("LTI course") -
                             $else:
-                                Course not shown to students -
+                                $:_("Hidden course") -
 
                         $if username in course.get_admins() or user_manager.user_is_superadmin():
-                            Administrator
+                            $:_("Administrator")
                         $elif username in course.get_tutors():
-                            Tutor
+                            $:_("Tutor")
                         $else:
-                            Student
+                            $:_("Student")
                     </i>
                 </div>
             </a>
     $else:
-        <a href="#register" class="list-group-item row disabled">You are not registered to any course</a>
+        <a href="#register" class="list-group-item row disabled">$:_("You are not registered to any course")</a>
 </div>
 <hr/>
 $if user_manager.user_is_superadmin():
     $if success == True:
         <div class="alert alert-success alert-dismissable" role="alert">
             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-            Course created.
+            $:_("Course created.")
         </div>
     $if success == False:
         <div class="alert alert-danger alert-dismissable" role="alert">
             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-            Failed to create the course.
+            $:_("Failed to create the course.")
         </div>
     <form class="form row" role="form" action="$get_homepath()/" method="post">
         <div class="form-group col-sm-8">
-            <label class="sr-only" for="new_courseid">Course</label>
-            <input name="new_courseid" type="text" class="form-control" id="new_courseid" placeholder="New course id">
+            <label class="sr-only" for="new_courseid">$:_("Course")</label>
+            <input name="new_courseid" type="text" class="form-control" id="new_courseid" placeholder="$:_('New course id')">
         </div>
         <div class="form-group col-sm-4">
-            <button type="submit" class="btn btn-block btn-primary">Create new course</button>
+            <button type="submit" class="btn btn-block btn-primary">$:_("Create new course")</button>
         </div>
     </form>
 $else:
-    <h3>Register for a course</h3>
+    <h3>$:_("Register for a course")</h3>
     $if success == True:
         <div class="alert alert-success alert-dismissable" role="alert">
             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-            Registration complete.
+            $:_("Registration complete.")
         </div>
     $elif success == False:
         <div class="alert alert-danger alert-dismissable" role="alert">
             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-            Registration failed. Please check that you properly typed the password.
+            $:_("Registration failed. Please check that you properly typed the password.")
         </div>
     <form class="form row" role="form" action="$get_homepath()/" method="post">
         <div class="form-group col-sm-8">
-            <label class="sr-only" for="register_courseid">Course</label>
+            <label class="sr-only" for="register_courseid">$:_("Course")</label>
             <select class="form-control" id="register_courseid" name="register_courseid">
-                <option value="">Select a course</option>
+                <option value="">$:_("Select a course")</option>
                 $for courseid, course in registrable_courses.items():
                     <option value="$courseid"
                     $if course.is_password_needed_for_registration():
@@ -109,8 +109,8 @@ $else:
             </select>
         </div>
         <div class="form-group col-sm-4">
-            <label class="sr-only" for="register_password">Password</label>
-            <input class="form-control" type="text" id="register_password" name="register_password" disabled="disabled" placeholder="Password">
+            <label class="sr-only" for="register_password">$:_("Password")</label>
+            <input class="form-control" type="text" id="register_password" name="register_password" disabled="disabled" placeholder="$:_('Password')">
         </div>
-        <div class="col-sm-12"><button type="submit" class="btn btn-block btn-default">Register</button></div>
+        <div class="col-sm-12"><button type="submit" class="btn btn-block btn-default">$:_("Register")</button></div>
     </form>

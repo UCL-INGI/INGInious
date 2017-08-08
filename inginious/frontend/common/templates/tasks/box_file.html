@@ -13,8 +13,7 @@ $def sizeof_fmt(num):
                 $ num /= 1024.0
         $return "%3.1f%s" % (num, 'TB')
 
-<a href="" id="download-input-file-$inputId" style="display:none; margin-bottom: 10px;" class="btn btn-info btn-block">Click here to download the file
-    you submitted previously</a>
+<a href="" id="download-input-file-$inputId" style="display:none; margin-bottom: 10px;" class="btn btn-info btn-block">$:_("Click here to download the file you submitted previously")</a>
 
 $ allowed_exts= allowed_exts or default_allowed_file_extensions
 $ max_size= max_size or default_max_file_size
@@ -25,5 +24,5 @@ $ max_size= max_size or default_max_file_size
         data-allowed-exts="$json.dumps(allowed_exts)"
         /><br/>
 
-Max file size: $sizeof_fmt(max_size)<br/>
-Allowed extensions: $', '.join(allowed_exts)
+$:_("Max file size:") $sizeof_fmt(max_size)<br/>
+$:_("Allowed extensions:") $', '.join(allowed_exts)

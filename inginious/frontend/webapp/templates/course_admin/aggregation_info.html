@@ -15,22 +15,22 @@ $ is_admin = user_manager.has_admin_rights_on_course(course)
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
         <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+        <li><a href="$get_homepath()/admin/$course.get_id()" title=" $:_('Administration')" data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-user-secret"></i></a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()/aggregations" title="$('Classroom' if use_classrooms else 'Team')s" data-toggle="tooltip" data-placement="bottom">
+        <li><a href="$get_homepath()/admin/$course.get_id()/aggregations" title="$(_('Classrooms') if use_classrooms else _('Teams'))" data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-group"></i></a></li>
 
-        <li class="active"><a href="#">$aggregation["description"] <span class="sr-only">(current)</span></a></li>
+        <li class="active"><a href="#">$aggregation["description"] <span class="sr-only">$:_("(current)")</span></a></li>
     </ol>
 $var Navbar: $:NavbarF()
 
-<h2>Statistics for $("classroom" if use_classrooms else "group") $aggregation["description"]</h2>
+<h2>$((_("Statistics for classroom {}") if use_classrooms else _("Statistics for group {}")).format(aggregation["description"]))</h2>
 <table class="table">
     <thead>
         <tr>
-            <th>Task</th>
-            <th>Status</th>
-            <th># submissions</th>
+            <th>$:_("Task")</th>
+            <th>$:_("Status")</th>
+            <th>$:_("# submissions")</th>
             <th>
                 <div class="btn-group" role="group">
                     <a href="$get_homepath()/admin/${course.get_id()}/download?format=taskid%2Faggregation&aggregations=$aggregation['_id']"
@@ -59,13 +59,13 @@ $var Navbar: $:NavbarF()
     		<td><a href="$get_homepath()/admin/${course.get_id()}/aggregation/$aggregation['_id']/$task['taskid']">$task["name"]</a></td>
     		<td>
                 $if task["status"] == "notviewed":
-                    Not viewed
+                    $:_("Not viewed")
                 $elif task["status"] == "notattempted":
-                    Not attempted (viewed)
+                     $:_("Not attempted (viewed)")
                 $elif task["status"] == "succeeded":
-                    Succeeded ($task["grade"]%)
+                     $:_("Succeeded") ($task["grade"]%)
                 $else:
-                    Failed ($task["grade"]%)
+                     $:_("Failed") ($task["grade"]%)
             </td>
             <td>$task["tried"]</td>
     		<td>

@@ -12,14 +12,14 @@ $#
     </div>
     <div class="col-sm-3">
         <button type="button" data-toggle="modal" data-target="#delete_modal" class="btn btn-block btn-danger">
-            <i class="fa fa-trash"></i> Delete task
+            <i class="fa fa-trash"></i> $:_("Delete task")
         </button>
     </div>
 
 </div>
 $if len(available_filetypes) != 1:
     <div class="form-group">
-        <label for="name" class="col-sm-2 control-label">Filetype</label>
+        <label for="name" class="col-sm-2 control-label">$:_("Filetype")</label>
         <div class="col-sm-10">
             <select class="form-control" id="@filetype" name="@filetype">
                 $for type in available_filetypes:
@@ -33,53 +33,53 @@ $if len(available_filetypes) != 1:
 $else:
     <input type="hidden" id="@filetype" name="@filetype" value="$available_filetypes[0]"/>
 <div class="form-group">
-    <label for="context" class="col-sm-2 control-label">Context</label>
+    <label for="context" class="col-sm-2 control-label">$:_("Context")</label>
     <div class="col-sm-10">
         <textarea id="context" class="code-editor form-control" name="context" data-x-language="rst" data-x-lines="10">${task_data.get('context','')}</textarea>
     </div>
 </div>
 <div class="form-group">
-    <label for="author" class="col-sm-2 control-label">Author</label>
+    <label for="author" class="col-sm-2 control-label">$:_("Author")</label>
     <div class="col-sm-10">
         $if isinstance(task_data.get('author',[]),list):
             $ a=', '.join(task_data.get('author',[]))
         $else:
             $ a=task_data.get('author',[])
-        <input type="text" class="form-control" id="author" name="author" placeholder="Your name" value="$a"/>
+        <input type="text" class="form-control" id="author" name="author" placeholder="$:_('Your name')" value="$a"/>
     </div>
 </div>
 <div class="form-group">
-    <label for="author" class="col-sm-2 control-label">Grade weight (in comparison to other tasks)</label>
+    <label for="author" class="col-sm-2 control-label">$:_("Grade weight (in comparison to other tasks)")</label>
     <div class="col-sm-10">
         <input type="text" class="form-control" id="weight" name="weight" placeholder="1.00" value="${task_data.get('weight',1.00)}">
     </div>
 </div>
 <div class="form-group">
-    <label for="groups" class="col-sm-2 control-label">Submission mode</label>
+    <label for="groups" class="col-sm-2 control-label">$:_("Submission mode")</label>
     <div class="col-sm-10">
         <label>
             <input type="radio" value="false" name="groups" id="groups"
                 $if not task_data.get('groups', False):
                     checked="checked"
-            /> Individually
+            /> $:_("Individually")
         </label><br/>
         <label>
             <input type="radio" value="true" name="groups"
                 $if task_data.get('groups', False):
                     checked="checked"
-            /> Per group/team
+            /> $:_("Per group/team")
         </label>
     </div>
 </div>
 <div class="form-group">
-    <label for="groups" class="col-sm-2 control-label">Submission storage</label>
+    <label for="groups" class="col-sm-2 control-label">$:_("Submission storage")</label>
     <div class="col-sm-10">
         $ stored_submissions = task_data.get('stored_submissions', 0)
         <label>
             <input type="radio" value="true" name="store_all" id="store_all"
                 $if stored_submissions == 0:
                     checked="checked"
-            /> All submissions
+            /> $:_("All submissions")
         </label><br/>
         <div class="row">
             <div class="col-xs-12 col-lg-3">
@@ -87,20 +87,20 @@ $else:
                     <input type="radio" value="false" name="store_all"
                         $if stored_submissions > 0:
                             checked="checked"
-                    /> Only the last
+                    /> $:_("Only the last {} sumbmissions").split("{}")[0]
                 </label>
             </div>
             <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-2"><input name="stored_submissions" class="form-control input-xs" style="height:20px;padding: 0 10px;" value="$(stored_submissions if stored_submissions > 0 else '')" placeholder="5" type='number'></div>
-            <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-3"><label>submission(s)</label></div>
+            <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-3"><label>$:_("Only the last {} sumbmissions").split("{}")[1]</label></div>
         </div>
     </div>
 </div>
 <div class="form-group">
-    <label for="groups" class="col-sm-2 control-label">Submission limits</label>
+    <label for="groups" class="col-sm-2 control-label">$:_("Submission limits")</label>
     <div class="col-sm-10">
         $ submission_limit = task_data.get('submission_limit', {"amount":-1, "period":-1})
         <label>
-            <input type="radio" value="none" name="submission_limit" id="submission_limit" $('checked="checked"' if submission_limit == {"amount":-1, "period":-1} else '') /> No limitation
+            <input type="radio" value="none" name="submission_limit" id="submission_limit" $('checked="checked"' if submission_limit == {"amount":-1, "period":-1} else '') /> $:_("No limitation")
         </label><br/>
         <div class="row">
             <div class="col-xs-12 col-lg-3">
@@ -108,11 +108,11 @@ $else:
                     <input type="radio" value="hard" name="submission_limit"
                         $if submission_limit["period"] == -1 and submission_limit['amount'] > 0:
                             checked="checked"
-                    /> Hard limit:
+                    /> $:_("Hard limit:")
                 </label>
             </div>
             <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-2"><input name="submission_limit_hard" class="form-control input-xs" style="height:20px;padding: 0 10px;" value="$(submission_limit['amount'] if submission_limit['period'] == -1 and submission_limit['amount'] > 0 else '')" placeholder="5"  type='number'></div>
-            <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-3"><label>submission(s)</label></div>
+            <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-3"><label>$:_("submission(s)")</label></div>
         </div>
         <div class="row">
             <div class="col-xs-12 col-lg-3">
@@ -120,53 +120,54 @@ $else:
                     <input type="radio" value="soft" name="submission_limit"
                         $if submission_limit['period'] > 0:
                             checked="checked"
-                    /> Soft limit:
+                    /> $:_("Soft limit:")
                 </label>
             </div>
+            $ text = _("{} submission(s) every {} hour(s)").split("{}")
             <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-2"><input name="submission_limit_soft_0" class="form-control input-xs" style="height:20px;padding: 0 10px;" value="$(submission_limit['amount'] if submission_limit['amount'] > 0 and submission_limit['period'] > 0 else '')" placeholder="5" type='number'></div>
-            <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-3"><label>submission(s) every</label></div>
+            <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-3"><label>$text[1]</label></div>
             <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-2"><input name="submission_limit_soft_1" class="form-control input-xs" style="height:20px;padding: 0 10px;" value="$(submission_limit['period'] if submission_limit['period'] > 0 else '')" placeholder="5" type='number'></div>
-            <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-1"><label>hour(s)</label></div>
+            <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-1"><label>$text[2]</label></div>
         </div>
     </div>
 </div>
 <div class="form-group">
-    <label for="groups" class="col-sm-2 control-label">Evaluation submission</label>
+    <label for="groups" class="col-sm-2 control-label">$:_("Evaluation submission")</label>
     <div class="col-sm-10">
         <label>
             <input type="radio" value="best" name="evaluate" id="evaluate"
                 $if task_data.get('evaluate', 'best') == 'best':
                     checked="checked"
-            /> Best submission
+            /> $:_("Best submission")
         </label><br/>
         <label>
             <input type="radio" value="last" name="evaluate"
                 $if task_data.get('evaluate', 'best') == 'last':
                     checked="checked"
-            /> Last submission
+            /> $:_("Last submission")
         </label><br/>
         <label>
             <input type="radio" value="student" name="evaluate"
                 $if task_data.get('evaluate', 'best') == 'student':
                     checked="checked"
-            /> Student choice
+            /> $:_("Student choice")
         </label>
     </div>
 </div>
 <div class="form-group">
-    <label for="accessible" class="col-sm-2 control-label">Accessible</label>
+    <label for="accessible" class="col-sm-2 control-label">$:_("Accessible")</label>
     <div class="col-sm-10">
         <label>
             <input type="radio" value="false" name="accessible"
                 $if task_data.get('accessible',True) == False:
                     checked="checked"
-            /> Never
+            /> $:_("Never")
         </label><br/>
         <label>
             <input type="radio" value="true" name="accessible"
                 $if task_data.get('accessible',True) == True:
                     checked="checked"
-            /> Always
+            /> $:_("Always")
         </label><br/>
         <div class="row">
             <div class="col-xs-12 col-lg-3">
@@ -174,7 +175,9 @@ $else:
                     <input type="radio" value="custom" name="accessible"
                         $if task_data.get('accessible',True) not in [True, False]:
                             checked="checked"
-                    /> Custom, from:</label>
+                    />
+                    $ text = _("Custom, from: {} to: {}").split("{}")
+                    $:text[0]</label>
             </div>
             $ at = AccessibleTime(task_data.get('accessible',True))
             <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-4">
@@ -183,7 +186,7 @@ $else:
                     <span class="input-group-addon btn-xs" style="width:0px;"><i class="fa fa-calendar"></i></span>
                 </div>
             </div>
-            <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-1"><label class="control-label">to:</label></div>
+            <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-1"><label class="control-label">$text[1]</label></div>
             <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-4">
                 <div class='input-group date' id='accessible_end_picker'>
                     <input name="accessible_end" data-date-format="YYYY-MM-DD HH:mm:ss" value="${at.get_std_end_date()}" placeholder="2014-06-29 10:00" type='text' class="input-xs" />

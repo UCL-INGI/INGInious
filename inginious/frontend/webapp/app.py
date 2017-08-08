@@ -180,6 +180,7 @@ def get_app(config):
 
     # Add some helpers for the templates
     template_helper.add_to_template_globals("_", _)
+    template_helper.add_to_template_globals("str", str)
     template_helper.add_to_template_globals("get_homepath", appli.get_homepath)
     template_helper.add_to_template_globals("allow_registration", config.get("allow_registration", True))
     template_helper.add_to_template_globals("user_manager", user_manager)

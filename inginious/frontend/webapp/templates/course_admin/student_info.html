@@ -14,33 +14,33 @@ $ is_admin = user_manager.has_admin_rights_on_course(course)
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
         <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+        <li><a href="$get_homepath()/admin/$course.get_id()" title="$:_('Administration')" data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-user-secret"></i></a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()/students" title="Students" data-toggle="tooltip" data-placement="bottom">
+        <li><a href="$get_homepath()/admin/$course.get_id()/students" title="$:_('Students')" data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-user"></i></a></li>
 
-        <li class="active"><a href="#">$user_realname <span class="sr-only">(current)</span></a></li>
+        <li class="active"><a href="#">$user_realname <span class="sr-only">$:_("(current)")</span></a></li>
     </ol>
 $var Navbar: $:NavbarF()
 
-<h2>Statistics for student $user_realname ($username)</h2>
+<h2>$:_("Statistics for student {realname} ({username})").format(realname=user_realname, username=username)</h2>
 <table class="table">
     <thead>
         <tr>
-            <th>task</th>
-            <th>status</th>
-            <th># submissions</th>
+            <th>$:_("task")</th>
+            <th>$:_("status")</th>
+            <th>$:_("# submissions")</th>
             <th>
                 <div class="btn-group" role="group">
                     <a href="$get_homepath()/admin/${course.get_id()}/download?format=taskid%2Fusername&users=$username"
-                       class="btn btn-danger btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa
+                       class="btn btn-danger btn-xs" title="$:_('Download all submissions')" data-toggle="tooltip" data-placement="bottom"><i class="fa
                        fa-download"></i></a>
                     $if is_admin:
                         <a href="$get_homepath()/admin/${course.get_id()}/replay?format=taskid%2Fusername&users=$username"
-                           class="btn btn-danger btn-xs" title="Replay all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa
+                           class="btn btn-danger btn-xs" title="$:_('Replay all submissions')" data-toggle="tooltip" data-placement="bottom"><i class="fa
                            fa-refresh"></i></a>
-                    <a href="$get_homepath()/admin/${course.get_id()}/student/${username}?csv" class="btn btn-info btn-xs" title="Download
-                       CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
+                    <a href="$get_homepath()/admin/${course.get_id()}/student/${username}?csv" class="btn btn-info btn-xs"
+                       title="$:_('Download CSV')" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
                 </div>
             </th>
         </tr>
@@ -58,25 +58,25 @@ $var Navbar: $:NavbarF()
     		<td><a href="$get_homepath()/admin/${course.get_id()}/student/$username/$task['taskid']">$task["name"]</a></td>
     		<td>
                 $if task["status"] == "notviewed":
-                    Not viewed
+                    $:_("Not viewed")
                 $elif task["status"] == "notattempted":
-                    Not attempted (viewed)
+                    $:_("Not attempted (viewed)")
                 $elif task["status"] == "succeeded":
-                    <a href="$get_homepath()/admin/${course.get_id()}/student/$username/$task['taskid']/$task['submissionid']" title="View evaluation submission"
-                        data-toggle="tooltip" data-placement="bottom">Succeeded ($task["grade"]%)</a>
+                    <a href="$get_homepath()/admin/${course.get_id()}/student/$username/$task['taskid']/$task['submissionid']" title="$:_('View evaluation submission')"
+                        data-toggle="tooltip" data-placement="bottom">$:_("Succeeded") ($task["grade"]%)</a>
                 $else:
-                    <a href="$get_homepath()/admin/${course.get_id()}/student/$username/$task['taskid']/$task['submissionid']" title="View evaluation submission"
-                        data-toggle="tooltip" data-placement="bottom">Failed ($task["grade"]%)</a>
+                    <a href="$get_homepath()/admin/${course.get_id()}/student/$username/$task['taskid']/$task['submissionid']" title="$:_('View evaluation submission')"
+                        data-toggle="tooltip" data-placement="bottom">$:_("Failed") ($task["grade"]%)</a>
             </td>
             <td>$task["tried"]</td>
     		<td>
                 <div class="btn-group" role="group">
-                    <a href="$get_homepath()/admin/${course.get_id()}/student/$username/$task['taskid']" class="btn btn-default btn-xs" title="View all submissions"
+                    <a href="$get_homepath()/admin/${course.get_id()}/student/$username/$task['taskid']" class="btn btn-default btn-xs" title="$:_('View all submissions')"
                        data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
-                    <a href="$get_homepath()/admin/${course.get_id()}/download$task['url']" class="btn btn-default btn-xs" title="Download submissions"
+                    <a href="$get_homepath()/admin/${course.get_id()}/download$task['url']" class="btn btn-default btn-xs" title="$:_('Download submissions')"
                        data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
                     $if is_admin:
-                        <a href="$get_homepath()/admin/${course.get_id()}/replay$task['url']" class="btn btn-default btn-xs" title="Replay submissions"
+                        <a href="$get_homepath()/admin/${course.get_id()}/replay$task['url']" class="btn btn-default btn-xs" title="$:_('Replay submissions')"
                            data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
                 </div>
     		</td>

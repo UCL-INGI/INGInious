@@ -13,7 +13,7 @@ $#
     <link rel="icon" href="$get_homepath(True)/static/common/icons/favicon.ico">
     <link rel="mask-icon" href="$get_homepath(True)/static/common/icons/wb.svg" color="#5E932E">
 
-    <title>INGInious - maintenance in progress</title>
+    <title>$:_("Maintenance") | INGInious</title>
 
     <!-- Bootstrap -->
     <link href="$get_homepath(True)/static/common/css/bootstrap.min.css" rel="stylesheet">
@@ -76,7 +76,7 @@ $else:
             <div id="content" class="col-xs-12">
                 <img src="$get_homepath(True)/static/common/images/logo_maintenance.png" style="margin:auto; display:block;"/>
                 <div class="alert alert-danger" role="alert" style="text-align: center;">
-                    <b>This INGInious instance is currently under maintenance.</b> Please come back in a few minutes!
+                    $:_("<b>This INGInious instance is currently under maintenance.</b> Please come back in a few minutes!")
                 </div>
                 <div class="footer_push"></div>
             </div>
@@ -86,11 +86,11 @@ $else:
         <div class="navbar navbar-default navbar-static-top" style="position:absolute; width:100%" role="navigation">
             <div class="container-fluid">
                 <div class="navbar-header" style="width: 100%">
-                    <p class="navbar-text">&copy; 2014-2017 Universit&eacute; catholique de Louvain</p>
+                    <p class="navbar-text">$:_("&copy; 2014-2017 Universit&eacute; catholique de Louvain")</p>
                     <div class="navbar-right">
                         <p class="navbar-text">
                             <a target="_blank" href="http://www.inginious.org" class="navbar-link">
-                                INGInious is distributed under AGPL license
+                                $:_("INGInious is distributed under AGPL license")
                             </a>
                         </p>
                     </div>

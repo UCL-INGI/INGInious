@@ -5,7 +5,7 @@ $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
-$var title: Edit teams
+$var title: $:_("Edit teams")
 
 $def ColumnF():
     $:template_helper.call('course_admin_menu',course=course,current='aggregations')
@@ -14,15 +14,15 @@ $var Column: $:ColumnF()
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
         <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+        <li><a href="$get_homepath()/admin/$course.get_id()" title="$:_('Administration')" data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-user-secret"></i></a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()/aggregations" title="Teams" data-toggle="tooltip" data-placement="bottom">
+        <li><a href="$get_homepath()/admin/$course.get_id()/aggregations" title="$:_('Teams')" data-toggle="tooltip" data-placement="bottom">
             <i class='fa fa-users'></i></a></li>
-        <li class="active"><a href="#">Edit teams <span class="sr-only">(current)</span></a></li>
+        <li class="active"><a href="#">$:_("Edit teams") <span class="sr-only">$:_("(current)")</span></a></li>
     </ol>
 $var Navbar: $:NavbarF()
 
-<h2>Edit teams</h2>
+<h2>$:_("Edit teams")</h2>
 $if error:
     <div class="alert alert-danger alert-dismissable" role="alert">
         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
@@ -40,25 +40,25 @@ $elif msg:
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Add student</h4>
+                <h4 class="modal-title">$:_("Add student")</h4>
             </div>
             <div class="modal-body">
                 <form onsubmit="student_add();return false;">
                     <div id="tab_new_student" role="tabpanel" class="tab-pane active">
                         <div class="row">
                             <div class="col-md-6">
-                                <label class="control-label" for="new_student">Student username (will be registered) :</label>
+                                <label class="control-label" for="new_student">$:_("Student username (will be registered) :")</label>
                             </div>
                             <div class="col-md-6">
-                                <input id="new_student" name="new_student" type="text" class="form-control" placeholder="Student username">
+                                <input id="new_student" name="new_student" type="text" class="form-control" placeholder="$:_('Student username')">
                             </div>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="javascript:student_add()">Add student</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">$:_("Cancel")</button>
+                <button type="button" class="btn btn-primary" onclick="javascript:student_add()">$:_("Add student")</button>
             </div>
         </div>
     </div>
@@ -70,7 +70,7 @@ $elif msg:
         <div class="panel panel-warning group">
             <div class="panel-heading clearfix" role="tab">
                 <h4 class="panel-title">
-                    Non teamed students
+                    $:_("Non teamed students")
                     <a class="pull-right" id="group_delete" href="#" data-toggle="modal" data-target="#student_modal">
                         <i class="fa fa-plus"></i>
                     </a>
@@ -97,16 +97,16 @@ $elif msg:
                         <h4 class="panel-title">
                             <div class="row">
                                 <div class="col-sm-6 col-xs-12">
-                                    <input type="text" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" class="form-control" id="description" name="description" placeholder="Team description" value="New team">
+                                    <input type="text" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" class="form-control" id="description" name="description" placeholder="$:_('Team description')" value="$:_('New team')">
                                 </div>
                                 <div class="col-sm-2 col-xs-3" style="text-align: right;">
-                                    <label>Max team size :</label>
+                                    <label>$:_("Max team size :")</label>
                                 </div>
                                 <div class="col-sm-3 col-xs-7">
                                     <input style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" id="size" type="number" class="form-control" value="2">
                                 </div>
                                 <div class="col-sm-1 col-xs-2">
-                                    <a class="pull-right" id="group_delete" href="#" onclick="javascript:group_delete($$(this).rparent(5).attr('id'))" data-toggle="tooltip" title="Delete team">
+                                    <a class="pull-right" id="group_delete" href="#" onclick="javascript:group_delete($$(this).rparent(5).attr('id'))" data-toggle="tooltip" title="$:_('Delete team')">
                                         <i class="fa fa-trash-o"></i>
                                     </a>
                                 </div>
@@ -121,16 +121,16 @@ $elif msg:
                             <h4 class="panel-title">
                                 <div class="row">
                                     <div class="col-sm-6 col-xs-12">
-                                        <input type="text" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" class="form-control" id="description" name="description" placeholder="Team description" value="$aggregation['description']">
+                                        <input type="text" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" class="form-control" id="description" name="description" placeholder="$:_('Team description')" value="$aggregation['description']">
                                     </div>
                                     <div class="col-sm-2 col-xs-3" style="text-align: right;">
-                                        <label>Max team size :</label>
+                                        <label>$:_("Max team size :")</label>
                                     </div>
                                     <div class="col-sm-3 col-xs-7">
                                         <input style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" id="size" type="number" class="form-control" value="$(group['size'] if group is not None else 2)">
                                     </div>
                                     <div class="col-sm-1 col-xs-2">
-                                        <a class="pull-right" id="group_delete" href="#" onclick="javascript:aggregation_delete($$(this).rparent(5).attr('id'))" data-toggle="tooltip" title="Delete team">
+                                        <a class="pull-right" id="group_delete" href="#" onclick="javascript:aggregation_delete($$(this).rparent(5).attr('id'))" data-toggle="tooltip" title="$:_('Delete team')">
                                             <i class="fa fa-trash-o"></i>
                                         </a>
                                     </div>
@@ -142,7 +142,7 @@ $elif msg:
                     <h4 class="panel-title">
                         <div class="row">
                             <div class="col-sm-6 col-xs-12">
-                                Tutors
+                                $:_("Tutors")
                             </div>
                             <div class="col-sm-4 col-xs-6" style="text-align: center">
                                 <select type="text" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" class="form-control input-xs" id="tutor_list_$(index+1)" name="tutor_list_$index">
@@ -155,7 +155,7 @@ $elif msg:
                                 </select>
                             </div>
                             <div class="col-sm-2 col-xs-6">
-                                <button type="button" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" onclick="javascript:tutor_add($$('#tutor_list_$(index+1)').val(), $$('#tutor_list_$(index+1) option:selected').text(), $(index+1))" class="form-control btn btn-xs btn-warning"><span class="fa fa-plus"></span> Add tutor</button>
+                                <button type="button" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" onclick="javascript:tutor_add($$('#tutor_list_$(index+1)').val(), $$('#tutor_list_$(index+1) option:selected').text(), $(index+1))" class="form-control btn btn-xs btn-warning"><span class="fa fa-plus"></span> $:_("Add tutor")</button>
                             </div>
                         </div>
                     </h4>
@@ -186,7 +186,7 @@ $elif msg:
 
 
                 <div class="panel-heading clearfix" role="tab">
-                    <h4 class="panel-title">Students</h4>
+                    <h4 class="panel-title">$:_("Students")</h4>
                 </div>
 
                 $if aggregation and (len(aggregation["groups"])!=0):
@@ -208,22 +208,22 @@ $elif msg:
         <div class="row">
             <div class="col-md-4">
                     <a href="#group_add" onclick="javascript:aggregation_add()" id="group_add" class="btn btn-block btn-default">
-                        <i class="fa fa-plus fa-lg"></i> New team
+                        <i class="fa fa-plus fa-lg"></i> $:_("New team")
                     </a>
             </div>
             <div class="col-md-4">
                     <a href="#" onclick="javascript:aggregations_clean()" class="btn btn-block btn-warning">
-                        <i class="fa fa-eraser fa-lg"></i> Clean teams
+                        <i class="fa fa-eraser fa-lg"></i> $:_("Clean teams")
                     </a>
             </div>
             <div class="col-md-4">
                     <a href="#" onclick="javascript:aggregations_delete()" class="btn btn-block btn-danger">
-                        <i class="fa fa-trash fa-lg"></i> Delete all teams
+                        <i class="fa fa-trash fa-lg"></i> $:_("Delete all teams")
                     </a>
             </div>
         </div>
     </div>
-    <button name="update" class="btn btn-primary btn-block" onclick="javascript:aggregations_prepare_submit()" type="submit"><i class="fa fa-floppy-o"></i> Update</button>
+    <button name="update" class="btn btn-primary btn-block" onclick="javascript:aggregations_prepare_submit()" type="submit"><i class="fa fa-floppy-o"></i> $:_("Update")</button>
 </form>
 
 <!-- Javascript for managing student/tutor lists -->

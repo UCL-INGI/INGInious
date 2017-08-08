@@ -14,53 +14,53 @@ $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
         <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
         <li>
-            <a href="$get_homepath()/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+            <a href="$get_homepath()/admin/$course.get_id()" title="$:_('Administration')" data-toggle="tooltip" data-placement="bottom">
                 <i class="fa fa-user-secret"></i>
             </a>
         </li>
         <li>
-            <a href="$get_homepath()/admin/$course.get_id()/students" title="Students" data-toggle="tooltip" data-placement="bottom">
+            <a href="$get_homepath()/admin/$course.get_id()/students" title="$:_('Students')" data-toggle="tooltip" data-placement="bottom">
                 <i class="fa fa-user"></i>
             </a>
         </li>
         <li><a href="$get_homepath()/admin/$course.get_id()/student/$username">$user_realname</a></li>
         <li><a href="$get_homepath()/admin/$course.get_id()/student/$username/$task.get_id()">$:task.get_name()</a></li>
-        <li class="active"><a href="#">$submissionid[0:10] <span class="sr-only">(current)</span></a></li>
+        <li class="active"><a href="#">$submissionid[0:10] <span class="sr-only">$:_("(current)")</span></a></li>
     </ol>
 $var Navbar: $:NavbarF()
 
-<h2>Submission $submissionid[0:10] - "$:task.get_name()" - $user_realname ($username)</h2>
+<h2>$:_("Submission {}").format(submissionid[0:10]) - "$:task.get_name()" - $user_realname ($username)</h2>
 <div class="alert alert-info text-center">
-    This page show what was shown to the student when (s)he made his/her submission. <br/>
+    $:_("This page show what was shown to the student when (s)he made his/her submission.") <br/>
     <form method="post">
         <div class="row">
             <div class="col-md-12" style="margin:2px 0px 2px 0px;">
                 <a onclick="$$('.student_view').slideToggle()" class="btn btn-sm btn-block btn-primary">
-                    <i class="fa fa-filter fa-fw"></i> Click here to hide/display context informations
+                    <i class="fa fa-filter fa-fw"></i> $:_("Click here to hide/display context informations")
                 </a>
             </div>
             $if "result"  in submission:
                 <div class="col-md-12" style="margin:2px 0px 2px 0px;">
                     <a href="$get_homepath()/admin/$course.get_id()/download?submission=$submissionid" class="btn btn-sm btn-block btn-primary">
-                        <i class="fa fa-download fa-fw"></i> Download full submission
+                        <i class="fa fa-download fa-fw"></i> $:_("Download full submission")
                     </a>
                 </div>
 
             $if is_admin:
                 <div class="col-md-4" style="margin:2px 0px 2px 0px;">
                     <button type="submit" name="replay" class="btn btn-sm btn-block btn-primary">
-                        <i class="fa fa-refresh fa-fw"></i> Replay submission
+                        <i class="fa fa-refresh fa-fw"></i> $:_("Replay submission")
                     </button>
                 </div>
             <div class="col-md-$('4' if is_admin else '12')" style="margin:2px 0px 2px 0px;">
                 <button type="submit" name="replay-copy" class="btn btn-sm btn-block btn-primary">
-                    <i class="fa fa-copy fa-fw"></i> Replay as $user_manager.session_realname()
+                    <i class="fa fa-copy fa-fw"></i> $:_("Replay as {}").format(user_manager.session_realname())
                 </button>
             </div>
             $if is_admin:
                 <div class="col-md-4" style="margin:2px 0px 2px 0px;">
                     <button type="submit" name="replay-debug" class="btn btn-sm btn-block btn-primary">
-                        <i class="fa fa-terminal fa-fw"></i> Replay/debug as $user_manager.session_realname()
+                        <i class="fa fa-terminal fa-fw"></i> $:_("Replay/debug as {}").format(user_manager.session_realname())
                     </button>
                 </div>
 
@@ -82,13 +82,13 @@ $else:
     $ color="danger"
 <div class="alert alert-$color">
     $if submission["status"] == "waiting":
-        Grading in progress, reload the page to refresh status.
+        $:_("Grading in progress, reload the page to refresh status.")
     $elif "result" not in submission:
         $if submission["text"]:
             $:submission["text"]
     $else:
-        Result:  $submission["result"] <br/>
-        Grade: $submission["grade"] %
+        $:_("Result:")  $submission["result"] <br/>
+        $:_("Grade:") $submission["grade"] %
         $if submission["text"]:
             <br/>
             <br/>
@@ -99,12 +99,12 @@ $for key, problem in enumerate(to_display):
         <div class="panel-heading">
             <h3 class="panel-title">
                 $if not problem["defined"]:
-                    <span class="text-warning">This problem id is not defined in the task.</span>
+                    <span class="text-warning">$:_("This problem id is not defined in the task.")</span>
                 $if not problem["present"]:
-                    <span class="text-warning">This problem is not present in the submission.</span>
+                    <span class="text-warning">$:_("This problem is not present in the submission.")</span>
                 Question ${key+1}: $problem["name"]
                 $if problem['base64'] is not None:
-                    <a href="data:$problem['mime'];base64,$problem['base64']" class="btn btn-default btn-xs" title="Download as file"
+                    <a href="data:$problem['mime'];base64,$problem['base64']" class="btn btn-default btn-xs" title="$:_('Download as file')"
                        data-toggle="tooltip" data-placement="bottom">
                         <i class="fa fa-download"></i>
                     </a>
@@ -129,12 +129,12 @@ $for key, problem in enumerate(to_display):
                           data-x-language="$problem['language']"
                           data-x-lines="1">$problem["content"]</textarea>
             $elif not problem["present"]:
-                <span class="text-warning">This problem was not answered in this submission.</span>
+                <span class="text-warning">$:_("This problem was not answered in this submission.")</span>
             $elif problem["mime"] == "application/pdf":
                 <object data="data:$problem['mime'];base64,$problem['base64']" type="application/pdf" style="width: 100%; min-height: 800px;">
                     <embed src="data:$problem['mime'];base64,$problem['base64']" type="application/pdf"/>
                 </object>
             $else:
-                <span class="text-warning">There is input, but it can't be read as an UTF-8 file.</span>
+                <span class="text-warning">$:_("There is input, but it can't be read as an UTF-8 file.")</span>
         </div>
     </div>

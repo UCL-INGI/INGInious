@@ -11,7 +11,7 @@ $ username = user_manager.session_username()
 $# Left column content
 $def ColumnF():
     $:template_helper.call('course_menu',course=course, template_helper=template_helper)
-    <h3>Current grade</h3>
+    <h3>$:_("Current grade")</h3>
     <div class="progress">
         $ grade=user_manager.get_course_cache(username, course)["grade"]
         <div class="progress-bar progress-bar-success" aria-valuenow="$int(grade)" aria-valuemin="0" aria-valuemax="100" style="width: $grade%">
@@ -19,7 +19,7 @@ $def ColumnF():
         </div>
     </div>
 
-    <h3>Last tried exercises</h3>
+    <h3>$:_("Last tried exercises")</h3>
 
     <div class="list-group">
         $if submissions:
@@ -38,7 +38,7 @@ $def ColumnF():
                     $submission['taskname']
                 </a>
         $else:
-            <a class="list-group-item disabled submission-empty">No submissions</a>
+            <a class="list-group-item disabled submission-empty">$:_("No submissions")</a>
     </div>
     <div class="list-group">
         $if course.allow_unregister():
@@ -51,16 +51,16 @@ $def NavbarF():
         <li><a  href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
         <li class="active"><a href="#"><i class="fa fa-group"></i>
             $if myteam is None:
-                Register for a group
+                $:_("Register for a group")
             $else:
-                Groups
-            <span class="sr-only">(current)</span></a>
+                $:_("Groups")
+            <span class="sr-only">$:_("(current)")</span></a>
         </li>
     </ol>
 $var Navbar: $:NavbarF()
 
 $# Start content
-<h2>$course.get_name() - Teams</h2>
+<h2>$course.get_name() - $:_("Teams")</h2>
 $if error:
     <div class="alert alert-danger alert-dismissable" role="alert">
         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
@@ -73,14 +73,14 @@ $elif msg:
     </div>
 
 $if len(myteam["groups"]) > 0 and username in myteam["groups"][0]["students"]:
-    <h3>My team : $myteam["description"]</h3>
+    <h3>$:_("My team : {}").format(myteam["description"])</h3>
     <div class="panel panel-info">
         <div class="panel-heading" role="tab" id="heading">
             <h4 class="panel-title">
-                Students
+                $:_("Students")
                 $if course.can_students_choose_group():
                 <div class="pull-right">
-                    <a href="?unregister_group" data-toggle="tooltip" data-placement="left" title="Quit team">
+                    <a href="?unregister_group" data-toggle="tooltip" data-placement="left" title="$:_('Quit team')">
                         <i style="color:white;" class="fa fa-user-times"></i>
                     </a>
                 </div>
@@ -93,7 +93,7 @@ $if len(myteam["groups"]) > 0 and username in myteam["groups"][0]["students"]:
                 $if users[user] is not None:
                     $users[user][0]
                     <div class="pull-right">
-                        <a class="mailto" href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="Send an email">
+                        <a class="mailto" href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="$:_('Send an email')">
                             <i class="fa fa-envelope-o"></i>
                         </a>
                     </div>
@@ -104,7 +104,7 @@ $if len(myteam["groups"]) > 0 and username in myteam["groups"][0]["students"]:
 
     $if len(myteam["tutors"]) > 0:
             <div class="panel-heading" role="tab" id="heading">
-                <h4 class="panel-title">Tutors</h4>
+                <h4 class="panel-title">$:_("Tutors")</h4>
             </div>
                 <ul class="list-group">
                 $for user in myteam["tutors"]:
@@ -112,7 +112,7 @@ $if len(myteam["groups"]) > 0 and username in myteam["groups"][0]["students"]:
                         $if users[user] is not None:
                             $users[user][0]
                             <div class="pull-right">
-                                <a class="mailto" href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="Send an email">
+                                <a class="mailto" href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="$:_('Send an email')">
                                     <i class="fa fa-envelope-o"></i>
                                 </a>
                             </div>
@@ -125,22 +125,21 @@ $if len(myteam["groups"]) > 0 and username in myteam["groups"][0]["students"]:
 
 $elif len(myteam["groups"]) == 0:
     <div class="alert alert-info alert-dismissable" role="alert">
-        No set team in this course. If you think this is a mistake, please contact the course administrator.
+        $:_("No set team in this course. If you think this is a mistake, please contact the course administrator.")
     </div>
 $elif course.can_students_choose_group():
     <h3>My team</h3>
     <div class="alert alert-warning alert-dismissable" role="alert">
-        You're not registered to a team. Please consider registration in one of the team below
-        to take part in all course activities. If no more team is available, please contact the course administrator.
+        $:_("You're not registered to a team. Please consider registration in one of the team below to take part in all course activities. If no more team is available, please contact the course administrator.")
     </div>
 $else:
     <h3>My team</h3>
     <div class="alert alert-warning alert-dismissable" role="alert">
-        You're not yet registered to a team. Please contact the course administrator for more information.
+        $:_("You're not yet registered to a team. Please contact the course administrator for more information.")
     </div>
 
 $if not len(teams) == 0:
-    <h3 style="margin-bottom: 20px">All teams</h3>
+    <h3 style="margin-bottom: 20px">$:_("All teams")</h3>
     $for index, team in enumerate(teams):
         $if len(team["groups"])>0:
             <h4>Team : $team["description"]</h4>
@@ -155,7 +154,7 @@ $if not len(teams) == 0:
                         $if len(myteam["groups"]) == 0 or username not in myteam["groups"][0]["students"] and (group["size"]-len(group["students"])) > 0 and course.can_students_choose_group():
                             (available : $(group["size"]-len(group["students"])) )
                             <div class="pull-right">
-                                <a href="?register_group=$team['_id']" data-toggle="tooltip" data-placement="left" title="Join in">
+                                <a href="?register_group=$team['_id']" data-toggle="tooltip" data-placement="left" title="$:_('Join in')">
                                     <i style="color:white;" class="fa fa-sign-in"></i>
                                 </a>
                             </div>
@@ -164,14 +163,14 @@ $if not len(teams) == 0:
                 <ul class="list-group">
 
                 $if len(group["students"]) == 0:
-                    <li class="list-group-item"><i>No registered member.</i></li>
+                    <li class="list-group-item"><i>$:_("No registered member.")</i></li>
                 $else:
                     $for user in group["students"]:
                         <li class="list-group-item">
                             $if users[user] is not None:
                                 $users[user][0]
                                 <div class="pull-right">
-                                    <a class="mailto" href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="Send an email">
+                                    <a class="mailto" href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="$:_('Send an email')">
                                         <i class="fa fa-envelope-o"></i>
                                     </a>
                                 </div>
@@ -182,7 +181,7 @@ $if not len(teams) == 0:
                 </ul>
                 $if len(team["tutors"]) > 0:
                     <div class="panel-heading" role="tab" id="heading">
-                        <h4 class="panel-title">Tutors</h4>
+                        <h4 class="panel-title">$:_("Tutors")</h4>
                     </div>
                         <ul class="list-group">
                         $for user in team["tutors"]:
@@ -190,7 +189,7 @@ $if not len(teams) == 0:
                                 $if users[user] is not None:
                                     $users[user][0]
                                     <div class="pull-right">
-                                        <a class="mailto" href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="Send an email">
+                                        <a class="mailto" href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="$:_('Send an email')">
                                             <i class="fa fa-envelope-o"></i>
                                         </a>
                                     </div>

@@ -15,20 +15,20 @@ $var Column: $:ColumnF()
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
         <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+        <li><a href="$get_homepath()/admin/$course.get_id()" title="$:_('Administration')" data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-user-secret"></i></a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()/tasks" title="Tasks" data-toggle="tooltip" data-placement="bottom">
+        <li><a href="$get_homepath()/admin/$course.get_id()/tasks" title="$:_('Tasks')" data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-tasks"></i></a></li>
-        <li class="active"><a href="#">Edit task "$taskid" <span class="sr-only">(current)</span></a></li>
+        <li class="active"><a href="#">$:_("Edit task \"{}\"").format(taskid) <span class="sr-only">$:_("(current)")</span></a></li>
     </ol>
 $var Navbar: $:NavbarF()
 
 <h2>
-    Edit task "$taskid"
+    $:_("Edit task \"{}\"").format(taskid)
     <div class="pull-right">
         <div class="btn-group">
-            <button class="btn btn-primary btn-success btn-sm task_edit_submit_button" type="button" onclick="studio_submit()"><i class="fa fa-save"></i> Save changes</button>
-            <a id="switch" class="btn-sm btn btn-info" href="$get_homepath()/course/$course.get_id()/$taskid"><i class="fa fa-search"></i> View task</a>
+            <button class="btn btn-primary btn-success btn-sm task_edit_submit_button" type="button" onclick="studio_submit()"><i class="fa fa-save"></i> $:_("Save changes")</button>
+            <a id="switch" class="btn-sm btn btn-info" href="$get_homepath()/course/$course.get_id()/$taskid"><i class="fa fa-search"></i> $:_("View task")</a>
         </div>
     </div>
 </h2>
@@ -39,13 +39,13 @@ $var Navbar: $:NavbarF()
     <div role="tabpanel">
         <ul class="nav nav-tabs" id="edit_task_tabs" role="tablist">
             <li role="presentation" class="active"><a href="#tab_basic" aria-controls="basicinfo" role="tab" data-toggle="tab"><i class="fa
-                fa-cog fa-fw"></i>&nbsp; Basic settings</a></li>
+                fa-cog fa-fw"></i>&nbsp; $:_("Basic settings")</a></li>
             <li role="presentation"><a href="#tab_container" aria-controls="container" role="tab" data-toggle="tab"><i class="fa
-                fa-cube fa-fw"></i>&nbsp; Container setup</a></li>
+                fa-cube fa-fw"></i>&nbsp; $:_("Container setup")</a></li>
             <li role="presentation"><a href="#tab_subproblems" aria-controls="subproblems" role="tab" data-toggle="tab"><i class="fa
-                fa-list-ul fa-fw"></i>&nbsp; Subproblems</a></li>
+                fa-list-ul fa-fw"></i>&nbsp; $:_("Subproblems")</a></li>
             <li role="presentation"><a href="#tab_files" aria-controls="files" role="tab" data-toggle="tab"><i class="fa
-                fa-edit fa-fw"></i>&nbsp; Task files</a></li>
+                fa-edit fa-fw"></i>&nbsp; $:_("Task files")</a></li>
         </ul>
         <div id="edit_task_tabs_content" class="tab-content">
             <div role="tabpanel" class="tab-pane active" id="tab_basic">
@@ -63,7 +63,7 @@ $var Navbar: $:NavbarF()
             <div role="tabpanel" class="tab-pane" id="tab_files">
                 <ul class="nav nav-tabs" id="edit_file_tabs" role="tablist">
                     <li role="presentation" class="active"><a href="#tab_file_list" aria-controls="basicinfo" role="tab" data-toggle="tab"><i class="fa
-                            fa-cog fa-list-ul"></i>&nbsp; File list</a></li>
+                            fa-cog fa-list-ul"></i>&nbsp; $:_("File list")</a></li>
                 </ul>
                 <div id="edit_file_tabs_content" class="tab-content">
                     $:include.course_admin.edit_tabs.files(course,taskid,file_list,None)
@@ -72,7 +72,7 @@ $var Navbar: $:NavbarF()
 
         </div>
     </div>
-    <a href="#task_edit_submit_status" class="btn btn-primary btn-block task_edit_submit_button" type="button" onclick="studio_submit()"><i class="fa fa-save"></i> Save changes</a>
+    <a href="#task_edit_submit_status" class="btn btn-primary btn-block task_edit_submit_button" type="button" onclick="studio_submit()"><i class="fa fa-save"></i> $:_("Save changes")</a>
 </form>
 <div id="delete_modal" class="modal fade">
     <div class="modal-dialog">
@@ -80,19 +80,19 @@ $var Navbar: $:NavbarF()
             <form method="post">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Delete task</h4>
+                    <h4 class="modal-title">$:_("Delete task")</h4>
                 </div>
                 <div class="modal-body">
-                    <p>This will <b>permanently</b> remove the task and its files from INGInious.</p>
+                    <p>$:_("This will <b>permanently</b> remove the task and its files from INGInious.")</p>
                     <div class="checkbox">
                         <label>
-                          <input type="checkbox" name="wipe"> Wipe all submissions
+                          <input type="checkbox" name="wipe"> $:_("Wipe all submissions")
                         </label>
                       </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                    <button type="submit" name="delete" class="btn btn-danger">Delete task</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">$:_("Cancel")</button>
+                    <button type="submit" name="delete" class="btn btn-danger">$:_("Delete task")</button>
                 </div>
             </form>
         </div>

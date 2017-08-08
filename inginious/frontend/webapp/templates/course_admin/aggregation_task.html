@@ -15,34 +15,34 @@ $ is_admin = user_manager.has_admin_rights_on_course(course)
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
         <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+        <li><a href="$get_homepath()/admin/$course.get_id()" title="$:_('Administration')" data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-user-secret"></i></a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()/aggregations" title="$('Classroom' if use_classrooms else 'Team')s" data-toggle="tooltip" data-placement="bottom">
+        <li><a href="$get_homepath()/admin/$course.get_id()/aggregations" title="$(_('Classrooms') if use_classrooms else _('Teams'))" data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-group"></i></a></li>
         <li><a href="$get_homepath()/admin/$course.get_id()/aggregation/$aggregation['_id']">$aggregation["description"]</a></li>
-        <li class="active"><a href="#">$:task.get_name() <span class="sr-only">(current)</span></a></li>
+        <li class="active"><a href="#">$:task.get_name() <span class="sr-only">$:_("(current)")</span></a></li>
     </ol>
 $var Navbar: $:NavbarF()
 
-<h2>Submissions for the task "$:task.get_name()" - $aggregation["description"]</h2>
+<h2>$:_("Submissions for the task {}").format(task.get_name()) - $aggregation["description"]</h2>
 <table class="table">
     <thead>
         <tr>
-            <th>authors</th>
-            <th>id</th>
-            <th>submitted on</th>
-            <th>result</th>
+            <th>$:_("authors")</th>
+            <th>$:_("id")</th>
+            <th>$:_("submitted on")</th>
+            <th>$:_("result")</th>
             <th>
                 <div class="btn-group" role="group">
                     <a href="$get_homepath()/admin/${course.get_id()}/download?format=taskid%2Faggregation&aggregations=${aggregation['_id']}&tasks=${task.get_id()}"
-                       class="btn btn-danger btn-xs" title="Download all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa
+                       class="btn btn-danger btn-xs" title="$:_('Download all submissions')" data-toggle="tooltip" data-placement="bottom"><i class="fa
                        fa-download"></i></a>
                     $if is_admin:
                         <a href="$get_homepath()/admin/${course.get_id()}/replay?format=taskid%2Faggregation&aggregations=${aggregation['_id']}&tasks=${task.get_id()}"
-                           class="btn btn-warning btn-xs" title="Replay all submissions" data-toggle="tooltip" data-placement="bottom"><i class="fa
+                           class="btn btn-warning btn-xs" title="$:_('Replay all submissions')" data-toggle="tooltip" data-placement="bottom"><i class="fa
                            fa-refresh"></i></a>
-                    <a href="$get_homepath()/admin/${course.get_id()}/aggregation/${aggregation['_id']}/${task.get_id()}?csv" class="btn btn-info btn-xs" title="Download
-                       CSV" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
+                    <a href="$get_homepath()/admin/${course.get_id()}/aggregation/${aggregation['_id']}/${task.get_id()}?csv" class="btn btn-info btn-xs"
+                       title="$:_('Download CSV')" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
                 </div>
             </th>
         </tr>
@@ -66,22 +66,22 @@ $var Navbar: $:NavbarF()
             <td>$submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S")</td>
             <td id="status">
                 $if succeeded:
-                    Succeeded
+                    $:_("Succeeded")
                 $elif submission['status'] == 'waiting':
-                    Waiting
+                    $:_("Waiting")
                 $else:
-                    Failed
+                    $:_("Failed")
                 ($submission.get("grade",0.0)%)
             </td>
             <td>
                 <div class="btn-group" role="group">
                     <a href="$get_homepath()/admin/$course.get_id()/student/$submission['username'][0]/$task.get_id()/$submission['_id']"
-                       class="btn btn-default btn-xs" title="View submission" data-toggle="tooltip" data-placement="bottom"><i class="fa
+                       class="btn btn-default btn-xs" title="$:_('View submission')" data-toggle="tooltip" data-placement="bottom"><i class="fa
                        fa-search"></i></a>
-                    <a href="$get_homepath()/admin/${course.get_id()}/download$submission['url']" class="btn btn-default btn-xs" title="Download submission" data-toggle="tooltip"
-                       data-placement="bottom"><i class="fa fa-download"></i></a>
+                    <a href="$get_homepath()/admin/${course.get_id()}/download$submission['url']" class="btn btn-default btn-xs"
+                       title="$:_('Download submission')" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
                     $if is_admin:
-                        <a class="replay btn btn-default btn-xs" title="Replay submission" data-toggle="tooltip" data-submissionid="$submission['_id']"
+                        <a class="replay btn btn-default btn-xs" title="$:_('Replay submission')" data-toggle="tooltip" data-submissionid="$submission['_id']"
                            data-placement="bottom"><i class="fa fa-refresh"></i></a>
                 </div>
             </td>
@@ -98,7 +98,7 @@ $if is_admin:
                 url: "/admin/${course.get_id()}/replay",
                 data: "submission=" + $$(this).data("submissionid"),
                 success: function(data) {
-                    row.find("#status").text("Waiting (0.0%)");
+                    row.find("#status").text("$:_('Waiting') (0.0%)");
                     row.removeClass();
                     row.addClass("warning");
                 }

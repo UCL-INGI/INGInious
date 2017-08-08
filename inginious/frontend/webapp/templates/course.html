@@ -17,7 +17,7 @@ $def ColumnF():
         </div>
     </div>
 
-    <h3>Last tried exercises</h3>
+    <h3>$:_("Last tried exercises")</h3>
     
     <div class="list-group">
         $if submissions:
@@ -36,17 +36,16 @@ $def ColumnF():
                     $submission['taskname']
                 </a>
         $else:
-            <a class="list-group-item disabled submission-empty">No submissions</a>
+            <a class="list-group-item disabled submission-empty">$:_("No submissions")</a>
     </div>
     $if user_manager.has_staff_rights_on_course(course):
         $if not course.is_open_to_non_staff():
             <div class="alert alert-warning" role="alert">
-                This course is currently invisible for students. 
-                You can change this by modifying the "accessibility" option in the configuration of the course.
+                $:_("This course is currently invisible for students. You can change this by modifying the \"accessibility\" option in the configuration of the course.")
             </div>
         <div class="list-group">
             <a class="list-group-item list-group-item-info" href="$get_homepath()/admin/$course.get_id()">
-                <i class="fa fa-user-secret fa-fw"></i>&nbsp; Course administration
+                <i class="fa fa-user-secret fa-fw"></i>&nbsp; $:_("Course administration")
             </a>
         </div>
     $else:
@@ -55,11 +54,11 @@ $def ColumnF():
                 <i class="fa fa-group fa-fw"></i>&nbsp;
                 $ myaggregation = user_manager.get_course_user_aggregation(course)
                 $if course.use_classrooms():
-                    Classroom : $myaggregation["description"]
+                    $:_("Classroom : {}").myaggregation['description']
                 $elif len(myaggregation['groups']) > 0 and user_manager.session_username() in myaggregation['groups'][0]['students']:
-                    Team : $myaggregation['description']
+                    $:_("Team : {}").format(myaggregation['description'])
                 $else:
-                    Teams management
+                    $:_("Teams management")
             </a>
             $if course.allow_unregister():
                 $:include.unregister_button(course)
@@ -68,12 +67,12 @@ $var Column: $:ColumnF()
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
-        <li class="active"><a href="#">$course.get_name() <span class="sr-only">(current)</span></a></li>
+        <li class="active"><a href="#">$course.get_name() <span class="sr-only">$:_("(current)")</span></a></li>
     </ol>
 $var Navbar: $:NavbarF()
 
 $# Start content
-<h2>$course.get_name() - List of exercises</h2>
+<h2>$:_("{course_name} - List of exercises").format(course_name=course.get_name())</h2>
 <div class="list-group list-group-progress" style="margin-left: 16px; margin-right: 16px;">
     $for taskid, task in tasks.items()
         $if tasks_data[taskid]["visible"]:
@@ -88,9 +87,9 @@ $# Start content
                         <i style="color:#468847; position: absolute; left: -5px;" class="fa fa-check"></i>
                     $task.get_name()
                     $if not task.is_visible_by_students():
-                        - <b>(task hidden to students)</b>
+                        - <b>$:_("task hidden to students")</b>
                     $if not task.get_accessible_time().is_open():
-                        - <b>deadline reached</b>
+                        - <b>$:_("deadline reached")</b>
                 </div>
                 <div class="col-xs-12 col-md-5">
                     <div class="progress">

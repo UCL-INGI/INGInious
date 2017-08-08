@@ -9,16 +9,16 @@ $var title: $:task.get_name() - $:task.get_course().get_name()
 
 $# Left column content
 $def ColumnF():
-    <h3>Information</h3>
+    <h3>$:_("Information")</h3>
     <table class="table table-condensed">
         $if task.get_authors():
             <tr>
-                <td>Author(s)</td>
+                <td>$:_("Author(s)")</td>
                 <td>$",".join(task.get_authors())</td>
             </tr>
         $if not is_lti():
             <tr>
-                <td>Deadline</td>
+                <td>$:_("Deadline")</td>
                 <td>
                     $task.get_deadline()
                 </td>
@@ -27,9 +27,9 @@ $def ColumnF():
             <td>Status</td>
             <td id="task_status">
                 $if not eval_submission and len(submissions) == 0:
-                    Not yet attempted
+                    $:_("Not yet attempted")
                 $elif eval_submission is not None and eval_submission["status"] == "done" and eval_submission["result"] == "success":
-                    Succeeded
+                    $:_("Succeeded")
                 $else:
                     $ waiting=False
                     $for submission in submissions:
@@ -37,72 +37,70 @@ $def ColumnF():
                             $ waiting=True
                             $break
                     $if waiting:
-                        Waiting for verification
+                        $:_("Waiting for verification")
                     $else:
-                        Failed
+                        $:_("Failed")
             </td>
         </tr>
         <tr>
-            <td>Grade</td>
+            <td>$:_("Grade")</td>
             <td>
                 <span id="task_grade">$user_task.get('grade', 0)</span>%
             </td>
         </tr>
         $if not is_lti():
             <tr>
-                <td>Grading weight</td>
+                <td>$:_("Grading weight")</td>
                 <td>$task.get_grading_weight()</td>
             </tr>
         <tr>
-            <td>Attempts</td>
+            <td>$:_("Attempts")</td>
             <td id="task_tries">
                 $(user_task.get('tried', 0))
             </td>
         </tr>
         <tr>
-            <td>Submission limit</td>
+            <td>$:_("Submission limit")</td>
             <td>
                 $ submission_limit = task.get_submission_limit()
                 $if submission_limit == {"amount":-1, "period":-1}:
-                    No limitation
+                    $:_("No limitation")
                 $else:
-                    $submission_limit["amount"] submissions
                     $if submission_limit["period"] > 0:
-                        <br/> every $submission_limit["period"] hour(s)
-
+                        $:_("{nb_submissions} submissions<br /> every {nb_hours} hour(s)").format(nb_submissions=submission_limit["amount"], nb_hours=submission_limit["period"])
+                    $else:
+                        $:_("{nb_submissions} submissions").format(nb_submissions=submission_limit["amount"])
             </td>
         </tr>
     </table>
     $if not is_lti() and user_manager.has_staff_rights_on_course(course):
-        <h3>Administration</h3>
+        <h3>$:_("Administration")</h3>
         $if not course.is_open_to_non_staff():
             <div class="alert alert-warning" role="alert">
-                This course is currently invisible for students. 
-                You can change this by modifying the "accessible" option in the configuration of the course.
+                $:_("This course is currently invisible for students.  You can change this by modifying the \"accessible\" option in the configuration of the course.")
             </div>
         $if not task.get_accessible_time().after_start():
             <div class="alert alert-warning" role="alert">
-                This task is currently invisible for students. 
-                You can change this by modifying the "accessible" option in the configuration of the task.
+                $:_("This task is currently invisible for students. You can change this by modifying the \"accessible\" option in the configuration of the task.")
             </div>
         <div class="list-group">
             <a class="list-group-item list-group-item-info" href="$get_homepath()/admin/$course.get_id()/task/$task.get_id()">
-                <i class="fa fa-tasks fa-fw"></i>&nbsp; View submissions
+                <i class="fa fa-tasks fa-fw"></i>&nbsp; $:_("View submissions")
             </a>
             $if user_manager.has_admin_rights_on_course(course):
                 <a class="list-group-item list-group-item-info" href="$get_homepath()/admin/$course.get_id()/edit/task/$task.get_id()">
-                    <i class="fa fa-edit fa-fw"></i>&nbsp; Edit task
+                    <i class="fa fa-edit fa-fw"></i>&nbsp; $:_("Edit task")
                 </a>
                 <a style="cursor:pointer;" class="list-group-item list-group-item-info" data-toggle="modal" data-target="#modal-debug">
-                    <i class="fa fa-wrench fa-fw"></i>&nbsp; Debug information
+                    <i class="fa fa-wrench fa-fw"></i>&nbsp; $:_("Debug information")
                 </a>
         </div>
     $elif not is_lti():
-        <h3>Submitting as</h3>
+        <h3>$:_("Submitting as")</h3>
         <div class="list-group">
             <div class="list-group-item list-group-item-info">
                 $if task.is_group_task():
-                    <i class="fa fa-chevron-right fa-fw"></i>&nbsp; <b>$('Group' if course.use_classrooms() else 'Team')</b>
+                    <i class="fa fa-chevron-right fa-fw"></i>&nbsp; <b>$(_('Group') if course.use_classrooms() else _('Team'))</b>
                 $else:
                     <i class="fa fa-chevron-right fa-fw"></i>&nbsp; <b>$user_manager.session_realname()</b>
             </div>
@@ -110,11 +108,11 @@ $def ColumnF():
                 <i class="fa fa-group fa-fw"></i>&nbsp;
                 $ myaggregation = user_manager.get_course_user_aggregation(course)
                 $if course.use_classrooms():
-                    Classroom : $myaggregation["description"]
+                    $:_("Classroom : {}").format(myaggregation["description"])
                 $elif len(myaggregation['groups']) > 0 and user_manager.session_username() in myaggregation['groups'][0]['students']:
-                    Team : $myaggregation['description']
+                    $:_("Team : {}").format(myaggregation['description'])
                 $else:
-                    Teams management
+                    $:_("Teams management")
             </a>
         </div>
 
@@ -124,11 +122,11 @@ $def ColumnF():
     <div class="list-group">
         <div class="list-group-item list-group-item-info"><i class="fa fa-info fa-fw"></i>
             $if task.get_evaluate() == "last":
-                Last submission
+                $:_("Last submission")
             $elif task.get_evaluate() == "best":
-                Best submission
+                $:_("Best submission")
             $else:
-                Selected submission
+                $:_("Selected submission")
         </div>
         $if eval_submission:
             <a id="my_submission" class="submission list-group-item list-group-item-info" data-submission-id="$eval_submission['_id']">
@@ -139,7 +137,7 @@ $def ColumnF():
             <div id="my_submission" class="list-group-item list-group-item-info"><i class="fa fa-chevron-right fa-fw"></i> No submission</div>
     </div>
 
-    <h3>Submission history</h3>
+    <h3>$:_("Submission history")</h3>
     <div id="submissions_restrictsize">
 	    <ul id="submissions" class="list-group">
 	        $if submissions:
@@ -166,7 +164,7 @@ $def ColumnF():
 	                </li>
 
 	        $else:
-	            <li class="list-group-item disabled submission-empty">No submission</li>
+	            <li class="list-group-item disabled submission-empty">$:_("No submission")</li>
 	    </ul>
     </div>
 $var Column: $:ColumnF()
@@ -174,7 +172,7 @@ $var Column: $:ColumnF()
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
         <li><a href="$get_homepath()/course/$task.get_course().get_id()">$task.get_course().get_name()</a></li>
-        <li class="active"><a href="#">$task.get_name() <span class="sr-only">(current)</span></a></li>
+        <li class="active"><a href="#">$task.get_name() <span class="sr-only">$:_("(current)")</span></a></li>
     </ol>
 $var Navbar: $:NavbarF()
 
@@ -189,11 +187,10 @@ $if user_manager.has_admin_rights_on_course(course):
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Debug information</h4>
+                    <h4 class="modal-title">$:_("Debug information")</h4>
                 </div>
                 <div class="modal-body">
-                    The raw data from the container will be displayed here, helping you to debug the task.<br/>
-                    This box is only displayed because you are an administrator of this course. It is not displayed to students.
+                    $:_("The raw data from the container will be displayed here, helping you to debug the task.<br/> This box is only displayed because you are an administrator of this course. It is not displayed to students.")
                     <hr/>
                     <div id="task_debug">
 
@@ -219,7 +216,7 @@ $if user_manager.has_admin_rights_on_course(course):
                 <div class="panel-heading">
                     <h3 class="panel-title">
                         $if len(task.get_problems()) != 1:
-                            Question ${key+1}:
+                            $:_("Question {}").format(str(key+1)):
                         $problem.get_name()
                     </h3>
                 </div>
@@ -238,7 +235,7 @@ $if user_manager.has_admin_rights_on_course(course):
             <input type="hidden" name="@debug-mode" id="task-debug-mode" value=""/>
             <div class="row">
                 <div class="col-xs-9 col-md-10">
-                    <button type="submit" class="btn btn-default btn-lg btn-block center-block" id="task-submit">Submit</button>
+                    <button type="submit" class="btn btn-default btn-lg btn-block center-block" id="task-submit">$:_("Submit")</button>
                 </div>
                 <div class="col-xs-3 col-md-2">
                     <button type="button" class="btn btn-info btn-lg btn-block center-block" id="task-submit-debug" data-toggle="tooltip"
@@ -248,20 +245,19 @@ $if user_manager.has_admin_rights_on_course(course):
                 </div>
             </div>
         $else:
-            <button type="submit" class="btn btn-default btn-lg btn-block center-block" id="task-submit">Submit</button>
+            <button type="submit" class="btn btn-default btn-lg btn-block center-block" id="task-submit">$:_("Submit")</button>
     $elif not task.get_accessible_time().is_open():
-        <button type="submit" class="btn btn-default btn-lg btn-block center-block" disabled="disabled">The deadline is over, you cannot submit anymore</button>
+        <button type="submit" class="btn btn-default btn-lg btn-block center-block" disabled="disabled">$:_("The deadline is over, you cannot submit anymore")</button>
     $elif task.is_group_task() and not groups_ok:
-        <a href="$get_homepath()/aggregation/$course.get_id()" class="btn btn-default btn-lg btn-block center-block">Please register in a $('group' if course.use_classrooms() else 'team')</a>
+        <a href="$get_homepath()/aggregation/$course.get_id()" class="btn btn-default btn-lg btn-block center-block">$(_('Please register in a group') if course.use_classrooms() else _('Please register in a team'))</a>
     $elif not tokens_ok:
         <button type="submit" class="btn btn-default btn-lg btn-block center-block" disabled="disabled">
-            $('You' if not task.is_group_task() else 'Your group' if course.use_classrooms() else 'Your team')
-            have reached the submission limit.
+            $(_('You have reached the submission limit.') if not task.is_group_task() else _('Your group have reached the submission limit.') if course.use_classrooms() else _('Your team have reached the submission limit.'))
         $if task.get_submission_limit()["period"] > 0:
-            <br/> It will be refilled within the next $task.get_submission_limit()["period"] hour(s)
+            <br/> $:_("It will be refilled within the next {} hour(s)").format(task.get_submission_limit()["period"])
         </button>
     $else:
-        <button type="submit" class="btn btn-default btn-lg btn-block center-block" disabled="disabled">You are not allowed to submit</button>
+        <button type="submit" class="btn btn-default btn-lg btn-block center-block" disabled="disabled">$:_("You are not allowed to submit")</button>
 </form>
 
 <script type="text/javascript">

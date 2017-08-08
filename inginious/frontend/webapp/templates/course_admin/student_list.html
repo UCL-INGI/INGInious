@@ -12,25 +12,25 @@ $var Column: $:template_helper.call('course_admin_menu',course=course,current='s
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
         <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+        <li><a href="$get_homepath()/admin/$course.get_id()" title="$:_('Administration')" data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-user-secret"></i></a></li>
         <li class="active">
             <a href="#">
-                <i class="fa fa-user"></i> Students <span class="sr-only">(current)</span>
+                <i class="fa fa-user"></i> $:_("Students") <span class="sr-only">$:_("(current)")</span>
             </a>
         </li>
     </ol>
 $var Navbar: $:NavbarF()
 
-<h2>Students</h2>
+<h2>$:_("Students")</h2>
 
 <div role="tabpanel">
     <ul class="nav nav-tabs" role="tablist">
         <li role="presentation" class="active"><a href="#tab_students" aria-controls="students" role="tab" data-toggle="tab">
-            <i class="fa fa-user fa-fw"></i>&nbsp; Students</a>
+            <i class="fa fa-user fa-fw"></i>&nbsp; $:_("Students")</a>
         </li>
         <li role="presentation"><a href="#tab_staff" aria-controls="staff" role="tab" data-toggle="tab">
-            <i class="fa fa-user-secret fa-fw"></i>&nbsp; Teaching staff</a>
+            <i class="fa fa-user-secret fa-fw"></i>&nbsp; $:_("Teaching staff")</a>
         </li>
 
     </ul>
@@ -41,8 +41,8 @@ $var Navbar: $:NavbarF()
                 <div class="row">
                     <form class=form-horizontal" method="post">
                         <div class="form-group">
-                            <div class="col-sm-9"><input type="text" class="form-control" name="username" placeholder="Student username"/></div>
-                            <div class="col-sm-3"><button name="register" type="submit" class="btn btn-warning btn-block"><i class="fa fa-plus fa-lg"></i> Add student</button></div>
+                            <div class="col-sm-9"><input type="text" class="form-control" name="username" placeholder="$:_('Student username')"/></div>
+                            <div class="col-sm-3"><button name="register" type="submit" class="btn btn-warning btn-block"><i class="fa fa-plus fa-lg"></i> $:_("Add student")</button></div>
                         </div>
                     </form>
                 </div>

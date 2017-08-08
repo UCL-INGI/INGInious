@@ -5,7 +5,7 @@ $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
-$var title: $:course.get_name() - Replay submissions
+$var title: $:course.get_name() - $:_("Replay submissions")
 
 $var Column: $:template_helper.call('course_admin_menu',course=course,current='replay')
 
@@ -14,17 +14,17 @@ $ use_classrooms = course.use_classrooms()
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
         <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+        <li><a href="$get_homepath()/admin/$course.get_id()" title="$:_('Administration')" data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-user-secret"></i></a></li>
-        <li class="active"><a href="#"><i class="fa fa-refresh"></i> Replay submissions <span class="sr-only">(current)</span></a></li>
+        <li class="active"><a href="#"><i class="fa fa-refresh"></i> $:_("Replay submissions") <span class="sr-only">$:_("(current)")</span></a></li>
     </ol>
 $var Navbar: $:NavbarF()
 
-<h2>Replay submissions</h2>
+<h2>$:_("Replay submissions")</h2>
 $if not error and not msg:
     <div class="alert alert-warning alert-dismissable" role="alert">
         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-        This feature is under testing and is not made for production use.
+        $:_("This feature is under testing and is not made for production use.")
     </div>
 $elif not error:
     <div class="alert alert-success alert-dismissable" role="alert">
@@ -43,24 +43,24 @@ $else:
 
     <div class="panel panel-default">
         <div class="panel-heading">
-            Other options
+            $:_("Other options")
         </div>
         <div class="panel-body">
             <div class="form-group">
-                <label for="folder_format" class="col-sm-2 control-label">Replay</label>
+                <label for="folder_format" class="col-sm-2 control-label">$:_("Replay")</label>
 
                 <div class="col-sm-10">
                     <ul class="list-unstyled">
                         <li>
                             <label>
                                 <input type="radio" name="type" value="single" checked="checked"/>
-                                Only the evaluation submission (Warning: the best submission may change)
+                                $:_("Only the evaluation submission (Warning: the best submission may change)")
                             </label>
                         </li>
                         <li>
                             <label>
                                 <input type="radio" name="type" value="all"/>
-                                All the submissions
+                                $:_("All the submissions")
                             </label>
                         </li>
                     </ul>
@@ -70,6 +70,6 @@ $else:
     </div>
 
     <button type="submit" class="btn btn-default btn-lg btn-block center-block">
-        <i class="fa fa-refresh fa-fw"></i>&nbsp; Replay
+        <i class="fa fa-refresh fa-fw"></i>&nbsp; $:_("Replay")
     </button>
 </form>
