@@ -31,10 +31,10 @@ class CourseReplaySubmissions(INGIniousSubmissionAdminPage):
             # Replay several submissions, check input
             tasks = course.get_tasks()
             error = False
-            msg = "Selected submissions were set for replay."
+            msg = _("Selected submissions were set for replay.")
             for i in user_input.tasks:
                 if i not in tasks.keys():
-                    msg = "Task with id " + i + " does not exist !"
+                    msg = _("Task with id {} does not exist !").format(i)
                     error = True
 
             if not error:

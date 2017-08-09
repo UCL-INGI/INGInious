@@ -42,7 +42,7 @@ class HiddenUntilDirective(Directive, object):
             if not after_deadline and force_show:
                 node = nodes.caution()
                 self.add_name(node)
-                text = "The feedback below will be hidden to the students until %s." % hidden_until.strftime("%d/%m/%Y %H:%M:%S")
+                text = _("The feedback below will be hidden to the students until {}.").format(hidden_until.strftime("%d/%m/%Y %H:%M:%S"))
                 self.state.nested_parse(StringList(text.split("\n")), 0, node)
                 output.append(node)
 
@@ -56,8 +56,8 @@ class HiddenUntilDirective(Directive, object):
         else:
             node = nodes.caution()
             self.add_name(node)
-            text = "A part of this feedback is hidden until %s. Please come back later and reload the submission to see the full feedback." % \
-                   hidden_until.strftime("%d/%m/%Y %H:%M:%S")
+            text = _("A part of this feedback is hidden until {}. Please come back later and reload the submission to see the full feedback.").format(
+                hidden_until.strftime("%d/%m/%Y %H:%M:%S"))
             self.state.nested_parse(StringList(text.split("\n")), 0, node)
             return [node]
 

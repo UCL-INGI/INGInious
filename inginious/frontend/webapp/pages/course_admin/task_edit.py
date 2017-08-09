@@ -210,12 +210,12 @@ class CourseEditTask(INGIniousAdminPage):
             del data["@action"]
 
             if data["@filetype"] not in self.task_factory.get_available_task_file_extensions():
-                return json.dumps({"status": "error", "message": "Invalid file type: {}".format(str(data["@filetype"]))})
+                return json.dumps({"status": "error", "message": _("Invalid file type: {}").format(str(data["@filetype"]))})
             file_ext = data["@filetype"]
             del data["@filetype"]
 
             if problems is None:
-                return json.dumps({"status": "error", "message": "You cannot create a task without subproblems"})
+                return json.dumps({"status": "error", "message": _("You cannot create a task without subproblems")})
 
             # Order the problems (this line also deletes @order from the result)
             data["problems"] = OrderedDict([(key, self.parse_problem(val))
@@ -228,7 +228,7 @@ class CourseEditTask(INGIniousAdminPage):
             try:
                 data["weight"] = float(data["weight"])
             except:
-                return json.dumps({"status": "error", "message": "Grade weight must be a floating-point number"})
+                return json.dumps({"status": "error", "message": _("Grade weight must be a floating-point number")})
 
             # Groups
             if "groups" in data:
@@ -241,10 +241,10 @@ class CourseEditTask(INGIniousAdminPage):
                     data["stored_submissions"] = 0 if data["store_all"] == "true" else int(stored_submissions)
                 except:
                     return json.dumps(
-                        {"status": "error", "message": "The number of stored submission must be positive!"})
+                        {"status": "error", "message": _("The number of stored submission must be positive!")})
 
                 if data["store_all"] == "false" and data["stored_submissions"] <= 0:
-                    return json.dumps({"status": "error", "message": "The number of stored submission must be positive!"})
+                    return json.dumps({"status": "error", "message": _("The number of stored submission must be positive!")})
                 del data['store_all']
 
             # Submission limits
@@ -255,13 +255,13 @@ class CourseEditTask(INGIniousAdminPage):
                     try:
                         result = {"amount": int(data["submission_limit_hard"]), "period": -1}
                     except:
-                        return json.dumps({"status": "error", "message": "Invalid submission limit!"})
+                        return json.dumps({"status": "error", "message": _("Invalid submission limit!")})
 
                 else:
                     try:
                         result = {"amount": int(data["submission_limit_soft_0"]), "period": int(data["submission_limit_soft_1"])}
                     except:
-                        return json.dumps({"status": "error", "message": "Invalid submission limit!"})
+                        return json.dumps({"status": "error", "message": _("Invalid submission limit!")})
 
                 del data["submission_limit_hard"]
                 del data["submission_limit_soft_0"]
@@ -285,13 +285,13 @@ class CourseEditTask(INGIniousAdminPage):
             # Network grading
             data["network_grading"] = "network_grading" in data
         except Exception as message:
-            return json.dumps({"status": "error", "message": "Your browser returned an invalid form ({})".format(str(message))})
+            return json.dumps({"status": "error", "message": _("Your browser returned an invalid form ({})").format(str(message))})
 
         # Get the course
         try:
             course = self.course_factory.get_course(courseid)
         except:
-            return json.dumps({"status": "error", "message": "Error while reading course's informations"})
+            return json.dumps({"status": "error", "message": _("Error while reading course's informations")})
 
         # Get original data
         try:
@@ -305,20 +305,20 @@ class CourseEditTask(INGIniousAdminPage):
         try:
             WebAppTask(course, taskid, data, task_fs, self.plugin_manager)
         except Exception as message:
-            return json.dumps({"status": "error", "message": "Invalid data: {}".format(str(message))})
+            return json.dumps({"status": "error", "message": _("Invalid data: {}").format(str(message))})
 
         if task_zip:
             try:
                 zipfile = ZipFile(task_zip)
             except Exception:
-                return json.dumps({"status": "error", "message": "Cannot read zip file. Files were not modified"})
+                return json.dumps({"status": "error", "message": _("Cannot read zip file. Files were not modified")})
 
             with tempfile.TemporaryDirectory() as tmpdirname:
                 try:
                     zipfile.extractall(tmpdirname)
                 except Exception:
                     return json.dumps(
-                        {"status": "error", "message": "There was a problem while extracting the zip archive. Some files may have been modified"})
+                        {"status": "error", "message": _("There was a problem while extracting the zip archive. Some files may have been modified")})
                 task_fs.copy_to(tmpdirname)
 
         self.task_factory.delete_all_possible_task_files(courseid, taskid)

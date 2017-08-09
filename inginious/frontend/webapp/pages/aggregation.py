@@ -46,7 +46,7 @@ class AggregationPage(INGIniousAuthPage):
                     self._logger.info("User %s registered to group %s/%s/%s", username, courseid, aggregation["description"], data["register_group"])
                 else:
                     error = True
-                    msg = "Couldn't register to the specified group."
+                    msg = _("Couldn't register to the specified group.")
             elif course.can_students_choose_group():
 
                 aggregation = self.database.aggregations.find_one(
@@ -67,12 +67,12 @@ class AggregationPage(INGIniousAuthPage):
 
                 if new_aggregation is None:
                     error = True
-                    msg = "Couldn't register to the specified group."
+                    msg = _("Couldn't register to the specified group.")
                 else:
                     self._logger.info("User %s registered to team %s/%s", username, courseid, aggregation["description"])
             else:
                 error = True
-                msg = "You are not allowed to change group."
+                msg = _("You are not allowed to change group.")
         elif "unregister_group" in data:
             change = True
             if course.can_students_choose_group():
@@ -85,10 +85,10 @@ class AggregationPage(INGIniousAuthPage):
                     self._logger.info("User %s unregistered from group/team %s/%s", username, courseid, aggregation["description"])
                 else:
                     error = True
-                    msg = "You're not registered in a group."
+                    msg = _("You're not registered in a group.")
             else:
                 error = True
-                msg = "You are not allowed to change group."
+                msg = _("You are not allowed to change group.")
 
         tasks = course.get_tasks()
         last_submissions = self.submission_manager.get_user_last_submissions(5, {"courseid": courseid, "taskid": {"$in": list(tasks.keys())}})

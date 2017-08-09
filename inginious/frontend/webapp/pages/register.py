@@ -53,9 +53,9 @@ class RegistrationPage(INGIniousPage):
         user = self.database.users.find_one_and_update({"activate": data["activate"]}, {"$unset": {"activate": True}})
         if user is None:
             error = True
-            msg = "Invalid activation hash."
+            msg = _("Invalid activation hash.")
         else:
-            msg = "You are now activated. You can proceed to login."
+            msg = _("You are now activated. You can proceed to login.")
 
         return msg, error
 
@@ -72,25 +72,25 @@ class RegistrationPage(INGIniousPage):
         # Check input format
         if re.match(r"\w{4,}$", data["username"]) is None:
             error = True
-            msg = "Invalid username format."
+            msg = _("Invalid username format.")
         elif email_re.match(data["email"]) is None:
             error = True
-            msg = "Invalid email format."
+            msg = _("Invalid email format.")
         elif len(data["passwd"]) < 6:
             error = True
-            msg = "Password too short."
+            msg = _("Password too short.")
         elif data["passwd"] != data["passwd2"]:
             error = True
-            msg = "Passwords don't match !"
+            msg = _("Passwords don't match !")
 
         if not error:
             existing_user = self.database.users.find_one({"$or": [{"username": data["username"]}, {"email": data["email"]}]})
             if existing_user is not None:
                 error = True
                 if existing_user["username"] == data["username"]:
-                    msg = "This username is already taken !"
+                    msg = _("This username is already taken !")
                 else:
-                    msg = "This email address is already in use !"
+                    msg = _("This email address is already in use !")
             else:
                 passwd_hash = hashlib.sha512(data["passwd"].encode("utf-8")).hexdigest()
                 activate_hash = hashlib.sha512(str(random.getrandbits(256)).encode("utf-8")).hexdigest()
@@ -101,15 +101,16 @@ class RegistrationPage(INGIniousPage):
                                             "activate": activate_hash,
                                             "bindings": {}})
                 try:
-                    web.sendmail(web.config.smtp_sendername, data["email"], "Welcome on INGInious",
-                                 """Welcome on INGInious !
+                    web.sendmail(web.config.smtp_sendername, data["email"], _("Welcome on INGInious"),
+                                 _("""Welcome on INGInious !
 
 To activate your account, please click on the following link :
-""" + web.ctx.home + "/register?activate=" + activate_hash)
-                    msg = "You are succesfully registered. An email has been sent to you for activation."
+""")
+                                 + web.ctx.home + "/register?activate=" + activate_hash)
+                    msg = _("You are succesfully registered. An email has been sent to you for activation.")
                 except:
                     error = True
-                    msg = "Something went wrong while sending you activation email. Please contact the administrator."
+                    msg = _("Something went wrong while sending you activation email. Please contact the administrator.")
 
         return msg, error
 
@@ -125,25 +126,25 @@ To activate your account, please click on the following link :
             r')@(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?$', re.IGNORECASE)  # domain
         if email_re.match(data["recovery_email"]) is None:
             error = True
-            msg = "Invalid email format."
+            msg = _("Invalid email format.")
 
         if not error:
             reset_hash = hashlib.sha512(str(random.getrandbits(256)).encode("utf-8")).hexdigest()
             user = self.database.users.find_one_and_update({"email": data["recovery_email"]}, {"$set": {"reset": reset_hash}})
             if user is None:
                 error = True
-                msg = "This email address was not found in database."
+                msg = _("This email address was not found in database.")
             else:
                 try:
-                    web.sendmail(web.config.smtp_sendername, data["recovery_email"], "INGInious password recovery",
-                                 "Dear " + user["realname"] + """,
+                    web.sendmail(web.config.smtp_sendername, data["recovery_email"], _("INGInious password recovery"),
+                                 _("""Dear {realname},
 
 Someone (probably you) asked to reset your INGInious password. If this was you, please click on the following link :
-""" + web.ctx.home + "/register?reset=" + reset_hash)
-                    msg = "An email has been sent to you to reset your password."
+""").format(user["realname"]) + web.ctx.home + "/register?reset=" + reset_hash)
+                    msg = _("An email has been sent to you to reset your password.")
                 except:
                     error = True
-                    msg = "Something went wrong while sending you reset email. Please contact the administrator."
+                    msg = _("Something went wrong while sending you reset email. Please contact the administrator.")
 
         return msg, error
 
@@ -155,10 +156,10 @@ Someone (probably you) asked to reset your INGInious password. If this was you, 
         # Check input format
         if len(data["passwd"]) < 6:
             error = True
-            msg = "Password too short."
+            msg = _("Password too short.")
         elif data["passwd"] != data["passwd2"]:
             error = True
-            msg = "Passwords don't match !"
+            msg = _("Passwords don't match !")
 
         if not error:
             passwd_hash = hashlib.sha512(data["passwd"].encode("utf-8")).hexdigest()
@@ -166,9 +167,9 @@ Someone (probably you) asked to reset your INGInious password. If this was you, 
                                                            {"$set": {"password": passwd_hash}, "$unset": {"reset": True}})
             if user is None:
                 error = True
-                msg = "Invalid reset hash."
+                msg = _("Invalid reset hash.")
             else:
-                msg = "Your password has been successfully changed."
+                msg = _("Your password has been successfully changed.")
 
         return msg, error
 

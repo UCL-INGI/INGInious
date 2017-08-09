@@ -27,7 +27,7 @@ class DeletePage(INGIniousAuthPage):
                                                           "email": data.get("delete_email", "")})
         if not result:
             error = True
-            msg = "The specified email is incorrect."
+            msg = _("The specified email is incorrect.")
         else:
             self.database.submissions.remove({"username": username})
             self.database.user_tasks.remove({"username": username})

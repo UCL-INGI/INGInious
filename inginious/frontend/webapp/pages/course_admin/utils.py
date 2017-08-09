@@ -248,20 +248,20 @@ def get_menu(course, current, renderer, plugin_manager, user_manager):
     """ Returns the HTML of the menu used in the administration. ```current``` is the current page of section """
     default_entries = []
     if user_manager.has_admin_rights_on_course(course):
-        default_entries += [("settings", "<i class='fa fa-cog fa-fw'></i>&nbsp; Course settings")]
+        default_entries += [("settings", "<i class='fa fa-cog fa-fw'></i>&nbsp; " + _("Course settings"))]
 
-    default_entries += [("students", "<i class='fa fa-user fa-fw'></i>&nbsp; Students")]
+    default_entries += [("students", "<i class='fa fa-user fa-fw'></i>&nbsp; " + _("Students"))]
 
     if not course.is_lti():
         default_entries += [("aggregations", "<i class='fa fa-group fa-fw'></i>&nbsp; " +
-                             ("Classrooms" if course.use_classrooms() else "Teams"))]
+                             (_("Classrooms") if course.use_classrooms() else _("Teams")))]
 
-    default_entries += [("tasks", "<i class='fa fa-tasks fa-fw'></i>&nbsp; Tasks"),
-                        ("download", "<i class='fa fa-download fa-fw'></i>&nbsp; Download submissions")]
+    default_entries += [("tasks", "<i class='fa fa-tasks fa-fw'></i>&nbsp; " + _("Tasks")),
+                        ("download", "<i class='fa fa-download fa-fw'></i>&nbsp; " + _("Download submissions"))]
 
     if user_manager.has_admin_rights_on_course(course):
-        default_entries += [("replay", "<i class='fa fa-refresh fa-fw'></i>&nbsp; Replay submissions"),
-                             ("danger", "<i class='fa fa-bomb fa-fw'></i>&nbsp; Danger zone")]
+        default_entries += [("replay", "<i class='fa fa-refresh fa-fw'></i>&nbsp; " + _("Replay submissions")),
+                            ("danger", "<i class='fa fa-bomb fa-fw'></i>&nbsp; " + _("Danger zone"))]
 
     # Hook should return a tuple (link,name) where link is the relative link from the index of the course administration.
     additional_entries = [entry for entry in plugin_manager.call_hook('course_admin_menu', course=course) if entry is not None]

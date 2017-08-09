@@ -16,6 +16,7 @@ from inginious.common import exceptions
 from inginious.frontend.common.task_page_helpers import submission_to_json, list_multiple_multiple_choices_and_files
 from inginious.frontend.webapp.pages.utils import INGIniousAuthPage
 
+
 class BaseTaskPage(object):
     """ Display a task (and allow to reload old submission/file uploaded during a submission) """
 
@@ -151,7 +152,7 @@ class BaseTaskPage(object):
             if "@action" in userinput and userinput["@action"] == "submit":
                 # Verify rights
                 if not self.user_manager.task_can_user_submit(task, username, isLTI):
-                    return json.dumps({"status": "error", "text": "You are not allowed to submit for this task."})
+                    return json.dumps({"status": "error", "text": _("You are not allowed to submit for this task.")})
 
                 # Reparse user input with array for multiple choices
                 init_var = list_multiple_multiple_choices_and_files(task)
@@ -159,8 +160,8 @@ class BaseTaskPage(object):
 
                 if not task.input_is_consistent(userinput, self.default_allowed_file_extensions, self.default_max_file_size):
                     web.header('Content-Type', 'application/json')
-                    return json.dumps({"status": "error", "text": "Please answer to all the questions and verify the extensions of the files "
-                                                                  "you want to upload. Your responses were not tested."})
+                    return json.dumps({"status": "error", "text": _("Please answer to all the questions and verify the extensions of the files "
+                                                                  "you want to upload. Your responses were not tested.")})
                 del userinput['@action']
 
                 # Get debug info if the current user is an admin

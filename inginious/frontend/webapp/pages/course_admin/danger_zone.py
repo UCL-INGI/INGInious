@@ -134,18 +134,18 @@ class CourseDangerZonePage(INGIniousAdminPage):
 
         data = web.input()
         if not data.get("token", "") == self.user_manager.session_token():
-            msg = "Operation aborted due to invalid token."
+            msg = _("Operation aborted due to invalid token.")
             error = True
         elif "wipeall" in data:
             if not data.get("courseid", "") == courseid:
-                msg = "Wrong course id."
+                msg = _("Wrong course id.")
                 error = True
             else:
                 try:
                     self.dump_course(courseid)
-                    msg = "All course data have been deleted."
+                    msg = _("All course data have been deleted.")
                 except:
-                    msg = "An error occurred while dumping course from database."
+                    msg = _("An error occurred while dumping course from database.")
                     error = True
         elif "restore" in data:
             if "backupdate" not in data:
@@ -155,22 +155,21 @@ class CourseDangerZonePage(INGIniousAdminPage):
                 try:
                     dt = datetime.datetime.strptime(data["backupdate"], "%Y%m%d.%H%M%S")
                     self.restore_course(courseid, data["backupdate"])
-                    msg = "Course restored to date : " + dt.strftime("%Y-%m-%d %H:%M:%S") + "."
+                    msg = _("Course restored to date : {}.").format(dt.strftime("%Y-%m-%d %H:%M:%S"))
                 except:
-                    msg = "An error occurred while restoring backup."
+                    msg = _("An error occurred while restoring backup.")
                     error = True
         elif "deleteall" in data:
             if not data.get("courseid", "") == courseid:
-                msg = "Wrong course id."
+                msg = _("Wrong course id.")
                 error = True
             else:
                 try:
                     self.delete_course(courseid)
                     web.seeother(self.app.get_homepath() + '/index')
                 except:
-                    msg = "An error occurred while deleting the course data."
+                    msg = _("An error occurred while deleting the course data.")
                     error = True
-
 
         return self.page(course, msg, error)
 

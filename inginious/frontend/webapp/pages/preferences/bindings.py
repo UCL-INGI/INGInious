@@ -38,7 +38,7 @@ class BindingsPage(INGIniousAuthPage):
 
             if auth_binding not in auth_methods.keys():
                 error = True
-                msg = "Incorrect authentication binding."
+                msg = _("Incorrect authentication binding.")
             elif auth_binding not in user_data.get("bindings", {}):
                 raise web.seeother("/auth/" + auth_binding +"/signin")
         elif "revoke_auth_binding" in user_input:
@@ -46,13 +46,13 @@ class BindingsPage(INGIniousAuthPage):
 
             if auth_id not in auth_methods.keys():
                 error = True
-                msg = "Incorrect authentication binding."
+                msg = _("Incorrect authentication binding.")
             elif len(user_data.get("bindings", {}).keys()) > 1 or "password" in user_data:
                 user_data = self.database.users.find_one_and_update({"username": self.user_manager.session_username()},
                                                         {"$unset": {"bindings." + auth_id: 1}})
             else:
                 error = True
-                msg = "You must set a password before removing all bindings."
+                msg = _("You must set a password before removing all bindings.")
 
         bindings = user_data.get("bindings", {})
 

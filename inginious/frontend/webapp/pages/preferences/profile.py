@@ -23,10 +23,10 @@ class ProfilePage(INGIniousAuthPage):
         # Check input format
         if self.app.allow_registration and len(data["oldpasswd"]) > 0 and len(data["passwd"]) < 6:
             error = True
-            msg = "Password too short."
+            msg = _("Password too short.")
         elif self.app.allow_registration and len(data["oldpasswd"]) > 0 and data["passwd"] != data["passwd2"]:
             error = True
-            msg = "Passwords don't match !"
+            msg = _("Passwords don't match !")
         elif self.app.allow_registration and len(data["oldpasswd"]) > 0:
             oldpasswd_hash = hashlib.sha512(data["oldpasswd"].encode("utf-8")).hexdigest()
             passwd_hash = hashlib.sha512(data["passwd"].encode("utf-8")).hexdigest()
@@ -43,24 +43,24 @@ class ProfilePage(INGIniousAuthPage):
                                                              return_document=ReturnDocument.AFTER)
             if not result:
                 error = True
-                msg = "Incorrect old password."
+                msg = _("Incorrect old password.")
             else:
-                msg = "Profile updated."
+                msg = _("Profile updated.")
         elif not userdata["username"] and "username" in data:
             found_user = self.database.users.find_one({"username": data["username"]})
             if found_user:
                 error = True
-                msg = "Username already taken"
+                msg = _("Username already taken")
             else:
                 result = self.database.users.find_one_and_update({"email": userdata["email"]},
                                                                  {"$set": {"username": data["username"]}},
                                                                  return_document=ReturnDocument.AFTER)
                 if not result:
                     error = True
-                    msg = "Incorrect email."
+                    msg = _("Incorrect email.")
                 else:
                     self.user_manager.connect_user(result["username"], result["realname"], result["email"])
-                    msg = "Profile updated."
+                    msg = _("Profile updated.")
 
         else:
             result = self.database.users.find_one_and_update({"username": self.user_manager.session_username()},
@@ -68,10 +68,10 @@ class ProfilePage(INGIniousAuthPage):
                                                              return_document=ReturnDocument.AFTER)
             if not result:
                 error = True
-                msg = "Incorrect username."
+                msg = _("Incorrect username.")
             else:
                 self.user_manager.set_session_realname(data["realname"])
-                msg = "Profile updated."
+                msg = _("Profile updated.")
 
         return result, msg, error
 

@@ -60,20 +60,20 @@ class CourseAggregationListPage(INGIniousAdminPage):
                     self.database.aggregations.insert({"default": default, "courseid": courseid, "students": [],
                                                      "tutors": [], "groups": [],
                                                      "description": data['classroom']})
-                    msg = "New classroom created."
+                    msg = _("New classroom created.")
                 elif 'default' in data:
                     self.database.aggregations.find_one_and_update({"courseid": courseid, "default": True},
                                                                  {"$set": {"default": False}})
                     self.database.aggregations.find_one_and_update({"_id": ObjectId(data['default'])},
                                                                  {"$set": {"default": True}})
-                    msg = "Default classroom changed."
+                    msg = _("Default classroom changed.")
                 else:  # default, but with no classroom detected
-                    msg = "Invalid classroom selected."
+                    msg = _("Invalid classroom selected.")
             else:
-                msg = "You have no rights to add/change classrooms"
+                msg = _("You have no rights to add/change classrooms")
                 error = True
         except:
-            msg = 'User returned an invalid form.'
+            msg = _('User returned an invalid form.')
             error = True
 
         return self.page(course, msg, error)

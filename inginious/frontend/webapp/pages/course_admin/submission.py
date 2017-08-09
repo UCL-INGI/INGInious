@@ -72,17 +72,17 @@ class CourseStudentTaskSubmission(INGIniousAdminPage):
                         data["content"] = None
                     data["base64"] = base64.b64encode(submission["input"][problem.get_id()]["value"]).decode('utf-8')
                 elif isinstance(problem, DisplayableMultipleChoiceProblem):
-                    data["content"] = "Multiple choice question: \n"
+                    data["content"] = _("Multiple choice question:") + "\n"
                     chosen = submission["input"][problem.get_id()]
                     if not isinstance(chosen, list):
                         chosen = [chosen]
                     for c in chosen:
                         choice = problem.get_choice_with_index(int(c))
                         if choice is None:
-                            t = "unknown"
+                            t = _("unknown")
                             m = ""
                         else:
-                            t = "valid" if choice.get("valid", False) else "invalid"
+                            t = _("valid") if choice.get("valid", False) else _("invalid")
                             m = choice["text"]
                         data["content"] += "\t- %s (%s): \n\t%s\n" % (c, t, m)
                     data["base64"] = base64.b64encode(str(submission["input"][problem.get_id()]).encode('utf-8')).decode('utf-8')

@@ -43,31 +43,31 @@ class LTIBindPage(INGIniousAuthPage):
     def GET_AUTH(self):
         input_data = web.input()
         if "sessionid" not in input_data:
-            return self.template_helper.get_renderer().lti_bind(False, "", None, "Missing LTI session id")
+            return self.template_helper.get_renderer().lti_bind(False, "", None, _("Missing LTI session id"))
 
         try:
             cookieless_session, data = self.fetch_lti_data(input_data["sessionid"])
         except KeyError as _:
-            return self.template_helper.get_renderer().lti_bind(False, "", None, "Invalid LTI session id")
+            return self.template_helper.get_renderer().lti_bind(False, "", None, _("Invalid LTI session id"))
 
         return self.template_helper.get_renderer().lti_bind(False, cookieless_session["session_id"], data, "")
 
     def POST_AUTH(self):
         input_data = web.input()
         if "sessionid" not in input_data:
-            return self.template_helper.get_renderer().lti_bind(False, "", None, "Missing LTI session id")
+            return self.template_helper.get_renderer().lti_bind(False, "", None, _("Missing LTI session id"))
 
         try:
             cookieless_session, data = self.fetch_lti_data(input_data["sessionid"])
         except KeyError as _:
-            return self.template_helper.get_renderer().lti_bind(False, "", None, "Invalid LTI session id")
+            return self.template_helper.get_renderer().lti_bind(False, "", None, _("Invalid LTI session id"))
 
         try:
             course = self.course_factory.get_course(data["task"][0])
             if data["consumer_key"] not in course.lti_keys().keys():
                 raise Exception()
         except:
-            return self.template_helper.get_renderer().lti_bind(False, "", None, "Invalid LTI data")
+            return self.template_helper.get_renderer().lti_bind(False, "", None, _("Invalid LTI data"))
 
         if data:
             user_profile = self.database.users.find_one({"username": self.user_manager.session_username()})
@@ -87,7 +87,7 @@ class LTIBindPage(INGIniousAuthPage):
                                  data["consumer_key"],
                                  user_profile.get("ltibindings", {}).get(data["task"][0], {}).get(data["consumer_key"], ""))
                 return self.template_helper.get_renderer().lti_bind(False, cookieless_session["data"]["session_id"],
-                                                                    data, "Your account is already bound with this context.")
+                                                                    data, _("Your account is already bound with this context."))
 
         return self.template_helper.get_renderer().lti_bind(True, cookieless_session["session_id"], data, "")
 
@@ -158,8 +158,8 @@ class LTILaunchPage(INGIniousPage):
             verified = test.is_valid_request(validator)
         except Exception:
             self.logger.exception("...")
-            self.logger.info('Can not authenticate request for %s', str(post_input))
-            raise web.forbidden('Cannot authenticate request (1)')
+            self.logger.info("Error while validating LTI request for %s", str(post_input))
+            raise web.forbidden(_("Error while validating LTI request"))
 
         if verified:
             self.logger.debug('parse_lit_data for %s', str(post_input))
@@ -174,8 +174,8 @@ class LTILaunchPage(INGIniousPage):
             if course.lti_send_back_grade():
                 if lis_outcome_service_url is None or outcome_result_id is None:
                     self.logger.info('Error: lis_outcome_service_url is None but lti_send_back_grade is True')
-                    raise web.forbidden("In order to send grade back to the TC, INGInious needs the parameters lis_outcome_service_url and "
-                                        "lis_outcome_result_id in the LTI basic-launch-request. Please contact your administrator.")
+                    raise web.forbidden(_("In order to send grade back to the TC, INGInious needs the parameters lis_outcome_service_url and "
+                                        "lis_outcome_result_id in the LTI basic-launch-request. Please contact your administrator."))
             else:
                 lis_outcome_service_url = None
                 outcome_result_id = None
@@ -193,8 +193,8 @@ class LTILaunchPage(INGIniousPage):
 
             return session_id, loggedin
         else:
-            self.logger.info('ERROR: not verified')
-            raise web.forbidden("Cannot authentify request (2)")
+            self.logger.info("Couldn't validate LTI request")
+            raise web.forbidden(_("Couldn't validate LTI request"))
 
     def _find_realname(self, post_input):
         """ Returns the most appropriate name to identify the user """

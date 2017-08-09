@@ -29,10 +29,10 @@ class CourseSettings(INGIniousAdminPage):
             course_content = self.course_factory.get_course_descriptor_content(courseid)
             course_content['name'] = data['name']
             if course_content['name'] == "":
-                errors.append('Invalid name')
+                errors.append(_('Invalid name'))
             course_content['admins'] = list(map(str.strip, data['admins'].split(',')))
             if not self.user_manager.user_is_superadmin() and self.user_manager.session_username() not in course_content['admins']:
-                errors.append('You cannot remove yourself from the administrators of this course')
+                errors.append(_('You cannot remove yourself from the administrators of this course'))
             course_content['tutors'] = list(map(str.strip, data['tutors'].split(',')))
             if len(course_content['tutors']) == 1 and course_content['tutors'][0].strip() == "":
                 course_content['tutors'] = []
@@ -54,7 +54,7 @@ class CourseSettings(INGIniousAdminPage):
             try:
                 AccessibleTime(course_content['accessible'])
             except:
-                errors.append('Invalid accessibility dates')
+                errors.append(_('Invalid accessibility dates'))
 
             course_content['allow_unregister'] = True if data["allow_unregister"] == "true" else False
 
@@ -68,7 +68,7 @@ class CourseSettings(INGIniousAdminPage):
             try:
                 AccessibleTime(course_content['registration'])
             except:
-                errors.append('Invalid registration dates')
+                errors.append(_('Invalid registration dates'))
 
             course_content['registration_password'] = data['registration_password']
             if course_content['registration_password'] == "":
@@ -76,7 +76,7 @@ class CourseSettings(INGIniousAdminPage):
 
             course_content['registration_ac'] = data['registration_ac']
             if course_content['registration_ac'] not in ["None", "username", "realname", "email"]:
-                errors.append('Invalid ACL value')
+                errors.append(_('Invalid ACL value'))
             if course_content['registration_ac'] == "None":
                 course_content['registration_ac'] = None
             course_content['registration_ac_list'] = data['registration_ac_list'].split("\n")
@@ -86,11 +86,11 @@ class CourseSettings(INGIniousAdminPage):
 
             for lti_key in course_content['lti_keys'].keys():
                 if not re.match("^[a-zA-Z0-9]*$", lti_key):
-                    errors.append("LTI keys must be alphanumerical.")
+                    errors.append(_("LTI keys must be alphanumerical."))
 
             course_content['lti_send_back_grade'] = 'lti_send_back_grade' in data and data['lti_send_back_grade'] == "true"
         except:
-            errors.append('User returned an invalid form.')
+            errors.append(_('User returned an invalid form.'))
 
         if len(errors) == 0:
             self.course_factory.update_course_descriptor_content(courseid, course_content)
