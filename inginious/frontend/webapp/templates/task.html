@@ -181,6 +181,25 @@ $# Start content
 $:task.get_context()
 <hr/>
 <div id="task_alert"></div>
+<div id="ssh_template" style="display:none;">
+    $if webterm_link:
+        <div id="webterm">
+            <input type="hidden" value="$webterm_link" id="webterm_link"/>
+        </div>
+        $:_("Alternatively, you can also paste this command into your terminal:") <br/>
+    $else:
+        $:_("Paste this command into your terminal:") <br/>
+
+    <pre id="commandssh"></pre>
+    $:_("The password to connect is {}").format("<code></code>")
+</div>
+<div id="messages" style="display:none;">
+    <span id="answerall">$:_("Please answer to all the questions.")</span>
+    <span id="internalerror">$:("Internal error")</span>
+    <span id="invalidext">$:("{} has not a valid extension.")</span>
+    <span id="filetooheavy">$:("{} is too heavy.")</span>
+</div>
+
 $if user_manager.has_admin_rights_on_course(course):
     <div class="modal fade" id="modal-debug">
         <div class="modal-dialog modal-lg">
@@ -206,9 +225,6 @@ $if user_manager.has_admin_rights_on_course(course):
             data-wait-submission="$submission['_id']"
             $break
 >
-    $# Store path to webterm if given
-    $if webterm_link is not None:
-        <input type="hidden" value="$webterm_link" id="webterm_link"/>
     <input type="hidden" name="@action" value="submit"/>
     $for key, problem in enumerate(task.get_problems()):
         <div class="panel panel-default">

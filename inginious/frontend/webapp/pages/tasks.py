@@ -175,7 +175,7 @@ class BaseTaskPage(object):
                 try:
                     submissionid, oldsubids = self.submission_manager.add_job(task, userinput, debug)
                     web.header('Content-Type', 'application/json')
-                    return json.dumps({"status": "ok", "submissionid": str(submissionid), "remove": oldsubids})
+                    return json.dumps({"status": "ok", "submissionid": str(submissionid), "remove": oldsubids, "text": _("<b>Your submission has been sent...</b>")})
                 except Exception as ex:
                     web.header('Content-Type', 'application/json')
                     return json.dumps({"status": "error", "text": str(ex)})
@@ -184,7 +184,7 @@ class BaseTaskPage(object):
                 result = self.submission_manager.get_submission(userinput['submissionid'])
                 if result is None:
                     web.header('Content-Type', 'application/json')
-                    return json.dumps({'status': "error"})
+                    return json.dumps({'status': "error", "text": _("Internal error")})
                 elif self.submission_manager.is_done(result):
                     web.header('Content-Type', 'application/json')
                     result = self.submission_manager.get_input_from_submission(result)
@@ -201,21 +201,35 @@ class BaseTaskPage(object):
                     default_submission = self.database.submissions.find_one({'_id': ObjectId(submissionid)}) if submissionid else None
                     if default_submission is None:
                         self.set_selected_submission(course, task, userinput['submissionid'])
+
                     return submission_to_json(result, is_admin, False, True if default_submission is None else default_submission['_id'] == result['_id'])
 
                 else:
                     web.header('Content-Type', 'application/json')
+
                     if "ssh_host" in result:
-                        return json.dumps({'status': "waiting",
-                                           'ssh_host': result["ssh_host"],
-                                           'ssh_port': result["ssh_port"],
+                        return json.dumps({'status': "waiting", 'text': "<b>SSH server active</b>",
+                                           'ssh_host': result["ssh_host"], 'ssh_port': result["ssh_port"],
                                            'ssh_password': result["ssh_password"]})
+
                     # Here we are waiting. Let's send some useful information.
                     waiting_data = self.submission_manager.get_job_queue_info(result["jobid"]) if "jobid" in result else None
                     if waiting_data is not None:
                         nb_tasks_before, approx_wait_time = waiting_data
-                        return json.dumps({'status': "waiting", 'nb_tasks_before': nb_tasks_before, 'approx_wait_time': approx_wait_time})
-                    return json.dumps({'status': "waiting"})
+                        wait_time = round(approx_wait_time)
+                        if nb_tasks_before == -1 and wait_time <= 0:
+                            text = _("<b>INGInious is currently grading your answers.<b/> (almost done)")
+                        elif nb_tasks_before == -1:
+                            text = _("<b>INGInious is currently grading your answers.<b/> (Approx. wait time: {} seconds)").format(wait_time)
+                        elif nb_tasks_before == 0:
+                            text = _("<b>You are next in the waiting queue!</b>")
+                        elif nb_tasks_before == 1:
+                            text = _("<b>There is one task in front of you in the waiting queue.</b>")
+                        else:
+                            text = _("<b>There are {} tasks in front of you in the waiting queue.</b>").format(nb_tasks_before)
+
+                        return json.dumps({'status': "waiting", 'text': text})
+                    return json.dumps({'status': "waiting", "text": "<b>Your submission has been sent...</b>"})
             elif "@action" in userinput and userinput["@action"] == "load_submission_input" and "submissionid" in userinput:
                 submission = self.submission_manager.get_submission(userinput["submissionid"])
                 submission = self.submission_manager.get_input_from_submission(submission)

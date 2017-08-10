@@ -69,20 +69,19 @@ form#task label {
 #task_alert {
   position: relative;
 }
-#task_alert .alert#ssh_remote_info {
+#task_alert #ssh_remote_info {
   font-size: 14px;
 }
-#task_alert .alert#ssh_remote_info pre {
+#task_alert #ssh_remote_info pre {
   font-size: 10px;
-  margin-right: 50px;
   -moz-user-select: all;
   -webkit-user-select: all;
   user-select: all;
 }
-#task_alert .alert#ssh_remote_info pre:before {
+#task_alert #ssh_remote_info pre:before {
   content: "$ ";
 }
-#task_alert .alert#ssh_remote_info code {
+#task_alert #ssh_remote_info code {
   -moz-user-select: all;
   -webkit-user-select: all;
   user-select: all;
@@ -99,7 +98,6 @@ form#task label {
 }
 #task_alert #iframessh {
   width: 100%;
-  padding-right: 50px;
   height: 600px;
 }
 #submissions_restrictsize {
