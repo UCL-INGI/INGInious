@@ -43,7 +43,7 @@ class MessageMeta(type):
         message_dict = msgpack.loads(bmessage, encoding="utf8", use_list=False)
 
         try:
-            obj = cls._registered_messages[message_dict["type"]].__new__(cls._registered_messages[message_dict["type"]])
+            obj = MessageMeta._registered_messages[message_dict["type"]].__new__(MessageMeta._registered_messages[message_dict["type"]])
             object.__setattr__(obj, "__dict__", message_dict)
         except:
             raise TypeError("Unknown message type") from None
@@ -77,7 +77,7 @@ class MessageMeta(type):
             if parameters[field].annotation == inspect._empty:  # pylint: disable=protected-access
                 raise TypeError("All types should be annotated")
 
-        cls._registered_messages[msgtype] = cls
+        MessageMeta._registered_messages[msgtype] = cls
 
         def new_init(self, *args, **kwargs):
             object.__setattr__(self, "__currently_mutable", True)

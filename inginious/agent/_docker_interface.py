@@ -13,9 +13,12 @@ import docker
 from docker.utils import kwargs_from_env
 
 
-class DockerInterface(object):
+class DockerInterface(object):  # pragma: no cover
     """
         (not asyncio) Interface to Docker
+
+        We do not test coverage here, as it is a bit complicated to interact with docker in tests.
+        Docker-py itself is already well tested.
     """
 
     @property
@@ -53,7 +56,9 @@ class DockerInterface(object):
             response = self._docker.create_container(env_with_dig, command="dig +short myip.opendns.com @resolver1.opendns.com")
             self._docker.start(response['Id'])
             assert self._docker.wait(response['Id']) == 0
-            return self._docker.logs(response['Id'], stdout=True, stderr=False).decode('utf8').strip()
+            answer = self._docker.logs(response['Id'], stdout=True, stderr=False).decode('utf8').strip()
+            self._docker.remove_container(response['Id'], True, False, True)
+            return answer
         except:
             return None
 
@@ -175,7 +180,7 @@ class DockerInterface(object):
             filters = {}
         return self._docker.events(decode=True, filters=filters)
 
-class FixDockerSocket():
+class FixDockerSocket():  # pragma: no cover
     """
     Fix the API inconsistency of docker-py with attach_socket
     """

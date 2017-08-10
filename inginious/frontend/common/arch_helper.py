@@ -79,10 +79,10 @@ def create_arch(configuration, tasks_fs, context):
         client = Client(context, "inproc://backend_client")
         backend = Backend(context, "inproc://backend_agent", "inproc://backend_client")
         agent_docker = DockerAgent(context, "inproc://backend_agent", "Docker - Local agent", concurrency, tasks_fs, debug_host, debug_ports, tmp_dir)
-        agent_mcq = MCQAgent(context, "inproc://backend_agent", "MCQ - Local agent", tasks_fs)
+        agent_mcq = MCQAgent(context, "inproc://backend_agent", "MCQ - Local agent", 1, tasks_fs)
 
-        asyncio.ensure_future(agent_docker.run_dealer())
-        asyncio.ensure_future(agent_mcq.run_dealer())
+        asyncio.ensure_future(agent_docker.run())
+        asyncio.ensure_future(agent_mcq.run())
         asyncio.ensure_future(backend.run())
     elif backend_link in ["remote", "remote_manuel", "docker_machine"]: #old-style config
         logger.error("Value '%s' for the 'backend' option is configuration.yaml is not supported anymore. \n"

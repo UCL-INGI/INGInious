@@ -360,57 +360,6 @@ class AgentJobSSHDebug(metaclass=MessageMeta, msgtype="agent_job_ssh_debug"):
 
 #################################################################
 #                                                               #
-#                  Killer Watcher Pipeline                      #
-#                                                               #
-#################################################################
-
-class KWPKilledStatus(metaclass=MessageMeta, msgtype="kwp_killed_status"):
-    """
-        Ask watchers in the pipeline to fill this message with data about the container.
-        Watchers should send the updated message throught the pipeline
-    """
-
-    def __init__(self, container_id: str, killed_result: Optional[str] = None):
-        """
-        :param container_id: container to check
-        :param killed_result: result that will be sent to the client (timeout, overflow...) if the container was killed, None if it was None
-        """
-        self.container_id = container_id
-        self.killed_result = killed_result
-
-    def killed(self, reason):
-        """
-        :return: a new KilledStatus with killed_result=reason
-        """
-        return KWPKilledStatus(self.container_id, reason)
-
-    def not_killed(self):
-        """
-        :return: the current KilledStatus
-        """
-        return self
-
-
-class KWPRegisterContainer(metaclass=MessageMeta, msgtype="kwp_register_container"):
-    """
-        Register a container with given limitations
-    """
-
-    def __init__(self, container_id: str, max_mem: int, timeout: int, timeout_hard: int):
-        """
-        :param container_id: container to register
-        :param max_mem: max memory allowed for the container, in MB
-        :param timeout: timeout in seconds
-        :param timeout_hard: hard timeout in seconds
-        """
-        self.container_id = container_id
-        self.max_mem = max_mem
-        self.timeout = timeout
-        self.timeout_hard = timeout_hard
-
-
-#################################################################
-#                                                               #
 #                           Heartbeat                           #
 #                                                               #
 #################################################################
@@ -440,28 +389,3 @@ class Unknown(metaclass=MessageMeta, msgtype="unknown"):
 
     def __init__(self):
         pass
-
-
-#################################################################
-#                                                               #
-#                     Docker event watcher                      #
-#                                                               #
-#################################################################
-
-class EventContainerDied(metaclass=MessageMeta, msgtype="event_container_died"):
-    """
-    Message used internally in the Docker Agent to signal that a container has closed
-    """
-
-    def __init__(self, container_id: str, retval: int):
-        self.container_id = container_id
-        self.retval = retval
-
-
-class EventContainerOOM(metaclass=MessageMeta, msgtype="event_container_oom"):
-    """
-    Message used internally in the Docker Agent to signal that a container has made an OOM
-    """
-
-    def __init__(self, container_id: str):
-        self.container_id = container_id
