@@ -21,7 +21,7 @@ $#
         <tr>
             <td><i class="fa fa-folder-open"></i>&nbsp;/</td>
             <td><a href="$get_homepath()/admin/${course.get_id()}/edit/task/$taskid/files?action=download&path=/"
-                   onclick="studio_task_edit_downloadfile('/'); return false;" class="btn btn-sm btn-primary btn-block" title="download"><i
+                   onclick="studio_task_edit_downloadfile('/'); return false;" class="btn btn-sm btn-primary btn-block" title=$:_('"Download"')><i
                     class="fa fa-cloud-download"></i></a></td>
             <td></td>
             <td></td>
@@ -38,20 +38,20 @@ $#
                 </td>
                 <td>
                     <a href="$get_homepath()/admin/${course.get_id()}/edit/task/$taskid/files?action=download&path=$complete_name"
-                       class="btn btn-sm btn-primary btn-block" title="download"><i class="fa fa-cloud-download"></i></a>
+                       class="btn btn-sm btn-primary btn-block" title=$:_('"Download"')><i class="fa fa-cloud-download"></i></a>
                 </td>
                 <td>
                     $if not is_directory:
                         <a href="#" onclick="studio_task_file_open_tab('$complete_name'); return false;" class="btn btn-sm btn-warning btn-block"
-                           title="edit"><i class="fa fa-edit"></i></a>
+                           title=$:_('"Edit"')><i class="fa fa-edit"></i></a>
                 </td>
                 <td>
                     <a href="#" onclick="studio_task_file_rename('$complete_name'); return false;" class="btn btn-sm btn-info btn-block"
-                       title="rename"><i class="fa fa-exchange"></i></a>
+                       title=$:_('"Move/Rename"')><i class="fa fa-exchange"></i></a>
                 </td>
                 <td>
                     <a href="#" onclick="studio_task_file_delete('$complete_name'); return false;" class="btn btn-sm btn-danger btn-block"
-                       title="delete"><i class="fa fa-trash"></i></a>
+                       title=$:_('"Delete"')><i class="fa fa-trash"></i></a>
                 </td>
             </tr>
         <tr>

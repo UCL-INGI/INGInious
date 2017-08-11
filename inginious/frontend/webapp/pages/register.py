@@ -140,7 +140,7 @@ To activate your account, please click on the following link :
                                  _("""Dear {realname},
 
 Someone (probably you) asked to reset your INGInious password. If this was you, please click on the following link :
-""").format(user["realname"]) + web.ctx.home + "/register?reset=" + reset_hash)
+""").format(realname=user["realname"]) + web.ctx.home + "/register?reset=" + reset_hash)
                     msg = _("An email has been sent to you to reset your password.")
                 except:
                     error = True

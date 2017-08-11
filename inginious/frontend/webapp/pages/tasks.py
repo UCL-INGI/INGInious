@@ -229,7 +229,7 @@ class BaseTaskPage(object):
                             text = _("<b>There are {} tasks in front of you in the waiting queue.</b>").format(nb_tasks_before)
 
                         return json.dumps({'status': "waiting", 'text': text})
-                    return json.dumps({'status': "waiting", "text": "<b>Your submission has been sent...</b>"})
+                    return json.dumps({'status': "waiting", "text": _("<b>Your submission has been sent...</b>")})
             elif "@action" in userinput and userinput["@action"] == "load_submission_input" and "submissionid" in userinput:
                 submission = self.submission_manager.get_submission(userinput["submissionid"])
                 submission = self.submission_manager.get_input_from_submission(submission)

@@ -12,7 +12,7 @@ $var Column: $:template_helper.call('course_admin_menu',course=course,current='s
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
         <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()" title="$:_('Administration')" data-toggle="tooltip" data-placement="bottom">
+        <li><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-user-secret"></i></a></li>
         <li class="active">
             <a href="#">
@@ -41,7 +41,7 @@ $var Navbar: $:NavbarF()
                 <div class="row">
                     <form class=form-horizontal" method="post">
                         <div class="form-group">
-                            <div class="col-sm-9"><input type="text" class="form-control" name="username" placeholder="$:_('Student username')"/></div>
+                            <div class="col-sm-9"><input type="text" class="form-control" name="username" placeholder=$:_('"Student username"')/></div>
                             <div class="col-sm-3"><button name="register" type="submit" class="btn btn-warning btn-block"><i class="fa fa-plus fa-lg"></i> $:_("Add student")</button></div>
                         </div>
                     </form>

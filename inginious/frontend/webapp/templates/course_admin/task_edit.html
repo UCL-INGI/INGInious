@@ -5,7 +5,7 @@ $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
-$var title: Edit $taskid
+$var title: $:_("Edit {}").format(taskid)
 
 $def ColumnF():
     $:template_helper.call('course_admin_menu',course=course,current='tasks')
@@ -15,9 +15,9 @@ $var Column: $:ColumnF()
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
         <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()" title="$:_('Administration')" data-toggle="tooltip" data-placement="bottom">
+        <li><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-user-secret"></i></a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()/tasks" title="$:_('Tasks')" data-toggle="tooltip" data-placement="bottom">
+        <li><a href="$get_homepath()/admin/$course.get_id()/tasks" title=$:_('"Tasks"') data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-tasks"></i></a></li>
         <li class="active"><a href="#">$:_("Edit task \"{}\"").format(taskid) <span class="sr-only">$:_("(current)")</span></a></li>
     </ol>

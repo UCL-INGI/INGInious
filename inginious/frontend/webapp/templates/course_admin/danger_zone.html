@@ -16,7 +16,7 @@ $def NavbarF():
         <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
         <li><a href="$get_homepath()/admin/$course.get_id()" title="$:_('Administration')" data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-user-secret"></i></a></li>
-        <li class="active"><a href="#">$:_("Danger zone") <span class="sr-only">$:_("(current)")</span></a></li>
+        <li class="active"><a href="#"><i class="fa fa-bomb"></i> $:_("Danger zone") <span class="sr-only">$:_("(current)")</span></a></li>
     </ol>
 $var Navbar: $:NavbarF()
 
@@ -72,7 +72,7 @@ $elif msg:
                                 <h4 class="modal-title">$:_("Restore backup from {}").format('<span class="backupdate"></span>')</h4>
                             </div>
                             <div class="modal-body">
-                                $:_("<p>This will restore your course data to <span class="backupdate"></span>. Are you sure ?</p>")
+                                $:_("<p>This will restore your course data to {}. Are you sure ?</p>").format("<span class='backupdate'></span>")
                             </div>
                             <div class="modal-footer">
                                 <form method="post">
@@ -107,7 +107,7 @@ $elif msg:
                                             <i class="fa fa-recycle"></i>
                                         </button>
 
-                                        <a href="?download=$backup['file']" class="btn btn-default btn-xs" title="$:_('Download backup')"
+                                        <a href="?download=$backup['file']" class="btn btn-default btn-xs" title=$:_('"Download backup"')
                                            data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
                                     </div>
                                 </td>
@@ -130,7 +130,7 @@ $elif msg:
         <div role="tabpanel" class="tab-pane " id="tab_delete_course">
             <div class="panel panel-danger">
                 <div class="panel-heading">
-                    <h3 class="panel-title">Delete course</h3>
+                    <h3 class="panel-title">$:_("Delete course")</h3>
                 </div>
                 <div class="panel-body">
                     $:_("<p> This will <b>permanently</b> remove the course and all its data (including tasks and backups) from INGInious.</p><p>To confirm your will, please type the course id below :</p>")
@@ -157,8 +157,8 @@ $elif msg:
                                         $:_("<p>This will <b>permanently</b> remove the course and all its data (including tasks and backups) from INGInious. Are you really sure ?</p>")
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                                        <button type="submit" name="deleteall" class="btn btn-danger">Delete course</button>
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">$:_("Cancel")</button>
+                                        <button type="submit" name="deleteall" class="btn btn-danger">$:_("Delete course")</button>
                                     </div>
                                 </div>
                             </div>

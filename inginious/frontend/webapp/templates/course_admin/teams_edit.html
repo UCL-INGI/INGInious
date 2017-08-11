@@ -14,9 +14,9 @@ $var Column: $:ColumnF()
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
         <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()" title="$:_('Administration')" data-toggle="tooltip" data-placement="bottom">
+        <li><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-user-secret"></i></a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()/aggregations" title="$:_('Teams')" data-toggle="tooltip" data-placement="bottom">
+        <li><a href="$get_homepath()/admin/$course.get_id()/aggregations" title=$:_('"Teams"') data-toggle="tooltip" data-placement="bottom">
             <i class='fa fa-users'></i></a></li>
         <li class="active"><a href="#">$:_("Edit teams") <span class="sr-only">$:_("(current)")</span></a></li>
     </ol>
@@ -106,7 +106,7 @@ $elif msg:
                                     <input style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" id="size" type="number" class="form-control" value="2">
                                 </div>
                                 <div class="col-sm-1 col-xs-2">
-                                    <a class="pull-right" id="group_delete" href="#" onclick="javascript:group_delete($$(this).rparent(5).attr('id'))" data-toggle="tooltip" title="$:_('Delete team')">
+                                    <a class="pull-right" id="group_delete" href="#" onclick="javascript:group_delete($$(this).rparent(5).attr('id'))" data-toggle="tooltip" title=$:_('"Delete team"')>
                                         <i class="fa fa-trash-o"></i>
                                     </a>
                                 </div>
@@ -130,7 +130,7 @@ $elif msg:
                                         <input style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" id="size" type="number" class="form-control" value="$(group['size'] if group is not None else 2)">
                                     </div>
                                     <div class="col-sm-1 col-xs-2">
-                                        <a class="pull-right" id="group_delete" href="#" onclick="javascript:aggregation_delete($$(this).rparent(5).attr('id'))" data-toggle="tooltip" title="$:_('Delete team')">
+                                        <a class="pull-right" id="group_delete" href="#" onclick="javascript:aggregation_delete($$(this).rparent(5).attr('id'))" data-toggle="tooltip" title=$:_('"Delete team"')>
                                             <i class="fa fa-trash-o"></i>
                                         </a>
                                     </div>

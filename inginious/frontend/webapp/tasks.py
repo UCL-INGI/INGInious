@@ -42,9 +42,9 @@ class WebAppTask(FrontendTask):
     def get_deadline(self):
         """ Returns a string containing the deadline for this task """
         if self.get_accessible_time().is_always_accessible():
-            return "No deadline"
+            return _("No deadline")
         elif self.get_accessible_time().is_never_accessible():
-            return "It's too late"
+            return _("It's too late")
         else:
             return self.get_accessible_time().get_end_date().strftime("%d/%m/%Y %H:%M:%S")
 

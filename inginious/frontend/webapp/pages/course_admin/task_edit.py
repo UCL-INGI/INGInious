@@ -32,7 +32,7 @@ class CourseEditTask(INGIniousAdminPage):
         if not id_checker(taskid):
             raise Exception("Invalid task id")
 
-        course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
+        course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
 
         try:
             task_data = self.task_factory.get_task_descriptor_content(courseid, taskid)
@@ -185,7 +185,7 @@ class CourseEditTask(INGIniousAdminPage):
         if not id_checker(taskid) or not id_checker(courseid):
             raise Exception("Invalid course/task id")
 
-        course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
+        course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         data = web.input(task_file={})
 
         # Delete task ?
@@ -285,7 +285,7 @@ class CourseEditTask(INGIniousAdminPage):
             # Network grading
             data["network_grading"] = "network_grading" in data
         except Exception as message:
-            return json.dumps({"status": "error", "message": _("Your browser returned an invalid form ({})").format(str(message))})
+            return json.dumps({"status": "error", "message": _("Your browser returned an invalid form ({})").format(message)})
 
         # Get the course
         try:

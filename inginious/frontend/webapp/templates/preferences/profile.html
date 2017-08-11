@@ -5,20 +5,20 @@ $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
-$var title: My profile
+$var title: $:_("My profile")
 
 $var Column: $:template_helper.call('preferences_menu',current='profile')
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
         <li>
-            <a href="$get_homepath()/preferences" title="Preferences" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-gears"></i></a>
+            <a href="$get_homepath()/preferences" title="$:_('Preferences')" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-gears"></i></a>
         </li>
-        <li class="active"><a href="#"><i class="fa fa-user"></i> My profile <span class="sr-only">(current)</span></a></li>
+        <li class="active"><a href="#"><i class="fa fa-user"></i> $:_("My profile") <span class="sr-only">$:_("(current)")</span></a></li>
     </ol>
 $var Navbar: $:NavbarF()
 
-<h2>My profile</h2>
+<h2>$:_("My profile")</h2>
 
 $if error:
     <div class="alert alert-danger alert-dismissable">
@@ -40,32 +40,32 @@ $if not user_manager.session_username():
 <form method="post" class="form-horizontal">
     <div class="row">
         <div class="col-sm-12">
-            <label class="control-label">Username : </label>
+            <label class="control-label">$:_("Username :") </label>
             <input name="username" type="text" class="form-control" value="$user_manager.session_username()" $('disabled' if user_manager.session_username() else '')>
         </div>
         <div class="col-sm-12">
-            <label class="control-label">Complete name : </label>
+            <label class="control-label">$:_("Complete name :") </label>
             <input name="realname" type="text" class="form-control" value="$user_manager.session_realname()">
         </div>
         <div class="col-sm-12">
-            <label class="control-label">Email address : </label>
+            <label class="control-label">$:_("Email address :") </label>
             <input name="email" type="text" class="form-control" value="$user_manager.session_email()" disabled>
         </div>
         $if allow_registration:
             <div class="col-sm-12">
-                <label class="control-label">Old password : </label>
+                <label class="control-label">$:_("Old password :") </label>
                 <input name="oldpasswd" type="password" class="form-control">
             </div>
             <div class="col-sm-6">
-                <label class="control-label">New password (min. 6 characters) : </label>
+                <label class="control-label">$:_("New password (min. 6 characters) :") </label>
                 <input name="passwd" type="password" class="form-control">
             </div>
             <div class="col-sm-6">
-                <label class="control-label">Confirm new password : </label>
+                <label class="control-label">$:_("Confirm new password :") </label>
                 <input name="passwd2" type="password" class="form-control">
             </div>
         <div class="col-sm-12"><br />
-            <button type="submit" name="save" class="btn btn-primary btn-block"><i class="fa fa-save"></i> Save my profile</button>
+            <button type="submit" name="save" class="btn btn-primary btn-block"><i class="fa fa-save"></i> $:_("Save my profile")</button>
         </div>
     </div>
 </form>

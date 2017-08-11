@@ -14,9 +14,9 @@ $var Column: $:ColumnF()
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
         <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()" title="$:_('Administration')" data-toggle="tooltip" data-placement="bottom">
+        <li><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-user-secret"></i></a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()/aggregations" title="$:_('Classrooms')" data-toggle="tooltip" data-placement="bottom">
+        <li><a href="$get_homepath()/admin/$course.get_id()/aggregations" title=$:_('"Classrooms"') data-toggle="tooltip" data-placement="bottom">
             <i class='fa fa-users'></i></a></li>
         <li class="active"><a href="#">$:_("Edit classroom {}").format(aggregation["description"]) <span class="sr-only">$:_("(current)")</span></a></li>
     </ol>

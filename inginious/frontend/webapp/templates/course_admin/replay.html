@@ -14,7 +14,7 @@ $ use_classrooms = course.use_classrooms()
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
         <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()" title="$:_('Administration')" data-toggle="tooltip" data-placement="bottom">
+        <li><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-user-secret"></i></a></li>
         <li class="active"><a href="#"><i class="fa fa-refresh"></i> $:_("Replay submissions") <span class="sr-only">$:_("(current)")</span></a></li>
     </ol>

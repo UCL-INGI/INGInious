@@ -142,7 +142,7 @@ $if not len(teams) == 0:
     <h3 style="margin-bottom: 20px">$:_("All teams")</h3>
     $for index, team in enumerate(teams):
         $if len(team["groups"])>0:
-            <h4>Team : $team["description"]</h4>
+            <h4>$:_("Team : {}").format(team["description"])</h4>
             $ group = team["groups"][0]
                     $if len(myteam["groups"]) == 0 or username not in myteam["groups"][0]["students"] and (group["size"]-len(group["students"])) > 0 and course.can_students_choose_group():
                         <div class="panel panel-success">
@@ -150,7 +150,7 @@ $if not len(teams) == 0:
                         <div class="panel panel-default">
                 <div class="panel-heading" role="tab" id="heading_$index">
                     <h4 class="panel-title">
-                        Students
+                        $:_("Students")
                         $if len(myteam["groups"]) == 0 or username not in myteam["groups"][0]["students"] and (group["size"]-len(group["students"])) > 0 and course.can_students_choose_group():
                             (available : $(group["size"]-len(group["students"])) )
                             <div class="pull-right">

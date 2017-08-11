@@ -14,12 +14,12 @@ $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
         <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
         <li>
-            <a href="$get_homepath()/admin/$course.get_id()" title="$:_('Administration')" data-toggle="tooltip" data-placement="bottom">
+            <a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
                 <i class="fa fa-user-secret"></i>
             </a>
         </li>
         <li>
-            <a href="$get_homepath()/admin/$course.get_id()/students" title="$:_('Students')" data-toggle="tooltip" data-placement="bottom">
+            <a href="$get_homepath()/admin/$course.get_id()/students" title=$:_('"Students"') data-toggle="tooltip" data-placement="bottom">
                 <i class="fa fa-user"></i>
             </a>
         </li>
@@ -104,7 +104,7 @@ $for key, problem in enumerate(to_display):
                     <span class="text-warning">$:_("This problem is not present in the submission.")</span>
                 Question ${key+1}: $problem["name"]
                 $if problem['base64'] is not None:
-                    <a href="data:$problem['mime'];base64,$problem['base64']" class="btn btn-default btn-xs" title="$:_('Download as file')"
+                    <a href="data:$problem['mime'];base64,$problem['base64']" class="btn btn-default btn-xs" title=$:_('"Download as file"')
                        data-toggle="tooltip" data-placement="bottom">
                         <i class="fa fa-download"></i>
                     </a>

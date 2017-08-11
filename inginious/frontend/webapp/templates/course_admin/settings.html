@@ -12,7 +12,7 @@ $var Column: $:template_helper.call('course_admin_menu',course=course,current='s
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
         <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()" title="$:_('Administration')" data-toggle="tooltip" data-placement="bottom">
+        <li><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-user-secret"></i></a></li>
         <li class="active"><a href="#"><i class="fa fa-cog"></i> $:_("Course settings") <span class="sr-only">$:_("(current)")</span></a></li>
     </ol>
@@ -34,14 +34,14 @@ $elif saved:
     <div class="form-group">
         <label for="admins" class="col-sm-2 control-label">$:_("Administrators")</label>
         <div class="col-sm-10">
-            <input type="text" class="form-control" id="admins" name="admins" placeholder="$:_('Usernames of the administrators, separated by commas')"
+            <input type="text" class="form-control" id="admins" name="admins" placeholder=$:_('"Usernames of the administrators, separated by commas"')
                    value="$','.join(course.get_admins())">
         </div>
     </div>
     <div class="form-group">
         <label for="tutors" class="col-sm-2 control-label">$:_("Tutors")</label>
         <div class="col-sm-10">
-            <input type="text" class="form-control" id="tutors" name="tutors" placeholder="$:_('Usernames of the tutors, separated by commas')"
+            <input type="text" class="form-control" id="tutors" name="tutors" placeholder=$:_('"Usernames of the tutors, separated by commas"')
                    value="$','.join(course.get_tutors())">
         </div>
     </div>
@@ -138,7 +138,7 @@ $elif saved:
         </div>
     </div>
     <div class="form-group no-lti">
-        <label for="accessible" class="col-sm-2 control-label">Registration</label>
+        <label for="accessible" class="col-sm-2 control-label">$:_("Registration")</label>
         <div class="col-sm-10">
             <label>
                 <input type="radio" value="false" name="registration"
@@ -205,7 +205,7 @@ $elif saved:
         <label for="name" class="col-sm-2 control-label">$:_("Registration password")</label>
         <div class="col-sm-10">
             <input type="text" class="form-control" id="registration_password" name="registration_password" 
-            placeholder="$:_('Password needed for registration. Leave blank if you don\'t want to set a password.')"
+            placeholder=$:_('"Password needed for registration. Leave blank if you don\'t want to set a password."')
             value="${course.get_registration_password()}">
         </div>
     </div>
@@ -241,14 +241,14 @@ $elif saved:
     <div class="form-group no-lti">
         <label for="registration_ac_list" class="col-sm-2 control-label">$:_("Access control list")</label>
         <div class="col-sm-10">
-            <textarea class="form-control" id="registration_ac_list" name="registration_ac_list" rows="10" placeholder="$:_('Only used if access control is activated. Separate users by new lines.')">$"\n".join(course.get_access_control_list())</textarea>
+            <textarea class="form-control" id="registration_ac_list" name="registration_ac_list" rows="10" placeholder=$:_('"Only used if access control is activated. Separate users by new lines."')>$"\n".join(course.get_access_control_list())</textarea>
         </div>
     </div>
     <div class="form-group lti">
         <label for="lti_keys" class="col-sm-2 control-label">LTI keys</label>
         <div class="col-sm-10">
             <textarea class="form-control" id="lti_keys" name="lti_keys" rows="10"
-                      placeholder="$:_('LTI keys in the form name:key, separated by newlines. Please ensure keys are long enough and random.')">$#
+                      placeholder=$:_('"LTI keys in the form name:key, separated by newlines. Please ensure keys are long enough and random."')>$#
 $"\n".join([a+":"+b for (a, b) in course.lti_keys().items()])</textarea>
         </div>
     </div>

@@ -14,7 +14,7 @@ $ is_admin = user_manager.has_admin_rights_on_course(course)
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
         <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()" title=" $:_('Administration')" data-toggle="tooltip" data-placement="bottom">
+        <li><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-user-secret"></i></a></li>
         <li class="active">
             <a href="#">
@@ -78,9 +78,9 @@ $var Navbar: $:NavbarF()
             <th>
                 <div class="btn-group" role="group">
                     <a href="$get_homepath()/admin/${course.get_id()}/download?format=taskid%2Faggregation" class="btn btn-danger btn-xs"
-                       title="$:_('Download all submissions')" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                       title=$:_('"Download all submissions"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
                     <a href="$get_homepath()/admin/${course.get_id()}/aggregations?csv" class="btn btn-info btn-xs"
-                       title="$:_('Download CSV')" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
+                       title=$:_('"Download CSV"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
                 </div>
             </th>
         </tr>
@@ -105,14 +105,14 @@ $var Navbar: $:NavbarF()
                         <td>
                             <div class="btn-group" role="group">
                                 $if course.use_classrooms():
-                                    <a href="$get_homepath()/admin/${course.get_id()}/edit/aggregation/$aggregation['_id']" class="btn btn-primary btn-xs" title="$:_('Edit classroom')" data-toggle="tooltip"
+                                    <a href="$get_homepath()/admin/${course.get_id()}/edit/aggregation/$aggregation['_id']" class="btn btn-primary btn-xs" title=$:_('"Edit classroom"') data-toggle="tooltip"
                                        data-placement="bottom"><i class="fa fa-edit"></i></a>
-                                <a href="$get_homepath()/admin/${course.get_id()}/aggregation/$aggregation['_id']" class="btn btn-default btn-xs" title="$:_('View submissions')" data-toggle="tooltip"
+                                <a href="$get_homepath()/admin/${course.get_id()}/aggregation/$aggregation['_id']" class="btn btn-default btn-xs" title=$:_('"View submissions"') data-toggle="tooltip"
                                    data-placement="bottom"><i class="fa fa-search"></i></a>
-                                <a href="$get_homepath()/admin/${course.get_id()}/download$aggregation['url']" class="btn btn-default btn-xs" title="$:_('Download submissions')"
+                                <a href="$get_homepath()/admin/${course.get_id()}/download$aggregation['url']" class="btn btn-default btn-xs" title=$:_('"Download submissions"')
                                    data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
                                 $if is_admin:
-                                    <a href="$get_homepath()/admin/${course.get_id()}/replay$aggregation['url']" class="btn btn-default btn-xs" title="$:_('Replay submissions')"
+                                    <a href="$get_homepath()/admin/${course.get_id()}/replay$aggregation['url']" class="btn btn-default btn-xs" title=$:_('"Replay submissions"')
                                        data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
                             </div>
                         </td>
@@ -135,12 +135,13 @@ $if course.use_classrooms():
             <div class="col-sm-3"><button type="submit" class="btn btn-info btn-block">$:_("Set as default")</button></div>
         </div>
     </form>
-
     <div class="row">
+        $ placeholder = _('New classroom description')
+        $ btn = _("New classroom")
         <form class=form-horizontal" method="post">
             <div class="form-group">
-                <div class="col-sm-9"><input type="text" class="form-control" name="classroom" placeholder="$:_('New classroom description')"/></div>
-                <div class="col-sm-3"><button type="submit" class="btn btn-warning btn-block"><i class="fa fa-plus fa-lg"></i> $:_("New classroom")</button></div>
+                <div class="col-sm-9"><input type="text" class="form-control" name="classroom" placeholder="$placeholder"/></div>
+                <div class="col-sm-3"><button type="submit" class="btn btn-warning btn-block"><i class="fa fa-plus fa-lg"></i> $btn</button></div>
             </div>
         </form>
     </div>
