@@ -1,0 +1,17 @@
+$def with (entries,current)
+
+$#
+$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+$# more information about the licensing of this file.
+$#
+
+<div class="list-group">
+    $for link, name in entries:
+        <a href="$get_homepath()/preferences/${link}" class="list-group-item
+        $if link=='delete':
+            list-group-item-danger
+
+        $if current == link:
+            active
+        ">$:name</a>
+</div>

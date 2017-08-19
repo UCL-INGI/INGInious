@@ -1,0 +1,79 @@
+$def with (bindings, auth_methods, msg, error)
+
+$#
+$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+$# more information about the licensing of this file.
+$#
+
+$var title: Authentication bindings
+
+$var Column: $:template_helper.call('preferences_menu',current='bindings')
+
+$def NavbarF():
+    <ol class="nav navbar-nav nav-breadcrumb">
+        <li>
+            <a href="$get_homepath()/preferences" title="Preferences" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-gears"></i></a>
+        </li>
+        <li class="active"><a href="#"><i class="fa fa-id-card-o"></i> Authentication bindings <span class="sr-only">(current)</span></a></li>
+    </ol>
+$var Navbar: $:NavbarF()
+
+$if error:
+    <div class="alert alert-danger alert-dismissable">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        $:msg
+    </div>
+$elif msg:
+    <div class="alert alert-success alert-dismissable">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        $:msg
+    </div>
+
+
+<h2>Authentication bindings</h2>
+<form id="revoke" method="post">
+    <input id="revoke_auth_binding"  name="revoke_auth_binding" type="hidden" val="">
+</form>
+$for id, auth_method in auth_methods.items():
+    $if id in bindings.keys():
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    $auth_method.get_name()
+                    <div class="pull-right">
+                            <a href="$get_homepath()/auth/$auth_method.get_id()/signin" data-toggle="tooltip" data-placement="bottom" title="Refresh fields"><i class="fa fa-refresh fa-fw"></i></a>
+                            <a href="#" onclick="$$('#revoke_auth_binding').val('$auth_method.get_id()'); $$('#revoke').submit()" data-toggle="tooltip" data-placement="bottom" title="Revoke access">
+                                <i style="color:red;" class="fa fa-trash-o fa-fw"></i>
+                            </a>
+                        </div>
+                </h3>
+
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-1">
+                        $:auth_method.get_imlink()
+                    </div>
+                    <div class="col-md-11">
+                        <p>Identifier: $bindings[id][0]</p>
+                        <!--<p>Fields: </p>-->
+                    </div>
+
+                </div>
+            </div>
+        </div>
+<h3>Add a new binding</h3>
+    <form class="form row" role="form" method="post">
+        <div class="form-group col-sm-9">
+            <label class="sr-only" for="register_courseid">Course</label>
+            <select class="form-control" id="auth_binding" name="auth_binding">
+                <option value="">Select a authentication binding</option>
+                $for id, auth_method in auth_methods.items():
+                    $if id not in bindings:
+                        <option value="$auth_method.get_id()">$auth_method.get_name()</option>
+            </select>
+        </div>
+        <div class="form-group col-sm-3">
+            <button type="submit" class="btn btn-block btn-default">Add new binding</button>
+        </div>
+    </form>

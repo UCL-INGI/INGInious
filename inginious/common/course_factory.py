@@ -4,12 +4,10 @@
 # more information about the licensing of this file.
 
 """ Factory for loading courses from disk """
-import os
-import shutil
-
+from inginious.common.filesystems.provider import FileSystemProvider
 from inginious.common.log import get_course_logger
 from inginious.common.courses import Course
-from inginious.common.base import id_checker, load_json_or_yaml, write_json_or_yaml
+from inginious.common.base import id_checker, get_json_or_yaml, loads_json_or_yaml
 from inginious.common.task_factory import TaskFactory
 from inginious.common.tasks import Task
 from inginious.common.hook_manager import HookManager
@@ -19,8 +17,8 @@ from inginious.common.exceptions import InvalidNameException, CourseNotFoundExce
 class CourseFactory(object):
     """ Load courses from disk """
 
-    def __init__(self, tasks_directory, task_factory, hook_manager, course_class=Course):
-        self._tasks_directory = tasks_directory
+    def __init__(self, filesystem: FileSystemProvider, task_factory, hook_manager, course_class=Course):
+        self._filesystem = filesystem
         self._task_factory = task_factory
         self._hook_manager = hook_manager
         self._course_class = course_class
@@ -55,7 +53,8 @@ class CourseFactory(object):
         :raise InvalidNameException, CourseNotFoundException, CourseUnreadableException
         :return: the content of the dict that describes the course
         """
-        return load_json_or_yaml(self._get_course_descriptor_path(courseid))
+        path = self._get_course_descriptor_path(courseid)
+        return loads_json_or_yaml(path, self._filesystem.get(path).decode("utf-8"))
 
     def update_course_descriptor_content(self, courseid, content):
         """
@@ -64,15 +63,23 @@ class CourseFactory(object):
         :param content: the new dict that replaces the old content
         :raise InvalidNameException, CourseNotFoundException
         """
-        return write_json_or_yaml(self._get_course_descriptor_path(courseid), content)
+        path = self._get_course_descriptor_path(courseid)
+        self._filesystem.put(path, get_json_or_yaml(path, content))
+
+    def get_course_fs(self, courseid):
+        """
+        :param courseid: 
+        :return: a FileSystemProvider pointing to the directory of the course 
+        """
+        if not id_checker(courseid):
+            raise InvalidNameException("Course with invalid name: " + courseid)
+        return self._filesystem.from_subfolder(courseid)
 
     def get_all_courses(self):
         """
         :return: a table containing courseid=>Course pairs
         """
-        course_ids = [os.path.splitext(f)[0] for f in os.listdir(self._tasks_directory) if
-                      os.path.isfile(os.path.join(self._tasks_directory, f, "course.yaml")) or
-                      os.path.isfile(os.path.join(self._tasks_directory, f, "course.json"))]
+        course_ids = [f[0:len(f)-1] for f in self._filesystem.list(folders=True, files=False, recursive=False)]  # remove trailing "/"
         output = {}
         for courseid in course_ids:
             try:
@@ -89,13 +96,12 @@ class CourseFactory(object):
         """
         if not id_checker(courseid):
             raise InvalidNameException("Course with invalid name: " + courseid)
-        base_file = os.path.join(self._tasks_directory, courseid, "course")
-        if os.path.isfile(base_file + ".yaml"):
-            return base_file + ".yaml"
-        elif os.path.isfile(base_file + ".json"):
-            return base_file + ".json"
-        else:
-            raise CourseNotFoundException()
+        course_fs = self.get_course_fs(courseid)
+        if course_fs.exists("course.yaml"):
+            return courseid+"/course.yaml"
+        if course_fs.exists("course.json"):
+            return courseid+"/course.json"
+        raise CourseNotFoundException()
 
     def create_course(self, courseid, init_content):
         """
@@ -107,15 +113,13 @@ class CourseFactory(object):
         if not id_checker(courseid):
             raise InvalidNameException("Course with invalid name: " + courseid)
 
-        course_directory = os.path.join(self._tasks_directory, courseid)
-        if not os.path.exists(course_directory):
-            os.mkdir(course_directory)
+        course_fs = self.get_course_fs(courseid)
+        course_fs.ensure_exists()
 
-        base_file = os.path.join(course_directory, "course")
-        if not os.path.isfile(base_file + ".yaml") and not os.path.isfile(base_file + ".json") :
-            write_json_or_yaml(os.path.join(course_directory, "course.yaml"), init_content)
+        if course_fs.exists("course.yaml") or course_fs.exists("course.json"):
+            raise CourseAlreadyExistsException("Course with id " + courseid + " already exists.")
         else:
-            raise CourseAlreadyExistsException("Course with id " + courseid+ " already exists.")
+            course_fs.put("course.yaml", get_json_or_yaml("course.yaml", init_content))
 
         get_course_logger(courseid).info("Course %s created in the factory.", courseid)
 
@@ -128,12 +132,12 @@ class CourseFactory(object):
         if not id_checker(courseid):
             raise InvalidNameException("Course with invalid name: " + courseid)
 
-        course_directory = os.path.join(self._tasks_directory, courseid)
+        course_fs = self.get_course_fs(courseid)
 
-        if not os.path.exists(course_directory):
+        if not course_fs.exists():
             raise CourseNotFoundException()
 
-        shutil.rmtree(course_directory)
+        course_fs.delete()
 
         get_course_logger(courseid).info("Course %s erased from the factory.", courseid)
 
@@ -147,7 +151,7 @@ class CourseFactory(object):
             return True
 
         try:
-            last_update = os.stat(self._get_course_descriptor_path(courseid)).st_mtime
+            last_update = self._filesystem.get_last_modification_time(self._get_course_descriptor_path(courseid))
         except:
             raise CourseNotFoundException()
 
@@ -162,17 +166,18 @@ class CourseFactory(object):
         """
         path_to_descriptor = self._get_course_descriptor_path(courseid)
         try:
-            course_descriptor = load_json_or_yaml(path_to_descriptor)
+            course_descriptor = loads_json_or_yaml(path_to_descriptor, self._filesystem.get(path_to_descriptor).decode("utf8"))
+            last_modification = self._filesystem.get_last_modification_time(path_to_descriptor)
         except Exception as e:
             raise CourseUnreadableException(str(e))
-        self._cache[courseid] = (self._course_class(courseid, course_descriptor, self._task_factory, self._hook_manager), os.stat(path_to_descriptor).st_mtime)
+        self._cache[courseid] = (self._course_class(courseid, course_descriptor, self._task_factory, self._hook_manager), last_modification)
         self._task_factory.update_cache_for_course(courseid)
 
 
-def create_factories(task_directory, hook_manager=None, course_class=Course, task_class=Task):
+def create_factories(fs_provider, hook_manager=None, course_class=Course, task_class=Task):
     """
     Shorthand for creating Factories
-    :param task_directory:
+    :param fs_provider: A FileSystemProvider leading to the courses
     :param hook_manager: an Hook Manager instance. If None, a new Hook Manager is created
     :param course_class:
     :param task_class:
@@ -181,5 +186,5 @@ def create_factories(task_directory, hook_manager=None, course_class=Course, tas
     if hook_manager is None:
         hook_manager = HookManager()
 
-    task_factory = TaskFactory(task_directory, hook_manager, task_class)
-    return CourseFactory(task_directory, task_factory, hook_manager, course_class), task_factory
+    task_factory = TaskFactory(fs_provider, hook_manager, task_class)
+    return CourseFactory(fs_provider, task_factory, hook_manager, course_class), task_factory

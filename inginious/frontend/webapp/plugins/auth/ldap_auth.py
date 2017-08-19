@@ -6,11 +6,16 @@
 """ LDAP plugin """
 from collections import OrderedDict
 
-# import simpleldap TODO re-add me once the PR has been accepted by devs of simpleldap
-import inginious.common.customlibs.simpleldap as simpleldap  # TODO remove me once the PR has been accepted by devs of simpleldap
+import ldap3
 import logging
+import web
 
 from inginious.frontend.webapp.user_manager import AuthMethod
+from inginious.frontend.webapp.pages.utils import INGIniousPage
+from inginious.frontend.webapp.pages.auth import AuthenticationPage
+
+
+logger = logging.getLogger('inginious.webapp.plugin.auth.ldap')
 
 
 class LdapAuthMethod(AuthMethod):
@@ -18,118 +23,100 @@ class LdapAuthMethod(AuthMethod):
     LDAP auth method
     """
 
-    def __init__(self, name, host, port, encryption, require_cert, base_dn, request, prefix, mail, cn):
-        if encryption not in ["none", "ssl", "tls"]:
-            raise Exception("Unknown encryption method {}".format(encryption))
-        if encryption == "none":
-            encryption = None
-
-        if port == 0:
-            port = None
-
-        self._logger = logging.getLogger('inginious.webapp.plugin.auth.ldap')
+    def __init__(self, id, name, imlink, settings):
+        self._id = id
         self._name = name
-        self._host = host
-        self._port = port
-        self._encryption = encryption
-        self._require_cert = require_cert
-        self._base_dn = base_dn
-        self._request = request
-        self._prefix = prefix
-        self._mail = mail
-        self._cn = cn
+        self._imlink = imlink
+        self._settings = settings
+
+    def get_id(self):
+        return self._id
 
     def get_name(self):
         return self._name
 
-    def auth(self, login_data):
+    def get_imlink(self):
+        if self._imlink:
+            return '<img src="' + self._imlink + \
+                   '" style="-moz-user-select: none; -webkit-user-select: none; ' \
+                   'user-select: none; width: 50px; height:50px;" />'
+        else:
+            return '<i class="fa fa-address-book" style="font-size:50px; color:#000000;"></i>'
+
+    def get_auth_link(self, user_manager):
+        return "/auth/page/" + self._id
+
+    def callback(self, user_manager):
+        return None
+
+    def get_settings(self):
+        return self._settings
+
+
+class LDAPAuthenticationPage(AuthenticationPage):
+    def GET(self, id):
+        settings = self.user_manager.get_auth_method(id).get_settings()
+        return self.template_helper.get_custom_renderer('frontend/webapp/plugins/auth').custom_auth_form(settings,
+                                                                                                         False)
+
+    def POST(self, id):
         # Get configuration
+        settings = self.user_manager.get_auth_method(id).get_settings()
+        login_data = web.input()
         login = login_data["login"].strip().lower()
         password = login_data["password"]
 
         # do not send empty password to the LDAP
         if password.rstrip() == "":
-            return None
+            return self.template_helper.get_custom_renderer('frontend/webapp/plugins/auth').custom_auth_form(
+                settings, "Empty password")
 
         try:
             # Connect to the ldap
-            self._logger.debug('Connecting to ' + self._host + ", port " + str(self._port) )
-            conn = simpleldap.Connection(self._host, port=self._port, encryption=self._encryption,
-                                         require_cert=self._require_cert, search_defaults={"base_dn": self._base_dn})
-            self._logger.debug('Connected to ' + self._host + ", port " + str(self._port) )
+            logger.debug('Connecting to ' + settings['host'] + ", port " + str(settings['port']))
+            conn = ldap3.Connection(
+                ldap3.Server(settings['host'], port=settings['port'], use_ssl=settings["encryption"] == 'ssl',
+                             get_info=ldap3.ALL), auto_bind=True)
+            logger.debug('Connected to ' + settings['host'] + ", port " + str(settings['port']))
         except Exception as e:
-            self._logger.debug("Can't initialze connection to " + self._host + ': ' + str(e))
-            return None
+            logger.exception("Can't initialze connection to " + settings['host'] + ': ' + str(e))
+            return self.template_helper.get_custom_renderer('frontend/webapp/plugins/auth').custom_auth_form(
+                settings, "Cannot contact host")
 
         try:
-            request = self._request.format(login)
-            user_data = conn.get(request)
-        except Exception as _:
-            self._logger.exception("Can't get user data")
-            return None
+            request = settings["request"].format(login)
+            conn.search(settings["base_dn"], request, attributes=["cn", "mail"])
+            user_data = conn.response[0]
+        except Exception as ex:
+            logger.exception("Can't get user data : " + str(ex))
+            conn.unbind()
+            return self.template_helper.get_custom_renderer('frontend/webapp/plugins/auth').custom_auth_form(
+                settings, "Unknown user")
 
-        if conn.authenticate(user_data.dn, password):
+        if conn.rebind(user_data['dn'], password=password):
             try:
-                email = user_data[self._mail][0].decode('utf8')
-                username = self._prefix + login
-                realname = user_data[self._cn][0].decode('utf8')
-                return (username, realname, email)
+                email = user_data["attributes"][settings.get("mail", "mail")][0]
+                username = settings.get("prefix", "") + login
+                realname = user_data["attributes"][settings.get("cn", "cn")][0]
             except KeyError as e:
-                self._logger.error("Can't get field " + str(e) + " from your LDAP server")
+                logger.exception("Can't get field " + str(e) + " from your LDAP server")
+                return self.template_helper.get_custom_renderer('frontend/webapp/plugins/auth').custom_auth_form(
+                    settings, "Can't get field " + str(e) + " from your LDAP server")
             except Exception as e:
-                self._logger.exception("Can't get some user fields")
+                logger.exception("Can't get some user fields")
+                return self.template_helper.get_custom_renderer('frontend/webapp/plugins/auth').custom_auth_form(
+                settings, "Can't get some user fields")
+
+            conn.unbind()
+
+            self.process_binding(id, (username, realname, email))
+
+            raise web.seeother(self.user_manager.session_redir_url())
         else:
-            self._logger.debug('Auth Failed')
-            return None
-
-    def needed_fields(self):
-        return {"input": OrderedDict((("login", {"type": "text", "placeholder": "Login"}), ("password", {"type": "password", "placeholder":
-            "Password"}))), "info": ""}
-
-    def should_cache(self):
-        return True
-
-    def get_users_info(self, usernames):
-        """
-        :param usernames: a list of usernames
-        :return: a dict containing key/pairs {username: (realname, email)} if the user is available with this auth method,
-            {username: None} else
-        """
-        retval = {username: None for username in usernames}
-
-        # Connect to the ldap
-        try:
-            self._logger.debug('Connecting to ' + self._host + ", port " + str(self._port) )
-            conn = simpleldap.Connection(self._host, port=self._port, encryption=self._encryption,
-                                         require_cert=self._require_cert, search_defaults={"base_dn": self._base_dn})
-            self._logger.debug('Connected to ' + self._host + ", port " + str(self._port) )
-        except Exception as _:
-            self._logger.exception("Can't initialze connection to " + self._host + ':')
-            return retval
-
-        # Search for users
-        for username in usernames:
-            if username.startswith(self._prefix):
-                try:
-                    login = username[len(self._prefix):]
-                    request = self._request.format(login)
-                    user_data = conn.get(request)
-                except Exception as e:
-                    # this may be an expected behaviour
-                    continue
-
-                try:
-                    email = user_data[self._mail][0].decode('utf8')
-                    realname = user_data[self._cn][0].decode('utf8')
-                    retval[username] = (realname, email)
-                except KeyError as e:
-                    self._logger.error("Can't get field " + str(e) + " from your LDAP server")
-                    continue
-                except Exception as _:
-                    self._logger.exception("Can't get some user fields")
-                    continue
-
-        return retval
+            logger.debug('Auth Failed')
+            conn.unbind()
+            return self.template_helper.get_custom_renderer('frontend/webapp/plugins/auth').custom_auth_form(
+                settings, "Incorrect password")
 
 
 def init(plugin_manager, _, _2, conf):
@@ -163,14 +150,15 @@ def init(plugin_manager, _, _2, conf):
             true if a certificate is needed.
     """
 
-    obj = LdapAuthMethod(conf.get('name', 'LDAP Login'),
-                         conf.get('host', "ldap.test.be"),
-                         conf.get('port', 0),
-                         conf.get('encryption', "none"),
-                         conf.get('require_cert', True),
-                         conf.get('base_dn', ''),
-                         conf.get('request', "uid={},ou=People"),
-                         conf.get('prefix', ''),
-                         conf.get('mail', 'mail'),
-                         conf.get('cn', 'cn'))
-    plugin_manager.register_auth_method(obj)
+    encryption = conf.get("encryption", "none")
+    if encryption not in ["none", "ssl", "tls"]:
+        raise Exception("Unknown encryption method {}".format(encryption))
+    if encryption == "none":
+        conf["encryption"] = None
+
+    if conf.get("port", 0) == 0:
+        conf["port"] = None
+
+    the_method = LdapAuthMethod(conf.get("id"), conf.get('name', 'LDAP Login'), conf.get("imlink", ""), conf)
+    plugin_manager.add_page(r'/auth/page/([^/]+)', LDAPAuthenticationPage)
+    plugin_manager.register_auth_method(the_method)

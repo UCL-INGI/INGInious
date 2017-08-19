@@ -1,0 +1,109 @@
+#! /bin/python3
+# -*- coding: utf-8 -*-
+#
+# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+# more information about the licensing of this file.
+import argparse
+import array
+import os
+import signal
+import socket
+import sys
+import tempfile
+
+import msgpack
+import zmq
+
+parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, description='Runs a command in a secure environment.\n\
+This command will proxy stdin, stdout, stderr, most signals and the return value. \n\n\
+There are special return values: \n\
+* 252 means that the command was killed due to an out-of-memory \n\
+* 253 means that the command timed out \n\
+* 254 means that an error occured while running the proxy')
+parser.add_argument('--container', help="Name of the container to use. The default is the same as the current container", default=None)
+parser.add_argument('--time', help="Timeout (in CPU time) for the container. The default is the same as the current container", type=int, default=0)
+parser.add_argument('--hard-time', help="Hard timeout for the container (in real time). The default is three times the value indicated for --time",
+                    type=int, default=0)
+parser.add_argument('--memory', help="Maximum memory for the container, in Mo. The default is the same as the current container", type=int, default=0)
+parser.add_argument('--share-network', help="Share the network stack of the grading container with the student container. This is not the case by "
+                                            "default. If the container container has network access, this will also be the case for the student!",
+                    action='store_true', dest='share_network')
+parser.add_argument('cmd', help="Command to be run on the remote container", nargs=argparse.REMAINDER)
+args = parser.parse_args()
+
+try:
+    # creates a placeholder for the socket
+    DIR = "/sockets/"
+    _, path = tempfile.mkstemp('', 'p', DIR)
+
+    # Gets the socket id
+    socket_id = os.path.split(path)[-1]
+    socket_path = os.path.join(DIR, socket_id + ".sock")
+
+    # Start the socket
+    server = socket.socket(socket.AF_UNIX)
+    try:
+        os.unlink(socket_path)
+    except OSError:
+        if os.path.exists(socket_path):
+            raise
+    server.bind(socket_path)
+    server.listen(0)
+
+    # Kindly ask the agent to start a new container linked to our socket
+    context = zmq.Context()
+    zmq_socket = context.socket(zmq.REQ)
+    zmq_socket.connect("ipc:///sockets/main.sock")
+    zmq_socket.send(msgpack.dumps({"type": "run_student", "environment": args.container,
+                               "time_limit": args.time, "hard_time_limit": args.hard_time,
+                               "memory_limit": args.memory, "share_network": args.share_network,
+                               "socket_id": socket_id}, encoding="utf8", use_bin_type=True))
+
+    # Check if the container was correctly started
+    message = msgpack.loads(zmq_socket.recv(), encoding="utf8", use_list=False)
+    assert message["type"] == "run_student_started"
+
+    # Send a dummy message to ask for retval
+    zmq_socket.send(msgpack.dumps({"type": "run_student_ask_retval", "socket_id": socket_id}, encoding="utf8", use_bin_type=True))
+
+    # Serve one and only one connection
+    connection, addr = server.accept()
+
+    # _run_student_intern should say hello
+    datagram = connection.recv(1)
+    assert datagram == b'H'
+
+    # send the fds and the command/workdir
+    connection.sendmsg([b'S'],
+                       [(socket.SOL_SOCKET, socket.SCM_RIGHTS, array.array("i", [sys.stdin.fileno(), sys.stdout.fileno(), sys.stderr.fileno()]))])
+    connection.send(msgpack.dumps({"command": ' '.join(args.cmd), "working_dir": os.getcwd()}, encoding="utf8"))
+
+
+    # Catch every signal, and send it to the remote process
+    def receive_signal(signum_s, _):
+        signum_data = str(signum_s).zfill(3).encode("utf8")
+        connection.send(signum_data)
+
+
+    uncatchable = ['SIG_DFL', 'SIGSTOP', 'SIGKILL']
+    for i in [x for x in dir(signal) if x.startswith("SIG")]:
+        if i not in uncatchable:
+            try:
+                signum = getattr(signal, i)
+                signal.signal(signum, receive_signal)
+            except:
+                pass
+
+    # Wait for everything to end
+    message = msgpack.loads(zmq_socket.recv(), encoding="utf8", use_list=False)
+
+    # Unlink uneeded files
+    try:
+        os.unlink(socket_path)
+        os.unlink(path)
+    except:
+        pass
+
+    exit(message["retval"])
+except Exception as e:
+    exit(254)

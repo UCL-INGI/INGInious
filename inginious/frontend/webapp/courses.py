@@ -34,8 +34,25 @@ class WebAppCourse(FrontendCourse):
             self._groups_student_choice = self._content.get("groups_student_choice", False)
             self._use_classrooms = self._content.get('use_classrooms', True)
             self._allow_unregister = self._content.get('allow_unregister', True)
+            self._is_lti = self._content.get('is_lti', False)
+            self._lti_keys = self._content.get('lti_keys', {})
+            self._lti_send_back_grade = self._content.get('lti_send_back_grade', False)
         except:
             raise Exception("Course has an invalid description: " + self.get_id())
+
+        # Force some parameters if LTI is active
+        if self.is_lti():
+            self._accessible = AccessibleTime(True)
+            self._registration = AccessibleTime(False)
+            self._registration_password = None
+            self._registration_ac = None
+            self._registration_ac_list = []
+            self._groups_student_choice = False
+            self._use_classrooms = True
+            self._allow_unregister = True
+        else:
+            self._lti_keys = {}
+            self._lti_send_back_grade = False
 
     def get_staff(self):
         """ Returns a list containing the usernames of all the staff users """
@@ -75,7 +92,7 @@ class WebAppCourse(FrontendCourse):
         return self._registration
 
     def get_tasks(self):
-        return OrderedDict(sorted(list(Course.get_tasks(self).items()), key=lambda t: t[1].get_order()))
+        return OrderedDict(sorted(list(Course.get_tasks(self).items()), key=lambda t: (t[1].get_order(), t[1].get_id())))
 
     def get_access_control_method(self):
         """ Returns either None, "username", "realname", or "email", depending on the method used to verify that users can register to the course """
@@ -92,6 +109,18 @@ class WebAppCourse(FrontendCourse):
     def use_classrooms(self):
         """ Returns True if classrooms are used """
         return self._use_classrooms
+
+    def is_lti(self):
+        """ True if the current course is in LTI mode """
+        return self._is_lti
+
+    def lti_keys(self):
+        """ {name: key} for the LTI customers """
+        return self._lti_keys if self._is_lti else {}
+
+    def lti_send_back_grade(self):
+        """ True if the current course should send back grade to the LTI Tool Consumer """
+        return self._is_lti and self._lti_send_back_grade
 
     def is_user_accepted_by_access_control(self, username, realname, email):
         """ Returns True if the user is allowed by the ACL """

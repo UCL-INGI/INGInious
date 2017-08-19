@@ -10,9 +10,12 @@
 import sys
 import os
 
+
+
 sys.path.append(os.path.join(os.path.abspath(os.path.dirname(os.path.realpath(__file__))), '..', '..'))
 
 from inginious.common.course_factory import create_factories
+from inginious.common.filesystems.local import LocalFSProvider
 import inginious.frontend.webapp.plugins.task_file_readers.json_reader
 import inginious.frontend.webapp.plugins.task_file_readers.rst_reader
 
@@ -25,7 +28,8 @@ if __name__ == "__main__":
     parser.add_argument("task", help="Task id")
     args = parser.parse_args()
 
-    course_factory, task_factory = create_factories(args.taskdir)
+    fs_provider = LocalFSProvider(args.taskdir)
+    course_factory, task_factory = create_factories(fs_provider)
 
     task_factory.add_custom_task_file_manager(inginious.frontend.webapp.plugins.task_file_readers.json_reader.TaskJSONFileReader())
     task_factory.add_custom_task_file_manager(inginious.frontend.webapp.plugins.task_file_readers.rst_reader.TaskRSTFileReader())

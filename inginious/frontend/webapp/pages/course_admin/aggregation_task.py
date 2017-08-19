@@ -16,6 +16,10 @@ class CourseAggregationTaskPage(INGIniousAdminPage):
     def GET_AUTH(self, courseid, aggregationid, taskid):  # pylint: disable=arguments-differ
         """ GET request """
         course, task = self.get_course_and_check_rights(courseid, taskid)
+
+        if course.is_lti():
+            raise web.notfound()
+
         return self.page(course, aggregationid, task)
 
     def submission_url_generator(self, submissionid):

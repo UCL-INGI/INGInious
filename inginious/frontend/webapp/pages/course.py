@@ -28,7 +28,7 @@ class CoursePage(INGIniousAuthPage):
         user_input = web.input()
         if "unregister" in user_input and course.allow_unregister():
             self.user_manager.course_unregister_user(course, self.user_manager.session_username())
-            raise web.seeother('/index')
+            raise web.seeother(self.app.get_homepath() + '/index')
 
         return self.show_page(course)
 
@@ -40,7 +40,7 @@ class CoursePage(INGIniousAuthPage):
     def show_page(self, course):
         """ Prepares and shows the course page """
         username = self.user_manager.session_username()
-        if not self.user_manager.course_is_open_to_user(course):
+        if not self.user_manager.course_is_open_to_user(course, lti=False):
             return self.template_helper.get_renderer().course_unavailable()
         else:
             tasks = course.get_tasks()

@@ -951,7 +951,7 @@ function loadInput(submissionid, input)
             {
                 //display the download button associated with this file
                 var input_file = $('#download-input-file-' + id);
-                input_file.attr('href', $('form#task').attr("action") + "?submissionid=" + submissionid + "&questionid=" + id);
+                input_file.attr('href', document.location.pathname + "?submissionid=" + submissionid + "&questionid=" + id);
                 input_file.css('display', 'block');
             }
         }

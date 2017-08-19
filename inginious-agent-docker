@@ -12,9 +12,11 @@ import logging
 import os
 import multiprocessing
 
+import sys
 from zmq.asyncio import ZMQEventLoop, Context
 import asyncio
 
+from inginious.common.entrypoints import get_args_and_filesystem
 from inginious.agent.docker_agent import DockerAgent
 
 
@@ -22,8 +24,7 @@ def check_range(value):
     value = value.split("-")
     if len(value) != 2:
         raise argparse.ArgumentTypeError("Port range should be in the form 'begin-end', for example 1000-2000")
-    begin = 0
-    end = 0
+
     try:
         begin = int(value[0])
         end = int(value[1])
@@ -55,14 +56,12 @@ if __name__ == "__main__":
     parser.add_argument("--debug-ports", help="Range of port for job remote debugging. By default it is 64120-64130", type=check_range, default="64120-64130")
     parser.add_argument("--tmpdir", help="Path to a directory where the agent can store information, such as caches. Defaults to ./agent_data",
                         default="./agent_data")
-    parser.add_argument("--tasks", help="Path to the task directory. "
-                                        "By default, it is ./tasks. You must ensure that this directory is synchronized at any time"
-                                        "with the backend and the client", default="./tasks")
     parser.add_argument("--concurrency", help="Maximal number of jobs that can run concurrently on this agent. By default, it is the two times the "
                                               "number of cores available.", default=multiprocessing.cpu_count(), type=check_negative)
     parser.add_argument("-v", "--verbose", help="increase output verbosity",
                         action="store_true")
-    args = parser.parse_args()
+
+    (args, fsprovider) = get_args_and_filesystem(parser)
 
     if not os.path.exists(args.tmpdir):
         os.makedirs(args.tmpdir)
@@ -82,12 +81,12 @@ if __name__ == "__main__":
     context = Context()
 
     # Create agent
-    agent = DockerAgent(context, args.backend, args.friendly_name, args.concurrency, args.tasks, ssh_host=args.debug_host, ssh_ports=args.debug_ports,
-                        tmp_dir=args.tmpdir)
+    agent = DockerAgent(context, args.backend, args.friendly_name, args.concurrency, fsprovider, ssh_host=args.debug_host,
+                        ssh_ports=args.debug_ports, tmp_dir=args.tmpdir)
 
     # Run!
     try:
-        loop.run_until_complete(agent.run_dealer())
+        loop.run_until_complete(agent.run())
     except:
         pass
     finally:

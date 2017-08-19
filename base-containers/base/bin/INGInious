@@ -1,0 +1,407 @@
+#!/bin/python3
+# -*- coding: utf-8 -*-
+#
+# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+# more information about the licensing of this file.
+
+import json
+import logging
+import sys
+import shutil
+import os
+import os.path
+import stat
+import resource
+import subprocess
+
+import inginious.tests
+import inginious.feedback
+import time
+import tempfile
+import tarfile
+import base64
+import msgpack
+import asyncio
+
+import struct
+import zmq
+import zmq.asyncio
+from msgpack import Unpacker
+
+class INGIniousMainRunner(object):
+    def __init__(self, ctx, loop):
+        self._ctx = ctx
+        self._loop = loop
+        self._logger = logging.getLogger("inginious.container")
+        self._logger.info("Hello")
+
+    def copytree(self, src, dst, symlinks=False, ignore=None):
+        """ Custom copy tree to allow to copy into existing directories """
+        for item in os.listdir(src):
+            s = os.path.join(src, item)
+            d = os.path.join(dst, item)
+            if os.path.isdir(s):
+                shutil.copytree(s, d, symlinks, ignore)
+            else:
+                shutil.copy2(s, d)
+
+    def setDirectoryRights(self, path):
+        os.chmod(path, 0o777)
+        os.chown(path, 4242, 4242)
+        for root, dirs, files in os.walk(path):
+            for d in dirs:
+                os.chmod(os.path.join(root, d), 0o777)
+                os.chown(os.path.join(root, d), 4242, 4242)
+            for f in files:
+                os.chmod(os.path.join(root, f), 0o777)
+                os.chown(os.path.join(root, f), 4242, 4242)
+            
+    def setlimits(self):
+        os.setgid(4242)
+        os.setuid(4242)
+        resource.setrlimit(resource.RLIMIT_NPROC, (1000, 1000))
+    
+    def setExecutable(self, filename):
+        st = os.stat(filename)
+        os.chmod(filename, st.st_mode | stat.S_IEXEC)
+
+    def executeProcess(self, args, stdinString="", as_root=False):
+        if not isinstance(args, list):
+            args = [args]
+
+        self._logger.debug("Running %s", str(args))
+
+        stdin = tempfile.TemporaryFile()
+        stdin.write(stdinString.encode('utf-8'))
+        stdin.seek(0)
+
+        stdout = tempfile.TemporaryFile()
+        stderr = tempfile.TemporaryFile()
+        if as_root:
+            p = subprocess.Popen(args, stdin=stdin, stdout=stdout, stderr=stderr)
+        else:
+            self.setExecutable(args[0])
+            p = subprocess.Popen(args, preexec_fn=self.setlimits, stdin=stdin, stdout=stdout, stderr=stderr)
+        p.wait()
+        stdout.seek(0)
+        stderr.seek(0)
+        return stdout.read(), stderr.read()
+
+    def b64tarfile(self, source_dir):
+        with tarfile.open('/.__output/archive.tgz', "w:gz") as tar:
+            tar.add(source_dir, arcname='/')
+
+        with open('/.__output/archive.tgz', "rb") as tar:
+            encoded_string = base64.b64encode(tar.read())
+
+        return encoded_string.decode('utf-8')
+
+    async def stdio(self):
+        """
+        :return: (reader, writer) connected to stdin/stdout
+        """
+        loop = asyncio.get_event_loop()
+
+        reader = asyncio.StreamReader()
+        reader_protocol = asyncio.StreamReaderProtocol(reader)
+
+        writer_transport, writer_protocol = await loop.connect_write_pipe(asyncio.streams.FlowControlMixin, os.fdopen(1, 'wb'))
+        writer = asyncio.StreamWriter(writer_transport, writer_protocol, None, loop)
+
+        await loop.connect_read_pipe(lambda: reader_protocol, sys.stdin)
+
+        return reader, writer
+
+    async def handle_stdin(self, reader: asyncio.StreamReader):
+        """
+        Handle messages from the agent
+        """
+        try:
+            while not reader.at_eof():
+                buf = bytearray()
+                while len(buf) != 4:
+                    buf += await reader.read(4-len(buf))
+                length = struct.unpack('I', bytes(buf))[0]
+                buf = bytearray()
+                while len(buf) != length:
+                    buf += await reader.read(length-len(buf))
+                message = msgpack.unpackb(bytes(buf), encoding="utf8", use_list=False)
+                await self.handle_stdin_message(message)
+        except asyncio.CancelledError:
+            return
+        except KeyboardInterrupt:
+            return
+        except:
+            self._logger.exception("Exception occured while reading stdin")
+            os._exit(1)  # DIE!
+
+    async def send_intern_message(self, msg):
+        await self.internal_socket_send.send(msgpack.dumps(msg, encoding="utf8", use_bin_type=True))
+        await self.internal_socket_send.recv()  # ignore return
+
+    async def serve(self):
+        self._logger.info("Starting serve")
+        stdin_sr, self.stdout = await self.stdio()
+        self._loop.create_task(self.handle_stdin(stdin_sr))
+
+        self.intern = self._ctx.socket(zmq.ROUTER)
+        self.intern.bind("ipc:///sockets/main.sock")
+
+        self.internal_socket_send = self._ctx.socket(zmq.REQ)
+        self.internal_socket_send.connect("ipc:///sockets/main.sock")
+
+        self.running_student_container = {} # socket_id : addr
+
+        poller = zmq.asyncio.Poller()
+        poller.register(self.intern, zmq.POLLIN)
+
+        self._logger.info("Serving...")
+        try:
+            while True:
+                socks = await poller.poll()
+                socks = dict(socks)
+
+                # New message from process in the container
+                if self.intern in socks:
+                    addr, empty, msg_enc = await self.intern.recv_multipart()
+                    msg = msgpack.loads(msg_enc, encoding="utf8", use_list=False)
+                    close = await self.handle_intern_message(addr, msg)
+                    if close:
+                        return
+        except asyncio.CancelledError:
+            return
+        except KeyboardInterrupt:
+            return
+        except:
+            self._logger.exception("An exception occured while serving")
+
+    async def write_stdout(self, o):
+        msg = msgpack.dumps(o, encoding="utf-8", use_bin_type=True)
+        self.stdout.write(struct.pack('I', len(msg)))
+        self.stdout.write(msg)
+        await self.stdout.drain()
+
+    async def handle_stdin_message(self, message):
+        self._logger.info("received message %s", message["type"])
+        try:
+            if message["type"] == "start":
+                self._loop.create_task(self.start_cmd(message))
+            if message["type"] == "run_student_started":
+                if message["socket_id"] in self.running_student_container:
+                    addr = self.running_student_container[message["socket_id"]]
+                    await self.intern.send_multipart([addr, b'', msgpack.dumps({"type": "run_student_started"}, encoding="utf8", use_bin_type=True)])
+            if message["type"] == "run_student_retval":
+                if message["socket_id"] in self.running_student_container:
+                    addr = self.running_student_container[message["socket_id"]]
+                    del self.running_student_container[message["socket_id"]]
+                    await self.intern.send_multipart([addr, b'', msgpack.dumps({"type": "run_student_retval", "retval": message["retval"]},
+                                                                               encoding="utf8", use_bin_type=True)])
+        except:
+            self._logger.exception("An exception occured while reading stdin")
+
+    async def handle_intern_message(self, addr, message):
+        self._logger.info("received intern message %s", message)
+        try:
+            if message["type"] == "ssh_key":
+                # copy the dict manually to ensure the corectness of the message
+                await self.write_stdout({"type": "ssh_key", "ssh_key": message["ssh_key"]})
+                await self.intern.send_multipart([addr, b'', msgpack.dumps({"type": "ok"}, encoding="utf8", use_bin_type=True)])
+                return False
+            if message["type"] == "run_student":
+                # copy the dict manually to ensure the corectness of the message
+                self.running_student_container[message["socket_id"]] = addr
+                await self.write_stdout({"type": "run_student", "environment": message["environment"],
+                                         "time_limit": message["time_limit"], "hard_time_limit": message["hard_time_limit"],
+                                         "memory_limit": message["memory_limit"], "share_network": message["share_network"],
+                                         "socket_id": message["socket_id"]})
+                return False
+            if message["type"] == "run_student_ask_retval":
+                # ignore, just a dummy message
+                return False
+            if message["type"] == "done":
+                await self.intern.send_multipart([addr, b'', msgpack.dumps({"type": "ok"}, encoding="utf8", use_bin_type=True)])
+                return True
+            return False
+        except:
+            self._logger.exception("Exception occured while handling an internal message")
+
+    async def start_cmd(self, data):
+        try:
+            result = await self._loop.run_in_executor(None, lambda: self._start_cmd_sync(data))
+            await self.write_stdout({"type": "result", "result": result})
+        except Exception as e:
+            self._logger.exception("Exception while running start_cmd")
+            await self.write_stdout({"type": "result", "result": {"result": "crash", "text": "Exception occured in container (%s)"%str(e), "problems": {}}})
+
+        await self.send_intern_message({"type": "done"})
+
+    def write_inputdata(self, data):
+        unwritable_idx = 0
+        if "input" in data:
+            for d in data["input"].values():
+                try:
+                    if d.keys() == {"filename", "value"}:
+                        filename = "/.__input/__inputfile_{}".format(unwritable_idx)
+                        unwritable_idx += 1
+                        open(filename, 'wb').write(d["value"])
+                        d["value"] = filename
+                except:
+                    pass
+
+        f = open('/.__input/__inputdata.json', 'w')
+        f.write(json.dumps(data))
+        f.close()
+
+    def _start_cmd_sync(self, data):
+        self._logger.info("starting run")
+        # Determining if debug mode or not
+        debug = (sys.argv[1:] and sys.argv[1] == '--debug') or data.get("debug", False)
+
+        # Create input data directory
+        if not os.path.exists("/.__input"):
+            os.mkdir("/.__input")
+        self.write_inputdata(data)
+
+        # Create tests directory
+        if not os.path.exists("/.__tests"):
+            os.mkdir('/.__tests')
+
+        # Create output directory
+        if not os.path.exists("/.__output"):
+            os.mkdir("/.__output")
+
+        # Touch __feedback.json (to set the rights)
+        open('/.__output/__feedback.json', 'w').close()
+
+        # Verify that task directory exists
+        if not os.path.exists("/task"):
+            os.mkdir("/task")
+
+        # Assert that the directory .ssh does not exists
+        if os.path.exists("/task/.ssh"):
+            shutil.rmtree("/task/.ssh")
+
+        #Set rights on some files
+        self.setDirectoryRights("/tmp")
+        self.setDirectoryRights("/task")
+        self.setDirectoryRights("/.__tests")
+        self.setDirectoryRights("/.__output")
+
+        ok_to_start = True
+
+        # Add some elements to /etc/hosts and /etc/resolv.conf if needed
+        system_files = {"hosts": ("/etc/hosts", True), "resolv.conf": ("/etc/resolv.conf", False)}
+        for name, (spath, append) in system_files.items():
+            if os.path.exists(os.path.join('/task/systemfiles/', name)):
+                try:
+                    open(spath, 'ab' if append else 'wb').write(b'\n' + open(os.path.join('/task/systemfiles/', name), 'rb').read())
+                except IOError:
+                    inginious.feedback.set_global_result('crash')
+                    inginious.feedback.set_global_feedback("Cannot read/use %s" % os.path.join('/task/systemfiles/', name))
+                    ok_to_start = False
+        os.chown('/etc/hosts', 0, 4242)
+        os.chown('/etc/resolv.conf', 0, 4242)
+        os.chmod('/etc/hosts', 0o664)
+        os.chmod('/etc/resolv.conf', 0o664)
+
+        #Ensure the worker can read the main socket
+        try:
+            os.chown('/sockets/main.sock', 4242, 4242)
+            os.chmod('/sockets/main.sock', 0o775)
+        except OSError:
+            pass
+
+        #Launch everything
+        stdout, stderr = b"", b""
+        if not ok_to_start:
+            pass # do not start ;-)
+        elif debug != "ssh": #normal start
+            if os.path.exists("/task/run"):
+                os.chdir("/task")
+                try:
+                    stdout, stderr = self.executeProcess("/task/run")
+                except:
+                    inginious.feedback.set_global_result('crash')
+                    inginious.feedback.set_global_feedback("An error occured while running the grading script. It is possible that it is non-executable or made a timeout")
+            else:
+                inginious.feedback.set_global_result('crash')
+                inginious.feedback.set_global_feedback("'/task/run' could not be found")
+        else: #start the ssh server
+            # generate a password for the worker user
+            password, _ = self.executeProcess(["/usr/bin/openssl", "rand", "-base64", "10"], as_root=True)
+            password = password.decode('utf8').strip()
+            self.executeProcess(["/usr/bin/bash", "-c", "echo 'worker:%s' | chpasswd" % password], as_root=True)
+
+            # generate the host keys
+            self.executeProcess(["/usr/bin/ssh-keygen", "-A"], as_root=True)
+
+            # remove /run/nologin if it exists
+            if os.path.exists("/run/nologin"):
+                os.unlink("/run/nologin")
+
+            # Start the ssh server
+            self.executeProcess(["/usr/sbin/sshd", "-p", "22", "-o", "PermitRootLogin=no", "-o", "PasswordAuthentication=yes",
+                                 "-o", "StrictModes=no", "-o", "AllowUsers=worker"], as_root=True)
+
+            self._loop.call_soon_threadsafe(asyncio.ensure_future, self.send_intern_message({"type": "ssh_key", "ssh_key": password}))
+
+            # Wait until someone connects to the server
+            connected_workers = 0
+            attempts = 0
+            while connected_workers == 0 and attempts < 120:
+                time.sleep(1)
+                stdout, stderr = self.executeProcess(["/bin/bash", "-c", "ps -f -C sshd | grep 'worker@pts' | wc -l"], as_root=True)
+                connected_workers = int(stdout)
+                attempts += 1
+
+            # If someone is connected, wait until no one remains
+            if connected_workers != 0:
+                attempts = 0
+                while connected_workers != 0 and attempts < 60*30:
+                    time.sleep(1)
+                    stdout, stderr = self.executeProcess(["/bin/bash", "-c", "ps -f -C sshd | grep 'worker@pts' | wc -l"], as_root=True)
+                    connected_workers = int(stdout)
+                    attempts += 1
+            else:
+                inginious.feedback.set_global_result('crash')
+                inginious.feedback.set_global_feedback('[SSH Debug] Nobody connected to the SSH server.')
+
+            stdout, stderr = b"", b""
+
+        # Produce feedback
+        feedback = inginious.feedback.get_feedback()
+        tests_results = inginious.tests.get_tests_results()
+        if not feedback:
+            result = {"result":"crash", "text":"No feedback was given !", "problems":{}}
+            if debug:
+                result['stdout'] = stdout.decode('utf-8', 'replace')
+                result['stderr'] = stderr.decode('utf-8', 'replace')
+                result['tests'] = tests_results
+            self.setDirectoryRights('/task')
+            self._logger.info("returning results")
+            return result
+        else:
+            if debug:
+                feedback['stdout'] = stdout.decode('utf-8', 'replace')
+                feedback['stderr'] = stderr.decode('utf-8', 'replace')
+                feedback['tests'] = tests_results
+            feedback['archive'] = self.b64tarfile('/.__output')
+            self.setDirectoryRights('/task')
+            self._logger.info("returning results")
+            return feedback
+
+
+logger = logging.getLogger("inginious")
+logger.setLevel(logging.DEBUG)
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+ch.setFormatter(formatter)
+logger.addHandler(ch)
+
+context = zmq.asyncio.Context()
+loop = zmq.asyncio.ZMQEventLoop()
+asyncio.set_event_loop(loop)
+loop.run_until_complete(INGIniousMainRunner(context, loop).serve())
+loop.close()
+context.destroy(1)

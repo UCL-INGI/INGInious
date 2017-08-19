@@ -8,11 +8,15 @@
 
 import os
 import sys
+
+
+
 sys.path.append(os.path.join(os.path.abspath(os.path.dirname(os.path.realpath(__file__))), '..', '..'))
 
 import inginious.frontend.webapp.plugins.task_file_readers.json_reader
 import inginious.frontend.webapp.plugins.task_file_readers.rst_reader
 from inginious.common.course_factory import create_factories
+from inginious.common.filesystems.local import LocalFSProvider
 import argparse
 import tidylib
 
@@ -53,7 +57,8 @@ if __name__ == "__main__":
         print("Please select at least one of --delete-html and --convert-yaml. See task_converter.py --help")
         exit(1)
 
-    course_factory, task_factory = create_factories(args.tasks)
+    fs_provider = LocalFSProvider(args.tasks)
+    course_factory, task_factory = create_factories(fs_provider)
 
     task_factory.add_custom_task_file_manager(inginious.frontend.webapp.plugins.task_file_readers.json_reader.TaskJSONFileReader())
     task_factory.add_custom_task_file_manager(inginious.frontend.webapp.plugins.task_file_readers.rst_reader.TaskRSTFileReader())

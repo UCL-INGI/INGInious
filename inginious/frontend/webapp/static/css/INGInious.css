@@ -152,58 +152,74 @@ form#task label {
 .cm-s-inginious.CodeMirror pre {
   font-family: 'Source Code Pro', monospace !important;
 }
-.cm-s-inginious .CodeMirror-lines {
-  padding: 8px 0;
-}
 .cm-s-inginious .CodeMirror-gutters {
   background-color: transparent;
   padding-right: 10px;
   z-index: 3;
   border: none;
 }
-.cm-s-inginious .CodeMirror-placeholder {
-  color: #aaaaaa !important;
-}
-.cm-s-inginious div.CodeMirror-cursor {
-  border-left: 3px solid #181818;
-}
 .cm-s-inginious .CodeMirror-activeline-background {
-  background: #ffffff;
+  background: #f0fcff;
 }
-.cm-s-inginious .CodeMirror-selected {
-  background: #d9edf7;
+.cm-s-inginious .cm-header {
+  color: blue;
 }
-.cm-s-inginious .cm-comment {
-  color: #959595;
-  background-color: #f0f0f0;
-  opacity: 0.7;
+.cm-s-inginious .cm-quote {
+  color: #090;
 }
-.cm-s-inginious .cm-string {
-  color: #43ac6a;
-  font-style: oblique;
-}
-.cm-s-inginious .cm-variable,
-.cm-s-inginious .cm-variable-2 {
-  /*color: #f92672;*/
-  color: black;
-}
-.cm-s-inginious .cm-keyword,
-.cm-s-inginious .cm-builtin {
-  color: #f04124;
+.cm-s-inginious .cm-keyword {
+  color: #708;
 }
 .cm-s-inginious .cm-atom {
-  color: #e99002;
+  color: #219;
 }
-.cm-s-inginious .cm-operator {
-  color: #5bc0de;
+.cm-s-inginious .cm-number {
+  color: #164;
 }
-.cm-s-inginious .cm-def,
+.cm-s-inginious .cm-def {
+  color: #00f;
+}
+.cm-s-inginious .cm-variable-2 {
+  color: #05a;
+}
 .cm-s-inginious .cm-variable-3 {
-  /*background-color: #d9edf7;*/
-  color: #5bc0de;
+  color: #085;
 }
-.cm-s-inginious .CodeMirror-linenumber {
-  /*color: #22a21f;*/
+.cm-s-inginious .cm-comment {
+  color: #a50;
+}
+.cm-s-inginious .cm-string {
+  color: #a11;
+}
+.cm-s-inginious .cm-string-2 {
+  color: #f50;
+}
+.cm-s-inginious .cm-meta {
+  color: #555;
+}
+.cm-s-inginious .cm-qualifier {
+  color: #555;
+}
+.cm-s-inginious .cm-builtin {
+  color: #30a;
+}
+.cm-s-inginious .cm-bracket {
+  color: #997;
+}
+.cm-s-inginious .cm-tag {
+  color: #170;
+}
+.cm-s-inginious .cm-attribute {
+  color: #00c;
+}
+.cm-s-inginious .cm-hr {
+  color: #999;
+}
+.cm-s-inginious .cm-link {
+  color: #00c;
+}
+.cm-s-inginious .cm-error {
+  color: #f00;
 }
 .container-fluid {
   max-width: 1200px;
@@ -272,12 +288,6 @@ form#task label {
   background-color: transparent;
   margin: 0;
   padding: 0;
-}
-#batch_table tr td {
-  vertical-align: middle;
-}
-#batch_table .batch-status-icon {
-  text-align: center;
 }
 .list-group.list-group-progress {
   line-height: 22px;

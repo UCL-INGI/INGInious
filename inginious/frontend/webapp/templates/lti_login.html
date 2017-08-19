@@ -1,0 +1,40 @@
+$def with (error)
+
+$#
+$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+$# more information about the licensing of this file.
+$#
+
+$var title: Connexion
+
+$# Start content
+    <div class="row" >
+        <div class="col-md-offset-4 col-md-1 text-right">
+            <img src="$get_homepath(True)/static/common/images/header.png" alt="logo" style="margin-top: 17px"/>
+        </div>
+        <div class="col-md-5">
+            <h2 class="text-justify">Hello!<br/>
+                <small>Welcome on the INGInious platform.</small>
+            </h2>
+        </div>
+        <div class="col-md-offset-2">
+
+        </div>
+        <div class="col-md-offset-4 col-md-4">
+            $:template_helper.call('welcome_text', template_helper=template_helper)
+        </div>
+        <div class="col-md-offset-4 col-md-4 alert alert-warning">
+            In order to use INGInious via this platform, please bind your existing account or create a new one.
+        </div>
+        <div class="col-md-offset-4 col-md-4 well">
+            $if error:
+                <div class="alert alert-danger" role="alert">
+                    <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                    Invalid login/password
+                </div>
+
+            <p><a onclick="window.open('$get_homepath(True)/lti/bind?sessionid=$user_manager.session_id()');" href="#">Bind your INGInious account</a></p>
+            <p><a href="$get_homepath()/lti/login">Refresh</a></p>
+
+        </div>
+    </div>

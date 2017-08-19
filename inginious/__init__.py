@@ -6,7 +6,7 @@
 
 import os
 
-__version__ = "0.3a2.dev0"
+__version__ = "0.5.dev0"
 
 
 def get_root_path():

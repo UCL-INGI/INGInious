@@ -25,36 +25,6 @@ user. You can modify the container to change this (and everything else).
 Feedback commands
 -----------------
 
-feedback (obsolete since v0.4)
-``````````````````````````````
-
-The *feedback* command allows you to set the result of your tests.
-Every argument is optional.
-
--r, --result STATUS            set the result to STATUS. STATUS can be
-                               - success (the student succeeded the task),
-                               - failed (there are error in the student answer),
-                               - timeout (the tests timed out),
-                               - overflow (there was a memory/disk overflow) or
-                               - crash (the tests crashed)
--e, --escape                   interprets the space-like escape chars.
--f, --feedback MSG             set the feedback message to MSG. It is possible to set different
-                               messages for each problems. You can use *-i* to change the problem
-                               to which you assign the message
--i, --id PROBLEMID             set the problem id to which the message from the *-f* option is
-                               assigned. Unused if *-f* is not set.
--g, --grade GRADE              the grade. Should be a floating point number between 0(no points) and
-                               100(all points) (bonuses, up to 200, are allowed).
--c, --custom CUSTOM            add a value VAL to the "custom" dictionnary, with key KEY, where CUSTOM is ``KEY:VAL``, which is stored in DB.
-                               Useful for plugins.
--j, --custom-json CUSTOM   same as ```--custom``` but VAL is a json-encoded dictionnary
-
-The *feedback* command can be called multiple times.
-
-::
-
-    feedback --result success --feedback "You're right, the answer is 42!"
-
 feedback-result
 ```````````````
 The *feedback-result* command sets the submission result of a task, or a problem,
@@ -108,6 +78,48 @@ an 87.8% grade to the student:
 
     from inginious import feedback
     feedback.set_grade(87.8) # Set the grade to 87.8%
+
+feedback-msg-tpl
+````````````````
+
+The *feedback-msg-tpl* sets the feedback message associated to the task or a subproblem, using a `Jinja2 <http://jinja.pocoo.org/docs/2.9/>` template.
+
+It needs the name of a template. The command attempt to use a translated version of the template first; given that you give TPLNAME as first
+argument to the command, *feedback-msg-tpl* will attempt to find the template, by search in this order:
+
+- `[local_dir]/TPLNAME.XX_XX.tpl`
+- `[task_dir]/lang/XX_XX/TPLNAME.tpl` (preferred way)
+- `[local_dir]/TPLNAME.tpl`
+
+Once found, the template is parsed using `Jinja2 <http://jinja.pocoo.org/docs/2.9/>`, which allows you to send parameters to the template.
+These parameters should be given in the command line, in the form `name=value`:
+
+::
+
+    feedback-msg-tpl TPLNAME option1=value1 option2=value2
+
+Inside your template, you can use these parameters like this:
+
+::
+
+    Option 1 was {{ option1 }} and the option 2 was {{ option 2 }}
+
+Which will return
+
+::
+
+    Option 1 was value1 and the option 2 was value2
+
+See the Jinja2 documentation to discover all possibilities.
+
+Your template must return a valid RestructuredText.
+
+Optional parameters:
+
+-a, --append                        append to current feedback, if not specified, replace the
+                                    current feedback.
+-i, --id PROBLEM_ID                 problem id to which associate the feedback, leave empty
+                                    for the whole task.
 
 feedback-msg
 ````````````
@@ -293,12 +305,18 @@ with ``:filename`` or ``:value`` to retrieve its filename or value.
 Note that *getinput* can also retrieve the username/group of the user that submitted the task. You simply have to run
 ::
 
-    getinput username
+    getinput @username
 
 If the submission is made as a user, it will contain the username. It it's made as a group,
 it will contain the list of the user's usernames in the
 group, joined with ','.
 
+The four letter code of the student's language (for example `en_US` or `fr_FR`) can also be retrieved using
+::
+
+    getinput @lang
+
+Note that plugins are free to add new `@`-prefixed fields to the available input using the `new_submission` hook.
 
 **In Python** : the equivalent command can be directly obtained with:
 
@@ -389,3 +407,36 @@ The command takes some arguments, which are all optional:
                                     specified sub-directory in the output archive
 -a, --add FILEPATH                  add the file to the archive
 -r, --remove FILEPATH               remove the file from the archive
+
+Obsolete commands
+-----------------
+
+feedback (obsolete since v0.4)
+``````````````````````````````
+
+The *feedback* command allows you to set the result of your tests.
+Every argument is optional.
+
+-r, --result STATUS            set the result to STATUS. STATUS can be
+                               - success (the student succeeded the task),
+                               - failed (there are error in the student answer),
+                               - timeout (the tests timed out),
+                               - overflow (there was a memory/disk overflow) or
+                               - crash (the tests crashed)
+-e, --escape                   interprets the space-like escape chars.
+-f, --feedback MSG             set the feedback message to MSG. It is possible to set different
+                               messages for each problems. You can use *-i* to change the problem
+                               to which you assign the message
+-i, --id PROBLEMID             set the problem id to which the message from the *-f* option is
+                               assigned. Unused if *-f* is not set.
+-g, --grade GRADE              the grade. Should be a floating point number between 0(no points) and
+                               100(all points) (bonuses, up to 200, are allowed).
+-c, --custom CUSTOM            add a value VAL to the "custom" dictionnary, with key KEY, where CUSTOM is ``KEY:VAL``, which is stored in DB.
+                               Useful for plugins.
+-j, --custom-json CUSTOM   same as ```--custom``` but VAL is a json-encoded dictionnary
+
+The *feedback* command can be called multiple times.
+
+::
+
+    feedback --result success --feedback "You're right, the answer is 42!"

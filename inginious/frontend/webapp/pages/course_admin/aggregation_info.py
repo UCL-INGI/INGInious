@@ -16,6 +16,10 @@ class CourseAggregationInfoPage(INGIniousAdminPage):
     def GET_AUTH(self, courseid, aggregationid):  # pylint: disable=arguments-differ
         """ GET request """
         course, _ = self.get_course_and_check_rights(courseid)
+
+        if course.is_lti():
+            raise web.notfound()
+
         return self.page(course, aggregationid)
 
     def submission_url_generator(self, aggregationid, taskid):
@@ -64,5 +68,5 @@ class CourseAggregationInfoPage(INGIniousAdminPage):
         if "csv" in web.input():
             return make_csv(result)
 
-        results = sorted(list(result.values()), key=lambda result: tasks[result["taskid"]].get_order())
+        results = sorted(list(result.values()), key=lambda result: (tasks[result["taskid"]].get_order(), result["taskid"]))
         return self.template_helper.get_renderer().course_admin.aggregation_info(course, aggregation, results)

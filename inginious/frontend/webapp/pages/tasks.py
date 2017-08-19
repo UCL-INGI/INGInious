@@ -4,10 +4,8 @@
 # more information about the licensing of this file.
 
 """ Task page """
-import base64
 import json
 import mimetypes
-import os
 import posixpath
 import urllib.request, urllib.parse, urllib.error
 
@@ -19,9 +17,19 @@ from inginious.frontend.common.task_page_helpers import submission_to_json, list
 from inginious.frontend.webapp.pages.utils import INGIniousAuthPage
 from inginious.frontend.common.parsable_text import ParsableText
 
-
-class TaskPage(INGIniousAuthPage):
+class BaseTaskPage(object):
     """ Display a task (and allow to reload old submission/file uploaded during a submission) """
+
+    def __init__(self, calling_page):
+        self.cp = calling_page
+        self.submission_manager = self.cp.submission_manager
+        self.user_manager = self.cp.user_manager
+        self.database = self.cp.database
+        self.course_factory = self.cp.course_factory
+        self.template_helper = self.cp.template_helper
+        self.default_allowed_file_extensions = self.cp.default_allowed_file_extensions
+        self.default_max_file_size = self.cp.default_max_file_size
+        self.webterm_link = self.cp.webterm_link
 
     def set_selected_submission(self, course, task, submissionid):
         submission = self.submission_manager.get_submission(submissionid)
@@ -51,7 +59,7 @@ class TaskPage(INGIniousAuthPage):
         else:
             return False
 
-    def GET_AUTH(self, courseid, taskid):  # pylint: disable=arguments-differ
+    def GET_AUTH(self, courseid, taskid, isLTI):
         """ GET request """
         username = self.user_manager.session_username()
 
@@ -61,7 +69,10 @@ class TaskPage(INGIniousAuthPage):
         except exceptions.CourseNotFoundException as ex:
             raise web.notfound(str(ex))
 
-        if not self.user_manager.course_is_open_to_user(course, username):
+        if isLTI and not self.user_manager.course_is_user_registered(course):
+            self.user_manager.course_register_user(course, force=True)
+
+        if not self.user_manager.course_is_open_to_user(course, username, isLTI):
             return self.template_helper.get_renderer().course_unavailable()
 
         # Fetch the task
@@ -70,7 +81,7 @@ class TaskPage(INGIniousAuthPage):
         except exceptions.TaskNotFoundException as ex:
             raise web.notfound(str(ex))
 
-        if not self.user_manager.task_is_visible_by_user(task, username):
+        if not self.user_manager.task_is_visible_by_user(task, username, isLTI):
             return self.template_helper.get_renderer().task_unavailable()
 
         self.user_manager.user_saw_task(username, courseid, taskid)
@@ -90,7 +101,7 @@ class TaskPage(INGIniousAuthPage):
                 mimetypes.init()
                 mime_type = mimetypes.guess_type(urllib.request.pathname2url(sinput[userinput["questionid"]]['filename']))
                 web.header('Content-Type', mime_type[0])
-                return base64.b64decode(sinput[userinput["questionid"]]['value'])
+                return sinput[userinput["questionid"]]['value']
             else:
                 # Other file, download it as text
                 web.header('Content-Type', 'text/plain')
@@ -120,25 +131,22 @@ class TaskPage(INGIniousAuthPage):
                                                             self.submission_manager.get_user_submissions(task),
                                                             students, eval_submission, user_task, self.webterm_link)
 
-    def POST_AUTH(self, courseid, taskid):  # pylint: disable=arguments-differ
+    def POST_AUTH(self, courseid, taskid, isLTI):
         """ POST a new submission """
         username = self.user_manager.session_username()
         try:
             course = self.course_factory.get_course(courseid)
-            if not self.user_manager.course_is_open_to_user(course, username):
+            if not self.user_manager.course_is_open_to_user(course, username, isLTI):
                 return self.template_helper.get_renderer().course_unavailable()
 
             task = course.get_task(taskid)
-            if not self.user_manager.task_is_visible_by_user(task, username):
+            if not self.user_manager.task_is_visible_by_user(task, username, isLTI):
                 return self.template_helper.get_renderer().task_unavailable()
 
             self.user_manager.user_saw_task(username, courseid, taskid)
 
             is_staff = self.user_manager.has_staff_rights_on_course(course, username)
             is_admin = self.user_manager.has_admin_rights_on_course(course, username)
-
-            # TODO: this is nearly the same as the code in the webapp.
-            # We should refactor this.
 
             userinput = web.input()
             if "@action" in userinput and userinput["@action"] == "customtest":
@@ -171,7 +179,7 @@ class TaskPage(INGIniousAuthPage):
 
             elif "@action" in userinput and userinput["@action"] == "submit":
                 # Verify rights
-                if not self.user_manager.task_can_user_submit(task, username):
+                if not self.user_manager.task_can_user_submit(task, username, isLTI):
                     return json.dumps({"status": "error", "text": "You are not allowed to submit for this task."})
 
                 # Reparse user input with array for multiple choices
@@ -268,6 +276,10 @@ class TaskPage(INGIniousAuthPage):
 class TaskPageStaticDownload(INGIniousAuthPage):
     """ Allow to download files stored in the task folder """
 
+    def is_lti_page(self):
+        # authorize LTI sessions to download static files
+        return True
+
     def GET_AUTH(self, courseid, taskid, path):  # pylint: disable=arguments-differ
         """ GET request """
         try:
@@ -276,26 +288,33 @@ class TaskPageStaticDownload(INGIniousAuthPage):
                 return self.template_helper.get_renderer().course_unavailable()
 
             task = course.get_task(taskid)
-            if not self.user_manager.task_is_visible_by_user(task):
+            if not self.user_manager.task_is_visible_by_user(task):  # ignore LTI check here
                 return self.template_helper.get_renderer().task_unavailable()
 
             path_norm = posixpath.normpath(urllib.parse.unquote(path))
-            public_folder_path = os.path.normpath(os.path.realpath(os.path.join(task.get_directory_path(), "public")))
-            file_path = os.path.normpath(os.path.realpath(os.path.join(public_folder_path, path_norm)))
 
-            # Verify that we are still inside the public directory
-            if os.path.normpath(os.path.commonprefix([public_folder_path, file_path])) != public_folder_path:
-                raise web.notfound()
+            public_folder = task.get_fs().from_subfolder("public")
+            (method, mimetype_or_none, file_or_url) = public_folder.distribute(path_norm, False)
 
-            if os.path.isfile(file_path):
-                mimetypes.init()
-                mime_type = mimetypes.guess_type(file_path)
-                web.header('Content-Type', mime_type[0])
-                return open(file_path, 'rb')
+            if method == "local":
+                web.header('Content-Type', mimetype_or_none)
+                return file_or_url
+            elif method == "url":
+                raise web.redirect(file_or_url)
             else:
                 raise web.notfound()
+        except web.HTTPError as error_or_redirect:
+            raise error_or_redirect
         except:
             if web.config.debug:
                 raise
             else:
                 raise web.notfound()
+
+
+class TaskPage(INGIniousAuthPage):
+    def GET_AUTH(self, courseid, taskid):
+        return BaseTaskPage(self).GET_AUTH(courseid, taskid, False)
+
+    def POST_AUTH(self, courseid, taskid):
+        return BaseTaskPage(self).POST_AUTH(courseid, taskid, False)

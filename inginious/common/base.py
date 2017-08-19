@@ -27,15 +27,26 @@ def load_json_or_yaml(file_path):
             return inginious.common.custom_yaml.load(f)
 
 
-def write_json_or_yaml(file_path, content):
-    """ Load JSON or YAML depending on the file extension. """
+def loads_json_or_yaml(file_path, content):
+    """ Load JSON or YAML depending on the file extension. Returns a dict """
     if os.path.splitext(file_path)[1] == ".json":
-        o = json.dumps(content, sort_keys=False, indent=4, separators=(',', ': '))
+        return json.loads(content)
     else:
-        o = inginious.common.custom_yaml.dump(content)
+        return inginious.common.custom_yaml.load(content)
 
+
+def write_json_or_yaml(file_path, content):
+    """ Write JSON or YAML depending on the file extension. """
     with codecs.open(file_path, "w", "utf-8") as f:
-        f.write(o)
+        f.write(get_json_or_yaml(file_path, content))
+
+
+def get_json_or_yaml(file_path, content):
+    """ Generate JSON or YAML depending on the file extension. """
+    if os.path.splitext(file_path)[1] == ".json":
+        return json.dumps(content, sort_keys=False, indent=4, separators=(',', ': '))
+    else:
+        return inginious.common.custom_yaml.dump(content)
 
 
 def hash_file(fileobj):

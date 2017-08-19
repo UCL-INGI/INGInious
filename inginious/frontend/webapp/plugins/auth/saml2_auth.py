@@ -22,42 +22,84 @@ class SAMLAuthMethod(AuthMethod):
     SAML SSO auth method
     """
 
-    def __init__(self, name, settings):
+    def __init__(self, id, name, imlink, settings):
+        self._id = id
         self._name = name
+        self._imlink = imlink
         self._settings = settings
+
+    def get_id(self):
+        return self._id
 
     def get_name(self):
         return self._name
 
-    def auth(self, login_data):
+    def get_imlink(self):
+        if self._imlink:
+            return '<img src="' + self._imlink + \
+                   '" style="-moz-user-select: none; -webkit-user-select: none; ' \
+                   'user-select: none; width: 50px; height:50px;" />'
+        else:
+            return '<i class="fa fa-id-card" style="font-size:50px; color:#000000;"></i>'
+
+    def get_auth_link(self, user_manager):
+        auth = OneLogin_Saml2_Auth(prepare_request(self._settings), self._settings)
+        return auth.login(user_manager.session_redir_url())
+
+    def callback(self, user_manager):
+        req = prepare_request(self._settings)
+        input_data = web.input()
+
+        auth = OneLogin_Saml2_Auth(req, self._settings)
+        auth.process_response()
+        errors = auth.get_errors()
+
+        # Try and check if IdP is using several signature certificates
+        # This is a limitation of python3-saml
+        for cert in self._settings["idp"].get("additionalX509certs", []):
+            if auth.get_last_error_reason() == "Signature validation failed. SAML Response rejected":
+                # Change used IdP certificate
+                logging.getLogger('inginious.webapp.plugin.auth.saml').debug("Trying another certificate...")
+                new_settings = copy.deepcopy(self._settings)
+                new_settings["idp"]["x509cert"] = cert
+                # Retry processing response
+                auth = OneLogin_Saml2_Auth(req, new_settings)
+                auth.process_response()
+                errors = auth.get_errors()
+
+        if len(errors) == 0 and "attributes" in self._settings:
+            attrs = auth.get_attributes()
+            username = attrs[self._settings["attributes"]["uid"]][0]
+            realname = attrs[self._settings["attributes"]["cn"]][0]
+            email = attrs[self._settings["attributes"]["email"]][0]
+
+            # Redirect to desired url
+            self_url = OneLogin_Saml2_Utils.get_self_url(req)
+            if 'RelayState' in input_data and self_url != input_data['RelayState']:
+                redirect_url = auth.redirect_to(input_data['RelayState'])
+                # Initialize session in user manager and update cache
+                return (str(username), realname, email) if redirect_url == user_manager.session_redir_url() else None
+        else:
+            logging.getLogger('inginious.webapp.plugin.auth.saml').error("Errors while processing response : ",
+                                                                         ", ".join(errors))
+            return None
+
+    def get_settings(self):
+        return self._settings
+
+
+class AuthenticationPage(INGIniousPage):
+     def GET(self):
         auth = OneLogin_Saml2_Auth(prepare_request(), settings)
-        raise web.seeother(auth.login(web.ctx.path + web.ctx.query.rsplit("?logoff")[0]))
-
-    def needed_fields(self):
-        return {
-            "input": {},
-            "info": ''
-        }
-
-    def should_cache(self):
-        """ SAML-SSO always put connected people in cache at login-time"""
-        return True
-
-    def get_users_info(self, usernames):
-        """
-        SAML SSO does not enable searching for user data, it relies on the cache !
-        :param usernames: a list of usernames
-        :return: a dict containing key/pairs {username: None}
-        """
-        return {username: None for username in usernames}
+        raise web.seeother(auth.login(web.ctx.env.get('HTTP_REFERER','/').rsplit("?logoff")[0]))
 
 
-def prepare_request():
+def prepare_request(settings):
     """ Prepare SAML request """
 
     # Set the ACS url and binding method
     settings["sp"]["assertionConsumerService"] = {
-        "url": web.ctx.homedomain + web.ctx.homepath + "/SAML/ACS",
+        "url": web.ctx.homedomain + web.ctx.homepath + "/auth/" + settings["id"] + "/callback",
         "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
     }
 
@@ -76,10 +118,10 @@ def prepare_request():
     }
 
 
-class MetadataPage:
-    def GET(self):
-        global settings
-        auth = OneLogin_Saml2_Auth(prepare_request(), settings)
+class MetadataPage(INGIniousPage):
+    def GET(self, id):
+        settings = self.user_manager.get_auth_method(id).get_settings()
+        auth = OneLogin_Saml2_Auth(prepare_request(settings), settings)
         metadata = auth.get_settings().get_sp_metadata()
         errors = auth.get_settings().validate_metadata(metadata)
 
@@ -91,52 +133,7 @@ class MetadataPage:
             return ', '.join(errors)
 
 
-class SAMLPage(INGIniousPage):
-    def POST(self):
-        req = prepare_request()
-        input_data = web.input()
-
-        auth = OneLogin_Saml2_Auth(req, settings)
-        auth.process_response()
-        errors = auth.get_errors()
-
-        # Try and check if IdP is using several signature certificates
-        # This is a limitation of python3-saml
-        for cert in settings["idp"].get("additionalX509certs", []):
-            if auth.get_last_error_reason() == "Signature validation failed. SAML Response rejected":
-                # Change used IdP certificate
-                logging.getLogger('inginious.webapp.plugin.auth.saml').debug("Trying another certificate...")
-                new_settings = copy.deepcopy(settings)
-                new_settings["idp"]["x509cert"] = cert
-                # Retry processing response
-                auth = OneLogin_Saml2_Auth(req, new_settings)
-                auth.process_response()
-                errors = auth.get_errors()
-
-        if len(errors) == 0 and "attributes" in settings:
-            attrs = auth.get_attributes()
-
-            username = attrs[settings["attributes"]["uid"]][0]
-            realname = attrs[settings["attributes"]["cn"]][0]
-            email = attrs[settings["attributes"]["email"]][0]
-
-            # Initialize session in user manager and update cache
-            self.user_manager._set_session(username, realname, email)
-            self.database.user_info_cache.update_one({"_id": username}, {"$set": {"realname": realname, "email": email}}, upsert=True)
-            self.user_manager._logger.info("User %s connected - %s - %s - %s", username, realname, email, web.ctx.ip)
-
-            # Redirect to desired url
-            self_url = OneLogin_Saml2_Utils.get_self_url(req)
-            if 'RelayState' in input_data and self_url != input_data['RelayState']:
-                raise web.seeother(auth.redirect_to(input_data['RelayState']))
-        else:
-            logging.getLogger('inginious.webapp.plugin.auth.saml').error("Errors while processing response : " + ", ".join(errors))
-            raise web.seeother("/")
-
-
 def init(plugin_manager, course_factory, client, conf):
-    global settings
-    settings = conf
-    plugin_manager.add_page('/SAML/Metadata', MetadataPage)
-    plugin_manager.add_page('/SAML/ACS', SAMLPage)
-    plugin_manager.register_auth_method(SAMLAuthMethod(conf.get('name', 'SAML Login'), settings))
+    plugin_manager.add_page(r'/auth/([^/]+)/metadata', MetadataPage)
+    plugin_manager.register_auth_method(SAMLAuthMethod(conf.get("id"), conf.get('name', 'SAML Login'), conf.get('imlink', ''), conf))
+

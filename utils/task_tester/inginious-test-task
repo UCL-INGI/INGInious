@@ -20,6 +20,7 @@ from inginious.common.course_factory import create_factories
 from inginious.frontend.common.parsable_text import ParsableText
 from inginious.frontend.common.arch_helper import create_arch, start_asyncio_and_zmq
 from inginious.client.client_sync import ClientSync
+from inginious.common.filesystems.local import LocalFSProvider
 
 
 def job_done_callback(result, filename, inputfiles, data):
@@ -153,11 +154,12 @@ if __name__ == "__main__":
 
     # Initialize course/task factory
     task_directory = config["tasks_directory"]
-    course_factory, task_factory = create_factories(task_directory)
+    fs_provider = LocalFSProvider(task_directory)
+    course_factory, task_factory = create_factories(fs_provider)
 
     # Initialize client
     zmq_context, asyncio_thread = start_asyncio_and_zmq()
-    client = create_arch(config, task_directory, zmq_context)
+    client = create_arch(config, fs_provider, zmq_context)
     client.start()
 
     # Get the client synchronous

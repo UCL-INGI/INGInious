@@ -58,7 +58,7 @@ class IndexPage(INGIniousAuthPage):
 
         # Display
         open_courses = {courseid: course for courseid, course in all_courses.items()
-                        if self.user_manager.course_is_open_to_user(course, username)}
+                        if self.user_manager.course_is_open_to_user(course, username, False)}
         open_courses = OrderedDict(sorted(iter(open_courses.items()), key=lambda x: x[1].get_name()))
 
         last_submissions = self.submission_manager.get_user_last_submissions(5, {"courseid": {"$in": list(open_courses.keys())}})
@@ -71,7 +71,7 @@ class IndexPage(INGIniousAuthPage):
                 pass
 
         registerable_courses = {courseid: course for courseid, course in all_courses.items() if
-                                not self.user_manager.course_is_open_to_user(course, username) and
+                                not self.user_manager.course_is_open_to_user(course, username, False) and
                                 course.is_registration_possible(username, realname, email)}
 
         registerable_courses = OrderedDict(sorted(iter(registerable_courses.items()), key=lambda x: x[1].get_name()))

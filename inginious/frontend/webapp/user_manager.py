@@ -5,11 +5,14 @@
 
 """ Manages users data and session """
 import logging
+import hashlib
+import web
 from abc import ABCMeta, abstractmethod
 from datetime import datetime
 from datetime import timedelta
 from functools import reduce
 from natsort import natsorted
+from collections import OrderedDict
 import pymongo
 
 from inginious.frontend.common.user_manager import AbstractUserManager
@@ -24,6 +27,28 @@ class AuthInvalidMethodException(Exception):
 
 
 class AuthMethod(object, metaclass=ABCMeta):
+
+    @abstractmethod
+    def get_id(self):
+        """
+        :return: The auth method id
+        """
+        return ""
+
+    @abstractmethod
+    def get_auth_link(self, user_manager):
+        """
+        :param user_manager: The user manager, for session storage
+        :return: The authentication link
+        """
+
+    @abstractmethod
+    def callback(self, user_manager):
+        """
+        :param user_manager: The user manager,  for session storage
+        :return: User tuple, or None, if failed
+        """
+
     @abstractmethod
     def get_name(self):
         """
@@ -32,48 +57,11 @@ class AuthMethod(object, metaclass=ABCMeta):
         return ""
 
     @abstractmethod
-    def auth(self, user_input):
+    def get_imlink(self):
         """
-        :param user_input: the input of the user, respecting the value given by self.needed_input()
-        :return: (username, realname, email) if the user credentials are correct, None else
+        :return: The image link
         """
-        return None
-
-    @abstractmethod
-    def needed_fields(self):
-        """
-        :return: a dictionary containing as key the name of the input (in the HTML sense of name), and, as value, a dictionary containing two fields:
-
-            placeholder
-                the placeholder for the input
-
-            type
-                text or password
-        """
-        return {}
-
-    def should_cache(self):
-        """
-        :return: True if the results of the get_user(s)_info methods should be cached
-        """
-        return True
-
-    def get_user_info(self, username):
-        """
-        :param username:
-        :return: (realname, email) if the user is available with this auth method, None else
-        """
-        info = self.get_users_info([username])
-        return info[username] if info is not None else None
-
-    @abstractmethod
-    def get_users_info(self, usernames):
-        """
-        :param usernames: a list of usernames
-        :return: a dict containing key/pairs {username: (realname, email)} if the user is available with this auth method,
-            {username: None} else
-        """
-        return None
+        return ""
 
 
 class UserManager(AbstractUserManager):
@@ -87,7 +75,7 @@ class UserManager(AbstractUserManager):
         self._session = session_dict
         self._database = database
         self._superadmins = superadmins
-        self._auth_methods = []
+        self._auth_methods = OrderedDict()
         self._logger = logging.getLogger("inginious.webapp.users")
 
     ##############################################
@@ -122,6 +110,43 @@ class UserManager(AbstractUserManager):
             return None
         return self._session.token
 
+    def session_lti_info(self):
+        """ If the current session is an LTI one, returns a dict in the form 
+            {
+                "email": email,
+                "username": username
+                "realname": realname,
+                "roles": roles,
+                "task": (course_id, task_id),
+                "outcome_service_url": outcome_service_url,
+                "outcome_result_id": outcome_result_id,
+                "consumer_key": consumer_key
+            }
+            where all these data where provided by the LTI consumer, and MAY NOT be equivalent to the data
+            contained in database for the currently connected user.
+            
+            If the current session is not an LTI one, returns None.
+        """
+        if "lti" in self._session:
+            return self._session.lti
+        return None
+
+    def session_cookieless(self):
+        """ Indicates if the current session is cookieless """
+        return self._session.get("cookieless", False)
+
+    def session_id(self):
+        """ Returns the current session id"""
+        return self._session.get("session_id", "")
+
+    def session_redir_url(self):
+        """ Returns the redirection url for login """
+        return self._session.get("redir_url", "")
+
+    def session_oauth_state(self):
+        """ Returns the oauth state for login """
+        return self._session.get("oauth_state", None)
+
     def set_session_token(self, token):
         """ Sets the token of the current user in the session, if one is open."""
         if self.session_logged_in():
@@ -132,13 +157,23 @@ class UserManager(AbstractUserManager):
         if self.session_logged_in():
             self._session.realname = realname
 
+    def set_session_redir_url(self, redir_url):
+        """ Sets the redirection url for login """
+        self._session.redir_url = redir_url
+
+    def set_session_oauth_state(self, oauth_state):
+        """Sets the oauth state for login """
+        self._session.oauth_state = oauth_state
+
     def _set_session(self, username, realname, email):
-        """ Init the session """
+        """ Init the session. Preserves potential LTI information. """
         self._session.loggedin = True
         self._session.email = email
         self._session.username = username
         self._session.realname = realname
         self._session.token = None
+        if "lti" not in self._session:
+            self._session.lti = None
 
     def _destroy_session(self):
         """ Destroy the session """
@@ -147,6 +182,45 @@ class UserManager(AbstractUserManager):
         self._session.username = None
         self._session.realname = None
         self._session.token = None
+        self._session.lti = None
+
+    def create_lti_session(self, user_id, roles, realname, email, course_id, task_id, consumer_key, outcome_service_url,
+                           outcome_result_id, tool_name, tool_desc, tool_url, context_title, context_label):
+        """ Creates an LTI cookieless session. Returns the new session id"""
+
+        self._destroy_session()  # don't forget to destroy the current session (cleans the threaded dict from web.py)
+        self._session.load('')  # creates a new cookieless session
+        session_id = self._session.session_id
+
+        self._session.lti = {
+            "email": email,
+            "username": user_id,
+            "realname": realname,
+            "roles": roles,
+            "task": (course_id, task_id),
+            "outcome_service_url": outcome_service_url,
+            "outcome_result_id": outcome_result_id,
+            "consumer_key": consumer_key,
+            "context_title": context_title,
+            "context_label": context_label,
+            "tool_description": tool_desc,
+            "tool_name": tool_name,
+            "tool_url": tool_url
+        }
+
+        return session_id
+
+    def attempt_lti_login(self):
+        """ Given that the current session is an LTI one (session_lti_info does not return None), attempt to find an INGInious user
+            linked to this lti username/consumer_key. If such user exists, logs in using it.
+             
+            Returns True (resp. False) if the login was successful
+        """
+        if "lti" not in self._session:
+            raise Exception("Not an LTI session")
+
+        # TODO allow user to be automagically connected if the TC uses the same user id
+        return False
 
     ##############################################
     #      User searching and authentication     #
@@ -157,38 +231,56 @@ class UserManager(AbstractUserManager):
         Registers an authentication method
         :param auth_method: an AuthMethod object
         """
-        self._auth_methods.append(auth_method)
+        self._auth_methods[auth_method.get_id()] = auth_method
 
-    def get_auth_methods_fields(self):
+    def get_auth_method(self, auth_method_id):
         """
-        :return: a dict, containing the auth method id as key, and a tuple (name, needed fields) for each auth method
+        :param the auth method id, as provided by get_auth_methods_inputs()
+        :return: AuthMethod if it exists, otherwise None
         """
-        return {i: (am.get_name(), am.needed_fields()) for i, am in enumerate(self._auth_methods)}
+        return self._auth_methods.get(auth_method_id, None)
 
-    def auth_user(self, auth_method_id, input, ip_addr):
+    def get_auth_methods(self):
         """
-        :param auth_method_id: the auth method id, as provided by get_auth_methods_inputs()
-        :param input: the input of the user, should respect what was given by get_auth_methods_inputs()
-        :param ip_addr: the ip address of the client, that will be logged
-        :raise AuthInvalidInputException
-        :return: True if the user successfully authenticated, False else
+        :return: The auth methods dict
         """
-        if len(self._auth_methods) <= auth_method_id:
-            raise AuthInvalidMethodException()
-        info = self._auth_methods[auth_method_id].auth(input)
-        if info is not None:
-            self._logger.info("User %s connected - %s - %s - %s", info[0], info[1], info[2], ip_addr)
-            self._set_session(info[0], info[1], info[2])
-            return True
-        return False
+        return self._auth_methods
 
-    def disconnect_user(self, ip_addr):
+    def auth_user(self, username, password):
+        """
+        Authenticate the user in database
+        :param username: Username/Login
+        :param password: User password
+        :return: Returns a dict represrnting the user
+        """
+        password_hash = hashlib.sha512(password.encode("utf-8")).hexdigest()
+
+        user = self._database.users.find_one(
+            {"username": username, "password": password_hash, "activate": {"$exists": False}})
+
+        return user if user is not None and self.connect_user(username, user["realname"], user["email"]) else None
+
+    def connect_user(self, username, realname, email):
+        """
+        Opens a session for the user
+        :param username: Username
+        :param realname: User real name
+        :param email: User email
+        """
+
+        self._database.users.update_one({"username": username}, {"$set": {"realname": realname, "email": email}},
+                                        upsert=True)
+        self._logger.info("User %s connected - %s - %s - %s", username, realname, email, web.ctx.ip)
+        self._set_session(username, realname, email)
+        return True
+
+    def disconnect_user(self):
         """
         Disconnects the user currently logged-in
         :param ip_addr: the ip address of the client, that will be logged
         """
         if self.session_logged_in():
-            self._logger.info("User %s disconnected - %s - %s - %s", self.session_username(), self.session_realname(), self.session_email(), ip_addr)
+            self._logger.info("User %s disconnected - %s - %s - %s", self.session_username(), self.session_realname(), self.session_email(), web.ctx.ip)
         self._destroy_session()
 
     def get_users_info(self, usernames):
@@ -199,36 +291,9 @@ class UserManager(AbstractUserManager):
         retval = {username: None for username in usernames}
         remaining_users = usernames
 
-        # First, look in non cached auth methods for the user
-        for method in self._auth_methods:
-            if method.should_cache() is False:
-                infos = method.get_users_info(remaining_users)
-                if infos is not None:
-                    for user, val in infos.items():
-                        retval[user] = val
-
-        remaining_users = [username for username, val in retval.items() if val is None]
-        if len(remaining_users) == 0:
-            return retval
-
-        # If this is not the case, look in the cache
-        infos = self._database.user_info_cache.find({"_id": {"$in": remaining_users}})
+        infos = self._database.users.find({"username": {"$in": remaining_users}})
         for info in infos:
-            retval[info["_id"]] = (info["realname"], info["email"])
-
-        remaining_users = [username for username, val in retval.items() if val is None]
-        if len(remaining_users) == 0:
-            return retval
-
-        # If it's still not the case, ask the other auth methods
-        for method in self._auth_methods:
-            if method.should_cache() is True:
-                infos = method.get_users_info(remaining_users)
-                if infos is not None:
-                    for user, val in infos.items():
-                        if val is not None:
-                            retval[user] = val
-                            self._database.user_info_cache.update_one({"_id": user}, {"$set": {"realname": val[0], "email": val[1]}}, upsert=True)
+            retval[info["username"]] = (info["realname"], info["email"])
 
         return retval
 
@@ -417,23 +482,34 @@ class UserManager(AbstractUserManager):
                     {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]},
                     {"$set": {"succeeded": submission["result"] == "success", "grade": submission["grade"]}})
 
-    def task_is_visible_by_user(self, task, username=None):
-        """ Returns true if the task is visible by the user """
+    def task_is_visible_by_user(self, task, username=None, lti=None):
+        """ Returns true if the task is visible by the user
+        :param lti: indicates if the user is currently in a LTI session or not.
+            - None to ignore the check
+            - True to indicate the user is in a LTI session
+            - False to indicate the user is not in a LTI session
+            - "auto" to enable the check and take the information from the current session
+        """
         if username is None:
             username = self.session_username()
 
-        return (self.course_is_open_to_user(task.get_course(), username) and task.get_accessible_time().after_start()) or \
+        return (self.course_is_open_to_user(task.get_course(), username, lti) and task.get_accessible_time().after_start()) or \
                self.has_staff_rights_on_course(task.get_course(), username)
 
-    def task_can_user_submit(self, task, username=None, only_check=None):
+    def task_can_user_submit(self, task, username=None, only_check=None, lti=None):
         """ returns true if the user can submit his work for this task
             :param only_check : only checks for 'groups', 'tokens', or None if all checks
+            :param lti: indicates if the user is currently in a LTI session or not.
+            - None to ignore the check
+            - True to indicate the user is in a LTI session
+            - False to indicate the user is not in a LTI session
+            - "auto" to enable the check and take the information from the current session
         """
         if username is None:
             username = self.session_username()
 
         # Check if course access is ok
-        course_registered = self.course_is_open_to_user(task.get_course(), username)
+        course_registered = self.course_is_open_to_user(task.get_course(), username, lti)
         # Check if task accessible to user
         task_accessible = task.get_accessible_time().is_open()
         # User has staff rights ?
@@ -555,18 +631,33 @@ class UserManager(AbstractUserManager):
 
         self._logger.info("User %s unregistered from course %s", username, course.get_id())
 
-    def course_is_open_to_user(self, course, username=None):
+    def course_is_open_to_user(self, course, username=None, lti=None):
         """
         Checks if a user is can access a course
         :param course: a Course object
         :param username: The username of the user that we want to check. If None, uses self.session_username()
+        :param lti: indicates if the user is currently in a LTI session or not.
+            - None to ignore the check
+            - True to indicate the user is in a LTI session
+            - False to indicate the user is not in a LTI session
+            - "auto" to enable the check and take the information from the current session
         :return: True if the user can access the course, False else
         """
         if username is None:
             username = self.session_username()
+        if lti == "auto":
+            lti = self.session_lti_info() is not None
 
-        return (course.get_accessibility().is_open() and self.course_is_user_registered(course, username)) \
-               or self.has_staff_rights_on_course(course, username)
+        if self.has_staff_rights_on_course(course, username):
+            return True
+
+        if not course.get_accessibility().is_open() or not self.course_is_user_registered(course, username):
+            return False
+
+        if lti is not None and course.is_lti() != lti:
+            return False
+
+        return True
 
     def course_is_user_registered(self, course, username=None):
         """

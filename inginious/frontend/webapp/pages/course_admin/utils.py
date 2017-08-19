@@ -107,7 +107,7 @@ class INGIniousSubmissionAdminPage(INGIniousAdminPage):
         return submissions, aggregations
 
     def show_page_params(self, course, user_input):
-        tasks = sorted(list(course.get_tasks().items()), key=lambda task: task[1].get_order())
+        tasks = sorted(list(course.get_tasks().items()), key=lambda task: (task[1].get_order(), task[1].get_id()))
 
         user_list = self.user_manager.get_course_registered_users(course, False)
         users = OrderedDict(sorted(list(self.user_manager.get_users_info(user_list).items()),
@@ -248,13 +248,15 @@ def get_menu(course, current, renderer, plugin_manager, user_manager):
     """ Returns the HTML of the menu used in the administration. ```current``` is the current page of section """
     default_entries = []
     if user_manager.has_admin_rights_on_course(course):
-        default_entries += [("settings", "<i class='fa fa-cog fa-fw'></i>&nbsp; Course settings"),
-                            ("batch", "<i class='fa fa-rocket fa-fw'></i>&nbsp; Batch operations")]
+        default_entries += [("settings", "<i class='fa fa-cog fa-fw'></i>&nbsp; Course settings")]
 
-    default_entries += [("students", "<i class='fa fa-user fa-fw'></i>&nbsp; Students"),
-                        ("aggregations", "<i class='fa fa-group fa-fw'></i>&nbsp; " +
-                         ("Classrooms" if course.use_classrooms() else "Teams")),
-                        ("tasks", "<i class='fa fa-tasks fa-fw'></i>&nbsp; Tasks"),
+    default_entries += [("students", "<i class='fa fa-user fa-fw'></i>&nbsp; Students")]
+
+    if not course.is_lti():
+        default_entries += [("aggregations", "<i class='fa fa-group fa-fw'></i>&nbsp; " +
+                             ("Classrooms" if course.use_classrooms() else "Teams"))]
+
+    default_entries += [("tasks", "<i class='fa fa-tasks fa-fw'></i>&nbsp; Tasks"),
                         ("download", "<i class='fa fa-download fa-fw'></i>&nbsp; Download submissions")]
 
     if user_manager.has_admin_rights_on_course(course):
@@ -274,9 +276,9 @@ class CourseRedirect(INGIniousAdminPage):
         """ GET request """
         course, _ = self.get_course_and_check_rights(courseid)
         if self.user_manager.session_username() in course.get_tutors():
-            raise web.seeother('/admin/{}/tasks'.format(courseid))
+            raise web.seeother(self.app.get_homepath() + '/admin/{}/tasks'.format(courseid))
         else:
-            raise web.seeother('/admin/{}/settings'.format(courseid))
+            raise web.seeother(self.app.get_homepath() + '/admin/{}/settings'.format(courseid))
 
     def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request """

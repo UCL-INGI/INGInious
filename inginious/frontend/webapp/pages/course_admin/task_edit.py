@@ -4,6 +4,7 @@
 # more information about the licensing of this file.
 
 """ Pages that allow editing of tasks """
+import tempfile
 from collections import OrderedDict
 import copy
 import json
@@ -225,13 +226,13 @@ class CourseEditTask(INGIniousAdminPage):
 
         return None
 
-    def postprocess_grader_data(self, data, directory_path):
+    def postprocess_grader_data(self, data, task_fs):
         for test_case in data["grader_test_cases"]:
-            if not os.path.isfile(os.path.join(directory_path, test_case["input_file"])):
+            if not task_fs.exists(test_case["input_file"]):
                 return json.dumps(
                     {"status": "error", "message": "Grader input file does not exist: " + test_case["input_file"]})
 
-            if not os.path.isfile(os.path.join(directory_path, test_case["output_file"])):
+            if not task_fs.exists(test_case["output_file"]):
                 return json.dumps(
                     {"status": "error", "message": "Grader output file does not exist: " + test_case["output_file"]})
 
@@ -251,8 +252,6 @@ class CourseEditTask(INGIniousAdminPage):
             with open(run_file_template_path, "r") as f:
                 run_file_template = f.read()
 
-            target_run_file = os.path.join(directory_path, 'run')
-
             problem_id = data["grader_problem_id"]
             test_cases = [(test_case["input_file"], test_case["output_file"]) for test_case in data["grader_test_cases"]]
             weights = [test_case["weight"] for test_case in data["grader_test_cases"]]
@@ -268,10 +267,16 @@ class CourseEditTask(INGIniousAdminPage):
                 return json.dumps(
                     {"status": "error", "message": "You must provide test cases to autogenerate the grader"})
 
-            with open(target_run_file, "w") as f:
-                f.write(run_file_template.format(
-                    problem_id=repr(problem_id), test_cases=repr(test_cases),
-                    options=repr(options), weights=repr(weights)))
+            with tempfile.TemporaryDirectory() as temporary_folder_name:
+                run_file_name = 'run'
+                target_run_file = os.path.join(temporary_folder_name, run_file_name)
+
+                with open(target_run_file, "w") as f:
+                    f.write(run_file_template.format(
+                        problem_id=repr(problem_id), test_cases=repr(test_cases),
+                        options=repr(options), weights=repr(weights)))
+
+                task_fs.copy_to(temporary_folder_name)
 
         return None
 
@@ -302,7 +307,7 @@ class CourseEditTask(INGIniousAdminPage):
             self.task_factory.delete_task(courseid, taskid)
             if data.get("wipe", False):
                 self.wipe_task(courseid, taskid)
-            raise web.seeother("/admin/"+courseid+"/tasks")
+            raise web.seeother(self.app.get_homepath() + "/admin/"+courseid+"/tasks")
 
         # Else, parse content
         try:
@@ -409,34 +414,33 @@ class CourseEditTask(INGIniousAdminPage):
         except:
             pass
 
-        directory_path = self.task_factory.get_directory_path(courseid, taskid)
+        task_fs = self.task_factory.get_task_fs(courseid, taskid)
+        task_fs.ensure_exists()
 
         error = self.preprocess_grader_data(data)
         if error is not None:
             return error
 
         try:
-            WebAppTask(course, taskid, data, directory_path, self.plugin_manager)
+            WebAppTask(course, taskid, data, task_fs, self.plugin_manager)
         except Exception as message:
             return json.dumps({"status": "error", "message": "Invalid data: {}".format(str(message))})
-
-        if not os.path.exists(directory_path):
-            os.mkdir(directory_path)
 
         if task_zip:
             try:
                 zipfile = ZipFile(task_zip)
-            except Exception as message:
+            except Exception:
                 return json.dumps({"status": "error", "message": "Cannot read zip file. Files were not modified"})
 
-            try:
-                zipfile.extractall(directory_path)
-            except Exception as message:
-                return json.dumps(
-                    {"status": "error", "message": "There was a problem while extracting the zip archive. Some files may have been modified"})
+            with tempfile.TemporaryDirectory() as tmpdirname:
+                try:
+                    zipfile.extractall(tmpdirname)
+                except Exception:
+                    return json.dumps(
+                        {"status": "error", "message": "There was a problem while extracting the zip archive. Some files may have been modified"})
+                task_fs.copy_to(tmpdirname)
 
-
-        error = self.postprocess_grader_data(data, directory_path)
+        error = self.postprocess_grader_data(data, task_fs)
         if error is not None:
             return error
 
