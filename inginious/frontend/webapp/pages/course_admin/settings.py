@@ -82,7 +82,7 @@ class CourseSettings(INGIniousAdminPage):
             course_content['registration_ac_list'] = data['registration_ac_list'].split("\n")
 
             course_content['is_lti'] = 'lti' in data and data['lti'] == "true"
-            course_content['lti_keys'] = dict([x.split(":") for x in data['lti_keys'].split("\n")])
+            course_content['lti_keys'] = dict([x.split(":") for x in data['lti_keys'].split("\n") if x != ""])
 
             for lti_key in course_content['lti_keys'].keys():
                 if not re.match("^[a-zA-Z0-9]*$", lti_key):
