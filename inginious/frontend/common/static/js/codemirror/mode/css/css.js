@@ -401,6 +401,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
             ch == "{" && (cx.type == "at" || cx.type == "atBlock")) {
           // Dedent relative to current context.
           indent = Math.max(0, cx.indent - indentUnit);
+          cx = cx.prev;
         }
       }
       return indent;
@@ -492,7 +493,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "grid-row-start", "grid-template", "grid-template-areas", "grid-template-columns",
     "grid-template-rows", "hanging-punctuation", "height", "hyphens",
     "icon", "image-orientation", "image-rendering", "image-resolution",
-    "inline-box-align", "justify-content", "justify-items", "justify-self", "left", "letter-spacing",
+    "inline-box-align", "justify-content", "left", "letter-spacing",
     "line-break", "line-height", "line-stacking", "line-stacking-ruby",
     "line-stacking-shift", "line-stacking-strategy", "list-style",
     "list-style-image", "list-style-position", "list-style-type", "margin",
@@ -507,7 +508,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "padding", "padding-bottom", "padding-left", "padding-right", "padding-top",
     "page", "page-break-after", "page-break-before", "page-break-inside",
     "page-policy", "pause", "pause-after", "pause-before", "perspective",
-    "perspective-origin", "pitch", "pitch-range", "place-content", "place-items", "place-self", "play-during", "position",
+    "perspective-origin", "pitch", "pitch-range", "play-during", "position",
     "presentation-level", "punctuation-trim", "quotes", "region-break-after",
     "region-break-before", "region-break-inside", "region-fragment",
     "rendering-intent", "resize", "rest", "rest-after", "rest-before", "richness",
@@ -658,13 +659,13 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "s-resize", "sans-serif", "saturation", "scale", "scale3d", "scaleX", "scaleY", "scaleZ", "screen",
     "scroll", "scrollbar", "scroll-position", "se-resize", "searchfield",
     "searchfield-cancel-button", "searchfield-decoration",
-    "searchfield-results-button", "searchfield-results-decoration", "self-start", "self-end",
+    "searchfield-results-button", "searchfield-results-decoration",
     "semi-condensed", "semi-expanded", "separate", "serif", "show", "sidama",
     "simp-chinese-formal", "simp-chinese-informal", "single",
     "skew", "skewX", "skewY", "skip-white-space", "slide", "slider-horizontal",
     "slider-vertical", "sliderthumb-horizontal", "sliderthumb-vertical", "slow",
     "small", "small-caps", "small-caption", "smaller", "soft-light", "solid", "somali",
-    "source-atop", "source-in", "source-out", "source-over", "space", "space-around", "space-between", "space-evenly", "spell-out", "square",
+    "source-atop", "source-in", "source-out", "source-over", "space", "space-around", "space-between", "spell-out", "square",
     "square-button", "start", "static", "status-bar", "stretch", "stroke", "sub",
     "subpixel-antialiased", "super", "sw-resize", "symbolic", "symbols", "system-ui", "table",
     "table-caption", "table-cell", "table-column", "table-column-group",

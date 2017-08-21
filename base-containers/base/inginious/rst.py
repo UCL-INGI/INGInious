@@ -34,6 +34,10 @@ def get_admonition(cssclass, title, text):
     rst += "\n"
     return rst
 
+def get_html_block(html):
+    """ Generates an RST HTML block from the given HTML """
+    return '\n\n.. raw:: html\n\n' + indent_block(1, html) + '\n'
+
 def indent_block(amount, text, indent_char='\t'):
     """ Indent (or de-indent) text"""
     rst = ""

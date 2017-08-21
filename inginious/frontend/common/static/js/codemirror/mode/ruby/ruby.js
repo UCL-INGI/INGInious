@@ -17,19 +17,24 @@ CodeMirror.defineMode("ruby", function(config) {
     for (var i = 0, e = words.length; i < e; ++i) o[words[i]] = true;
     return o;
   }
-  var keywords = wordObj([
+
+  var keywordArray = [
     "alias", "and", "BEGIN", "begin", "break", "case", "class", "def", "defined?", "do", "else",
     "elsif", "END", "end", "ensure", "false", "for", "if", "in", "module", "next", "not", "or",
     "redo", "rescue", "retry", "return", "self", "super", "then", "true", "undef", "unless",
     "until", "when", "while", "yield", "nil", "raise", "throw", "catch", "fail", "loop", "callcc",
     "caller", "lambda", "proc", "public", "protected", "private", "require", "load",
     "require_relative", "extend", "autoload", "__END__", "__FILE__", "__LINE__", "__dir__"
-  ]);
+  ];
+
+  var keywords = wordObj(keywordArray);
   var indentWords = wordObj(["def", "class", "case", "for", "while", "until", "module", "then",
                              "catch", "loop", "proc", "begin"]);
   var dedentWords = wordObj(["end", "until"]);
   var matching = {"[": "]", "{": "}", "(": ")"};
   var curPunc;
+
+  CodeMirror.registerHelper("hintWords", "ruby", keywordArray.slice());
 
   function chain(newtok, stream, state) {
     state.tokenize.push(newtok);

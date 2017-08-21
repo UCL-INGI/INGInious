@@ -27,9 +27,13 @@ $#
 
 <!-- INGInious Style -->
 <link href="$get_homepath(True)/static/webapp/css/INGInious.css" rel="stylesheet">
+<link href="$get_homepath(True)/static/webapp/css/UNJudge.css" rel="stylesheet">
 
 <!-- Codemirror Style -->
-<link href="$get_homepath(True)/static/common/css/codemirror.css" rel="stylesheet">
+<link href="$get_homepath(True)/static/common/js/codemirror/lib/codemirror.css" rel="stylesheet">
+<link href="$get_homepath(True)/static/common/js/codemirror/addon/lint/lint.css" rel="stylesheet">
+<link href="$get_homepath(True)/static/common/js/codemirror/addon/hint/show-hint.css" rel="stylesheet">
+
 
 <!-- Icons -->
 <link rel="shortcut icon" href="$get_homepath(True)/static/common/icons/favicon.ico">
@@ -55,8 +59,20 @@ $if use_minified:
 $else:
     <script src="$get_homepath(True)/static/common/js/libs/jquery.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="$get_homepath(True)/static/common/js/libs/jquery.form.min.js" type="text/javascript" charset="utf-8"></script>
-    <script src="$get_homepath(True)/static/common/js/codemirror/codemirror.js" type="text/javascript" charset="utf-8"></script>
+    <script src="$get_homepath(True)/static/common/js/codemirror/lib/codemirror.js" type="text/javascript" charset="utf-8"></script>
     <script src="$get_homepath(True)/static/common/js/codemirror/mode/meta.js" type="text/javascript" charset="utf-8"></script>
+    <script src="$get_homepath(True)/static/common/js/codemirror/addon/mode/loadmode.js" type="text/javascript" charset="utf-8"></script>
+    <script src="$get_homepath(True)/static/common/js/codemirror/addon/mode/overlay.js" type="text/javascript" charset="utf-8"></script>
+    <script src="$get_homepath(True)/static/common/js/codemirror/addon/runmode/runmode.js" type="text/javascript" charset="utf-8"></script>
+    <script src="$get_homepath(True)/static/common/js/codemirror/addon/runmode/colorize.js" type="text/javascript" charset="utf-8"></script>
+    <script src="$get_homepath(True)/static/common/js/codemirror/addon/lint/lint.js" type="text/javascript" charset="utf-8"></script>
+    <script src="$get_homepath(True)/static/common/js/codemirror/addon/lint/javascript-lint.js" type="text/javascript" charset="utf-8"></script>
+    <script src="$get_homepath(True)/static/common/js/codemirror/addon/hint/show-hint.js" type="text/javascript" charset="utf-8"></script>
+    <script src="$get_homepath(True)/static/common/js/extensions/codemirror/generic-hint.js" type="text/javascript" charset="utf-8"></script>
+    <script src="$get_homepath(True)/static/common/js/codemirror/addon/hint/javascript-hint.js" type="text/javascript" charset="utf-8"></script>
+    <script src="//ajax.aspnetcdn.com/ajax/jshint/r07/jshint.js"></script>
+    <script src="$get_homepath(True)/static/common/js/codemirror/addon/edit/closebrackets.js" type="text/javascript" charset="utf-8"></script>
+    <script src="$get_homepath(True)/static/common/js/codemirror/addon/edit/matchbrackets.js" type="text/javascript" charset="utf-8"></script>
     <script src="$get_homepath(True)/static/common/js/libs/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="$get_homepath(True)/static/common/js/libs/bootstrap-datetimepicker.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="$get_homepath(True)/static/common/js/libs/checked-list-group.js" type="text/javascript" charset="utf-8"></script>
@@ -121,7 +137,7 @@ $:template_helper.call('header_hook')
                 </div>
             </div>
         </div>
-    
+
         <div id="main_container" class="container-fluid" role="main">
                 $if "Column" in content:
                     <div id="content" class="col-xs-12 col-sm-8 col-lg-9">
@@ -158,7 +174,7 @@ $:template_helper.call('header_hook')
                 </div>
             </div>
         </div>
-        
+
     </div>
 
     <!-- Placed at the end of the document so the pages load faster -->

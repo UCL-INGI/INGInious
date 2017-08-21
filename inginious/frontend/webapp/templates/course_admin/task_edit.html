@@ -1,4 +1,4 @@
-$def with (course,taskid,task_data,environments,problemdump,contains_is_html,current_filetype,available_filetypes,AccessibleTime,file_list)
+$def with (course,taskid,task_data,environments,problemdump,grader_test_cases_dump,contains_is_html,current_filetype,available_filetypes,AccessibleTime,file_list,available_languages)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -35,7 +35,7 @@ $var Navbar: $:NavbarF()
 <div id="task_edit_submit_status"></div>
 <form id="edit_task_form" method="post" enctype="multipart/form-data" class="form-horizontal">
     <input type="hidden" name="@action" value="edit_task"/>
-    
+
     <div role="tabpanel">
         <ul class="nav nav-tabs" id="edit_task_tabs" role="tablist">
             <li role="presentation" class="active"><a href="#tab_basic" aria-controls="basicinfo" role="tab" data-toggle="tab"><i class="fa
@@ -44,6 +44,8 @@ $var Navbar: $:NavbarF()
                 fa-cube fa-fw"></i>&nbsp; Container setup</a></li>
             <li role="presentation"><a href="#tab_subproblems" aria-controls="subproblems" role="tab" data-toggle="tab"><i class="fa
                 fa-list-ul fa-fw"></i>&nbsp; Subproblems</a></li>
+            <li role="presentation"><a href="#tab_grader" aria-controls="grader" role="tab" data-toggle="tab"><i class="fa
+                fa-check-circle fa-fw"></i>&nbsp; Grader</a></li>
             <li role="presentation"><a href="#tab_files" aria-controls="files" role="tab" data-toggle="tab"><i class="fa
                 fa-edit fa-fw"></i>&nbsp; Task files</a></li>
         </ul>
@@ -58,6 +60,10 @@ $var Navbar: $:NavbarF()
 
             <div role="tabpanel" class="tab-pane" id="tab_subproblems">
                 $:include.course_admin.edit_tabs.subproblems()
+            </div>
+
+            <div role="tabpanel" class="tab-pane" id="tab_grader">
+                $:include.course_admin.edit_tabs.grader(task_data)
             </div>
 
             <div role="tabpanel" class="tab-pane" id="tab_files">
@@ -100,11 +106,28 @@ $var Navbar: $:NavbarF()
 </div>
 
 <!-- Must be out of the form -->
-$:include.course_admin.edit_tabs.subproblem_templates(contains_is_html)
+$:include.course_admin.edit_tabs.subproblem_templates(contains_is_html, available_languages)
 $:include.course_admin.edit_tabs.file_modals()
+$:include.course_admin.edit_tabs.grader_templates()
 
 <!-- Init the javascript for the subproblem tab -->
 <script type="text/javascript">
     problem_data = $:{problemdump};
     $$ (function(){ studio_load(problem_data); });
+
+    grader_test_cases = $:{grader_test_cases_dump};
+
+    $$ (function() {
+      studio_update_grader_problems();
+
+      $$ ("#grader_problem_id").val("${task_data.get('grader_problem_id', '')}");
+      studio_load_grader_test_cases(grader_test_cases);
+
+      $$('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
+        if (e.target.hash === '#tab_grader') {
+          studio_update_grader_problems();
+          studio_update_grader_files();
+        }
+      });
+    });
 </script>

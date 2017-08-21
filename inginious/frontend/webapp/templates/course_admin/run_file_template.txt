@@ -1,0 +1,10 @@
+#!/bin/python3
+
+from grading import graders
+
+problem_id = {problem_id}
+test_cases = {test_cases}
+options = {options}
+weights = {weights}
+
+graders.handle_problem_action(problem_id, test_cases, options=options, weights=weights)

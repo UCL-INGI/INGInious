@@ -15,6 +15,7 @@ from bson.objectid import ObjectId
 from inginious.common import exceptions
 from inginious.frontend.common.task_page_helpers import submission_to_json, list_multiple_multiple_choices_and_files
 from inginious.frontend.webapp.pages.utils import INGIniousAuthPage
+from inginious.frontend.common.parsable_text import ParsableText
 
 class BaseTaskPage(object):
     """ Display a task (and allow to reload old submission/file uploaded during a submission) """
@@ -148,7 +149,35 @@ class BaseTaskPage(object):
             is_admin = self.user_manager.has_admin_rights_on_course(course, username)
 
             userinput = web.input()
-            if "@action" in userinput and userinput["@action"] == "submit":
+            if "@action" in userinput and userinput["@action"] == "customtest":
+                # Reparse user input with array for multiple choices
+                init_var = list_multiple_multiple_choices_and_files(task)
+                userinput = task.adapt_input_for_backend(web.input(**init_var))
+
+                if not task.input_is_consistent(userinput, self.default_allowed_file_extensions, self.default_max_file_size):
+                    web.header('Content-Type', 'application/json')
+                    return json.dumps({"status": "error", "text": "Please answer to all the questions and verify the extensions of the files "
+                                                                  "you want to upload. Your responses were not tested."})
+
+                try:
+                    result, grade, problems, tests, custom, archive, stdout, stderr = self.submission_manager.add_unsaved_job(task, userinput)
+
+                    data = {
+                        "status": ("done" if result[0] == "success" or result[0] == "failed" else "error"),
+                        "result": result[0],
+                        "text": ParsableText(result[1]).parse(),
+                        "stdout": custom.get("custom_stdout", ""),
+                        "stderr": custom.get("custom_stderr", "")
+                    }
+
+                    web.header('Content-Type', 'application/json')
+                    return json.dumps(data)
+
+                except Exception as ex:
+                    web.header('Content-Type', 'application/json')
+                    return json.dumps({"status": "error", "text": str(ex)})
+
+            elif "@action" in userinput and userinput["@action"] == "submit":
                 # Verify rights
                 if not self.user_manager.task_can_user_submit(task, username, isLTI):
                     return json.dumps({"status": "error", "text": "You are not allowed to submit for this task."})
@@ -161,7 +190,6 @@ class BaseTaskPage(object):
                     web.header('Content-Type', 'application/json')
                     return json.dumps({"status": "error", "text": "Please answer to all the questions and verify the extensions of the files "
                                                                   "you want to upload. Your responses were not tested."})
-                del userinput['@action']
 
                 # Get debug info if the current user is an admin
                 debug = is_admin

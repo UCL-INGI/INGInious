@@ -15,7 +15,7 @@ on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
 install_requires = [
     "docker-py>=1.9.0",
-    "docutils>=0.12",
+    "docutils==0.13.1",
     "pymongo>=3.2.2",
     "PyYAML>=3.11",
     "web.py>=0.40.dev0",

@@ -77,12 +77,12 @@ $def ColumnF():
         <h3>Administration</h3>
         $if not course.is_open_to_non_staff():
             <div class="alert alert-warning" role="alert">
-                This course is currently invisible for students. 
+                This course is currently invisible for students.
                 You can change this by modifying the "accessible" option in the configuration of the course.
             </div>
         $if not task.get_accessible_time().after_start():
             <div class="alert alert-warning" role="alert">
-                This task is currently invisible for students. 
+                This task is currently invisible for students.
                 You can change this by modifying the "accessible" option in the configuration of the task.
             </div>
         <div class="list-group">
@@ -95,6 +95,9 @@ $def ColumnF():
                 </a>
                 <a style="cursor:pointer;" class="list-group-item list-group-item-info" data-toggle="modal" data-target="#modal-debug">
                     <i class="fa fa-wrench fa-fw"></i>&nbsp; Debug information
+                </a>
+                <a style="cursor:pointer;" class="list-group-item list-group-item-info" data-toggle="modal" data-target="#modal-diff">
+                    <i class="fa fa-files-o fa-fw"></i>&nbsp; Output diff
                 </a>
         </div>
     $elif not is_lti():
@@ -196,6 +199,25 @@ $if user_manager.has_admin_rights_on_course(course):
                     This box is only displayed because you are an administrator of this course. It is not displayed to students.
                     <hr/>
                     <div id="task_debug">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal-diff">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Output diff</h4>
+                </div>
+                <div class="modal-body">
+                    The output diff for all test cases will be displayed here.<br/>
+                    This box is only displayed because you are an administrator of this course. It is not displayed to students.
+                    <hr/>
+                    <div id="task_diff">
 
                     </div>
                 </div>

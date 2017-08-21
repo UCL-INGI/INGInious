@@ -23,6 +23,8 @@ from pymongo.collection import ReturnDocument
 from inginious.frontend.common.parsable_text import ParsableText
 import inginious.common.custom_yaml
 
+from inginious.client.client_sync import ClientSync
+
 
 class SubmissionManager(object, metaclass=ABCMeta):
     """ Manages submissions. Communicates with the database and to the backend/agent using a Client. """
@@ -82,6 +84,10 @@ class SubmissionManager(object, metaclass=ABCMeta):
         )
 
         self._hook_manager.call_hook("submission_done", submission=submission, archive=archive, newsub=newsub)
+
+    def add_unsaved_job(self, task, inputdata):
+        temp_client = ClientSync(self._client)
+        return temp_client.new_job(task, inputdata)
 
     def add_job(self, task, inputdata, debug=False):
         """

@@ -347,8 +347,12 @@ function studio_submit()
  */
 function studio_get_template_for_problem(problem)
 {
+    if (problem["type"] == "code-multiple-languages")
+        return "#subproblem_code_multiple_languages";
     if((problem["type"] == "code" && !problem["boxes"]) || problem["type"] == "code-single-line")
         return "#subproblem_code";
+    else if(problem["type"] == "code-file-multiple-languages")
+        return "#subproblem_code_file_multiple_languages";
     else if(problem["type"] == "code-file")
         return "#subproblem_code_file";
     else if(problem["type"] == "code")
@@ -427,6 +431,12 @@ function studio_init_template(template, pid, problem)
         case "#subproblem_code":
             studio_init_template_code(well, pid, problem);
             break;
+        case "#subproblem_code_multiple_languages":
+            studio_init_template_code_multiple_languages(well, pid, problem);
+            break;
+        case "#subproblem_code_file_multiple_languages":
+            studio_init_template_code_file_multiple_languages(well, pid, problem);
+            break;
         case "#subproblem_code_file":
             studio_init_template_code_file(well, pid, problem);
             break;
@@ -456,6 +466,49 @@ function studio_init_template_code(well, pid, problem)
         $('#type-' + pid, well).val(problem["type"]);
     if("optional" in problem && problem["optional"])
         $('#optional-' + pid, well).attr('checked', true);
+}
+
+/**
+ * Init a code template with multiple languages
+ * @param well: the DOM element containing the input fields
+ * @param pid
+ * @param problem
+ */
+function studio_init_template_code_multiple_languages(well, pid, problem)
+{
+    if("type" in problem)
+        $('#type-' + pid, well).val(problem["type"]);
+    if("optional" in problem && problem["optional"])
+        $('#optional-' + pid, well).attr('checked', true);
+
+    if ("languages" in problem) {
+        jQuery.each(problem["languages"], function(language, allowed) {
+            if (allowed)
+                $("#" + language + "-" + pid, well).attr("checked", true);
+        });
+    }
+}
+
+
+/**
+ * Init a code template with multiple languages
+ * @param well: the DOM element containing the input fields
+ * @param pid
+ * @param problem
+ */
+function studio_init_template_code_file_multiple_languages(well, pid, problem)
+{
+    if("max_size" in problem)
+        $('#maxsize-' + pid, well).val(problem["max_size"]);
+    if("allowed_exts" in problem)
+        $('#extensions-' + pid, well).val(problem["allowed_exts"].join());
+
+    if ("languages" in problem) {
+        jQuery.each(problem["languages"], function(language, allowed) {
+            if (allowed)
+                $("#" + language + "-" + pid, well).attr("checked", true);
+        });
+    }
 }
 
 /**
@@ -666,5 +719,128 @@ function studio_get_feedback(sid)
     {
         $('#modal_feedback_content').text('An error occurred while retrieving the submission');
         loadingSomething = false;
+    });
+}
+
+var studio_grader_test_case_sequence = 0;
+
+function studio_add_test_case_from_form()
+{
+    studio_add_test_case({
+      "input_file": $("#grader_test_case_in").val(),
+      "output_file": $("#grader_test_case_out").val()
+    });
+}
+
+function studio_add_test_case(test_case)
+{
+    test_case = $.extend({
+      "input_file": null,
+      "output_file": null,
+      "weight": 1.0,
+      "diff_shown": false
+    }, test_case);
+
+    var test_id = studio_grader_test_case_sequence;
+
+    var inputFile = test_case["input_file"];
+    var outputFile = test_case["output_file"];
+
+    if (!inputFile || !outputFile) {
+      return;
+    }
+
+    var template = $("#test_case_template").html().replace(/TID/g, test_id);
+
+    var templateElement = $(template);
+    templateElement.find("#grader_test_cases_" + test_id + "_input_file").val(inputFile);
+    templateElement.find("#grader_test_cases_" + test_id + "_output_file").val(outputFile);
+    templateElement.find("#grader_test_cases_" + test_id + "_weight").val(
+      test_case["weight"]);
+    templateElement.find("#grader_test_cases_" + test_id + "_diff_shown").prop('checked',
+      test_case["diff_shown"]);
+
+    $('#grader_test_cases_container').append(templateElement);
+
+    studio_grader_test_case_sequence++;
+}
+
+function studio_load_grader_test_cases(test_cases) {
+    $.each(test_cases, function(_, test_case) {
+      studio_add_test_case(test_case);
+    });
+}
+
+function studio_remove_test_case(id) {
+    $("#grader_test_cases_" + id).remove();
+}
+
+function studio_update_grader_problems() {
+    var container = $("#accordion");
+
+    var problems = [];
+    $.each(container.children(), function(index, value) {
+      var id = value.id;
+      var prefix = "subproblem_well_";
+      if (!id.startsWith(prefix)) {
+        throw new Error("Unable to process problem well: " + id);
+      }
+
+      var problemId = id.substring(prefix.length);
+      var type = $(value).find("[name='problem[" + problemId + "][type]']").val();
+
+      problems.push({
+        "id": problemId,
+        "type": type
+      });
+    });
+
+    var graderSelect = $("#grader_problem_id");
+    var currentlySelectedItem = graderSelect.val();
+
+    graderSelect.empty();
+    $.each(problems, function(index, problem) {
+      if (problem.type === "code-multiple-languages" ||
+          problem.type === "code-file-multiple-languages") {
+          graderSelect.append($("<option>", {
+            "value": problem.id,
+            "text": problem.id
+          }));
+      }
+    });
+
+    graderSelect.val(currentlySelectedItem);
+}
+
+function studio_update_grader_files()
+{
+    $.ajax({
+      success: function(files) {
+        var inputFileSelect = $("#grader_test_case_in");
+        var outputFileSelect = $("#grader_test_case_out");
+
+        inputFileSelect.empty();
+        outputFileSelect.empty();
+
+        $.each(files, function(index, file) {
+          if (file.is_directory) {
+            return;
+          }
+
+          var entry = $("<option>", {
+            "value": file.complete_name,
+            "text": file.complete_name
+          });
+
+          inputFileSelect.append(entry);
+          outputFileSelect.append(entry.clone());
+        });
+      },
+      method: "GET",
+      data: {
+        "action": "list_as_json"
+      },
+      dataType: "json",
+      url: location.pathname + "/files"
     });
 }

@@ -8,9 +8,18 @@ function init_common()
 {
     //Init CodeMirror
     colorizeStaticCode();
-    $('.code-editor').each(function(index, elem)
+    $('.code-editor').each(function(index, boxMultilineTextArea)
     {
-        registerCodeEditor(elem, $(elem).attr('data-x-language'), $(elem).attr('data-x-lines'));
+        var editorLines = $(boxMultilineTextArea).attr('data-x-lines');
+        var language = $(boxMultilineTextArea).attr('data-x-language');
+
+        var shouldGetLanguageFromDropdown = (language == "plain");
+        if(shouldGetLanguageFromDropdown){
+            var problemId = $(boxMultilineTextArea).attr("name");
+            language = getLanguageForProblemId(problemId);
+        }
+
+        registerCodeEditor(boxMultilineTextArea, language, editorLines);
     });
 
     //Fix a bug with codemirror and bootstrap tabs
@@ -78,6 +87,20 @@ function registerCodeEditor(textarea, lang, lines)
 
     var is_single = $(textarea).hasClass('single');
 
+    var tabToSpaces = function(codeMirrorInstance) {
+        var indentUnit = codeMirrorInstance.getOption("indentUnit");
+        var spaces = Array(indentUnit + 1).join(" ");
+        codeMirrorInstance.replaceSelection(spaces);
+    }
+
+    var fixTabs = function(codeMirrorInstance, changeObj){
+        var indentUnit = codeMirrorInstance.getOption("indentUnit");
+        var spaces = Array(indentUnit + 1).join(" ");
+        changeObj.text = $.map(changeObj.text, function(line) {
+            return line.replace(/\t/g, spaces);
+        });
+    }
+
     var editor = CodeMirror.fromTextArea(textarea, {
         lineNumbers:       true,
         mode:              mode["mime"],
@@ -86,14 +109,14 @@ function registerCodeEditor(textarea, lang, lines)
         matchBrackets:     true,
         autoCloseBrackets: true,
         lineWrapping:      true,
-        gutters:           ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
-        indentUnit:        4,
-        viewportMargin:    Infinity,
+        gutters:           ["CodeMirror-lint-markers", "CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+        indentUnit:        2,
+        tabSize:           2,
+        cursorHeight:      0.85,
+        viewportMargin:    20,
         theme:             "inginious",
-        lint:              function()
-                           {
-                               return []
-                           }
+        lint:              true,
+        extraKeys:         { "Ctrl-Space": "autocomplete", Tab: tabToSpaces }
     });
 
     if(is_single)
@@ -104,25 +127,16 @@ function registerCodeEditor(textarea, lang, lines)
         cm.save();
     });
 
-    var min_editor_height = (21 * lines);
-    editor.on("viewportChange", function(cm) { onEditorViewportChange(min_editor_height, cm); });
-    editor.setSize(null, min_editor_height + "px");
-    onEditorViewportChange(min_editor_height, editor); //immediately trigger a size update
+    editor.on("beforeChange", fixTabs);
+
+    var max_editor_height = "500";
+    editor.setSize(null, max_editor_height + "px");
 
     if(mode["mode"] != "plain")
         CodeMirror.autoLoadMode(editor, mode["mode"]);
 
     codeEditors.push(editor);
     return editor;
-}
-
-// Verify if the size of each code editor is sufficient
-function onEditorViewportChange(min_editor_height, cm)
-{
-    if(cm.getScrollInfo()["height"] > min_editor_height)
-        cm.setSize(null, "auto");
-    else
-        cm.setSize(null, min_editor_height + "px");
 }
 
 // Apply parent function recursively
@@ -163,4 +177,10 @@ function download_page_select_tutor(panel_member, users, groups)
     $('input[name="aggregations"]', panel_member).each(function() { $(this).prop('checked', $.inArray($(this).val(),groups) != -1); });
     $('input[name="users"]', panel_member).each(function() { $(this).prop('checked', $.inArray($(this).val(), users) != -1); });
     $('input[type="checkbox"]', panel_member).trigger('change');
+}
+
+if (!String.prototype.startsWith) {
+    String.prototype.startsWith = function(searchString, position) {
+      return this.substr(position || 0, searchString.length) === searchString;
+  };
 }

@@ -1,0 +1,36 @@
+
+<!-- these divs are templates used by the javascript code to display test cases -->
+<div id="test_cases_templates" style="display:none">
+  <div id="test_case_template">
+    <div class="row" id="grader_test_cases_TID">
+      <div class="form-group col-xs-12">
+        <div class="col-xs-3">
+          <input type="text" class="form-control" name="grader_test_cases[TID][input_file]"
+            id="grader_test_cases_TID_input_file" value="" readonly/>
+        </div>
+        <div class="col-xs-3">
+          <input type="text" class="form-control" name="grader_test_cases[TID][output_file]"
+            id="grader_test_cases_TID_output_file" value="" readonly/>
+        </div>
+        <div class="col-xs-2">
+          <input type="number" min="0" class="form-control" id="grader_test_cases_TID_weight"
+            name="grader_test_cases[TID][weight]" value="0"/>
+        </div>
+
+        <div class="col-xs-2 checkbox">
+          <label>
+            <input type="checkbox" id="grader_test_cases_TID_diff_shown"
+              name="grader_test_cases[TID][diff_shown]"/>
+            Diff shown
+          </label>
+        </div>
+
+        <div class="col-xs-2">
+          <button class="btn btn-danger btn-xs" type="button" onclick="studio_remove_test_case(TID);">
+            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
