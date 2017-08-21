@@ -9,35 +9,42 @@ from pymongo import MongoClient
 import web
 from web.debugerror import debugerror
 
+from inginious.common.entrypoints import filesystem_from_config_dict
+from inginious.common.filesystems.local import LocalFSProvider
 from inginious.frontend.common.arch_helper import create_arch, start_asyncio_and_zmq
+from inginious.frontend.webapp.cookieless_app import CookieLessCompatibleApplication
 from inginious.frontend.webapp.database_updater import update_database
 from inginious.frontend.common.plugin_manager import PluginManager
 from inginious.common.course_factory import create_factories
+
+from inginious.frontend.webapp.lti_outcome_manager import LTIOutcomeManager
 from inginious.frontend.webapp.tasks import WebAppTask
 from inginious.frontend.webapp.courses import WebAppCourse
 from inginious.frontend.webapp.submission_manager import WebAppSubmissionManager
-from inginious.frontend.webapp.batch_manager import BatchManager
 from inginious.frontend.common.template_helper import TemplateHelper
 from inginious.frontend.webapp.user_manager import UserManager
 from inginious.frontend.common.session_mongodb import MongoStore
 import inginious.frontend.webapp.pages.course_admin.utils as course_admin_utils
+import inginious.frontend.webapp.pages.preferences.utils as preferences_utils
 from inginious.frontend.common.submission_manager import update_pending_jobs
 
 urls = (
-    r'/', 'inginious.frontend.webapp.pages.index.IndexPage',
+    r'/?', 'inginious.frontend.webapp.pages.index.IndexPage',
     r'/index', 'inginious.frontend.webapp.pages.index.IndexPage',
+    r'/register', 'inginious.frontend.webapp.pages.register.RegistrationPage',
+    r'/auth/([^/]+)/(signin|callback)', 'inginious.frontend.webapp.pages.auth.AuthenticationPage',
+    r'/auth/([^/]+)/callback', 'inginious.frontend.webapp.pages.auth.CallbackPage',
     r'/course/([^/]+)', 'inginious.frontend.webapp.pages.course.CoursePage',
     r'/course/([^/]+)/([^/]+)', 'inginious.frontend.webapp.pages.tasks.TaskPage',
     r'/course/([^/]+)/([^/]+)/(.*)', 'inginious.frontend.webapp.pages.tasks.TaskPageStaticDownload',
     r'/aggregation/([^/]+)', 'inginious.frontend.webapp.pages.aggregation.AggregationPage',
     r'/queue', 'inginious.frontend.webapp.pages.queue.QueuePage',
+    r'/preferences', 'inginious.frontend.webapp.pages.preferences.utils.RedirectPage',
+    r'/preferences/profile', 'inginious.frontend.webapp.pages.preferences.profile.ProfilePage',
+    r'/preferences/bindings', 'inginious.frontend.webapp.pages.preferences.bindings.BindingsPage',
+    r'/preferences/delete', 'inginious.frontend.webapp.pages.preferences.delete.DeletePage',
     r'/admin/([^/]+)', 'inginious.frontend.webapp.pages.course_admin.utils.CourseRedirect',
     r'/admin/([^/]+)/settings', 'inginious.frontend.webapp.pages.course_admin.settings.CourseSettings',
-    r'/admin/([^/]+)/batch', 'inginious.frontend.webapp.pages.course_admin.batch.CourseBatchOperations',
-    r'/admin/([^/]+)/batch/create/(.+)', 'inginious.frontend.webapp.pages.course_admin.batch.CourseBatchJobCreate',
-    r'/admin/([^/]+)/batch/summary/([^/]+)', 'inginious.frontend.webapp.pages.course_admin.batch.CourseBatchJobSummary',
-    r'/admin/([^/]+)/batch/download/([^/]+)', 'inginious.frontend.webapp.pages.course_admin.batch.CourseBatchJobDownload',
-    r'/admin/([^/]+)/batch/download/([^/]+)(/.*)', 'inginious.frontend.webapp.pages.course_admin.batch.CourseBatchJobDownload',
     r'/admin/([^/]+)/students', 'inginious.frontend.webapp.pages.course_admin.student_list.CourseStudentListPage',
     r'/admin/([^/]+)/student/([^/]+)', 'inginious.frontend.webapp.pages.course_admin.student_info.CourseStudentInfoPage',
     r'/admin/([^/]+)/student/([^/]+)/([^/]+)', 'inginious.frontend.webapp.pages.course_admin.student_task.CourseStudentTaskPage',
@@ -63,6 +70,10 @@ urls = (
     r'/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)/submissions', 'inginious.frontend.webapp.pages.api.submissions.APISubmissions',
     r'/api/v0/courses/([a-zA-Z_\-\.0-9]+)/tasks/([a-zA-Z_\-\.0-9]+)/submissions/([a-zA-Z_\-\.0-9]+)',
         'inginious.frontend.webapp.pages.api.submissions.APISubmissionSingle',
+    r'/lti/([^/]+)/([^/]+)', 'inginious.frontend.webapp.pages.lti.LTILaunchPage',
+    r'/lti/bind', 'inginious.frontend.webapp.pages.lti.LTIBindPage',
+    r'/lti/task', 'inginious.frontend.webapp.pages.lti.LTITaskPage',
+    r'/lti/login', 'inginious.frontend.webapp.pages.lti.LTILoginPage'
 )
 
 urls_maintenance = (
@@ -96,18 +107,23 @@ def get_app(config):
     """
     config = _put_configuration_defaults(config)
 
-    appli = web.application((), globals(), autoreload=False)
+    mongo_client = MongoClient(host=config.get('mongo_opt', {}).get('host', 'localhost'))
+    database = mongo_client[config.get('mongo_opt', {}).get('database', 'INGInious')]
+    gridfs = GridFS(database)
+
+    appli = CookieLessCompatibleApplication(MongoStore(database, 'sessions'))
 
     if config.get("maintenance", False):
-        template_helper = TemplateHelper(PluginManager(), 'frontend/webapp/templates',
+        template_helper = TemplateHelper(PluginManager(), None,
+                                         'frontend/webapp/templates',
                                          'frontend/webapp/templates/layout',
+                                         'frontend/webapp/templates/layout_lti',
                                          config.get('use_minified_js', True))
-        template_helper.add_to_template_globals("get_homepath", lambda: web.ctx.homepath)
+        template_helper.add_to_template_globals("get_homepath", appli.get_homepath)
         appli.template_helper = template_helper
         appli.init_mapping(urls_maintenance)
         return appli.wsgifunc(), appli.stop
 
-    task_directory = config["tasks_directory"]
     default_allowed_file_extensions = config['allowed_file_extensions']
     default_max_file_size = config['max_file_size']
 
@@ -116,24 +132,29 @@ def get_app(config):
     # Init the different parts of the app
     plugin_manager = PluginManager()
 
-    mongo_client = MongoClient(host=config.get('mongo_opt', {}).get('host', 'localhost'))
-    database = mongo_client[config.get('mongo_opt', {}).get('database', 'INGInious')]
-    gridfs = GridFS(database)
+    # Create the FS provider
+    if "fs" in config:
+        fs_provider = filesystem_from_config_dict(config["fs"])
+    else:
+        task_directory = config["tasks_directory"]
+        fs_provider = LocalFSProvider(task_directory)
 
-    course_factory, task_factory = create_factories(task_directory, plugin_manager, WebAppCourse, WebAppTask)
+    course_factory, task_factory = create_factories(fs_provider, plugin_manager, WebAppCourse, WebAppTask)
 
-    user_manager = UserManager(web.session.Session(appli, MongoStore(database, 'sessions')), database, config.get('superadmins', []))
+    user_manager = UserManager(appli.get_session(), database, config.get('superadmins', []))
 
     update_pending_jobs(database)
 
-    client = create_arch(config, task_directory, zmq_context)
+    client = create_arch(config, fs_provider, zmq_context)
 
-    submission_manager = WebAppSubmissionManager(client, user_manager, database, gridfs, plugin_manager)
+    lti_outcome_manager = LTIOutcomeManager(database, user_manager, course_factory)
 
-    batch_manager = BatchManager(client, database, gridfs, submission_manager, user_manager,
-                                 task_directory)
+    submission_manager = WebAppSubmissionManager(client, user_manager, database, gridfs, plugin_manager, lti_outcome_manager)
 
-    template_helper = TemplateHelper(plugin_manager, 'frontend/webapp/templates', 'frontend/webapp/templates/layout',
+
+    template_helper = TemplateHelper(plugin_manager, user_manager, 'frontend/webapp/templates',
+                                     'frontend/webapp/templates/layout',
+                                     'frontend/webapp/templates/layout_lti',
                                      config.get('use_minified_js', True))
 
     # Init web mail
@@ -150,13 +171,17 @@ def get_app(config):
     update_database(database, gridfs, course_factory, user_manager)
 
     # Add some helpers for the templates
-    template_helper.add_to_template_globals("get_homepath", lambda: web.ctx.homepath)
+    template_helper.add_to_template_globals("get_homepath", appli.get_homepath)
+    template_helper.add_to_template_globals("allow_registration", config.get("allow_registration", True))
     template_helper.add_to_template_globals("user_manager", user_manager)
     template_helper.add_to_template_globals("default_allowed_file_extensions", default_allowed_file_extensions)
     template_helper.add_to_template_globals("default_max_file_size", default_max_file_size)
     template_helper.add_other("course_admin_menu",
                               lambda course, current: course_admin_utils.get_menu(course, current, template_helper.get_renderer(False),
                                                                                   plugin_manager, user_manager))
+    template_helper.add_other("preferences_menu",
+                              lambda current: preferences_utils.get_menu(appli, current, template_helper.get_renderer(False),
+                                                                                 plugin_manager, user_manager))
 
     # Not found page
     appli.notfound = lambda: web.notfound(template_helper.get_renderer().notfound('Page not found'))
@@ -170,7 +195,6 @@ def get_app(config):
     appli.course_factory = course_factory
     appli.task_factory = task_factory
     appli.submission_manager = submission_manager
-    appli.batch_manager = batch_manager
     appli.user_manager = user_manager
     appli.template_helper = template_helper
     appli.database = database
@@ -179,6 +203,9 @@ def get_app(config):
     appli.default_max_file_size = default_max_file_size
     appli.backup_dir = config.get("backup_directory", './backup')
     appli.webterm_link = config.get("webterm", None)
+    appli.lti_outcome_manager = lti_outcome_manager
+    appli.allow_registration = config.get("allow_registration", True)
+    appli.allow_deletion = config.get("allow_deletion", True)
 
     # Init the mapping of the app
     appli.init_mapping(urls)

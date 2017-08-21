@@ -58,7 +58,7 @@ class ScoreBoard(INGIniousAuthPage):
 
         # Convert scoreboard_content
         if isinstance(scoreboard_content, str):
-            scoreboard_content = OrderedDict((scoreboard_content, 1))
+            scoreboard_content = OrderedDict([(scoreboard_content, 1)])
         if isinstance(scoreboard_content, list):
             scoreboard_content = OrderedDict([(entry, 1) for entry in scoreboard_content])
         if not isinstance(scoreboard_content, OrderedDict):

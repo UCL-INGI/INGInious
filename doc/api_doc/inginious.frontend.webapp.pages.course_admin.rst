@@ -41,13 +41,6 @@ inginious.frontend.webapp.pages.course_admin.aggregation_task module
     :undoc-members:
     :show-inheritance:
 
-inginious.frontend.webapp.pages.course_admin.batch module
----------------------------------------------------------
-
-.. automodule:: inginious.frontend.webapp.pages.course_admin.batch
-    :members:
-    :undoc-members:
-    :show-inheritance:
 
 inginious.frontend.webapp.pages.course_admin.classroom_edit module
 ------------------------------------------------------------------

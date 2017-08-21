@@ -9,6 +9,7 @@ import inginious.common.base
 import inginious.common.courses
 import inginious.common.tasks
 import inginious.common.tasks_code_boxes
+from inginious.common.filesystems.local import LocalFSProvider
 from inginious.common.course_factory import create_factories
 from inginious.common.exceptions import InvalidNameException, TaskUnreadableException
 from inginious.common.hook_manager import HookManager
@@ -16,7 +17,8 @@ from inginious.common.hook_manager import HookManager
 
 class test_tasks_basic(object):
     def setUp(self):
-        self.course_factory, _ = create_factories(os.path.join(os.path.dirname(__file__), 'tasks'))
+        fs = LocalFSProvider(os.path.join(os.path.dirname(__file__), 'tasks'))
+        self.course_factory, _ = create_factories(fs)
 
     def test_task_loading(self):
         '''Tests if a course file loads correctly'''
@@ -124,7 +126,8 @@ class test_tasks_basic(object):
 
 class test_tasks_problems(object):
     def setUp(self):
-        self.course_factory, _ = create_factories(os.path.join(os.path.dirname(__file__), 'tasks'))
+        fs = LocalFSProvider(os.path.join(os.path.dirname(__file__), 'tasks'))
+        self.course_factory, _ = create_factories(fs)
 
     def test_problem_types(self):
         '''Tests if problem types are correctly recognized'''
@@ -180,7 +183,8 @@ class test_tasks_problems(object):
 
 class test_tasks_boxes(object):
     def setUp(self):
-        self.course_factory, _ = create_factories(os.path.join(os.path.dirname(__file__), 'tasks'))
+        fs = LocalFSProvider(os.path.join(os.path.dirname(__file__), 'tasks'))
+        self.course_factory, _ = create_factories(fs)
 
     def test_number_boxes(self):
         '''Tests if get_boxes returns the correct number of boxes'''

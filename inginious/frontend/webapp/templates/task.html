@@ -16,12 +16,13 @@ $def ColumnF():
                 <td>Author(s)</td>
                 <td>$",".join(task.get_authors())</td>
             </tr>
-        <tr>
-            <td>Deadline</td>
-            <td>
-                $task.get_deadline()
-            </td>
-        </tr>
+        $if not is_lti():
+            <tr>
+                <td>Deadline</td>
+                <td>
+                    $task.get_deadline()
+                </td>
+            </tr>
         <tr>
             <td>Status</td>
             <td id="task_status">
@@ -47,10 +48,11 @@ $def ColumnF():
                 <span id="task_grade">$user_task.get('grade', 0)</span>%
             </td>
         </tr>
-        <tr>
-            <td>Grading weight</td>
-            <td>$task.get_grading_weight()</td>
-        </tr>
+        $if not is_lti():
+            <tr>
+                <td>Grading weight</td>
+                <td>$task.get_grading_weight()</td>
+            </tr>
         <tr>
             <td>Attempts</td>
             <td id="task_tries">
@@ -71,7 +73,7 @@ $def ColumnF():
             </td>
         </tr>
     </table>
-    $if user_manager.has_staff_rights_on_course(course):
+    $if not is_lti() and user_manager.has_staff_rights_on_course(course):
         <h3>Administration</h3>
         $if not course.is_open_to_non_staff():
             <div class="alert alert-warning" role="alert">
@@ -98,7 +100,7 @@ $def ColumnF():
                     <i class="fa fa-files-o fa-fw"></i>&nbsp; Output diff
                 </a>
         </div>
-    $else:
+    $elif not is_lti():
         <h3>Submitting as</h3>
         <div class="list-group">
             <div class="list-group-item list-group-item-info">
@@ -223,7 +225,7 @@ $if user_manager.has_admin_rights_on_course(course):
         </div>
     </div>
 
-<form id="task" method="post" action="$get_homepath()/course/${task.get_course().get_id()}/${task.get_id()}" enctype="multipart/form-data"
+<form id="task" method="post" enctype="multipart/form-data"
     $for submission in submissions:
         $if submission["status"] == "waiting":
             data-wait-submission="$submission['_id']"
@@ -250,6 +252,7 @@ $if user_manager.has_admin_rights_on_course(course):
             </div>
         </div>
 
+    $# no need to check with lti=True/False here as it was already checked by the calling python script.
     $ groups_ok = user_manager.task_can_user_submit(task, user_manager.session_username(), 'groups')
     $ tokens_ok = user_manager.task_can_user_submit(task, user_manager.session_username(), 'tokens')
     $if groups_ok and tokens_ok:

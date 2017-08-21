@@ -4,6 +4,9 @@
 # more information about the licensing of this file.
 
 """ Updates the database """
+import json
+
+import bson
 import pymongo
 import logging
 
@@ -194,7 +197,36 @@ def update_database(database, gridfs, course_factory, user_manager):  # pylint: 
         db_version = 11
 
     if db_version < 12:
+        logger.info("Updating database to db_version 12")
         database.submissions.create_index([("grade", pymongo.DESCENDING), ("submitted_on", pymongo.DESCENDING)])
         db_version = 12
+
+    if db_version < 13:
+        logger.info("Updating database to db_version 13")
+        database.nonce.create_index(
+            [("timestamp", pymongo.ASCENDING), ("nonce", pymongo.ASCENDING)],
+            unique=True
+        )
+        database.nonce.create_index("expiration", expireAfterSeconds=0)
+        db_version = 13
+
+    if db_version < 14:
+        logger.info("Updating database to db_version 14")
+        ss = database.submissions.find({},{"_id": 1, "input": 1})
+        for item in ss:
+            try:
+                inp = item.get("input", {})
+                gridfs_id = None
+                if not isinstance(inp, dict): # retrieve from gridfs
+                    gridfs_id = inp
+                    inp = json.loads(gridfs.get(inp).read().decode('utf8'))
+
+                new_id = gridfs.put(bson.BSON.encode(inp))
+                database.submissions.update_one({"_id": item["_id"]}, {"$set": {"input": new_id}})
+                if gridfs_id is not None:
+                    gridfs.delete(gridfs_id)
+            except:
+                logger.exception("An exception occured while updating an entry in the DB. You may need to update manually.")
+        db_version = 14
 
     database.db_version.update({}, {"$set": {"db_version": db_version}}, upsert=True)

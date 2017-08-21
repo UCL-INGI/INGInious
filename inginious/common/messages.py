@@ -31,27 +31,6 @@ class ClientHello(metaclass=MessageMeta, msgtype="client_hello"):
         self.name = name
 
 
-class ClientNewBatchJob(metaclass=MessageMeta, msgtype="client_new_batch_job"):
-    """
-        Creates a new batch job.
-        B->A.
-        Agent should start the Batch Job, immediately send that the hob was created using BatchJobStarted.
-        When the Batch Job ends, agent should send a BatchJobDone message.
-    """
-
-    def __init__(self, job_id: ClientJobId, container_name: str, input_data: Dict[str, Any], launcher: str):
-        """
-        :param job_id: the client-side job_id
-        :param container_name: alias of the container to run
-        :param input_data: the input data as a dict, fullfilling the parameters
-        :param launcher: the name of the entity that launched this job, for logging purposes
-        """
-        self.job_id = job_id
-        self.container_name = container_name
-        self.input_data = input_data
-        self.launcher = launcher
-
-
 class ClientNewJob(metaclass=MessageMeta, msgtype="client_new_job"):
     """
         Creates a new job
@@ -123,60 +102,11 @@ class BackendUpdateContainers(metaclass=MessageMeta, msgtype="backend_update_con
         Update the information about the containers on the client, from the informations retrieved from the agents
     """
 
-    def __init__(self, available_containers: Tuple[str], available_batch_containers: Dict[str, Dict[str, str]]):
+    def __init__(self, available_containers: Tuple[str]):
         """
             :param available_containers: list of available container aliases
-            :param available_batch_containers: dict of available batch containers, in the format
-                {
-                    "name": {
-                        "description": "a description written in RST",
-                        "parameters": {
-                            "key": {
-                                 "type:" "file", #or "text",
-                                 "path": "path/to/file/inside/input/dir", #not mandatory in file, by default "key"
-                                 "name": "name of the field", #not mandatory in file, default "key"
-                                 "description": "a short description of what this field is used for" #not mandatory, default ""
-                            }
-                        }
-                }
         """
         self.available_containers = available_containers
-        self.available_batch_containers = available_batch_containers
-
-
-class BackendBatchJobStarted(metaclass=MessageMeta, msgtype="backend_batch_job_started"):
-    """
-        Tell the backend the batch job asked with NewBatchJob has been created.
-    """
-
-    def __init__(self, job_id: ClientJobId):
-        """
-        :param job_id: the client-side job_id associated to the batch job
-        """
-        self.job_id = job_id
-
-
-class BackendBatchJobDone(metaclass=MessageMeta, msgtype="backend_batch_job_done"):
-    """
-        Gives the results of a batch job to the backend
-    """
-
-    def __init__(self, job_id: ClientJobId, retval: int, stdout: str, stderr: str, file: Optional[bytes]):
-        """
-        :param job_id: the client-side job_id associated to the batch job
-        :param retval:
-            0 if everything went well
-            -1 if the container failed to start
-            1-255 if the container crashed (it is the return value of the main command of the batch job)
-        :param stdout: stdout of the job
-        :param stderr: stderr of the job
-        :param file: tgz file (as a bytestring) of the content of the batch job container after completion, or None if an error occurred
-        """
-        self.job_id = job_id
-        self.retval = retval
-        self.stdout = stdout
-        self.stderr = stderr
-        self.file = file
 
 
 class BackendJobStarted(metaclass=MessageMeta, msgtype="backend_job_started"):
@@ -249,27 +179,25 @@ class BackendGetQueue(metaclass=MessageMeta, msgtype="backend_get_queue"):
     """
         Send the status of the job queue to the client
     """
-    def __init__(self, jobs_running: List[Tuple[ClientJobId, bool, str, bool, str, str, int, int]],
-                       jobs_waiting: List[Tuple[ClientJobId, bool, bool, str, str, int]]):
+    def __init__(self, jobs_running: List[Tuple[ClientJobId, bool, str, str, str, int, int]],
+                       jobs_waiting: List[Tuple[ClientJobId, bool, str, str, int]]):
         """
         :param jobs_running: a list of tuples in the form
-            (job_id, is_current_client_job, is_batch, info, launcher, started_at, max_end)
+            (job_id, is_current_client_job, info, launcher, started_at, max_end)
             where
             - job_id is a job id. It may be from another client.
             - is_current_client_job is a boolean indicating if the client that asked the request has started the job
             - agent_name is the agent name
-            - is_batch is True if the job is a batch job, false else
-            - info is either the batch container name if is_batch is True, or "courseid/taskid"
+            - info is "courseid/taskid"
             - launcher is the name of the launcher, which may be anything
             - started_at the time (in seconds since UNIX epoch) at which the job started
             - max_end the time at which the job will timeout (in seconds since UNIX epoch), or -1 if no timeout is set
         :param jobs_waiting: a list of tuples in the form
-            (job_id, is_current_client_job, is_batch, info, launcher, max_time)
+            (job_id, is_current_client_job, info, launcher, max_time)
             where
             - job_id is a job id. It may be from another client.
             - is_current_client_job is a boolean indicating if the client that asked the request has started the job
-            - is_batch is True if the job is a batch job, false else
-            - info is either the batch container name if is_batch is True, or "courseid/taskid"
+            - info is "courseid/taskid"
             - launcher is the name of the launcher, which may be anything
             - max_time the maximum time that can be used, or -1 if no timeout is set
         """
@@ -281,25 +209,6 @@ class BackendGetQueue(metaclass=MessageMeta, msgtype="backend_get_queue"):
 #                      Backend to Agent                         #
 #                                                               #
 #################################################################
-
-
-class BackendNewBatchJob(metaclass=MessageMeta, msgtype="backend_new_batch_job"):
-    """
-        Creates a new batch job.
-        B->A.
-        Agent should start the Batch Job, immediately send that the hob was created using BatchJobStarted.
-        When the Batch Job ends, agent should send a BatchJobDone message.
-    """
-
-    def __init__(self, job_id: BackendJobId, container_name: str, input_data: Dict[str, Any]):
-        """
-        :param job_id: the backend-side job_id
-        :param container_name: alias of the container to run
-        :param input_data: input dict, fullfilling the parameters of the container
-        """
-        self.job_id = job_id
-        self.container_name = container_name
-        self.input_data = input_data
 
 
 class BackendNewJob(metaclass=MessageMeta, msgtype="backend_new_job"):
@@ -363,8 +272,7 @@ class AgentHello(metaclass=MessageMeta, msgtype="agent_hello"):
         Let the agent say hello and announce which containers it has available
     """
 
-    def __init__(self, friendly_name: str, available_job_slots: int, available_containers: Dict[str, Dict[str, str]],
-                 available_batch_containers: Dict[str, Dict[str, Union[str, Dict[str, str]]]]):
+    def __init__(self, friendly_name: str, available_job_slots: int, available_containers: Dict[str, Dict[str, str]]):
         """
             :param friendly_name: a string containing a friendly name to identify agent
             :param available_job_slots: an integer giving the number of concurrent
@@ -375,65 +283,11 @@ class AgentHello(metaclass=MessageMeta, msgtype="agent_hello"):
                     "created": 12345678            # create date
                 }
             }
-            :param available_batch_containers: dict of available batch containers, in the format
-                {
-                    "name": {
-                        "description": "a description written in RST",
-                        "id": "container img id",
-                        "created": 123456789
-                        "parameters": {
-                            "key": {
-                                 "type:" "file", #or "text",
-                                 "path": "path/to/file/inside/input/dir", #not mandatory in file, by default "key"
-                                 "name": "name of the field", #not mandatory in file, default "key"
-                                 "description": "a short description of what this field is used for" #not mandatory, default ""
-                            }
-                        }
-                }
         """
 
         self.friendly_name = friendly_name
         self.available_job_slots = available_job_slots
         self.available_containers = available_containers
-        self.available_batch_containers = available_batch_containers
-
-
-class AgentBatchJobStarted(metaclass=MessageMeta, msgtype="agent_batch_job_started"):
-    """
-        Tell the backend the batch job asked with NewBatchJob has been created.
-        A->B.
-    """
-
-    def __init__(self, job_id: BackendJobId):
-        """
-        :param job_id: the backend-side job_id associated to the batch job
-        """
-        self.job_id = job_id
-
-
-class AgentBatchJobDone(metaclass=MessageMeta, msgtype="agent_batch_job_done"):
-    """
-        Gives the results of a batch job to the backend
-        A->B.
-    """
-
-    def __init__(self, job_id: BackendJobId, retval: int, stdout: str, stderr: str, file: Optional[bytes]):
-        """
-        :param job_id: the backend-side job_id associated to the batch job
-        :param retval:
-            0 if everything went well
-            -1 if the container failed to start
-            1-255 if the container crashed (it is the return value of the main command of the batch job)
-        :param stdout: stdout of the job
-        :param stderr: stderr of the job
-        :param file: tgz file (as a bytestring) of the content of the batch job container after completion, or None if an error occurred
-        """
-        self.job_id = job_id
-        self.retval = retval
-        self.stdout = stdout
-        self.stderr = stderr
-        self.file = file
-
 
 class AgentJobStarted(metaclass=MessageMeta, msgtype="agent_job_started"):
     """
@@ -506,57 +360,6 @@ class AgentJobSSHDebug(metaclass=MessageMeta, msgtype="agent_job_ssh_debug"):
 
 #################################################################
 #                                                               #
-#                  Killer Watcher Pipeline                      #
-#                                                               #
-#################################################################
-
-class KWPKilledStatus(metaclass=MessageMeta, msgtype="kwp_killed_status"):
-    """
-        Ask watchers in the pipeline to fill this message with data about the container.
-        Watchers should send the updated message throught the pipeline
-    """
-
-    def __init__(self, container_id: str, killed_result: Optional[str] = None):
-        """
-        :param container_id: container to check
-        :param killed_result: result that will be sent to the client (timeout, overflow...) if the container was killed, None if it was None
-        """
-        self.container_id = container_id
-        self.killed_result = killed_result
-
-    def killed(self, reason):
-        """
-        :return: a new KilledStatus with killed_result=reason
-        """
-        return KWPKilledStatus(self.container_id, reason)
-
-    def not_killed(self):
-        """
-        :return: the current KilledStatus
-        """
-        return self
-
-
-class KWPRegisterContainer(metaclass=MessageMeta, msgtype="kwp_register_container"):
-    """
-        Register a container with given limitations
-    """
-
-    def __init__(self, container_id: str, max_mem: int, timeout: int, timeout_hard: int):
-        """
-        :param container_id: container to register
-        :param max_mem: max memory allowed for the container, in MB
-        :param timeout: timeout in seconds
-        :param timeout_hard: hard timeout in seconds
-        """
-        self.container_id = container_id
-        self.max_mem = max_mem
-        self.timeout = timeout
-        self.timeout_hard = timeout_hard
-
-
-#################################################################
-#                                                               #
 #                           Heartbeat                           #
 #                                                               #
 #################################################################
@@ -586,28 +389,3 @@ class Unknown(metaclass=MessageMeta, msgtype="unknown"):
 
     def __init__(self):
         pass
-
-
-#################################################################
-#                                                               #
-#                     Docker event watcher                      #
-#                                                               #
-#################################################################
-
-class EventContainerDied(metaclass=MessageMeta, msgtype="event_container_died"):
-    """
-    Message used internally in the Docker Agent to signal that a container has closed
-    """
-
-    def __init__(self, container_id: str, retval: int):
-        self.container_id = container_id
-        self.retval = retval
-
-
-class EventContainerOOM(metaclass=MessageMeta, msgtype="event_container_oom"):
-    """
-    Message used internally in the Docker Agent to signal that a container has made an OOM
-    """
-
-    def __init__(self, container_id: str):
-        self.container_id = container_id

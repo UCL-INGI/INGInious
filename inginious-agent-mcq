@@ -10,21 +10,22 @@
 import argparse
 import logging
 
+import sys
 from zmq.asyncio import ZMQEventLoop, Context
 import asyncio
 
+from inginious.common.entrypoints import get_args_and_filesystem
 from inginious.agent.mcq_agent import MCQAgent
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("backend", help="Address to the backend, in the form protocol://host:port. For example, tcp://127.0.0.1:2000", type=str)
     parser.add_argument("--friendly-name", help="Friendly name to help identify agent.", default="", type=str)
-    parser.add_argument("--tasks", help="Path to the task directory. "
-                                        "By default, it is ./tasks. You must ensure that this directory is synchronized at any time"
-                                        "with the backend and the client", default="./tasks")
+
     parser.add_argument("-v", "--verbose", help="increase output verbosity",
                         action="store_true")
-    args = parser.parse_args()
+
+    (args, fsprovider) = get_args_and_filesystem(parser)
 
     # create logger
     logger = logging.getLogger("inginious")
@@ -41,11 +42,11 @@ if __name__ == "__main__":
     context = Context()
 
     # Create agent
-    agent = MCQAgent(context, args.backend, args.friendly_name, args.tasks)
+    agent = MCQAgent(context, args.backend, args.friendly_name, 1, fsprovider)
 
     # Run!
     try:
-        loop.run_until_complete(agent.run_dealer())
+        loop.run_until_complete(agent.run())
     except:
         pass
     finally:

@@ -89,7 +89,7 @@ Webapp-specific configuration
     Path to the directory where are courses backup are stored in cases of data wiping.
 
 ``smtp``
-    Mails can be sent by batch containers at the end of the job execution, or by plugins.
+    Mails can be sent by plugins.
 
     ``sendername``
         Email sender name, e.g. : ``INGInious <no-reply@inginious.org>``
@@ -167,7 +167,7 @@ To enable this plugin, add to your configuration file:
     plugins:
         - plugin_module: inginious.frontend.webapp.plugins.auth.ldap_auth
             host: "your.ldap.server.com"
-            encryption": "ssl" #can be tls or none
+            encryption: "ssl" #can be tls or none
             base_dn: "ou=People,dc=info,dc=ucl,dc=ac,dc=be"
             request: "uid={}",
             prefix: "",

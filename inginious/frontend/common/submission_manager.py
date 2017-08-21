@@ -5,13 +5,14 @@
 
 """ Manages submissions """
 from abc import ABCMeta
-import base64
 import json
 import time
 import os.path
 import tarfile
 import io
 import tempfile
+
+import bson
 import web
 from datetime import datetime
 
@@ -117,7 +118,7 @@ class SubmissionManager(object, metaclass=ABCMeta):
         obj = {
             "courseid": task.get_course_id(),
             "taskid": task.get_id(),
-            "input": self._gridfs.put(json.dumps(inputdata),encoding="utf8"),
+            "input": self._gridfs.put(bson.BSON.encode(inputdata)),
             "status": "waiting",
             "submitted_on": datetime.now(),
             "username": [username],
@@ -128,9 +129,10 @@ class SubmissionManager(object, metaclass=ABCMeta):
 
         submissionid = self._database.submissions.insert(obj)
 
-        # Send additional data to the client in inputdata. For now, the username and the group
-        if "username" not in [p.get_id() for p in task.get_problems()]:  # do not overwrite
-            inputdata["username"] = username
+        # Send additional data to the client in inputdata. For now, the username and the language. New fields can be added with the
+        # new_submission hook
+        inputdata["@username"] = username
+        inputdata["@lang"] = "en_US"  # TODO
 
         to_remove = self._after_submission_insertion(task, inputdata, debug, obj, submissionid)
 
@@ -243,18 +245,12 @@ class SubmissionManager(object, metaclass=ABCMeta):
             Get the input of a submission. If only_input is False, returns the full submissions with a dictionnary object at the key "input".
             Else, returns only the dictionnary.
         """
-        if isinstance(submission.get("input", {}), dict):
-            if only_input:
-                return submission.get("input", {})
-            else:
-                return submission
+        inp = bson.BSON.decode(self._gridfs.get(submission['input']).read())
+        if only_input:
+            return inp
         else:
-            inp = json.loads(self._gridfs.get(submission['input']).read().decode('utf8'))
-            if only_input:
-                return inp
-            else:
-                submission["input"] = inp
-                return submission
+            submission["input"] = inp
+            return submission
 
     def get_feedback_from_submission(self, submission, only_feedback=False, show_everything=False):
         """
@@ -456,7 +452,7 @@ class SubmissionManager(object, metaclass=ABCMeta):
                                         if problem['filename'].endswith(t_ext):
                                             ext = t_ext
 
-                                subfile = io.BytesIO(base64.b64decode(problem['value']))
+                                subfile = io.BytesIO(problem['value'])
                                 taskfname = base_path + str(submission["_id"]) + '/uploaded_files/' + pid + ext
 
                                 # Generate file info
@@ -488,23 +484,21 @@ class SubmissionManager(object, metaclass=ABCMeta):
 
         Return a tuple of two lists (None, None):
         jobs_running: a list of tuples in the form
-            (job_id, is_current_client_job, is_batch, info, launcher, started_at, max_end)
+            (job_id, is_current_client_job, info, launcher, started_at, max_end)
             where
             - job_id is a job id. It may be from another client.
             - is_current_client_job is a boolean indicating if the client that asked the request has started the job
             - agent_name is the agent name
-            - is_batch is True if the job is a batch job, false else
-            - info is either the batch container name if is_batch is True, or "courseid/taskid"
+            - info is "courseid/taskid"
             - launcher is the name of the launcher, which may be anything
             - started_at the time (in seconds since UNIX epoch) at which the job started
             - max_end the time at which the job will timeout (in seconds since UNIX epoch), or -1 if no timeout is set
         jobs_waiting: a list of tuples in the form
-            (job_id, is_current_client_job, is_batch, info, launcher, max_time)
+            (job_id, is_current_client_job, info, launcher, max_time)
             where
             - job_id is a job id. It may be from another client.
             - is_current_client_job is a boolean indicating if the client that asked the request has started the job
-            - is_batch is True if the job is a batch job, false else
-            - info is either the batch container name if is_batch is True, or "courseid/taskid"
+            - info is "courseid/taskid"
             - launcher is the name of the launcher, which may be anything
             - max_time the maximum time that can be used, or -1 if no timeout is set
         """
@@ -527,7 +521,3 @@ def update_pending_jobs(database):
     database.submissions.update({'status': 'waiting'},
                                 {"$unset": {'jobid': ""},
                                  "$set": {'status': 'error', 'grade': 0.0, 'text': 'Internal error. Server restarted'}}, multi=True)
-
-    # Updates all batch job still running
-    database.batch_jobs.update({'result': {'$exists': False}},
-                               {"$set": {"result": {"retval": -1, "stderr": "Internal error. Server restarted"}}}, multi=True)

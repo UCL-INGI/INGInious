@@ -4,6 +4,7 @@
 # more information about the licensing of this file.
 
 import web
+import re
 
 from inginious.frontend.webapp.accessible_time import AccessibleTime
 from inginious.frontend.webapp.pages.course_admin.utils import INGIniousAdminPage
@@ -79,6 +80,15 @@ class CourseSettings(INGIniousAdminPage):
             if course_content['registration_ac'] == "None":
                 course_content['registration_ac'] = None
             course_content['registration_ac_list'] = data['registration_ac_list'].split("\n")
+
+            course_content['is_lti'] = 'lti' in data and data['lti'] == "true"
+            course_content['lti_keys'] = dict([x.split(":") for x in data['lti_keys'].split("\n") if x != ""])
+
+            for lti_key in course_content['lti_keys'].keys():
+                if not re.match("^[a-zA-Z0-9]*$", lti_key):
+                    errors.append("LTI keys must be alphanumerical.")
+
+            course_content['lti_send_back_grade'] = 'lti_send_back_grade' in data and data['lti_send_back_grade'] == "true"
         except:
             errors.append('User returned an invalid form.')
 

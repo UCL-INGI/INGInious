@@ -1,0 +1,34 @@
+#!/bin/python3
+# -*- coding: utf-8 -*-
+#
+# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+# more information about the licensing of this file.
+
+import os
+import re
+import sys
+import codecs
+import json
+import argparse
+import inginious
+from inginious import input
+
+parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, description='Get data associated with an input field.\n')
+parser.add_argument('problem', help="problem id")
+args = parser.parse_args()
+
+problem = args.problem
+
+# Do the real job
+try:
+    result = inginious.input.get_input(problem)
+    try:
+        sys.stdout.buffer.write(result)
+    except:
+        sys.stdout.buffer.write(result.encode("utf-8"))
+except IOError as e:
+    sys.stderr.write("Input file not found")
+    sys.exit(2)
+except ValueError as e:
+    sys.stderr.write("Input is not compatible")
+    sys.exit(2)
