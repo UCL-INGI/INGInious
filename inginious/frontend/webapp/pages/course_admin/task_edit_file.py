@@ -267,12 +267,12 @@ class CourseTaskFiles(INGIniousAdminPage):
 
         file_list = self.get_task_filelist(self.task_factory, courseid, taskid)
         result = [
-              {
-              "level": level,
-              "is_directory": is_directory,
-              "name": name,
-              "complete_name": complete_name
-              } for level, is_directory, name, complete_name in file_list
+            {
+                "level": level,
+                "is_directory": is_directory,
+                "name": name,
+                "complete_name": complete_name[1:] if complete_name.startswith("/") else complete_name
+            } for level, is_directory, name, complete_name in file_list
         ]
 
         return json.dumps(result)
