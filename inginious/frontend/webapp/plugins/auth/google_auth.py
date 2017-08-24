@@ -27,7 +27,13 @@ class GoogleAuthMethod(AuthMethod):
     def get_auth_link(self, user_manager):
         google = OAuth2Session(self._client_id, scope=scope,
             redirect_uri=web.ctx.home + self._callback_page)
-        authorization_url, state = google.authorization_url(authorization_base_url)
+
+        authorization_parameters = {}
+        if self._domain != "":
+            authorization_parameters["hd"] = self._domain
+
+        authorization_url, state = google.authorization_url(authorization_base_url,
+            **authorization_parameters)
         user_manager.set_session_oauth_state(state)
         return authorization_url
 
@@ -42,6 +48,13 @@ class GoogleAuthMethod(AuthMethod):
             response = google.get('https://www.googleapis.com/plus/v1/people/me/openIdConnect')
             profile = json.loads(response.content.decode('utf-8'))
 
+            if self._domain != "":
+                print(profile)
+                actual_domain = profile["hd"]
+
+                if actual_domain != self._domain:
+                    return None
+
             return str(profile["sub"]), profile["name"], profile["email"]
         except Exception as e:
             return None
@@ -49,12 +62,13 @@ class GoogleAuthMethod(AuthMethod):
     def get_id(self):
         return self._id
 
-    def __init__(self, id, name, client_id, client_secret):
+    def __init__(self, id, name, client_id, client_secret, domain):
         self._id = id
         self._name = name
         self._client_id = client_id
         self._client_secret = client_secret
         self._callback_page = '/auth/' + self._id + '/callback'
+        self._domain = domain
 
     def get_name(self):
         return self._name
@@ -69,6 +83,7 @@ def init(plugin_manager, course_factory, client, conf):
 
     client_id = conf.get("client_id", "")
     client_secret = conf.get("client_secret", "")
+    domain = conf.get("domain", "")
 
     plugin_manager.register_auth_method(GoogleAuthMethod(conf.get("id"),
-        conf.get('name', 'Google Login'), client_id, client_secret))
+        conf.get('name', 'Google Login'), client_id, client_secret, domain))
