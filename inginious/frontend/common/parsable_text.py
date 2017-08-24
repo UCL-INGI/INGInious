@@ -95,7 +95,7 @@ class _CustomHTMLWriter(html4css1.Writer, object):
                 if token.strip():
                     # Protect text like "--an-option" and the regular expression
                     # ``[+]?(\d+(\.\d*)?|\.\d+)`` from bad line wrapping
-                    if self.sollbruchstelle.search(token):
+                    if self.in_word_wrap_point.search(token):
                         self.body.append('<span class="pre">%s</span>'
                                          % self.encode(token))
                     else:
