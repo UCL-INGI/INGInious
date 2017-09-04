@@ -46,7 +46,7 @@ class AuthenticationPage(INGIniousPage):
 
         if user_profile and not self.user_manager.session_logged_in():
             # Sign in
-            self.user_manager.connect_user(user_profile["username"], user_profile["realname"], user_profile["email"])
+            self.user_manager.connect_user(user_profile["username"], user_profile["realname"], user_profile["email"], user_profile["language"])
         elif user_profile and self.user_manager.session_username() == user_profile["username"]:
             # Logged in, refresh fields if found profile username matches session username
             pass
@@ -70,8 +70,9 @@ class AuthenticationPage(INGIniousPage):
                 self.database.users.insert({"username": "",
                                             "realname": realname,
                                             "email": email,
-                                            "bindings": {auth_id: [username, {}]}})
-                self.user_manager.connect_user("", realname, email)
+                                            "bindings": {auth_id: [username, {}]},
+                                            "language": self.user_manager._session.get("language", "en")})
+                self.user_manager.connect_user("", realname, email, self.user_manager._session.get("language", "en"))
 
     def GET(self, auth_id, method):
         if self.user_manager.session_cookieless():

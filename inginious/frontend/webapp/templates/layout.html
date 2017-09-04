@@ -118,8 +118,8 @@ $:template_helper.call('header_hook')
                                     <i class="fa fa-globe fa-fw"></i> $:_("English") <span class="caret"></span>
                                 </a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="?lang=en" class="navbar-link"><i class="fa fa-chevron-right fa-fw"></i> English</a></li>
-                                    <li><a href="?lang=fr" class="navbar-link"><i class="fa fa-chevron-right fa-fw"></i> Fran&ccedil;ais</a></li>
+                                    $for code, language in available_languages.items():
+                                        <li><a href="?lang=$code" class="navbar-link"><i class="fa fa-chevron-right fa-fw"></i> $language</a></li>
                                 </ul>
                             </li>
 

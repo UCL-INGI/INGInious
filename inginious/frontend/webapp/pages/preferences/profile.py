@@ -59,7 +59,7 @@ class ProfilePage(INGIniousAuthPage):
                     error = True
                     msg = _("Incorrect email.")
                 else:
-                    self.user_manager.connect_user(result["username"], result["realname"], result["email"])
+                    self.user_manager.connect_user(result["username"], result["realname"], result["email"], result["language"])
                     msg = _("Profile updated.")
 
         else:

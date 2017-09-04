@@ -1143,7 +1143,7 @@ msgstr "Mot de passe (min. 6 caractères) :"
 #: inginious/frontend/webapp/templates/register.html:44
 #: inginious/frontend/webapp/templates/register.html:87
 msgid "Confirm password :"
-msgstr "Confirmza le mot de passe :"
+msgstr "Confirmez le mot de passe :"
 
 #: inginious/frontend/webapp/templates/register.html:48
 msgid "Sign up"

@@ -99,7 +99,8 @@ class RegistrationPage(INGIniousPage):
                                             "email": data["email"],
                                             "password": passwd_hash,
                                             "activate": activate_hash,
-                                            "bindings": {}})
+                                            "bindings": {},
+                                            "language": self.user_manager._session.get("language", "en")})
                 try:
                     web.sendmail(web.config.smtp_sendername, data["email"], _("Welcome on INGInious"),
                                  _("""Welcome on INGInious !

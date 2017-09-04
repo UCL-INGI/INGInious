@@ -160,7 +160,12 @@ def get_app(config):
                                      config.get('use_minified_js', True))
 
     #Init gettext
-    for lang in ["en", "fr"]:
+    available_languages = {
+        "en": "English",
+        "fr": "Français"
+    }
+
+    for lang in available_languages.keys():
         appli.add_translation(lang, gettext.translation('messages', get_root_path() + '/frontend/webapp/i18n', [lang]))
 
     builtins.__dict__['_'] = appli.gettext
@@ -181,6 +186,7 @@ def get_app(config):
     # Add some helpers for the templates
     template_helper.add_to_template_globals("_", _)
     template_helper.add_to_template_globals("str", str)
+    template_helper.add_to_template_globals("available_languages", available_languages)
     template_helper.add_to_template_globals("get_homepath", appli.get_homepath)
     template_helper.add_to_template_globals("allow_registration", config.get("allow_registration", True))
     template_helper.add_to_template_globals("user_manager", user_manager)
@@ -216,6 +222,7 @@ def get_app(config):
     appli.lti_outcome_manager = lti_outcome_manager
     appli.allow_registration = config.get("allow_registration", True)
     appli.allow_deletion = config.get("allow_deletion", True)
+    appli.available_languages = available_languages
 
     # Init the mapping of the app
     appli.init_mapping(urls)

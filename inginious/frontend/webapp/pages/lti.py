@@ -114,7 +114,7 @@ class LTILoginPage(INGIniousPage):
 
         user_profile = self.database.users.find_one({"ltibindings." + data["task"][0] + "." + data["consumer_key"]: data["username"]})
         if user_profile:
-            self.user_manager.connect_user(user_profile["username"], user_profile["realname"], user_profile["email"])
+            self.user_manager.connect_user(user_profile["username"], user_profile["realname"], user_profile["email"], user_profile["language"])
 
         if self.user_manager.session_logged_in():
             raise web.seeother(self.app.get_homepath() + "/lti/task")
