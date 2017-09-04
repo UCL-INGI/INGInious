@@ -28,12 +28,7 @@ class GoogleAuthMethod(AuthMethod):
         google = OAuth2Session(self._client_id, scope=scope,
             redirect_uri=web.ctx.home + self._callback_page)
 
-        authorization_parameters = {}
-        if self._domain != "":
-            authorization_parameters["hd"] = self._domain
-
-        authorization_url, state = google.authorization_url(authorization_base_url,
-            **authorization_parameters)
+        authorization_url, state = google.authorization_url(authorization_base_url)
         user_manager.set_session_oauth_state(state)
         return authorization_url
 
@@ -45,15 +40,8 @@ class GoogleAuthMethod(AuthMethod):
             google.fetch_token(token_url, client_secret=self._client_secret,
                 authorization_response=web.ctx.home + web.ctx.fullpath)
 
-            response = google.get('https://www.googleapis.com/plus/v1/people/me/openIdConnect')
+            response = google.get('https://www.googleapis.com/oauth2/v3/userinfo')
             profile = json.loads(response.content.decode('utf-8'))
-
-            if self._domain != "":
-                print(profile)
-                actual_domain = profile["hd"]
-
-                if actual_domain != self._domain:
-                    return None
 
             return str(profile["sub"]), profile["name"], profile["email"]
         except Exception as e:
@@ -62,19 +50,20 @@ class GoogleAuthMethod(AuthMethod):
     def get_id(self):
         return self._id
 
-    def __init__(self, id, name, client_id, client_secret, domain):
+    def __init__(self, id, name, client_id, client_secret):
         self._id = id
         self._name = name
         self._client_id = client_id
         self._client_secret = client_secret
         self._callback_page = '/auth/' + self._id + '/callback'
-        self._domain = domain
 
     def get_name(self):
         return self._name
 
     def get_imlink(self):
-        return '<img src="static/common/icons/google-icon.svg" style="height: 50px;">'
+        return '<img src="/static/common/icons/google-icon.svg" ' \
+               'style="-moz-user-select: none; -webkit-user-select: none;' \
+               'user-select: none; width: 50px; height:50px;" >'
 
 
 def init(plugin_manager, course_factory, client, conf):
@@ -83,7 +72,6 @@ def init(plugin_manager, course_factory, client, conf):
 
     client_id = conf.get("client_id", "")
     client_secret = conf.get("client_secret", "")
-    domain = conf.get("domain", "")
 
     plugin_manager.register_auth_method(GoogleAuthMethod(conf.get("id"),
-        conf.get('name', 'Google Login'), client_id, client_secret, domain))
+        conf.get('name', 'Google Login'), client_id, client_secret))
