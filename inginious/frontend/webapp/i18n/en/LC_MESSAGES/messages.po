@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2017-08-11 16:13+0200\n"
+"POT-Creation-Date: 2017-09-04 15:17+0200\n"
 "PO-Revision-Date: 2017-08-10 14:37+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -133,19 +133,19 @@ msgid "Invalid username format."
 msgstr ""
 
 #: inginious/frontend/webapp/pages/register.py:78
-#: inginious/frontend/webapp/pages/register.py:129
+#: inginious/frontend/webapp/pages/register.py:130
 msgid "Invalid email format."
 msgstr ""
 
 #: inginious/frontend/webapp/pages/preferences/profile.py:26
 #: inginious/frontend/webapp/pages/register.py:81
-#: inginious/frontend/webapp/pages/register.py:159
+#: inginious/frontend/webapp/pages/register.py:160
 msgid "Password too short."
 msgstr ""
 
 #: inginious/frontend/webapp/pages/preferences/profile.py:29
 #: inginious/frontend/webapp/pages/register.py:84
-#: inginious/frontend/webapp/pages/register.py:162
+#: inginious/frontend/webapp/pages/register.py:163
 msgid "Passwords don't match !"
 msgstr ""
 
@@ -157,38 +157,38 @@ msgstr ""
 msgid "This email address is already in use !"
 msgstr ""
 
-#: inginious/frontend/webapp/pages/register.py:104
+#: inginious/frontend/webapp/pages/register.py:105
 msgid "Welcome on INGInious"
 msgstr ""
 
-#: inginious/frontend/webapp/pages/register.py:105
+#: inginious/frontend/webapp/pages/register.py:106
 msgid ""
 "Welcome on INGInious !\n"
 "\n"
 "To activate your account, please click on the following link :\n"
 msgstr ""
 
-#: inginious/frontend/webapp/pages/register.py:110
+#: inginious/frontend/webapp/pages/register.py:111
 msgid ""
 "You are succesfully registered. An email has been sent to you for "
 "activation."
 msgstr ""
 
-#: inginious/frontend/webapp/pages/register.py:113
+#: inginious/frontend/webapp/pages/register.py:114
 msgid ""
 "Something went wrong while sending you activation email. Please contact "
 "the administrator."
 msgstr ""
 
-#: inginious/frontend/webapp/pages/register.py:136
+#: inginious/frontend/webapp/pages/register.py:137
 msgid "This email address was not found in database."
 msgstr ""
 
-#: inginious/frontend/webapp/pages/register.py:139
+#: inginious/frontend/webapp/pages/register.py:140
 msgid "INGInious password recovery"
 msgstr ""
 
-#: inginious/frontend/webapp/pages/register.py:140
+#: inginious/frontend/webapp/pages/register.py:141
 msgid ""
 "Dear {realname},\n"
 "\n"
@@ -196,21 +196,21 @@ msgid ""
 "was you, please click on the following link :\n"
 msgstr ""
 
-#: inginious/frontend/webapp/pages/register.py:144
+#: inginious/frontend/webapp/pages/register.py:145
 msgid "An email has been sent to you to reset your password."
 msgstr ""
 
-#: inginious/frontend/webapp/pages/register.py:147
+#: inginious/frontend/webapp/pages/register.py:148
 msgid ""
 "Something went wrong while sending you reset email. Please contact the "
 "administrator."
 msgstr ""
 
-#: inginious/frontend/webapp/pages/register.py:170
+#: inginious/frontend/webapp/pages/register.py:171
 msgid "Invalid reset hash."
 msgstr ""
 
-#: inginious/frontend/webapp/pages/register.py:172
+#: inginious/frontend/webapp/pages/register.py:173
 msgid "Your password has been successfully changed."
 msgstr ""
 
@@ -549,7 +549,7 @@ msgstr ""
 
 #: inginious/frontend/webapp/pages/preferences/profile.py:48
 #: inginious/frontend/webapp/pages/preferences/profile.py:63
-#: inginious/frontend/webapp/pages/preferences/profile.py:74
+#: inginious/frontend/webapp/pages/preferences/profile.py:77
 msgid "Profile updated."
 msgstr ""
 
@@ -561,7 +561,7 @@ msgstr ""
 msgid "Incorrect email."
 msgstr ""
 
-#: inginious/frontend/webapp/pages/preferences/profile.py:71
+#: inginious/frontend/webapp/pages/preferences/profile.py:73
 msgid "Incorrect username."
 msgstr ""
 
@@ -2615,19 +2615,23 @@ msgstr ""
 msgid "Username :"
 msgstr ""
 
-#: inginious/frontend/webapp/templates/preferences/profile.html:56
+#: inginious/frontend/webapp/templates/preferences/profile.html:55
+msgid "Language :"
+msgstr ""
+
+#: inginious/frontend/webapp/templates/preferences/profile.html:63
 msgid "Old password :"
 msgstr ""
 
-#: inginious/frontend/webapp/templates/preferences/profile.html:60
+#: inginious/frontend/webapp/templates/preferences/profile.html:67
 msgid "New password (min. 6 characters) :"
 msgstr ""
 
-#: inginious/frontend/webapp/templates/preferences/profile.html:64
+#: inginious/frontend/webapp/templates/preferences/profile.html:71
 msgid "Confirm new password :"
 msgstr ""
 
-#: inginious/frontend/webapp/templates/preferences/profile.html:68
+#: inginious/frontend/webapp/templates/preferences/profile.html:75
 msgid "Save my profile"
 msgstr ""
 

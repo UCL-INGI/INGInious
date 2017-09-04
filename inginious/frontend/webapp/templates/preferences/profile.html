@@ -51,6 +51,13 @@ $if not user_manager.session_username():
             <label class="control-label">$:_("Email address :") </label>
             <input name="email" type="text" class="form-control" value="$user_manager.session_email()" disabled>
         </div>
+        <div class="col-sm-12">
+            <label class="control-label">$:_("Language :") </label>
+            <select name="language" class="form-control">
+                $for code, language in available_languages.items():
+                <option value="$code" $('selected' if code == user_manager.session_language() else '')>$language</option>
+            </select>
+        </div>
         $if allow_registration:
             <div class="col-sm-12">
                 <label class="control-label">$:_("Old password :") </label>

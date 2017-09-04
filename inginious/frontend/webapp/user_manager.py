@@ -147,6 +147,10 @@ class UserManager(AbstractUserManager):
         """ Returns the oauth state for login """
         return self._session.get("oauth_state", None)
 
+    def session_language(self):
+        """ Returns the current session language """
+        return self._session.get("language", "en")
+
     def set_session_token(self, token):
         """ Sets the token of the current user in the session, if one is open."""
         if self.session_logged_in():
@@ -164,6 +168,9 @@ class UserManager(AbstractUserManager):
     def set_session_oauth_state(self, oauth_state):
         """Sets the oauth state for login """
         self._session.oauth_state = oauth_state
+
+    def set_session_language(self, language):
+        self._session.language = language
 
     def _set_session(self, username, realname, email, language):
         """ Init the session. Preserves potential LTI information. """

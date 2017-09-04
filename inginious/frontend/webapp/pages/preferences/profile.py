@@ -63,14 +63,17 @@ class ProfilePage(INGIniousAuthPage):
                     msg = _("Profile updated.")
 
         else:
+            language = data["language"] if data["language"] in self.app.available_languages else "en"
             result = self.database.users.find_one_and_update({"username": self.user_manager.session_username()},
-                                                             {"$set": {"realname": data["realname"]}},
+                                                             {"$set": {"realname": data["realname"],
+                                                                       "language": language}},
                                                              return_document=ReturnDocument.AFTER)
             if not result:
                 error = True
                 msg = _("Incorrect username.")
             else:
                 self.user_manager.set_session_realname(data["realname"])
+                self.user_manager.set_session_language(language)
                 msg = _("Profile updated.")
 
         return result, msg, error
