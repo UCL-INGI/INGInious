@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2017-09-04 15:17+0200\n"
+"POT-Creation-Date: 2017-09-04 15:58+0200\n"
 "PO-Revision-Date: 2017-08-10 14:37+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -1332,6 +1332,11 @@ msgid ""
 "contact the course administrator."
 msgstr ""
 
+#: inginious/frontend/webapp/templates/team.html:131
+#: inginious/frontend/webapp/templates/team.html:136
+msgid "My team"
+msgstr ""
+
 #: inginious/frontend/webapp/templates/team.html:133
 msgid ""
 "You're not registered to a team. Please consider registration in one of "
@@ -1347,6 +1352,10 @@ msgstr ""
 
 #: inginious/frontend/webapp/templates/team.html:142
 msgid "All teams"
+msgstr ""
+
+#: inginious/frontend/webapp/templates/team.html:155
+msgid "(available : {})"
 msgstr ""
 
 #: inginious/frontend/webapp/templates/unregister_button.html:14
@@ -1870,6 +1879,10 @@ msgid ""
 " members of the course, and the team/classroom system."
 msgstr ""
 
+#: inginious/frontend/webapp/templates/course_admin/settings.html:60
+msgid "Students aggregations"
+msgstr ""
+
 #: inginious/frontend/webapp/templates/course_admin/settings.html:66
 msgid "Classrooms with groups"
 msgstr ""
@@ -1970,6 +1983,10 @@ msgstr ""
 
 #: inginious/frontend/webapp/templates/course_admin/settings.html:244
 msgid "\"Only used if access control is activated. Separate users by new lines.\""
+msgstr ""
+
+#: inginious/frontend/webapp/templates/course_admin/settings.html:248
+msgid "LTI keys"
 msgstr ""
 
 #: inginious/frontend/webapp/templates/course_admin/settings.html:251
@@ -2593,6 +2610,14 @@ msgstr ""
 
 #: inginious/frontend/webapp/templates/course_admin/submissions_tabs/users.html:57
 msgid "No team to display"
+msgstr ""
+
+#: inginious/frontend/webapp/templates/preferences/bindings.html:44
+msgid "\"Refresh fields\""
+msgstr ""
+
+#: inginious/frontend/webapp/templates/preferences/bindings.html:45
+msgid "\"Revoke access\""
 msgstr ""
 
 #: inginious/frontend/webapp/templates/preferences/bindings.html:58

@@ -128,12 +128,12 @@ $elif len(myteam["groups"]) == 0:
         $:_("No set team in this course. If you think this is a mistake, please contact the course administrator.")
     </div>
 $elif course.can_students_choose_group():
-    <h3>My team</h3>
+    <h3>$:_("My team")</h3>
     <div class="alert alert-warning alert-dismissable" role="alert">
         $:_("You're not registered to a team. Please consider registration in one of the team below to take part in all course activities. If no more team is available, please contact the course administrator.")
     </div>
 $else:
-    <h3>My team</h3>
+    <h3>$:_("My team")</h3>
     <div class="alert alert-warning alert-dismissable" role="alert">
         $:_("You're not yet registered to a team. Please contact the course administrator for more information.")
     </div>
@@ -152,7 +152,7 @@ $if not len(teams) == 0:
                     <h4 class="panel-title">
                         $:_("Students")
                         $if len(myteam["groups"]) == 0 or username not in myteam["groups"][0]["students"] and (group["size"]-len(group["students"])) > 0 and course.can_students_choose_group():
-                            (available : $(group["size"]-len(group["students"])) )
+                            $:_("(available : {})").format(group["size"]-len(group["students"]))
                             <div class="pull-right">
                                 <a href="?register_group=$team['_id']" data-toggle="tooltip" data-placement="left" title="$:_('Join in')">
                                     <i style="color:white;" class="fa fa-sign-in"></i>

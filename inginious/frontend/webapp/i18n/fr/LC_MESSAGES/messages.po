@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2017-09-04 15:17+0200\n"
+"POT-Creation-Date: 2017-09-04 15:58+0200\n"
 "PO-Revision-Date: 2017-08-10 14:37+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: fr\n"
@@ -1403,6 +1403,11 @@ msgstr ""
 "Pas d'équipe configurée pour ce cours. Si vous pensez qu'il s'agit d'une "
 "erreur, veuillez contacter l'administrateur du cours."
 
+#: inginious/frontend/webapp/templates/team.html:131
+#: inginious/frontend/webapp/templates/team.html:136
+msgid "My team"
+msgstr "Mon équipe"
+
 #: inginious/frontend/webapp/templates/team.html:133
 msgid ""
 "You're not registered to a team. Please consider registration in one of "
@@ -1425,6 +1430,10 @@ msgstr ""
 #: inginious/frontend/webapp/templates/team.html:142
 msgid "All teams"
 msgstr "Toutes les équipes"
+
+#: inginious/frontend/webapp/templates/team.html:155
+msgid "(available : {})"
+msgstr "({} places disponible(s))"
 
 #: inginious/frontend/webapp/templates/unregister_button.html:14
 msgid "Unregister from {}"
@@ -1970,6 +1979,10 @@ msgstr ""
 "désactivera l'accès au cours depuis la page d'accueil d'INGInious aux "
 "étudiants du cours, ainsi qu'au système d'équipes/de classes."
 
+#: inginious/frontend/webapp/templates/course_admin/settings.html:60
+msgid "Students aggregations"
+msgstr "Groupements d'étudiants"
+
 #: inginious/frontend/webapp/templates/course_admin/settings.html:66
 msgid "Classrooms with groups"
 msgstr "Classes avec groupes"
@@ -2075,6 +2088,10 @@ msgid "\"Only used if access control is activated. Separate users by new lines.\
 msgstr ""
 "\"Utilisé uniquement si le contrôle d'accès est activé. Séparez les "
 "utilisateurs par de nouvelles lignes.\""
+
+#: inginious/frontend/webapp/templates/course_admin/settings.html:248
+msgid "LTI keys"
+msgstr "Clés LTI"
 
 #: inginious/frontend/webapp/templates/course_admin/settings.html:251
 msgid ""
@@ -2708,6 +2725,14 @@ msgstr "Pas de classe à afficher"
 #: inginious/frontend/webapp/templates/course_admin/submissions_tabs/users.html:57
 msgid "No team to display"
 msgstr "Pas d'équipe à afficher"
+
+#: inginious/frontend/webapp/templates/preferences/bindings.html:44
+msgid "\"Refresh fields\""
+msgstr "\"Mettre à jour les champs additionnels\""
+
+#: inginious/frontend/webapp/templates/preferences/bindings.html:45
+msgid "\"Revoke access\""
+msgstr "\"Supprimer l'accès\""
 
 #: inginious/frontend/webapp/templates/preferences/bindings.html:58
 msgid "Identifier:"
