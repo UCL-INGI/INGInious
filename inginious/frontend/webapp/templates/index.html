@@ -46,9 +46,7 @@ $# Start content
 
             $ authid = 0
             $for id, auth_method in auth_meths:
-
                 $if authid % on_line == 0:
-                    $ on_line = min(remaining, 4)
                     <div class="row">
 
                 <div class="col-xs-$(int(12/on_line)) text-center">
@@ -57,10 +55,11 @@ $# Start content
                     </a>
                 </div>
 
-                $ remaining = remaining - 1
-                $if authid % on_line-1 == on_line-2:
+                $if remaining % on_line == 0 or remaining == 1:
                     </div>
+                    $ on_line = min(remaining, 4)
 
+                $ remaining = remaining - 1
                 $ authid += 1
 
         </div>

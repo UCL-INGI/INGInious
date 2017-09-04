@@ -22,11 +22,11 @@ class FacebookAuthMethod(AuthMethod):
     Facebook auth method
     """
     def get_auth_link(self, user_manager):
-            facebook = OAuth2Session(self._client_id, redirect_uri=web.ctx.home + self._callback_page)
-            facebook = facebook_compliance_fix(facebook)
-            authorization_url, state = facebook.authorization_url(authorization_base_url)
-            user_manager.set_session_oauth_state(state)
-            return authorization_url
+        facebook = OAuth2Session(self._client_id, redirect_uri=web.ctx.home + self._callback_page)
+        facebook = facebook_compliance_fix(facebook)
+        authorization_url, state = facebook.authorization_url(authorization_base_url)
+        user_manager.set_session_oauth_state(state)
+        return authorization_url
 
     def callback(self, user_manager):
         facebook = OAuth2Session(self._client_id, state=user_manager.session_oauth_state(), redirect_uri=web.ctx.home + self._callback_page)
