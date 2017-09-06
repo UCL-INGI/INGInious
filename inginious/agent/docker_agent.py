@@ -458,7 +458,8 @@ class DockerAgent(Agent):
             killed = await self._timeout_watcher.was_killed(container_id)
             if container_id in self._containers_killed:
                 killed = self._containers_killed[container_id]
-                self._ssh_ports.add(self._running_ssh_debug[container_id])
+                if container_id in self._running_ssh_debug:
+                    self._ssh_ports.add(self._running_ssh_debug[container_id])
                 del self._containers_killed[container_id]
 
             stdout = ""
