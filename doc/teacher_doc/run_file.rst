@@ -361,8 +361,8 @@ followed by a *:filename* or *:value* suffix.
 .. code-block:: python
 
     from inginious import input
-    thecode = input.pasrse_template("student.c") # Parse the `student.c` template file
-    thecode = input.pasrse_template("template.c", "student.c") # Parse the `template.c` template file and save the parsed file into `student.c`
+    thecode = input.parse_template("student.c") # Parse the `student.c` template file
+    thecode = input.parse_template("template.c", "student.c") # Parse the `template.c` template file and save the parsed file into `student.c`
 
 .. _run_student:
 
@@ -372,7 +372,7 @@ run_student
 *run_student* allows the *run file* to start, at will, sub-containers. This makes you able to secure the grading,
 making sure the untrusted code made by the student don't interact with yours.
 
-The sub-container is launched with a different user who has read-write accesses to the task ``student`` 
+The sub-container is launched with a different user who has read-write accesses to the task ``student``
 subdirectory. Only the changes made in that directory will remain in the main container.
 
 *run_student* is fully configurable; you can change the container image (environment), set new timeouts, new memory
