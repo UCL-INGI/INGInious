@@ -7,11 +7,8 @@
     (not asyncio) Interface to Docker
 """
 import os
-import re
-
+from datetime import datetime
 import docker
-from docker.utils import kwargs_from_env
-
 
 class DockerInterface(object):  # pragma: no cover
     """
@@ -37,7 +34,7 @@ class DockerInterface(object):  # pragma: no cover
         """
 
         # First, create a dict with {"id": {"title": "alias", "created": 000}}
-        images = {x.attrs['Id']: {"title": x.attrs['Labels']["org.inginious.grading.name"], "created": int(x.attrs['Created'])}
+        images = {x.attrs['Id']: {"title": x.labels["org.inginious.grading.name"], "created": datetime.strptime(x.attrs['Created'][:-4], "%Y-%m-%dT%H:%M:%S.%f").timestamp()}
                   for x in self._docker.images.list(filters={"label": "org.inginious.grading.name"})}
 
         # Then, we keep only the last version of each name
