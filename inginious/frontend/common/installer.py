@@ -10,7 +10,6 @@ import tarfile
 import urllib.request
 
 import docker
-from docker.utils import kwargs_from_env
 from gridfs import GridFS
 from pymongo import MongoClient
 
@@ -215,7 +214,7 @@ class Installer(object, metaclass=abc.ABCMeta):
     def test_local_docker_conf(self):
         """ Test to connect to a local Docker daemon """
         try:
-            docker_connection = docker.Client(**kwargs_from_env())
+            docker_connection = docker.from_env()
         except Exception as e:
             self._display_error("- Unable to connect to Docker. Error was %s" % str(e))
             return False
