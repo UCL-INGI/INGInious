@@ -34,6 +34,13 @@ class BasicProblem(object, metaclass=ABCMeta):
         """
         return True, None, None, 0
 
+    @classmethod
+    @abstractmethod
+    def get_text_fields(cls):
+        """ Returns a dict whose keys are the keys of content dict
+        and val is True if value of content[key] is human-readable text """
+        return {"name": True, "header": True}
+
     def get_id(self):
         """ Get the id of this problem """
         return self._id
@@ -86,6 +93,10 @@ class MatchProblem(BasicProblem):
         else:
             return False, None, "Invalid answer", 0
 
+    @classmethod
+    def get_text_fields(cls):
+        return BasicProblem.get_text_fields()
+
 
 class BasicCodeProblem(BasicProblem):
     """Basic problem with code input. Do all the job with the backend"""
@@ -127,6 +138,10 @@ class BasicCodeProblem(BasicProblem):
     def check_answer(self, _):
         return None, None, None, 0
 
+    @classmethod
+    def get_text_fields(cls):
+        return BasicProblem.get_text_fields()
+
 
 class CodeSingleLineProblem(BasicCodeProblem):
     """Code problem with a single line of input"""
@@ -137,6 +152,10 @@ class CodeSingleLineProblem(BasicCodeProblem):
 
     def get_type(self):
         return "code-single-line"
+
+    @classmethod
+    def get_text_fields(cls):
+        return BasicProblem.get_text_fields()
 
 
 class CodeFileProblem(BasicCodeProblem):
@@ -149,6 +168,10 @@ class CodeFileProblem(BasicCodeProblem):
 
     def get_type(self):
         return "code-file"
+
+    @classmethod
+    def get_text_fields(cls):
+        return BasicCodeProblem.get_text_fields()
 
 
 class CodeProblem(BasicCodeProblem):
@@ -171,6 +194,10 @@ class CodeProblem(BasicCodeProblem):
 
     def get_type(self):
         return "code"
+
+    @classmethod
+    def get_text_fields(cls):
+        return BasicProblem.get_text_fields()
 
 
 class MultipleChoiceProblem(BasicProblem):
@@ -275,7 +302,7 @@ class MultipleChoiceProblem(BasicProblem):
             if self._error_message is not None:
                 msgs = [self._error_message] + msgs
             elif not self._centralize:
-                msgs = ["Wrong answer. Make sure to select all the valid possibilities" if self._multiple else "Wrong answer"] + msgs
+                msgs = [_("Wrong answer. Make sure to select all the valid possibilities") if self._multiple else _("Wrong answer")] + msgs
 
             if len(msgs) != 0:
                 return False, None, "\n\n".join(msgs), invalid_count
@@ -289,3 +316,9 @@ class MultipleChoiceProblem(BasicProblem):
             return True, None, "\n\n".join(msgs), 0
         else:
             return True, None, None, 0
+
+    @classmethod
+    def get_text_fields(cls):
+        result = BasicProblem.get_text_fields()
+        result.update({"success_message": True, "error_message": True, "choices": [{"text": True, "feedback": True}]})
+        return result
