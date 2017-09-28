@@ -170,7 +170,7 @@ class CourseFactory(object):
             last_modification = self._filesystem.get_last_modification_time(path_to_descriptor)
         except Exception as e:
             raise CourseUnreadableException(str(e))
-        self._cache[courseid] = (self._course_class(courseid, course_descriptor, self._task_factory, self._hook_manager), last_modification)
+        self._cache[courseid] = (self._course_class(courseid, course_descriptor, self.get_course_fs(courseid), self._task_factory, self._hook_manager), last_modification)
         self._task_factory.update_cache_for_course(courseid)
 
 

@@ -10,8 +10,8 @@ from inginious.common.courses import Course
 class FrontendCourse(Course):
     """ A basic course extension that stores the name of the course """
 
-    def __init__(self, courseid, content, task_factory, hook_manager):
-        super(FrontendCourse, self).__init__(courseid, content, task_factory, hook_manager)
+    def __init__(self, courseid, content, course_fs, task_factory, hook_manager):
+        super(FrontendCourse, self).__init__(courseid, content, course_fs, task_factory, hook_manager)
 
         try:
             self._name = self._content['name']
