@@ -67,6 +67,14 @@ class FileSystemProvider(object, metaclass=ABCMeta):
         pass
 
     @abstractmethod
+    def get_fd(self, filepath, timestamp:datetime=None):
+        """ Returns a file descriptor. Raises NotFoundException if the file does not exists or cannot be retrieved.
+            If timestamp is not None, it gives an indication to the cache that the file must have been retrieved from the (possibly distant)
+            filesystem since the timestamp.
+        """
+        pass
+
+    @abstractmethod
     def get(self, filepath, timestamp:datetime=None):
         """ Get the content of a file. Raises NotFoundException if the file does not exists or cannot be retrieved.
             If timestamp is not None, it gives an indication to the cache that the file must have been retrieved from the (possibly distant) 

@@ -25,7 +25,7 @@ $def ColumnF():
                         list-group-item-danger
                     "
                     href="$get_homepath()/course/$submission['courseid']/$submission['taskid']">
-                    <b>$submission["task"].get_course().get_name()</b>: $submission["task"].get_name()
+                    <b>$submission["task"].get_course().get_name(user_manager.session_language())</b>: $submission["task"].get_name()
                 </a>
         $else:
             <a class="list-group-item disabled submission-empty">$:_("No submissions")</a>
@@ -41,7 +41,7 @@ $# Start content
         $for courseid, course in open_courses.items():
             <a href="$get_homepath()/course/$courseid" class="list-group-item row $(('list-group-item-warning' if not course.is_lti() else 'list-group-item-info') if not course.is_open_to_non_staff() else '')">
                 <div class="col-xs-12 col-md-8">
-                    $course.get_name()
+                    $course.get_name(user_manager.session_language())
                 </div>
                 <div class="col-xs-12 col-md-4">
                     <i class="pull-right">
@@ -105,7 +105,7 @@ $else:
                     <option value="$courseid"
                     $if course.is_password_needed_for_registration():
                         data-password="1"
-                    >$course.get_name()</option>
+                    >$course.get_name(user_manager.session_language())</option>
             </select>
         </div>
         <div class="form-group col-sm-4">

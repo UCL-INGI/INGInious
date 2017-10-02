@@ -59,9 +59,12 @@ class LocalFSProvider(FileSystemProvider):
             content = content.encode("utf-8")
         open(fullpath, 'wb').write(content)
 
-    def get(self, filepath, timestamp=None):
+    def get_fd(self, filepath, timestamp=None):
         self._checkpath(filepath)
-        return open(os.path.join(self.prefix, filepath), 'rb').read()
+        return open(os.path.join(self.prefix, filepath), 'rb')
+
+    def get(self, filepath, timestamp=None):
+        return self.get_fd(filepath, timestamp).read()
 
     def list(self, folders=True, files=True, recursive=False):
         if recursive:

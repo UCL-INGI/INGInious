@@ -6,13 +6,13 @@ $# more information about the licensing of this file.
 $#
 
 $ user_realname= user_manager.get_user_realname(username)
-$var title: $:task.get_name() - $:user_realname - $:course.get_name()
+$var title: $:task.get_name() - $:user_realname - $:course.get_name(user_manager.session_language())
 $ is_admin = user_manager.has_admin_rights_on_course(course)
 $var Column: $:template_helper.call('course_admin_menu',course=course,current='students')
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
-        <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
+        <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
         <li>
             <a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
                 <i class="fa fa-user-secret"></i>

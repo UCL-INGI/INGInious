@@ -5,7 +5,7 @@ $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
-$var title:  $:course.get_name()
+$var title:  $:course.get_name(user_manager.session_language())
 $ username = user_manager.session_username()
 
 $# Left column content
@@ -48,7 +48,7 @@ $var Column: $:ColumnF()
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
-        <li><a  href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
+        <li><a  href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
         <li class="active"><a href="#"><i class="fa fa-group"></i>
             $if myteam is None:
                 $:_("Register for a group")
@@ -60,7 +60,7 @@ $def NavbarF():
 $var Navbar: $:NavbarF()
 
 $# Start content
-<h2>$course.get_name() - $:_("Teams")</h2>
+<h2>$course.get_name(user_manager.session_language()) - $:_("Teams")</h2>
 $if error:
     <div class="alert alert-danger alert-dismissable" role="alert">
         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>

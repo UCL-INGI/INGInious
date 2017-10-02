@@ -5,13 +5,13 @@ $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
-$var title: $:course.get_name() - $:_("Settings")
+$var title: $:course.get_name(user_manager.session_language()) - $:_("Settings")
 
 $var Column: $:template_helper.call('course_admin_menu',course=course,current='settings')
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
-        <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
+        <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
         <li><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-user-secret"></i></a></li>
         <li class="active"><a href="#"><i class="fa fa-cog"></i> $:_("Course settings") <span class="sr-only">$:_("(current)")</span></a></li>
@@ -28,7 +28,7 @@ $elif saved:
     <div class="form-group">
         <label for="name" class="col-sm-2 control-label">$:_("Name")</label>
         <div class="col-sm-10">
-            <input type="text" class="form-control" id="name" name="name" placeholder="title" value="$course.get_name()">
+            <input type="text" class="form-control" id="name" name="name" placeholder="title" value="$course.get_name(user_manager.session_language())">
         </div>
     </div>
     <div class="form-group">

@@ -56,7 +56,7 @@ class APICourses(APIAuthenticatedPage):
             if self.user_manager.course_is_open_to_user(course, username, False) or course.is_registration_possible(username, realname, email):
                 data = {
                     "id": courseid,
-                    "name": course.get_name(),
+                    "name": course.get_name(self.user_manager.session_language()),
                     "require_password": course.is_password_needed_for_registration(),
                     "is_registered": self.user_manager.course_is_open_to_user(course, username, False)
                 }

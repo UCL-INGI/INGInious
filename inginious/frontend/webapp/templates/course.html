@@ -5,7 +5,7 @@ $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
-$var title: $:course.get_name()
+$var title: $:course.get_name(user_manager.session_language())
 
 $# Left column content
 $def ColumnF():
@@ -67,12 +67,12 @@ $var Column: $:ColumnF()
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
-        <li class="active"><a href="#">$course.get_name() <span class="sr-only">$:_("(current)")</span></a></li>
+        <li class="active"><a href="#">$course.get_name(user_manager.session_language()) <span class="sr-only">$:_("(current)")</span></a></li>
     </ol>
 $var Navbar: $:NavbarF()
 
 $# Start content
-<h2>$:_("{course_name} - List of exercises").format(course_name=course.get_name())</h2>
+<h2>$:_("{course_name} - List of exercises").format(course_name=course.get_name(user_manager.session_language()))</h2>
 <div class="list-group list-group-progress" style="margin-left: 16px; margin-right: 16px;">
     $for taskid, task in tasks.items()
         $if tasks_data[taskid]["visible"]:

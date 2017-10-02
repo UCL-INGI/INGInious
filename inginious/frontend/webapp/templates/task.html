@@ -5,7 +5,7 @@ $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
-$var title: $:task.get_name() - $:task.get_course().get_name()
+$var title: $:task.get_name() - $:course.get_name(user_manager.session_language())
 
 $# Left column content
 $def ColumnF():
@@ -171,7 +171,7 @@ $var Column: $:ColumnF()
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
-        <li><a href="$get_homepath()/course/$task.get_course().get_id()">$task.get_course().get_name()</a></li>
+        <li><a href="$get_homepath()/course/$task.get_course().get_id()">$course.get_name(user_manager.session_language())</a></li>
         <li class="active"><a href="#">$task.get_name() <span class="sr-only">$:_("(current)")</span></a></li>
     </ol>
 $var Navbar: $:NavbarF()
