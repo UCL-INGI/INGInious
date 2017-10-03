@@ -11,8 +11,8 @@ from inginious.frontend.webapp.accessible_time import AccessibleTime
 class WebAppTask(FrontendTask):
     """ A task that stores additional context information, specific to the web app """
 
-    def __init__(self, course, taskid, content, directory_path, hook_manager, task_problem_types=None):
-        super(WebAppTask, self).__init__(course, taskid, content, directory_path, hook_manager, task_problem_types)
+    def __init__(self, course, taskid, content, task_fs, hook_manager, task_problem_types=None):
+        super(WebAppTask, self).__init__(course, taskid, content, task_fs, hook_manager, task_problem_types)
 
         # Grade weight
         self._weight = float(self._data.get("weight", 1.0))

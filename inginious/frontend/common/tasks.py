@@ -15,7 +15,7 @@ from inginious.frontend.common.task_problems import DisplayableCodeProblem, Disp
 class FrontendTask(inginious.common.tasks.Task):
     """ A task that stores additional context information """
 
-    def __init__(self, course, taskid, content, directory_path, hook_manager, task_problem_types=None):
+    def __init__(self, course, taskid, content, task_fs, hook_manager, task_problem_types=None):
         # We load the descriptor of the task here to allow plugins to modify settings of the task before it is read by the Task constructor
         if not id_checker(taskid):
             raise Exception("Task with invalid id: " + course.get_id() + "/" + taskid)
@@ -27,7 +27,7 @@ class FrontendTask(inginious.common.tasks.Task):
             "multiple-choice": DisplayableMultipleChoiceProblem,
             "match": DisplayableMatchProblem}
 
-        super(FrontendTask, self).__init__(course, taskid, content, directory_path, hook_manager, task_problem_types)
+        super(FrontendTask, self).__init__(course, taskid, content, task_fs, hook_manager, task_problem_types)
 
         # i18n
         translations_fs = self._fs.from_subfolder("$i18n")

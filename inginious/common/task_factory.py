@@ -197,13 +197,25 @@ class TaskFactory(object):
 
         if (course.get_id(), taskid) not in self._cache:
             return True
+
         try:
-            last_update = task_fs.get_last_modification_time(self._get_task_descriptor_info(course.get_id(), taskid)[0])
+            descriptor_name = self._get_task_descriptor_info(course.get_id(), taskid)[0]
+            last_update = {descriptor_name: task_fs.get_last_modification_time(descriptor_name)}
+            translations_fs = task_fs.from_subfolder("$i18n")
+            if translations_fs.exists():
+                for f in translations_fs.list(folders=False, files=True, recursive=False):
+                    lang = f[0:len(f) - 3]
+                    if translations_fs.exists(lang + ".mo"):
+                        last_update["$i18n/" + lang + ".mo"] = translations_fs.get_last_modification_time(lang + ".mo")
         except:
             raise TaskNotFoundException()
 
-        if self._cache[(course.get_id(), taskid)][1] < last_update:
-            return True
+        last_modif = self._cache[(course.get_id(), taskid)][1]
+        for filename, mftime in last_update.items():
+            if filename not in last_modif or last_modif[filename] < mftime:
+                return True
+
+        return False
 
     def _update_cache(self, course, taskid):
         """
@@ -222,9 +234,17 @@ class TaskFactory(object):
         except Exception as e:
             raise TaskUnreadableException(str(e))
 
+        last_modif = {descriptor_name: task_fs.get_last_modification_time(descriptor_name)}
+        translations_fs = task_fs.from_subfolder("$i18n")
+        if translations_fs.exists():
+            for f in translations_fs.list(folders=False, files=True, recursive=False):
+                lang = f[0:len(f) - 3]
+                if translations_fs.exists(lang + ".mo"):
+                    last_modif["$i18n/" + lang + ".mo"] = translations_fs.get_last_modification_time(lang + ".mo")
+
         self._cache[(course.get_id(), taskid)] = (
             self._task_class(course, taskid, task_content, task_fs, self._hook_manager),
-            task_fs.get_last_modification_time(descriptor_name)
+            last_modif
         )
 
     def update_cache_for_course(self, courseid):
