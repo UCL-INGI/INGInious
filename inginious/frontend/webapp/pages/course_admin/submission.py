@@ -51,10 +51,10 @@ class CourseStudentTaskSubmission(INGIniousAdminPage):
             if problem.get_id() in submission["input"]:  # present in input and in task
                 data = {
                     "id": problem.get_id(),
-                    "name": problem.get_name(),
+                    "name": problem.get_name(self.user_manager.session_language()),
                     "defined": True,
                     "present": True,
-                    "context": problem.get_header(),
+                    "context": problem.get_header(self.user_manager.session_language()),
                     "content": None,
                     "language": "plain",
                     "feedback": submission.get("problems", {}).get(problem.get_id(), None),
@@ -97,7 +97,7 @@ class CourseStudentTaskSubmission(INGIniousAdminPage):
             else:  # not present in input, but present in task
                 data = {
                     "id": problem.get_id(),
-                    "name": problem.get_name(),
+                    "name": problem.get_name(self.user_manager.session_language()),
                     "defined": True,
                     "present": False,
                     "context": problem.get_header(),

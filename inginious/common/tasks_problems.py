@@ -4,6 +4,7 @@
 # more information about the licensing of this file.
 
 """ Tasks' problems """
+import gettext
 from abc import ABCMeta, abstractmethod
 
 from inginious.common.base import id_checker
@@ -49,34 +50,39 @@ class BasicProblem(object, metaclass=ABCMeta):
         """ Get the task containing this problem """
         return self._task
 
-    def get_name(self):
+    def get_name(self, language=None):
         """ Get the name of this problem """
-        return self._name
+        return self.gettext(language, self._name) if self._name else ""
 
-    def get_header(self):
+    def get_header(self, language=None):
         """ Get the header of this problem """
-        return self._header
+        return self.gettext(language, self._header) if self._header else ""
 
     def get_original_content(self):
         """ Get a dict fully describing this sub-problem """
         return dict(self._original_content)
 
-    def __init__(self, task, problemid, content):
+    def __init__(self, task, problemid, content, translations=None):
         if not id_checker(problemid):
             raise Exception("Invalid problem _id: " + problemid)
 
+        self._translations = translations
         self._id = problemid
         self._task = task
         self._name = content['name'] if "name" in content else ""
         self._header = content['header'] if "header" in content else ""
         self._original_content = content
 
+    def gettext(self, language, *args, **kwargs):
+        translation = self._translations.get(language, gettext.NullTranslations())
+        return translation.gettext(*args, **kwargs)
+
 
 class MatchProblem(BasicProblem):
     """Display an input box and check that the content is correct"""
 
-    def __init__(self, task, problemid, content):
-        super(MatchProblem, self).__init__(task, problemid, content)
+    def __init__(self, task, problemid, content, translations=None):
+        super(MatchProblem, self).__init__(task, problemid, content, translations)
         if not "answer" in content:
             raise Exception("There is no answer in this problem with type==match")
         self._answer = str(content["answer"])
@@ -101,8 +107,8 @@ class MatchProblem(BasicProblem):
 class BasicCodeProblem(BasicProblem):
     """Basic problem with code input. Do all the job with the backend"""
 
-    def __init__(self, task, problemid, content):
-        super(BasicCodeProblem, self).__init__(task, problemid, content)
+    def __init__(self, task, problemid, content, translations=None):
+        super(BasicCodeProblem, self).__init__(task, problemid, content, translations)
         self._boxes = []
         if task.get_environment() is None:
             raise Exception("Environment undefined, but there is a problem with type=code or type=code-single-line")
@@ -146,8 +152,8 @@ class BasicCodeProblem(BasicProblem):
 class CodeSingleLineProblem(BasicCodeProblem):
     """Code problem with a single line of input"""
 
-    def __init__(self, task, problemid, content):
-        super(CodeSingleLineProblem, self).__init__(task, problemid, content)
+    def __init__(self, task, problemid, content, translations=None):
+        super(CodeSingleLineProblem, self).__init__(task, problemid, content, translations)
         self._boxes = [self._create_box("", {"type": "input-text", "optional": content.get("optional", False)})]
 
     def get_type(self):
@@ -161,8 +167,8 @@ class CodeSingleLineProblem(BasicCodeProblem):
 class CodeFileProblem(BasicCodeProblem):
     """Code problem which allow to test a file"""
 
-    def __init__(self, task, problemid, content):
-        super(CodeFileProblem, self).__init__(task, problemid, content)
+    def __init__(self, task, problemid, content, translations=None):
+        super(CodeFileProblem, self).__init__(task, problemid, content, translations)
         self._boxes = [
             self._create_box("", {"type": "file", "max_size": content.get("max_size", None), "allowed_exts": content.get("allowed_exts", None)})]
 
@@ -177,8 +183,8 @@ class CodeFileProblem(BasicCodeProblem):
 class CodeProblem(BasicCodeProblem):
     """Code problem"""
 
-    def __init__(self, task, problemid, content):
-        super(CodeProblem, self).__init__(task, problemid, content)
+    def __init__(self, task, problemid, content, translations=None):
+        super(CodeProblem, self).__init__(task, problemid, content, translations)
         if "boxes" in content:
             self._boxes = []
             for boxid, box_content in content['boxes'].items():
@@ -203,8 +209,8 @@ class CodeProblem(BasicCodeProblem):
 class MultipleChoiceProblem(BasicProblem):
     """Multiple choice problems"""
 
-    def __init__(self, task, problemid, content):
-        super(MultipleChoiceProblem, self).__init__(task, problemid, content)
+    def __init__(self, task, problemid, content, translations=None):
+        super(MultipleChoiceProblem, self).__init__(task, problemid, content, translations)
         self._multiple = content.get("multiple", False)
         if "choices" not in content or not isinstance(content['choices'], list):
             raise Exception("Multiple choice problem " + problemid + " does not have choices or choices are not an array")

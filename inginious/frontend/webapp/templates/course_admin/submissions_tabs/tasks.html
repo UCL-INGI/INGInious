@@ -21,6 +21,6 @@ $#
             <li class="list-group-item" data-value="$taskid" data-name="tasks"
                 $if taskid in checked_tasks:
                     data-checked="true"
-            >$task.get_name()</li>
+            >$task.get_name(user_manager.session_language())</li>
     </ul>
 </div>

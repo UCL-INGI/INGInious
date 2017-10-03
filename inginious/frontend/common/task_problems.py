@@ -17,16 +17,15 @@ from inginious.frontend.common.tasks_code_boxes import DisplayableInputBox, Disp
 class DisplayableBasicProblem(BasicProblem, metaclass=ABCMeta):
     """Basic problem """
 
-    def __init__(self, task, problemid, content):
-        super(DisplayableBasicProblem, self).__init__(task, problemid, content)
-        self._header = ParsableText(self._header, "rst")
+    def get_header(self, language):
+        return ParsableText(super(DisplayableBasicProblem, self).get_header(language), "rst")
 
     def adapt_input_for_backend(self, input_data):
         """ Adapt the input from web.py for the inginious.backend """
         return input_data
 
     @abstractmethod
-    def show_input(self, renderer):
+    def show_input(self, renderer, language):
         """ get the html for this problem """
         pass
 
@@ -34,8 +33,8 @@ class DisplayableBasicProblem(BasicProblem, metaclass=ABCMeta):
 class DisplayableBasicCodeProblem(BasicCodeProblem, DisplayableBasicProblem):
     """ A basic class to display all BasicCodeProblem derivatives """
 
-    def __init__(self, task, problemid, content):
-        super(DisplayableBasicCodeProblem, self).__init__(task, problemid, content)
+    def __init__(self, task, problemid, content, translations=None):
+        super(DisplayableBasicCodeProblem, self).__init__(task, problemid, content, translations)
 
     @abstractmethod
     def get_type(self):
@@ -54,7 +53,7 @@ class DisplayableBasicCodeProblem(BasicCodeProblem, DisplayableBasicProblem):
             input_data = box.adapt_input_for_backend(input_data)
         return input_data
 
-    def show_input(self, renderer):
+    def show_input(self, renderer, language):
         """ Show BasicCodeProblem and derivatives """
         output = ""
         for box in self._boxes:
@@ -65,34 +64,31 @@ class DisplayableBasicCodeProblem(BasicCodeProblem, DisplayableBasicProblem):
 class DisplayableCodeSingleLineProblem(CodeSingleLineProblem, DisplayableBasicCodeProblem):
     """ A displayable single code line problem """
 
-    def __init__(self, task, problemid, content):
-        super(DisplayableCodeSingleLineProblem, self).__init__(task, problemid, content)
+    def __init__(self, task, problemid, content, translations=None):
+        super(DisplayableCodeSingleLineProblem, self).__init__(task, problemid, content, translations)
 
 
 class DisplayableCodeProblem(CodeProblem, DisplayableBasicCodeProblem):
     """ A displayable code problem """
 
-    def __init__(self, task, problemid, content):
-        super(DisplayableCodeProblem, self).__init__(task, problemid, content)
+    def __init__(self, task, problemid, content, translations=None):
+        super(DisplayableCodeProblem, self).__init__(task, problemid, content, translations)
 
 
 class DisplayableCodeFileProblem(CodeFileProblem, DisplayableBasicCodeProblem):
     """ A displayable code problem """
 
-    def __init__(self, task, problemid, content):
-        super(DisplayableCodeFileProblem, self).__init__(task, problemid, content)
+    def __init__(self, task, problemid, content, translations=None):
+        super(DisplayableCodeFileProblem, self).__init__(task, problemid, content, translations)
 
 
 class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableBasicProblem):
     """ A displayable multiple choice problem """
 
-    def __init__(self, task, problemid, content):
-        super(DisplayableMultipleChoiceProblem, self).__init__(task, problemid, content)
+    def __init__(self, task, problemid, content, translations=None):
+        super(DisplayableMultipleChoiceProblem, self).__init__(task, problemid, content, translations)
 
-        for choice in self._choices:
-            choice["text"] = ParsableText(choice['text'], 'rst')
-
-    def show_input(self, renderer):
+    def show_input(self, renderer, language):
         """ Show multiple choice problems """
         choices = []
         limit = self._limit
@@ -128,15 +124,17 @@ class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableBasicPr
                     limit = limit - 1
 
         shuffle(choices)
-        return str(renderer.tasks.multiplechoice(self.get_id(), self._multiple, choices))
+        return str(renderer.tasks.multiplechoice(
+            self.get_id(), self._multiple, choices,
+            lambda text: ParsableText(self.gettext(language, text) if text else "", "rst")))
 
 
 class DisplayableMatchProblem(MatchProblem, DisplayableBasicProblem):
     """ A displayable match problem """
 
-    def __init__(self, task, problemid, content):
-        super(DisplayableMatchProblem, self).__init__(task, problemid, content)
+    def __init__(self, task, problemid, content, translations=None):
+        super(DisplayableMatchProblem, self).__init__(task, problemid, content, translations)
 
-    def show_input(self, renderer):
+    def show_input(self, renderer, language):
         """ Show MatchProblem """
         return str(renderer.tasks.match(self.get_id()))

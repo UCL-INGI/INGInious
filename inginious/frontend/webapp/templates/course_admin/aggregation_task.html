@@ -5,7 +5,7 @@ $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
-$var title: $:task.get_name() - $:aggregation["description"] - $:course.get_name(user_manager.session_language())
+$var title: $:task.get_name(user_manager.session_language()) - $:aggregation["description"] - $:course.get_name(user_manager.session_language())
 
 $var Column: $:template_helper.call('course_admin_menu',course=course,current='aggregations')
 
@@ -20,11 +20,11 @@ $def NavbarF():
         <li><a href="$get_homepath()/admin/$course.get_id()/aggregations" title=$(_('"Classrooms"') if use_classrooms else _('"Teams"')) data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-group"></i></a></li>
         <li><a href="$get_homepath()/admin/$course.get_id()/aggregation/$aggregation['_id']">$aggregation["description"]</a></li>
-        <li class="active"><a href="#">$:task.get_name() <span class="sr-only">$:_("(current)")</span></a></li>
+        <li class="active"><a href="#">$:task.get_name(user_manager.session_language()) <span class="sr-only">$:_("(current)")</span></a></li>
     </ol>
 $var Navbar: $:NavbarF()
 
-<h2>$:_("Submissions for the task {}").format(task.get_name()) - $aggregation["description"]</h2>
+<h2>$:_("Submissions for the task {}").format(task.get_name(user_manager.session_language())) - $aggregation["description"]</h2>
 <table class="table">
     <thead>
         <tr>

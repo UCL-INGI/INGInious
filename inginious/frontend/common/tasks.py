@@ -4,6 +4,7 @@
 # more information about the licensing of this file.
 
 """ Classes modifying basic tasks, problems and boxes classes """
+import gettext
 from inginious.common.base import id_checker
 import inginious.common.tasks
 from inginious.frontend.common.parsable_text import ParsableText
@@ -28,20 +29,25 @@ class FrontendTask(inginious.common.tasks.Task):
 
         super(FrontendTask, self).__init__(course, taskid, content, directory_path, hook_manager, task_problem_types)
 
+        # i18n
+        translations_fs = self._fs.from_subfolder("$i18n")
+        if translations_fs.exists():
+            for f in translations_fs.list(folders=False, files=True, recursive=False):
+                lang = f[0:len(f) - 3]
+                if translations_fs.exists(lang + ".mo"):
+                    self._translations[lang] = gettext.GNUTranslations(translations_fs.get_fd(lang + ".mo"))
+                else:
+                    self._translations[lang] = gettext.NullTranslations()
+
         self._name = self._data.get('name', 'Task {}'.format(self.get_id()))
 
-        self._context = ParsableText(self._data.get('context', ""), "rst")
+        self._context = self._data.get('context', "")
 
         # Authors
         if isinstance(self._data.get('author'), str):  # verify if author is a string
-            self._author = [self._data['author']]
-        elif isinstance(self._data.get('author'), list):  # verify if author is a list
-            for author in self._data['author']:
-                if not isinstance(author, str):  # authors must be strings
-                    raise Exception("This task has an invalid author")
             self._author = self._data['author']
         else:
-            self._author = []
+            self._author = ""
 
         # Submission storage
         self._stored_submissions = int(self._data.get("stored_submissions", 0))
@@ -49,18 +55,23 @@ class FrontendTask(inginious.common.tasks.Task):
         # Default download
         self._evaluate = self._data.get("evaluate", "best")
 
-    def get_name(self):
+    def gettext(self, language, *args, **kwargs):
+        translation = self._translations.get(language, gettext.NullTranslations())
+        return translation.gettext(*args, **kwargs)
+
+    def get_name(self, language):
         """ Returns the name of this task """
-        return self._name
+        return self.gettext(language, self._name) if self._name else ""
 
-    def get_context(self):
+    def get_context(self, language):
         """ Get the context(description) of this task """
-        vals = self._hook_manager.call_hook('task_context', course=self.get_course(), task=self, default=self._context)
-        return vals[0] if len(vals) else self._context
+        context = self.gettext(language, self._context) if self._context else ""
+        vals = self._hook_manager.call_hook('task_context', course=self.get_course(), task=self, default=context)
+        return ParsableText(vals[0], "rst") if len(vals) else ParsableText(context, "rst")
 
-    def get_authors(self):
+    def get_authors(self, language):
         """ Return the list of this task's authors """
-        return self._author
+        return self.gettext(language, self._author) if self._author else ""
 
     def adapt_input_for_backend(self, input_data):
         """ Adapt the input from web.py for the inginious.backend """

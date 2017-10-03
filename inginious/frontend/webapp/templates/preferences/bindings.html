@@ -39,7 +39,7 @@ $for id, auth_method in auth_methods.items():
         <div class="panel panel-default">
             <div class="panel-heading">
                 <h3 class="panel-title">
-                    $auth_method.get_name()
+                    $auth_method.get_name(user_manager.session_language())
                     <div class="pull-right">
                             <a href="$get_homepath()/auth/$auth_method.get_id()/signin" data-toggle="tooltip" data-placement="bottom" title=$:_('"Refresh fields"')><i class="fa fa-refresh fa-fw"></i></a>
                             <a href="#" onclick="$$('#revoke_auth_binding').val('$auth_method.get_id()'); $$('#revoke').submit()" data-toggle="tooltip" data-placement="bottom" title=$:_('"Revoke access"')>
@@ -70,7 +70,7 @@ $for id, auth_method in auth_methods.items():
                 <option value="">$:_("Select a authentication binding")</option>
                 $for id, auth_method in auth_methods.items():
                     $if id not in bindings:
-                        <option value="$auth_method.get_id()">$auth_method.get_name()</option>
+                        <option value="$auth_method.get_id()">$auth_method.get_name(user_manager.session_language())</option>
             </select>
         </div>
         <div class="form-group col-sm-3">

@@ -78,13 +78,13 @@ class APITasks(APIAuthenticatedPage):
 
             data = {
                 "id": taskid,
-                "name": task.get_name(),
-                "authors": task.get_authors(),
+                "name": task.get_name(self.user_manager.session_language()),
+                "authors": task.get_authors(self.user_manager.session_language()),
                 "deadline": task.get_deadline(),
                 "status": "notviewed" if task_cache is None else "notattempted" if task_cache["tried"] == 0 else "succeeded" if task_cache["succeeded"] else "failed",
                 "grade": task_cache.get("grade", 0.0) if task_cache is not None else 0.0,
                 "grade_weight": task.get_grading_weight(),
-                "context": task.get_context().original_content(),
+                "context": task.get_context(self.user_manager.session_language()).original_content(),
                 "problems": []
             }
 

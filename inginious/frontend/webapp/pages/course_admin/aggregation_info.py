@@ -51,7 +51,7 @@ class CourseAggregationInfoPage(INGIniousAdminPage):
             ]))
 
         tasks = course.get_tasks()
-        result = dict([(taskid, {"taskid": taskid, "name": tasks[taskid].get_name(), "tried": 0, "status": "notviewed",
+        result = dict([(taskid, {"taskid": taskid, "name": tasks[taskid].get_name(self.user_manager.session_language()), "tried": 0, "status": "notviewed",
                                  "grade": 0, "url": self.submission_url_generator(aggregationid, taskid)}) for taskid in tasks])
 
         for taskdata in data:

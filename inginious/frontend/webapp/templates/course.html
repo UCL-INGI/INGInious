@@ -85,7 +85,7 @@ $# Start content
                 <div class="col-xs-12 col-md-7">
                     $if succeeded:
                         <i style="color:#468847; position: absolute; left: -5px;" class="fa fa-check"></i>
-                    $task.get_name()
+                    $task.get_name(user_manager.session_language())
                     $if not task.is_visible_by_students():
                         - <b>$:_("task hidden to students")</b>
                     $if not task.get_accessible_time().is_open():

@@ -5,7 +5,7 @@ $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
-$var title: $:task.get_name() - $:course.get_name(user_manager.session_language())
+$var title: $:task.get_name(user_manager.session_language()) - $:course.get_name(user_manager.session_language())
 
 $var Column: $:template_helper.call('course_admin_menu',course=course,current='tasks')
 
@@ -19,11 +19,11 @@ $def NavbarF():
             <i class="fa fa-user-secret"></i></a></li>
         <li><a href="$get_homepath()/admin/$course.get_id()/tasks" title=$:_('"Tasks"') data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-tasks"></i></a></li>
-        <li class="active"><a href="#">$task.get_name() <span class="sr-only">(current)</span></a></li>
+        <li class="active"><a href="#">$task.get_name(user_manager.session_language()) <span class="sr-only">(current)</span></a></li>
     </ol>
 $var Navbar: $:NavbarF()
 
-<h2>$:_("Results for task \"{}\"").format(task.get_name())</h2>
+<h2>$:_("Results for task \"{}\"").format(task.get_name(user_manager.session_language()))</h2>
                     $if not course.is_lti():
                         <div role="tabpanel">
                             <ul class="nav nav-tabs" id="edit_task_tabs" role="tablist">
