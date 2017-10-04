@@ -9,6 +9,7 @@ inginious.frontend.webapp.tests package
 Submodules
 ----------
 
+
 inginious.frontend.webapp.tests.SeleniumTest module
 ---------------------------------------------------
 
@@ -21,6 +22,14 @@ inginious.frontend.webapp.tests.TestLogin module
 ------------------------------------------------
 
 .. automodule:: inginious.frontend.webapp.tests.TestLogin
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+inginious.frontend.webapp.tests.TestParsableText module
+-------------------------------------------------------
+
+.. automodule:: inginious.frontend.webapp.tests.TestParsableText
     :members:
     :undoc-members:
     :show-inheritance:

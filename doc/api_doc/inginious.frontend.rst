@@ -11,7 +11,5 @@ Subpackages
 
 .. toctree::
 
-    inginious.frontend.common
-    inginious.frontend.lti
     inginious.frontend.webapp
 

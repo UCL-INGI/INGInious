@@ -13,7 +13,7 @@ from pymongo.database import Database
 
 from inginious.common.course_factory import CourseFactory
 from inginious.common.task_factory import TaskFactory
-from inginious.frontend.common.submission_manager import SubmissionManager
+from inginious.frontend.webapp.submission_manager import WebAppSubmissionManager
 from inginious.frontend.webapp.lti_outcome_manager import LTIOutcomeManager
 from inginious.frontend.webapp.plugin_manager import PluginManager
 from inginious.frontend.webapp.template_helper import TemplateHelper
@@ -52,7 +52,7 @@ class INGIniousPage(object):
         return self.app.task_factory
 
     @property
-    def submission_manager(self) -> SubmissionManager:
+    def submission_manager(self) -> WebAppSubmissionManager:
         """ Returns the submission manager singleton"""
         return self.app.submission_manager
 

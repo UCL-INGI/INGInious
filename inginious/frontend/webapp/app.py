@@ -18,7 +18,7 @@ from inginious import get_root_path
 from inginious.common.course_factory import create_factories
 from inginious.common.entrypoints import filesystem_from_config_dict
 from inginious.common.filesystems.local import LocalFSProvider
-from inginious.frontend.common.submission_manager import update_pending_jobs
+from inginious.frontend.webapp.submission_manager import update_pending_jobs
 from inginious.frontend.webapp.arch_helper import create_arch, start_asyncio_and_zmq
 from inginious.frontend.webapp.cookieless_app import CookieLessCompatibleApplication
 from inginious.frontend.webapp.courses import WebAppCourse

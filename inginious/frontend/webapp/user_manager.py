@@ -15,8 +15,6 @@ from natsort import natsorted
 from collections import OrderedDict
 import pymongo
 
-from inginious.frontend.common.user_manager import AbstractUserManager
-
 
 class AuthInvalidInputException(Exception):
     pass
@@ -64,7 +62,7 @@ class AuthMethod(object, metaclass=ABCMeta):
         return ""
 
 
-class UserManager(AbstractUserManager):
+class UserManager:
     def __init__(self, session_dict, database, superadmins):
         """
         :type session_dict: web.session.Session

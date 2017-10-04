@@ -7,16 +7,31 @@
 
 from collections import OrderedDict
 
+import gettext
 from inginious.common.courses import Course
-from inginious.frontend.common.courses import FrontendCourse
 from inginious.frontend.webapp.accessible_time import AccessibleTime
 
 
-class WebAppCourse(FrontendCourse):
+class WebAppCourse(Course):
     """ A course with some modification for users """
 
     def __init__(self, courseid, content, course_fs, task_factory, hook_manager):
         super(WebAppCourse, self).__init__(courseid, content, course_fs, task_factory, hook_manager)
+
+        try:
+            self._name = self._content['name']
+        except:
+            raise Exception("Course has an invalid description: " + self.get_id())
+
+        self._translations = {}
+        translations_fs = self._fs.from_subfolder("$i18n")
+        if translations_fs.exists():
+            for f in translations_fs.list(folders=False, files=True, recursive=False):
+                lang = f[0:len(f) - 3]
+                if translations_fs.exists(lang + ".mo"):
+                    self._translations[lang] = gettext.GNUTranslations(translations_fs.get_fd(lang + ".mo"))
+                else:
+                    self._translations[lang] = gettext.NullTranslations()
 
         if self._content.get('nofrontend', False):
             raise Exception("That course is not allowed to be displayed directly in the webapp")
@@ -138,3 +153,11 @@ class WebAppCourse(FrontendCourse):
         """ Returns True if students can unregister from course """
         vals = self._hook_manager.call_hook('course_allow_unregister', course=self, default=self._allow_unregister)
         return vals[0] if len(vals) and plugin_override else self._allow_unregister
+
+    def gettext(self, language, *args, **kwargs):
+        translation = self._translations.get(language, gettext.NullTranslations())
+        return translation.gettext(*args, **kwargs)
+
+    def get_name(self, language):
+        """ Return the name of this course """
+        return self.gettext(language, self._name) if self._name else ""
