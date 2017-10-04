@@ -35,7 +35,7 @@ $var Navbar: $:NavbarF()
 <div id="task_edit_submit_status"></div>
 <form id="edit_task_form" method="post" enctype="multipart/form-data" class="form-horizontal">
     <input type="hidden" name="@action" value="edit_task"/>
-    
+
     <div role="tabpanel">
         <ul class="nav nav-tabs" id="edit_task_tabs" role="tablist">
             <li role="presentation" class="active"><a href="#tab_basic" aria-controls="basicinfo" role="tab" data-toggle="tab"><i class="fa
@@ -107,4 +107,6 @@ $:include.course_admin.edit_tabs.file_modals()
 <script type="text/javascript">
     problem_data = $:{problemdump};
     $$ (function(){ studio_load(problem_data); });
+    var course = "$course.get_id()";
+    var taskid = "$taskid";
 </script>

@@ -7,7 +7,7 @@
 from abc import ABCMeta, abstractmethod
 import json
 
-from inginious.common.tasks_code_boxes import TextBox, InputBox, MultilineBox, FileBox
+from inginious.common.tasks_code_boxes import TextBox, InputBox, MultilineBox, FileBox, BlocklyBox
 from inginious.frontend.common.parsable_text import ParsableText
 
 
@@ -79,3 +79,21 @@ class DisplayableMultilineBox(MultilineBox, DisplayableBox):
     def show(self, renderer):
         """ Show MultilineBox """
         return str(renderer.tasks.box_multiline(self.get_complete_id(), self._lines, self._max_chars, self._language, self._optional))
+
+class DisplayableBlocklyBox(BlocklyBox, DisplayableBox):
+    """ A displayable blockly box """
+    def __init__(self, problem, boxid, boxData):
+        super(DisplayableBlocklyBox, self).__init__(problem, boxid, boxData)
+
+    def adapt_input_for_backend(self, input_data):
+        """ Adapt the input from web.py for the inginious.backend """
+        return input_data
+
+    def show(self, renderer):
+        """ Show BlocklyBox """
+        task_directory = self.get_problem().get_task().get_id()
+        filenames = []
+        for filename in self._files + self._blocks_files:
+            filenames.append(str(task_directory) + "/" + str(filename))
+        toolbox = self._toolbox
+        return str(renderer.tasks.blockly(self.get_complete_id(), self.get_problem().get_name(), self._language, toolbox, filenames, self._workspace, json.dumps(self._options)))

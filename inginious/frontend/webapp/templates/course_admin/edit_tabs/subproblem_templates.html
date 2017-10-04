@@ -284,6 +284,374 @@ $#
             </div>
         </div>
     </div>
+    <div id="subproblem_blockly">
+        <div class="panel panel-default" id="subproblem_well_PID">
+            <div class="panel-heading" role="tab" id="heading_PID">
+                <div class="row">
+                    <div class="col-md-10" >
+                        <span role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_PID" aria-controls="collapse_PID">
+                            <i class="fa fa-bars"></i> Problem id: <span id="pid-PID">PID</span>
+                        </span>
+                    </div>
+                    <div class="col-md-2">
+                        <a style="margin: 0px 4px 0px; cursor:pointer;" class="pull-right" type="button" onclick="studio_subproblem_delete('PID')"><i class="fa fa-lg fa-trash-o"></i></a>
+                        <a style="margin: 0px 4px 0px; cursor:pointer;" class="pull-right" type="button" onclick="studio_subproblem_down('PID')"><i class="fa fa-lg fa-arrow-down"></i></a>
+                        <a style="margin: 0px 4px 0px; cursor:pointer;" class="pull-right" type="button" onclick="studio_subproblem_up('PID')"><i class="fa fa-lg fa-arrow-up"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div id="collapse_PID" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading_PID">
+                <div class="panel-body">
+                    <input type="hidden" name="problem[PID][type]" value="blockly"/>
+                    <input type="hidden" class="subproblem_order" name="problem[PID][@order]" value="ORDER"/>
+                    <div class="form-group">
+                        <label for="name-PID" class="col-sm-2 control-label">Name</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="A title for this question"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="header-PID" class="col-sm-2 control-label">Context</label>
+                        <div class="col-sm-10">
+                            <textarea id="header-PID" class="form-control" name="problem[PID][header]"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="language-PID" class="col-sm-2 control-label">Language</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="language-PID" name="problem[PID][language]" placeholder="Language used in this question (c/c++/java/python/oz/...)"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="visual-PID" class="col-sm-2 control-label">Visual problem</label>
+                        <div class="col-sm-10">
+                            <div class="checkbox"><label>
+                                <input type="checkbox" id="visual-PID" name="problem[PID][options][visual]"/>&nbsp;</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="workspace-options-PID" class="col-sm-2 control-label">Workspace</label>
+                        <div class="col-sm-10">
+                            <div class="form-group">
+                                <label for="collapse-PID" class="col-sm-4 control-label">Can collapse blocks</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox"><label>
+                                        <input type="checkbox" id="collapse-PID" name="problem[PID][options][collapse]"/>&nbsp;
+                                    </label></div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="comments-PID" class="col-sm-4 control-label">Can comment blocks</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox"><label>
+                                        <input type="checkbox" id="comments-PID" name="problem[PID][options][comments]"/>&nbsp;
+                                    </label></div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="disable-PID" class="col-sm-4 control-label">Can disable blocks</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox"><label>
+                                        <input type="checkbox" id="disable-PID" name="problem[PID][options][disable]"/>&nbsp;
+                                    </label></div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="maxBlocks-PID" class="col-sm-4 control-label">Max number of blocks</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="maxBlocks-PID" name="problem[PID][options][maxBlocks]" placeholder="0,1,...,Infinity"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="trashcan-PID" class="col-sm-4 control-label">Use trashcan</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox"><label>
+                                        <input type="checkbox" id="trashcan-PID" name="problem[PID][options][trashcan]"/>&nbsp;
+                                    </label></div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="horizontalLayout-PID" class="col-sm-4 control-label">Use horizontal layout</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox"><label>
+                                        <input type="checkbox" id="horizontalLayout-PID" name="problem[PID][options][horizontalLayout]"/>&nbsp;
+                                    </label></div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="toolboxPosition-PID" class="col-sm-4 control-label">Toolbox position</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="toolboxPosition-PID" name="problem[PID][options][toolboxPosition]" placeholder="start or end"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="media-PID" class="col-sm-4 control-label">Media path</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="media-PID" name="problem[PID][options][media]" placeholder="/static/common/js/blockly/media/"/>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="css-PID" class="col-sm-4 control-label">Use blockly css</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox"><label>
+                                        <input type="checkbox" id="css-PID" name="problem[PID][options][css]"/>&nbsp;
+                                    </label></div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <!-- Be carefum studio.js exactly needs this structure -->
+                                <label for="grid-PID" class="col-sm-4 control-label">Display grid</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox"><label>
+                                        <input type="checkbox" id="grid-PID" name="problem[PID][options][grid]"/>&nbsp;
+                                    </label></div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <!-- Be carefum studio.js exactly needs this structure -->
+                                <label for="zoom-PID" class="col-sm-4 control-label">Zoom</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox"><label>
+                                        <input type="checkbox" id="zoom-PID" name="problem[PID][options][zoom]"/>&nbsp;
+                                    </label></div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="rtl-PID" class="col-sm-4 control-label">Right-to-left</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox"><label>
+                                        <input type="checkbox" id="rtl-PID" name="problem[PID][options][rtl]"/>&nbsp;
+                                    </label></div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="readOnly-PID" class="col-sm-4 control-label">Read only</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox"><label>
+                                        <input type="checkbox" id="readOnly-PID" name="problem[PID][options][readOnly]"/>&nbsp;
+                                    </label></div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="oneBasedIndex-PID" class="col-sm-4 control-label">1-based index</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox"><label>
+                                        <input type="checkbox" id="oneBasedIndex-PID" name="problem[PID][options][oneBasedIndex]"/>&nbsp;
+                                    </label></div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="scrollbars-PID" class="col-sm-4 control-label">Scrollbars</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox"><label>
+                                        <input type="checkbox" id="scrollbars-PID" name="problem[PID][options][scrollbars]"/>&nbsp;
+                                    </label></div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="sounds-PID" class="col-sm-4 control-label">Sounds</label>
+                                <div class="col-sm-8">
+                                    <div class="checkbox"><label>
+                                        <input type="checkbox" id="sounds-PID" name="problem[PID][options][sounds]"/>&nbsp;
+                                    </label></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-offset-1 col-sm-10">
+                        <h4 style="text-align: center">Files (Interpreter, Visual execution)</h4>
+                        <div id="javascript_files-PID"></div>
+                        <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_create_blockly_js_files('PID',{})" style="margin-bottom:30px;">
+                            <i class="fa fa-plus"></i> Add new file
+                        </button>
+                        <h4 style="text-align: center">Additional blocks files</h4>
+                        <div id="javascript_blocks_files-PID"></div>
+                        <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_create_blockly_blocks_files('PID',{})" style="margin-bottom:30px;">
+                            <i class="fa fa-plus"></i> Add new file
+                        </button>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-xs-offset-2 col-xs-8 col-sm-offset-3 col-sm-6 col-md-offset-4 col-md-4">
+                                    <button type="button" class="btn btn-warning btn-sm btn-block" data-toggle="collapse" data-target="#blocklyToolboxCollapse">
+                                        <span class="glyphicon glyphicon-pencil"></span> Editer la toolbox en XML
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="blocklyToolboxCollapse" class="collapse">
+                                <label for="toolbox-PID" class="col-sm-2 control-label">Toolbox</label>
+                                <div class="col-sm-10">
+                                    <textarea id="toolbox-PID" class="form-control" name="problem[PID][toolbox]"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-xs-offset-2 col-xs-8 col-sm-offset-3 col-sm-6 col-md-offset-4 col-md-4">
+                                    <button type="button" class="btn btn-warning btn-sm btn-block" data-toggle="collapse" data-target="#blocklyWorkspaceCollapse">
+                                        <span class="glyphicon glyphicon-pencil"></span> Editer le workspace en XML
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="blocklyWorkspaceCollapse" class="collapse">
+                                <label for="workspace-PID" class="col-sm-2 control-label">Workspace</label>
+                                <div class="col-sm-10">
+                                    <textarea id="workspace-PID" class="form-control" name="problem[PID][workspace]"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <link rel="stylesheet" href="$get_homepath()/static/common/css/bootstrap-modal-fullscreen.css">
+                        <script src="$get_homepath()/static/common/js/bootstrap-modal-backdrop.js" type="text/javascript" charset="utf-8"></script>
+                        <div id="blockFactoryModal" class="modal modal-fullscreen fade" role="dialog" tabindex="-1">
+                            <div class="modal-dialog" style="width:100vw;">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                        <h4 class="modal-title">Blockly Factory</h4>
+                                    </div>
+                                    <div id="blockFactoryModalBody" class="modal-body" style="height:80vh;">
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-offset-1 col-sm-10">
+                            <button class="btn btn-info btn-sm btn-block" type="button" name="button" data-toggle="modal" data-target="#blockFactoryModal">
+                                <span class="glyphicon glyphicon-sunglasses"></span> Editer la toolbox et le workspace visuellement</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="subproblem_blockly_visual">
+        <div class="form-group">
+            <label for="visualPosition-PID" class="col-sm-2 control-label">Position</label>
+            <div class="col-sm-10">
+                <select class="form-control" id="visualPosition-PID" name="problem[PID][options][visual][position]">
+                    <option value="left">left</option>
+                    <option value="right">right</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div id="subproblem_blockly_grid">
+        <div class="form-group">
+            <label for="gridSpacing-PID" class="col-sm-2 control-label">Spacing</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="gridSpacing-PID" name="problem[PID][options][grid][spacing]" placeholder="Default is 20"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="gridLength-PID" class="col-sm-2 control-label">Length</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="gridLength-PID" name="problem[PID][options][grid][length]" placeholder="Default is 3"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="gridColour-PID" class="col-sm-2 control-label">Colour</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="gridColour-PID" name="problem[PID][options][grid][colour]" placeholder="Default is #ccc"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="gridSnap-PID" class="col-sm-2 control-label">Snap</label>
+            <div class="col-sm-10">
+                <div class="checkbox"><label>
+                    <input type="checkbox" id="gridSnap-PID" name="problem[PID][options][grid][snap]"/>&nbsp;
+                </label></div>
+            </div>
+        </div>
+    </div>
+    <div id="subproblem_blockly_zoom">
+        <div class="form-group">
+            <label for="zoomControls-PID" class="col-sm-2 control-label">Controls</label>
+            <div class="col-sm-10">
+                <div class="checkbox"><label>
+                    <input type="checkbox" id="zoomControls-PID" name="problem[PID][options][zoom][controls]"/>&nbsp;
+                </label></div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="zoomWheel-PID" class="col-sm-2 control-label">Wheel</label>
+            <div class="col-sm-10">
+                <div class="checkbox"><label>
+                    <input type="checkbox" id="zoomWheel-PID" name="problem[PID][options][zoom][wheel]"/>&nbsp;
+                </label></div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="zoomStartScale-PID" class="col-sm-2 control-label">Start scale</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="zoomStartScale-PID" name="problem[PID][options][zoom][startScale]" placeholder="Default is 1"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="zoomMaxScale-PID" class="col-sm-2 control-label">Max scale</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="zoomMaxScale-PID" name="problem[PID][options][zoom][maxScale]" placeholder="Default is 3"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="zoomMinScale-PID" class="col-sm-2 control-label">Min scale</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="zoomMinScale-PID" name="problem[PID][options][zoom][minScale]" placeholder="Default is 0.3"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="zoomScaleSpeed-PID" class="col-sm-2 control-label">Scale speed</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="zoomScaleSpeed-PID" name="problem[PID][options][zoom][scaleSpeed]" placeholder="Default is 1.2"/>
+            </div>
+        </div>
+    </div>
+    <div id="subproblem_blockly_files">
+        <div class="form-group">
+            <label for="file-PID-INDEX" class="col-sm-2 control-label">File name</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="file-PID-INDEX" name="problem[PID][files][INDEX]" placeholder="Name of the file"/>
+                </div>
+        </div>
+    </div>
+    <div id="subproblem_blocks_files">
+        <div class="form-group">
+            <label for="file-PID-INDEX" class="col-sm-2 control-label">File name</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" id="file-PID-INDEX" name="problem[PID][blocks_files][INDEX]" placeholder="Name of the file"/>
+                </div>
+        </div>
+    </div>
+    <div id="subproblem_blockly_factory">
+        <div id="blocklyFactory"></div>
+
+        <!-- Blockly official JavaScript -->
+        <script src="$get_homepath()/static/common/js/blockly/blockly_compressed.js" type="text/javascript" charset="utf-8"></script>
+        <script src="$get_homepath()/static/common/js/blockly/blocks_compressed.js" type="text/javascript" charset="utf-8"></script>
+        <script src="$get_homepath()/static/common/js/blockly/javascript_compressed.js" type="text/javascript" charset="utf-8"></script>
+        <script src="$get_homepath()/static/common/js/blockly/python_compressed.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Blockly French Translation -->
+        <script src="$get_homepath()/static/common/js/blockly/msg/js/fr.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Blockly Factory js -->
+        <script src="$get_homepath()/static/webapp/js/blocklyfactory/bootstrapelement.js" charset="utf-8"></script>
+        <script src="$get_homepath()/static/webapp/js/blocklyfactory/factorycontroller.js" charset="utf-8"></script>
+        <script src="$get_homepath()/static/webapp/js/blocklyfactory/factory.js" charset="utf-8"></script>
+        <script src="$get_homepath()/static/webapp/js/blocklyfactory/factoryview.js" charset="utf-8"></script>
+        <script src="$get_homepath()/static/webapp/js/blocklyfactory/preview.js" charset="utf-8"></script>
+        <script src="$get_homepath()/static/webapp/js/blocklyfactory/toolboxfactory.js" charset="utf-8"></script>
+        <script src="$get_homepath()/static/webapp/js/blocklyfactory/toolbox.js" charset="utf-8"></script>
+        <script src="$get_homepath()/static/webapp/js/blocklyfactory/workspacefactory.js" charset="utf-8"></script>
+
+    </div>
     <div id="subproblem_custom">
         <div class="panel panel-default" id="subproblem_well_PID">
             <div class="panel-heading" role="tab" id="heading_PID">

@@ -1,0 +1,16 @@
+/* Copy-paste from http://www.minimit.com/demos/bootstrap-3-transparent-and-fullscreen-modals */
+/* .modal-transparent */
+
+.modal-transparent {
+  background: transparent;
+}
+.modal-transparent .modal-content {
+  background: transparent;
+}
+.modal-backdrop.modal-backdrop-transparent {
+  background: #ffffff;
+}
+.modal-backdrop.modal-backdrop-transparent.in {
+  opacity: .9;
+  filter: alpha(opacity=90);
+}
