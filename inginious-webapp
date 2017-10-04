@@ -81,10 +81,9 @@ if __name__ == "__main__":
 
     # Add static redirection and request log
     root_path = inginious.get_root_path()
-    application = StaticMiddleware(application, (
-        ('/static/common/', os.path.join(root_path, 'frontend', 'common', 'static')),
+    application = StaticMiddleware(application, [
         ('/static/webapp/', os.path.join(root_path, 'frontend', 'webapp', 'static'))
-    ))
+    ])
     application = CustomLogMiddleware(application, logging.getLogger("inginious.webapp.requests"))
 
     # Launch the app

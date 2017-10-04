@@ -286,8 +286,7 @@ You can then replace the content of fastcgi.conf with:
     server.modules   += ( "mod_rewrite" )
 
     alias.url = (
-        "/static/webapp/" => "/usr/lib/python3.5/site-packages/inginious/frontend/webapp/static/",
-        "/static/common/" => "/usr/lib/python3.5/site-packages/inginious/frontend/common/static/"
+        "/static/webapp/" => "/usr/lib/python3.5/site-packages/inginious/frontend/webapp/static/"
     )
 
     fastcgi.server = ( "/inginious-webapp" =>
@@ -305,7 +304,7 @@ You can then replace the content of fastcgi.conf with:
     )
 
     url.rewrite-once = (
-        "^/favicon.ico$" => "/static/common/icons/favicon.ico",
+        "^/favicon.ico$" => "/static/webapp/icons/favicon.ico",
         "^/static/(.*)$" => "/static/$1",
         "^/(.*)$" => "/inginious-webapp/$1"
     )
@@ -378,7 +377,6 @@ You can then modify your ``/etc/httpd/conf/httpd.conf`` file to apply the follow
     WSGIScriptAlias / "/usr/bin/inginious-webapp"
     WSGIScriptReloading On
 
-    Alias /static/common /usr/lib/python3.5/site-packages/inginious/frontend/common/static/
     Alias /static/webapp /usr/lib/python3.5/site-packages/inginious/frontend/webapp/static/
     Alias /static/lti /usr/lib/python3.5/site-packages/inginious/frontend/lti/static/
 

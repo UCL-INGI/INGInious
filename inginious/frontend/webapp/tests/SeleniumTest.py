@@ -34,10 +34,9 @@ def _start_frontend(config, host, port, ssh_port):
     func, close_app_func = get_app(config)
 
     inginious_root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
-    func = StaticMiddleware(func, (
-        ('/static/common/', os.path.join(inginious_root_path, 'frontend', 'common', 'static')),
+    func = StaticMiddleware(func, [
         ('/static/webapp/', os.path.join(inginious_root_path, 'frontend', 'webapp', 'static'))
-    ))
+    ])
     server = web.httpserver.WSGIServer((host, port), func)
 
     class FrontendThread(threading.Thread):

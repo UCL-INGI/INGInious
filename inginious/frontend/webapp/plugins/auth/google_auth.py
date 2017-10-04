@@ -61,7 +61,7 @@ class GoogleAuthMethod(AuthMethod):
         return self._name
 
     def get_imlink(self):
-        return '<img src="/static/common/icons/google-icon.svg" ' \
+        return '<img src="/static/webapp/icons/google-icon.svg" ' \
                'style="-moz-user-select: none; -webkit-user-select: none;' \
                'user-select: none; width: 50px; height:50px;" >'
 
