@@ -8,10 +8,12 @@
 from abc import ABCMeta, abstractmethod
 from random import shuffle
 
-from inginious.frontend.common.parsable_text import ParsableText
-from inginious.common.tasks_problems import BasicProblem, BasicCodeProblem, CodeProblem, CodeSingleLineProblem, MatchProblem, MultipleChoiceProblem, \
+from inginious.common.tasks_problems import BasicProblem, BasicCodeProblem, CodeProblem, CodeSingleLineProblem, \
+    MatchProblem, MultipleChoiceProblem, \
     CodeFileProblem
-from inginious.frontend.common.tasks_code_boxes import DisplayableInputBox, DisplayableMultilineBox, DisplayableTextBox, DisplayableFileBox
+from inginious.frontend.webapp.parsable_text import ParsableText
+from inginious.frontend.webapp.tasks_code_boxes import DisplayableInputBox, DisplayableMultilineBox, DisplayableTextBox, \
+    DisplayableFileBox
 
 
 class DisplayableBasicProblem(BasicProblem, metaclass=ABCMeta):

@@ -7,14 +7,16 @@
 import json
 import mimetypes
 import posixpath
-import urllib.request, urllib.parse, urllib.error
+import urllib.error
+import urllib.parse
+import urllib.request
 
 import web
-
 from bson.objectid import ObjectId
+
 from inginious.common import exceptions
-from inginious.frontend.common.task_page_helpers import submission_to_json, list_multiple_multiple_choices_and_files
 from inginious.frontend.webapp.pages.utils import INGIniousAuthPage
+from inginious.frontend.webapp.task_page_helpers import submission_to_json, list_multiple_multiple_choices_and_files
 
 
 class BaseTaskPage(object):

@@ -7,12 +7,13 @@
 
 """ Starts the webapp """
 
-import os
-import sys
 import argparse
-import web
-import signal
 import logging
+import os
+import signal
+import sys
+
+import web
 
 # Apache wsgi module only set env vars when a request is done
 os.environ['INGINIOUS_WEBAPP_CONFIG'] = os.environ.get("INGINIOUS_WEBAPP_CONFIG", "")
@@ -22,7 +23,7 @@ os.environ['INGINIOUS_WEBAPP_PORT'] = os.environ.get("INGINIOUS_WEBAPP_PORT", "8
 # If INGInious files are not installed in Python path
 sys.path.append(os.path.dirname(__file__))
 
-from inginious.frontend.common.static_middleware import StaticMiddleware
+from inginious.frontend.webapp.static_middleware import StaticMiddleware
 from inginious.common.log import init_logging, CustomLogMiddleware
 from inginious.common.base import load_json_or_yaml
 

@@ -1,23 +1,23 @@
 # -*- coding: utf-8 -*-
 
 import os
-import unittest
 import threading
+import unittest
 
-from pymongo import MongoClient
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException
-from selenium.common.exceptions import NoAlertPresentException
-from nose.plugins.skip import SkipTest
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 import web
+from nose.plugins.skip import SkipTest
+from pymongo import MongoClient
 from pyvirtualdisplay import Display
+from selenium import webdriver
+from selenium.common.exceptions import NoAlertPresentException
+from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
-from inginious.frontend.common.static_middleware import StaticMiddleware
 from inginious.frontend.webapp.app import get_app
+from inginious.frontend.webapp.static_middleware import StaticMiddleware
 
 TEST_ENV = os.environ.get("TEST_ENV", None)
 CUSTOM_SELENIUM_EXECUTOR = os.environ.get("CUSTOM_SELENIUM_EXECUTOR", None)

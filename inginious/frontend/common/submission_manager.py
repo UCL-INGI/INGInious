@@ -4,24 +4,22 @@
 # more information about the licensing of this file.
 
 """ Manages submissions """
-from abc import ABCMeta
-import json
-import time
+import io
 import os.path
 import tarfile
-import io
 import tempfile
-
-import bson
-import web
+import time
+from abc import ABCMeta
 from datetime import datetime
 
-from bson.objectid import ObjectId
+import bson
 import pymongo
+import web
+from bson.objectid import ObjectId
 from pymongo.collection import ReturnDocument
 
-from inginious.frontend.common.parsable_text import ParsableText
 import inginious.common.custom_yaml
+from inginious.frontend.webapp.parsable_text import ParsableText
 
 
 class SubmissionManager(object, metaclass=ABCMeta):

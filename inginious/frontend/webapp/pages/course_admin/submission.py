@@ -4,12 +4,12 @@
 # more information about the licensing of this file.
 
 import base64
+from os import path
 
 import web
 
-from os import path
-from inginious.frontend.common.task_problems import DisplayableCodeFileProblem, DisplayableMultipleChoiceProblem
 from inginious.frontend.webapp.pages.course_admin.utils import INGIniousAdminPage
+from inginious.frontend.webapp.task_problems import DisplayableCodeFileProblem, DisplayableMultipleChoiceProblem
 
 
 class CourseStudentTaskSubmission(INGIniousAdminPage):

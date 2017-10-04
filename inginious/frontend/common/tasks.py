@@ -5,10 +5,12 @@
 
 """ Classes modifying basic tasks, problems and boxes classes """
 import gettext
-from inginious.common.base import id_checker
+
 import inginious.common.tasks
-from inginious.frontend.common.parsable_text import ParsableText
-from inginious.frontend.common.task_problems import DisplayableCodeProblem, DisplayableCodeFileProblem, DisplayableCodeSingleLineProblem, \
+from inginious.common.base import id_checker
+from inginious.frontend.webapp.parsable_text import ParsableText
+from inginious.frontend.webapp.task_problems import DisplayableCodeProblem, DisplayableCodeFileProblem, \
+    DisplayableCodeSingleLineProblem, \
     DisplayableMultipleChoiceProblem, DisplayableMatchProblem
 
 

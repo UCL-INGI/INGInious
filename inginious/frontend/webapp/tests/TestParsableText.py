@@ -3,7 +3,7 @@
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
 
-from inginious.frontend.common.parsable_text import ParsableText
+from inginious.frontend.webapp.parsable_text import ParsableText
 
 
 class TestHookManager(object):

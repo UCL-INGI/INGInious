@@ -4,20 +4,19 @@
 # more information about the licensing of this file.
 
 """ Some utils for all the pages """
-from typing import List, Dict
-
 import logging
+from typing import List
+
 import web
-import hashlib
 from gridfs import GridFS
 from pymongo.database import Database
 
 from inginious.common.course_factory import CourseFactory
 from inginious.common.task_factory import TaskFactory
-from inginious.frontend.common.plugin_manager import PluginManager
 from inginious.frontend.common.submission_manager import SubmissionManager
-from inginious.frontend.common.template_helper import TemplateHelper
 from inginious.frontend.webapp.lti_outcome_manager import LTIOutcomeManager
+from inginious.frontend.webapp.plugin_manager import PluginManager
+from inginious.frontend.webapp.template_helper import TemplateHelper
 from inginious.frontend.webapp.user_manager import UserManager
 
 

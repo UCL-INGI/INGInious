@@ -4,32 +4,32 @@
 # more information about the licensing of this file.
 
 """ Starts the webapp """
+import builtins
+import gettext
+
+import web
 from gridfs import GridFS
 from pymongo import MongoClient
-import web
-import gettext
-import builtins
 from web.debugerror import debugerror
 
-from inginious import get_root_path
-from inginious.common.entrypoints import filesystem_from_config_dict
-from inginious.common.filesystems.local import LocalFSProvider
-from inginious.frontend.common.arch_helper import create_arch, start_asyncio_and_zmq
-from inginious.frontend.webapp.cookieless_app import CookieLessCompatibleApplication
-from inginious.frontend.webapp.database_updater import update_database
-from inginious.frontend.common.plugin_manager import PluginManager
-from inginious.common.course_factory import create_factories
-
-from inginious.frontend.webapp.lti_outcome_manager import LTIOutcomeManager
-from inginious.frontend.webapp.tasks import WebAppTask
-from inginious.frontend.webapp.courses import WebAppCourse
-from inginious.frontend.webapp.submission_manager import WebAppSubmissionManager
-from inginious.frontend.common.template_helper import TemplateHelper
-from inginious.frontend.webapp.user_manager import UserManager
-from inginious.frontend.common.session_mongodb import MongoStore
 import inginious.frontend.webapp.pages.course_admin.utils as course_admin_utils
 import inginious.frontend.webapp.pages.preferences.utils as preferences_utils
+from inginious import get_root_path
+from inginious.common.course_factory import create_factories
+from inginious.common.entrypoints import filesystem_from_config_dict
+from inginious.common.filesystems.local import LocalFSProvider
 from inginious.frontend.common.submission_manager import update_pending_jobs
+from inginious.frontend.webapp.arch_helper import create_arch, start_asyncio_and_zmq
+from inginious.frontend.webapp.cookieless_app import CookieLessCompatibleApplication
+from inginious.frontend.webapp.courses import WebAppCourse
+from inginious.frontend.webapp.database_updater import update_database
+from inginious.frontend.webapp.lti_outcome_manager import LTIOutcomeManager
+from inginious.frontend.webapp.plugin_manager import PluginManager
+from inginious.frontend.webapp.session_mongodb import MongoStore
+from inginious.frontend.webapp.submission_manager import WebAppSubmissionManager
+from inginious.frontend.webapp.tasks import WebAppTask
+from inginious.frontend.webapp.template_helper import TemplateHelper
+from inginious.frontend.webapp.user_manager import UserManager
 
 urls = (
     r'/?', 'inginious.frontend.webapp.pages.index.IndexPage',

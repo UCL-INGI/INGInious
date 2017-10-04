@@ -6,7 +6,7 @@
 """ Tasks """
 
 from inginious.frontend.webapp.pages.api._api_page import APIAuthenticatedPage, APINotFound, APIForbidden
-from inginious.frontend.common.parsable_text import ParsableText
+from inginious.frontend.webapp.parsable_text import ParsableText
 
 
 class APITasks(APIAuthenticatedPage):
