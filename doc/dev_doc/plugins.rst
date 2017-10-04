@@ -45,13 +45,13 @@ This method takes four arguments:
   ::
 
         plugins:
-            - plugin_module: inginious.frontend.webapp.plugins.demo
+            - plugin_module: inginious.frontend.plugins.demo
               param1: "value1"
 
   will generate the following ``plugin_config`` dictionary :
   ::
 
-        {"plugin_module": "inginious.frontend.webapp.plugins.demo", "param1": "value1"}
+        {"plugin_module": "inginious.frontend.plugins.demo", "param1": "value1"}
 
 
 The remaining INGInious classes can be used from your plugins using correct imports. The ``init`` method gives you access
@@ -59,7 +59,7 @@ to the different singletons used by INGInious which are instantiated at boot tim
 be used as base for a new LTI page.
 
 The ``plugin_module`` configuration parameter corresponds to the Python package in which the ``init`` method is found.
-A demonstration plugin is found in the ``inginious.frontend.webapp.plugins.demo``. You do not need to include your plugin
+A demonstration plugin is found in the ``inginious.frontend.plugins.demo``. You do not need to include your plugin
 in the INGInious sources. As long as your plugin is found in the Python path, it will remain usable by INGInious.
 
 List of hooks
@@ -74,7 +74,7 @@ would therefore need to add a hook method. This can be done using the ``add_hook
     import logging
 
     def submission_done(submission, archive, newsub):
-        logging.getLogger("inginious.frontend.webapp.plugins.demo").info("Submission " + str(submission['_id']) + " done.")
+        logging.getLogger("inginious.frontend.plugins.demo").info("Submission " + str(submission['_id']) + " done.")
 
     def init(plugin_manager, course_factory, client, plugin_config):
         """ Init the plugin """
@@ -143,7 +143,7 @@ Each hook available in INGInious is described here, starting with its name and p
     Used to add Javascript files in the footer. 
     Should return the path to a Javascript file (relative to the root of INGInious).
 ``course_accessibility`` (``course``, ``default``)
-    Returns: inginious.frontend.webapp.accessible_time.AccessibleTime
+    Returns: inginious.frontend.accessible_time.AccessibleTime
 
     ``course`` : inginious.common.courses.Course
 
@@ -151,7 +151,7 @@ Each hook available in INGInious is described here, starting with its name and p
 
     Overrides the course accessibility.
 ``task_accessibility`` (``course``, ``taskid``, ``default``)
-    Returns: inginious.frontend.webapp.accessible_time.AccessibleTime
+    Returns: inginious.frontend.accessible_time.AccessibleTime
 
     ``course`` : inginious.common.courses.Course
 

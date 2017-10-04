@@ -1,0 +1,14 @@
+$def with (message)
+
+$#
+$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+$# more information about the licensing of this file.
+$#
+
+$var title: $:_("Error 404")
+
+$# Start content
+<img src="$get_homepath(True)/static/images/logo_maintenance.png" style="margin:auto; display:block;"/>
+<div class="alert alert-danger" role="alert" style="text-align: center;">
+    <b>$:_("Error 404")</b> $:message
+</div>

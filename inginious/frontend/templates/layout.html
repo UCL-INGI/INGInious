@@ -1,0 +1,178 @@
+$def with (content)
+
+$#
+$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+$# more information about the licensing of this file.
+$#
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="INGInious">
+<meta name="author" content="">
+<link rel="icon" href="$get_homepath(True)/static/icons/favicon.ico">
+<link rel="mask-icon" href="$get_homepath(True)/static/icons/wb.svg" color="#5E932E">
+
+<title>$content.title | INGInious</title>
+
+<!-- Bootstrap -->
+<link href="$get_homepath(True)/static/css/bootstrap.min.css" rel="stylesheet">
+<link href="$get_homepath(True)/static/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+
+<!-- Font Awesome -->
+<link href="$get_homepath(True)/static/css/font-awesome.min.css" rel="stylesheet">
+
+<!-- INGInious Style -->
+<link href="$get_homepath(True)/static/css/INGInious.css" rel="stylesheet">
+
+<!-- Codemirror Style -->
+<link href="$get_homepath(True)/static/css/codemirror.css" rel="stylesheet">
+
+<!-- Icons -->
+<link rel="shortcut icon" href="$get_homepath(True)/static/icons/favicon.ico">
+<link rel="apple-touch-icon" sizes="57x57" href="$get_homepath(True)/static/icons/apple-touch-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="114x114" href="$get_homepath(True)/static/icons/apple-touch-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="72x72" href="$get_homepath(True)/static/icons/apple-touch-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="144x144" href="$get_homepath(True)/static/icons/apple-touch-icon-144x144.png">
+<link rel="apple-touch-icon" sizes="60x60" href="$get_homepath(True)/static/icons/apple-touch-icon-60x60.png">
+<link rel="apple-touch-icon" sizes="120x120" href="$get_homepath(True)/static/icons/apple-touch-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="76x76" href="$get_homepath(True)/static/icons/apple-touch-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="152x152" href="$get_homepath(True)/static/icons/apple-touch-icon-152x152.png">
+<link rel="icon" type="image/png" href="$get_homepath(True)/static/icons/favicon-196x196.png" sizes="196x196">
+<link rel="icon" type="image/png" href="$get_homepath(True)/static/icons/favicon-160x160.png" sizes="160x160">
+<link rel="icon" type="image/png" href="$get_homepath(True)/static/icons/favicon-96x96.png" sizes="96x96">
+<link rel="icon" type="image/png" href="$get_homepath(True)/static/icons/favicon-16x16.png" sizes="16x16">
+<link rel="icon" type="image/png" href="$get_homepath(True)/static/icons/favicon-32x32.png" sizes="32x32">
+<meta name="msapplication-TileColor" content="#00a300">
+<meta name="msapplication-TileImage" content="$get_homepath(True)/static/icons/mstile-144x144.png">
+<meta name="msapplication-config" content="$get_homepath(True)/static/icons/browserconfig.xml">
+
+$if use_minified:
+    <script src="$get_homepath(True)/static/js/all-minified.js"></script>
+$else:
+    <script src="$get_homepath(True)/static/js/libs/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="$get_homepath(True)/static/js/libs/jquery.form.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="$get_homepath(True)/static/js/codemirror/codemirror.js" type="text/javascript" charset="utf-8"></script>
+    <script src="$get_homepath(True)/static/js/codemirror/mode/meta.js" type="text/javascript" charset="utf-8"></script>
+    <script src="$get_homepath(True)/static/js/libs/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="$get_homepath(True)/static/js/libs/bootstrap-datetimepicker.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="$get_homepath(True)/static/js/libs/checked-list-group.js" type="text/javascript" charset="utf-8"></script>
+    <script src="$get_homepath(True)/static/js/common.js" type="text/javascript" charset="utf-8"></script>
+    <script src="$get_homepath(True)/static/js/task.js" type="text/javascript" charset="utf-8"></script>
+    <script src="$get_homepath(True)/static/js/webapp.js" type="text/javascript" charset="utf-8"></script>
+    <script src="$get_homepath(True)/static/js/studio.js" type="text/javascript" charset="utf-8"></script>
+    <script src="$get_homepath(True)/static/js/aggregations.js" type="text/javascript" charset="utf-8"></script>
+    <script src='$get_homepath(True)/static/js/jquery-sortable.min.js' type="text/javascript" charset="utf-8"></script>
+
+<script type="text/javascript">
+    CodeMirror.modeURL = "$get_homepath(True)/static/js/codemirror/mode/%N/%N.js";
+</script>
+
+$if "header" in content:
+    $:content.header
+
+$:template_helper.call('css')
+$:template_helper.call('javascript_header')
+$:template_helper.call('header_hook')
+</head>
+
+<body role="document">
+    <div id="wrapper">
+        <div class="navbar navbar-default navbar-static-top" role="navigation">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse"
+                        data-target=".navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span> <span
+                            class="icon-bar"></span> <span class="icon-bar"></span> <span
+                            class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="$get_homepath()/index"><img src="$get_homepath(True)/static/images/header.png" alt="logo"/> INGInious</a>
+                </div>
+                <div class="collapse navbar-collapse">
+                    $if "Navbar" in content:
+                        $:content.Navbar
+                    $if user_manager.session_logged_in():
+                        <ol class="nav navbar-nav navbar-right">
+                            <li class="dropdown">
+                                <a class="dropdown-toggle" role="button" data-toggle="dropdown">
+                                    <i class="fa fa-user fa-fw"></i> $user_manager.session_realname() <span class="caret"></span>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="$get_homepath()/index" class="navbar-link"><i class="fa fa-list fa-fw"></i> $:_("Course list")</a></li>
+                                    <li><a href="$get_homepath()/preferences" class="navbar-link"><i class="fa fa-gears fa-fw"></i> $:_("Preferences")</a></li>
+                                    <li role="separator" class="divider"></li>
+                                    <li><a href="$get_homepath()/queue" class="navbar-link"><i class="fa fa-dashboard fa-fw"></i> $:_("Service status")</a></li>
+                                    <li role="separator" class="divider"></li>
+                                    <li><a href="$get_homepath()/index?logoff" id="logoff_button" class="navbar-link"><i class="fa fa-sign-out"></i> $:_("Log out")</a></li>
+                                </ul>
+                            </li>
+                        </ol>
+                    $else:
+                        <ol class="nav navbar-nav navbar-right">
+                            <li class="dropdown">
+                                <a class="dropdown-toggle" role="button" data-toggle="dropdown">
+                                    <i class="fa fa-globe fa-fw"></i> $:_("English") <span class="caret"></span>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    $for code, language in available_languages.items():
+                                        <li><a href="?lang=$code" class="navbar-link"><i class="fa fa-chevron-right fa-fw"></i> $language</a></li>
+                                </ul>
+                            </li>
+
+                            $if allow_registration:
+                                <li><a href="$get_homepath()/register" class="navbar-link"><i class="fa fa-pencil fa-fw"></i> $:_("Register")</a></li>
+                            <li><a href="$get_homepath()/index" class="navbar-link"><i class="fa fa-sign-in fa-fw"></i> $:_("Sign in")</a></li>
+                        </ol>
+
+                </div>
+            </div>
+        </div>
+    
+        <div id="main_container" class="container-fluid" role="main">
+                $if "Column" in content:
+                    <div id="content" class="col-xs-12 col-sm-8 col-lg-9">
+                $else:
+                    <div id="content" class="col-xs-12">
+                $:content
+                <div class="footer_push"></div>
+            </div>
+            $if "Column" in content:
+            	<div id="sidebar" class="col-xs-12 col-sm-4 col-lg-3">
+                    <div id="sidebar_affix">
+                        <div id="sidebar_inner">
+                            $:content.Column
+                        </div>
+                    </div>
+                </div>
+                <div class="footer_push"></div>
+        </div>
+    </div>
+    <div id="footer">
+        <div class="navbar navbar-default navbar-static-top" style="position:absolute; width:100%" role="navigation">
+            <div class="container-fluid">
+                <div class="navbar-header" style="width: 100%">
+                    <p class="navbar-text">
+                        &copy; 2014-2017 Universit&eacute; catholique de Louvain
+                    </p>
+                    <div class="navbar-right">
+                        <p class="navbar-text">
+                            <a target="_blank" href="http://www.inginious.org" class="navbar-link">
+                                $:_("INGInious is distributed under AGPL license")
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    $:template_helper.call('javascript_footer')
+</body>
+</html>

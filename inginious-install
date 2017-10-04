@@ -8,11 +8,12 @@
 """ Creates configuration file for the various frontends """
 
 import argparse
-import inginious.frontend.webapp.installer
+
+import inginious.frontend.installer
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Creates a configuration file for the specified frontend.')
     parser.add_argument("--file", help="Path to configuration file. If not set, use the default for the given frontend.")
     args = parser.parse_args()
 
-    inginious.frontend.webapp.installer.Installer(args.file).run()
+    inginious.frontend.installer.Installer(args.file).run()
