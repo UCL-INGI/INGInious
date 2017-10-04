@@ -344,7 +344,7 @@ class Installer(object, metaclass=abc.ABCMeta):
         if current_options["backend"] == "local":
             self._display_info("Connecting to the local Docker daemon...")
             try:
-                docker_connection = docker.Client(**kwargs_from_env())
+                docker_connection = docker.from_env()
             except:
                 self._display_error("Cannot connect to local Docker daemon. Skipping download.")
                 return
