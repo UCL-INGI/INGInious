@@ -45,9 +45,32 @@ class WebAppSubmissionManager:
     def _job_done_callback(self, submissionid, task, result, grade, problems, tests, custom, archive, stdout, stderr, newsub=True):
         """ Callback called by Client when a job is done. Updates the submission in the database with the data returned after the completion of the
         job """
-        super(WebAppSubmissionManager, self)._job_done_callback(submissionid, task, result, grade, problems, tests, custom, archive, stdout, stderr, newsub)
-
         submission = self.get_submission(submissionid, False)
+        submission = self.get_input_from_submission(submission)
+
+        data = {
+            "status": ("done" if result[0] == "success" or result[0] == "failed" else "error"),
+        # error only if error was made by INGInious
+            "result": result[0],
+            "grade": grade,
+            "text": result[1],
+            "tests": tests,
+            "problems": problems,
+            "archive": (self._gridfs.put(archive) if archive is not None else None),
+            "custom": custom,
+            "stdout": stdout,
+            "stderr": stderr
+        }
+
+        # Save submission to database
+        submission = self._database.submissions.find_one_and_update(
+            {"_id": submission["_id"]},
+            {"$set": data, "$unset": {'jobid': ""}},
+            return_document=ReturnDocument.AFTER
+        )
+
+        self._hook_manager.call_hook("submission_done", submission=submission, archive=archive, newsub=newsub)
+
         for username in submission["username"]:
             self._user_manager.update_user_stats(username, task, submission, result[0], grade, newsub)
 
@@ -61,6 +84,15 @@ class WebAppSubmissionManager:
                                               submission["outcome_result_id"])
 
     def _before_submission_insertion(self, task, inputdata, debug, obj):
+        """
+        Called before any new submission is inserted into the database. Allows you to modify obj, the new document that will be inserted into the
+        database. Should be overridden in subclasses.
+
+        :param task: Task related to the submission
+        :param inputdata: input of the student
+        :param debug: True, False or "ssh". See add_job.
+        :param obj: the new document that will be inserted
+        """
         username = self._user_manager.session_username()
 
         if task.is_group_task() and not self._user_manager.has_staff_rights_on_course(task.get_course(), username):
@@ -88,6 +120,14 @@ class WebAppSubmissionManager:
                         "outcome_consumer_key": outcome_consumer_key})
 
     def _after_submission_insertion(self, task, inputdata, debug, submission, submissionid):
+        """
+                Called after any new submission is inserted into the database, but before starting the job.  Should be overridden in subclasses.
+                :param task: Task related to the submission
+                :param inputdata: input of the student
+                :param debug: True, False or "ssh". See add_job.
+                :param submission: the new document that was inserted (do not contain _id)
+                :param submissionid: submission id of the submission
+                """
         # If we are submitting for a group, send the group (user list joined with ",") as username
         if "group" not in [p.get_id() for p in task.get_problems()]:  # do not overwrite
             username = self._user_manager.session_username()
@@ -98,9 +138,6 @@ class WebAppSubmissionManager:
                 inputdata["username"] = ','.join(group["groups"][0]["students"])
 
         return self._delete_exceeding_submissions(self._user_manager.session_username(), task)
-
-    def _always_keep_best(self):
-        return False
 
     def replay_job(self, task, submission, copy=False, debug=False):
         """
@@ -167,35 +204,6 @@ class WebAppSubmissionManager:
             return None
         return sub
 
-    def _job_done_callback(self, submissionid, task, result, grade, problems,
-                           tests, custom, archive, stdout, stderr, newsub=True):  # pylint: disable=unused-argument
-        """ Callback called by Client when a job is done. Updates the submission in the database with the data returned after the completion of the
-        job """
-        submission = self.get_submission(submissionid, False)
-        submission = self.get_input_from_submission(submission)
-
-        data = {
-            "status": ("done" if result[0] == "success" or result[0] == "failed" else "error"),  # error only if error was made by INGInious
-            "result": result[0],
-            "grade": grade,
-            "text": result[1],
-            "tests": tests,
-            "problems": problems,
-            "archive": (self._gridfs.put(archive) if archive is not None else None),
-            "custom": custom,
-            "stdout": stdout,
-            "stderr": stderr
-        }
-
-        # Save submission to database
-        submission = self._database.submissions.find_one_and_update(
-            {"_id": submission["_id"]},
-            {"$set": data, "$unset": {'jobid': ""}},
-            return_document=ReturnDocument.AFTER
-        )
-
-        self._hook_manager.call_hook("submission_done", submission=submission, archive=archive, newsub=newsub)
-
     def add_job(self, task, inputdata, debug=False):
         """
         Add a job in the queue and returns a submission id.
@@ -234,13 +242,12 @@ class WebAppSubmissionManager:
 
         self._before_submission_insertion(task, inputdata, debug, obj)
 
-        submissionid = self._database.submissions.insert(obj)
-
         # Send additional data to the client in inputdata. For now, the username and the language. New fields can be added with the
         # new_submission hook
         inputdata["@username"] = username
         inputdata["@lang"] = self._user_manager.session_language()
 
+        submissionid = self._database.submissions.insert(obj)
         to_remove = self._after_submission_insertion(task, inputdata, debug, obj, submissionid)
 
         self._hook_manager.call_hook("new_submission", submissionid=submissionid, submission=obj, inputdata=inputdata)
@@ -265,33 +272,6 @@ class WebAppSubmissionManager:
 
         return submissionid, to_remove
 
-    def _before_submission_insertion(self, task, inputdata, debug, obj):
-        """
-        Called before any new submission is inserted into the database. Allows you to modify obj, the new document that will be inserted into the
-        database. Should be overridden in subclasses.
-
-        :param task: Task related to the submission
-        :param inputdata: input of the student
-        :param debug: True, False or "ssh". See add_job.
-        :param obj: the new document that will be inserted
-        """
-        pass
-
-    def _after_submission_insertion(self, task, inputdata, debug, submission, submissionid):
-        """
-        Called after any new submission is inserted into the database, but before starting the job.  Should be overridden in subclasses.
-        :param task: Task related to the submission
-        :param inputdata: input of the student
-        :param debug: True, False or "ssh". See add_job.
-        :param submission: the new document that was inserted (do not contain _id)
-        :param submissionid: submission id of the submission
-        """
-        pass
-
-    def _always_keep_best(self):
-        """  Indicates if the best submissions are always kept in all cases (LTI) """
-        return False
-
     def _delete_exceeding_submissions(self, username, task, max_submissions_bound=-1):
         """ Deletes exceeding submissions from the database, to keep the database relatively small """
 
@@ -312,7 +292,7 @@ class WebAppSubmissionManager:
         # List the entries to keep
         to_keep = set([])
 
-        if task.get_evaluate() == 'best' or self._always_keep_best():
+        if task.get_evaluate() == 'best':
             # Find the best "status"="done" and "result"="success"
             idx_best = -1
             for idx, val in enumerate(tasks):
