@@ -4,8 +4,11 @@
 # more information about the licensing of this file.
 
 import gettext
+import logging
 import base64
 from os import path
+from bson.objectid import ObjectId
+from bson.errors import InvalidId
 
 import web
 
@@ -13,37 +16,47 @@ from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 from inginious.frontend.task_problems import DisplayableCodeFileProblem, DisplayableMultipleChoiceProblem
 
 
-class CourseStudentTaskSubmission(INGIniousAdminPage):
+class SubmissionPage(INGIniousAdminPage):
     """ List information about a task done by a student """
+    _logger = logging.getLogger("inginious.frontend.submissions")
 
-    def GET_AUTH(self, courseid, username, taskid, submissionid):  # pylint: disable=arguments-differ
+    def fetch_submission(self, submissionid):
+        try:
+            submission = self.submission_manager.get_submission(submissionid)
+            if not submission:
+                raise web.notfound()
+        except InvalidId as ex:
+            self._logger.info("Invalid ObjectId : %s", submissionid)
+            raise web.notfound()
+
+        courseid = submission["courseid"]
+        taskid = submission["taskid"]
+        course, task = self.get_course_and_check_rights(courseid, taskid)
+        return course, task, submission
+
+    def GET_AUTH(self, submissionid):  # pylint: disable=arguments-differ
         """ GET request """
-        course, task = self.get_course_and_check_rights(courseid, taskid)
-        return self.page(course, username, task, submissionid)
+        course, task, submission = self.fetch_submission(submissionid)
+        return self.page(course, task, submission)
 
-    def POST_AUTH(self, courseid, username, taskid, submissionid):  # pylint: disable=arguments-differ
-        course, task = self.get_course_and_check_rights(courseid, taskid)
+    def POST_AUTH(self, submissionid):  # pylint: disable=arguments-differ
+        course, task, submission = self.fetch_submission(submissionid)
         is_admin = self.user_manager.has_admin_rights_on_course(course)
 
         webinput = web.input()
-        submission = self.submission_manager.get_submission(submissionid, False)
         if "replay" in webinput and is_admin:
             self.submission_manager.replay_job(task, submission)
         elif "replay-copy" in webinput:  # Authorized for tutors
             self.submission_manager.replay_job(task, submission, True)
-            web.seeother(self.app.get_homepath() + "/course/" + courseid + "/" + taskid)
+            web.seeother(self.app.get_homepath() + "/course/" + course.get_id() + "/" + task.get_id())
         elif "replay-debug" in webinput and is_admin:
             self.submission_manager.replay_job(task, submission, True, "ssh")
-            web.seeother(self.app.get_homepath() + "/course/" + courseid + "/" + taskid)
+            web.seeother(self.app.get_homepath() + "/course/" + course.get_id() + "/" + task.get_id())
 
-        return self.page(course, username, task, submissionid)
+        return self.page(course, task, submission)
 
-    def page(self, course, username, task, submissionid):
+    def page(self, course, task, submission):
         """ Get all data and display the page """
-        submission = self.submission_manager.get_submission(submissionid, False)
-        if not submission or username not in submission["username"] or submission["courseid"] != course.get_id() or submission["taskid"] != \
-                task.get_id():
-            raise web.notfound()
         submission = self.submission_manager.get_input_from_submission(submission)
         submission = self.submission_manager.get_feedback_from_submission(
             submission,
@@ -144,4 +157,4 @@ class CourseStudentTaskSubmission(INGIniousAdminPage):
                     data["base64"] = base64.b64encode(str(submission["input"][pid]).encode('utf-8')).decode('utf-8')
                 to_display.append(data)
 
-        return self.template_helper.get_renderer().course_admin.submission(course, username, task, submissionid, submission, to_display)
+        return self.template_helper.get_renderer().course_admin.submission(course, task, submission, to_display)

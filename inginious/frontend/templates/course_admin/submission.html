@@ -1,10 +1,11 @@
-$def with (course,username,task,submissionid,submission,to_display)
+$def with (course,task,submission,to_display)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
+$ username = submission['username'][0]
 $ user_realname= user_manager.get_user_realname(username)
 $var title: $:task.get_name(user_manager.session_language()) - $:user_realname - $:course.get_name(user_manager.session_language())
 $ is_admin = user_manager.has_admin_rights_on_course(course)
@@ -25,11 +26,11 @@ $def NavbarF():
         </li>
         <li><a href="$get_homepath()/admin/$course.get_id()/student/$username">$user_realname</a></li>
         <li><a href="$get_homepath()/admin/$course.get_id()/student/$username/$task.get_id()">$:task.get_name(user_manager.session_language())</a></li>
-        <li class="active"><a href="#">$submissionid[0:10] <span class="sr-only">$:_("(current)")</span></a></li>
+        <li class="active"><a href="#">$str(submission['_id'])[0:10] <span class="sr-only">$:_("(current)")</span></a></li>
     </ol>
 $var Navbar: $:NavbarF()
 
-<h2>$:_("Submission {}").format(submissionid[0:10]) - "$:task.get_name(user_manager.session_language())" - $user_realname ($username)</h2>
+<h2>$:_("Submission {}").format(str(submission['_id'])[0:10]) - "$:task.get_name(user_manager.session_language())" - $user_realname ($username)</h2>
 <div class="alert alert-info text-center">
     $:_("This page show what was shown to the student when (s)he made his/her submission.") <br/>
     <form method="post">
@@ -41,7 +42,7 @@ $var Navbar: $:NavbarF()
             </div>
             $if "result"  in submission:
                 <div class="col-md-12" style="margin:2px 0px 2px 0px;">
-                    <a href="$get_homepath()/admin/$course.get_id()/download?submission=$submissionid" class="btn btn-sm btn-block btn-primary">
+                    <a href="$get_homepath()/admin/$course.get_id()/download?submission=$submission['_id']" class="btn btn-sm btn-block btn-primary">
                         <i class="fa fa-download fa-fw"></i> $:_("Download full submission")
                     </a>
                 </div>

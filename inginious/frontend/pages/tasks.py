@@ -16,7 +16,8 @@ from bson.objectid import ObjectId
 
 from inginious.common import exceptions
 from inginious.frontend.pages.utils import INGIniousAuthPage
-from inginious.frontend.task_page_helpers import submission_to_json, list_multiple_multiple_choices_and_files
+from inginious.common.tasks_code_boxes import FileBox
+from inginious.common.tasks_problems import MultipleChoiceProblem, BasicCodeProblem
 
 
 class BaseTaskPage(object):
@@ -157,7 +158,7 @@ class BaseTaskPage(object):
                     return json.dumps({"status": "error", "text": _("You are not allowed to submit for this task.")})
 
                 # Reparse user input with array for multiple choices
-                init_var = list_multiple_multiple_choices_and_files(task)
+                init_var = self.list_multiple_multiple_choices_and_files(task)
                 userinput = task.adapt_input_for_backend(web.input(**init_var))
 
                 if not task.input_is_consistent(userinput, self.default_allowed_file_extensions, self.default_max_file_size):
@@ -204,34 +205,12 @@ class BaseTaskPage(object):
                     if default_submission is None:
                         self.set_selected_submission(course, task, userinput['submissionid'])
 
-                    return submission_to_json(result, is_admin, False, True if default_submission is None else default_submission['_id'] == result['_id'])
+                    return self.submission_to_json(result, is_admin, False, True if default_submission is None else default_submission['_id'] == result['_id'])
 
                 else:
                     web.header('Content-Type', 'application/json')
+                    return self.submission_to_json(result, is_admin)
 
-                    if "ssh_host" in result:
-                        return json.dumps({'status': "waiting", 'text': "<b>SSH server active</b>",
-                                           'ssh_host': result["ssh_host"], 'ssh_port': result["ssh_port"],
-                                           'ssh_password': result["ssh_password"]})
-
-                    # Here we are waiting. Let's send some useful information.
-                    waiting_data = self.submission_manager.get_job_queue_info(result["jobid"]) if "jobid" in result else None
-                    if waiting_data is not None:
-                        nb_tasks_before, approx_wait_time = waiting_data
-                        wait_time = round(approx_wait_time)
-                        if nb_tasks_before == -1 and wait_time <= 0:
-                            text = _("<b>INGInious is currently grading your answers.<b/> (almost done)")
-                        elif nb_tasks_before == -1:
-                            text = _("<b>INGInious is currently grading your answers.<b/> (Approx. wait time: {} seconds)").format(wait_time)
-                        elif nb_tasks_before == 0:
-                            text = _("<b>You are next in the waiting queue!</b>")
-                        elif nb_tasks_before == 1:
-                            text = _("<b>There is one task in front of you in the waiting queue.</b>")
-                        else:
-                            text = _("<b>There are {} tasks in front of you in the waiting queue.</b>").format(nb_tasks_before)
-
-                        return json.dumps({'status': "waiting", 'text': text})
-                    return json.dumps({'status': "waiting", "text": _("<b>Your submission has been sent...</b>")})
             elif "@action" in userinput and userinput["@action"] == "load_submission_input" and "submissionid" in userinput:
                 submission = self.submission_manager.get_submission(userinput["submissionid"])
                 submission = self.submission_manager.get_input_from_submission(submission)
@@ -239,7 +218,7 @@ class BaseTaskPage(object):
                 if not submission:
                     raise web.notfound()
                 web.header('Content-Type', 'application/json')
-                return submission_to_json(submission, is_admin, True)
+                return self.submission_to_json(submission, is_admin, True)
             elif "@action" in userinput and userinput["@action"] == "kill" and "submissionid" in userinput:
                 self.submission_manager.kill_running_submission(userinput["submissionid"])  # ignore return value
                 web.header('Content-Type', 'application/json')
@@ -261,6 +240,95 @@ class BaseTaskPage(object):
             else:
                 raise web.notfound()
 
+    def submission_to_json(self, data, debug, reloading=False, replace=False):
+        """ Converts a submission to json (keeps only needed fields) """
+
+        if "ssh_host" in data:
+            return json.dumps({'status': "waiting", 'text': "<b>SSH server active</b>",
+                               'ssh_host': data["ssh_host"], 'ssh_port': data["ssh_port"],
+                               'ssh_password': data["ssh_password"]})
+
+        # Here we are waiting. Let's send some useful information.
+        waiting_data = self.submission_manager.get_job_queue_info(data["jobid"]) if "jobid" in data else None
+        if waiting_data is not None:
+            nb_tasks_before, approx_wait_time = waiting_data
+            wait_time = round(approx_wait_time)
+            if nb_tasks_before == -1 and wait_time <= 0:
+                text = _("<b>INGInious is currently grading your answers.<b/> (almost done)")
+            elif nb_tasks_before == -1:
+                text = _("<b>INGInious is currently grading your answers.<b/> (Approx. wait time: {} seconds)").format(
+                    wait_time)
+            elif nb_tasks_before == 0:
+                text = _("<b>You are next in the waiting queue!</b>")
+            elif nb_tasks_before == 1:
+                text = _("<b>There is one task in front of you in the waiting queue.</b>")
+            else:
+                text = _("<b>There are {} tasks in front of you in the waiting queue.</b>").format(nb_tasks_before)
+
+            return json.dumps({'status': "waiting", 'text': text})
+        elif data['status'] == 'waiting':
+            return json.dumps({'status': "waiting", "text": _("<b>Your submission has been sent...</b>")})
+
+        tojson = {
+            'status': data['status'],
+            'result': data.get('result', 'crash'),
+            'id': str(data["_id"]),
+            'submitted_on': str(data['submitted_on']),
+            'grade': str(data.get("grade", 0.0)),
+            'replace': replace and not reloading  # Replace the evaluated submission
+        }
+
+        if reloading:
+            # Set status='ok' because we are reloading an old submission.
+            tojson["status"] = 'ok'
+            # And also include input
+            tojson["input"] = data.get('input', {})
+
+        if "text" in data:
+            tojson["text"] = data["text"]
+        if "problems" in data:
+            tojson["problems"] = data["problems"]
+
+        if debug:
+            tojson["debug"] = data
+
+        if data["result"] == "failed":
+            tojson["text"] = _("<b>There are some errors in your answer. "
+                               "Your score is {score}%</b> {text}").format(score=data["grade"],
+                                                                           text=data["text"])
+        elif data["result"] == "success":
+            tojson["text"] = _("<b>Your answer passed the tests! "
+                               "Your score is {score}%</b> {text}").format(score=data["grade"],
+                                                                           text=data["text"])
+        elif data["result"] == "timeout":
+            tojson["text"] = _("<b>Your submission timed out. "
+                               "Your score is {score}%</b> {text}").format(score=data["grade"],
+                                                                           text=data["text"])
+        elif data["result"] == "overflow":
+            tojson["text"] = _("<b>Your submission made an overflow. "
+                               "Your score is {score}%</b> {text}").format(score=data["grade"],
+                                                                           text=data["text"])
+        elif data["result"] == "killed":
+            tojson["text"] = _("<b>Your submission was killed.</b> {text}").format(text=data["text"])
+        else:
+            tojson["text"] = _("<b>An internal error occurred. Please retry later. "
+                               "If the error persists, send an email to the course "
+                               "administrator.</b> {text}").format(text=data["text"])
+
+        return json.dumps(tojson, default=str)
+
+
+    def list_multiple_multiple_choices_and_files(self, task):
+        """ List problems in task that expect and array as input """
+        output = {}
+        for problem in task.get_problems():
+            if isinstance(problem, MultipleChoiceProblem) and problem.allow_multiple():
+                output[problem.get_id()] = []
+            elif isinstance(problem, BasicCodeProblem):
+                for box in problem.get_boxes():
+                    if isinstance(box, FileBox):
+                        output[box.get_complete_id()] = {}
+        return output
 
 class TaskPageStaticDownload(INGIniousAuthPage):
     """ Allow to download files stored in the task folder """
