@@ -144,10 +144,10 @@ class CourseEditClassroom(INGIniousAdminPage):
             classroom = self.database.classrooms.find_one({"_id": ObjectId(classroomid), "courseid": courseid})
 
             if classroom is None:
-                msg = "Classroom not found."
+                msg = _("Classroom not found.")
                 error = True
             elif classroom['default']:
-                msg = "You can't remove your default classroom."
+                msg = _("You can't remove your default classroom.")
                 error = True
             else:
                 self.database.classrooms.find_one_and_update({"courseid": courseid, "default": True},
@@ -174,17 +174,17 @@ class CourseEditClassroom(INGIniousAdminPage):
                 student_list, tutor_list, other_students, users_info = self.get_user_lists(course, classroom["_id"])
 
                 if len(errored_students) > 0:
-                    msg = "Changes couldn't be applied for following students : <ul>"
+                    msg = _("Changes couldn't be applied for following students :") + "<ul>"
                     for student in errored_students:
                         msg += "<li>" + student + "</li>"
                     msg += "</ul>"
                     error = True
                 else:
-                    msg = "Classroom updated."
+                    msg = _("Classroom updated.")
             except:
                 classroom = self.database.classrooms.find_one({"_id": ObjectId(classroomid), "courseid": courseid})
                 student_list, tutor_list, other_students, users_info = self.get_user_lists(course, classroom["_id"])
-                msg = 'An error occurred while parsing the data.'
+                msg = _('An error occurred while parsing the data.')
                 error = True
 
         return self.template_helper.get_renderer().course_admin.edit_classroom(course, student_list, tutor_list, other_students, users_info,

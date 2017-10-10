@@ -13,7 +13,7 @@ $#
                 <div class="row">
                     <div class="col-md-10" >
                         <span role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_PID" aria-controls="collapse_PID">
-                            <i class="fa fa-bars"></i> Problem id: <span id="pid-PID">PID</span>
+                            <i class="fa fa-bars"></i> $:_("Problem id:") <span id="pid-PID">PID</span>
                         </span>
                     </div>
                     <div class="col-md-2">
@@ -27,34 +27,34 @@ $#
                 <div class="panel-body">
                     <input type="hidden" class="subproblem_order" name="problem[PID][@order]" value="ORDER"/>
                     <div class="form-group">
-                        <label for="name-PID" class="col-sm-2 control-label">Name</label>
+                        <label for="name-PID" class="col-sm-2 control-label">$:_("Name")</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="A title for this question"/>
+                            <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="$:_('A title for this question')"/>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="header-PID" class="col-sm-2 control-label">Context</label>
+                        <label for="header-PID" class="col-sm-2 control-label">$:_("Context")</label>
                         <div class="col-sm-10">
                             <textarea id="header-PID" class="form-control" name="problem[PID][header]"></textarea>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="language-PID" class="col-sm-2 control-label">Language</label>
+                        <label for="language-PID" class="col-sm-2 control-label">$:_("Language")</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="language-PID" name="problem[PID][language]" placeholder="Language used in this question (c/c++/java/python/oz/...)"/>
+                            <input type="text" class="form-control" id="language-PID" name="problem[PID][language]" placeholder="$:_('Language used in this question (c/c++/java/python/oz/...)')"/>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="type-PID" class="col-sm-2 control-label">Type</label>
+                        <label for="type-PID" class="col-sm-2 control-label">$:_("Type")</label>
                         <div class="col-sm-10">
                             <select class="form-control" id="type-PID" name="problem[PID][type]">
-                                <option value="code">Multiline code</option>
-                                <option value="code-single-line">Single-line code</option>
+                                <option value="code">$:_("Multiline code")</option>
+                                <option value="code-single-line">$:_("Single-line code")</option>
                             </select>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="optional-PID" class="col-sm-2 control-label">Optional?</label>
+                        <label for="optional-PID" class="col-sm-2 control-label">$:_("Optional?")</label>
 
                         <div class="col-sm-10">
                             <div class="checkbox"><label>
@@ -72,7 +72,7 @@ $#
                 <div class="row">
                     <div class="col-md-10" >
                         <span role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_PID" aria-controls="collapse_PID">
-                            <i class="fa fa-bars"></i> Problem id: <span id="pid-PID">PID</span>
+                            <i class="fa fa-bars"></i> $:_("Problem id:") <span id="pid-PID">PID</span>
                         </span>
                     </div>
                     <div class="col-md-2">
@@ -86,34 +86,34 @@ $#
                 <div class="panel-body">
                     <input type="hidden" class="subproblem_order" name="problem[PID][@order]" value="ORDER"/>
                     <div class="form-group">
-                        <label for="name-PID" class="col-sm-2 control-label">Name</label>
+                        <label for="name-PID" class="col-sm-2 control-label">$:_("Name")</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="A title for this question"/>
+                            <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="$:_('A title for this question')"/>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="header-PID" class="col-sm-2 control-label">Context</label>
+                        <label for="header-PID" class="col-sm-2 control-label">$:_("Context")</label>
                         <div class="col-sm-10">
                             <textarea id="header-PID" class="form-control" name="problem[PID][header]"></textarea>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="extensions-PID" class="col-sm-2 control-label">Allowed file extensions (including the dot, separated by spaces)</label>
+                        <label for="extensions-PID" class="col-sm-2 control-label">$:_("Allowed file extensions (including the dot, separated by spaces)")</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" id="extensions-PID" name="problem[PID][allowed_exts]" placeholder=".txt,.zip,.gz"/>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="maxsize-PID" class="col-sm-2 control-label">Maximum file size (in bytes)</label>
+                        <label for="maxsize-PID" class="col-sm-2 control-label">$:_("Maximum file size (in bytes)")</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" id="maxsize-PID" name="problem[PID][max_size]" placeholder="1000000"/>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-sm-2 control-label">Type</label>
+                        <label class="col-sm-2 control-label">$:_("Type")</label>
                         <div class="col-sm-10">
                             <select class="form-control" disabled="disabled">
-                                <option value="code-file">File upload</option>
+                                <option value="code-file">$:_("File upload")</option>
                             </select>
                             <input type="hidden" name="problem[PID][type]" value="code-file"/>
                         </div>
@@ -128,7 +128,7 @@ $#
                 <div class="row">
                     <div class="col-md-10" >
                         <span role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_PID" aria-controls="collapse_PID">
-                            <i class="fa fa-bars"></i> Problem id: <span id="pid-PID">PID</span>
+                            <i class="fa fa-bars"></i> $:_("Problem id:") <span id="pid-PID">PID</span>
                         </span>
                     </div>
                     <div class="col-md-2">
@@ -143,21 +143,21 @@ $#
                     <input type="hidden" name="problem[PID][type]" value="match"/>
                     <input type="hidden" class="subproblem_order" name="problem[PID][@order]" value="ORDER"/>
                     <div class="form-group">
-                        <label for="name-PID" class="col-sm-2 control-label">Name</label>
+                        <label for="name-PID" class="col-sm-2 control-label">$:_("Name")</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="A title for this question"/>
+                            <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="$:_('A title for this question')"/>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="header-PID" class="col-sm-2 control-label">Context</label>
+                        <label for="header-PID" class="col-sm-2 control-label">$:_("Context")</label>
                         <div class="col-sm-10">
                             <textarea id="header-PID" class="form-control" name="problem[PID][header]"></textarea>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="answer-PID" class="col-sm-2 control-label">Answer</label>
+                        <label for="answer-PID" class="col-sm-2 control-label">$:_("Answer")</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="answer-PID" name="problem[PID][answer]" placeholder="Answer of this question"/>
+                            <input type="text" class="form-control" id="answer-PID" name="problem[PID][answer]" placeholder="$:_('Answer of this question')"/>
                         </div>
                     </div>
                 </div>
@@ -170,7 +170,7 @@ $#
                 <div class="row">
                     <div class="col-md-10" >
                         <span role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_PID" aria-controls="collapse_PID">
-                            <i class="fa fa-bars"></i> Problem id: <span id="pid-PID">PID</span>
+                            <i class="fa fa-bars"></i> $:_("Problem id:") <span id="pid-PID">PID</span>
                         </span>
                     </div>
                     <div class="col-md-2">
@@ -185,19 +185,19 @@ $#
                     <input type="hidden" name="problem[PID][type]" value="multiple-choice"/>
                     <input type="hidden" class="subproblem_order" name="problem[PID][@order]" value="ORDER"/>
                     <div class="form-group">
-                        <label for="name-PID" class="col-sm-2 control-label">Name</label>
+                        <label for="name-PID" class="col-sm-2 control-label">$:_("Name")</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="A title for this question"/>
+                            <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="$:_('A title for this question')"/>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="header-PID" class="col-sm-2 control-label">Context</label>
+                        <label for="header-PID" class="col-sm-2 control-label">$:_("Context")</label>
                         <div class="col-sm-10">
                             <textarea id="header-PID" class="form-control" name="problem[PID][header]"></textarea>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="multiple-PID" class="col-sm-2 control-label">Can select multiple answers</label>
+                        <label for="multiple-PID" class="col-sm-2 control-label">$:_("Can select multiple answers")</label>
                         <div class="col-sm-10">
                             <div class="checkbox"><label>
                                 <input type="checkbox" id="multiple-PID" name="problem[PID][multiple]"/>&nbsp;
@@ -205,7 +205,7 @@ $#
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="centralize-PID" class="col-sm-2 control-label">Count error only at top of the page?</label>
+                        <label for="centralize-PID" class="col-sm-2 control-label">$:_("Count error only at top of the page?")</label>
                         <div class="col-sm-10">
                             <div class="checkbox"><label>
                                 <input type="checkbox" id="centralize-PID" name="problem[PID][centralize]"/>&nbsp;
@@ -213,34 +213,34 @@ $#
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="limit-PID" class="col-sm-2 control-label">Number of choices to display (0 = all choices)</label>
+                        <label for="limit-PID" class="col-sm-2 control-label">$:_("Number of choices to display (0 = all choices)")</label>
                         <div class="col-sm-10">
                             <input type="text" class="form-control" id="limit-PID" name="problem[PID][limit]" placeholder="0"/>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="success_message-PID" class="col-sm-2 control-label">Success message</label>
+                        <label for="success_message-PID" class="col-sm-2 control-label">$:_("Success message")</label>
 
                         <div class="col-sm-10">
                             <textarea id="success_message-PID" class="form-control" name="problem[PID][success_message]"
-                                      placeholder="An optional success message"></textarea>
+                                      placeholder="$:_('An optional success message')"></textarea>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="error_message-PID" class="col-sm-2 control-label">Error message</label>
+                        <label for="error_message-PID" class="col-sm-2 control-label">$:_("Error message")</label>
 
                         <div class="col-sm-10">
                             <textarea id="error_message-PID" class="form-control" name="problem[PID][error_message]"
-                                      placeholder="An optional error message"></textarea>
+                                      placeholder="$:_('An optional error message')"></textarea>
                         </div>
                     </div>
                     <div class="col-sm-12">
-                        <h4 style="text-align: center">Choices</h4>
+                        <h4 style="text-align: center">$:_("Choices")</h4>
                         <div id="choices-PID">
 
                         </div>
                         <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_create_choice('PID',{})">
-                            <i class="fa fa-plus"></i> Add new choice
+                            <i class="fa fa-plus"></i> $:_("Add new choice")
                         </button>
                         <div style="height:30px"></div>
                     </div>
@@ -253,31 +253,31 @@ $#
             <div class="panel-body">
                 <div class="row">
                     <div class="form-group">
-                        <label for="choice-PID-CHOICE" class="col-sm-2 control-label">Content</label>
+                        <label for="choice-PID-CHOICE" class="col-sm-2 control-label">$:_("Content")</label>
                         <div class="col-sm-10">
                             <textarea class="form-control subproblem_multiple_choice_text" name="problem[PID][choices][CHOICE][text]"
                                       placeholder="The name of this choice" id="choice-PID-CHOICE"></textarea>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="choice-feedback-PID-CHOICE" class="col-sm-2 control-label">Feedback message (displayed when selected)</label>
+                        <label for="choice-feedback-PID-CHOICE" class="col-sm-2 control-label">$:_("Feedback message (displayed when selected)")</label>
 
                         <div class="col-sm-10">
                             <textarea class="form-control subproblem_multiple_choice_feedback" name="problem[PID][choices][CHOICE][feedback]"
-                                      placeholder="An optional feedback message" id="choice-feedback-PID-CHOICE"></textarea>
+                                      placeholder="$:_('An optional feedback message')" id="choice-feedback-PID-CHOICE"></textarea>
                         </div>
                     </div>
                     <div class="col-sm-6">
                         <div data-toggle="buttons">
                             <label class="btn btn-success btn-xs btn-block">
                                 <input type="checkbox" class="subproblem_multiple_choice_valid" name="problem[PID][choices][CHOICE][valid]"/>
-                                Valid ?
+                                $:_("Valid ?")
                             </label>
                         </div>
                     </div>
                     <div class="col-sm-6">
                         <button class="btn btn-danger btn-xs btn-block" type="button" onclick="studio_delete_choice('PID',CHOICE)">
-                            <i class="fa fa-remove"></i> Delete
+                            <i class="fa fa-remove"></i> $:_("Delete")
                         </button>
                     </div>
                 </div>
@@ -290,7 +290,7 @@ $#
                 <div class="row">
                     <div class="col-md-10" >
                         <span role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_PID" aria-controls="collapse_PID">
-                            <i class="fa fa-bars"></i> Problem id: <span id="pid-PID">PID</span>
+                            <i class="fa fa-bars"></i> $:_("Problem id:") <span id="pid-PID">PID</span>
                         </span>
                     </div>
                     <div class="col-md-2">
@@ -305,19 +305,19 @@ $#
                     <input type="hidden" name="problem[PID][type]" value="custom"/>
                     <input type="hidden" class="subproblem_order" name="problem[PID][@order]" value="ORDER"/>
                     <div class="form-group">
-                        <label for="name-PID" class="col-sm-2 control-label">Name</label>
+                        <label for="name-PID" class="col-sm-2 control-label">$:_("Name")</label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="A title for this question"/>
+                            <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="$:_('A title for this question')"/>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="header-PID" class="col-sm-2 control-label">Context</label>
+                        <label for="header-PID" class="col-sm-2 control-label">$:_("Context")</label>
                         <div class="col-sm-10">
                             <textarea id="header-PID" class="form-control" name="problem[PID][header]"></textarea>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="custom-PID" class="col-sm-2 control-label">Custom data (YAML)</label>
+                        <label for="custom-PID" class="col-sm-2 control-label">$:_("Custom data (YAML)")</label>
                         <div class="col-sm-10">
                             <textarea id="custom-PID" class="form-control" name="problem[PID][custom]"></textarea>
                         </div>

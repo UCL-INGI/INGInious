@@ -11,8 +11,8 @@ from inginious.frontend.webapp.accessible_time import AccessibleTime
 class WebAppTask(FrontendTask):
     """ A task that stores additional context information, specific to the web app """
 
-    def __init__(self, course, taskid, content, directory_path, hook_manager, task_problem_types=None):
-        super(WebAppTask, self).__init__(course, taskid, content, directory_path, hook_manager, task_problem_types)
+    def __init__(self, course, taskid, content, task_fs, hook_manager, task_problem_types=None):
+        super(WebAppTask, self).__init__(course, taskid, content, task_fs, hook_manager, task_problem_types)
 
         # Grade weight
         self._weight = float(self._data.get("weight", 1.0))
@@ -42,9 +42,9 @@ class WebAppTask(FrontendTask):
     def get_deadline(self):
         """ Returns a string containing the deadline for this task """
         if self.get_accessible_time().is_always_accessible():
-            return "No deadline"
+            return _("No deadline")
         elif self.get_accessible_time().is_never_accessible():
-            return "It's too late"
+            return _("It's too late")
         else:
             return self.get_accessible_time().get_end_date().strftime("%d/%m/%Y %H:%M:%S")
 

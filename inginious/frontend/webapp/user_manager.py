@@ -147,6 +147,10 @@ class UserManager(AbstractUserManager):
         """ Returns the oauth state for login """
         return self._session.get("oauth_state", None)
 
+    def session_language(self):
+        """ Returns the current session language """
+        return self._session.get("language", "en")
+
     def set_session_token(self, token):
         """ Sets the token of the current user in the session, if one is open."""
         if self.session_logged_in():
@@ -165,12 +169,16 @@ class UserManager(AbstractUserManager):
         """Sets the oauth state for login """
         self._session.oauth_state = oauth_state
 
-    def _set_session(self, username, realname, email):
+    def set_session_language(self, language):
+        self._session.language = language
+
+    def _set_session(self, username, realname, email, language):
         """ Init the session. Preserves potential LTI information. """
         self._session.loggedin = True
         self._session.email = email
         self._session.username = username
         self._session.realname = realname
+        self._session.language = language
         self._session.token = None
         if "lti" not in self._session:
             self._session.lti = None
@@ -258,9 +266,9 @@ class UserManager(AbstractUserManager):
         user = self._database.users.find_one(
             {"username": username, "password": password_hash, "activate": {"$exists": False}})
 
-        return user if user is not None and self.connect_user(username, user["realname"], user["email"]) else None
+        return user if user is not None and self.connect_user(username, user["realname"], user["email"], user["language"]) else None
 
-    def connect_user(self, username, realname, email):
+    def connect_user(self, username, realname, email, language):
         """
         Opens a session for the user
         :param username: Username
@@ -268,10 +276,10 @@ class UserManager(AbstractUserManager):
         :param email: User email
         """
 
-        self._database.users.update_one({"username": username}, {"$set": {"realname": realname, "email": email}},
+        self._database.users.update_one({"username": username}, {"$set": {"realname": realname, "email": email, "language": language}},
                                         upsert=True)
         self._logger.info("User %s connected - %s - %s - %s", username, realname, email, web.ctx.ip)
-        self._set_session(username, realname, email)
+        self._set_session(username, realname, email, language)
         return True
 
     def disconnect_user(self):

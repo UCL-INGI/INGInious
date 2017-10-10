@@ -3,7 +3,7 @@
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
 
-import os, time
+import os, time, gettext
 import os.path
 from copy import deepcopy
 import hashlib
@@ -19,6 +19,14 @@ class CookieLessCompatibleApplication(web.application):
         """
         super(CookieLessCompatibleApplication, self).__init__((), globals(), autoreload=False)
         self._session = CookieLessCompatibleSession(self, session_storage)
+        self._translations = {}
+
+    def add_translation(self, lang, translation):
+        self._translations[lang] = translation
+
+    def gettext(self, *args, **kwargs):
+        translation = self._translations.get(self._session.get("language", ""), gettext.NullTranslations())
+        return translation.gettext(*args, **kwargs)
 
     def get_session(self):
         return self._session
@@ -42,6 +50,11 @@ class CookieLessCompatibleApplication(web.application):
             self._session.load(None)
         else:
             self._session.load(args[0][2:len(args[0])-1])
+
+        # Switch language if specified
+        input_data = web.input()
+        if "lang" in input_data:
+            self._session.language = input_data["lang"]
 
         return super(CookieLessCompatibleApplication, self)._delegate(f, fvars, args[1:])
 

@@ -24,18 +24,6 @@ module.exports = function(grunt)
                         '../../inginious/frontend/webapp/static/js/webapp.js',
                         '../../inginious/frontend/webapp/static/js/studio.js',
                         '../../inginious/frontend/webapp/static/js/aggregations.js'
-                    ],
-                    '../../inginious/frontend/lti/static/js/all-minified.js': [
-                        '../../inginious/frontend/common/static/js/libs/jquery.min.js',
-                        '../../inginious/frontend/common/static/js/libs/jquery.form.min.js',
-                        '../../inginious/frontend/common/static/js/libs/bootstrap.min.js',
-                        '../../inginious/frontend/common/static/js/libs/bootstrap-datetimepicker.min.js',
-                        '../../inginious/frontend/common/static/js/libs/checked-list-group.js',
-                        '../../inginious/frontend/common/static/js/codemirror/codemirror.js',
-                        '../../inginious/frontend/common/static/js/codemirror/mode/meta.js',
-                        '../../inginious/frontend/common/static/js/common.js',
-                        '../../inginious/frontend/common/static/js/task.js',
-                        '../../inginious/frontend/lti/static/js/lti.js'
                     ]
                 }
             }
@@ -47,7 +35,6 @@ module.exports = function(grunt)
             dist: {
                 files: {
                     '../../inginious/frontend/webapp/static/js/all-minified.js': ['../../inginious/frontend/webapp/static/js/all-minified.js'],
-                    '../../inginious/frontend/lti/static/js/all-minified.js': ['../../inginious/frontend/lti/static/js/all-minified.js']
                 }
             }
         }

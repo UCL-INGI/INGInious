@@ -5,7 +5,7 @@ $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
-$var title: Register
+$var title: $:_("Register")
 
 $if error:
     <div class="alert alert-danger alert-dismissable">
@@ -21,45 +21,45 @@ $elif msg:
 $if reset is None:
     <div class="row">
         <div class="col-md-5">
-            <h2>Sign up in INGInious</h2>
+            <h2>$:_("Register in INGInious")</h2>
             <form method="post" class="form-horizontal">
                 <div class="row">
                     <div class="col-sm-12">
-                        <label class="control-label">Username (min. 4 alphanumerical characters) : </label>
+                        <label class="control-label">$:_("Username (min. 4 alphanumerical characters) :") </label>
                         <input name="username" type="text" class="form-control">
                     </div>
                     <div class="col-sm-12">
-                        <label class="control-label">Complete name : </label>
+                        <label class="control-label">$:_("Complete name :") </label>
                         <input name="realname" type="text" class="form-control">
                     </div>
                     <div class="col-sm-12">
-                        <label class="control-label">Email address : </label>
+                        <label class="control-label">$:_("Email address :") </label>
                         <input name="email" type="text" class="form-control">
                     </div>
                     <div class="col-sm-6">
-                        <label class="control-label">Password (min. 6 characters) : </label>
+                        <label class="control-label">$:_("Password (min. 6 characters) :") </label>
                         <input name="passwd" type="password" class="form-control">
                     </div>
                     <div class="col-sm-6">
-                        <label class="control-label">Confirm password : </label>
+                        <label class="control-label">$:_("Confirm password :") </label>
                         <input name="passwd2" type="password" class="form-control">
                     </div>
                     <div class="col-sm-12"><br />
-                        <button type="submit" name="register" class="btn btn-primary btn-block"><i class="fa fa-sign-in"></i> Sign up</button>
+                        <button type="submit" name="register" class="btn btn-primary btn-block"><i class="fa fa-sign-in"></i> $:_("Sign up")</button>
                     </div>
                 </div>
             </form>
         </div>
         <div id="lostpasswd" class="col-md-5 col-md-push-2">
-            <h2>Lost password ?</h2>
+            <h2>$:_("Lost password ?")</h2>
             <form method="post" class="form-horizontal">
                 <div class="row">
                     <div class="col-sm-12">
-                        <label class="control-label">Email address : </label>
+                        <label class="control-label">$:_("Email address :") </label>
                         <input name="recovery_email" type="text" class="form-control">
                     </div>
                     <div class="col-sm-12"><br />
-                        <button type="submit" name="lostpasswd" class="btn btn-warning btn-block"><i class="fa fa-undo"></i> Reset my password</button>
+                        <button type="submit" name="lostpasswd" class="btn btn-warning btn-block"><i class="fa fa-undo"></i> $:_("Reset my password")</button>
                     </div>
                 </div>
             </form>
@@ -80,16 +80,16 @@ $else:
                     <form method="post" class="form-horizontal">
                         <div class="row">
                             <div class="col-sm-6">
-                                <label class="control-label">Password (min. 6 characters) : </label>
+                                <label class="control-label">$:_("Password (min. 6 characters) :") </label>
                                 <input name="passwd" type="password" class="form-control">
                             </div>
                             <div class="col-sm-6">
-                                <label class="control-label">Confirm password : </label>
+                                <label class="control-label">$:_("Confirm password :") </label>
                                 <input name="passwd2" type="password" class="form-control">
                             </div>
                             <div class="col-sm-12"><br />
                                 <input type="hidden" name="reset_hash" value="$reset['hash']">
-                                <button type="submit" name="resetpasswd" class="btn btn-warning btn-block"><i class="fa fa-undo"></i> Set new password</button>
+                                <button type="submit" name="resetpasswd" class="btn btn-warning btn-block"><i class="fa fa-undo"></i> $:_("Set new password")</button>
                             </div>
                         </div>
                     </form>

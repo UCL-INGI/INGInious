@@ -26,7 +26,7 @@ class CourseStudentInfoPage(INGIniousAdminPage):
         data = list(self.database.user_tasks.find({"username": username, "courseid": course.get_id()}))
 
         tasks = course.get_tasks()
-        result = dict([(taskid, {"taskid": taskid, "name": tasks[taskid].get_name(),
+        result = dict([(taskid, {"taskid": taskid, "name": tasks[taskid].get_name(self.user_manager.session_language()),
                                  "tried": 0, "status": "notviewed", "grade": 0,
                                  "url": self.submission_url_generator(username, taskid)}) for taskid in tasks])
 

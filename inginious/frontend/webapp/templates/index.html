@@ -5,34 +5,30 @@ $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
-$var title: Welcome
+$var title: $:_("Welcome")
 
 $# Start content
     <div class="row">
         <div class="col-sm-5">
-            <p>
-                <h2>Hello! <small>Welcome on the INGInious platform.</small></h2>
-                INGInious allows to securely grade code made by students.
-            </p>
-            <p>Please log in to see the courses.</p>
+            $:_("<p><h2>Hello! <small>Welcome on the INGInious platform.</small></h2>INGInious allows to securely grade code made by students.</p><p>Please log in to see the courses.</p>")
             $:template_helper.call('welcome_text', template_helper=template_helper)
         </div>
         <div class="col-sm-offset-2 col-sm-5 well">
             $if error:
                 <div class="alert alert-danger" role="alert">
-                    <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                    Invalid login/password
+                    <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">$:_("Close")</span></button>
+                    $_("Invalid login/password")
                 </div>
 
             $if allow_registration:
                 <form role="form" method="post">
                     <div class="form-group">
-                        <label>Username</label> <input type="text" class="form-control" name="login" placeholder="Username">
+                        <label>$:_("Username")</label> <input type="text" class="form-control" name="login" placeholder="$:_('Username')">
                     </div>
                     <div class="form-group">
-                        <label>Password <a href="$get_homepath()/register#lostpasswd">Lost password?</a></label> <input type="password" class="form-control" name="password" placeholder="Password">
+                        <label>$:_("Password") <a href="$get_homepath()/register#lostpasswd">$:_("Lost password?")</a></label> <input type="password" class="form-control" name="password" placeholder="$:_('Password')">
                     </div>
-                    <button type="submit" class="btn btn-primary btn-block">Sign in</button>
+                    <button type="submit" class="btn btn-primary btn-block">$:_("Sign in")</button>
                 </form>
 
             $ auth_meths = auth_methods.items()
@@ -42,7 +38,7 @@ $# Start content
             $if remaining:
                 $if allow_registration:
                     <hr/>
-                <h5 class="center-block text-center">Sign in with</h5>
+                <h5 class="center-block text-center">$:_("Sign in with")</h5>
 
             $ authid = 0
             $for id, auth_method in auth_meths:

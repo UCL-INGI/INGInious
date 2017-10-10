@@ -68,7 +68,7 @@ class ScoreBoard(INGIniousAuthPage):
         task_names = {}
         for taskid in scoreboard_content:
             try:
-                task_names[taskid] = course.get_task(taskid).get_name()
+                task_names[taskid] = course.get_task(taskid).get_name(user_manager.session_language())
             except:
                 raise web.notfound("Unknown task id "+taskid)
 

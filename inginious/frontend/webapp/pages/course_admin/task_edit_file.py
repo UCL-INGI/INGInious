@@ -158,13 +158,13 @@ class CourseTaskFiles(INGIniousAdminPage):
             path = "/" + path
         wanted_path = self.verify_path(courseid, taskid, path, True)
         if wanted_path is None:
-            return self.show_tab_file(courseid, taskid, "Invalid new path")
+            return self.show_tab_file(courseid, taskid, _("Invalid new path"))
 
         task_fs = self.task_factory.get_task_fs(courseid, taskid)
         try:
             task_fs.put(wanted_path, fileobj.file.read())
         except:
-            return self.show_tab_file(courseid, taskid, "An error occurred while writing the file")
+            return self.show_tab_file(courseid, taskid, _("An error occurred while writing the file"))
         return self.show_tab_file(courseid, taskid)
 
     def action_create(self, courseid, taskid, path):
@@ -178,7 +178,7 @@ class CourseTaskFiles(INGIniousAdminPage):
 
         wanted_path = self.verify_path(courseid, taskid, path, True)
         if wanted_path is None:
-            return self.show_tab_file(courseid, taskid, "Invalid new path")
+            return self.show_tab_file(courseid, taskid, _("Invalid new path"))
 
         task_fs = self.task_factory.get_task_fs(courseid, taskid)
         if want_directory:
@@ -199,17 +199,17 @@ class CourseTaskFiles(INGIniousAdminPage):
 
         old_path = self.verify_path(courseid, taskid, path)
         if old_path is None:
-            return self.show_tab_file(courseid, taskid, "Internal error")
+            return self.show_tab_file(courseid, taskid, _("Internal error"))
 
         wanted_path = self.verify_path(courseid, taskid, new_path, True)
         if wanted_path is None:
-            return self.show_tab_file(courseid, taskid, "Invalid new path")
+            return self.show_tab_file(courseid, taskid, _("Invalid new path"))
 
         try:
             self.task_factory.get_task_fs(courseid, taskid).move(old_path, wanted_path)
             return self.show_tab_file(courseid, taskid)
         except:
-            return self.show_tab_file(courseid, taskid, "An error occurred while moving the files")
+            return self.show_tab_file(courseid, taskid, _("An error occurred while moving the files"))
 
     def action_delete(self, courseid, taskid, path):
         """ Delete a file or a directory """
@@ -220,17 +220,17 @@ class CourseTaskFiles(INGIniousAdminPage):
 
         wanted_path = self.verify_path(courseid, taskid, path)
         if wanted_path is None:
-            return self.show_tab_file(courseid, taskid, "Internal error")
+            return self.show_tab_file(courseid, taskid, _("Internal error"))
 
         # special case: cannot delete current directory of the task
         if "/" == wanted_path:
-            return self.show_tab_file(courseid, taskid, "Internal error")
+            return self.show_tab_file(courseid, taskid, _("Internal error"))
 
         try:
             self.task_factory.get_task_fs(courseid, taskid).delete(wanted_path)
             return self.show_tab_file(courseid, taskid)
         except:
-            return self.show_tab_file(courseid, taskid, "An error occurred while deleting the files")
+            return self.show_tab_file(courseid, taskid, _("An error occurred while deleting the files"))
 
     def action_download(self, courseid, taskid, path):
         """ Download a file or a directory """

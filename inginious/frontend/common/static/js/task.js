@@ -285,7 +285,7 @@ function taskFormValid()
             has_one = has_one || (filename.lastIndexOf(ext) === filename.length - ext.length) > 0;
         });
         if(!has_one)
-            errors.push(filename+" has not a valid extension.");
+            errors.push($("#invalidext").text().replace("{}", filename));
 
         //try to get the size of the file
         var size = -1;
@@ -295,12 +295,12 @@ function taskFormValid()
         //Verify the maximum size
         var max_size = parseInt($(this).attr('data-max-size'));
         if(size != -1 && size > max_size)
-            errors.push(filename + " is too heavy.");
+            errors.push($("#filetooheavy").text().replace("{}", filename));
     });
 
     if(!answered_to_all)
     {
-        errors.push("Please answer to all the questions.");
+        errors.push($("#answerall").text());
     }
 
     if(errors.length != 0)
@@ -345,21 +345,15 @@ function submitTask(with_ssh)
                       {
                           if("status" in data && data["status"] == "ok" && "submissionid" in data)
                           {
-                              displayTaskLoadingAlert(null, data["submissionid"]);
+                              displayTaskLoadingAlert(data, data["submissionid"]);
                               incrementTries();
                               displayNewSubmission(data['submissionid']);
                               waitForSubmission(data['submissionid']);
                           }
                           else if("status" in data && data['status'] == "error" && "text" in data)
                           {
-                              displayTaskErrorAlert(data);
-                              updateTaskStatus("Internal error", 0);
-                              unblurTaskForm();
-                          }
-                          else
-                          {
-                              displayTaskErrorAlert({});
-                              updateTaskStatus("Internal error", 0);
+                              displayTaskStudentAlertWithProblems(data, "danger", false);
+                              updateTaskStatus(data["text"], 0);
                               unblurTaskForm();
                           }
 
@@ -371,8 +365,8 @@ function submitTask(with_ssh)
                       },
             error:    function()
                       {
-                          displayTaskErrorAlert({});
-                          updateTaskStatus("Internal error", 0);
+                          displayTaskStudentAlertWithProblems($("#internalerror").text(), "danger", false);
+                          updateTaskStatus($("#internalerror").text(), 0);
                           unblurTaskForm();
                       }
         });
@@ -380,7 +374,7 @@ function submitTask(with_ssh)
     blurTaskForm();
     resetAlerts();
     displayTaskLoadingAlert(null, null);
-    updateTaskStatus("Waiting for verification", 0);
+    updateTaskStatus("<i class=\"fa fa-spinner fa-pulse fa-fw\" aria-hidden=\"true\"></i>", 0);
     $('html, body').animate({
         scrollTop: $('#task_alert').offset().top - 100
     }, 200);
@@ -399,9 +393,10 @@ function waitForSubmission(submissionid)
                 {
                     waitForSubmission(submissionid);
                     if("ssh_host" in data && "ssh_port" in data && "ssh_password" in data)
-                        displayRemoteDebug(submissionid, data["ssh_host"], data["ssh_port"], data["ssh_password"])
+                        displayRemoteDebug(submissionid, data);
                     else
                         displayTaskLoadingAlert(data, submissionid);
+
                 }
                 else if("status" in data && "result" in data && "grade" in data)
                 {
@@ -409,41 +404,20 @@ function waitForSubmission(submissionid)
                         displayDebugInfo(data["debug"]);
 
                     if(data['result'] == "failed")
-                    {
-                        displayTaskStudentErrorAlert(data);
-                        updateSubmission(submissionid, data['result'], data["grade"]);
-                        unblurTaskForm();
-                    }
+                        displayTaskStudentAlertWithProblems(data, "danger", false);
                     else if(data['result'] == "success")
-                    {
-                        displayTaskStudentSuccessAlert(data);
-                        updateSubmission(submissionid, data['result'], data["grade"]);
-                        unblurTaskForm();
-                    }
+                        displayTaskStudentAlertWithProblems(data, "success", false);
                     else if(data['result'] == "timeout")
-                    {
-                        displayTimeOutAlert(data);
-                        updateSubmission(submissionid, data['result'], data["grade"]);
-                        unblurTaskForm();
-                    }
+                        displayTaskStudentAlertWithProblems(data, "warning", false);
                     else if(data['result'] == "overflow")
-                    {
-                        displayOverflowAlert(data);
-                        updateSubmission(submissionid, data['result'], data["grade"]);
-                        unblurTaskForm();
-                    }
+                        displayTaskStudentAlertWithProblems(data, "warning", false);
                     else if(data['result'] == "killed")
-                    {
-                        displayKilledAlert(data);
-                        updateSubmission(submissionid, data['result'], data["grade"]);
-                        unblurTaskForm();
-                    }
+                        displayTaskStudentAlertWithProblems(data, "warning", false);
                     else // == "error"
-                    {
-                        displayTaskErrorAlert(data);
-                        updateSubmission(submissionid, data['result'], data["grade"]);
-                        unblurTaskForm();
-                    }
+                        displayTaskStudentAlertWithProblems(data, "danger", false);
+
+                    updateSubmission(submissionid, data['result'], data["grade"]);
+                    unblurTaskForm();
 
                     if("replace" in data && data["replace"]) {
                         setSelectedSubmission(submissionid, true);
@@ -453,7 +427,7 @@ function waitForSubmission(submissionid)
                 }
                 else
                 {
-                    displayTaskErrorAlert({});
+                    displayTaskStudentAlertWithProblems($("#internalerror").text(), "danger", false);
                     updateSubmission(submissionid, "error", "0.0");
                     updateTaskStatus("Failed", 0);
                     unblurTaskForm();
@@ -462,7 +436,7 @@ function waitForSubmission(submissionid)
             })
             .fail(function()
             {
-                displayTaskErrorAlert({});
+                displayTaskStudentAlertWithProblems($("#internalerror").text(), "danger", false);
                 updateSubmission(submissionid, "error", "0.0");
                 updateTaskStatus("Failed", 0);
                 unblurTaskForm();
@@ -527,44 +501,34 @@ function displayTaskLoadingAlert(submission_wait_data, submissionid)
 {
     var task_alert = $('#task_alert');
     var content = '<i class="fa fa-spinner fa-pulse fa-fw" aria-hidden="true"></i> ';
-    if(submission_wait_data != null && "nb_tasks_before" in submission_wait_data && "approx_wait_time" in submission_wait_data) {
-        var nb_tasks_before = submission_wait_data["nb_tasks_before"];
-        var wait_time = Math.round(submission_wait_data["approx_wait_time"]);
-        if(nb_tasks_before == -1 && wait_time <= 0)
-            content += "<b>INGInious is currently grading your answers.<b/> (almost done)";
-        else if(nb_tasks_before == -1)
-            content += "<b>INGInious is currently grading your answers.<b/> (Approx. wait time: "+wait_time+" seconds)";
-        else if(nb_tasks_before == 0)
-            content += "<b>You are next in the waiting queue!</b>";
-        else if(nb_tasks_before == 1)
-            content += "<b>There is one task in front of you in the waiting queue.</b>";
-        else
-            content += "<b>There are " + nb_tasks_before + " tasks in front of you in the waiting queue.</b>";
-    }
-    else
-        content += "<b>Your submission has been sent...</b>";
+    if(submission_wait_data != null)
+        content += submission_wait_data["text"];
     task_alert.html(getLoadingAlertCode(content, submissionid));
 }
 
 //Display informations for remote debugging
-function displayRemoteDebug(submissionid, ssh_host, ssh_port, ssh_password)
+function displayRemoteDebug(submissionid, submission_wait_data)
 {
+    var ssh_host = submission_wait_data["ssh_host"];
+    var ssh_port = submission_wait_data["ssh_port"];
+    var ssh_password = submission_wait_data["ssh_password"];
+
     var pre_content = "ssh worker@" + ssh_host + " -p " + ssh_port+ " -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no";
     var task_alert = $('#task_alert');
+    var content = '<i class="fa fa-spinner fa-pulse fa-fw" aria-hidden="true"></i> ';
+    content += submission_wait_data["text"];
 
     //If not already set
     if($('pre#commandssh', task_alert).text() != pre_content)
     {
+        var remote_info = $("#ssh_template").clone();
+        remote_info.attr("id", "ssh_remote_info");
 
-        var manual_content_1 = "Paste this command into your terminal:<br/>";
-        var pre = $('<pre id="commandssh"><pre>').text(pre_content);
-        var manual_content_2 = "The password to connect is <code>" + ssh_password + "</code><br/>";
-
-        var alert = $(getLoadingAlertCode("<b>SSH server active</b><br/>", submissionid));
-        alert.attr('id', 'ssh_remote_info');
+        $('#commandssh', remote_info).text(pre_content);
 
         // Generate iframe
-        var webterm_link = $('#webterm_link').val();
+        var webtermdiv = $("#webterm", remote_info);
+        var webterm_link = $('#webterm_link', remote_info).val();
         if(webterm_link != undefined)
         {
             var full_link = webterm_link + "?host=" + ssh_host + "&port=" + ssh_port + "&password=" + ssh_password;
@@ -573,15 +537,13 @@ function displayRemoteDebug(submissionid, ssh_host, ssh_port, ssh_password)
                 id:          'iframessh',
                 frameborder: 0,
                 scrolling:   'no'
-            }).appendTo(alert);
-            manual_content_1 = "Alternatively, you can also paste this command into your terminal:<br/>";
+            }).appendTo(webtermdiv);
         }
 
-        alert.append(manual_content_1);
-        alert.append(pre);
-        alert.append(manual_content_2);
-
-        task_alert.empty().append(alert);
+        task_alert.html(getLoadingAlertCode(content, submissionid));
+        remote_info.appendTo($(".loading-alert"), task_alert);
+        $("#ssh_remote_info code", task_alert).text(ssh_password);
+        $("#ssh_remote_info", task_alert).show();
     }
 }
 
@@ -589,7 +551,7 @@ function displayRemoteDebug(submissionid, ssh_host, ssh_port, ssh_password)
 function displayTaskInputLoadingAlert()
 {
     var task_alert = $('#task_alert');
-    task_alert.html(getAlertCode("<b>Loading your submission...</b>", "info", false));
+    task_alert.html(getAlertCode("<i class=\"fa fa-spinner fa-pulse fa-fw\" aria-hidden=\"true\"></i>", "info", false));
     $('html, body').animate(
         {
             scrollTop: task_alert.offset().top - 100
@@ -600,63 +562,15 @@ function displayTaskInputLoadingAlert()
 function displayTaskInputErrorAlert()
 {
     var task_alert = $('#task_alert');
-    task_alert.html(getAlertCode("<b>Unable to load this submission</b>", "danger", false));
+    task_alert.html(getAlertCode("<b>" + $("#internalerror").text() + "</b>", "danger", false));
     $('html, body').animate(
         {
             scrollTop: task_alert.offset().top - 100
         }, 200);
 }
 
-//Displays an overflow error alert in task form
-function displayOverflowAlert(content)
-{
-    displayTaskStudentAlertWithProblems(content,
-        "<b>Your submission made an overflow. Your score is " + content["grade"] + "%</b>",
-        "warning", false);
-}
-
-//Displays a 'killed' alert in task form
-function displayKilledAlert(content)
-{
-    displayTaskStudentAlertWithProblems(content,
-        "<b>Your submission was killed.</b>",
-        "warning", false);
-}
-
-//Displays a timeout error alert in task form
-function displayTimeOutAlert(content)
-{
-    displayTaskStudentAlertWithProblems(content,
-        "<b>Your submission timed out. Your score is " + content["grade"] + "%</b>",
-        "warning", false);
-}
-
-//Displays an internal error alert in task form
-function displayTaskErrorAlert(content)
-{
-    displayTaskStudentAlertWithProblems(content,
-        "<b>An internal error occurred. Please retry later. If the error persists, send an email to the course administrator.</b>",
-        "danger", false);
-}
-
 //Displays a student error alert in task form
-function displayTaskStudentErrorAlert(content)
-{
-    displayTaskStudentAlertWithProblems(content,
-        "<b>There are some errors in your answer. Your score is " + content["grade"] + "%</b>",
-        "danger", false);
-}
-
-//Displays a student success alert in task form
-function displayTaskStudentSuccessAlert(content)
-{
-    displayTaskStudentAlertWithProblems(content,
-        "<b>Your answer passed the tests! Your score is " + content["grade"] + "%</b>",
-        "success", true);
-}
-
-//Displays a student error alert in task form
-function displayTaskStudentAlertWithProblems(content, top, type, alwaysShowTop)
+function displayTaskStudentAlertWithProblems(content, type)
 {
     resetAlerts();
 
@@ -665,7 +579,7 @@ function displayTaskStudentAlertWithProblems(content, top, type, alwaysShowTop)
 
     if("text" in content && content.text != "")
     {
-        task_alert.html(getAlertCode(top + "<br/>" + content.text, type, true));
+        task_alert.html(getAlertCode(content.text, type, true));
         firstPos = task_alert.offset().top;
     }
 
@@ -686,12 +600,6 @@ function displayTaskStudentAlertWithProblems(content, top, type, alwaysShowTop)
                     firstPos = $(elem).offset().top;
             }
         });
-    }
-
-    if(firstPos == -1 || (alwaysShowTop && !("text" in content && content.text != "")))
-    {
-        task_alert.html(getAlertCode(top, type, true));
-        firstPos = task_alert.offset().top;
     }
 
     $('html, body').animate(
@@ -760,20 +668,20 @@ function loadOldFeedback(data)
             displayDebugInfo(data["debug"]);
 
         if(data['result'] == "failed")
-            displayTaskStudentErrorAlert(data);
+            displayTaskStudentAlertWithProblems(data, "danger", false);
         else if(data['result'] == "success")
-            displayTaskStudentSuccessAlert(data);
+            displayTaskStudentAlertWithProblems(data, "success", false);
         else if(data['result'] == "timeout")
-            displayTimeOutAlert(data);
+            displayTaskStudentAlertWithProblems(data, "warning", false);
         else if(data['result'] == "overflow")
-            displayOverflowAlert(data);
+            displayTaskStudentAlertWithProblems(data, "warning", false);
         else if(data['result'] == "killed")
-            displayKilledAlert(data);
+            displayTaskStudentAlertWithProblems(data, "warning", false);
         else // == "error"
-            displayTaskErrorAlert(data);
+            displayTaskStudentAlertWithProblems(data, "danger", false);
     }
     else
-        displayTaskErrorAlert({});
+        displayTaskStudentAlertWithProblems($("#internalerror").text(), "danger", false);
 }
 
 //Load data from input into the form inputs

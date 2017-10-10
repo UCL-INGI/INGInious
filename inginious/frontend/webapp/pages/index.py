@@ -59,7 +59,7 @@ class IndexPage(INGIniousAuthPage):
         # Display
         open_courses = {courseid: course for courseid, course in all_courses.items()
                         if self.user_manager.course_is_open_to_user(course, username, False)}
-        open_courses = OrderedDict(sorted(iter(open_courses.items()), key=lambda x: x[1].get_name()))
+        open_courses = OrderedDict(sorted(iter(open_courses.items()), key=lambda x: x[1].get_name(self.user_manager.session_language())))
 
         last_submissions = self.submission_manager.get_user_last_submissions(5, {"courseid": {"$in": list(open_courses.keys())}})
         except_free_last_submissions = []
@@ -74,6 +74,6 @@ class IndexPage(INGIniousAuthPage):
                                 not self.user_manager.course_is_open_to_user(course, username, False) and
                                 course.is_registration_possible(username, realname, email)}
 
-        registerable_courses = OrderedDict(sorted(iter(registerable_courses.items()), key=lambda x: x[1].get_name()))
+        registerable_courses = OrderedDict(sorted(iter(registerable_courses.items()), key=lambda x: x[1].get_name(self.user_manager.session_language())))
 
         return self.template_helper.get_renderer().main(open_courses, registerable_courses, except_free_last_submissions, success)

@@ -7,10 +7,13 @@ $#
 
 <div class="panel panel-default">
     <div class="panel-heading">
-        Tasks to $download_or_replay submissions from
+        $if download_or_replay == "download":
+            $:_("Tasks to download submissions from")
+        $else:
+            $:_("Tasks to replay submissions from")
         <div class="btn-group">
-            <button type="button" class="btn btn-primary btn-xs" onclick="download_page_select(true, this)">Select all</button>
-            <button type="button" class="btn btn-primary btn-xs" onclick="download_page_select(false, this)">Deselect all</button>
+            <button type="button" class="btn btn-primary btn-xs" onclick="download_page_select(true, this)">$:_("Select all")</button>
+            <button type="button" class="btn btn-primary btn-xs" onclick="download_page_select(false, this)">$:_("Deselect all")</button>
         </div>
     </div>
     <ul class="list-group checked-list-box">
@@ -18,6 +21,6 @@ $#
             <li class="list-group-item" data-value="$taskid" data-name="tasks"
                 $if taskid in checked_tasks:
                     data-checked="true"
-            >$task.get_name()</li>
+            >$task.get_name(user_manager.session_language())</li>
     </ul>
 </div>

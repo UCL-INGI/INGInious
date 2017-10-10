@@ -181,10 +181,10 @@ class CourseEditAggregation(INGIniousAdminPage):
                 aggregation = self.database.aggregations.find_one({"_id": ObjectId(classid), "courseid": courseid}) if ObjectId.is_valid(classid) else None
 
                 if aggregation is None:
-                    msg = "Classroom" if course.use_classrooms() else "Team" + " with id " + classid + "not found."
+                    msg = _("Classroom with id {} not found.").format(classid) if course.use_classrooms() else _("Team with id {} not found.").format(classid)
                     error = True
                 elif aggregation['default'] and aggregationid:
-                    msg = "You can't remove your default classroom."
+                    msg = _("You can't remove your default classroom.")
                     error = True
                 else:
                     self.database.aggregations.find_one_and_update({"courseid": courseid, "default": True},
@@ -193,7 +193,7 @@ class CourseEditAggregation(INGIniousAdminPage):
                                                                  }})
 
                     self.database.aggregations.delete_one({"_id": ObjectId(classid)})
-                    msg = "Classroom updated."
+                    msg = _("Classroom updated.")
 
             if aggregationid and aggregationid in data["delete"]:
                 raise web.seeother(self.app.get_homepath() + "/admin/" + courseid + "/aggregations")
@@ -227,15 +227,15 @@ class CourseEditAggregation(INGIniousAdminPage):
                 errored_students += errors
 
             if len(errored_students) > 0:
-                msg = "Changes couldn't be applied for following students : <ul>"
+                msg = _("Changes couldn't be applied for following students :") + "<ul>"
                 for student in errored_students:
                     msg += "<li>" + student + "</li>"
                 msg += "</ul>"
                 error = True
             elif not error:
-                msg = "Classroom updated." if course.use_classrooms() else "Teams updated."
+                msg = _("Classroom updated.") if course.use_classrooms() else _("Teams updated.")
         except:
-            msg = 'An error occurred while parsing the data.'
+            msg = _('An error occurred while parsing the data.')
             error = True
 
         # Display the page

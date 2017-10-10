@@ -5,11 +5,11 @@ $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
-$var title: $:course.get_name() - Scoreboard
+$var title: $:course.get_name(user_manager.session_language()) - Scoreboard
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
-        <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name()</a></li>
+        <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
         <li class="active"><a href="#"><i class="fa fa-trophy"></i> Scoreboard <span class="sr-only">(current)</span></a></li>
     </ol>
 $var Navbar: $:NavbarF()
@@ -17,7 +17,7 @@ $var Navbar: $:NavbarF()
 $if end > end.now():
     <meta http-equiv="refresh" content="30" />
 
-<h2>$course.get_name() - Scoreboard</h2>
+<h2>$course.get_name(user_manager.session_language()) - Scoreboard</h2>
 <div class="well">
     <div class="row">
         <div class="col-md-4" style="margin-top:2px;">

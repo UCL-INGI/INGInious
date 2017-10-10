@@ -15,12 +15,13 @@ class CourseDownloadSubmissions(INGIniousSubmissionAdminPage):
     _logger = logging.getLogger("inginious.webapp.download")
 
     def valid_formats(self):
-        return [
-            "taskid/username",
-            "taskid/aggregation",
-            "username/taskid",
-            "aggregation/taskid"
-        ]
+        dict = {
+            "taskid/username": _("taskid/username"),
+            "taskid/aggregation": _("taskid/aggregation"),
+            "username/taskid": _("username/taskid"),
+            "aggregation/taskid": _("aggregation/taskid")
+        }
+        return list(dict.keys())
 
     def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """

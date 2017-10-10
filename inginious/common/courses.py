@@ -11,7 +11,7 @@ import copy
 class Course(object):
     """ Represents a course """
 
-    def __init__(self, courseid, content_description, task_factory, hook_manager):
+    def __init__(self, courseid, content_description, course_fs, task_factory, hook_manager):
         """
         :param courseid: the course id
         :param content_description: a dict with all the infos of this course
@@ -19,12 +19,17 @@ class Course(object):
         """
         self._id = courseid
         self._content = content_description
+        self._fs = course_fs
         self._task_factory = task_factory
         self._hook_manager = hook_manager
 
     def get_id(self):
         """ Return the _id of this course """
         return self._id
+
+    def get_fs(self):
+        """ Returns a FileSystemProvider which points to the folder of this course """
+        return self._fs
 
     def get_task(self, taskid):
         """ Returns a Task object """

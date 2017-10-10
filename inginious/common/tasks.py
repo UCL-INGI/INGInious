@@ -51,15 +51,16 @@ class Task(object):
         # Network access in grading container?
         self._network_grading = self._data.get("network_grading", False)
 
+        # i18n
+        self._translations = {}
+
         # Check all problems
         self._problems = []
-
         for problemid in self._data['problems']:
             self._problems.append(self._create_task_problem(problemid, self._data['problems'][problemid], task_problem_types))
 
         # Order
         self._order = int(self._data.get('order', -1))
-
 
     def input_is_consistent(self, task_input, default_allowed_extension, default_max_size):
         """ Check if an input for a task is consistent. Return true if this is case, false else """
@@ -148,4 +149,4 @@ class Task(object):
         if problem_content.get('type', "") not in task_problem_types:
             raise Exception("Invalid type for problem " + problemid)
 
-        return task_problem_types.get(problem_content.get('type', ""))(self, problemid, problem_content)
+        return task_problem_types.get(problem_content.get('type', ""))(self, problemid, problem_content, self._translations)

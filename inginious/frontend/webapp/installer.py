@@ -70,10 +70,11 @@ class Installer(inginious.frontend.common.installer.Installer):
         password = self._ask_with_default("Enter the password of the superadmin", "superadmin")
 
         database.users.insert({"username": username,
-                                    "realname": realname,
-                                    "email": email,
-                                    "password": hashlib.sha512(password.encode("utf-8")).hexdigest(),
-                                    "bindings": {}})
+                               "realname": realname,
+                               "email": email,
+                               "password": hashlib.sha512(password.encode("utf-8")).hexdigest(),
+                               "bindings": {},
+                               "language": "en"})
 
         options["superadmins"].append(username)
 

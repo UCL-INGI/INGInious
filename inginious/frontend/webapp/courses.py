@@ -15,8 +15,8 @@ from inginious.frontend.webapp.accessible_time import AccessibleTime
 class WebAppCourse(FrontendCourse):
     """ A course with some modification for users """
 
-    def __init__(self, courseid, content, task_factory, hook_manager):
-        super(WebAppCourse, self).__init__(courseid, content, task_factory, hook_manager)
+    def __init__(self, courseid, content, course_fs, task_factory, hook_manager):
+        super(WebAppCourse, self).__init__(courseid, content, course_fs, task_factory, hook_manager)
 
         if self._content.get('nofrontend', False):
             raise Exception("That course is not allowed to be displayed directly in the webapp")
