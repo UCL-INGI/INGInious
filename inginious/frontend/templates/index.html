@@ -51,12 +51,12 @@ $# Start content
                     </a>
                 </div>
 
-                $if remaining % on_line == 0 or remaining == 1:
+                $ remaining = remaining - 1
+                $if authid % on_line == on_line-1:
                     </div>
                     $ on_line = min(remaining, 4)
-
-                $ remaining = remaining - 1
-                $ authid += 1
-
+                    $ authid = 0
+                $else:
+                    $ authid += 1
         </div>
     </div>
