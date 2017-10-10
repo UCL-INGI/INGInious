@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2017-09-04 15:58+0200\n"
+"POT-Creation-Date: 2017-10-10 09:22+0200\n"
 "PO-Revision-Date: 2017-08-10 14:37+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -16,6 +16,14 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.4.0\n"
+
+#: inginious/common/tasks_problems.py:311
+msgid "Wrong answer. Make sure to select all the valid possibilities"
+msgstr ""
+
+#: inginious/common/tasks_problems.py:311
+msgid "Wrong answer"
+msgstr ""
 
 #: inginious/frontend/common/parsable_text.py:45
 msgid "The feedback below will be hidden to the students until {}."
@@ -797,11 +805,6 @@ msgstr ""
 msgid "Register"
 msgstr ""
 
-#: inginious/frontend/webapp/templates/layout.html:159
-#: inginious/frontend/webapp/templates/maintenance.html:89
-msgid "&copy; 2014-2017 Universit&eacute; catholique de Louvain"
-msgstr ""
-
 #: inginious/frontend/webapp/templates/layout.html:164
 #: inginious/frontend/webapp/templates/maintenance.html:93
 msgid "INGInious is distributed under AGPL license"
@@ -1162,7 +1165,7 @@ msgstr ""
 msgid "Submission limit"
 msgstr ""
 
-#: inginious/frontend/webapp/templates/course_admin/edit_tabs/basic.html:103
+#: inginious/frontend/webapp/templates/course_admin/edit_tabs/basic.html:102
 #: inginious/frontend/webapp/templates/task.html:67
 msgid "No limitation"
 msgstr ""
@@ -1222,12 +1225,12 @@ msgstr ""
 msgid "For evaluation"
 msgstr ""
 
-#: inginious/frontend/webapp/templates/course_admin/edit_tabs/basic.html:147
+#: inginious/frontend/webapp/templates/course_admin/edit_tabs/basic.html:141
 #: inginious/frontend/webapp/templates/task.html:125
 msgid "Last submission"
 msgstr ""
 
-#: inginious/frontend/webapp/templates/course_admin/edit_tabs/basic.html:141
+#: inginious/frontend/webapp/templates/course_admin/edit_tabs/basic.html:135
 #: inginious/frontend/webapp/templates/task.html:127
 msgid "Best submission"
 msgstr ""
@@ -2322,52 +2325,43 @@ msgstr ""
 msgid "All submissions"
 msgstr ""
 
-#: inginious/frontend/webapp/templates/course_admin/edit_tabs/basic.html:90
-#: inginious/frontend/webapp/templates/course_admin/edit_tabs/basic.html:94
-msgid "Only the last {} sumbmissions"
+#: inginious/frontend/webapp/templates/course_admin/edit_tabs/basic.html:91
+msgid "Only the last {nbr_submissions} submissions"
 msgstr ""
 
-#: inginious/frontend/webapp/templates/course_admin/edit_tabs/basic.html:99
+#: inginious/frontend/webapp/templates/course_admin/edit_tabs/basic.html:98
 msgid "Submission limits"
 msgstr ""
 
 #: inginious/frontend/webapp/templates/course_admin/edit_tabs/basic.html:111
-msgid "Hard limit:"
+msgid "Hard limit: {nbr_submissions} submission(s)"
 msgstr ""
 
-#: inginious/frontend/webapp/templates/course_admin/edit_tabs/basic.html:115
-msgid "submission(s)"
+#: inginious/frontend/webapp/templates/course_admin/edit_tabs/basic.html:122
+msgid "Soft limit: {nbr_submissions} submission(s) every {nbr_hours} hour(s)"
 msgstr ""
 
-#: inginious/frontend/webapp/templates/course_admin/edit_tabs/basic.html:123
-msgid "Soft limit:"
-msgstr ""
-
-#: inginious/frontend/webapp/templates/course_admin/edit_tabs/basic.html:126
-msgid "{} submission(s) every {} hour(s)"
-msgstr ""
-
-#: inginious/frontend/webapp/templates/course_admin/edit_tabs/basic.html:135
+#: inginious/frontend/webapp/templates/course_admin/edit_tabs/basic.html:129
 msgid "Evaluation submission"
 msgstr ""
 
-#: inginious/frontend/webapp/templates/course_admin/edit_tabs/basic.html:153
+#: inginious/frontend/webapp/templates/course_admin/edit_tabs/basic.html:147
 msgid "Student choice"
 msgstr ""
 
-#: inginious/frontend/webapp/templates/course_admin/edit_tabs/basic.html:158
+#: inginious/frontend/webapp/templates/course_admin/edit_tabs/basic.html:152
 msgid "Accessible"
 msgstr ""
 
-#: inginious/frontend/webapp/templates/course_admin/edit_tabs/basic.html:164
+#: inginious/frontend/webapp/templates/course_admin/edit_tabs/basic.html:158
 msgid "Never"
 msgstr ""
 
-#: inginious/frontend/webapp/templates/course_admin/edit_tabs/basic.html:170
+#: inginious/frontend/webapp/templates/course_admin/edit_tabs/basic.html:164
 msgid "Always"
 msgstr ""
 
-#: inginious/frontend/webapp/templates/course_admin/edit_tabs/basic.html:179
+#: inginious/frontend/webapp/templates/course_admin/edit_tabs/basic.html:173
 msgid "Custom, from: {} to: {}"
 msgstr ""
 
