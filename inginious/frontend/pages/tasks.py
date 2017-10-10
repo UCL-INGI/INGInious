@@ -293,27 +293,20 @@ class BaseTaskPage(object):
             tojson["debug"] = data
 
         if data["result"] == "failed":
-            tojson["text"] = _("<b>There are some errors in your answer. "
-                               "Your score is {score}%</b> {text}").format(score=data["grade"],
-                                                                           text=data["text"])
+            tojson["text"] = _("There are some errors in your answer. Your score is {score}%.").format(score=data["grade"])
         elif data["result"] == "success":
-            tojson["text"] = _("<b>Your answer passed the tests! "
-                               "Your score is {score}%</b> {text}").format(score=data["grade"],
-                                                                           text=data["text"])
+            tojson["text"] = _("Your answer passed the tests! Your score is {score}%.").format(score=data["grade"])
         elif data["result"] == "timeout":
-            tojson["text"] = _("<b>Your submission timed out. "
-                               "Your score is {score}%</b> {text}").format(score=data["grade"],
-                                                                           text=data["text"])
+            tojson["text"] = _("Your submission timed out. Your score is {score}%.").format(score=data["grade"])
         elif data["result"] == "overflow":
-            tojson["text"] = _("<b>Your submission made an overflow. "
-                               "Your score is {score}%</b> {text}").format(score=data["grade"],
-                                                                           text=data["text"])
+            tojson["text"] = _("Your submission made an overflow. Your score is {score}%.").format(score=data["grade"])
         elif data["result"] == "killed":
-            tojson["text"] = _("<b>Your submission was killed.</b> {text}").format(text=data["text"])
+            tojson["text"] = _("Your submission was killed. [Submission #{submissionid}]")
         else:
-            tojson["text"] = _("<b>An internal error occurred. Please retry later. "
-                               "If the error persists, send an email to the course "
-                               "administrator.</b> {text}").format(text=data["text"])
+            tojson["text"] = _("An internal error occurred. Please retry later. "
+                               "If the error persists, send an email to the course administrator.")
+
+        tojson["text"] = "<b>" + tojson["text"] + " [Submission #{submissionid}]".format(submissionid=data["_id"]) + "</b>" + data.get("text", "")
 
         return json.dumps(tojson, default=str)
 
