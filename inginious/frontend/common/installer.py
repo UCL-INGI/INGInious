@@ -352,7 +352,7 @@ class Installer(object, metaclass=abc.ABCMeta):
             for image in to_download:
                 try:
                     self._display_info("Downloading image %s. This can take some time." % image)
-                    docker_connection.pull(image + ":latest")
+                    docker_connection.images.pull(image + ":latest")
                 except Exception as e:
                     self._display_error("An error occurred while pulling the image: %s." % str(e))
         else:
