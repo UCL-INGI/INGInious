@@ -3,7 +3,7 @@
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
 import logging
-from inginious.agent.agent import Agent, CannotCreateJobException
+from inginious.agent import Agent, CannotCreateJobException
 from inginious.common.course_factory import create_factories
 from inginious.common.messages import BackendNewJob, BackendKillJob, AgentHello, AgentJobDone
 

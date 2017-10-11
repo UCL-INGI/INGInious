@@ -8,18 +8,17 @@ import base64
 import logging
 import os
 import struct
-import tarfile
 import tempfile
-import psutil
-from shutil import rmtree, copytree
+from shutil import rmtree
 
 import msgpack
+import psutil
+from inginious.agent.docker_agent._docker_interface import DockerInterface
 
-from inginious.common.base import id_checker
-from inginious.agent.agent import Agent, CannotCreateJobException
-from inginious.agent._docker_interface import DockerInterface
-from inginious.agent._timeout_watcher import TimeoutWatcher
+from inginious.agent import Agent, CannotCreateJobException
+from inginious.agent.docker_agent._timeout_watcher import TimeoutWatcher
 from inginious.common.asyncio_utils import AsyncIteratorWrapper
+from inginious.common.base import id_checker
 from inginious.common.filesystems.provider import FileSystemProvider
 from inginious.common.messages import BackendNewJob, BackendKillJob
 
