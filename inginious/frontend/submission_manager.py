@@ -5,6 +5,7 @@
 
 """ Manages submissions """
 import io
+import gettext
 import logging
 import os.path
 import tarfile
@@ -339,7 +340,7 @@ class WebAppSubmissionManager:
             submission["input"] = inp
             return submission
 
-    def get_feedback_from_submission(self, submission, only_feedback=False, show_everything=False):
+    def get_feedback_from_submission(self, submission, only_feedback=False, show_everything=False, translation=gettext.NullTranslations()):
         """
             Get the input of a submission. If only_input is False, returns the full submissions with a dictionnary object at the key "input".
             Else, returns only the dictionnary.
@@ -349,17 +350,17 @@ class WebAppSubmissionManager:
         if only_feedback:
             submission = {"text": submission.get("text", None), "problems": dict(submission.get("problems", {}))}
         if "text" in submission:
-            submission["text"] = ParsableText(submission["text"], submission["response_type"], show_everything).parse()
+            submission["text"] = ParsableText(submission["text"], submission["response_type"], show_everything, translation).parse()
         if "problems" in submission:
             for problem in submission["problems"]:
                 if isinstance(submission["problems"][problem], str):  # fallback for old-style submissions
                     submission["problems"][problem] = (submission.get('result', 'crash'), ParsableText(submission["problems"][problem],
                                                                                                        submission["response_type"],
-                                                                                                       show_everything).parse())
+                                                                                                       show_everything, translation).parse())
                 else:  # new-style submission
                     submission["problems"][problem] = (submission["problems"][problem][0], ParsableText(submission["problems"][problem][1],
                                                                                                         submission["response_type"],
-                                                                                                        show_everything).parse())
+                                                                                                        show_everything, translation).parse())
         return submission
 
     def is_running(self, submissionid, user_check=True):

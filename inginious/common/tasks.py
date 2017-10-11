@@ -111,7 +111,7 @@ class Task(object):
         """ Returns a FileSystemProvider which points to the folder of this task """
         return self._fs
 
-    def check_answer(self, task_input):
+    def check_answer(self, task_input, language):
         """
             Verify the answers in task_input. Returns six values
             1st: True the input is **currently** valid. (may become invalid after running the code), False else
@@ -128,7 +128,7 @@ class Task(object):
         error_count = 0
         multiple_choice_error_count = 0
         for problem in self._problems:
-            problem_is_valid, problem_main_message, problem_s_messages, problem_mc_error_count = problem.check_answer(task_input)
+            problem_is_valid, problem_main_message, problem_s_messages, problem_mc_error_count = problem.check_answer(task_input, language)
             if problem_is_valid is None:
                 need_launch = True
             elif problem_is_valid == False:

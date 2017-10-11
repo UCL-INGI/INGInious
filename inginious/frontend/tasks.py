@@ -114,7 +114,8 @@ class WebAppTask(Task):
         """ Get the context(description) of this task """
         context = self.gettext(language, self._context) if self._context else ""
         vals = self._hook_manager.call_hook('task_context', course=self.get_course(), task=self, default=context)
-        return ParsableText(vals[0], "rst") if len(vals) else ParsableText(context, "rst")
+        return ParsableText(vals[0], "rst", self._translations.get(language, gettext.NullTranslations())) if len(vals) else \
+            ParsableText(context, "rst", self._translations.get(language, gettext.NullTranslations()))
 
     def get_authors(self, language):
         """ Return the list of this task's authors """

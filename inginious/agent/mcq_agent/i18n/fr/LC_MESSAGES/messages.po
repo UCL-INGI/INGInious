@@ -1,0 +1,40 @@
+# French translations for PROJECT.
+# Copyright (C) 2017 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2017.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2017-10-11 14:55+0200\n"
+"PO-Revision-Date: 2017-10-11 14:57+0200\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: fr\n"
+"Language-Team: fr <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.4.0\n"
+
+#: inginious/agent/mcq_agent/__init__.py:54
+msgid "Wrong answer. Make sure to select all the valid possibilities"
+msgstr "Réponse incorrecte. Assurez-vous d'avoir sélectionné toutes les possibilités valides"
+
+#: inginious/agent/mcq_agent/__init__.py:55
+msgid "Wrong answer"
+msgstr "Réponse incorrecte"
+
+#: inginious/agent/mcq_agent/__init__.py:56
+msgid "Correct answer"
+msgstr "Réponse correcte"
+
+#: inginious/agent/mcq_agent/__init__.py:68
+msgid "You have {} wrong answer(s)."
+msgstr "Vous avez {} mauvaise(s) réponse(s)."
+
+#: inginious/agent/mcq_agent/__init__.py:70
+msgid "Among them, you have {} invalid answers in the multiple choice questions"
+msgstr "Parmi celles-ci, vous avez {} réponse(s) invalide(s) dans les questions à choix multiple."
+

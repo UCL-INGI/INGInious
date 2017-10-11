@@ -2,7 +2,7 @@
 
 
 
-from inginious.frontend.tests import LoggedInTest, RegisteredTest
+from inginious.frontend.tests.TestLogin import LoggedInTest, RegisteredTest
 
 
 class TestDisplaySuperAdmin(LoggedInTest):

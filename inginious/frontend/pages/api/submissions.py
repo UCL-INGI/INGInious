@@ -6,6 +6,7 @@
 """ Submissions """
 
 import base64
+import gettext
 
 import web
 
@@ -14,7 +15,7 @@ from inginious.common.tasks_problems import MultipleChoiceProblem, BasicCodeProb
 from inginious.frontend.pages.api._api_page import APIAuthenticatedPage, APINotFound, APIForbidden, APIInvalidArguments, APIError
 
 
-def _get_submissions(course_factory, submission_manager, user_manager, courseid, taskid, with_input, submissionid=None):
+def _get_submissions(course_factory, submission_manager, user_manager, translations, courseid, taskid, with_input, submissionid=None):
     """
         Helper for the GET methods of the two following classes
     """
@@ -45,8 +46,11 @@ def _get_submissions(course_factory, submission_manager, user_manager, courseid,
     output = []
 
     for submission in submissions:
-        submission = submission_manager.get_feedback_from_submission(submission, show_everything=
-                                                                     user_manager.has_staff_rights_on_course(course, user_manager.session_username()))
+        submission = submission_manager.get_feedback_from_submission(
+            submission,
+            show_everything=user_manager.has_staff_rights_on_course(course, user_manager.session_username()),
+            translation=translations.get(user_manager.session_language(), gettext.NullTranslations())
+        )
         data = {
             "id": str(submission["_id"]),
             "submitted_on": str(submission["submitted_on"]),
@@ -106,7 +110,7 @@ class APISubmissionSingle(APIAuthenticatedPage):
         """
         with_input = "input" in web.input()
 
-        return _get_submissions(self.course_factory, self.submission_manager, self.user_manager, courseid, taskid, with_input, submissionid)
+        return _get_submissions(self.course_factory, self.submission_manager, self.user_manager, self.app._translations, courseid, taskid, with_input, submissionid)
 
 
 class APISubmissions(APIAuthenticatedPage):
@@ -143,7 +147,7 @@ class APISubmissions(APIAuthenticatedPage):
         """
         with_input = "input" in web.input()
 
-        return _get_submissions(self.course_factory, self.submission_manager, self.user_manager, courseid, taskid, with_input)
+        return _get_submissions(self.course_factory, self.submission_manager, self.user_manager, self.app._translations, courseid, taskid, with_input)
 
     def API_POST(self, courseid, taskid):  # pylint: disable=arguments-differ
         """

@@ -3,7 +3,7 @@ import time
 
 from selenium.webdriver.common.by import By
 
-from inginious.frontend.tests import LoggedInTest
+from inginious.frontend.tests.TestLogin import LoggedInTest
 
 
 class TestTaskSubmission(LoggedInTest):

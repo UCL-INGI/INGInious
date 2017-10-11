@@ -22,7 +22,7 @@ class DisplayableBox(object, metaclass=ABCMeta):
         return input_data
 
     @abstractmethod
-    def show(self, renderer):
+    def show(self, renderer, language):
         """ Get the html to show this box """
         pass
 
@@ -33,11 +33,9 @@ class DisplayableTextBox(TextBox, DisplayableBox):
     def __init__(self, problem, boxid, boxData):
         super(DisplayableTextBox, self).__init__(problem, boxid, boxData)
 
-        self._content = ParsableText(self._content, "rst")
-
-    def show(self, renderer):
+    def show(self, renderer, language):
         """ Show TextBox """
-        return str(renderer.tasks.box_text(self._content))
+        return str(renderer.tasks.box_text(ParsableText(self._content, "rst", translation=self._translations[language])))
 
 
 class DisplayableFileBox(FileBox, DisplayableBox):
@@ -54,7 +52,7 @@ class DisplayableFileBox(FileBox, DisplayableBox):
             input_data[self.get_complete_id()] = {}
         return input_data
 
-    def show(self, renderer):
+    def show(self, renderer, language):
         """ Show FileBox """
         return str(renderer.tasks.box_file(self.get_complete_id(), self._max_size, self._allowed_exts, json))
 
@@ -65,7 +63,7 @@ class DisplayableInputBox(InputBox, DisplayableBox):
     def __init__(self, problem, boxid, boxData):
         super(DisplayableInputBox, self).__init__(problem, boxid, boxData)
 
-    def show(self, renderer):
+    def show(self, renderer, language):
         """ Show InputBox """
         return str(renderer.tasks.box_input(self.get_complete_id(), self._input_type, self._max_chars, self._optional))
 
@@ -76,6 +74,6 @@ class DisplayableMultilineBox(MultilineBox, DisplayableBox):
     def __init__(self, problem, boxid, boxData):
         super(DisplayableMultilineBox, self).__init__(problem, boxid, boxData)
 
-    def show(self, renderer):
+    def show(self, renderer, language):
         """ Show MultilineBox """
         return str(renderer.tasks.box_multiline(self.get_complete_id(), self._lines, self._max_chars, self._language, self._optional))

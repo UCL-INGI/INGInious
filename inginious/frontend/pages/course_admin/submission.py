@@ -3,6 +3,7 @@
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
 
+import gettext
 import base64
 from os import path
 
@@ -44,7 +45,11 @@ class CourseStudentTaskSubmission(INGIniousAdminPage):
                 task.get_id():
             raise web.notfound()
         submission = self.submission_manager.get_input_from_submission(submission)
-        submission = self.submission_manager.get_feedback_from_submission(submission, show_everything=True)
+        submission = self.submission_manager.get_feedback_from_submission(
+            submission,
+            show_everything=True,
+            translation=self.app._translations.get(self.user_manager.session_language(), gettext.NullTranslations())
+        )
 
         to_display = []
         for problem in task.get_problems():

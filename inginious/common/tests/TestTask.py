@@ -99,7 +99,7 @@ class test_tasks_basic(object):
     def test_check_answer_1(self):
         c = self.course_factory.get_course("test")
         t = c.get_task("task1")
-        valid, need_launch, main_message, problem_messages, error_count, multiple_choice_error_count = t.check_answer({"unittest/decimal": "10"})
+        valid, need_launch, main_message, problem_messages, error_count, multiple_choice_error_count = t.check_answer({"unittest/decimal": "10"}, "")
         assert valid is True
         assert need_launch is True
         assert error_count == 0
@@ -108,7 +108,7 @@ class test_tasks_basic(object):
     def test_check_answer_2(self):
         c = self.course_factory.get_course("test")
         t = c.get_task("task3")
-        valid, need_launch, main_message, problem_messages, error_count, multiple_choice_error_count = t.check_answer({"unittest": ["0", "1"]})
+        valid, need_launch, main_message, problem_messages, error_count, multiple_choice_error_count = t.check_answer({"unittest": ["0", "1"]}, "")
         assert valid is True
         assert need_launch is False
         assert error_count == 0
@@ -117,7 +117,7 @@ class test_tasks_basic(object):
     def test_check_answer_3(self):
         c = self.course_factory.get_course("test")
         t = c.get_task("task3")
-        valid, need_launch, main_message, problem_messages, error_count, multiple_choice_error_count = t.check_answer({"unittest": ["0"]})
+        valid, need_launch, main_message, problem_messages, error_count, multiple_choice_error_count = t.check_answer({"unittest": ["0"]}, "")
         assert valid is False
         assert need_launch is False
         assert error_count == 1
@@ -148,8 +148,8 @@ class test_tasks_problems(object):
         assert p.allow_multiple()
 
         # Check correct and incorrect answer
-        assert p.check_answer({'unittest': [0, 1]})[0]
-        assert not p.check_answer({'unittest': [0, 1, 2]})[0]
+        assert p.check_answer({'unittest': [0, 1]}, "")[0]
+        assert not p.check_answer({'unittest': [0, 1, 2]}, "")[0]
 
         # Check random form input
         assert p.input_is_consistent({'unittest': [0, 1]}, [], 0)
@@ -162,8 +162,8 @@ class test_tasks_problems(object):
         p = self.course_factory.get_task('test2', 'task1').get_problems()[0]
 
         # Check correct and incorrect answer
-        assert p.check_answer({'unittest': 'Answer 1'})[0]
-        assert not p.check_answer({'unittest': 'Wrong answer'})[0]
+        assert p.check_answer({'unittest': 'Answer 1'}, "")[0]
+        assert not p.check_answer({'unittest': 'Wrong answer'}, "")[0]
 
         # Check random form input
         assert p.input_is_consistent({'unittest': 'Answer'}, [], 0)

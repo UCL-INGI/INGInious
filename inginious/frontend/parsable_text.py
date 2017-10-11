@@ -5,6 +5,7 @@
 
 """ Tools to parse text """
 import html
+import gettext
 from datetime import datetime
 
 import tidylib
@@ -33,6 +34,7 @@ class HiddenUntilDirective(Directive, object):
                              '%s' % (self.name, hidden_until))
 
         force_show = self.state.document.settings.force_show_hidden_until
+        translation = self.state.document.settings.translation
 
         after_deadline = hidden_until <= datetime.now()
         if after_deadline or force_show:
@@ -42,7 +44,7 @@ class HiddenUntilDirective(Directive, object):
             if not after_deadline and force_show:
                 node = nodes.caution()
                 self.add_name(node)
-                text = _("The feedback below will be hidden to the students until {}.").format(hidden_until.strftime("%d/%m/%Y %H:%M:%S"))
+                text = translation.gettext("The feedback below will be hidden to the students until {}.").format(hidden_until.strftime("%d/%m/%Y %H:%M:%S"))
                 self.state.nested_parse(StringList(text.split("\n")), 0, node)
                 output.append(node)
 
@@ -56,7 +58,7 @@ class HiddenUntilDirective(Directive, object):
         else:
             node = nodes.caution()
             self.add_name(node)
-            text = _("A part of this feedback is hidden until {}. Please come back later and reload the submission to see the full feedback.").format(
+            text = translation.gettext("A part of this feedback is hidden until {}. Please come back later and reload the submission to see the full feedback.").format(
                 hidden_until.strftime("%d/%m/%Y %H:%M:%S"))
             self.state.nested_parse(StringList(text.split("\n")), 0, node)
             return [node]
@@ -120,7 +122,7 @@ class _CustomHTMLWriter(html4css1.Writer, object):
 class ParsableText(object):
     """Allow to parse a string with different parsers"""
 
-    def __init__(self, content, mode="rst", show_everything=False):
+    def __init__(self, content, mode="rst", show_everything=False, translation=gettext.NullTranslations()):
         """
             content             The string to be parsed.
             mode                The parser to be used. Currently, only rst(reStructuredText) and HTML are supported.
@@ -131,6 +133,7 @@ class ParsableText(object):
             raise Exception("Unknown text parser: " + mode)
         self._content = content
         self._parsed = None
+        self._translation = translation
         self._mode = mode
         self._show_everything = show_everything
 
@@ -143,9 +146,9 @@ class ParsableText(object):
         if self._parsed is None:
             try:
                 if self._mode == "html":
-                    self._parsed = self.html(self._content, self._show_everything)
+                    self._parsed = self.html(self._content, self._show_everything, self._translation)
                 else:
-                    self._parsed = self.rst(self._content, self._show_everything)
+                    self._parsed = self.rst(self._content, self._show_everything, self._translation)
             except:
                 self._parsed = "<b>Parsing failed</b>: <pre>" + html.escape(self._content) + "</pre>"
         return self._parsed
@@ -159,19 +162,20 @@ class ParsableText(object):
         return self.parse()
 
     @classmethod
-    def html(cls, string, show_everything=False):  # pylint: disable=unused-argument
+    def html(cls, string, show_everything=False, translation=gettext.NullTranslations()):  # pylint: disable=unused-argument
         """Parses HTML"""
         out, _ = tidylib.tidy_fragment(string)
         return out
 
     @classmethod
-    def rst(cls, string, show_everything=False):
+    def rst(cls, string, show_everything=False, translation=gettext.NullTranslations()):
         """Parses reStructuredText"""
         overrides = {
             'initial_header_level': 3,
             'doctitle_xform': False,
             'syntax_highlight': 'none',
             'force_show_hidden_until': show_everything,
+            'translation': translation,
             'math_output': 'MathJax'
         }
         parts = core.publish_parts(source=string, writer=_CustomHTMLWriter(), settings_overrides=overrides)

@@ -5,6 +5,7 @@
 
 """ Displyable problems """
 
+import gettext
 from abc import ABCMeta, abstractmethod
 from random import shuffle
 
@@ -21,7 +22,7 @@ class DisplayableBasicProblem(BasicProblem, metaclass=ABCMeta):
     """Basic problem """
 
     def get_header(self, language):
-        return ParsableText(super(DisplayableBasicProblem, self).get_header(language), "rst")
+        return ParsableText(super(DisplayableBasicProblem, self).get_header(language), "rst", translation=self._translations.get(language, gettext.NullTranslations()))
 
     def adapt_input_for_backend(self, input_data):
         """ Adapt the input from web.py for the inginious.backend """
@@ -60,7 +61,7 @@ class DisplayableBasicCodeProblem(BasicCodeProblem, DisplayableBasicProblem):
         """ Show BasicCodeProblem and derivatives """
         output = ""
         for box in self._boxes:
-            output += box.show(renderer)
+            output += box.show(renderer, language)
         return output
 
 
@@ -129,7 +130,8 @@ class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableBasicPr
         shuffle(choices)
         return str(renderer.tasks.multiplechoice(
             self.get_id(), self._multiple, choices,
-            lambda text: ParsableText(self.gettext(language, text) if text else "", "rst")))
+            lambda text: ParsableText(self.gettext(language, text) if text else "", "rst",
+                                      translation=self._translations.get(language, gettext.NullTranslations()))))
 
 
 class DisplayableMatchProblem(MatchProblem, DisplayableBasicProblem):
