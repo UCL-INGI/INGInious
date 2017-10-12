@@ -4,6 +4,8 @@
 # more information about the licensing of this file.
 
 """ Task """
+import gettext
+
 from inginious.common.base import id_checker
 from inginious.common.tasks_problems import CodeProblem, CodeSingleLineProblem, MultipleChoiceProblem, MatchProblem, CodeFileProblem
 
@@ -53,6 +55,14 @@ class Task(object):
 
         # i18n
         self._translations = {}
+        translations_fs = self._fs.from_subfolder("$i18n")
+        if translations_fs.exists():
+            for f in translations_fs.list(folders=False, files=True, recursive=False):
+                lang = f[0:len(f) - 3]
+                if translations_fs.exists(lang + ".mo"):
+                    self._translations[lang] = gettext.GNUTranslations(translations_fs.get_fd(lang + ".mo"))
+                else:
+                    self._translations[lang] = gettext.NullTranslations()
 
         # Check all problems
         self._problems = []
@@ -61,6 +71,10 @@ class Task(object):
 
         # Order
         self._order = int(self._data.get('order', -1))
+
+    def gettext(self, language, *args, **kwargs):
+        translation = self._translations.get(language, gettext.NullTranslations())
+        return translation.gettext(*args, **kwargs)
 
     def input_is_consistent(self, task_input, default_allowed_extension, default_max_size):
         """ Check if an input for a task is consistent. Return true if this is case, false else """
@@ -111,7 +125,7 @@ class Task(object):
         """ Returns a FileSystemProvider which points to the folder of this task """
         return self._fs
 
-    def check_answer(self, task_input):
+    def check_answer(self, task_input, language):
         """
             Verify the answers in task_input. Returns six values
             1st: True the input is **currently** valid. (may become invalid after running the code), False else
@@ -128,7 +142,7 @@ class Task(object):
         error_count = 0
         multiple_choice_error_count = 0
         for problem in self._problems:
-            problem_is_valid, problem_main_message, problem_s_messages, problem_mc_error_count = problem.check_answer(task_input)
+            problem_is_valid, problem_main_message, problem_s_messages, problem_mc_error_count = problem.check_answer(task_input, language)
             if problem_is_valid is None:
                 need_launch = True
             elif problem_is_valid == False:

@@ -148,7 +148,7 @@ To enable this plugin, add to your configuration file:
 ::
 
     plugins:
-        - plugin_module: inginious.frontend.webapp.plugins.auth.demo_auth
+        - plugin_module: inginious.frontend.plugins.auth.demo_auth
             users:
                 username1: "password1"
                 username2: "password2"
@@ -165,7 +165,7 @@ To enable this plugin, add to your configuration file:
 ::
 
     plugins:
-        - plugin_module: inginious.frontend.webapp.plugins.auth.ldap_auth
+        - plugin_module: inginious.frontend.plugins.auth.ldap_auth
             host: "your.ldap.server.com"
             encryption: "ssl" #can be tls or none
             base_dn: "ou=People,dc=info,dc=ucl,dc=ac,dc=be"
@@ -191,7 +191,7 @@ To enable this plugin, add to your configuration file:
 ::
 
     plugins:
-        - plugin_module: inginious.frontend.webapp.plugins.auth.saml2_auth
+        - plugin_module: inginious.frontend.plugins.auth.saml2_auth
             strict: true
             sp:
                 entityId: "<your_entity_id>"
@@ -233,7 +233,7 @@ To enable this plugin, add to your configuration file:
 ::
 
     plugins:
-        - plugin_module: inginious.frontend.webapp.plugins.auth.db_auth
+        - plugin_module: inginious.frontend.plugins.auth.db_auth
           allow_deletion: true
 
 For mails to be sent by the registration module, you need to configure the ``smtp`` parameter of your configuration
@@ -246,7 +246,7 @@ This plugin allows to generate course/tasks scoreboards. To enable the plugin, a
 ::
 
     plugins:
-        - plugin_module: inginious.frontend.webapp.plugins.scoreboard
+        - plugin_module: inginious.frontend.plugins.scoreboard
 
 To define a new scoreboard, an additional field ``scoreboard`` must be defined in the ``course.yaml`` file
 associated to a course (See :ref:`course`). For instance:
@@ -277,7 +277,7 @@ To enable the plugin, add to your configuration file:
 ::
 
     plugins:
-        - plugin_module: inginious.frontend.webapp.plugins.contests
+        - plugin_module: inginious.frontend.plugins.contests
 
 A new configuration page named *Contest* appears on the administration page. To enable the contest mode, check the
 *Enable contest plugin* box on the appropriate course. Please note that the plugin will override the task
@@ -292,7 +292,7 @@ To enable the plugin, add to your configuration file:
 ::
 
     plugins:
-        - plugin_module: inginious.frontend.webapp.plugins.simple_grader
+        - plugin_module: inginious.frontend.plugins.simple_grader
           courseid : "external"
           page_pattern: "/external"
           return_fields: "^(result|text|problems)$"
@@ -396,7 +396,7 @@ To enable this plugin, add to your configuration file:
 ::
 
     plugins:
-        - plugin_module: inginious.frontend.webapp.plugins.git_repo
+        - plugin_module: inginious.frontend.plugins.git_repo
           repo_directory: "./repo_submissions"
 
 The ``repo_directory`` parameter specify the path to the repository that must be initialized before configuration.
@@ -414,7 +414,7 @@ To enable the JSON task file format:
 ::
 
     plugins:
-        - plugin_module: inginious.frontend.webapp.plugins.task_file_readers.json_reader
+        - plugin_module: inginious.frontend.plugins.task_file_readers.json_reader
 
 RST
 !!!
@@ -423,4 +423,4 @@ To enable the reStructuredText task file format:
 ::
 
     plugins:
-        - plugin_module: inginious.frontend.webapp.plugins.task_file_readers.rst_reader
+        - plugin_module: inginious.frontend.plugins.task_file_readers.rst_reader

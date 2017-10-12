@@ -33,7 +33,7 @@ backup_directory: ./inginious/backup
 
 # Plugins that will be loaded by the webapp
 plugins:
-  - plugin_module: inginious.frontend.webapp.plugins.auth.demo_auth
+  - plugin_module: inginious.frontend.plugins.auth.demo_auth
     users:
         # register the user "test" with the password "test"
         test: test

@@ -7,12 +7,13 @@
 
 """ Starts the webapp """
 
-import os
-import sys
 import argparse
-import web
-import signal
 import logging
+import os
+import signal
+import sys
+
+import web
 
 # Apache wsgi module only set env vars when a request is done
 os.environ['INGINIOUS_WEBAPP_CONFIG'] = os.environ.get("INGINIOUS_WEBAPP_CONFIG", "")
@@ -22,11 +23,11 @@ os.environ['INGINIOUS_WEBAPP_PORT'] = os.environ.get("INGINIOUS_WEBAPP_PORT", "8
 # If INGInious files are not installed in Python path
 sys.path.append(os.path.dirname(__file__))
 
-from inginious.frontend.common.static_middleware import StaticMiddleware
+from inginious.frontend.static_middleware import StaticMiddleware
 from inginious.common.log import init_logging, CustomLogMiddleware
 from inginious.common.base import load_json_or_yaml
 
-import inginious.frontend.webapp.app
+import inginious.frontend.app
 
 if __name__ == "__main__":
     # Parse the paramaters from command line arguments
@@ -56,7 +57,7 @@ if not configfile:
 
 # Load configuration and application (!!! For mod_wsgi, application identifier must be present)
 config = load_json_or_yaml(configfile)
-application, close_app_func = inginious.frontend.webapp.app.get_app(config)
+application, close_app_func = inginious.frontend.app.get_app(config)
 
 # Init logging
 init_logging(config.get('log_level', 'INFO'))
@@ -81,10 +82,9 @@ if __name__ == "__main__":
 
     # Add static redirection and request log
     root_path = inginious.get_root_path()
-    application = StaticMiddleware(application, (
-        ('/static/common/', os.path.join(root_path, 'frontend', 'common', 'static')),
-        ('/static/webapp/', os.path.join(root_path, 'frontend', 'webapp', 'static'))
-    ))
+    application = StaticMiddleware(application, [
+        ('/static/', os.path.join(root_path, 'frontend', 'static'))
+    ])
     application = CustomLogMiddleware(application, logging.getLogger("inginious.webapp.requests"))
 
     # Launch the app

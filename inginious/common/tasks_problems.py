@@ -25,7 +25,7 @@ class BasicProblem(object, metaclass=ABCMeta):
         return False
 
     @abstractmethod
-    def check_answer(self, task_input):
+    def check_answer(self, task_input, language):
         """
             Check the answer. Returns four values:
             the first is either True, False or None, indicating respectively that the answer is valid, invalid, or need to be sent to VM
@@ -93,11 +93,11 @@ class MatchProblem(BasicProblem):
     def input_is_consistent(self, task_input, default_allowed_extension, default_max_size):
         return self.get_id() in task_input
 
-    def check_answer(self, taskInput):
-        if taskInput[self.get_id()].strip() == self._answer:
-            return True, None, "Correct answer", 0
+    def check_answer(self, task_input, language):
+        if task_input[self.get_id()].strip() == self._answer:
+            return True, None, ["_correct_answer"], 0
         else:
-            return False, None, "Invalid answer", 0
+            return False, None, ["_wrong_answer"], 0
 
     @classmethod
     def get_text_fields(cls):
@@ -141,7 +141,7 @@ class BasicCodeProblem(BasicProblem):
 
         return self._box_types[box_content["type"]](self, boxid, box_content)
 
-    def check_answer(self, _):
+    def check_answer(self, _, __):
         return None, None, None, 0
 
     @classmethod
@@ -280,46 +280,46 @@ class MultipleChoiceProblem(BasicProblem):
                 return False
         return True
 
-    def check_answer(self, taskInput):
+    def check_answer(self, task_input, language):
         valid = True
         msgs = []
         invalid_count = 0
         if self._multiple:
             for choice in self._choices:
-                if choice["valid"] and not choice["index"] in taskInput[self.get_id()] and not str(choice["index"]) in taskInput[self.get_id()]:
+                if choice["valid"] and not choice["index"] in task_input[self.get_id()] and not str(choice["index"]) in task_input[self.get_id()]:
                     valid = False
                     invalid_count += 1
-                elif not choice["valid"] and (choice["index"] in taskInput[self.get_id()] or str(choice["index"]) in taskInput[self.get_id()]):
+                elif not choice["valid"] and (choice["index"] in task_input[self.get_id()] or str(choice["index"]) in task_input[self.get_id()]):
                     valid = False
                     invalid_count += 1
-            for i in taskInput[self.get_id()]:
+            for i in task_input[self.get_id()]:
                 feedback = self.get_choice_with_index(int(i))["feedback"]
                 if feedback is not None:
-                    msgs.append(feedback)
+                    msgs.append(self.gettext(language, feedback))
         else:
-            choice = self.get_choice_with_index(int(taskInput[self.get_id()]))
+            choice = self.get_choice_with_index(int(task_input[self.get_id()]))
             valid = choice["valid"]
             if not valid:
                 invalid_count += 1
             if choice["feedback"] is not None:
-                msgs.append(choice["feedback"])
+                msgs.append(self.gettext(language, choice["feedback"]))
 
         if not valid:
             if self._error_message is not None:
-                msgs = [self._error_message] + msgs
+                msgs = [self.gettext(language, self._error_message)] + msgs
             elif not self._centralize:
-                msgs = [_("Wrong answer. Make sure to select all the valid possibilities") if self._multiple else _("Wrong answer")] + msgs
+                msgs = ["_wrong_answer_multiple" if self._multiple else "_wrong_answer"] + msgs
 
             if len(msgs) != 0:
-                return False, None, "\n\n".join(msgs), invalid_count
+                return False, None, msgs, invalid_count
             else:
                 return False, None, None, invalid_count
 
         if self._success_message is not None:
-            msgs = [self._success_message] + msgs
+            msgs = [self.gettext(language, self._success_message)] + msgs
 
         if len(msgs) != 0:
-            return True, None, "\n\n".join(msgs), 0
+            return True, None, msgs, 0
         else:
             return True, None, None, 0
 
