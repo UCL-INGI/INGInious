@@ -34,16 +34,6 @@ class WebAppTask(Task):
 
         super(WebAppTask, self).__init__(course, taskid, content, task_fs, hook_manager, task_problem_types)
 
-        # i18n
-        translations_fs = self._fs.from_subfolder("$i18n")
-        if translations_fs.exists():
-            for f in translations_fs.list(folders=False, files=True, recursive=False):
-                lang = f[0:len(f) - 3]
-                if translations_fs.exists(lang + ".mo"):
-                    self._translations[lang] = gettext.GNUTranslations(translations_fs.get_fd(lang + ".mo"))
-                else:
-                    self._translations[lang] = gettext.NullTranslations()
-
         self._name = self._data.get('name', 'Task {}'.format(self.get_id()))
 
         self._context = self._data.get('context', "")
@@ -101,10 +91,6 @@ class WebAppTask(Task):
     def get_submission_limit(self):
         """ Returns the submission limits et for the task"""
         return self._submission_limit
-
-    def gettext(self, language, *args, **kwargs):
-        translation = self._translations.get(language, gettext.NullTranslations())
-        return translation.gettext(*args, **kwargs)
 
     def get_name(self, language):
         """ Returns the name of this task """
