@@ -1,6 +1,8 @@
 include LICENSE
 include README.rst
 recursive-include inginious/common/tests/tasks *
+recursive-include inginious/agent/mcq_agent/i18n *
+recursive-include inginious/frontend/i18n *
 recursive-include inginious/frontend/static *
 recursive-include inginious/frontend/templates *
 recursive-include inginious/frontend/plugins/contests *
