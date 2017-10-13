@@ -247,11 +247,11 @@ init-import=yes
 
 # A regular expression matching the name of dummy variables (i.e. expectedly
 # not used).
-dummy-variables-rgx=[^_]*_$|dummy|_[0-9]+$
+dummy-variables-rgx=^__$|^dummy$|^_[0-9]+$
 
 # List of additional names supposed to be defined in builtins. Remember that
 # you should avoid to define new builtins when possible.
-additional-builtins=
+additional-builtins=_
 
 
 [CLASSES]
