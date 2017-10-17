@@ -76,6 +76,15 @@ $def ColumnF():
             </td>
         </tr>
     </table>
+     
+    <!-- Tags -->
+    $if task.get_tags():
+    	<h3>$:_("Tags")</h3>
+    	<div id="main_tag_group">
+		$for tag in task.get_tags():
+			<span class="badge alert-info" id="$tag.get_id()">$tag.get_name()</span>
+		</div>
+    
     $if not is_lti() and staff:
         <h3>$:_("Administration")</h3>
         $if not course.is_open_to_non_staff():
@@ -166,11 +175,21 @@ $def ColumnF():
                                 $elif task.get_evaluate() == 'student':
                                     <a class="notallowed" title="Not the same $('group' if course.use_classrooms() else 'team')" data-toggle="tooltip" data-placement="right"><i class="fa fa-minus-circle fa-fw"></i></a>&nbsp;
 
+                            $if task.get_tags():
+                                $for tag in task.get_tags():
+                                    $ class_tag = "badge alert-info"
+		                            $if "custom" in submission and "tags" in submission["custom"] and tag.get_id() in submission["custom"]["tags"]:
+		                                $if submission["custom"]["tags"][tag.get_id()]:
+		                                    $ class_tag = "badge alert-success"
+		                                $else:
+		                                    $ class_tag = "badge alert-danger"
+		                            <span class="$class_tag" id="$tag.get_id()" data-toggle="tooltip" data-placement="left" title="$tag.get_name()">$tag.get_name()[:1]</span>
+
                             $if "grade" in submission:
-                                <span>$submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S") - $submission["grade"]%</span>
+                                <span id="txt">$submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S") - $submission["grade"]%</span>
                             $else:
-                                <span>$submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S")</span>
-                        </li>
+                                <span id="txt">$submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S")</span>
+	                    </li>
 
                 $else:
                     <li class="list-group-item disabled submission-empty">$:_("No submission")</li>

@@ -49,6 +49,16 @@ $else:
     </div>
 </div>
 <div class="form-group">
+    <label for="tags" class="col-sm-2 control-label">$:_("Tags")</label>
+    <div class="col-sm-10">
+        $if isinstance(task_data.get('tags',[]),list):
+            $ a=', '.join(task_data.get('tags',[]))
+        $else:
+            $ a=task_data.get('tags',[])
+        <input type="text" class="form-control" id="tags" name="tags" placeholder="id1:Name1, id2:Name2, …" value="$a"/>
+    </div>
+</div>
+<div class="form-group">
     <label for="author" class="col-sm-2 control-label">$:_("Grade weight (in comparison to other tasks)")</label>
     <div class="col-sm-10">
         <input type="text" class="form-control" id="weight" name="weight" placeholder="1.00" value="${task_data.get('weight',1.00)}">

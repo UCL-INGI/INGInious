@@ -127,8 +127,17 @@ function displayNewSubmission(id)
          jQuery('<i/>', {class: "fa fa-bookmark fa-fw"}).appendTo(actual_link);
     }
 
-    jQuery('<span/>', {}).text(getDateTime()).appendTo(submission_link);
-    submissions.prepend(submission_link);
+    jQuery('<span id="txt"/>', {}).text(getDateTime()).appendTo(submission_link);
+    
+    //Get all tags listed in the main tag section and add them in info style
+	$('span', $('#main_tag_group')).each(function() {
+    	var txt = $(this).text();
+    	var id = $(this).attr("id");
+    	var new_tag = ('<span class="badge alert-info" id="' + id + '" data-toggle="tooltip" data-placement="left" title="' + txt + '">' + txt[0] + '</span>');
+    	submission_link.append(new_tag);
+	});
+	
+	submissions.prepend(submission_link);
 
     $("body").tooltip({
         selector: '[data-toggle="tooltip"]'
@@ -147,7 +156,7 @@ function removeSubmission(id) {
 }
 
 //Updates a loading submission
-function updateSubmission(id, result, grade)
+function updateSubmission(id, result, grade, tags=[])
 {
     grade = grade || "0.0";
 
@@ -160,7 +169,11 @@ function updateSubmission(id, result, grade)
         if($(this).attr('data-submission-id').trim() == id)
         {
             $(this).removeClass('list-group-item-warning').addClass(nclass);
-            $(this).find("span").append(" - " + grade + "%");
+            var date = $(this).find("span[id='txt']");
+            date.text(date.text() + " - " + grade + "%");
+            
+            //update the warning style badges
+            updateTagsToNewSubmission($(this), tags);  
         }
     });
 }
@@ -188,7 +201,7 @@ function setSelectedSubmission(id, fade, makepost) {
 
     // LTI does not support selecting a specific submission for evaluation
     if($("#my_submission").length) {
-        var text = item.find("span").html();
+        var text = item.find("span[id='txt']").html();
         var url = $('form#task').attr("action");
 
         var applyfn = function (data) {
@@ -402,6 +415,7 @@ function waitForSubmission(submissionid)
                 }
                 else if("status" in data && "result" in data && "grade" in data)
                 {
+                	updateMainTags(data);
                     if("debug" in data)
                         displayDebugInfo(data["debug"]);
 
@@ -418,7 +432,11 @@ function waitForSubmission(submissionid)
                     else // == "error"
                         displayTaskStudentAlertWithProblems(data, "danger", false);
 
-                    updateSubmission(submissionid, data['result'], data["grade"]);
+                    if("debug" in data && "custom" in data["debug"] && "tags" in data["debug"]["custom"]){
+                        updateSubmission(submissionid, data['result'], data["grade"], data["debug"]["custom"]["tags"]);
+                    }else{
+                        updateSubmission(submissionid, data['result'], data["grade"]);
+                    }
                     unblurTaskForm();
 
                     if("replace" in data && data["replace"]) {
@@ -644,6 +662,7 @@ function loadOldSubmissionInput(id, with_feedback)
         {
             if("status" in data && data['status'] == "ok" && "input" in data)
             {
+            	updateMainTags(data);
                 unblurTaskForm();
                 if(with_feedback)
                     loadOldFeedback(data);
@@ -736,4 +755,52 @@ function share_submission(method_id)
     var submissionid = $('#my_submission').attr('data-submission-id');
     window.location.replace("/auth/share/" + method_id + "?submissionid=" + submissionid)
 
+}
+
+/*
+ * Update tags visual of HTML nodes that represent tags.
+ * The choice of the color depends of data present in data["debug"]["custom"]["tags"]
+ * Tags equals to true are green
+ * Tags equals to false are red
+ * Missing tags are blue
+ */
+function updateMainTags(data){
+
+	//Reset all tags to info style (blue) to avoid no-updated colors
+	$('span', $('#main_tag_group')).each(function() {
+    	$(this).attr('class', 'badge alert-info');
+	});
+    	
+    if("custom" in data["debug"] && "tags" in data["debug"]["custom"]){
+    	for (var tag in data["debug"]["custom"]["tags"]){
+    		//Get and update the color of HTML nodes that represent tags
+    		var elem = $('#'.concat(tag.toLowerCase()));
+            if(data["debug"]["custom"]["tags"][tag]){
+            	elem.attr('class', 'badge alert-success')
+    		}else{
+            	elem.attr('class', 'badge alert-danger')
+    		}
+		}
+	}
+}
+
+/*
+ * Update color of tags presents in 'elem' node. 
+ * 'data' is a dictionnary that should contains tag values in data["debug"]["custom"]["tags"]
+ */
+function updateTagsToNewSubmission(elem, data){
+
+    //Get all tags listed in main tag section
+	$('span', $('#main_tag_group')).each(function() {
+    	var txt = $(this).text();
+    	var id = $(this).attr("id");
+    	var badge = elem.find('span[id="' + id + '"]');
+    	if(!(id in data)){
+    	    badge.attr("class", "badge alert-info");
+    	}else if(data[id]){
+    	    badge.attr("class", "badge alert-success");
+    	}else{
+    	    badge.attr("class", "badge alert-danger");
+    	}
+	});
 }

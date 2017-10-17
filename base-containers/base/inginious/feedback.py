@@ -86,6 +86,17 @@ def set_problem_feedback(feedback, problem_id, append=False):
     save_feedback(rdict)
 
 
+def set_tag(tag, value):
+    """ Set the tag 'tag' to the value 'value' """
+    rdict = load_feedback()
+    if not "custom" in rdict:
+        rdict["custom"] = {}
+    if not "tags" in rdict["custom"]:
+        rdict["custom"]["tags"] = {}
+    rdict["custom"]["tags"][tag.lower()] = value
+    save_feedback(rdict)
+
+
 def set_custom_value(custom_name, custom_val):
     """
     Set a custom value to be given back in the feedback

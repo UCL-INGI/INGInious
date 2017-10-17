@@ -488,7 +488,7 @@ class DockerAgent(Agent):
                             raise Exception("Feedback file is badly formatted.")
                         elif accepted_types[key] == dict:
                             for sub_key, sub_item in item.items():
-                                if not id_checker(sub_key) or isinstance(sub_item, dict):
+                                if not id_checker(sub_key): # or isinstance(sub_item, dict): Why? Very restrictive.
                                     raise Exception("Feedback file is badly formatted.")
 
                     # Set output fields
