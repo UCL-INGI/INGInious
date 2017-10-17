@@ -130,14 +130,14 @@ function displayNewSubmission(id)
     jQuery('<span id="txt"/>', {}).text(getDateTime()).appendTo(submission_link);
     
     //Get all tags listed in the main tag section and add them in info style
-	$('span', $('#main_tag_group')).each(function() {
-    	var txt = $(this).text();
-    	var id = $(this).attr("id");
-    	var new_tag = ('<span class="badge alert-info" id="' + id + '" data-toggle="tooltip" data-placement="left" title="' + txt + '">' + txt[0] + '</span>');
-    	submission_link.append(new_tag);
-	});
-	
-	submissions.prepend(submission_link);
+    $('span', $('#main_tag_group')).each(function() {
+        var txt = $(this).text();
+        var id = $(this).attr("id");
+        var new_tag = ('<span class="badge alert-info" id="' + id + '" data-toggle="tooltip" data-placement="left" title="' + txt + '">' + txt[0] + '</span>');
+        submission_link.append(new_tag);
+    });
+    
+    submissions.prepend(submission_link);
 
     $("body").tooltip({
         selector: '[data-toggle="tooltip"]'
@@ -415,7 +415,7 @@ function waitForSubmission(submissionid)
                 }
                 else if("status" in data && "result" in data && "grade" in data)
                 {
-                	updateMainTags(data);
+                    updateMainTags(data);
                     if("debug" in data)
                         displayDebugInfo(data["debug"]);
 
@@ -662,7 +662,7 @@ function loadOldSubmissionInput(id, with_feedback)
         {
             if("status" in data && data['status'] == "ok" && "input" in data)
             {
-            	updateMainTags(data);
+                updateMainTags(data);
                 unblurTaskForm();
                 if(with_feedback)
                     loadOldFeedback(data);
@@ -766,22 +766,22 @@ function share_submission(method_id)
  */
 function updateMainTags(data){
 
-	//Reset all tags to info style (blue) to avoid no-updated colors
-	$('span', $('#main_tag_group')).each(function() {
-    	$(this).attr('class', 'badge alert-info');
-	});
-    	
+    //Reset all tags to info style (blue) to avoid no-updated colors
+    $('span', $('#main_tag_group')).each(function() {
+        $(this).attr('class', 'badge alert-info');
+    });
+        
     if("custom" in data["debug"] && "tags" in data["debug"]["custom"]){
-    	for (var tag in data["debug"]["custom"]["tags"]){
-    		//Get and update the color of HTML nodes that represent tags
-    		var elem = $('#'.concat(tag.toLowerCase()));
+        for (var tag in data["debug"]["custom"]["tags"]){
+            //Get and update the color of HTML nodes that represent tags
+            var elem = $('#'.concat(tag.toLowerCase()));
             if(data["debug"]["custom"]["tags"][tag]){
-            	elem.attr('class', 'badge alert-success')
-    		}else{
-            	elem.attr('class', 'badge alert-danger')
-    		}
-		}
-	}
+                elem.attr('class', 'badge alert-success')
+            }else{
+                elem.attr('class', 'badge alert-danger')
+            }
+        }
+    }
 }
 
 /*
@@ -791,16 +791,16 @@ function updateMainTags(data){
 function updateTagsToNewSubmission(elem, data){
 
     //Get all tags listed in main tag section
-	$('span', $('#main_tag_group')).each(function() {
-    	var txt = $(this).text();
-    	var id = $(this).attr("id");
-    	var badge = elem.find('span[id="' + id + '"]');
-    	if(!(id in data)){
-    	    badge.attr("class", "badge alert-info");
-    	}else if(data[id]){
-    	    badge.attr("class", "badge alert-success");
-    	}else{
-    	    badge.attr("class", "badge alert-danger");
-    	}
-	});
+    $('span', $('#main_tag_group')).each(function() {
+        var txt = $(this).text();
+        var id = $(this).attr("id");
+        var badge = elem.find('span[id="' + id + '"]');
+        if(!(id in data)){
+            badge.attr("class", "badge alert-info");
+        }else if(data[id]){
+            badge.attr("class", "badge alert-success");
+        }else{
+            badge.attr("class", "badge alert-danger");
+        }
+    });
 }
