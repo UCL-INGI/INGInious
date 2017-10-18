@@ -64,7 +64,7 @@ class WebAppTask(Task):
         self._submission_limit = self._data.get("submission_limit", {"amount": -1, "period": -1})
             
         # Tags
-        self._tags = Tag.parse_tag_str(self._data.get("tags", []))
+        self._tags = Tag.parse_tags_from_string(self._data.get("tags", []))
 
     def get_grading_weight(self):
         """ Get the relative weight of this task in the grading """

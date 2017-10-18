@@ -19,7 +19,7 @@ class Tag:
 		return self._id
 	
 	@staticmethod
-	def parse_tag_str(tag_str):
+	def parse_tags_from_string(tag_str):
 		""" Parse a string and return a tag dictionnary by ids of tags """
 		tag_list = []
 		try:
