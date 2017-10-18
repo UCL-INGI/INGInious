@@ -771,7 +771,7 @@ function updateMainTags(data){
         $(this).attr('class', 'badge alert-info');
     });
         
-    if("custom" in data["debug"] && "tags" in data["debug"]["custom"]){
+    if("debug" in data && "custom" in data["debug"] && "tags" in data["debug"]["custom"]){
         for (var tag in data["debug"]["custom"]["tags"]){
             //Get and update the color of HTML nodes that represent tags
             var elem = $('#'.concat(tag.toLowerCase()));
