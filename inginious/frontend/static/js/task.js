@@ -129,14 +129,11 @@ function displayNewSubmission(id)
 
     jQuery('<span id="txt"/>', {}).text(getDateTime()).appendTo(submission_link);
     
-    //Get all tags listed in the main tag section and add them in info style
-    $('span', $('#main_tag_group')).each(function() {
-        var txt = $(this).text();
-        var id = $(this).attr("id");
-        var new_tag = ('<span class="badge alert-info" id="' + id + '" data-toggle="tooltip" data-placement="left" title="' + txt + '">' + txt[0] + '</span>');
-        submission_link.append(new_tag);
-    });
-    
+    //If there exists tags, we add a badge with '0' in the new submission.
+    if($('span', $('#main_tag_group')).length > 0){
+        submission_link.append('<span class="badge alert-info" id="tag_counter" >0</span>');
+    }
+
     submissions.prepend(submission_link);
 
     $("body").tooltip({
@@ -172,7 +169,7 @@ function updateSubmission(id, result, grade, tags=[])
             var date = $(this).find("span[id='txt']");
             date.text(date.text() + " - " + grade + "%");
             
-            //update the warning style badges
+            //update the badge
             updateTagsToNewSubmission($(this), tags);  
         }
     });
@@ -777,8 +774,6 @@ function updateMainTags(data){
             var elem = $('#'.concat(tag.toLowerCase()));
             if(data["tags"][tag]){
                 elem.attr('class', 'badge alert-success')
-            }else{
-                elem.attr('class', 'badge alert-danger')
             }
         }
     }
@@ -790,17 +785,26 @@ function updateMainTags(data){
  */
 function updateTagsToNewSubmission(elem, data){
 
+    var n_ok = 0;   // number of tag equals true
+    var tags_ok = [];
+    var n_tot = 0;  // total number of tags
+    var badge = elem.find('span[id="tag_counter"]');
+    
     //Get all tags listed in main tag section
     $('span', $('#main_tag_group')).each(function() {
-        var txt = $(this).text();
         var id = $(this).attr("id");
-        var badge = elem.find('span[id="' + id + '"]');
-        if(!(id in data)){
-            badge.attr("class", "badge alert-info");
-        }else if(data[id]){
-            badge.attr("class", "badge alert-success");
-        }else{
-            badge.attr("class", "badge alert-danger");
+        if(id in data && data[id]){
+            n_ok++;
+            tags_ok.push($(this).text());
         }
+        n_tot++;
     });
+    badge.text(n_ok);
+    if(n_tot == n_ok){
+        badge.attr("class", "badge alert-success");
+    }else if(n_ok > 0){
+        badge.attr("data-toggle", "tooltip");
+        badge.attr("data-placement", "left");
+        badge.attr('data-original-title', tags_ok.join(", "));
+    }
 }

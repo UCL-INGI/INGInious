@@ -79,11 +79,11 @@ $def ColumnF():
      
     <!-- Tags -->
     $if task.get_tags():
-    	<h3>$:_("Tags")</h3>
-    	<div id="main_tag_group">
-		$for tag in task.get_tags():
-			<span class="badge alert-info" id="$tag.get_id()">$tag.get_name()</span>
-		</div>
+        <h3>$:_("Tags")</h3>
+        <div id="main_tag_group">
+        $for tag in task.get_tags():
+            <span class="badge alert-info" id="$tag.get_id()">$tag.get_name()</span>
+        </div>
     
     $if not is_lti() and staff:
         <h3>$:_("Administration")</h3>
