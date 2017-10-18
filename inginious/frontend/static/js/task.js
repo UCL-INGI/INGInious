@@ -432,8 +432,8 @@ function waitForSubmission(submissionid)
                     else // == "error"
                         displayTaskStudentAlertWithProblems(data, "danger", false);
 
-                    if("debug" in data && "custom" in data["debug"] && "tags" in data["debug"]["custom"]){
-                        updateSubmission(submissionid, data['result'], data["grade"], data["debug"]["custom"]["tags"]);
+                    if("tags" in data){
+                        updateSubmission(submissionid, data['result'], data["grade"], data["tags"]);
                     }else{
                         updateSubmission(submissionid, data['result'], data["grade"]);
                     }
@@ -759,7 +759,7 @@ function share_submission(method_id)
 
 /*
  * Update tags visual of HTML nodes that represent tags.
- * The choice of the color depends of data present in data["debug"]["custom"]["tags"]
+ * The choice of the color depends of data present in data["tags"]
  * Tags equals to true are green
  * Tags equals to false are red
  * Missing tags are blue
@@ -771,11 +771,11 @@ function updateMainTags(data){
         $(this).attr('class', 'badge alert-info');
     });
         
-    if("debug" in data && "custom" in data["debug"] && "tags" in data["debug"]["custom"]){
-        for (var tag in data["debug"]["custom"]["tags"]){
+    if("tags" in data){
+        for (var tag in data["tags"]){
             //Get and update the color of HTML nodes that represent tags
             var elem = $('#'.concat(tag.toLowerCase()));
-            if(data["debug"]["custom"]["tags"][tag]){
+            if(data["tags"][tag]){
                 elem.attr('class', 'badge alert-success')
             }else{
                 elem.attr('class', 'badge alert-danger')
@@ -786,7 +786,7 @@ function updateMainTags(data){
 
 /*
  * Update color of tags presents in 'elem' node. 
- * 'data' is a dictionnary that should contains tag values in data["debug"]["custom"]["tags"]
+ * 'data' is a dictionnary that should contains tag values in data["tags"]
  */
 function updateTagsToNewSubmission(elem, data){
 
