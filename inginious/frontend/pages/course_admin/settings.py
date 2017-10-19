@@ -21,7 +21,7 @@ class CourseSettings(INGIniousAdminPage):
 
     def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request """
-        course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
+        course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
 
         errors = []
         course_content = {}
@@ -83,7 +83,7 @@ class CourseSettings(INGIniousAdminPage):
             course_content['registration_ac_list'] = data['registration_ac_list'].split("\n")
 
             course_content['is_lti'] = 'lti' in data and data['lti'] == "true"
-            course_content['lti_keys'] = dict([x.split(":") for x in data['lti_keys'].split("\n")])
+            course_content['lti_keys'] = dict([x.split(":") for x in data['lti_keys'].split("\n") if x])
 
             for lti_key in course_content['lti_keys'].keys():
                 if not re.match("^[a-zA-Z0-9]*$", lti_key):
@@ -96,7 +96,7 @@ class CourseSettings(INGIniousAdminPage):
         if len(errors) == 0:
             self.course_factory.update_course_descriptor_content(courseid, course_content)
             errors = None
-            course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)  # don't forget to reload the modified course
+            course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)  # don't forget to reload the modified course
 
         return self.page(course, errors, errors is None)
 
