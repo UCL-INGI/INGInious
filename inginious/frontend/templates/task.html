@@ -133,6 +133,10 @@ $def ColumnF():
                 <i class="fa fa-chevron-right fa-fw"></i>
                 $eval_submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S") - $eval_submission.get("grade",0.0)%
             </a>
+            <a href="#" class="list-group-item list-group-item-info" data-toggle='modal' data-target='#share'>
+                <i class="fa fa-share-alt fa-fw"></i>
+                Share my result
+            </a>
         $else:
             <div id="my_submission" class="list-group-item list-group-item-info"><i class="fa fa-chevron-right fa-fw"></i> $:_("No submission")</div>
     </div>
@@ -275,6 +279,26 @@ $if user_manager.has_admin_rights_on_course(course):
     $else:
         <button type="submit" class="btn btn-default btn-lg btn-block center-block" disabled="disabled">$:_("You are not allowed to submit")</button>
 </form>
+
+<!-- Modals -->
+$ auth_methods = user_manager.get_auth_methods()
+
+<div class="modal fade" id="share" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">$:_("Share my result on: ")</h4>
+      </div>
+      <div class="modal-body">
+          $for key, method in auth_methods.items():
+              $if method.allow_share():
+                  <a href="#" onclick="share_submission('$method.get_id()')" class="btn btn-block btn-default">$method.get_name()</a>
+      </div>
+
+    </div>
+  </div>
+</div>
 
 <script type="text/javascript">
 $$(document).ready(function() {

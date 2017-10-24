@@ -43,7 +43,7 @@ class SAMLAuthMethod(AuthMethod):
         else:
             return '<i class="fa fa-id-card" style="font-size:50px; color:#000000;"></i>'
 
-    def get_auth_link(self, user_manager):
+    def get_auth_link(self, user_manager, share=False):
         auth = OneLogin_Saml2_Auth(prepare_request(self._settings), self._settings)
         return auth.login(user_manager.session_redir_url())
 
@@ -85,14 +85,14 @@ class SAMLAuthMethod(AuthMethod):
                                                                          ", ".join(errors))
             return None
 
+    def share(self, auth_storage, course, task, submission, language):
+        return False
+
+    def allow_share(self):
+        return False
+
     def get_settings(self):
         return self._settings
-
-
-class AuthenticationPage(INGIniousPage):
-     def GET(self):
-        auth = OneLogin_Saml2_Auth(prepare_request(), settings)
-        raise web.seeother(auth.login(web.ctx.env.get('HTTP_REFERER','/').rsplit("?logoff")[0]))
 
 
 def prepare_request(settings):
@@ -100,7 +100,7 @@ def prepare_request(settings):
 
     # Set the ACS url and binding method
     settings["sp"]["assertionConsumerService"] = {
-        "url": web.ctx.homedomain + web.ctx.homepath + "/auth/" + settings["id"] + "/callback",
+        "url": web.ctx.homedomain + web.ctx.homepath + "/auth/callback/" + settings["id"],
         "binding": "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
     }
 
@@ -136,5 +136,5 @@ class MetadataPage(INGIniousPage):
 
 def init(plugin_manager, course_factory, client, conf):
     plugin_manager.add_page(r'/auth/([^/]+)/metadata', MetadataPage)
-    plugin_manager.register_auth_method(SAMLAuthMethod(conf.get("id"), conf.get('name', 'SAML Login'), conf.get('imlink', ''), conf))
+    plugin_manager.register_auth_method(SAMLAuthMethod(conf.get("id"), conf.get('name', 'SAML'), conf.get('imlink', ''), conf))
 

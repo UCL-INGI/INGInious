@@ -727,3 +727,11 @@ function loadInput(submissionid, input)
             this.setValue("");
     })
 }
+
+// Share eval submission result on social networks
+function share_submission(method_id)
+{
+    var submissionid = $('#my_submission').attr('data-submission-id');
+    window.location.replace("/auth/share/" + method_id + "?submissionid=" + submissionid)
+
+}
