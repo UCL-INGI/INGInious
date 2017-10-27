@@ -78,12 +78,21 @@ $def ColumnF():
     </table>
      
     <!-- Tags -->
-    $if task.get_tags():
+    $ number_of_visible_tags = 0
+    $for tag in task.get_tags():
+        $if (tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course)):
+            $ number_of_visible_tags = number_of_visible_tags + 1
+
+    $if (number_of_visible_tags > 0):
         <h3>$:_("Tags")</h3>
         <div id="main_tag_group">
         $for tag in task.get_tags():
-            <span class="badge alert-info" id="$tag.get_id()">$tag.get_name()</span>
+            $if (tag.is_visible_for_student()):
+                <span class="badge alert-info" id="$tag.get_id()">$tag.get_name()</span>
+            $elif (user_manager.has_staff_rights_on_course(course)):
+                <span class="badge alert-default" id="$tag.get_id()">$tag.get_name()</span>
         </div>
+    <!-- End Tags -->
     
     $if not is_lti() and staff:
         <h3>$:_("Administration")</h3>
@@ -175,27 +184,30 @@ $def ColumnF():
                                 $elif task.get_evaluate() == 'student':
                                     <a class="notallowed" title="Not the same $('group' if course.use_classrooms() else 'team')" data-toggle="tooltip" data-placement="right"><i class="fa fa-minus-circle fa-fw"></i></a>&nbsp;
 
+                            <!-- Tags -->
                             $# This display a badge with the number of validated tags in each row of the submission history.
-                            $# The badge is green (success style) if all tags are validated, blue (info style) otherwise.
-                            $if task.get_tags():
+                            $# The badge is green (success style) if all tags are validated, blue (info style) otherwise.    
+                            $if (number_of_visible_tags > 0):
                                 $ tags_ok_counter = 0
                                 $ list_tags_ok = []
                                 $for tag in task.get_tags():
-                                    $ class_tag = "badge alert-info"
-                                    $if "tests" in submission and tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()]:
-                                        $ tags_ok_counter += 1
-                                        $list_tags_ok.append(tag.get_name())
-                                $if tags_ok_counter == len(task.get_tags()):
+                                    $if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course):
+                                        $ class_tag = "badge alert-info"
+                                        $if "tests" in submission and tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()]:
+                                            $ tags_ok_counter += 1
+                                            $list_tags_ok.append(tag.get_name())
+                                $if tags_ok_counter == number_of_visible_tags:
                                     <span class="badge alert-success" id="tag_counter">$tags_ok_counter</span>
                                 $else:
                                     <span class="badge alert-info" id="tag_counter" data-toggle="tooltip" data-placement="left" title="$', '.join(list_tags_ok)">$tags_ok_counter</span>
+                            <!-- End Tags -->
                         
                             $if "grade" in submission:
                                 <span id="txt">$submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S") - $submission["grade"]%</span>
                             $else:
                                 <span id="txt">$submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S")</span>
                         </li>
-
+                        
                 $else:
                     <li class="list-group-item disabled submission-empty">$:_("No submission")</li>
             </ul>
