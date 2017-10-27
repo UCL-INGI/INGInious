@@ -429,8 +429,8 @@ function waitForSubmission(submissionid)
                     else // == "error"
                         displayTaskStudentAlertWithProblems(data, "danger", false);
 
-                    if("tags" in data){
-                        updateSubmission(submissionid, data['result'], data["grade"], data["tags"]);
+                    if("tests" in data){
+                        updateSubmission(submissionid, data['result'], data["grade"], data["tests"]);
                     }else{
                         updateSubmission(submissionid, data['result'], data["grade"]);
                     }
@@ -756,7 +756,7 @@ function share_submission(method_id)
 
 /*
  * Update tags visual of HTML nodes that represent tags.
- * The choice of the color depends of data present in data["tags"]
+ * The choice of the color depends of data present in data["tests"]
  * Tags equals to true are green
  * Tags equals to false are red
  * Missing tags are blue
@@ -768,11 +768,11 @@ function updateMainTags(data){
         $(this).attr('class', 'badge alert-info');
     });
         
-    if("tags" in data){
-        for (var tag in data["tags"]){
+    if("tests" in data){
+        for (var tag in data["tests"]){
             //Get and update the color of HTML nodes that represent tags
             var elem = $('#'.concat(tag.toLowerCase()));
-            if(data["tags"][tag]){
+            if(data["tests"][tag]){
                 elem.attr('class', 'badge alert-success')
             }
         }
@@ -781,7 +781,7 @@ function updateMainTags(data){
 
 /*
  * Update color of tags presents in 'elem' node. 
- * 'data' is a dictionnary that should contains tag values in data["tags"]
+ * 'data' is a dictionnary that should contains tag values in data["tests"][tag] = True/False
  */
 function updateTagsToNewSubmission(elem, data){
 

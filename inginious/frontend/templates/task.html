@@ -175,21 +175,26 @@ $def ColumnF():
                                 $elif task.get_evaluate() == 'student':
                                     <a class="notallowed" title="Not the same $('group' if course.use_classrooms() else 'team')" data-toggle="tooltip" data-placement="right"><i class="fa fa-minus-circle fa-fw"></i></a>&nbsp;
 
+                            $# This display a badge with the number of validated tags in each row of the submission history.
+                            $# The badge is green (success style) if all tags are validated, blue (info style) otherwise.
                             $if task.get_tags():
+                                $ tags_ok_counter = 0
+                                $ list_tags_ok = []
                                 $for tag in task.get_tags():
                                     $ class_tag = "badge alert-info"
-		                            $if "custom" in submission and "tags" in submission["custom"] and tag.get_id() in submission["custom"]["tags"]:
-		                                $if submission["custom"]["tags"][tag.get_id()]:
-		                                    $ class_tag = "badge alert-success"
-		                                $else:
-		                                    $ class_tag = "badge alert-danger"
-		                            <span class="$class_tag" id="$tag.get_id()" data-toggle="tooltip" data-placement="left" title="$tag.get_name()">$tag.get_name()[:1]</span>
-
+                                    $if "tests" in submission and tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()]:
+                                        $ tags_ok_counter += 1
+                                        $list_tags_ok.append(tag.get_name())
+                                $if tags_ok_counter == len(task.get_tags()):
+                                    <span class="badge alert-success" id="tag_counter">$tags_ok_counter</span>
+                                $else:
+                                    <span class="badge alert-info" id="tag_counter" data-toggle="tooltip" data-placement="left" title="$', '.join(list_tags_ok)">$tags_ok_counter</span>
+                        
                             $if "grade" in submission:
                                 <span id="txt">$submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S") - $submission["grade"]%</span>
                             $else:
                                 <span id="txt">$submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S")</span>
-	                    </li>
+                        </li>
 
                 $else:
                     <li class="list-group-item disabled submission-empty">$:_("No submission")</li>

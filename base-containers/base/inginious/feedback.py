@@ -87,14 +87,15 @@ def set_problem_feedback(feedback, problem_id, append=False):
 
 
 def set_tag(tag, value):
-    """ Set the tag 'tag' to the value 'value' """
-    rdict = load_feedback()
-    if not "custom" in rdict:
-        rdict["custom"] = {}
-    if not "tags" in rdict["custom"]:
-        rdict["custom"]["tags"] = {}
-    rdict["custom"]["tags"][tag.lower()] = value
-    save_feedback(rdict)
+    """ 
+    Set the tag 'tag' to the value True or False. 
+    :param value: should be a boolean 
+    :param tag: should be the id of the tag 
+    """
+    if (value == True):
+        inginious.tests.set_result(tag, True)
+    else:
+        inginious.tests.set_result(tag, False)
 
 
 def set_custom_value(custom_name, custom_val):
