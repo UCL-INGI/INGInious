@@ -87,10 +87,8 @@ $def ColumnF():
         <h3>$:_("Tags")</h3>
         <div id="main_tag_group">
         $for tag in task.get_tags():
-            $if (tag.is_visible_for_student()):
-                <span class="badge alert-info" id="$tag.get_id()">$tag.get_name()</span>
-            $elif (user_manager.has_staff_rights_on_course(course)):
-                <span class="badge alert-default" id="$tag.get_id()">$tag.get_name()</span>
+            $if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course):
+                <span class="badge alert-info" id="$tag.get_id()" data-toggle="tooltip" title="$tag.get_description()">$tag.get_name()</span>
         </div>
     <!-- End Tags -->
     

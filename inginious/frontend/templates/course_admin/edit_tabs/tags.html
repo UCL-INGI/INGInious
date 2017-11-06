@@ -1,0 +1,52 @@
+$def with (course,task_data)
+
+$#
+$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+$# more information about the licensing of this file.
+$#
+
+<div class="form-group">
+    <table class="table" id="table">
+    <thead>
+        <tr>
+            <th class="col-sm-2" >$:_("Id ")<span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-placement="right" title="$:_('The id field must be unique among all tags. To remove a tag, erase its id. Use the API function feedback.set_tag(\'your_id\',True) in the run file to set tags.')"></span></th>
+            <th class="col-sm-2">$:_("Name")</th>
+            <th class="col-sm-7">$:_("Description")</th>
+            <th class="col-sm-1">$:_("Show to students")</th>
+        </tr>
+    </thead>
+    <tbody>
+    $ i=-1
+    $for tag in task_data.get('tags', {}):
+        $ i=i+1
+        $ id = task_data.get('tags')[tag]["id"]
+        $ name = task_data.get('tags')[tag]["name"]
+        $ description = task_data.get('tags')[tag]["description"]
+        $ visible = task_data.get('tags')[tag]["visible"]
+        <tr id="$i">
+            <td><input type="text" class="form-control" name="tags[$i][id]" value="$id"/></td>
+            <td><input type="text" class="form-control" name="tags[$i][name]" value="$name"/></td>
+            <td><input type="text" class="form-control" name="tags[$i][description]" value="$description"/></td>
+            <td><input type="checkbox" class="form-control" name="tags[$i][visible]" $('checked="checked"' if visible else '')/></td>
+        </tr>
+    </tbody>
+    </table>
+    <button type="button" class="btn btn-success pull-right" onclick="add_tag()"><i class="fa fa-plus fa-lg"></i>$:_(" New tag")</button>
+</div>
+
+<!-- Small javascript whould we place it in another file? -->
+<script>
+function add_tag() {
+    var last_id = 1 + parseInt($$('#table tr:last').attr('id'));
+    if (isNaN(last_id))
+        last_id = 0
+    var new_row = '\
+        <tr id='+ last_id +'> \
+            <td><input type="text" class="form-control" name="tags['+ last_id +'][id]"/></td> \
+            <td><input type="text" class="form-control" name="tags['+ last_id +'][name]"/></td> \
+            <td><input type="text" class="form-control" name="tags['+ last_id +'][description]"/></td> \
+            <td><input type="checkbox" class="form-control" name="tags['+ last_id +'][visible]"/></td> \
+        </tr>'
+    $$('#table').find('tbody').append(new_row);
+}
+</script>

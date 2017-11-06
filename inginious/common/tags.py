@@ -6,10 +6,11 @@
 class Tag:
     """ This class represents a tag. A tag is a kind of badge that represents a concept. """
 
-    def __init__(self, id, name, visible=True):
+    def __init__(self, id, name, visible=True, description=""):
         self._id = id
         self._name = name
         self._visible = visible
+        self._description = description
 
     def get_name(self):
         """ Returns the name of this tag """
@@ -18,38 +19,28 @@ class Tag:
     def get_id(self):
         """ Returns the id of this tag """
         return self._id
-        
+
     def is_visible_for_student(self):
         """ Returns True is the tag should be visible to students """
         return self._visible
-        
-    @staticmethod
-    def get_number_of_visible_tags(list_tags):
-        """ Count the number of visible tags for the list_tags. list_tags have to contains only Tag objects """
-        count = 0
-        for tag in list_tags:
-            print(tag.is_visible_for_student())
-            if (tag.is_visible_for_student()):
-                count =+ 1
-        return count
-        
+
+    def get_description(self):
+        """ Returns the description of this tag """
+        if self._description == "":
+            return "" # Without this, _("") return strange things
+        return _(self._description)
 
     @staticmethod
-    def parse_tags_from_string(tag_str):
-        """ Parse a string and return a tag dictionnary by ids of tags """
+    def create_tags_from_dict(tag_dict):
+        """ Build a list of Tag objects based on the tag_dict """
         tag_list = []
-        try:
-            if isinstance(tag_str, str) and tag_str != "":
-                for tag in [x.strip() for x in tag_str.split(',')]: # for exemple : ['id1:nom1', 'id2:nom2', …]
-                    [id_tag, nom, visible] = tag.split(':') # can cause ValueError
-                    if(visible == "V"):
-                        visible = True
-                    else:
-                        visible = False
-                    if(id_tag != "" and nom != ""):
-                        tag_list.append(Tag(id_tag, nom, visible))
-            return tag_list
-        except ValueError:
-            raise ValueError(_('the tags field is badly formed !'))
-            return []
-            
+        for tag in tag_dict:
+            try:
+                id = tag_dict[tag]["id"]
+                name = tag_dict[tag]["name"]
+                visible = tag_dict[tag]["visible"]
+                description = tag_dict[tag]["description"]
+                tag_list.insert(int(tag), Tag(id, name, visible, description))
+            except KeyError:
+                pass
+        return tag_list
