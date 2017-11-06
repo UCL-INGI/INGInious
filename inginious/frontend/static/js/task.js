@@ -101,7 +101,7 @@ function updateTaskStatus(newStatus, grade)
     var currentStatus = task_status.text().trim();
     var currentGrade = parseFloat(task_grade.text().trim());
 
-    task_status.text(newStatus);
+    task_status.html(newStatus);
     task_grade.text(grade);
 }
 
