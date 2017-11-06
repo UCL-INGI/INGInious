@@ -205,7 +205,7 @@ class BaseTaskPage(object):
                     if default_submission is None:
                         self.set_selected_submission(course, task, userinput['submissionid'])
 
-                    return self.submission_to_json(result, is_admin, False, True if default_submission is None else default_submission['_id'] == result['_id'])
+                    return self.submission_to_json(result, is_admin, False, True if default_submission is None else default_submission['_id'] == result['_id'], tags=task.get_tags())
 
                 else:
                     web.header('Content-Type', 'application/json')
@@ -218,7 +218,8 @@ class BaseTaskPage(object):
                 if not submission:
                     raise web.notfound()
                 web.header('Content-Type', 'application/json')
-                return self.submission_to_json(submission, is_admin, True)
+                return self.submission_to_json(submission, is_admin, True, tags=task.get_tags())
+                
             elif "@action" in userinput and userinput["@action"] == "kill" and "submissionid" in userinput:
                 self.submission_manager.kill_running_submission(userinput["submissionid"])  # ignore return value
                 web.header('Content-Type', 'application/json')
