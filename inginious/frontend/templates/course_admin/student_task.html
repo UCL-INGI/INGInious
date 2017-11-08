@@ -79,11 +79,12 @@ $var Navbar: $:NavbarF()
             $if task.get_tags():
                 <td>
                     $for tag in task.get_tags():
-                        $# The tag is present and the tag is True
+                        <span style="line-height: 18px;">
                         $if "tests" in submission and tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()]:
                             <span class="badge alert-success" id="$tag.get_id()">$tag.get_name()</span>
                         $else:
                             <span class="badge alert-info" id="$tag.get_id()">$tag.get_name()</span>
+                        </span>
                 </td>
             <td>
                 <div class="btn-group" role="group">
