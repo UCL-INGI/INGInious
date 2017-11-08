@@ -213,10 +213,12 @@ class CourseEditTask(INGIniousAdminPage):
                 tags[k]["visible"] = ("visible" in tags[k])
             for k in list(tags.keys()): # Remove uncompleted tags
                 if tags[k]["id"] == "" or tags[k]["name"] == "":
-                    del tags[k]
+                    del tags[k]            
             for k in tags: # Find duplicate ids. Return an error if some tags use the same id.
                 count = 0
                 id = tags[k]["id"]
+                if (" " in id):
+                    return json.dumps({"status": "error", "message": _("You can not use spaces in the id field.")})
                 for k2 in tags:
                     if tags[k2]["id"] == id:
                         count = count+1
