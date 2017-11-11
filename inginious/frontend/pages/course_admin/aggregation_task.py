@@ -38,7 +38,22 @@ class CourseAggregationTaskPage(INGIniousAdminPage):
                                                     "archive": False,
                                                     "input": False}).sort([("submitted_on", pymongo.DESCENDING)]))
         data = [dict(list(f.items()) + [("url", self.submission_url_generator(str(f["_id"])))]) for f in data]
+
         if "csv" in web.input():
             return make_csv(data)
+            
+        # Get best submissions (submission for evaluation)
+        # Need this for statistics computation
+        # Not really optimized for now...
+        user_tasks = list(self.database.user_tasks.find({"username": {"$in": aggregation["students"]}, 
+                                                       "courseid": course.get_id(),
+                                                       "taskid": task.get_id()}))
+        best_submissions_list = []
+        for u in user_tasks:
+            best_submissions_list.append(u["submissionid"])
+
+        for d in data:
+            d["best"] = d["_id"] in best_submissions_list
+
 
         return self.template_helper.get_renderer().course_admin.aggregation_task(course, aggregation, task, data)
