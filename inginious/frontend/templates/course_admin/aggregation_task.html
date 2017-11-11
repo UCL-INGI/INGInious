@@ -66,7 +66,7 @@ $if task.get_tags():
                     <tbody>
                         $for tag in task.get_tags():
                             <tr>
-                                <td><span class="badge alert-info" id="$tag.get_id()">$tag.get_name()</span></td>
+                                <td><span class="badge alert-info" id="$tag.get_id()" data-toggle="tooltip" data-placement="left" title="$tag.get_description()">$tag.get_name()</span></td>
                                 $ ok = 0
                                 $for submission in data:
                                     $if "tests" in submission and tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()]:
