@@ -8,6 +8,7 @@ import web
 from bson.objectid import ObjectId
 
 from inginious.frontend.pages.course_admin.utils import make_csv, INGIniousAdminPage
+from inginious.frontend.pages.course_admin.statistics import compute_statistics
 
 
 class CourseAggregationTaskPage(INGIniousAdminPage):
@@ -47,13 +48,14 @@ class CourseAggregationTaskPage(INGIniousAdminPage):
         # Not really optimized for now...
         user_tasks = list(self.database.user_tasks.find({"username": {"$in": aggregation["students"]}, 
                                                        "courseid": course.get_id(),
-                                                       "taskid": task.get_id()}))
-        best_submissions_list = []
+                                                       "taskid": task.get_id()},
+                                                       {"submissionid": 1, "_id": 0}))
+        best_submissions_list = [] # list containing Ids of best submissions
         for u in user_tasks:
             best_submissions_list.append(u["submissionid"])
-
         for d in data:
-            d["best"] = d["_id"] in best_submissions_list
-
-
-        return self.template_helper.get_renderer().course_admin.aggregation_task(course, aggregation, task, data)
+            d["best"] = d["_id"] in best_submissions_list # mark best submissions
+            
+        statistics = compute_statistics(task, data)
+        
+        return self.template_helper.get_renderer().course_admin.aggregation_task(course, aggregation, task, data, statistics)

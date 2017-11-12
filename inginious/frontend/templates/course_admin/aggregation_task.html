@@ -1,4 +1,4 @@
-$def with (course,aggregation,task,data)
+$def with (course,aggregation,task,data,statistics)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -24,34 +24,26 @@ $def NavbarF():
     </ol>
 $var Navbar: $:NavbarF()
 
-$ total_submission = len(data)
-$ total_submission_best = 0
-$for submission in data:
-    $if "best" in submission and submission["best"]:
-        $ total_submission_best = total_submission_best + 1
-
 <!-- Statistics -->
 <div class="table-responsive">
-<div class="col-sm-4">
+<div class="col-sm-5">
     <div class="panel panel-default">
         <div class="panel-heading">$:_("Submissions statistics")</div>
         <div class="panel-body ">
             <table class="table table-condensed table-summary table-borderless ">
                 <tbody>
-                    <tr>
-                        <td class="summary-heading">$:_("Number of submissions")</td>
-                        <td class="summary-content">$total_submission</td>
-                    </tr>
-                    <tr>
-                        <td class="summary-heading">$:_("Evaluation submissions")</td>
-                        <td>$total_submission_best</td>
+                    $for stat in statistics[0]:
+                        <tr>
+                            <td class="summary-heading">$stat[0]</td>
+                            <td class="summary-content">$stat[1]</td>
+                        </tr>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
 $if task.get_tags():
-    <div class="col-sm-8">
+    <div class="col-sm-7">
         <div class="panel panel-default">
             <div class="panel-heading">$:_("Tag statistics")</div>
             <div class="panel-body ">
@@ -59,24 +51,16 @@ $if task.get_tags():
                     <thead>
                         <tr>
                             <th>$:_("Tag")</th>
-                            <th>$:_("All submission")</th>
-                            <th>$:_("Best submission")</th>
+                            <th>$:_("All submissions")</th>
+                            <th>$:_("Best submissions")</th>
                         </tr>
                     </thead>
                     <tbody>
-                        $for tag in task.get_tags():
+                        $for (tag, v_total, v_best) in statistics[1]:
                             <tr>
                                 <td><span class="badge alert-info" id="$tag.get_id()" data-toggle="tooltip" data-placement="left" title="$tag.get_description()">$tag.get_name()</span></td>
-                                $ ok = 0
-                                $for submission in data:
-                                    $if "tests" in submission and tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()]:
-                                        $ ok = ok+1
-                                <td>$(int(ok/total_submission*100))%</td>
-                                $ ok = 0
-                                $for submission in data:
-                                    $if "best" in submission and submission["best"] and "tests" in submission and tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()]:
-                                        $ ok = ok+1
-                                <td>$(int(ok/total_submission_best*100))%</td>
+                                <td>$v_total</td>
+                                <td>$v_best</td>
                             </tr>
                     </tbody>
                 </table>
