@@ -71,7 +71,7 @@ class IndexPage(INGIniousAuthPage):
                 pass
 
         registerable_courses = {courseid: course for courseid, course in all_courses.items() if
-                                not self.user_manager.course_is_open_to_user(course, username, False) and
+                                not self.user_manager.course_is_user_registered(course, username) and
                                 course.is_registration_possible(username, realname, email)}
 
         registerable_courses = OrderedDict(sorted(iter(registerable_courses.items()), key=lambda x: x[1].get_name(self.user_manager.session_language())))

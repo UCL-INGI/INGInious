@@ -647,7 +647,7 @@ class UserManager:
                 return False
             if course.is_password_needed_for_registration() and course.get_registration_password() != password:
                 return False
-        if self.course_is_open_to_user(course, username):
+        if self.course_is_user_registered(course, username):
             return False  # already registered?
 
         aggregation = self._database.aggregations.find_one({"courseid": course.get_id(), "default": True})
@@ -702,7 +702,7 @@ class UserManager:
         if self.has_staff_rights_on_course(course, username):
             return True
 
-        if not course.get_accessibility().is_open() or not self.course_is_user_registered(course, username):
+        if not course.get_accessibility().is_open() or (not self.course_is_user_registered(course, username) and not course.allow_preview()):
             return False
 
         if lti is not None and course.is_lti() != lti:

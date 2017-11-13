@@ -6,39 +6,40 @@ $# more information about the licensing of this file.
 $#
 
 $var title: $:course.get_name(user_manager.session_language())
-
+$ registered = user_manager.course_is_user_registered(course)
+$ staff = user_manager.has_staff_rights_on_course(course)
 $# Left column content
 $def ColumnF():
     $:template_helper.call('course_menu', course=course, template_helper=template_helper)
-    <h3>$:_("Current grade")</h3>
-    <div class="progress">
-        <div class="progress-bar progress-bar-success" aria-valuenow="$int(grade)" aria-valuemin="0" aria-valuemax="100" style="width: $grade%">
-            $int(grade)%
+    $if registered or staff:
+        <h3>$:_("Current grade")</h3>
+        <div class="progress">
+            <div class="progress-bar progress-bar-success" aria-valuenow="$int(grade)" aria-valuemin="0" aria-valuemax="100" style="width: $grade%">
+                $int(grade)%
+            </div>
         </div>
-    </div>
 
-    <h3>$:_("Last tried exercises")</h3>
-    
-    <div class="list-group">
-        $if submissions:
-            $for submission in submissions:
-                <a class="list-group-item 
-                    $if submission['status'] == 'done' and submission['result'] == 'success':
-                        list-group-item-success
-                    $elif submission['status'] == 'done' and submission['result'] == 'save':
-                        list-group-item-info
-                    $elif submission['status'] == 'waiting':
-                        list-group-item-warning
-                    $else:
-                        list-group-item-danger
-                    "
-                    href="$get_homepath()/course/$submission['courseid']/$submission['taskid']">
-                    $submission['taskname']
-                </a>
-        $else:
-            <a class="list-group-item disabled submission-empty">$:_("No submissions")</a>
-    </div>
-    $if user_manager.has_staff_rights_on_course(course):
+        <h3>$:_("Last tried exercises")</h3>
+        <div class="list-group">
+            $if submissions:
+                $for submission in submissions:
+                    <a class="list-group-item
+                        $if submission['status'] == 'done' and submission['result'] == 'success':
+                            list-group-item-success
+                        $elif submission['status'] == 'done' and submission['result'] == 'save':
+                            list-group-item-info
+                        $elif submission['status'] == 'waiting':
+                            list-group-item-warning
+                        $else:
+                            list-group-item-danger
+                        "
+                        href="$get_homepath()/course/$submission['courseid']/$submission['taskid']">
+                        $submission['taskname']
+                    </a>
+            $else:
+                <a class="list-group-item disabled submission-empty">$:_("No submissions")</a>
+        </div>
+    $if staff:
         $if not course.is_open_to_non_staff():
             <div class="alert alert-warning" role="alert">
                 $:_("This course is currently invisible for students. You can change this by modifying the \"accessibility\" option in the configuration of the course.")
@@ -48,7 +49,7 @@ $def ColumnF():
                 <i class="fa fa-user-secret fa-fw"></i>&nbsp; $:_("Course administration")
             </a>
         </div>
-    $else:
+    $elif registered:
         <div class="list-group">
             <a class="list-group-item list-group-item-info" href="$get_homepath()/aggregation/$course.get_id()">
                 <i class="fa fa-group fa-fw"></i>&nbsp;
@@ -63,6 +64,8 @@ $def ColumnF():
             $if course.allow_unregister():
                 $:include.unregister_button(course)
         </div>
+    $elif course.is_registration_possible(user_manager.session_username(), user_manager.session_realname(), user_manager.session_email()):
+        $:include.register_button(course)
 $var Column: $:ColumnF()
 
 $def NavbarF():
@@ -92,11 +95,12 @@ $# Start content
                         - <b>$:_("deadline reached")</b>
                 </div>
                 <div class="col-xs-12 col-md-5">
-                    <div class="progress">
-                        <div class="progress-bar progress-bar-success" aria-valuenow="$int(completion)" aria-valuemin="0" aria-valuemax="100" style="width: $completion%">
-                            $(int(completion) if completion.is_integer() else completion)%
+                    $if registered:
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-success" aria-valuenow="$int(completion)" aria-valuemin="0" aria-valuemax="100" style="width: $completion%">
+                                $(int(completion) if completion.is_integer() else completion)%
+                            </div>
                         </div>
-                    </div>
                 </div>
             </a>
 </div>

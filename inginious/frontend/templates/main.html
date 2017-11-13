@@ -55,7 +55,7 @@ $# Start content
                             $:_("Administrator")
                         $elif username in course.get_tutors():
                             $:_("Tutor")
-                        $else:
+                        $elif user_manager.course_is_user_registered(course):
                             $:_("Student")
                     </i>
                 </div>
