@@ -43,11 +43,11 @@ class SAMLAuthMethod(AuthMethod):
         else:
             return '<i class="fa fa-id-card" style="font-size:50px; color:#000000;"></i>'
 
-    def get_auth_link(self, user_manager, share=False):
+    def get_auth_link(self, auth_storage, share=False):
         auth = OneLogin_Saml2_Auth(prepare_request(self._settings), self._settings)
-        return auth.login(user_manager.session_redir_url())
+        return auth.login(auth_storage["redir_url"])
 
-    def callback(self, user_manager):
+    def callback(self, auth_storage):
         req = prepare_request(self._settings)
         input_data = web.input()
 
@@ -79,7 +79,7 @@ class SAMLAuthMethod(AuthMethod):
             if 'RelayState' in input_data and self_url != input_data['RelayState']:
                 redirect_url = auth.redirect_to(input_data['RelayState'])
                 # Initialize session in user manager and update cache
-                return (str(username), realname, email) if redirect_url == user_manager.session_redir_url() else None
+                return (str(username), realname, email) if redirect_url == auth_storage["redir_url"] else None
         else:
             logging.getLogger('inginious.webapp.plugin.auth.saml').error("Errors while processing response : ",
                                                                          ", ".join(errors))

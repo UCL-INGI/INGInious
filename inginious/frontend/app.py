@@ -34,6 +34,10 @@ from inginious.frontend.lti_outcome_manager import LTIOutcomeManager
 urls = (
     r'/?', 'inginious.frontend.pages.index.IndexPage',
     r'/index', 'inginious.frontend.pages.index.IndexPage',
+    r'/courselist', 'inginious.frontend.pages.courselist.CourseListPage',
+    r'/pages/([^/]+)', 'inginious.frontend.pages.utils.INGIniousStaticPage',
+    r'/signin', 'inginious.frontend.pages.utils.SignInPage',
+    r'/logout', 'inginious.frontend.pages.utils.LogOutPage',
     r'/register', 'inginious.frontend.pages.register.RegistrationPage',
     r'/auth/signin/([^/]+)', 'inginious.frontend.pages.social.AuthenticationPage',
     r'/auth/callback/([^/]+)', 'inginious.frontend.pages.social.CallbackPage',
@@ -43,6 +47,7 @@ urls = (
     r'/course/([^/]+)/([^/]+)/(.*)', 'inginious.frontend.pages.tasks.TaskPageStaticDownload',
     r'/aggregation/([^/]+)', 'inginious.frontend.pages.aggregation.AggregationPage',
     r'/queue', 'inginious.frontend.pages.queue.QueuePage',
+    r'/mycourses', 'inginious.frontend.pages.mycourses.MyCoursesPage',
     r'/preferences', 'inginious.frontend.pages.preferences.utils.RedirectPage',
     r'/preferences/profile', 'inginious.frontend.pages.preferences.profile.ProfilePage',
     r'/preferences/bindings', 'inginious.frontend.pages.preferences.bindings.BindingsPage',
@@ -224,6 +229,8 @@ def get_app(config):
     appli.allow_registration = config.get("allow_registration", True)
     appli.allow_deletion = config.get("allow_deletion", True)
     appli.available_languages = available_languages
+    appli.welcome_page = config.get("welcome_page", None)
+    appli.static_directory = config.get("static_directory", "./static")
 
     # Init the mapping of the app
     appli.init_mapping(urls)

@@ -18,7 +18,7 @@ class AuthenticationPage(INGIniousPage):
             raise web.notfound()
 
         auth_storage = self.user_manager.session_auth_storage().setdefault(auth_id, {})
-        auth_storage["redir_url"] = web.ctx.env.get('HTTP_REFERER', '/').rsplit("?logoff")[0]
+        auth_storage["redir_url"] = web.ctx.env.get('HTTP_REFERER', '/')
         auth_storage["method"] = "signin"
         auth_link = auth_method.get_auth_link(auth_storage)
         raise web.seeother(auth_link)
@@ -69,7 +69,7 @@ class SharePage(INGIniousAuthPage):
             raise web.notfound()
 
         auth_storage = self.user_manager.session_auth_storage().setdefault(auth_id, {})
-        auth_storage["redir_url"] = web.ctx.env.get('HTTP_REFERER', '/').rsplit("?logoff")[0]
+        auth_storage["redir_url"] = web.ctx.env.get('HTTP_REFERER', '/')
         auth_storage["method"] = "share"
         auth_storage["submissionid"] = web.input().get("submissionid", "")
         auth_link = auth_method.get_auth_link(auth_storage, True)

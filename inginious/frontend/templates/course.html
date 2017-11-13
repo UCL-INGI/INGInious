@@ -64,12 +64,18 @@ $def ColumnF():
             $if course.allow_unregister():
                 $:include.unregister_button(course)
         </div>
+    $elif not user_manager.session_logged_in():
+        $:include.signin_button()
     $elif course.is_registration_possible(user_manager.session_username(), user_manager.session_realname(), user_manager.session_email()):
         $:include.register_button(course)
 $var Column: $:ColumnF()
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
+        $if registered:
+            <li><a href="$get_homepath()/mycourses" title=$:_('"My courses"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-th-list"></i></a></li>
+        $else:
+            <li><a href="$get_homepath()/courselist" title=$:_('"Course list"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-th-list"></i></a></li>
         <li class="active"><a href="#">$course.get_name(user_manager.session_language()) <span class="sr-only">$:_("(current)")</span></a></li>
     </ol>
 $var Navbar: $:NavbarF()

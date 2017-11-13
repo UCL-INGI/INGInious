@@ -330,7 +330,7 @@ class TaskPageStaticDownload(INGIniousPage):
         # authorize LTI sessions to download static files
         return True
 
-    def GET_AUTH(self, courseid, taskid, path):  # pylint: disable=arguments-differ
+    def GET(self, courseid, taskid, path):  # pylint: disable=arguments-differ
         """ GET request """
         try:
             course = self.course_factory.get_course(courseid)
