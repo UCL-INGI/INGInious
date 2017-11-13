@@ -15,7 +15,7 @@ import web
 from bson.objectid import ObjectId
 
 from inginious.common import exceptions
-from inginious.frontend.pages.utils import INGIniousAuthPage
+from inginious.frontend.pages.utils import INGIniousPage
 from inginious.common.tasks_code_boxes import FileBox
 from inginious.common.tasks_problems import MultipleChoiceProblem, BasicCodeProblem
 
@@ -62,7 +62,7 @@ class BaseTaskPage(object):
         else:
             return False
 
-    def GET_AUTH(self, courseid, taskid, isLTI):
+    def GET(self, courseid, taskid, isLTI):
         """ GET request """
         username = self.user_manager.session_username()
 
@@ -129,12 +129,12 @@ class BaseTaskPage(object):
                     students = group["groups"][0]["students"]
                 # we don't care for the other case, as the student won't be able to submit.
 
+            submissions = self.submission_manager.get_user_submissions(task) if self.user_manager.session_logged_in() else []
             # Display the task itself
-            return self.template_helper.get_renderer().task(course, task,
-                                                            self.submission_manager.get_user_submissions(task),
+            return self.template_helper.get_renderer().task(course, task, submissions,
                                                             students, eval_submission, user_task, self.webterm_link)
 
-    def POST_AUTH(self, courseid, taskid, isLTI):
+    def POST(self, courseid, taskid, isLTI):
         """ POST a new submission """
         username = self.user_manager.session_username()
         try:
@@ -323,7 +323,7 @@ class BaseTaskPage(object):
                         output[box.get_complete_id()] = {}
         return output
 
-class TaskPageStaticDownload(INGIniousAuthPage):
+class TaskPageStaticDownload(INGIniousPage):
     """ Allow to download files stored in the task folder """
 
     def is_lti_page(self):
@@ -362,9 +362,9 @@ class TaskPageStaticDownload(INGIniousAuthPage):
                 raise web.notfound()
 
 
-class TaskPage(INGIniousAuthPage):
-    def GET_AUTH(self, courseid, taskid):
-        return BaseTaskPage(self).GET_AUTH(courseid, taskid, False)
+class TaskPage(INGIniousPage):
+    def GET(self, courseid, taskid):
+        return BaseTaskPage(self).GET(courseid, taskid, False)
 
-    def POST_AUTH(self, courseid, taskid):
-        return BaseTaskPage(self).POST_AUTH(courseid, taskid, False)
+    def POST(self, courseid, taskid):
+        return BaseTaskPage(self).POST(courseid, taskid, False)

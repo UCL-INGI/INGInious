@@ -6,10 +6,10 @@
 """ Course page """
 import web
 
-from inginious.frontend.pages.utils import INGIniousAuthPage
+from inginious.frontend.pages.utils import INGIniousAuthPage, INGIniousPage
 
 
-class CoursePage(INGIniousAuthPage):
+class CoursePage(INGIniousPage):
     """ Course page """
 
     def get_course(self, courseid):
@@ -21,7 +21,7 @@ class CoursePage(INGIniousAuthPage):
 
         return course
 
-    def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
+    def POST(self, courseid):  # pylint: disable=arguments-differ
         """ POST request """
         course = self.get_course(courseid)
 
@@ -32,7 +32,7 @@ class CoursePage(INGIniousAuthPage):
 
         return self.show_page(course)
 
-    def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
+    def GET(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
         course = self.get_course(courseid)
         return self.show_page(course)
