@@ -162,13 +162,13 @@ class ContestAdmin(INGIniousAdminPage):
 
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request: simply display the form """
-        course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
+        course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         contest_data = get_contest_data(course)
         return self.template_helper.get_custom_renderer('frontend/plugins/contests').admin(course, contest_data, None, False)
 
     def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request: update the settings """
-        course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
+        course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         contest_data = get_contest_data(course)
 
         new_data = web.input()

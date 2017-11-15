@@ -17,7 +17,7 @@ class CourseReplaySubmissions(INGIniousSubmissionAdminPage):
 
     def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
-        course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
+        course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         user_input = web.input(tasks=[], aggregations=[], users=[])
 
         if "submission" in user_input:
@@ -49,7 +49,7 @@ class CourseReplaySubmissions(INGIniousSubmissionAdminPage):
 
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
-        course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
+        course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         return self.show_page(course, web.input())
 
     def show_page(self, course, user_input, msg="", error=False):

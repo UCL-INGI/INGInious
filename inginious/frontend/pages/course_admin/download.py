@@ -27,7 +27,7 @@ class CourseDownloadSubmissions(INGIniousSubmissionAdminPage):
 
     def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
-        course, _ = self.get_course_and_check_rights(courseid)
+        course, __ = self.get_course_and_check_rights(courseid)
 
         user_input = web.input(tasks=[], aggregations=[], users=[])
 
@@ -50,7 +50,7 @@ class CourseDownloadSubmissions(INGIniousSubmissionAdminPage):
 
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
-        course, _ = self.get_course_and_check_rights(courseid)
+        course, __ = self.get_course_and_check_rights(courseid)
         user_input = web.input()
 
         # First, check for a particular submission
