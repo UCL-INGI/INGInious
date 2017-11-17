@@ -390,6 +390,14 @@ class WebAppSubmissionManager:
             return False
         if "jobid" not in submission:
             return False
+
+        obj = {
+            "ssh_host": "",
+            "ssh_port": "",
+            "ssh_password": ""
+        }
+        self._database.submissions.update_one({"_id": ObjectId(submissionid)}, {"$unset": obj})
+
         return self._client.kill_job(submission["jobid"])
 
     def user_is_submission_owner(self, submission):

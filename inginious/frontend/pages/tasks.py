@@ -266,8 +266,6 @@ class BaseTaskPage(object):
                 text = _("<b>There are {} tasks in front of you in the waiting queue.</b>").format(nb_tasks_before)
 
             return json.dumps({'status': "waiting", 'text': text})
-        elif data['status'] == 'waiting':
-            return json.dumps({'status': "waiting", "text": _("<b>Your submission has been sent...</b>")})
 
         tojson = {
             'status': data['status'],
@@ -278,12 +276,6 @@ class BaseTaskPage(object):
             'replace': replace and not reloading  # Replace the evaluated submission
         }
 
-        if reloading:
-            # Set status='ok' because we are reloading an old submission.
-            tojson["status"] = 'ok'
-            # And also include input
-            tojson["input"] = data.get('input', {})
-
         if "text" in data:
             tojson["text"] = data["text"]
         if "problems" in data:
@@ -292,7 +284,9 @@ class BaseTaskPage(object):
         if debug:
             tojson["debug"] = data
 
-        if data["result"] == "failed":
+        if data['status'] == 'waiting':
+            tojson["text"] = _("<b>Your submission has been sent...</b>")
+        elif data["result"] == "failed":
             tojson["text"] = _("There are some errors in your answer. Your score is {score}%.").format(score=data["grade"])
         elif data["result"] == "success":
             tojson["text"] = _("Your answer passed the tests! Your score is {score}%.").format(score=data["grade"])
@@ -301,15 +295,20 @@ class BaseTaskPage(object):
         elif data["result"] == "overflow":
             tojson["text"] = _("Your submission made an overflow. Your score is {score}%.").format(score=data["grade"])
         elif data["result"] == "killed":
-            tojson["text"] = _("Your submission was killed. [Submission #{submissionid}]")
+            tojson["text"] = _("Your submission was killed.")
         else:
             tojson["text"] = _("An internal error occurred. Please retry later. "
                                "If the error persists, send an email to the course administrator.")
 
         tojson["text"] = "<b>" + tojson["text"] + " [Submission #{submissionid}]".format(submissionid=data["_id"]) + "</b>" + data.get("text", "")
 
-        return json.dumps(tojson, default=str)
+        if reloading:
+            # Set status='ok' because we are reloading an old submission.
+            tojson["status"] = 'ok'
+            # And also include input
+            tojson["input"] = data.get('input', {})
 
+        return json.dumps(tojson, default=str)
 
     def list_multiple_multiple_choices_and_files(self, task):
         """ List problems in task that expect and array as input """
@@ -322,6 +321,7 @@ class BaseTaskPage(object):
                     if isinstance(box, FileBox):
                         output[box.get_complete_id()] = {}
         return output
+
 
 class TaskPageStaticDownload(INGIniousPage):
     """ Allow to download files stored in the task folder """
