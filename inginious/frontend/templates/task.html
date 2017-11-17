@@ -136,12 +136,14 @@ $def ColumnF():
                     <i class="fa fa-chevron-right fa-fw"></i>
                     $eval_submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S") - $eval_submission.get("grade",0.0)%
                 </a>
-                <a href="#" class="list-group-item list-group-item-info" data-toggle='modal' data-target='#share'>
-                    <i class="fa fa-share-alt fa-fw"></i>
-                    Share my result
-                </a>
             $else:
                 <div id="my_submission" class="list-group-item list-group-item-info"><i class="fa fa-chevron-right fa-fw"></i> $:_("No submission")</div>
+
+            $if len([method for key, method in user_manager.get_auth_methods().items() if method.allow_share()]):
+                <a id="share_my_submission" href="#" class="list-group-item list-group-item-info $('hidden' if not eval_submission else '')" data-toggle='modal' data-target='#share'>
+                    <i class="fa fa-share-alt fa-fw"></i>
+                    $:_("Share my result")
+                </a>
         </div>
 
         <h3>$:_("Submission history")</h3>

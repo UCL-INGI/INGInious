@@ -209,6 +209,8 @@ function setSelectedSubmission(id, fade, makepost) {
                 } else {
                     $("#my_submission").replaceWith(submission_link);
                 }
+
+                $("#share_my_submission").removeClass("hidden");
             }
         }
 

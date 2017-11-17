@@ -300,7 +300,7 @@ class BaseTaskPage(object):
             tojson["text"] = _("An internal error occurred. Please retry later. "
                                "If the error persists, send an email to the course administrator.")
 
-        tojson["text"] = "<b>" + tojson["text"] + " [Submission #{submissionid}]".format(submissionid=data["_id"]) + "</b>" + data.get("text", "")
+        tojson["text"] = "<b>" + tojson["text"] + " " + _("[Submission #{submissionid}]").format(submissionid=data["_id"]) + "</b>" + data.get("text", "")
 
         if reloading:
             # Set status='ok' because we are reloading an old submission.
