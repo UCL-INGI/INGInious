@@ -33,7 +33,7 @@ def compute_statistics(task, data):
     
     
     tag_statistics = []
-    for tag in task.get_tags():
+    for tag in task.get_tags()[0] + task.get_tags()[1]:
         ok_total = 0
         ok_best = 0
         for submission in data:

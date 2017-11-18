@@ -211,6 +211,8 @@ class CourseEditTask(INGIniousAdminPage):
             tags = OrderedDict(sorted(tags.items(), key=lambda item: item[0])) # Sort by key
             for k in tags: # Since unckecked checkboxes are not present here, we manually add them to avoid later errors
                 tags[k]["visible"] = ("visible" in tags[k])
+                tags[k]["antitag"] = ("antitag" in tags[k])
+                tags[k]["organisational"] = ("organisational" in tags[k])
             for k in list(tags.keys()): # Remove uncompleted tags
                 if tags[k]["id"] == "" or tags[k]["name"] == "":
                     del tags[k]            

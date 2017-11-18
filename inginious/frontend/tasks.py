@@ -126,5 +126,5 @@ class WebAppTask(Task):
         return self._evaluate
     
     def get_tags(self):
-        """ Get the tag list of the task """
+        """ Get the tuple of list of the task """
         return self._tags

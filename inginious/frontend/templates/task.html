@@ -75,20 +75,37 @@ $def ColumnF():
                         $:_("{nb_submissions} submissions").format(nb_submissions=submission_limit["amount"])
             </td>
         </tr>
+        $ tags = ""
+        $for tag in task.get_tags()[2]:
+            $if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course):
+                $ tags += (tag.get_name() + ", ")
+        $ tags = tags[:-2]
+        $if tags != "":
+        <tr>
+            <td>Organisational Tags</td>
+            <td>$tags</td>
+        </tr>
     </table>
      
     <!-- Tags -->
     $ number_of_visible_tags = 0
-    $for tag in task.get_tags():
-        $if (tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course)):
-            $ number_of_visible_tags = number_of_visible_tags + 1
+    $ number_of_visible_antitag = 0
+    $for tag in task.get_tags()[0]:
+        $if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course):
+            $ number_of_visible_tags += 1
+    $for tag in task.get_tags()[1]:
+        $if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course):
+            $ number_of_visible_antitag += 1
 
-    $if (number_of_visible_tags > 0):
+    $if (number_of_visible_tags > 0) or (number_of_visible_antitag > 0):
         <h3>$:_("Tags")</h3>
         <div id="main_tag_group">
-        $for tag in task.get_tags():
+        $for tag in task.get_tags()[0]:
             $if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course):
                 <span class="badge alert-info" id="$tag.get_id()" data-toggle="tooltip" title="$tag.get_description()">$tag.get_name()</span>
+        $for tag in task.get_tags()[1]:
+            $if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course):
+                <span class="badge alert-danger" id="$tag.get_id()" data-toggle="tooltip" title="$tag.get_description()" style="display:none;">$tag.get_name()</span>
         </div>
     <!-- End Tags -->
     
@@ -188,8 +205,8 @@ $def ColumnF():
                             $if (number_of_visible_tags > 0):
                                 $ tags_ok_counter = 0
                                 $ list_tags_ok = []
-                                $for tag in task.get_tags():
-                                    $if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course):
+                                $for tag in task.get_tags()[0]:
+                                    $if (tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course)):
                                         $ class_tag = "badge alert-info"
                                         $if "tests" in submission and tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()]:
                                             $ tags_ok_counter += 1

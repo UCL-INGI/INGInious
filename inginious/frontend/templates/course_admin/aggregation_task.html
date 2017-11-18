@@ -42,7 +42,7 @@ $var Navbar: $:NavbarF()
         </div>
     </div>
 </div>
-$if task.get_tags():
+$if task.get_tags()[0] or task.get_tags()[1]:
     <div class="col-sm-7">
         <div class="panel panel-default">
             <div class="panel-heading">$:_("Tag statistics")</div>
@@ -57,8 +57,9 @@ $if task.get_tags():
                     </thead>
                     <tbody>
                         $for (tag, v_total, v_best) in statistics[1]:
+                            $ color = "badge alert-danger" if tag.is_antitag() else "badge alert-info" 
                             <tr>
-                                <td><span class="badge alert-info" id="$tag.get_id()" data-toggle="tooltip" data-placement="left" title="$tag.get_description()">$tag.get_name()</span></td>
+                                <td><span class="$color" id="$tag.get_id()" data-toggle="tooltip" data-placement="left" title="$tag.get_description()">$tag.get_name()</span></td>
                                 <td>$v_total</td>
                                 <td>$v_best</td>
                             </tr>
@@ -79,7 +80,7 @@ $if task.get_tags():
             <th>$:_("id")</th>
             <th>$:_("submitted on")</th>
             <th>$:_("result")</th>
-            $if task.get_tags():
+            $if task.get_tags()[0] or task.get_tags()[1]:
                 <th>$:_("tags")</th>
             <th>
                 <!-- the 73px is there to force horizontal button-group. The btn-group may becomes vertical without this. -->
@@ -130,12 +131,17 @@ $if task.get_tags():
             </td>
             $if task.get_tags():
                 <td>
-                    $for tag in task.get_tags():
+                    $for tag in task.get_tags()[0]:
                         <span style="line-height: 18px;">
                         $if "tests" in submission and tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()]:
                             <span class="badge alert-success" id="$tag.get_id()">$tag.get_name()</span>
                         $else:
                             <span class="badge alert-info" id="$tag.get_id()">$tag.get_name()</span>
+                        </span>
+                    $for tag in task.get_tags()[1]:
+                        <span style="line-height: 18px;">
+                        $if "tests" in submission and tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()]:
+                            <span class="badge alert-danger" id="$tag.get_id()">$tag.get_name()</span> 
                         </span>
                 </td>
             <td>

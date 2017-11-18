@@ -309,6 +309,12 @@ class BaseTaskPage(object):
             # And also include input
             tojson["input"] = data.get('input', {})
 
+        if("tests" in data):
+            tojson["tests"] = {}
+            for tag in tags[0]+tags[1]: # Tags only visible for admins should not appear in the json for students.
+                if (tag.is_visible_for_student() or debug) and tag.get_id() in data["tests"]:
+                    tojson["tests"][tag.get_id()] = data["tests"][tag.get_id()]
+
         return json.dumps(tojson, default=str)
 
     def list_multiple_multiple_choices_and_files(self, task):

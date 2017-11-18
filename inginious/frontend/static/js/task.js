@@ -765,7 +765,12 @@ function updateMainTags(data){
 
     //Reset all tags to info style (blue) to avoid no-updated colors
     $('span', $('#main_tag_group')).each(function() {
-        $(this).attr('class', 'badge alert-info');
+        //If this is a alert-danger class, this is an antitag
+        if($(this).attr('class') == "badge alert-danger"){
+            $(this).hide();
+        }else{
+            $(this).attr('class', 'badge alert-info');
+        }
     });
         
     if("tests" in data){
@@ -773,7 +778,12 @@ function updateMainTags(data){
             //Get and update the color of HTML nodes that represent tags
             var elem = $('#'.concat(tag.toLowerCase()));
             if(data["tests"][tag]){
-                elem.attr('class', 'badge alert-success')
+                //If this is a alert-danger class, this is an antitag
+                if(elem.attr('class') == "badge alert-danger"){
+                    elem.show();
+                }else{
+                    elem.attr('class', 'badge alert-success')
+                }
             }
         }
     }
@@ -793,11 +803,15 @@ function updateTagsToNewSubmission(elem, data){
     //Get all tags listed in main tag section
     $('span', $('#main_tag_group')).each(function() {
         var id = $(this).attr("id");
-        if(id in data && data[id]){
-            n_ok++;
-            tags_ok.push($(this).text());
+        var color = $(this).attr("class");
+        //Only consider normal tag (we do not consider antitag)
+        if(color != "badge alert-danger"){
+            if(id in data && data[id]){
+                n_ok++;
+                tags_ok.push($(this).text());
+            }
+            n_tot++;
         }
-        n_tot++;
     });
     badge.text(n_ok);
     if(n_tot == n_ok){
