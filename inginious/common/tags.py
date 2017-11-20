@@ -4,15 +4,21 @@
 # more information about the licensing of this file.
 
 class Tag:
-    """ This class represents a tag. A tag is a kind of badge that represents a concept. """
+    """ 
+    This class represents a tag. A tag is a kind of badge that represents a concept. 
+    The 'type' represents the behaviour of the tag:
+    - 0: Common tags. It appear in blue. When the tag is activated it becomes green. We can perform tasks search on this tag.
+    - 1: Antitag tags. It does not appear until it is activated. It appear in red when activated. We can NOT perform tasks search on this tag.
+                        The tags are useful to highlight errors or misconceptions.
+    - 2: Organisational tags. Never appear. Only used for organisation and when we perform tasks search.
+    """
 
-    def __init__(self, id, name, description="", antitag=False, visible=False, organisational=False):
+    def __init__(self, id, name, description="", visible=False, type=0):
         self._id = id
         self._name = name
         self._description = description
-        self._antitag = antitag
         self._visible = visible
-        self._organisational = organisational
+        self._type = type
 
     def get_name(self):
         """ Returns the name of this tag """
@@ -34,11 +40,11 @@ class Tag:
         
     def is_organisational(self):
         """ Returns True if this tag is for organisational purposes """
-        return self._organisational
+        return self._type == 2
         
     def is_antitag(self):
         """ Returns True if this tag is an antitag """
-        return self._antitag
+        return self._type == 1
         
     @staticmethod
     def create_tags_from_dict(tag_dict):
@@ -58,15 +64,14 @@ class Tag:
                 name = tag_dict[tag]["name"]
                 visible = tag_dict[tag]["visible"]
                 description = tag_dict[tag]["description"]
-                organisational = tag_dict[tag]["organisational"]
-                antitag = tag_dict[tag]["antitag"]
+                type = tag_dict[tag]["type"]
                 
-                if(organisational):
-                    tag_list_organisational.insert(int(tag), Tag(id, name, description, antitag, visible, organisational))
-                elif(antitag):
-                    tag_list_antitag.insert(int(tag), Tag(id, name, description, antitag, visible, organisational))
+                if(type == 2):
+                    tag_list_organisational.insert(int(tag), Tag(id, name, description, visible, 2))
+                elif(type == 1):
+                    tag_list_antitag.insert(int(tag), Tag(id, name, description, visible, 1))
                 else:
-                    tag_list_common.insert(int(tag), Tag(id, name, description, antitag, visible, organisational))
+                    tag_list_common.insert(int(tag), Tag(id, name, description, visible, 0))
 
             except KeyError:
                 pass

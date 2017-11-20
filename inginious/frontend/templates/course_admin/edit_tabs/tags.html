@@ -9,12 +9,11 @@ $#
     <table class="table" id="table">
     <thead>
         <tr>
-            <th class="col-sm-2" >$:_("Id ")<span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-placement="right" title="$:_('The id field must be unique among all tags. To remove a tag, erase its id. Use the API function feedback.set_tag(\'your_id\',True) in the run file to set tags.')"></span></th>
+            <th class="col-sm-2">$:_("Id ")<span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-placement="right" title="$:_('The id field must be unique among all tags. To remove a tag, erase its name. Use the API function feedback.set_tag(\'your_id\',True) in the run file to set tags.')"></span></th>
             <th class="col-sm-2">$:_("Name")</th>
-            <th class="col-sm-7">$:_("Description")</th>
-            <th class="col-sm-1">$:_("Anti-tag")</th>
+            <th class="col-sm-6">$:_("Description")</th>
             <th class="col-sm-1">$:_("Show to students")</th>
-            <th class="col-sm-1">$:_("Organization")</th>
+            <th class="col-sm-1">$:_("Type ")<span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-placement="left" title="$:_('TODO')"></span></th>
 
         </tr>
     </thead>
@@ -22,28 +21,37 @@ $#
     $ i=-1
     $for tag in task_data.get('tags', {}):
         $ i=i+1
-        $ id = task_data.get('tags')[tag]["id"]
-        $ name = task_data.get('tags')[tag]["name"]
-        $ description = task_data.get('tags')[tag]["description"]
-        $ antitag = task_data.get('tags')[tag]["antitag"] if "antitag" in task_data.get('tags')[tag] else False
+        $ id = task_data.get('tags')[tag]["id"] if "id" in task_data.get('tags')[tag] else "unknow_id"
+        $ name = task_data.get('tags')[tag]["name"] if "name" in task_data.get('tags')[tag] else "Unknow name"
+        $ description = task_data.get('tags')[tag]["description"] if "description" in task_data.get('tags')[tag] else ""
+        $ type = task_data.get('tags')[tag]["type"] if "type" in task_data.get('tags')[tag] else 0
         $ visible = task_data.get('tags')[tag]["visible"] if "visible" in task_data.get('tags')[tag] else False
-        $ organisational = task_data.get('tags')[tag]["organisational"] if "organisational" in task_data.get('tags')[tag] else False
-
         <tr id="$i">
-            <td><input type="text" class="form-control" name="tags[$i][id]" value="$id"/></td>
+            $# TODO, add translations in value fields.
+            <td><input type="text" id="id_$i" class="form-control" name="tags[$i][id]" value="$id" $('disabled' if type == 2 else '')/></td>
             <td><input type="text" class="form-control" name="tags[$i][name]" value="$name"/></td>
-            <td><input type="text" class="form-control" name="tags[$i][description]" value="$description"/></td>
-            <td><input type="checkbox" class="form-control" name="tags[$i][antitag]" $('checked="checked"' if antitag else '')/></td>
+            <td><textarea class="form-control" name="tags[$i][description]" rows="3" style="resize:none">$description</textarea></td>
             <td><input type="checkbox" class="form-control" name="tags[$i][visible]" $('checked="checked"' if visible else '')/></td>
-            <td><input type="checkbox" class="form-control" name="tags[$i][organisational]" $('checked="checked"' if organisational else '')/></td>
-
+            <td>
+                <label class="radio"><input type="radio" onclick="enable_id_field($i)" value=0 name="tags[$i][type]" checked="checked">$:_("Common")</label>
+                <label class="radio"><input type="radio" onclick="enable_id_field($i)" value=1 name="tags[$i][type]" $('checked="checked"' if int(type) == 1 else '')>$:_("Antitag")</label>
+                <label class="radio"><input type="radio" onclick="disable_id_field($i)" value=2 name="tags[$i][type]" $('checked="checked"' if int(type) == 2 else '')>$:_("Organisational")</label>
+            </td>
         </tr>
     </tbody>
     </table>
     <button type="button" class="btn btn-success pull-right" onclick="add_tag_line()"><i class="fa fa-plus fa-lg"></i>$:_(" New tag")</button>
 </div>
 
-<!-- Small javascript should we place it in another file? -->
+<script>
+function disable_id_field(line) {
+    $$("#id_"+line).prop('disabled', true);
+}
+function enable_id_field(line) {
+    $$("#id_"+line).prop('disabled', false);
+}
+</script>
+
 <script>
 function add_tag_line() {
     var last_id = 1 + parseInt($$('#table tr:last').attr('id'));
@@ -51,12 +59,15 @@ function add_tag_line() {
         last_id = 0
     var new_row = '\
         <tr id='+ last_id +'> \
-            <td><input type="text" class="form-control" name="tags['+ last_id +'][id]"/></td> \
+            <td><input type="text" id="id_'+ last_id +'" class="form-control" name="tags['+ last_id +'][id]"/></td> \
             <td><input type="text" class="form-control" name="tags['+ last_id +'][name]"/></td> \
-            <td><input type="text" class="form-control" name="tags['+ last_id +'][description]"/></td> \
-            <td><input type="checkbox" class="form-control" name="tags['+ last_id +'][antitag]"/></td> \
+            <td><textarea class="form-control" name="tags['+ last_id +'][description]" rows="3" style="resize:none"></textarea></td> \
             <td><input type="checkbox" class="form-control" name="tags['+ last_id +'][visible]"/></td> \
-            <td><input type="checkbox" class="form-control" name="tags['+ last_id +'][organisational]"/></td> \
+            <td> \
+                <label class="radio"><input type="radio" onclick="enable_id_field('+ last_id +')" value=0 name="tags['+ last_id +'][type]" checked="checked">$:_("Common")</label> \
+                <label class="radio"><input type="radio" onclick="enable_id_field('+ last_id +')" value=1 name="tags['+ last_id +'][type]">$:_("Antitag")</label> \
+                <label class="radio"><input type="radio" onclick="disable_id_field('+ last_id +')" value=2 name="tags['+ last_id +'][type]">$:_("Organisational")</label> \
+            </td> \
         </tr>'
     $$('#table').find('tbody').append(new_row);
 }
