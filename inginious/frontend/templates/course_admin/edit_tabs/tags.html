@@ -9,11 +9,11 @@ $#
     <table class="table" id="table">
     <thead>
         <tr>
-            <th class="col-sm-2">$:_("Id ")<span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-placement="right" title="$:_('The id field must be unique among all tags. To remove a tag, erase its name. Use the API function feedback.set_tag(\'your_id\',True) in the run file to set tags.')"></span></th>
+            <th class="col-sm-2">$:_("Id")</th>
             <th class="col-sm-2">$:_("Name")</th>
             <th class="col-sm-6">$:_("Description")</th>
             <th class="col-sm-1">$:_("Show to students")</th>
-            <th class="col-sm-1">$:_("Type ")<span class="glyphicon glyphicon-info-sign" data-toggle="tooltip" data-placement="left" title="$:_('TODO')"></span></th>
+            <th class="col-sm-1">$:_("Type")</th>
 
         </tr>
     </thead>
@@ -41,6 +41,38 @@ $#
     </tbody>
     </table>
     <button type="button" class="btn btn-success pull-right" onclick="add_tag_line()"><i class="fa fa-plus fa-lg"></i>$:_(" New tag")</button>
+    <button type="button" class="btn btn-info pull-right" data-toggle="modal" data-target="#help_tag_modal">
+        <i class="fa fa-info"></i> $:_("Tag Help")
+    </button>
+</div>
+
+<div id="help_tag_modal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">$:_("Tag help")</h4>
+                </div>
+                <div class="modal-body">
+                    <h4>1) $:_("Types of tags")</h4>
+                    <p>- $:_("<b>Common</b> tag appear in blue by default and swap to green when the tag is activated. We can perform tasks search on these tag.")</p>
+                    <p>- $:_("<b>Antitags</b> do not appear until they are activated. They appear in red when activated. We can NOT perform tasks search on these tag. These tags are useful to highlight errors or misconceptions.")</p>
+                    <p>- $:_("<b>Organisational tags</b> never appear. Only used for organisation and when we perform tasks search.")</p>
+                    
+                    <h4>2) $:_("Utilisation")</h4>
+                    <p>- $:_("Use the API function <tt>feedback.set_tag('your_id', True)</tt>, to activate common and antitags.")</p>
+                    <p>- $:_("The id field must be unique among all tags defined in this task.")</p>
+                    <p>- $:_("To remove a tag, erase its name field.")</p>
+                    <p>- $:_("Organisational tags do not need id.")</p>
+                    <p>- $:_("You can only activate tags defined here except if you use the API function <tt>feedback.tag(str)</tt> to generate tags at runtime. These tags wil appear in dark blue and are only visible for admins/tutors.")</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">$:_("Ok")</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <script>
