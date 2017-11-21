@@ -1,4 +1,4 @@
-$def with (course,submissions, tasks, tasks_data, grade)
+$def with (course, submissions, tasks, tasks_data, grade, tag_filter_list)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -84,19 +84,13 @@ $# Start content
 <h2>$:_("{course_name} - List of exercises").format(course_name=course.get_name(user_manager.session_language()))</h2>
 
 <!-- Tag filter -->
-$ s = set()
-$for taskid, task in tasks.items()
-    $for tag in task.get_tags()[2] + task.get_tags()[0]
-        $if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course):
-            $s.add(tag.get_name()) $#Should return translations
-$if s:
+$if tag_filter_list:
     <div class="form-group">
         <label for="sel1">$:_("Filter tasks by tags")</label>
         <select class="form-control" id="tag_filter" onchange="filter_tag(this)">
             <option class="italic" value="">$:_("No filter")</option>
-        $# NEED TO SORT BE sorted() DOES NOT EXISTS ?!?!
-        $for tag in s:
-            <option value="$tag">$tag</option>
+        $for tag_name in tag_filter_list:
+            <option value="$tag_name">$tag_name</option>
         </select>
     </div>
 <script>

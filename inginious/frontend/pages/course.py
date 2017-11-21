@@ -68,5 +68,12 @@ class CoursePage(INGIniousPage):
                 tasks_score[0] += weighted_score if tasks_data[user_task["taskid"]]["visible"] else 0
 
             course_grade = round(tasks_score[0]/tasks_score[1]) if tasks_score[1] > 0 else 0
+            
+            s = set()
+            for taskid, task in tasks.items():
+                for tag in task.get_tags()[2] + task.get_tags()[0]:
+                    if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course):
+                        s.add(tag.get_name()) # Should return translations
+            tag_list = sorted(s)
 
-            return self.template_helper.get_renderer().course(course, last_submissions, tasks, tasks_data, course_grade)
+            return self.template_helper.get_renderer().course(course, last_submissions, tasks, tasks_data, course_grade, tag_list)
