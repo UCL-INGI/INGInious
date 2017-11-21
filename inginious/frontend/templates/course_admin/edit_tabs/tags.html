@@ -94,7 +94,7 @@ function add_tag_line() {
             <td><input type="text" id="id_'+ last_id +'" class="form-control" name="tags['+ last_id +'][id]"/></td> \
             <td><input type="text" class="form-control" name="tags['+ last_id +'][name]"/></td> \
             <td><textarea class="form-control" name="tags['+ last_id +'][description]" rows="3" style="resize:none"></textarea></td> \
-            <td><input type="checkbox" class="form-control" name="tags['+ last_id +'][visible]"/></td> \
+            <td><input type="checkbox" class="form-control" name="tags['+ last_id +'][visible]" checked/></td> \
             <td> \
                 <label class="radio"><input type="radio" onclick="enable_id_field('+ last_id +')" value=0 name="tags['+ last_id +'][type]" checked="checked">$:_("Common")</label> \
                 <label class="radio"><input type="radio" onclick="enable_id_field('+ last_id +')" value=1 name="tags['+ last_id +'][type]">$:_("Antitag")</label> \
