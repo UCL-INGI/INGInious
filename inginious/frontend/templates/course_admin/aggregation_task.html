@@ -129,20 +129,26 @@ $if task.get_tags()[0] or task.get_tags()[1]:
                     $:_("Failed")
                 ($submission.get("grade",0.0)%)
             </td>
-            $if task.get_tags():
-                <td>
-                    $for tag in task.get_tags()[0]:
-                        <span style="line-height: 18px;">
-                        $if "tests" in submission and tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()]:
-                            <span class="badge alert-success" id="$tag.get_id()">$tag.get_name()</span>
-                        $else:
-                            <span class="badge alert-info" id="$tag.get_id()">$tag.get_name()</span>
-                        </span>
-                    $for tag in task.get_tags()[1]:
-                        <span style="line-height: 18px;">
-                        $if "tests" in submission and tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()]:
-                            <span class="badge alert-danger" id="$tag.get_id()">$tag.get_name()</span> 
-                        </span>
+            <td>
+                $for tag in task.get_tags()[0]:
+                    <span style="line-height: 18px;">
+                    $if "tests" in submission and tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()]:
+                        <span class="badge alert-success" id="$tag.get_id()">$tag.get_name()</span>
+                    $else:
+                        <span class="badge alert-info" id="$tag.get_id()">$tag.get_name()</span>
+                    </span>
+                $for tag in task.get_tags()[1]:
+                    <span style="line-height: 18px;">
+                    $if "tests" in submission and tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()]:
+                        <span class="badge alert-danger" id="$tag.get_id()">$tag.get_name()</span> 
+                    </span>
+                $# Auto-tags not defined in task
+                $if "tests" in submission:
+                    $for tag in submission["tests"]:
+                        $if tag.startswith("auto-tag-"):
+                            <span style="line-height: 18px;">
+                                <span class="badge alert-default")">$submission["tests"][tag]</span> 
+                            </span>                    
                 </td>
             <td>
                 <div class="btn-group" role="group">

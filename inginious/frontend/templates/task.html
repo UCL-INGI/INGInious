@@ -97,7 +97,9 @@ $def ColumnF():
         $if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course):
             $ number_of_visible_antitag += 1
 
-    $if (number_of_visible_tags > 0) or (number_of_visible_antitag > 0):
+    $# Auto tags may appear for admins. So we force the h3 title even if there is not predefined tags
+    $# We do not show the tag header for students if they can not get tags
+    $if (number_of_visible_tags > 0) or (number_of_visible_antitag > 0) or user_manager.has_staff_rights_on_course(course):
         <h3>$:_("Tags")</h3>
         <div id="main_tag_group">
         $for tag in task.get_tags()[0]:

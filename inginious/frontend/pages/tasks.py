@@ -314,6 +314,10 @@ class BaseTaskPage(object):
             for tag in tags[0]+tags[1]: # Tags only visible for admins should not appear in the json for students.
                 if (tag.is_visible_for_student() or debug) and tag.get_id() in data["tests"]:
                     tojson["tests"][tag.get_id()] = data["tests"][tag.get_id()]
+            if debug: #We add also auto tags when we are admin
+                for tag in data["tests"]:
+                    if tag.startswith("auto-tag-"):
+                        tojson["tests"][tag] = data["tests"][tag]
 
         return json.dumps(tojson, default=str)
 

@@ -96,7 +96,16 @@ def set_tag(tag, value):
         inginious.tests.set_result(tag, True)
     else:
         inginious.tests.set_result(tag, False)
-
+        
+_current_auto_tag = 0
+def tag(value):
+    """
+    Add a tag with generated id.
+    :param value: everything working with the str() function
+    """
+    global _current_auto_tag
+    inginious.tests.set_result("auto-tag-" + str(_current_auto_tag), str(value))
+    _current_auto_tag += 1
 
 def set_custom_value(custom_name, custom_val):
     """

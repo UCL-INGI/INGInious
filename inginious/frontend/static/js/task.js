@@ -768,6 +768,9 @@ function updateMainTags(data){
         //If this is a alert-danger class, this is an antitag
         if($(this).attr('class') == "badge alert-danger"){
             $(this).hide();
+        }else if($(this).attr('class') == "badge alert-default"){
+            //Remove auto tags
+            $(this).remove();
         }else{
             $(this).attr('class', 'badge alert-info');
         }
@@ -784,6 +787,9 @@ function updateMainTags(data){
                 }else{
                     elem.attr('class', 'badge alert-success')
                 }
+            }
+            if(tag.startsWith("auto-tag-")){
+                $('#main_tag_group').append('<span class="badge alert-default">'+data["tests"][tag]+'</span>');
             }
         }
     }
