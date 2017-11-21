@@ -41,7 +41,7 @@ class CourseReplaySubmissions(INGIniousSubmissionAdminPage):
 
             if not error:
                 # Load submissions
-                submissions, _ = self.get_selected_submissions(course, user_input.filter_type, user_input.tasks, user_input.users, user_input.aggregations, user_input.type)
+                submissions, __ = self.get_selected_submissions(course, user_input.filter_type, user_input.tasks, user_input.users, user_input.aggregations, user_input.type)
                 for submission in submissions:
                     self.submission_manager.replay_job(tasks[submission["taskid"]], submission)
 

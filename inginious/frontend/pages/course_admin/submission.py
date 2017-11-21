@@ -22,7 +22,7 @@ class SubmissionPage(INGIniousAdminPage):
 
     def fetch_submission(self, submissionid):
         try:
-            submission = self.submission_manager.get_submission(submissionid)
+            submission = self.submission_manager.get_submission(submissionid, False)
             if not submission:
                 raise web.notfound()
         except InvalidId as ex:
