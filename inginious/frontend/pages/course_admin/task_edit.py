@@ -354,5 +354,6 @@ class CourseEditTask(INGIniousAdminPage):
 
         self.task_factory.delete_all_possible_task_files(courseid, taskid)
         self.task_factory.update_task_descriptor_content(courseid, taskid, data, force_extension=file_ext)
-
+        course.update_all_tags_cache()
+        
         return json.dumps({"status": "ok"})

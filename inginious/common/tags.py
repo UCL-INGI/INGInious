@@ -19,6 +19,12 @@ class Tag:
         self._description = description
         self._visible = visible
         self._type = type
+        
+    def __eq__(self, other):
+        return self._id == other._id and self._name == other._name
+        
+    def __hash__(self):
+        return hash((self._id, self._name))
 
     def get_name(self):
         """ Returns the name of this tag """
@@ -45,6 +51,20 @@ class Tag:
     def is_antitag(self):
         """ Returns True if this tag is an antitag """
         return self._type == 1
+        
+    def get_type_as_str(self):
+        """ Return a textual description of the type """
+        if self.get_type() == 0:
+            return _("Common")
+        elif self.get_type() == 1:
+            return _("Antitag")
+        elif self.get_type() == 2:
+            return _("Organisational")
+        else:
+            return _("Unknow type")
+            
+    def get_type(self):
+        return self._type
         
     @staticmethod
     def create_tags_from_dict(tag_dict):

@@ -5,16 +5,24 @@ $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
+<ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#home">$:_("Tag editor")</a></li>
+    <li><a data-toggle="tab" href="#menu1">$:_("Import tags")</a></li>
+</ul>
+
+<!-- Menu Tag Editor -->
+<div class="tab-content">
+<div id="home" class="tab-pane fade in active">
+
 <div class="form-group">
     <table class="table" id="table">
     <thead>
         <tr>
             <th class="col-sm-2">$:_("Id")</th>
             <th class="col-sm-2">$:_("Name")</th>
-            <th class="col-sm-6">$:_("Description")</th>
+            <th class="col-sm-5">$:_("Description")</th>
             <th class="col-sm-1">$:_("Show to students")</th>
-            <th class="col-sm-1">$:_("Type")</th>
-
+            <th class="col-sm-2">$:_("Type ")<span class="fa fa-info-circle" data-toggle="tooltip" title="$:_('0=Common, 1=Antitag, 2=Organisaional')"/></th>
         </tr>
     </thead>
     <tbody>
@@ -30,12 +38,12 @@ $#
             $# TODO, add translations in value fields.
             <td><input type="text" id="id_$i" class="form-control" name="tags[$i][id]" value="$id" $('disabled' if type == 2 else '')/></td>
             <td><input type="text" class="form-control" name="tags[$i][name]" value="$name"/></td>
-            <td><textarea class="form-control" name="tags[$i][description]" rows="3" style="resize:none">$description</textarea></td>
+            <td><textarea class="form-control" name="tags[$i][description]" rows="2" style="resize:none">$description</textarea></td>
             <td><input type="checkbox" class="form-control" name="tags[$i][visible]" $('checked="checked"' if visible else '')/></td>
             <td>
-                <label class="radio"><input type="radio" onclick="enable_id_field($i)" value=0 name="tags[$i][type]" checked="checked">$:_("Common")</label>
-                <label class="radio"><input type="radio" onclick="enable_id_field($i)" value=1 name="tags[$i][type]" $('checked="checked"' if int(type) == 1 else '')>$:_("Antitag")</label>
-                <label class="radio"><input type="radio" onclick="disable_id_field($i)" value=2 name="tags[$i][type]" $('checked="checked"' if int(type) == 2 else '')>$:_("Organisational")</label>
+                <label class="radio-inline"><input type="radio" onclick="enable_id_field($i)" value=0 name="tags[$i][type]" checked="checked">0</label>
+                <label class="radio-inline"><input type="radio" onclick="enable_id_field($i)" value=1 name="tags[$i][type]" $('checked="checked"' if int(type) == 1 else '')>1</label>
+                <label class="radio-inline"><input type="radio" onclick="disable_id_field($i)" value=2 name="tags[$i][type]" $('checked="checked"' if int(type) == 2 else '')>2</label>
             </td>
         </tr>
     </tbody>
@@ -46,6 +54,7 @@ $#
     </button>
 </div>
 
+<!-- Help Modal -->
 <div id="help_tag_modal" class="modal fade">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -59,7 +68,6 @@ $#
                     <p>- $:_("<b>Common</b> tag appear in blue by default and swap to green when the tag is activated. We can perform tasks search on these tag.")</p>
                     <p>- $:_("<b>Antitags</b> do not appear until they are activated. They appear in red when activated. We can NOT perform tasks search on these tag. These tags are useful to highlight errors or misconceptions.")</p>
                     <p>- $:_("<b>Organisational tags</b> never appear. Only used for organisation and when we perform tasks search.")</p>
-                    
                     <h4>2) $:_("Utilisation")</h4>
                     <p>- $:_("Use the API function <tt>feedback.set_tag('your_id', True)</tt>, to activate common and antitags.")</p>
                     <p>- $:_("The id field must be unique among all tags defined in this task.")</p>
@@ -74,7 +82,42 @@ $#
         </div>
     </div>
 </div>
+<!-- Help Modal END-->
+</div>
+<!-- Menu Tag Editor END-->
+<!-- Menu Import tag -->
+<div id="menu1" class="tab-pane fade">
+<table class="table" id="table">
+    <thead>
+        <tr>
+            <th class="col-sm-1">$:_("Id")</th>
+            <th class="col-sm-1">$:_("Name")</th>
+            <th class="col-sm-7">$:_("Description")</th>
+            <th class="col-sm-1">$:_("Show to students")</th>
+            <th class="col-sm-1">$:_("Type")</th>
+            <th class="col-sm-1">$:_("Import")</th>
+        </tr>
+    </thead>
+    <tbody>
+    $ i = -1
+    $for list_index in course.get_all_tags(): 
+        $for t in list_index:
+            $ i += 1
+            <tr>
+                <td id="A-$i">$t.get_id()</td>
+                <td id="B-$i">$t.get_name()</td>
+                <td id="C-$i">$t.get_description()</td>
+                <td id="D-$i">$t.is_visible_for_student()</td>
+                <td id="E-$i" data-type="$t.get_type()" >$t.get_type_as_str()</td>
+                <td><button type="button" onclick="add_tag_line($i)" class="btn btn-primary btn-xs"><i class="fa fa-arrow-down" aria-hidden="true"></i></button></td>
+            </tr>
+    </tbody>
+</table>
 
+</div>
+</div>
+<!-- Menu Import tag END-->
+    
 <script>
 function disable_id_field(line) {
     $$("#id_"+line).prop('disabled', true);
@@ -82,23 +125,42 @@ function disable_id_field(line) {
 function enable_id_field(line) {
     $$("#id_"+line).prop('disabled', false);
 }
-</script>
+function add_tag_line(line=-1) {    
+    var id = $$('#A-'+line).text();
+    var name = $$('#B-'+line).text();
+    var descr = $$('#C-'+line).text();
+    var visibility = $$('#D-'+line).text();
+    var type = parseInt($$('#E-'+line).attr("data-type"));
 
-<script>
-function add_tag_line() {
+    if (visibility == "True"){
+        visibility = "checked";
+    }
+    var checked0 = '';
+    var checked1 = '';
+    var checked2 = '';
+    if(type == 2){
+        checked2 = 'checked="checked"';
+    }
+    else if(type == 1){
+        checked1 = 'checked="checked"';
+    }
+    else{
+        checked0 = 'checked="checked"';
+    }
+
     var last_id = 1 + parseInt($$('#table tr:last').attr('id'));
     if (isNaN(last_id))
         last_id = 0
     var new_row = '\
         <tr id='+ last_id +'> \
-            <td><input type="text" id="id_'+ last_id +'" class="form-control" name="tags['+ last_id +'][id]"/></td> \
-            <td><input type="text" class="form-control" name="tags['+ last_id +'][name]"/></td> \
-            <td><textarea class="form-control" name="tags['+ last_id +'][description]" rows="3" style="resize:none"></textarea></td> \
-            <td><input type="checkbox" class="form-control" name="tags['+ last_id +'][visible]" checked/></td> \
+            <td><input type="text" id="id_'+ last_id +'" class="form-control" name="tags['+ last_id +'][id]" value="'+id+'"/></td> \
+            <td><input type="text" class="form-control" name="tags['+ last_id +'][name]" value="'+name+'"/></td> \
+            <td><textarea class="form-control" name="tags['+ last_id +'][description]" rows="3" style="resize:none">'+descr+'</textarea></td> \
+            <td><input type="checkbox" class="form-control" name="tags['+ last_id +'][visible]" '+visibility+'/></td> \
             <td> \
-                <label class="radio"><input type="radio" onclick="enable_id_field('+ last_id +')" value=0 name="tags['+ last_id +'][type]" checked="checked">$:_("Common")</label> \
-                <label class="radio"><input type="radio" onclick="enable_id_field('+ last_id +')" value=1 name="tags['+ last_id +'][type]">$:_("Antitag")</label> \
-                <label class="radio"><input type="radio" onclick="disable_id_field('+ last_id +')" value=2 name="tags['+ last_id +'][type]">$:_("Organisational")</label> \
+                <label class="radio-inline"><input type="radio" onclick="enable_id_field('+ last_id +')" value=0 name="tags['+ last_id +'][type]" '+checked0+'>0</label> \
+                <label class="radio-inline"><input type="radio" onclick="enable_id_field('+ last_id +')" value=1 name="tags['+ last_id +'][type]" '+checked1+'>1</label> \
+                <label class="radio-inline"><input type="radio" onclick="disable_id_field('+ last_id +')" value=2 name="tags['+ last_id +'][type]" '+checked2+'>2</label> \
             </td> \
         </tr>'
     $$('#table').find('tbody').append(new_row);

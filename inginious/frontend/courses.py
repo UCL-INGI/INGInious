@@ -10,7 +10,11 @@ from collections import OrderedDict
 
 from inginious.common.courses import Course
 from inginious.frontend.accessible_time import AccessibleTime
+from natsort import natsorted
 
+_all_tags_cache = {}
+_all_tags_cache_list = {}
+_all_tags_cache_list_admin = {}
 
 class WebAppCourse(Course):
     """ A course with some modification for users """
@@ -152,3 +156,80 @@ class WebAppCourse(Course):
     def get_name(self, language):
         """ Return the name of this course """
         return self.gettext(language, self._name) if self._name else ""
+        
+    def get_all_tags(self):
+        """ 
+        Return a tuple of lists ([common_tags], [anti_tags], [organisational_tags]) all tags of all tasks of this course 
+        Since this is an heavy procedure, we use a cache to cache results. Cache should be updated when a task is modified.
+        """
+        global _all_tags_cache
+        
+        if self._name in _all_tags_cache and _all_tags_cache[self._name] != None:
+            return _all_tags_cache[self._name]
+    
+        tag_list_common = set()
+        tag_list_antitag = set()
+        tag_list_org = set()
+
+        tasks = self.get_tasks()
+        for id, task in tasks.items():
+            for tag in task.get_tags()[0]:
+                tag_list_common.add(tag)
+            for tag in task.get_tags()[1]:
+                tag_list_antitag.add(tag)
+            for tag in task.get_tags()[2]:
+                tag_list_org.add(tag)
+        
+        tag_list_common = natsorted(tag_list_common, key=lambda y: y.get_name().lower())
+        tag_list_antitag = natsorted(tag_list_antitag, key=lambda y: y.get_name().lower())
+        tag_list_org = natsorted(tag_list_org, key=lambda y: y.get_name().lower())
+             
+        _all_tags_cache[self._name] = (list(tag_list_common), list(tag_list_antitag), list(tag_list_org))
+        return _all_tags_cache[self._name]
+        
+    def get_all_tags_names_as_list(self, admin=False):
+        """ Computes and cache two list containing all tags name sorted by natural order on name """
+        global _all_tags_cache_list
+        global _all_tags_cache_list_admin
+
+        if admin:
+            if self._name in _all_tags_cache_list_admin and _all_tags_cache_list_admin[self._name] != None:
+                return _all_tags_cache_list_admin[self._name] #Cache hit
+        else:
+            if self._name in _all_tags_cache_list and _all_tags_cache_list[self._name] != None:
+                return _all_tags_cache_list[self._name] #Cache hit
+        
+        #Cache miss, computes everything
+        #Computes admin tag list
+        s = set()
+        (common, _, org) = self.get_all_tags()
+        common_and_org = common + org
+        for tag in common_and_org:
+            s.add(tag.get_name()) # Should return translations
+        _all_tags_cache_list_admin[self._name] = natsorted(s, key=lambda y: y.lower())
+        
+        #Compute student tag list
+        s = set()
+        for tag in common_and_org:
+            if tag.is_visible_for_student():
+                s.add(tag.get_name()) # Should return translations
+        _all_tags_cache_list[self._name] = natsorted(s, key=lambda y: y.lower())
+        
+        if admin:
+            return _all_tags_cache_list_admin[self._name]
+        return _all_tags_cache_list[self._name]
+        
+    def update_all_tags_cache(self):
+        """ Force the cache refreshing """
+        global _all_tags_cache
+        global _all_tags_cache_list
+        
+        if self._name in _all_tags_cache:
+            _all_tags_cache[self._name] = None
+        if self._name in _all_tags_cache_list:
+            _all_tags_cache_list[self._name] = None
+        if self._name in _all_tags_cache_list_admin:
+            _all_tags_cache_list_admin[self._name] = None
+            
+        self.get_all_tags()
+        self.get_all_tags_names_as_list()

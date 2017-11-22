@@ -70,11 +70,6 @@ class CoursePage(INGIniousPage):
 
             course_grade = round(tasks_score[0]/tasks_score[1]) if tasks_score[1] > 0 else 0
             
-            s = set()
-            for taskid, task in tasks.items():
-                for tag in task.get_tags()[2] + task.get_tags()[0]:
-                    if tag.is_visible_for_student() or is_admin:
-                        s.add(tag.get_name()) # Should return translations
-            tag_list = natsorted(s, key=lambda y: y.lower())
-
+            tag_list = course.get_all_tags_names_as_list(is_admin)
+            
             return self.template_helper.get_renderer().course(course, last_submissions, tasks, tasks_data, course_grade, tag_list)
