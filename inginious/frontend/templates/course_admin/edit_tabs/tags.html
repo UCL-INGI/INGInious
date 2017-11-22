@@ -15,12 +15,12 @@ $#
 <div id="home" class="tab-pane fade in active">
 
 <div class="form-group">
-    <table class="table" id="table">
+    <table class="table-striped" id="table">
     <thead>
         <tr>
             <th class="col-sm-2">$:_("Id")</th>
-            <th class="col-sm-2">$:_("Name")</th>
-            <th class="col-sm-5">$:_("Description")</th>
+            <th class="col-sm-3">$:_("Name")</th>
+            <th class="col-sm-4">$:_("Description")</th>
             <th class="col-sm-1">$:_("Show to students")</th>
             <th class="col-sm-2">$:_("Type ")<span class="fa fa-info-circle" data-toggle="tooltip" title="$:_('0=Common, 1=Antitag, 2=Organisaional')"/></th>
         </tr>
@@ -38,7 +38,7 @@ $#
             $# TODO, add translations in value fields.
             <td><input type="text" id="id_$i" class="form-control" name="tags[$i][id]" value="$id" $('disabled' if type == 2 else '')/></td>
             <td><input type="text" class="form-control" name="tags[$i][name]" value="$name"/></td>
-            <td><textarea class="form-control" name="tags[$i][description]" rows="2" style="resize:none">$description</textarea></td>
+            <td><textarea class="form-control" onfocus="expand(this);" onblur="expand_not(this);" name="tags[$i][description]" rows="1" style="resize:none">$description</textarea></td>
             <td><input type="checkbox" class="form-control" name="tags[$i][visible]" $('checked="checked"' if visible else '')/></td>
             <td>
                 <label class="radio-inline"><input type="radio" onclick="enable_id_field($i)" value=0 name="tags[$i][type]" checked="checked">0</label>
@@ -87,15 +87,15 @@ $#
 <!-- Menu Tag Editor END-->
 <!-- Menu Import tag -->
 <div id="menu1" class="tab-pane fade">
-<table class="table" id="table">
+<table class="table-striped table-responsive" id="table">
     <thead>
         <tr>
-            <th class="col-sm-1">$:_("Id")</th>
-            <th class="col-sm-1">$:_("Name")</th>
+            <th class="col-sm-2">$:_("Id")</th>
+            <th class="col-sm-2">$:_("Name")</th>
             <th class="col-sm-7">$:_("Description")</th>
-            <th class="col-sm-1">$:_("Show to students")</th>
+            <th class="col-sm-0">$:_("Show to students")</th>
             <th class="col-sm-1">$:_("Type")</th>
-            <th class="col-sm-1">$:_("Import")</th>
+            <th class="col-sm-0">$:_("Import")</th>
         </tr>
     </thead>
     <tbody>
@@ -104,11 +104,11 @@ $#
         $for t in list_index:
             $ i += 1
             <tr>
-                <td id="A-$i">$t.get_id()</td>
-                <td id="B-$i">$t.get_name()</td>
-                <td id="C-$i">$t.get_description()</td>
-                <td id="D-$i">$t.is_visible_for_student()</td>
-                <td id="E-$i" data-type="$t.get_type()" >$t.get_type_as_str()</td>
+                <td id="A-$i" style="padding:4px">$t.get_id()</td>
+                <td id="B-$i" style="padding:4px">$t.get_name()</td>
+                <td id="C-$i" style="padding:4px">$t.get_description()</td>
+                <td id="D-$i" style="padding:4px">$t.is_visible_for_student()</td>
+                <td id="E-$i" style="padding:4px" data-type="$t.get_type()" >$t.get_type_as_str()</td>
                 <td><button type="button" onclick="add_tag_line($i)" class="btn btn-primary btn-xs"><i class="fa fa-arrow-down" aria-hidden="true"></i></button></td>
             </tr>
     </tbody>
@@ -124,6 +124,12 @@ function disable_id_field(line) {
 }
 function enable_id_field(line) {
     $$("#id_"+line).prop('disabled', false);
+}
+function expand(elem){
+    elem.rows = 6;
+}
+function expand_not(elem){
+    elem.rows = 1;
 }
 function add_tag_line(line=-1) {    
     var id = $$('#A-'+line).text();
@@ -155,7 +161,7 @@ function add_tag_line(line=-1) {
         <tr id='+ last_id +'> \
             <td><input type="text" id="id_'+ last_id +'" class="form-control" name="tags['+ last_id +'][id]" value="'+id+'"/></td> \
             <td><input type="text" class="form-control" name="tags['+ last_id +'][name]" value="'+name+'"/></td> \
-            <td><textarea class="form-control" name="tags['+ last_id +'][description]" rows="3" style="resize:none">'+descr+'</textarea></td> \
+            <td><textarea class="form-control" name="tags['+ last_id +'][description]" onfocus="expand(this);" onblur="expand_not(this);" rows="1" style="resize:none">'+descr+'</textarea></td> \
             <td><input type="checkbox" class="form-control" name="tags['+ last_id +'][visible]" '+visibility+'/></td> \
             <td> \
                 <label class="radio-inline"><input type="radio" onclick="enable_id_field('+ last_id +')" value=0 name="tags['+ last_id +'][type]" '+checked0+'>0</label> \
