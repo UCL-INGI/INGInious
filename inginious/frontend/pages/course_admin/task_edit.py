@@ -11,6 +11,7 @@ import re
 import tempfile
 from collections import OrderedDict
 from zipfile import ZipFile
+from natsort import natsorted
 
 import bson
 import web
@@ -251,7 +252,7 @@ class CourseEditTask(INGIniousAdminPage):
             data["problems"] = OrderedDict([(key, self.parse_problem(val))
                                             for key, val in sorted(iter(problems.items()), key=lambda x: int(x[1]['@order']))])
             data["limits"] = limits
-            data["tags"] = tags
+            data["tags"] = OrderedDict(sorted(tags.items(), key=lambda x: x[1]['type']))
             if "hard_time" in data["limits"] and data["limits"]["hard_time"] == "":
                 del data["limits"]["hard_time"]
 
