@@ -59,7 +59,7 @@ class Tag:
         elif self.get_type() == 1:
             return _("Antitag")
         elif self.get_type() == 2:
-            return _("Organisational")
+            return _("Organisation")
         else:
             return _("Unknow type")
             

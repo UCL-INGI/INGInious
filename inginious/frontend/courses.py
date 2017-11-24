@@ -200,20 +200,16 @@ class WebAppCourse(Course):
                 return _all_tags_cache_list[self._name] #Cache hit
         
         #Cache miss, computes everything
-        #Computes admin tag list
-        s = set()
+        s_stud = set()
+        s_admin = set()
         (common, _, org) = self.get_all_tags()
-        common_and_org = common + org
-        for tag in common_and_org:
-            s.add(tag.get_name()) # Should return translations
-        _all_tags_cache_list_admin[self._name] = natsorted(s, key=lambda y: y.lower())
-        
-        #Compute student tag list
-        s = set()
-        for tag in common_and_org:
+        for tag in common + org:
+            tag_name = tag.get_name() # Should return translations
+            s_admin.add(tag_name) 
             if tag.is_visible_for_student():
-                s.add(tag.get_name()) # Should return translations
-        _all_tags_cache_list[self._name] = natsorted(s, key=lambda y: y.lower())
+                s_stud.add(tag_name) 
+        _all_tags_cache_list_admin[self._name] = natsorted(s_admin, key=lambda y: y.lower())
+        _all_tags_cache_list[self._name] = natsorted(s_stud, key=lambda y: y.lower())
         
         if admin:
             return _all_tags_cache_list_admin[self._name]
@@ -223,6 +219,7 @@ class WebAppCourse(Course):
         """ Force the cache refreshing """
         global _all_tags_cache
         global _all_tags_cache_list
+        global _all_tags_cache_list_admin
         
         if self._name in _all_tags_cache:
             _all_tags_cache[self._name] = None
