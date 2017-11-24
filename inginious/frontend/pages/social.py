@@ -51,7 +51,7 @@ class CallbackPage(INGIniousPage):
             else:
                 raise web.notfound()
 
-        raise web.seeother(auth_storage["redir_url"])
+        raise web.seeother(auth_storage.get("redir_url", "/"))
 
     def GET(self, auth_id):
         if self.user_manager.session_cookieless():
