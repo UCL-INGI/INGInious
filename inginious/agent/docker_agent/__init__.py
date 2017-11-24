@@ -109,8 +109,6 @@ class DockerAgent(Agent):
                         self._loop.create_task(self.handle_job_closing(container_id, retval))
                     elif container_id in self._student_containers_running:
                         self._loop.create_task(self.handle_student_job_closing(container_id, retval))
-                    elif container_id in self._batch_containers_running:
-                        self._loop.create_task(self.handle_batch_job_closing(container_id, retval))
                 elif i["Type"] == "container" and i["status"] == "oom":
                     container_id = i["id"]
                     if container_id in self._containers_running or container_id in self._student_containers_running:
