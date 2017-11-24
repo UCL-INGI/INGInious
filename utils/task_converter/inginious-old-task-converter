@@ -14,7 +14,6 @@ import sys
 sys.path.append(os.path.join(os.path.abspath(os.path.dirname(os.path.realpath(__file__))), '..', '..'))
 
 import inginious.frontend.plugins.task_file_readers.json_reader
-import inginious.frontend.plugins.task_file_readers.rst_reader
 from inginious.common.course_factory import create_factories
 from inginious.common.filesystems.local import LocalFSProvider
 import argparse
