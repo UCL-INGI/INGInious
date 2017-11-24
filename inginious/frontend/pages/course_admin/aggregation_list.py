@@ -17,7 +17,7 @@ class CourseAggregationListPage(INGIniousAdminPage):
 
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
-        course, _ = self.get_course_and_check_rights(courseid)
+        course, __ = self.get_course_and_check_rights(courseid)
 
         if course.is_lti():
             raise web.notfound()
@@ -46,7 +46,7 @@ class CourseAggregationListPage(INGIniousAdminPage):
 
     def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request """
-        course, _ = self.get_course_and_check_rights(courseid)
+        course, __ = self.get_course_and_check_rights(courseid)
 
         if course.is_lti():
             raise web.notfound()

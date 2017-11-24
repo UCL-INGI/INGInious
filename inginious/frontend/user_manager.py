@@ -34,18 +34,35 @@ class AuthMethod(object, metaclass=ABCMeta):
         return ""
 
     @abstractmethod
-    def get_auth_link(self, user_manager):
+    def get_auth_link(self, auth_storage):
         """
-        :param user_manager: The user manager, for session storage
+        :param auth_storage: The session auth method storage dict
         :return: The authentication link
         """
+        return ""
 
     @abstractmethod
-    def callback(self, user_manager):
+    def callback(self, auth_storage):
         """
-        :param user_manager: The user manager,  for session storage
-        :return: User tuple, or None, if failed
+        :param auth_storage: The session auth method storage dict
+        :return: User tuple and , or None, if failed
         """
+        return None
+
+    @abstractmethod
+    def share(self, auth_storage, course, task, submission, language):
+        """
+        :param auth_storage: The session auth method storage dict
+        :return: False if error
+        """
+        return False
+
+    @abstractmethod
+    def allow_share(self):
+        """
+        :return: True if the auth method allow sharing, else false
+        """
+        return False
 
     @abstractmethod
     def get_name(self):
@@ -137,13 +154,9 @@ class UserManager:
         """ Returns the current session id"""
         return self._session.get("session_id", "")
 
-    def session_redir_url(self):
-        """ Returns the redirection url for login """
-        return self._session.get("redir_url", "")
-
-    def session_oauth_state(self):
+    def session_auth_storage(self):
         """ Returns the oauth state for login """
-        return self._session.get("oauth_state", None)
+        return self._session.setdefault("auth_storage", {})
 
     def session_language(self):
         """ Returns the current session language """
@@ -158,14 +171,6 @@ class UserManager:
         """ Sets the real name of the current user in the session, if one is open."""
         if self.session_logged_in():
             self._session.realname = realname
-
-    def set_session_redir_url(self, redir_url):
-        """ Sets the redirection url for login """
-        self._session.redir_url = redir_url
-
-    def set_session_oauth_state(self, oauth_state):
-        """Sets the oauth state for login """
-        self._session.oauth_state = oauth_state
 
     def set_session_language(self, language):
         self._session.language = language
@@ -330,6 +335,46 @@ class UserManager:
         if info is not None:
             return info[1]
         return None
+
+    def bind_user(self, auth_id, user):
+        username, realname, email = user
+
+        auth_method = self.get_auth_method(auth_id)
+        if not auth_method:
+            raise web.notfound()
+
+        # Look for already bound auth method username
+        user_profile = self._database.users.find_one({"bindings." + auth_id: username})
+
+        if user_profile and not self.session_logged_in():
+            # Sign in
+            self.connect_user(user_profile["username"], user_profile["realname"], user_profile["email"], user_profile["language"])
+        elif user_profile and self.session_username() == user_profile["username"]:
+            # Logged in, refresh fields if found profile username matches session username
+            pass
+        elif user_profile:
+            # Logged in, but already linked to another account
+            self._logger.exception("Tried to bind an already bound account !")
+        elif self.session_logged_in():
+            # No binding, but logged: add new binding
+            self._database.users.find_one_and_update({"username": self.session_username()},
+                                                    {"$set": {"bindings." + auth_id: [username, {}]}},
+                                                    return_document=pymongo.ReturnDocument.AFTER)
+
+        else:
+            # No binding, check for email
+            user_profile = self._database.users.find_one({"email": email})
+            if user_profile:
+                # Found an email, existing user account, abort without binding
+                self._logger.exception("The binding email is already used by another account!")
+            else:
+                # New user, create an account using email address
+                self._database.users.insert({"username": "",
+                                            "realname": realname,
+                                            "email": email,
+                                            "bindings": {auth_id: [username, {}]},
+                                            "language": self._session.get("language", "en")})
+                self.connect_user("", realname, email, self._session.get("language", "en"))
 
     ##############################################
     #      User task/course info management      #
@@ -602,7 +647,7 @@ class UserManager:
                 return False
             if course.is_password_needed_for_registration() and course.get_registration_password() != password:
                 return False
-        if self.course_is_open_to_user(course, username):
+        if self.course_is_user_registered(course, username):
             return False  # already registered?
 
         aggregation = self._database.aggregations.find_one({"courseid": course.get_id(), "default": True})
@@ -657,7 +702,7 @@ class UserManager:
         if self.has_staff_rights_on_course(course, username):
             return True
 
-        if not course.get_accessibility().is_open() or not self.course_is_user_registered(course, username):
+        if not course.get_accessibility().is_open() or (not self.course_is_user_registered(course, username) and not course.allow_preview()):
             return False
 
         if lti is not None and course.is_lti() != lti:

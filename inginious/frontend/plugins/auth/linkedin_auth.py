@@ -14,31 +14,67 @@ from requests_oauthlib.compliance_fixes import linkedin_compliance_fix
 
 from inginious.frontend.user_manager import AuthMethod
 
-authorization_base_url = 'https://www.linkedin.com/uas/oauth2/authorization?scope=r_basicprofile,r_emailaddress'
+authorization_base_url = 'https://www.linkedin.com/uas/oauth2/authorization'
 token_url = 'https://www.linkedin.com/uas/oauth2/accessToken'
+scope = ["r_basicprofile", "r_emailaddress"]
 
 
 class LinkedInAuthMethod(AuthMethod):
     """
     LinkedIn auth method
     """
-    def get_auth_link(self, user_manager):
-            linkedin = OAuth2Session(self._client_id, redirect_uri=web.ctx.home + self._callback_page)
-            linkedin = linkedin_compliance_fix(linkedin)
-            authorization_url, state = linkedin.authorization_url(authorization_base_url)
-            user_manager.set_session_oauth_state(state)
-            return authorization_url
+    def get_auth_link(self, auth_storage, share=False):
+        linkedin = OAuth2Session(self._client_id, scope=scope + (["w_share"] if share else []), redirect_uri=web.ctx.home + self._callback_page)
+        linkedin = linkedin_compliance_fix(linkedin)
+        authorization_url, state = linkedin.authorization_url(authorization_base_url)
+        auth_storage["oauth_state"] = state
+        return authorization_url
 
-    def callback(self, user_manager):
-        linkedin = OAuth2Session(self._client_id, state=user_manager.session_oauth_state(), redirect_uri=web.ctx.home + self._callback_page)
+    def callback(self, auth_storage):
+        linkedin = OAuth2Session(self._client_id, state=auth_storage["oauth_state"], redirect_uri=web.ctx.home + self._callback_page)
         try:
             linkedin.fetch_token(token_url, client_secret=self._client_secret,
                                  authorization_response=web.ctx.home + web.ctx.fullpath)
             r = linkedin.get('https://api.linkedin.com/v1/people/~:(id,first-name,last-name,email-address)?format=json')
             profile = json.loads(r.content.decode('utf-8'))
+            auth_storage["session"] = linkedin
             return str(profile["id"]), profile["firstName"] + " " + profile["lastName"], profile["emailAddress"]
         except:
             return None
+
+    def share(self, auth_storage, course, task, submission, language):
+        linkedin = auth_storage.get("session", None)
+        if linkedin:
+            r = linkedin.request("POST",
+                                 "https://api.linkedin.com/v1/people/~/shares?format=json",
+                                 json={
+                                     "comment": _("Check out INGInious course {course} and beat my score of {score}% on task {task} !").format(
+                                         course=course.get_name(language),
+                                         task=task.get_name(language),
+                                         score=submission["grade"]
+                                     ),
+                                     "content": {
+                                         "title":
+                                             _("INGInious | {course} - {task}").format(
+                                                 course=course.get_name(language),
+                                                 task=task.get_name(language)
+                                             ),
+                                         "description": _("Check out INGInious course {course} and beat my score of {score}% on task {task} !").format(
+                                             course=course.get_name(language),
+                                             task=task.get_name(language),
+                                             score=submission["grade"]
+                                         ),
+                                         "submitted-url": web.ctx.home + "/course/" + course.get_id() + "/" + task.get_id(),
+                                         "submitted-image-url": "http://www.inginious.org/assets/img/header.png"},
+                                     "visibility": {
+                                         "code": "anyone"
+                                     }
+                                 }, headers={"Content-Type": "application/json", "x-li-format": "json"})
+            result = json.loads(r.content.decode('utf-8'))
+            return "updateKey" in result
+
+    def allow_share(self):
+        return True
 
     def get_id(self):
         return self._id
@@ -48,7 +84,7 @@ class LinkedInAuthMethod(AuthMethod):
         self._name = name
         self._client_id = client_id
         self._client_secret = client_secret
-        self._callback_page = '/auth/' + self._id + '/callback'
+        self._callback_page = '/auth/callback/' + self._id
 
     def get_name(self):
         return self._name
@@ -65,4 +101,4 @@ def init(plugin_manager, course_factory, client, conf):
     client_id = conf.get("client_id", "")
     client_secret = conf.get("client_secret", "")
 
-    plugin_manager.register_auth_method(LinkedInAuthMethod(conf.get("id"), conf.get('name', 'LinkedIn Login'), client_id, client_secret))
+    plugin_manager.register_auth_method(LinkedInAuthMethod(conf.get("id"), conf.get('name', 'LinkedIn'), client_id, client_secret))

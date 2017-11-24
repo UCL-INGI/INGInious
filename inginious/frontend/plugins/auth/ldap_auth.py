@@ -10,7 +10,7 @@ import logging
 import ldap3
 import web
 
-from inginious.frontend.pages.auth import AuthenticationPage
+from inginious.frontend.pages.social import AuthenticationPage
 from inginious.frontend.user_manager import AuthMethod
 
 logger = logging.getLogger('inginious.webapp.plugin.auth.ldap')
@@ -41,11 +41,17 @@ class LdapAuthMethod(AuthMethod):
         else:
             return '<i class="fa fa-address-book" style="font-size:50px; color:#000000;"></i>'
 
-    def get_auth_link(self, user_manager):
+    def get_auth_link(self, auth_storage, share=False):
         return "/auth/page/" + self._id
 
-    def callback(self, user_manager):
+    def callback(self, auth_storage):
         return None
+
+    def share(self, auth_storage, course, task, submission, language):
+        return False
+
+    def allow_share(self):
+        return False
 
     def get_settings(self):
         return self._settings
@@ -107,7 +113,7 @@ class LDAPAuthenticationPage(AuthenticationPage):
 
             conn.unbind()
 
-            self.process_binding(id, (username, realname, email))
+            self.user_manager.bind_user(id, (username, realname, email))
 
             raise web.seeother(self.user_manager.session_redir_url())
         else:
@@ -157,6 +163,6 @@ def init(plugin_manager, _, _2, conf):
     if conf.get("port", 0) == 0:
         conf["port"] = None
 
-    the_method = LdapAuthMethod(conf.get("id"), conf.get('name', 'LDAP Login'), conf.get("imlink", ""), conf)
+    the_method = LdapAuthMethod(conf.get("id"), conf.get('name', 'LDAP'), conf.get("imlink", ""), conf)
     plugin_manager.add_page(r'/auth/page/([^/]+)', LDAPAuthenticationPage)
     plugin_manager.register_auth_method(the_method)

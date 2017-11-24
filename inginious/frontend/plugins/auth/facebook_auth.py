@@ -14,31 +14,57 @@ from requests_oauthlib.compliance_fixes import facebook_compliance_fix
 
 from inginious.frontend.user_manager import AuthMethod
 
-authorization_base_url = 'https://www.facebook.com/dialog/oauth?scope=public_profile,email'
+authorization_base_url = 'https://www.facebook.com/dialog/oauth'
 token_url = 'https://graph.facebook.com/oauth/access_token'
+scope = ["public_profile", "email"]
 
 
 class FacebookAuthMethod(AuthMethod):
     """
     Facebook auth method
     """
-    def get_auth_link(self, user_manager):
-        facebook = OAuth2Session(self._client_id, redirect_uri=web.ctx.home + self._callback_page)
+    def get_auth_link(self, auth_storage, share=False):
+        facebook = OAuth2Session(self._client_id, scope=scope + (["publish_actions"] if share else []), redirect_uri=web.ctx.home + self._callback_page)
         facebook = facebook_compliance_fix(facebook)
         authorization_url, state = facebook.authorization_url(authorization_base_url)
-        user_manager.set_session_oauth_state(state)
+        auth_storage["oauth_state"] = state
         return authorization_url
 
-    def callback(self, user_manager):
-        facebook = OAuth2Session(self._client_id, state=user_manager.session_oauth_state(), redirect_uri=web.ctx.home + self._callback_page)
+    def callback(self, auth_storage):
+        facebook = OAuth2Session(self._client_id, state=auth_storage["oauth_state"], redirect_uri=web.ctx.home + self._callback_page)
         try:
             facebook.fetch_token(token_url, client_secret=self._client_secret,
                                  authorization_response=web.ctx.home + web.ctx.fullpath)
             r = facebook.get('https://graph.facebook.com/me?fields=id,name,email')
             profile = json.loads(r.content.decode('utf-8'))
+            auth_storage["session"] = facebook
             return str(profile["id"]), profile["name"], profile["email"]
         except:
-            return None
+            return None, None
+
+    def share(self, auth_storage, course, task, submission, language):
+        facebook = auth_storage.get("session", None)
+        if facebook:
+            r = facebook.post("https://graph.facebook.com/me/objects/website",
+                              {
+                                  "object": json.dumps({
+                                      "og:title": _("INGInious | {course} - {task}").format(
+                                          course=course.get_name(language),
+                                          task=task.get_name(language)
+                                      ),
+                                      "og:description": _("Check out INGInious course {course} and beat my score of {score}% on task {task} !").format(
+                                          course=course.get_name(language),
+                                          task=task.get_name(language),
+                                          score=submission["grade"]
+                                      ),
+                                      "og:url": web.ctx.home + "/course/" + course.get_id() + "/" + task.get_id(),
+                                      "og:image": "http://www.inginious.org/assets/img/header.png"})
+                              })
+            result = json.loads(r.content.decode('utf-8'))
+            return "id" in result
+
+    def allow_share(self):
+        return True
 
     def get_id(self):
         return self._id
@@ -48,7 +74,7 @@ class FacebookAuthMethod(AuthMethod):
         self._name = name
         self._client_id = client_id
         self._client_secret = client_secret
-        self._callback_page = '/auth/' + self._id + '/callback'
+        self._callback_page = '/auth/callback/' + self._id
 
     def get_name(self):
         return self._name
@@ -65,4 +91,4 @@ def init(plugin_manager, course_factory, client, conf):
     client_id = conf.get("client_id", "")
     client_secret = conf.get("client_secret", "")
 
-    plugin_manager.register_auth_method(FacebookAuthMethod(conf.get("id"), conf.get('name', 'Facebook Login'), client_id, client_secret))
+    plugin_manager.register_auth_method(FacebookAuthMethod(conf.get("id"), conf.get('name', 'Facebook'), client_id, client_secret))

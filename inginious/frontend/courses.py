@@ -39,6 +39,7 @@ class WebAppCourse(Course):
             self._groups_student_choice = self._content.get("groups_student_choice", False)
             self._use_classrooms = self._content.get('use_classrooms', True)
             self._allow_unregister = self._content.get('allow_unregister', True)
+            self._allow_preview = self._content.get('allow_preview', False)
             self._is_lti = self._content.get('is_lti', False)
             self._lti_keys = self._content.get('lti_keys', {})
             self._lti_send_back_grade = self._content.get('lti_send_back_grade', False)
@@ -55,6 +56,7 @@ class WebAppCourse(Course):
             self._groups_student_choice = False
             self._use_classrooms = True
             self._allow_unregister = True
+            self._allow_preview = False
         else:
             self._lti_keys = {}
             self._lti_send_back_grade = False
@@ -138,6 +140,9 @@ class WebAppCourse(Course):
         elif self.get_access_control_method() == "email":
             return email in self.get_access_control_list()
         return False
+
+    def allow_preview(self):
+        return self._allow_preview
 
     def allow_unregister(self, plugin_override=True):
         """ Returns True if students can unregister from course """

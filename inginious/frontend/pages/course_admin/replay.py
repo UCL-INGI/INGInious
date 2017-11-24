@@ -17,7 +17,7 @@ class CourseReplaySubmissions(INGIniousSubmissionAdminPage):
 
     def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
-        course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
+        course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         user_input = web.input(tasks=[], aggregations=[], users=[])
 
         if "submission" in user_input:
@@ -41,7 +41,7 @@ class CourseReplaySubmissions(INGIniousSubmissionAdminPage):
 
             if not error:
                 # Load submissions
-                submissions, _ = self.get_selected_submissions(course, user_input.filter_type, user_input.tasks, user_input.users, user_input.aggregations, user_input.type)
+                submissions, __ = self.get_selected_submissions(course, user_input.filter_type, user_input.tasks, user_input.users, user_input.aggregations, user_input.type)
                 for submission in submissions:
                     self.submission_manager.replay_job(tasks[submission["taskid"]], submission)
 
@@ -49,7 +49,7 @@ class CourseReplaySubmissions(INGIniousSubmissionAdminPage):
 
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
-        course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
+        course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
         return self.show_page(course, web.input())
 
     def show_page(self, course, user_input, msg="", error=False):

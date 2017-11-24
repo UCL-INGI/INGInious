@@ -13,22 +13,22 @@ from requests_oauthlib import OAuth2Session
 
 from inginious.frontend.user_manager import AuthMethod
 
-authorization_base_url = 'https://github.com/login/oauth/authorize?scope=user:email'
+authorization_base_url = 'https://github.com/login/oauth/authorize'
 token_url = 'https://github.com/login/oauth/access_token'
-
+scope = ["user:email"]
 
 class GithubAuthMethod(AuthMethod):
     """
     Github auth method
     """
-    def get_auth_link(self, user_manager):
-        github = OAuth2Session(self._client_id)
+    def get_auth_link(self, auth_storage, share=False):
+        github = OAuth2Session(self._client_id, scope=scope,  redirect_uri=web.ctx.home + self._callback_page)
         authorization_url, state = github.authorization_url(authorization_base_url)
-        user_manager.set_session_oauth_state(state)
+        auth_storage["oauth_state"] = state
         return authorization_url
 
-    def callback(self, user_manager):
-        github = OAuth2Session(self._client_id, state=user_manager.session_oauth_state())
+    def callback(self, auth_storage):
+        github = OAuth2Session(self._client_id, state=auth_storage["oauth_state"],  redirect_uri=web.ctx.home + self._callback_page)
         try:
             github.fetch_token(token_url, client_secret=self._client_secret,
                                authorization_response=web.ctx.home + web.ctx.fullpath)
@@ -40,11 +40,18 @@ class GithubAuthMethod(AuthMethod):
         except:
             return None
 
+    def share(self, auth_storage, course, task, submission, language):
+        return False
+
+    def allow_share(self):
+        return False
+
     def __init__(self, id, name, client_id, client_secret):
         self._name = name
         self._id = id
         self._client_id = client_id
         self._client_secret = client_secret
+        self._callback_page = '/auth/callback/' + self._id
 
     def get_id(self):
         return self._id
@@ -64,4 +71,4 @@ def init(plugin_manager, course_factory, client, conf):
     client_id = conf.get("client_id", "")
     client_secret = conf.get("client_secret", "")
 
-    plugin_manager.register_auth_method(GithubAuthMethod(conf.get("id"), conf.get('name', 'Github Login'), client_id, client_secret))
+    plugin_manager.register_auth_method(GithubAuthMethod(conf.get("id"), conf.get('name', 'Github'), client_id, client_secret))

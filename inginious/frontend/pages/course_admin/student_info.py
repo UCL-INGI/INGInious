@@ -14,7 +14,7 @@ class CourseStudentInfoPage(INGIniousAdminPage):
 
     def GET_AUTH(self, courseid, username):  # pylint: disable=arguments-differ
         """ GET request """
-        course, _ = self.get_course_and_check_rights(courseid)
+        course, __ = self.get_course_and_check_rights(courseid)
         return self.page(course, username)
 
     def submission_url_generator(self, username, taskid):

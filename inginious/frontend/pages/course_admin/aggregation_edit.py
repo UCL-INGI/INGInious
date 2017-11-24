@@ -156,7 +156,7 @@ class CourseEditAggregation(INGIniousAdminPage):
 
     def GET_AUTH(self, courseid, aggregationid=''):  # pylint: disable=arguments-differ
         """ Edit a aggregation """
-        course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=True)
+        course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=True)
 
         if course.is_lti():
             raise web.notfound()
@@ -165,7 +165,7 @@ class CourseEditAggregation(INGIniousAdminPage):
 
     def POST_AUTH(self, courseid, aggregationid=''):  # pylint: disable=arguments-differ
         """ Edit a aggregation """
-        course, _ = self.get_course_and_check_rights(courseid, allow_all_staff=True)
+        course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=True)
 
         if course.is_lti():
             raise web.notfound()

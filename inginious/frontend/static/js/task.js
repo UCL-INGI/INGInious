@@ -209,6 +209,8 @@ function setSelectedSubmission(id, fade, makepost) {
                 } else {
                     $("#my_submission").replaceWith(submission_link);
                 }
+
+                $("#share_my_submission").removeClass("hidden");
             }
         }
 
@@ -726,4 +728,12 @@ function loadInput(submissionid, input)
         else
             this.setValue("");
     })
+}
+
+// Share eval submission result on social networks
+function share_submission(method_id)
+{
+    var submissionid = $('#my_submission').attr('data-submission-id');
+    window.location.replace("/auth/share/" + method_id + "?submissionid=" + submissionid)
+
 }

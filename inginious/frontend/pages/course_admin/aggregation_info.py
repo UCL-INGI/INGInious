@@ -15,7 +15,7 @@ class CourseAggregationInfoPage(INGIniousAdminPage):
 
     def GET_AUTH(self, courseid, aggregationid):  # pylint: disable=arguments-differ
         """ GET request """
-        course, _ = self.get_course_and_check_rights(courseid)
+        course, __ = self.get_course_and_check_rights(courseid)
 
         if course.is_lti():
             raise web.notfound()

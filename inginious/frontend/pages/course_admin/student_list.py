@@ -15,12 +15,12 @@ class CourseStudentListPage(INGIniousAdminPage):
 
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
-        course, _ = self.get_course_and_check_rights(courseid)
+        course, __ = self.get_course_and_check_rights(courseid)
         return self.page(course)
 
     def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request """
-        course, _ = self.get_course_and_check_rights(courseid, None, False)
+        course, __ = self.get_course_and_check_rights(courseid, None, False)
         data = web.input()
         if "remove" in data:
             try:

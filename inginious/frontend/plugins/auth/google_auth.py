@@ -25,16 +25,14 @@ class GoogleAuthMethod(AuthMethod):
     Google auth method
     """
 
-    def get_auth_link(self, user_manager):
-        google = OAuth2Session(self._client_id, scope=scope,
-            redirect_uri=web.ctx.home + self._callback_page)
-
+    def get_auth_link(self, auth_storage, share=False):
+        google = OAuth2Session(self._client_id, scope=scope, redirect_uri=web.ctx.home + self._callback_page)
         authorization_url, state = google.authorization_url(authorization_base_url)
-        user_manager.set_session_oauth_state(state)
+        auth_storage["oauth_state"] = state
         return authorization_url
 
-    def callback(self, user_manager):
-        google = OAuth2Session(self._client_id, state=user_manager.session_oauth_state(),
+    def callback(self, auth_storage):
+        google = OAuth2Session(self._client_id, state=auth_storage["oauth_state"],
             redirect_uri=web.ctx.home + self._callback_page, scope=scope)
 
         try:
@@ -43,10 +41,16 @@ class GoogleAuthMethod(AuthMethod):
 
             response = google.get('https://www.googleapis.com/oauth2/v3/userinfo')
             profile = json.loads(response.content.decode('utf-8'))
-
+            auth_storage["session"] = google
             return str(profile["sub"]), profile["name"], profile["email"]
         except Exception as e:
             return None
+
+    def share(self, auth_storage, course, task, submission, language):
+        raise web.seeother("https://plus.google.com/share?url=" + web.ctx.home + "/course/" + course.get_id() + "/" + task.get_id())
+
+    def allow_share(self):
+        return True
 
     def get_id(self):
         return self._id
@@ -56,7 +60,7 @@ class GoogleAuthMethod(AuthMethod):
         self._name = name
         self._client_id = client_id
         self._client_secret = client_secret
-        self._callback_page = '/auth/' + self._id + '/callback'
+        self._callback_page = '/auth/callback/' + self._id
 
     def get_name(self):
         return self._name
@@ -75,4 +79,4 @@ def init(plugin_manager, course_factory, client, conf):
     client_secret = conf.get("client_secret", "")
 
     plugin_manager.register_auth_method(GoogleAuthMethod(conf.get("id"),
-        conf.get('name', 'Google Login'), client_id, client_secret))
+        conf.get('name', 'Google'), client_id, client_secret))

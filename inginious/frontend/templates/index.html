@@ -1,62 +1,55 @@
-$def with (auth_methods, error)
+$def with (open_courses)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
-$var title: $:_("Welcome")
+$var title: $:_("Course list")
+
+$def NavbarF():
+    <ol class="nav navbar-nav nav-breadcrumb">
+        <li class="active"><a href="#"><i class="fa fa-th-list"></i> $:_("Course list")
+            <span class="sr-only">$:_("(current)")</span></a>
+        </li>
+    </ol>
+$var Navbar: $:NavbarF()
+
+$# Left column content
+$def ColumnF():
+    $if not user_manager.session_logged_in():
+        $:include.signin_button()
+    $else:
+        <h3>$:_("Public courses")</h3>
+        <div class="alert alert-warning" role="alert">
+            $:_("This page lists all the courses that are accessible now. If you are a course administrator, go to your 'My courses' page to see all of them.")
+        </div>
+        <div class="list-group">
+            <a class="list-group-item list-group-item-info" href="$get_homepath()/mycourses">
+                <i class="fa fa-fw fa-th-list"></i>
+                $:_("My courses")
+            </a>
+        </div>
+$var Column: $:ColumnF()
 
 $# Start content
-    <div class="row">
-        <div class="col-sm-5">
-            $:_("<p><h2>Hello! <small>Welcome on the INGInious platform.</small></h2>INGInious allows to securely grade code made by students.</p><p>Please log in to see the courses.</p>")
-            $:template_helper.call('welcome_text', template_helper=template_helper)
-        </div>
-        <div class="col-sm-offset-2 col-sm-5 well">
-            $if error:
-                <div class="alert alert-danger" role="alert">
-                    <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">$:_("Close")</span></button>
-                    $_("Invalid login/password")
-                </div>
+<h2>$:_("Course list")</h2>
+<div class="list-group list-group-progress" style="margin-left: 16px; margin-right: 16px;">
+    $ username = user_manager.session_username()
+    $for courseid, course in open_courses.items():
+        $ no_display = (course.is_lti() or (not user_manager.session_logged_in() and not course.allow_preview())) and not user_manager.has_admin_rights_on_course(course)
+        <a href="$('#' if no_display else (get_homepath()+'/course/'+courseid))" class="list-group-item row $('disabled' if no_display else '')">
+            <div class="col-xs-12 col-md-8">
+                $course.get_name(user_manager.session_language())
+            </div>
+            <div class="col-xs-12 col-md-4">
+                $if course.is_lti():
+                    <i data-toggle="tooltip" title=$:_("'External platform'") data-placement="top" class="pull-right fa fa-fw fa-external-link"></i>
+                $if course.is_registration_possible(user_manager.session_username(), user_manager.session_realname(), user_manager.session_email()):
+                    <i data-toggle="tooltip" title=$:_("'Auto-registration'") data-placement="top" class="pull-right fa fa-fw fa-user"></i>
+                $if course.is_password_needed_for_registration():
+                    <i data-toggle="tooltip" title=$:_("'Password needed'") data-placement="top" class="pull-right fa fa-fw fa-key"></i>
 
-            $if allow_registration:
-                <form role="form" method="post">
-                    <div class="form-group">
-                        <label>$:_("Username")</label> <input type="text" class="form-control" name="login" placeholder="$:_('Username')">
-                    </div>
-                    <div class="form-group">
-                        <label>$:_("Password") <a href="$get_homepath()/register#lostpasswd">$:_("Lost password?")</a></label> <input type="password" class="form-control" name="password" placeholder="$:_('Password')">
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-block">$:_("Sign in")</button>
-                </form>
-
-            $ auth_meths = auth_methods.items()
-            $ remaining = len(auth_meths)
-            $ on_line = min(remaining, 4)
-
-            $if remaining:
-                $if allow_registration:
-                    <hr/>
-                <h5 class="center-block text-center">$:_("Sign in with")</h5>
-
-            $ authid = 0
-            $for id, auth_method in auth_meths:
-                $if authid % on_line == 0:
-                    <div class="row">
-
-                <div class="col-xs-$(int(12/on_line)) text-center">
-                    <a href="$get_homepath()/auth/$auth_method.get_id()/signin">
-                        $:auth_method.get_imlink()
-                    </a>
-                </div>
-
-                $if remaining % on_line == 0 or remaining == 1:
-                    </div>
-                    $ on_line = min(remaining, 4)
-
-                $ remaining = remaining - 1
-                $ authid += 1
-
-        </div>
-    </div>
+            </div>
+        </a>
+</div>

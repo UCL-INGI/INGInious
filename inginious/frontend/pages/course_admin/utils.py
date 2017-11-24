@@ -275,7 +275,7 @@ class CourseRedirect(INGIniousAdminPage):
 
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
-        course, _ = self.get_course_and_check_rights(courseid)
+        course, __ = self.get_course_and_check_rights(courseid)
         if self.user_manager.session_username() in course.get_tutors():
             raise web.seeother(self.app.get_homepath() + '/admin/{}/tasks'.format(courseid))
         else:

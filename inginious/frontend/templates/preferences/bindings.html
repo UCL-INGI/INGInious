@@ -41,7 +41,7 @@ $for id, auth_method in auth_methods.items():
                 <h3 class="panel-title">
                     $auth_method.get_name()
                     <div class="pull-right">
-                            <a href="$get_homepath()/auth/$auth_method.get_id()/signin" data-toggle="tooltip" data-placement="bottom" title=$:_('"Refresh fields"')><i class="fa fa-refresh fa-fw"></i></a>
+                            <a href="$get_homepath()/auth/signin/$auth_method.get_id()" data-toggle="tooltip" data-placement="bottom" title=$:_('"Refresh fields"')><i class="fa fa-refresh fa-fw"></i></a>
                             <a href="#" onclick="$$('#revoke_auth_binding').val('$auth_method.get_id()'); $$('#revoke').submit()" data-toggle="tooltip" data-placement="bottom" title=$:_('"Revoke access"')>
                                 <i style="color:red;" class="fa fa-trash-o fa-fw"></i>
                             </a>

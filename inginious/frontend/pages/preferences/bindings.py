@@ -39,7 +39,7 @@ class BindingsPage(INGIniousAuthPage):
                 error = True
                 msg = _("Incorrect authentication binding.")
             elif auth_binding not in user_data.get("bindings", {}):
-                raise web.seeother("/auth/" + auth_binding +"/signin")
+                raise web.seeother("/auth/signin/" + auth_binding)
         elif "revoke_auth_binding" in user_input:
             auth_id = user_input["revoke_auth_binding"]
 

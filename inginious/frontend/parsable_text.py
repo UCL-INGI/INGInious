@@ -150,7 +150,7 @@ class ParsableText(object):
                 else:
                     self._parsed = self.rst(self._content, self._show_everything, self._translation)
             except:
-                self._parsed = "<b>Parsing failed</b>: <pre>" + html.escape(self._content) + "</pre>"
+                self._parsed = self._translation.gettext("<b>Parsing failed</b>: <pre>{}</pre>").format(html.escape(self._content))
         return self._parsed
 
     def __str__(self):
@@ -168,10 +168,10 @@ class ParsableText(object):
         return out
 
     @classmethod
-    def rst(cls, string, show_everything=False, translation=gettext.NullTranslations()):
+    def rst(cls, string, show_everything=False, translation=gettext.NullTranslations(), initial_header_level=3):
         """Parses reStructuredText"""
         overrides = {
-            'initial_header_level': 3,
+            'initial_header_level': initial_header_level,
             'doctitle_xform': False,
             'syntax_highlight': 'none',
             'force_show_hidden_until': show_everything,

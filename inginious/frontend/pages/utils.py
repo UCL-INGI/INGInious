@@ -8,11 +8,15 @@ import logging
 from typing import List
 
 import web
+import os
 from gridfs import GridFS
+
+from inginious.common import custom_yaml
 from inginious.frontend.plugin_manager import PluginManager
 from inginious.frontend.submission_manager import WebAppSubmissionManager
 from inginious.frontend.template_helper import TemplateHelper
 from inginious.frontend.user_manager import UserManager
+from inginious.frontend.parsable_text import ParsableText
 from pymongo.database import Database
 
 from inginious.common.course_factory import CourseFactory
@@ -129,21 +133,16 @@ class INGIniousAuthPage(INGIniousPage):
         Otherwise, returns the login template.
         """
         if self.user_manager.session_logged_in():
-            user_input = web.input()
-            if "logoff" in user_input:
-                self.user_manager.disconnect_user()
-                return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods(), False)
-
             if not self.user_manager.session_username() and not self.__class__.__name__ == "ProfilePage":
                 raise web.seeother("/preferences/profile")
 
             if not self.is_lti_page and self.user_manager.session_lti_info() is not None: #lti session
                 self.user_manager.disconnect_user()
-                return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods(), False)
+                return self.template_helper.get_renderer().auth(self.user_manager.get_auth_methods(), False)
 
             return self.GET_AUTH(*args, **kwargs)
         else:
-            return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods(), False)
+            return self.template_helper.get_renderer().auth(self.user_manager.get_auth_methods(), False)
 
     def POST(self, *args, **kwargs):
         """
@@ -156,7 +155,7 @@ class INGIniousAuthPage(INGIniousPage):
 
             if not self.is_lti_page and self.user_manager.session_lti_info() is not None:  # lti session
                 self.user_manager.disconnect_user()
-                return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods_fields(), False)
+                return self.template_helper.get_renderer().auth(self.user_manager.get_auth_methods_fields(), False)
 
             return self.POST_AUTH(*args, **kwargs)
         else:
@@ -165,7 +164,65 @@ class INGIniousAuthPage(INGIniousPage):
                 if self.user_manager.auth_user(user_input["login"].strip(), user_input["password"]) is not None:
                     return self.GET_AUTH(*args, **kwargs)
                 else:
-                    return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods(), True)
+                    return self.template_helper.get_renderer().auth(self.user_manager.get_auth_methods(), True)
             else:
-                return self.template_helper.get_renderer().index(self.user_manager.get_auth_methods(), False)
+                return self.template_helper.get_renderer().auth(self.user_manager.get_auth_methods(), False)
 
+
+class SignInPage(INGIniousAuthPage):
+    def GET_AUTH(self, *args, **kwargs):
+        raise web.seeother("/mycourses")
+
+    def POST_AUTH(self, *args, **kwargs):
+        raise web.seeother("/mycourses")
+
+    def GET(self):
+        return INGIniousAuthPage.GET(self)
+
+
+class LogOutPage(INGIniousAuthPage):
+    def GET_AUTH(self, *args, **kwargs):
+        self.user_manager.disconnect_user()
+        raise web.seeother(web.ctx.env.get('HTTP_REFERER', '/'))
+
+    def POST_AUTH(self, *args, **kwargs):
+        self.user_manager.disconnect_user()
+        raise web.seeother(web.ctx.env.get('HTTP_REFERER', '/'))
+
+
+class INGIniousStaticPage(INGIniousPage):
+    cache = {}
+
+    def GET(self, page):
+        return self.show_page(page)
+
+    def POST(self, page):
+        return self.show_page(page)
+
+    def show_page(self, page):
+        static_directory = self.app.static_directory
+        language = self.user_manager.session_language()
+
+        # Check for the file
+        filename = None
+        filepaths = [os.path.join(static_directory, page + ".yaml"),
+                     os.path.join(static_directory, page + "." + language + ".yaml")]
+
+        for filepath in filepaths:
+            if os.path.exists(filepath):
+                filename = filepath
+                mtime = os.stat(filepath).st_mtime
+
+        if not filename:
+            raise web.notfound()
+
+        # Check and update cache
+        if INGIniousStaticPage.cache.get(filepath, (0, None))[0] < mtime:
+            with open(filename, "r") as f:
+                INGIniousStaticPage.cache[filepath] = mtime, custom_yaml.load(f)
+
+        filecontent = INGIniousStaticPage.cache[filepath][1]
+        title = filecontent["title"]
+        content = ParsableText.rst(filecontent["content"], initial_header_level=2)
+
+        return self.template_helper.get_renderer().static(title, content)

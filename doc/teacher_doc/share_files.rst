@@ -13,3 +13,6 @@ http://domain.name.com/course/courseA/taskB/flower.png
 
 This allows you to insert images inside the context of your tasks, and to share
 additional resources like datasets or slides.
+
+.. DANGER::
+    The files stored in your public folder will be available to all users, without authentication needed.

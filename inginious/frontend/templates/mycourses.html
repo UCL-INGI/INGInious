@@ -7,14 +7,22 @@ $#
 
 $var title: $:_("My courses")
 
+$def NavbarF():
+    <ol class="nav navbar-nav nav-breadcrumb">
+        <li class="active"><a href="#"><i class="fa fa-th-list"></i> $:_("My courses")
+            <span class="sr-only">$:_("(current)")</span></a>
+        </li>
+    </ol>
+$var Navbar: $:NavbarF()
+
 $# Left column content
 $def ColumnF():
     <h3>$:_("Last tried exercises")</h3>
-    
+
     <div class="list-group">
         $if submissions:
             $for submission in submissions:
-                <a class="list-group-item 
+                <a class="list-group-item
                     $if submission['status'] == 'done' and submission['result'] == 'success':
                         list-group-item-success
                     $elif submission['status'] == 'done' and submission['result'] == 'save':
@@ -55,7 +63,7 @@ $# Start content
                             $:_("Administrator")
                         $elif username in course.get_tutors():
                             $:_("Tutor")
-                        $else:
+                        $elif user_manager.course_is_user_registered(course):
                             $:_("Student")
                     </i>
                 </div>
@@ -75,7 +83,7 @@ $if user_manager.user_is_superadmin():
             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
             $:_("Failed to create the course.")
         </div>
-    <form class="form row" role="form" action="$get_homepath()/" method="post">
+    <form class="form row" role="form" method="post">
         <div class="form-group col-sm-8">
             <label class="sr-only" for="new_courseid">$:_("Course")</label>
             <input name="new_courseid" type="text" class="form-control" id="new_courseid" placeholder="$:_('New course id')">
@@ -96,7 +104,7 @@ $else:
             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
             $:_("Registration failed. Please check that you properly typed the password.")
         </div>
-    <form class="form row" role="form" action="$get_homepath()/" method="post">
+    <form class="form row" role="form" method="post">
         <div class="form-group col-sm-8">
             <label class="sr-only" for="register_courseid">$:_("Course")</label>
             <select class="form-control" id="register_courseid" name="register_courseid">
