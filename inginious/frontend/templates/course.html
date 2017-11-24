@@ -88,7 +88,7 @@ $if tag_filter_list:
     <div class="form-group">
         <label for="sel1">$:_("Filter tasks by tags")</label>
         <select class="form-control" id="tag_filter" onchange="filter_tag(this)">
-            <option class="italic" value="">$:_("No filter")</option>
+            <option value="">$:_("No filter")</option>
         $for tag_name in tag_filter_list:
             <option value="$tag_name">$tag_name</option>
         </select>
