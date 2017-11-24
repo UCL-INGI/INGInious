@@ -17,13 +17,20 @@ from inginious.common.exceptions import InvalidNameException, TaskNotFoundExcept
 class TaskFactory(object):
     """ Load courses from disk """
 
-    def __init__(self, filesystem: FileSystemProvider, hook_manager, task_class=Task):
+    def __init__(self, filesystem: FileSystemProvider, hook_manager, task_problem_types, task_class=Task):
         self._filesystem = filesystem
         self._task_class = task_class
         self._hook_manager = hook_manager
         self._cache = {}
         self._task_file_managers = {}
+        self._task_problem_types = task_problem_types
         self.add_custom_task_file_manager(TaskYAMLFileReader())
+
+    def add_problem_type(self, problem_type):
+        """
+        :param problem_type: Problem class
+        """
+        self._task_problem_types.update({problem_type.get_type(): problem_type})
 
     def get_task(self, course, taskid):
         """
@@ -243,7 +250,7 @@ class TaskFactory(object):
                     last_modif["$i18n/" + lang + ".mo"] = translations_fs.get_last_modification_time(lang + ".mo")
 
         self._cache[(course.get_id(), taskid)] = (
-            self._task_class(course, taskid, task_content, task_fs, self._hook_manager),
+            self._task_class(course, taskid, task_content, task_fs, self._hook_manager, self._task_problem_types),
             last_modif
         )
 
@@ -279,3 +286,9 @@ class TaskFactory(object):
         task_fs.delete()
 
         get_course_logger(courseid).info("Task %s erased from the factory.", taskid)
+
+    def get_problem_types(self):
+        """
+        Returns the supported problem types by this task factory
+        """
+        return self._task_problem_types

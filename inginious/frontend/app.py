@@ -31,6 +31,8 @@ from inginious.common.entrypoints import filesystem_from_config_dict
 from inginious.common.filesystems.local import LocalFSProvider
 from inginious.frontend.lti_outcome_manager import LTIOutcomeManager
 
+from inginious.frontend.task_problems import *
+
 urls = (
     r'/?', 'inginious.frontend.pages.index.IndexPage',
     r'/index', 'inginious.frontend.pages.index.IndexPage',
@@ -148,7 +150,15 @@ def get_app(config):
         task_directory = config["tasks_directory"]
         fs_provider = LocalFSProvider(task_directory)
 
-    course_factory, task_factory = create_factories(fs_provider, plugin_manager, WebAppCourse, WebAppTask)
+    default_problem_types = {
+        problem_type.get_type(): problem_type for problem_type in [DisplayableCodeProblem,
+                                                                   DisplayableCodeSingleLineProblem,
+                                                                   DisplayableCodeFileProblem,
+                                                                   DisplayableMultipleChoiceProblem,
+                                                                   DisplayableMatchProblem]
+    }
+
+    course_factory, task_factory = create_factories(fs_provider, default_problem_types, plugin_manager, WebAppCourse, WebAppTask)
 
     user_manager = UserManager(appli.get_session(), database, config.get('superadmins', []))
 

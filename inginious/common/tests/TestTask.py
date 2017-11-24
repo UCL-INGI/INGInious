@@ -13,12 +13,15 @@ from inginious.common.filesystems.local import LocalFSProvider
 from inginious.common.course_factory import create_factories
 from inginious.common.exceptions import InvalidNameException, TaskUnreadableException
 from inginious.common.hook_manager import HookManager
+from inginious.common.tasks_problems import *
 
+problem_types = {"code": CodeProblem, "code_single_line": CodeSingleLineProblem, "code_file": CodeFileProblem,
+                         "multiple_choice": MultipleChoiceProblem, "match": MatchProblem}
 
 class test_tasks_basic(object):
     def setUp(self):
         fs = LocalFSProvider(os.path.join(os.path.dirname(__file__), 'tasks'))
-        self.course_factory, _ = create_factories(fs)
+        self.course_factory, _ = create_factories(fs, problem_types)
 
     def test_task_loading(self):
         '''Tests if a course file loads correctly'''
@@ -54,7 +57,7 @@ class test_tasks_basic(object):
         try:
             t = inginious.common.tasks.Task(self.course_factory.get_course('test3'), 'invalid_task',
                                             {"environment": "default", "limits": {"time": "a string!"}},
-                                            'fake_path', HookManager())
+                                            'fake_path', HookManager(), problem_types)
             a = t.get_limits()
             print(a)
         except Exception as e:
@@ -65,7 +68,7 @@ class test_tasks_basic(object):
     def test_invalid_limits_2(self):
         try:
             inginious.common.tasks.Task(self.course_factory.get_course('test3'), 'invalid_task',
-                                        {"environment": "default", "limits": {"time": -1}}, 'fake_path', HookManager())
+                                        {"environment": "default", "limits": {"time": -1}}, 'fake_path', HookManager(), problem_types)
         except Exception as e:
             assert str(e) == "Invalid limit"
             return
@@ -73,7 +76,7 @@ class test_tasks_basic(object):
 
     def test_no_problems(self):
         try:
-            inginious.common.tasks.Task(self.course_factory.get_course('test3'), 'invalid_task', {"environment": "default"}, 'fake_path', HookManager())
+            inginious.common.tasks.Task(self.course_factory.get_course('test3'), 'invalid_task', {"environment": "default"}, 'fake_path', HookManager(), problem_types)
         except Exception as e:
             assert str(e) == "Tasks must have some problems descriptions"
             return
@@ -127,7 +130,7 @@ class test_tasks_basic(object):
 class test_tasks_problems(object):
     def setUp(self):
         fs = LocalFSProvider(os.path.join(os.path.dirname(__file__), 'tasks'))
-        self.course_factory, _ = create_factories(fs)
+        self.course_factory, _ = create_factories(fs, problem_types)
 
     def test_problem_types(self):
         '''Tests if problem types are correctly recognized'''
@@ -139,11 +142,11 @@ class test_tasks_problems(object):
         assert t.get_problems()[0].get_type() == 'match'
 
         t = self.course_factory.get_task('test2', 'task3')
-        assert t.get_problems()[0].get_type() == 'multiple-choice'
+        assert t.get_problems()[0].get_type() == 'multiple_choice'
 
     def test_multiple_choice(self):
         '''Tests multiple choice problems methods'''
-        print("\033[1m-> common-tasks: multiple-choice parsing\033[0m")
+        print("\033[1m-> common-tasks: multiple_choice parsing\033[0m")
         p = self.course_factory.get_task('test2', 'task3').get_problems()[0]
         assert p.allow_multiple()
 
@@ -184,7 +187,7 @@ class test_tasks_problems(object):
 class test_tasks_boxes(object):
     def setUp(self):
         fs = LocalFSProvider(os.path.join(os.path.dirname(__file__), 'tasks'))
-        self.course_factory, _ = create_factories(fs)
+        self.course_factory, _ = create_factories(fs, problem_types)
 
     def test_number_boxes(self):
         '''Tests if get_boxes returns the correct number of boxes'''

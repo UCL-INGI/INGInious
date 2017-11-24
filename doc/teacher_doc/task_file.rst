@@ -140,11 +140,11 @@ id of the problem.
 Single code line problems
 `````````````````````````
 
-``type: code-single-line`` is simply a code box that allows a single line as input.
+``type: code_single_line`` is simply a code box that allows a single line as input.
 
 .. code-block:: yaml
 
-    type: code-single-line
+    type: code_single_line
     language: c
     header: |-
         Hello dear student!
@@ -211,7 +211,7 @@ Multiple choice problems
 .. code-block:: yaml
 
     name: An exercice
-    type: multiple-choice
+    type: multiple_choice
     header: The answer to life, the universe and any other things is
     multiple: true
     limit: 2

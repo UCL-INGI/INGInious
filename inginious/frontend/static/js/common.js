@@ -38,7 +38,7 @@ function init_common()
 }
 
 //Contains all code editors
-var codeEditors = [];
+var codeEditors = {};
 
 //Run CodeMirror on static code
 function colorizeStaticCode()
@@ -110,7 +110,7 @@ function registerCodeEditor(textarea, lang, lines)
     if(mode["mode"] != "plain")
         CodeMirror.autoLoadMode(editor, mode["mode"]);
 
-    codeEditors.push(editor);
+    codeEditors[$(textarea).attr("name")] =  editor;
     return editor;
 }
 

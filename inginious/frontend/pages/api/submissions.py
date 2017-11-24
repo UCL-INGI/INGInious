@@ -7,11 +7,8 @@
 
 import base64
 import gettext
-
 import web
 
-from inginious.common.tasks_code_boxes import FileBox
-from inginious.common.tasks_problems import MultipleChoiceProblem, BasicCodeProblem
 from inginious.frontend.pages.api._api_page import APIAuthenticatedPage, APINotFound, APIForbidden, APIInvalidArguments, APIError
 
 
@@ -183,7 +180,10 @@ class APISubmissions(APIAuthenticatedPage):
         if not self.user_manager.task_can_user_submit(task, username, False):
             raise APIForbidden("You are not allowed to submit for this task")
 
-        init_var = self.list_multiple_multiple_choices_and_files(task)
+        init_var = {
+            problem.get_id(): problem.input_type()()
+            for problem in task.get_problems() if problem.input_type() in [dict, list]
+        }
         user_input = task.adapt_input_for_backend(web.input(**init_var))
 
         if not task.input_is_consistent(user_input, self.default_allowed_file_extensions, self.default_max_file_size):
@@ -199,15 +199,3 @@ class APISubmissions(APIAuthenticatedPage):
             return 200, {"submissionid": str(submissionid)}
         except Exception as ex:
             raise APIError(500, str(ex))
-
-    def list_multiple_multiple_choices_and_files(self, task):
-        """ List problems in task that expect and array as input """
-        output = {}
-        for problem in task.get_problems():
-            if isinstance(problem, MultipleChoiceProblem) and problem.allow_multiple():
-                output[problem.get_id()] = []
-            elif isinstance(problem, BasicCodeProblem):
-                for box in problem.get_boxes():
-                    if isinstance(box, FileBox):
-                        output[box.get_complete_id()] = {}
-        return output

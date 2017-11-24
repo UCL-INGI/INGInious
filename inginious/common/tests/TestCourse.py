@@ -9,12 +9,15 @@ import shutil
 
 from inginious.common.filesystems.local import LocalFSProvider
 from inginious.common.course_factory import create_factories
+from inginious.common.tasks_problems import *
 
+problem_types = {"code": CodeProblem, "code_single_line": CodeSingleLineProblem, "code_file": CodeFileProblem,
+                 "multiple_choice": MultipleChoiceProblem, "match": MatchProblem}
 
 class TestCourse(object):
     def setUp(self):
         fs = LocalFSProvider(os.path.join(os.path.dirname(__file__), 'tasks'))
-        self.course_factory, _ = create_factories(fs)
+        self.course_factory, _ = create_factories(fs, problem_types)
 
     def test_course_loading(self):
         '''Tests if a course file loads correctly'''
@@ -82,7 +85,7 @@ class TestCourseWrite(object):
     def setUp(self):
         self.dir_path = tempfile.mkdtemp()
         fs = LocalFSProvider(self.dir_path)
-        self.course_factory, _ = create_factories(fs)
+        self.course_factory, _ = create_factories(fs, problem_types)
 
     def tearDown(self):
         shutil.rmtree(self.dir_path)

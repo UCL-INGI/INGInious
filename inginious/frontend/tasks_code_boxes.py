@@ -26,6 +26,11 @@ class DisplayableBox(object, metaclass=ABCMeta):
         """ Get the html to show this box """
         pass
 
+    @classmethod
+    def get_renderer(cls, template_helper):
+        """ Get the renderer for this class problem """
+        return template_helper.get_renderer(False)
+
 
 class DisplayableTextBox(TextBox, DisplayableBox):
     """ A displayable text box """
@@ -33,9 +38,9 @@ class DisplayableTextBox(TextBox, DisplayableBox):
     def __init__(self, problem, boxid, boxData):
         super(DisplayableTextBox, self).__init__(problem, boxid, boxData)
 
-    def show(self, renderer, language):
+    def show(self, template_helper, language):
         """ Show TextBox """
-        return str(renderer.tasks.box_text(ParsableText(self._content, "rst", translation=self._translations[language])))
+        return str(DisplayableTextBox.get_renderer(template_helper).tasks.box_text(ParsableText(self._content, "rst", translation=self._translations[language])))
 
 
 class DisplayableFileBox(FileBox, DisplayableBox):
@@ -52,9 +57,9 @@ class DisplayableFileBox(FileBox, DisplayableBox):
             input_data[self.get_complete_id()] = {}
         return input_data
 
-    def show(self, renderer, language):
+    def show(self, template_helper, language):
         """ Show FileBox """
-        return str(renderer.tasks.box_file(self.get_complete_id(), self._max_size, self._allowed_exts, json))
+        return str(DisplayableFileBox.get_renderer(template_helper).tasks.box_file(self.get_complete_id(), self._max_size, self._allowed_exts, json))
 
 
 class DisplayableInputBox(InputBox, DisplayableBox):
@@ -63,9 +68,9 @@ class DisplayableInputBox(InputBox, DisplayableBox):
     def __init__(self, problem, boxid, boxData):
         super(DisplayableInputBox, self).__init__(problem, boxid, boxData)
 
-    def show(self, renderer, language):
+    def show(self, template_helper, language):
         """ Show InputBox """
-        return str(renderer.tasks.box_input(self.get_complete_id(), self._input_type, self._max_chars, self._optional))
+        return str(DisplayableInputBox.get_renderer(template_helper).tasks.box_input(self.get_complete_id(), self._input_type, self._max_chars, self._optional))
 
 
 class DisplayableMultilineBox(MultilineBox, DisplayableBox):
@@ -74,6 +79,6 @@ class DisplayableMultilineBox(MultilineBox, DisplayableBox):
     def __init__(self, problem, boxid, boxData):
         super(DisplayableMultilineBox, self).__init__(problem, boxid, boxData)
 
-    def show(self, renderer, language):
+    def show(self, template_helper, language):
         """ Show MultilineBox """
-        return str(renderer.tasks.box_multiline(self.get_complete_id(), self._lines, self._max_chars, self._language, self._optional))
+        return str(DisplayableMultilineBox.get_renderer(template_helper).tasks.box_multiline(self.get_complete_id(), self._lines, self._max_chars, self._language, self._optional))

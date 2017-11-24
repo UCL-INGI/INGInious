@@ -7,13 +7,12 @@
 import gettext
 
 from inginious.common.base import id_checker
-from inginious.common.tasks_problems import CodeProblem, CodeSingleLineProblem, MultipleChoiceProblem, MatchProblem, CodeFileProblem
 
 
 class Task(object):
     """ Contains the data for a task """
 
-    def __init__(self, course, taskid, content, task_fs, hook_manager, task_problem_types=None):
+    def __init__(self, course, taskid, content, task_fs, hook_manager, task_problem_types):
         """
             Init the task. course is a Course object, taskid the task id, and content is a dictionnary containing the data needed to initialize the Task object.
             If init_data is None, the data will be taken from the course tasks' directory.
@@ -22,12 +21,7 @@ class Task(object):
         self._taskid = taskid
         self._fs = task_fs
         self._hook_manager = hook_manager
-
-        task_problem_types = task_problem_types or {"code": CodeProblem, "code-single-line": CodeSingleLineProblem, "code-file": CodeFileProblem,
-                                                    "multiple-choice": MultipleChoiceProblem, "match": MatchProblem}
-
         self._data = content
-
         self._environment = self._data.get('environment', None)
 
         # Response is HTML

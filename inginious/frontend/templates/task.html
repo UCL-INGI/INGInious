@@ -302,7 +302,7 @@ $if user_manager.has_admin_rights_on_course(course):
             <div class="panel-body">
                 <div id="task_alert.$problem.get_id()" class="task_alert_problem"></div>
                 $:problem.get_header(user_manager.session_language())
-                $:problem.show_input(template_helper.get_renderer(False), user_manager.session_language())
+                $:problem.show_input(template_helper, user_manager.session_language())
             </div>
         </div>
 
@@ -361,6 +361,9 @@ $ auth_methods = user_manager.get_auth_methods()
 </div>
 
 <script type="text/javascript">
+$ pdict = {problem.get_id(): problem.get_type() for problem in task.get_problems()}
+var problems_types = $:pdict
+
 $$(document).ready(function() {
     init_task_page("$task.get_evaluate()");
 });

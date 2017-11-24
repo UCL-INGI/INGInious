@@ -55,7 +55,7 @@ class CourseEditTask(INGIniousAdminPage):
         for pid in task_data.get("problems", {}):
             problem = task_data["problems"][pid]
             if (problem["type"] == "code" and "boxes" in problem) or problem["type"] not in (
-                    "code", "code-single-line", "code-file", "match", "multiple-choice"):
+                    "code", "code_single_line", "code_file", "match", "multiple_choice"):
                 problem_copy = copy.deepcopy(problem)
                 for i in ["name", "header"]:
                     if i in problem_copy:
@@ -65,6 +65,7 @@ class CourseEditTask(INGIniousAdminPage):
         return self.template_helper.get_renderer().course_admin.task_edit(
             course,
             taskid,
+            self.task_factory.get_problem_types(),
             task_data,
             environments,
             json.dumps(
@@ -122,41 +123,6 @@ class CourseEditTask(INGIniousAdminPage):
         """ Parses a problem, modifying some data """
         del problem_content["@order"]
 
-        # store boolean fields as booleans
-        for field in ["optional", "multiple", "centralize"]:
-            if field in problem_content:
-                problem_content[field] = True
-
-        if "choices" in problem_content:
-            problem_content["choices"] = [val for _, val in sorted(iter(problem_content["choices"].items()), key=lambda x: int(x[0]))]
-            for choice in problem_content["choices"]:
-                if "valid" in choice:
-                    choice["valid"] = True
-                if "feedback" in choice and choice["feedback"].strip() == "":
-                    del choice["feedback"]
-
-        for message in ["error_message", "success_message"]:
-            if message in problem_content and problem_content[message].strip() == "":
-                del problem_content[message]
-
-        if "limit" in problem_content:
-            try:
-                problem_content["limit"] = int(problem_content["limit"])
-            except:
-                del problem_content["limit"]
-
-        if "allowed_exts" in problem_content:
-            if problem_content["allowed_exts"] == "":
-                del problem_content["allowed_exts"]
-            else:
-                problem_content["allowed_exts"] = problem_content["allowed_exts"].split(',')
-
-        if "max_size" in problem_content:
-            try:
-                problem_content["max_size"] = int(problem_content["max_size"])
-            except:
-                del problem_content["max_size"]
-
         if problem_content["type"] == "custom":
             try:
                 custom_content = inginious.common.custom_yaml.load(problem_content["custom"])
@@ -164,6 +130,8 @@ class CourseEditTask(INGIniousAdminPage):
                 raise Exception("Invalid YAML in custom content")
             problem_content.update(custom_content)
             del problem_content["custom"]
+        else:
+            problem_content = self.task_factory.get_problem_types().get(problem_content["type"]).parse_problem(problem_content)
 
         return problem_content
 
@@ -242,17 +210,20 @@ class CourseEditTask(INGIniousAdminPage):
             data = {key: val for key, val in data.items() if not key.startswith("problem") and not key.startswith("limits") and not key.startswith("tags")}
             del data["@action"]
 
+            # Determines the task filetype
             if data["@filetype"] not in self.task_factory.get_available_task_file_extensions():
                 return json.dumps({"status": "error", "message": _("Invalid file type: {}").format(str(data["@filetype"]))})
             file_ext = data["@filetype"]
             del data["@filetype"]
 
+            # Parse and order the problems (also deletes @order from the result)
             if problems is None:
                 return json.dumps({"status": "error", "message": _("You cannot create a task without subproblems")})
 
-            # Order the problems (this line also deletes @order from the result)
             data["problems"] = OrderedDict([(key, self.parse_problem(val))
                                             for key, val in sorted(iter(problems.items()), key=lambda x: int(x[1]['@order']))])
+
+            # Task limits
             data["limits"] = limits
             data["tags"] = OrderedDict(sorted(tags.items(), key=lambda x: x[1]['type']))
             if "hard_time" in data["limits"] and data["limits"]["hard_time"] == "":
@@ -337,7 +308,7 @@ class CourseEditTask(INGIniousAdminPage):
         task_fs = self.task_factory.get_task_fs(courseid, taskid)
         task_fs.ensure_exists()
         try:
-            WebAppTask(course, taskid, data, task_fs, self.plugin_manager)
+            WebAppTask(course, taskid, data, task_fs, self.plugin_manager, self.task_factory.get_problem_types())
         except Exception as message:
             return json.dumps({"status": "error", "message": _("Invalid data: {}").format(str(message))})
 

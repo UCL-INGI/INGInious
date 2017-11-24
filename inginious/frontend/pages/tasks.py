@@ -16,8 +16,6 @@ from bson.objectid import ObjectId
 
 from inginious.common import exceptions
 from inginious.frontend.pages.utils import INGIniousPage
-from inginious.common.tasks_code_boxes import FileBox
-from inginious.common.tasks_problems import MultipleChoiceProblem, BasicCodeProblem
 
 
 class BaseTaskPage(object):
@@ -158,7 +156,10 @@ class BaseTaskPage(object):
                     return json.dumps({"status": "error", "text": _("You are not allowed to submit for this task.")})
 
                 # Reparse user input with array for multiple choices
-                init_var = self.list_multiple_multiple_choices_and_files(task)
+                init_var = {
+                    problem.get_id(): problem.input_type()()
+                    for problem in task.get_problems() if problem.input_type() in [dict, list]
+                }
                 userinput = task.adapt_input_for_backend(web.input(**init_var))
 
                 if not task.input_is_consistent(userinput, self.default_allowed_file_extensions, self.default_max_file_size):
@@ -321,18 +322,6 @@ class BaseTaskPage(object):
                         tojson["tests"][tag] = data["tests"][tag]
 
         return json.dumps(tojson, default=str)
-
-    def list_multiple_multiple_choices_and_files(self, task):
-        """ List problems in task that expect and array as input """
-        output = {}
-        for problem in task.get_problems():
-            if isinstance(problem, MultipleChoiceProblem) and problem.allow_multiple():
-                output[problem.get_id()] = []
-            elif isinstance(problem, BasicCodeProblem):
-                for box in problem.get_boxes():
-                    if isinstance(box, FileBox):
-                        output[box.get_complete_id()] = {}
-        return output
 
 
 class TaskPageStaticDownload(INGIniousPage):

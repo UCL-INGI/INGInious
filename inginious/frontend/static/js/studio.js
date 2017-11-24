@@ -25,9 +25,9 @@ function studio_load(data)
 {
     jQuery.each(data, function(pid, problem)
     {
-        var template = studio_get_template_for_problem(problem);
+        var template = "#subproblem_" + problem["type"];
         studio_create_from_template(template, pid);
-        studio_init_template(template, pid, problem);
+        studio_init_template(pid, problem);
     });
 
     // Hacky fix for codemirror in collapsable elements
@@ -170,6 +170,7 @@ function studio_task_file_open_tab(path)
 
                           var newtab_editor = $("#" + tab_id + '_editor');
                           newtab_editor.val(data['content']);
+                          newtab_editor.attr('name', path);
 
                           //try to find the mode for the editor
                           var mode = CodeMirror.findModeByFileName(path);
@@ -221,22 +222,13 @@ function studio_task_file_delete_tab(path)
 {
     if(studio_file_editor_tabs[path] != undefined)
     {
-        var editorId = -1;
-
-        // Fetch the editor id
-        $.each(codeEditors, function(idx, editor) {
-            if(editor.getTextArea().id == studio_file_editor_tabs[path] + '_editor') {
-                editorId = idx;
-            }
-        });
-
-        if(editorId != -1) {
+        if(path in codeEditors) {
             // Check if modified
-            if (!codeEditors[editorId].isClean() && !confirm('You have unsaved change to this file. Do you really want to close it?'))
+            if (!codeEditors[path].isClean() && !confirm('You have unsaved change to this file. Do you really want to close it?'))
                 return false;
 
             // Remove from list
-            codeEditors.splice(editorId, 1);
+            delete codeEditors[path];
         }
 
         var edit_file_tabs = $('#edit_file_tabs');
@@ -289,17 +281,8 @@ function studio_submit()
     var error = "";
     $('.task_edit_submit_button').attr('disabled', true);
 
-    $.each(codeEditors, function(idx, editor) {
-
-        // Fetch the editor id
-        var path = "";
-        $.each(studio_file_editor_tabs, function(tpath, id) {
-            if(editor.getTextArea().id == studio_file_editor_tabs[tpath] + '_editor') {
-                path = tpath;
-            }
-        });
-
-        if(path) {
+    $.each(codeEditors, function(path, editor) {
+        if(path in studio_file_editor_tabs) {
             jQuery.ajax({
                 success: function (data) {
                     if ("error" in data)
@@ -342,25 +325,6 @@ function studio_submit()
 }
 
 /**
- * Get the right template for a given problem
- * @param problem
- */
-function studio_get_template_for_problem(problem)
-{
-    if((problem["type"] == "code" && !problem["boxes"]) || problem["type"] == "code-single-line")
-        return "#subproblem_code";
-    else if(problem["type"] == "code-file")
-        return "#subproblem_code_file";
-    else if(problem["type"] == "code")
-        return "#subproblem_custom";
-    else if(problem["type"] == "match")
-        return "#subproblem_match";
-    else if(problem["type"] == "multiple-choice")
-        return "#subproblem_multiple_choice";
-    return "#subproblem_custom";
-}
-
-/**
  * Create new subproblem from the data in the form
  */
 function studio_create_new_subproblem()
@@ -380,7 +344,7 @@ function studio_create_new_subproblem()
     }
 
     studio_create_from_template('#' + new_subproblem_type, new_subproblem_pid);
-    studio_init_template('#' + new_subproblem_type, new_subproblem_pid, {});
+    studio_init_template(new_subproblem_pid, {"type": new_subproblem_type});
 }
 
 /**
@@ -410,7 +374,7 @@ function studio_get_problem(pid)
  * @param pid
  * @param problem
  */
-function studio_init_template(template, pid, problem)
+function studio_init_template(pid, problem)
 {
     var well = $(studio_get_problem(pid));
 
@@ -422,24 +386,7 @@ function studio_init_template(template, pid, problem)
         header_editor.setValue(problem["header"]);
 
     //Custom values for each problem type
-    switch(template)
-    {
-        case "#subproblem_code":
-            studio_init_template_code(well, pid, problem);
-            break;
-        case "#subproblem_code_file":
-            studio_init_template_code_file(well, pid, problem);
-            break;
-        case "#subproblem_custom":
-            studio_init_template_custom(well, pid, problem);
-            break;
-        case "#subproblem_match":
-            studio_init_template_match(well, pid, problem);
-            break;
-        case "#subproblem_multiple_choice":
-            studio_init_template_multiple_choice(well, pid, problem);
-            break;
-    }
+    window["studio_init_template_" + problem["type"] ](well, pid, problem);
 }
 
 /**
@@ -456,6 +403,17 @@ function studio_init_template_code(well, pid, problem)
         $('#type-' + pid, well).val(problem["type"]);
     if("optional" in problem && problem["optional"])
         $('#optional-' + pid, well).attr('checked', true);
+}
+
+/**
+ * Init a code single line template
+ * @param well: the DOM element containing the input fields
+ * @param pid
+ * @param problem
+ */
+function studio_init_template_code_single_line(well, pid, problem)
+{
+    studio_init_template_code(well, pid, problem);
 }
 
 /**
@@ -613,15 +571,10 @@ function studio_subproblem_delete(pid)
     var well = $(studio_get_problem(pid));
     if(!confirm("Are you sure that you want to delete this subproblem?"))
         return;
-    var codeEditors_todelete = [];
-    $.each(codeEditors, function(i, editor)
+    $.each(codeEditors, function(name, editor)
     {
         if(jQuery.contains(well[0], editor.getTextArea()))
-            codeEditors_todelete.push(i);
-    });
-    $.each(codeEditors_todelete, function(_, editor_idx)
-    {
-        codeEditors.splice(editor_idx, 1);
+            delete codeEditors[name];
     });
     well.detach();
 }

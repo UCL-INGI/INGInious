@@ -1,0 +1,48 @@
+$def with (key)
+
+$#
+$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+$# more information about the licensing of this file.
+$#
+    <div id="subproblem_$key">
+        <div class="panel panel-default" id="subproblem_well_PID">
+            <div class="panel-heading" role="tab" id="heading_PID">
+                <div class="row">
+                    <div class="col-md-10" >
+                        <span role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_PID" aria-controls="collapse_PID">
+                            <i class="fa fa-bars"></i> $:_("Problem id:") <span id="pid-PID">PID</span>
+                        </span>
+                    </div>
+                    <div class="col-md-2">
+                        <a style="margin: 0px 4px 0px; cursor:pointer;" class="pull-right" type="button" onclick="studio_subproblem_delete('PID')"><i class="fa fa-lg fa-trash-o"></i></a>
+                        <a style="margin: 0px 4px 0px; cursor:pointer;" class="pull-right" type="button" onclick="studio_subproblem_down('PID')"><i class="fa fa-lg fa-arrow-down"></i></a>
+                        <a style="margin: 0px 4px 0px; cursor:pointer;" class="pull-right" type="button" onclick="studio_subproblem_up('PID')"><i class="fa fa-lg fa-arrow-up"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div id="collapse_PID" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading_PID">
+                <div class="panel-body">
+                    <input type="hidden" name="problem[PID][type]" value="match"/>
+                    <input type="hidden" class="subproblem_order" name="problem[PID][@order]" value="ORDER"/>
+                    <div class="form-group">
+                        <label for="name-PID" class="col-sm-2 control-label">$:_("Name")</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="$:_('A title for this question')"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="header-PID" class="col-sm-2 control-label">$:_("Context")</label>
+                        <div class="col-sm-10">
+                            <textarea id="header-PID" class="form-control" name="problem[PID][header]"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="answer-PID" class="col-sm-2 control-label">$:_("Answer")</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="answer-PID" name="problem[PID][answer]" placeholder="$:_('Answer of this question')"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

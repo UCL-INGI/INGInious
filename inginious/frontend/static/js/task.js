@@ -41,18 +41,6 @@ var evaluatedSubmission = 'best';
 //True if loading something
 var loadingSomething = false;
 
-//Task page: find an editor by problem id
-function getEditorForProblemId(problemId)
-{
-    var found = null;
-    $.each(codeEditors, function(idx, editor)
-    {
-        if(!found && editor.getTextArea().name == problemId)
-            found = editor;
-    });
-    return found;
-}
-
 //Blur task form
 function blurTaskForm()
 {
@@ -663,7 +651,7 @@ function loadOldSubmissionInput(id, with_feedback)
                 unblurTaskForm();
                 if(with_feedback)
                     loadOldFeedback(data);
-                loadInput(id, data['input']);
+                load_input(id, data['input']);
             }
             else
             {
@@ -703,47 +691,70 @@ function loadOldFeedback(data)
 }
 
 //Load data from input into the form inputs
-function loadInput(submissionid, input)
+function load_input(submissionid, input)
 {
-    $('form#task input').each(function()
-    {
-        if($(this).attr('type') == "hidden") //do not try to change @action
-            return;
+    for(var key in problems_types) {
+        window["load_input_" + problems_types[key]](submissionid, key, input);
+    }
+}
 
-        var id = $(this).attr('name');
-
-        if(id in input)
-        {
-            if($(this).attr('type') != "checkbox" && $(this).attr('type') != "radio" && $(this).attr('type') != "file")
-                $(this).prop('value', input[id]);
-            else if($(this).attr('type') == "checkbox" && jQuery.isArray(input[id]) && $.inArray($(this).prop('value'), input[id]) >= 0)
-                $(this).prop('checked', true);
-            else if($(this).attr('type') == "radio" && $(this).prop('value') == input[id])
-                $(this).prop('checked', true);
-            else if($(this).attr('type') == "checkbox" || $(this).attr('type') == "radio")
-                $(this).prop('checked', false);
-            else if($(this).attr('type') == 'file')
-            {
-                //display the download button associated with this file
-                var input_file = $('#download-input-file-' + id);
-                input_file.attr('href', document.location.pathname + "?submissionid=" + submissionid + "&questionid=" + id);
-                input_file.css('display', 'block');
-            }
-        }
-        else if($(this).attr('type') == "checkbox" || $(this).attr('type') == "radio")
-            $(this).prop('checked', false);
+function load_input_code(submissionid, key, input)
+{
+    if(key in codeEditors) {
+        if(key in input)
+            codeEditors[key].setValue(input[key], -1);
         else
-            $(this).prop('value', '');
-    });
-
-    $.each(codeEditors, function()
-    {
-        var name = this.getTextArea().name;
-        if(name in input)
-            this.setValue(input[name], -1);
+            codeEditors[key].setValue("", -1);
+    }
+    else {
+        var field = $("input[name='" + key + "']");
+        if(key in input)
+            $(field).val(input[key]);
         else
-            this.setValue("");
-    })
+            $(field).val("");
+    }
+}
+
+function load_input_code_single_line(submissionid, key, input)
+{
+    load_input_code(submissionid, key, input);
+}
+
+function load_input_code_file(submissionid, key, input)
+{
+    if(key in input) {
+        var input_file = $('#download-input-file-' + key);
+        input_file.attr('href', document.location.pathname + "?submissionid=" + submissionid + "&questionid=" + key);
+        input_file.css('display', 'block');
+    }
+}
+
+function load_input_multiple_choice(submissionid, key, input)
+{
+    var field = $("form#task input[name='" + key + "']");
+    if(key in input)
+    {
+        if($(field).attr('type') == "checkbox" && jQuery.isArray(input[key])) {
+            $(field).each(function () {
+                $(this).prop('checked', input[key].indexOf($(this).val()) > -1);
+            });
+        } else if($(field).attr('type') == "radio") {
+            $(field).each(function () {
+                $(this).prop('checked', input[key] == $(this).val());
+            });
+        } else
+            $(field).prop('checked', false);
+    }
+    else
+        $(field).prop('checked', false);
+}
+
+function load_input_match(submissionid, key, input) {
+    var field = $("form#task input[name='" + key + "']");
+    if(key in input)
+        $(field).prop('value', input[key]);
+    else
+        $(field).prop('value', "");
 }
 
 // Share eval submission result on social networks

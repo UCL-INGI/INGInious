@@ -32,8 +32,8 @@ def extract_yaml(fileobj, keywords, comment_tags, options):
             yield 0, "", content.get(key, ""), [key]
 
         for problem_id, problem_content in content.get("problems").items():
-            task_problem_types = {"code": CodeProblem, "code-single-line": CodeSingleLineProblem,
-                                  "code-file": CodeFileProblem, "multiple-choice": MultipleChoiceProblem,
+            task_problem_types = {"code": CodeProblem, "code_single_line": CodeSingleLineProblem,
+                                  "code_file": CodeFileProblem, "multiple_choice": MultipleChoiceProblem,
                                   "match": MatchProblem}
 
             fields = task_problem_types.get(problem_content.get('type', "")).get_text_fields()
