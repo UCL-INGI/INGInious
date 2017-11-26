@@ -189,6 +189,8 @@ class WebAppCourse(Course):
         
     def get_all_tags_names_as_list(self, admin=False):
         """ Computes and cache two list containing all tags name sorted by natural order on name """
+        #TODO: for other langages, the list of tag will not be sorted for now
+            #Improve cache to takes into account lang or remove the cache ?
         global _all_tags_cache_list
         global _all_tags_cache_list_admin
 
@@ -204,7 +206,7 @@ class WebAppCourse(Course):
         s_admin = set()
         (common, _, org) = self.get_all_tags()
         for tag in common + org:
-            tag_name = tag.get_name() # Should return translations
+            tag_name = tag.get_name()
             s_admin.add(tag_name) 
             if tag.is_visible_for_student():
                 s_stud.add(tag_name) 

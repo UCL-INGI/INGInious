@@ -79,14 +79,14 @@ $var Navbar: $:NavbarF()
                 $for tag in task.get_tags()[0]:
                     <span style="line-height: 18px;">
                     $if "tests" in submission and tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()]:
-                        <span class="badge alert-success">$tag.get_name()</span>
+                        <span class="badge alert-success">$:_(tag.get_name())</span>
                     $else:
-                        <span class="badge alert-info">$tag.get_name()</span>
+                        <span class="badge alert-info">$:_(tag.get_name())</span>
                     </span>
                 $for tag in task.get_tags()[1]:
                     <span style="line-height: 18px;">
                     $if "tests" in submission and tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()]:
-                        <span class="badge alert-danger">$tag.get_name()</span> 
+                        <span class="badge alert-danger">$:_(tag.get_name())</span> 
                     </span>
                 $# Auto-tags not defined in task
                 $if "tests" in submission:

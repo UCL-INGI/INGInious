@@ -28,7 +28,7 @@ class Tag:
 
     def get_name(self):
         """ Returns the name of this tag """
-        return _(self._name)
+        return self._name
 
     def get_id(self):
         """ Returns the id of this tag """
@@ -40,9 +40,7 @@ class Tag:
 
     def get_description(self):
         """ Returns the description of this tag """
-        if self._description == "":
-            return "" # Without this, _("") return strange things
-        return _(self._description)
+        return self._description
         
     def is_organisational(self):
         """ Returns True if this tag is for organisational purposes """

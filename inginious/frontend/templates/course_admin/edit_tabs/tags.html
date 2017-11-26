@@ -36,9 +36,9 @@ $#
         $ visible = task_data.get('tags')[tag]["visible"] if "visible" in task_data.get('tags')[tag] else False
         <tr id="$i">
             $# TODO, add translations in value fields.
-            <td><input type="text" id="id_$i" class="form-control" name="tags[$i][id]" value="$('' if id == '' else _(id))" $('disabled' if type == 2 else '')/></td>
-            <td><input type="text" class="form-control" name="tags[$i][name]" value="$('' if name == '' else _(name))"/></td>
-            <td><textarea class="form-control" onfocus="expand(this);" onblur="expand_not(this);" name="tags[$i][description]" rows="1" style="resize:none">$('' if description == '' else _(description))</textarea></td>
+            <td><input type="text" id="id_$i" class="form-control" name="tags[$i][id]" value="$id" $('disabled' if type == 2 else '')/></td>
+            <td><input type="text" class="form-control" name="tags[$i][name]" value="$name"/></td>
+            <td><textarea class="form-control" onfocus="expand(this);" onblur="expand_not(this);" name="tags[$i][description]" rows="1" style="resize:none">$description</textarea></td>
             <td><input type="checkbox" class="form-control" name="tags[$i][visible]" $('checked="checked"' if visible else '')/></td>
             <td>
                 <select class="form-control" name="tags[$i][type]" onchange="change_id_field(this, $i)">
