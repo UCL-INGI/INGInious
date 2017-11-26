@@ -218,6 +218,7 @@ class BaseTaskPage(object):
                 if not submission:
                     raise web.notfound()
                 web.header('Content-Type', 'application/json')
+                
                 return self.submission_to_json(submission, is_admin, True, tags=task.get_tags())
                 
             elif "@action" in userinput and userinput["@action"] == "kill" and "submissionid" in userinput:
@@ -241,7 +242,7 @@ class BaseTaskPage(object):
             else:
                 raise web.notfound()
 
-    def submission_to_json(self, data, debug, reloading=False, replace=False):
+    def submission_to_json(self, data, debug, reloading=False, replace=False, tags={}):
         """ Converts a submission to json (keeps only needed fields) """
 
         if "ssh_host" in data:
