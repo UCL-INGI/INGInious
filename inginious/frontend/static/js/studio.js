@@ -669,16 +669,16 @@ function studio_get_feedback(sid)
     });
 }
 
+/*
+ * Functions for tags edition. Use in tags.html
+ */
 
-
-
-
-
+// Enable or disabled the id field of line {line}
 function studio_change_id_field(type, line) {
     if(type.value == 2){    
-        $$("#id_"+line).prop('disabled', true);
+        $("#id_"+line).prop('disabled', true);
     }else{
-        $$("#id_"+line).prop('disabled', false);
+        $("#id_"+line).prop('disabled', false);
     }
 }
 function studio_expand_tag_description(elem){
@@ -687,10 +687,11 @@ function studio_expand_tag_description(elem){
 function studio_expand_tag_description_not(elem){
     elem.rows = 1;
 }
+// Add a new line to the tag table
 function studio_add_tag_line(line=-1) {
 
-    var new_row = $$("#NEW").clone();
-    var new_id = 1 + parseInt($$('#table tr:last').attr('id'));
+    var new_row = $("#NEW").clone();
+    var new_id = 1 + parseInt($('#table tr:last').attr('id'));
     if (isNaN(new_id))
         new_id = 0
             
@@ -703,19 +704,19 @@ function studio_add_tag_line(line=-1) {
     }
     
     //ID, NAME, DESCRIPTION
-    modified_row = modified_row.replace("ID_REPLACE", $$('#A-'+line).text());
-    modified_row = modified_row.replace("NAME_REPLACE", $$('#B-'+line).text());
-    modified_row = modified_row.replace("DESCRIPTION_REPLACE", $$('#C-'+line).text());
+    modified_row = modified_row.replace("ID_REPLACE", $('#A-'+line).text());
+    modified_row = modified_row.replace("NAME_REPLACE", $('#B-'+line).text());
+    modified_row = modified_row.replace("DESCRIPTION_REPLACE", $('#C-'+line).text());
     
     //VISIBILITY
     var visibility = "";
-    if ($$('#D-'+line).text() == "True"){
+    if ($('#D-'+line).text() == "True"){
         visibility = "checked='checked'";
     }
     modified_row = modified_row.replace("visible_replace", visibility);
     
     //TYPE
-    var type = $$('#E-'+line).attr("data-type");
+    var type = $('#E-'+line).attr("data-type");
     modified_row = modified_row.replace("type_replace_"+type, 'selected="selected"');
     if(type == 2){
         modified_row = modified_row.replace("id_stop", "disabled");
@@ -723,7 +724,6 @@ function studio_add_tag_line(line=-1) {
         modified_row = modified_row.replace("id_stop", "");
     }
 
-    $$('#table').find('tbody').append("<tr id="+new_id+">" + modified_row + "</tr>");
+    $('#table').find('tbody').append("<tr id="+new_id+">" + modified_row + "</tr>");
     new_row.show();
-    return;
 }
