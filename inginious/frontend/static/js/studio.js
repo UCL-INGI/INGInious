@@ -668,3 +668,62 @@ function studio_get_feedback(sid)
         loadingSomething = false;
     });
 }
+
+
+
+
+
+
+function studio_change_id_field(type, line) {
+    if(type.value == 2){    
+        $$("#id_"+line).prop('disabled', true);
+    }else{
+        $$("#id_"+line).prop('disabled', false);
+    }
+}
+function studio_expand_tag_description(elem){
+    elem.rows = 5;
+}
+function studio_expand_tag_description_not(elem){
+    elem.rows = 1;
+}
+function studio_add_tag_line(line=-1) {
+
+    var new_row = $$("#NEW").clone();
+    var new_id = 1 + parseInt($$('#table tr:last').attr('id'));
+    if (isNaN(new_id))
+        new_id = 0
+            
+    var modified_row = new_row.html();
+    while(modified_row.includes("NEW")){
+        modified_row = modified_row.replace("NEW", new_id);
+    }
+    while(modified_row.includes("disabled")){
+        modified_row = modified_row.replace("disabled", "");
+    }
+    
+    //ID, NAME, DESCRIPTION
+    modified_row = modified_row.replace("ID_REPLACE", $$('#A-'+line).text());
+    modified_row = modified_row.replace("NAME_REPLACE", $$('#B-'+line).text());
+    modified_row = modified_row.replace("DESCRIPTION_REPLACE", $$('#C-'+line).text());
+    
+    //VISIBILITY
+    var visibility = "";
+    if ($$('#D-'+line).text() == "True"){
+        visibility = "checked='checked'";
+    }
+    modified_row = modified_row.replace("visible_replace", visibility);
+    
+    //TYPE
+    var type = $$('#E-'+line).attr("data-type");
+    modified_row = modified_row.replace("type_replace_"+type, 'selected="selected"');
+    if(type == 2){
+        modified_row = modified_row.replace("id_stop", "disabled");
+    }else{
+        modified_row = modified_row.replace("id_stop", "");
+    }
+
+    $$('#table').find('tbody').append("<tr id="+new_id+">" + modified_row + "</tr>");
+    new_row.show();
+    return;
+}

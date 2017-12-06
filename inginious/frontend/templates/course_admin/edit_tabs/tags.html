@@ -26,6 +26,22 @@ $#
         </tr>
     </thead>
     <tbody>
+    
+    <!-- An empty row so that we can copy it to add new rows. All 'disabled' are important to not send this row to INGInious when saving the task-->
+    <tr id="NEW" style="display:none;">
+        <td><input disabled type="text" ID_STOP id="id_NEW" class="form-control" name="tags[NEW][id]" value="ID_REPLACE"></td>
+        <td><input disabled type="text" class="form-control" name="tags[NEW][name]" value="NAME_REPLACE"/></td>
+        <td><textarea disabled class="form-control" onfocus="studio_expand_tag_description(this);" onblur="studio_expand_tag_description_not(this);" name="tags[NEW][description]" rows="1" style="resize:none">DESCRIPTION_REPLACE</textarea></td>
+        <td><input disabled type="checkbox" class="form-control" name="tags[NEW][visible]" VISIBLE_REPLACE)/></td>
+        <td>
+            <select disabled  class="form-control" name="tags[NEW][type]" onchange="studio_change_id_field(this, NEW)">
+                <option value="0" TYPE_REPLACE_0>$:_("Common")</option>
+                <option value="1" TYPE_REPLACE_1>$:_("Antitag")</option>
+                <option value="2" TYPE_REPLACE_2>$:_("Organisation")</option>
+            </select>
+        </td>
+    </tr>
+    
     $ i=-1
     $for key, tag in task_data.get('tags', {}).items():
         $ i=i+1
@@ -35,13 +51,12 @@ $#
         $ type = tag["type"] if "type" in tag else 0
         $ visible = tag["visible"] if "visible" in tag else False
         <tr id="$i">
-            $# TODO, add translations in value fields.
             <td><input type="text" id="id_$i" class="form-control" name="tags[$i][id]" value="$id" $('disabled' if type == 2 else '')/></td>
             <td><input type="text" class="form-control" name="tags[$i][name]" value="$name"/></td>
-            <td><textarea class="form-control" onfocus="expand(this);" onblur="expand_not(this);" name="tags[$i][description]" rows="1" style="resize:none">$description</textarea></td>
+            <td><textarea class="form-control" onfocus="studio_expand_tag_description(this);" onblur="studio_expand_tag_description_not(this);" name="tags[$i][description]" rows="1" style="resize:none">$description</textarea></td>
             <td><input type="checkbox" class="form-control" name="tags[$i][visible]" $('checked="checked"' if visible else '')/></td>
             <td>
-                <select class="form-control" name="tags[$i][type]" onchange="change_id_field(this, $i)">
+                <select class="form-control" name="tags[$i][type]" onchange="studio_change_id_field(this, $i)">
                     <option value="0" $('selected="selected"' if int(type) == 0 else '')>$:_("Common")</option>
                     <option value="1" $('selected="selected"' if int(type) == 1 else '')>$:_("Antitag")</option>
                     <option value="2" $('selected="selected"' if int(type) == 2 else '')>$:_("Organisation")</option>
@@ -50,11 +65,12 @@ $#
         </tr>
     </tbody>
     </table>
-    <button type="button" class="btn btn-success pull-right" onclick="add_tag_line()"><i class="fa fa-plus fa-lg"></i>$:_(" New tag")</button>
+    <button type="button" class="btn btn-success pull-right" onclick="studio_add_tag_line()"><i class="fa fa-plus fa-lg"></i>$:_(" New tag")</button>
 </div>
 
 </div>
 <!-- Menu Tag Editor END-->
+
 <!-- Menu Import tag -->
 <div id="menu1" class="tab-pane fade">
 <table class="table-striped table-responsive" id="table">
@@ -79,7 +95,7 @@ $#
                 <td id="C-$i" style="padding:4px">$t.get_description()</td>
                 <td id="D-$i" style="padding:4px">$t.is_visible_for_student()</td>
                 <td id="E-$i" style="padding:4px" data-type="$t.get_type()" >$t.get_type_as_str()</td>
-                <td><button type="button" onclick="add_tag_line($i)" class="btn btn-primary btn-xs"><i class="fa fa-arrow-down" aria-hidden="true"></i></button></td>
+                <td><button type="button" onclick="studio_add_tag_line($i)" class="btn btn-primary btn-xs"><i class="fa fa-arrow-down" aria-hidden="true"></i></button></td>
             </tr>
     </tbody>
 </table>
@@ -87,62 +103,3 @@ $#
 </div>
 </div>
 <!-- Menu Import tag END-->
-    
-<script>
-function change_id_field(type, line) {
-    if(type.value == 2){    
-        $$("#id_"+line).prop('disabled', true);
-    }else{
-        $$("#id_"+line).prop('disabled', false);
-    }
-}
-function expand(elem){
-    elem.rows = 5;
-}
-function expand_not(elem){
-    elem.rows = 1;
-}
-function add_tag_line(line=-1) {    
-    var id = $$('#A-'+line).text();
-    var name = $$('#B-'+line).text();
-    var descr = $$('#C-'+line).text();
-    var visibility = $$('#D-'+line).text();
-    var type = $$('#E-'+line).attr("data-type");
-
-    if (visibility == "True"){
-        visibility = "checked";
-    }
-    var checked0 = '';
-    var checked1 = '';
-    var checked2 = '';
-    var disable_id = '';
-    if(type == "2"){
-        checked2 = 'selected="selected"';
-        disable_id = ' disabled '
-    }
-    else if(type == "1"){
-        checked1 = 'selected="selected"';
-    }
-    else{
-        checked0 = 'selected="selected"';
-    }
-    var new_id = 1 + parseInt($$('#table tr:last').attr('id'));
-    if (isNaN(new_id))
-        new_id = 0
-    var new_row = '\
-        <tr id='+ new_id +'> \
-            <td><input type="text" '+disable_id+'id="id_'+ new_id +'" class="form-control" name="tags['+ new_id +'][id]" value="'+id+'"/></td> \
-            <td><input type="text" class="form-control" name="tags['+ new_id +'][name]" value="'+name+'"/></td> \
-            <td><textarea class="form-control" name="tags['+ new_id +'][description]" onfocus="expand(this);" onblur="expand_not(this);" rows="1" style="resize:none">'+descr+'</textarea></td> \
-            <td><input type="checkbox" class="form-control" name="tags['+ new_id +'][visible]" '+visibility+'/></td> \
-            <td> \
-                <select class="form-control" name="tags['+ new_id +'][type]" onchange="change_id_field(this, '+ new_id +')"> \
-                    <option value="0" '+checked0+'>$:_("Common")</option> \
-                    <option value="1" '+checked1+'>$:_("Antitag")</option> \
-                    <option value="2" '+checked2+'>$:_("Organisation")</option> \
-                </select> \
-            </td> \
-        </tr>'
-    $$('#table').find('tbody').append(new_row);
-}
-</script>
