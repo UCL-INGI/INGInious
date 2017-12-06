@@ -38,8 +38,13 @@ class Tag:
         """ Returns True is the tag should be visible to students """
         return self._visible
 
-    def get_description(self):
-        """ Returns the description of this tag """
+    def get_description(self, translated=False):
+        """ 
+        Returns the description of this tag 
+        translated=True can be use to avoid getting garbage when calling _() with an empty string since the description of a tag CAN be empty
+        """
+        if translated and self._description != "":
+            return _(self._description)
         return self._description
         
     def is_organisational(self):

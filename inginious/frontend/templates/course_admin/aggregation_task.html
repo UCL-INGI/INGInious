@@ -59,7 +59,7 @@ $if task.get_tags()[0] or task.get_tags()[1]:
                         $for (tag, v_total, v_best) in statistics[1]:
                             $ color = "badge alert-danger" if tag.is_antitag() else "badge alert-info" 
                             <tr>
-                                <td><span class="$color" id="$tag.get_id()" data-toggle="tooltip" data-placement="left" title="$:_(tag.get_description())">$:_(tag.get_name())</span></td>
+                                <td><span class="$color" id="$tag.get_id()" data-toggle="tooltip" data-placement="left" title="$tag.get_description(translated=True)">$:_(tag.get_name())</span></td>
                                 <td>$v_total</td>
                                 <td>$v_best</td>
                             </tr>

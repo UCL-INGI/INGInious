@@ -210,16 +210,21 @@ class CourseEditTask(INGIniousAdminPage):
             #Tags
             tags = self.dict_from_prefix("tags", data)
             tags = OrderedDict(sorted(tags.items(), key=lambda item: item[0])) # Sort by key
+            
             # Repair tags
             for k in tags:
                 tags[k]["visible"] = ("visible" in tags[k])  # Since unckecked checkboxes are not present here, we manually add them to avoid later errors
                 tags[k]["type"] = int(tags[k]["type"])
                 if not "id" in tags[k]:
                     tags[k]["id"] = "" # Since textinput is disabled when the tag is organisational, the id field is missing. We add it to avoid Keys Errors
+                if tags[k]["type"] == 2:
+                    tags[k]["id"] = "" # Force no id if organisational tag
+
             # Remove uncompleted tags (tags with no name or no id)
             for k in list(tags.keys()): 
                 if (tags[k]["id"] == "" and tags[k]["type"] != 2) or tags[k]["name"] == "":
                     del tags[k]
+            
             # Find duplicate ids. Return an error if some tags use the same id.
             for k in tags: 
                 if tags[k]["type"] != 2: # Ignore organisational tags since they have no id.
@@ -231,12 +236,9 @@ class CourseEditTask(INGIniousAdminPage):
                         if tags[k2]["type"] != 2 and tags[k2]["id"] == id:
                             count = count+1
                     if count > 1:
-                        return json.dumps({"status": "error", "message": _("Some tags have the same id! The id of a tag must be unique.")})
-            #Force no id if organisational tag
-            for k in tags:
-                if tags[k]["type"] == 2:
-                    tags[k]["id"] = ""
-                
+                        return json.dumps({"status": "error", "message": _("Some tags have the same id! The id of a tag must be unique.")})                
+
+
             data = {key: val for key, val in data.items() if not key.startswith("problem") and not key.startswith("limits") and not key.startswith("tags")}
             del data["@action"]
 

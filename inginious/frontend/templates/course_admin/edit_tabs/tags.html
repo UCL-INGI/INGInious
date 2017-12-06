@@ -27,13 +27,13 @@ $#
     </thead>
     <tbody>
     $ i=-1
-    $for tag in task_data.get('tags', {}):
+    $for key, tag in task_data.get('tags', {}).items():
         $ i=i+1
-        $ id = task_data.get('tags')[tag]["id"] if "id" in task_data.get('tags')[tag] else "unknow_id"
-        $ name = task_data.get('tags')[tag]["name"] if "name" in task_data.get('tags')[tag] else "Unknow name"
-        $ description = task_data.get('tags')[tag]["description"] if "description" in task_data.get('tags')[tag] else ""
-        $ type = task_data.get('tags')[tag]["type"] if "type" in task_data.get('tags')[tag] else 0
-        $ visible = task_data.get('tags')[tag]["visible"] if "visible" in task_data.get('tags')[tag] else False
+        $ id = tag["id"] if "id" in tag else "unknow_id"
+        $ name = tag["name"] if "name" in tag else "Unknow name"
+        $ description = tag["description"] if "description" in tag else ""
+        $ type = tag["type"] if "type" in tag else 0
+        $ visible = tag["visible"] if "visible" in tag else False
         <tr id="$i">
             $# TODO, add translations in value fields.
             <td><input type="text" id="id_$i" class="form-control" name="tags[$i][id]" value="$id" $('disabled' if type == 2 else '')/></td>

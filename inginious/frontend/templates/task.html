@@ -88,26 +88,18 @@ $def ColumnF():
     </table>
      
     <!-- Tags -->
-    $ number_of_visible_tags = 0
-    $ number_of_visible_antitag = 0
-    $for tag in task.get_tags()[0]:
-        $if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course):
-            $ number_of_visible_tags += 1
-    $for tag in task.get_tags()[1]:
-        $if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course):
-            $ number_of_visible_antitag += 1
+    $ visible_tags = [tag for tag in task.get_tags()[0] if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course)]
+    $ visible_anti_tags = [tag for tag in task.get_tags()[1] if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course)]
 
     $# Auto tags may appear for admins. So we force the h3 title even if there is not predefined tags
     $# We do not show the tag header for students if they can not get tags
-    $if (number_of_visible_tags > 0) or (number_of_visible_antitag > 0) or user_manager.has_staff_rights_on_course(course):
+    $if (len(visible_tags) > 0) or (len(visible_anti_tags) > 0) or user_manager.has_staff_rights_on_course(course):
         <h3>$:_("Tags")</h3>
         <div id="main_tag_group">
-        $for tag in task.get_tags()[0]:
-            $if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course):
-                <span class="badge alert-info" id="$tag.get_id()" data-toggle="tooltip" title="$:_(tag.get_description())">$:_(tag.get_name())</span>
-        $for tag in task.get_tags()[1]:
-            $if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course):
-                <span class="badge alert-danger" id="$tag.get_id()" data-toggle="tooltip" title="$:_(tag.get_description())" style="display:none;">$:_(tag.get_name())</span>
+        $for tag in visible_tags:
+            <span class="badge alert-info" id="$tag.get_id()" data-toggle="tooltip" title="$tag.get_description(translated=True)">$:_(tag.get_name())</span>
+        $for tag in visible_anti_tags:
+            <span class="badge alert-danger" id="$tag.get_id()" data-toggle="tooltip" title="$tag.get_description(translated=True)" style="display:none;">$:_(tag.get_name())</span>
         </div>
     <!-- End Tags -->
     
@@ -204,7 +196,7 @@ $def ColumnF():
                             <!-- Tags -->
                             $# This display a badge with the number of validated tags in each row of the submission history.
                             $# The badge is green (success style) if all tags are validated, blue (info style) otherwise.    
-                            $if (number_of_visible_tags > 0):
+                            $if (len(visible_tags) > 0):
                                 $ tags_ok_counter = 0
                                 $ list_tags_ok = []
                                 $for tag in task.get_tags()[0]:
@@ -213,7 +205,7 @@ $def ColumnF():
                                         $if "tests" in submission and tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()]:
                                             $ tags_ok_counter += 1
                                             $list_tags_ok.append(_(tag.get_name()))
-                                $if tags_ok_counter == number_of_visible_tags:
+                                $if tags_ok_counter == len(visible_tags):
                                     <span class="badge alert-success" id="tag_counter">$tags_ok_counter</span>
                                 $else:
                                     <span class="badge alert-info" id="tag_counter" data-toggle="tooltip" data-placement="left" title="$', '.join(list_tags_ok)">$tags_ok_counter</span>
