@@ -24,13 +24,13 @@ def compute_statistics(task, data):
             if "result" in submission and submission["result"] == "success":
                 total_submission_best_succeeded += 1
         
-    statistics = []
-    statistics.append((_("Number of submissions"), total_submission))
-    statistics.append((_("Evaluation submissions (Total)"), total_submission_best))
-    statistics.append((_("Evaluation submissions (Succeeded)"), total_submission_best_succeeded))
-    statistics.append((_("Evaluation submissions (Failed)"), total_submission_best - total_submission_best_succeeded))
-    #Add here new common statistics
-    
+    statistics = [
+        (_("Number of submissions"), total_submission),
+        (_("Evaluation submissions (Total)"), total_submission_best),
+        (_("Evaluation submissions (Succeeded)"), total_submission_best_succeeded),
+        (_("Evaluation submissions (Failed)"), total_submission_best - total_submission_best_succeeded)
+        # add here new common statistics
+        ]
     
     tag_statistics = []
     for tag in task.get_tags()[0] + task.get_tags()[1]:

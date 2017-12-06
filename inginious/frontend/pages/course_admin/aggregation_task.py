@@ -50,9 +50,7 @@ class CourseAggregationTaskPage(INGIniousAdminPage):
                                                        "courseid": course.get_id(),
                                                        "taskid": task.get_id()},
                                                        {"submissionid": 1, "_id": 0}))
-        best_submissions_list = [] # list containing Ids of best submissions
-        for u in user_tasks:
-            best_submissions_list.append(u["submissionid"])
+        best_submissions_list = [u["submissionid"] for u in user_tasks] # list containing ids of best submissions
         for d in data:
             d["best"] = d["_id"] in best_submissions_list # mark best submissions
             
