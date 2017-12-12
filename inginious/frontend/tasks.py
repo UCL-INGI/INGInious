@@ -15,6 +15,7 @@ from inginious.frontend.task_problems import DisplayableCodeProblem, Displayable
 from inginious.common.base import id_checker
 from inginious.common.tasks import Task
 from inginious.frontend.accessible_time import AccessibleTime
+from inginious.common.tags import Tag
 
 
 class WebAppTask(Task):
@@ -61,6 +62,9 @@ class WebAppTask(Task):
 
         # Submission limits
         self._submission_limit = self._data.get("submission_limit", {"amount": -1, "period": -1})
+
+        # Tags
+        self._tags = Tag.create_tags_from_dict(self._data.get("tags", {})) 
 
     def get_grading_weight(self):
         """ Get the relative weight of this task in the grading """
@@ -120,3 +124,7 @@ class WebAppTask(Task):
     def get_evaluate(self):
         """ Indicates the default download for the task """
         return self._evaluate
+    
+    def get_tags(self):
+        """ Get the tuple of list of the task """
+        return self._tags

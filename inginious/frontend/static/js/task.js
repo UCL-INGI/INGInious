@@ -101,7 +101,7 @@ function updateTaskStatus(newStatus, grade)
     var currentStatus = task_status.text().trim();
     var currentGrade = parseFloat(task_grade.text().trim());
 
-    task_status.text(newStatus);
+    task_status.html(newStatus);
     task_grade.text(grade);
 }
 
@@ -127,7 +127,13 @@ function displayNewSubmission(id)
          jQuery('<i/>', {class: "fa fa-bookmark fa-fw"}).appendTo(actual_link);
     }
 
-    jQuery('<span/>', {}).text(getDateTime()).appendTo(submission_link);
+    jQuery('<span id="txt"/>', {}).text(getDateTime()).appendTo(submission_link);
+    
+    //If there exists tags, we add a badge with '0' in the new submission.
+    if($('span', $('#main_tag_group')).length > 0){
+        submission_link.append('<span class="badge alert-info" id="tag_counter" >0</span>');
+    }
+
     submissions.prepend(submission_link);
 
     $("body").tooltip({
@@ -147,7 +153,7 @@ function removeSubmission(id) {
 }
 
 //Updates a loading submission
-function updateSubmission(id, result, grade)
+function updateSubmission(id, result, grade, tags=[])
 {
     grade = grade || "0.0";
 
@@ -160,7 +166,11 @@ function updateSubmission(id, result, grade)
         if($(this).attr('data-submission-id').trim() == id)
         {
             $(this).removeClass('list-group-item-warning').addClass(nclass);
-            $(this).find("span").append(" - " + grade + "%");
+            var date = $(this).find("span[id='txt']");
+            date.text(date.text() + " - " + grade + "%");
+            
+            //update the badge
+            updateTagsToNewSubmission($(this), tags);  
         }
     });
 }
@@ -188,7 +198,7 @@ function setSelectedSubmission(id, fade, makepost) {
 
     // LTI does not support selecting a specific submission for evaluation
     if($("#my_submission").length) {
-        var text = item.find("span").html();
+        var text = item.find("span[id='txt']").html();
         var url = $('form#task').attr("action");
 
         var applyfn = function (data) {
@@ -402,6 +412,7 @@ function waitForSubmission(submissionid)
                 }
                 else if("status" in data && "result" in data && "grade" in data)
                 {
+                    updateMainTags(data);
                     if("debug" in data)
                         displayDebugInfo(data["debug"]);
 
@@ -418,7 +429,11 @@ function waitForSubmission(submissionid)
                     else // == "error"
                         displayTaskStudentAlertWithProblems(data, "danger", false);
 
-                    updateSubmission(submissionid, data['result'], data["grade"]);
+                    if("tests" in data){
+                        updateSubmission(submissionid, data['result'], data["grade"], data["tests"]);
+                    }else{
+                        updateSubmission(submissionid, data['result'], data["grade"]);
+                    }
                     unblurTaskForm();
 
                     if("replace" in data && data["replace"]) {
@@ -644,6 +659,7 @@ function loadOldSubmissionInput(id, with_feedback)
         {
             if("status" in data && data['status'] == "ok" && "input" in data)
             {
+                updateMainTags(data);
                 unblurTaskForm();
                 if(with_feedback)
                     loadOldFeedback(data);
@@ -736,4 +752,79 @@ function share_submission(method_id)
     var submissionid = $('#my_submission').attr('data-submission-id');
     window.location.replace("/auth/share/" + method_id + "?submissionid=" + submissionid)
 
+}
+
+/*
+ * Update tags visual of HTML nodes that represent tags.
+ * The choice of the color depends of data present in data["tests"]
+ * Tags equals to true are green
+ * Tags equals to false are red
+ * Missing tags are blue
+ */
+function updateMainTags(data){
+
+    //Reset all tags to info style (blue) to avoid no-updated colors
+    $('span', $('#main_tag_group')).each(function() {
+        //If this is a alert-danger class, this is an antitag
+        if($(this).attr('class') == "badge alert-danger"){
+            $(this).hide();
+        }else if($(this).attr('class') == "badge alert-default"){
+            //Remove auto tags
+            $(this).remove();
+        }else{
+            $(this).attr('class', 'badge alert-info');
+        }
+    });
+        
+    if("tests" in data){
+        for (var tag in data["tests"]){
+            //Get and update the color of HTML nodes that represent tags
+            var elem = $('#'.concat(tag.toLowerCase().replace("*", "\\*"))); //The * makes error with JQuery so, we escape it.
+            if(data["tests"][tag]){
+                //If this is a alert-danger class, this is an antitag
+                if(elem.attr('class') == "badge alert-danger"){
+                    elem.show();
+                }else{
+                    elem.attr('class', 'badge alert-success')
+                }
+            }
+            if(tag.startsWith("*auto-tag-")){
+                $('#main_tag_group').append('<span class="badge alert-default">'+data["tests"][tag]+'</span>');
+            }
+        }
+    }
+}
+
+/*
+ * Update color of tags presents in 'elem' node. 
+ * 'data' is a dictionnary that should contains tag values in data["tests"][tag] = True/False
+ */
+function updateTagsToNewSubmission(elem, data){
+
+    var n_ok = 0;   // number of tag equals true
+    var tags_ok = [];
+    var n_tot = 0;  // total number of tags
+    var badge = elem.find('span[id="tag_counter"]');
+    
+    //Get all tags listed in main tag section
+    $('span', $('#main_tag_group')).each(function() {
+        var id = $(this).attr("id");
+        var color = $(this).attr("class");
+        //Only consider normal tag (we do not consider antitag)
+        if(color != "badge alert-danger"){
+            if(id in data && data[id]){
+                n_ok++;
+                tags_ok.push($(this).text());
+            }
+            n_tot++;
+        }
+    });
+    badge.text(n_ok);
+    if(n_tot == n_ok){
+        badge.attr("class", "badge alert-success");
+    }else if(n_ok > 0){
+        badge.attr("data-toggle", "tooltip");
+        badge.attr("data-placement", "left");
+        badge.attr('data-original-title', tags_ok.join(", "));
+    }
 }

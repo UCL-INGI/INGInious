@@ -18,6 +18,11 @@ def id_checker(id_to_test):
     return bool(re.match(r'[a-z0-9\-_]+$', id_to_test, re.IGNORECASE))
 
 
+def id_checker_tests(id_to_test):
+    """Checks if a id is correct"""
+    return bool(re.match(r'[a-z0-9\-_*]+$', id_to_test, re.IGNORECASE))
+    
+
 def load_json_or_yaml(file_path):
     """ Load JSON or YAML depending on the file extension. Returns a dict """
     with open(file_path, "r") as f:

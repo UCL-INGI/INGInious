@@ -205,7 +205,7 @@ class BaseTaskPage(object):
                     if default_submission is None:
                         self.set_selected_submission(course, task, userinput['submissionid'])
 
-                    return self.submission_to_json(result, is_admin, False, True if default_submission is None else default_submission['_id'] == result['_id'])
+                    return self.submission_to_json(result, is_admin, False, True if default_submission is None else default_submission['_id'] == result['_id'], tags=task.get_tags())
 
                 else:
                     web.header('Content-Type', 'application/json')
@@ -218,7 +218,9 @@ class BaseTaskPage(object):
                 if not submission:
                     raise web.notfound()
                 web.header('Content-Type', 'application/json')
-                return self.submission_to_json(submission, is_admin, True)
+                
+                return self.submission_to_json(submission, is_admin, True, tags=task.get_tags())
+                
             elif "@action" in userinput and userinput["@action"] == "kill" and "submissionid" in userinput:
                 self.submission_manager.kill_running_submission(userinput["submissionid"])  # ignore return value
                 web.header('Content-Type', 'application/json')
@@ -240,7 +242,7 @@ class BaseTaskPage(object):
             else:
                 raise web.notfound()
 
-    def submission_to_json(self, data, debug, reloading=False, replace=False):
+    def submission_to_json(self, data, debug, reloading=False, replace=False, tags={}):
         """ Converts a submission to json (keeps only needed fields) """
 
         if "ssh_host" in data:
@@ -307,6 +309,16 @@ class BaseTaskPage(object):
             tojson["status"] = 'ok'
             # And also include input
             tojson["input"] = data.get('input', {})
+
+        if("tests" in data):
+            tojson["tests"] = {}
+            for tag in tags[0]+tags[1]: # Tags only visible for admins should not appear in the json for students.
+                if (tag.is_visible_for_student() or debug) and tag.get_id() in data["tests"]:
+                    tojson["tests"][tag.get_id()] = data["tests"][tag.get_id()]
+            if debug: #We add also auto tags when we are admin
+                for tag in data["tests"]:
+                    if tag.startswith("*auto-tag-"):
+                        tojson["tests"][tag] = data["tests"][tag]
 
         return json.dumps(tojson, default=str)
 

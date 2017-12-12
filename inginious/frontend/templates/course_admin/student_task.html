@@ -31,8 +31,10 @@ $var Navbar: $:NavbarF()
             <th>$:_("id")</th>
             <th>$:_("submitted on")</th>
             <th>$:_("result")</th>
+            <th>$:_("tags")</th>
             <th>
-                <div class="btn-group" role="group">
+                <!-- the 73px is there to force horizontal button-group. The btn-group may becomes vertical without this. -->
+                <div class="btn-group" role="group" style="width:73px">
                     <a href="$get_homepath()/admin/${course.get_id()}/download?format=taskid%2Fusername&users=${username}&tasks=${task.get_id()}"
                        class="btn btn-danger btn-xs" title=$:_('"Download all submissions"') data-toggle="tooltip" data-placement="bottom"><i class="fa
                        fa-download"></i></a>
@@ -73,6 +75,27 @@ $var Navbar: $:NavbarF()
                     $:_("Failed")
                 ($submission.get("grade",0.0)%)
             </td>
+            <td>
+                $for tag in task.get_tags()[0]:
+                    <span style="line-height: 18px;">
+                    $if "tests" in submission and tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()]:
+                        <span class="badge alert-success">$:_(tag.get_name())</span>
+                    $else:
+                        <span class="badge alert-info">$:_(tag.get_name())</span>
+                    </span>
+                $for tag in task.get_tags()[1]:
+                    <span style="line-height: 18px;">
+                    $if "tests" in submission and tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()]:
+                        <span class="badge alert-danger">$:_(tag.get_name())</span> 
+                    </span>
+                $# Auto-tags not defined in task
+                $if "tests" in submission:
+                    $for tag in submission["tests"]:
+                        $if tag.startswith("*auto-tag-"):
+                            <span style="line-height: 18px;">
+                                <span class="badge alert-default")">$submission["tests"][tag]</span> 
+                            </span>
+                </td>
             <td>
                 <div class="btn-group" role="group">
                     <a href="$get_homepath()/submission/$submission['_id']"

@@ -44,6 +44,8 @@ $var Navbar: $:NavbarF()
                 fa-cube fa-fw"></i>&nbsp; $:_("Container setup")</a></li>
             <li role="presentation"><a href="#tab_subproblems" aria-controls="subproblems" role="tab" data-toggle="tab"><i class="fa
                 fa-list-ul fa-fw"></i>&nbsp; $:_("Subproblems")</a></li>
+            <li role="presentation"><a href="#tab_tags" aria-controls="tags" role="tab" data-toggle="tab"><i class="fa
+                fa-tags fa-fw"></i>&nbsp; $:_("Tags")</a></li>
             <li role="presentation"><a href="#tab_files" aria-controls="files" role="tab" data-toggle="tab"><i class="fa
                 fa-edit fa-fw"></i>&nbsp; $:_("Task files")</a></li>
         </ul>
@@ -58,6 +60,10 @@ $var Navbar: $:NavbarF()
 
             <div role="tabpanel" class="tab-pane" id="tab_subproblems">
                 $:include.course_admin.edit_tabs.subproblems()
+            </div>
+            
+            <div role="tabpanel" class="tab-pane" id="tab_tags">
+                $:include.course_admin.edit_tabs.tags(course,task_data)
             </div>
 
             <div role="tabpanel" class="tab-pane" id="tab_files">

@@ -86,6 +86,28 @@ def set_problem_feedback(feedback, problem_id, append=False):
     save_feedback(rdict)
 
 
+def set_tag(tag, value):
+    """ 
+    Set the tag 'tag' to the value True or False. 
+    :param value: should be a boolean 
+    :param tag: should be the id of the tag. Can not starts with '*auto-tag-'
+    """ 
+    if not tag.startswith("*auto-tag-"):
+        rdict = load_feedback()
+        tests = rdict.setdefault("tests", {})
+        tests[tag] = (value == True)
+        save_feedback(rdict)
+        
+def tag(value):
+    """
+    Add a tag with generated id.
+    :param value: everything working with the str() function
+    """
+    rdict = load_feedback()
+    tests = rdict.setdefault("tests", {})
+    tests["*auto-tag-" + str(hash(str(value)))] = str(value)
+    save_feedback(rdict)
+
 def set_custom_value(custom_name, custom_val):
     """
     Set a custom value to be given back in the feedback

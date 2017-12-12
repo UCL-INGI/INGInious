@@ -1,4 +1,4 @@
-$def with (course,submissions, tasks, tasks_data, grade)
+$def with (course, submissions, tasks, tasks_data, grade, tag_filter_list)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -82,7 +82,39 @@ $var Navbar: $:NavbarF()
 
 $# Start content
 <h2>$:_("{course_name} - List of exercises").format(course_name=course.get_name(user_manager.session_language()))</h2>
-<div class="list-group list-group-progress" style="margin-left: 16px; margin-right: 16px;">
+
+<!-- Tag filter -->
+$if tag_filter_list:
+    <div class="form-group">
+        <label for="sel1">$:_("Filter tasks by tags")</label>
+        <select class="form-control" id="tag_filter" onchange="filter_tag(this)">
+            <option value="">$:_("No filter")</option>
+        $for tag_name in tag_filter_list:
+            <option value="$tag_name">$tag_name</option>
+        </select>
+    </div>
+<script>
+function filter_tag(tag) {
+    tag = tag.value;
+    $$("a", "#tasks-list").each(function(idx, elem) {
+        var task = $$(elem);
+        var found=false;
+        $$("div[id='tag']", task).each(function() {
+            if ($$(this).attr("data-tag-name") == tag){
+                found=true;
+            }
+        });
+        if(found || tag == ""){
+            task.show();
+        }else{
+            task.hide();
+        }
+    });
+}
+</script>
+<!-- End tag filter -->
+
+<div id="tasks-list" class="list-group list-group-progress" style="margin-left: 16px; margin-right: 16px;">
     $for taskid, task in tasks.items()
         $if tasks_data[taskid]["visible"]:
             $ succeeded=tasks_data[taskid]["succeeded"]
@@ -107,6 +139,11 @@ $# Start content
                                 $(int(completion) if completion.is_integer() else completion)%
                             </div>
                         </div>
+                </div>
+                <div id="tags_of_task" style="display:none;">
+                    $for tag in (task.get_tags()[2]+task.get_tags()[0]):
+                        $if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course):
+                            <div id="tag" data-tag-name="$tag.get_name()"></div>
                 </div>
             </a>
 </div>

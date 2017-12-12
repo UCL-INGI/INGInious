@@ -14,7 +14,6 @@ import stat
 import resource
 import subprocess
 
-import inginious.tests
 import inginious.feedback
 import time
 import tempfile
@@ -262,10 +261,6 @@ class INGIniousMainRunner(object):
             os.mkdir("/.__input")
         self.write_inputdata(data)
 
-        # Create tests directory
-        if not os.path.exists("/.__tests"):
-            os.mkdir('/.__tests')
-
         # Create output directory
         if not os.path.exists("/.__output"):
             os.mkdir("/.__output")
@@ -284,7 +279,6 @@ class INGIniousMainRunner(object):
         #Set rights on some files
         self.setDirectoryRights("/tmp")
         self.setDirectoryRights("/task")
-        self.setDirectoryRights("/.__tests")
         self.setDirectoryRights("/.__output")
 
         ok_to_start = True
@@ -370,13 +364,11 @@ class INGIniousMainRunner(object):
 
         # Produce feedback
         feedback = inginious.feedback.get_feedback()
-        tests_results = inginious.tests.get_tests_results()
         if not feedback:
-            result = {"result":"crash", "text":"No feedback was given !", "problems":{}}
+            result = {"result":"crash", "text":"No feedback was given !", "problems":{}, "tests":{}}
             if debug:
                 result['stdout'] = stdout.decode('utf-8', 'replace')
                 result['stderr'] = stderr.decode('utf-8', 'replace')
-                result['tests'] = tests_results
             self.setDirectoryRights('/task')
             self._logger.info("returning results")
             return result
@@ -384,7 +376,6 @@ class INGIniousMainRunner(object):
             if debug:
                 feedback['stdout'] = stdout.decode('utf-8', 'replace')
                 feedback['stderr'] = stderr.decode('utf-8', 'replace')
-                feedback['tests'] = tests_results
             feedback['archive'] = self.b64tarfile('/.__output')
             self.setDirectoryRights('/task')
             self._logger.info("returning results")
