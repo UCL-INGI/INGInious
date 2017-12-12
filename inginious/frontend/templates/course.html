@@ -90,7 +90,7 @@ $if tag_filter_list:
         <select class="form-control" id="tag_filter" onchange="filter_tag(this)">
             <option value="">$:_("No filter")</option>
         $for tag_name in tag_filter_list:
-            <option value="$tag_name">$:_(tag_name)</option>
+            <option value="$tag_name">$tag_name</option>
         </select>
     </div>
 <script>

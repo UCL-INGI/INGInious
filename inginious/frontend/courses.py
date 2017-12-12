@@ -63,8 +63,8 @@ class WebAppCourse(Course):
             
         # Caches for tag lists
         self._all_tags_cache = None
-        self._all_tags_cache_list = None
-        self._all_tags_cache_list_admin = None
+        self._all_tags_cache_list = {}
+        self._all_tags_cache_list_admin = {}
         self.update_all_tags_cache()
 
     def get_staff(self):
@@ -188,39 +188,39 @@ class WebAppCourse(Course):
         self._all_tags_cache = (list(tag_list_common), list(tag_list_antitag), list(tag_list_org))
         return self._all_tags_cache
         
-    def get_all_tags_names_as_list(self, admin=False):
+    def get_all_tags_names_as_list(self, admin=False, language="en"):
         """ Computes and cache two list containing all tags name sorted by natural order on name """
-        #TODO: for other langages, the list of tag will not be sorted for now
-            #Improve cache to takes into account lang or remove the cache ?
 
         if admin:
-            if self._all_tags_cache_list_admin != None:
-                return self._all_tags_cache_list_admin #Cache hit
+            if self._all_tags_cache_list_admin != {} and language in self._all_tags_cache_list_admin:
+                return self._all_tags_cache_list_admin[language] #Cache hit
         else:
-            if self._all_tags_cache_list != None:
-                return self._all_tags_cache_list #Cache hit
-        
+            if self._all_tags_cache_list != {} and language in self._all_tags_cache_list:
+                return self._all_tags_cache_list[language] #Cache hit
+                        
         #Cache miss, computes everything
         s_stud = set()
         s_admin = set()
         (common, _, org) = self.get_all_tags()
         for tag in common + org:
-            s_admin.add(tag.get_name()) 
+            # Is tag_name_with_translation correct by doing that like that ?
+            tag_name_with_translation = self.gettext(language, tag.get_name()) if tag.get_name() else ""
+            s_admin.add(tag_name_with_translation) 
             if tag.is_visible_for_student():
-                s_stud.add(tag.get_name()) 
-        self._all_tags_cache_list_admin = natsorted(s_admin, key=lambda y: y.lower())
-        self._all_tags_cache_list = natsorted(s_stud, key=lambda y: y.lower())
+                s_stud.add(tag_name_with_translation) 
+        self._all_tags_cache_list_admin[language] = natsorted(s_admin, key=lambda y: y.lower())
+        self._all_tags_cache_list[language] = natsorted(s_stud, key=lambda y: y.lower())
         
         if admin:
-            return self._all_tags_cache_list_admin
-        return self._all_tags_cache_list
+            return self._all_tags_cache_list_admin[language]
+        return self._all_tags_cache_list[language]
         
     def update_all_tags_cache(self):
         """ Force the cache refreshing """
         
         self._all_tags_cache = None
-        self._all_tags_cache_list = None
-        self._all_tags_cache_list_admin = None
+        self._all_tags_cache_list = {}
+        self._all_tags_cache_list_admin = {}
             
         self.get_all_tags()
         self.get_all_tags_names_as_list()
