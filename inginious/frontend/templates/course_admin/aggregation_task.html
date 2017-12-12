@@ -145,7 +145,7 @@ $if task.get_tags()[0] or task.get_tags()[1]:
                 $# Auto-tags not defined in task
                 $if "tests" in submission:
                     $for tag in submission["tests"]:
-                        $if tag.startswith("auto-tag-"):
+                        $if tag.startswith("*auto-tag-"):
                             <span style="line-height: 18px;">
                                 <span class="badge alert-default")">$submission["tests"][tag]</span> 
                             </span>                    

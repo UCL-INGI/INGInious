@@ -779,7 +779,7 @@ function updateMainTags(data){
     if("tests" in data){
         for (var tag in data["tests"]){
             //Get and update the color of HTML nodes that represent tags
-            var elem = $('#'.concat(tag.toLowerCase()));
+            var elem = $('#'.concat(tag.toLowerCase().replace("*", "\\*"))); //The * makes error with JQuery so, we escape it.
             if(data["tests"][tag]){
                 //If this is a alert-danger class, this is an antitag
                 if(elem.attr('class') == "badge alert-danger"){
@@ -788,7 +788,7 @@ function updateMainTags(data){
                     elem.attr('class', 'badge alert-success')
                 }
             }
-            if(tag.startsWith("auto-tag-")){
+            if(tag.startsWith("*auto-tag-")){
                 $('#main_tag_group').append('<span class="badge alert-default">'+data["tests"][tag]+'</span>');
             }
         }

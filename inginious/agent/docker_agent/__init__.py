@@ -18,7 +18,7 @@ from inginious.agent.docker_agent._docker_interface import DockerInterface
 from inginious.agent import Agent, CannotCreateJobException
 from inginious.agent.docker_agent._timeout_watcher import TimeoutWatcher
 from inginious.common.asyncio_utils import AsyncIteratorWrapper
-from inginious.common.base import id_checker
+from inginious.common.base import id_checker, id_checker_tests
 from inginious.common.filesystems.provider import FileSystemProvider
 from inginious.common.messages import BackendNewJob, BackendKillJob
 
@@ -482,13 +482,15 @@ class DockerAgent(Agent):
                     accepted_types = {"stdout": str, "stderr": str, "result": str, "text": str, "grade": float,
                                       "problems": dict, "custom": dict, "tests": dict, "archive": str}
 
+                    keys_fct = {"problems": id_checker, "custom": id_checker, "tests": id_checker_tests}
+
                     # Check dict content
                     for key, item in return_value.items():
                         if not isinstance(item, accepted_types[key]):
                             raise Exception("Feedback file is badly formatted.")
                         elif accepted_types[key] == dict and key != "custom": #custom can contain anything:
                             for sub_key, sub_item in item.items():
-                                if not id_checker(sub_key) or isinstance(sub_item, dict):
+                                if not keys_fct[key](sub_key) or isinstance(sub_item, dict):
                                     raise Exception("Feedback file is badly formatted.")
 
                     # Set output fields

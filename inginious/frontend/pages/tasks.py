@@ -317,7 +317,7 @@ class BaseTaskPage(object):
                     tojson["tests"][tag.get_id()] = data["tests"][tag.get_id()]
             if debug: #We add also auto tags when we are admin
                 for tag in data["tests"]:
-                    if tag.startswith("auto-tag-"):
+                    if tag.startswith("*auto-tag-"):
                         tojson["tests"][tag] = data["tests"][tag]
 
         return json.dumps(tojson, default=str)

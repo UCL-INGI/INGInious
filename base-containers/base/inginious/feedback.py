@@ -90,9 +90,9 @@ def set_tag(tag, value):
     """ 
     Set the tag 'tag' to the value True or False. 
     :param value: should be a boolean 
-    :param tag: should be the id of the tag. Can not starts with 'auto-tag-'
+    :param tag: should be the id of the tag. Can not starts with '*auto-tag-'
     """ 
-    if not tag.startswith("auto-tag-"):
+    if not tag.startswith("*auto-tag-"):
         rdict = load_feedback()
         tests = rdict.setdefault("tests", {})
         tests[tag] = (value == True)
@@ -105,7 +105,7 @@ def tag(value):
     """
     rdict = load_feedback()
     tests = rdict.setdefault("tests", {})
-    tests["auto-tag-" + str(hash(str(value)))] = str(value)
+    tests["*auto-tag-" + str(hash(str(value)))] = str(value)
     save_feedback(rdict)
 
 def set_custom_value(custom_name, custom_val):
