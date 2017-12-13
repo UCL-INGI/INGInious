@@ -9,31 +9,42 @@ from bson.objectid import ObjectId
 
 from inginious.frontend.pages.course_admin.utils import make_csv, INGIniousAdminPage
 from inginious.frontend.pages.course_admin.statistics import compute_statistics
-
+from inginious.common.base import id_checker
 
 class CourseAggregationTaskPage(INGIniousAdminPage):
     """ List information about a task done by a student """
 
-    def GET_AUTH(self, courseid, aggregationid, taskid):  # pylint: disable=arguments-differ
+    def GET_AUTH(self, courseid, aggregationid, taskid, filter):  # pylint: disable=arguments-differ
         """ GET request """
         course, task = self.get_course_and_check_rights(courseid, taskid)
 
         if course.is_lti():
             raise web.notfound()
 
-        return self.page(course, aggregationid, task)
+        return self.page(course, aggregationid, task, filter)
 
     def submission_url_generator(self, submissionid):
         """ Generates a submission url """
         return "?submission=" + submissionid
 
-    def page(self, course, aggregationid, task):
+    def page(self, course, aggregationid, task, filter):
         """ Get all data and display the page """
         aggregation = self.database.aggregations.find_one({"_id": ObjectId(aggregationid)})
 
+        #Do not know if attacks with Mongo injection is possible ?
+        query_tag_filter = {}
+        split = str(filter).split("=")
+        if len(split) == 2:
+            tag = str(split[0])
+            if id_checker(tag):
+                state = (split[1] == "True" or split[1] == "true")
+                query_tag_filter = {"tests." + tag: {"$in": [None, False]} if not state else True}
+            
+
         data = list(self.database.submissions.find({"username": {"$in": aggregation["students"]},
                                                     "courseid": course.get_id(),
-                                                    "taskid": task.get_id()},
+                                                    "taskid": task.get_id(), **query_tag_filter
+                                                    },
                                                    {"text": False,
                                                     "response_type": False,
                                                     "archive": False,
