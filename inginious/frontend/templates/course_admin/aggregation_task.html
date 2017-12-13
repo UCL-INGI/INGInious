@@ -147,8 +147,11 @@ $if task.get_tags()[0] or task.get_tags()[1]:
                     $for tag in submission["tests"]:
                         $if tag.startswith("*auto-tag-"):
                             <span style="line-height: 18px;">
-                                <span class="badge alert-default")">$submission["tests"][tag]</span> 
-                            </span>                    
+                                $if len(submission["tests"][tag]) > 30:
+                                    <span class="badge alert-default" data-toggle="tooltip" data-placement="left" data-original-title="$submission['tests'][tag]">$submission["tests"][tag][:30]…</span> 
+                                $else:
+                                    <span class="badge alert-default">$submission["tests"][tag]</span> 
+                            </span>
                 </td>
             <td>
                 <div class="btn-group" role="group">
