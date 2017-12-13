@@ -48,26 +48,7 @@ $if task.get_tags()[0] or task.get_tags()[1]:
             <div class="panel-heading">$:_("Tag statistics")</div>
             <div class="panel-body ">
             
-                <!-- Filtering -->
-                <form id="tag_filer_form" class="form-inline" action="">
-                    <div class="form-group">
-                        <label>$:_("The tag")</label>
-                        <select class="form-control" id="tag_filter" onchange="update_filter_link()">
-                            <option value=""></option>
-                        $for (tag, __, __) in statistics[1]:
-                            <option value="$tag.get_id()">$tag.get_name()</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>$:_("is")</label>
-                        <select class="form-control" id="tag_presence" onchange="update_filter_link()">
-                            <option value="True">$:_("present")</option>
-                            <option value="False">$:_("not present")</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-default">$:_("Filter")</button>
-                </form>
-                <!-- End Filtering -->
+
                 
                 <table class="table table-condensed table-summary table-borderless ">
                     <thead>
@@ -87,6 +68,28 @@ $if task.get_tags()[0] or task.get_tags()[1]:
                             </tr>
                     </tbody>
                 </table>
+            </div>
+            <div class="panel-footer">
+                <!-- Filtering -->
+                <form id="tag_filer_form" class="form-inline" action="">
+                    <div class="form-group">
+                        <label>$:_("The tag")</label>
+                        <select class="form-control" id="tag_filter" onchange="update_filter_link()">
+                            <option value=""></option>
+                        $for (tag, __, __) in statistics[1]:
+                            <option value="$tag.get_id()">$tag.get_name()</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>$:_("is")</label>
+                        <select class="form-control" id="tag_presence" onchange="update_filter_link()">
+                            <option value="True">$:_("present")</option>
+                            <option value="False">$:_("not present")</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-default pull-right">$:_("Filter")</button>
+                </form>
+                <!-- End Filtering -->
             </div>
         </div>
     </div>
