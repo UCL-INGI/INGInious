@@ -14,7 +14,7 @@ from inginious.common.base import id_checker
 class CourseAggregationTaskPage(INGIniousAdminPage):
     """ List information about a task done by a student """
 
-    def GET_AUTH(self, courseid, aggregationid, taskid, filter):  # pylint: disable=arguments-differ
+    def GET_AUTH(self, courseid, aggregationid, taskid, filter=""):  # pylint: disable=arguments-differ
         """ GET request """
         course, task = self.get_course_and_check_rights(courseid, taskid)
 
@@ -31,9 +31,9 @@ class CourseAggregationTaskPage(INGIniousAdminPage):
         """ Get all data and display the page """
         aggregation = self.database.aggregations.find_one({"_id": ObjectId(aggregationid)})
 
-        #Do not know if attacks with Mongo injection is possible ?
+        # Interpret the filter and build a query
         query_tag_filter = {}
-        split = str(filter).replace("filter=", "").split(",")
+        split = str(filter).replace("/filter=", "").split(",")
         if len(split) == 2:
             tag = str(split[0])
             if id_checker(tag):
