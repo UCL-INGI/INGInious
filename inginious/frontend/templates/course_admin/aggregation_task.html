@@ -71,10 +71,10 @@ $if task.get_tags()[0] or task.get_tags()[1]:
             </div>
             <div class="panel-footer">
                 <!-- Filtering -->
-                <form id="tag_filer_form" class="form-inline" action="">
+                <form id="tag_filer_form" class="form-inline" action="$get_homepath()/admin/${course.get_id()}/aggregation/$aggregation['_id']/$task.get_id()/filter=">
                     <div class="form-group">
                         <label>$:_("The tag")</label>
-                        <select class="form-control" id="tag_filter" onchange="update_filter_link()">
+                        <select class="form-control" id="tag_filter">
                             <option value=""></option>
                         $for (tag, __, __) in statistics[1]:
                             <option value="$tag.get_id()">$tag.get_name()</option>
@@ -82,12 +82,12 @@ $if task.get_tags()[0] or task.get_tags()[1]:
                     </div>
                     <div class="form-group">
                         <label>$:_("is")</label>
-                        <select class="form-control" id="tag_presence" onchange="update_filter_link()">
+                        <select class="form-control" id="tag_presence">
                             <option value="True">$:_("present")</option>
                             <option value="False">$:_("not present")</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-default pull-right">$:_("Filter")</button>
+                    <button onclick="click_filter()" class="btn btn-default pull-right">$:_("Filter")</button>
                 </form>
                 <!-- End Filtering -->
             </div>
@@ -196,10 +196,11 @@ $if task.get_tags()[0] or task.get_tags()[1]:
 </table>
 
 <script language="javascript">
-    var start_URL = window.location.href.substring(0,window.location.href.lastIndexOf('/'));
-    $$('#tag_filer_form').attr('action', start_URL + "/all");
-    function update_filter_link(){
-        var URL = start_URL + "/" + $$("#tag_filter").val() + "=" + $$("#tag_presence").val();
+    // Search 'filter=' until the possible next '/' and replace the matched part by the tag filtering query of user
+    function click_filter(){
+        re = new RegExp("(filter=([^/])*)", "i");
+        var URL = $$('#tag_filer_form').attr('action');
+        URL = URL.replace(re, "filter=" + $$("#tag_filter").val() + "," + $$("#tag_presence").val());
         $$('#tag_filer_form').attr('action', URL);
     }
 </script>

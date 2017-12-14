@@ -33,7 +33,7 @@ class CourseAggregationTaskPage(INGIniousAdminPage):
 
         #Do not know if attacks with Mongo injection is possible ?
         query_tag_filter = {}
-        split = str(filter).split("=")
+        split = str(filter).replace("filter=", "").split(",")
         if len(split) == 2:
             tag = str(split[0])
             if id_checker(tag):
