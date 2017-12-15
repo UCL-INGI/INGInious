@@ -688,7 +688,7 @@ function studio_expand_tag_description_not(elem){
     elem.rows = 1;
 }
 // Add a new line to the tag table
-function studio_add_tag_line(line=-1) {
+function studio_add_tag_line(line) {
 
     var new_row = $("#NEW").clone();
     var new_id = 1 + parseInt($('#table tr:last').attr('id'));

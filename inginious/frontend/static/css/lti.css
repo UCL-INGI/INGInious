@@ -138,7 +138,7 @@ form#task label {
   border-radius: 0;
 }
 /* Codemirror */
-.cm-s-inginious {
+.cm-s-default {
   font-size: 1em;
   line-height: 1.5em;
   font-family: 'Source Code Pro', monospace !important;
@@ -147,79 +147,19 @@ form#task label {
   background: #fdfdfd;
   color: #181818;
 }
-.cm-s-inginious.CodeMirror pre {
+.cm-s-default.CodeMirror pre {
   font-family: 'Source Code Pro', monospace !important;
 }
-.cm-s-inginious .CodeMirror-gutters {
+.cm-s-default .CodeMirror-gutters {
   background-color: transparent;
   padding-right: 10px;
   z-index: 3;
   border: none;
 }
-.cm-s-inginious .CodeMirror-activeline-background {
+.cm-s-default .CodeMirror-activeline-background {
   background: #f0fcff;
 }
-.cm-s-inginious .cm-header {
-  color: blue;
-}
-.cm-s-inginious .cm-quote {
-  color: #090;
-}
-.cm-s-inginious .cm-keyword {
-  color: #708;
-}
-.cm-s-inginious .cm-atom {
-  color: #219;
-}
-.cm-s-inginious .cm-number {
-  color: #164;
-}
-.cm-s-inginious .cm-def {
-  color: #00f;
-}
-.cm-s-inginious .cm-variable-2 {
-  color: #05a;
-}
-.cm-s-inginious .cm-variable-3 {
-  color: #085;
-}
-.cm-s-inginious .cm-comment {
-  color: #a50;
-}
-.cm-s-inginious .cm-string {
-  color: #a11;
-}
-.cm-s-inginious .cm-string-2 {
-  color: #f50;
-}
-.cm-s-inginious .cm-meta {
-  color: #555;
-}
-.cm-s-inginious .cm-qualifier {
-  color: #555;
-}
-.cm-s-inginious .cm-builtin {
-  color: #30a;
-}
-.cm-s-inginious .cm-bracket {
-  color: #997;
-}
-.cm-s-inginious .cm-tag {
-  color: #170;
-}
-.cm-s-inginious .cm-attribute {
-  color: #00c;
-}
-.cm-s-inginious .cm-hr {
-  color: #999;
-}
-.cm-s-inginious .cm-link {
-  color: #00c;
-}
-.cm-s-inginious .cm-error {
-  color: #f00;
-}
-.cm-s-inginious .cm-tab {
+.cm-s-default .cm-tab {
   background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAMCAYAAAAkuj5RAAAAAXNSR0IArs4c6QAAAGFJREFUSMft1LsRQFAQheHPowAKoACx3IgEKtaEHujDjORSgWTH/ZOdnZOcM/sgk/kFFWY0qV8foQwS4MKBCS3qR6ixBJvElOobYAtivseIE120FaowJPN75GMu8j/LfMwNjh4HUpwg4LUAAAAASUVORK5CYII=);
   background-position: right;
   background-repeat: no-repeat;

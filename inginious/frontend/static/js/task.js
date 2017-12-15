@@ -153,7 +153,7 @@ function removeSubmission(id) {
 }
 
 //Updates a loading submission
-function updateSubmission(id, result, grade, tags=[])
+function updateSubmission(id, result, grade, tags)
 {
     grade = grade || "0.0";
 
@@ -432,7 +432,7 @@ function waitForSubmission(submissionid)
                     if("tests" in data){
                         updateSubmission(submissionid, data['result'], data["grade"], data["tests"]);
                     }else{
-                        updateSubmission(submissionid, data['result'], data["grade"]);
+                        updateSubmission(submissionid, data['result'], data["grade"], []);
                     }
                     unblurTaskForm();
 
@@ -445,7 +445,7 @@ function waitForSubmission(submissionid)
                 else
                 {
                     displayTaskStudentAlertWithProblems($("#internalerror").text(), "danger", false);
-                    updateSubmission(submissionid, "error", "0.0");
+                    updateSubmission(submissionid, "error", "0.0", []);
                     updateTaskStatus("Failed", 0);
                     unblurTaskForm();
                 }
@@ -454,7 +454,7 @@ function waitForSubmission(submissionid)
             .fail(function()
             {
                 displayTaskStudentAlertWithProblems($("#internalerror").text(), "danger", false);
-                updateSubmission(submissionid, "error", "0.0");
+                updateSubmission(submissionid, "error", "0.0", []);
                 updateTaskStatus("Failed", 0);
                 unblurTaskForm();
             });
