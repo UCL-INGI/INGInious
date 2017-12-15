@@ -31,7 +31,7 @@ class LTIValidator(RequestValidator):  # pylint: disable=abstract-method
         try:
             date = datetime.datetime.utcfromtimestamp(int(timestamp))
             self._collection.insert_one({"timestamp": date,
-                                         "nonce": "test",
+                                         "nonce": nonce,
                                          "expiration": date + self._nonce_validity})
             return True
         except ValueError: # invalid timestamp

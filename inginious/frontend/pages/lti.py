@@ -19,7 +19,7 @@ class LTITaskPage(INGIniousAuthPage):
             raise web.notfound()
         (courseid, taskid) = data['task']
 
-        return BaseTaskPage(self).GET_AUTH(courseid, taskid, True)
+        return BaseTaskPage(self).GET(courseid, taskid, True)
 
     def POST_AUTH(self):
         data = self.user_manager.session_lti_info()
@@ -27,7 +27,7 @@ class LTITaskPage(INGIniousAuthPage):
             raise web.notfound()
         (courseid, taskid) = data['task']
 
-        return BaseTaskPage(self).POST_AUTH(courseid, taskid, True)
+        return BaseTaskPage(self).POST(courseid, taskid, True)
 
 
 class LTIBindPage(INGIniousAuthPage):
