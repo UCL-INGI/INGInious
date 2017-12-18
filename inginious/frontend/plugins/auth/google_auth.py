@@ -27,7 +27,7 @@ class GoogleAuthMethod(AuthMethod):
 
     def get_auth_link(self, auth_storage, share=False):
         google = OAuth2Session(self._client_id, scope=scope, redirect_uri=web.ctx.home + self._callback_page)
-        authorization_url, state = google.authorization_url(authorization_base_url)
+        authorization_url, state = google.authorization_url(authorization_base_url, hd=self._domain)
         auth_storage["oauth_state"] = state
         return authorization_url
 
@@ -55,12 +55,13 @@ class GoogleAuthMethod(AuthMethod):
     def get_id(self):
         return self._id
 
-    def __init__(self, id, name, client_id, client_secret):
+    def __init__(self, id, name, client_id, client_secret, domain):
         self._id = id
         self._name = name
         self._client_id = client_id
         self._client_secret = client_secret
         self._callback_page = '/auth/callback/' + self._id
+        self._domain = domain
 
     def get_name(self):
         return self._name
@@ -77,6 +78,7 @@ def init(plugin_manager, course_factory, client, conf):
 
     client_id = conf.get("client_id", "")
     client_secret = conf.get("client_secret", "")
+    domain = conf.get("domain", "")
 
     plugin_manager.register_auth_method(GoogleAuthMethod(conf.get("id"),
-        conf.get('name', 'Google'), client_id, client_secret))
+        conf.get('name', 'Google'), client_id, client_secret, domain))
