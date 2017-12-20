@@ -1,4 +1,4 @@
-$def with (course, tasks, filter_dict, data)
+$def with (course, tasks, users, classrooms, filter_dict, data)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -26,6 +26,100 @@ $def NavbarF():
 $var Navbar: $:NavbarF()
 
 <h2>Explorer</h2>
+<!-- SELECT SUBMISSION FORM -->
+<div class="panel panel-default">
+    <div class="panel-heading">$:_("Select submissions")</div>
+    <div class="panel-body ">
+        <form id="filter_form" base_path="$get_homepath()/admin/${course.get_id()}/submission_viewer/" action="">
+            <div class="row">
+                <div class="col-xs-6 form-group">
+                    <label>$:_("Users")</label>
+                    <select multiple class="form-control" id="select_user">
+                    $for u in users:
+                        <option value="$u">$users[u][0] ($u)</option>
+                     </select>
+                </div>
+                <div class="col-xs-6 form-group">
+                    <label>$:_("Classrooms")</label>
+                    <select multiple class="form-control" id="select_classroom">
+                    $for c in classrooms:
+                        <option value="$c['_id']">$c["description"]</option>
+                    </select>
+                </div>
+                <div class="col-xs-12 form-group">
+                    <label>$:_("Tasks")</label>
+                    <select multiple class="form-control" id="select_task">
+                    $for t in tasks:
+                        <option value="$t">($t) $tasks[t].get_name(user_manager.session_language())</option>
+                    </select>
+                </div>
+                
+                 <div class="col-xs-6 form-group">
+                    <div class="row">
+                        <label class="col-xs-12">Label3</label>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6">
+                            <input class="form-control" type="text"/>
+                        </div>
+                        <div class="col-xs-12 col-sm-6">
+                            <input class="form-control" type="text"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xs-12 form-group">
+                    <div class="row">
+                        <div class="col-xs-3 col-sm-3">
+                            <label class="form-check-label">
+                                <input class="form-check-input" type="checkbox" id="only_eval">$:_(" Only evaluation submissions")
+                            </label>
+                        </div>
+                        <div class="col-xs-3 col-sm-3">
+                            <label class="form-check-label">
+                                <input class="form-check-input" type="checkbox" id="show_tags">$:_(" Show tags")
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+            <button onclick="click_filter()" class="btn btn-default pull-right">$:_("Filter")</button>
+        </form>
+    </div>
+</div>
+<script language="javascript">
+    // Search 'filter=' until the possible next '/' and replace the matched part by the tag filtering query of user
+    function click_filter(){
+    
+        var query = "";
+
+        var username = $$("#select_user").val();
+        if (username != null)
+            query = query + "username=" + username + "&";
+            
+        var classroom = $$("#select_classroom").val();
+        if (classroom != null)
+            query = query + "classroom=" + classroom + "&";
+            
+        var task = $$("#select_task").val();
+        if (task != null)
+            query = query + "task=" + task + "&";
+            
+        if ($$('#only_eval').is(":checked")){
+            query = query + "eval=1&";
+        }
+        
+        if ($$('#show_tags').is(":checked")){
+            query = query + "show_tag=1&";
+        }
+
+        
+        $$('#filter_form').attr('action', $$('#filter_form').attr('base_path') + query);
+    }
+</script>
+<!-- SELECT SUBMISSION FORM END -->
+
 <table class="table">
     <thead>
         <tr>
