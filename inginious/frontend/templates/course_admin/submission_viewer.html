@@ -34,23 +34,23 @@ $var Navbar: $:NavbarF()
             <div class="row">
                 <div class="col-xs-6 form-group">
                     <label>$:_("Users")</label>
-                    <select multiple class="form-control" id="select_user">
+                    <select multiple size="5" class="form-control" id="select_user">
                     $for u in users:
-                        <option value="$u">$users[u][0] ($u)</option>
+                        <option value="$u" $('selected' if u in filter_dict['username'] else '')>$users[u][0] ($u)</option>
                      </select>
                 </div>
                 <div class="col-xs-6 form-group">
                     <label>$:_("Classrooms")</label>
-                    <select multiple class="form-control" id="select_classroom">
+                    <select multiple size="5" class="form-control" id="select_classroom">
                     $for c in classrooms:
-                        <option value="$c['_id']">$c["description"]</option>
+                        <option value="$c['_id']" $('selected' if str(c['_id']) in filter_dict['classroom'] else '')>$c["description"]</option>
                     </select>
                 </div>
                 <div class="col-xs-12 form-group">
                     <label>$:_("Tasks")</label>
-                    <select multiple class="form-control" id="select_task">
+                    <select multiple size="8" class="form-control" id="select_task">
                     $for t in tasks:
-                        <option value="$t">($t) $tasks[t].get_name(user_manager.session_language())</option>
+                        <option value="$t" $('selected' if t in filter_dict['task'] else '')>($t) $tasks[t].get_name(user_manager.session_language())</option>
                     </select>
                 </div>
                 
@@ -72,12 +72,12 @@ $var Navbar: $:NavbarF()
                     <div class="row">
                         <div class="col-xs-3 col-sm-3">
                             <label class="form-check-label">
-                                <input class="form-check-input" type="checkbox" id="only_eval">$:_(" Only evaluation submissions")
+                                <input class="form-check-input" type="checkbox" id="only_eval" $('checked' if filter_dict["eval"]==["1"] else '')>$:_(" Only evaluation submissions")
                             </label>
                         </div>
                         <div class="col-xs-3 col-sm-3">
                             <label class="form-check-label">
-                                <input class="form-check-input" type="checkbox" id="show_tags">$:_(" Show tags")
+                                <input class="form-check-input" type="checkbox" id="show_tags" $('checked' if filter_dict["show_tags"]==["1"] else '')>$:_(" Show tags")
                             </label>
                         </div>
                     </div>
@@ -86,6 +86,7 @@ $var Navbar: $:NavbarF()
             </div>
             <button onclick="click_filter()" class="btn btn-default pull-right">$:_("Filter")</button>
         </form>
+        <button onclick="window.location.href='$get_homepath()/admin/${course.get_id()}/submission_viewer/'" class="btn btn-default pull-right">$:_("Reset")</button>
     </div>
 </div>
 <script language="javascript">
@@ -111,7 +112,7 @@ $var Navbar: $:NavbarF()
         }
         
         if ($$('#show_tags').is(":checked")){
-            query = query + "show_tag=1&";
+            query = query + "show_tags=1&";
         }
 
         
@@ -129,7 +130,8 @@ $var Navbar: $:NavbarF()
             <th>$:_("id")</th>
             <th>$:_("submitted on")</th>
             <th>$:_("result")</th>
-            <th>$:_("tags")</th>
+            $if filter_dict["show_tags"]==["1"]:
+                <th>$:_("tags")</th>
             <th>
                 <!-- the 73px is there to force horizontal button-group. The btn-group may becomes vertical without this. -->
                 <div class="btn-group" role="group" style="width:73px">
@@ -158,7 +160,7 @@ $var Navbar: $:NavbarF()
                     $user<br>
             </td>
             <td>$submission["taskid"]</td>
-            <td><i class="fa fa-info" title=$submission["_id"] data-toggle="tooltip" data-placement="bottom"></i></td>
+            <td>$submission["_id"]</td>
             <td>$submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S")</td>
             <td id="status">
                 $if succeeded:
@@ -171,7 +173,8 @@ $var Navbar: $:NavbarF()
             </td>
             
             <!-- TAGS td -->
-            <td>
+            $if filter_dict["show_tags"]==["1"]:
+                <td>
                 $for tag in tasks[submission["taskid"]].get_tags()[0]:
                     <span style="line-height: 18px;">
                     $if "tests" in submission and tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()]:
@@ -194,7 +197,7 @@ $var Navbar: $:NavbarF()
                                 $else:
                                     <span class="badge alert-default">$submission["tests"][tag]</span> 
                             </span>
-            </td>
+                </td>
             <!-- END TAGS td -->
             
             <td>

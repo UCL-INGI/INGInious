@@ -27,7 +27,8 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
             "username" : [],
             "task" : [],
             "classroom" : [],
-            "eval" : ["0"]
+            "eval" : ["0"],
+            "show_tags" : ["0"]
             }
 
         for item in filter_dict:
