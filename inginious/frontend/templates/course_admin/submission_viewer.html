@@ -56,14 +56,15 @@ $var Navbar: $:NavbarF()
                 class="danger"
         >
             <td>
-                <i class="fa fa-star" title=$:_('"Evaluation submission"') data-toggle="tooltip" data-placement="bottom"></i>
+                $if "best" in submission and submission["best"]:
+                    <i class="fa fa-star" title=$submission["_id"] data-toggle="tooltip" data-placement="bottom"></i>
             </td>
             <td>
                 $for user in submission["username"]:
                     $user<br>
             </td>
             <td>$submission["taskid"]</td>
-            <td>$submission["_id"]</td>
+            <td><i class="fa fa-info" title=$submission["_id"] data-toggle="tooltip" data-placement="bottom"></i></td>
             <td>$submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S")</td>
             <td id="status">
                 $if succeeded:
