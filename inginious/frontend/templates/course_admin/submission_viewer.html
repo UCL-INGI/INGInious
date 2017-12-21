@@ -1,4 +1,4 @@
-$def with (course, tasks, users, classrooms, filter_dict, data)
+$def with (course, tasks, users, classrooms, data, statistics,filter_dict, allowed_sort)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -32,13 +32,17 @@ $var Navbar: $:NavbarF()
     <div class="panel-body ">
         <form id="filter_form" base_path="$get_homepath()/admin/${course.get_id()}/submission_viewer/" action="">
             <div class="row">
+            
+                <!-- Users -->
                 <div class="col-xs-6 form-group">
                     <label>$:_("Users")</label>
-                    <select multiple size="5" class="form-control" id="select_user">
+                    <select multiple size="5" class="form-control" id="select_username">
                     $for u in users:
                         <option value="$u" $('selected' if u in filter_dict['username'] else '')>$users[u][0] ($u)</option>
                      </select>
                 </div>
+                
+                <!-- Classrooms -->
                 <div class="col-xs-6 form-group">
                     <label>$:_("Classrooms")</label>
                     <select multiple size="5" class="form-control" id="select_classroom">
@@ -46,6 +50,8 @@ $var Navbar: $:NavbarF()
                         <option value="$c['_id']" $('selected' if str(c['_id']) in filter_dict['classroom'] else '')>$c["description"]</option>
                     </select>
                 </div>
+                
+                <!-- Tasks -->
                 <div class="col-xs-12 form-group">
                     <label>$:_("Tasks")</label>
                     <select multiple size="8" class="form-control" id="select_task">
@@ -54,31 +60,60 @@ $var Navbar: $:NavbarF()
                     </select>
                 </div>
                 
-                 <div class="col-xs-6 form-group">
+                <!-- Grade -->
+                 <div class="col-xs-4 form-group">
                     <div class="row">
-                        <label class="col-xs-12">Label3</label>
+                        <label class="col-xs-12">$:_("Grade")</label>
                     </div>
                     <div class="row">
                         <div class="col-xs-12 col-sm-6">
-                            <input class="form-control" type="text"/>
+                            <label class="col-xs-12">$:_("Min grade")</label>
+                            <input class="form-control" type="number" placeholder="0" id="select_grade_min" value="$filter_dict['grade_min']"/>
                         </div>
                         <div class="col-xs-12 col-sm-6">
-                            <input class="form-control" type="text"/>
+                            <label class="col-xs-12">$:_("Max grade")</label>
+                            <input class="form-control" type="number" placeholder="100" id="select_grade_max" value="$filter_dict['grade_max']"/>
                         </div>
                     </div>
                 </div>
 
+                <!-- Checkboxs -->
                 <div class="col-xs-12 form-group">
                     <div class="row">
-                        <div class="col-xs-3 col-sm-3">
+                        <div class="col-xs-2 col-sm-2">
                             <label class="form-check-label">
-                                <input class="form-check-input" type="checkbox" id="only_eval" $('checked' if filter_dict["eval"]==["1"] else '')>$:_(" Only evaluation submissions")
+                                <input class="form-check-input" type="checkbox" id="only_eval" $('checked' if filter_dict["eval"] == "1" else '')>$:_(" Only evaluation submissions")
                             </label>
                         </div>
-                        <div class="col-xs-3 col-sm-3">
+                        <div class="col-xs-2 col-sm-2">
                             <label class="form-check-label">
-                                <input class="form-check-input" type="checkbox" id="show_tags" $('checked' if filter_dict["show_tags"]==["1"] else '')>$:_(" Show tags")
+                                <input class="form-check-input" type="checkbox" id="show_tags" $('checked' if filter_dict["show_tags"] == "1" else '')>$:_(" Show tags")
                             </label>
+                        </div>
+                        <div class="col-xs-2 col-sm-2">
+                            <label class="form-check-label">
+                                <input class="form-check-input" type="checkbox" id="show_id" $('checked' if filter_dict["show_id"] == "1" else '')>$:_(" Show id")
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sort by -->
+                <div class="col-xs-5 form-group">
+                    <div class="row">
+                        <div class="col-xs-7 col-sm-7">
+                            <label>$:_("Sort by")</label>
+                            <select class="form-control" id="select_sort_by">
+                                $for v in allowed_sort:
+                                    <option value="$v" $('selected' if filter_dict['sort_by'] == v else '')>$v</option>
+                            </select>
+                        </div>
+                        <div class="col-xs-5 col-sm-5">
+                            <label>$:_("Order")</label>
+                            <select class="form-control" id="select_order">
+                                <option value="0" $('selected' if filter_dict['order'] == '0' else '')>Descending</option>
+                                <option value="1" $('selected' if filter_dict['order'] == '1' else '')>Ascending</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -90,36 +125,87 @@ $var Navbar: $:NavbarF()
     </div>
 </div>
 <script language="javascript">
-    // Search 'filter=' until the possible next '/' and replace the matched part by the tag filtering query of user
     function click_filter(){
     
+        var filters = ["username", "classroom", "task", "grade_min", "grade_max", "sort_by", "order"];
+        var filters_checkboxes = ["only_eval", "show_tags", "show_id"];
+
         var query = "";
-
-        var username = $$("#select_user").val();
-        if (username != null)
-            query = query + "username=" + username + "&";
-            
-        var classroom = $$("#select_classroom").val();
-        if (classroom != null)
-            query = query + "classroom=" + classroom + "&";
-            
-        var task = $$("#select_task").val();
-        if (task != null)
-            query = query + "task=" + task + "&";
-            
-        if ($$('#only_eval').is(":checked")){
-            query = query + "eval=1&";
-        }
         
-        if ($$('#show_tags').is(":checked")){
-            query = query + "show_tags=1&";
+        for (var f in filters) {
+            var s = $$("#select_"+filters[f]).val();
+            console.log(filters[f] + " " + s);
+            if (s != null && s != "")
+                query = query + filters[f] + "=" + s + "&";
         }
 
-        
+        for (var f in filters_checkboxes) {
+            if ($$('#'+filters_checkboxes[f]).is(":checked")){
+                query = query + filters_checkboxes[f] + "=1&";
+            }
+        }
         $$('#filter_form').attr('action', $$('#filter_form').attr('base_path') + query);
     }
 </script>
 <!-- SELECT SUBMISSION FORM END -->
+
+
+
+
+<!-- Statistics -->
+<div class="table-responsive">
+<div class="col-sm-5">
+    <div class="panel panel-default">
+        <div class="panel-heading">$:_("Submissions statistics")</div>
+        <div class="panel-body ">
+            <table class="table table-condensed table-summary table-borderless ">
+                <tbody>
+                    $for stat in statistics[0]:
+                        <tr>
+                            <td class="summary-heading">$stat[0]</td>
+                            <td class="summary-content">$stat[1]</td>
+                        </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+$if filter_dict["show_tags"]=="1":
+    <div class="col-sm-7">
+        <div class="panel panel-default">
+            <div class="panel-heading">$:_("Tag statistics")</div>
+            <div class="panel-body ">
+            
+
+                
+                <table class="table table-condensed table-summary table-borderless ">
+                    <thead>
+                        <tr>
+                            <th>$:_("Tag")</th>
+                            <th>$:_("All submissions")</th>
+                            <th>$:_("Best submissions")</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        $for (tag, v_total, v_best) in statistics[1]:
+                            $ color = "badge alert-danger" if tag.is_antitag() else "badge alert-info" 
+                            <tr>
+                                <td><span class="$color" id="$tag.get_id()" data-toggle="tooltip" data-placement="left" title="$tag.get_description(translated=True)">$:_(tag.get_name())</span></td>
+                                <td>$v_total</td>
+                                <td>$v_best</td>
+                            </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Statistics -->
+
+
+
+
+
 
 <table class="table">
     <thead>
@@ -127,10 +213,11 @@ $var Navbar: $:NavbarF()
             <th></th>
             <th>$:_("username")</th>
             <th>$:_("taskid")</th>
-            <th>$:_("id")</th>
+            $if filter_dict["show_id"] == "1":
+                <th>$:_("id")</th>
             <th>$:_("submitted on")</th>
             <th>$:_("result")</th>
-            $if filter_dict["show_tags"]==["1"]:
+            $if filter_dict["show_tags"] == "1":
                 <th>$:_("tags")</th>
             <th>
                 <!-- the 73px is there to force horizontal button-group. The btn-group may becomes vertical without this. -->
@@ -160,7 +247,8 @@ $var Navbar: $:NavbarF()
                     $user<br>
             </td>
             <td>$submission["taskid"]</td>
-            <td>$submission["_id"]</td>
+            $if filter_dict["show_id"] == "1":
+                <td>$submission["_id"]</td>
             <td>$submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S")</td>
             <td id="status">
                 $if succeeded:
@@ -173,7 +261,7 @@ $var Navbar: $:NavbarF()
             </td>
             
             <!-- TAGS td -->
-            $if filter_dict["show_tags"]==["1"]:
+            $if filter_dict["show_tags"] == "1":
                 <td>
                 $for tag in tasks[submission["taskid"]].get_tags()[0]:
                     <span style="line-height: 18px;">

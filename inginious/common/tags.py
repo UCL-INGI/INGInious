@@ -21,10 +21,10 @@ class Tag:
         self._type = type
         
     def __eq__(self, other):
-        return self._id == other._id and self._name == other._name and self._description == other._description
+        return self._id == other._id and self._name == other._name
         
     def __hash__(self):
-        return hash((self._id, self._name, self._description))
+        return hash((self._id, self._name))
 
     def get_name(self):
         """ Returns the name of this tag """
