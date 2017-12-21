@@ -170,14 +170,11 @@ $var Navbar: $:NavbarF()
         </div>
     </div>
 </div>
-$if filter_dict["show_tags"]=="1":
+$if filter_dict["show_tags"] == "1":
     <div class="col-sm-7">
         <div class="panel panel-default">
             <div class="panel-heading">$:_("Tag statistics")</div>
             <div class="panel-body ">
-            
-
-                
                 <table class="table table-condensed table-summary table-borderless ">
                     <thead>
                         <tr>
@@ -191,8 +188,8 @@ $if filter_dict["show_tags"]=="1":
                             $ color = "badge alert-danger" if tag.is_antitag() else "badge alert-info" 
                             <tr>
                                 <td><span class="$color" id="$tag.get_id()" data-toggle="tooltip" data-placement="left" title="$tag.get_description(translated=True)">$:_(tag.get_name())</span></td>
-                                <td>$v_total</td>
-                                <td>$v_best</td>
+                                <td>$int(v_total) %</td>
+                                <td>$int(v_best) %</td>
                             </tr>
                     </tbody>
                 </table>
