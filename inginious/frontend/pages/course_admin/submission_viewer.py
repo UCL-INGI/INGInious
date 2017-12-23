@@ -10,7 +10,7 @@ from bson.objectid import ObjectId
 from collections import OrderedDict
 
 from inginious.frontend.pages.course_admin.utils import make_csv, INGIniousAdminPage
-from inginious.frontend.pages.course_admin.statistics import compute_statistics, fusion_statistics
+from inginious.frontend.pages.course_admin.statistics import compute_statistics
 from inginious.common.base import id_checker
 
 class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
@@ -98,10 +98,8 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
         tasks = course.get_tasks();  # All tasks of the course
         classrooms = self.user_manager.get_course_aggregations(course) # All classrooms of the course
         
-        stat_task = [tasks[t] for t in tasks if t in filter_dict["task"]] #Get all task object based on filter_dict["task"]
-        statistics = fusion_statistics(stat_task, data)
+        statistics = compute_statistics(tasks, data)
 
-        
         return self.template_helper.get_renderer().course_admin.submission_viewer(course, tasks, users, classrooms, data, statistics, filter_dict, allowed_sort)
 
     def get_users(self, course):
