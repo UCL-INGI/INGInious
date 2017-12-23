@@ -1,4 +1,4 @@
-$def with (course, tasks, users, classrooms, data, statistics,filter_dict, allowed_sort)
+$def with (course, tasks, users, classrooms, data, statistics,filter_dict, allowed_sort, allowed_sort_name)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -29,7 +29,7 @@ $var Navbar: $:NavbarF()
 <!-- SELECT SUBMISSION FORM -->
 <div class="panel panel-default">
     <div class="panel-heading">$:_("Select submissions")</div>
-    <div class="panel-body ">
+    <div class="panel-body">
         <form id="filter_form" base_path="$get_homepath()/admin/${course.get_id()}/submission_viewer/" action="">
             <div class="row">
             
@@ -62,9 +62,9 @@ $var Navbar: $:NavbarF()
                 
                 <!-- Grade -->
                  <div class="col-xs-4 form-group">
-                    <div class="row">
+                    <!--<div class="row">
                         <label class="col-xs-12">$:_("Grade")</label>
-                    </div>
+                    </div>-->
                     <div class="row">
                         <div class="col-xs-12 col-sm-6">
                             <label class="col-xs-12">$:_("Min grade")</label>
@@ -99,21 +99,25 @@ $var Navbar: $:NavbarF()
                 </div>
                 
                 <!-- Sort by -->
-                <div class="col-xs-5 form-group">
+                <div class="col-xs-9 form-group">
                     <div class="row">
-                        <div class="col-xs-7 col-sm-7">
+                        <div class="col-xs-5 col-sm-5">
                             <label>$:_("Sort by")</label>
                             <select class="form-control" id="select_sort_by">
-                                $for v in allowed_sort:
-                                    <option value="$v" $('selected' if filter_dict['sort_by'] == v else '')>$v</option>
+                                $for i in range(0, len(allowed_sort)):
+                                    <option value="$allowed_sort[i]" $('selected' if filter_dict['sort_by'] == allowed_sort[i] else '')>$allowed_sort_name[i]</option>
                             </select>
                         </div>
-                        <div class="col-xs-5 col-sm-5">
+                        <div class="col-xs-3 col-sm-3">
                             <label>$:_("Order")</label>
                             <select class="form-control" id="select_order">
                                 <option value="0" $('selected' if filter_dict['order'] == '0' else '')>Descending</option>
                                 <option value="1" $('selected' if filter_dict['order'] == '1' else '')>Ascending</option>
                             </select>
+                        </div>
+                        <div class="col-xs-3 col-sm-3"  title="$:_('Only visual. Statistics always consider all submissions.')" data-toggle="tooltip" data-placement="top">
+                            <label>$:_("Limit") *</label>
+                            <input class="form-control" type="number" placeholder="0" id="select_limit" value="$filter_dict['limit']"/>
                         </div>
                     </div>
                 </div>
@@ -127,7 +131,7 @@ $var Navbar: $:NavbarF()
 <script language="javascript">
     function click_filter(){
     
-        var filters = ["username", "classroom", "task", "grade_min", "grade_max", "sort_by", "order"];
+        var filters = ["username", "classroom", "task", "grade_min", "grade_max", "sort_by", "order", "limit"];
         var filters_checkboxes = ["only_eval", "show_tags", "show_id"];
 
         var query = "";

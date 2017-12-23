@@ -30,38 +30,42 @@ def compute_statistics(tasks, data, ponderation=3):
             super_dict[tag][username][submission["taskid"]][0] += 1
             if tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()] == True:
                 super_dict[tag][username][submission["taskid"]][1] += 1
-                    
+
             if (submission["best"] == True):
                 super_dict[tag][username][submission["taskid"]][2] += 1
                 if tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()] == True:
                     super_dict[tag][username][submission["taskid"]][3] += 1
-    
+
     output = []
     for tag in super_dict:
-        if ponderation == 0: #No ponderation
+
+        #No ponderation
+        if ponderation == 0: 
             results = [0,0,0,0]
             for username in super_dict[tag]:
                 for task in super_dict[tag][username]:
-                    results[0] += super_dict[tag][username][task][0] 
-                    results[1] += super_dict[tag][username][task][1] 
-                    results[2] += super_dict[tag][username][task][2] 
-                    results[3] += super_dict[tag][username][task][3]
-            output.append((tag, 100*results[1]/results[0] if results[0] != 0 else 0, 100*results[3]/results[2] if results[2] != 0 else 0))
-        
-        if ponderation == 3: #Ponderation by stud and tasks
+                    for i in range (0,4):
+                        results[i] += super_dict[tag][username][task][i] 
+            output.append((tag, 100*results[1]/results[0], 100*results[3]/results[2]))
+
+
+        #Ponderation by stud and tasks
+        elif ponderation == 3:
             results = ([], [])
             for username in super_dict[tag]:
                 for task in super_dict[tag][username]:
-                    results[0].append(super_dict[tag][username][task][1]/super_dict[tag][username][task][0] if super_dict[tag][username][task][0] != 0 else 0)
-                    results[1].append(super_dict[tag][username][task][3]/super_dict[tag][username][task][2] if super_dict[tag][username][task][2] != 0 else 0)
-            output.append((tag, 100*sum(results[0])/len(results[0]) if len(results[0]) != 0 else 0, 100*sum(results[1])/len(results[1]) if len(results[1]) != 0 else 0))
+                    a = super_dict[tag][username][task]
+                    results[0].append(a[1]/a[0])
+                    results[1].append(a[3]/a[2])
+            output.append((tag, 100*sum(results[0])/len(results[0]), 100*sum(results[1])/len(results[1])))
 
     return (fast_stats(data), output)
-    
+
 def fast_stats(data):
     total_submission = len(data)
     total_submission_best = 0
     total_submission_best_succeeded = 0
+    mean_grade = 0
         
     for submission in data:
         if "best" in submission and submission["best"]:
@@ -73,7 +77,7 @@ def fast_stats(data):
         (_("Number of submissions"), total_submission),
         (_("Evaluation submissions (Total)"), total_submission_best),
         (_("Evaluation submissions (Succeeded)"), total_submission_best_succeeded),
-        (_("Evaluation submissions (Failed)"), total_submission_best - total_submission_best_succeeded)
+        (_("Evaluation submissions (Failed)"), total_submission_best - total_submission_best_succeeded),
         # add here new common statistics
         ]
     

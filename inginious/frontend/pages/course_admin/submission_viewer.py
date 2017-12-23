@@ -31,26 +31,27 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
             "grade_min" : None, #Not taken into account by default
             "grade_max" : None, #Not taken into account by default
             "sort_by" : "submitted_on",
-            "order" : "0"
+            "order" : "0",
+            "limit" : None #Negative number for no limit
             }
 
-        allowed_sort = ["submitted_on", "username", "grade", "taskid"]
+        self._allowed_sort = ["submitted_on", "username", "grade", "taskid"]
+        self._allowed_sort_name = [_("Submitted on"), _("User"), _("Grade"), _("Task id")]
+        self._is_int_or_none = ["grade_min", "grade_max", "limit"]
 
         filter_dict = self.parse_query(filter, filter_dict)
-
-        if (filter_dict["sort_by"] not in allowed_sort):
-            filter_dict["sort_by"] = allowed_sort[0]
+        filter_dict = self.sanitise(filter_dict)
 
         if course.is_lti():
             raise web.notfound()
 
-        return self.page(course, filter_dict, allowed_sort)
+        return self.page(course, filter_dict)
 
     def submission_url_generator(self, submissionid):
         """ Generates a submission url """
         return "?submission=" + submissionid
 
-    def page(self, course, filter_dict, allowed_sort):
+    def page(self, course, filter_dict):
         """ Get all data and display the page """
 
         #Build lists of wanted users based on classrooms and specific users
@@ -75,7 +76,7 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
             query_advanced["grade"] = {"$lte" : float(filter_dict["grade_max"])}
         elif (filter_dict["grade_min"] != None and filter_dict["grade_max"] != None):
             query_advanced["grade"] = {"$gte" : float(filter_dict["grade_min"]), "$lte" : float(filter_dict["grade_max"])}
-
+            
         #Mongo operations
         data = list(self.database.submissions.find({**query_base, **query_advanced}).sort([(filter_dict["sort_by"], 
             pymongo.DESCENDING if filter_dict["order"] == "0" else pymongo.ASCENDING)]))
@@ -91,6 +92,7 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
         if(filter_dict["eval"] == "1"):
             data = [d for d in data if d["best"]]
 
+
         if "csv" in web.input():
             return make_csv(data)
 
@@ -100,7 +102,10 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
         
         statistics = compute_statistics(tasks, data)
 
-        return self.template_helper.get_renderer().course_admin.submission_viewer(course, tasks, users, classrooms, data, statistics, filter_dict, allowed_sort)
+        if filter_dict["limit"] != None:
+            data = data[:int(filter_dict["limit"])]
+
+        return self.template_helper.get_renderer().course_admin.submission_viewer(course, tasks, users, classrooms, data, statistics, filter_dict, self._allowed_sort, self._allowed_sort_name)
 
     def get_users(self, course):
         """ """
@@ -125,4 +130,13 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
                         filter_dict[item] = s
                     elif len(s) > 0:
                             filter_dict[item] = s[0]
+        return filter_dict
+        
+    def sanitise(self, filter_dict):
+        if (filter_dict["sort_by"] not in self._allowed_sort):
+            filter_dict["sort_by"] = self._allowed_sort[0]
+            
+        for v in self._is_int_or_none:
+            if (filter_dict[v] != None and filter_dict[v].isdigit() == False):
+                filter_dict[v] = None
         return filter_dict
