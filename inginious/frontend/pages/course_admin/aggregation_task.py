@@ -65,6 +65,6 @@ class CourseAggregationTaskPage(INGIniousAdminPage):
         for d in data:
             d["best"] = d["_id"] in best_submissions_list # mark best submissions
             
-        statistics = compute_statistics(task, data)
+        statistics = ([],[])#compute_statistics(task, data)
         
         return self.template_helper.get_renderer().course_admin.aggregation_task(course, aggregation, task, data, statistics)

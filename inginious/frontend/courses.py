@@ -65,6 +65,7 @@ class WebAppCourse(Course):
         self._all_tags_cache = None
         self._all_tags_cache_list = {}
         self._all_tags_cache_list_admin = {}
+        self._organisational_tags_to_task = {}
         self.update_all_tags_cache()
 
     def get_staff(self):
@@ -215,12 +216,35 @@ class WebAppCourse(Course):
             return self._all_tags_cache_list_admin[language]
         return self._all_tags_cache_list[language]
         
+    def get_organisational_tags_to_task(self):
+        """ This build a dict for fast retrive tasks id based on organisational tags. The form of the dict is:
+        
+            { 'org_tag_1': ['task_id', 'task_id', ...], 
+              'org_tag_2' : ['task_id', 'task_id', ...], 
+              ... }
+         """
+        if self._organisational_tags_to_task != {}:
+            return self._organisational_tags_to_task
+            
+        for org_tag in self.get_all_tags()[2]:
+            tag = org_tag.get_name()
+            self._organisational_tags_to_task[tag] = []
+            for key, task in self.get_tasks().items():
+                for tag_of_task in task.get_tags()[2]:
+                    if tag_of_task.get_name() == tag:
+                        self._organisational_tags_to_task[tag].append(key)
+                        
+        return self._organisational_tags_to_task
+        
+        
     def update_all_tags_cache(self):
         """ Force the cache refreshing """
         
         self._all_tags_cache = None
         self._all_tags_cache_list = {}
         self._all_tags_cache_list_admin = {}
+        self._organisational_tags_to_task = {}
             
         self.get_all_tags()
         self.get_all_tags_names_as_list()
+        self.get_organisational_tags_to_task()

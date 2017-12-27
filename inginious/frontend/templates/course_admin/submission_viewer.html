@@ -1,4 +1,4 @@
-$def with (course, tasks, users, classrooms, data, statistics,filter_dict, allowed_sort, allowed_sort_name)
+$def with (course, tasks, users, classrooms, data, statistics, org_tags,filter_dict, allowed_sort, allowed_sort_name)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -52,11 +52,20 @@ $var Navbar: $:NavbarF()
                 </div>
                 
                 <!-- Tasks -->
-                <div class="col-xs-12 form-group">
+                <div class="col-xs-8 form-group">
                     <label>$:_("Tasks")</label>
                     <select multiple size="8" class="form-control" id="select_task">
                     $for t in tasks:
                         <option value="$t" $('selected' if t in filter_dict['task'] else '')>($t) $tasks[t].get_name(user_manager.session_language())</option>
+                    </select>
+                </div>
+                
+                <!-- Organisational tags -->
+                <div class="col-xs-4 form-group">
+                    <label>$:_("Tasks based on organisational tags")</label>
+                    <select multiple size="8" class="form-control" id="select_org_tags">
+                    $for t in org_tags:
+                        <option value="$t.get_name()" $('selected' if t.get_name() in filter_dict['org_tags'] else '')>$:_(t.get_name())</option>
                     </select>
                 </div>
                 
@@ -131,7 +140,7 @@ $var Navbar: $:NavbarF()
 <script language="javascript">
     function click_filter(){
     
-        var filters = ["username", "classroom", "task", "grade_min", "grade_max", "sort_by", "order", "limit"];
+        var filters = ["username", "classroom", "task", "grade_min", "grade_max", "sort_by", "order", "limit", "org_tags"];
         var filters_checkboxes = ["only_eval", "show_tags", "show_id"];
 
         var query = "";
