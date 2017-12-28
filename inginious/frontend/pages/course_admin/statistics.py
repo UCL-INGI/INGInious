@@ -5,7 +5,7 @@
 
 """ Utilities for computation of statistics  """
 
-def compute_statistics(tasks, data, ponderation=3):
+def compute_statistics(tasks, data, ponderation):
     """ 
     Compute statistics about submissions and tags.
     This function returns a tuple of lists following the format describe below:
@@ -40,24 +40,24 @@ def compute_statistics(tasks, data, ponderation=3):
     for tag in super_dict:
 
         #No ponderation
-        if ponderation == 0: 
+        if ponderation == "0": 
             results = [0,0,0,0]
             for username in super_dict[tag]:
                 for task in super_dict[tag][username]:
                     for i in range (0,4):
                         results[i] += super_dict[tag][username][task][i] 
-            output.append((tag, 100*results[1]/results[0], 100*results[3]/results[2]))
+            output.append((tag, 100*safe_div(results[1],results[0]), 100*safe_div(results[3],results[2])))
 
 
         #Ponderation by stud and tasks
-        elif ponderation == 3:
+        else:
             results = ([], [])
             for username in super_dict[tag]:
                 for task in super_dict[tag][username]:
                     a = super_dict[tag][username][task]
-                    results[0].append(a[1]/a[0])
-                    results[1].append(a[3]/a[2])
-            output.append((tag, 100*sum(results[0])/len(results[0]), 100*sum(results[1])/len(results[1])))
+                    results[0].append(safe_div(a[1],a[0]))
+                    results[1].append(safe_div(a[3],a[2]))
+            output.append((tag, 100*safe_div(sum(results[0]),len(results[0])), 100*safe_div(sum(results[1]),len(results[1]))))
 
     return (fast_stats(data), output)
 
@@ -82,3 +82,8 @@ def fast_stats(data):
         ]
     
     return statistics
+    
+def safe_div(x,y):
+    if y == 0:
+        return 0
+    return x / y

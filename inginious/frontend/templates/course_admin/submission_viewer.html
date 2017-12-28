@@ -1,4 +1,4 @@
-$def with (course, tasks, users, classrooms, data, statistics, org_tags,filter_dict, allowed_sort, allowed_sort_name)
+$def with (course, tasks, users, classrooms, data, statistics,filter_dict, allowed_sort, allowed_sort_name)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -6,7 +6,7 @@ $# more information about the licensing of this file.
 $#
 
 
-
+$ num_tags_filter = 2
 
 
 $var title: Explorer
@@ -64,7 +64,7 @@ $var Navbar: $:NavbarF()
                 <div class="col-xs-4 form-group">
                     <label>$:_("Tasks based on organisational tags")</label>
                     <select multiple size="8" class="form-control" id="select_org_tags">
-                    $for t in org_tags:
+                    $for t in course.get_all_tags()[2]:
                         <option value="$t.get_name()" $('selected' if t.get_name() in filter_dict['org_tags'] else '')>$:_(t.get_name())</option>
                     </select>
                 </div>
@@ -104,6 +104,11 @@ $var Navbar: $:NavbarF()
                                 <input class="form-check-input" type="checkbox" id="show_id" $('checked' if filter_dict["show_id"] == "1" else '')>$:_(" Show id")
                             </label>
                         </div>
+                        <div class="col-xs-2 col-sm-2">
+                            <label class="form-check-label">
+                                <input class="form-check-input" type="checkbox" id="ponderate" $('checked' if filter_dict["ponderate"] == "1" else '')>$:_(" Ponderate statistics")
+                            </label>
+                        </div>
                     </div>
                 </div>
                 
@@ -130,7 +135,30 @@ $var Navbar: $:NavbarF()
                         </div>
                     </div>
                 </div>
-                
+
+            <!-- Tag filtering -->
+            $if filter_dict["show_tags"] == "1":
+                $for i in range(num_tags_filter):
+                    <div class="col-xs-6 form-group">
+                        <div class="row borders">
+                            <div class="col-xs-6 col-sm-6">
+                                <label>$:_("The tag")</label>
+                                <select class="form-control" id="select_filter_tags_$i">
+                                    <option value=""></option>
+                                $for tag in course.get_all_tags()[0] + course.get_all_tags()[1]:
+                                    <option value="$tag.get_id()" $('selected' if len(filter_dict['filter_tags']) > i and filter_dict['filter_tags'][i][0] == tag.get_id() else '')>$tag.get_name()</option>
+                                </select>
+                            </div>
+                            <div class="col-xs-6 col-sm-6">
+                                <label>$:_("is")</label>
+                                <select class="form-control" id="select_filter_tags_presence_$i">
+                                    <option value="True">$:_("present")</option>
+                                    <option value="False" $('selected' if len(filter_dict['filter_tags']) > i and filter_dict['filter_tags'][i][1] == "False" else '')>$:_("not present")</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
             </div>
             <button onclick="click_filter()" class="btn btn-default pull-right">$:_("Filter")</button>
         </form>
@@ -141,7 +169,7 @@ $var Navbar: $:NavbarF()
     function click_filter(){
     
         var filters = ["username", "classroom", "task", "grade_min", "grade_max", "sort_by", "order", "limit", "org_tags"];
-        var filters_checkboxes = ["only_eval", "show_tags", "show_id"];
+        var filters_checkboxes = ["only_eval", "show_tags", "show_id", "ponderate"];
 
         var query = "";
         
@@ -157,6 +185,16 @@ $var Navbar: $:NavbarF()
                 query = query + filters_checkboxes[f] + "=1&";
             }
         }
+        
+        
+        query = query + "filter_tags="
+        for (i = 0; i < $num_tags_filter; i++) { 
+            var name = $$("#select_filter_tags_"+i).val();
+            if (name != null && name != "")
+                query += $$("#select_filter_tags_"+i).val() + ":" + $$("#select_filter_tags_presence_"+i).val() + ",";
+        }
+        query = query.substring(0, query.length - 1);
+        
         $$('#filter_form').attr('action', $$('#filter_form').attr('base_path') + query);
     }
 </script>

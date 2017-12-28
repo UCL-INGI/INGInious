@@ -33,7 +33,9 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
             "sort_by" : "submitted_on",
             "order" : "0",
             "limit" : None, #Negative number for no limit
-            "org_tags" : []
+            "org_tags" : [],
+            "filter_tags" : [],
+            "ponderate" : "0"
             }
 
         self._allowed_sort = ["submitted_on", "username", "grade", "taskid"]
@@ -42,6 +44,10 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
 
         filter_dict = self.parse_query(filter, filter_dict)
         filter_dict = self.sanitise(filter_dict)
+        
+        if filter_dict["show_tags"] == "1":
+            filter_dict["filter_tags"] = [(x.split(":")[0], x.split(":")[1]) if len(x.split(":")) == 2 else None for x in filter_dict["filter_tags"]]
+            filter_dict["filter_tags"] = [x for x in filter_dict["filter_tags"] if x is not None]
 
         if course.is_lti():
             raise web.notfound()
@@ -82,6 +88,13 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
             query_advanced["grade"] = {"$lte" : float(filter_dict["grade_max"])}
         elif (filter_dict["grade_min"] != None and filter_dict["grade_max"] != None):
             query_advanced["grade"] = {"$gte" : float(filter_dict["grade_min"]), "$lte" : float(filter_dict["grade_max"])}
+        
+        #Query with tags    
+        for tag_tuple in filter_dict["filter_tags"]:
+            if id_checker(tag_tuple[0]):
+                state = (tag_tuple[1] == "True" or tag_tuple[1] == "true")
+                query_advanced["tests." + tag_tuple[0]] = {"$in": [None, False]} if not state else True
+        print(query_advanced)
             
         #Mongo operations
         data = list(self.database.submissions.find({**query_base, **query_advanced}).sort([(filter_dict["sort_by"], 
@@ -105,14 +118,13 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
         users = self.get_users(course) # All users of the course
         tasks = course.get_tasks();  # All tasks of the course
         classrooms = self.user_manager.get_course_aggregations(course) # All classrooms of the course
-        org_tags = course.get_all_tags()[2]
         
-        statistics = compute_statistics(tasks, data)
+        statistics = compute_statistics(tasks, data, filter_dict["ponderate"])
 
         if filter_dict["limit"] != None:
             data = data[:int(filter_dict["limit"])]
 
-        return self.template_helper.get_renderer().course_admin.submission_viewer(course, tasks, users, classrooms, data, statistics, org_tags, filter_dict, self._allowed_sort, self._allowed_sort_name)
+        return self.template_helper.get_renderer().course_admin.submission_viewer(course, tasks, users, classrooms, data, statistics, filter_dict, self._allowed_sort, self._allowed_sort_name)
 
     def get_users(self, course):
         """ """
