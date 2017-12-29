@@ -26,11 +26,12 @@ $def NavbarF():
 $var Navbar: $:NavbarF()
 
 <h2>Explorer</h2>
+<form id="filter_form" base_path="$get_homepath()/admin/${course.get_id()}/submission_viewer" action="">
+
 <!-- SELECT SUBMISSION FORM -->
 <div class="panel panel-default">
     <div class="panel-heading">$:_("Select submissions")</div>
     <div class="panel-body">
-        <form id="filter_form" base_path="$get_homepath()/admin/${course.get_id()}/submission_viewer/" action="">
             <div class="row">
             
                 <!-- Users -->
@@ -129,7 +130,7 @@ $var Navbar: $:NavbarF()
                                 <option value="1" $('selected' if old_input['order'] == '1' else '')>Ascending</option>
                             </select>
                         </div>
-                        <div class="col-xs-3 col-sm-3"  title="$:_('Only visual. Statistics always consider all submissions.')" data-toggle="tooltip" data-placement="top">
+                        <div class="col-xs-3 col-sm-3"  title="$:_('Only visual. Statistics, download, replay and csv always consider all queried submissions.')" data-toggle="tooltip" data-placement="top">
                             <label>$:_("Limit") *</label>
                             <input name="limit" class="form-control" type="number" placeholder="0" id="select_limit" value="$old_input['limit']"/>
                         </div>
@@ -160,12 +161,38 @@ $var Navbar: $:NavbarF()
                     </div>
 
             </div>
-            <button onclick="" class="btn btn-default pull-right">$:_("Filter")</button>
-        </form>
-        <button onclick="window.location.href='$get_homepath()/admin/${course.get_id()}/submission_viewer/'" class="btn btn-default pull-right">$:_("Reset")</button>
+        <button type="submit" onclick="" class="btn btn-default pull-right">$:_("Filter")</button>
+        <button type="button" onclick="window.location.href='$get_homepath()/admin/${course.get_id()}/submission_viewer'" class="btn btn-default pull-right">$:_("Reset")</button>
     </div>
 </div>
 <!-- SELECT SUBMISSION FORM END -->
+
+
+
+
+<div id="download_modal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">$:_("Choose download format")</h4>
+                </div>
+                <div class="modal-body row">
+                    <label for="folder_format" class="col-sm-2 control-label">$:_("Folder format")</label>
+                    <div class="col-sm-10">
+                        $for entry in valid_formats():
+                            <div class="radio">
+                                <label><input type="radio" name="download" value="$entry"> $:_(entry)</label>
+                            </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">$:_("Cancel")</button>
+                    <button type="submit" class="btn btn-info">$:_("Download")</button>
+                </div>
+        </div>
+    </div>
+</div>
 
 
 
@@ -219,33 +246,6 @@ $if "show_tags" in old_input:
 
 
 
-<div id="download_modal" class="modal fade">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form id="form_download">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">$:_("Choose download format")</h4>
-                </div>
-                <div class="modal-body row">
-                    <label for="folder_format" class="col-sm-2 control-label">$:_("Folder format")</label>
-                    <div class="col-sm-10">
-                        $for entry in valid_formats():
-                            <div class="radio">
-                                <label><input type="radio" name="download" value="$entry"> $:_(entry)</label>
-                            </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">$:_("Cancel")</button>
-                    <button class="btn btn-info">$:_("Download")</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-
 <table class="table">
     <thead>
         <tr>
@@ -268,8 +268,7 @@ $if "show_tags" in old_input:
                         <a href=""
                            class="btn btn-warning btn-xs" title=$:_('"Replay all submissions"') data-toggle="tooltip" data-placement="bottom"><i class="fa
                            fa-refresh"></i></a>
-                    <a href="?csv" class="btn btn-info btn-xs"
-                       title=$:_('"Download CSV"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
+                    <a onclick="csv_url();" class="btn btn-info btn-xs" title=$:_('"Download CSV"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
                 </div>
             </th>
         </tr>
@@ -350,6 +349,29 @@ $if "show_tags" in old_input:
     	</tr>
     </tbody>
 </table>
+
+
+</form>
+
+<script>
+//Add a paramater to URL to download a csv file.
+function csv_url() {
+    // Get the current page
+    var curr_page = window.location.href,
+        next_page = "";
+
+    // If current page has a query string, append action to the end of the query string, else
+    // create our query string
+    if(curr_page.indexOf("?") > -1) {
+        next_page = curr_page+"&csv";
+    } else {
+        next_page = curr_page+"?csv";
+    }
+
+    // Redirect to next page
+    window.location = next_page;
+}
+</script>
 
 $if is_admin:
     <script language="javascript">

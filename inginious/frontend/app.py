@@ -61,7 +61,7 @@ urls = (
     r'/admin/([^/]+)/aggregations', 'inginious.frontend.pages.course_admin.aggregation_list.CourseAggregationListPage',
     r'/admin/([^/]+)/aggregation/([^/]+)', 'inginious.frontend.pages.course_admin.aggregation_info.CourseAggregationInfoPage',
     r'/admin/([^/]+)/aggregation/([^/]+)/([^/]+)(/[^/]*)?', 'inginious.frontend.pages.course_admin.aggregation_task.CourseAggregationTaskPage',
-    r'/admin/([^/]+)/submission_viewer/([^/]*)?', 'inginious.frontend.pages.course_admin.submission_viewer.CourseSubmissionViewerTaskPage',
+    r'/admin/([^/]+)/submission_viewer([^/]*)?', 'inginious.frontend.pages.course_admin.submission_viewer.CourseSubmissionViewerTaskPage',
     r'/admin/([^/]+)/tasks', 'inginious.frontend.pages.course_admin.task_list.CourseTaskListPage',
     r'/admin/([^/]+)/task/([^/]+)', 'inginious.frontend.pages.course_admin.task_info.CourseTaskInfoPage',
     r'/admin/([^/]+)/edit/aggregation/([^/]+)', 'inginious.frontend.pages.course_admin.aggregation_edit.CourseEditAggregation',

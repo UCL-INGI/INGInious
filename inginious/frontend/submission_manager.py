@@ -497,13 +497,14 @@ class WebAppSubmissionManager:
                         base_path = '_' + '-'.join(submission['username']) + base_path
                         base_path = base_path[1:]
                     elif sub_folder == 'aggregation':
-                        if aggregations[username] is None:
-                            # If classrooms are not used, and user is not grouped, his classroom is replaced by None
-                            base_path = '_' + '-'.join(submission['username']) + base_path
-                            base_path = base_path[1:]
-                        else:
-                            base_path = (aggregations[username]["description"] +
-                                         " (" + str(aggregations[username]["_id"]) + ")").replace(" ", "_") + base_path
+                        if username in aggregations:
+                            if aggregations[username] is None:
+                                # If classrooms are not used, and user is not grouped, his classroom is replaced by None
+                                base_path = '_' + '-'.join(submission['username']) + base_path
+                                base_path = base_path[1:]
+                            else:
+                                base_path = (aggregations[username]["description"] +
+                                             " (" + str(aggregations[username]["_id"]) + ")").replace(" ", "_") + base_path
 
                     base_path = '/' + base_path
                 base_path = base_path[1:]

@@ -51,6 +51,7 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
             )
         
         print(input)
+        
         self.sanitise_input(input)
 
         #Build lists of wanted users based on classrooms and specific users
@@ -108,9 +109,6 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
         classrooms = self.user_manager.get_course_aggregations(course) # All classrooms of the course
         
         statistics = compute_statistics(tasks, data, True if "ponderate" in input else False)
-
-        if input.limit != '':
-            data = data[:int(input.limit)]
             
         if "csv" in web.input():
             return make_csv(data)
@@ -127,6 +125,9 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
                                   ) for aggregation in classroom for username in aggregation["students"]])
 
             return self.submission_manager.get_submission_archive(data, list(reversed(web.input().download.split('/'))), aggregations)
+
+        if input.limit != '':
+            data = data[:int(input.limit)]
 
         return self.template_helper.get_renderer().course_admin.submission_viewer(course, tasks, users, classrooms, data, statistics, input, self._allowed_sort, self._allowed_sort_name, self.valid_formats)
 
