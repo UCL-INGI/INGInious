@@ -40,7 +40,7 @@ def compute_statistics(tasks, data, ponderation):
     for tag in super_dict:
 
         #No ponderation
-        if ponderation == "0": 
+        if ponderation == False: 
             results = [0,0,0,0]
             for username in super_dict[tag]:
                 for task in super_dict[tag][username]:

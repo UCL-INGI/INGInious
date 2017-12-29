@@ -6,6 +6,7 @@
 import pymongo
 import web
 import re
+import itertools
 from bson.objectid import ObjectId
 from collections import OrderedDict
 
@@ -20,85 +21,76 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
         """ GET request """
         course, __ = self.get_course_and_check_rights(courseid)
         
-        #Dict containing all attributes we want to filter with default values
-        filter_dict = {
-            "username" : [],
-            "task" : [],
-            "classroom" : [],
-            "eval" : "0", #All submissions by default
-            "show_tags" : "0", #Hidden by default
-            "show_id" : "0", #Hidden by default
-            "grade_min" : None, #Not taken into account by default
-            "grade_max" : None, #Not taken into account by default
-            "sort_by" : "submitted_on",
-            "order" : "0",
-            "limit" : None, #Negative number for no limit
-            "org_tags" : [],
-            "filter_tags" : [],
-            "ponderate" : "0"
-            }
-
         self._allowed_sort = ["submitted_on", "username", "grade", "taskid"]
         self._allowed_sort_name = [_("Submitted on"), _("User"), _("Grade"), _("Task id")]
-        self._is_int_or_none = ["grade_min", "grade_max", "limit"]
-
-        filter_dict = self.parse_query(filter, filter_dict)
-        filter_dict = self.sanitise(filter_dict)
         
-        if filter_dict["show_tags"] == "1":
-            filter_dict["filter_tags"] = [(x.split(":")[0], x.split(":")[1]) if len(x.split(":")) == 2 else None for x in filter_dict["filter_tags"]]
-            filter_dict["filter_tags"] = [x for x in filter_dict["filter_tags"] if x is not None]
-
         if course.is_lti():
             raise web.notfound()
 
-        return self.page(course, filter_dict)
+        return self.page(course)
 
     def submission_url_generator(self, submissionid):
         """ Generates a submission url """
         return "?submission=" + submissionid
 
-    def page(self, course, filter_dict):
+    def page(self, course):
         """ Get all data and display the page """
 
+        input = web.input(
+            username=[],
+            task=[],
+            classroom=[],
+            org_tags=[],
+            grade_min='',
+            grade_max='',
+            sort_by="submitted_on",
+            order='0',  #"0" for pymongo.DESCENDING, anything else for pymongo.ASCENDING
+            limit='',
+            filter_tags=[],
+            filter_tags_presence=[],
+            )
+        
+        print(input)
+        self.sanitise_input(input)
+
         #Build lists of wanted users based on classrooms and specific users
-        list_classroom_ObjectId = [ObjectId(o) for o in filter_dict["classroom"]]
+        list_classroom_ObjectId = [ObjectId(o) for o in input.classroom]
         classroom = list(self.database.aggregations.find({"_id": {"$in" : list_classroom_ObjectId}}))
         more_username = [s["students"] for s in classroom] #Extract usernames of students
         more_username = [y for x in more_username for y in x] #Flatten lists
         
         #Get tasks based on organisational tags
         more_tasks = []
-        for org_tag in filter_dict["org_tags"]:
+        for org_tag in input.org_tags:
             if org_tag in course.get_organisational_tags_to_task():
                 more_tasks += course.get_organisational_tags_to_task()[org_tag]
 
         #Base query
         query_base = {
-                "username": {"$in": filter_dict["username"] + more_username},
+                "username": {"$in": input.username + more_username},
                 "courseid": course.get_id(),
-                "taskid": {"$in": filter_dict["task"] + more_tasks}
+                "taskid": {"$in": input.task + more_tasks}
                 }
 
         #Additional query field
         query_advanced = {}
-        if (filter_dict["grade_min"] != None and filter_dict["grade_max"] == None):
-            query_advanced["grade"] = {"$gte" : float(filter_dict["grade_min"])}
-        elif (filter_dict["grade_min"] == None and filter_dict["grade_max"] != None):
-            query_advanced["grade"] = {"$lte" : float(filter_dict["grade_max"])}
-        elif (filter_dict["grade_min"] != None and filter_dict["grade_max"] != None):
-            query_advanced["grade"] = {"$gte" : float(filter_dict["grade_min"]), "$lte" : float(filter_dict["grade_max"])}
+        if (input.grade_min != '' and input.grade_max == ''):
+            query_advanced["grade"] = {"$gte" : float(input.grade_min)}
+        elif (input.grade_min == '' and input.grade_max != ''):
+            query_advanced["grade"] = {"$lte" : float(input.grade_max)}
+        elif (input.grade_min != '' and input.grade_max != ''):
+            query_advanced["grade"] = {"$gte" : float(input.grade_min), "$lte" : float(input.grade_max)}
         
-        #Query with tags    
-        for tag_tuple in filter_dict["filter_tags"]:
-            if id_checker(tag_tuple[0]):
-                state = (tag_tuple[1] == "True" or tag_tuple[1] == "true")
-                query_advanced["tests." + tag_tuple[0]] = {"$in": [None, False]} if not state else True
-        print(query_advanced)
+        #Query with tags
+        if len(input.filter_tags) == len(input.filter_tags_presence):
+            for i in range(0, len(input.filter_tags)):
+                if id_checker(input.filter_tags[i]):
+                    state = (input.filter_tags_presence[i] == "True" or input.filter_tags_presence[i] == "true")
+                    query_advanced["tests." + input.filter_tags[i]] = {"$in": [None, False]} if not state else True
             
         #Mongo operations
-        data = list(self.database.submissions.find({**query_base, **query_advanced}).sort([(filter_dict["sort_by"], 
-            pymongo.DESCENDING if filter_dict["order"] == "0" else pymongo.ASCENDING)]))
+        data = list(self.database.submissions.find({**query_base, **query_advanced}).sort([(input.sort_by, 
+            pymongo.DESCENDING if input.order == "0" else pymongo.ASCENDING)]))
         data = [dict(list(f.items()) + [("url", self.submission_url_generator(str(f["_id"])))]) for f in data]
 
         # Get best submissions from database
@@ -108,23 +100,35 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
             d["best"] = d["_id"] in best_submissions_list # mark best submissions
 
         #Keep best submissions
-        if(filter_dict["eval"] == "1"):
+        if("eval" in input):
             data = [d for d in data if d["best"]]
-
-
-        if "csv" in web.input():
-            return make_csv(data)
-
+            
         users = self.get_users(course) # All users of the course
         tasks = course.get_tasks();  # All tasks of the course
         classrooms = self.user_manager.get_course_aggregations(course) # All classrooms of the course
         
-        statistics = compute_statistics(tasks, data, filter_dict["ponderate"])
+        statistics = compute_statistics(tasks, data, True if "ponderate" in input else False)
 
-        if filter_dict["limit"] != None:
-            data = data[:int(filter_dict["limit"])]
+        if input.limit != '':
+            data = data[:int(input.limit)]
+            
+        if "csv" in web.input():
+            return make_csv(data)
+            
+        if "download" in web.input():
+            #self._logger.info("Downloading %d submissions from course %s", len(data), course.get_id())
+            web.header('Content-Type', 'application/x-gzip', unique=True)
+            web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)
 
-        return self.template_helper.get_renderer().course_admin.submission_viewer(course, tasks, users, classrooms, data, statistics, filter_dict, self._allowed_sort, self._allowed_sort_name)
+            # Tweak if not using classrooms : classroom['students'] may content ungrouped users
+            aggregations = dict([(username,
+                                  aggregation if course.use_classrooms() or (
+                                  username in aggregation['groups'][0]["students"]) else None
+                                  ) for aggregation in classroom for username in aggregation["students"]])
+
+            return self.submission_manager.get_submission_archive(data, list(reversed(web.input().download.split('/'))), aggregations)
+
+        return self.template_helper.get_renderer().course_admin.submission_viewer(course, tasks, users, classrooms, data, statistics, input, self._allowed_sort, self._allowed_sort_name, self.valid_formats)
 
     def get_users(self, course):
         """ """
@@ -136,26 +140,17 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
 
         return users
 
-            
-    def parse_query(self, filter, filter_dict):
-        """ """
-        for item in filter_dict:
-            s = re.search('('+item+'=([^/&])+)', filter)
-            if s:
-                s = s.group(1)
-                if s:
-                    s = s.replace(item+"=", "").split(",")
-                    if type(filter_dict[item]) is list:
-                        filter_dict[item] = s
-                    elif len(s) > 0:
-                            filter_dict[item] = s[0]
-        return filter_dict
         
-    def sanitise(self, filter_dict):
-        if (filter_dict["sort_by"] not in self._allowed_sort):
-            filter_dict["sort_by"] = self._allowed_sort[0]
-            
-        for v in self._is_int_or_none:
-            if (filter_dict[v] != None and filter_dict[v].isdigit() == False):
-                filter_dict[v] = None
-        return filter_dict
+    def sanitise_input(self, input):
+        for item in itertools.chain(input.username, input.task, input.classroom):
+            if not id_checker(item):
+                raise web.notfound() 
+        
+    def valid_formats(self):
+        dict = {
+            "taskid/username": _("taskid/username"),
+            "taskid/aggregation": _("taskid/aggregation"),
+            "username/taskid": _("username/taskid"),
+            "aggregation/taskid": _("aggregation/taskid")
+        }
+        return list(dict.keys())
