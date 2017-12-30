@@ -28,12 +28,12 @@ def compute_statistics(tasks, data, ponderation):
             if submission["taskid"] not in super_dict[tag][username]:
                 super_dict[tag][username][submission["taskid"]] = [0,0,0,0]
             super_dict[tag][username][submission["taskid"]][0] += 1
-            if tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()] == True:
+            if "tests" in submission and tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()] == True:
                 super_dict[tag][username][submission["taskid"]][1] += 1
 
             if (submission["best"] == True):
                 super_dict[tag][username][submission["taskid"]][2] += 1
-                if tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()] == True:
+                if "tests" in submission and tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()] == True:
                     super_dict[tag][username][submission["taskid"]][3] += 1
 
     output = []

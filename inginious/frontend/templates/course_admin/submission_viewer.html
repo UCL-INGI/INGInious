@@ -26,7 +26,7 @@ $def NavbarF():
 $var Navbar: $:NavbarF()
 
 <h2>Explorer</h2>
-<form id="filter_form" base_path="$get_homepath()/admin/${course.get_id()}/submission_viewer" action="">
+<form id="select_form" method="get">
 
 <!-- SELECT SUBMISSION FORM -->
 <div class="panel panel-default">
@@ -161,7 +161,7 @@ $var Navbar: $:NavbarF()
                     </div>
 
             </div>
-        <button type="submit" onclick="" class="btn btn-default pull-right">$:_("Filter")</button>
+        <button type="submit" onclick="reset_option_download()" class="btn btn-default pull-right">$:_("Filter")</button>
         <button type="button" onclick="window.location.href='$get_homepath()/admin/${course.get_id()}/submission_viewer'" class="btn btn-default pull-right">$:_("Reset")</button>
     </div>
 </div>
@@ -170,6 +170,8 @@ $var Navbar: $:NavbarF()
 
 
 
+
+<!-- Modal to download submissions -->
 <div id="download_modal" class="modal fade">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -180,19 +182,20 @@ $var Navbar: $:NavbarF()
                 <div class="modal-body row">
                     <label for="folder_format" class="col-sm-2 control-label">$:_("Folder format")</label>
                     <div class="col-sm-10">
-                        $for entry in valid_formats():
+                        $for entry in valid_formats:
                             <div class="radio">
-                                <label><input type="radio" name="download" value="$entry"> $:_(entry)</label>
+                                <label><input type="radio" name="download_type" value="$entry"> $:_(entry)</label>
                             </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">$:_("Cancel")</button>
-                    <button type="submit" class="btn btn-info">$:_("Download")</button>
+                    <button type="submit" name="download" formmethod="get" class="btn btn-info">$:_("Download")</button>
                 </div>
         </div>
     </div>
 </div>
+<!-- Modal to download submissions END -->
 
 
 
@@ -262,13 +265,11 @@ $if "show_tags" in old_input:
                 <!-- the 73px is there to force horizontal button-group. The btn-group may becomes vertical without this. -->
                 <div class="btn-group" role="group" style="width:73px">
                     <div class="btn btn-danger btn-xs" data-toggle="modal" data-target="#download_modal">
-                        <div data-toggle="tooltip" data-placement="top" title=$:_('"Download all submissions"')><i class="fa fa-download"></i></div>
+                        <div data-toggle="tooltip" data-placement="top" title=$:_('"Download current selection"')><i class="fa fa-download"></i></div>
                     </div>
                     $if is_admin:
-                        <a href=""
-                           class="btn btn-warning btn-xs" title=$:_('"Replay all submissions"') data-toggle="tooltip" data-placement="bottom"><i class="fa
-                           fa-refresh"></i></a>
-                    <a onclick="csv_url();" class="btn btn-info btn-xs" title=$:_('"Download CSV"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
+                        <button class="btn btn-warning btn-xs" type="submit" name="replay" formmethod="post" title=$:_('"Replay current selection"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></button>
+                    <button class="btn btn-info btn-xs" type="submit" name="csv" formmethod="get" title=$:_('"Download CSV"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></button>
                 </div>
             </th>
         </tr>
@@ -346,32 +347,10 @@ $if "show_tags" in old_input:
                            data-placement="bottom"><i class="fa fa-refresh"></i></a>
                 </div>
             </td>
-    	</tr>
+        </tr>
     </tbody>
 </table>
-
-
 </form>
-
-<script>
-//Add a paramater to URL to download a csv file.
-function csv_url() {
-    // Get the current page
-    var curr_page = window.location.href,
-        next_page = "";
-
-    // If current page has a query string, append action to the end of the query string, else
-    // create our query string
-    if(curr_page.indexOf("?") > -1) {
-        next_page = curr_page+"&csv";
-    } else {
-        next_page = curr_page+"?csv";
-    }
-
-    // Redirect to next page
-    window.location = next_page;
-}
-</script>
 
 $if is_admin:
     <script language="javascript">

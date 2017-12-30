@@ -16,18 +16,38 @@ from inginious.common.base import id_checker
 
 class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
     """ List information about a task done by a student """
-
-    def GET_AUTH(self, courseid, filter=""):  # pylint: disable=arguments-differ
-        """ GET request """
+    
+    def init(self, courseid):
         course, __ = self.get_course_and_check_rights(courseid)
-        
-        self._allowed_sort = ["submitted_on", "username", "grade", "taskid"]
-        self._allowed_sort_name = [_("Submitted on"), _("User"), _("Grade"), _("Task id")]
-        
         if course.is_lti():
             raise web.notfound()
+            
+        self._allowed_sort = ["submitted_on", "username", "grade", "taskid"]
+        self._allowed_sort_name = [_("Submitted on"), _("User"), _("Grade"), _("Task id")]
+        self._valid_formats = ["taskid/username", "taskid/aggregation", "username/taskid", "aggregation/taskid"]
+        self._valid_formats_name = [_("taskid/username"), _("taskid/aggregation"), _("username/taskid"), _("aggregation/taskid")]
+
+        return course
+        
+    def POST(self, courseid):  # pylint: disable=arguments-differ
+        """ POST request """
+        course = self.init(courseid)
+
+        input = self.get_input()
+        tasks = course.get_tasks()
+        data = self.get_submissions(course, input)
+
+        if "replay" in web.input():
+            if self.user_manager.has_admin_rights_on_course(course) == False:
+                raise web.notfound()
+            for submission in data:
+                self.submission_manager.replay_job(tasks[submission["taskid"]], submission)
 
         return self.page(course)
+
+    def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
+        """ GET request """
+        return self.page(self.init(courseid))
 
     def submission_url_generator(self, submissionid):
         """ Generates a submission url """
@@ -35,25 +55,49 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
 
     def page(self, course):
         """ Get all data and display the page """
-
-        input = web.input(
-            username=[],
-            task=[],
-            classroom=[],
-            org_tags=[],
-            grade_min='',
-            grade_max='',
-            sort_by="submitted_on",
-            order='0',  #"0" for pymongo.DESCENDING, anything else for pymongo.ASCENDING
-            limit='',
-            filter_tags=[],
-            filter_tags_presence=[],
-            )
         
-        print(input)
-        
-        self.sanitise_input(input)
+        input = self.get_input()
+        data, classroom = self.get_submissions(course, input) #ONLY classrooms user wants to query
+        classrooms = self.user_manager.get_course_aggregations(course) # ALL classrooms of the course
+        users = self.get_users(course) # All users of the course
+        tasks = course.get_tasks();  # All tasks of the course
+        statistics = compute_statistics(tasks, data, True if "ponderate" in input else False)
+            
+        if "csv" in web.input():
+            return make_csv(data)
+                        
+        if "download" in web.input():
+            #self._logger.info("Downloading %d submissions from course %s", len(data), course.get_id())
+            web.header('Content-Type', 'application/x-gzip', unique=True)
+            web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)
 
+            # Tweak if not using classrooms : classroom['students'] may content ungrouped users
+            aggregations = dict([(username,
+                                  aggregation if course.use_classrooms() or (
+                                  username in aggregation['groups'][0]["students"]) else None
+                                  ) for aggregation in classroom for username in aggregation["students"]])
+
+            download_type = web.input(download_type=self._valid_formats[0])
+            if download_type not in self._valid_formats:
+                download_type = self._valid_formats[0]
+            return self.submission_manager.get_submission_archive(data, list(reversed(download_type.split('/'))), aggregations)
+
+        if input.limit != '' and input.limit.isdigit():
+            data = data[:int(input.limit)]
+        
+        return self.template_helper.get_renderer().course_admin.submission_viewer(course, tasks, users, classrooms, data, statistics, input, self._allowed_sort, self._allowed_sort_name, self._valid_formats)
+
+    def get_users(self, course):
+        """ """
+        users = OrderedDict(sorted(list(self.user_manager.get_users_info(self.user_manager.get_course_registered_users(course)).items()),
+            key=lambda k: k[1][0] if k[1] is not None else ""))
+        return users
+        
+        
+
+        
+    def get_submissions(self, course, input):
+    
         #Build lists of wanted users based on classrooms and specific users
         list_classroom_ObjectId = [ObjectId(o) for o in input.classroom]
         classroom = list(self.database.aggregations.find({"_id": {"$in" : list_classroom_ObjectId}}))
@@ -103,55 +147,36 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
         #Keep best submissions
         if("eval" in input):
             data = [d for d in data if d["best"]]
-            
-        users = self.get_users(course) # All users of the course
-        tasks = course.get_tasks();  # All tasks of the course
-        classrooms = self.user_manager.get_course_aggregations(course) # All classrooms of the course
-        
-        statistics = compute_statistics(tasks, data, True if "ponderate" in input else False)
-            
-        if "csv" in web.input():
-            return make_csv(data)
-            
-        if "download" in web.input():
-            #self._logger.info("Downloading %d submissions from course %s", len(data), course.get_id())
-            web.header('Content-Type', 'application/x-gzip', unique=True)
-            web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)
+        return data, classroom
 
-            # Tweak if not using classrooms : classroom['students'] may content ungrouped users
-            aggregations = dict([(username,
-                                  aggregation if course.use_classrooms() or (
-                                  username in aggregation['groups'][0]["students"]) else None
-                                  ) for aggregation in classroom for username in aggregation["students"]])
+    def get_input(self):
+        """ Loads web input, initialise default values and check/sanitise inputs from users """
+        input = web.input(
+            username=[],
+            task=[],
+            classroom=[],
+            org_tags=[],
+            grade_min='',
+            grade_max='',
+            sort_by="submitted_on",
+            order='0',  #"0" for pymongo.DESCENDING, anything else for pymongo.ASCENDING
+            limit='',
+            filter_tags=[],
+            filter_tags_presence=[],
+        )
 
-            return self.submission_manager.get_submission_archive(data, list(reversed(web.input().download.split('/'))), aggregations)
-
-        if input.limit != '':
-            data = data[:int(input.limit)]
-
-        return self.template_helper.get_renderer().course_admin.submission_viewer(course, tasks, users, classrooms, data, statistics, input, self._allowed_sort, self._allowed_sort_name, self.valid_formats)
-
-    def get_users(self, course):
-        """ """
-        users = sorted(list(self.user_manager.get_users_info(self.user_manager.get_course_registered_users(course, False)).items()),
-            key=lambda k: k[1][0] if k[1] is not None else "")
-
-        users = OrderedDict(sorted(list(self.user_manager.get_users_info(course.get_staff()).items()),
-            key=lambda k: k[1][0] if k[1] is not None else "") + users)
-
-        return users
-
-        
-    def sanitise_input(self, input):
+        #Sanitise inputs
+        print(input.filter_tags)
         for item in itertools.chain(input.username, input.task, input.classroom):
             if not id_checker(item):
-                raise web.notfound() 
-        
-    def valid_formats(self):
-        dict = {
-            "taskid/username": _("taskid/username"),
-            "taskid/aggregation": _("taskid/aggregation"),
-            "username/taskid": _("username/taskid"),
-            "aggregation/taskid": _("aggregation/taskid")
-        }
-        return list(dict.keys())
+                raise web.notfound()
+
+        if input.sort_by not in self._allowed_sort:
+            raise web.notfound()
+
+        digits = [input.grade_min, input.grade_max, input.order, input.limit]
+        for d in digits:
+            if d != '' and not d.isdigit():
+                raise web.notfound()
+
+        return input 
