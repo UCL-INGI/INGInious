@@ -7,6 +7,7 @@ import pymongo
 import web
 import re
 import itertools
+import time
 from bson.objectid import ObjectId
 from collections import OrderedDict
 
@@ -26,8 +27,9 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
         self._allowed_sort_name = [_("Submitted on"), _("User"), _("Grade"), _("Task id")]
         self._valid_formats = ["taskid/username", "taskid/aggregation", "username/taskid", "aggregation/taskid"]
         self._valid_formats_name = [_("taskid/username"), _("taskid/aggregation"), _("username/taskid"), _("aggregation/taskid")]
-        self._msg = []
-        self._trunc_limit = 2000
+        self._msg = [] # Put warning message here
+        self._trunc_limit = 1000 # To trunc submissions id there are too many submissions
+        self._time_alert_computation_stats = 2
         
         return course
         
@@ -67,7 +69,11 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
         tasks = course.get_tasks();  # All tasks of the course
         statistics = None
         if not "no_stat" in input:
+            old_time = time.time()
             statistics = compute_statistics(tasks, data, True if "ponderate" in input else False)
+            total_time = time.time() - old_time
+            if total_time > self._time_alert_computation_stats:
+                self._msg.append(_("Statistics take {0} seconds to compute due to the higher number of submissions. Try adding more filter options to reduce computation time.").format(round(total_time,1)))
             
         if "csv" in web.input():
             return make_csv(data)
