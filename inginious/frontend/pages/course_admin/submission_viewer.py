@@ -112,7 +112,7 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
 
         #Base query
         query_base = {
-                "username": {"$in": input.username + more_username},
+                "username": {"$in": input.user + more_username},
                 "courseid": course.get_id(),
                 "taskid": {"$in": input.task + more_tasks}
                 }
@@ -152,7 +152,7 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
     def get_input(self):
         """ Loads web input, initialise default values and check/sanitise inputs from users """
         input = web.input(
-            username=[],
+            user=[],
             task=[],
             classroom=[],
             org_tags=[],
@@ -166,8 +166,7 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
         )
 
         #Sanitise inputs
-        print(input.filter_tags)
-        for item in itertools.chain(input.username, input.task, input.classroom):
+        for item in itertools.chain(input.user, input.task, input.classroom):
             if not id_checker(item):
                 raise web.notfound()
 

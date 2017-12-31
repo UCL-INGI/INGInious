@@ -9,10 +9,11 @@ $#
 $ num_tags_filter = 2
 
 
-$var title: Explorer
+$var title: $:_("Submission viewer")
 
-$var Column: $:template_helper.call('course_admin_menu',course=course,current='students')
+$var Column: $:template_helper.call('course_admin_menu',course=course,current='submission_viewer')
 $ is_admin = user_manager.has_admin_rights_on_course(course)
+$ use_classrooms = course.use_classrooms()
 
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
@@ -25,27 +26,27 @@ $def NavbarF():
     </ol>
 $var Navbar: $:NavbarF()
 
-<h2>Explorer</h2>
+<h2>$:_("Submission viewer")</h2>
 <form id="select_form" method="get">
 
 <!-- SELECT SUBMISSION FORM -->
 <div class="panel panel-default">
-    <div class="panel-heading">$:_("Select submissions")</div>
+    <div class="panel-heading">$:_("Query submissions")</div>
     <div class="panel-body">
             <div class="row">
             
                 <!-- Users -->
                 <div class="col-xs-6 form-group">
                     <label>$:_("Users")</label>
-                    <select name="username" multiple size="5" class="form-control" id="select_username">
+                    <select name="user" multiple size="5" class="form-control" id="select_user">
                     $for u in users:
-                        <option value="$u" $('selected' if u in old_input['username'] else '')>$users[u][0] ($u)</option>
+                        <option value="$u" $('selected' if u in old_input['user'] else '')>$users[u][0] ($u)</option>
                      </select>
                 </div>
                 
                 <!-- Classrooms -->
                 <div class="col-xs-6 form-group">
-                    <label>$:_("Classrooms")</label>
+                    <label>$(_("Classrooms") if use_classrooms else _("Teams"))</label>
                     <select name="classroom" multiple size="5" class="form-control" id="select_classroom">
                     $for c in classrooms:
                         <option value="$c['_id']" $('selected' if str(c['_id']) in old_input['classroom'] else '')>$c["description"]</option>
