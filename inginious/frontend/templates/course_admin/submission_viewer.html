@@ -1,4 +1,4 @@
-$def with (course, tasks, users, classrooms, data, statistics,old_input, allowed_sort, allowed_sort_name, valid_formats)
+$def with (course, tasks, users, aggregations, data, statistics,old_input, allowed_sort, allowed_sort_name, valid_formats)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -44,12 +44,12 @@ $var Navbar: $:NavbarF()
                      </select>
                 </div>
                 
-                <!-- Classrooms -->
+                <!-- aggregations -->
                 <div class="col-xs-6 form-group">
                     <label>$(_("Classrooms") if use_classrooms else _("Teams"))</label>
-                    <select name="classroom" multiple size="5" class="form-control" id="select_classroom">
-                    $for c in classrooms:
-                        <option value="$c['_id']" $('selected' if str(c['_id']) in old_input['classroom'] else '')>$c["description"]</option>
+                    <select name="aggregation" multiple size="5" class="form-control" id="select_aggregation">
+                    $for c in aggregations:
+                        <option value="$c['_id']" $('selected' if str(c['_id']) in old_input['aggregation'] else '')>$c["description"]</option>
                     </select>
                 </div>
                 

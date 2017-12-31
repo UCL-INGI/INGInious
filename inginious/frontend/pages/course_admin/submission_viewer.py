@@ -35,7 +35,7 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
 
         input = self.get_input()
         tasks = course.get_tasks()
-        data = self.get_submissions(course, input)
+        data, _ = self.get_submissions(course, input)
 
         if "replay" in web.input():
             if self.user_manager.has_admin_rights_on_course(course) == False:
@@ -99,7 +99,7 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
     def get_submissions(self, course, input):
     
         #Build lists of wanted users based on classrooms and specific users
-        list_classroom_ObjectId = [ObjectId(o) for o in input.classroom]
+        list_classroom_ObjectId = [ObjectId(o) for o in input.aggregation]
         classroom = list(self.database.aggregations.find({"_id": {"$in" : list_classroom_ObjectId}}))
         more_username = [s["students"] for s in classroom] #Extract usernames of students
         more_username = [y for x in more_username for y in x] #Flatten lists
@@ -154,7 +154,7 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
         input = web.input(
             user=[],
             task=[],
-            classroom=[],
+            aggregation=[],
             org_tags=[],
             grade_min='',
             grade_max='',
@@ -166,7 +166,7 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
         )
 
         #Sanitise inputs
-        for item in itertools.chain(input.user, input.task, input.classroom):
+        for item in itertools.chain(input.user, input.task, input.aggregation):
             if not id_checker(item):
                 raise web.notfound()
 
