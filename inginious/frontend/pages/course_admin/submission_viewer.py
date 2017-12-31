@@ -26,7 +26,9 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
         self._allowed_sort_name = [_("Submitted on"), _("User"), _("Grade"), _("Task id")]
         self._valid_formats = ["taskid/username", "taskid/aggregation", "username/taskid", "aggregation/taskid"]
         self._valid_formats_name = [_("taskid/username"), _("taskid/aggregation"), _("username/taskid"), _("aggregation/taskid")]
-
+        self._msg = []
+        self._trunc_limit = 2000
+        
         return course
         
     def POST(self, courseid):  # pylint: disable=arguments-differ
@@ -42,7 +44,8 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
                 raise web.notfound()
             for submission in data:
                 self.submission_manager.replay_job(tasks[submission["taskid"]], submission)
-
+            self._msg.append("Selected submissions were set for replay.")
+            
         return self.page(course)
 
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
@@ -58,10 +61,13 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
         
         input = self.get_input()
         data, classroom = self.get_submissions(course, input) #ONLY classrooms user wants to query
+        
         classrooms = self.user_manager.get_course_aggregations(course) # ALL classrooms of the course
         users = self.get_users(course) # All users of the course
         tasks = course.get_tasks();  # All tasks of the course
-        statistics = compute_statistics(tasks, data, True if "ponderate" in input else False)
+        statistics = None
+        if not "no_stat" in input:
+            statistics = compute_statistics(tasks, data, True if "ponderate" in input else False)
             
         if "csv" in web.input():
             return make_csv(data)
@@ -84,17 +90,17 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
 
         if input.limit != '' and input.limit.isdigit():
             data = data[:int(input.limit)]
-        
-        return self.template_helper.get_renderer().course_admin.submission_viewer(course, tasks, users, classrooms, data, statistics, input, self._allowed_sort, self._allowed_sort_name, self._valid_formats)
+            
+        if len(data) > self._trunc_limit:
+            self._msg.append(_("The result contains more than {0} submissions. The displayed submissions are truncated.\n").format(self._trunc_limit))
+            data = data[:self._trunc_limit]
+        return self.template_helper.get_renderer().course_admin.submission_viewer(course, tasks, users, classrooms, data, statistics, input, self._allowed_sort, self._allowed_sort_name, self._valid_formats, self._msg)
 
     def get_users(self, course):
         """ """
         users = OrderedDict(sorted(list(self.user_manager.get_users_info(self.user_manager.get_course_registered_users(course)).items()),
             key=lambda k: k[1][0] if k[1] is not None else ""))
         return users
-        
-        
-
         
     def get_submissions(self, course, input):
     

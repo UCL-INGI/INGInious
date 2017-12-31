@@ -1,4 +1,4 @@
-$def with (course, tasks, users, aggregations, data, statistics,old_input, allowed_sort, allowed_sort_name, valid_formats)
+$def with (course, tasks, users, aggregations, data, statistics,old_input, allowed_sort, allowed_sort_name, valid_formats, msg)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -26,117 +26,88 @@ $def NavbarF():
     </ol>
 $var Navbar: $:NavbarF()
 
+$for m in msg:
+    <div class="alert alert-warning alert-dismissable" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        $m
+    </div>
+
 <h2>$:_("Submission viewer")</h2>
 <form id="select_form" method="get">
 
-<!-- SELECT SUBMISSION FORM -->
+<!-- Query submissions -->
 <div class="panel panel-default">
     <div class="panel-heading">$:_("Query submissions")</div>
     <div class="panel-body">
-            <div class="row">
+        <div class="row">
             
-                <!-- Users -->
-                <div class="col-xs-6 form-group">
-                    <label>$:_("Users")</label>
-                    <select name="user" multiple size="5" class="form-control" id="select_user">
-                    $for u in users:
-                        <option value="$u" $('selected' if u in old_input['user'] else '')>$users[u][0] ($u)</option>
-                     </select>
-                </div>
-                
-                <!-- aggregations -->
-                <div class="col-xs-6 form-group">
-                    <label>$(_("Classrooms") if use_classrooms else _("Teams"))</label>
-                    <select name="aggregation" multiple size="5" class="form-control" id="select_aggregation">
-                    $for c in aggregations:
-                        <option value="$c['_id']" $('selected' if str(c['_id']) in old_input['aggregation'] else '')>$c["description"]</option>
-                    </select>
-                </div>
-                
-                <!-- Tasks -->
-                <div class="col-xs-8 form-group">
-                    <label>$:_("Tasks")</label>
-                    <select name="task" multiple size="8" class="form-control" id="select_task">
-                    $for t in tasks:
-                        <option value="$t" $('selected' if t in old_input['task'] else '')>($t) $tasks[t].get_name(user_manager.session_language())</option>
-                    </select>
-                </div>
-                
-                <!-- Organisational tags -->
-                <div class="col-xs-4 form-group">
-                    <label>$:_("Tasks based on organisational tags")</label>
-                    <select name="org_tags" multiple size="8" class="form-control" id="select_org_tags">
-                    $for t in course.get_all_tags()[2]:
-                        <option value="$t.get_name()" $('selected' if t.get_name() in old_input['org_tags'] else '')>$:_(t.get_name())</option>
-                    </select>
-                </div>
-                
-                <!-- Grade -->
-                 <div class="col-xs-4 form-group">
-                    <!--<div class="row">
-                        <label class="col-xs-12">$:_("Grade")</label>
-                    </div>-->
-                    <div class="row">
-                        <div class="col-xs-12 col-sm-6">
-                            <label class="col-xs-12">$:_("Min grade")</label>
-                            <input name="grade_min" class="form-control" type="number" placeholder="0" id="select_grade_min" value="$old_input['grade_min']"/>
-                        </div>
-                        <div class="col-xs-12 col-sm-6">
-                            <label class="col-xs-12">$:_("Max grade")</label>
-                            <input name="grade_max" class="form-control" type="number" placeholder="100" id="select_grade_max" value="$old_input['grade_max']"/>
-                        </div>
-                    </div>
-                </div>
+            <!-- Users -->
+            <div class="col-xs-6 form-group">
+                <label>$:_("Users")</label>
+                <select name="user" multiple size="5" class="form-control" id="select_user">
+                $for u in users:
+                    <option value="$u" $('selected' if u in old_input['user'] else '')>$users[u][0] ($u)</option>
+                 </select>
+            </div>
 
-                <!-- Checkboxs -->
-                <div class="col-xs-12 form-group">
-                    <div class="row">
-                        <div class="col-xs-2 col-sm-2">
-                            <label class="form-check-label">
-                                <input name="eval" class="form-check-input" type="checkbox" id="only_eval" $('checked' if "eval" in old_input else '')>$:_(" Only evaluation submissions")
-                            </label>
-                        </div>
-                        <div class="col-xs-2 col-sm-2">
-                            <label class="form-check-label">
-                                <input name="show_tags" class="form-check-input" type="checkbox" id="show_tags" $('checked' if "show_tags" in old_input else '')>$:_(" Show tags")
-                            </label>
-                        </div>
-                        <div class="col-xs-2 col-sm-2">
-                            <label class="form-check-label">
-                                <input name="show_id" class="form-check-input" type="checkbox" id="show_id" $('checked' if "show_id" in old_input else '')>$:_(" Show id")
-                            </label>
-                        </div>
-                        <div class="col-xs-2 col-sm-2">
-                            <label class="form-check-label">
-                                <input name="ponderate" class="form-check-input" type="checkbox" id="ponderate" $('checked' if "ponderate" in old_input else '')>$:_(" Ponderate statistics")
-                            </label>
-                        </div>
-                    </div>
-                </div>
+            <!-- aggregations -->
+            <div class="col-xs-6 form-group">
+                <label>$(_("Classrooms") if use_classrooms else _("Teams"))</label>
+                <select name="aggregation" multiple size="5" class="form-control" id="select_aggregation">
+                $for c in aggregations:
+                    <option value="$c['_id']" $('selected' if str(c['_id']) in old_input['aggregation'] else '')>$c["description"]</option>
+                </select>
+            </div>
+
+            <!-- Tasks -->
+            <div class="col-xs-8 form-group">
+                <label>$:_("Tasks")</label>
+                <select name="task" multiple size="8" class="form-control" id="select_task">
+                $for t in tasks:
+                    <option value="$t" $('selected' if t in old_input['task'] else '')>($t) $tasks[t].get_name(user_manager.session_language())</option>
+                </select>
+            </div>
                 
-                <!-- Sort by -->
-                <div class="col-xs-9 form-group">
-                    <div class="row">
-                        <div class="col-xs-5 col-sm-5">
-                            <label>$:_("Sort by")</label>
-                            <select name="sort_by" class="form-control" id="select_sort_by">
-                                $for i in range(0, len(allowed_sort)):
-                                    <option value="$allowed_sort[i]" $('selected' if old_input['sort_by'] == allowed_sort[i] else '')>$allowed_sort_name[i]</option>
-                            </select>
-                        </div>
-                        <div class="col-xs-3 col-sm-3">
-                            <label>$:_("Order")</label>
-                            <select name="order" class="form-control" id="select_order">
-                                <option value="0" $('selected' if old_input['order'] == '0' else '')>Descending</option>
-                                <option value="1" $('selected' if old_input['order'] == '1' else '')>Ascending</option>
-                            </select>
-                        </div>
-                        <div class="col-xs-3 col-sm-3"  title="$:_('Only visual. Statistics, download, replay and csv always consider all queried submissions.')" data-toggle="tooltip" data-placement="top">
-                            <label>$:_("Limit") *</label>
-                            <input name="limit" class="form-control" type="number" placeholder="0" id="select_limit" value="$old_input['limit']"/>
-                        </div>
+            <!-- Organisational tags -->
+            <div class="col-xs-4 form-group">
+                <label>$:_("Tasks based on organisational tags")</label>
+                <select name="org_tags" multiple size="8" class="form-control" id="select_org_tags">
+                $for t in course.get_all_tags()[2]:
+                    <option value="$t.get_name()" $('selected' if t.get_name() in old_input['org_tags'] else '')>$:_(t.get_name())</option>
+                </select>
+            </div>
+                
+            <!-- Grade -->
+            <div class="col-xs-4 form-group">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6">
+                        <label class="col-xs-12">$:_("Min grade")</label>
+                        <input name="grade_min" class="form-control" type="number" placeholder="0" id="select_grade_min" value="$old_input['grade_min']"/>
+                    </div>
+                    <div class="col-xs-12 col-sm-6">
+                        <label class="col-xs-12">$:_("Max grade")</label>
+                        <input name="grade_max" class="form-control" type="number" placeholder="100" id="select_grade_max" value="$old_input['grade_max']"/>
                     </div>
                 </div>
+            </div>
+
+            <!-- Checkboxs -->
+            $ list_checkboxes = [("eval", _("Only evaluation submissions")), 
+            $                    ("show_tags", _("Show tags")), 
+            $                    ("show_id", _("Show submission id")), 
+            $                    ("show_task_name", _("Show complete task name")),
+            $                    ("no_stat", _("Do not compute statistics")),
+            $                    ("ponderate", _("Ponderate statistics"))]
+            <div class="col-xs-12 form-group">
+                <div class="row">
+                $for c in list_checkboxes:
+                    <div class="col-xs-2 col-sm-2">
+                        <label class="form-check-label">
+                            <input name="$c[0]" class="form-check-input" type="checkbox" $('checked' if c[0] in old_input else '')> $c[1]
+                        </label>
+                    </div>
+                </div>
+            </div>
 
             <!-- Tag filtering -->
             $if "show_tags" in old_input:
@@ -160,17 +131,37 @@ $var Navbar: $:NavbarF()
                             </div>
                         </div>
                     </div>
-
+                    
+            <!-- Sort by -->
+            <div class="col-xs-9 form-group">
+                <div class="row">
+                    <div class="col-xs-5 col-sm-5">
+                        <label>$:_("Sort by")</label>
+                        <select name="sort_by" class="form-control" id="select_sort_by">
+                        $for i in range(0, len(allowed_sort)):
+                            <option value="$allowed_sort[i]" $('selected' if old_input['sort_by'] == allowed_sort[i] else '')>$allowed_sort_name[i]</option>
+                        </select>
+                    </div>
+                    <div class="col-xs-3 col-sm-3">
+                        <label>$:_("Order")</label>
+                        <select name="order" class="form-control" id="select_order">
+                            <option value="0" $('selected' if old_input['order'] == '0' else '')>Descending</option>
+                            <option value="1" $('selected' if old_input['order'] == '1' else '')>Ascending</option>
+                        </select>
+                    </div>
+                    <div class="col-xs-3 col-sm-3"  title="$:_('Only visual. Statistics, download, replay and csv always consider all queried submissions.')" data-toggle="tooltip" data-placement="top">
+                        <label>$:_("Limit") *</label>
+                        <input name="limit" class="form-control" type="number" placeholder="0" id="select_limit" value="$old_input['limit']"/>
+                    </div>
+                </div>
             </div>
+
+        </div>
         <button type="submit" onclick="reset_option_download()" class="btn btn-default pull-right">$:_("Filter")</button>
         <button type="button" onclick="window.location.href='$get_homepath()/admin/${course.get_id()}/submission_viewer'" class="btn btn-default pull-right">$:_("Reset")</button>
     </div>
 </div>
-<!-- SELECT SUBMISSION FORM END -->
-
-
-
-
+<!-- Query submissions END -->
 
 <!-- Modal to download submissions -->
 <div id="download_modal" class="modal fade">
@@ -198,64 +189,64 @@ $var Navbar: $:NavbarF()
 </div>
 <!-- Modal to download submissions END -->
 
-
-
-
 <!-- Statistics -->
-<div class="table-responsive">
-<div class="col-sm-5">
-    <div class="panel panel-default">
-        <div class="panel-heading">$:_("Submissions statistics")</div>
-        <div class="panel-body ">
-            <table class="table table-condensed table-summary table-borderless ">
-                <tbody>
-                    $for stat in statistics[0]:
-                        <tr>
-                            <td class="summary-heading">$stat[0]</td>
-                            <td class="summary-content">$stat[1]</td>
-                        </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-$if "show_tags" in old_input:
-    <div class="col-sm-7">
+$if statistics != None and len(data) > 0:
+    <div class="table-responsive">
+    <div class="col-sm-5">
         <div class="panel panel-default">
-            <div class="panel-heading">$:_("Tag statistics")</div>
+            <div class="panel-heading">$:_("Submissions statistics")</div>
             <div class="panel-body ">
                 <table class="table table-condensed table-summary table-borderless ">
-                    <thead>
-                        <tr>
-                            <th>$:_("Tag")</th>
-                            <th>$:_("All submissions")</th>
-                            <th>$:_("Best submissions")</th>
-                        </tr>
-                    </thead>
                     <tbody>
-                        $for (tag, v_total, v_best) in statistics[1]:
-                            $ color = "badge alert-danger" if tag.is_antitag() else "badge alert-info" 
+                        $for stat in statistics[0]:
                             <tr>
-                                <td><span class="$color" id="$tag.get_id()" data-toggle="tooltip" data-placement="left" title="$tag.get_description(translated=True)">$:_(tag.get_name())</span></td>
-                                <td>$int(v_total) %</td>
-                                <td>$int(v_best) %</td>
+                                <td class="summary-heading">$stat[0]</td>
+                                <td class="summary-content">$stat[1]</td>
                             </tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
-</div>
-<!-- End Statistics -->
+    $if "show_tags" in old_input:
+        <div class="col-sm-7">
+            <div class="panel panel-default">
+                <div class="panel-heading">$:_("Tag statistics")</div>
+                <div class="panel-body ">
+                    <table class="table table-condensed table-summary table-borderless ">
+                        <thead>
+                            <tr>
+                                <th>$:_("Tag")</th>
+                                <th>$:_("All submissions")</th>
+                                <th>$:_("Best submissions")</th>
+                            </tr>
+                       </thead>
+                        <tbody>
+                            $for (tag, v_total, v_best) in statistics[1]:
+                                $ color = "badge alert-danger" if tag.is_antitag() else "badge alert-info" 
+                                <tr>
+                                    <td><span class="$color" id="$tag.get_id()" data-toggle="tooltip" data-placement="left" title="$tag.get_description(translated=True)">$:_(tag.get_name())</span></td>
+                                    <td>$int(v_total) %</td>
+                                    <td>$int(v_best) %</td>
+                                </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- Statistics End -->
 
-
-
+<!-- Submission table -->
 <table class="table">
     <thead>
         <tr>
             <th></th>
             <th>$:_("username")</th>
-            <th>$:_("taskid")</th>
+            $if "show_task_name" in old_input:
+                <th>$:_("task name")</th>
+            $else:
+                <th>$:_("taskid")</th>
             $if "show_id" in old_input:
                 <th>$:_("id")</th>
             <th>$:_("submitted on")</th>
@@ -294,7 +285,10 @@ $if "show_tags" in old_input:
                 $for user in submission["username"]:
                     $user<br>
             </td>
-            <td>$submission["taskid"]</td>
+            $if "show_task_name" in old_input:
+                <td>$tasks[submission["taskid"]].get_name(user_manager.session_language())</td>
+            $else:
+                <td>$submission["taskid"]</td>
             $if "show_id" in old_input:
                 <td>$submission["_id"]</td>
             <td>$submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S")</td>
@@ -351,6 +345,8 @@ $if "show_tags" in old_input:
         </tr>
     </tbody>
 </table>
+<!-- Submission table END -->
+
 </form>
 
 $if is_admin:
