@@ -39,14 +39,14 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
 
         input = self.get_input()
         tasks = course.get_tasks()
-        data, _ = self.get_submissions(course, input)
+        data, __ = self.get_submissions(course, input)
 
         if "replay" in web.input():
             if self.user_manager.has_admin_rights_on_course(course) == False:
                 raise web.notfound()
             for submission in data:
                 self.submission_manager.replay_job(tasks[submission["taskid"]], submission)
-            self._msg.append("Selected submissions were set for replay.")
+            self._msg.append(_("{0} selected submissions were set for replay.").format(str(len(data)))) 
             
         return self.page(course)
 

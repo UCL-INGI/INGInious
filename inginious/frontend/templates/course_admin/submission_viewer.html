@@ -256,12 +256,12 @@ $if statistics != None and len(data) > 0:
             <th>
                 <!-- the 73px is there to force horizontal button-group. The btn-group may becomes vertical without this. -->
                 <div class="btn-group" role="group" style="width:73px">
+                    <button class="btn btn-info btn-xs" type="submit" name="csv" formmethod="get" title=$:_('"Download CSV"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></button>
                     <div class="btn btn-danger btn-xs" data-toggle="modal" data-target="#download_modal">
                         <div data-toggle="tooltip" data-placement="top" title=$:_('"Download current selection"')><i class="fa fa-download"></i></div>
                     </div>
                     $if is_admin:
                         <button class="btn btn-warning btn-xs" type="submit" name="replay" formmethod="post" title=$:_('"Replay current selection"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></button>
-                    <button class="btn btn-info btn-xs" type="submit" name="csv" formmethod="get" title=$:_('"Download CSV"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></button>
                 </div>
             </th>
         </tr>
