@@ -8,6 +8,7 @@ import web
 import re
 import itertools
 import time
+from datetime import datetime
 from bson.objectid import ObjectId
 from collections import OrderedDict
 
@@ -68,9 +69,9 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
         users = self.get_users(course) # All users of the course
         tasks = course.get_tasks();  # All tasks of the course
         statistics = None
-        if not "no_stat" in input:
+        if input.stat != "no_stat":
             old_time = time.time()
-            statistics = compute_statistics(tasks, data, True if "ponderate" in input else False)
+            statistics = compute_statistics(tasks, data, True if "with_pond_stat" == input.stat else False)
             total_time = time.time() - old_time
             if total_time > self._time_alert_computation_stats:
                 self._msg.append(_("Statistics take {0} seconds to compute due to the higher number of submissions. Try adding more filter options to reduce computation time.").format(round(total_time,1)))
@@ -137,6 +138,18 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
             query_advanced["grade"] = {"$lte" : float(input.grade_max)}
         elif (input.grade_min != '' and input.grade_max != ''):
             query_advanced["grade"] = {"$gte" : float(input.grade_min), "$lte" : float(input.grade_max)}
+            
+        try:
+            date_before = datetime.strptime(input.date_before, "%Y-%m-%d %H:%M:%S") if input.date_before != '' else ''
+            date_after = datetime.strptime(input.date_after, "%Y-%m-%d %H:%M:%S") if input.date_after != '' else ''
+            if (date_before != '' and date_after == ''):
+                query_advanced["submitted_on"] = {"$lte" : date_before}
+            elif (date_before == '' and date_after != ''):
+                query_advanced["submitted_on"] = {"$gte" : date_after}
+            elif (date_before != '' and date_after != ''):
+                query_advanced["submitted_on"] = {"$gte" : date_after, "$lte" : date_before}
+        except ValueError: #If match of datetime.strptime() fails
+            pass
         
         #Query with tags
         if len(input.filter_tags) == len(input.filter_tags_presence):
@@ -175,6 +188,9 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
             limit='',
             filter_tags=[],
             filter_tags_presence=[],
+            date_after='',
+            date_before='',
+            stat=''
         )
 
         #Sanitise inputs

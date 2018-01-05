@@ -90,18 +90,45 @@ $for m in msg:
                     </div>
                 </div>
             </div>
+            
+                            
+            <!-- Date -->
+            <div class="col-xs-8 form-group">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6">
+                        <label class="col-xs-12">$:_("Before date")</label>
+                        <div class="input-group date" id="date_before_picker">
+                            <input name="date_before" data-date-format="YYYY-MM-DD HH:mm:ss" value="$old_input['date_before']" placeholder="2014-06-29 10:00" type="text" class="form-control">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        </div>
+                    </div>
+                    
+                    <div class="col-xs-12 col-sm-6">
+                        <label class="col-xs-12">$:_("After date")</label>
+                        <div class="input-group date" id="date_after_picker">
+                            <input name="date_after" data-date-format="YYYY-MM-DD HH:mm:ss" value="$old_input['date_after']" placeholder="2014-06-29 10:00" type="text" class="form-control">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <script type="text/javascript">
+                \$(function() {
+                    \$('#date_before_picker').datetimepicker({locale: '$user_manager.session_language()', sideBySide: true});
+                    \$('#date_after_picker').datetimepicker({locale: '$user_manager.session_language()', sideBySide: true});
+                });
+            </script>
 
             <!-- Checkboxs -->
             $ list_checkboxes = [("eval", _("Only evaluation submissions")), 
             $                    ("show_tags", _("Show tags")), 
             $                    ("show_id", _("Show submission id")), 
             $                    ("show_task_name", _("Show complete task name")),
-            $                    ("no_stat", _("Do not compute statistics")),
-            $                    ("ponderate", _("Ponderate statistics"))]
+            $                    ("show_stud_name", _("Show complete student name"))]
             <div class="col-xs-12 form-group">
                 <div class="row">
                 $for c in list_checkboxes:
-                    <div class="col-xs-2 col-sm-2">
+                    <div class="col-xs-1 col-sm-2">
                         <label class="form-check-label">
                             <input name="$c[0]" class="form-check-input" type="checkbox" $('checked' if c[0] in old_input else '')> $c[1]
                         </label>
@@ -133,9 +160,9 @@ $for m in msg:
                     </div>
                     
             <!-- Sort by -->
-            <div class="col-xs-9 form-group">
+            <div class="col-xs-12 form-group">
                 <div class="row">
-                    <div class="col-xs-5 col-sm-5">
+                    <div class="col-xs-3 col-sm-3">
                         <label>$:_("Sort by")</label>
                         <select name="sort_by" class="form-control" id="select_sort_by">
                         $for i in range(0, len(allowed_sort)):
@@ -145,13 +172,21 @@ $for m in msg:
                     <div class="col-xs-3 col-sm-3">
                         <label>$:_("Order")</label>
                         <select name="order" class="form-control" id="select_order">
-                            <option value="0" $('selected' if old_input['order'] == '0' else '')>Descending</option>
-                            <option value="1" $('selected' if old_input['order'] == '1' else '')>Ascending</option>
+                            <option value="0" $('selected' if old_input['order'] == '0' else '')>$:_("Descending")</option>
+                            <option value="1" $('selected' if old_input['order'] == '1' else '')>$:_("Ascending")</option>
                         </select>
                     </div>
-                    <div class="col-xs-3 col-sm-3"  title="$:_('Only visual. Statistics, download, replay and csv always consider all queried submissions.')" data-toggle="tooltip" data-placement="top">
+                    <div class="col-xs-2 col-sm-2"  title="$:_('Only visual. Statistics, download, replay and csv always consider all queried submissions.')" data-toggle="tooltip" data-placement="top">
                         <label>$:_("Limit") *</label>
                         <input name="limit" class="form-control" type="number" placeholder="0" id="select_limit" value="$old_input['limit']"/>
+                    </div>
+                    <div class="col-xs-4 col-sm-4">
+                        <label>$:_("Statistics")</label>
+                        <select name="stat" class="form-control">
+                            <option value="no_stat" $('selected' if old_input['stat'] == 'no_stat' else '')>$:_("No statistics")</option>
+                            <option value="with_stat" $('selected' if old_input['stat'] == 'with_stat' else '')>$:_("With statistics")</option>
+                            <option value="with_pond_stat" $('selected' if old_input['stat'] == 'with_pond_stat' else '')>$:_("With ponderated statistics")</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -242,7 +277,10 @@ $if statistics != None and len(data) > 0:
     <thead>
         <tr>
             <th></th>
-            <th>$:_("username")</th>
+            $if "show_stud_name" in old_input:
+                <th>$:_("student name")</th>
+            $else:
+                <th>$:_("username")</th>
             $if "show_task_name" in old_input:
                 <th>$:_("task name")</th>
             $else:
@@ -283,7 +321,11 @@ $if statistics != None and len(data) > 0:
             </td>
             <td>
                 $for user in submission["username"]:
-                    $user<br>
+                    $if "show_stud_name" in old_input:
+                        $users[user][0]<br>
+                    $else:
+                        $user<br>
+                        
             </td>
             $if "show_task_name" in old_input:
                 <td>$tasks[submission["taskid"]].get_name(user_manager.session_language())</td>
