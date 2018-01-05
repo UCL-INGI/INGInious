@@ -190,7 +190,7 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
             filter_tags_presence=[],
             date_after='',
             date_before='',
-            stat=''
+            stat='with_stat',
         )
 
         #Sanitise inputs

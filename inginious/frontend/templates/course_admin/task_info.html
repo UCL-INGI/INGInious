@@ -86,7 +86,7 @@ $var Navbar: $:NavbarF()
                                 <td>
                                     <div class="btn-group" role="group">
                                         <!--<a href="$get_homepath()/admin/${course.get_id()}/student/$user['username']/$task.get_id()" class="btn btn-default btn-xs"-->
-                                        <a href="$get_homepath()/admin/${course.get_id()}/submission_viewer?username=$user['username']&task=$task.get_id()&show_tags=1" class="btn btn-default btn-xs"
+                                        <a href="$get_homepath()/admin/${course.get_id()}/submission_viewer?user=$user['username']&task=$task.get_id()" class="btn btn-default btn-xs"
                                            title=$:_('"View submissions"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
                                         <a href="$get_homepath()/admin/${course.get_id()}/download$user['url']" class="btn btn-default btn-xs"
                                            title=$:_('"Download submissions"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
@@ -156,7 +156,7 @@ $var Navbar: $:NavbarF()
                                             <td>
                                                 <div class="btn-group" role="group">
                                                     <!--<a href="$get_homepath()/admin/${course.get_id()}/aggregation/$aggregation['_id']/$task.get_id()" class="btn btn-default btn-xs"-->
-                                                    <a href="$get_homepath()/admin/${course.get_id()}/submission_viewer?classroom=$aggregation['_id']&task=$task.get_id()" class="btn btn-default btn-xs"
+                                                    <a href="$get_homepath()/admin/${course.get_id()}/submission_viewer?aggregation=$aggregation['_id']&task=$task.get_id()" class="btn btn-default btn-xs"
                                                        title=$:_('"View submissions"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
                                                     <a href="$get_homepath()/admin/${course.get_id()}/download$aggregation['url']" class="btn btn-default btn-xs"
                                                        title=$:_('"Download  submissions"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
