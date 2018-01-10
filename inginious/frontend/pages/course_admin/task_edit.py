@@ -209,6 +209,8 @@ class CourseEditTask(INGIniousAdminPage):
             
             #Tags
             tags = self.dict_from_prefix("tags", data)
+            if tags is None:
+                tags = {}
             tags = OrderedDict(sorted(tags.items(), key=lambda item: item[0])) # Sort by key
             
             # Repair tags
