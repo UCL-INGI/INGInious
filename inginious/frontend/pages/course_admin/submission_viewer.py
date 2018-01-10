@@ -8,6 +8,7 @@ import web
 import re
 import itertools
 import time
+import gettext
 from datetime import datetime
 from bson.objectid import ObjectId
 from collections import OrderedDict
@@ -66,7 +67,14 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
         data, classroom = self.get_submissions(course, input) #ONLY classrooms user wants to query
         if len(data) == 0 and not self.show_collapse(input):
             self._msg.append(_("No submissions found"))
-
+            
+        if "json" in input:
+            for submission in data:
+                submission = self.submission_manager.get_input_from_submission(submission)
+                #if need also feedback, uncomment this line
+                #submission = self.submission_manager.get_feedback_from_submission(submission,show_everything=True,translation=self.app._translations.get(self.user_manager.session_language(), gettext.NullTranslations()))
+            return data
+            
         classrooms = self.user_manager.get_course_aggregations(course) # ALL classrooms of the course
         users = self.get_users(course) # All users of the course
         tasks = course.get_tasks();  # All tasks of the course
