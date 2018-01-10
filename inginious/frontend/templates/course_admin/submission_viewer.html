@@ -33,6 +33,16 @@ $for m in msg:
     </div>
 
 <h2>$:_("Submission viewer")</h2>
+<!-- Add a title if only one task and one user/aggregation -->
+$if len(old_input.task) == 1:
+    $ task_name = tasks[old_input.task[0]].get_name(user_manager.session_language())
+    $if len(old_input.user) == 1 and len(old_input.aggregation) == 0:
+        <h4>$:_('Submissions for task "{0}" - {1} ({2})').format(task_name, users[old_input.user[0]][0], old_input.user[0])</h4>
+    $if len(old_input.aggregation) == 1 and len(old_input.user) == 0:
+        $for c in aggregations:
+            $if str(c['_id']) in old_input['aggregation']:
+                <h4>$:_('Submissions for the task "{0}" - {1}').format(task_name, c["description"])</h4>
+
 <form id="select_form" method="get">
 
 <!-- Query submissions -->
@@ -266,31 +276,32 @@ $if statistics != None and len(data) > 0:
             </div>
         </div>
     </div>
-    <div class="col-sm-7">
-        <div class="panel panel-default">
-            <div class="panel-heading">$:_("Tag statistics")</div>
-            <div class="panel-body ">
-                <table class="table table-condensed table-summary table-borderless ">
-                    <thead>
-                        <tr>
-                            <th>$:_("Tag")</th>
-                            <th>$:_("All submissions")</th>
-                            <th>$:_("Best submissions")</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        $for (tag, v_total, v_best) in statistics[1]:
-                            $ color = "badge alert-danger" if tag.is_antitag() else "badge alert-info" 
+    $if len(statistics) >= 2 and len(statistics[1]) > 0:
+        <div class="col-sm-7">
+            <div class="panel panel-default">
+                <div class="panel-heading">$:_("Tag statistics")</div>
+                <div class="panel-body ">
+                    <table class="table table-condensed table-summary table-borderless ">
+                        <thead>
                             <tr>
-                                <td><span class="$color" id="$tag.get_id()" data-toggle="tooltip" data-placement="left" title="$tag.get_description(translated=True)">$:_(tag.get_name())</span></td>
-                                <td>$int(v_total) %</td>
-                                <td>$int(v_best) %</td>
+                                <th>$:_("Tag")</th>
+                                <th>$:_("All submissions")</th>
+                                <th>$:_("Best submissions")</th>
                             </tr>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            $for (tag, v_total, v_best) in statistics[1]:
+                                $ color = "badge alert-danger" if tag.is_antitag() else "badge alert-info" 
+                                <tr>
+                                    <td><span class="$color" id="$tag.get_id()" data-toggle="tooltip" data-placement="left" title="$tag.get_description(translated=True)">$:_(tag.get_name())</span></td>
+                                    <td>$int(v_total) %</td>
+                                    <td>$int(v_best) %</td>
+                                </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
     </div>
 <!-- Statistics End -->
 

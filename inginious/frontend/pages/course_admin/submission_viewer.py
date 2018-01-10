@@ -29,7 +29,7 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
         self._valid_formats = ["taskid/username", "taskid/aggregation", "username/taskid", "aggregation/taskid"]
         self._valid_formats_name = [_("taskid/username"), _("taskid/aggregation"), _("username/taskid"), _("aggregation/taskid")]
         self._msg = [] # Put warning message here
-        self._trunc_limit = 1000 # To trunc submissions id there are too many submissions
+        self._trunc_limit = 1000 # To trunc submissions if there are too many submissions
         self._time_alert_computation_stats = 2
         
         return course
@@ -70,6 +70,7 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
         classrooms = self.user_manager.get_course_aggregations(course) # ALL classrooms of the course
         users = self.get_users(course) # All users of the course
         tasks = course.get_tasks();  # All tasks of the course
+
         statistics = None
         if input.stat != "no_stat":
             old_time = time.time()
@@ -185,7 +186,7 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
         return data, classroom
 
     def get_input(self):
-        """ Loads web input, initialise default values and check/sanitise inputs from users """
+        """ Loads web input, initialise default values and check/sanitise some inputs from users """
         input = web.input(
             user=[],
             task=[],
