@@ -166,7 +166,8 @@ Someone (probably you) asked to reset your INGInious password. If this was you, 
         if not error:
             passwd_hash = hashlib.sha512(data["passwd"].encode("utf-8")).hexdigest()
             user = self.database.users.find_one_and_update({"reset": data["reset_hash"]},
-                                                           {"$set": {"password": passwd_hash}, "$unset": {"reset": True}})
+                                                           {"$set": {"password": passwd_hash},
+                                                            "$unset": {"reset": True, "activate": True}})
             if user is None:
                 error = True
                 msg = _("Invalid reset hash.")
