@@ -62,6 +62,8 @@ def compute_statistics(tasks, data, ponderation):
     return (fast_stats(data), output)
 
 def fast_stats(data):
+    """ Compute base statistics about submissions """
+    
     total_submission = len(data)
     total_submission_best = 0
     total_submission_best_succeeded = 0
@@ -83,6 +85,7 @@ def fast_stats(data):
     return statistics
     
 def safe_div(x,y):
+    """ Safe division to avoid /0 errors """
     if y == 0:
         return 0
     return x / y
