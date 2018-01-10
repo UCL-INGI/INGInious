@@ -55,7 +55,7 @@ class CourseEditTask(INGIniousAdminPage):
         for pid in task_data.get("problems", {}):
             problem = task_data["problems"][pid]
             if (problem["type"] == "code" and "boxes" in problem) or problem["type"] not in (
-                    "code", "code_single_line", "code_file", "match", "multiple_choice"):
+                    "code", "code_single_line", "file", "match", "multiple_choice"):
                 problem_copy = copy.deepcopy(problem)
                 for i in ["name", "header"]:
                     if i in problem_copy:

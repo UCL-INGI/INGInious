@@ -212,7 +212,7 @@ class CodeFileProblem(BasicCodeProblem):
 
     @classmethod
     def get_type(cls):
-        return "code_file"
+        return "file"
 
     @classmethod
     def parse_problem(self, problem_content):

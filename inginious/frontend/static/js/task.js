@@ -720,7 +720,7 @@ function load_input_code_single_line(submissionid, key, input)
     load_input_code(submissionid, key, input);
 }
 
-function load_input_code_file(submissionid, key, input)
+function load_input_file(submissionid, key, input)
 {
     if(key in input) {
         var input_file = $('#download-input-file-' + key);

@@ -129,7 +129,7 @@ class DisplayableCodeFileProblem(CodeFileProblem, DisplayableCodeProblem):
 
     @classmethod
     def show_editbox(cls, template_helper, key):
-        return DisplayableCodeFileProblem.get_renderer(template_helper).course_admin.subproblems.code_file(key)
+        return DisplayableCodeFileProblem.get_renderer(template_helper).course_admin.subproblems.file(key)
 
 
 class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableBasicProblem):

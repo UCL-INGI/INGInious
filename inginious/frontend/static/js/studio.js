@@ -417,12 +417,12 @@ function studio_init_template_code_single_line(well, pid, problem)
 }
 
 /**
- * Init a code_file template
+ * Init a file template
  * @param well: the DOM element containing the input fields
  * @param pid
  * @param problem
  */
-function studio_init_template_code_file(well, pid, problem)
+function studio_init_template_file(well, pid, problem)
 {
     if("max_size" in problem)
         $('#maxsize-' + pid, well).val(problem["max_size"]);

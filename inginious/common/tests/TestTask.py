@@ -15,7 +15,7 @@ from inginious.common.exceptions import InvalidNameException, TaskUnreadableExce
 from inginious.common.hook_manager import HookManager
 from inginious.common.tasks_problems import *
 
-problem_types = {"code": CodeProblem, "code_single_line": CodeSingleLineProblem, "code_file": CodeFileProblem,
+problem_types = {"code": CodeProblem, "code_single_line": CodeSingleLineProblem, "file": CodeFileProblem,
                          "multiple_choice": MultipleChoiceProblem, "match": MatchProblem}
 
 class test_tasks_basic(object):
