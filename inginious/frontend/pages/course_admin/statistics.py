@@ -65,7 +65,6 @@ def fast_stats(data):
     total_submission = len(data)
     total_submission_best = 0
     total_submission_best_succeeded = 0
-    mean_grade = 0
         
     for submission in data:
         if "best" in submission and submission["best"]:
