@@ -237,7 +237,7 @@ $if len(old_input.task) == 1:
         <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">$:_("Choose download format")</h4>
+                    <h4 class="modal-title">$:_("Download format")</h4>
                 </div>
                 <div class="modal-body row">
                     <label for="folder_format" class="col-sm-2 control-label">$:_("Folder format")</label>
@@ -246,6 +246,9 @@ $if len(old_input.task) == 1:
                             <div class="radio">
                                 <label><input type="radio" name="download_type" value="$entry"> $:_(entry)</label>
                             </div>
+                        <label class="form-check-label">
+                            <input name="eval" class="form-check-input" type="checkbox"> $:_("Only evaluation submissions")
+                        </label>
                     </div>
                 </div>
                 <div class="modal-footer">
