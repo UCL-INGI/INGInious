@@ -1,4 +1,4 @@
-$def with (course, tasks, users, aggregations, data, statistics,old_input, allowed_sort, allowed_sort_name, valid_formats, msg)
+$def with (course, tasks, users, aggregations, data, statistics, old_input, allowed_sort, allowed_sort_name, valid_formats, msg, show_collapse)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -37,7 +37,12 @@ $for m in msg:
 
 <!-- Query submissions -->
 <div class="panel panel-default">
-    <div class="panel-heading">$:_("Query submissions")</div>
+    <div class="panel-heading">
+        <h4 class="panel-title">
+            <a data-toggle="collapse" data-target="#collapseMAIN">$:_("Query submissions")</a>
+        </h4>
+    </div>
+    <div id="collapseMAIN" class="panel-collapse collapse $('in' if show_collapse else '')">
     <div class="panel-body">
         <div class="row">
             
@@ -62,7 +67,7 @@ $for m in msg:
             <!-- Tasks -->
             <div class="col-xs-8 form-group">
                 <label>$:_("Tasks")</label>
-                <select name="task" multiple size="8" class="form-control" id="select_task">
+                <select name="task" multiple size="9" class="form-control" id="select_task">
                 $for t in tasks:
                     <option value="$t" $('selected' if t in old_input['task'] else '')>($t) $tasks[t].get_name(user_manager.session_language())</option>
                 </select>
@@ -71,12 +76,42 @@ $for m in msg:
             <!-- Organisational tags -->
             <div class="col-xs-4 form-group">
                 <label>$:_("Tasks based on organisational tags")</label>
-                <select name="org_tags" multiple size="8" class="form-control" id="select_org_tags">
+                <select name="org_tags" multiple size="9" class="form-control" id="select_org_tags">
                 $for t in course.get_all_tags()[2]:
                     <option value="$t.get_name()" $('selected' if t.get_name() in old_input['org_tags'] else '')>$:_(t.get_name())</option>
                 </select>
             </div>
-                
+            
+            
+            <div class="col-xs-12 form-group">
+                <div class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-target="#collapseAdvanced">$:_("Advanced query")</a>
+                            </h4>
+                        </div>
+                        <div id="collapseAdvanced" class="panel-collapse collapse">
+                            <div class="panel-body">
+                            
+            <!-- Content coolspse Advanced query -->
+            <!-- Checkboxs -->
+            $ list_checkboxes = [("eval", _("Only evaluation submissions")), 
+            $                    ("show_tags", _("Show tags")), 
+            $                    ("show_id", _("Show submission id")), 
+            $                    ("show_task_name", _("Show task name")),
+            $                    ("show_stud_name", _("Show student name"))]
+            <div class="col-xs-12 form-group">
+                <div class="row">
+                $for c in list_checkboxes:
+                    <div class="col-xs-1 col-sm-2">
+                        <label class="form-check-label">
+                            <input name="$c[0]" class="form-check-input" type="checkbox" $('checked' if c[0] in old_input else '')> $c[1]
+                        </label>
+                    </div>
+                </div>
+            </div>
+
             <!-- Grade -->
             <div class="col-xs-4 form-group">
                 <div class="row">
@@ -90,8 +125,7 @@ $for m in msg:
                     </div>
                 </div>
             </div>
-            
-                            
+
             <!-- Date -->
             <div class="col-xs-8 form-group">
                 <div class="row">
@@ -102,7 +136,6 @@ $for m in msg:
                             <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                         </div>
                     </div>
-                    
                     <div class="col-xs-12 col-sm-6">
                         <label class="col-xs-12">$:_("After date")</label>
                         <div class="input-group date" id="date_after_picker">
@@ -118,23 +151,6 @@ $for m in msg:
                     \$('#date_after_picker').datetimepicker({locale: '$user_manager.session_language()', sideBySide: true});
                 });
             </script>
-
-            <!-- Checkboxs -->
-            $ list_checkboxes = [("eval", _("Only evaluation submissions")), 
-            $                    ("show_tags", _("Show tags")), 
-            $                    ("show_id", _("Show submission id")), 
-            $                    ("show_task_name", _("Show complete task name")),
-            $                    ("show_stud_name", _("Show complete student name"))]
-            <div class="col-xs-12 form-group">
-                <div class="row">
-                $for c in list_checkboxes:
-                    <div class="col-xs-1 col-sm-2">
-                        <label class="form-check-label">
-                            <input name="$c[0]" class="form-check-input" type="checkbox" $('checked' if c[0] in old_input else '')> $c[1]
-                        </label>
-                    </div>
-                </div>
-            </div>
 
             <!-- Tag filtering -->
             $if "show_tags" in old_input:
@@ -158,7 +174,7 @@ $for m in msg:
                             </div>
                         </div>
                     </div>
-                    
+
             <!-- Sort by -->
             <div class="col-xs-12 form-group">
                 <div class="row">
@@ -190,11 +206,18 @@ $for m in msg:
                     </div>
                 </div>
             </div>
+            <!-- END Content coolspse Advanced query -->
 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <button type="submit" onclick="reset_option_download()" class="btn btn-default pull-right">$:_("Filter")</button>
         <button type="button" onclick="window.location.href='$get_homepath()/admin/${course.get_id()}/submission_viewer'" class="btn btn-default pull-right">$:_("Reset")</button>
     </div>
+</div>
 </div>
 <!-- Query submissions END -->
 
@@ -243,32 +266,31 @@ $if statistics != None and len(data) > 0:
             </div>
         </div>
     </div>
-    $if "show_tags" in old_input:
-        <div class="col-sm-7">
-            <div class="panel panel-default">
-                <div class="panel-heading">$:_("Tag statistics")</div>
-                <div class="panel-body ">
-                    <table class="table table-condensed table-summary table-borderless ">
-                        <thead>
+    <div class="col-sm-7">
+        <div class="panel panel-default">
+            <div class="panel-heading">$:_("Tag statistics")</div>
+            <div class="panel-body ">
+                <table class="table table-condensed table-summary table-borderless ">
+                    <thead>
+                        <tr>
+                            <th>$:_("Tag")</th>
+                            <th>$:_("All submissions")</th>
+                            <th>$:_("Best submissions")</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        $for (tag, v_total, v_best) in statistics[1]:
+                            $ color = "badge alert-danger" if tag.is_antitag() else "badge alert-info" 
                             <tr>
-                                <th>$:_("Tag")</th>
-                                <th>$:_("All submissions")</th>
-                                <th>$:_("Best submissions")</th>
+                                <td><span class="$color" id="$tag.get_id()" data-toggle="tooltip" data-placement="left" title="$tag.get_description(translated=True)">$:_(tag.get_name())</span></td>
+                                <td>$int(v_total) %</td>
+                                <td>$int(v_best) %</td>
                             </tr>
-                       </thead>
-                        <tbody>
-                            $for (tag, v_total, v_best) in statistics[1]:
-                                $ color = "badge alert-danger" if tag.is_antitag() else "badge alert-info" 
-                                <tr>
-                                    <td><span class="$color" id="$tag.get_id()" data-toggle="tooltip" data-placement="left" title="$tag.get_description(translated=True)">$:_(tag.get_name())</span></td>
-                                    <td>$int(v_total) %</td>
-                                    <td>$int(v_best) %</td>
-                                </tr>
-                        </tbody>
-                    </table>
-                </div>
+                    </tbody>
+                </table>
             </div>
         </div>
+    </div>
     </div>
 <!-- Statistics End -->
 

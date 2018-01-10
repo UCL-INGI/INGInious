@@ -64,7 +64,9 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
         
         input = self.get_input()
         data, classroom = self.get_submissions(course, input) #ONLY classrooms user wants to query
-        
+        if len(data) == 0 and not self.show_collapse(input):
+            self._msg.append(_("No submissions found"))
+
         classrooms = self.user_manager.get_course_aggregations(course) # ALL classrooms of the course
         users = self.get_users(course) # All users of the course
         tasks = course.get_tasks();  # All tasks of the course
@@ -101,16 +103,24 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
         if len(data) > self._trunc_limit:
             self._msg.append(_("The result contains more than {0} submissions. The displayed submissions are truncated.\n").format(self._trunc_limit))
             data = data[:self._trunc_limit]
-        return self.template_helper.get_renderer().course_admin.submission_viewer(course, tasks, users, classrooms, data, statistics, input, self._allowed_sort, self._allowed_sort_name, self._valid_formats, self._msg)
+        return self.template_helper.get_renderer().course_admin.submission_viewer(course, tasks, users, classrooms, data, statistics, input, self._allowed_sort, self._allowed_sort_name, self._valid_formats, self._msg, self.show_collapse(input))
+
+    def show_collapse(self, input):
+        """ Return True is we should display the main collapse. """
+        #If users has not specified any user/aggregation, there are no submissions so we display the main collapse.
+        if len(input['user']) == 0 and len(input['aggregation']) == 0:
+            return True
+        return False
 
     def get_users(self, course):
-        """ """
+        """ Returns a sorted list of users """
         users = OrderedDict(sorted(list(self.user_manager.get_users_info(self.user_manager.get_course_registered_users(course)).items()),
             key=lambda k: k[1][0] if k[1] is not None else ""))
         return users
         
     def get_submissions(self, course, input):
-    
+        """ Returns the list of submissions and corresponding aggragations based on inputs """
+        
         #Build lists of wanted users based on classrooms and specific users
         list_classroom_ObjectId = [ObjectId(o) for o in input.aggregation]
         classroom = list(self.database.aggregations.find({"_id": {"$in" : list_classroom_ObjectId}}))
