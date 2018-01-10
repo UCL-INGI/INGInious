@@ -181,7 +181,7 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
             d["best"] = d["_id"] in best_submissions_list # mark best submissions
 
         #Keep best submissions
-        if("eval" in input):
+        if("eval" in input or ("eval_dl" in input and "download" in web.input())):
             data = [d for d in data if d["best"]]
         return data, classroom
 
