@@ -93,7 +93,7 @@ class APITasks(APIAuthenticatedPage):
                 pcontent["id"] = problem.get_id()
                 if pcontent["type"] == "match":
                     del pcontent["answer"]
-                if pcontent["type"] == "multiple-choice":
+                if pcontent["type"] == "multiple_choice":
                     pcontent["choices"] = {key: val["text"] for key, val in enumerate(pcontent["choices"])}
                 pcontent = self._check_for_parsable_text(pcontent)
                 data["problems"].append(pcontent)

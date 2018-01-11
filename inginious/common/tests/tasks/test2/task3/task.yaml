@@ -11,7 +11,7 @@ limits:
 problems:
     unittest:
         name: "Question 3"
-        type: "multiple-choice"
+        type: "multiple_choice"
         header: "Header 3"
         multiple: true
         choices:

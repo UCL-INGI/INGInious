@@ -8,10 +8,6 @@
 import gettext
 
 from inginious.frontend.parsable_text import ParsableText
-from inginious.frontend.task_problems import DisplayableCodeProblem, DisplayableCodeFileProblem, \
-    DisplayableCodeSingleLineProblem, \
-    DisplayableMultipleChoiceProblem, DisplayableMatchProblem
-
 from inginious.common.base import id_checker
 from inginious.common.tasks import Task
 from inginious.frontend.accessible_time import AccessibleTime
@@ -21,17 +17,10 @@ from inginious.common.tags import Tag
 class WebAppTask(Task):
     """ A task that stores additional context information, specific to the web app """
 
-    def __init__(self, course, taskid, content, task_fs, hook_manager, task_problem_types=None):
+    def __init__(self, course, taskid, content, task_fs, hook_manager, task_problem_types):
         # We load the descriptor of the task here to allow plugins to modify settings of the task before it is read by the Task constructor
         if not id_checker(taskid):
             raise Exception("Task with invalid id: " + course.get_id() + "/" + taskid)
-
-        task_problem_types = task_problem_types or {
-            "code": DisplayableCodeProblem,
-            "code-file": DisplayableCodeFileProblem,
-            "code-single-line": DisplayableCodeSingleLineProblem,
-            "multiple-choice": DisplayableMultipleChoiceProblem,
-            "match": DisplayableMatchProblem}
 
         super(WebAppTask, self).__init__(course, taskid, content, task_fs, hook_manager, task_problem_types)
 

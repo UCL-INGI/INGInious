@@ -1,0 +1,126 @@
+$def with (key)
+
+$#
+$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+$# more information about the licensing of this file.
+$#
+    <div id="subproblem_$key">
+        <div class="panel panel-default" id="subproblem_well_PID">
+            <div class="panel-heading" role="tab" id="heading_PID">
+                <div class="row">
+                    <div class="col-md-10" >
+                        <span role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_PID" aria-controls="collapse_PID">
+                            <i class="fa fa-bars"></i> $:_("Problem id:") <span id="pid-PID">PID</span>
+                        </span>
+                    </div>
+                    <div class="col-md-2">
+                        <a style="margin: 0px 4px 0px; cursor:pointer;" class="pull-right" type="button" onclick="studio_subproblem_delete('PID')"><i class="fa fa-lg fa-trash-o"></i></a>
+                        <a style="margin: 0px 4px 0px; cursor:pointer;" class="pull-right" type="button" onclick="studio_subproblem_down('PID')"><i class="fa fa-lg fa-arrow-down"></i></a>
+                        <a style="margin: 0px 4px 0px; cursor:pointer;" class="pull-right" type="button" onclick="studio_subproblem_up('PID')"><i class="fa fa-lg fa-arrow-up"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div id="collapse_PID" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading_PID">
+                <div class="panel-body">
+                    <input type="hidden" name="problem[PID][type]" value="multiple_choice"/>
+                    <input type="hidden" class="subproblem_order" name="problem[PID][@order]" value="ORDER"/>
+                    <div class="form-group">
+                        <label for="name-PID" class="col-sm-2 control-label">$:_("Name")</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="$:_('A title for this question')"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="header-PID" class="col-sm-2 control-label">$:_("Context")</label>
+                        <div class="col-sm-10">
+                            <textarea id="header-PID" class="form-control" name="problem[PID][header]"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="multiple-PID" class="col-sm-2 control-label">$:_("Can select multiple answers")</label>
+                        <div class="col-sm-10">
+                            <div class="checkbox"><label>
+                                <input type="checkbox" id="multiple-PID" name="problem[PID][multiple]"/>&nbsp;
+                            </label></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="centralize-PID" class="col-sm-2 control-label">$:_("Count error only at top of the page?")</label>
+                        <div class="col-sm-10">
+                            <div class="checkbox"><label>
+                                <input type="checkbox" id="centralize-PID" name="problem[PID][centralize]"/>&nbsp;
+                            </label></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="limit-PID" class="col-sm-2 control-label">$:_("Number of choices to display (0 = all choices)")</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="limit-PID" name="problem[PID][limit]" placeholder="0"/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="success_message-PID" class="col-sm-2 control-label">$:_("Success message")</label>
+
+                        <div class="col-sm-10">
+                            <textarea id="success_message-PID" class="form-control" name="problem[PID][success_message]"
+                                      placeholder="$:_('An optional success message')"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="error_message-PID" class="col-sm-2 control-label">$:_("Error message")</label>
+
+                        <div class="col-sm-10">
+                            <textarea id="error_message-PID" class="form-control" name="problem[PID][error_message]"
+                                      placeholder="$:_('An optional error message')"></textarea>
+                        </div>
+                    </div>
+                    <div class="col-sm-12">
+                        <h4 style="text-align: center">$:_("Choices")</h4>
+                        <div id="choices-PID">
+
+                        </div>
+                        <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_create_choice('PID',{})">
+                            <i class="fa fa-plus"></i> $:_("Add new choice")
+                        </button>
+                        <div style="height:30px"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="subproblem_$(key)_choice">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="form-group">
+                        <label for="choice-PID-CHOICE" class="col-sm-2 control-label">$:_("Content")</label>
+                        <div class="col-sm-10">
+                            <textarea class="form-control subproblem_$(key)_text" name="problem[PID][choices][CHOICE][text]"
+                                      placeholder="The name of this choice" id="choice-PID-CHOICE"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="choice-feedback-PID-CHOICE" class="col-sm-2 control-label">$:_("Feedback message (displayed when selected)")</label>
+
+                        <div class="col-sm-10">
+                            <textarea class="form-control subproblem_$(key)_feedback" name="problem[PID][choices][CHOICE][feedback]"
+                                      placeholder="$:_('An optional feedback message')" id="choice-feedback-PID-CHOICE"></textarea>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div data-toggle="buttons">
+                            <label class="btn btn-success btn-xs btn-block">
+                                <input type="checkbox" class="subproblem_$(key)_valid" name="problem[PID][choices][CHOICE][valid]"/>
+                                $:_("Valid ?")
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <button class="btn btn-danger btn-xs btn-block" type="button" onclick="studio_delete_choice('PID',CHOICE)">
+                            <i class="fa fa-remove"></i> $:_("Delete")
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

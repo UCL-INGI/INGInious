@@ -47,6 +47,12 @@ class CourseFactory(object):
         """
         return self.get_course(courseid).get_task(taskid)
 
+    def get_task_factory(self):
+        """
+        :return: the associated task factory
+        """
+        return self._task_factory
+
     def get_course_descriptor_content(self, courseid):
         """
         :param courseid: the course id of the course
@@ -197,7 +203,7 @@ class CourseFactory(object):
         self._task_factory.update_cache_for_course(courseid)
 
 
-def create_factories(fs_provider, hook_manager=None, course_class=Course, task_class=Task):
+def create_factories(fs_provider, task_problem_types, hook_manager=None, course_class=Course, task_class=Task):
     """
     Shorthand for creating Factories
     :param fs_provider: A FileSystemProvider leading to the courses
@@ -209,5 +215,5 @@ def create_factories(fs_provider, hook_manager=None, course_class=Course, task_c
     if hook_manager is None:
         hook_manager = HookManager()
 
-    task_factory = TaskFactory(fs_provider, hook_manager, task_class)
+    task_factory = TaskFactory(fs_provider, hook_manager, task_problem_types, task_class)
     return CourseFactory(fs_provider, task_factory, hook_manager, course_class), task_factory

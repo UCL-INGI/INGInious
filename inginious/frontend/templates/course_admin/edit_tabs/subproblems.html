@@ -1,3 +1,4 @@
+$def with(problem_types)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -15,10 +16,8 @@ $#
         <label for="new_subproblem_type" class="col-sm-2 control-label">$:_("Problem type")</label>
         <div class="col-sm-3">
             <select class="form-control" id="new_subproblem_type">
-                <option value="subproblem_code">$:_("code")</option>
-                <option value="subproblem_code_file">$:_("file upload")</option>
-                <option value="subproblem_match">$:_("match")</option>
-                <option value="subproblem_multiple_choice">$:_("multiple choice")</option>
+                $for key, problem_type in problem_types.items():
+                    <option value="subproblem_$key">$:problem_type.get_type_name(_)</option>
                 <option value="subproblem_custom">$:_("custom")</option>
             </select>
         </div>

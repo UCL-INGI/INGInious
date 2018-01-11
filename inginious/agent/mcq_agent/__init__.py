@@ -8,7 +8,8 @@ import gettext
 from inginious.agent import Agent, CannotCreateJobException
 from inginious import get_root_path
 from inginious.common.course_factory import create_factories
-from inginious.common.messages import BackendNewJob, BackendKillJob, AgentHello, AgentJobDone
+from inginious.common.messages import BackendNewJob, BackendKillJob
+from inginious.common.tasks_problems import MultipleChoiceProblem, MatchProblem
 
 
 class MCQAgent(Agent):
@@ -23,7 +24,8 @@ class MCQAgent(Agent):
         self._logger = logging.getLogger("inginious.agent.mcq")
 
         # Create a course factory
-        course_factory, _ = create_factories(tasks_filesystem)
+        problem_types = {problem_type.get_type(): problem_type for problem_type in [MultipleChoiceProblem, MatchProblem]}
+        course_factory, _ = create_factories(tasks_filesystem, problem_types)
         self.course_factory = course_factory
 
         # Init gettext
@@ -40,7 +42,7 @@ class MCQAgent(Agent):
         try:
             self._logger.info("Received request for jobid %s", msg.job_id)
             task = self.course_factory.get_task(msg.course_id, msg.task_id)
-        except:
+        except Exception as e:
             self._logger.error("Task %s/%s not available on this agent", msg.course_id, msg.task_id)
             raise CannotCreateJobException("Task is not available on this agent")
 
