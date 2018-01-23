@@ -95,7 +95,7 @@ class AggregationPage(INGIniousAuthPage):
         tasks = course.get_tasks()
         last_submissions = self.submission_manager.get_user_last_submissions(5, {"courseid": courseid, "taskid": {"$in": list(tasks.keys())}})
         for submission in last_submissions:
-            submission["taskname"] = tasks[submission['taskid']].get_name(user_manager.session_language())
+            submission["taskname"] = tasks[submission['taskid']].get_name(self.user_manager.session_language())
 
         aggregation = self.user_manager.get_course_user_aggregation(course)
         aggregations = self.user_manager.get_course_aggregations(course)
