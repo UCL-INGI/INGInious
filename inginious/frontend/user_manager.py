@@ -640,10 +640,10 @@ class UserManager:
         if username is None:
             username = self.session_username()
 
-        realname, email = self.get_user_info(username)
+        user_info = self.database.users.find_one({"username":username})
 
         if not force:
-            if not course.is_registration_possible(username, realname, email):
+            if not course.is_registration_possible(user_info):
                 return False
             if course.is_password_needed_for_registration() and course.get_registration_password() != password:
                 return False

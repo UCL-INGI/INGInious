@@ -33,7 +33,7 @@ class WebAppCourse(Course):
             self._registration = AccessibleTime(self._content.get("registration", None))
             self._registration_password = self._content.get('registration_password', None)
             self._registration_ac = self._content.get('registration_ac', None)
-            if self._registration_ac not in [None, "username", "realname", "email"]:
+            if self._registration_ac not in [None, "username", "binding", "email"]:
                 raise Exception("Course has an invalid value for registration_ac: " + self.get_id())
             self._registration_ac_list = self._content.get('registration_ac_list', [])
             self._groups_student_choice = self._content.get("groups_student_choice", False)
@@ -83,9 +83,9 @@ class WebAppCourse(Course):
         """ Returns true if the course is accessible by users that are not administrator of this course """
         return self.get_accessibility().is_open()
 
-    def is_registration_possible(self, username, realname, email):
+    def is_registration_possible(self, user_info):
         """ Returns true if users can register for this course """
-        return self.get_accessibility().is_open() and self._registration.is_open() and self.is_user_accepted_by_access_control(username, realname, email)
+        return self.get_accessibility().is_open() and self._registration.is_open() and self.is_user_accepted_by_access_control(user_info)
 
     def is_password_needed_for_registration(self):
         """ Returns true if a password is needed for registration """
@@ -108,7 +108,7 @@ class WebAppCourse(Course):
         return OrderedDict(sorted(list(Course.get_tasks(self).items()), key=lambda t: (t[1].get_order(), t[1].get_id())))
 
     def get_access_control_method(self):
-        """ Returns either None, "username", "realname", or "email", depending on the method used to verify that users can register to the course """
+        """ Returns either None, "username", "binding", or "email", depending on the method used to verify that users can register to the course """
         return self._registration_ac
 
     def get_access_control_list(self):
@@ -135,16 +135,16 @@ class WebAppCourse(Course):
         """ True if the current course should send back grade to the LTI Tool Consumer """
         return self._is_lti and self._lti_send_back_grade
 
-    def is_user_accepted_by_access_control(self, username, realname, email):
+    def is_user_accepted_by_access_control(self, user_info):
         """ Returns True if the user is allowed by the ACL """
         if self.get_access_control_method() is None:
             return True
         elif self.get_access_control_method() == "username":
-            return username in self.get_access_control_list()
-        elif self.get_access_control_method() == "realname":
-            return realname in self.get_access_control_list()
+            return user_info["username"] in self.get_access_control_list()
         elif self.get_access_control_method() == "email":
-            return email in self.get_access_control_list()
+            return user_info["email"] in self.get_access_control_list()
+        elif self.get_access_control_method() == "binding":
+            return set(user_info["bindings"].keys()).intersection(set(self.get_access_control_list()))
         return False
 
     def allow_preview(self):

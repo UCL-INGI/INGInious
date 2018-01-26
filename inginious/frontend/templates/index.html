@@ -1,4 +1,4 @@
-$def with (open_courses)
+$def with (open_courses, user_info)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -45,7 +45,7 @@ $# Start content
             <div class="col-xs-12 col-md-4">
                 $if course.is_lti():
                     <i data-toggle="tooltip" title=$:_("'External platform'") data-placement="top" class="pull-right fa fa-fw fa-external-link"></i>
-                $if course.is_registration_possible(user_manager.session_username(), user_manager.session_realname(), user_manager.session_email()):
+                $if course.is_registration_possible(user_info):
                     <i data-toggle="tooltip" title=$:_("'Auto-registration'") data-placement="top" class="pull-right fa fa-fw fa-user"></i>
                 $if course.is_password_needed_for_registration():
                     <i data-toggle="tooltip" title=$:_("'Password needed'") data-placement="top" class="pull-right fa fa-fw fa-key"></i>

@@ -49,11 +49,10 @@ class APICourses(APIAuthenticatedPage):
                 raise APINotFound("Course not found")
 
         username = self.user_manager.session_username()
-        realname = self.user_manager.session_realname()
-        email = self.user_manager.session_email()
+        user_info = self.database.users.find_one({"username": username})
 
         for courseid, course in courses.items():
-            if self.user_manager.course_is_open_to_user(course, username, False) or course.is_registration_possible(username, realname, email):
+            if self.user_manager.course_is_open_to_user(course, username, False) or course.is_registration_possible(user_info):
                 data = {
                     "id": courseid,
                     "name": course.get_name(self.user_manager.session_language()),
@@ -61,7 +60,7 @@ class APICourses(APIAuthenticatedPage):
                     "is_registered": self.user_manager.course_is_open_to_user(course, username, False)
                 }
                 if self.user_manager.course_is_open_to_user(course, username, False):
-                    data["tasks"] = {taskid: task.get_name(user_manager.session_language()) for taskid, task in course.get_tasks().items()}
+                    data["tasks"] = {taskid: task.get_name(self.user_manager.session_language()) for taskid, task in course.get_tasks().items()}
                     data["grade"] = self.user_manager.get_course_cache(username, course)["grade"]
                 output.append(data)
 

@@ -77,7 +77,7 @@ class CourseSettings(INGIniousAdminPage):
                 course_content['registration_password'] = None
 
             course_content['registration_ac'] = data['registration_ac']
-            if course_content['registration_ac'] not in ["None", "username", "realname", "email"]:
+            if course_content['registration_ac'] not in ["None", "username", "binding", "email"]:
                 errors.append(_('Invalid ACL value'))
             if course_content['registration_ac'] == "None":
                 course_content['registration_ac'] = None

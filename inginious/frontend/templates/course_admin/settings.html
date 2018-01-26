@@ -242,10 +242,10 @@ $elif saved:
                 /> $:_("Check by username")
             </label><br/>
             <label>
-                <input type="radio" value="realname" name="registration_ac"
-                    $if course.get_access_control_method() == "realname":
+                <input type="radio" value="binding" name="registration_ac"
+                    $if course.get_access_control_method() == "binding":
                         checked="checked"
-                /> $:_("Check by real name")
+                /> $:_("Check by authentication binding")
             </label><br/>
             <label>
                 <input type="radio" value="email" name="registration_ac"

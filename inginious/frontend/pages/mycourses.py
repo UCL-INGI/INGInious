@@ -22,9 +22,7 @@ class MyCoursesPage(INGIniousAuthPage):
         """ Parse course registration or course creation and display the course list page """
 
         username = self.user_manager.session_username()
-        realname = self.user_manager.session_realname()
-        email = self.user_manager.session_email()
-
+        user_info = self.database.users.find_one({"username": username})
         user_input = web.input()
         success = None
 
@@ -32,7 +30,7 @@ class MyCoursesPage(INGIniousAuthPage):
         if "register_courseid" in user_input and user_input["register_courseid"] != "":
             try:
                 course = self.course_factory.get_course(user_input["register_courseid"])
-                if not course.is_registration_possible(username, realname, email):
+                if not course.is_registration_possible(user_info):
                     success = False
                 else:
                     success = self.user_manager.course_register_user(course, username, user_input.get("register_password", None))
@@ -51,8 +49,7 @@ class MyCoursesPage(INGIniousAuthPage):
     def show_page(self, success):
         """  Display main course list page """
         username = self.user_manager.session_username()
-        realname = self.user_manager.session_realname()
-        email = self.user_manager.session_email()
+        user_info = self.database.users.find_one({"username": username})
 
         all_courses = self.course_factory.get_all_courses()
 
@@ -73,7 +70,7 @@ class MyCoursesPage(INGIniousAuthPage):
 
         registerable_courses = {courseid: course for courseid, course in all_courses.items() if
                                 not self.user_manager.course_is_user_registered(course, username) and
-                                course.is_registration_possible(username, realname, email)}
+                                course.is_registration_possible(user_info)}
 
         registerable_courses = OrderedDict(sorted(iter(registerable_courses.items()), key=lambda x: x[1].get_name(self.user_manager.session_language())))
 
