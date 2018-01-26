@@ -124,6 +124,17 @@ def get_app(config):
 
     appli = CookieLessCompatibleApplication(MongoStore(database, 'sessions'))
 
+    # Init gettext
+    available_languages = {
+        "en": "English",
+        "fr": "Français"
+    }
+
+    for lang in available_languages.keys():
+        appli.add_translation(lang, gettext.translation('messages', get_root_path() + '/frontend/i18n', [lang]))
+
+    builtins.__dict__['_'] = appli.gettext
+
     if config.get("maintenance", False):
         template_helper = TemplateHelper(PluginManager(), None,
                                          'frontend/templates',
@@ -131,6 +142,7 @@ def get_app(config):
                                          'frontend/templates/layout_lti',
                                          config.get('use_minified_js', True))
         template_helper.add_to_template_globals("get_homepath", appli.get_homepath)
+        template_helper.add_to_template_globals("_", _)
         appli.template_helper = template_helper
         appli.init_mapping(urls_maintenance)
         return appli.wsgifunc(), appli.stop
@@ -175,16 +187,7 @@ def get_app(config):
                                      'frontend/templates/layout_lti',
                                      config.get('use_minified_js', True))
 
-    #Init gettext
-    available_languages = {
-        "en": "English",
-        "fr": "Français"
-    }
 
-    for lang in available_languages.keys():
-        appli.add_translation(lang, gettext.translation('messages', get_root_path() + '/frontend/i18n', [lang]))
-
-    builtins.__dict__['_'] = appli.gettext
 
     # Init web mail
     smtp_conf = config.get('smtp', None)
