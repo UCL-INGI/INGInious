@@ -139,6 +139,8 @@ class WebAppCourse(Course):
         """ Returns True if the user is allowed by the ACL """
         if self.get_access_control_method() is None:
             return True
+        elif not user_info:
+            return False
         elif self.get_access_control_method() == "username":
             return user_info["username"] in self.get_access_control_list()
         elif self.get_access_control_method() == "email":
