@@ -613,6 +613,7 @@ function displayTaskStudentAlertWithProblems(content, type)
     }, 200);
 
     colorizeStaticCode();
+    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
 }
 
 //Create an alert
