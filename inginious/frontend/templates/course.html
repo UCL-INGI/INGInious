@@ -1,4 +1,4 @@
-$def with (course, submissions, tasks, tasks_data, grade, tag_filter_list)
+$def with (user_info, course, submissions, tasks, tasks_data, grade, tag_filter_list)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -66,7 +66,7 @@ $def ColumnF():
         </div>
     $elif not user_manager.session_logged_in():
         $:include.signin_button()
-    $elif course.is_registration_possible(user_manager.session_username(), user_manager.session_realname(), user_manager.session_email()):
+    $elif course.is_registration_possible(user_info):
         $:include.register_button(course)
 $var Column: $:ColumnF()
 
