@@ -10,7 +10,8 @@
 		{
             "course":"TEST0001",
 			"keyfile":"TEST0001.key",
-            "url":"git@github.com:user/TEST0001.git"
+            "url":"git@github.com:user/TEST0001.git",
+            "push": false
         }
     ]
 }

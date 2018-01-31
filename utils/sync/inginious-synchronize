@@ -86,7 +86,8 @@ for repo in config['repos']:
             exit(1)
         
         # Push
-        out = git.push()
+        if repo.get("push", True):
+            out = git.push()
         
     # Remove private key with ssh add
     print('\x1b[1m--> Remove private key with ssh-add \033[0m')
