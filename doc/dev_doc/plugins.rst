@@ -190,10 +190,10 @@ Each hook available in INGInious is described here, starting with its name and p
     ``default`` : Default value as specified in the configuration
 
     Overrides the task network-enable option
-``new_submission`` (``submissionid``, ``submission``, ``inputdata``)
+``new_submission`` (``submission``, ``inputdata``)
     ``submissionid`` : ObjectId corresponding to the submission recently saved in database.
 
-    ``submission`` : Dictionary containing the submission metadata.
+    ``submission`` : Dictionary containing the submission metadata without ``input`` field.
 
     ``inputdata`` : Dictionary containing the raw input data entered by the student. Each key corresponding to the
     problem id.

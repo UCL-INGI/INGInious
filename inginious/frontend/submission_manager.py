@@ -234,24 +234,23 @@ class WebAppSubmissionManager:
         obj = {
             "courseid": task.get_course_id(),
             "taskid": task.get_id(),
-            "input": self._gridfs.put(bson.BSON.encode(inputdata)),
             "status": "waiting",
             "submitted_on": datetime.now(),
             "username": [username],
             "response_type": task.get_response_type()
         }
 
-        self._before_submission_insertion(task, inputdata, debug, obj)
-
         # Send additional data to the client in inputdata. For now, the username and the language. New fields can be added with the
         # new_submission hook
         inputdata["@username"] = username
         inputdata["@lang"] = self._user_manager.session_language()
 
+        self._hook_manager.call_hook("new_submission", submission=obj, inputdata=inputdata)
+        obj["input"] = self._gridfs.put(bson.BSON.encode(inputdata))
+
+        self._before_submission_insertion(task, inputdata, debug, obj)
         submissionid = self._database.submissions.insert(obj)
         to_remove = self._after_submission_insertion(task, inputdata, debug, obj, submissionid)
-
-        self._hook_manager.call_hook("new_submission", submissionid=submissionid, submission=obj, inputdata=inputdata)
 
         ssh_callback = lambda host, port, password: None
         if debug == "ssh":
