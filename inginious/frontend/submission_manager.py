@@ -170,10 +170,10 @@ class WebAppSubmissionManager:
             username = self._user_manager.session_username()
             submission["username"] = [username]
             submission["submitted_on"] = datetime.now()
+            inputdata["@username"] = username
+            inputdata["@lang"] = self._user_manager.session_language()
+            submission["input"] = self._gridfs.put(bson.BSON.encode(inputdata))
             submissionid = self._database.submissions.insert(submission)
-
-        if "username" not in [p.get_id() for p in task.get_problems()]:  # do not overwrite
-            inputdata["username"] = username
 
         jobid = self._client.new_job(task, inputdata,
                                      (lambda result, grade, problems, tests, custom, archive, stdout, stderr:
