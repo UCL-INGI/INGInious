@@ -61,7 +61,8 @@ $if len(old_input.task) == 1:
                 <label>$:_("Users")</label>
                 <select name="user" multiple size="5" class="form-control" id="select_user">
                 $for u in users:
-                    <option value="$u" $('selected' if u in old_input['user'] else '')>$users[u][0] ($u)</option>
+                    $ complete_name = users[u][0] if users[u] != None and len(users[u]) > 0 else ''
+                    <option value="$u" $('selected' if u in old_input['user'] else '')>$u ($complete_name)</option>
                  </select>
             </div>
 
