@@ -1,4 +1,4 @@
-$def with (user_info, course, task, submissions, students, eval_submission, user_task, webterm_link)
+$def with (user_info, course, task, submissions, students, eval_submission, user_task, previous_taskid, next_taskid, webterm_link)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -240,7 +240,22 @@ $def NavbarF():
 $var Navbar: $:NavbarF()
 
 $# Start content
-<h2>$task.get_name(user_manager.session_language())</h2>
+<h2>
+    <div class="row">
+    <div class="col-md-10">$task.get_name(user_manager.session_language())</div>
+    <div class="col-md-2">
+        $if not is_lti():
+            <div class="pull-right">
+                <div class="btn-group">
+                    $if previous_taskid:
+                        <a class="btn-sm btn btn-info" href="$get_homepath()/course/$course.get_id()/$previous_taskid" title=$:_('"Previous task"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-arrow-left"></i></a>
+                    $if next_taskid:
+                        <a class="btn-sm btn btn-info" href="$get_homepath()/course/$course.get_id()/$next_taskid" title=$:_('"Next task"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-arrow-right"></i></a>
+                </div>
+            </div>
+    </div>
+    </div>
+</h2>
 $:task.get_context(user_manager.session_language())
 <hr/>
 <div id="task_alert"></div>

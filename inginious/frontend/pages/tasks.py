@@ -13,6 +13,7 @@ import urllib.request
 
 import web
 from bson.objectid import ObjectId
+from collections import OrderedDict
 
 from inginious.common import exceptions
 from inginious.frontend.pages.utils import INGIniousPage
@@ -78,12 +79,19 @@ class BaseTaskPage(object):
 
         # Fetch the task
         try:
-            task = course.get_task(taskid)
+            tasks = OrderedDict((tid, t) for tid, t in course.get_tasks().items() if self.user_manager.task_is_visible_by_user(t, username, isLTI))
+            task = tasks[taskid]
         except exceptions.TaskNotFoundException as ex:
             raise web.notfound(str(ex))
 
         if not self.user_manager.task_is_visible_by_user(task, username, isLTI):
             return self.template_helper.get_renderer().task_unavailable()
+
+        # Compute previous and next taskid
+        keys = list(tasks.keys())
+        index = keys.index(taskid)
+        previous_taskid = keys[index - 1] if index > 0 else None
+        next_taskid = keys[index + 1] if index < len(keys) - 1 else None
 
         self.user_manager.user_saw_task(username, courseid, taskid)
 
@@ -131,7 +139,7 @@ class BaseTaskPage(object):
             user_info = self.database.users.find_one({"username": username})
             # Display the task itself
             return self.template_helper.get_renderer().task(user_info, course, task, submissions,
-                                                            students, eval_submission, user_task, self.webterm_link)
+                                                            students, eval_submission, user_task, previous_taskid, next_taskid, self.webterm_link)
 
     def POST(self, courseid, taskid, isLTI):
         """ POST a new submission """
