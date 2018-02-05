@@ -359,7 +359,7 @@ $if statistics != None and len(data) > 0:
             <td>
                 $for user in submission["username"]:
                     $if "show_stud_name" in old_input:
-                        $users[user][0]<br>
+                        $(users[user][0] if users[user] != None and len(users[user]) > 0 else '?')<br>
                     $else:
                         $user<br>
                         
