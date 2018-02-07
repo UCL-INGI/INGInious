@@ -108,7 +108,7 @@ $else:
                         $if submission_limit["period"] == -1 and submission_limit['amount'] > 0:
                             checked="checked"
                     />
-                    $:_("Hard limit: {nbr_submissions} submission(s)").format(nbr_submissions='</label></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-2"><input name="submission_limit_hard" class="form-control input-xs" style="height:20px;padding: 0 10px;" value="' + (submission_limit['amount'] if submission_limit['period'] == -1 and submission_limit['amount'] > 0 else '') + '" placeholder="5"  type="number"></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-3"><label>')
+                    $:_("Hard limit: {nbr_submissions} submission(s)").format(nbr_submissions='</label></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-2"><input name="submission_limit_hard" class="form-control input-xs" style="height:20px;padding: 0 10px;" value="' + str(submission_limit['amount'] if submission_limit['period'] == -1 and submission_limit['amount'] > 0 else '') + '" placeholder="5"  type="number"></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-3"><label>')
                 </label>
             </div>
         </div>
@@ -119,7 +119,7 @@ $else:
                         $if submission_limit['period'] > 0:
                             checked="checked"
                     />
-                    $:_("Soft limit: {nbr_submissions} submission(s) every {nbr_hours} hour(s)").format(nbr_submissions='</label></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-2"><input name="submission_limit_soft_0" class="form-control input-xs" style="height:20px;padding: 0 10px;" value="' + (submission_limit['amount'] if submission_limit['amount'] > 0 and submission_limit['period'] > 0 else '') + '" placeholder="5" type="number"></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-3"><label>', nbr_hours='</label></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-2"><input name="submission_limit_soft_1" class="form-control input-xs" style="height:20px;padding: 0 10px;" value="' + (submission_limit['period'] if submission_limit['period'] > 0 else '') + '" placeholder="5" type="number"></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-1"><label>')
+                    $:_("Soft limit: {nbr_submissions} submission(s) every {nbr_hours} hour(s)").format(nbr_submissions='</label></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-2"><input name="submission_limit_soft_0" class="form-control input-xs" style="height:20px;padding: 0 10px;" value="' + str(submission_limit['amount'] if submission_limit['amount'] > 0 and submission_limit['period'] > 0 else '') + '" placeholder="5" type="number"></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-3"><label>', nbr_hours='</label></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-2"><input name="submission_limit_soft_1" class="form-control input-xs" style="height:20px;padding: 0 10px;" value="' + str(submission_limit['period'] if submission_limit['period'] > 0 else '') + '" placeholder="5" type="number"></div><div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-1"><label>')
                 </label>
             </div>
         </div>
