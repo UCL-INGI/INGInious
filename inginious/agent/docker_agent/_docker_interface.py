@@ -50,11 +50,12 @@ class DockerInterface(object):  # pragma: no cover
         :param env_with_dig: any container image that has dig
         """
         try:
-            response = self._docker.containers.create(env_with_dig, command="dig +short myip.opendns.com @resolver1.opendns.com")
-            response.start()
-            assert response.wait() == 0
-            answer = response.logs(stdout=True, stderr=False).decode('utf8').strip()
-            response.remove(v=True, link=False, force=True)
+            container = self._docker.containers.create(env_with_dig, command="dig +short myip.opendns.com @resolver1.opendns.com")
+            container.start()
+            response = container.wait()
+            assert response["StatusCode"] == 0 if isinstance(response, dict) else response == 0
+            answer = container.logs(stdout=True, stderr=False).decode('utf8').strip()
+            container.remove(v=True, link=False, force=True)
             return answer
         except:
             return None
@@ -152,6 +153,7 @@ class DockerInterface(object):  # pragma: no cover
         Removes a container (with fire)
         """
         self._docker.containers.get(container_id).remove(v=True, link=False, force=True)
+
 
     def kill_container(self, container_id, signal=None):
         """
