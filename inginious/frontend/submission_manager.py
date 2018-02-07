@@ -51,7 +51,7 @@ class WebAppSubmissionManager:
 
         data = {
             "status": ("done" if result[0] == "success" or result[0] == "failed" else "error"),
-        # error only if error was made by INGInious
+             # error only if error was made by INGInious
             "result": result[0],
             "grade": grade,
             "text": result[1],
@@ -63,10 +63,17 @@ class WebAppSubmissionManager:
             "stderr": stderr
         }
 
+        unset_obj = {
+            "jobid": "",
+            "ssh_host": "",
+            "ssh_port": "",
+            "ssh_password": ""
+        }
+
         # Save submission to database
         submission = self._database.submissions.find_one_and_update(
             {"_id": submission["_id"]},
-            {"$set": data, "$unset": {'jobid': ""}},
+            {"$set": data, "$unset": unset_obj},
             return_document=ReturnDocument.AFTER
         )
 
@@ -389,13 +396,6 @@ class WebAppSubmissionManager:
             return False
         if "jobid" not in submission:
             return False
-
-        obj = {
-            "ssh_host": "",
-            "ssh_port": "",
-            "ssh_password": ""
-        }
-        self._database.submissions.update_one({"_id": ObjectId(submissionid)}, {"$unset": obj})
 
         return self._client.kill_job(submission["jobid"])
 
