@@ -208,8 +208,11 @@ class CourseEditTask(INGIniousAdminPage):
                     if count > 1:
                         return json.dumps({"status": "error", "message": _("Some tags have the same id! The id of a tag must be unique.")})                
 
-
-            data = {key: val for key, val in data.items() if not key.startswith("problem") and not key.startswith("limits") and not key.startswith("tags")}
+            data = {key: val for key, val in data.items() if
+                    not key.startswith("problem")
+                    and not key.startswith("limits")
+                    and not key.startswith("tags")
+                    and not key.startswith("/")}
             del data["@action"]
 
             # Determines the task filetype
