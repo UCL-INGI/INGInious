@@ -279,7 +279,7 @@ class UserManager:
         :param email: User email
         """
 
-        self._database.users.update_one({"username": username}, {"$set": {"realname": realname, "email": email, "language": language}},
+        self._database.users.update_one({"email": email}, {"$set": {"realname": realname, "username": username, "language": language}},
                                         upsert=True)
         self._logger.info("User %s connected - %s - %s - %s", username, realname, email, web.ctx.ip)
         self._set_session(username, realname, email, language)
