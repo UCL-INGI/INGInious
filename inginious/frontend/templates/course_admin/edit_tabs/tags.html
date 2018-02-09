@@ -76,12 +76,12 @@ $#
 <table class="table-striped table-responsive" id="table">
     <thead>
         <tr>
+            <th class="col-sm-0">$:_("Import")</th>
             <th class="col-sm-2">$:_("Id")</th>
             <th class="col-sm-2">$:_("Name")</th>
             <th class="col-sm-7">$:_("Description")</th>
             <th class="col-sm-0">$:_("Show to students")</th>
             <th class="col-sm-1">$:_("Type")</th>
-            <th class="col-sm-0">$:_("Import")</th>
         </tr>
     </thead>
     <tbody>
@@ -90,12 +90,12 @@ $#
         $for t in list_index:
             $ i += 1
             <tr>
+                <td><button type="button" onclick="studio_add_tag_line($i)" class="btn btn-primary btn-xs"><i class="fa fa-arrow-down" aria-hidden="true"></i></button></td>
                 <td id="A-$i" style="padding:4px">$t.get_id()</td>
                 <td id="B-$i" style="padding:4px">$t.get_name()</td>
                 <td id="C-$i" style="padding:4px">$t.get_description()</td>
                 <td id="D-$i" style="padding:4px">$t.is_visible_for_student()</td>
                 <td id="E-$i" style="padding:4px" data-type="$t.get_type()" >$t.get_type_as_str()</td>
-                <td><button type="button" onclick="studio_add_tag_line($i)" class="btn btn-primary btn-xs"><i class="fa fa-arrow-down" aria-hidden="true"></i></button></td>
             </tr>
     </tbody>
 </table>

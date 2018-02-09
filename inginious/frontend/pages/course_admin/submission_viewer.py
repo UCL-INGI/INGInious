@@ -7,7 +7,6 @@ import pymongo
 import web
 import re
 import itertools
-import time
 import gettext
 from datetime import datetime
 from bson.objectid import ObjectId
@@ -22,16 +21,13 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
     
     def init(self, courseid):
         course, __ = self.get_course_and_check_rights(courseid)
-        if course.is_lti():
-            raise web.notfound()
-            
+
         self._allowed_sort = ["submitted_on", "username", "grade", "taskid"]
         self._allowed_sort_name = [_("Submitted on"), _("User"), _("Grade"), _("Task id")]
         self._valid_formats = ["taskid/username", "taskid/aggregation", "username/taskid", "aggregation/taskid"]
         self._valid_formats_name = [_("taskid/username"), _("taskid/aggregation"), _("username/taskid"), _("aggregation/taskid")]
         self._msg = [] # Put warning message here
         self._trunc_limit = 1000 # To trunc submissions if there are too many submissions
-        self._time_alert_computation_stats = 2
         
         return course
         
@@ -63,30 +59,19 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
     def page(self, course):
         """ Get all data and display the page """
         
-        input = self.get_input()
-        data, classroom = self.get_submissions(course, input) #ONLY classrooms user wants to query
-        if len(data) == 0 and not self.show_collapse(input):
+        user_input = self.get_input()
+        data, classroom = self.get_submissions(course, user_input) #ONLY classrooms user wants to query
+        if len(data) == 0 and not self.show_collapse(user_input):
             self._msg.append(_("No submissions found"))
-            
-        if "json" in input:
-            for submission in data:
-                submission = self.submission_manager.get_input_from_submission(submission)
-                #if need also feedback, uncomment this line
-                #submission = self.submission_manager.get_feedback_from_submission(submission,show_everything=True,translation=self.app._translations.get(self.user_manager.session_language(), gettext.NullTranslations()))
-            return data
-            
+
         classrooms = self.user_manager.get_course_aggregations(course) # ALL classrooms of the course
         users = self.get_users(course) # All users of the course
         tasks = course.get_tasks();  # All tasks of the course
 
         statistics = None
-        if input.stat != "no_stat":
-            old_time = time.time()
-            statistics = compute_statistics(tasks, data, True if "with_pond_stat" == input.stat else False)
-            total_time = time.time() - old_time
-            if total_time > self._time_alert_computation_stats:
-                self._msg.append(_("Statistics take {0} seconds to compute due to the higher number of submissions. Try adding more filter options to reduce computation time.").format(round(total_time,1)))
-            
+        if user_input.stat != "no_stat":
+            statistics = compute_statistics(tasks, data, True if "with_pond_stat" == user_input.stat else False)
+
         if "csv" in web.input():
             return make_csv(data)
                         
@@ -106,18 +91,18 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
                 download_type = self._valid_formats[0]
             return self.submission_manager.get_submission_archive(data, list(reversed(download_type.split('/'))), aggregations)
 
-        if input.limit != '' and input.limit.isdigit():
-            data = data[:int(input.limit)]
+        if user_input.limit != '' and user_input.limit.isdigit():
+            data = data[:int(user_input.limit)]
             
         if len(data) > self._trunc_limit:
             self._msg.append(_("The result contains more than {0} submissions. The displayed submissions are truncated.\n").format(self._trunc_limit))
             data = data[:self._trunc_limit]
-        return self.template_helper.get_renderer().course_admin.submission_viewer(course, tasks, users, classrooms, data, statistics, input, self._allowed_sort, self._allowed_sort_name, self._valid_formats, self._msg, self.show_collapse(input))
+        return self.template_helper.get_renderer().course_admin.submission_viewer(course, tasks, users, classrooms, data, statistics, user_input, self._allowed_sort, self._allowed_sort_name, self._valid_formats, self._msg, self.show_collapse(user_input))
 
-    def show_collapse(self, input):
+    def show_collapse(self, user_input):
         """ Return True is we should display the main collapse. """
         #If users has not specified any user/aggregation, there are no submissions so we display the main collapse.
-        if len(input['user']) == 0 and len(input['aggregation']) == 0:
+        if len(user_input['user']) == 0 and len(user_input['aggregation']) == 0:
             return True
         return False
 
@@ -127,40 +112,40 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
             key=lambda k: k[1][0] if k[1] is not None else ""))
         return users
         
-    def get_submissions(self, course, input):
+    def get_submissions(self, course, user_input):
         """ Returns the list of submissions and corresponding aggragations based on inputs """
         
         #Build lists of wanted users based on classrooms and specific users
-        list_classroom_ObjectId = [ObjectId(o) for o in input.aggregation]
+        list_classroom_ObjectId = [ObjectId(o) for o in user_input.aggregation]
         classroom = list(self.database.aggregations.find({"_id": {"$in" : list_classroom_ObjectId}}))
         more_username = [s["students"] for s in classroom] #Extract usernames of students
         more_username = [y for x in more_username for y in x] #Flatten lists
         
         #Get tasks based on organisational tags
         more_tasks = []
-        for org_tag in input.org_tags:
+        for org_tag in user_input.org_tags:
             if org_tag in course.get_organisational_tags_to_task():
                 more_tasks += course.get_organisational_tags_to_task()[org_tag]
 
         #Base query
         query_base = {
-                "username": {"$in": input.user + more_username},
+                "username": {"$in": user_input.user + more_username},
                 "courseid": course.get_id(),
-                "taskid": {"$in": input.task + more_tasks}
+                "taskid": {"$in": user_input.task + more_tasks}
                 }
 
         #Additional query field
         query_advanced = {}
-        if (input.grade_min != '' and input.grade_max == ''):
-            query_advanced["grade"] = {"$gte" : float(input.grade_min)}
-        elif (input.grade_min == '' and input.grade_max != ''):
-            query_advanced["grade"] = {"$lte" : float(input.grade_max)}
-        elif (input.grade_min != '' and input.grade_max != ''):
-            query_advanced["grade"] = {"$gte" : float(input.grade_min), "$lte" : float(input.grade_max)}
+        if (user_input.grade_min != '' and user_input.grade_max == ''):
+            query_advanced["grade"] = {"$gte" : float(user_input.grade_min)}
+        elif (user_input.grade_min == '' and user_input.grade_max != ''):
+            query_advanced["grade"] = {"$lte" : float(user_input.grade_max)}
+        elif (user_input.grade_min != '' and user_input.grade_max != ''):
+            query_advanced["grade"] = {"$gte" : float(user_input.grade_min), "$lte" : float(user_input.grade_max)}
             
         try:
-            date_before = datetime.strptime(input.date_before, "%Y-%m-%d %H:%M:%S") if input.date_before != '' else ''
-            date_after = datetime.strptime(input.date_after, "%Y-%m-%d %H:%M:%S") if input.date_after != '' else ''
+            date_before = datetime.strptime(user_input.date_before, "%Y-%m-%d %H:%M:%S") if user_input.date_before != '' else ''
+            date_after = datetime.strptime(user_input.date_after, "%Y-%m-%d %H:%M:%S") if user_input.date_after != '' else ''
             if (date_before != '' and date_after == ''):
                 query_advanced["submitted_on"] = {"$lte" : date_before}
             elif (date_before == '' and date_after != ''):
@@ -171,15 +156,15 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
             pass
         
         #Query with tags
-        if len(input.filter_tags) == len(input.filter_tags_presence):
-            for i in range(0, len(input.filter_tags)):
-                if id_checker(input.filter_tags[i]):
-                    state = (input.filter_tags_presence[i] == "True" or input.filter_tags_presence[i] == "true")
-                    query_advanced["tests." + input.filter_tags[i]] = {"$in": [None, False]} if not state else True
+        if len(user_input.filter_tags) == len(user_input.filter_tags_presence):
+            for i in range(0, len(user_input.filter_tags)):
+                if id_checker(user_input.filter_tags[i]):
+                    state = (user_input.filter_tags_presence[i] == "True" or user_input.filter_tags_presence[i] == "true")
+                    query_advanced["tests." + user_input.filter_tags[i]] = {"$in": [None, False]} if not state else True
             
         #Mongo operations
-        data = list(self.database.submissions.find({**query_base, **query_advanced}).sort([(input.sort_by, 
-            pymongo.DESCENDING if input.order == "0" else pymongo.ASCENDING)]))
+        data = list(self.database.submissions.find({**query_base, **query_advanced}).sort([(user_input.sort_by, 
+            pymongo.DESCENDING if user_input.order == "0" else pymongo.ASCENDING)]))
         data = [dict(list(f.items()) + [("url", self.submission_url_generator(str(f["_id"])))]) for f in data]
 
         # Get best submissions from database
@@ -189,13 +174,13 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
             d["best"] = d["_id"] in best_submissions_list # mark best submissions
 
         #Keep best submissions
-        if("eval" in input or ("eval_dl" in input and "download" in web.input())):
+        if("eval" in user_input or ("eval_dl" in user_input and "download" in web.input())):
             data = [d for d in data if d["best"]]
         return data, classroom
 
     def get_input(self):
         """ Loads web input, initialise default values and check/sanitise some inputs from users """
-        input = web.input(
+        user_input = web.input(
             user=[],
             task=[],
             aggregation=[],
@@ -213,16 +198,16 @@ class CourseSubmissionViewerTaskPage(INGIniousAdminPage):
         )
 
         #Sanitise inputs
-        for item in itertools.chain(input.user, input.task, input.aggregation):
+        for item in itertools.chain(user_input.user, user_input.task, user_input.aggregation):
             if not id_checker(item):
                 raise web.notfound()
 
-        if input.sort_by not in self._allowed_sort:
+        if user_input.sort_by not in self._allowed_sort:
             raise web.notfound()
 
-        digits = [input.grade_min, input.grade_max, input.order, input.limit]
+        digits = [user_input.grade_min, user_input.grade_max, user_input.order, user_input.limit]
         for d in digits:
             if d != '' and not d.isdigit():
                 raise web.notfound()
 
-        return input 
+        return user_input 

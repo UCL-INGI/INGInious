@@ -21,26 +21,22 @@ def compute_statistics(tasks, data, ponderation):
         username = "".join(submission["username"])
         tags_of_task = task.get_tags()[0] + task.get_tags()[1]
         for tag in tags_of_task:
-            if tag not in super_dict:
-                super_dict[tag] = {}
-            if username not in super_dict[tag]:
-                super_dict[tag][username] = {}
-            if submission["taskid"] not in super_dict[tag][username]:
-                super_dict[tag][username][submission["taskid"]] = [0,0,0,0]
+            super_dict.setdefault(tag, {})
+            super_dict[tag].setdefault(username, {})
+            super_dict[tag][username].setdefault(submission["taskid"], [0,0,0,0])
             super_dict[tag][username][submission["taskid"]][0] += 1
-            if "tests" in submission and tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()] == True:
+            if "tests" in submission and tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()]:
                 super_dict[tag][username][submission["taskid"]][1] += 1
 
-            if (submission["best"] == True):
+            if submission["best"]:
                 super_dict[tag][username][submission["taskid"]][2] += 1
-                if "tests" in submission and tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()] == True:
+                if "tests" in submission and tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()]:
                     super_dict[tag][username][submission["taskid"]][3] += 1
 
     output = []
     for tag in super_dict:
 
-        #No ponderation
-        if ponderation == False: 
+        if not ponderation: 
             results = [0,0,0,0]
             for username in super_dict[tag]:
                 for task in super_dict[tag][username]:

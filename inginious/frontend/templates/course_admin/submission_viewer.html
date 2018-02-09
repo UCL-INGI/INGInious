@@ -11,7 +11,7 @@ $ num_tags_filter = 2
 
 $var title: $:_("Submission viewer")
 
-$var Column: $:template_helper.call('course_admin_menu',course=course,current='submission_viewer')
+$var Column: $:template_helper.call('course_admin_menu',course=course,current='submissions')
 $ is_admin = user_manager.has_admin_rights_on_course(course)
 $ use_classrooms = course.use_classrooms()
 
@@ -37,7 +37,8 @@ $for m in msg:
 $if len(old_input.task) == 1:
     $ task_name = tasks[old_input.task[0]].get_name(user_manager.session_language())
     $if len(old_input.user) == 1 and len(old_input.aggregation) == 0:
-        <h4>$:_('Submissions for task "{0}" - {1} ({2})').format(task_name, users[old_input.user[0]][0], old_input.user[0])</h4>
+        $ complete_name = users[old_input.user[0]][0] if users[old_input.user[0]] != None and len(users[old_input.user[0]]) > 0 else 'Unknow'
+        <h4>$:_('Submissions for task "{0}" - {1} ({2})').format(task_name, complete_name, old_input.user[0])</h4>
     $if len(old_input.aggregation) == 1 and len(old_input.user) == 0:
         $for c in aggregations:
             $if str(c['_id']) in old_input['aggregation']:
@@ -226,7 +227,7 @@ $if len(old_input.task) == 1:
             </div>
         </div>
         <button type="submit" onclick="reset_option_download()" class="btn btn-default pull-right">$:_("Filter")</button>
-        <button type="button" onclick="window.location.href='$get_homepath()/admin/${course.get_id()}/submission_viewer'" class="btn btn-default pull-right">$:_("Reset")</button>
+        <button type="button" onclick="window.location.href='$get_homepath()/admin/${course.get_id()}/submissions'" class="btn btn-default pull-right">$:_("Reset")</button>
     </div>
 </div>
 </div>
