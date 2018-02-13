@@ -100,7 +100,7 @@ class LDAPAuthenticationPage(AuthenticationPage):
         if conn.rebind(user_data['dn'], password=password):
             try:
                 email = user_data["attributes"][settings.get("mail", "mail")][0]
-                username = settings.get("prefix", "") + login
+                username = login
                 realname = user_data["attributes"][settings.get("cn", "cn")][0]
             except KeyError as e:
                 logger.exception("Can't get field " + str(e) + " from your LDAP server")
@@ -132,15 +132,14 @@ def init(plugin_manager, _, _2, conf):
         ::
 
             plugins:
-                - plugin_module": "webapp.plugins.auth.ldap_auth",
+                - plugin_module": "inginious.frontend.plugins.auth.ldap_auth",
+
                   host: "ldap.test.be",
                   port: 0,
                   encryption: "ssl",
                   base_dn: "o=test,c=be",
-                  request: "uid={}",
-                  prefix: "",
-                  name: "LDAP Login",
-                  require_cert: true
+                  request: "(uid={})",
+                  name: "LDAP Login"
 
         *host*
             The host of the ldap server
@@ -149,10 +148,7 @@ def init(plugin_manager, _, _2, conf):
             Can be either "none", "ssl" or "tls"
         *request*
             Request made to the server in order to find the dn of the user. The characters "{}" will be replaced by the login name.
-        *prefix*
-            The prefix used internally to distinguish user that have the same username on different login services
-        *require_cert*
-            true if a certificate is needed.
+
     """
 
     encryption = conf.get("encryption", "none")

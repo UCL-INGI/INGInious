@@ -15,9 +15,12 @@ To get started, files named ``configuration.example.yaml`` and ``configuration.l
 
 The different entries are :
 
-``tasks_directory``
-    The path to the directory that contains all the task definitions, grouped by courses.
-    (see :ref:`task`)
+``allow_deletion``
+    ``false`` if users cannot delete their accounts (and all related data from database), ``true``otherwise.
+
+``allow_registration``
+    ``false`` if database registration should be disabled. In this mode no password can be set and accounts
+    are only created via the external authentication systems. ``true`` otherwise.
 
 ``backend``
     The link to the backend used. You can either set it to ``local`` or indicate the address of your manually-managed backend.
@@ -32,6 +35,9 @@ The different entries are :
     - ``tcp://xxx.yyy.zzz.aaa:bbbb``, ``udp://xxx.yyy.zzz.aaa:bbbb`` or ``ipc:///path/to/your/sock``, where the adresses are the ip/socket path of
       the backend you started manually. This is for advanced users only. See commands ``inginious-backend`` and ``inginious-agent`` for more
       information.
+
+``backup_directory``
+    Path to the directory where are courses backup are stored in cases of data wiping.
 
 ``local-config``
     These configuration options are available only if you set ``backend:local``.
@@ -50,6 +56,12 @@ The different entries are :
     ``tmp_dir``
         A directory whose absolute path must be available by the docker daemon and INGInious at the same time. By default, it is ``./agent_tmp``.
 
+``log_level``
+    Can be set to ``INFO``, ``WARN``, or ``DEBUG``. Specifies the logging verbosity.
+
+``maintenance``
+    Set to ``true`` if the webapp must be disabled.
+
 ``mongo_opt``
     MongoDB client configuration.
 
@@ -60,33 +72,10 @@ The different entries are :
     ``database``
         You can change the database name if you want multiple instances or in the case of conflict.
 
-``log_level``
-    Can be set to ``INFO``, ``WARN``, or ``DEBUG``. Specifies the logging verbosity.
-
-``use_minified_js``
-    Set to ``true`` to use the minified version of Javascript scripts, ``false`` otherwise.
-
-``webterm``
-    Link to the INGInious xterm app with the following syntax: ``http[s]://host:port``.
-    If set, it allows to use in-browser task debug via ssh. (See :ref:`_webterm_setup` for
-    more information)
-
 ``plugins``
     A list of plugin modules together with configuration options.
     See :ref:`plugins` for detailed information on available plugins, including their configuration.
     Please note that the usage of at least one authentication plugin is mandatory for the webapp.
-
-Webapp-specific configuration
------------------------------
-
-``superadmins``
-    A list of super-administrators who have admin access on the whole stored content.
-
-``maintenance``
-    Set to ``true`` if the webapp must be disabled.
-
-``backup_directory``
-    Path to the directory where are courses backup are stored in cases of data wiping.
 
 ``smtp``
     Mails can be sent by plugins.
@@ -109,52 +98,38 @@ Webapp-specific configuration
     ``starttls``
         Set to ``true`` if TLS is needed.
 
+``static_directory``
+    Path to the directory where YAML-defined static pages are located.
+
+`superadmins``
+    A list of super-administrators who have admin access on the whole stored content.
+
+``tasks_directory``
+    The path to the directory that contains all the task definitions, grouped by courses.
+    (see :ref:`task`)
+
+``use_minified_js``
+    Set to ``true`` to use the minified version of Javascript scripts, ``false`` otherwise.
+
+``webterm``
+    Link to the INGInious xterm app with the following syntax: ``http[s]://host:port``.
+    If set, it allows to use in-browser task debug via ssh. (See :ref:`_webterm_setup` for
+    more information)
+
 .. _configuration.example.yaml: https://github.com/UCL-INGI/INGInious/blob/master/configuration.example.yaml
 .. _docker-py API: https://github.com/docker/docker-py/blob/master/docs/api.md#client-api
-
-LTI-specific configuration
---------------------------
-The LTI interface uses most of the same configuration options as the webapp as well as the following:
-
-``lti``
-    A list of LTI consumer key and secret values.
-
-``lti_user_name``
-    The LTI field used to identify the user. By default this is `user_id`, which for many LMS system would be
-    the numeric ID of the user. It can be set to `ext_user_username` which is often a unique username.
-
-``download_directory``
-    The path to the directory where downloads are stored temporarily during the archive is being prepared.
 
 .. _plugins:
 
 Plugins
 -------
 
-Several plugins are available to complete the INGInious feature set. Some of them are only compatible with the webapp,
-while others are compatible with both webapp and LTI application.
+Several plugins are available to complete the INGInious feature set.
 
-Auth plugins (``webapp``)
-`````````````````````````
+External authentication plugins
+```````````````````````````````
 
 You need at least one auth plugin activated.
-
-demo_auth
-!!!!!!!!!
-
-Provides a simple authentification method, mainly for demo purposes, with username/password pairs stored directly in the config file.
-
-To enable this plugin, add to your configuration file:
-::
-
-    plugins:
-        - plugin_module: inginious.frontend.plugins.auth.demo_auth
-            users:
-                username1: "password1"
-                username2: "password2"
-                username3: "password3"
-
-Each key/value pair in the ``users`` field corresponds to a new username/password user.
 
 ldap_auth
 !!!!!!!!!
@@ -166,21 +141,20 @@ To enable this plugin, add to your configuration file:
 
     plugins:
         - plugin_module: inginious.frontend.plugins.auth.ldap_auth
-            host: "your.ldap.server.com"
-            encryption: "ssl" #can be tls or none
-            base_dn: "ou=People,dc=info,dc=ucl,dc=ac,dc=be"
-            request: "uid={}",
-            prefix: "",
-            name: "INGI Login",
-            require_cert: true
+          id: some_id_for_ldap
+          host: "your.ldap.server.com"
+          encryption: "ssl" #can be tls or none
+          base_dn: "ou=People,dc=info,dc=ucl,dc=ac,dc=be"
+          request: "(uid={})",
+          name: "LDAP Login"
 
 Most of the parameters are self-explaining, but:
 
+``id``
+    is the authentication method id. It must be alphanumerical and different from other external authentication methods.
+
 ``request``
     is the request made to the LDAP server to search the user to authentify. "{}" is replaced by the username indicated by the user.
-``prefix``
-    a prefix that will be added in the internal username used in INGInious. Useful if you have multiple auth methods with usernames used in more than one method.
-
 
 saml2_auth
 !!!!!!!!!!
