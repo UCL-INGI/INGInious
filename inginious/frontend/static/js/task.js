@@ -801,7 +801,13 @@ function updateMainTags(data){
                 }
             }
             if(tag.startsWith("*auto-tag-")){
-                $('#main_tag_group').append('<span class="badge alert-default">'+data["tests"][tag]+'</span>');
+                var max_length = 28;
+                if(data["tests"][tag].length > max_length){
+                    $('#main_tag_group').append('<span class="badge alert-default" data-toggle="tooltip" data-placement="top" data-original-title="'+data["tests"][tag]+'">'+data["tests"][tag].substring(0, max_length)+'…</span>');
+                }
+                else{
+                    $('#main_tag_group').append('<span class="badge alert-default">'+data["tests"][tag]+'</span>');
+                }
             }
         }
     }

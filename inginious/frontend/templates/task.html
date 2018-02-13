@@ -97,9 +97,9 @@ $def ColumnF():
         <h3>$:_("Tags")</h3>
         <div id="main_tag_group">
         $for tag in visible_tags:
-            <span class="badge alert-info" id="$tag.get_id()" data-toggle="tooltip" title="$tag.get_description(translated=True)">$:_(tag.get_name())</span>
+            <span class="badge alert-info" id="$tag.get_id()" data-placement="right" data-toggle="tooltip" title="$tag.get_description(translated=True)">$:_(tag.get_name())</span>
         $for tag in visible_anti_tags:
-            <span class="badge alert-danger" id="$tag.get_id()" data-toggle="tooltip" title="$tag.get_description(translated=True)" style="display:none;">$:_(tag.get_name())</span>
+            <span class="badge alert-danger" id="$tag.get_id()" data-placement="right" data-toggle="tooltip" title="$tag.get_description(translated=True)" style="display:none;">$:_(tag.get_name())</span>
         </div>
     <!-- End Tags -->
     

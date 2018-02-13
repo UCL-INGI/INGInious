@@ -199,9 +199,11 @@ class CourseEditTask(INGIniousAdminPage):
             for k in tags: 
                 if tags[k]["type"] != 2: # Ignore organisational tags since they have no id.
                     count = 0
-                    id = tags[k]["id"]
+                    id = str(tags[k]["id"])
                     if (" " in id):
-                        return json.dumps({"status": "error", "message": _("You can not use spaces in the id field.")})
+                        return json.dumps({"status": "error", "message": _("You can not use spaces in the tag id field.")})
+                    if not id_checker(id):
+                        return json.dumps({"status": "error", "message": _("Invalid tag id: {}").format(id)})
                     for k2 in tags:
                         if tags[k2]["type"] != 2 and tags[k2]["id"] == id:
                             count = count+1
