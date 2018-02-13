@@ -109,18 +109,18 @@ The recommended setup is to install INGInious via pip and the master branch of t
 This allows you to use the latest development version. This version is currently the supported one for issues.
 ::
 
-    $ pip3 install --upgrade git+https://github.com/UCL-INGI/INGInious.git
+    $ pip3 install --upgrade git+https://github.com/UCL-INGI/INGInious.git@v0.5
 
 This will automatically upgrade an existing version.
 
 .. note::
 
-   You may want to enable the LDAP/SAML2 plugin or use (F)CGI instead of the web.py default webserver.
-   In this case, you have to install more packages: simply add ``[cgi]``, ``[ldap]`` or ``[saml2]`` to the above command, depending on your needs:
+   You may want to enable the LDAP/SAML2 plugin or use FCGI/UWSGI instead of the web.py default webserver.
+   In this case, you have to install more packages: simply add ``[cgi]``, ``[uwgsi]``, ``[ldap]`` or ``[saml2]`` to the above command, depending on your needs:
 
    ::
 
-       $ pip3 install --upgrade git+https://github.com/UCL-INGI/INGInious.git#egg=INGInious[cgi,ldap]
+       $ pip3 install --upgrade git+https://github.com/UCL-INGI/INGInious.git@v0.5#egg=INGInious[cgi,ldap]
 
 Some releases are also published on Pipy. However, no support is provided for these versions now. To install
 the latest previous release:
@@ -133,29 +133,18 @@ the latest previous release:
 Configuring INGInious
 ---------------------
 
-INGInious comes with two frontends:
-
-.. _LTI Frontend:
-
-* The LTI frontend, which allows to interface with Learning Management System via the LTI_ specification.
-  Any LMS supporting LTI_ is compatible. This includes Moodle, edX and Coursera, among many others.
+INGInious comes with a mini-LMS web app that provides statistics, groups management, and the
+INGInious studio, that allows to modify and test your tasks directly in your browser. It supports the LTI_ interface
+that allows to interface with Learning Management System via the LTI_ specification. Any LMS supporting LTI_ is
+compatible. This includes Moodle, edX, among many others.
 
 .. _LTI: http://www.imsglobal.org/LTI/v1p1/ltiIMGv1p1.html
-.. _Web App:
 
-* The Web App, a mini-LMS made for on-site courses. It provides statistics, group management, and the INGInious studio,
-  that allows to modify and test your tasks directly in your browser.
+To configure the web app automatically, use the ``inginious-install`` CLI.
 
-You can use one, or both. Each of them have to be configured independently. This can be done automatically with the
-``inginious-install`` CLI. To configure the LTI frontend:
 ::
 
-    $ inginious-install lti
-
-To configure the Web App frontend:
-::
-
-    $ inginious-install webapp
+    $ inginious-install
 
 This will help you create the configuration file in the current directory. For manual configuration and details, see
 :ref:`ConfigReference`.
@@ -170,11 +159,9 @@ will automatically start a local backend and grading agents.
 
 With local backend/agent
 ````````````````````````
-To run the frontend(s), please use the ``inginious-lti`` or ``inginious-webapp`` CLI. This will open a small Python
+To run the frontend, please use the ``inginious-webapp`` CLI. This will open a small Python
 web server and display the url on which it is bind in the console. Some parameters (configuration file, host, port)
-can be specified. Details are available at :ref:`inginious-lti` and :ref:`inginious-webapp`.
-
-If you use the LTI frontend, you have to add it to your LMS: follow the instructions in :ref:`configure_LTI`.
+can be specified. Details are available at :ref:`inginious-webapp`.
 
 With remote backend/agent
 `````````````````````````
@@ -196,7 +183,7 @@ To run INInious with a remote backend (and agents), do as follows:
    ::
 
         backend: tcp://backend-host:2000
-#. Run your preferred frontend using :ref:`inginious-lti` or :ref:`inginious-webapp` (or both).
+#. Run the frontend using :ref:`inginious-webapp`.
 
 .. _webterm_setup:
 
@@ -286,7 +273,7 @@ You can then replace the content of fastcgi.conf with:
     server.modules   += ( "mod_rewrite" )
 
     alias.url = (
-        "/static/" => "/usr/lib/python3.5/site-packages/inginious/frontend/static/"
+        "/static/" => "/usr/lib/python3.5/site-packages/inginious/frontend/static"
     )
 
     fastcgi.server = ( "/inginious-webapp" =>
@@ -309,10 +296,8 @@ You can then replace the content of fastcgi.conf with:
         "^/(.*)$" => "/inginious-webapp/$1"
     )
 
-Replace ``webapp`` by ``lti`` if you want to use the `LTI frontend`_.
-
-The ``INGINIOUS_WEBAPP`` or ``INGINIOUS_LTI`` (according to your config) prefixed environment variables are used to
-replace the default command line parameters. See :ref:`inginious-lti` and :ref:`inginious-webapp` for more details.
+The ``INGINIOUS_WEBAPP`` prefixed environment variables are used to replace the default command line parameters.
+See :ref:`inginious-webapp` for more details.
 
 The ``REAL_SCRIPT_NAME`` environment variable must be specified under lighttpd if you plan to access the application
 from another path than the specified one. In this case, lighttpd forces to set a non-root path ``/inginious-webapp``,
@@ -331,8 +316,8 @@ Finally, start the server:
 Using Apache
 ````````````
 
-You may also want to use Apache. You should install `mod_wsgi`. WSGI interfaces are supported through `inginious-webapp`
-and `inginious-lti` scripts. This guide is made for CentOS 7.x.
+You may also want to use Apache. You should install `mod_wsgi`. WSGI interfaces are supported through the
+`inginious-webapp` script. This guide is made for CentOS 7.x.
 
 Install the following packages (please note that the Python3.5+ version of *mod_wsgi* is required):
 ::
@@ -377,7 +362,7 @@ You can then modify your ``/etc/httpd/conf/httpd.conf`` file to apply the follow
     WSGIScriptAlias / "/usr/bin/inginious-webapp"
     WSGIScriptReloading On
 
-    Alias /static /usr/lib/python3.5/site-packages/inginious/frontend/static/
+    Alias /static /usr/lib/python3.5/site-packages/inginious/frontend/static
 
     <Directory "/usr/bin">
         <Files "inginious-webapp">
@@ -385,7 +370,7 @@ You can then modify your ``/etc/httpd/conf/httpd.conf`` file to apply the follow
         </Files>
     </Directory>
 
-    <DirectoryMatch "/usr/lib/python3.5/site-packages/inginious/frontend/(.+)/static/">
+    <DirectoryMatch "/usr/lib/python3.5/site-packages/inginious/frontend/static">
         Require all granted
     </DirectoryMatch>
 

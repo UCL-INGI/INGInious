@@ -59,6 +59,7 @@ setup(
         "cgi": ["flup>=1.0.3.dev"],
         "ldap": ["ldap3"],
         "saml2": ["python3-saml"],
+        "uwsgi": ["uwsgi"],
         "test": test_requires
     },
 
@@ -76,9 +77,7 @@ setup(
     ],
 
     include_package_data=True,
-
     test_suite='nose.collector',
-
     author="INGInious contributors",
     author_email="inginious@info.ucl.ac.be",
     license="AGPL 3",

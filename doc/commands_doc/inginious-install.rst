@@ -3,7 +3,7 @@
 inginious-install
 =================
 
-Assistant to create a complete configuration file for the specified frontend.
+Assistant to create a complete configuration file for the INGInious frontend.
 
 Read and follow screen instructions.
 
@@ -11,7 +11,7 @@ Read and follow screen instructions.
 
 ::
 
-    inginious-install [-h] [--file FILE] {lti,webapp}
+    inginious-install [-h] [--file FILE]
 
 .. option:: --file
 
@@ -20,7 +20,3 @@ Read and follow screen instructions.
 .. option:: -h, --help
 
    Display the help message.
-
-.. option:: lti, webapp
-
-    The frontend to install
