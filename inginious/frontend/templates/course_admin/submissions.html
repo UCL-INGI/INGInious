@@ -9,7 +9,7 @@ $#
 $ num_tags_filter = 2
 
 
-$var title: $:_("Submission viewer")
+$var title: $:_("View submissions")
 
 $var Column: $:template_helper.call('course_admin_menu',course=course,current='submissions')
 $ is_admin = user_manager.has_admin_rights_on_course(course)
@@ -20,9 +20,7 @@ $def NavbarF():
         <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
         <li><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
             <i class="fa fa-user-secret"></i></a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()/students" title=$:_('"Students"') data-toggle="tooltip" data-placement="bottom">
-            <i class="fa fa-user"></i></a></li>
-        <li class="active"><a href="#">Explorer <span class="sr-only">$:_("(current)")</span></a></li>
+        <li class="active"><a href="#"><i class="fa fa-search"></i> $:_("View submissions") <span class="sr-only">$:_("(current)")</span></a></li>
     </ol>
 $var Navbar: $:NavbarF()
 
@@ -32,7 +30,7 @@ $for m in msg:
         $m
     </div>
 
-<h2>$:_("Submission viewer")</h2>
+<h2>$:_("View submissions")</h2>
 <!-- Add a title if only one task and one user/aggregation -->
 $if len(old_input.task) == 1:
     $ task_name = tasks[old_input.task[0]].get_name(user_manager.session_language())
@@ -44,7 +42,7 @@ $if len(old_input.task) == 1:
             $if str(c['_id']) in old_input['aggregation']:
                 <h4>$:_('Submissions for the task "{0}" - {1}').format(task_name, c["description"])</h4>
 
-<form id="select_form" method="get">
+<form id="select_form" method="post">
 
 <!-- Query submissions -->
 <div class="panel panel-default">
@@ -213,7 +211,7 @@ $if len(old_input.task) == 1:
                         <select name="stat" class="form-control">
                             <option value="no_stat" $('selected' if old_input['stat'] == 'no_stat' else '')>$:_("No statistics")</option>
                             <option value="with_stat" $('selected' if old_input['stat'] == 'with_stat' else '')>$:_("With statistics")</option>
-                            <option value="with_pond_stat" $('selected' if old_input['stat'] == 'with_pond_stat' else '')>$:_("With ponderated statistics")</option>
+                            <option value="with_pond_stat" $('selected' if old_input['stat'] == 'with_pond_stat' else '')>$:_("With weighted statistics")</option>
                         </select>
                     </div>
                 </div>
