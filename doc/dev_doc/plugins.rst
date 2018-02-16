@@ -216,3 +216,26 @@ Each hook available in INGInious is described here, starting with its name and p
 
     Adds a new helper to the instance of TemplateHelper. Should return a tuple (name,func) where name is the name that will
     be indicated when calling the TemplateHelper.call method, and func is the function that will be called.
+
+Additional subproblems
+----------------------
+
+From INGInious v0.5, additional subproblems can be defined via plugins.
+
+Subproblems are defined at both the backend and frontend side. At the backend side, it consists of a class inheriting
+from ``inginious.common.tasks_problems.BasicProblem`` and implementing the following abstract methods:
+
+   - ``get_type(cls)`` returning an alphanumerical string representing the problem type.
+   - ``input_is_consistent(self, task_input, default_allowed_exteension, defaultt_max_size`` returning ``True`` if the
+     ``task_input`` dictionary provided by the INGInious client is consistent and correct for the agent.
+   - ``input_type(self)`` returning ``str``, ``dict`` or ``list`` according to the actual data sent to the agent.
+   - ``check_answer(self, task_input, language)`` returning ``True`` if the problem answer is correct, ``False`` otherwise.
+     It should be used only when Docker execution is not required, as for MCQs. ``task_input`` is the dictionary provided
+     by the INGInious client after its consistency was checked. ``language`` is the gettext 2-letter language code.
+   - ``get_text_fields(cls)`` returns a dictionary whose keys are the problem YAML fields that require translation and values
+     are always True.
+   - ``parse_problem(self, problem_content)`` returns the modified `problem_content`` returned by the INGInious studio.
+     For instance, strings-encoded int values can be cast to int here.
+
+At the frontend side, it consists of a class inheriting from ``inginious.frontend.tasks_problems.DisplayableBasicProblem``
+and implementing th following abstract methods:
