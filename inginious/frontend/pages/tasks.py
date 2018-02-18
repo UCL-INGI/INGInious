@@ -138,7 +138,7 @@ class BaseTaskPage(object):
 
             submissions = self.submission_manager.get_user_submissions(task) if self.user_manager.session_logged_in() else []
             user_info = self.database.users.find_one({"username": username})
-            input_random_int = int(hashlib.md5(str(self.user_manager.session_username()).encode('utf-8')).hexdigest(), 16)
+            input_random_int = int(hashlib.md5(str(self.user_manager.session_username()).encode('utf-8')).hexdigest()[:8], 16) #[:8] to avoid possible overflow
 
             # Display the task itself
             return self.template_helper.get_renderer().task(user_info, course, task, submissions,

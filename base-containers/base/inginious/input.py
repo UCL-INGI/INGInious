@@ -33,12 +33,12 @@ def get_lang():
 
 def random_input_generator(index = 0):
     """ Returns a generator for random numbers based on the username of the user being graded
-        The generator return numbers between [0, 1] with at most 4 digits. e.g.
+        The generator return numbers between [0, 1] with at most 4 digits.
     """
-    u = input_random_int = int(hashlib.md5(str(get_username()).encode('utf-8')).hexdigest(), 16)
+    u = input_random_int = int(hashlib.md5(str(get_username()).encode('utf-8')).hexdigest()[:8], 16)
     i = index
     while 1:
-        x = math.sin(u + (u*i))
+        x = math.sin((u*i) - u)
         yield round(x - math.floor(x), 4)
         i += 1
 

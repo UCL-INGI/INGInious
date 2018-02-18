@@ -391,7 +391,7 @@ $if task.get_fs().exists(javascript_location):
     <script>
         var __input_random_counter = 0;
         function next_random_input() {
-            x = Math.sin($hash_username + ($hash_username * __input_random_counter++)) * 1;
+            x = Math.sin(($hash_username * __input_random_counter++) - $hash_username) * 1;
             return parseFloat((x - Math.floor(x)).toFixed(4));
         }
     </script>
