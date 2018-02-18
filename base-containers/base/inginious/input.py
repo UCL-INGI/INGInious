@@ -6,6 +6,8 @@
 import os
 import re
 import json
+import math
+import hashlib
 
 import inginious
 
@@ -27,6 +29,18 @@ def get_username():
 def get_lang():
     """ Returns the username of the current user being graded """
     return get_input("@lang")
+
+
+def random_input_generator(index = 0):
+    """ Returns a generator for random numbers based on the username of the user being graded
+        The generator return numbers between [0, 1] with at most 4 digits. e.g.
+    """
+    u = input_random_int = int(hashlib.md5(str(get_username()).encode('utf-8')).hexdigest(), 16)
+    i = index
+    while 1:
+        x = math.sin(u + (u*i))
+        yield round(x - math.floor(x), 4)
+        i += 1
 
 
 def get_input(problem):

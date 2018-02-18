@@ -1,4 +1,4 @@
-$def with (user_info, course, task, submissions, students, eval_submission, user_task, previous_taskid, next_taskid, webterm_link)
+$def with (user_info, course, task, submissions, students, eval_submission, user_task, previous_taskid, next_taskid, webterm_link, hash_username=1)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -257,6 +257,8 @@ $# Start content
     </div>
 </h2>
 $:task.get_context(user_manager.session_language())
+<svg id="svg"></svg>
+<canvas id="canvas"></canvas>
 <hr/>
 <div id="task_alert"></div>
 <div id="ssh_template" style="display:none;">
@@ -383,3 +385,14 @@ $$(document).ready(function() {
     init_task_page("$task.get_evaluate()");
 });
 </script>
+
+$ javascript_location = "input_random.js"
+$if task.get_fs().exists(javascript_location):
+    <script>
+        var __input_random_counter = 0;
+        function next_random_input() {
+            x = Math.sin($hash_username + ($hash_username * __input_random_counter++)) * 1;
+            return parseFloat((x - Math.floor(x)).toFixed(4));
+        }
+    </script>
+    $:task.get_fs().get(javascript_location).decode("utf-8") $#Maybe hardcoding utf-8 is wrong ?
