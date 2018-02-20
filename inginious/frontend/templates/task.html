@@ -1,4 +1,4 @@
-$def with (user_info, course, task, submissions, students, eval_submission, user_task, previous_taskid, next_taskid, webterm_link, hash_username=1)
+$def with (user_info, course, task, submissions, students, eval_submission, user_task, previous_taskid, next_taskid, webterm_link, input_random_list=[])
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -389,10 +389,6 @@ $$(document).ready(function() {
 $ javascript_location = "input_random.js"
 $if task.get_fs().exists(javascript_location):
     <script>
-        var __input_random_counter = 0;
-        function next_random_input() {
-            x = Math.sin(($hash_username * __input_random_counter++) - $hash_username) * 1;
-            return parseFloat((x - Math.floor(x)).toFixed(4));
-        }
+        var input_random_list = $input_random_list
     </script>
-    $:task.get_fs().get(javascript_location).decode("utf-8") $#Maybe hardcoding utf-8 is wrong ?
+    $:task.get_fs().get(javascript_location).decode("utf-8")

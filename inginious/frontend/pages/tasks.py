@@ -10,7 +10,7 @@ import posixpath
 import urllib.error
 import urllib.parse
 import urllib.request
-import hashlib
+import random
 
 import web
 from bson.objectid import ObjectId
@@ -95,6 +95,13 @@ class BaseTaskPage(object):
         next_taskid = keys[index + 1] if index < len(keys) - 1 else None
 
         self.user_manager.user_saw_task(username, courseid, taskid)
+        
+        # Generate random inputs and save ot into db
+        random.seed(username)
+        random_input_list = [random.random() for i in range(task.get_number_input_random())]
+        self.database.user_tasks.update(
+                {"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username},
+                {"$set": {"random": random_input_list}})
 
         userinput = web.input()
         if "submissionid" in userinput and "questionid" in userinput:
@@ -138,11 +145,10 @@ class BaseTaskPage(object):
 
             submissions = self.submission_manager.get_user_submissions(task) if self.user_manager.session_logged_in() else []
             user_info = self.database.users.find_one({"username": username})
-            input_random_int = int(hashlib.md5(str(self.user_manager.session_username()).encode('utf-8')).hexdigest()[:8], 16) #[:8] to avoid possible overflow
 
             # Display the task itself
             return self.template_helper.get_renderer().task(user_info, course, task, submissions,
-                                                            students, eval_submission, user_task, previous_taskid, next_taskid, self.webterm_link, input_random_int)
+                                                            students, eval_submission, user_task, previous_taskid, next_taskid, self.webterm_link, random_input_list)
 
     def POST(self, courseid, taskid, isLTI):
         """ POST a new submission """

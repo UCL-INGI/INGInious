@@ -117,3 +117,6 @@ class WebAppTask(Task):
     def get_tags(self):
         """ Get the tuple of list of the task """
         return self._tags
+        
+    def get_number_input_random(self):
+        return 2

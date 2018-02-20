@@ -29,18 +29,12 @@ def get_username():
 def get_lang():
     """ Returns the username of the current user being graded """
     return get_input("@lang")
+    
 
 
-def random_input_generator(index = 0):
-    """ Returns a generator for random numbers based on the username of the user being graded
-        The generator return numbers between [0, 1] with at most 4 digits.
-    """
-    u = input_random_int = int(hashlib.md5(str(get_username()).encode('utf-8')).hexdigest()[:8], 16)
-    i = index
-    while 1:
-        x = math.sin((u*i) - u)
-        yield round(x - math.floor(x), 4)
-        i += 1
+def get_random():
+    """ Returns a list of random numbers between [0, 1] in function of the current user being graded """
+    return get_input("@random")
 
 
 def get_input(problem):
