@@ -112,7 +112,7 @@ class ScoreBoard(INGIniousAuthPage):
 
         # Get user names
         users_realname = {}
-        for username, userinfo in self.user_manager.get_users_info(users).items():
+        for username, userinfo in self.user_manager.get_users_info(list(users)).items():
             users_realname[username] = userinfo[0] if userinfo else username
 
         # Compute overall result per user, and sort them
