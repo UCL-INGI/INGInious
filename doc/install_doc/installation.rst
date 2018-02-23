@@ -273,7 +273,7 @@ You can then replace the content of fastcgi.conf with:
     server.modules   += ( "mod_rewrite" )
 
     alias.url = (
-        "/static/" => "/usr/lib/python3.5/site-packages/inginious/frontend/static"
+        "/static/" => "/usr/lib/python3.5/site-packages/inginious/frontend/static/"
     )
 
     fastcgi.server = ( "/inginious-webapp" =>
