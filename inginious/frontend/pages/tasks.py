@@ -97,7 +97,7 @@ class BaseTaskPage(object):
         self.user_manager.user_saw_task(username, courseid, taskid)
         
         # Generate random inputs and save ot into db
-        random.seed(username)
+        random.seed(username + taskid + courseid)
         random_input_list = [random.random() for i in range(task.get_number_input_random())]
         self.database.user_tasks.update(
                 {"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username},
