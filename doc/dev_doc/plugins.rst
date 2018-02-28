@@ -220,7 +220,8 @@ Each hook available in INGInious is described here, starting with its name and p
 Additional subproblems
 ----------------------
 
-From INGInious v0.5, additional subproblems can be defined via plugins.
+From INGInious v0.5, additional subproblems can be defined and added via plugins. A basic example is available on GitHub repo
+`UCL-INGI/INGInious-problems-demo <https://github.com/UCL-INGI/INGInious-problems-demo>`_.
 
 Subproblems are defined at both the backend and frontend side. At the backend side, it consists of a class inheriting
 from ``inginious.common.tasks_problems.BasicProblem`` and implementing the following abstract methods:
@@ -229,8 +230,16 @@ from ``inginious.common.tasks_problems.BasicProblem`` and implementing the follo
    - ``input_is_consistent(self, task_input, default_allowed_exteension, defaultt_max_size`` returning ``True`` if the
      ``task_input`` dictionary provided by the INGInious client is consistent and correct for the agent.
    - ``input_type(self)`` returning ``str``, ``dict`` or ``list`` according to the actual data sent to the agent.
-   - ``check_answer(self, task_input, language)`` returning ``True`` if the problem answer is correct, ``False`` otherwise.
-     It should be used only when Docker execution is not required, as for MCQs. ``task_input`` is the dictionary provided
+   - ``check_answer(self, task_input, language)`` returning a tuple whose items are:
+
+        #. either ``True``, ``False`` or ``None``, indicating respectively that the answer is valid, invalid,
+           or need to be sent to VM
+        #. the second is the error message assigned to the task, if any (unused for now)
+        #. the third is the error message assigned to this problem, if any
+        #. the fourth is the number of errors.
+
+     This method should be called via a compatible agent, as for MCQs. The Docker
+     agent will not call this method. ``task_input`` is the dictionary provided
      by the INGInious client after its consistency was checked. ``language`` is the gettext 2-letter language code.
    - ``get_text_fields(cls)`` returns a dictionary whose keys are the problem YAML fields that require translation and values
      are always True.
@@ -239,3 +248,13 @@ from ``inginious.common.tasks_problems.BasicProblem`` and implementing the follo
 
 At the frontend side, it consists of a class inheriting from ``inginious.frontend.tasks_problems.DisplayableBasicProblem``
 and implementing th following abstract methods:
+
+  - ``get_type_name(self, gettext)`` returning a human-readable transleted string representing the problem type. ``gettext``
+    is the frontend user-associated gettext function.
+  - ``get_renderer(cls, template_helper)`` returning the template renderer used for the subproblem. ``template_helper``
+    is the webapp ``TemplateHelper`` singleton. It can be used to specify a local template folder.
+  - ``show_input(self, template_helper, language)`` returning a HTML code displayed after the subproblem context to the
+    student. ``template_helper`` is the webapp ``TemplateHelper`` singleton. `language`` is the gettext 2-letter language
+    code.
+  - ``show_editbox(cls, template_helper, key)`` returning a HTML code corresponding to the subproblem edition box.
+    ``template_helper`` is the webapp ``TemplateHelper`` singleton. ``key`` is the problem type sent by the frontend.
