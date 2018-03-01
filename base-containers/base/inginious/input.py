@@ -7,7 +7,6 @@ import os
 import re
 import json
 import math
-import hashlib
 
 import inginious
 
