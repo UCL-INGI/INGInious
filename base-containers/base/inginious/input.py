@@ -27,7 +27,6 @@ def get_username():
 def get_lang():
     """ Returns the username of the current user being graded """
     return get_input("@lang")
-    
 
 
 def get_input(problem):
