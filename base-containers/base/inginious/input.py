@@ -6,7 +6,6 @@
 import os
 import re
 import json
-import math
 
 import inginious
 
