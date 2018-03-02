@@ -30,11 +30,6 @@ def get_lang():
     
 
 
-def get_random():
-    """ Returns a list of random numbers between [0, 1] in function of the current user being graded """
-    return get_input("@random")
-
-
 def get_input(problem):
     """" Returns the specified problem answer in the form 
          problem: problem id
