@@ -257,13 +257,6 @@ $# Start content
     </div>
 </h2>
 $:task.get_context(user_manager.session_language())
-
-<!-- HTML Tags to edit by the task author when using random inputs-->
-<!-- height attribute is set by default to 0% to avoid blank spaces when not using it-->
-<svg id="svg" height="0px"></svg>
-<canvas id="canvas" height="0px"></canvas>
-<div id="editable_div"></div>
-
 <hr/>
 <div id="task_alert"></div>
 <div id="ssh_template" style="display:none;">
@@ -324,9 +317,6 @@ $if user_manager.has_admin_rights_on_course(course):
             <div class="panel-body">
                 <div id="task_alert.$problem.get_id()" class="task_alert_problem"></div>
                 $:problem.get_header(user_manager.session_language())
-                <svg id="svg_$problem.get_id()" height="0px"></svg>
-                <canvas id="canvas_$problem.get_id()" height="0px"></canvas>
-                <div id="editable_div_$problem.get_id()"></div>
                 $:problem.show_input(template_helper, user_manager.session_language())
             </div>
         </div>
@@ -396,18 +386,10 @@ $$(document).ready(function() {
 
 $# Input random
 $# set up some useful variable that may be used by task author
-<script>
-    var __input_random_list = $input_random_list
-    var __username = "$user_manager.session_username()"
-    var __lang = "$user_manager.session_language()"
-    //Shortcut to replace some elements of the page.
-    function replace(old_str, new_str){
-        document.getElementById("content").innerHTML = document.getElementById("content").innerHTML.replace(new RegExp(old_str, 'g'), new_str); //RegExp to perform a replace All.
+<script>    
+    var input = {
+        "@lang": "$user_manager.session_language()",
+        "@username": "$user_manager.session_username()",
+        "@random": $input_random_list
     }
 </script>
-$# Inject all .js found in the public folder of the task
-
-$if task.get_fs().exists("public"):
-    $for filename in task.get_fs().from_subfolder("public").list():
-        $if filename.endswith(".js"):
-            $:task.get_fs().get("public/" + filename).decode("utf-8")
