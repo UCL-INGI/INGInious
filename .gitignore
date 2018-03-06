@@ -15,7 +15,7 @@ node_modules/
 INGInious.egg-info/
 dist/
 
-# Default task directory
+# Default tasks directory
 inginious/tasks
 # Default backup directory
 inginious/backup
