@@ -1,4 +1,4 @@
-$def with (user_info, course, task, submissions, students, eval_submission, user_task, previous_taskid, next_taskid, webterm_link)
+$def with (user_info, course, task, submissions, students, eval_submission, user_task, previous_taskid, next_taskid, webterm_link, input_random_list=[])
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -382,4 +382,14 @@ var problems_types = $:pdict
 $$(document).ready(function() {
     init_task_page("$task.get_evaluate()");
 });
+</script>
+
+$# Input random
+$# set up some useful variable that may be used by task author
+<script>    
+    var input = {
+        "@lang": "$user_manager.session_language()",
+        "@username": "$user_manager.session_username()",
+        "@random": $input_random_list
+    }
 </script>

@@ -251,6 +251,9 @@ class WebAppSubmissionManager:
         # new_submission hook
         inputdata["@username"] = username
         inputdata["@lang"] = self._user_manager.session_language()
+        # Retrieve input random
+        random_input = self._database.user_tasks.find_one({"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username}, { "random": 1 })
+        inputdata["@random"] = random_input["random"] if "random" in random_input else []
 
         self._hook_manager.call_hook("new_submission", submission=obj, inputdata=inputdata)
         obj["input"] = self._gridfs.put(bson.BSON.encode(inputdata))

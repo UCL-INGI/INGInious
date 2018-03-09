@@ -51,6 +51,9 @@ class WebAppTask(Task):
 
         # Submission limits
         self._submission_limit = self._data.get("submission_limit", {"amount": -1, "period": -1})
+        
+        # Input random
+        self._input_random = int(self._data.get("input_random", 0))
 
         # Tags
         self._tags = Tag.create_tags_from_dict(self._data.get("tags", {})) 
@@ -117,3 +120,6 @@ class WebAppTask(Task):
     def get_tags(self):
         """ Get the tuple of list of the task """
         return self._tags
+        
+    def get_number_input_random(self):
+        return self._input_random
