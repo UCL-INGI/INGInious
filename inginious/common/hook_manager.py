@@ -31,3 +31,13 @@ class HookManager(object):
     def call_hook(self, name, **kwargs):
         """ Call all hooks registered with this name. Returns a list of the returns values of the hooks (in the order the hooks were added)"""
         return [y for y in [x(**kwargs) for x in self.hooks.get(name, [])] if y is not None]
+
+    def call_hook_recursive(self, name, **kwargs):
+        """ Call all hooks registered with this name. Each hook receives as arguments the return value of the
+            previous hook call, or the initial params for the first hook. As such, each hook must return a dictionary
+            with the received (eventually modified) args. Returns the modified args."""
+        for x in self.hooks.get(name, []):
+            out = x(**kwargs)
+            if out is not None: #ignore already reported failure
+                kwargs = out
+        return kwargs
