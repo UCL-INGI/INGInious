@@ -308,15 +308,28 @@ class Backend(object):
     async def _do_ping(self):
         """ Ping the agents """
         for agent_addr, friendly_name in list(self._registered_agents.items()):
-            ping_count = self._ping_count.get(agent_addr, 0)
-            if ping_count > 5:
-                self._logger.warning("Agent %s (%s) does not respond: removing from list.", agent_addr, friendly_name)
-                self._available_agents = [agent for agent in self._available_agents if agent != agent_addr]
-                del self._registered_agents[agent_addr]
-                await self._recover_jobs(agent_addr)
-            else:
-                self._ping_count[agent_addr] = ping_count + 1
-                await ZMQUtils.send_with_addr(self._agent_socket, agent_addr, Ping())
+            try:
+                ping_count = self._ping_count.get(agent_addr, 0)
+                if ping_count > 5:
+                    self._logger.warning("Agent %s (%s) does not respond: removing from list.", agent_addr, friendly_name)
+                    delete_agent = True
+                else:
+                    self._ping_count[agent_addr] = ping_count + 1
+                    await ZMQUtils.send_with_addr(self._agent_socket, agent_addr, Ping())
+                    delete_agent = False
+            except:
+                # This should not happen, but it's better to check anyway.
+                self._logger.exception("Failed to send ping to agent %s (%s). Removing it from list.", agent_addr, friendly_name)
+                delete_agent = True
+
+            if delete_agent:
+                try:
+                    self._available_agents = [agent for agent in self._available_agents if agent != agent_addr]
+                    del self._registered_agents[agent_addr]
+                    await self._recover_jobs(agent_addr)
+                except:
+                    self._logger.exception("Failed to delete agent %s (%s)!", agent_addr, friendly_name)
+
         self._loop.call_later(1, asyncio.ensure_future, self._do_ping())
 
     async def _recover_jobs(self, agent_addr):
