@@ -307,6 +307,8 @@ class Backend(object):
 
     async def _do_ping(self):
         """ Ping the agents """
+
+        # the list() call here is needed, as we remove entries from _registered_agents!
         for agent_addr, friendly_name in list(self._registered_agents.items()):
             try:
                 ping_count = self._ping_count.get(agent_addr, 0)
