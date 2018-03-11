@@ -15,12 +15,14 @@ from inginious.agent.mcq_agent import MCQAgent
 from inginious.backend.backend import Backend
 from inginious.client.client import Client
 
-def start_asyncio_and_zmq():
+def start_asyncio_and_zmq(debug_asyncio=False):
     """ Init asyncio and ZMQ. Starts a daemon thread in which the asyncio loops run.
     :return: a ZMQ context and a Thread object (as a tuple)
     """
     loop = ZMQEventLoop()
     asyncio.set_event_loop(loop)
+    if debug_asyncio:
+        loop.set_debug(True)
     zmq_context = Context()
 
     t = threading.Thread(target=_run_asyncio, args=(loop, zmq_context), daemon=True)
