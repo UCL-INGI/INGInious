@@ -69,7 +69,7 @@ class Backend(object):
             func = message_handlers[message.__class__]
         except:
             raise TypeError("Unknown message type %s" % message.__class__)
-        self._loop.create_task(func(agent_addr, message))
+        self._create_safe_task(func(agent_addr, message))
 
     async def handle_client_message(self, client_addr, message):
         """Dispatch messages received from clients to the right handlers"""
@@ -90,7 +90,7 @@ class Backend(object):
             func = message_handlers[message.__class__]
         except:
             raise TypeError("Unknown message type %s" % message.__class__)
-        self._loop.create_task(func(client_addr, message))
+        self._create_safe_task(func(client_addr, message))
 
     async def send_container_update_to_client(self, client_addrs):
         """ :param client_addrs: list of clients to which we should send the update """
@@ -279,7 +279,7 @@ class Backend(object):
         self._logger.info("Backend started")
         self._agent_socket.bind(self._agent_addr)
         self._client_socket.bind(self._client_addr)
-        self._loop.call_later(1, asyncio.ensure_future, self._do_ping())
+        self._loop.call_later(1, self._create_safe_task, self._do_ping())
 
         try:
             while True:
@@ -332,7 +332,7 @@ class Backend(object):
                 except:
                     self._logger.exception("Failed to delete agent %s (%s)!", agent_addr, friendly_name)
 
-        self._loop.call_later(1, asyncio.ensure_future, self._do_ping())
+        self._loop.call_later(1, self._create_safe_task, self._do_ping())
 
     async def _recover_jobs(self, agent_addr):
         """ Recover the jobs sent to a crashed agent """
@@ -342,3 +342,14 @@ class Backend(object):
                 del self._job_running[(client_addr, job_id)]
 
         await self.update_queue()
+
+    def _create_safe_task(self, coroutine):
+        """ Calls self._loop.create_task with a safe (== with logged exception) coroutine """
+        return self._loop.create_task(self._create_safe_task_coro(coroutine))
+
+    async def _create_safe_task_coro(self, coroutine):
+        """ Helper for _create_safe_task """
+        try:
+            await coroutine
+        except:
+            self._logger.exception("An exception occured while running a Task.")

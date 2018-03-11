@@ -47,7 +47,6 @@ if __name__ == "__main__":
         loop.run_until_complete(backend.run())
     except:
         logger.exception("Closing due to exception")
-        pass
     finally:
         logger.info("Closing loop")
         loop.close()
