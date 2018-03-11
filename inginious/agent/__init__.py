@@ -122,7 +122,7 @@ class Agent(object, metaclass=ABCMeta):
             func = message_handlers[message.__class__]
         except:
             raise TypeError("Unknown message type %s" % message.__class__)
-        self._loop.create_task(func(message))
+        self._create_safe_task(func(message))
 
     async def handle_ping(self, _ : Ping):
         """ Handle a Ping message. Pong the backend """
@@ -217,3 +217,14 @@ class Agent(object, metaclass=ABCMeta):
     @abstractmethod
     async def kill_job(self, message: BackendKillJob):
         pass
+
+    def _create_safe_task(self, coroutine):
+        """ Calls self._loop.create_task with a safe (== with logged exception) coroutine """
+        return self._loop.create_task(self._create_safe_task_coro(coroutine))
+
+    async def _create_safe_task_coro(self, coroutine):
+        """ Helper for _create_safe_task """
+        try:
+            await coroutine
+        except:
+            self._logger.exception("An exception occurred while running a Task.")

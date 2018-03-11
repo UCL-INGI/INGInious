@@ -106,16 +106,16 @@ class DockerAgent(Agent):
                         retval = -1
 
                     if container_id in self._containers_running:
-                        self._loop.create_task(self.handle_job_closing(container_id, retval))
+                        self._create_safe_task(self.handle_job_closing(container_id, retval))
                     elif container_id in self._student_containers_running:
-                        self._loop.create_task(self.handle_student_job_closing(container_id, retval))
+                        self._create_safe_task(self.handle_student_job_closing(container_id, retval))
                 elif i["Type"] == "container" and i["status"] == "oom":
                     container_id = i["id"]
                     if container_id in self._containers_running or container_id in self._student_containers_running:
                         self._logger.info("Container %s did OOM, killing it", container_id)
                         self._containers_killed[container_id] = "overflow"
                         try:
-                            self._loop.create_task(self._loop.run_in_executor(None, lambda: self._docker.kill_container(container_id)))
+                            self._create_safe_task(self._loop.run_in_executor(None, lambda: self._docker.kill_container(container_id)))
                         except:  # this call can sometimes fail, and that is normal.
                             pass
                 else:
@@ -237,7 +237,7 @@ class DockerAgent(Agent):
                 raise CannotCreateJobException('Cannot start container')
 
             # Talk to the container
-            self._loop.create_task(self.handle_running_container(message.job_id, container_id, message.inputdata, debug, ssh_port,
+            self._create_safe_task(self.handle_running_container(message.job_id, container_id, message.inputdata, debug, ssh_port,
                                                                  environment_name, mem_limit, time_limit, hard_time_limit,
                                                                  sockets_path, student_path, systemfiles_path,
                                                                  future_results))
@@ -350,7 +350,7 @@ class DockerAgent(Agent):
                                 share_network = msg["share_network"]
                                 socket_id = msg["socket_id"]
                                 assert "/" not in socket_id  # ensure task creator do not try to break the agent :-(
-                                self._loop.create_task(self.create_student_container(job_id, container_id, sockets_path, student_path,
+                                self._create_safe_task(self.create_student_container(job_id, container_id, sockets_path, student_path,
                                                                                      systemfiles_path, socket_id, environment, memory_limit,
                                                                                      time_limit, hard_time_limit, share_network, write_stream))
                             elif msg["type"] == "ssh_key":
@@ -443,7 +443,7 @@ class DockerAgent(Agent):
                         self._docker.remove_container(student_container_id)
                     except:
                         pass  # ignore
-                asyncio.ensure_future(self._loop.run_in_executor(None, close_and_delete))
+                self._create_safe_task(self._loop.run_in_executor(None, close_and_delete))
             del self._student_containers_for_job[message.job_id]
 
             # Allow other container to reuse the ssh port this container has finished to use
@@ -550,6 +550,6 @@ class DockerAgent(Agent):
 
     async def run(self):
         # Init Docker events watcher
-        self._loop.create_task(self._watch_docker_events())
+        self._create_safe_task(self._watch_docker_events())
 
         await super(DockerAgent, self).run()

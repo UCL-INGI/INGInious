@@ -352,4 +352,4 @@ class Backend(object):
         try:
             await coroutine
         except:
-            self._logger.exception("An exception occured while running a Task.")
+            self._logger.exception("An exception occurred while running a Task.")
