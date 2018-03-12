@@ -69,7 +69,7 @@ class Backend(object):
             func = message_handlers[message.__class__]
         except:
             raise TypeError("Unknown message type %s" % message.__class__)
-        self._loop.create_task(func(agent_addr, message))
+        self._create_safe_task(func(agent_addr, message))
 
     async def handle_client_message(self, client_addr, message):
         """Dispatch messages received from clients to the right handlers"""
@@ -90,7 +90,7 @@ class Backend(object):
             func = message_handlers[message.__class__]
         except:
             raise TypeError("Unknown message type %s" % message.__class__)
-        self._loop.create_task(func(client_addr, message))
+        self._create_safe_task(func(client_addr, message))
 
     async def send_container_update_to_client(self, client_addrs):
         """ :param client_addrs: list of clients to which we should send the update """
@@ -279,7 +279,7 @@ class Backend(object):
         self._logger.info("Backend started")
         self._agent_socket.bind(self._agent_addr)
         self._client_socket.bind(self._client_addr)
-        self._loop.call_later(1, asyncio.ensure_future, self._do_ping())
+        self._loop.call_later(1, self._create_safe_task, self._do_ping())
 
         try:
             while True:
@@ -307,17 +307,32 @@ class Backend(object):
 
     async def _do_ping(self):
         """ Ping the agents """
+
+        # the list() call here is needed, as we remove entries from _registered_agents!
         for agent_addr, friendly_name in list(self._registered_agents.items()):
-            ping_count = self._ping_count.get(agent_addr, 0)
-            if ping_count > 5:
-                self._logger.warning("Agent %s (%s) does not respond: removing from list.", agent_addr, friendly_name)
-                self._available_agents = [agent for agent in self._available_agents if agent != agent_addr]
-                del self._registered_agents[agent_addr]
-                await self._recover_jobs(agent_addr)
-            else:
-                self._ping_count[agent_addr] = ping_count + 1
-                await ZMQUtils.send_with_addr(self._agent_socket, agent_addr, Ping())
-        self._loop.call_later(1, asyncio.ensure_future, self._do_ping())
+            try:
+                ping_count = self._ping_count.get(agent_addr, 0)
+                if ping_count > 5:
+                    self._logger.warning("Agent %s (%s) does not respond: removing from list.", agent_addr, friendly_name)
+                    delete_agent = True
+                else:
+                    self._ping_count[agent_addr] = ping_count + 1
+                    await ZMQUtils.send_with_addr(self._agent_socket, agent_addr, Ping())
+                    delete_agent = False
+            except:
+                # This should not happen, but it's better to check anyway.
+                self._logger.exception("Failed to send ping to agent %s (%s). Removing it from list.", agent_addr, friendly_name)
+                delete_agent = True
+
+            if delete_agent:
+                try:
+                    self._available_agents = [agent for agent in self._available_agents if agent != agent_addr]
+                    del self._registered_agents[agent_addr]
+                    await self._recover_jobs(agent_addr)
+                except:
+                    self._logger.exception("Failed to delete agent %s (%s)!", agent_addr, friendly_name)
+
+        self._loop.call_later(1, self._create_safe_task, self._do_ping())
 
     async def _recover_jobs(self, agent_addr):
         """ Recover the jobs sent to a crashed agent """
@@ -327,3 +342,14 @@ class Backend(object):
                 del self._job_running[(client_addr, job_id)]
 
         await self.update_queue()
+
+    def _create_safe_task(self, coroutine):
+        """ Calls self._loop.create_task with a safe (== with logged exception) coroutine """
+        return self._loop.create_task(self._create_safe_task_coro(coroutine))
+
+    async def _create_safe_task_coro(self, coroutine):
+        """ Helper for _create_safe_task """
+        try:
+            await coroutine
+        except:
+            self._logger.exception("An exception occurred while running a Task.")
