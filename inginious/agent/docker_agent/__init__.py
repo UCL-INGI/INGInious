@@ -214,13 +214,13 @@ class DockerAgent(Agent):
 
             # Copy common and common_student if needed
             # TODO: avoid copy
-            if course_fs.from_subfolder("common").exists():
-                await self._loop.run_in_executor(None, lambda: course_fs.from_subfolder("common").copy_from(None, course_common_path))
+            if course_fs.from_subfolder("$common").exists():
+                await self._loop.run_in_executor(None, lambda: course_fs.from_subfolder("$common").copy_from(None, course_common_path))
             else:
                 os.mkdir(course_common_path)
 
-            if course_fs.from_subfolder("common_student").exists():
-                await self._loop.run_in_executor(None, lambda: course_fs.from_subfolder("common_student").copy_from(None, course_common_student_path))
+            if course_fs.from_subfolder("$common_student").exists():
+                await self._loop.run_in_executor(None, lambda: course_fs.from_subfolder("$common_student").copy_from(None, course_common_student_path))
             else:
                 os.mkdir(course_common_student_path)
 
