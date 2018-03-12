@@ -9,6 +9,7 @@ Creating a new task
    task_tuto
    task_ref
    share_files
+   common
    system_files
    testing
    best_practices
