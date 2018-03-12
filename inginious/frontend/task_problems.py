@@ -7,7 +7,7 @@
 
 import gettext
 from abc import ABCMeta, abstractmethod
-from random import shuffle
+from random import shuffle, Random
 
 from inginious.frontend.tasks_code_boxes import DisplayableInputBox, DisplayableMultilineBox, DisplayableTextBox, \
     DisplayableFileBox
@@ -39,7 +39,7 @@ class DisplayableBasicProblem(BasicProblem, metaclass=ABCMeta):
         return template_helper.get_renderer(False)
 
     @abstractmethod
-    def show_input(self, template_helper, language):
+    def show_input(self, template_helper, language, seed):
         """ get the html for this problem """
         pass
 
@@ -74,7 +74,7 @@ class DisplayableBasicCodeProblem(BasicCodeProblem, DisplayableBasicProblem):
             input_data = box.adapt_input_for_backend(input_data)
         return input_data
 
-    def show_input(self, template_helper, language):
+    def show_input(self, template_helper, language, seed):
         """ Show BasicCodeProblem and derivatives """
         output = ""
         for box in self._boxes:
@@ -142,25 +142,28 @@ class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableBasicPr
     def get_type_name(self, gettext):
         return gettext("multiple choice")
 
-    def show_input(self, template_helper, language):
+    def show_input(self, template_helper, language, seed):
         """ Show multiple choice problems """
         choices = []
         limit = self._limit
         if limit == 0:
             limit = len(self._choices)  # no limit
 
+        rand = Random("{}#{}#{}".format(self.get_task().get_id(), self.get_id(), seed))
+
         # Ensure that the choices are random
-        # no need to copy...
-        shuffle(self._choices)
+        # we *do* need to copy the choices here
+        random_order_choices = list(self._choices)
+        rand.shuffle(random_order_choices)
 
         if self._multiple:
             # take only the valid choices in the first pass
-            for entry in self._choices:
+            for entry in random_order_choices:
                 if entry['valid']:
                     choices.append(entry)
                     limit = limit - 1
             # take everything else in a second pass
-            for entry in self._choices:
+            for entry in random_order_choices:
                 if limit == 0:
                     break
                 if not entry['valid']:
@@ -168,16 +171,17 @@ class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableBasicPr
                     limit = limit - 1
         else:
             # need to have ONE valid entry
-            for entry in self._choices:
+            for entry in random_order_choices:
                 if not entry['valid'] and limit > 1:
                     choices.append(entry)
                     limit = limit - 1
-            for entry in self._choices:
+            for entry in random_order_choices:
                 if entry['valid'] and limit > 0:
                     choices.append(entry)
                     limit = limit - 1
 
-        shuffle(choices)
+        rand.shuffle(choices)
+
         return str(DisplayableMultipleChoiceProblem.get_renderer(template_helper).tasks.multiplechoice(
             self.get_id(), self._multiple, choices,
             lambda text: ParsableText(self.gettext(language, text) if text else "", "rst",
@@ -198,7 +202,7 @@ class DisplayableMatchProblem(MatchProblem, DisplayableBasicProblem):
     def get_type_name(self, gettext):
         return gettext("match")
 
-    def show_input(self, template_helper, language):
+    def show_input(self, template_helper, language, seed):
         """ Show MatchProblem """
         return str(DisplayableMatchProblem.get_renderer(template_helper).tasks.match(self.get_id()))
 

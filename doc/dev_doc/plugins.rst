@@ -253,8 +253,12 @@ and implementing th following abstract methods:
     is the frontend user-associated gettext function.
   - ``get_renderer(cls, template_helper)`` returning the template renderer used for the subproblem. ``template_helper``
     is the webapp ``TemplateHelper`` singleton. It can be used to specify a local template folder.
-  - ``show_input(self, template_helper, language)`` returning a HTML code displayed after the subproblem context to the
+  - ``show_input(self, template_helper, language, seed)`` returning a HTML code displayed after the subproblem context to the
     student. ``template_helper`` is the webapp ``TemplateHelper`` singleton. `language`` is the gettext 2-letter language
-    code.
+    code. ``seed`` is a seed to be used in the random number generator. For simplicity, it should be a string and the usage
+    of the username is recommended, as the seed is made to ensure that a user always see the same exercise.
+    Classes inheriting from DisplayableBasicProblem should prepend/append a salt to the seed and then create a new
+    instance of Random from it. See ``inginious.frontend.tasks_problems.DisplayableMultipleChoiceProblem``
+    for an example.
   - ``show_editbox(cls, template_helper, key)`` returning a HTML code corresponding to the subproblem edition box.
     ``template_helper`` is the webapp ``TemplateHelper`` singleton. ``key`` is the problem type sent by the frontend.
