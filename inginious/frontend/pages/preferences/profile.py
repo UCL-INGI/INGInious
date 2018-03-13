@@ -5,7 +5,7 @@
 
 """ Profile page """
 import hashlib
-
+import re
 import web
 from pymongo import ReturnDocument
 
@@ -48,8 +48,10 @@ class ProfilePage(INGIniousAuthPage):
             else:
                 msg = _("Profile updated.")
         elif not userdata["username"] and "username" in data:
-            found_user = self.database.users.find_one({"username": data["username"]})
-            if found_user:
+            if re.match(r"^[-_.|~0-9A-Z]{4,}$", data["username"], re.IGNORECASE) is None:
+                error = True
+                msg = _("Invalid username format.")
+            elif self.database.users.find_one({"username": data["username"]}):
                 error = True
                 msg = _("Username already taken")
             else:
