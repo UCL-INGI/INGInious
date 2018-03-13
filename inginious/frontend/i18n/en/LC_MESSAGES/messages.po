@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-02-13 10:42+0100\n"
+"POT-Creation-Date: 2018-03-13 09:36+0100\n"
 "PO-Revision-Date: 2017-08-10 14:37+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -47,15 +47,15 @@ msgstr ""
 msgid "multiple choice"
 msgstr ""
 
-#: inginious/frontend/task_problems.py:199
+#: inginious/frontend/task_problems.py:203
 msgid "match"
 msgstr ""
 
-#: inginious/frontend/tasks.py:74
+#: inginious/frontend/tasks.py:77
 msgid "No deadline"
 msgstr ""
 
-#: inginious/frontend/tasks.py:76
+#: inginious/frontend/tasks.py:79
 msgid "It's too late"
 msgstr ""
 
@@ -112,6 +112,7 @@ msgstr ""
 msgid "You are now activated. You can proceed to login."
 msgstr ""
 
+#: inginious/frontend/pages/preferences/profile.py:53
 #: inginious/frontend/pages/register.py:76
 msgid "Invalid username format."
 msgstr ""
@@ -198,76 +199,76 @@ msgstr ""
 msgid "Your password has been successfully changed."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:165
+#: inginious/frontend/pages/tasks.py:176
 msgid "You are not allowed to submit for this task."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:176
+#: inginious/frontend/pages/tasks.py:187
 msgid ""
 "Please answer to all the questions and verify the extensions of the files"
 " you want to upload. Your responses were not tested."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:191 inginious/frontend/pages/tasks.py:300
+#: inginious/frontend/pages/tasks.py:202 inginious/frontend/pages/tasks.py:311
 msgid "<b>Your submission has been sent...</b>"
 msgstr ""
 
 #: inginious/frontend/pages/course_admin/task_edit_file.py:202
 #: inginious/frontend/pages/course_admin/task_edit_file.py:223
 #: inginious/frontend/pages/course_admin/task_edit_file.py:227
-#: inginious/frontend/pages/tasks.py:200
+#: inginious/frontend/pages/tasks.py:211
 msgid "Internal error"
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:269
+#: inginious/frontend/pages/tasks.py:280
 msgid "<b>INGInious is currently grading your answers.<b/> (almost done)"
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:271
+#: inginious/frontend/pages/tasks.py:282
 msgid ""
 "<b>INGInious is currently grading your answers.<b/> (Approx. wait time: "
 "{} seconds)"
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:274
+#: inginious/frontend/pages/tasks.py:285
 msgid "<b>You are next in the waiting queue!</b>"
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:276
+#: inginious/frontend/pages/tasks.py:287
 msgid "<b>There is one task in front of you in the waiting queue.</b>"
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:278
+#: inginious/frontend/pages/tasks.py:289
 msgid "<b>There are {} tasks in front of you in the waiting queue.</b>"
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:302
+#: inginious/frontend/pages/tasks.py:313
 msgid "There are some errors in your answer. Your score is {score}%."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:304
+#: inginious/frontend/pages/tasks.py:315
 msgid "Your answer passed the tests! Your score is {score}%."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:306
+#: inginious/frontend/pages/tasks.py:317
 msgid "Your submission timed out. Your score is {score}%."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:308
+#: inginious/frontend/pages/tasks.py:319
 msgid "Your submission made an overflow. Your score is {score}%."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:310
+#: inginious/frontend/pages/tasks.py:321
 msgid "Your submission was killed."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:312
+#: inginious/frontend/pages/tasks.py:323
 msgid ""
 "An internal error occurred. Please retry later. If the error persists, "
 "send an email to the course administrator."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:315
+#: inginious/frontend/pages/tasks.py:326
 msgid "[Submission #{submissionid}]"
 msgstr ""
 
@@ -285,21 +286,21 @@ msgid "You can't remove your default classroom."
 msgstr ""
 
 #: inginious/frontend/pages/course_admin/aggregation_edit.py:196
-#: inginious/frontend/pages/course_admin/aggregation_edit.py:236
+#: inginious/frontend/pages/course_admin/aggregation_edit.py:235
 #: inginious/frontend/pages/course_admin/classroom_edit.py:183
 msgid "Classroom updated."
 msgstr ""
 
-#: inginious/frontend/pages/course_admin/aggregation_edit.py:230
+#: inginious/frontend/pages/course_admin/aggregation_edit.py:229
 #: inginious/frontend/pages/course_admin/classroom_edit.py:177
 msgid "Changes couldn't be applied for following students :"
 msgstr ""
 
-#: inginious/frontend/pages/course_admin/aggregation_edit.py:236
+#: inginious/frontend/pages/course_admin/aggregation_edit.py:235
 msgid "Teams updated."
 msgstr ""
 
-#: inginious/frontend/pages/course_admin/aggregation_edit.py:238
+#: inginious/frontend/pages/course_admin/aggregation_edit.py:237
 #: inginious/frontend/pages/course_admin/classroom_edit.py:187
 msgid "An error occurred while parsing the data."
 msgstr ""
@@ -635,20 +636,20 @@ msgid "Incorrect old password."
 msgstr ""
 
 #: inginious/frontend/pages/preferences/profile.py:49
-#: inginious/frontend/pages/preferences/profile.py:64
-#: inginious/frontend/pages/preferences/profile.py:78
+#: inginious/frontend/pages/preferences/profile.py:66
+#: inginious/frontend/pages/preferences/profile.py:80
 msgid "Profile updated."
 msgstr ""
 
-#: inginious/frontend/pages/preferences/profile.py:54
+#: inginious/frontend/pages/preferences/profile.py:56
 msgid "Username already taken"
 msgstr ""
 
-#: inginious/frontend/pages/preferences/profile.py:61
+#: inginious/frontend/pages/preferences/profile.py:63
 msgid "Incorrect email."
 msgstr ""
 
-#: inginious/frontend/pages/preferences/profile.py:74
+#: inginious/frontend/pages/preferences/profile.py:76
 msgid "Incorrect username."
 msgstr ""
 
@@ -2695,6 +2696,10 @@ msgstr ""
 msgid "Custom, from: {} to: {}"
 msgstr ""
 
+#: inginious/frontend/templates/course_admin/edit_tabs/basic.html:200
+msgid "Random inputs"
+msgstr ""
+
 #: inginious/frontend/templates/course_admin/edit_tabs/container.html:9
 msgid "Timeout limit (in seconds)"
 msgstr ""
@@ -2992,6 +2997,10 @@ msgstr ""
 
 #: inginious/frontend/templates/preferences/bindings.html:77
 msgid "Add new binding"
+msgstr ""
+
+#: inginious/frontend/templates/preferences/profile.html:37
+msgid "Please set a new username"
 msgstr ""
 
 #: inginious/frontend/templates/preferences/profile.html:43
