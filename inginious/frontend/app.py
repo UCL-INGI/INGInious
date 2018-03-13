@@ -9,6 +9,9 @@ import gettext
 
 import inginious.frontend.pages.course_admin.utils as course_admin_utils
 import web
+from inginious.frontend.fix_webpy_cookies import fix_webpy_cookies
+fix_webpy_cookies() # TODO: remove me once https://github.com/webpy/webpy/pull/419 is merge in web.py
+
 from gridfs import GridFS
 from inginious.frontend.arch_helper import create_arch, start_asyncio_and_zmq
 from inginious.frontend.cookieless_app import CookieLessCompatibleApplication
