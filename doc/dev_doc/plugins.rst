@@ -216,6 +216,18 @@ Each hook available in INGInious is described here, starting with its name and p
 
     Adds a new helper to the instance of TemplateHelper. Should return a tuple (name,func) where name is the name that will
     be indicated when calling the TemplateHelper.call method, and func is the function that will be called.
+``feedback_text`` (``task``, ``submission``, ``text``)
+    Returns : {"task": ``task``, "submission": ``submission``, "text": ``modified_text``}
+
+    Modifies the feedback to be displayed. This hook is called each time a submission is displayed. You have to return
+    the origin ``task`` and ``submission`` objects in the return value. ``text`` is in HTML format.
+``feedback_script`` (``task``, ``submission``)
+    Return : javascript as an ``str``.
+
+    Javascript returned by this hook will be executed by the distant web browser when the submission is loaded.
+    This hook is called each time a submission is displayed. Pay attention to output correct javascript, as it may
+    break the webpage.
+
 
 Additional subproblems
 ----------------------
