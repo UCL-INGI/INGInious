@@ -10,10 +10,19 @@ directory of your task.
 
 Here is a simple example of a *run* file, compatible with the *default* environment,
 that simply returns that the student's code is OK:
-::
+
+.. tabs::
+
+ .. code-tab:: bash
 
     #!/bin/bash
     feedback-result success
+
+ .. code-tab:: py
+
+    #! /usr/bin/python3
+    from inginious import feedback
+    feedback.set_global_result('success')
 
 The *run* script is simply an executable application (a bash script, a python script, or
 a compiled executable runnable by the container). INGInious' default containers provides
@@ -44,17 +53,20 @@ The execution result can be of different types:
 
 For instance, the following command will inform that the student succeeded:
 
-::
+.. tabs::
 
+ .. code-tab:: bash
+
+    #!/bin/bash
     feedback-result success
 
-**In Python** : the equivalent command can be directly obtained with:
+ .. code-tab:: py
 
-.. code-block:: python
-
+    #! /usr/bin/python3
     from inginious import feedback
     feedback.set_global_result("success") # Set global result to success
     feedback.set_problem_result("failed", "q1") # Set 'q1' subproblem result to failed
+
 
 feedback-grade
 ``````````````
@@ -68,16 +80,18 @@ submission will give a 0.0% score to the student, while a successful submission 
 give a 100.0% score to the student. For instance, the following command will give
 an 87.8% grade to the student:
 
-::
+    .. tabs::
 
-    feedback-grade 87.8
+     .. code-tab:: bash
 
-**In Python** : the equivalent command can be directly obtained with:
+        #!/bin/bash
+        feedback-grade 87.8
 
-.. code-block:: python
+     .. code-tab:: py
 
-    from inginious import feedback
-    feedback.set_grade(87.8) # Set the grade to 87.8%
+        #! /usr/bin/python3
+        from inginious import feedback
+        feedback.set_grade(87.8) # Set the grade to 87.8%
 
 feedback-msg-tpl
 ````````````````
@@ -136,14 +150,16 @@ optional parameters:
 If the message is not specified, the feedback message is read from stdin. For instance, the command can be
 used as follows:
 
-::
+.. tabs::
 
+ .. code-tab:: bash
+
+    #!/bin/bash
     feedback-msg -ae -m "This is the correct answer.\n\nWell done!"
 
-**In Python** : the equivalent command can be directly obtained with:
+ .. code-tab:: py
 
-.. code-block:: python
-
+    #! /usr/bin/python3
     from inginious import feedback
     feedback.set_global_feedback("Well done !") # Set global feedback text to `Well done !`
     feedback.set_problem_feedback("This is not correct.", "q1") # Set 'q1' problem feedback to `This is not correct.`
@@ -164,14 +180,16 @@ Please refer to the plugin documentation to know which value you have to set for
 
 For instance, the following command set the value ``56`` to the ``score`` key:
 
-::
+.. tabs::
 
+ .. code-tab:: bash
+
+    #!/bin/bash
     feedback-custom score 56
 
-**In Python** : the equivalent command can be directly obtained with:
+ .. code-tab:: py
 
-.. code-block:: python
-
+    #! /usr/bin/python3
     from inginious import feedback
     feedback.set_custom_value("score", 56) # Set the `score` key to value 56
 
@@ -193,14 +211,16 @@ to enable syntax highlighting. It has the following parameters:
 If the code parameter is not specified, it is read on standard input. The result is written on standard output.
 For instance, the command can be used as follows:
 
-::
+.. tabs::
 
+ .. code-tab:: bash
+
+    #!/bin/bash
     cat test.java | rst-code -l java | feedback-msg -a
 
-**In Python** : the equivalent command can be directly obtained with:
+ .. code-tab:: py
 
-.. code-block:: python
-
+    #! /usr/bin/python3
     from inginious import rst
     codeblock = rst.get_codeblock("java", "int a = 42;") # Java codeblock with `int a = 42;` code
     feedback.set_global_feedback(codeblock, True) # Appends the codeblock to the global feedback
@@ -218,18 +238,19 @@ following syntax
 The optional *format* parameter is used to specify the image format (jpg, png,...) if this is not explicitly specified
 the the image filename. The output is written on the standard output. For instance, the command can be used as follows:
 
-::
+.. tabs::
 
+ .. code-tab:: bash
+
+    #!/bin/bash
     rst-image generated.png | feedback -a
 
-**In Python** : the equivalent command can be directly obtained with:
+ .. code-tab:: py
 
-.. code-block:: python
-
+    #! /usr/bin/python3
     from inginious import rst
     imgblock = rst.get_imageblock("smiley.png") # RST block with image
     feedback.set_global_feedback(imgblock, True) # Appends the image block to the global feedback
-
 
 rst-msgblock
 ````````````
@@ -249,14 +270,16 @@ message type. It has the following optional parameters:
 If the message parameter is not set, the message is read from standard input. For instance, the command can
 be used as follows:
 
-::
+.. tabs::
 
+ .. code-tab:: bash
+
+    #!/bin/bash
     rst-msgblock -c info -m "This is a note" | feedback -ae
 
-**In Python** : the equivalent command can be directly obtained with:
+ .. code-tab:: py
 
-.. code-block:: python
-
+    #! /usr/bin/python3
     from inginious import rst
     admonition = rst.get_admonition("success", "Yeah!", "Well done!") # RST message block of class "success" and title "Yeah!"
     feedback.set_global_feedback(admonition, True) # Appends the block to the global feedback
@@ -274,14 +297,16 @@ If the message parameter is not set, the text is read from standard input. The a
 to de-indent the text. For instance, the command can be used as follows, to add an image to the feedback,
 inside a list item, for instance :
 
-::
+.. tabs::
 
-     rst-image generated.png | rst-indent | feedback -a
+ .. code-tab:: bash
 
-**In Python** : the equivalent command can be directly obtained with:
+    #!/bin/bash
+    rst-image generated.png | rst-indent | feedback -a
 
-.. code-block:: python
+ .. code-tab:: py
 
+    #! /usr/bin/python3
     from inginious import rst
     rawhtml = rst.indent_block(1, "<p>A paragraph!</p>", "\t") # Indent the HTML code with 1 unit of tabulations
     feedback.set_global_feedback(".. raw::\n\n" + rawhtml, True) # Appends the block to the global feedback
@@ -294,37 +319,74 @@ getinput
 
 The *getinput* command returns the input given by the student for a specific problem id.
 For example, for the problem id "pid", the command to run is:
-::
 
+.. tabs::
+
+ .. code-tab:: bash
+
+    #!/bin/bash
     getinput pid
+
+ .. code-tab:: py
+
+    #! /usr/bin/python3
+    from inginious import input
+    input.get_input("pid")
 
 When a problem is defined with several boxes, the argument becomes *pid/bid* where "pid"
 stands for the problem id and "bid" for "box id". If the problem is a file upload, the problem id can be appended
 with ``:filename`` or ``:value`` to retrieve its filename or value.
 
 Note that *getinput* can also retrieve the username/group of the user that submitted the task. You simply have to run
-::
 
+.. tabs::
+
+ .. code-tab:: bash
+
+    #!/bin/bash
     getinput @username
+
+ .. code-tab:: py
+
+    #! /usr/bin/python3
+    from inginious import input
+    input.get_input("username")
 
 If the submission is made as a user, it will contain the username. It it's made as a group,
 it will contain the list of the user's usernames in the
 group, joined with ','.
 
 The four letter code of the student's language (for example `en_US` or `fr_FR`) can also be retrieved using
-::
 
+.. tabs::
+
+ .. code-tab:: bash
+
+    #!/bin/bash
     getinput @lang
+
+ .. code-tab:: py
+
+    #! /usr/bin/python3
+    from inginious import input
+    input.get_input("lang")
 
 Note that plugins are free to add new `@`-prefixed fields to the available input using the `new_submission` hook.
 
-**In Python** : the equivalent command can be directly obtained with:
+You can also get the code of the task named q1 like that:
 
-.. code-block:: python
+.. tabs::
 
+ .. code-tab:: bash
+
+    #!/bin/bash
+    getinput @q1
+
+ .. code-tab:: py
+
+    #! /usr/bin/python3
     from inginious import input
     thecode = input.get_input("q1") # Fetch the code for problem `q1`
-
 
 parsetemplate
 `````````````
@@ -337,6 +399,22 @@ The command has this form:
 
 where *template* is the file to parse. Output file is the destination file.
 If the *-o* option is not given, the template will be replaced.
+
+.. tabs::
+
+ .. code-tab:: bash
+
+    #!/bin/bash
+    parsetemplate student.c
+    parsetemplate -o student.c template.c
+
+ .. code-tab:: py
+
+    #! /usr/bin/python3
+    from inginious import input
+    thecode = input.parse_template("student.c") # Parse the `student.c` template file
+    thecode = input.parse_template("template.c", "student.c") # Parse the `template.c` template file and save the parsed file into `student.c`
+
 
 The markup in the templates is very simple: *@prefix@problemid@suffix@*.
 Prefix allows to correct the indentation when needed (this is useful in Python).
@@ -354,15 +432,6 @@ Example of template file (in java)
 
 To access the filename and text content of a submitted file, the *problemid* can be
 followed by a *:filename* or *:value* suffix.
-
-
-**In Python** : the equivalent command can be directly obtained with:
-
-.. code-block:: python
-
-    from inginious import input
-    thecode = input.parse_template("student.c") # Parse the `student.c` template file
-    thecode = input.parse_template("template.c", "student.c") # Parse the `template.c` template file and save the parsed file into `student.c`
 
 .. _run_student:
 
@@ -395,6 +464,28 @@ More technically, please note that:
     - 253 means that the command timed out
     - 254 means that an error occurred while running the proxy
 
+Example:
+
+.. tabs::
+
+ .. code-tab:: bash
+
+          #! /bin/bash
+          output=$(run_student python student/studentcode.py)
+ .. code-tab:: py
+
+          #! /usr/bin/python3
+
+          from inginious import input,feedback
+          import subprocess
+          import shlex
+
+          # Verify the output of the code...
+          running_command = shlex.split("run_student python3")
+          resproc = subprocess.Popen(running_command + ['student/studentcode.py'], universal_newlines=True, stderr=subprocess.STDOUT,
+                                         stdout=subprocess.PIPE)
+          out,err = resproc.communicate()
+
 archive
 -------
 
@@ -407,6 +498,22 @@ The command takes some arguments, which are all optional:
                                     specified sub-directory in the output archive
 -a, --add FILEPATH                  add the file to the archive
 -r, --remove FILEPATH               remove the file from the archive
+
+Example:
+
+.. tabs::
+
+ .. code-tab:: bash
+
+          #! /bin/bash
+          archive -a "student/FileIWantToArchive.java"
+
+ .. code-tab:: py
+
+          #! /usr/bin/python3
+          import subprocess
+
+          subprocess.call(['archive', '-a', 'student/FileIWantToArchive.java'], universal_newlines=True)
 
 Obsolete commands
 -----------------

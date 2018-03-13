@@ -40,7 +40,7 @@ test_requires = [
 if not on_rtd:
     install_requires += ["pytidylib>=0.2.4", "sphinx-rtd-theme>=0.1.8"]
 else:
-    install_requires += test_requires + ["Pygments>=2.0.2"]
+    install_requires += test_requires + ["Pygments>=2.0.2", "sphinx_tabs"]
 
 if sys.platform == 'win32':
     install_requires += ["pbs>=0.110"]

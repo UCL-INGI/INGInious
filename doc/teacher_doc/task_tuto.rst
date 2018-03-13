@@ -83,24 +83,51 @@ in the webapp in the *Task files* tab of the *Edit task* page.
 #. Create the ``run`` file. This file will be the script that is launched when the task is started. Here we will create
    a *bash* script, that parses the template and verifies its content.
 
-   .. code-block:: bash
+   .. tabs::
 
-       #! /bin/bash
+    .. code-tab:: bash
 
-       # This line parses the template and put the result in studentcode.py
-       parsetemplate --output student/studentcode.py template.py
+             #! /bin/bash
 
-       # Verify the output of the code...
-       output=$(run_student python student/studentcode.py)
-       if [ "$output" = "Hello World!" ]; then
-           # The student succeeded
-           feedback-result success
-           feedback-msg -m "You solved this difficult task!"
-       else
-           # The student failed
-           feedback-result failed
-           feedback-msg -m "Your output is $output"
-       fi
+             # This line parses the template and put the result in studentcode.py
+             parsetemplate --output student/studentcode.py template.py
+
+             # Verify the output of the code...
+             output=$(run_student python student/studentcode.py)
+             if [ "$output" = "Hello World!" ]; then
+                 # The student succeeded
+                 feedback-result success
+                 feedback-msg -m "You solved this difficult task!"
+             else
+                 # The student failed
+                 feedback-result failed
+                 feedback-msg -m "Your output is $output"
+             fi
+
+    .. code-tab:: py
+
+            #! /usr/bin/python3
+
+            from inginious import input,feedback
+            import subprocess
+            import shlex
+
+            # This line parses the template and put the result in studentcode.py
+            input.parse_template("template.py", 'student/studentcode.py')
+            # Verify the output of the code...
+            running_command = shlex.split("run_student python3")
+            resproc = subprocess.Popen(running_command + ['student/studentcode.py'], universal_newlines=True, stderr=subprocess.STDOUT,
+                                           stdout=subprocess.PIPE)
+            out,err = resproc.communicate()
+            if "Hello World!" in out:
+            # The student succeeded
+                feedback.set_global_result('success')
+                feedback.set_global_feedback("You solved this difficult task!")
+            else:
+                feedback.set_global_result('failed')
+                feedback.set_global_feedback("Your output is "+ str(out))
+
+
    Here we use three commands provided by INGInious, ``parsetemplate``, ``run_student`` and ``feedback``.
    The code is self-explanatory; just notice the usage of ``run_student`` that ask INGInious (precisely the Docker agent)
    to start a new *student container* and run inside the command ``python studentcode.py``.
