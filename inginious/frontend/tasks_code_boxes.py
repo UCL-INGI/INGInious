@@ -5,6 +5,7 @@
 
 """ Modified boxes """
 import json
+import gettext
 from abc import ABCMeta, abstractmethod
 
 from inginious.common.tasks_code_boxes import TextBox, InputBox, MultilineBox, FileBox
@@ -40,7 +41,7 @@ class DisplayableTextBox(TextBox, DisplayableBox):
 
     def show(self, template_helper, language):
         """ Show TextBox """
-        return str(DisplayableTextBox.get_renderer(template_helper).tasks.box_text(ParsableText(self._content, "rst", translation=self._translations[language])))
+        return str(DisplayableTextBox.get_renderer(template_helper).tasks.box_text(ParsableText(self._content, "rst", translation=gettext.NullTranslations())))
 
 
 class DisplayableFileBox(FileBox, DisplayableBox):
