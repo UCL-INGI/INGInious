@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-03-13 09:36+0100\n"
+"POT-Creation-Date: 2018-03-13 15:08+0100\n"
 "PO-Revision-Date: 2017-08-10 14:37+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -199,76 +199,76 @@ msgstr ""
 msgid "Your password has been successfully changed."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:176
+#: inginious/frontend/pages/tasks.py:177
 msgid "You are not allowed to submit for this task."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:187
+#: inginious/frontend/pages/tasks.py:188
 msgid ""
 "Please answer to all the questions and verify the extensions of the files"
 " you want to upload. Your responses were not tested."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:202 inginious/frontend/pages/tasks.py:311
+#: inginious/frontend/pages/tasks.py:203 inginious/frontend/pages/tasks.py:312
 msgid "<b>Your submission has been sent...</b>"
 msgstr ""
 
 #: inginious/frontend/pages/course_admin/task_edit_file.py:202
 #: inginious/frontend/pages/course_admin/task_edit_file.py:223
 #: inginious/frontend/pages/course_admin/task_edit_file.py:227
-#: inginious/frontend/pages/tasks.py:211
+#: inginious/frontend/pages/tasks.py:212
 msgid "Internal error"
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:280
+#: inginious/frontend/pages/tasks.py:281
 msgid "<b>INGInious is currently grading your answers.<b/> (almost done)"
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:282
+#: inginious/frontend/pages/tasks.py:283
 msgid ""
 "<b>INGInious is currently grading your answers.<b/> (Approx. wait time: "
 "{} seconds)"
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:285
+#: inginious/frontend/pages/tasks.py:286
 msgid "<b>You are next in the waiting queue!</b>"
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:287
+#: inginious/frontend/pages/tasks.py:288
 msgid "<b>There is one task in front of you in the waiting queue.</b>"
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:289
+#: inginious/frontend/pages/tasks.py:290
 msgid "<b>There are {} tasks in front of you in the waiting queue.</b>"
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:313
+#: inginious/frontend/pages/tasks.py:314
 msgid "There are some errors in your answer. Your score is {score}%."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:315
+#: inginious/frontend/pages/tasks.py:316
 msgid "Your answer passed the tests! Your score is {score}%."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:317
+#: inginious/frontend/pages/tasks.py:318
 msgid "Your submission timed out. Your score is {score}%."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:319
+#: inginious/frontend/pages/tasks.py:320
 msgid "Your submission made an overflow. Your score is {score}%."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:321
+#: inginious/frontend/pages/tasks.py:322
 msgid "Your submission was killed."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:323
+#: inginious/frontend/pages/tasks.py:324
 msgid ""
 "An internal error occurred. Please retry later. If the error persists, "
 "send an email to the course administrator."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:326
+#: inginious/frontend/pages/tasks.py:327
 msgid "[Submission #{submissionid}]"
 msgstr ""
 
@@ -904,16 +904,12 @@ msgstr ""
 
 #: inginious/frontend/templates/index.html:25
 msgid ""
-"This page lists all the courses that are accessible now. If you are a "
+"This page lists all the courses that are available now. If you are a "
 "course administrator, go to your 'My courses' page to see all of them."
 msgstr ""
 
 #: inginious/frontend/templates/index.html:30
-#: inginious/frontend/templates/layout.html:107
-#: inginious/frontend/templates/mycourses.html:8
-#: inginious/frontend/templates/mycourses.html:12
-#: inginious/frontend/templates/mycourses.html:45
-msgid "My courses"
+msgid "My courses / Register for a course"
 msgstr ""
 
 #: inginious/frontend/templates/index.html:47
@@ -926,6 +922,13 @@ msgstr ""
 
 #: inginious/frontend/templates/index.html:51
 msgid "'Password needed'"
+msgstr ""
+
+#: inginious/frontend/templates/layout.html:107
+#: inginious/frontend/templates/mycourses.html:8
+#: inginious/frontend/templates/mycourses.html:12
+#: inginious/frontend/templates/mycourses.html:45
+msgid "My courses"
 msgstr ""
 
 #: inginious/frontend/templates/layout.html:108
@@ -3049,5 +3052,13 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "\"Evaluation submission\""
+#~ msgstr ""
+
+#~ msgid ""
+#~ "This page lists all the courses "
+#~ "that are accessible now. If you "
+#~ "are a course administrator, go to "
+#~ "your 'My courses' page to see all"
+#~ " of them."
 #~ msgstr ""
 
