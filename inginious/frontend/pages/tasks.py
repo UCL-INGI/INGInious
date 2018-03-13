@@ -96,11 +96,11 @@ class BaseTaskPage(object):
 
         self.user_manager.user_saw_task(username, courseid, taskid)
         
-        # Generate random inputs and save ot into db
+        # Generate random inputs and save it into db
         random_input_list = []
-        if username is not None:
-            random.seed(username + taskid + courseid)
-            random_input_list = [random.random() for i in range(task.get_number_input_random())]
+        random.seed(str(username if username is not None else "") + taskid + courseid)
+        random_input_list = [random.random() for i in range(task.get_number_input_random())]
+        if username is not None and len(random_input_list) > 0: # Avoid errors when visitors/unregistered users and avoid pollute db if input random not using
             self.database.user_tasks.update(
                     {"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username},
                     {"$set": {"random": random_input_list}})
