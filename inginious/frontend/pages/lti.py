@@ -86,7 +86,7 @@ class LTIBindPage(INGIniousAuthPage):
                                  data["task"][0],
                                  data["consumer_key"],
                                  user_profile.get("ltibindings", {}).get(data["task"][0], {}).get(data["consumer_key"], ""))
-                return self.template_helper.get_renderer().lti_bind(False, cookieless_session["data"]["session_id"],
+                return self.template_helper.get_renderer().lti_bind(False, cookieless_session["session_id"],
                                                                     data, _("Your account is already bound with this context."))
 
         return self.template_helper.get_renderer().lti_bind(True, cookieless_session["session_id"], data, "")
