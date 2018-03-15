@@ -250,7 +250,7 @@ Create a folder for INGInious, for example ``/var/www/INGInious``, and change th
 ::
 
     # mkdir -p /var/www/INGInious
-    # chown -R lighttpd:lighthttpd /var/www/INGInious
+    # chown -R lighttpd:lighttpd /var/www/INGInious
 
 Put your configuration file in that folder, as well as your tasks, backup, download, and temporary (if local backend)
 directories (see :ref:`config` for more details on these folders).
@@ -273,7 +273,7 @@ You can then replace the content of fastcgi.conf with:
     server.modules   += ( "mod_rewrite" )
 
     alias.url = (
-        "/static/" => "/usr/lib/python3.5/site-packages/inginious/frontend/static"
+        "/static/" => "/usr/lib/python3.5/site-packages/inginious/frontend/static/"
     )
 
     fastcgi.server = ( "/inginious-webapp" =>

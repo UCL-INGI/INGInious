@@ -60,7 +60,8 @@ class DockerInterface(object):  # pragma: no cover
         except:
             return None
 
-    def create_container(self, environment, network_grading, mem_limit, task_path, sockets_path, ssh_port=None):
+    def create_container(self, environment, network_grading, mem_limit, task_path, sockets_path,
+                         course_common_path, course_common_student_path, ssh_port=None):
         """
         Creates a container.
         :param environment: env to start (name/id of a docker image)
@@ -74,6 +75,8 @@ class DockerInterface(object):  # pragma: no cover
         """
         task_path = os.path.abspath(task_path)
         sockets_path = os.path.abspath(sockets_path)
+        course_common_path = os.path.abspath(course_common_path)
+        course_common_student_path = os.path.abspath(course_common_student_path)
 
         response = self._docker.containers.create(
             environment,
@@ -84,11 +87,17 @@ class DockerInterface(object):  # pragma: no cover
             oom_kill_disable=True,
             network_mode=("bridge" if (network_grading or ssh_port is not None) else 'none'),
             ports= {22: ssh_port} if ssh_port is not None else {},
-            volumes={task_path: {'bind': '/task'}, sockets_path: {'bind': '/sockets'}}
+            volumes={
+                task_path: {'bind': '/task'},
+                sockets_path: {'bind': '/sockets'},
+                course_common_path: {'bind': '/course/common', 'mode': 'ro'},
+                course_common_student_path: {'bind': '/course/common_student', 'mode': 'ro'}
+            }
         )
         return response.id
 
-    def create_container_student(self, parent_container_id, environment, network_grading, mem_limit, student_path, socket_path, systemfiles_path):
+    def create_container_student(self, parent_container_id, environment, network_grading, mem_limit,  student_path,
+                                 socket_path, systemfiles_path, course_common_student_path):
         """
         Creates a student container
         :param parent_container_id: id of the "parent" container
@@ -103,6 +112,7 @@ class DockerInterface(object):  # pragma: no cover
         student_path = os.path.abspath(student_path)
         socket_path = os.path.abspath(socket_path)
         systemfiles_path = os.path.abspath(systemfiles_path)
+        course_common_student_path = os.path.abspath(course_common_student_path)
 
         response = self._docker.containers.create(
             environment,
@@ -113,9 +123,12 @@ class DockerInterface(object):  # pragma: no cover
             mem_swappiness=0,
             oom_kill_disable=True,
             network_mode=('none' if not network_grading else ('container:' + parent_container_id)),
-            volumes={student_path: {'bind': '/task/student'},
-                     socket_path: {'bind': '/__parent.sock'},
-                     systemfiles_path: {'bind': '/task/systemfiles', 'mode': 'ro'}}
+            volumes={
+                student_path: {'bind': '/task/student'},
+                 socket_path: {'bind': '/__parent.sock'},
+                 systemfiles_path: {'bind': '/task/systemfiles', 'mode': 'ro'},
+                 course_common_student_path: {'bind': '/course/common_student', 'mode': 'ro'}
+            }
         )
         return response.id
 

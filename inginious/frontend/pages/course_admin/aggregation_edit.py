@@ -210,8 +210,7 @@ class CourseEditAggregation(INGIniousAdminPage):
                 new_aggregation['_id'] = new_aggregation['_id'] if '_id' in new_aggregation else 'None'
 
                 # In case of no aggregation usage, set the first entry default
-                if not aggregationid and index == 0:
-                    new_aggregation["default"] = True
+                new_aggregation["default"] = not aggregationid and index == 0
 
                 # If no groups field set, create group from class students if in groups only mode
                 if "groups" not in new_aggregation:

@@ -344,7 +344,7 @@ function studio_create_new_subproblem()
     }
 
     studio_create_from_template('#' + new_subproblem_type, new_subproblem_pid);
-    studio_init_template(new_subproblem_pid, {"type": new_subproblem_type});
+    studio_init_template(new_subproblem_pid, {"type": new_subproblem_type.substring(11)});
 }
 
 /**

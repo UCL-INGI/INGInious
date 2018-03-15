@@ -650,9 +650,9 @@ function loadOldSubmissionInput(id, with_feedback)
             {
                 updateMainTags(data);
                 unblurTaskForm();
-                if(with_feedback)
-                    loadOldFeedback(data);
                 load_input(id, data['input']);
+                if(with_feedback) // load feedback in second place as it may affect the input
+                    loadOldFeedback(data);
             }
             else
             {
@@ -689,6 +689,8 @@ function loadOldFeedback(data)
     }
     else
         displayTaskStudentAlertWithProblems($("#internalerror").text(), "danger", false);
+    if("feedback_script" in data)
+        eval(data["feedback_script"]);
 }
 
 //Load data from input into the form inputs

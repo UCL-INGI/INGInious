@@ -106,16 +106,16 @@ class DockerAgent(Agent):
                         retval = -1
 
                     if container_id in self._containers_running:
-                        self._loop.create_task(self.handle_job_closing(container_id, retval))
+                        self._create_safe_task(self.handle_job_closing(container_id, retval))
                     elif container_id in self._student_containers_running:
-                        self._loop.create_task(self.handle_student_job_closing(container_id, retval))
+                        self._create_safe_task(self.handle_student_job_closing(container_id, retval))
                 elif i["Type"] == "container" and i["status"] == "oom":
                     container_id = i["id"]
                     if container_id in self._containers_running or container_id in self._student_containers_running:
                         self._logger.info("Container %s did OOM, killing it", container_id)
                         self._containers_killed[container_id] = "overflow"
                         try:
-                            self._loop.create_task(self._loop.run_in_executor(None, lambda: self._docker.kill_container(container_id)))
+                            self._create_safe_task(self._loop.run_in_executor(None, lambda: self._docker.kill_container(container_id)))
                         except:  # this call can sometimes fail, and that is normal.
                             pass
                 else:
@@ -140,8 +140,9 @@ class DockerAgent(Agent):
             hard_time_limit = message.hard_time_limit or time_limit * 3
             mem_limit = message.mem_limit
 
-            task_fs = self.tasks_fs.from_subfolder(course_id).from_subfolder(task_id)
-            if not task_fs.exists():
+            course_fs = self.tasks_fs.from_subfolder(course_id)
+            task_fs = course_fs.from_subfolder(task_id)
+            if not course_fs.exists() or not task_fs.exists():
                 self._logger.warning("Task %s/%s unavailable on this agent", course_id, task_id)
                 await self.send_job_result(message.job_id, "crash",
                                            'Task unavailable on agent. Please retry later, the agents should synchronize soon. If the error '
@@ -188,14 +189,20 @@ class DockerAgent(Agent):
                 return
 
             task_path = os.path.join(container_path, 'task')  # tmp_dir/id/task/
+            course_path = os.path.join(container_path, 'course')
+
             sockets_path = os.path.join(container_path, 'sockets')  # tmp_dir/id/socket/
             student_path = os.path.join(task_path, 'student')  # tmp_dir/id/task/student/
             systemfiles_path = os.path.join(task_path, 'systemfiles')  # tmp_dir/id/task/systemfiles/
+
+            course_common_path = os.path.join(course_path, 'common')
+            course_common_student_path = os.path.join(course_path, 'common_student')
 
             # Create the needed directories
             os.mkdir(sockets_path)
             os.chmod(container_path, 0o777)
             os.chmod(sockets_path, 0o777)
+            os.mkdir(course_path)
 
             # TODO: avoid copy
             await self._loop.run_in_executor(None, lambda: task_fs.copy_from(None, task_path))
@@ -205,10 +212,24 @@ class DockerAgent(Agent):
                 os.mkdir(student_path)
                 os.chmod(student_path, 0o777)
 
+            # Copy common and common_student if needed
+            # TODO: avoid copy
+            if course_fs.from_subfolder("$common").exists():
+                await self._loop.run_in_executor(None, lambda: course_fs.from_subfolder("$common").copy_from(None, course_common_path))
+            else:
+                os.mkdir(course_common_path)
+
+            if course_fs.from_subfolder("$common_student").exists():
+                await self._loop.run_in_executor(None, lambda: course_fs.from_subfolder("$common_student").copy_from(None, course_common_student_path))
+            else:
+                os.mkdir(course_common_student_path)
+
             # Run the container
             try:
-                container_id = await self._loop.run_in_executor(None, lambda: self._docker.create_container(environment, enable_network, mem_limit,
-                                                                                                            task_path, sockets_path, ssh_port))
+                to_run = lambda: self._docker.create_container(environment, enable_network, mem_limit, task_path,
+                                                               sockets_path, course_common_path,
+                                                               course_common_student_path, ssh_port)
+                container_id = await self._loop.run_in_executor(None, to_run)
             except Exception as e:
                 self._logger.warning("Cannot create container! %s", str(e), exc_info=True)
                 await self.send_job_result(message.job_id, "crash", 'Cannot create container.')
@@ -237,18 +258,19 @@ class DockerAgent(Agent):
                 raise CannotCreateJobException('Cannot start container')
 
             # Talk to the container
-            self._loop.create_task(self.handle_running_container(message.job_id, container_id, message.inputdata, debug, ssh_port,
+            self._create_safe_task(self.handle_running_container(message.job_id, container_id, message.inputdata, debug, ssh_port,
                                                                  environment_name, mem_limit, time_limit, hard_time_limit,
                                                                  sockets_path, student_path, systemfiles_path,
-                                                                 future_results))
+                                                                 course_common_student_path, future_results))
 
             # Verify the time limit
             await self._timeout_watcher.register_container(container_id, time_limit, hard_time_limit)
         except:
             self._logger.exception("Exception in new_job")
 
-    async def create_student_container(self, job_id, parent_container_id, sockets_path, student_path, systemfiles_path, socket_id, environment_name,
-                                       memory_limit, time_limit, hard_time_limit, share_network, write_stream):
+    async def create_student_container(self, job_id, parent_container_id, sockets_path, student_path, systemfiles_path,
+                                       course_common_student_path, socket_id,  environment_name, memory_limit,
+                                       time_limit, hard_time_limit, share_network, write_stream):
         """
         Creates a new student container.
         :param write_stream: stream on which to write the return value of the container (with a correctly formatted msgpack message)
@@ -265,11 +287,10 @@ class DockerAgent(Agent):
 
             try:
                 socket_path = os.path.join(sockets_path, str(socket_id) + ".sock")
-                container_id = await self._loop.run_in_executor(None,
-                                                                lambda: self._docker.create_container_student(parent_container_id, environment,
-                                                                                                              share_network, memory_limit,
-                                                                                                              student_path, socket_path,
-                                                                                                              systemfiles_path))
+                to_run = lambda: self._docker.create_container_student(parent_container_id, environment, share_network,
+                                                                       memory_limit, student_path, socket_path,
+                                                                       systemfiles_path, course_common_student_path)
+                container_id = await self._loop.run_in_executor(None, to_run)
             except:
                 self._logger.exception("Cannot create student container!")
                 await self._write_to_container_stdin(write_stream, {"type": "run_student_retval", "retval": 254, "socket_id": socket_id})
@@ -305,11 +326,9 @@ class DockerAgent(Agent):
         write_stream.write(msg)
         await write_stream.drain()
 
-    async def handle_running_container(self, job_id, container_id,
-                                       inputdata, debug, ssh_port,
-                                       orig_env, orig_memory_limit, orig_time_limit, orig_hard_time_limit,
-                                       sockets_path, student_path, systemfiles_path,
-                                       future_results):
+    async def handle_running_container(self, job_id, container_id, inputdata, debug, ssh_port, orig_env,
+                                       orig_memory_limit, orig_time_limit, orig_hard_time_limit, sockets_path,
+                                       student_path, systemfiles_path, course_common_student_path, future_results):
         """ Talk with a container. Sends the initial input. Allows to start student containers """
         sock = await self._loop.run_in_executor(None, lambda: self._docker.attach_to_container(container_id))
         try:
@@ -351,8 +370,9 @@ class DockerAgent(Agent):
                                 socket_id = msg["socket_id"]
                                 assert "/" not in socket_id  # ensure task creator do not try to break the agent :-(
                                 self._loop.create_task(self.create_student_container(job_id, container_id, sockets_path, student_path,
-                                                                                     systemfiles_path, socket_id, environment, memory_limit,
-                                                                                     time_limit, hard_time_limit, share_network, write_stream))
+                                                                                     systemfiles_path, course_common_student_path,
+                                                                                     socket_id,  environment, memory_limit, time_limit,
+                                                                                     hard_time_limit, share_network, write_stream))
                             elif msg["type"] == "ssh_key":
                                 # send the data to the backend (and client)
                                 self._logger.info("%s %s", self._running_ssh_debug[container_id], str(msg))
@@ -443,7 +463,7 @@ class DockerAgent(Agent):
                         self._docker.remove_container(student_container_id)
                     except:
                         pass  # ignore
-                asyncio.ensure_future(self._loop.run_in_executor(None, close_and_delete))
+                self._create_safe_task(self._loop.run_in_executor(None, close_and_delete))
             del self._student_containers_for_job[message.job_id]
 
             # Allow other container to reuse the ssh port this container has finished to use
@@ -550,6 +570,6 @@ class DockerAgent(Agent):
 
     async def run(self):
         # Init Docker events watcher
-        self._loop.create_task(self._watch_docker_events())
+        self._create_safe_task(self._watch_docker_events())
 
         await super(DockerAgent, self).run()

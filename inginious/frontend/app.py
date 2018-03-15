@@ -9,6 +9,9 @@ import gettext
 
 import inginious.frontend.pages.course_admin.utils as course_admin_utils
 import web
+from inginious.frontend.fix_webpy_cookies import fix_webpy_cookies
+fix_webpy_cookies() # TODO: remove me once https://github.com/webpy/webpy/pull/419 is merge in web.py
+
 from gridfs import GridFS
 from inginious.frontend.arch_helper import create_arch, start_asyncio_and_zmq
 from inginious.frontend.cookieless_app import CookieLessCompatibleApplication
@@ -149,7 +152,7 @@ def get_app(config):
     default_allowed_file_extensions = config['allowed_file_extensions']
     default_max_file_size = config['max_file_size']
 
-    zmq_context, __ = start_asyncio_and_zmq()
+    zmq_context, __ = start_asyncio_and_zmq(config.get('debug_asyncio', False))
 
     # Init the different parts of the app
     plugin_manager = PluginManager()

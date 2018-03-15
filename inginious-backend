@@ -23,6 +23,7 @@ if __name__ == "__main__":
                                        "tcp://127.0.0.1:2000", type=str)
     parser.add_argument("-v", "--verbose", help="increase output verbosity",
                         action="store_true")
+    parser.add_argument("--debugmode", help="Enables debug mode. For developers only.", action="store_true")
     args = parser.parse_args()
 
     # create logger
@@ -37,6 +38,8 @@ if __name__ == "__main__":
     # start asyncio and zmq
     loop = ZMQEventLoop()
     asyncio.set_event_loop(loop)
+    if args.debugmode:
+        loop.set_debug(True)
     context = Context()
 
     # Create backend
@@ -47,7 +50,6 @@ if __name__ == "__main__":
         loop.run_until_complete(backend.run())
     except:
         logger.exception("Closing due to exception")
-        pass
     finally:
         logger.info("Closing loop")
         loop.close()

@@ -34,6 +34,7 @@ class BaseTaskPage(object):
         self.default_allowed_file_extensions = self.cp.default_allowed_file_extensions
         self.default_max_file_size = self.cp.default_max_file_size
         self.webterm_link = self.cp.webterm_link
+        self.plugin_manager = self.cp.plugin_manager
 
     def set_selected_submission(self, course, task, submissionid):
         submission = self.submission_manager.get_submission(submissionid)
@@ -227,11 +228,11 @@ class BaseTaskPage(object):
                     if default_submission is None:
                         self.set_selected_submission(course, task, userinput['submissionid'])
 
-                    return self.submission_to_json(result, is_admin, False, True if default_submission is None else default_submission['_id'] == result['_id'], tags=task.get_tags())
+                    return self.submission_to_json(task, result, is_admin, False, True if default_submission is None else default_submission['_id'] == result['_id'], tags=task.get_tags())
 
                 else:
                     web.header('Content-Type', 'application/json')
-                    return self.submission_to_json(result, is_admin)
+                    return self.submission_to_json(task, result, is_admin)
 
             elif "@action" in userinput and userinput["@action"] == "load_submission_input" and "submissionid" in userinput:
                 submission = self.submission_manager.get_submission(userinput["submissionid"])
@@ -241,7 +242,7 @@ class BaseTaskPage(object):
                     raise web.notfound()
                 web.header('Content-Type', 'application/json')
                 
-                return self.submission_to_json(submission, is_admin, True, tags=task.get_tags())
+                return self.submission_to_json(task, submission, is_admin, True, tags=task.get_tags())
                 
             elif "@action" in userinput and userinput["@action"] == "kill" and "submissionid" in userinput:
                 self.submission_manager.kill_running_submission(userinput["submissionid"])  # ignore return value
@@ -264,7 +265,7 @@ class BaseTaskPage(object):
             else:
                 raise web.notfound()
 
-    def submission_to_json(self, data, debug, reloading=False, replace=False, tags={}):
+    def submission_to_json(self, task, data, debug, reloading=False, replace=False, tags={}):
         """ Converts a submission to json (keeps only needed fields) """
 
         if "ssh_host" in data:
@@ -325,6 +326,7 @@ class BaseTaskPage(object):
                                "If the error persists, send an email to the course administrator.")
 
         tojson["text"] = "<b>" + tojson["text"] + " " + _("[Submission #{submissionid}]").format(submissionid=data["_id"]) + "</b>" + data.get("text", "")
+        tojson["text"] = self.plugin_manager.call_hook_recursive("feedback_text", task=task, submission=data, text=tojson["text"])["text"]
 
         if reloading:
             # Set status='ok' because we are reloading an old submission.
@@ -332,7 +334,7 @@ class BaseTaskPage(object):
             # And also include input
             tojson["input"] = data.get('input', {})
 
-        if("tests" in data):
+        if "tests" in data:
             tojson["tests"] = {}
             for tag in tags[0]+tags[1]: # Tags only visible for admins should not appear in the json for students.
                 if (tag.is_visible_for_student() or debug) and tag.get_id() in data["tests"]:
@@ -341,6 +343,9 @@ class BaseTaskPage(object):
                 for tag in data["tests"]:
                     if tag.startswith("*auto-tag-"):
                         tojson["tests"][tag] = data["tests"][tag]
+
+        # allow plugins to insert javascript to be run in the browser after the submission is loaded
+        tojson["feedback_script"] = "".join(self.plugin_manager.call_hook("feedback_script", task=task, submission=data))
 
         return json.dumps(tojson, default=str)
 

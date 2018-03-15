@@ -69,7 +69,7 @@ class ScoreBoard(INGIniousAuthPage):
         task_names = {}
         for taskid in scoreboard_content:
             try:
-                task_names[taskid] = course.get_task(taskid).get_name(user_manager.session_language())
+                task_names[taskid] = course.get_task(taskid).get_name(self.user_manager.session_language())
             except:
                 raise web.notfound("Unknown task id "+taskid)
 
@@ -112,7 +112,7 @@ class ScoreBoard(INGIniousAuthPage):
 
         # Get user names
         users_realname = {}
-        for username, userinfo in self.user_manager.get_users_info(users).items():
+        for username, userinfo in self.user_manager.get_users_info(list(users)).items():
             users_realname[username] = userinfo[0] if userinfo else username
 
         # Compute overall result per user, and sort them

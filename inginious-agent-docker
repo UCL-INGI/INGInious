@@ -60,6 +60,7 @@ if __name__ == "__main__":
                                               "number of cores available.", default=multiprocessing.cpu_count(), type=check_negative)
     parser.add_argument("-v", "--verbose", help="increase output verbosity",
                         action="store_true")
+    parser.add_argument("--debugmode", help="Enables debug mode. For developers only.", action="store_true")
 
     (args, fsprovider) = get_args_and_filesystem(parser)
 
@@ -78,6 +79,8 @@ if __name__ == "__main__":
     # start asyncio and zmq
     loop = ZMQEventLoop()
     asyncio.set_event_loop(loop)
+    if args.debugmode:
+        loop.set_debug(True)
     context = Context()
 
     # Create agent
