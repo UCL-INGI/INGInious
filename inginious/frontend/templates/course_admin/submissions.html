@@ -42,7 +42,7 @@ $if len(old_input.task) == 1:
             $if str(c['_id']) in old_input['aggregation']:
                 <h4>$:_('Submissions for the task "{0}" - {1}').format(task_name, c["description"])</h4>
 
-<form id="select_form" method="post">
+<form id="select_form" method="get">
 
 <!-- Query submissions -->
 <div class="panel panel-default">
