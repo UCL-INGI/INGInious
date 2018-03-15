@@ -54,6 +54,9 @@ class WebAppTask(Task):
         
         # Input random
         self._input_random = int(self._data.get("input_random", 0))
+        
+        # Regenerate input random
+        self._regenerate_input_random = bool(self._data.get("regenerate_input_random", False))
 
         # Tags
         self._tags = Tag.create_tags_from_dict(self._data.get("tags", {})) 
@@ -122,4 +125,9 @@ class WebAppTask(Task):
         return self._tags
         
     def get_number_input_random(self):
+        """ Return the number of random inputs """
         return self._input_random
+        
+    def regenerate_input_random(self):
+        """ Indicates if random inputs should be regenerated """
+        return self._regenerate_input_random

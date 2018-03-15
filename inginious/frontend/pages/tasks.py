@@ -11,6 +11,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import random
+import time
 
 import web
 from bson.objectid import ObjectId
@@ -98,7 +99,7 @@ class BaseTaskPage(object):
         
         # Generate random inputs and save it into db
         random_input_list = []
-        random.seed(str(username if username is not None else "") + taskid + courseid)
+        random.seed(str(username if username is not None else "") + taskid + courseid + str(time.time() if task.regenerate_input_random() else ""))
         random_input_list = [random.random() for i in range(task.get_number_input_random())]
         if username is not None and len(random_input_list) > 0: # Avoid errors when visitors/unregistered users and avoid pollute db if input random not using
             self.database.user_tasks.update(

@@ -180,6 +180,7 @@ class WebAppSubmissionManager:
             inputdata["@username"] = username
             inputdata["@lang"] = self._user_manager.session_language()
             submission["input"] = self._gridfs.put(bson.BSON.encode(inputdata))
+            submission["tests"] = {} # Be sure tags are reinitialized
             submissionid = self._database.submissions.insert(submission)
 
         jobid = self._client.new_job(task, inputdata,
