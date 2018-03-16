@@ -84,7 +84,7 @@ class CourseSubmissionsPage(INGIniousAdminPage):
                                   username in aggregation['groups'][0]["students"]) else None
                                   ) for aggregation in classroom for username in aggregation["students"]])
 
-            download_type = web.input(download_type=self._valid_formats[0])
+            download_type = web.input(download_type=self._valid_formats[0]).download_type
             if download_type not in self._valid_formats:
                 download_type = self._valid_formats[0]
             return self.submission_manager.get_submission_archive(data, list(reversed(download_type.split('/'))), aggregations)
