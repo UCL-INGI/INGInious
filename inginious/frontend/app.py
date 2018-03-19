@@ -10,6 +10,7 @@ import pymongo
 import inginious.frontend.pages.course_admin.utils as course_admin_utils
 import web
 from inginious.frontend.fix_webpy_cookies import fix_webpy_cookies
+
 fix_webpy_cookies() # TODO: remove me once https://github.com/webpy/webpy/pull/419 is merge in web.py
 
 from gridfs import GridFS
@@ -73,6 +74,7 @@ urls = (
     r'/admin/([^/]+)/download', 'inginious.frontend.pages.course_admin.download.CourseDownloadSubmissions',
     r'/admin/([^/]+)/replay', 'inginious.frontend.pages.course_admin.replay.CourseReplaySubmissions',
     r'/admin/([^/]+)/danger', 'inginious.frontend.pages.course_admin.danger_zone.CourseDangerZonePage',
+    r'/admin/([^/]+)/webdav', 'inginious.frontend.pages.course_admin.webdav.WebDavInfoPage',
     r'/api/v0/auth_methods', 'inginious.frontend.pages.api.auth_methods.APIAuthMethods',
     r'/api/v0/authentication', 'inginious.frontend.pages.api.authentication.APIAuthentication',
     r'/api/v0/courses', 'inginious.frontend.pages.api.courses.APICourses',
@@ -238,6 +240,16 @@ def get_app(config):
     if config.get('log_level', 'INFO') == 'DEBUG':
         appli.internalerror = debugerror
 
+    # Init webdav if possible (for now, only available with LocalFSProvider)
+    if isinstance(fs_provider, LocalFSProvider):
+        from inginious.frontend.webdav import WebDavProxy, init_webdav
+        webdav_available = True
+        webdav = init_webdav(user_manager, course_factory, task_factory)
+        appli_wsgi = lambda: WebDavProxy(appli.wsgifunc(), webdav)
+    else:
+        webdav_available = False
+        appli_wsgi = lambda: appli.wsgifunc()
+
     # Insert the needed singletons into the application, to allow pages to call them
     appli.plugin_manager = plugin_manager
     appli.course_factory = course_factory
@@ -257,6 +269,7 @@ def get_app(config):
     appli.available_languages = available_languages
     appli.welcome_page = config.get("welcome_page", None)
     appli.static_directory = config.get("static_directory", "./static")
+    appli.webdav_available = webdav_available
 
     # Init the mapping of the app
     appli.init_mapping(urls)
@@ -267,4 +280,4 @@ def get_app(config):
     # Start the inginious.backend
     client.start()
 
-    return appli.wsgifunc(), lambda: _close_app(appli, mongo_client, client)
+    return appli_wsgi(), lambda: _close_app(appli, mongo_client, client)
