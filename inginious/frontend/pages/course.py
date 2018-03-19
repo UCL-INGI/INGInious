@@ -5,7 +5,6 @@
 
 """ Course page """
 import web
-from natsort import natsorted
 
 from inginious.frontend.pages.utils import INGIniousAuthPage, INGIniousPage
 

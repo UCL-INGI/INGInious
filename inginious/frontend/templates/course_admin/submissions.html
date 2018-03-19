@@ -42,7 +42,7 @@ $if len(old_input.task) == 1:
             $if str(c['_id']) in old_input['aggregation']:
                 <h4>$:_('Submissions for the task "{0}" - {1}').format(task_name, c["description"])</h4>
 
-<form id="select_form" method="post">
+<form id="select_form" method="post" action="submissions">
 
 <!-- Query submissions -->
 <div class="panel panel-default">
@@ -424,12 +424,8 @@ $if statistics != None and len(data) > 0:
     </tbody>
 </table>
 <!-- Submission table END -->
-
 </form>
-<script>
-    //Since we use post, we remove GET parameters in the URL to avoid inconsistency between POST and GET
-    window.history.replaceState({}, document.title, window.location.pathname);
-</script>
+
 $if is_admin:
     <script language="javascript">
         $$(".replay").click (function (event) {
