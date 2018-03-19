@@ -267,6 +267,7 @@ class DockerAgent(Agent):
             await self._timeout_watcher.register_container(container_id, time_limit, hard_time_limit)
         except:
             self._logger.exception("Exception in new_job")
+            await self.send_job_result(message.job_id, "crash", 'Cannot start container')
 
     async def create_student_container(self, job_id, parent_container_id, sockets_path, student_path, systemfiles_path,
                                        course_common_student_path, socket_id,  environment_name, memory_limit,
