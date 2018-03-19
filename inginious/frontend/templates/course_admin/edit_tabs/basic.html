@@ -196,16 +196,27 @@ $else:
         </script>
     </div>
 </div>
+<!-- Random Inputs Form -->
 <div class="form-group">
-    <label for="groups" class="col-sm-2 control-label">$:_("Random inputs")</label>
-    <div class="col-sm-10">
+    <label for="groups" class="col-md-2 control-label">$:_("Random inputs")</label>
+    <div class="col-md-2">
         $ n_inputs_random = task_data.get('input_random', 0)
         <div class="row">
-            <div class="col-xs-12 col-lg-3">
+            <div>
                 <label>
                     <input name="input_random" class="form-control input-xs" value="$n_inputs_random" placeholder="0" type="number">
                 </label>
             </div>
         </div>
     </div>
+    <label for="regenerate_input_random" class="col-md-2 control-label" data-toggle="tooltip" data-placement="top" title="$:_('Regenerate random inputs for each reloading of the task page')">$:_("Regenerate input random")</label>
+    <div class="col-md-1">
+        <div class="checkbox"><label>
+            <input type="checkbox" id="regenerate_input_random" name="regenerate_input_random"
+                   $if task_data.get('regenerate_input_random',False):
+                       checked="checked"
+            />&nbsp;
+        </label></div>
+    </div>
 </div>
+<!-- END Random Inputs Form -->

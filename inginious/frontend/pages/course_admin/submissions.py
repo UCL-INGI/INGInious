@@ -24,20 +24,20 @@ class CourseSubmissionsPage(INGIniousAdminPage):
     _allowed_sort_name = [_("Submitted on"), _("User"), _("Grade"), _("Task id")]
     _valid_formats = ["taskid/username", "taskid/aggregation", "username/taskid", "aggregation/taskid"]
     _valid_formats_name = [_("taskid/username"), _("taskid/aggregation"), _("username/taskid"), _("aggregation/taskid")]
-    _trunc_limit = 1000  # To trunc submissions if there are too many submissions
+    _trunc_limit = 500  # To trunc submissions if there are too many submissions
 
     def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request """
         course, __ = self.get_course_and_check_rights(courseid)
         msgs = []
 
-        input = self.get_input()
-        tasks = course.get_tasks()
-        data, __ = self.get_submissions(course, input)
-
         if "replay" in web.input():
             if not self.user_manager.has_admin_rights_on_course(course):
                 raise web.notfound()
+            
+            input = self.get_input()
+            tasks = course.get_tasks()
+            data, __ = self.get_submissions(course, input)
             for submission in data:
                 self.submission_manager.replay_job(tasks[submission["taskid"]], submission)
             msgs.append(_("{0} selected submissions were set for replay.").format(str(len(data))))
@@ -84,7 +84,7 @@ class CourseSubmissionsPage(INGIniousAdminPage):
                                   username in aggregation['groups'][0]["students"]) else None
                                   ) for aggregation in classroom for username in aggregation["students"]])
 
-            download_type = web.input(download_type=self._valid_formats[0])
+            download_type = web.input(download_type=self._valid_formats[0]).download_type
             if download_type not in self._valid_formats:
                 download_type = self._valid_formats[0]
             return self.submission_manager.get_submission_archive(data, list(reversed(download_type.split('/'))), aggregations)
@@ -112,7 +112,7 @@ class CourseSubmissionsPage(INGIniousAdminPage):
         
     def get_submissions(self, course, user_input):
         """ Returns the list of submissions and corresponding aggragations based on inputs """
-        
+
         # Build lists of wanted users based on classrooms and specific users
         list_classroom_id = [ObjectId(o) for o in user_input.aggregation]
         classroom = list(self.database.aggregations.find({"_id": {"$in": list_classroom_id}}))
@@ -138,15 +138,16 @@ class CourseSubmissionsPage(INGIniousAdminPage):
             query_advanced["grade"] = {"$gte": float(user_input.grade_min)}
         elif not user_input.grade_min and user_input.grade_max:
             query_advanced["grade"] = {"$lte": float(user_input.grade_max)}
-        elif user_input.grade_min and not user_input.grade_max:
+        elif user_input.grade_min and user_input.grade_max:
             query_advanced["grade"] = {"$gte": float(user_input.grade_min), "$lte": float(user_input.grade_max)}
-            
+
         try:
             date_before = datetime.strptime(user_input.date_before, "%Y-%m-%d %H:%M:%S") if user_input.date_before else ''
             date_after = datetime.strptime(user_input.date_after, "%Y-%m-%d %H:%M:%S") if user_input.date_after else ''
+
             if date_before and not date_after:
                 query_advanced["submitted_on"] = {"$lte": date_before}
-            elif not date_before == '' and date_after:
+            elif not date_before and date_after:
                 query_advanced["submitted_on"] = {"$gte": date_after}
             elif date_before and date_after:
                 query_advanced["submitted_on"] = {"$gte": date_after, "$lte": date_before}

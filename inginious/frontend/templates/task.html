@@ -303,6 +303,11 @@ $if user_manager.has_admin_rights_on_course(course):
             data-wait-submission="$submission['_id']"
             $break
 >
+    $# Hide input random in form
+    $ i = 0
+    $for elem in input_random_list:
+        <input type="hidden" name="@random_$i" id="random_input" value="$elem"/>
+        $ i = i+1
     <input type="hidden" name="@action" value="submit"/>
     $for key, problem in enumerate(task.get_problems()):
         <div class="panel panel-default">

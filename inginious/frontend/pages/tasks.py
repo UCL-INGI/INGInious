@@ -11,6 +11,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import random
+import time
 
 import web
 from bson.objectid import ObjectId
@@ -97,11 +98,11 @@ class BaseTaskPage(object):
 
         self.user_manager.user_saw_task(username, courseid, taskid)
         
-        # Generate random inputs and save ot into db
+        # Generate random inputs and save it into db
         random_input_list = []
-        if username is not None:
-            random.seed(username + taskid + courseid)
-            random_input_list = [random.random() for i in range(task.get_number_input_random())]
+        random.seed(str(username if username is not None else "") + taskid + courseid + str(time.time() if task.regenerate_input_random() else ""))
+        random_input_list = [random.random() for i in range(task.get_number_input_random())]
+        if username is not None and len(random_input_list) > 0: # Avoid errors when visitors/unregistered users and avoid pollute db if input random not using
             self.database.user_tasks.update(
                     {"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username},
                     {"$set": {"random": random_input_list}})
@@ -175,6 +176,14 @@ class BaseTaskPage(object):
                 # Verify rights
                 if not self.user_manager.task_can_user_submit(task, username, isLTI):
                     return json.dumps({"status": "error", "text": _("You are not allowed to submit for this task.")})
+                    
+                # Retrieve input random and check still valid
+                random_input = self.database.user_tasks.find_one({"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username}, { "random": 1 })
+                random_input = random_input["random"] if "random" in random_input else []
+                for i in range(0, len(random_input)):
+                    s = "@random_" + str(i)
+                    if s not in userinput or float(userinput[s]) != random_input[i]:
+                        return json.dumps({"status": "error", "text": _("Your task has been regenerated. This current task is outdated.")})
 
                 # Reparse user input with array for multiple choices
                 init_var = {
