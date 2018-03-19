@@ -111,6 +111,11 @@ class INGIniousPage(object):
         return self.app.lti_outcome_manager
 
     @property
+    def webdav_available(self) -> bool:
+        """ True if webdav is available """
+        return self.app.webdav_available
+
+    @property
     def logger(self) -> logging.Logger:
         """ Logger """
         return logging.getLogger('inginious.webapp.pages')

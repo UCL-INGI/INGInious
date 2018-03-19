@@ -27,7 +27,8 @@ install_requires = [
     "pyzmq >= 15.3.0",
     "natsort >= 5.0.1",
     "psutil >= 4.4.2",
-    "zipstream >= 1.1.4"
+    "zipstream >= 1.1.4",
+    "WsgiDAV >= 2.2.4"
 ]
 
 test_requires = [

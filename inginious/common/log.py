@@ -11,6 +11,7 @@ def init_logging(log_level=logging.DEBUG):
     Init logging
     :param log_level: An integer representing the log level or a string representing one
     """
+    logging.root.handlers = []  # remove possible side-effects from other libs
     logger = logging.getLogger("inginious")
     logger.setLevel(log_level)
     ch = logging.StreamHandler()
@@ -18,6 +19,7 @@ def init_logging(log_level=logging.DEBUG):
     formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     ch.setFormatter(formatter)
     logger.addHandler(ch)
+
 
 def get_course_logger(coursename):
     """

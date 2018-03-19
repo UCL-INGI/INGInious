@@ -14,6 +14,8 @@ from functools import reduce
 from natsort import natsorted
 from collections import OrderedDict
 import pymongo
+from binascii import hexlify
+import os
 
 
 class AuthInvalidInputException(Exception):
@@ -161,6 +163,10 @@ class UserManager:
     def session_language(self):
         """ Returns the current session language """
         return self._session.get("language", "en")
+
+    def session_api_key(self):
+        """ Returns the API key for the current user. Created on first demand. """
+        return self.get_user_api_key(self.session_username())
 
     def set_session_token(self, token):
         """ Sets the token of the current user in the session, if one is open."""
@@ -335,6 +341,25 @@ class UserManager:
         if info is not None:
             return info[1]
         return None
+
+    def get_user_api_key(self, username, create=True):
+        """
+        Get the API key of a given user.
+        API keys are generated on demand.
+        :param username:
+        :param create: Create the API key if none exists yet
+        :return: the API key assigned to the user, or None if none exists and create is False.
+        """
+        retval = self._database.users.find_one({"username": username}, {"apikey": 1})
+        if "apikey" not in retval and create:
+            apikey = self.generate_api_key()
+            self._database.users.update_one({"username": username}, {"$set": {"apikey": apikey}})
+        elif "apikey" not in retval:
+            apikey = None
+        else:
+            apikey = retval["apikey"]
+        return apikey
+
 
     def bind_user(self, auth_id, user):
         username, realname, email = user
@@ -782,3 +807,7 @@ class UserManager:
             username = self.session_username()
 
         return (username in course.get_staff()) or (include_superadmins and self.user_is_superadmin(username))
+
+    @classmethod
+    def generate_api_key(cls):
+        return hexlify(os.urandom(40)).decode('utf-8')
