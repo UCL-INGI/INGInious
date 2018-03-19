@@ -143,7 +143,7 @@ class LocalFSProvider(FileSystemProvider):
                 self._recursive_overwrite(os.path.join(src, f),
                                           os.path.join(dest, f))
         else:
-            shutil.copyfile(src, dest)
+            shutil.copyfile(src, dest, follow_symlinks=False)
 
     def distribute(self, filepath, allow_folders=True):
         self._checkpath(filepath)
