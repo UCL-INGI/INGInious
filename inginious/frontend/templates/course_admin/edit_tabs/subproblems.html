@@ -18,7 +18,6 @@ $#
             <select class="form-control" id="new_subproblem_type">
                 $for key, problem_type in problem_types.items():
                     <option value="subproblem_$key">$:problem_type.get_type_name(_)</option>
-                <option value="subproblem_custom">$:_("custom")</option>
             </select>
         </div>
         <div class="col-sm-2">

@@ -109,7 +109,6 @@ $var Navbar: $:NavbarF()
 <div id="subproblem_templates" style="display:none">
     $for key, problem_type in problem_types.items():
         $:problem_type.show_editbox(template_helper, key)
-    $:include.course_admin.subproblems.custom()
 </div>
 $:include.course_admin.edit_tabs.file_modals()
 

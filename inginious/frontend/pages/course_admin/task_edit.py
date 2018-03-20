@@ -51,17 +51,6 @@ class CourseEditTask(INGIniousAdminPage):
             pass
         available_filetypes = self.task_factory.get_available_task_file_extensions()
 
-        # custom problem-type:
-        for pid in task_data.get("problems", {}):
-            problem = task_data["problems"][pid]
-            if (problem["type"] == "code" and "boxes" in problem) or problem["type"] not in (
-                    "code", "code_single_line", "file", "match", "multiple_choice"):
-                problem_copy = copy.deepcopy(problem)
-                for i in ["name", "header"]:
-                    if i in problem_copy:
-                        del problem_copy[i]
-                problem["custom"] = inginious.common.custom_yaml.dump(problem_copy)
-
         return self.template_helper.get_renderer().course_admin.task_edit(
             course,
             taskid,
@@ -122,18 +111,7 @@ class CourseEditTask(INGIniousAdminPage):
     def parse_problem(self, problem_content):
         """ Parses a problem, modifying some data """
         del problem_content["@order"]
-
-        if problem_content["type"] == "custom":
-            try:
-                custom_content = inginious.common.custom_yaml.load(problem_content["custom"])
-            except:
-                raise Exception("Invalid YAML in custom content")
-            problem_content.update(custom_content)
-            del problem_content["custom"]
-        else:
-            problem_content = self.task_factory.get_problem_types().get(problem_content["type"]).parse_problem(problem_content)
-
-        return problem_content
+        return self.task_factory.get_problem_types().get(problem_content["type"]).parse_problem(problem_content)
 
     def wipe_task(self, courseid, taskid):
         """ Wipe the data associated to the taskid from DB"""

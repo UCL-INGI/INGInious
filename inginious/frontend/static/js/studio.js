@@ -431,20 +431,6 @@ function studio_init_template_file(well, pid, problem)
 }
 
 /**
- * Init a custom template
- * @param well: the DOM element containing the input fields
- * @param pid
- * @param problem
- */
-function studio_init_template_custom(well, pid, problem)
-{
-    var val = "";
-    if("custom" in problem)
-        val = problem["custom"];
-    registerCodeEditor($('#custom-' + pid)[0], 'yaml', 10).setValue(val);
-}
-
-/**
  * Init a match template
  * @param well: the DOM element containing the input fields
  * @param pid
