@@ -167,7 +167,7 @@ def get_app(config):
     default_problem_types = {
         problem_type.get_type(): problem_type for problem_type in [DisplayableCodeProblem,
                                                                    DisplayableCodeSingleLineProblem,
-                                                                   DisplayableCodeFileProblem,
+                                                                   DisplayableFileProblem,
                                                                    DisplayableMultipleChoiceProblem,
                                                                    DisplayableMatchProblem]
     }

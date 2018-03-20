@@ -555,7 +555,7 @@ function studio_subproblem_down(pid)
 function studio_subproblem_delete(pid)
 {
     var well = $(studio_get_problem(pid));
-    if(!confirm("Are you sure that you want to delete this subproblem?"))
+    if(!confirm(delete_subproblem_message))
         return;
     $.each(codeEditors, function(name, editor)
     {

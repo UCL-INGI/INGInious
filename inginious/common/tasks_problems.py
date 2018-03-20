@@ -5,13 +5,14 @@
 
 """ Tasks' problems """
 import gettext
+import sys
+import re
 from abc import ABCMeta, abstractmethod
 
 from inginious.common.base import id_checker
-from inginious.common.tasks_code_boxes import InputBox, MultilineBox, TextBox, FileBox
 
 
-class BasicProblem(object, metaclass=ABCMeta):
+class Problem(object, metaclass=ABCMeta):
     """Basic problem """
 
     @classmethod
@@ -93,122 +94,72 @@ class BasicProblem(object, metaclass=ABCMeta):
         return translation.gettext(*args, **kwargs)
 
 
-class MatchProblem(BasicProblem):
-    """Display an input box and check that the content is correct"""
+class CodeProblem(Problem):
+    """Code problem"""
 
     def __init__(self, task, problemid, content, translations=None):
-        super(MatchProblem, self).__init__(task, problemid, content, translations)
-        if not "answer" in content:
-            raise Exception("There is no answer in this problem with type==match")
-        self._answer = str(content["answer"])
+        Problem.__init__(self, task, problemid, content, translations)
+        self._optional = content.get("optional", False)
 
-    @classmethod
-    def get_type(cls):
-        return "match"
-
-    def input_is_consistent(self, task_input, default_allowed_extension, default_max_size):
-        return self.get_id() in task_input
-
-    def input_type(self):
-        return str
-
-    def check_answer(self, task_input, language):
-        if task_input[self.get_id()].strip() == self._answer:
-            return True, None, ["_correct_answer"], 0
+        if re.match(r'[a-z0-9\-_\.]+$', content.get("language", ""), re.IGNORECASE):
+            self._language = content.get("language", "")
+        elif content.get("language", ""):
+            raise Exception("Invalid language " + content["language"])
         else:
-            return False, None, ["_wrong_answer"], 0
-
-    @classmethod
-    def parse_problem(self, problem_content):
-        return BasicProblem.parse_problem(problem_content)
-
-    @classmethod
-    def get_text_fields(cls):
-        return BasicProblem.get_text_fields()
-
-
-class BasicCodeProblem(BasicProblem):
-    """Basic problem with code input. Do all the job with the backend"""
-
-    def __init__(self, task, problemid, content, translations=None):
-        super(BasicCodeProblem, self).__init__(task, problemid, content, translations)
-        self._boxes = []
-        self._box_types = {"input-text": InputBox, "input-decimal": InputBox, "input-integer": InputBox,
-                           "multiline": MultilineBox, "text": TextBox, "file": FileBox}
-        if task.get_environment() is None:
-            raise Exception("Environment undefined, but there is a problem with type=code or type=code-single-line")
-
-    def get_boxes(self):
-        """ Returns all the boxes of this code problem """
-        return self._boxes
-
-    @classmethod
-    @abstractmethod
-    def get_type(cls):
-        return None
-
-    def input_is_consistent(self, task_input, default_allowed_extension, default_max_size):
-        for box in self._boxes:
-            if not box.input_is_consistent(task_input, default_allowed_extension, default_max_size):
-                return False
-        return True
+            self._language = "plain"
 
     def input_type(self):
         return str
 
-    def _create_box(self, boxid, box_content):
-        """ Create adequate box """
-        if not id_checker(boxid) and not boxid == "":
-            raise Exception("Invalid box _id " + boxid)
-        if "type" not in box_content:
-            raise Exception("Box " + boxid + " does not have a type")
-        if box_content["type"] not in self._box_types:
-            raise Exception("Unknown box type " + box_content["type"] + " for box _id " + boxid)
-
-        return self._box_types[box_content["type"]](self, boxid, box_content)
+    @classmethod
+    def get_type(cls):
+        return "code"
 
     def check_answer(self, _, __):
         return None, None, None, 0
 
+    def input_is_consistent(self, task_input, default_allowed_extension, default_max_size):
+        if not self.get_id() in task_input:
+            return False
+
+        # do not allow empty answers
+        if len(task_input[self.get_id()]) == 0:
+            if self._optional:
+                task_input[self.get_id()] = ""
+            else:
+                return False
+        return True
+
     @classmethod
     def parse_problem(self, problem_content):
-        return BasicProblem.parse_problem(problem_content)
+        return Problem.parse_problem(problem_content)
 
     @classmethod
     def get_text_fields(cls):
-        return BasicProblem.get_text_fields()
+        return Problem.get_text_fields()
 
 
-class CodeSingleLineProblem(BasicCodeProblem):
+class CodeSingleLineProblem(CodeProblem):
     """Code problem with a single line of input"""
-
-    def __init__(self, task, problemid, content, translations=None):
-        super(CodeSingleLineProblem, self).__init__(task, problemid, content, translations)
-        self._boxes = [self._create_box("", {"type": "input-text", "optional": content.get("optional", False)})]
 
     @classmethod
     def get_type(cls):
         return "code_single_line"
 
-    @classmethod
-    def parse_problem(self, problem_content):
-        return BasicCodeProblem.parse_problem(problem_content)
 
-    @classmethod
-    def get_text_fields(cls):
-        return BasicProblem.get_text_fields()
-
-
-class CodeFileProblem(BasicCodeProblem):
-    """Code problem which allow to test a file"""
+class FileProblem(Problem):
+    """File upload Problem"""
 
     def __init__(self, task, problemid, content, translations=None):
-        super(CodeFileProblem, self).__init__(task, problemid, content, translations)
-        self._boxes = [
-            self._create_box("", {"type": "file", "max_size": content.get("max_size", None), "allowed_exts": content.get("allowed_exts", None)})]
+        Problem.__init__(self, task, problemid, content, translations)
+        self._max_size = content.get("max_size", None)
+        self._allowed_exts = content.get("allowed_exts", None)
 
     def input_type(self):
         return dict
+
+    def check_answer(self, _, __):
+        return None, None, None, 0
 
     @classmethod
     def get_type(cls):
@@ -216,7 +167,7 @@ class CodeFileProblem(BasicCodeProblem):
 
     @classmethod
     def parse_problem(self, problem_content):
-        problem_content = BasicProblem.parse_problem(problem_content)
+        problem_content = Problem.parse_problem(problem_content)
         if "allowed_exts" in problem_content:
             if problem_content["allowed_exts"] == "":
                 del problem_content["allowed_exts"]
@@ -230,43 +181,25 @@ class CodeFileProblem(BasicCodeProblem):
                 del problem_content["max_size"]
         return problem_content
 
-    @classmethod
-    def get_text_fields(cls):
-        return BasicCodeProblem.get_text_fields()
+    def input_is_consistent(self, task_input, default_allowed_extension, default_max_size):
+        if not str(self.get_id()) in task_input:
+            return False
+        try:
+            if not task_input[self.get_id()]["filename"].endswith(tuple(self._allowed_exts or default_allowed_extension)):
+                return False
 
-
-class CodeProblem(BasicCodeProblem):
-    """Code problem"""
-
-    def __init__(self, task, problemid, content, translations=None):
-        super(CodeProblem, self).__init__(task, problemid, content, translations)
-        if "boxes" in content:
-            self._boxes = []
-            for boxid, box_content in content['boxes'].items():
-                if boxid == "":
-                    raise Exception("Empty box ids are not allowed")
-                self._boxes.append(self._create_box(boxid, box_content))
-        else:
-            if "language" in content:
-                self._boxes = [self._create_box("", {"type": "multiline", "language": content["language"],
-                                                     "optional": content.get("optional", False)})]
-            else:
-                self._boxes = [self._create_box("", {"type": "multiline", "optional": content.get("optional", False)})]
-
-    @classmethod
-    def get_type(cls):
-        return "code"
-
-    @classmethod
-    def parse_problem(self, problem_content):
-        return BasicProblem.parse_problem(problem_content)
+            if sys.getsizeof(task_input[self.get_id()]["value"]) > (self._max_size or default_max_size):
+                return False
+        except:
+            return False
+        return True
 
     @classmethod
     def get_text_fields(cls):
-        return BasicProblem.get_text_fields()
+        return CodeProblem.get_text_fields()
 
 
-class MultipleChoiceProblem(BasicProblem):
+class MultipleChoiceProblem(Problem):
     """Multiple choice problems"""
 
     def __init__(self, task, problemid, content, translations=None):
@@ -389,7 +322,7 @@ class MultipleChoiceProblem(BasicProblem):
 
     @classmethod
     def parse_problem(self, problem_content):
-        problem_content = BasicProblem.parse_problem(problem_content)
+        problem_content = Problem.parse_problem(problem_content)
         # store boolean fields as booleans
         for field in ["optional", "multiple", "centralize"]:
             if field in problem_content:
@@ -412,6 +345,40 @@ class MultipleChoiceProblem(BasicProblem):
 
     @classmethod
     def get_text_fields(cls):
-        result = BasicProblem.get_text_fields()
+        result = Problem.get_text_fields()
         result.update({"success_message": True, "error_message": True, "choices": [{"text": True, "feedback": True}]})
         return result
+
+
+class MatchProblem(Problem):
+    """Display an input box and check that the content is correct"""
+
+    def __init__(self, task, problemid, content, translations=None):
+        super(MatchProblem, self).__init__(task, problemid, content, translations)
+        if not "answer" in content:
+            raise Exception("There is no answer in this problem with type==match")
+        self._answer = str(content["answer"])
+
+    @classmethod
+    def get_type(cls):
+        return "match"
+
+    def input_is_consistent(self, task_input, default_allowed_extension, default_max_size):
+        return self.get_id() in task_input
+
+    def input_type(self):
+        return str
+
+    def check_answer(self, task_input, language):
+        if task_input[self.get_id()].strip() == self._answer:
+            return True, None, ["_correct_answer"], 0
+        else:
+            return False, None, ["_wrong_answer"], 0
+
+    @classmethod
+    def parse_problem(self, problem_content):
+        return Problem.parse_problem(problem_content)
+
+    @classmethod
+    def get_text_fields(cls):
+        return Problem.get_text_fields()

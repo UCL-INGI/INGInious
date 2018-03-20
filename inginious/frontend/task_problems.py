@@ -6,23 +6,21 @@
 """ Displyable problems """
 
 import gettext
+import json
 from abc import ABCMeta, abstractmethod
-from random import shuffle, Random
+from random import Random
 
-from inginious.frontend.tasks_code_boxes import DisplayableInputBox, DisplayableMultilineBox, DisplayableTextBox, \
-    DisplayableFileBox
+from inginious.common.tasks_problems import Problem, CodeProblem, CodeSingleLineProblem, \
+    MatchProblem, MultipleChoiceProblem, FileProblem
 
-from inginious.common.tasks_problems import BasicProblem, BasicCodeProblem, CodeProblem, CodeSingleLineProblem, \
-    MatchProblem, MultipleChoiceProblem, \
-    CodeFileProblem
 from inginious.frontend.parsable_text import ParsableText
 
 
-class DisplayableBasicProblem(BasicProblem, metaclass=ABCMeta):
+class DisplayableProblem(Problem, metaclass=ABCMeta):
     """Basic problem """
 
     def get_header(self, language):
-        return ParsableText(super(DisplayableBasicProblem, self).get_header(language), "rst", translation=self._translations.get(language, gettext.NullTranslations()))
+        return ParsableText(super(DisplayableProblem, self).get_header(language), "rst", translation=self._translations.get(language, gettext.NullTranslations()))
 
     @classmethod
     @abstractmethod
@@ -50,44 +48,7 @@ class DisplayableBasicProblem(BasicProblem, metaclass=ABCMeta):
         pass
 
 
-class DisplayableBasicCodeProblem(BasicCodeProblem, DisplayableBasicProblem):
-    """ A basic class to display all BasicCodeProblem derivatives """
-
-    def __init__(self, task, problemid, content, translations=None):
-        super(DisplayableBasicCodeProblem, self).__init__(task, problemid, content, translations)
-        self._box_types = {
-            "input-text": DisplayableInputBox,
-            "input-decimal": DisplayableInputBox,
-            "input-integer": DisplayableInputBox,
-            "multiline": DisplayableMultilineBox,
-            "text": DisplayableTextBox,
-            "file": DisplayableFileBox}
-
-
-    @classmethod
-    @abstractmethod
-    def get_type_name(cls, gettext):
-        pass
-
-    def adapt_input_for_backend(self, input_data):
-        for box in self._boxes:
-            input_data = box.adapt_input_for_backend(input_data)
-        return input_data
-
-    def show_input(self, template_helper, language, seed):
-        """ Show BasicCodeProblem and derivatives """
-        output = ""
-        for box in self._boxes:
-            output += box.show(template_helper, language)
-        return output
-
-    @classmethod
-    @abstractmethod
-    def show_editbox(cls, template_helper, key):
-        pass
-
-
-class DisplayableCodeProblem(CodeProblem, DisplayableBasicCodeProblem):
+class DisplayableCodeProblem(CodeProblem, DisplayableProblem):
     """ A basic class to display all BasicCodeProblem derivatives """
 
     def __init__(self, task, problemid, content, translations=None):
@@ -97,42 +58,69 @@ class DisplayableCodeProblem(CodeProblem, DisplayableBasicCodeProblem):
     def get_type_name(cls, gettext):
         return gettext("code")
 
+    def adapt_input_for_backend(self, input_data):
+        return input_data
+
+    def show_input(self, template_helper, language, seed):
+        """ Show BasicCodeProblem and derivatives """
+        return str(DisplayableCodeProblem.get_renderer(template_helper).tasks.box_multiline(self.get_id(), 8, 0, self._language, self._optional))
+
     @classmethod
     def show_editbox(cls, template_helper, key):
-        return DisplayableBasicCodeProblem.get_renderer(template_helper).course_admin.subproblems.code(key, True)
+        return DisplayableCodeProblem.get_renderer(template_helper).course_admin.subproblems.code(key, True)
 
 
-class DisplayableCodeSingleLineProblem(CodeSingleLineProblem, DisplayableBasicCodeProblem):
+class DisplayableCodeSingleLineProblem(CodeSingleLineProblem, DisplayableProblem):
     """ A displayable single code line problem """
 
     def __init__(self, task, problemid, content, translations=None):
         super(DisplayableCodeSingleLineProblem, self).__init__(task, problemid, content, translations)
 
+    def adapt_input_for_backend(self, input_data):
+        return input_data
+
     @classmethod
     def get_type_name(cls, gettext):
         return gettext("single-line code")
 
+    def show_input(self, template_helper, language, seed):
+        """ Show InputBox """
+        return str(DisplayableCodeSingleLineProblem.get_renderer(template_helper).tasks.box_input(self.get_id(), "text",
+                                                                              0, self._optional))
+
     @classmethod
     def show_editbox(cls, template_helper, key):
-        return DisplayableBasicCodeProblem.get_renderer(template_helper).course_admin.subproblems.code(key, False)
+        return DisplayableCodeSingleLineProblem.get_renderer(template_helper).course_admin.subproblems.code(key, False)
 
 
-class DisplayableCodeFileProblem(CodeFileProblem, DisplayableCodeProblem):
+class DisplayableFileProblem(FileProblem, DisplayableProblem):
     """ A displayable code problem """
 
     def __init__(self, task, problemid, content, translations=None):
-        super(DisplayableCodeFileProblem, self).__init__(task, problemid, content, translations)
+        super(DisplayableFileProblem, self).__init__(task, problemid, content, translations)
 
     @classmethod
     def get_type_name(self, gettext):
         return gettext("file upload")
 
+    def adapt_input_for_backend(self, input_data):
+        try:
+            input_data[self.get_id()] = {"filename": input_data[self.get_id()].filename,
+                                                  "value": input_data[self.get_id()].value}
+        except:
+            input_data[self.get_id()] = {}
+        return input_data
+
     @classmethod
     def show_editbox(cls, template_helper, key):
-        return DisplayableCodeFileProblem.get_renderer(template_helper).course_admin.subproblems.file(key)
+        return DisplayableFileProblem.get_renderer(template_helper).course_admin.subproblems.file(key)
+
+    def show_input(self, template_helper, language, seed):
+        """ Show FileBox """
+        return str(DisplayableFileProblem.get_renderer(template_helper).tasks.box_file(self.get_id(), self._max_size, self._allowed_exts, json))
 
 
-class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableBasicProblem):
+class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableProblem):
     """ A displayable multiple choice problem """
 
     def __init__(self, task, problemid, content, translations=None):
@@ -192,7 +180,7 @@ class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableBasicPr
         return DisplayableMultipleChoiceProblem.get_renderer(template_helper).course_admin.subproblems.multiple_choice(key)
 
 
-class DisplayableMatchProblem(MatchProblem, DisplayableBasicProblem):
+class DisplayableMatchProblem(MatchProblem, DisplayableProblem):
     """ A displayable match problem """
 
     def __init__(self, task, problemid, content, translations=None):
