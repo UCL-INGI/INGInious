@@ -108,7 +108,29 @@ $var Navbar: $:NavbarF()
 <!-- Must be out of the form -->
 <div id="subproblem_templates" style="display:none">
     $for key, problem_type in problem_types.items():
-        $:problem_type.show_editbox(template_helper, key)
+        <div id="subproblem_$key">
+            <div class="panel panel-default" id="subproblem_well_PID" >
+                <div class="panel-heading" role="tab" id="heading_PID">
+                    <div class="row">
+                        <div class="col-md-10" >
+                            <span role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_PID" aria-controls="collapse_PID">
+                                <i class="fa fa-bars"></i> $:_("Problem id:") <span id="pid-PID">PID</span>
+                            </span>
+                        </div>
+                        <div class="col-md-2">
+                            <a style="margin: 0px 4px 0px; cursor:pointer;" class="pull-right" type="button" onclick="studio_subproblem_delete('PID')"><i class="fa fa-lg fa-trash-o"></i></a>
+                            <a style="margin: 0px 4px 0px; cursor:pointer;" class="pull-right" type="button" onclick="studio_subproblem_down('PID')"><i class="fa fa-lg fa-arrow-down"></i></a>
+                            <a style="margin: 0px 4px 0px; cursor:pointer;" class="pull-right" type="button" onclick="studio_subproblem_up('PID')"><i class="fa fa-lg fa-arrow-up"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div id="collapse_PID" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading_PID">
+                    <div class="panel-body">
+                        $:problem_type.show_editbox(template_helper, key)
+                    </div>
+                </div>
+            </div>
+        </div>
 </div>
 $:include.course_admin.edit_tabs.file_modals()
 
