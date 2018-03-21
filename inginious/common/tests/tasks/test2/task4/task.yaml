@@ -10,50 +10,5 @@ limits:
 problems:
     unittest:
         name: "Question 4"
-        type: "code"
+        type: "file"
         header: "Header 4"
-        boxes:
-            label1:
-                type: "text"
-                content: "<code>for(i=</code>"
-                contentIsHTML: true
-            int1:
-                type: "input-integer"
-                maxChars: 3
-            label2:
-                type: "text"
-                content: "<code>; i <= </code>"
-                contentIsHTML: true
-            decimal1:
-                type: "input-decimal"
-                maxChars: 10
-            label3:
-                type: "text"
-                content: "<code>;</code>"
-                contentIsHTML: true
-            text1:
-                type: "input-text"
-                maxChars: 10
-            label4:
-                type: "text"
-                content: "<code>)</code>"
-                contentIsHTML: true
-            label5:
-                type: "text"
-                content: "<br/><code></code><br/>"
-                contentIsHTML: true
-            code1:
-                type: "multiline"
-                maxChars: 1000
-                lines: 5
-                language: "python"
-            label6:
-                type: "text"
-                content: "<code></code><br/>"
-                contentIsHTML: true
-            label7:
-                type: "text"
-                content: "<p>Choose a file to upload :</p>"
-                contentIsHTML: true
-            file1:
-                type: "file"

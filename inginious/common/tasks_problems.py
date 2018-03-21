@@ -119,15 +119,18 @@ class CodeProblem(Problem):
         return None, None, None, 0
 
     def input_is_consistent(self, task_input, default_allowed_extension, default_max_size):
-        if not self.get_id() in task_input:
-            return False
-
-        # do not allow empty answers
-        if len(task_input[self.get_id()]) == 0:
-            if self._optional:
-                task_input[self.get_id()] = ""
-            else:
+        try:
+            if not self.get_id() in task_input:
                 return False
+
+            # do not allow empty answers
+            if len(task_input[self.get_id()]) == 0:
+                if self._optional:
+                    task_input[self.get_id()] = ""
+                else:
+                    return False
+        except:
+            return False
         return True
 
     @classmethod
