@@ -126,10 +126,15 @@ $var Navbar: $:NavbarF()
                 </div>
                 <div id="collapse_PID" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading_PID">
                     <div class="panel-body">
+                        <input type="hidden" name="problem[PID][type]" value="$key"/>
+                        <input type="hidden" class="subproblem_order" name="problem[PID][@order]" value="ORDER"/>
                         $:problem_type.show_editbox(template_helper, key)
                     </div>
                 </div>
             </div>
+        </div>
+        <div id="subproblem_$(key)_templates">
+            $:problem_type.show_editbox_templates(template_helper, key)
         </div>
 </div>
 $:include.course_admin.edit_tabs.file_modals()

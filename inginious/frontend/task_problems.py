@@ -47,6 +47,11 @@ class DisplayableProblem(Problem, metaclass=ABCMeta):
         """ get the edit box html for this problem """
         pass
 
+    @classmethod
+    @abstractmethod
+    def show_editbox_templates(cls, template_helper, key):
+        return ""
+
 
 class DisplayableCodeProblem(CodeProblem, DisplayableProblem):
     """ A basic class to display all BasicCodeProblem derivatives """
@@ -68,6 +73,10 @@ class DisplayableCodeProblem(CodeProblem, DisplayableProblem):
     @classmethod
     def show_editbox(cls, template_helper, key):
         return DisplayableCodeProblem.get_renderer(template_helper).course_admin.subproblems.code(key, True)
+
+    @classmethod
+    def show_editbox_templates(cls, template_helper, key):
+        return ""
 
 
 class DisplayableCodeSingleLineProblem(CodeSingleLineProblem, DisplayableProblem):
@@ -91,6 +100,10 @@ class DisplayableCodeSingleLineProblem(CodeSingleLineProblem, DisplayableProblem
     @classmethod
     def show_editbox(cls, template_helper, key):
         return DisplayableCodeSingleLineProblem.get_renderer(template_helper).course_admin.subproblems.code(key, False)
+
+    @classmethod
+    def show_editbox_templates(cls, template_helper, key):
+        return ""
 
 
 class DisplayableFileProblem(FileProblem, DisplayableProblem):
@@ -118,6 +131,10 @@ class DisplayableFileProblem(FileProblem, DisplayableProblem):
     def show_input(self, template_helper, language, seed):
         """ Show FileBox """
         return str(DisplayableFileProblem.get_renderer(template_helper).tasks.box_file(self.get_id(), self._max_size, self._allowed_exts, json))
+
+    @classmethod
+    def show_editbox_templates(cls, template_helper, key):
+        return ""
 
 
 class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableProblem):
@@ -178,6 +195,10 @@ class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableProblem
     @classmethod
     def show_editbox(cls, template_helper, key):
         return DisplayableMultipleChoiceProblem.get_renderer(template_helper).course_admin.subproblems.multiple_choice(key)
+
+    @classmethod
+    def show_editbox_templates(cls, template_helper, key):
+        return DisplayableMultipleChoiceProblem.get_renderer(template_helper).course_admin.subproblems.multiple_choice_templates(key)
 
 
 class DisplayableMatchProblem(MatchProblem, DisplayableProblem):

@@ -1,0 +1,43 @@
+$def with (key)
+
+$#
+$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+$# more information about the licensing of this file.
+$#
+
+<div id="subproblem_$(key)_choice" style="display:none;">
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="row">
+                <div class="form-group">
+                    <label for="choice-PID-CHOICE" class="col-sm-2 control-label">$:_("Content")</label>
+                    <div class="col-sm-10">
+                        <textarea class="form-control subproblem_$(key)_text" name="problem[PID][choices][CHOICE][text]"
+                                  placeholder="The name of this choice" id="choice-PID-CHOICE"></textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="choice-feedback-PID-CHOICE" class="col-sm-2 control-label">$:_("Feedback message (displayed when selected)")</label>
+
+                    <div class="col-sm-10">
+                        <textarea class="form-control subproblem_$(key)_feedback" name="problem[PID][choices][CHOICE][feedback]"
+                                  placeholder="$:_('An optional feedback message')" id="choice-feedback-PID-CHOICE"></textarea>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div data-toggle="buttons">
+                        <label class="btn btn-success btn-xs btn-block">
+                            <input type="checkbox" class="subproblem_$(key)_valid" name="problem[PID][choices][CHOICE][valid]"/>
+                            $:_("Valid ?")
+                        </label>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <button class="btn btn-danger btn-xs btn-block" type="button" onclick="studio_delete_choice('PID',CHOICE)">
+                        <i class="fa fa-remove"></i> $:_("Delete")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
