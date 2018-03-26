@@ -13,7 +13,7 @@ from bson.errors import InvalidId
 import web
 
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
-from inginious.frontend.task_problems import DisplayableCodeFileProblem, DisplayableMultipleChoiceProblem
+from inginious.frontend.task_problems import DisplayableFileProblem, DisplayableMultipleChoiceProblem
 
 
 class SubmissionPage(INGIniousAdminPage):
@@ -72,14 +72,13 @@ class SubmissionPage(INGIniousAdminPage):
                     "name": problem.get_name(self.user_manager.session_language()),
                     "defined": True,
                     "present": True,
-                    "context": problem.get_header(self.user_manager.session_language()),
                     "content": None,
                     "language": "plain",
                     "feedback": submission.get("problems", {}).get(problem.get_id(), None),
                     "base64": None,
                     "mime": "text/plain"
                 }
-                if isinstance(problem, DisplayableCodeFileProblem):
+                if isinstance(problem, DisplayableFileProblem):
                     extension = path.splitext(submission["input"][problem.get_id()]["filename"])[1]
                     try:
                         if extension in [".zip", ".pdf", ".tgz"]:
@@ -118,7 +117,6 @@ class SubmissionPage(INGIniousAdminPage):
                     "name": problem.get_name(self.user_manager.session_language()),
                     "defined": True,
                     "present": False,
-                    "context": problem.get_header(),
                     "content": None,
                     "language": "plain",
                     "feedback": submission.get("problems", {}).get(problem.get_id(), None),
@@ -135,7 +133,6 @@ class SubmissionPage(INGIniousAdminPage):
                     "name": pid,
                     "defined": False,
                     "present": True,
-                    "context": None,
                     "content": None,
                     "language": "plain",
                     "feedback": submission.get("problems", {}).get(pid, None),

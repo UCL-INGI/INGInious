@@ -197,7 +197,7 @@ class CourseSubmissionsPage(INGIniousAdminPage):
         )
 
         # Sanitise inputs
-        for item in itertools.chain(user_input.user, user_input.task, user_input.aggregation):
+        for item in itertools.chain(user_input.task, user_input.aggregation):
             if not id_checker(item):
                 raise web.notfound()
 

@@ -19,9 +19,6 @@ from inginious.frontend.parsable_text import ParsableText
 class DisplayableProblem(Problem, metaclass=ABCMeta):
     """Basic problem """
 
-    def get_header(self, language):
-        return ParsableText(super(DisplayableProblem, self).get_header(language), "rst", translation=self._translations.get(language, gettext.NullTranslations()))
-
     @classmethod
     @abstractmethod
     def get_type_name(self, gettext):
@@ -68,7 +65,9 @@ class DisplayableCodeProblem(CodeProblem, DisplayableProblem):
 
     def show_input(self, template_helper, language, seed):
         """ Show BasicCodeProblem and derivatives """
-        return str(DisplayableCodeProblem.get_renderer(template_helper).tasks.code(self.get_id(), 8, 0, self._language, self._optional))
+        header = ParsableText(self.gettext(language,self._header), "rst",
+                              translation=self._translations.get(language, gettext.NullTranslations()))
+        return str(DisplayableCodeProblem.get_renderer(template_helper).tasks.code(self.get_id(), header, 8, 0, self._language, self._optional))
 
     @classmethod
     def show_editbox(cls, template_helper, key):
@@ -94,8 +93,10 @@ class DisplayableCodeSingleLineProblem(CodeSingleLineProblem, DisplayableProblem
 
     def show_input(self, template_helper, language, seed):
         """ Show InputBox """
-        return str(DisplayableCodeSingleLineProblem.get_renderer(template_helper).tasks.single_line_code(self.get_id(), "text",
-                                                                              0, self._optional))
+        header = ParsableText(self.gettext(language, self._header), "rst",
+                              translation=self._translations.get(language, gettext.NullTranslations()))
+        return str(DisplayableCodeSingleLineProblem.get_renderer(template_helper)
+                   .tasks.single_line_code(self.get_id(), header, "text", 0, self._optional))
 
     @classmethod
     def show_editbox(cls, template_helper, key):
@@ -130,7 +131,9 @@ class DisplayableFileProblem(FileProblem, DisplayableProblem):
 
     def show_input(self, template_helper, language, seed):
         """ Show FileBox """
-        return str(DisplayableFileProblem.get_renderer(template_helper).tasks.file(self.get_id(), self._max_size, self._allowed_exts, json))
+        header = ParsableText(self.gettext(language, self._header), "rst",
+                              translation=self._translations.get(language, gettext.NullTranslations()))
+        return str(DisplayableFileProblem.get_renderer(template_helper).tasks.file(self.get_id(), header, self._max_size, self._allowed_exts, json))
 
     @classmethod
     def show_editbox_templates(cls, template_helper, key):
@@ -187,8 +190,11 @@ class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableProblem
 
         rand.shuffle(choices)
 
+        header = ParsableText(self.gettext(language, self._header), "rst",
+                              translation=self._translations.get(language, gettext.NullTranslations()))
+
         return str(DisplayableMultipleChoiceProblem.get_renderer(template_helper).tasks.multiple_choice(
-            self.get_id(), self._multiple, choices,
+            self.get_id(), header, self._multiple, choices,
             lambda text: ParsableText(self.gettext(language, text) if text else "", "rst",
                                       translation=self._translations.get(language, gettext.NullTranslations()))))
 
@@ -213,7 +219,9 @@ class DisplayableMatchProblem(MatchProblem, DisplayableProblem):
 
     def show_input(self, template_helper, language, seed):
         """ Show MatchProblem """
-        return str(DisplayableMatchProblem.get_renderer(template_helper).tasks.match(self.get_id()))
+        header = ParsableText(self.gettext(language, self._header), "rst",
+                              translation=self._translations.get(language, gettext.NullTranslations()))
+        return str(DisplayableMatchProblem.get_renderer(template_helper).tasks.match(self.get_id(), header))
 
     @classmethod
     def show_editbox(cls, template_helper, key):

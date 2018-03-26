@@ -734,7 +734,7 @@ function load_input_file(submissionid, key, input)
 
 function load_input_multiple_choice(submissionid, key, input)
 {
-    var field = $("form#task input[name='" + key + "']");
+    var field = $(".problem input[name='" + key + "']");
     if(key in input)
     {
         if($(field).attr('type') == "checkbox" && jQuery.isArray(input[key])) {
@@ -753,7 +753,7 @@ function load_input_multiple_choice(submissionid, key, input)
 }
 
 function load_input_match(submissionid, key, input) {
-    var field = $("form#task input[name='" + key + "']");
+    var field = $(".problem input[name='" + key + "']");
     if(key in input)
         $(field).prop('value', input[key]);
     else

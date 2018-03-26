@@ -1,10 +1,10 @@
-$def with (inputId,type,maxChars,optional)
+$def with (inputId,header,type,maxChars,optional)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
-
+$:header
 <input
     $if type== "text":
         type="text"

@@ -47,7 +47,7 @@ class Problem(object, metaclass=ABCMeta):
     def get_text_fields(cls):
         """ Returns a dict whose keys are the keys of content dict
         and val is True if value of content[key] is human-readable text """
-        return {"name": True, "header": True}
+        return {"name": True}
 
     def get_id(self):
         """ Get the id of this problem """
@@ -61,10 +61,6 @@ class Problem(object, metaclass=ABCMeta):
         """ Get the name of this problem """
         return self.gettext(language, self._name) if self._name else ""
 
-    def get_header(self, language=None):
-        """ Get the header of this problem """
-        return self.gettext(language, self._header) if self._header else ""
-
     def get_original_content(self):
         """ Get a dict fully describing this sub-problem """
         return dict(self._original_content)
@@ -77,7 +73,6 @@ class Problem(object, metaclass=ABCMeta):
         self._id = problemid
         self._task = task
         self._name = content['name'] if "name" in content else ""
-        self._header = content['header'] if "header" in content else ""
         self._original_content = content
 
     @classmethod
@@ -99,6 +94,7 @@ class CodeProblem(Problem):
 
     def __init__(self, task, problemid, content, translations=None):
         Problem.__init__(self, task, problemid, content, translations)
+        self._header = content['header'] if "header" in content else ""
         self._optional = content.get("optional", False)
 
         if re.match(r'[a-z0-9\-_\.]+$', content.get("language", ""), re.IGNORECASE):
@@ -139,7 +135,7 @@ class CodeProblem(Problem):
 
     @classmethod
     def get_text_fields(cls):
-        return Problem.get_text_fields()
+        return Problem.get_text_fields().update({"header": True})
 
 
 class CodeSingleLineProblem(CodeProblem):
@@ -155,6 +151,7 @@ class FileProblem(Problem):
 
     def __init__(self, task, problemid, content, translations=None):
         Problem.__init__(self, task, problemid, content, translations)
+        self._header = content['header'] if "header" in content else ""
         self._max_size = content.get("max_size", None)
         self._allowed_exts = content.get("allowed_exts", None)
 
@@ -199,7 +196,7 @@ class FileProblem(Problem):
 
     @classmethod
     def get_text_fields(cls):
-        return CodeProblem.get_text_fields()
+        return CodeProblem.get_text_fields().update({"header": True})
 
 
 class MultipleChoiceProblem(Problem):
@@ -207,6 +204,7 @@ class MultipleChoiceProblem(Problem):
 
     def __init__(self, task, problemid, content, translations=None):
         super(MultipleChoiceProblem, self).__init__(task, problemid, content, translations)
+        self._header = content['header'] if "header" in content else ""
         self._multiple = content.get("multiple", False)
         if "choices" not in content or not isinstance(content['choices'], list):
             raise Exception("Multiple choice problem " + problemid + " does not have choices or choices are not an array")
@@ -349,7 +347,7 @@ class MultipleChoiceProblem(Problem):
     @classmethod
     def get_text_fields(cls):
         result = Problem.get_text_fields()
-        result.update({"success_message": True, "error_message": True, "choices": [{"text": True, "feedback": True}]})
+        result.update({"header": True, "success_message": True, "error_message": True, "choices": [{"text": True, "feedback": True}]})
         return result
 
 
@@ -358,6 +356,7 @@ class MatchProblem(Problem):
 
     def __init__(self, task, problemid, content, translations=None):
         super(MatchProblem, self).__init__(task, problemid, content, translations)
+        self._header = content['header'] if "header" in content else ""
         if not "answer" in content:
             raise Exception("There is no answer in this problem with type==match")
         self._answer = str(content["answer"])
@@ -384,4 +383,4 @@ class MatchProblem(Problem):
 
     @classmethod
     def get_text_fields(cls):
-        return Problem.get_text_fields()
+        return Problem.get_text_fields().update({"header": True})

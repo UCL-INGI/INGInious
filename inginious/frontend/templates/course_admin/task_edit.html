@@ -128,6 +128,12 @@ $var Navbar: $:NavbarF()
                     <div class="panel-body">
                         <input type="hidden" name="problem[PID][type]" value="$key"/>
                         <input type="hidden" class="subproblem_order" name="problem[PID][@order]" value="ORDER"/>
+                        <div class="form-group">
+                            <label for="name-PID" class="col-sm-2 control-label">$:_("Name")</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="$:_('A title for this question')"/>
+                            </div>
+                        </div>
                         $:problem_type.show_editbox(template_helper, key)
                     </div>
                 </div>

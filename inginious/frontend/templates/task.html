@@ -310,7 +310,7 @@ $if user_manager.has_admin_rights_on_course(course):
         $ i = i+1
     <input type="hidden" name="@action" value="submit"/>
     $for key, problem in enumerate(task.get_problems()):
-        <div class="panel panel-default">
+        <div class="panel panel-default problem">
             $if len(task.get_problems()) != 1 or problem.get_name(user_manager.session_language()) != "":
                 <div class="panel-heading">
                     <h3 class="panel-title">
@@ -321,7 +321,6 @@ $if user_manager.has_admin_rights_on_course(course):
                 </div>
             <div class="panel-body">
                 <div id="task_alert.$problem.get_id()" class="task_alert_problem"></div>
-                $:problem.get_header(user_manager.session_language())
                 $:problem.show_input(template_helper, user_manager.session_language(), user_manager.session_username())
             </div>
         </div>

@@ -1,9 +1,11 @@
-$def with (inputId,lines,maxChars,language,optional)
+$def with (inputId,header,lines,maxChars,language,optional)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
+
+$:header
 
 <textarea name="$inputId"
           $if "/" in inputId:

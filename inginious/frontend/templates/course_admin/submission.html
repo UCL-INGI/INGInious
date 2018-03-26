@@ -71,32 +71,14 @@ $var Navbar: $:NavbarF()
 <div class="student_view">
     $:task.get_context(user_manager.session_language())
 </div>
-$if submission["status"] == "waiting":
-    $ color="warning"
-$elif "result" not in submission:
-    $ color="danger"
-$elif submission["result"] == "success":
-    $ color="success"
-$elif submission["result"] in ["timeout", "overflow"]:
-    $ color="warning"
-$else:
-    $ color="danger"
-<div class="alert alert-$color">
-    $if submission["status"] == "waiting":
-        $:_("Grading in progress, reload the page to refresh status.")
-    $elif "result" not in submission:
-        $if submission["text"]:
-            $:submission["text"]
-    $else:
-        $:_("Result:")  $submission["result"] <br/>
-        $:_("Grade:") $submission["grade"] %
-        $if submission["text"]:
-            <br/>
-            <br/>
-            $:submission["text"]
-</div>
+
+<form id="task" method="post" action="/course/$course.get_id()/$task.get_id()">
+
+<div id="task_alert"></div>
+
+$ task_problems = {problem.get_id(): problem for problem in task.get_problems()}
 $for key, problem in enumerate(to_display):
-    <div class="panel panel-default">
+    <div class="panel panel-default problem">
         <div class="panel-heading">
             <h3 class="panel-title">
                 $if not problem["defined"]:
@@ -123,19 +105,25 @@ $for key, problem in enumerate(to_display):
                     $:problem["feedback"][1]
                 </div>
             <div class="student_view">
-                $:problem["context"]
+                $if problem["id"] in task_problems:
+                    $:task_problems[problem["id"]].show_input(template_helper, user_manager.session_language(), username)
             </div>
-            $if problem["content"] is not None:
-                <textarea class="code-editor form-control"
-                          data-x-language="$problem['language']"
-                          data-x-lines="1">$problem["content"]</textarea>
-            $elif not problem["present"]:
+            $if not problem["present"]:
                 <span class="text-warning">$:_("This problem was not answered in this submission.")</span>
             $elif problem["mime"] == "application/pdf":
                 <object data="data:$problem['mime'];base64,$problem['base64']" type="application/pdf" style="width: 100%; min-height: 800px;">
                     <embed src="data:$problem['mime'];base64,$problem['base64']" type="application/pdf"/>
                 </object>
-            $else:
+            $elif not problem["content"]:
                 <span class="text-warning">$:_("There is input, but it can't be read as an UTF-8 file.")</span>
         </div>
     </div>
+</form>
+<script type="text/javascript">
+$ pdict = {problem.get_id(): problem.get_type() for problem in task.get_problems()}
+var problems_types = $:pdict
+
+$$(document).ready(function() {
+    loadOldSubmissionInput("$submission['_id']", true);
+});
+</script>
