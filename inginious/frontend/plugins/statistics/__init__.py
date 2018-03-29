@@ -19,6 +19,7 @@ from inginious.frontend.plugins.statistics.pages.api.admin.submissions_by_verdic
 from inginious.frontend.plugins.statistics.pages.user_statistics import statistics_course_menu_hook
 from inginious.frontend.plugins.statistics.pages.user_statistics import UserStatisticsPage
 
+from inginious.frontend.plugins.statistics.pages.api.user.trials_and_best_grade import TrialsAndBestGradeApi
 
 _static_folder_path = os.path.join(os.path.dirname(__file__), "static")
 
@@ -27,6 +28,8 @@ def init(plugin_manager, course_factory, client, config):
 
     plugin_manager.add_page(r'/user_statistics/([a-z0-9A-Z\-_]+)', UserStatisticsPage)
     plugin_manager.add_hook('course_menu', statistics_course_menu_hook)
+
+    plugin_manager.add_page("/api/stats/student/trials_and_best_grade", TrialsAndBestGradeApi)
 
     plugin_manager.add_page(r'/admin/([a-z0-9A-Z\-_]+)/statistics', CourseAdminStatisticsPage)
     plugin_manager.add_hook('course_admin_menu', statistics_course_admin_menu_hook)
