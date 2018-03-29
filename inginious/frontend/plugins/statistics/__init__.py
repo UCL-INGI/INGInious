@@ -8,6 +8,7 @@ from inginious.frontend.plugins.statistics.pages.api.admin.grade_count import Gr
 from inginious.frontend.plugins.statistics.pages.api.admin.grade_count_details import GradeCountDetailsApi
 
 from inginious.frontend.plugins.statistics.pages.api.admin.grade_distribution import GradeDistributionApi
+from inginious.frontend.plugins.statistics.pages.api.admin.grade_distribution_details import GradeDistributionDetailsApi
 
 from inginious.frontend.plugins.statistics.pages.api.admin.best_submissions_by_verdict import BestSubmissionsByVerdictApi
 from inginious.frontend.plugins.statistics.pages.api.admin.best_submissions_by_verdict_details import BestSubmissionsByVerdictStatisticsDetailApi
@@ -28,6 +29,7 @@ def init(plugin_manager, course_factory, client, config):
     plugin_manager.add_page('/api/stats/admin/grade_count_details', GradeCountDetailsApi)
 
     plugin_manager.add_page('/api/stats/admin/grade_distribution', GradeDistributionApi)
+    plugin_manager.add_page('/api/stats/admin/grade_distribution_details', GradeDistributionDetailsApi)
 
     plugin_manager.add_page('/api/stats/admin/best_submissions_verdict', BestSubmissionsByVerdictApi)
     plugin_manager.add_page('/api/stats/admin/best_submissions_verdict_details', BestSubmissionsByVerdictStatisticsDetailApi)
