@@ -1,0 +1,32 @@
+$def with(course_id)
+
+$var title: My Statistics
+
+<ul class="nav nav-tabs">
+    <li class="active"><a id="trials-circle-tab" data-toggle="tab" href="#trials-circle">Trials and Best Grade</a></li>
+    <li><a id="bar-submissions-per-tasks-tab" data-toggle="tab" href="#bar-submissions-per-tasks">Bar Submissions Per Tasks</a></li>
+</ul>
+
+<div class="tab-content">
+    <div id="trials-circle" class="tab-pane fade in active">
+        <h3>Trials and Best Grade</h3>
+        <div id="tries_per_task" class="statistics-plot"><!-- Plotly chart will be drawn inside this DIV --></div>
+        <a href='#' onclick='UserStatistics.trialsAndBestGradeStatistic.downloadCsvAsync();'>Download CSV</a>
+    </div>
+    <div id="bar-submissions-per-tasks" class="tab-pane fade">
+        <h3>Bar Submissions Per Tasks</h3>
+        <div id="submissions_per_task" class="statistics-plot"><!-- Plotly chart will be drawn inside this DIV --></div>
+        <div id="normalize_submissions_per_task" class="normalize">
+          <button class="toggle_button" onclick="UserStatistics.barSubmissionsPerTasks.toggleNormalize()">
+                  Toggle normalize
+          </button>
+        </div>
+        <a href='#' onclick='UserStatistics.barSubmissionsPerTasks.downloadCsvAsync();'>Download CSV</a>
+    </div>
+</div>
+
+<script>
+    function getCourseId() {
+       return "$:course_id";
+    }
+</script>

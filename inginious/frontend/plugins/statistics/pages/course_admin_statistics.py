@@ -1,6 +1,5 @@
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
-
-_BASE_RENDERER_PATH = 'frontend/plugins/statistics/pages'
+from .constants import base_renderer_path
 
 class CourseAdminStatisticsPage(INGIniousAdminPage):
     def GET_AUTH(self, course_id):
@@ -14,7 +13,7 @@ class CourseAdminStatisticsPage(INGIniousAdminPage):
         self.template_helper.add_css("/statistics/static/css/statistics.css")
 
         return (
-            self.template_helper.get_custom_renderer(_BASE_RENDERER_PATH).course_admin_statistics(
+            self.template_helper.get_custom_renderer(base_renderer_path()).course_admin_statistics(
                 course)
         )
 
