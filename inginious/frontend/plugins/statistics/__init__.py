@@ -20,6 +20,8 @@ from inginious.frontend.plugins.statistics.pages.user_statistics import statisti
 from inginious.frontend.plugins.statistics.pages.user_statistics import UserStatisticsPage
 
 from inginious.frontend.plugins.statistics.pages.api.user.trials_and_best_grade import TrialsAndBestGradeApi
+from inginious.frontend.plugins.statistics.pages.api.user.bar_submissions_per_tasks import BarSubmissionsPerTasksApi
+
 
 _static_folder_path = os.path.join(os.path.dirname(__file__), "static")
 
@@ -30,6 +32,7 @@ def init(plugin_manager, course_factory, client, config):
     plugin_manager.add_hook('course_menu', statistics_course_menu_hook)
 
     plugin_manager.add_page("/api/stats/student/trials_and_best_grade", TrialsAndBestGradeApi)
+    plugin_manager.add_page("/api/stats/student/bar_submissions_per_tasks", BarSubmissionsPerTasksApi)
 
     plugin_manager.add_page(r'/admin/([a-z0-9A-Z\-_]+)/statistics', CourseAdminStatisticsPage)
     plugin_manager.add_hook('course_admin_menu', statistics_course_admin_menu_hook)
