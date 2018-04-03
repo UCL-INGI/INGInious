@@ -726,10 +726,17 @@ function load_input_code_single_line(submissionid, key, input)
 function load_input_file(submissionid, key, input)
 {
     if(key in input) {
+        var allowed_exts = $("input[name='" + key + "']").data("allowed-exts");
+        var url = $('form#task').attr("action") + "?submissionid=" + submissionid + "&questionid=" + key;
         var input_file = $('#download-input-file-' + key);
-        var url = $('form#task').attr("action");
-        input_file.attr('href', url + "?submissionid=" + submissionid + "&questionid=" + key);
+        input_file.attr('href', url );
         input_file.css('display', 'block');
+        if(allowed_exts.indexOf(".pdf") >= 0) {
+            var input_file_pdf = $('#download-input-file-pdf-' + key);
+            input_file_pdf.attr('data', url);
+            input_file_pdf.find("embed").attr("src", url);
+            input_file_pdf.css('display', 'block');
+        }
     }
 }
 

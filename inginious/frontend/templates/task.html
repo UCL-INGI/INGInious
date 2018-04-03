@@ -297,7 +297,7 @@ $if user_manager.has_admin_rights_on_course(course):
         </div>
     </div>
 
-<form id="task" method="post" enctype="multipart/form-data"
+<form id="task" action="/course/$course.get_id()/$task.get_id()" method="post" enctype="multipart/form-data"
     $for submission in submissions:
         $if submission["status"] == "waiting":
             data-wait-submission="$submission['_id']"

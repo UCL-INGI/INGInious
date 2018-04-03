@@ -215,7 +215,7 @@ class BaseTaskPage(object):
                     return json.dumps({"status": "error", "text": str(ex)})
 
             elif "@action" in userinput and userinput["@action"] == "check" and "submissionid" in userinput:
-                result = self.submission_manager.get_submission(userinput['submissionid'])
+                result = self.submission_manager.get_submission(userinput['submissionid'], user_check=not is_staff)
                 if result is None:
                     web.header('Content-Type', 'application/json')
                     return json.dumps({'status': "error", "text": _("Internal error")})
@@ -344,9 +344,10 @@ class BaseTaskPage(object):
 
         if "tests" in data:
             tojson["tests"] = {}
-            for tag in tags[0]+tags[1]: # Tags only visible for admins should not appear in the json for students.
-                if (tag.is_visible_for_student() or debug) and tag.get_id() in data["tests"]:
-                    tojson["tests"][tag.get_id()] = data["tests"][tag.get_id()]
+            if tags:
+                for tag in tags[0]+tags[1]: # Tags only visible for admins should not appear in the json for students.
+                    if (tag.is_visible_for_student() or debug) and tag.get_id() in data["tests"]:
+                        tojson["tests"][tag.get_id()] = data["tests"][tag.get_id()]
             if debug: #We add also auto tags when we are admin
                 for tag in data["tests"]:
                     if tag.startswith("*auto-tag-"):
