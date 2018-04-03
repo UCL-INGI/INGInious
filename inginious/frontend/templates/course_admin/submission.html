@@ -124,6 +124,7 @@ $ pdict = {problem.get_id(): problem.get_type() for problem in task.get_problems
 var problems_types = $:pdict
 
 $$(document).ready(function() {
-    loadOldSubmissionInput("$submission['_id']", true);
+    loadOldSubmissionInput("$submission['_id']", false);
+    waitForSubmission("$submission['_id']");
 });
 </script>

@@ -283,7 +283,7 @@ class BaseTaskPage(object):
 
         # Here we are waiting. Let's send some useful information.
         waiting_data = self.submission_manager.get_job_queue_info(data["jobid"]) if "jobid" in data else None
-        if waiting_data is not None:
+        if waiting_data is not None and not reloading:
             nb_tasks_before, approx_wait_time = waiting_data
             wait_time = round(approx_wait_time)
             if nb_tasks_before == -1 and wait_time <= 0:
@@ -317,17 +317,17 @@ class BaseTaskPage(object):
         if debug:
             tojson["debug"] = data
 
-        if data['status'] == 'waiting':
+        if tojson['status'] == 'waiting':
             tojson["text"] = _("<b>Your submission has been sent...</b>")
-        elif data["result"] == "failed":
+        elif tojson["result"] == "failed":
             tojson["text"] = _("There are some errors in your answer. Your score is {score}%.").format(score=data["grade"])
-        elif data["result"] == "success":
+        elif tojson["result"] == "success":
             tojson["text"] = _("Your answer passed the tests! Your score is {score}%.").format(score=data["grade"])
-        elif data["result"] == "timeout":
+        elif tojson["result"] == "timeout":
             tojson["text"] = _("Your submission timed out. Your score is {score}%.").format(score=data["grade"])
-        elif data["result"] == "overflow":
+        elif tojson["result"] == "overflow":
             tojson["text"] = _("Your submission made an overflow. Your score is {score}%.").format(score=data["grade"])
-        elif data["result"] == "killed":
+        elif tojson["result"] == "killed":
             tojson["text"] = _("Your submission was killed.")
         else:
             tojson["text"] = _("An internal error occurred. Please retry later. "

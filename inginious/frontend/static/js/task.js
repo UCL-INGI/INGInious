@@ -424,9 +424,9 @@ function waitForSubmission(submissionid)
                     }
                     unblurTaskForm();
 
-                    if("replace" in data && data["replace"]) {
+                    if("replace" in data && data["replace"] && $('#my_submission').length) {
                         setSelectedSubmission(submissionid, true);
-                    } else {
+                    } else if($('#my_submission').length) {
                         setSelectedSubmission($('#my_submission').attr('data-submission-id'), false);
                     }
                 }
@@ -727,7 +727,8 @@ function load_input_file(submissionid, key, input)
 {
     if(key in input) {
         var input_file = $('#download-input-file-' + key);
-        input_file.attr('href', document.location.pathname + "?submissionid=" + submissionid + "&questionid=" + key);
+        var url = $('form#task').attr("action");
+        input_file.attr('href', url + "?submissionid=" + submissionid + "&questionid=" + key);
         input_file.css('display', 'block');
     }
 }
