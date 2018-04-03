@@ -51,7 +51,11 @@ class CourseEditTask(INGIniousAdminPage):
             pass
         available_filetypes = self.task_factory.get_available_task_file_extensions()
 
-        additional_tabs = self.plugin_manager.call_hook('task_editor_tab', course=course, taskid=taskid, task_data = task_data, template_helper = self.template_helper)
+        additional_tabs = self.plugin_manager.call_hook('task_editor_tab', course=course, taskid=taskid,
+                                                        task_data = task_data, template_helper = self.template_helper)
+
+        additional_footer = self.plugin_manager.call_hook('task_editor_footer', course=course, taskid=taskid,
+                                                          task_data=task_data, template_helper=self.template_helper)
 
         print(additional_tabs)
 
@@ -70,7 +74,8 @@ class CourseEditTask(INGIniousAdminPage):
             available_filetypes,
             AccessibleTime,
             CourseTaskFiles.get_task_filelist(self.task_factory, courseid, taskid),
-            additional_tabs)
+            additional_tabs,
+            additional_footer)
 
     @classmethod
     def contains_is_html(cls, data):

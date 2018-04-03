@@ -1,4 +1,4 @@
-$def with (course,taskid,problem_types,task_data,environments,problemdump,contains_is_html,current_filetype,available_filetypes,AccessibleTime,file_list, additional_tabs)
+$def with (course,taskid,problem_types,task_data,environments,problemdump,contains_is_html,current_filetype,available_filetypes,AccessibleTime,file_list, additional_tabs, additional_footer)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -110,6 +110,10 @@ $var Navbar: $:NavbarF()
         </div>
     </div>
 </div>
+
+$for html in additional_footer:
+    $:html
+
 
 <!-- Must be out of the form -->
 <div id="subproblem_templates" style="display:none">
