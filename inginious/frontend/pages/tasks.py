@@ -97,6 +97,8 @@ class BaseTaskPage(object):
         next_taskid = keys[index + 1] if index < len(keys) - 1 else None
 
         self.user_manager.user_saw_task(username, courseid, taskid)
+
+        is_staff = self.user_manager.has_staff_rights_on_course(course, username)
         
         # Generate random inputs and save it into db
         random_input_list = []
@@ -110,7 +112,7 @@ class BaseTaskPage(object):
         userinput = web.input()
         if "submissionid" in userinput and "questionid" in userinput:
             # Download a previously submitted file
-            submission = self.submission_manager.get_submission(userinput["submissionid"], True)
+            submission = self.submission_manager.get_submission(userinput["submissionid"], user_check=not is_staff)
             if submission is None:
                 raise web.notfound()
             sinput = self.submission_manager.get_input_from_submission(submission, True)

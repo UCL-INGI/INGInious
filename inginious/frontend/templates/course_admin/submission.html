@@ -81,10 +81,6 @@ $for key, problem in enumerate(to_display):
     <div class="panel panel-default problem">
         <div class="panel-heading">
             <h3 class="panel-title">
-                $if not problem["defined"]:
-                    <span class="text-warning">$:_("This problem id is not defined in the task.")</span>
-                $if not problem["present"]:
-                    <span class="text-warning">$:_("This problem is not present in the submission.")</span>
                 Question ${key+1}: $problem["name"]
                 <a href="/course/$course.get_id()/$task.get_id()?submissionid=$submission['_id']&questionid=$problem['id']" class="btn btn-default btn-xs" title=$:_('"Download as file"')
                    data-toggle="tooltip" data-placement="bottom">
@@ -96,10 +92,10 @@ $for key, problem in enumerate(to_display):
             $if problem["id"] in task_problems:
                 <div id="task_alert.$problem['id']" class="task_alert_problem"></div>
                 $:task_problems[problem["id"]].show_input(template_helper, user_manager.session_language(), username)
-            $elif not problem["present"]:
-                <span class="text-warning">$:_("This problem was not answered in this submission.")</span>
-            $elif not problem["content"]:
-                <span class="text-warning">$:_("There is input, but it can't be read as an UTF-8 file.")</span>
+            $elif not problem["defined"]:
+                <span class="text-warning">$:_("This problem id is not defined in the task.")</span>
+            $else:
+                <span class="text-warning">$:_("This problem is not present in the submission.")</span>
         </div>
     </div>
 </form>
