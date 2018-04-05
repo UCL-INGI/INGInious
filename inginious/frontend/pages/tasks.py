@@ -221,7 +221,7 @@ class BaseTaskPage(object):
                 if result is None:
                     web.header('Content-Type', 'application/json')
                     return json.dumps({'status': "error", "text": _("Internal error")})
-                elif self.submission_manager.is_done(result):
+                elif self.submission_manager.is_done(result, user_check=not is_staff):
                     web.header('Content-Type', 'application/json')
                     result = self.submission_manager.get_input_from_submission(result)
                     result = self.submission_manager.get_feedback_from_submission(result, show_everything=is_staff)
