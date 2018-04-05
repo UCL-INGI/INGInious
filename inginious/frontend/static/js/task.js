@@ -424,9 +424,9 @@ function waitForSubmission(submissionid)
                     }
                     unblurTaskForm();
 
-                    if("replace" in data && data["replace"]) {
+                    if("replace" in data && data["replace"] && $('#my_submission').length) {
                         setSelectedSubmission(submissionid, true);
-                    } else {
+                    } else if($('#my_submission').length) {
                         setSelectedSubmission($('#my_submission').attr('data-submission-id'), false);
                     }
                 }
@@ -726,9 +726,17 @@ function load_input_code_single_line(submissionid, key, input)
 function load_input_file(submissionid, key, input)
 {
     if(key in input) {
+        var allowed_exts = $("input[name='" + key + "']").data("allowed-exts");
+        var url = $('form#task').attr("action") + "?submissionid=" + submissionid + "&questionid=" + key;
         var input_file = $('#download-input-file-' + key);
-        input_file.attr('href', document.location.pathname + "?submissionid=" + submissionid + "&questionid=" + key);
+        input_file.attr('href', url );
         input_file.css('display', 'block');
+        if(allowed_exts.indexOf(".pdf") >= 0) {
+            var input_file_pdf = $('#download-input-file-pdf-' + key);
+            input_file_pdf.attr('data', url);
+            input_file_pdf.find("embed").attr("src", url);
+            input_file_pdf.css('display', 'block');
+        }
     }
 }
 
@@ -793,7 +801,7 @@ function updateMainTags(data){
     if("tests" in data){
         for (var tag in data["tests"]){
             //Get and update the color of HTML nodes that represent tags
-            var elem = $('#'.concat(tag.toLowerCase().replace("*", "\\*"))); //The * makes error with JQuery so, we escape it.
+            var elem = $('#'.concat(tag.replace("*", "\\*"))); //The * makes error with JQuery so, we escape it.
             if(data["tests"][tag]){
                 //If this is a alert-danger class, this is an antitag
                 if(elem.attr('class') == "badge alert-danger"){
