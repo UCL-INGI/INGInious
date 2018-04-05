@@ -801,7 +801,7 @@ function updateMainTags(data){
     if("tests" in data){
         for (var tag in data["tests"]){
             //Get and update the color of HTML nodes that represent tags
-            var elem = $('#'.concat(tag.toLowerCase().replace("*", "\\*"))); //The * makes error with JQuery so, we escape it.
+            var elem = $('#'.concat(tag.replace("*", "\\*"))); //The * makes error with JQuery so, we escape it.
             if(data["tests"][tag]){
                 //If this is a alert-danger class, this is an antitag
                 if(elem.attr('class') == "badge alert-danger"){
