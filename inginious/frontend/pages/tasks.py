@@ -38,6 +38,11 @@ class BaseTaskPage(object):
 
     def set_selected_submission(self, course, task, submissionid):
         submission = self.submission_manager.get_submission(submissionid)
+
+        # Do not continue if submission does not exist or is not owned by current user
+        if not submission:
+            return None
+
         is_staff = self.user_manager.has_staff_rights_on_course(course, self.user_manager.session_username())
 
         # Do not enable submission selection after deadline
