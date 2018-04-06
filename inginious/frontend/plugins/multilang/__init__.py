@@ -40,7 +40,7 @@ class DisplayableCodeMultipleLanguagesProblem(CodeMultipleLanguagesProblem, Disp
     @classmethod
     def show_editbox(cls, template_helper, key):
         renderer = DisplayableCodeMultipleLanguagesProblem.get_renderer(template_helper)
-        return renderer.multilang_edit(cls._available_languages)
+        return renderer.multilang_edit(key, cls._available_languages)
 
 
 def init(plugin_manager, course_factory, client, plugin_config):
