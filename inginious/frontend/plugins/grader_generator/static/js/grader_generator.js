@@ -1,5 +1,5 @@
-var studio_grader_test_case_sequence = 0;
-var grader_test_cases_count = 0;
+let studio_grader_test_case_sequence = 0;
+let grader_test_cases_count = 0;
 
 function studio_add_test_case_from_form()
 {
@@ -18,18 +18,18 @@ function studio_add_test_case(test_case)
       "diff_shown": false
     }, test_case);
 
-    var test_id = studio_grader_test_case_sequence;
+    let test_id = studio_grader_test_case_sequence;
 
-    var inputFile = test_case["input_file"];
-    var outputFile = test_case["output_file"];
+    let inputFile = test_case["input_file"];
+    let outputFile = test_case["output_file"];
 
     if (!inputFile || !outputFile) {
       return;
     }
 
-    var template = $("#test_case_template").html().replace(/TID/g, test_id);
+    let template = $("#test_case_template").html().replace(/TID/g, test_id);
 
-    var templateElement = $(template);
+    let templateElement = $(template);
     templateElement.find("#grader_test_cases_" + test_id + "_input_file").val(inputFile);
     templateElement.find("#grader_test_cases_" + test_id + "_output_file").val(outputFile);
     templateElement.find("#grader_test_cases_" + test_id + "_weight").val(
@@ -40,7 +40,7 @@ function studio_add_test_case(test_case)
     studio_grader_test_case_sequence++;
     grader_test_cases_count++;
 
-    var first_row = (grader_test_cases_count == 1);
+    let first_row = (grader_test_cases_count == 1);
 
     if(first_row){
       $('#grader_test_cases_header').show();
@@ -64,18 +64,18 @@ function studio_remove_test_case(id) {
 }
 
 function studio_update_grader_problems() {
-    var container = $("#accordion");
+    let container = $("#accordion");
 
-    var problems = [];
+    let problems = [];
     $.each(container.children(), function(index, value) {
-      var id = value.id;
-      var prefix = "subproblem_well_";
+      let id = value.id;
+      let prefix = "subproblem_well_";
       if (!id.startsWith(prefix)) {
         throw new Error("Unable to process problem well: " + id);
       }
 
-      var problemId = id.substring(prefix.length);
-      var type = $(value).find("[name='problem[" + problemId + "][type]']").val();
+      let problemId = id.substring(prefix.length);
+      let type = $(value).find("[name='problem[" + problemId + "][type]']").val();
 
       problems.push({
         "id": problemId,
@@ -83,13 +83,14 @@ function studio_update_grader_problems() {
       });
     });
 
-    var graderSelect = $("#grader_problem_id");
-    var currentlySelectedItem = graderSelect.val();
+    let graderSelect = $("#grader_problem_id");
+    let currentlySelectedItem = graderSelect.val();
 
     graderSelect.empty();
     $.each(problems, function(index, problem) {
       if (problem.type === "code-multiple-languages" ||
-          problem.type === "code-file-multiple-languages") {
+          problem.type === "code-file-multiple-languages" ||
+          problem.type === "code") {
           graderSelect.append($("<option>", {
             "value": problem.id,
             "text": problem.id
@@ -102,10 +103,12 @@ function studio_update_grader_problems() {
 
 function studio_update_grader_files()
 {
-    $.ajax({
-      success: function(files) {
-        var inputFileSelect = $("#grader_test_case_in");
-        var outputFileSelect = $("#grader_test_case_out");
+    $.get('/api/stats/test_file_api', {
+        course_id: courseId,
+        task_id: taskId
+    }, function(files) {
+        let inputFileSelect = $("#grader_test_case_in");
+        let outputFileSelect = $("#grader_test_case_out");
 
         inputFileSelect.empty();
         outputFileSelect.empty();
@@ -115,7 +118,7 @@ function studio_update_grader_files()
             return;
           }
 
-          var entry = $("<option>", {
+          let entry = $("<option>", {
             "value": file.complete_name,
             "text": file.complete_name
           });
@@ -123,12 +126,6 @@ function studio_update_grader_files()
           inputFileSelect.append(entry);
           outputFileSelect.append(entry.clone());
         });
-      },
-      method: "GET",
-      data: {
-        "action": "list_as_json"
-      },
-      dataType: "json",
-      url: location.pathname + "/files"
-    });
+    }, "json");
+
 }

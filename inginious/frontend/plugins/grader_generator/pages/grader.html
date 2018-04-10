@@ -1,4 +1,4 @@
-$def with (task_data, grader_test_cases_dump)
+$def with (task_data, grader_test_cases_dump, course, taskid)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -111,6 +111,8 @@ $#
 <script type="text/javascript">
     var grader_test_cases = $:{grader_test_cases_dump};
 
+    var courseId = "$:course.get_id()";
+    var taskId = "$:taskid";
     $$ (function() {
       studio_update_grader_problems();
 
