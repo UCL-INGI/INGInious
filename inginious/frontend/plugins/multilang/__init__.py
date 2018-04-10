@@ -1,9 +1,12 @@
 import os
 
+from inginious.frontend.plugins.utils import create_static_resource_page
 from inginious.common.tasks_problems import CodeProblem
 from inginious.frontend.task_problems import DisplayableCodeProblem
 
-PATH_TO_PLUGIN = os.path.abspath(os.path.dirname(__file__))
+path_to_plugin = os.path.abspath(os.path.dirname(__file__))
+_static_folder_path = os.path.join(os.path.dirname(__file__), "static")
+
 
 class CodeMultipleLanguagesProblem(CodeProblem):
     def __init__(self, task, problemid, content, translations=None):
@@ -31,7 +34,7 @@ class DisplayableCodeMultipleLanguagesProblem(CodeMultipleLanguagesProblem, Disp
     @classmethod
     def get_renderer(cls, template_helper):
         """ Get the renderer for this class problem """
-        return template_helper.get_custom_renderer(os.path.join(PATH_TO_PLUGIN, "templates"), False)
+        return template_helper.get_custom_renderer(os.path.join(path_to_plugin, "templates"), False)
 
     @classmethod
     def get_type_name(cls, gettext):
@@ -44,4 +47,6 @@ class DisplayableCodeMultipleLanguagesProblem(CodeMultipleLanguagesProblem, Disp
 
 
 def init(plugin_manager, course_factory, client, plugin_config):
+    plugin_manager.add_page(r'/multilang/static/(.*)', create_static_resource_page(_static_folder_path))
+    plugin_manager.add_hook("javascript_header", lambda: "/multilang/static/multilang.js")
     course_factory.get_task_factory().add_problem_type(DisplayableCodeMultipleLanguagesProblem)
