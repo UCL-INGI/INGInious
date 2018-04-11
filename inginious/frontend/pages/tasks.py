@@ -38,6 +38,11 @@ class BaseTaskPage(object):
 
     def set_selected_submission(self, course, task, submissionid):
         submission = self.submission_manager.get_submission(submissionid)
+
+        # Do not continue if submission does not exist or is not owned by current user
+        if not submission:
+            return None
+
         is_staff = self.user_manager.has_staff_rights_on_course(course, self.user_manager.session_username())
 
         # Do not enable submission selection after deadline
@@ -97,6 +102,8 @@ class BaseTaskPage(object):
         next_taskid = keys[index + 1] if index < len(keys) - 1 else None
 
         self.user_manager.user_saw_task(username, courseid, taskid)
+
+        is_staff = self.user_manager.has_staff_rights_on_course(course, username)
         
         # Generate random inputs and save it into db
         random_input_list = []
@@ -110,7 +117,7 @@ class BaseTaskPage(object):
         userinput = web.input()
         if "submissionid" in userinput and "questionid" in userinput:
             # Download a previously submitted file
-            submission = self.submission_manager.get_submission(userinput["submissionid"], True)
+            submission = self.submission_manager.get_submission(userinput["submissionid"], user_check=not is_staff)
             if submission is None:
                 raise web.notfound()
             sinput = self.submission_manager.get_input_from_submission(submission, True)
@@ -215,11 +222,11 @@ class BaseTaskPage(object):
                     return json.dumps({"status": "error", "text": str(ex)})
 
             elif "@action" in userinput and userinput["@action"] == "check" and "submissionid" in userinput:
-                result = self.submission_manager.get_submission(userinput['submissionid'])
+                result = self.submission_manager.get_submission(userinput['submissionid'], user_check=not is_staff)
                 if result is None:
                     web.header('Content-Type', 'application/json')
                     return json.dumps({'status': "error", "text": _("Internal error")})
-                elif self.submission_manager.is_done(result):
+                elif self.submission_manager.is_done(result, user_check=not is_staff):
                     web.header('Content-Type', 'application/json')
                     result = self.submission_manager.get_input_from_submission(result)
                     result = self.submission_manager.get_feedback_from_submission(result, show_everything=is_staff)
@@ -283,7 +290,7 @@ class BaseTaskPage(object):
 
         # Here we are waiting. Let's send some useful information.
         waiting_data = self.submission_manager.get_job_queue_info(data["jobid"]) if "jobid" in data else None
-        if waiting_data is not None:
+        if waiting_data is not None and not reloading:
             nb_tasks_before, approx_wait_time = waiting_data
             wait_time = round(approx_wait_time)
             if nb_tasks_before == -1 and wait_time <= 0:
@@ -317,17 +324,17 @@ class BaseTaskPage(object):
         if debug:
             tojson["debug"] = data
 
-        if data['status'] == 'waiting':
+        if tojson['status'] == 'waiting':
             tojson["text"] = _("<b>Your submission has been sent...</b>")
-        elif data["result"] == "failed":
+        elif tojson["result"] == "failed":
             tojson["text"] = _("There are some errors in your answer. Your score is {score}%.").format(score=data["grade"])
-        elif data["result"] == "success":
+        elif tojson["result"] == "success":
             tojson["text"] = _("Your answer passed the tests! Your score is {score}%.").format(score=data["grade"])
-        elif data["result"] == "timeout":
+        elif tojson["result"] == "timeout":
             tojson["text"] = _("Your submission timed out. Your score is {score}%.").format(score=data["grade"])
-        elif data["result"] == "overflow":
+        elif tojson["result"] == "overflow":
             tojson["text"] = _("Your submission made an overflow. Your score is {score}%.").format(score=data["grade"])
-        elif data["result"] == "killed":
+        elif tojson["result"] == "killed":
             tojson["text"] = _("Your submission was killed.")
         else:
             tojson["text"] = _("An internal error occurred. Please retry later. "
@@ -344,9 +351,10 @@ class BaseTaskPage(object):
 
         if "tests" in data:
             tojson["tests"] = {}
-            for tag in tags[0]+tags[1]: # Tags only visible for admins should not appear in the json for students.
-                if (tag.is_visible_for_student() or debug) and tag.get_id() in data["tests"]:
-                    tojson["tests"][tag.get_id()] = data["tests"][tag.get_id()]
+            if tags:
+                for tag in tags[0]+tags[1]: # Tags only visible for admins should not appear in the json for students.
+                    if (tag.is_visible_for_student() or debug) and tag.get_id() in data["tests"]:
+                        tojson["tests"][tag.get_id()] = data["tests"][tag.get_id()]
             if debug: #We add also auto tags when we are admin
                 for tag in data["tests"]:
                     if tag.startswith("*auto-tag-"):

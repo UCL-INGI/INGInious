@@ -1,0 +1,27 @@
+.toggle_button {
+    background-color: white;
+    padding: 8px 15px;
+    text-align: center;
+    font-size: 12px;
+}
+
+.normalize {
+    display: flex;
+    justify-content: center;
+}
+
+.statistics-plot {
+    height: 500px;
+    width: 100%;
+}
+
+.statistics-grade {
+  max-width: 100%;
+}
+
+.button-normalize{
+    background-color: white;
+    padding: 8px 15px;
+    text-align: center;
+    font-size: 12px;
+}

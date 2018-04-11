@@ -72,6 +72,21 @@ $var Navbar: $:NavbarF()
     $:task.get_context(user_manager.session_language())
 </div>
 
+$ visible_tags = [tag for tag in task.get_tags()[0] if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course)]
+$ visible_anti_tags = [tag for tag in task.get_tags()[1] if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course)]
+
+$# Auto tags may appear for admins. So we force the h3 title even if there is not predefined tags
+$# We do not show the tag header for students if they can not get tags
+$if (len(visible_tags) > 0) or (len(visible_anti_tags) > 0) or user_manager.has_staff_rights_on_course(course):
+    <h3>$:_("Tags")</h3>
+    <div id="main_tag_group" style="margin-bottom:10px;">
+    $for tag in visible_tags:
+        <span class="badge alert-info" id="$tag.get_id()" data-placement="right" data-toggle="tooltip" title="$tag.get_description(translated=True)">$:_(tag.get_name())</span>
+    $for tag in visible_anti_tags:
+        <span class="badge alert-danger" id="$tag.get_id()" data-placement="right" data-toggle="tooltip" title="$tag.get_description(translated=True)" style="display:none;">$:_(tag.get_name())</span>
+    </div>
+
+
 <form id="task" method="post" action="/course/$course.get_id()/$task.get_id()">
 
 <div id="task_alert"></div>
@@ -81,41 +96,21 @@ $for key, problem in enumerate(to_display):
     <div class="panel panel-default problem">
         <div class="panel-heading">
             <h3 class="panel-title">
-                $if not problem["defined"]:
-                    <span class="text-warning">$:_("This problem id is not defined in the task.")</span>
-                $if not problem["present"]:
-                    <span class="text-warning">$:_("This problem is not present in the submission.")</span>
                 Question ${key+1}: $problem["name"]
-                $if problem['base64'] is not None:
-                    <a href="data:$problem['mime'];base64,$problem['base64']" class="btn btn-default btn-xs" title=$:_('"Download as file"')
-                       data-toggle="tooltip" data-placement="bottom">
-                        <i class="fa fa-download"></i>
-                    </a>
+                <a href="/course/$course.get_id()/$task.get_id()?submissionid=$submission['_id']&questionid=$problem['id']" class="btn btn-default btn-xs" title=$:_('"Download as file"')
+                   data-toggle="tooltip" data-placement="bottom">
+                    <i class="fa fa-download"></i>
+                </a>
             </h3>
         </div>
         <div class="panel-body">
-            $if problem["feedback"] is not None:
-                $if problem["feedback"][0] == "success":
-                    $ color="success"
-                $elif problem["feedback"][0] in ["timeout", "overflow"]:
-                    $ color="warning"
-                $else:
-                    $ color="danger"
-                <div class="alert alert-$color">
-                    $:problem["feedback"][1]
-                </div>
-            <div class="student_view">
-                $if problem["id"] in task_problems:
-                    $:task_problems[problem["id"]].show_input(template_helper, user_manager.session_language(), username)
-            </div>
-            $if not problem["present"]:
-                <span class="text-warning">$:_("This problem was not answered in this submission.")</span>
-            $elif problem["mime"] == "application/pdf":
-                <object data="data:$problem['mime'];base64,$problem['base64']" type="application/pdf" style="width: 100%; min-height: 800px;">
-                    <embed src="data:$problem['mime'];base64,$problem['base64']" type="application/pdf"/>
-                </object>
-            $elif not problem["content"]:
-                <span class="text-warning">$:_("There is input, but it can't be read as an UTF-8 file.")</span>
+            $if problem["id"] in task_problems:
+                <div id="task_alert.$problem['id']" class="task_alert_problem"></div>
+                $:task_problems[problem["id"]].show_input(template_helper, user_manager.session_language(), username)
+            $elif not problem["defined"]:
+                <span class="text-warning">$:_("This problem id is not defined in the task.")</span>
+            $else:
+                <span class="text-warning">$:_("This problem is not present in the submission.")</span>
         </div>
     </div>
 </form>
@@ -124,6 +119,7 @@ $ pdict = {problem.get_id(): problem.get_type() for problem in task.get_problems
 var problems_types = $:pdict
 
 $$(document).ready(function() {
-    loadOldSubmissionInput("$submission['_id']", true);
+    loadOldSubmissionInput("$submission['_id']", false);
+    waitForSubmission("$submission['_id']");
 });
 </script>
