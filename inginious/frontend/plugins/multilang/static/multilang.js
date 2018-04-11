@@ -20,11 +20,11 @@ function changeSubmissionLanguage(key){
 }
 
 function getLanguageForProblemId(key){
-    var dropdown = document.getElementById(key + '/language');
-    if(dropdown == null)
+    var dropDown = document.getElementById(key + '/language');
+    if(dropDown == null)
         return "plain";
 
-    var inginiousLanguage = dropdown.options[dropdown.selectedIndex].value;
+    var inginiousLanguage = dropDown.options[dropDown.selectedIndex].value;
     return convertInginiousLanguageToCodemirror(inginiousLanguage);
 }
 
