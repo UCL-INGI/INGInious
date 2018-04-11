@@ -59,12 +59,3 @@ function studio_init_template_code_multiple_languages(well, pid, problem)
         });
     }
 }
-
-function toggleElement (id) {
-    var element = document.getElementById(id);
-    if (element.style.display === 'none') {
-        element.style.display = 'block';
-    } else {
-        element.style.display = 'none';
-    }
-}
