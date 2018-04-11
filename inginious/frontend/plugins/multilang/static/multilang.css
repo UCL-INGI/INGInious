@@ -1,0 +1,17 @@
+.modal.modal-wide .modal-dialog {
+    width: 90%;
+}
+
+.noresize {
+    resize: none;
+}
+
+.in-out-area {
+    min-height: 15em;
+    color: #696969;
+    font-family: Courier;
+}
+
+.placeholder-text {
+    color: #999999;
+}

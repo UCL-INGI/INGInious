@@ -55,7 +55,7 @@ class DisplayableCodeMultipleLanguagesProblem(CodeMultipleLanguagesProblem, Disp
 
         multiple_language_render = str(renderer.multilang(self.get_id(), dropdown_id, allowed_languages, self.get_id(), self.get_type()))
         standard_code_problem_render = super(DisplayableCodeMultipleLanguagesProblem, self).show_input(template_helper, language, seed)
-        tools_render = ""#str(renderer.tasks.tools(self.get_id(), "plain", custom_input_id, self.get_type()))
+        tools_render = str(renderer.tools(self.get_id(), "plain", custom_input_id, self.get_type()))
 
         return multiple_language_render + standard_code_problem_render + tools_render
 
@@ -64,4 +64,5 @@ class DisplayableCodeMultipleLanguagesProblem(CodeMultipleLanguagesProblem, Disp
 def init(plugin_manager, course_factory, client, plugin_config):
     plugin_manager.add_page(r'/multilang/static/(.*)', create_static_resource_page(_static_folder_path))
     plugin_manager.add_hook("javascript_header", lambda: "/multilang/static/multilang.js")
+    plugin_manager.add_hook("css", lambda: "/multilang/static/multilang.css")
     course_factory.get_task_factory().add_problem_type(DisplayableCodeMultipleLanguagesProblem)
