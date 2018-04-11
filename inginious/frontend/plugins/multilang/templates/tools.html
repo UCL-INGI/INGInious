@@ -7,13 +7,13 @@ $def with (inputId, language, customInputId, type, pythonTutorURL)
   <div id="tools-$inputId" style="display: none">
     <div class="row panel-body">
       <div class="col-md-6 pr-1">
-        <input type="file" id="filelink-custominput-$inputId" style="display: none;" />
-        Paste your input or <a href="#" id="link-custominput-$inputId">load it from file</a>
+        Paste your input
         <textarea
           id="custominput-$inputId"
           name="$customInputId"
           class="form-control noresize in-out-area"
           placeholder="Your input goes here"
+          data-optional="True"
         ></textarea>
       </div>
       <div class="col-md-6 pl-1">
