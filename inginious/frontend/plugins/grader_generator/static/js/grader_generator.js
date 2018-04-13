@@ -88,8 +88,8 @@ function studio_update_grader_problems() {
 
     graderSelect.empty();
     $.each(problems, function(index, problem) {
-      if (problem.type === "code-multiple-languages" ||
-          problem.type === "code-file-multiple-languages" ||
+      if (problem.type === "code_multiple_languages" ||
+          problem.type === "code_file_multiple_languages" ||
           problem.type === "code") {
           graderSelect.append($("<option>", {
             "value": problem.id,
