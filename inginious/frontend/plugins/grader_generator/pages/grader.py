@@ -45,7 +45,7 @@ def generate_grader(task_data, task_fs):
         return json.dumps({"status": "error", "message": "Grader: problem does not exist"})
 
     problem_type = task_data["problems"][task_data["grader_problem_id"]]["type"]
-    if problem_type not in ['code']:
+    if problem_type not in ['code_multiple_languages', 'code_file_multiple_languages']:
         return json.dumps({"status": "error",
                            "message": "Grader: only Code Multiple Language and Code File Multiple Language " +
                                       "problems are supported"})
