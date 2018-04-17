@@ -44,6 +44,11 @@ class DisplayableProblem(Problem, metaclass=ABCMeta):
     def show_editbox_templates(cls, template_helper, key, language):
         return ""
 
+    @classmethod
+    @abstractmethod
+    def prepare_feedback(cls, feedback, show_everything, translation):
+        return ""
+
 
 class DisplayableCodeProblem(CodeProblem, DisplayableProblem):
     """ A basic class to display all BasicCodeProblem derivatives """
@@ -74,6 +79,10 @@ class DisplayableCodeProblem(CodeProblem, DisplayableProblem):
     def show_editbox_templates(cls, template_helper, key, language):
         return ""
 
+    @classmethod
+    def prepare_feedback(cls, feedback, show_everything, translation):
+        return ParsableText(feedback, "rst", show_everything, translation).parse()
+
 
 class DisplayableCodeSingleLineProblem(CodeSingleLineProblem, DisplayableProblem):
     """ A displayable single code line problem """
@@ -103,6 +112,9 @@ class DisplayableCodeSingleLineProblem(CodeSingleLineProblem, DisplayableProblem
     def show_editbox_templates(cls, template_helper, key, language):
         return ""
 
+    @classmethod
+    def prepare_feedback(cls, feedback, show_everything, translation):
+        return ParsableText(feedback, "rst", show_everything, translation).parse()
 
 class DisplayableFileProblem(FileProblem, DisplayableProblem):
     """ A displayable code problem """
@@ -137,6 +149,9 @@ class DisplayableFileProblem(FileProblem, DisplayableProblem):
     def show_editbox_templates(cls, template_helper, key, language):
         return ""
 
+    @classmethod
+    def prepare_feedback(cls, feedback, show_everything, translation):
+        return ParsableText(feedback, "rst", show_everything, translation).parse()
 
 class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableProblem):
     """ A displayable multiple choice problem """
@@ -208,6 +223,15 @@ class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableProblem
         return template_helper.render("course_admin/subproblems/multiple_choice_templates.html", key=key)
 
 
+    @classmethod
+    def prepare_feedback(cls, feedback, show_everything, translation):
+        feedback = json.loads(feedback)
+        if "global" in feedback:
+            feedback["global"] = ParsableText(feedback["global"], "rst", show_everything, translation).parse()
+        for choice in feedback.get("choices", []):
+            feedback["choices"][choice][1] = ParsableText(feedback["choices"][choice][1], "rst", show_everything, translation).parse()
+        return json.dumps(feedback)
+
 class DisplayableMatchProblem(MatchProblem, DisplayableProblem):
     """ A displayable match problem """
 
@@ -231,3 +255,7 @@ class DisplayableMatchProblem(MatchProblem, DisplayableProblem):
     @classmethod
     def show_editbox_templates(cls, template_helper, key, language):
         return ""
+
+    @classmethod
+    def prepare_feedback(cls, feedback, show_everything, translation):
+        return ParsableText(feedback, "rst", show_everything, translation).parse()

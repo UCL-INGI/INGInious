@@ -286,7 +286,7 @@ class MultipleChoiceProblem(Problem):
 
     def check_answer(self, task_input, language):
         valid = True
-        msgs = []
+        msgs = {}
         invalid_count = 0
         if self._multiple:
             for choice in self._choices:
@@ -299,20 +299,22 @@ class MultipleChoiceProblem(Problem):
             for i in task_input[self.get_id()]:
                 feedback = self.get_choice_with_index(int(i))["feedback"]
                 if feedback is not None:
-                    msgs.append(self.gettext(language, feedback))
+                    msgs[i] = (self.get_choice_with_index(int(i))["valid"], self.gettext(language, feedback))
         else:
             choice = self.get_choice_with_index(int(task_input[self.get_id()]))
             valid = choice["valid"]
             if not valid:
                 invalid_count += 1
             if choice["feedback"] is not None:
-                msgs.append(self.gettext(language, choice["feedback"]))
+                msgs[int(task_input[self.get_id()])] = (choice["valid"], self.gettext(language, choice["feedback"]))
 
         if not valid:
             if self._error_message is not None:
-                msgs = [self.gettext(language, self._error_message)] + msgs
+                msgs = {"global": self.gettext(language, self._error_message), "choices": msgs}
             elif not self._centralize:
-                msgs = ["_wrong_answer_multiple" if self._multiple else "_wrong_answer"] + msgs
+                msgs = {"global": "_wrong_answer_multiple" if self._multiple else "_wrong_answer", "choices": msgs}
+            else:
+                msgs = {"choices": msgs}
 
             if len(msgs) != 0:
                 return False, None, msgs, invalid_count, ""
@@ -320,8 +322,10 @@ class MultipleChoiceProblem(Problem):
                 return False, None, None, invalid_count, ""
 
         if self._success_message is not None:
-            msgs = [self.gettext(language, self._success_message)] + msgs
+            msgs = {"global": self.gettext(language, self._success_message), "choices": msgs}
 
+        if not "choices" in msgs:
+            msgs = {"choices": msgs}
         if len(msgs) != 0:
             return True, None, msgs, 0, ""
         else:

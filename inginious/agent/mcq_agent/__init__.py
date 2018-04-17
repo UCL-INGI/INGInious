@@ -108,8 +108,9 @@ class MCQAgent(Agent):
         }
 
         for key, (p_result, messages) in problems.items():
-            messages = [internal_messages[message] if message in internal_messages else message for message in messages]
-            problems[key] = (p_result, "\n\n".join(messages))
+            if "global" in messages:
+                messages["global"] = internal_messages[messages["global"]] if messages["global"] in internal_messages else messages["global"]
+            problems[key] = (p_result, json.dumps(messages))
 
         if need_emul:
             self._logger.warning("Task %s/%s is not a pure MCQ but has env=MCQ", msg.course_id, msg.task_id)

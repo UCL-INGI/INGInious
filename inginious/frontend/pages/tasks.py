@@ -233,7 +233,7 @@ class BaseTaskPage(object):
                 }))
             elif self.submission_manager.is_done(result, user_check=not is_staff):
                 result = self.submission_manager.get_input_from_submission(result)
-                result = self.submission_manager.get_feedback_from_submission(result, show_everything=is_staff)
+                result = self.submission_manager.get_feedback_from_submission(task, result, show_everything=is_staff)
 
                 # user_task always exists as we called user_saw_task before
                 user_task = self.database.user_tasks.find_one({
@@ -260,7 +260,7 @@ class BaseTaskPage(object):
         elif "@action" in userinput and userinput["@action"] == "load_submission_input" and "submissionid" in userinput:
             submission = self.submission_manager.get_submission(userinput["submissionid"], user_check=not is_staff)
             submission = self.submission_manager.get_input_from_submission(submission)
-            submission = self.submission_manager.get_feedback_from_submission(submission, show_everything=is_staff)
+            submission = self.submission_manager.get_feedback_from_submission(task, submission, show_everything=is_staff)
             if not submission:
                 raise NotFound(description=_("Submission doesn't exist."))
 
@@ -344,7 +344,7 @@ class BaseTaskPage(object):
 
         tojson["title"] += " " + _("[Submission #{submissionid}]").format(submissionid=data["_id"])
         tojson["title"] = self.plugin_manager.call_hook_recursive("feedback_title", task=task, submission=data, title=tojson["title"])["title"]
-        
+
         tojson["text"] = data.get("text", "")
         tojson["text"] = self.plugin_manager.call_hook_recursive("feedback_text", task=task, submission=data, text=tojson["text"])["text"]
 

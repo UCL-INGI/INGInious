@@ -44,6 +44,7 @@ def _get_submissions(course_factory, submission_manager, user_manager, translati
 
     for submission in submissions:
         submission = submission_manager.get_feedback_from_submission(
+            task,
             submission,
             show_everything=user_manager.has_staff_rights_on_course(course, user_manager.session_username()),
             translation=translations.get(user_manager.session_language(), gettext.NullTranslations())

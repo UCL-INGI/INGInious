@@ -4,6 +4,7 @@
 <div id="task_alert_{{pid}}" class="task_alert_problem"></div>
 {{ header | safe}}
 {% for choice in choices %}
+        <div id="task_alert_$(pid)_$choice['index']" class="task_alert_problem"></div>
         <div class="form-check">
             <input class="form-check-input" type="{% if checkbox %}checkbox{% else %}radio{% endif %}" name="{{pid}}" value="{{choice['index']}}" id="{{pid}}_{{choice['index']}}" />
             <label class="form-check-label" for="{{pid}}_{{choice['index']}}">

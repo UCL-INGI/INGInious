@@ -603,7 +603,16 @@ function load_feedback_code_single_line(key, content) {
 }
 
 function load_feedback_multiple_choice(key, content) {
-    load_feedback_code(key, content);
+    var alert_type = "danger";
+    if(content[0] == "timeout" || content[0] == "overflow")
+        alert_type = "warning";
+    if(content[0] == "success")
+        alert_type = "success";
+    var messages = JSON.parse(content[1]);
+    if("global" in messages)
+        $("#task_alert_" + key).html(getAlertCode(messages["global"], alert_type, true));
+    for(var index in messages["choices"])
+        $("#task_alert_" + key + "_" + index).html(getAlertCode(messages["choices"][index][1], messages["choices"][index][0] ? "success" : "danger", true));
 }
 
 //Create an alert
