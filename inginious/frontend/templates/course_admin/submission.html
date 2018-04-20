@@ -105,7 +105,6 @@ $for key, problem in enumerate(to_display):
         </div>
         <div class="panel-body">
             $if problem["id"] in task_problems:
-                <div id="task_alert.$problem['id']" class="task_alert_problem"></div>
                 $:task_problems[problem["id"]].show_input(template_helper, user_manager.session_language(), username)
             $elif not problem["defined"]:
                 <span class="text-warning">$:_("This problem id is not defined in the task.")</span>
