@@ -28,16 +28,12 @@ class Task extends React.Component {
     }
 
     render() {
-        let courses = this.props.courses.map((course) => {
-            let obj = {id: course, name: course}
-            return obj;
-        });
-
         return (
             <div>
                 <button type="button" className="list-group-item" onClick={this.open}>
                     <b>{this.props.task_info.course_id + " - " + this.props.task_info.task_name}</b>
                     <br/>
+
                     {this.props.task_info.tags.join(', ')}
                 </button>
                 <Modal className="modal-container"
@@ -74,7 +70,7 @@ class Task extends React.Component {
                             <h5>Select destination course</h5>
                             <CourseAutosuggest
                                 task_info={this.props.task_info}
-                                courses={courses}
+                                courses={this.props.courses}
                                 messageButton={"Copy task"}
                                 callbackOnClick={(courseId) => this.onClick(courseId)}
                                 mdInput={4}

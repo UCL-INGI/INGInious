@@ -51,7 +51,6 @@ class TaskList extends React.Component{
     };
 
     render() {
-
         let tasks = this.props.tasks.map((task, i) => {
             if(i >= ((this.props.page - 1) * this.props.limit) && i < (this.props.page * this.props.limit)){
                 return (<Task

@@ -153,7 +153,7 @@ class BankPage extends React.Component {
                         limit={this.limit}
                         page={this.state.pageTasks}
                         totalPages={this.state.totalPagesTasks}
-                        courses={this.state.courses}
+                        courses={this.state.availableCourses}
                         callbackOnPageChange={(page) => this.onPageTaskChange(page)}
                         callbackUpdateTasks={() => this.updateTasksAsync()}
                         callbackUpdateFilteredTasks={(query) => this.updateFilteredTasksAsync(query)}
