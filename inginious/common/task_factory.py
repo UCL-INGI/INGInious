@@ -119,6 +119,8 @@ class TaskFactory(object):
         except:
             raise TaskNotFoundException()
 
+        self._hook_manager.call_hook('task_updated', courseid=courseid, taskid=taskid, new_content=content)
+
     def get_readable_tasks(self, course):
         """ Returns the list of all available tasks in a course """
         course_fs = self._filesystem.from_subfolder(course.get_id())
@@ -286,6 +288,8 @@ class TaskFactory(object):
         task_fs.delete()
 
         get_course_logger(courseid).info("Task %s erased from the factory.", taskid)
+
+        self._hook_manager.call_hook('task_deleted', courseid=courseid, taskid=taskid)
 
     def get_problem_types(self):
         """
