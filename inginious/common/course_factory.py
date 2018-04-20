@@ -72,6 +72,8 @@ class CourseFactory(object):
         path = self._get_course_descriptor_path(courseid)
         self._filesystem.put(path, get_json_or_yaml(path, content))
 
+        self._hook_manager.call_hook('course_updated', courseid=courseid, new_content=content)
+
     def get_course_fs(self, courseid):
         """
         :param courseid: 
@@ -146,6 +148,8 @@ class CourseFactory(object):
         course_fs.delete()
 
         get_course_logger(courseid).info("Course %s erased from the factory.", courseid)
+
+        self._hook_manager.call_hook('course_deleted', courseid=courseid)
 
     def _cache_update_needed(self, courseid):
         """
