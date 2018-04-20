@@ -1,6 +1,6 @@
-from . import pages
+from .pages import pages
 from inginious.frontend.plugins.utils import create_static_resource_page
-from .pages.constants import _REACT_BASE_URL, _REACT_BUILD_FOLDER, _BASE_STATIC_FOLDER, _BASE_STATIC_URL
+from inginious.frontend.plugins.problem_bank.constants import _REACT_BASE_URL, _REACT_BUILD_FOLDER, _BASE_STATIC_FOLDER, _BASE_STATIC_URL
 
 
 def init(plugin_manager, course_factory, client, config):

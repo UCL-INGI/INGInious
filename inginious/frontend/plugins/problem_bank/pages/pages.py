@@ -1,6 +1,5 @@
 import web
 import uuid
-import json
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 from pymongo.errors import DuplicateKeyError
 
@@ -11,9 +10,9 @@ from .api.admin_api import AdminApi
 from inginious.common.exceptions import TaskNotFoundException
 from inginious.common.course_factory import CourseNotFoundException, CourseUnreadableException, InvalidNameException
 from inginious.common.filesystems.provider import NotFoundException
-from .constants import _REACT_BUILD_FOLDER, _REACT_BASE_URL
+from inginious.frontend.plugins.problem_bank.constants import _REACT_BUILD_FOLDER, _REACT_BASE_URL
 
-_BASE_RENDERER_PATH = 'frontend/webapp/plugins/problem_bank'
+_BASE_RENDERER_PATH = 'frontend/plugins/problem_bank'
 
 class CopyTaskApi(AdminApi):
 
@@ -104,7 +103,7 @@ class AvailableCoursesApi(AdminApi):
 
         available_courses = [{
             'id': course_id,
-            'name': course.get_name()
+            'name': course.get_name("en")
         } for course_id, course in all_courses.items() if course_id not in bank_course_ids]
 
         return 200, available_courses
