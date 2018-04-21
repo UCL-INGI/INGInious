@@ -89,8 +89,7 @@ function studio_update_grader_problems() {
     graderSelect.empty();
     $.each(problems, function(index, problem) {
       if (problem.type === "code_multiple_languages" ||
-          problem.type === "code_file_multiple_languages" ||
-          problem.type === "code") {
+          problem.type === "code_file_multiple_languages") {
           graderSelect.append($("<option>", {
             "value": problem.id,
             "text": problem.id
@@ -99,6 +98,21 @@ function studio_update_grader_problems() {
     });
 
     graderSelect.val(currentlySelectedItem);
+}
+
+function studio_set_initial_problem(initialProblemId){
+    let selectedItem = '';
+    let graderSelect = $("#grader_problem_id");
+    let generateGraderIsChecked = $("#generate_grader").is(':checked');
+
+    if(generateGraderIsChecked && initialProblemId){
+        selectedItem = initialProblemId;
+        graderSelect.append($("<option>", {
+            "value": initialProblemId,
+            "text": initialProblemId
+        }));
+    }
+    graderSelect.val(selectedItem);
 }
 
 function studio_update_grader_files()

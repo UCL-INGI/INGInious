@@ -109,21 +109,21 @@ $#
 </div>
 
 <script type="text/javascript">
-    var grader_test_cases = $:{grader_test_cases_dump};
+    let grader_test_cases = $:{grader_test_cases_dump};
 
-    var courseId = "$:course.get_id()";
-    var taskId = "$:taskid";
-    $$ (function() {
-      studio_update_grader_problems();
+    let courseId = "$:course.get_id()";
+    let taskId = "$:taskid";
+    $$ (document).ready(function() {
 
-      $$ ("#grader_problem_id").val("${task_data.get('grader_problem_id', '')}");
-      studio_load_grader_test_cases(grader_test_cases);
+        let problem_id = "${task_data.get('grader_problem_id', '')}";
+        studio_set_initial_problem(problem_id);
+        studio_load_grader_test_cases(grader_test_cases);
 
-      $$('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
-        if (e.target.hash === '#tab_grader') {
-          studio_update_grader_problems();
-          studio_update_grader_files();
-        }
-      });
+        $$('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
+            if (e.target.hash === '#tab_grader') {
+                studio_update_grader_problems();
+                studio_update_grader_files();
+            }
+        });
     });
 </script>
