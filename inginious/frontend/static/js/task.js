@@ -590,21 +590,10 @@ function displayTaskStudentAlertWithProblems(content, type)
 
     if("problems" in content)
     {
-        $(".task_alert_problem").each(function(key, elem)
-        {
-            var problemid = elem.id.substr(11); //skip "task_alert."
+        for(var problemid in problems_types) {
             if(problemid in content.problems)
-            {
-                var alert_type = "danger";
-                if(content.problems[problemid][0] == "timeout" || content.problems[problemid][0] == "overflow")
-                    alert_type = "warning";
-                if(content.problems[problemid][0] == "success")
-                    alert_type = "success";
-                $(elem).html(getAlertCode(content.problems[problemid][1], alert_type, true));
-                if(firstPos == -1 || firstPos > $(elem).offset().top)
-                    firstPos = $(elem).offset().top;
-            }
-        });
+                window["load_feedback_" + problems_types[problemid]](problemid, content["problems"][problemid]);
+        }
     }
 
     $('html, body').animate(
@@ -614,6 +603,31 @@ function displayTaskStudentAlertWithProblems(content, type)
 
     colorizeStaticCode();
     MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+}
+
+function load_feedback_code(key, content) {
+    var alert_type = "danger";
+    if(content[0] == "timeout" || content[0] == "overflow")
+        alert_type = "warning";
+    if(content[0] == "success")
+        alert_type = "success";
+    $("#task_alert_" + key).html(getAlertCode(content[1], alert_type, true));
+}
+
+function load_feedback_file(key, content) {
+    load_feedback_code(key, content);
+}
+
+function load_feedback_match(key, content) {
+    load_feedback_code(key, content);
+}
+
+function load_feedback_single_line_code(key, content) {
+    load_feedback_code(key, content);
+}
+
+function load_feedback_multiple_choice(key, content) {
+    load_feedback_code(key, content);
 }
 
 //Create an alert
