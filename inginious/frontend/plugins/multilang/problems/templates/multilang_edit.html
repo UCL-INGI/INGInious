@@ -1,0 +1,35 @@
+$def with (key, available_languages)
+
+<div class="form-group">
+    <label for="header-PID" class="col-sm-2 control-label">$:_("Context")</label>
+    <div class="col-sm-10">
+        <textarea id="header-PID" class="form-control" name="problem[PID][header]"></textarea>
+    </div>
+</div>
+<div class="form-group">
+    <label for="languages-PID" class="col-sm-2 control-label">$:_("Languages")</label>
+    <div class="col-sm-10" id="languages-PID">
+        $for language in available_languages:
+            <div class="checkbox">
+                <label>
+                    <input id="$language-PID" type="checkbox" value="$language" name="problem[PID][languages][$language]"/>$available_languages[language]
+                </label>
+            </div>
+    </div>
+</div>
+<div class="form-group">
+    <label class="col-sm-2 control-label">$:_("Type")</label>
+    <div class="col-sm-10">
+        <select class="form-control" disabled="disabled">
+            <option value="$key">$:_("Multiline code")</option>
+        </select>
+    </div>
+</div>
+<div class="form-group">
+    <label for="optional-PID" class="col-sm-2 control-label">$:_("Optional?")</label>
+    <div class="col-sm-10">
+        <div class="checkbox"><label>
+            <input type="checkbox" id="optional-PID" name="problem[PID][optional]"/>&nbsp;
+        </label></div>
+    </div>
+</div>
