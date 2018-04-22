@@ -10,5 +10,8 @@ def init(plugin_manager, course_factory, client, plugin_config):
     plugin_manager.add_hook("javascript_header", lambda: "/multilang/static/multilang.js")
     plugin_manager.add_hook("javascript_header", lambda: "/multilang/static/pythonTutor.js")
     plugin_manager.add_hook("javascript_header", lambda: "/multilang/static/grader.js")
+    plugin_manager.add_hook("javascript_header", lambda: "/multilang/static/codemirror_linter.js")
+    plugin_manager.add_hook("javascript_header", lambda: "/multilang/static/lint.js")
     plugin_manager.add_hook("css", lambda: "/multilang/static/multilang.css")
+    plugin_manager.add_hook("css", lambda: "/multilang/static/lint.css")
     course_factory.get_task_factory().add_problem_type(DisplayableCodeMultipleLanguagesProblem)

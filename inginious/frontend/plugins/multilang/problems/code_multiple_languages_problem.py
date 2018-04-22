@@ -5,6 +5,7 @@ from inginious.frontend.task_problems import DisplayableCodeProblem
 
 path_to_plugin = os.path.abspath(os.path.dirname(__file__))
 python_tutor_url = "http://127.0.0.1:8003/"
+linter_url = "http://localhost:4567/"
 
 class CodeMultipleLanguagesProblem(CodeProblem):
     def __init__(self, task, problemid, content, translations=None):
@@ -53,6 +54,6 @@ class DisplayableCodeMultipleLanguagesProblem(CodeMultipleLanguagesProblem, Disp
 
         multiple_language_render = str(renderer.multilang(self.get_id(), dropdown_id, allowed_languages, self.get_id(), self.get_type()))
         standard_code_problem_render = super(DisplayableCodeMultipleLanguagesProblem, self).show_input(template_helper, language, seed)
-        tools_render = str(renderer.tools(self.get_id(), "plain", custom_input_id, self.get_type(), python_tutor_url))
+        tools_render = str(renderer.tools(self.get_id(), "plain", custom_input_id, self.get_type(), python_tutor_url, linter_url))
 
         return multiple_language_render + standard_code_problem_render + tools_render

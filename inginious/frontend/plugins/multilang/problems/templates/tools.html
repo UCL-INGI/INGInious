@@ -1,4 +1,4 @@
-$def with (inputId, language, customInputId, type, pythonTutorURL)
+$def with (inputId, language, customInputId, type, pythonTutorURL, linterURL)
 
 <br>
 <br>
@@ -60,6 +60,10 @@ $def with (inputId, language, customInputId, type, pythonTutorURL)
 <script>
   function getDefaultVisualServerURL(){
       return "$pythonTutorURL";
+  }
+
+  function getLinterServerURL(){
+      return "$linterURL";
   }
 
   function toggleElement (id) {
