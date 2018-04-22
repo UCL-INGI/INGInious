@@ -9,43 +9,9 @@ class TaskList extends React.Component{
         super(props);
 
         this.state = {
-            data: {"message" : ""},
-            isVisibleAlert: false,
             query: '',
             timer: 0,
-            titleAlert: '',
-            styleAlert: ''
         };
-        this.onChildChanged = this.onChildChanged.bind(this);
-    }
-
-    onChildChanged(courseId, taskId, bankId){
-        let addTaskToCourse = this.props.callBackAddTaskToCourse;
-        let result = addTaskToCourse(courseId, taskId, bankId);
-        console.log(result);
-        result.done((data) => {
-            console.log("success");
-            console.log(data["message"]);
-            this.setState({
-               isVisibleAlert: true,
-               data: data,
-               styleAlert: "success",
-               titleAlert: "Success!"
-            });
-        }).error((data) => {
-            this.setState({
-               isVisibleAlert: true,
-               data: {"message": data["responseJSON"]["error"]},
-               styleAlert: "danger",
-               titleAlert: "Error!"
-            });
-        });
-    }
-
-    onChildChangedClose(isVisible){
-        this.setState({
-           isVisibleAlert: isVisible
-        });
     }
 
     handleChange(e) {
@@ -71,7 +37,7 @@ class TaskList extends React.Component{
                     task_info={task}
                     key={i}
                     courses={this.props.courses}
-                    callBackAddTaskToCourse={this.onChildChanged}
+                    callBackAddTaskToCourse={this.props.callBackAddTaskToCourse}
                 />)
             }
         });
@@ -99,9 +65,11 @@ class TaskList extends React.Component{
                      onChange={this.props.callbackOnPageChange}
                 />
 
-                <CustomAlert message={this.state.data["message"]} isVisible={this.state.isVisibleAlert}
-                             callbackParent={(isVisible) => this.onChildChangedClose(isVisible)}
-                            styleAlert={this.state.styleAlert} titleAlert={this.state.titleAlert}
+                <CustomAlert message={this.props.dataAlert.data.message}
+                             isVisible={this.props.dataAlert.isVisibleAlert}
+                             callbackParent={this.props.callbackOnChildChangedClose}
+                             styleAlert={this.props.dataAlert.styleAlert}
+                             titleAlert={this.props.dataAlert.titleAlert}
                 />
             </div>
         );

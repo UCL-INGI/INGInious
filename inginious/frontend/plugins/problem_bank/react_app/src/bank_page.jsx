@@ -17,6 +17,18 @@ class BankPage extends React.Component {
             pageCourses: 1,
             totalPagesTasks: 1,
             totalPagesCourses: 1,
+            dataAlertCourseList: {
+                data: {"message" : ""},
+                isVisibleAlert: false,
+                titleAlert: '',
+                styleAlert: ''
+            },
+            dataAlertTaskList: {
+                data: {"message" : ""},
+                isVisibleAlert: false,
+                titleAlert: '',
+                styleAlert: ''
+            }
         };
 
         this.limit = 10;
@@ -99,18 +111,77 @@ class BankPage extends React.Component {
     }
 
     addCourse(courseId){
+
         $.post( "/plugins/problems_bank/api/bank_courses", { "course_id": courseId }, (data) => {
             this.updateBankCoursesAsync();
             this.updateAvailableCoursesAsync();
             this.updateTasksAsync();
+        }).done((data) => {
+            this.setState( {
+                dataAlertCourseList:{
+                    data: data,
+                    isVisibleAlert: true,
+                    titleAlert: "Success!",
+                    styleAlert: "success"
+                }
+            });
+        }).error((data) => {
+            this.setState( {
+                dataAlertCourseList: {
+                    isVisibleAlert: true,
+                    data: {"message": data["responseJSON"]["error"]},
+                    titleAlert: "Error!",
+                    styleAlert: "danger"
+                }
+            });
+        });
+    }
+
+    onAlertTaskListClose(isVisible){
+        this.setState({
+           dataAlertTaskList: {
+               isVisibleAlert: isVisible,
+               data: {"message" : ""},
+               titleAlert: '',
+               styleAlert: ''
+           }
+        });
+    }
+
+    onAlertCourseListClose(isVisible){
+        this.setState({
+           dataAlertCourseList: {
+               isVisibleAlert: isVisible,
+               data: {"message" : ""},
+               titleAlert: '',
+               styleAlert: ''
+           }
         });
     }
 
     addTaskToCourse(targetId, taskId, bankId){
-        return $.post( "/plugins/problems_bank/api/copy_task",
+        $.post( "/plugins/problems_bank/api/copy_task",
             {"target_id": targetId, "task_id": taskId, "bank_id": bankId} ,( data ) => {
 
             this.updateTasksAsync();
+        }).done((data) => {
+            this.setState( {
+                dataAlertTaskList:{
+                    data: data,
+                    isVisibleAlert: true,
+                    titleAlert: "Success!",
+                    styleAlert: "success"
+                }
+            });
+        }).error((data) => {
+            this.setState( {
+                dataAlertTaskList: {
+                    isVisibleAlert: true,
+                    data: {"message": data["responseJSON"]["error"]},
+                    titleAlert: "Error!",
+                    styleAlert: "danger"
+                }
+            });
         });
     };
 
@@ -139,6 +210,8 @@ class BankPage extends React.Component {
                         availableCourses={this.state.availableCourses}
                         page={this.state.pageCourses}
                         totalPages={this.state.totalPagesCourses}
+                        dataAlert={this.state.dataAlertCourseList}
+                        callbackOnChildChangedClose={(isVisible) => this.onAlertCourseListClose(isVisible)}
                         callbackUpdateTask={() => this.updateTasksAsync()}
                         callbackUpdateBank={() => this.updateBankCoursesAsync()}
                         callbackUpdateAvailable={() => this.updateAvailableCoursesAsync()}
@@ -154,6 +227,8 @@ class BankPage extends React.Component {
                         page={this.state.pageTasks}
                         totalPages={this.state.totalPagesTasks}
                         courses={this.state.availableCourses}
+                        dataAlert={this.state.dataAlertTaskList}
+                        callbackOnChildChangedClose={(isVisible) => this.onAlertTaskListClose(isVisible)}
                         callbackOnPageChange={(page) => this.onPageTaskChange(page)}
                         callbackUpdateTasks={() => this.updateTasksAsync()}
                         callbackUpdateFilteredTasks={(query) => this.updateFilteredTasksAsync(query)}

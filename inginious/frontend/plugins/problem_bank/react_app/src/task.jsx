@@ -23,9 +23,7 @@ class Task extends React.Component {
         let taskId = this.props.task_info.task_id;
         let bankId = this.props.task_info.course_id;
         let addTaskToCourse = this.props.callBackAddTaskToCourse;
-        console.log(taskId);
-        console.log(bankId);
-        console.log(courseId);
+
         addTaskToCourse(courseId, taskId, bankId);
         this.close();
     }

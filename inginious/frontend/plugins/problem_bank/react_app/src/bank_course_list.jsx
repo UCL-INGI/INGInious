@@ -5,6 +5,7 @@ import './index.css';
 import UltimatePagination from './ultimate_pagination';
 import BankCourse from './bank_course'
 import CourseAutosuggest from './course_autosuggest'
+import CustomAlert from './custom_alert';
 
 class BankCourseList extends React.Component {
 
@@ -45,6 +46,12 @@ class BankCourseList extends React.Component {
                      onChange={this.props.callbackOnPageChange}
                 />
 
+                <CustomAlert message={this.props.dataAlert.data.message}
+                             isVisible={this.props.dataAlert.isVisibleAlert}
+                             callbackParent={this.props.callbackOnChildChangedClose}
+                             styleAlert={this.props.dataAlert.styleAlert}
+                             titleAlert={this.props.dataAlert.titleAlert}
+                />
             </div>
 
         );
