@@ -1,0 +1,64 @@
+#task_alert .alert-danger
+{
+    background-color: #f2dede;
+    color: #f04124;
+    border: 1px solid #dddddd;
+}
+
+.modal.modal-wide .modal-dialog {
+  width: 90%;
+}
+
+.modal-wide .modal-body {
+  overflow-y: auto;
+}
+
+.diff-missing-output {
+  background-color: #f2dede;
+}
+
+.diff-additional-output {
+  background-color: #f3e28d;
+}
+
+.diff-common {
+  background-color: #dff0d8;
+}
+
+.diff-position-control {
+  background-color: #d9edf7;
+  font-style: italic;
+  font-weight: bold;
+}
+
+.noresize {
+  resize: none;
+}
+
+.diff-common, .diff-missing-output, .diff-additional-output {
+  display: inline-block;
+
+  /* Make sure the background is shown even if the line is empty. */
+  min-height: 1em;
+  min-width: 4px;
+  margin-top: 1px;
+  margin-bottom: 1px;
+}
+
+.in-out-area {
+  min-height: 15em;
+  color: #696969;
+  font-family: Courier;
+}
+
+.placeholder-text {
+  color: #999999;
+}
+
+.stdout-text {
+  color: #696969;
+}
+
+.stderr-text {
+  color: #cd5c5c;
+}

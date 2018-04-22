@@ -1,4 +1,4 @@
-$def with (course,taskid,problem_types,task_data,environments,problemdump,contains_is_html,current_filetype,available_filetypes,AccessibleTime,file_list)
+$def with (course,taskid,problem_types,task_data,environments,problemdump,contains_is_html,current_filetype,available_filetypes,AccessibleTime,file_list, additional_tabs, additional_footer)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -48,6 +48,8 @@ $var Navbar: $:NavbarF()
                 fa-tags fa-fw"></i>&nbsp; $:_("Tags")</a></li>
             <li role="presentation"><a href="#tab_files" aria-controls="files" role="tab" data-toggle="tab"><i class="fa
                 fa-edit fa-fw"></i>&nbsp; $:_("Task files")</a></li>
+            $for tab_id, link, content in additional_tabs:
+                <li role="presentation"><a href="#$tab_id" aria-controls="$tab_id" role="tab" data-toggle="tab">$:link</a></li>
         </ul>
         <div id="edit_task_tabs_content" class="tab-content">
             <div role="tabpanel" class="tab-pane active" id="tab_basic">
@@ -76,6 +78,10 @@ $var Navbar: $:NavbarF()
                 </div>
             </div>
 
+            $for tab_id, link, tab_content in additional_tabs:
+                <div role="tabpanel" class="tab-pane" id="$tab_id">
+                    $:tab_content
+                </div>
         </div>
     </div>
     <a href="#task_edit_submit_status" class="btn btn-primary btn-block task_edit_submit_button" type="button" onclick="studio_submit()"><i class="fa fa-save"></i> $:_("Save changes")</a>
@@ -104,6 +110,10 @@ $var Navbar: $:NavbarF()
         </div>
     </div>
 </div>
+
+$for html in additional_footer:
+    $:html
+
 
 <!-- Must be out of the form -->
 <div id="subproblem_templates" style="display:none">
