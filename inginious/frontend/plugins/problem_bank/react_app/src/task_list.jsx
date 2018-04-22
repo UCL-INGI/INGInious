@@ -18,11 +18,11 @@ class TaskList extends React.Component{
         let newStateQuery = e.target.value;
         let updateFilteredTasks = this.props.callbackUpdateFilteredTasks;
 
+        clearTimeout(this.state.timer);
         if( newStateQuery === "" ){
             let updateTasks = this.props.callbackUpdateTasks;
             updateTasks();
         } else {
-            clearTimeout(this.state.timer);
             this.setState({
                query: newStateQuery,
                timer: setTimeout(() => updateFilteredTasks(newStateQuery), 250)
