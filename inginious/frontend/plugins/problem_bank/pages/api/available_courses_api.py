@@ -8,7 +8,7 @@ class AvailableCoursesApi(AdminApi):
 
         available_courses = [{
             'id': course_id,
-            'name': course.get_name("en")
+            'name': course.get_name(self.user_manager.session_language())
         } for course_id, course in all_courses.items() if course_id not in bank_course_ids]
 
         return 200, available_courses
