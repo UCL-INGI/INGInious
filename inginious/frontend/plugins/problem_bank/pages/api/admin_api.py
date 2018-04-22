@@ -1,6 +1,7 @@
 import inginious.frontend.pages.api._api_page as api
 from inginious.common.course_factory import CourseNotFoundException, CourseUnreadableException, InvalidNameException
 
+
 class AdminApi(api.APIAuthenticatedPage):
     def get_course_and_check_rights(self, course_id):
         try:
@@ -18,3 +19,9 @@ class AdminApi(api.APIAuthenticatedPage):
             raise api.APIError(400, {"error": parameter_name + " is mandatory"})
 
         return parameters[parameter_name]
+
+    def list_names_tags(self, tags):
+        parsed_tags = list()
+        for key, tag in tags.items():
+            parsed_tags.append(tag["name"])
+        return parsed_tags

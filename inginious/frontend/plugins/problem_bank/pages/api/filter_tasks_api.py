@@ -39,17 +39,11 @@ class FilterTasksApi(AdminApi):
 
             for id_task in ids_tasks:
 
-                task = self.database.tasks_cache.find_one({ "_id": id_task["_id"] })
+                task = self.database.tasks_cache.find_one({"_id": id_task["_id"]})
 
-                dict = {"course_id": task["course_id"], "task_id": task["task_id"], "task_name": task["task_name"],
+                dict_task = {"course_id": task["course_id"], "task_id": task["task_id"], "task_name": task["task_name"],
                         "task_author": task["task_author"], "task_context": task["task_context"],
-                        "tags": self.parse_tags(task["tags"])}
-                tasks.append(dict)
+                        "tags": self.list_names_tags(task["tags"])}
+                tasks.append(dict_task)
 
         return 200, sorted(tasks, key=lambda k: (k['course_id'], k['task_id']))
-
-    def parse_tags(self, tags):
-        parsed_tags = list()
-        for key, tag in tags.items():
-            parsed_tags.append(tag["name"])
-        return parsed_tags

@@ -8,6 +8,7 @@ from .pages.api.available_courses_api import AvailableCoursesApi
 from .pages.api.filter_tasks_api import FilterTasksApi
 from .pages.bank_page import BankPage
 
+
 def init(plugin_manager, course_factory, client, config):
     if "problem_banks" not in plugin_manager.get_database().collection_names():
         plugin_manager.get_database().create_collection("problem_banks")
