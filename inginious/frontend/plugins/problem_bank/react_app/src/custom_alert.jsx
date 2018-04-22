@@ -14,8 +14,8 @@ class CustomAlert extends React.Component {
     render() {
         if (this.props.isVisible) {
           return (
-            <Alert bsStyle="success" onDismiss={this.handleAlertDismiss}>
-              <h4>Success!</h4>
+            <Alert bsStyle={this.props.styleAlert} onDismiss={this.handleAlertDismiss}>
+              <h4>{this.props.titleAlert}</h4>
               <p>{this.props.message}</p>
             </Alert>
           );

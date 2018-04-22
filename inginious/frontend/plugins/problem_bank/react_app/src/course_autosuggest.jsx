@@ -9,8 +9,7 @@ class CourseAutosuggest extends React.Component {
 
         this.state = {
             suggestions: [],
-            value: '',
-            isDisabled: true
+            value: ''
         };
     }
 
@@ -29,19 +28,9 @@ class CourseAutosuggest extends React.Component {
     };
 
     onChange = (event, { newValue }) => {
-        let contains = false;
-        for (let course of this.props.courses){
-            if(course.id === newValue){
-                contains = true;
-                break;
-            }
-        }
-
         this.setState({
-                value: newValue,
-                isDisabled: !contains,
+                value: newValue
             });
-
     };
 
     onClick = () => {
@@ -74,7 +63,7 @@ class CourseAutosuggest extends React.Component {
                 />
               </Col>
               <Col md={this.props.mdButton}>
-                <button onClick={this.onClick} className="btn btn-primary" disabled={this.state.isDisabled}>
+                <button onClick={this.onClick} className="btn btn-primary">
                     {this.props.messageButton}
                 </button>
               </Col>

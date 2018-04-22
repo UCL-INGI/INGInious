@@ -13,6 +13,8 @@ class TaskList extends React.Component{
             isVisibleAlert: false,
             query: '',
             timer: 0,
+            titleAlert: '',
+            styleAlert: ''
         };
         this.onChildChanged = this.onChildChanged.bind(this);
     }
@@ -20,12 +22,24 @@ class TaskList extends React.Component{
     onChildChanged(courseId, taskId, bankId){
         let addTaskToCourse = this.props.callBackAddTaskToCourse;
         let result = addTaskToCourse(courseId, taskId, bankId);
+        console.log(result);
         result.done((data) => {
+            console.log("success");
+            console.log(data["message"]);
             this.setState({
                isVisibleAlert: true,
-               data: data
+               data: data,
+               styleAlert: "success",
+               titleAlert: "Success!"
             });
-        })
+        }).error((data) => {
+            this.setState({
+               isVisibleAlert: true,
+               data: {"message": data["responseJSON"]["error"]},
+               styleAlert: "danger",
+               titleAlert: "Error!"
+            });
+        });
     }
 
     onChildChangedClose(isVisible){
@@ -86,7 +100,9 @@ class TaskList extends React.Component{
                 />
 
                 <CustomAlert message={this.state.data["message"]} isVisible={this.state.isVisibleAlert}
-                             callbackParent={(isVisible) => this.onChildChangedClose(isVisible)}/>
+                             callbackParent={(isVisible) => this.onChildChangedClose(isVisible)}
+                            styleAlert={this.state.styleAlert} titleAlert={this.state.titleAlert}
+                />
             </div>
         );
     }
