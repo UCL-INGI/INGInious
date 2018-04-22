@@ -1,0 +1,80 @@
+$def with (course)
+
+$var title: $:course.get_name(user_manager.session_language()) - Statistics
+
+$def NavbarF():
+    <ol class="nav navbar-nav nav-breadcrumb">
+      <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
+      <li class="active"><a href="#">Course statistics <span class="sr-only">(current)</span></a></li>
+    </ol>
+
+$var Navbar: $:NavbarF()
+
+<h3>Statistics for course: $:course.get_name(user_manager.session_language())</h3>
+
+<div>
+    <div id="plotErrorContainer"></div>
+
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active">
+            <a href="#gradeCount" aria-controls="gradeCount" role="tab" data-toggle="tab">Grade count</a>
+        </li>
+        <li role="presentation">
+            <a href="#gradeDistribution" aria-controls="gradeDistribution" role="tab" data-toggle="tab">Grade distribution</a>
+        </li>
+        <li role="presentation">
+            <a href="#submissionsVerdict" aria-controls="submissionsVerdict" role="tab" data-toggle="tab">Submissions Verdict (ALL)</a>
+        </li>
+        <li role="presentation">
+            <a href="#bestSubmissionsVerdict" aria-controls="bestSubmissionsVerdict" role="tab" data-toggle="tab">Submissions Verdict (BEST)</a>
+        </li>
+    </ul>
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="gradeCount">
+            <h4>Submissions by grade</h4>
+            <div id="statisticsGradeDiv" class="statistics-grade"></div>
+            <button type="button" class="btn btn-link" onclick="gradeCountStatistic.downloadCsvAsync()">Download CSV</button>
+
+            <table class="table table-hover" id="statisticsGradeTable"></table>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="gradeDistribution">
+            <h4>Final grade distribution</h4>
+            <div id="statisticsGradeDistributionDiv" class="statistics-grade"></div>
+            <button type="button" class="btn btn-link" onclick="gradeDistributionStatistic.downloadCsvAsync()">Download CSV</button>
+
+            <table class="table table-hover" id="statisticsGradeDistributionTable"></table>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="submissionsVerdict">
+            <h4>Submissions Verdict (ALL)</h4>
+            <div id="submissionsVerdictDiv" class="statistics-grade"></div>
+            <button type="button" class="btn btn-link" onclick="submissionsVerdictStatistic.downloadCsvAsync()">Download CSV</button>
+            <button class="button-normalize"
+                    onclick="tabToStatistic.submissionsVerdict.toggleNormalize()">
+                    Toggle normalize
+            </button>
+            <table class="table table-hover" id="submissionsVerdictTable"></table>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="bestSubmissionsVerdict">
+            <h4>Submissions Verdict (BEST)</h4>
+            <div id="bestSubmissionsVerdictDiv" class="statistics-grade"></div>
+            <button type="button" class="btn btn-link" onclick="bestSubmissionsVerdictStatistic.downloadCsvAsync()">Download CSV</button>
+            <button class="button-normalize"
+                    onclick="tabToStatistic.bestSubmissionsVerdict.toggleNormalize()">
+                    Toggle normalize
+            </button>
+            <table class="table table-hover" id="bestSubmissionsVerdictTable"></table>
+        </div>
+    </div>
+
+</div>
+
+
+
+<script type="text/javascript">
+    var adminStatistics = {
+        courseId: "$:course.get_id()"
+    };
+</script>
