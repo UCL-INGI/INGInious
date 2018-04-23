@@ -28,16 +28,6 @@ class CourseEditTask(INGIniousAdminPage):
     """ Edit a task """
     _logger = logging.getLogger("inginious.webapp.task_edit")
 
-    @classmethod
-    def contains_is_html(cls, data):
-        """ Detect if the problem has at least one "xyzIsHTML" key """
-        for key, val in data.items():
-            if key.endswith("IsHTML"):
-                return True
-            if isinstance(val, (OrderedDict, dict)) and cls.contains_is_html(val):
-                return True
-        return False
-
     def GET_AUTH(self, courseid, taskid):  # pylint: disable=arguments-differ
         """ Edit a task """
         if not id_checker(taskid):
@@ -81,6 +71,16 @@ class CourseEditTask(INGIniousAdminPage):
             CourseTaskFiles.get_task_filelist(self.task_factory, courseid, taskid),
             additional_tabs
         )
+
+    @classmethod
+    def contains_is_html(cls, data):
+        """ Detect if the problem has at least one "xyzIsHTML" key """
+        for key, val in data.items():
+            if key.endswith("IsHTML"):
+                return True
+            if isinstance(val, (OrderedDict, dict)) and cls.contains_is_html(val):
+                return True
+        return False
 
     @classmethod
     def dict_from_prefix(cls, prefix, dictionary):
