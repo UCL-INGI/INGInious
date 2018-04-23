@@ -297,6 +297,16 @@ class CourseEditTask(INGIniousAdminPage):
 
         task_fs = self.task_factory.get_task_fs(courseid, taskid)
         task_fs.ensure_exists()
+
+        # Call plugins and return the first error
+        plugin_results = self.plugin_manager.call_hook('task_editor_submit', course=course, taskid=taskid,
+                                                       task_data=data, task_fs=task_fs)
+
+        # Retrieve the first non-null element
+        error = next(filter(None, plugin_results), None)
+        if error is not None:
+            return error
+
         try:
             WebAppTask(course, taskid, data, task_fs, self.plugin_manager, self.task_factory.get_problem_types())
         except Exception as message:
