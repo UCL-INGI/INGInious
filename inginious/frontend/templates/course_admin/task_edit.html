@@ -49,7 +49,7 @@ $var Navbar: $:NavbarF()
             <li role="presentation"><a href="#tab_files" aria-controls="files" role="tab" data-toggle="tab"><i class="fa
                 fa-edit fa-fw"></i>&nbsp; $:_("Task files")</a></li>
 
-            $for tab_id, link, _ in additional_tabs:
+            $for tab_id, link, tab_content in additional_tabs:
                 <li role="presentation"><a href="#$tab_id" aria-controls="$tab_id" role="tab" data-toggle="tab">$:link</a></li>
         </ul>
         <div id="edit_task_tabs_content" class="tab-content">
@@ -79,10 +79,10 @@ $var Navbar: $:NavbarF()
                 </div>
             </div>
 
-            $for tab_id, _, tab_content in additional_tabs:
-+                <div role="tabpanel" class="tab-pane" id="$tab_id">
-+                    $:tab_content
-+                </div>
+            $for tab_id, link, tab_content in additional_tabs:
+                <div role="tabpanel" class="tab-pane" id="$tab_id">
+                    $:tab_content
+                </div>
 
         </div>
     </div>
