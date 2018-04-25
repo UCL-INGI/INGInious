@@ -37,13 +37,15 @@ class DisplayableCodeFileMultipleLanguagesProblem(CodeFileMultipleLanguagesProbl
         renderer = DisplayableCodeFileMultipleLanguagesProblem.get_renderer(template_helper)
         return renderer.file_multilang_edit(key, available_languages())
 
-    # def show_input(self, renderer):
-    #     allowed_languages = {language: self._available_languages[language] for language in self._languages}
-    #     dropdown_id = self.get_id() + "/language"
-    #     custom_input_id = self.get_id() + "/input"
+    def show_input(self, template_helper, language, seed):
+        allowed_languages = {language: available_languages()[language] for language in self._languages}
+        dropdown_id = self.get_id() + "/language"
+        custom_input_id = self.get_id() + "/input"
 
-    #     standard_code_file_problem_render = super(DisplayableCodeFileMultipleLanguagesProblem, self).show_input(renderer)
-    #     multiple_language_render = str(renderer.tasks.multiplelanguage(self.get_id(), dropdown_id, allowed_languages, self.get_id(), self.get_type()))
-    #     tools_render = str(renderer.tasks.tools(self.get_id(), "plain", custom_input_id, self.get_type()))
+        renderer = DisplayableCodeFileMultipleLanguagesProblem.get_renderer(template_helper)
 
-    #     return multiple_language_render + standard_code_file_problem_render + tools_render
+        multiple_language_render = str(renderer.multilang(self.get_id(), dropdown_id, allowed_languages, self.get_id(), self.get_type()))
+        standard_code_problem_render = super(DisplayableCodeFileMultipleLanguagesProblem, self).show_input(template_helper, language, seed)
+        tools_render = str(renderer.tools(self.get_id(), "plain", custom_input_id, self.get_type(), "python_tutor_url"))
+
+        return multiple_language_render + standard_code_problem_render + tools_render
