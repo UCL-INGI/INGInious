@@ -35,7 +35,7 @@ class DisplayableCodeFileMultipleLanguagesProblem(CodeFileMultipleLanguagesProbl
     @classmethod
     def show_editbox(cls, template_helper, key):
         renderer = DisplayableCodeFileMultipleLanguagesProblem.get_renderer(template_helper)
-        return renderer.multilang_edit(key, available_languages())
+        return renderer.file_multilang_edit(key, available_languages())
 
     # def show_input(self, renderer):
     #     allowed_languages = {language: self._available_languages[language] for language in self._languages}
