@@ -68,11 +68,9 @@ function colorizeStaticCode()
     });
 }
 
-var lintingOptions = true;
-
-function setLintingOptions(newOptions) {
-    lintingOptions = newOptions;
-}
+var lintingOptions = {
+    async: true
+};
 
 //Register and init a code editor (ace)
 function registerCodeEditor(textarea, lang, lines)

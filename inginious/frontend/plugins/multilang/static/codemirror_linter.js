@@ -34,7 +34,3 @@ function linterForLanguage(language) {
   CodeMirror.registerHelper("lint", "text/x-c++src", linterForLanguage("cpp"));
   CodeMirror.registerHelper("lint", "text/x-csrc", linterForLanguage("c"));
 });
-
-setLintingOptions({
-  async: true
-});
