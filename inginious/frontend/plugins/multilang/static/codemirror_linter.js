@@ -3,39 +3,38 @@
 
 
 function webLinter(language, code, callback, options, editor){
-    var lintServerUrl = getLinterServerURL() + language;
-  
-    function serverCallback(response, status){
-      var errors_and_warnings = JSON.parse(response);    
-      callback(errors_and_warnings);
-    }
-  
-    $.post(lintServerUrl, {code: code}, serverCallback);
+  var lintServerUrl = getLinterServerURL() + language;
+
+  function serverCallback(response, status){
+    var errors_and_warnings = JSON.parse(response);    
+    callback(errors_and_warnings);
   }
-  
-  
-  function linterForLanguage(language) {
-    return function(code, callback, options, editor){
-      webLinter(language, code, callback, options, editor);    
-    }
+
+  $.post(lintServerUrl, {code: code}, serverCallback);
+}
+
+function linterForLanguage(language) {
+  return function(code, callback, options, editor){
+    webLinter(language, code, callback, options, editor);    
   }
-  
-  (function (mod) {
-    if (typeof exports == "object" && typeof module == "object") // CommonJS
-      mod(require("../../lib/codemirror"));
-    else if (typeof define == "function" && define.amd) // AMD
-      define(["../../lib/codemirror"], mod);
-    else // Plain browser env
-      mod(CodeMirror);
-  })(function (CodeMirror) {
-    "use strict";
-  
-    CodeMirror.registerHelper("lint", "python", linterForLanguage("python"));
-    CodeMirror.registerHelper("lint", "text/x-java", linterForLanguage("java"));
-    CodeMirror.registerHelper("lint", "text/x-c++src", linterForLanguage("cpp"));
-    CodeMirror.registerHelper("lint", "text/x-csrc", linterForLanguage("c"));
-  });
-  
+}
+
+(function (mod) {
+  if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
+})(function (CodeMirror) {
+  "use strict";
+
+  CodeMirror.registerHelper("lint", "python", linterForLanguage("python"));
+  CodeMirror.registerHelper("lint", "text/x-java", linterForLanguage("java"));
+  CodeMirror.registerHelper("lint", "text/x-c++src", linterForLanguage("cpp"));
+  CodeMirror.registerHelper("lint", "text/x-csrc", linterForLanguage("c"));
+});
+
 setLintingOptions({
-    async: true
-  });
+  async: true
+});
