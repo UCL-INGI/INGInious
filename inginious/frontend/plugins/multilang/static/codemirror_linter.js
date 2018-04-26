@@ -5,7 +5,7 @@
 function webLinter(language, code, callback, options, editor){
   var lintServerUrl = getLinterServerURL() + language;
 
-  function serverCallback(response, status){
+  var serverCallback = function(response, status){
     var errors_and_warnings = JSON.parse(response);    
     callback(errors_and_warnings);
   }
