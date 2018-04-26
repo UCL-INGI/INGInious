@@ -59,3 +59,23 @@ function studio_init_template_code_multiple_languages(well, pid, problem)
         });
     }
 }
+
+function studio_init_template_code_file_multiple_languages(well, pid, problem)
+{
+    if("max_size" in problem)
+        $('#maxsize-' + pid, well).val(problem["max_size"]);
+    if("allowed_exts" in problem)
+        $('#extensions-' + pid, well).val(problem["allowed_exts"].join());
+
+    if ("languages" in problem) {
+        jQuery.each(problem["languages"], function(language, allowed) {
+            if (allowed)
+                $("#" + language + "-" + pid, well).attr("checked", true);
+        });
+    }
+}
+
+function load_input_code_file_multiple_languages(submissionid, key, input){
+    load_input_file(submissionid, key, input);
+    setDropDownWithTheRightLanguage(key, input[key + "/language"]);
+}
