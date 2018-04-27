@@ -389,7 +389,7 @@ class DockerAgent(Agent):
         except:
             self._logger.exception("Exception while reading container %s output", container_id)
 
-        write_stream.write_eof()
+        write_stream.close()
         sock.close_socket()
         future_results.set_result(result)
 
