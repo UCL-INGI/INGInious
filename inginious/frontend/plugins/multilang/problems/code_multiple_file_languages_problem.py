@@ -46,6 +46,6 @@ class DisplayableCodeFileMultipleLanguagesProblem(CodeFileMultipleLanguagesProbl
 
         multiple_language_render = str(renderer.multilang(self.get_id(), dropdown_id, allowed_languages, self.get_id(), self.get_type()))
         standard_code_problem_render = super(DisplayableCodeFileMultipleLanguagesProblem, self).show_input(template_helper, language, seed)
-        tools_render = str(renderer.tools(self.get_id(), "plain", custom_input_id, self.get_type(), "python_tutor_url"))
+        tools_render = str(renderer.tools(self.get_id(), "plain", custom_input_id, self.get_type(), "python_tutor_url", "linter_url"))
 
         return multiple_language_render + standard_code_problem_render + tools_render
