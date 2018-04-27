@@ -1,4 +1,4 @@
-$def with (course,taskid,problem_types,task_data,environments,problemdump,contains_is_html,current_filetype,available_filetypes,AccessibleTime,file_list)
+$def with (course,taskid,problem_types,task_data,environments,problemdump,contains_is_html,current_filetype,available_filetypes,AccessibleTime,file_list, additional_tabs)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -48,6 +48,9 @@ $var Navbar: $:NavbarF()
                 fa-tags fa-fw"></i>&nbsp; $:_("Tags")</a></li>
             <li role="presentation"><a href="#tab_files" aria-controls="files" role="tab" data-toggle="tab"><i class="fa
                 fa-edit fa-fw"></i>&nbsp; $:_("Task files")</a></li>
+
+            $for tab_id, link, tab_content in additional_tabs:
+                <li role="presentation"><a href="#$tab_id" aria-controls="$tab_id" role="tab" data-toggle="tab">$:link</a></li>
         </ul>
         <div id="edit_task_tabs_content" class="tab-content">
             <div role="tabpanel" class="tab-pane active" id="tab_basic">
@@ -75,6 +78,11 @@ $var Navbar: $:NavbarF()
                     $:include.course_admin.edit_tabs.files(course,taskid,file_list,None)
                 </div>
             </div>
+
+            $for tab_id, link, tab_content in additional_tabs:
+                <div role="tabpanel" class="tab-pane" id="$tab_id">
+                    $:tab_content
+                </div>
 
         </div>
     </div>

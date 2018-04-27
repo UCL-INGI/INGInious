@@ -51,6 +51,9 @@ class CourseEditTask(INGIniousAdminPage):
             pass
         available_filetypes = self.task_factory.get_available_task_file_extensions()
 
+        additional_tabs = self.plugin_manager.call_hook('task_editor_tab', course=course, taskid=taskid,
+                                                        task_data=task_data, template_helper=self.template_helper)
+
         return self.template_helper.get_renderer().course_admin.task_edit(
             course,
             taskid,
@@ -65,7 +68,9 @@ class CourseEditTask(INGIniousAdminPage):
             current_filetype,
             available_filetypes,
             AccessibleTime,
-            CourseTaskFiles.get_task_filelist(self.task_factory, courseid, taskid))
+            CourseTaskFiles.get_task_filelist(self.task_factory, courseid, taskid),
+            additional_tabs
+        )
 
     @classmethod
     def contains_is_html(cls, data):
@@ -292,6 +297,16 @@ class CourseEditTask(INGIniousAdminPage):
 
         task_fs = self.task_factory.get_task_fs(courseid, taskid)
         task_fs.ensure_exists()
+
+        # Call plugins and return the first error
+        plugin_results = self.plugin_manager.call_hook('task_editor_submit', course=course, taskid=taskid,
+                                                       task_data=data, task_fs=task_fs)
+
+        # Retrieve the first non-null element
+        error = next(filter(None, plugin_results), None)
+        if error is not None:
+            return error
+
         try:
             WebAppTask(course, taskid, data, task_fs, self.plugin_manager, self.task_factory.get_problem_types())
         except Exception as message:
