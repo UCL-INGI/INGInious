@@ -227,7 +227,30 @@ Each hook available in INGInious is described here, starting with its name and p
     Javascript returned by this hook will be executed by the distant web browser when the submission is loaded.
     This hook is called each time a submission is displayed. Pay attention to output correct javascript, as it may
     break the webpage.
+``task_editor_tab`` (``course``, ``taskid``, ``task_data``, ``template_helper``)
+    
+    ``course`` : inginious.frontend.courses.WebAppCourse
 
+    ``task_data`` : OrderedDict
+    
+    ``template_helper`` : inginious.frontend.template_helper.TemplateHelper
+    
+    This hook allows to add additional tabs on the task editor.
+    
+    ``course`` is the course object related to task, ``task_data`` is the task descriptor content and ``template_helper`` is an
+    object of type TemplateHelper, that can be useful to render templates such as tab content.
+``task_editor_submit`` (``course``, ``taskid``, ``task_data``, ``task_fs``)
+    
+    ``course`` : inginious.frontend.courses.WebAppCourse
+
+    ``task_data`` : OrderedDict
+    
+    ``task_fs`` : inginious.common.filesystems.local.LocalFSProvider
+    
+    This hook allows to process form data located in the added tabs.
+    
+    ``course`` is the course object related to task, ``task_data`` is the task descriptor content and ``task_fs`` is an
+    object of type LocalFSProvider.    
 
 Additional subproblems
 ----------------------
