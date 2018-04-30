@@ -5,6 +5,7 @@ function load_input_code_multiple_languages(submissionid, key, input)
     changeSubmissionLanguage(key);
 }
 
+
 function setDropDownWithTheRightLanguage(key, language)
 {
     var dropDown = document.getElementById(key + '/language');
@@ -15,7 +16,13 @@ function changeSubmissionLanguage(key){
     var language = getLanguageForProblemId(key);
     var editor = codeEditors[key];
     var mode = CodeMirror.findModeByName(language);
+    var editor = codeEditors[key];
+    var lintingOptions = {
+        async: true
+    };
     editor.setOption("mode", mode.mime);
+    editor.setOption("lint", lintingOptions);
+    editor.setOption("gutters",["CodeMirror-linenumbers", "CodeMirror-foldgutter", "CodeMirror-lint-markers"]);
     CodeMirror.autoLoadMode(editor, mode["mode"]);
 }
 

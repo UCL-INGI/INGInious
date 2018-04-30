@@ -68,10 +68,6 @@ function colorizeStaticCode()
     });
 }
 
-var lintingOptions = {
-    async: true
-};
-
 //Register and init a code editor (ace)
 function registerCodeEditor(textarea, lang, lines)
 {
@@ -89,10 +85,13 @@ function registerCodeEditor(textarea, lang, lines)
         matchBrackets:     true,
         autoCloseBrackets: true,
         lineWrapping:      true,
-        gutters:           ["CodeMirror-lint-markers", "CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+        gutters:           ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
         indentUnit:        4,
         viewportMargin:    Infinity,
-        lint:              lintingOptions
+        lint:              function()
+                           {
+                               return []
+                           }
     });
 
     if(is_single)
