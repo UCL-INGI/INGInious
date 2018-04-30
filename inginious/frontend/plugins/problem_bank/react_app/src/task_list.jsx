@@ -44,6 +44,12 @@ class TaskList extends React.Component{
 
         return (
             <div>
+                <CustomAlert message={this.props.dataAlert.data.message}
+                             isVisible={this.props.dataAlert.isVisibleAlert}
+                             callbackParent={this.props.callbackOnChildChangedClose}
+                             styleAlert={this.props.dataAlert.styleAlert}
+                             titleAlert={this.props.dataAlert.titleAlert}
+                />
 
                 <form className="custom-search-input">
                     <h5>Search tasks:</h5>
@@ -65,12 +71,6 @@ class TaskList extends React.Component{
                      onChange={this.props.callbackOnPageChange}
                 />
 
-                <CustomAlert message={this.props.dataAlert.data.message}
-                             isVisible={this.props.dataAlert.isVisibleAlert}
-                             callbackParent={this.props.callbackOnChildChangedClose}
-                             styleAlert={this.props.dataAlert.styleAlert}
-                             titleAlert={this.props.dataAlert.titleAlert}
-                />
             </div>
         );
     }

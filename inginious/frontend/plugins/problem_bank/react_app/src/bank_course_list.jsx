@@ -24,7 +24,12 @@ class BankCourseList extends React.Component {
 
         return (
             <div>
-
+                <CustomAlert message={this.props.dataAlert.data.message}
+                             isVisible={this.props.dataAlert.isVisibleAlert}
+                             callbackParent={this.props.callbackOnChildChangedClose}
+                             styleAlert={this.props.dataAlert.styleAlert}
+                             titleAlert={this.props.dataAlert.titleAlert}
+                />
                 <Well bsSize="small">
                     <h5>Select course to become in bank</h5>
                     <CourseAutosuggest
@@ -44,13 +49,6 @@ class BankCourseList extends React.Component {
                      currentPage={this.props.page}
                      totalPages={this.props.totalPages}
                      onChange={this.props.callbackOnPageChange}
-                />
-
-                <CustomAlert message={this.props.dataAlert.data.message}
-                             isVisible={this.props.dataAlert.isVisibleAlert}
-                             callbackParent={this.props.callbackOnChildChangedClose}
-                             styleAlert={this.props.dataAlert.styleAlert}
-                             titleAlert={this.props.dataAlert.titleAlert}
                 />
             </div>
 
