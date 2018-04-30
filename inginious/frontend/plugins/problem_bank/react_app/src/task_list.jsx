@@ -49,6 +49,7 @@ class TaskList extends React.Component{
                              callbackParent={this.props.callbackOnChildChangedClose}
                              styleAlert={this.props.dataAlert.styleAlert}
                              titleAlert={this.props.dataAlert.titleAlert}
+                             callbackSetAlertInvisible={this.props.callbackSetAlertInvisible}
                 />
 
                 <form className="custom-search-input">

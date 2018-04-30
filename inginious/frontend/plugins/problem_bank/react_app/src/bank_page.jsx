@@ -185,6 +185,28 @@ class BankPage extends React.Component {
         });
     };
 
+    setAlertCourseListInvisible(){
+        this.setState({
+           dataAlertCourseList: {
+                data: {"message" : ""},
+                isVisibleAlert: false,
+                titleAlert: '',
+                styleAlert: ''
+           }
+        });
+    }
+
+    setAlertTaskListInvisible(){
+        this.setState({
+           dataAlertTaskList: {
+                data: {"message" : ""},
+                isVisibleAlert: false,
+                titleAlert: '',
+                styleAlert: ''
+           }
+        });
+    }
+
 
     onPageTaskChange(page) {
         this.setState({pageTasks: page});
@@ -218,6 +240,7 @@ class BankPage extends React.Component {
                         callbackOnPageChange={(page) => this.onPageCourseChange(page)}
                         callbackOnDeleteCourse={(course_id) => this.deleteCourse(course_id)}
                         callbackAddCourse={(courseId) => this.addCourse(courseId)}
+                        callbackSetAlertInvisible={() => this.setAlertCourseListInvisible()}
                     />
                 </Tab>
                 <Tab eventKey={2} title="Tasks">
@@ -233,6 +256,7 @@ class BankPage extends React.Component {
                         callbackUpdateTasks={() => this.updateTasksAsync()}
                         callbackUpdateFilteredTasks={(query) => this.updateFilteredTasksAsync(query)}
                         callBackAddTaskToCourse={this.addTaskToCourse}
+                        callbackSetAlertInvisible={() => this.setAlertTaskListInvisible()}
                     />
                 </Tab>
             </Tabs>

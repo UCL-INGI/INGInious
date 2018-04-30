@@ -29,6 +29,7 @@ class BankCourseList extends React.Component {
                              callbackParent={this.props.callbackOnChildChangedClose}
                              styleAlert={this.props.dataAlert.styleAlert}
                              titleAlert={this.props.dataAlert.titleAlert}
+                             callbackSetAlertInvisible={this.props.callbackSetAlertInvisible}
                 />
                 <Well bsSize="small">
                     <h5>Select course to become in bank</h5>
