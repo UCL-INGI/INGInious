@@ -1,13 +1,14 @@
 import web
 
-from .admin_api import AdminApi
+from inginious.frontend.plugins.utils.admin_api import AdminApi
+from inginious.frontend.plugins.utils import get_mandatory_parameter
 
 
 class FilterTasksApi(AdminApi):
     def API_POST(self):
 
         parameters = web.input()
-        task_query = self.get_mandatory_parameter(parameters, "task_query")
+        task_query = get_mandatory_parameter(parameters, "task_query")
         bank_course_ids = set(bank["courseid"]
                               for bank in self.database.problem_banks.find())
 

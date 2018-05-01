@@ -14,12 +14,6 @@ class AdminApi(api.APIAuthenticatedPage):
 
         return course
 
-    def get_mandatory_parameter(self, parameters, parameter_name):
-        if parameter_name not in parameters:
-            raise api.APIError(400, {"error": parameter_name + " is mandatory"})
-
-        return parameters[parameter_name]
-
     def list_names_tags(self, tags):
         parsed_tags = list()
         for key, tag in tags.items():

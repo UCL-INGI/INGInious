@@ -1,13 +1,14 @@
 import web
 
 from pymongo.errors import DuplicateKeyError
-from .admin_api import AdminApi
+from inginious.frontend.plugins.utils.admin_api import AdminApi
+from inginious.frontend.plugins.utils import get_mandatory_parameter
 
 
 class ManageBanksCoursesApi(AdminApi):
     def get_course_id(self):
         parameters = web.input()
-        course_id = self.get_mandatory_parameter(parameters, "course_id")
+        course_id = get_mandatory_parameter(parameters, "course_id")
         self.get_course_and_check_rights(course_id)
         return course_id
 

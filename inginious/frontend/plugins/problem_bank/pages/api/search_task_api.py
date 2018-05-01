@@ -1,4 +1,4 @@
-from .admin_api import AdminApi
+from inginious.frontend.plugins.utils.admin_api import AdminApi
 
 
 class SearchTaskApi(AdminApi):

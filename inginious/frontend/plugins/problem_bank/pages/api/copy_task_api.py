@@ -2,7 +2,8 @@ import web
 import uuid
 
 import inginious.frontend.pages.api._api_page as api
-from .admin_api import AdminApi
+from inginious.frontend.plugins.utils.admin_api import AdminApi
+from inginious.frontend.plugins.utils import get_mandatory_parameter
 from inginious.common.exceptions import TaskNotFoundException
 from inginious.common.course_factory import CourseNotFoundException, CourseUnreadableException, InvalidNameException
 from inginious.common.filesystems.provider import NotFoundException
@@ -15,9 +16,9 @@ class CopyTaskApi(AdminApi):
 
     def API_POST(self):
         parameters = web.input()
-        target_id = self.get_mandatory_parameter(parameters, "target_id")
-        bank_id = self.get_mandatory_parameter(parameters, "bank_id")
-        task_id = self.get_mandatory_parameter(parameters, "task_id")
+        target_id = get_mandatory_parameter(parameters, "target_id")
+        bank_id = get_mandatory_parameter(parameters, "bank_id")
+        task_id = get_mandatory_parameter(parameters, "task_id")
 
         target_course = self.get_course_and_check_rights(target_id)
         target_course_tasks_ids = [key for key in target_course.get_tasks()]
