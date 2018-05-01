@@ -8,3 +8,7 @@ recursive-include inginious/frontend/templates *
 recursive-include inginious/frontend/plugins/contests *
 recursive-include inginious/frontend/plugins/scoreboard *
 recursive-include inginious/frontend/plugins/auth *
+recursive-include inginious/frontend/plugins/grader_generator *
+recursive-include inginious/frontend/plugins/statistics *
+recursive-include inginious/frontend/plugins/utils *
+recursive-include inginious/frontend/plugins/multilang *
