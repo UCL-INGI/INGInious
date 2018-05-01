@@ -21,6 +21,7 @@ class CustomAlert extends React.Component {
 
     render() {
         if (this.props.isVisible) {
+          clearTimeout(this.timer);
           this.handleDelayedDismiss();
           return (
             <Alert bsStyle={this.props.styleAlert} onDismiss={this.handleAlertDismiss}>
