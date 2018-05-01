@@ -86,6 +86,24 @@ class BankPage extends React.Component {
                 this.updateAvailableCoursesAsync();
                 this.updateTasksAsync();
             }
+        }).done((data) => {
+            this.setState( {
+                dataAlertCourseList:{
+                    data: data,
+                    isVisibleAlert: true,
+                    titleAlert: "Success!",
+                    styleAlert: "success"
+                }
+            });
+        }).error((data) => {
+            this.setState( {
+                dataAlertCourseList: {
+                    isVisibleAlert: true,
+                    data: {"message": data["responseJSON"]["error"]},
+                    titleAlert: "Error!",
+                    styleAlert: "danger"
+                }
+            });
         });
     };
 

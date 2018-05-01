@@ -14,7 +14,8 @@ class BankCourseList extends React.Component {
             if(i >= ((this.props.page - 1) * this.props.limit) && i < (this.props.page * this.props.limit)) {
                 return (
                     <BankCourse
-                        name={course}
+                        name={course.name}
+                        removable={course.is_removable}
                         key={i}
                         callbackOnDeleteCourse={this.props.callbackOnDeleteCourse}
                     />

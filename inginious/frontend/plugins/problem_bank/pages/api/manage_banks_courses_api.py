@@ -12,7 +12,12 @@ class ManageBanksCoursesApi(AdminApi):
         return course_id
 
     def API_GET(self):
-        return 200, [bank["courseid"] for bank in self.database.problem_banks.find()]
+        bank_courses = [{
+            "name": bank["courseid"],
+            "is_removable": self.has_rights_on_course(bank["courseid"])
+        } for bank in self.database.problem_banks.find()]
+
+        return 200, bank_courses
 
     def API_POST(self):
         course_id = self.get_course_id()
@@ -31,4 +36,4 @@ class ManageBanksCoursesApi(AdminApi):
         if rows_affected >= 1:
             return 200, {"message": "Bank removed successfully"}
         else:
-            return 404, {"message": "No bank found"}
+            return 404, {"error": "No bank found"}

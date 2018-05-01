@@ -9,7 +9,7 @@ class AdminApi(api.APIAuthenticatedPage):
         except (CourseNotFoundException, InvalidNameException, CourseUnreadableException):
             raise api.APIError(400, {"error": "Invalid course"})
 
-        if not self.user_manager.has_staff_rights_on_course(course):
+        if not self.user_manager.has_admin_rights_on_course(course):
             raise api.APIError(400, {"error": "Invalid course"})
 
         return course
@@ -25,3 +25,11 @@ class AdminApi(api.APIAuthenticatedPage):
         for key, tag in tags.items():
             parsed_tags.append(tag["name"])
         return parsed_tags
+
+    def has_rights_on_course(self, course_id):
+        try:
+            course = self.course_factory.get_course(course_id)
+        except (CourseNotFoundException, InvalidNameException, CourseUnreadableException):
+            raise api.APIError(400, {"error": "Invalid course"})
+
+        return self.user_manager.has_admin_rights_on_course(course)
