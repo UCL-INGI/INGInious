@@ -17,8 +17,9 @@ class SearchTaskApi(AdminApi):
             ])
             for task in search_tasks:
                 dict_task = {"course_id": task["course_id"], "task_id": task["task_id"], "task_name": task["task_name"],
-                        "task_author": task["task_author"], "task_context": task["task_context"],
-                        "tags": self.list_names_tags(task["tags"])}
+                             "task_author": task["task_author"], "task_context": task["task_context"],
+                             "tags": task["tags"]
+                             }
                 tasks.append(dict_task)
 
         return 200, sorted(tasks, key=lambda k: (k['course_id'], k['task_id']))

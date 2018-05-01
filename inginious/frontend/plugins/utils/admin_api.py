@@ -14,12 +14,6 @@ class AdminApi(api.APIAuthenticatedPage):
 
         return course
 
-    def list_names_tags(self, tags):
-        parsed_tags = list()
-        for key, tag in tags.items():
-            parsed_tags.append(tag["name"])
-        return parsed_tags
-
     def has_rights_on_course(self, course_id):
         try:
             course = self.course_factory.get_course(course_id)

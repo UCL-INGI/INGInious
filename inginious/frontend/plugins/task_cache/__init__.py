@@ -18,7 +18,7 @@ def init(plugin_manager, course_factory, client, config):
             "task_author": task_author,
             "task_context": task_context,
             "course_id": courseid,
-            "tags": tags
+            "tags": [tag["name"] for _, tag in tags.items()]
         }
 
         data_filter = {
