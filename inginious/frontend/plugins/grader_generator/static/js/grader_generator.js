@@ -117,7 +117,7 @@ function studio_set_initial_problem(initialProblemId){
 
 function studio_update_grader_files()
 {
-    $.get('/api/stats/test_file_api', {
+    $.get('/api/grader_generator/test_file_api', {
         course_id: courseId,
         task_id: taskId
     }, function(files) {

@@ -1,9 +1,10 @@
 import web
-import inginious.frontend.pages.api._api_page as api
+from inginious.frontend.plugins.utils.admin_api import AdminApi
 from inginious.frontend.pages.course_admin.task_edit_file import CourseTaskFiles
+from inginious.frontend.plugins.utils import get_mandatory_parameter
 
 
-class TaskTestCasesFilesApi(api.APIAuthenticatedPage):
+class TaskTestCasesFilesApi(AdminApi):
 
     def API_GET(self):
         """
@@ -18,8 +19,10 @@ class TaskTestCasesFilesApi(api.APIAuthenticatedPage):
         """
         parameters = web.input()
 
-        courseid = parameters["course_id"]
-        taskid = parameters["task_id"]
+        courseid = get_mandatory_parameter(parameters, "course_id")
+        taskid = get_mandatory_parameter(parameters, "task_id")
+
+        self.get_course_and_check_rights(courseid)
 
         file_list = CourseTaskFiles.get_task_filelist(self.task_factory, courseid, taskid)
         result = [
