@@ -5,6 +5,7 @@ import json
 from inginious.frontend.plugins.utils import create_static_resource_page
 from inginious.client.client_sync import ClientSync
 from inginious.frontend.pages.api._api_page import APIAuthenticatedPage
+from inginious.frontend.parsable_text import ParsableText
 
 _static_folder_path = os.path.join(os.path.dirname(__file__), "static")
 
@@ -31,9 +32,9 @@ def customInputManagerWithCurriedClient(client):
                 data = {
                     "status": ("done" if result[0] == "success" or result[0] == "failed" else "error"),
                     "result": result[0],
-                    "text": result[1],
-                    "stdout": stdout,
-                    "stderr": stderr
+                    "text": ParsableText(result[1]).parse(),
+                    "stdout": custom.get("custom_stdout", ""),
+                    "stderr": custom.get("custom_stderr", "")
                 }
 
                 web.header('Content-Type', 'application/json')
@@ -41,7 +42,7 @@ def customInputManagerWithCurriedClient(client):
 
             except Exception as ex:
                 web.header('Content-Type', 'application/json')
-                return 500, json.dumps({"status": "error", "text": str(ex)})
+                return 200, json.dumps({"status": "error", "text": str(ex)})
 
     return CustomInputManager
 
