@@ -27,6 +27,12 @@ def customInputManagerWithCurriedClient(client):
 
             userinput = web.input()
             try:
+                init_var = {
+                    problem.get_id(): problem.input_type()()
+                    for problem in task.get_problems() if problem.input_type() in [dict, list]
+                }
+                
+                userinput = task.adapt_input_for_backend(web.input(**init_var))
                 result, grade, problems, tests, custom, archive, stdout, stderr = self.add_unsaved_job(task, userinput)
 
                 data = {
