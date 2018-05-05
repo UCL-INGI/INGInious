@@ -28,7 +28,7 @@ class BankPage(INGIniousAdminPage):
         for file in js_files:
             self.template_helper.add_javascript(base_url + 'static/js/' + file)
 
-    def GET_AUTH(self):
+    def GET_AUTH(self, course_id):
         self._set_up_compiled_resources(_REACT_BUILD_FOLDER, _REACT_BASE_URL)
 
         return (

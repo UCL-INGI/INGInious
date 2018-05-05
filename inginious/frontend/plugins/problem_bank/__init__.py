@@ -10,11 +10,8 @@ from .pages.api.filter_tasks_api import FilterTasksApi
 from .pages.bank_page import BankPage
 
 
-def problem_bank_main_div(template_helper):
-    div_id = "problem_bank_main"
-    content = template_helper.get_custom_renderer(_BASE_RENDERER_PATH, layout=False).problem_bank_div()
-
-    return div_id, content
+def problem_bank_course_admin_menu_hook(course):
+    return "problems_bank", '<i class="fa fa-copy" aria-hidden="true"></i> Problem bank'
 
 
 def init(plugin_manager, course_factory, client, config):
@@ -29,6 +26,6 @@ def init(plugin_manager, course_factory, client, config):
     plugin_manager.add_page('/plugins/problems_bank/api/available_courses', AvailableCoursesApi)
     plugin_manager.add_page('/plugins/problems_bank/api/bank_tasks', SearchTaskApi)
     plugin_manager.add_page('/plugins/problems_bank/api/filter_bank_tasks', FilterTasksApi)
-    plugin_manager.add_page(r'/plugins/problems_bank', BankPage)
+    plugin_manager.add_page(r'/admin/([a-z0-9A-Z\-_]+)/problems_bank', BankPage)
 
-    plugin_manager.add_hook('my_courses_div', problem_bank_main_div)
+    plugin_manager.add_hook('course_admin_menu', problem_bank_course_admin_menu_hook)
