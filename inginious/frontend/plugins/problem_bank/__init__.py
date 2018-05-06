@@ -11,10 +11,6 @@ from .pages.bank_page import BankPage
 from .pages.bank_page import ProblemBankHook
 
 
-def problem_bank_course_admin_menu_hook(course):
-    return ProblemBankHook().get_hook(course)
-
-
 def init(plugin_manager, course_factory, client, config):
     def on_course_updated(courseid, new_content):
         course_data = {
@@ -25,6 +21,12 @@ def init(plugin_manager, course_factory, client, config):
         }
         plugin_manager.get_database().problem_banks.update_one(filter=data_filter,
                                                               update={"$set": course_data})
+
+    def problem_bank_course_admin_menu_hook(course):
+        if not plugin_manager.get_user_manager().has_admin_rights_on_course(course):
+            return None
+        else:
+            return "problems_bank", '<i class="fa fa-database" aria-hidden="true"></i> Problem bank'
 
     if "problem_banks" not in plugin_manager.get_database().collection_names():
         plugin_manager.get_database().create_collection("problem_banks")

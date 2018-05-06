@@ -35,12 +35,3 @@ class BankPage(INGIniousAdminPage):
         return (
             self.template_helper.get_custom_renderer(_BASE_RENDERER_PATH).index()
         )
-
-
-class ProblemBankHook(INGIniousAdminPage):
-
-    def get_hook(self, course):
-        if not self.user_manager.has_admin_rights_on_course(course):
-            return None
-        else:
-            return "problems_bank", '<i class="fa fa-database" aria-hidden="true"></i> Problem bank'
