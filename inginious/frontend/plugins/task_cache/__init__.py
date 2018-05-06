@@ -1,8 +1,8 @@
 import logging
-import json
 
 _BASE_RENDERER_PATH = 'frontend/webapp/plugins/hooks_example'
 _logger = logging.getLogger("inginious.frontend.webapp.plugins.hooks_example")
+
 
 def init(plugin_manager, course_factory, client, config):
 
@@ -12,12 +12,14 @@ def init(plugin_manager, course_factory, client, config):
         task_author = descriptor["author"]
         task_context = descriptor["context"]
         tags = new_content.get("tags", [])
+        course = course_factory.get_course(courseid)
         task_data = {
             "task_name": task_name,
             "task_id": taskid,
             "task_author": task_author,
             "task_context": task_context,
             "course_id": courseid,
+            "course_name": course.get_name(plugin_manager.get_user_manager().session_language()),
             "tags": [tag["name"] for _, tag in tags.items()]
         }
 
@@ -44,7 +46,7 @@ def init(plugin_manager, course_factory, client, config):
 
     def on_course_updated(courseid, new_content):
         course_data = {
-            "course_id": new_content["name"]
+            "course_name": new_content["name"]
         }
         data_filter = {
             "course_id": courseid
@@ -60,4 +62,3 @@ def init(plugin_manager, course_factory, client, config):
     plugin_manager.add_hook('task_deleted', on_task_deleted)
     plugin_manager.add_hook('course_updated', on_course_updated)
     plugin_manager.add_hook('course_deleted', on_course_deleted)
-
