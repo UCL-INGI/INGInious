@@ -16,6 +16,16 @@ def problem_bank_course_admin_menu_hook(course):
 
 
 def init(plugin_manager, course_factory, client, config):
+    def on_course_updated(courseid, new_content):
+        course_data = {
+            "course_name": new_content["name"]
+        }
+        data_filter = {
+            "courseid": courseid
+        }
+        plugin_manager.get_database().problem_banks.update_one(filter=data_filter,
+                                                              update={"$set": course_data})
+
     if "problem_banks" not in plugin_manager.get_database().collection_names():
         plugin_manager.get_database().create_collection("problem_banks")
     plugin_manager.get_database().problem_banks.create_index([("courseid", 1)], unique=True)
@@ -30,3 +40,4 @@ def init(plugin_manager, course_factory, client, config):
     plugin_manager.add_page(r'/admin/([a-z0-9A-Z\-_]+)/problems_bank', BankPage)
 
     plugin_manager.add_hook('course_admin_menu', problem_bank_course_admin_menu_hook)
+    plugin_manager.add_hook('course_updated', on_course_updated)
