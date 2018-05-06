@@ -8,10 +8,11 @@ from .pages.api.search_task_api import SearchTaskApi
 from .pages.api.available_courses_api import AvailableCoursesApi
 from .pages.api.filter_tasks_api import FilterTasksApi
 from .pages.bank_page import BankPage
+from .pages.bank_page import ProblemBankHook
 
 
 def problem_bank_course_admin_menu_hook(course):
-    return "problems_bank", '<i class="fa fa-copy" aria-hidden="true"></i> Problem bank'
+    return ProblemBankHook().get_hook(course)
 
 
 def init(plugin_manager, course_factory, client, config):

@@ -15,7 +15,7 @@ class ManageBanksCoursesApi(AdminApi):
     def API_GET(self):
         bank_courses = [{
             "name": bank["courseid"],
-            "is_removable": self.has_rights_on_course(bank["courseid"])
+            "is_removable": self.user_manager.has_admin_rights_on_course(self.course_factory.get_course(bank["courseid"]))
         } for bank in self.database.problem_banks.find()]
 
         return 200, bank_courses

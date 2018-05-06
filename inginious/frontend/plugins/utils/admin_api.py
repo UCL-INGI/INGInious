@@ -14,10 +14,10 @@ class AdminApi(api.APIAuthenticatedPage):
 
         return course
 
-    def has_rights_on_course(self, course_id):
-        try:
-            course = self.course_factory.get_course(course_id)
-        except (CourseNotFoundException, InvalidNameException, CourseUnreadableException):
-            raise api.APIError(400, {"error": "Invalid course"})
-
-        return self.user_manager.has_admin_rights_on_course(course)
+    # def has_rights_on_course(self, course_id):
+    #     try:
+    #         course = self.course_factory.get_course(course_id)
+    #     except (CourseNotFoundException, InvalidNameException, CourseUnreadableException):
+    #         raise api.APIError(400, {"error": "Invalid course"})
+    #
+    #     return self.user_manager.has_admin_rights_on_course(course)
