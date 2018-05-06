@@ -14,7 +14,8 @@ class ManageBanksCoursesApi(AdminApi):
 
     def API_GET(self):
         bank_courses = [{
-            "name": bank["courseid"],
+            "id": bank["courseid"],
+            "name": bank["course_name"],
             "is_removable": self.user_manager.has_admin_rights_on_course(self.course_factory.get_course(bank["courseid"]))
         } for bank in self.database.problem_banks.find()]
 
@@ -22,8 +23,12 @@ class ManageBanksCoursesApi(AdminApi):
 
     def API_POST(self):
         course_id = self.get_course_id()
+        course = self.course_factory.get_course(course_id)
         try:
-            self.database.problem_banks.insert({"courseid": course_id})
+            self.database.problem_banks.insert({
+                "courseid": course_id,
+                "course_name": course.get_name(self.user_manager.session_language())
+            })
         except DuplicateKeyError:
             return 200, {"message": "Course already a bank"}
 

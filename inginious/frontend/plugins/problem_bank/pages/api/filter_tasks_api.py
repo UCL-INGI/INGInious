@@ -44,7 +44,7 @@ class FilterTasksApi(AdminApi):
 
                 dict_task = {"course_id": task["course_id"], "task_id": task["task_id"], "task_name": task["task_name"],
                              "task_author": task["task_author"], "task_context": task["task_context"],
-                             "tags": task["tags"]
+                             "tags": task["tags"], "course_name": task["course_name"]
                              }
                 tasks.append(dict_task)
 

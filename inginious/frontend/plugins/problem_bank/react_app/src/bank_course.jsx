@@ -20,7 +20,7 @@ class BankCourse extends React.Component {
     };
 
     onDeleteCourse = () => {
-        let courseId = this.props.name;
+        let courseId = this.props.id;
         let deleteCourse = this.props.callbackOnDeleteCourse;
 
         deleteCourse(courseId);

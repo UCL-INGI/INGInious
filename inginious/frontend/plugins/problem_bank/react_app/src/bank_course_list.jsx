@@ -16,6 +16,7 @@ class BankCourseList extends React.Component {
                     <BankCourse
                         name={course.name}
                         removable={course.is_removable}
+                        id={course.id}
                         key={i}
                         callbackOnDeleteCourse={this.props.callbackOnDeleteCourse}
                     />

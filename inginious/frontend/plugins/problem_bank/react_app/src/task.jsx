@@ -32,7 +32,7 @@ class Task extends React.Component {
         return (
             <div>
                 <button type="button" className="list-group-item" onClick={this.open}>
-                    <b>{this.props.task_info.course_id + " - " + this.props.task_info.task_name}</b>
+                    <b>{this.props.task_info.course_name + " - " + this.props.task_info.task_name}</b>
                     <br/>
 
                     {this.props.task_info.tags.join(', ')}
