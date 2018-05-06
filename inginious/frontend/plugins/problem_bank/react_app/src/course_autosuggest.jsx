@@ -9,7 +9,8 @@ class CourseAutosuggest extends React.Component {
 
         this.state = {
             suggestions: [],
-            value: ''
+            value: '',
+            id: ''
         };
     }
 
@@ -34,12 +35,20 @@ class CourseAutosuggest extends React.Component {
     };
 
     onClick = () => {
-        let courseId = this.state.value;
+        let courseId = this.state.id;
         let callbackOnClick = this.props.callbackOnClick;
         callbackOnClick(courseId);
         this.setState({
-            value: ''
+            value: '',
+            id: ''
         });
+    };
+
+    getSuggestionValue = (suggestion) => {
+        this.setState({
+            id: suggestion.id
+        });
+        return suggestion.name
     };
 
     render() {
@@ -57,7 +66,7 @@ class CourseAutosuggest extends React.Component {
                     suggestions={this.state.suggestions}
                     onSuggestionsFetchRequested={({value}) => this.setState({suggestions: this.getSuggestions(value)})}
                     onSuggestionsClearRequested={() => this.setState({suggestions: []}) }
-                    getSuggestionValue={(suggestion) => suggestion.id}
+                    getSuggestionValue={this.getSuggestionValue}
                     renderSuggestion={this.renderSuggestion}
                     inputProps={inputProps}
                 />
