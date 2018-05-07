@@ -12,6 +12,8 @@ class TaskList extends React.Component{
             query: '',
             timer: 0,
         };
+
+        this.handleChange = this.handleChange.bind(this);
     }
 
     handleChange(e) {
@@ -58,7 +60,7 @@ class TaskList extends React.Component{
                         type="text"
                         value={this.props.query}
                         placeholder="Search a key word"
-                        onChange={(e) => this.handleChange(e)}
+                        onChange={this.handleChange}
                     />
                 </form>
 

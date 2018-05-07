@@ -24,8 +24,10 @@ class BankCourseList extends React.Component {
             }
         });
 
-        let listGroupCoursesContent = courses.length ? courses : "There are no available courses";
-        
+        if(!courses.length){
+            courses = "There are no available courses";
+        }
+
         let availableCourses = this.props.availableCourses.map((course, i) => {
             if(i >= ((this.props.pageAvailableCourses - 1) * this.props.limit) &&
                 i < (this.props.pageAvailableCourses * this.props.limit)) {
@@ -40,6 +42,10 @@ class BankCourseList extends React.Component {
                 )
             }
         });
+
+        if(!availableCourses.length){
+            courses = "There are no available courses";
+        }
 
         return (
             <div>
@@ -69,7 +75,7 @@ class BankCourseList extends React.Component {
                             <small> (You are free to copy the tasks from these courses) </small>
                         </div>
 
-                        <div className="list-group">{listGroupCoursesContent}</div>
+                        <div className="list-group">{courses}</div>
 
                         <UltimatePagination
                              currentPage={this.props.page}
@@ -79,7 +85,7 @@ class BankCourseList extends React.Component {
                     </Col>
                     <Col md={6}>
                         <div>
-                            The following are courses which you are admin and are not marked as bank:
+                            The following are courses are not marked as bank and you are admin  :
                             <br/>
                             <small> (You can copy tasks from these courses to other courses which you are admin)</small>
                         </div>

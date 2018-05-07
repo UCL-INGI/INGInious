@@ -5,15 +5,17 @@ class CustomAlert extends React.Component {
     constructor(props){
         super(props);
         this.timer = 0;
+        this.handleDelayedDismiss = this.handleDelayedDismiss.bind(this);
+        this.handleAlertDismiss = this.handleAlertDismiss.bind(this);
     }
 
-    handleAlertDismiss = () => {
+    handleAlertDismiss(){
         clearTimeout(this.timer);
         let updateParent = this.props.callbackParent;
         updateParent(false);
 
         this.forceUpdate();
-    };
+    }
 
     handleDelayedDismiss(){
         this.timer = setTimeout(this.props.callbackSetAlertInvisible, 10000)

@@ -9,17 +9,21 @@ class BankCourse extends React.Component {
         this.state = {
             showModal: false
         };
+
+        this.open = this.open.bind(this);
+        this.close = this.close.bind(this);
+        this.onDeleteCourse = this.onDeleteCourse.bind(this);
     }
 
-    open = () => {
+    open(){
         this.setState({ showModal: true });
     };
 
-    close = () => {
+    close(){
         this.setState({ showModal: false });
     };
 
-    onDeleteCourse = () => {
+    onDeleteCourse(){
         let courseId = this.props.id;
         let deleteCourse = this.props.callbackOnDeleteCourse;
 

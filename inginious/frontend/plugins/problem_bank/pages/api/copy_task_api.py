@@ -45,11 +45,12 @@ class CopyTaskApi(AdminApi):
             target_fs.copy_to(task.get_fs().prefix, copy_id)
 
             if "tasks_cache" in self.database.collection_names():
-                task_to_copy = self.database.tasks_cache.find_one({ "course_id": bank_id, "task_id": task_id })
+                task_to_copy = self.database.tasks_cache.find_one({"course_id": bank_id, "task_id": task_id})
 
                 self.database.tasks_cache.insert(
                     {
-                        "course_id": target_id, "task_id": copy_id,
+                        "course_id": target_id,
+                        "task_id": copy_id,
                         "task_name": task_to_copy["task_name"],
                         "tags": task_to_copy["tags"],
                         "task_context": task_to_copy["task_context"],
@@ -60,4 +61,4 @@ class CopyTaskApi(AdminApi):
         except NotFoundException:
             raise api.APIError(400, {"error": "the copy_id made an invalid path"})
 
-        return 200, {"message": "Copied succesfully"}
+        return 200, {"message": "Copied successfully"}

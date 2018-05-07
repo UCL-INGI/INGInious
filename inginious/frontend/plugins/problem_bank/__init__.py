@@ -20,8 +20,7 @@ def init(plugin_manager, course_factory, client, config):
         data_filter = {
             "courseid": courseid
         }
-        plugin_manager.get_database().problem_banks.update_one(filter=data_filter,
-                                                              update={"$set": course_data})
+        plugin_manager.get_database().problem_banks.update_one(filter=data_filter, update={"$set": course_data})
 
     def problem_bank_course_admin_menu_hook(course):
         if not plugin_manager.get_user_manager().has_admin_rights_on_course(course):
@@ -35,12 +34,14 @@ def init(plugin_manager, course_factory, client, config):
 
     plugin_manager.add_page(_REACT_BASE_URL + r'(.*)', create_static_resource_page(_REACT_BUILD_FOLDER))
     plugin_manager.add_page(_BASE_STATIC_URL + r'(.*)', create_static_resource_page(_BASE_STATIC_FOLDER))
+
     plugin_manager.add_page('/plugins/problems_bank/api/copy_task', CopyTaskApi)
     plugin_manager.add_page('/plugins/problems_bank/api/bank_courses', ManageBanksCoursesApi)
     plugin_manager.add_page('/plugins/problems_bank/api/available_courses', AvailableCoursesApi)
     plugin_manager.add_page('/plugins/problems_bank/api/bank_tasks', SearchTaskApi)
     plugin_manager.add_page('/plugins/problems_bank/api/filter_bank_tasks', FilterTasksApi)
     plugin_manager.add_page('/plugins/problems_bank/api/available_courses_to_copy', AvailableCoursesToCopyApi)
+
     plugin_manager.add_page(r'/admin/([a-z0-9A-Z\-_]+)/problems_bank', BankPage)
 
     plugin_manager.add_hook('course_admin_menu', problem_bank_course_admin_menu_hook)

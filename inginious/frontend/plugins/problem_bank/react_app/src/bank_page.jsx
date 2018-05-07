@@ -39,6 +39,24 @@ class BankPage extends React.Component {
         this.onPageTaskChange = this.onPageTaskChange.bind(this);
         this.onPageCourseChange = this.onPageCourseChange.bind(this);
         this.addTaskToCourse = this.addTaskToCourse.bind(this);
+
+        this.updateBankCoursesAsync = this.updateBankCoursesAsync.bind(this);
+        this.updateTasksAsync = this.updateTasksAsync.bind(this);
+        this.updateAvailableCoursesAsync = this.updateAvailableCoursesAsync.bind(this);
+        this.updateAvailableCoursesToCopyAsync = this.updateAvailableCoursesToCopyAsync.bind(this);
+
+        this.deleteCourse = this.deleteCourse.bind(this);
+        this.updateFilteredTasksAsync = this.updateFilteredTasksAsync.bind(this);
+        this.addCourse = this.addCourse.bind(this);
+
+        this.onAlertTaskListClose = this.onAlertTaskListClose.bind(this);
+        this.onAlertCourseListClose = this.onAlertCourseListClose.bind(this);
+        this.setAlertCourseListInvisible = this.setAlertCourseListInvisible.bind(this);
+        this.setAlertTaskListInvisible = this.setAlertTaskListInvisible.bind(this);
+
+        this.onPageTaskChange = this.onPageTaskChange.bind(this);
+        this.onPageCourseChange = this .onPageCourseChange.bind(this);
+        this.onPageAvailableCourseChange = this.onPageAvailableCourseChange.bind(this);
     }
 
     updateBankCoursesAsync() {
@@ -276,15 +294,15 @@ class BankPage extends React.Component {
                         pageAvailableCourses={this.state.pageAvailableCourses}
                         totalAvailableCoursePages={this.state.totalPagesAvailableCourses}
                         dataAlert={this.state.dataAlertCourseList}
-                        callbackOnChildChangedClose={(isVisible) => this.onAlertCourseListClose(isVisible)}
-                        callbackUpdateTask={() => this.updateTasksAsync()}
-                        callbackUpdateBank={() => this.updateBankCoursesAsync()}
-                        callbackUpdateAvailable={() => this.updateAvailableCoursesAsync()}
-                        callbackOnPageChange={(page) => this.onPageCourseChange(page)}
-                        callbackOnPageAvailableCourseChange={(page) => this.onPageAvailableCourseChange(page)}
-                        callbackOnDeleteCourse={(course_id) => this.deleteCourse(course_id)}
-                        callbackAddCourse={(courseId) => this.addCourse(courseId)}
-                        callbackSetAlertInvisible={() => this.setAlertCourseListInvisible()}
+                        callbackOnChildChangedClose={this.onAlertCourseListClose}
+                        callbackUpdateTask={this.updateTasksAsync}
+                        callbackUpdateBank={this.updateBankCoursesAsync}
+                        callbackUpdateAvailable={this.updateAvailableCoursesAsync}
+                        callbackOnPageChange={this.onPageCourseChange}
+                        callbackOnPageAvailableCourseChange={this.onPageAvailableCourseChange}
+                        callbackOnDeleteCourse={this.deleteCourse}
+                        callbackAddCourse={this.addCourse}
+                        callbackSetAlertInvisible={this.setAlertCourseListInvisible}
                     />
                 </Tab>
                 <Tab eventKey={2} title="Tasks">
@@ -295,12 +313,12 @@ class BankPage extends React.Component {
                         totalPages={this.state.totalPagesTasks}
                         courses={this.state.availableCoursesToCopy}
                         dataAlert={this.state.dataAlertTaskList}
-                        callbackOnChildChangedClose={(isVisible) => this.onAlertTaskListClose(isVisible)}
-                        callbackOnPageChange={(page) => this.onPageTaskChange(page)}
-                        callbackUpdateTasks={() => this.updateTasksAsync()}
-                        callbackUpdateFilteredTasks={(query) => this.updateFilteredTasksAsync(query)}
+                        callbackOnChildChangedClose={this.onAlertTaskListClose}
+                        callbackOnPageChange={this.onPageTaskChange}
+                        callbackUpdateTasks={this.updateTasksAsync}
+                        callbackUpdateFilteredTasks={this.updateFilteredTasksAsync}
                         callBackAddTaskToCourse={this.addTaskToCourse}
-                        callbackSetAlertInvisible={() => this.setAlertTaskListInvisible()}
+                        callbackSetAlertInvisible={this.setAlertTaskListInvisible}
                     />
                 </Tab>
             </Tabs>

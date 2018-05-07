@@ -9,13 +9,17 @@ class Task extends React.Component {
         this.state = {
             showModal: false
         };
+
+        this.onClick = this.onClick.bind(this);
+        this.close = this.close.bind(this);
+        this.open = this.open.bind(this);
     }
     
-    open = () => {
+    open(){
         this.setState({ showModal: true });
     };
 
-    close = () => {
+    close(){
         this.setState({ showModal: false });
     };
 
@@ -73,7 +77,7 @@ class Task extends React.Component {
                                 task_info={this.props.task_info}
                                 courses={this.props.courses}
                                 messageButton={"Copy task"}
-                                callbackOnClick={(courseId) => this.onClick(courseId)}
+                                callbackOnClick={this.onClick}
                                 mdInput={4}
                                 mdButton={4}
                             />

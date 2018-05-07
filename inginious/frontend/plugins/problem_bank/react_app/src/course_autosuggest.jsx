@@ -76,7 +76,7 @@ class CourseAutosuggest extends React.Component {
                     {this.props.messageButton}
                 </button>
               </Col>
-              <Col mdHidden={6}></Col>
+              <Col mdHidden={6}/>
             </Row>
         );
     }
