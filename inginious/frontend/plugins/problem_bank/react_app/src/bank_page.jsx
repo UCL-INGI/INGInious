@@ -13,10 +13,13 @@ class BankPage extends React.Component {
             tasks: [],
             courses: [],
             availableCourses: [],
+            availableCoursesToCopy: [],
             pageTasks: 1,
             pageCourses: 1,
+            pageAvailableCourses:1,
             totalPagesTasks: 1,
             totalPagesCourses: 1,
+            totalPagesAvailableCourses: 1,
             dataAlertCourseList: {
                 data: {"message" : ""},
                 isVisibleAlert: false,
@@ -71,8 +74,23 @@ class BankPage extends React.Component {
 
     updateAvailableCoursesAsync() {
         $.getJSON("/plugins/problems_bank/api/available_courses").then((availableCourses) => {
+            let newCourses = availableCourses;
+            let newTotalPages = Math.ceil(newCourses.length / this.limit);
+            if(newTotalPages === 0){
+                newTotalPages = 1;
+            }
             this.setState({
-                availableCourses
+                totalPagesAvailableCourses: newTotalPages,
+                pageAvailableCourses: 1,
+                availableCourses: availableCourses
+            });
+        });
+    }
+
+    updateAvailableCoursesToCopyAsync() {
+        $.getJSON("/plugins/problems_bank/api/available_courses_to_copy").then((availableCoursesToCopy) => {
+            this.setState({
+                availableCoursesToCopy: availableCoursesToCopy
             });
         });
     }
@@ -234,9 +252,14 @@ class BankPage extends React.Component {
         this.setState({pageCourses: page});
     }
 
+    onPageAvailableCourseChange(page) {
+        this.setState({pageAvailableCourses: page});
+    }
+
     componentWillMount(){
         this.updateBankCoursesAsync();
         this.updateAvailableCoursesAsync();
+        this.updateAvailableCoursesToCopyAsync();
         this.updateTasksAsync();
     }
 
@@ -250,12 +273,15 @@ class BankPage extends React.Component {
                         availableCourses={this.state.availableCourses}
                         page={this.state.pageCourses}
                         totalPages={this.state.totalPagesCourses}
+                        pageAvailableCourses={this.state.pageAvailableCourses}
+                        totalAvailableCoursePages={this.state.totalPagesAvailableCourses}
                         dataAlert={this.state.dataAlertCourseList}
                         callbackOnChildChangedClose={(isVisible) => this.onAlertCourseListClose(isVisible)}
                         callbackUpdateTask={() => this.updateTasksAsync()}
                         callbackUpdateBank={() => this.updateBankCoursesAsync()}
                         callbackUpdateAvailable={() => this.updateAvailableCoursesAsync()}
                         callbackOnPageChange={(page) => this.onPageCourseChange(page)}
+                        callbackOnPageAvailableCourseChange={(page) => this.onPageAvailableCourseChange(page)}
                         callbackOnDeleteCourse={(course_id) => this.deleteCourse(course_id)}
                         callbackAddCourse={(courseId) => this.addCourse(courseId)}
                         callbackSetAlertInvisible={() => this.setAlertCourseListInvisible()}
@@ -267,7 +293,7 @@ class BankPage extends React.Component {
                         limit={this.limit}
                         page={this.state.pageTasks}
                         totalPages={this.state.totalPagesTasks}
-                        courses={this.state.availableCourses}
+                        courses={this.state.availableCoursesToCopy}
                         dataAlert={this.state.dataAlertTaskList}
                         callbackOnChildChangedClose={(isVisible) => this.onAlertTaskListClose(isVisible)}
                         callbackOnPageChange={(page) => this.onPageTaskChange(page)}

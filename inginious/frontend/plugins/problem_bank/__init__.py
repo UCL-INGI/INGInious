@@ -7,8 +7,9 @@ from .pages.api.manage_banks_courses_api import ManageBanksCoursesApi
 from .pages.api.search_task_api import SearchTaskApi
 from .pages.api.available_courses_api import AvailableCoursesApi
 from .pages.api.filter_tasks_api import FilterTasksApi
+from .pages.api.available_courses_to_copy_api import AvailableCoursesToCopyApi
+
 from .pages.bank_page import BankPage
-from .pages.bank_page import ProblemBankHook
 
 
 def init(plugin_manager, course_factory, client, config):
@@ -39,6 +40,7 @@ def init(plugin_manager, course_factory, client, config):
     plugin_manager.add_page('/plugins/problems_bank/api/available_courses', AvailableCoursesApi)
     plugin_manager.add_page('/plugins/problems_bank/api/bank_tasks', SearchTaskApi)
     plugin_manager.add_page('/plugins/problems_bank/api/filter_bank_tasks', FilterTasksApi)
+    plugin_manager.add_page('/plugins/problems_bank/api/available_courses_to_copy', AvailableCoursesToCopyApi)
     plugin_manager.add_page(r'/admin/([a-z0-9A-Z\-_]+)/problems_bank', BankPage)
 
     plugin_manager.add_hook('course_admin_menu', problem_bank_course_admin_menu_hook)

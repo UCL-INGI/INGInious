@@ -1,5 +1,5 @@
 import React from "react";
-import { Well } from 'react-bootstrap';
+import { Well, Row, Col } from 'react-bootstrap';
 import './index.css';
 
 import UltimatePagination from './ultimate_pagination';
@@ -16,6 +16,23 @@ class BankCourseList extends React.Component {
                     <BankCourse
                         name={course.name}
                         removable={course.is_removable}
+                        id={course.id}
+                        key={i}
+                        callbackOnDeleteCourse={this.props.callbackOnDeleteCourse}
+                    />
+                )
+            }
+        });
+
+        let listGroupCoursesContent = courses.length ? courses : "There are no available courses";
+        
+        let availableCourses = this.props.availableCourses.map((course, i) => {
+            if(i >= ((this.props.pageAvailableCourses - 1) * this.props.limit) &&
+                i < (this.props.pageAvailableCourses * this.props.limit)) {
+                return (
+                    <BankCourse
+                        name={course.name}
+                        removable={false}
                         id={course.id}
                         key={i}
                         callbackOnDeleteCourse={this.props.callbackOnDeleteCourse}
@@ -44,15 +61,38 @@ class BankCourseList extends React.Component {
                     />
                 </Well>
 
-                <div>The following courses are marked as task sources: </div>
+                <Row>
+                    <Col md={6}>
+                        <div>
+                            The following courses are marked as task sources:
+                            <br/>
+                            <small> (You are free to copy the tasks from these courses) </small>
+                        </div>
 
-                <div className="list-group">{courses}</div>
+                        <div className="list-group">{listGroupCoursesContent}</div>
 
-                <UltimatePagination
-                     currentPage={this.props.page}
-                     totalPages={this.props.totalPages}
-                     onChange={this.props.callbackOnPageChange}
-                />
+                        <UltimatePagination
+                             currentPage={this.props.page}
+                             totalPages={this.props.totalPages}
+                             onChange={this.props.callbackOnPageChange}
+                        />
+                    </Col>
+                    <Col md={6}>
+                        <div>
+                            The following are courses which you are admin and are not marked as bank:
+                            <br/>
+                            <small> (You can copy tasks from these courses to other courses which you are admin)</small>
+                        </div>
+
+                        <div className="list-group">{availableCourses}</div>
+
+                        <UltimatePagination
+                             currentPage={this.props.pageAvailableCourses}
+                             totalPages={this.props.totalAvailableCoursePages}
+                             onChange={this.props.callbackOnPageAvailableCourseChange}
+                        />
+                    </Col>
+                </Row>
             </div>
 
         );

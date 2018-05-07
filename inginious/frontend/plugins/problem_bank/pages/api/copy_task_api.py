@@ -19,7 +19,6 @@ class CopyTaskApi(AdminApi):
         target_id = get_mandatory_parameter(parameters, "target_id")
         bank_id = get_mandatory_parameter(parameters, "bank_id")
         task_id = get_mandatory_parameter(parameters, "task_id")
-
         target_course = self.get_course_and_check_rights(target_id)
         target_course_tasks_ids = [key for key in target_course.get_tasks()]
 
@@ -32,7 +31,7 @@ class CopyTaskApi(AdminApi):
         except (CourseNotFoundException, InvalidNameException, CourseUnreadableException):
             raise api.APIError(400, {"error": "Invalid bank"})
 
-        if not self.is_a_bank(bank_id):
+        if not self.is_a_bank(bank_id) and not self.user_manager.has_admin_rights_on_course(bank_course):
             raise api.APIError(400, {"error": "Invalid bank"})
 
         try:
@@ -48,12 +47,15 @@ class CopyTaskApi(AdminApi):
             if "tasks_cache" in self.database.collection_names():
                 task_to_copy = self.database.tasks_cache.find_one({ "course_id": bank_id, "task_id": task_id })
 
-                self.database.tasks_cache.insert({ "course_id": target_id, "task_id": copy_id,
-                                                   "task_name": task_to_copy["task_name"],
-                                                   "tags": task_to_copy["tags"],
-                                                   "task_context": task_to_copy["task_context"],
-                                                   "task_author": task_to_copy["task_author"]
-                                                   })
+                self.database.tasks_cache.insert(
+                    {
+                        "course_id": target_id, "task_id": copy_id,
+                        "task_name": task_to_copy["task_name"],
+                        "tags": task_to_copy["tags"],
+                        "task_context": task_to_copy["task_context"],
+                        "task_author": task_to_copy["task_author"],
+                        "course_name": target_course.get_name(self.user_manager.session_language())
+                    })
 
         except NotFoundException:
             raise api.APIError(400, {"error": "the copy_id made an invalid path"})

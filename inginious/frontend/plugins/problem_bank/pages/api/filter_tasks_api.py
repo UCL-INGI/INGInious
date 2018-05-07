@@ -5,36 +5,49 @@ from inginious.frontend.plugins.utils import get_mandatory_parameter
 
 
 class FilterTasksApi(AdminApi):
+
     def API_POST(self):
 
         parameters = web.input()
         task_query = get_mandatory_parameter(parameters, "task_query")
-        bank_course_ids = set(bank["courseid"]
+        course_ids = set(bank["courseid"]
                               for bank in self.database.problem_banks.find())
 
+        for course_id, course in self.course_factory.get_all_courses().items():
+            if self.user_manager.has_admin_rights_on_course(course):
+                course_ids.add(course_id)
+
         tasks = []
-        for bank_course_id in bank_course_ids:
+        for course_id in course_ids:
             ids_tasks = self.database.tasks_cache.aggregate([
-                    {"$match":
-                        {
-                            "course_id": bank_course_id
-                        }
+                    {
+                        "$match":
+                            {
+                                "course_id": course_id
+                            }
                     },
-                    {"$unwind":
-                        {
-                            "path": "$tags",
-                            "preserveNullAndEmptyArrays": True
-                        }
+                    {
+                        "$unwind":
+                            {
+                                "path": "$tags",
+                                "preserveNullAndEmptyArrays": True
+                            }
                     },
-                    {"$match":
-                        {"$or":
-                            [{"course_id": {"$regex": ".*" + task_query + ".*"}},
-                             {"task_name": {"$regex": ".*" + task_query + ".*"}},
-                             {"tags": {"$regex": ".*" + task_query + ".*"}}]
-                        }
+                    {
+                        "$match":
+                            {
+                                "$or":
+                                    [{"course_id": {"$regex": ".*" + task_query + ".*"}},
+                                     {"course_name": {"$regex": ".*" + task_query + ".*"}},
+                                     {"task_name": {"$regex": ".*" + task_query + ".*"}},
+                                     {"tags": {"$regex": ".*" + task_query + ".*"}}]
+                            }
                     },
-                    {"$group":
-                         {"_id": "$_id"}
+                    {
+                        "$group":
+                            {
+                                "_id": "$_id"
+                            }
                     }
             ])
 
