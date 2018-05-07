@@ -34,6 +34,9 @@ class CopyTaskApi(AdminApi):
         if not self.is_a_bank(bank_id) and not self.user_manager.has_admin_rights_on_course(bank_course):
             raise api.APIError(400, {"error": "Invalid bank"})
 
+        if not self.course_is_open(target_course):
+            raise api.APIError(400, {"error": "Invalid bank"})
+
         try:
             task = bank_course.get_task(task_id)
         except (TaskNotFoundException, InvalidNameException):

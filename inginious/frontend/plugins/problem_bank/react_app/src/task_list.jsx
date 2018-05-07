@@ -59,7 +59,7 @@ class TaskList extends React.Component{
                     <FormControl
                         type="text"
                         value={this.props.query}
-                        placeholder="Search a key word"
+                        placeholder="Type a course id or name, task name or a tag"
                         onChange={this.handleChange}
                     />
                 </form>

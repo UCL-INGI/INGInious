@@ -17,7 +17,8 @@ class ManageBanksCoursesApi(AdminApi):
             "id": bank["courseid"],
             "name": bank["course_name"],
             "is_removable": self.user_manager.has_admin_rights_on_course(self.course_factory.get_course(bank["courseid"]))
-        } for bank in self.database.problem_banks.find()]
+        } for bank in self.database.problem_banks.find()
+            if self.course_is_open(self.course_factory.get_course(bank["courseid"]))]
 
         return 200, bank_courses
 
