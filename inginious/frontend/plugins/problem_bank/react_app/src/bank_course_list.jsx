@@ -44,7 +44,7 @@ class BankCourseList extends React.Component {
         });
 
         if(!availableCourses.length){
-            courses = "There are no available courses";
+            availableCourses = "There are no available courses";
         }
 
         return (
