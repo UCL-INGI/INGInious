@@ -1,4 +1,4 @@
-$def with (inputId, language, customInputId, type, pythonTutorURL)
+$def with (inputId, language, customInputId, type, pythonTutorURL, linterURL)
 
 <br>
 <br>
@@ -26,14 +26,11 @@ $def with (inputId, language, customInputId, type, pythonTutorURL)
       </div>
 
       $if type == "code_multiple_languages":
-          <div class="col-md-4">
+          <div class="col-md-6">
             <button type="button" class="btn btn-default btn-md btn-block" onclick="runCustomTest('$inputId')">Test</button>
           </div>
-          <div class="col-md-4">
+          <div class="col-md-6">
             <button class="btn btn-default btn-md btn-block" type="button" data-toggle="modal" data-target="#modal-$inputId" onclick="visualizeCode('$language', '$inputId')">Visualize</button>
-          </div>
-          <div class="col-md-4">
-            <button class="btn btn-default btn-md btn-block" type="button" onclick="lintCode('$language', '$inputId')">Linter</button>
           </div>
 
           <div id="modal-$inputId" class="modal modal-wide fade">
@@ -60,6 +57,10 @@ $def with (inputId, language, customInputId, type, pythonTutorURL)
 <script>
   function getDefaultVisualServerURL(){
       return "$pythonTutorURL";
+  }
+
+  function getLinterServerURL(){
+      return "$linterURL";
   }
 
   function toggleElement (id) {
