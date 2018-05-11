@@ -85,7 +85,7 @@ class BankCourseList extends React.Component {
                     </Col>
                     <Col md={6}>
                         <div>
-                            The following are courses are not marked as bank and you are admin  :
+                            The following courses are not marked as bank and you are admin:
                             <br/>
                             <small> (You can copy tasks from these courses to other courses which you are admin)</small>
                         </div>
