@@ -2,8 +2,16 @@ import posixpath
 import urllib
 import web
 
+import inginious.frontend.pages.api._api_page as api
 from inginious.frontend.pages.utils import INGIniousPage
 from inginious.common.filesystems.local import LocalFSProvider
+
+
+def get_mandatory_parameter(parameters, parameter_name):
+    if parameter_name not in parameters:
+        raise api.APIError(400, {"error": parameter_name + " is mandatory"})
+
+    return parameters[parameter_name]
 
 
 def create_static_resource_page(base_static_folder):
