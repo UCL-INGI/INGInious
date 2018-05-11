@@ -9,7 +9,7 @@ function getCourseIdFromUrl() {
 }
 
 function displayCustomTestAlertError(content) {
-    displayTaskStudentAlertWithProblems(content, "<b>Custom test error</b>", "danger", false);
+    displayTaskStudentAlertWithProblems(content, "danger");
 }
 
 function runCustomTest (inputId) {
