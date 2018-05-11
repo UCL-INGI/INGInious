@@ -11,8 +11,7 @@ class FilterTasksApi(AdminApi):
         parameters = web.input()
         task_query = get_mandatory_parameter(parameters, "task_query")
         course_ids = set(bank["courseid"]
-                         for bank in self.database.problem_banks.find()
-                         if self.course_is_open(self.course_factory.get_course(bank["courseid"])))
+                         for bank in self.database.problem_banks.find())
 
         for course_id, course in self.course_factory.get_all_courses().items():
             if self.user_manager.has_admin_rights_on_course(course):

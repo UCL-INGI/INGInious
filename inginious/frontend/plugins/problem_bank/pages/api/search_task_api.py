@@ -5,8 +5,7 @@ class SearchTaskApi(AdminApi):
 
     def API_GET(self):
         course_ids = set(bank["courseid"]
-                         for bank in self.database.problem_banks.find()
-                         if self.course_is_open(self.course_factory.get_course(bank["courseid"])))
+                         for bank in self.database.problem_banks.find())
 
         all_courses = self.course_factory.get_all_courses()
         for course_id, course in all_courses.items():

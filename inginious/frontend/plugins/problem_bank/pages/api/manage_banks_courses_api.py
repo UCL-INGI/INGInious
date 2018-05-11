@@ -17,14 +17,17 @@ class ManageBanksCoursesApi(AdminApi):
             "id": bank["courseid"],
             "name": bank["course_name"],
             "is_removable": self.user_manager.has_admin_rights_on_course(self.course_factory.get_course(bank["courseid"]))
-        } for bank in self.database.problem_banks.find()
-            if self.course_is_open(self.course_factory.get_course(bank["courseid"]))]
+        } for bank in self.database.problem_banks.find()]
 
         return 200, bank_courses
 
     def API_POST(self):
         course_id = self.get_course_id()
         course = self.course_factory.get_course(course_id)
+
+        if not course.is_open_to_non_staff() and not course.is_lti():
+            return 400, {"error": "Course cannot be added to bank. It is a hidden course."}
+
         try:
             self.database.problem_banks.insert({
                 "courseid": course_id,

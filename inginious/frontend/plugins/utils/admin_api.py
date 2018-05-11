@@ -13,6 +13,3 @@ class AdminApi(api.APIAuthenticatedPage):
             raise api.APIError(400, {"error": "Invalid course"})
 
         return course
-
-    def course_is_open(self, course):
-        return self.user_manager.course_is_open_to_user(course) and self.user_manager.course_is_user_registered(course)
