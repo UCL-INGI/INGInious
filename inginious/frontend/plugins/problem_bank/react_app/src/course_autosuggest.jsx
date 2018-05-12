@@ -1,6 +1,6 @@
 import React from "react";
 import Autosuggest from 'react-autosuggest';
-import { Row, Col } from 'react-bootstrap';
+import { Row, Col, Modal, Button, Alert } from 'react-bootstrap';
 import './index.css';
 
 class CourseAutosuggest extends React.Component {
@@ -10,8 +10,11 @@ class CourseAutosuggest extends React.Component {
         this.state = {
             suggestions: [],
             value: '',
-            id: ''
+            id: '',
+            showModal: false,
         };
+        this.open = this.open.bind(this);
+        this.close = this.close.bind(this);
     }
 
     getSuggestions = (value) => {
@@ -34,13 +37,22 @@ class CourseAutosuggest extends React.Component {
             });
     };
 
+    open(){
+        this.setState({ showModal: true });
+    };
+
+    close(){
+        this.setState({ showModal: false });
+    };
+
     onClick = () => {
         let courseId = this.state.id;
         let callbackOnClick = this.props.callbackOnClick;
         callbackOnClick(courseId);
         this.setState({
             value: '',
-            id: ''
+            id: '',
+            showModal: false
         });
     };
 
@@ -72,10 +84,35 @@ class CourseAutosuggest extends React.Component {
                 />
               </Col>
               <Col md={this.props.mdButton}>
-                <button onClick={this.onClick} className="btn btn-primary">
+                <button onClick={this.open} className="btn btn-primary">
                     {this.props.messageButton}
                 </button>
               </Col>
+              <Modal className="modal-container"
+                     show={this.state.showModal}
+                           onHide={this.close}
+                           animation={true}
+                           bsSize="short">
+
+                     <Modal.Header closeButton>
+                        <Modal.Title> {this.state.value} </Modal.Title>
+                     </Modal.Header>
+
+                     <Modal.Body>
+                        <Alert bsStyle="warning">
+                            <h5><strong>Are you sure that you want to add this course to the bank?</strong></h5>
+                            <h5>
+                                * The course and tasks from this course will be public and every user could copy
+                                tasks from this course.
+                            </h5>
+                        </Alert>
+                     </Modal.Body>
+
+                     <Modal.Footer>
+                        <Button onClick={this.close}>Cancel</Button>
+                        <Button onClick={this.onClick} bsStyle="primary">Accept</Button>
+                     </Modal.Footer>
+              </Modal>
               <Col mdHidden={6}/>
             </Row>
         );
