@@ -294,7 +294,7 @@ $if statistics != None and len(data) > 0:
                         </thead>
                         <tbody>
                             $for (tag, v_total, v_best) in statistics[1]:
-                                $ color = "badge alert-danger" if tag.is_antitag() else "badge alert-info" 
+                                $ color = "badge alert-danger" if tag.is_misconception() else "badge alert-info"
                                 <tr>
                                     <td><span class="$color" id="$tag.get_id()" data-toggle="tooltip" data-placement="left" title="$tag.get_description(translated=True)">$:_(tag.get_name())</span></td>
                                     $# The number of decimal digits. (10 for 1 decimal, 100 for two decimals, ...)

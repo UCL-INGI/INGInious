@@ -801,7 +801,7 @@ function updateMainTags(data){
 
     //Reset all tags to info style (blue) to avoid no-updated colors
     $('span', $('#main_tag_group')).each(function() {
-        //If this is a alert-danger class, this is an antitag
+        //If this is a alert-danger class, this is an misconception
         if($(this).attr('class') == "badge alert-danger"){
             $(this).hide();
         }else if($(this).attr('class') == "badge alert-default"){
@@ -817,7 +817,7 @@ function updateMainTags(data){
             //Get and update the color of HTML nodes that represent tags
             var elem = $('#'.concat(tag.replace("*", "\\*"))); //The * makes error with JQuery so, we escape it.
             if(data["tests"][tag]){
-                //If this is a alert-danger class, this is an antitag
+                //If this is a alert-danger class, this is an misconception
                 if(elem.attr('class') == "badge alert-danger"){
                     elem.show();
                 }else{
@@ -852,7 +852,7 @@ function updateTagsToNewSubmission(elem, data){
     $('span', $('#main_tag_group')).each(function() {
         var id = $(this).attr("id");
         var color = $(this).attr("class");
-        //Only consider normal tag (we do not consider antitag)
+        //Only consider normal tag (we do not consider misconception
         if(color != "badge alert-danger"){
             if(id in data && data[id]){
                 n_ok++;
