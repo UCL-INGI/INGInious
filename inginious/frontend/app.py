@@ -5,7 +5,7 @@
 
 """ Starts the webapp """
 import builtins
-import gettext
+import pymongo
 
 import inginious.frontend.pages.course_admin.utils as course_admin_utils
 import web
@@ -16,7 +16,6 @@ from gridfs import GridFS
 from inginious.frontend.arch_helper import create_arch, start_asyncio_and_zmq
 from inginious.frontend.cookieless_app import CookieLessCompatibleApplication
 from inginious.frontend.courses import WebAppCourse
-from inginious.frontend.database_updater import update_database
 from inginious.frontend.plugin_manager import PluginManager
 from inginious.frontend.session_mongodb import MongoStore
 from inginious.frontend.submission_manager import WebAppSubmissionManager
@@ -124,6 +123,21 @@ def get_app(config):
     database = mongo_client[config.get('mongo_opt', {}).get('database', 'INGInious')]
     gridfs = GridFS(database)
 
+    # Init database if needed
+    db_version = database.db_version.find_one({})
+    if db_version is None:
+        database.submissions.ensure_index([("username", pymongo.ASCENDING)])
+        database.submissions.ensure_index([("courseid", pymongo.ASCENDING)])
+        database.submissions.ensure_index([("courseid", pymongo.ASCENDING), ("taskid", pymongo.ASCENDING)])
+        database.submissions.ensure_index([("submitted_on", pymongo.DESCENDING)])  # sort speed
+        database.user_tasks.ensure_index(
+            [("username", pymongo.ASCENDING), ("courseid", pymongo.ASCENDING), ("taskid", pymongo.ASCENDING)],
+            unique=True)
+        database.user_tasks.ensure_index([("username", pymongo.ASCENDING), ("courseid", pymongo.ASCENDING)])
+        database.user_tasks.ensure_index([("courseid", pymongo.ASCENDING), ("taskid", pymongo.ASCENDING)])
+        database.user_tasks.ensure_index([("courseid", pymongo.ASCENDING)])
+        database.user_tasks.ensure_index([("username", pymongo.ASCENDING)])
+
     appli = CookieLessCompatibleApplication(MongoStore(database, 'sessions'))
 
     # Init gettext
@@ -200,9 +214,6 @@ def get_app(config):
         web.config.smtp_username = smtp_conf.get("username", "")
         web.config.smtp_password = smtp_conf.get("password", "")
         web.config.smtp_sendername = smtp_conf.get("sendername", "no-reply@ingnious.org")
-
-    # Update the database
-    update_database(database, gridfs, course_factory, user_manager)
 
     # Add some helpers for the templates
     template_helper.add_to_template_globals("_", _)

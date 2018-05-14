@@ -73,7 +73,8 @@ setup(
         'utils/sync/inginious-synchronize',
         'utils/task_tester/inginious-test-task',
         'utils/task_converter/inginious-old-task-converter',
-        'utils/container_update/inginious-container-update'
+        'utils/container_update/inginious-container-update',
+        'utils/database_updater/inginious-database-update'
     ],
 
     include_package_data=True,
