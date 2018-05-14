@@ -84,7 +84,7 @@ class INGIniousFilesystemProvider(DAVProvider):
         self.task_factory = task_factory
         self.readonly = False
 
-    def _locToFilePath(self, path):
+    def _locToFilePath(self, path, environ=None):
         path_parts = path.strip("/").split("/")
 
         if len(path_parts) < 1:
