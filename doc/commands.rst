@@ -39,3 +39,4 @@ Utilities
     commands_doc/inginious-synchronize
     commands_doc/inginious-old-task-converter
     commands_doc/inginious-container-update
+    commands_doc/inginious-database-update
