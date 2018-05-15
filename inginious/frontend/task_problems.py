@@ -225,7 +225,11 @@ class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableProblem
 
     @classmethod
     def prepare_feedback(cls, feedback, show_everything, translation):
-        feedback = json.loads(feedback)
+        try:
+            feedback = json.loads(feedback)
+        except:
+            return json.dumps({"global": ParsableText(feedback, "rst", show_everything, translation).parse()})
+
         if "global" in feedback:
             feedback["global"] = ParsableText(feedback["global"], "rst", show_everything, translation).parse()
         for choice in feedback.get("choices", []):
