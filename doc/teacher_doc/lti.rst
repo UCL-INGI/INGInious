@@ -1,13 +1,14 @@
 .. _configure_LTI:
 
-Configuring the LTI frontend
-============================
+Using through LTI (edX, Moodle, ...)
+=====================================
 
-In order to use the LTI frontend with your favorite LMS, you first have to define your LTI keys (consumer key and secret),
-and to install them on your LMS.
+INGInious implements the LTI specification in order to integrate into edX, Moodle, or any other LMS that also implements
+this specification. To get started, all you need is to activate te LTI mode in the course administration and define
+your LTI keys (consumer key and secret). You'll then be able to use INGInious tasks as activities in your LMS.
 
-Defining your LTI keys
-----------------------
+Defining LTI keys
+-----------------
 
 The LTI keys are defined in the course administration by first activating the LTI mode. Then, add consumer keys and secrets
 separated by a colon in the LTI keys field. For instance, here's an example of a set of keys and secrets:

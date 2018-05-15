@@ -175,6 +175,54 @@ For instance, the following command set the value ``56`` to the ``score`` key:
     from inginious import feedback
     feedback.set_custom_value("score", 56) # Set the `score` key to value 56
 
+tag-set
+```````
+
+The *tag-set* command sets the value of the tag specified by the tag identifier to ``True`` or ``False``. It uses the
+following syntax:
+
+::
+
+    tag-set tag value
+
+For instance, the following command set the value of the ``my_tag`` tag to ``True``:
+
+::
+
+    tag-set my_tag true
+
+
+**In Python** : the equivalent command can be directly obtained with:
+
+.. code-block:: python
+
+    from inginious import feedback
+    feedback.feedback.set_tag("my_tag", True) # Sets the skill/misconception tag as True
+
+tag
+```
+
+The *tag* command defines a new unexpected tag to appear in the submission feedback. It uses the followig syntax:
+
+::
+
+    tag value
+
+For instance, the following command defines a new ``A new tag`` tag that will appear in the submission feedback:
+
+::
+
+    tag "A new tag"
+
+
+**In Python** : the equivalent command can be directly obtained with:
+
+.. code-block:: python
+
+    from inginious import feedback
+    feedback.tag("A new tag") # Sets a new unexpected tag
+
+
 reStructuredText helper commands
 --------------------------------
 

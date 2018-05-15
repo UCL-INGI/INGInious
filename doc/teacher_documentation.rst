@@ -12,3 +12,4 @@ Contents:
    teacher_doc/translating
    teacher_doc/create_container
    teacher_doc/course_admin
+   teacher_doc/lti
