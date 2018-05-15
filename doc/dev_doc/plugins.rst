@@ -255,14 +255,14 @@ Each hook available in INGInious is described here, starting with its name and p
 Additional subproblems
 ----------------------
 
-From INGInious v0.5, additional subproblems can be defined and added via plugins. A basic example is available on GitHub repo
+Additional subproblems can be defined and added via plugins. A basic example is available on GitHub repo
 `UCL-INGI/INGInious-problems-demo <https://github.com/UCL-INGI/INGInious-problems-demo>`_.
 
 Subproblems are defined at both the backend and frontend side. At the backend side, it consists of a class inheriting
 from ``inginious.common.tasks_problems.BasicProblem`` and implementing the following abstract methods:
 
    - ``get_type(cls)`` returning an alphanumerical string representing the problem type.
-   - ``input_is_consistent(self, task_input, default_allowed_exteension, defaultt_max_size`` returning ``True`` if the
+   - ``input_is_consistent(self, task_input, default_allowed_extension, default_max_size`` returning ``True`` if the
      ``task_input`` dictionary provided by the INGInious client is consistent and correct for the agent.
    - ``input_type(self)`` returning ``str``, ``dict`` or ``list`` according to the actual data sent to the agent.
    - ``check_answer(self, task_input, language)`` returning a tuple whose items are:
