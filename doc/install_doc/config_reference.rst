@@ -230,14 +230,18 @@ Uses a Twitter application to allow authentication and sharing via the network.
 You need to create two apps on the appropriate developer platform in order to use this plugin. One will only have
 authentication capabilities and the other one will be able to write posts for the user in order to share results.
 
-  - plugin_module: inginious.frontend.plugins.auth.twitter_auth
-    id: twitter
-    debug: false
-    client_id: <app_id_auth_only>
-    client_secret: <app_secret_auth_only>
-    share_client_id: <app_id_with_share_rights>
-    share_client_secret: <app_secret_with_share_rights>
-    user: <user_who_created_the_app>
+To enable this plugin, add to your configuration file:
+::
+
+    plugins:
+        - plugin_module: inginious.frontend.plugins.auth.twitter_auth
+          id: twitter
+          debug: false
+          client_id: <app_id_auth_only>
+          client_secret: <app_secret_auth_only>
+          share_client_id: <app_id_with_share_rights>
+          share_client_secret: <app_secret_with_share_rights>
+          user: <user_who_created_the_app>
 
 ``id`` is the authentication method id. ``client_id`` and ``client_secret`` are the OAuth identifier and secret of the
 created app. Set ``debug`` to ``true`` to allow OAuth to be run in debug mode (for instance, if SSL is not yet set up).
