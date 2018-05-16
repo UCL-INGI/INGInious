@@ -11,7 +11,10 @@ class CourseAutosuggest extends React.Component {
         this.state = {
             suggestions: [],
             value: '',
-            id: '',
+            selectedCourse: {
+                id: '',
+                name: ''
+            },
             show: false,
         };
         this.open = this.open.bind(this);
@@ -47,19 +50,25 @@ class CourseAutosuggest extends React.Component {
     };
 
     onConfirm = () => {
-        let courseId = this.state.id;
+        let courseId = "";
+        if(this.state.selectedCourse.name.toUpperCase() === this.state.value.toUpperCase()){
+            courseId = this.state.selectedCourse.id;
+        }
         let callbackOnClick = this.props.callbackOnClick;
         callbackOnClick(courseId);
         this.setState({
             value: '',
-            id: '',
+            selectedCourse: {
+                id: '',
+                name: ''
+            },
             show: false
         });
     };
 
     getSuggestionValue = (suggestion) => {
         this.setState({
-            id: suggestion.id
+            selectedCourse: suggestion
         });
         return suggestion.name
     };
