@@ -13,7 +13,7 @@ _BASE_STATIC_FOLDER = os.path.join(os.path.dirname(__file__), 'static')
 def init(plugin_manager, course_factory, client, config):
     plugin_manager.add_page(r'/grader_generator/static/(.*)', create_static_resource_page(_BASE_STATIC_FOLDER))
 
-    plugin_manager.add_page('/api/stats/test_file_api', TaskTestCasesFilesApi)
+    plugin_manager.add_page('/api/grader_generator/test_file_api', TaskTestCasesFilesApi)
 
     plugin_manager.add_hook('task_editor_tab', grader_generator_tab)
     plugin_manager.add_hook('task_editor_footer', grader_footer)
