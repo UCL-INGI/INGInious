@@ -1,6 +1,7 @@
 import React from "react";
 import Autosuggest from 'react-autosuggest';
-import { Row, Col, Modal, Button, Alert } from 'react-bootstrap';
+import SweetAlert from 'react-bootstrap-sweetalert';
+import { Row, Col } from 'react-bootstrap';
 import './index.css';
 
 class CourseAutosuggest extends React.Component {
@@ -11,7 +12,7 @@ class CourseAutosuggest extends React.Component {
             suggestions: [],
             value: '',
             id: '',
-            showModal: false,
+            show: false,
         };
         this.open = this.open.bind(this);
         this.close = this.close.bind(this);
@@ -38,21 +39,21 @@ class CourseAutosuggest extends React.Component {
     };
 
     open(){
-        this.setState({ showModal: true });
+        this.setState({ show: true });
     };
 
     close(){
-        this.setState({ showModal: false });
+        this.setState({ show: false });
     };
 
-    onClick = () => {
+    onConfirm = () => {
         let courseId = this.state.id;
         let callbackOnClick = this.props.callbackOnClick;
         callbackOnClick(courseId);
         this.setState({
             value: '',
             id: '',
-            showModal: false
+            show: false
         });
     };
 
@@ -88,31 +89,19 @@ class CourseAutosuggest extends React.Component {
                     {this.props.messageButton}
                 </button>
               </Col>
-              <Modal className="modal-container"
-                     show={this.state.showModal}
-                           onHide={this.close}
-                           animation={true}
-                           bsSize="short">
-
-                     <Modal.Header closeButton>
-                        <Modal.Title> {this.state.value} </Modal.Title>
-                     </Modal.Header>
-
-                     <Modal.Body>
-                        <Alert bsStyle="warning">
-                            <h5><strong>Are you sure that you want to add this course to the bank?</strong></h5>
-                            <h5>
-                                * The course and tasks from this course will be public and every user could copy
-                                tasks from this course.
-                            </h5>
-                        </Alert>
-                     </Modal.Body>
-
-                     <Modal.Footer>
-                        <Button onClick={this.close}>Cancel</Button>
-                        <Button onClick={this.onClick} bsStyle="primary">Accept</Button>
-                     </Modal.Footer>
-              </Modal>
+              <SweetAlert
+                  warning
+                  showCancel
+                  confirmBtnText={"Yes!"}
+                  confirmBtnBsStyle={"warning"}
+                  cancelBtnBsStyle={"danger"}
+                  show={this.state.show}
+                  title={this.props.alertTitle}
+                  onConfirm={this.onConfirm}
+                  onCancel={this.close}
+              >
+                  {this.props.alertText}
+              </SweetAlert>
               <Col mdHidden={6}/>
             </Row>
         );

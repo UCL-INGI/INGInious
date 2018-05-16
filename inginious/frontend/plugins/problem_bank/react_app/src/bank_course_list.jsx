@@ -60,6 +60,8 @@ class BankCourseList extends React.Component {
                     <h5>Select course to become in bank</h5>
                     <CourseAutosuggest
                         courses={this.props.availableCourses}
+                        alertTitle={"Are you sure you want to add this course to the bank?"}
+                        alertText={"* The course and tasks from this course will be public and every user could copy"}
                         callbackOnClick={this.props.callbackAddCourse}
                         messageButton={"Add course to bank"}
                         mdInput={3}

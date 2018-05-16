@@ -55,7 +55,7 @@ class BankPage extends React.Component {
         this.setAlertTaskListInvisible = this.setAlertTaskListInvisible.bind(this);
 
         this.onPageTaskChange = this.onPageTaskChange.bind(this);
-        this.onPageCourseChange = this .onPageCourseChange.bind(this);
+        this.onPageCourseChange = this.onPageCourseChange.bind(this);
         this.onPageAvailableCourseChange = this.onPageAvailableCourseChange.bind(this);
     }
 

@@ -76,6 +76,11 @@ class Task extends React.Component {
                             <CourseAutosuggest
                                 task_info={this.props.task_info}
                                 courses={this.props.courses}
+                                alertTitle={
+                                    "Do you want to add '" + this.props.task_info.task_name +
+                                    "' to the selected course?"
+                                }
+                                alertText={""}
                                 messageButton={"Copy task"}
                                 callbackOnClick={this.onClick}
                                 mdInput={4}
