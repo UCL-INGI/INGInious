@@ -85,7 +85,7 @@ class CourseAutosuggest extends React.Component {
                 />
               </Col>
               <Col md={this.props.mdButton}>
-                <button onClick={this.open} className="btn btn-primary">
+                <button onClick={this.open} className="btn btn-primary" disabled={!this.state.value}>
                     {this.props.messageButton}
                 </button>
               </Col>
