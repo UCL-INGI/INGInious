@@ -77,7 +77,7 @@ class Task extends React.Component {
                                 task_info={this.props.task_info}
                                 courses={this.props.courses}
                                 alertTitle={
-                                    "Do you want to add '" + this.props.task_info.task_name +
+                                    "Do you want to add the task '" + this.props.task_info.task_name +
                                     "' to the selected course?"
                                 }
                                 alertText={""}
