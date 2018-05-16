@@ -1,0 +1,119 @@
+
+
+@media print {
+  * {
+  -webkit-transition: none !important;
+  transition: none !important;
+  background-color: transparent;
+}
+
+
+body, header, main, footer {
+  display: block !important;
+  width: 992px;
+}
+
+
+header#unalTop {
+  min-height: 104px;
+}
+
+header#unalTop div.logo, header#unalTop div.seal, header#unalTop div#bs-navbar {
+  display: inline-block;
+}
+
+header#unalTop div.site-url {
+  display: block;
+}
+
+
+main a {
+  font-weight: bolder;
+  text-decoration: none;
+}
+
+
+body, header, footer {
+  width: 100% !important;
+  display: table !important;
+  margin: 0;
+  padding: 0;
+}
+
+
+* body * {
+  color: black;
+  background: white;
+}
+
+* body #services, * body .navigation .buscador, * body .socialLinks {
+  display: none !important;
+}
+
+* body>#unalTop a[href]:after, * body>footer a[href]:after {
+  content: none;
+}
+
+* body>#unalTop {
+  border-bottom: solid 1px #333333;
+}
+* body>#unalTop .firstMenu .navbar-default {
+  border-bottom: solid 1px #333333;
+}
+* body>#unalTop .navigation .site-url {
+  padding-left: 0;
+}
+* body>#unalTop .seal {
+  position: absolute;
+  height: 60px;
+  width: 60px;
+  right: 0px;
+}
+* body>#unalTop .seal img {
+  height: 60px;
+  width: 60px;
+  display: none;
+}
+* body>#unalTop .logo a .visible-print {
+  width: 100%;
+  display: block;
+  position: relative;
+  top: -11px;
+}
+* body>#unalTop .logo a svg {
+  display: none;
+}
+* body>#unalTop .logo a img {
+  display: none;
+}
+
+* body main .breadcrumb-class {
+  margin-top: 10px;
+  border-bottom: none;
+}
+
+* body>footer {
+  border-top: solid 1px #333333;
+  padding-top: 11px;
+}
+* body>footer .gobiernoLinea {
+  width: 25%;
+}
+* body>footer .footer-info {
+  width: 33.333%;
+}
+* body>footer .logos {
+  width: 16.667%;
+  padding: 0;
+}
+* body>footer .logos>a {
+  width: 50%;
+  float: left;
+  display: block;
+}
+* body>footer .logos>a img {
+  height: 25px;
+}
+}
+
+

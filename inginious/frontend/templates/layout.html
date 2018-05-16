@@ -80,6 +80,7 @@ $:template_helper.call('header_hook')
 </head>
 
 <body role="document">
+    $:template_helper.call('UN_header')
     <div id="wrapper">
         <div class="navbar navbar-default navbar-static-top" role="navigation">
             <div class="container-fluid">
@@ -90,7 +91,7 @@ $:template_helper.call('header_hook')
                             class="icon-bar"></span> <span class="icon-bar"></span> <span
                             class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="$get_homepath()/index"><img src="$get_homepath(True)/static/images/header.png" alt="logo"/> INGInious</a>
+                    <a class="navbar-brand" href="$get_homepath()/index"><img src="$get_homepath(True)/static/images/header.png" alt="logo"/> UNCode</a>
                 </div>
                 <div class="collapse navbar-collapse">
                     $if "Navbar" in content:
