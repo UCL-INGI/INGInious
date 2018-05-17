@@ -403,6 +403,11 @@ function studio_init_template_code(well, pid, problem)
         $('#type-' + pid, well).val(problem["type"]);
     if("optional" in problem && problem["optional"])
         $('#optional-' + pid, well).attr('checked', true);
+
+    var default_tag = $('#default-' + pid)[0];
+    var default_editor = registerCodeEditor(default_tag, 'text', default_tag.tagName === "INPUT" ? 1 : 10);
+    if("default" in problem)
+        default_editor.setValue(problem["default"]);
 }
 
 /**
