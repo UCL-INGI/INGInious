@@ -104,6 +104,8 @@ class CodeProblem(Problem):
         else:
             self._language = "plain"
 
+        self._default = content.get("default", "")
+
     def input_type(self):
         return str
 
