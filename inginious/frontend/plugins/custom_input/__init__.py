@@ -25,7 +25,6 @@ def customInputManagerWithCurriedClient(client):
             taskid = get_mandatory_parameter(request_params, "taskid")
             task = self.task_factory.get_task(course, taskid)
 
-            userinput = web.input()
             try:
                 init_var = {
                     problem.get_id(): problem.input_type()()
