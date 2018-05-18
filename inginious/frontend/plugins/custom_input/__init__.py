@@ -2,7 +2,7 @@ import os
 import web
 import json
 
-from inginious.frontend.plugins.utils import create_static_resource_page
+from inginious.frontend.plugins.utils import create_static_resource_page, get_mandatory_parameter
 from inginious.client.client_sync import ClientSync
 from inginious.frontend.pages.api._api_page import APIAuthenticatedPage
 from inginious.frontend.parsable_text import ParsableText
@@ -20,9 +20,9 @@ def customInputManagerWithCurriedClient(client):
 
         def API_POST(self):
             request_params = web.input()
-            courseid = request_params.get("courseid")
+            courseid = get_mandatory_parameter(request_params, "courseid")
             course = self.course_factory.get_course(courseid)
-            taskid = request_params.get("taskid")
+            taskid = get_mandatory_parameter(request_params, "taskid")
             task = self.task_factory.get_task(course, taskid)
 
             userinput = web.input()
