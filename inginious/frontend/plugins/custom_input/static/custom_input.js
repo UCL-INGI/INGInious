@@ -1,10 +1,10 @@
 function getTaskIdFromUrl() {
-    var urlTokens = window.location.pathname.split("/");
+    let urlTokens = window.location.pathname.split("/");
     return urlTokens[urlTokens.length - 1];
 }
 
 function getCourseIdFromUrl() {
-    var urlTokens = window.location.pathname.split("/");
+    let urlTokens = window.location.pathname.split("/");
     return urlTokens[urlTokens.length - 2];
 }
 
@@ -13,18 +13,18 @@ function displayCustomTestAlertError(content) {
 }
 
 function runCustomTest (inputId) {
-    var customTestOutputArea = $('#customoutput-'+inputId);
-    var placeholderSpan = "<span class='placeholder-text'>Your output goes here</span>";
+    let customTestOutputArea = $('#customoutput-'+inputId);
+    let placeholderSpan = "<span class='placeholder-text'>Your output goes here</span>";
 
-    var runCustomTestCallBack = function (data) {
+    let runCustomTestCallBack = function (data) {
         data = JSON.parse(data);
         customTestOutputArea.empty();
 
         if ('status' in data && data['status'] == 'done') {
             if ('result' in data) {
-                var result = data['result'];
-                var stdoutSpan = $("<span/>").addClass("stdout-text").text(data.stdout);
-                var stderrSpan = $("<span/>").addClass("stderr-text").text(data.stderr);
+                let result = data['result'];
+                let stdoutSpan = $("<span/>").addClass("stdout-text").text(data.stdout);
+                let stderrSpan = $("<span/>").addClass("stderr-text").text(data.stderr);
                 customTestOutputArea.append(stdoutSpan);
                 customTestOutputArea.append(stderrSpan);
 
@@ -49,12 +49,10 @@ function runCustomTest (inputId) {
         unblurTaskForm();
     }
 
-    var taskForm = new FormData($('form#task')[0]);
+    let taskForm = new FormData($('form#task')[0]);
     taskForm.set("submit_action", "customtest");
     taskForm.set("courseid", getCourseIdFromUrl());
     taskForm.set("taskid", getTaskIdFromUrl());
-
-    var taskUrl = $('form#task').attr("action");
 
     blurTaskForm();
     resetAlerts();
