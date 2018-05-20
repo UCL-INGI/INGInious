@@ -25,7 +25,7 @@ class ManageBanksCoursesApi(AdminApi):
         course_id = self.get_course_id()
         course = self.course_factory.get_course(course_id)
 
-        if not course.is_open_to_non_staff() and not course.is_lti():
+        if not course.is_open_to_non_staff():
             return 400, {"error": "Course cannot be added to bank. It is a hidden course."}
 
         try:
