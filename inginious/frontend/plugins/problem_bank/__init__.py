@@ -4,7 +4,7 @@ from inginious.frontend.plugins.problem_bank.constants import _REACT_BASE_URL, _
 
 from .pages.api.copy_task_api import CopyTaskApi
 from .pages.api.manage_banks_courses_api import ManageBanksCoursesApi
-from .pages.api.search_task_api import SearchTaskApi
+from .pages.api.available_tasks_api import AvailableTasksApi
 from .pages.api.available_courses_api import AvailableCoursesApi
 from .pages.api.filter_tasks_api import FilterTasksApi
 from .pages.api.available_courses_to_copy_api import AvailableCoursesToCopyApi
@@ -38,7 +38,7 @@ def init(plugin_manager, course_factory, client, config):
     plugin_manager.add_page('/plugins/problems_bank/api/copy_task', CopyTaskApi)
     plugin_manager.add_page('/plugins/problems_bank/api/bank_courses', ManageBanksCoursesApi)
     plugin_manager.add_page('/plugins/problems_bank/api/available_courses', AvailableCoursesApi)
-    plugin_manager.add_page('/plugins/problems_bank/api/bank_tasks', SearchTaskApi)
+    plugin_manager.add_page('/plugins/problems_bank/api/bank_tasks', AvailableTasksApi)
     plugin_manager.add_page('/plugins/problems_bank/api/filter_bank_tasks', FilterTasksApi)
     plugin_manager.add_page('/plugins/problems_bank/api/available_courses_to_copy', AvailableCoursesToCopyApi)
 

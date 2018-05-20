@@ -1,7 +1,7 @@
 from inginious.frontend.plugins.utils.admin_api import AdminApi
 
 
-class SearchTaskApi(AdminApi):
+class AvailableTasksApi(AdminApi):
 
     def API_GET(self):
         course_ids = set(bank["courseid"]
