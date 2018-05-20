@@ -9,7 +9,6 @@ class ManageBanksCoursesApi(AdminApi):
     def get_course_id(self):
         parameters = web.input()
         course_id = get_mandatory_parameter(parameters, "course_id")
-        self.get_course_and_check_rights(course_id)
         return course_id
 
     def API_GET(self):
@@ -23,7 +22,7 @@ class ManageBanksCoursesApi(AdminApi):
 
     def API_POST(self):
         course_id = self.get_course_id()
-        course = self.course_factory.get_course(course_id)
+        course = self.get_course_and_check_rights(course_id)
 
         if not course.is_open_to_non_staff():
             return 400, {"error": "Course cannot be added to bank. It is a hidden course."}
@@ -40,6 +39,7 @@ class ManageBanksCoursesApi(AdminApi):
 
     def API_DELETE(self):
         course_id = self.get_course_id()
+        self.get_course_and_check_rights(course_id)
 
         rows_affected = self.database.problem_banks.remove({"courseid": {"$eq": course_id}}, True)["n"]
 
