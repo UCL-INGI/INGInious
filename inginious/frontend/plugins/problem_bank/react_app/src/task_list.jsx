@@ -32,9 +32,13 @@ class TaskList extends React.Component{
         }
     };
 
-    render() {
+    getListOfTasks = () => {
         let tasks = this.props.tasks.map((task, i) => {
-            if(i >= ((this.props.page - 1) * this.props.limit) && i < (this.props.page * this.props.limit)){
+            let page = this.props.page;
+            let limit = this.props.limit;
+            let taskIsInBoundsOfPage = i >= ((page - 1) * limit) && i < (page * limit);
+
+            if(taskIsInBoundsOfPage){
                 return (<Task
                     task_info={task}
                     key={i}
@@ -43,6 +47,14 @@ class TaskList extends React.Component{
                 />)
             }
         });
+
+        if(!tasks.length){
+            tasks = "There are no tasks available.";
+        }
+        return tasks
+    };
+
+    render() {
 
         return (
             <div>
@@ -66,7 +78,7 @@ class TaskList extends React.Component{
 
                 <div>The following tasks are available for copying: </div>
 
-                <div className="list-group">{tasks}</div>
+                <div className="list-group">{this.getListOfTasks()}</div>
 
                 <UltimatePagination
                      currentPage={this.props.page}

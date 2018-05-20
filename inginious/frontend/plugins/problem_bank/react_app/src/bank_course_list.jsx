@@ -9,9 +9,13 @@ import CustomAlert from './custom_alert';
 
 class BankCourseList extends React.Component {
 
-    render() {
+    getListOfCourses = () => {
         let courses = this.props.courses.map((course, i) => {
-            if(i >= ((this.props.page - 1) * this.props.limit) && i < (this.props.page * this.props.limit)) {
+            let page = this.props.page;
+            let limit = this.props.limit;
+            let courseIsInBoundsOfPage = i >= ((page - 1) * limit) && i < (page * limit);
+
+            if(courseIsInBoundsOfPage) {
                 return (
                     <BankCourse
                         name={course.name}
@@ -27,10 +31,16 @@ class BankCourseList extends React.Component {
         if(!courses.length){
             courses = "There are no available courses";
         }
+        return courses;
+    };
 
+    getListOfAvailableCourses = () => {
         let availableCourses = this.props.availableCourses.map((course, i) => {
-            if(i >= ((this.props.pageAvailableCourses - 1) * this.props.limit) &&
-                i < (this.props.pageAvailableCourses * this.props.limit)) {
+            let page = this.props.pageAvailableCourses;
+            let limit = this.props.limit;
+            let courseIsInBoundsOfPage = i >= ((page - 1) * limit) && i < (page * limit);
+
+            if(courseIsInBoundsOfPage) {
                 return (
                     <BankCourse
                         name={course.name}
@@ -46,6 +56,10 @@ class BankCourseList extends React.Component {
         if(!availableCourses.length){
             availableCourses = "There are no available courses";
         }
+        return availableCourses;
+    };
+
+    render() {
 
         return (
             <div>
@@ -77,7 +91,7 @@ class BankCourseList extends React.Component {
                             <small> (You are free to copy the tasks from these courses) </small>
                         </div>
 
-                        <div className="list-group">{courses}</div>
+                        <div className="list-group">{this.getListOfCourses()}</div>
 
                         <UltimatePagination
                              currentPage={this.props.page}
@@ -92,7 +106,7 @@ class BankCourseList extends React.Component {
                             <small> (You can copy tasks from these courses to other courses which you are admin)</small>
                         </div>
 
-                        <div className="list-group">{availableCourses}</div>
+                        <div className="list-group">{this.getListOfAvailableCourses()}</div>
 
                         <UltimatePagination
                              currentPage={this.props.pageAvailableCourses}
