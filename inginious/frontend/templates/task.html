@@ -256,6 +256,16 @@ $# Start content
     </div>
     </div>
 </h2>
+$# Input random
+$# set up some useful variable that may be used by task author
+$# variable "input" has to be accessible to the eventual javascript present in the context of the task.
+<script>    
+    var input = {
+        "@lang": "$user_manager.session_language()",
+        "@username": "$user_manager.session_username()",
+        "@random": $input_random_list
+    }
+</script>
 $:task.get_context(user_manager.session_language())
 <hr/>
 <div id="task_alert"></div>
@@ -385,14 +395,4 @@ var problems_types = $:pdict
 $$(document).ready(function() {
     init_task_page("$task.get_evaluate()");
 });
-</script>
-
-$# Input random
-$# set up some useful variable that may be used by task author
-<script>    
-    var input = {
-        "@lang": "$user_manager.session_language()",
-        "@username": "$user_manager.session_username()",
-        "@random": $input_random_list
-    }
 </script>
