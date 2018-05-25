@@ -126,16 +126,9 @@ class Agent(object, metaclass=ABCMeta):
 
     async def __run_listen(self):
         """ Listen to the backend """
-        try:
-            while True:
-                message = await ZMQUtils.recv(self.__backend_socket)
-                await self.__handle_backend_message(message)
-        except asyncio.CancelledError:
-            self._logger.warning("Agent received CancelledError. This can indicates that the backend is not responding,"
-                                 "or that the agent was manually killed.")
-            raise
-        except KeyboardInterrupt:
-            raise
+        while True:
+            message = await ZMQUtils.recv(self.__backend_socket)
+            await self.__handle_backend_message(message)
 
     async def __handle_backend_message(self, message):
         """ Dispatch messages received from clients to the right handlers """

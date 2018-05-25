@@ -54,8 +54,6 @@ async def _restart_on_cancel(logger, agent):
         except asyncio.CancelledError:
             logger.exception("Restarting agent")
             pass
-        except:
-            raise
 
 def create_arch(configuration, tasks_fs, context):
     """ Helper that can start a simple complete INGInious arch locally if needed, or a client to a remote backend.
