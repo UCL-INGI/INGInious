@@ -38,8 +38,19 @@ class DockerAgent(Agent):
         super(DockerAgent, self).__init__(context, backend_addr, friendly_name, concurrency, tasks_fs)
         self._logger = logging.getLogger("inginious.agent.docker")
 
-        self._max_memory_per_slot = int(psutil.virtual_memory().total/concurrency/1024/1024)
+        self._max_memory_per_slot = int(psutil.virtual_memory().total / concurrency / 1024 / 1024)
 
+        self.tasks_fs = tasks_fs
+
+        # Temp dir
+        self._tmp_dir = tmp_dir
+
+        # SSH remote debug
+        self._ssh_host = ssh_host
+        self._ssh_ports = set(ssh_ports) if ssh_ports is not None else set()
+
+    def _init_clean(self):
+        """ Must be called when the agent is starting """
         # Data about running containers
         self._containers_running = {}
         self._container_for_job = {}
@@ -47,20 +58,16 @@ class DockerAgent(Agent):
         self._student_containers_running = {}
         self._student_containers_for_job = {}
 
-        self.tasks_fs = tasks_fs
         self._containers_killed = dict()
-
-        # Temp dir
-        self._tmp_dir = tmp_dir
 
         # Delete tmp_dir, and recreate-it again
         try:
-            rmtree(tmp_dir)
-        except:
+            rmtree(self._tmp_dir)
+        except OSError:
             pass
 
         try:
-            os.mkdir(tmp_dir)
+            os.mkdir(self._tmp_dir)
         except OSError:
             pass
 
@@ -71,22 +78,34 @@ class DockerAgent(Agent):
         self._logger.info("Discovering containers")
         self._containers = self._docker.get_containers()
 
-        # SSH remote debug
-        self._ssh_host = ssh_host
+        self._running_ssh_debug = {}  # container_id : ssh_port
+
         if self._ssh_host is None and len(self._containers) != 0:
             self._logger.info("Guessing external host IP")
             self._ssh_host = self._docker.get_host_ip(next(iter(self._containers.values()))["id"])
         if self._ssh_host is None:
-            self._logger.warning("Cannot find external host IP. Please indicate it in the configuration. Remote SSH debug has been deactivated.")
-            ssh_ports = None
+            self._logger.warning(
+                "Cannot find external host IP. Please indicate it in the configuration. Remote SSH debug has been deactivated.")
+            self._ssh_ports = None
         else:
             self._logger.info("External address for SSH remote debug is %s", self._ssh_host)
 
-        self._ssh_ports = set(ssh_ports) if ssh_ports is not None else set()
-        self._running_ssh_debug = {}  # container_id : ssh_port
-
         # Watchers
         self._timeout_watcher = TimeoutWatcher(self._docker)
+
+    async def _end_clean(self):
+        """ Must be called when the agent is closing """
+        await self._timeout_watcher.clean()
+        def close_and_delete(container_id):
+            try:
+                self._docker.remove_container(container_id)
+            except:
+                pass
+
+        for container_id  in self._containers_running:
+            await self._loop.run_in_executor(None, lambda: close_and_delete(container_id))
+        for container_id  in self._student_containers_running:
+            await self._loop.run_in_executor(None, lambda: close_and_delete(container_id))
 
     @property
     def environments(self):
@@ -101,6 +120,8 @@ class DockerAgent(Agent):
                     container_id = i["id"]
                     try:
                         retval = int(i["Actor"]["Attributes"]["exitCode"])
+                    except asyncio.CancelledError:
+                        raise
                     except:
                         self._logger.exception("Cannot parse exitCode for container %s", container_id)
                         retval = -1
@@ -116,10 +137,14 @@ class DockerAgent(Agent):
                         self._containers_killed[container_id] = "overflow"
                         try:
                             self._create_safe_task(self._loop.run_in_executor(None, lambda: self._docker.kill_container(container_id)))
+                        except asyncio.CancelledError:
+                            raise
                         except:  # this call can sometimes fail, and that is normal.
                             pass
                 else:
                     raise TypeError(str(i))
+        except asyncio.CancelledError:
+            pass
         except:
             self._logger.exception("Exception in _watch_docker_events")
 
@@ -181,6 +206,8 @@ class DockerAgent(Agent):
             # Create directories for storing all the data for the job
             try:
                 container_path = tempfile.mkdtemp(dir=self._tmp_dir)
+            except asyncio.CancelledError:
+                raise
             except Exception as e:
                 self._logger.error("Cannot make container temp directory! %s", str(e), exc_info=True)
                 await self.send_job_result(message.job_id, "crash", 'Cannot make container temp directory.')
@@ -236,6 +263,10 @@ class DockerAgent(Agent):
                 await self._loop.run_in_executor(None, lambda: rmtree(container_path))
                 if ssh_port is not None:
                     self._ssh_ports.add(ssh_port)
+
+                if isinstance(e, asyncio.CancelledError):
+                    raise
+
                 return
 
             # Store info
@@ -255,6 +286,10 @@ class DockerAgent(Agent):
                 await self._loop.run_in_executor(None, lambda: rmtree(container_path))
                 if ssh_port is not None:
                     self._ssh_ports.add(ssh_port)
+
+                if isinstance(e, asyncio.CancelledError):
+                    raise
+
                 raise CannotCreateJobException('Cannot start container')
 
             # Talk to the container
@@ -265,9 +300,13 @@ class DockerAgent(Agent):
 
             # Verify the time limit
             await self._timeout_watcher.register_container(container_id, time_limit, hard_time_limit)
-        except:
+        except Exception as e:
             self._logger.exception("Exception in new_job")
             await self.send_job_result(message.job_id, "crash", 'Cannot start container')
+
+            if isinstance(e, asyncio.CancelledError):
+                raise
+
 
     async def create_student_container(self, job_id, parent_container_id, sockets_path, student_path, systemfiles_path,
                                        course_common_student_path, socket_id,  environment_name, memory_limit,
@@ -292,9 +331,13 @@ class DockerAgent(Agent):
                                                                        memory_limit, student_path, socket_path,
                                                                        systemfiles_path, course_common_student_path)
                 container_id = await self._loop.run_in_executor(None, to_run)
-            except:
+            except Exception as e:
                 self._logger.exception("Cannot create student container!")
                 await self._write_to_container_stdin(write_stream, {"type": "run_student_retval", "retval": 254, "socket_id": socket_id})
+
+                if isinstance(e, asyncio.CancelledError):
+                    raise
+
                 return
 
             self._student_containers_for_job[job_id].add(container_id)
@@ -305,13 +348,19 @@ class DockerAgent(Agent):
 
             try:
                 await self._loop.run_in_executor(None, lambda: self._docker.start_container(container_id))
-            except:
+            except Exception as e:
                 self._logger.exception("Cannot start student container!")
                 await self._write_to_container_stdin(write_stream, {"type": "run_student_retval", "retval": 254, "socket_id": socket_id})
+
+                if isinstance(e, asyncio.CancelledError):
+                    raise
+
                 return
 
             # Verify the time limit
             await self._timeout_watcher.register_container(container_id, time_limit, hard_time_limit)
+        except asyncio.CancelledError:
+            raise
         except:
             self._logger.exception("Exception in create_student_container")
 
@@ -334,6 +383,8 @@ class DockerAgent(Agent):
         sock = await self._loop.run_in_executor(None, lambda: self._docker.attach_to_container(container_id))
         try:
             read_stream, write_stream = await asyncio.open_connection(sock=sock.get_socket())
+        except asyncio.CancelledError:
+            raise
         except:
             self._logger.exception("Exception occurred while creating read/write stream to container")
             return None
@@ -371,7 +422,7 @@ class DockerAgent(Agent):
                                 share_network = msg["share_network"]
                                 socket_id = msg["socket_id"]
                                 assert "/" not in socket_id  # ensure task creator do not try to break the agent :-(
-                                self._loop.create_task(self.create_student_container(job_id, container_id, sockets_path, student_path,
+                                self._create_safe_task(self.create_student_container(job_id, container_id, sockets_path, student_path,
                                                                                      systemfiles_path, course_common_student_path,
                                                                                      socket_id,  environment, memory_limit, time_limit,
                                                                                      hard_time_limit, share_network, write_stream))
@@ -386,6 +437,11 @@ class DockerAgent(Agent):
                             self._logger.exception("Received incorrect message from container %s (job id %s)", container_id, job_id)
         except asyncio.IncompleteReadError:
             self._logger.debug("Container output ended with an IncompleteReadError; It was probably killed.")
+        except asyncio.CancelledError:
+            write_stream.close()
+            sock.close_socket()
+            future_results.set_result(result)
+            raise
         except:
             self._logger.exception("Exception while reading container %s output", container_id)
 
@@ -406,6 +462,8 @@ class DockerAgent(Agent):
             try:
                 job_id, parent_container_id, socket_id, write_stream = self._student_containers_running[container_id]
                 del self._student_containers_running[container_id]
+            except asyncio.CancelledError:
+                raise
             except:
                 self._logger.warning("Student container %s that has finished(p1) was not launched by this agent", str(container_id), exc_info=True)
                 return
@@ -426,14 +484,20 @@ class DockerAgent(Agent):
 
             try:
                 await self._write_to_container_stdin(write_stream, {"type": "run_student_retval", "retval": retval, "socket_id": socket_id})
+            except asyncio.CancelledError:
+                raise
             except:
                 pass  # parent container closed
 
             # Do not forget to remove the container
             try:
                 self._loop.run_in_executor(None, lambda: self._docker.remove_container(container_id))
+            except asyncio.CancelledError:
+                raise
             except:
                 pass  # ignore
+        except asyncio.CancelledError:
+            raise
         except:
             self._logger.exception("Exception in handle_student_job_closing")
 
@@ -446,6 +510,8 @@ class DockerAgent(Agent):
             try:
                 message, container_path, future_results = self._containers_running[container_id]
                 del self._containers_running[container_id]
+            except asyncio.CancelledError:
+                raise
             except:
                 self._logger.warning("Container %s that has finished(p1) was not launched by this agent", str(container_id), exc_info=True)
                 return
@@ -457,6 +523,8 @@ class DockerAgent(Agent):
                     try:
                         self._docker.kill_container(student_container_id)
                         self._docker.remove_container(student_container_id)
+                    except asyncio.CancelledError:
+                        raise
                     except:
                         pass  # ignore
                 self._create_safe_task(self._loop.run_in_executor(None, close_and_delete))
@@ -550,6 +618,8 @@ class DockerAgent(Agent):
 
             # Do not forget to remove data from internal state
             del self._container_for_job[message.job_id]
+        except asyncio.CancelledError:
+            raise
         except:
             self._logger.exception("Exception in handle_job_closing")
 
@@ -561,11 +631,19 @@ class DockerAgent(Agent):
                 await self._loop.run_in_executor(None, self._docker.kill_container, self._container_for_job[message.job_id])
             else:
                 self._logger.warning("Cannot kill container for job %s because it is not running", str(message.job_id))
+        except asyncio.CancelledError:
+            raise
         except:
             self._logger.exception("Exception in handle_kill_job")
 
     async def run(self):
-        # Init Docker events watcher
-        self._create_safe_task(self._watch_docker_events())
+        self._init_clean()
 
-        await super(DockerAgent, self).run()
+        # Init Docker events watcher
+        watcher_docker_event = self._create_safe_task(self._watch_docker_events())
+
+        try:
+            await super(DockerAgent, self).run()
+        except:
+            await self._end_clean()
+            raise

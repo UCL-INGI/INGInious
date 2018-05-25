@@ -167,7 +167,6 @@ class DockerInterface(object):  # pragma: no cover
         """
         self._docker.containers.get(container_id).remove(v=True, link=False, force=True)
 
-
     def kill_container(self, container_id, signal=None):
         """
         Kills a container

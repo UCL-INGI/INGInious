@@ -19,6 +19,18 @@ class TimeoutWatcher(object):
         self._container_had_error = set()
         self._watching = set()
         self._docker_interface = docker_interface
+        self._running_asyncio_tasks = set()
+
+    async def clean(self):
+        """ Close all the running tasks watching for a container timeout. All references to
+            containers are removed: any attempt to was_killed after a call to clean() will return None.
+        """
+        for x in self._running_asyncio_tasks:
+            x.cancel()
+        self._container_had_error = set()
+        self._watching = set()
+        self._running_asyncio_tasks = set()
+
 
     async def was_killed(self, container_id):
         """
@@ -35,7 +47,10 @@ class TimeoutWatcher(object):
 
     async def register_container(self, container_id, timeout, hard_timeout):
         self._watching.add(container_id)
-        self._loop.create_task(self._handle_container_timeout(container_id, timeout))
+        task = self._loop.create_task(self._handle_container_timeout(container_id, timeout))
+        self._running_asyncio_tasks.add(task)
+        task.add_done_callback(self._remove_safe_task)
+
         self._loop.call_later(hard_timeout, asyncio.ensure_future, self._handle_container_hard_timeout(container_id, hard_timeout))
 
     async def _handle_container_timeout(self, container_id, timeout):
@@ -57,6 +72,8 @@ class TimeoutWatcher(object):
                                       container_id, int(upd['cpu_stats']['cpu_usage']['total_usage'] / (10 ** 9)), timeout)
                     await self._kill_it_with_fire(container_id)
                     return
+        except asyncio.CancelledError:
+            pass
         except:
             self._logger.exception("Exception in _handle_container_timeout")
 
@@ -83,3 +100,10 @@ class TimeoutWatcher(object):
                 await self._loop.run_in_executor(None, lambda: self._docker_interface.kill_container(container_id))
             except:
                 pass #is ok
+
+    def _remove_safe_task(self, task):
+        """ Remove a task from _running_asyncio_tasks """
+        try:
+            self._running_asyncio_tasks.remove(task)
+        except:
+            pass
