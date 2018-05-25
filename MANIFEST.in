@@ -12,4 +12,5 @@ recursive-include inginious/frontend/plugins/grader_generator *
 recursive-include inginious/frontend/plugins/statistics *
 recursive-include inginious/frontend/plugins/utils *
 recursive-include inginious/frontend/plugins/multilang *
+recursive-include inginious/frontend/plugins/problem_bank *
 recursive-include inginious/frontend/plugins/custom_input *
