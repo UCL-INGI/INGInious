@@ -241,22 +241,19 @@ class Agent(object, metaclass=ABCMeta):
     def _create_safe_task(self, coroutine):
         """ Calls self._loop.create_task with a safe (== with logged exception) coroutine. When run() ends, these tasks
             are automatically cancelled"""
-        task = self._loop.create_task(self.__create_safe_task_coro(coroutine))
+        task = self._loop.create_task(coroutine)
         self.__asyncio_tasks_running.add(task)
         task.add_done_callback(self.__remove_safe_task)
 
     def __remove_safe_task(self, task):
+        exception = task.exception()
+        if exception is not None:
+            self._logger.exception("An exception occurred while running a Task", exc_info=exception)
+
         try:
             self.__asyncio_tasks_running.remove(task)
         except:
             pass
-
-    async def __create_safe_task_coro(self, coroutine):
-        """ Helper for _create_safe_task """
-        try:
-            await coroutine
-        except:
-            self._logger.exception("An exception occurred while running a Task.")
 
     def __cancel_remaining_safe_tasks(self):
         """ Cancel existing safe tasks, to allow the agent to restart properly """
