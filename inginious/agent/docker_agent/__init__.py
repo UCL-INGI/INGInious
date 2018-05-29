@@ -49,7 +49,7 @@ class DockerAgent(Agent):
         self._ssh_host = ssh_host
         self._ssh_ports = set(ssh_ports) if ssh_ports is not None else set()
 
-    def _init_clean(self):
+    async def _init_clean(self):
         """ Must be called when the agent is starting """
         # Data about running containers
         self._containers_running = {}
@@ -62,7 +62,7 @@ class DockerAgent(Agent):
 
         # Delete tmp_dir, and recreate-it again
         try:
-            rmtree(self._tmp_dir)
+            await self._loop.run_in_executor(None, lambda: rmtree(self._tmp_dir))
         except OSError:
             pass
 
@@ -76,7 +76,7 @@ class DockerAgent(Agent):
 
         # Auto discover containers
         self._logger.info("Discovering containers")
-        self._containers = self._docker.get_containers()
+        self._containers = await self._loop.run_in_executor(None, self._docker.get_containers)
 
         self._running_ssh_debug = {}  # container_id : ssh_port
 
@@ -637,7 +637,7 @@ class DockerAgent(Agent):
             self._logger.exception("Exception in handle_kill_job")
 
     async def run(self):
-        self._init_clean()
+        await self._init_clean()
 
         # Init Docker events watcher
         watcher_docker_event = self._create_safe_task(self._watch_docker_events())
