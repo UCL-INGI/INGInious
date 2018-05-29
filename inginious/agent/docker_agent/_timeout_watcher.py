@@ -13,7 +13,10 @@ import logging
 from inginious.common.asyncio_utils import AsyncIteratorWrapper
 
 class TimeoutWatcher(object):
+    """ Looks for container timeouts """
     def __init__(self, docker_interface):
+        """ docker_interface is an ASYNC interface to docker """
+
         self._logger = logging.getLogger("inginious.agent.docker")
         self._loop = asyncio.get_event_loop()
         self._container_had_error = set()
@@ -60,7 +63,7 @@ class TimeoutWatcher(object):
         :param timeout: in seconds (cpu time)
         """
         try:
-            docker_stats = await self._loop.run_in_executor(None, lambda: self._docker_interface.get_stats(container_id))
+            docker_stats = await self._docker_interface.get_stats(container_id)
             source = AsyncIteratorWrapper(docker_stats)
             nano_timeout = timeout * (10 ** 9)
             async for upd in source:
@@ -97,7 +100,7 @@ class TimeoutWatcher(object):
             self._watching.remove(container_id)
             self._container_had_error.add(container_id)
             try:
-                await self._loop.run_in_executor(None, lambda: self._docker_interface.kill_container(container_id))
+                await self._docker_interface.kill_container(container_id)
             except:
                 pass #is ok
 

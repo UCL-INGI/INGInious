@@ -9,6 +9,8 @@
 
 import asyncio
 import threading
+from functools import wraps, partial
+from types import ModuleType
 
 
 class AsyncIteratorWrapper(object):
@@ -41,3 +43,28 @@ class AsyncIteratorWrapper(object):
         except Exception:
             pass
         self._loop.call_soon_threadsafe(asyncio.ensure_future, self._add_to_queue(self._last_item))
+
+
+class AsyncProxy(object):
+    """ An asyncio proxy for modules and classes """
+    def __init__(self, module, loop=None, executor=None):
+        self._module = module
+        self._loop = loop or asyncio.get_event_loop()
+        self._executor = executor
+
+    @property
+    def sync(self):
+        """ Return the original sync module/class """
+        return self._module
+
+    def __getattr__(self, name):
+        function = getattr(self._module, name)
+        if not callable(function):
+            return AsyncProxy(function)
+
+        @wraps(function)
+        async def _inner(*args, **kwargs):
+            f = partial(function, *args, **kwargs)
+            return await self._loop.run_in_executor(self._executor, f)
+
+        return _inner
