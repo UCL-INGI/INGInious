@@ -6,6 +6,8 @@
 import asyncio
 import base64
 import logging
+import os
+import shutil
 import struct
 import tempfile
 from os.path import join as path_join
@@ -49,8 +51,6 @@ class DockerAgent(Agent):
         self._ssh_ports = set(ssh_ports) if ssh_ports is not None else set()
 
         # Async proxy to os
-        import os
-        import shutil
         self._aos = AsyncProxy(os)
         self._ashutil = AsyncProxy(shutil)
 
@@ -154,164 +154,154 @@ class DockerAgent(Agent):
         except:
             self._logger.exception("Exception in _watch_docker_events")
 
+    def __new_job_sync(self, message, future_results):
+        """ Synchronous part of _new_job. Creates needed directories, copy files, and starts the container. """
+        course_id = message.course_id
+        task_id = message.task_id
+
+        debug = message.debug
+        environment_name = message.environment
+        enable_network = message.enable_network
+        time_limit = message.time_limit
+        hard_time_limit = message.hard_time_limit or time_limit * 3
+        mem_limit = message.mem_limit
+
+        course_fs = self.tasks_fs.from_subfolder(course_id)
+        task_fs = course_fs.from_subfolder(task_id)
+
+        if not course_fs.exists() or not task_fs.exists():
+            self._logger.warning("Task %s/%s unavailable on this agent", course_id, task_id)
+            raise CannotCreateJobException('Task unavailable on agent. Please retry later, the agents should synchronize soon. '
+                             'If the error persists, please contact your course administrator.')
+
+        # Check for realistic memory limit value
+        if mem_limit < 20:
+            mem_limit = 20
+        elif mem_limit > self._max_memory_per_slot:
+            self._logger.warning("Task %s/%s ask for too much memory (%dMB)! Available: %dMB", course_id, task_id,
+                                 mem_limit, self._max_memory_per_slot)
+            raise CannotCreateJobException('Not enough memory on agent (available: %dMB). Please contact your course administrator.' % self._max_memory_per_slot)
+
+        if environment_name not in self._containers:
+            self._logger.warning("Task %s/%s ask for an unknown environment %s (not in aliases)", course_id, task_id,
+                                 environment_name)
+            raise CannotCreateJobException('Unknown container. Please contact your course administrator.')
+
+        environment = self._containers[environment_name]["id"]
+
+        # Handle ssh debugging
+        ssh_port = None
+        if debug == "ssh":
+            # allow 30 minutes of real time.
+            time_limit = 30 * 60
+            hard_time_limit = 30 * 60
+
+            # select a port
+            if len(self._ssh_ports) == 0:
+                self._logger.warning("User asked for an ssh debug but no ports are available")
+                raise CannotCreateJobException('No ports are available for SSH debug right now. Please retry later.')
+            ssh_port = self._ssh_ports.pop()
+
+        # Create directories for storing all the data for the job
+        try:
+            container_path = tempfile.mkdtemp(dir=self._tmp_dir)
+        except Exception as e:
+            self._logger.error("Cannot make container temp directory! %s", str(e), exc_info=True)
+            if ssh_port is not None:
+                self._ssh_ports.add(ssh_port)
+            raise CannotCreateJobException('Cannot make container temp directory.')
+
+        task_path = path_join(container_path, 'task')  # tmp_dir/id/task/
+        course_path = path_join(container_path, 'course')
+
+        sockets_path = path_join(container_path, 'sockets')  # tmp_dir/id/socket/
+        student_path = path_join(task_path, 'student')  # tmp_dir/id/task/student/
+        systemfiles_path = path_join(task_path, 'systemfiles')  # tmp_dir/id/task/systemfiles/
+
+        course_common_path = path_join(course_path, 'common')
+        course_common_student_path = path_join(course_path, 'common_student')
+
+        # Create the needed directories
+        os.mkdir(sockets_path)
+        os.chmod(container_path, 0o777)
+        os.chmod(sockets_path, 0o777)
+        os.mkdir(course_path)
+
+        # TODO: avoid copy
+        task_fs.copy_from(None, task_path)
+        os.chmod(task_path, 0o777)
+
+        if not os.path.exists(student_path):
+            os.mkdir(student_path)
+            os.chmod(student_path, 0o777)
+
+        # Copy common and common_student if needed
+        # TODO: avoid copy
+        if course_fs.from_subfolder("$common").exists():
+            course_fs.from_subfolder("$common").copy_from(None, course_common_path)
+        else:
+            os.mkdir(course_common_path)
+
+        if course_fs.from_subfolder("$common_student").exists():
+            course_fs.from_subfolder("$common_student").copy_from(None, course_common_student_path)
+        else:
+            os.mkdir(course_common_student_path)
+
+        # Run the container
+        try:
+            container_id = self._docker.sync.create_container(environment, enable_network, mem_limit, task_path,
+                                                              sockets_path, course_common_path,
+                                                              course_common_student_path, ssh_port)
+        except Exception as e:
+            self._logger.warning("Cannot create container! %s", str(e), exc_info=True)
+            shutil.rmtree(container_path)
+            if ssh_port is not None:
+                self._ssh_ports.add(ssh_port)
+            raise CannotCreateJobException('Cannot create container.')
+
+        # Store info
+        self._containers_running[container_id] = message, container_path, future_results
+        self._container_for_job[message.job_id] = container_id
+        self._student_containers_for_job[message.job_id] = set()
+        if ssh_port is not None:
+            self._running_ssh_debug[container_id] = ssh_port
+
+        try:
+            # Start the container
+            self._docker.sync.start_container(container_id)
+        except Exception as e:
+            self._logger.warning("Cannot start container! %s", str(e), exc_info=True)
+            shutil.rmtree(container_path)
+            if ssh_port is not None:
+                self._ssh_ports.add(ssh_port)
+
+            raise CannotCreateJobException('Cannot start container')
+
+        return {
+            "job_id": message.job_id,
+            "container_id": container_id,
+            "inputdata": message.inputdata,
+            "debug": debug,
+            "ssh_port": ssh_port,
+            "orig_env": environment_name,
+            "orig_memory_limit": mem_limit,
+            "orig_time_limit": time_limit,
+            "orig_hard_time_limit": hard_time_limit,
+            "sockets_path": sockets_path,
+            "student_path": student_path,
+            "systemfiles_path": systemfiles_path,
+            "course_common_student_path": course_common_student_path
+        }
+
     async def new_job(self, message: BackendNewJob):
         """
         Handles a new job: starts the grading container
         """
-        try:
-            self._logger.info("Received request for jobid %s", message.job_id)
-
-            course_id = message.course_id
-            task_id = message.task_id
-
-            debug = message.debug
-            environment_name = message.environment
-            enable_network = message.enable_network
-            time_limit = message.time_limit
-            hard_time_limit = message.hard_time_limit or time_limit * 3
-            mem_limit = message.mem_limit
-
-            course_fs = self.tasks_fs.from_subfolder(course_id)
-            task_fs = course_fs.from_subfolder(task_id)
-            if not course_fs.exists() or not task_fs.exists():
-                self._logger.warning("Task %s/%s unavailable on this agent", course_id, task_id)
-                await self.send_job_result(message.job_id, "crash",
-                                           'Task unavailable on agent. Please retry later, the agents should synchronize soon. If the error '
-                                           'persists, please contact your course administrator.')
-                return
-
-            # Check for realistic memory limit value
-            if mem_limit < 20:
-                mem_limit = 20
-            elif mem_limit > self._max_memory_per_slot:
-                self._logger.warning("Task %s/%s ask for too much memory (%dMB)! Available: %dMB", course_id, task_id, mem_limit, self._max_memory_per_slot)
-                await self.send_job_result(message.job_id, "crash", 'Not enough memory on agent (available: %dMB). Please contact your course administrator.' % self._max_memory_per_slot)
-                return
-
-            if environment_name not in self._containers:
-                self._logger.warning("Task %s/%s ask for an unknown environment %s (not in aliases)", course_id, task_id, environment_name)
-                await self.send_job_result(message.job_id, "crash", 'Unknown container. Please contact your course administrator.')
-                return
-
-            environment = self._containers[environment_name]["id"]
-
-            # Handle ssh debugging
-            ssh_port = None
-            if debug == "ssh":
-                # allow 30 minutes of real time.
-                time_limit = 30 * 60
-                hard_time_limit = 30 * 60
-
-                # select a port
-                if len(self._ssh_ports) == 0:
-                    self._logger.warning("User asked for an ssh debug but no ports are available")
-                    await self.send_job_result(message.job_id, "crash", 'No ports are available for SSH debug right now. Please retry later.')
-                    return
-                ssh_port = self._ssh_ports.pop()
-
-            # Create directories for storing all the data for the job
-            try:
-                container_path = tempfile.mkdtemp(dir=self._tmp_dir)
-            except asyncio.CancelledError:
-                raise
-            except Exception as e:
-                self._logger.error("Cannot make container temp directory! %s", str(e), exc_info=True)
-                await self.send_job_result(message.job_id, "crash", 'Cannot make container temp directory.')
-                if ssh_port is not None:
-                    self._ssh_ports.add(ssh_port)
-                return
-
-            task_path = path_join(container_path, 'task')  # tmp_dir/id/task/
-            course_path = path_join(container_path, 'course')
-
-            sockets_path = path_join(container_path, 'sockets')  # tmp_dir/id/socket/
-            student_path = path_join(task_path, 'student')  # tmp_dir/id/task/student/
-            systemfiles_path = path_join(task_path, 'systemfiles')  # tmp_dir/id/task/systemfiles/
-
-            course_common_path = path_join(course_path, 'common')
-            course_common_student_path = path_join(course_path, 'common_student')
-
-            # Create the needed directories
-            await self._aos.mkdir(sockets_path)
-            await self._aos.chmod(container_path, 0o777)
-            await self._aos.chmod(sockets_path, 0o777)
-            await self._aos.mkdir(course_path)
-
-            # TODO: avoid copy
-            await self._loop.run_in_executor(None, lambda: task_fs.copy_from(None, task_path))
-            await self._aos.chmod(task_path, 0o777)
-
-            if not await self._aos.path.exists(student_path):
-                await self._aos.mkdir(student_path)
-                await self._aos.chmod(student_path, 0o777)
-
-            # Copy common and common_student if needed
-            # TODO: avoid copy
-            if course_fs.from_subfolder("$common").exists():
-                await self._loop.run_in_executor(None, lambda: course_fs.from_subfolder("$common").copy_from(None, course_common_path))
-            else:
-                await self._aos.mkdir(course_common_path)
-
-            if course_fs.from_subfolder("$common_student").exists():
-                await self._loop.run_in_executor(None, lambda: course_fs.from_subfolder("$common_student").copy_from(None, course_common_student_path))
-            else:
-                await self._aos.mkdir(course_common_student_path)
-
-            # Run the container
-            try:
-                container_id = await self._docker.create_container(environment, enable_network, mem_limit, task_path,
-                                                                   sockets_path, course_common_path,
-                                                                   course_common_student_path, ssh_port)
-            except Exception as e:
-                self._logger.warning("Cannot create container! %s", str(e), exc_info=True)
-                await self.send_job_result(message.job_id, "crash", 'Cannot create container.')
-                await self._ashutil.rmtree(container_path)
-                if ssh_port is not None:
-                    self._ssh_ports.add(ssh_port)
-
-                if isinstance(e, asyncio.CancelledError):
-                    raise
-
-                return
-
-            # Store info
-            future_results = asyncio.Future()
-            self._containers_running[container_id] = message, container_path, future_results
-            self._container_for_job[message.job_id] = container_id
-            self._student_containers_for_job[message.job_id] = set()
-            if ssh_port is not None:
-                self._running_ssh_debug[container_id] = ssh_port
-
-            try:
-                # Start the container
-                await self._docker.start_container(container_id)
-            except Exception as e:
-                self._logger.warning("Cannot start container! %s", str(e), exc_info=True)
-                await self.send_job_result(message.job_id, "crash", 'Cannot start container')
-                await self._loop.run_in_executor(None, lambda: rmtree(container_path))
-                if ssh_port is not None:
-                    self._ssh_ports.add(ssh_port)
-
-                if isinstance(e, asyncio.CancelledError):
-                    raise
-
-                raise CannotCreateJobException('Cannot start container')
-
-            # Talk to the container
-            self._create_safe_task(self.handle_running_container(message.job_id, container_id, message.inputdata, debug, ssh_port,
-                                                                 environment_name, mem_limit, time_limit, hard_time_limit,
-                                                                 sockets_path, student_path, systemfiles_path,
-                                                                 course_common_student_path, future_results))
-
-            # Verify the time limit
-            await self._timeout_watcher.register_container(container_id, time_limit, hard_time_limit)
-        except Exception as e:
-            self._logger.exception("Exception in new_job")
-            await self.send_job_result(message.job_id, "crash", 'Cannot start container')
-
-            if isinstance(e, asyncio.CancelledError):
-                raise
-
+        self._logger.info("Received request for jobid %s", message.job_id)
+        future_results = asyncio.Future()
+        out = await self._loop.run_in_executor(None, lambda: self.__new_job_sync(message, future_results))
+        self._create_safe_task(self.handle_running_container(**out, future_results=future_results))
+        await self._timeout_watcher.register_container(out["container_id"], out["orig_time_limit"], out["orig_hard_time_limit"])
 
     async def create_student_container(self, job_id, parent_container_id, sockets_path, student_path, systemfiles_path,
                                        course_common_student_path, socket_id,  environment_name, memory_limit,
