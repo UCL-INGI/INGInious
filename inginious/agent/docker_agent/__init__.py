@@ -515,8 +515,8 @@ class DockerAgent(Agent):
                 # little hack to ensure the value of student_container_id_loop is copied into the closure
                 async def close_and_delete(student_container_id=student_container_id_loop):
                     try:
-                        self._docker.kill_container(student_container_id)
-                        self._docker.remove_container(student_container_id)
+                        await self._docker.kill_container(student_container_id)
+                        await self._docker.remove_container(student_container_id)
                     except asyncio.CancelledError:
                         raise
                     except:
