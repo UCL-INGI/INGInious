@@ -598,7 +598,12 @@ class DockerAgent(Agent):
                     grade = 0.0
 
             # Remove container
-            await self._docker.remove_container(container_id)
+            try:
+                await self._docker.remove_container(container_id)
+            except asyncio.CancelledError:
+                raise
+            except:
+                pass
 
             # Delete folders
             try:
