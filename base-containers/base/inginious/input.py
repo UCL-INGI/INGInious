@@ -25,7 +25,7 @@ def get_username():
 
 
 def get_lang():
-    """ Returns the username of the current user being graded """
+    """ Returns the language of the current user (as a two-character ISO-639-1 code) being graded """
     return get_input("@lang")
 
 

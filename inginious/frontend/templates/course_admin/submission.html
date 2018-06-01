@@ -73,16 +73,16 @@ $var Navbar: $:NavbarF()
 </div>
 
 $ visible_tags = [tag for tag in task.get_tags()[0] if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course)]
-$ visible_anti_tags = [tag for tag in task.get_tags()[1] if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course)]
+$ visible_misconception_tags = [tag for tag in task.get_tags()[1] if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course)]
 
 $# Auto tags may appear for admins. So we force the h3 title even if there is not predefined tags
 $# We do not show the tag header for students if they can not get tags
-$if (len(visible_tags) > 0) or (len(visible_anti_tags) > 0) or user_manager.has_staff_rights_on_course(course):
+$if (len(visible_tags) > 0) or (len(visible_misconception_tags) > 0) or user_manager.has_staff_rights_on_course(course):
     <h3>$:_("Tags")</h3>
     <div id="main_tag_group" style="margin-bottom:10px;">
     $for tag in visible_tags:
         <span class="badge alert-info" id="$tag.get_id()" data-placement="right" data-toggle="tooltip" title="$tag.get_description(translated=True)">$:_(tag.get_name())</span>
-    $for tag in visible_anti_tags:
+    $for tag in visible_misconception_tags:
         <span class="badge alert-danger" id="$tag.get_id()" data-placement="right" data-toggle="tooltip" title="$tag.get_description(translated=True)" style="display:none;">$:_(tag.get_name())</span>
     </div>
 

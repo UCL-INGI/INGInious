@@ -340,6 +340,7 @@ class DockerAgent(Agent):
 
         # Send hello msg
         await self._write_to_container_stdin(write_stream, {"type": "start", "input": inputdata, "debug": debug})
+        result = None
 
         buffer = bytearray()
         try:
@@ -380,26 +381,20 @@ class DockerAgent(Agent):
                                 await self.send_ssh_job_info(job_id, self._ssh_host, ssh_port, msg["ssh_key"])
                             elif msg["type"] == "result":
                                 # last message containing the results of the container
-                                future_results.set_result(msg["result"])
-                                write_stream.close()
-                                sock.close_socket()
-                                return  # this is the last message
+                                result = msg["result"]
                         except:
                             self._logger.exception("Received incorrect message from container %s (job id %s)", container_id, job_id)
-                            future_results.set_result(None)
-                            write_stream.close()
-                            sock.close_socket()
-                            return
         except asyncio.IncompleteReadError:
             self._logger.debug("Container output ended with an IncompleteReadError; It was probably killed.")
         except:
             self._logger.exception("Exception while reading container %s output", container_id)
 
-        # EOF without result :-(
-        self._logger.warning("Container %s has not given any result", container_id)
         write_stream.close()
         sock.close_socket()
-        future_results.set_result(None)
+        future_results.set_result(result)
+
+        if not result:
+            self._logger.warning("Container %s has not given any result", container_id)
 
     async def handle_student_job_closing(self, container_id, retval):
         """

@@ -1,4 +1,4 @@
-$def with (inputId,header,type,maxChars,optional)
+$def with (inputId,header,type,maxChars,optional,default)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -14,7 +14,7 @@ $:header
     $elif type == "decimal":
         type="number"
     name="$inputId"
-    value=""
+    value="$default"
     $if "/" in inputId:
         class="monospace form-control form-inline"
     $else:

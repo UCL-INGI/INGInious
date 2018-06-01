@@ -294,7 +294,7 @@ $if statistics != None and len(data) > 0:
                         </thead>
                         <tbody>
                             $for (tag, v_total, v_best) in statistics[1]:
-                                $ color = "badge alert-danger" if tag.is_antitag() else "badge alert-info" 
+                                $ color = "badge alert-danger" if tag.is_misconception() else "badge alert-info"
                                 <tr>
                                     <td><span class="$color" id="$tag.get_id()" data-toggle="tooltip" data-placement="left" title="$tag.get_description(translated=True)">$:_(tag.get_name())</span></td>
                                     $# The number of decimal digits. (10 for 1 decimal, 100 for two decimals, ...)
@@ -302,11 +302,11 @@ $if statistics != None and len(data) > 0:
                                     $ val_displayed_total = int(v_total*accuracy)/accuracy
                                     $ val_displayed_best = int(v_best*accuracy)/accuracy
 
-                                    $# If the displayed value is 0 but in fact the value is not 0 (e.g. 0.00001), we display the full number because we need to know that there is at least one tag True.
+                                    $# If the displayed value is 0 but in fact the value is not 0 (e.g. 0.00001), we display the '>' character because we need to know that there is at least one tag True.
                                     $if val_displayed_total == 0 and v_total != 0:
-                                        $ val_displayed_total = v_total
+                                        $ val_displayed_total = "> " + str(val_displayed_total)
                                     $if val_displayed_best == 0 and v_best != 0:
-                                        $ val_displayed_best = v_best
+                                        $ val_displayed_best = "> " + str(val_displayed_best)
                                     <td>$val_displayed_total %</td>
                                     <td>$val_displayed_best %</td>
                                 </tr>
