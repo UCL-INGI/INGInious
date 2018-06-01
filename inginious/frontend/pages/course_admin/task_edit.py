@@ -305,6 +305,7 @@ class CourseEditTask(INGIniousAdminPage):
         # Call plugins and return the first error
         plugin_results = self.plugin_manager.call_hook('task_editor_submit', course=course, taskid=taskid,
                                                        task_data=data, task_fs=task_fs)
+
         # Retrieve the first non-null element
         error = next(filter(None, plugin_results), None)
         if error is not None:

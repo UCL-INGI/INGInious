@@ -175,6 +175,54 @@ For instance, the following command set the value ``56`` to the ``score`` key:
     from inginious import feedback
     feedback.set_custom_value("score", 56) # Set the `score` key to value 56
 
+tag-set
+```````
+
+The *tag-set* command sets the value of the tag specified by the tag identifier to ``True`` or ``False``. It uses the
+following syntax:
+
+::
+
+    tag-set tag value
+
+For instance, the following command set the value of the ``my_tag`` tag to ``True``:
+
+::
+
+    tag-set my_tag true
+
+
+**In Python** : the equivalent command can be directly obtained with:
+
+.. code-block:: python
+
+    from inginious import feedback
+    feedback.feedback.set_tag("my_tag", True) # Sets the skill/misconception tag as True
+
+tag
+```
+
+The *tag* command defines a new unexpected tag to appear in the submission feedback. It uses the followig syntax:
+
+::
+
+    tag value
+
+For instance, the following command defines a new ``A new tag`` tag that will appear in the submission feedback:
+
+::
+
+    tag "A new tag"
+
+
+**In Python** : the equivalent command can be directly obtained with:
+
+.. code-block:: python
+
+    from inginious import feedback
+    feedback.tag("A new tag") # Sets a new unexpected tag
+
+
 reStructuredText helper commands
 --------------------------------
 
@@ -407,36 +455,3 @@ The command takes some arguments, which are all optional:
                                     specified sub-directory in the output archive
 -a, --add FILEPATH                  add the file to the archive
 -r, --remove FILEPATH               remove the file from the archive
-
-Obsolete commands
------------------
-
-feedback (obsolete since v0.4)
-``````````````````````````````
-
-The *feedback* command allows you to set the result of your tests.
-Every argument is optional.
-
--r, --result STATUS            set the result to STATUS. STATUS can be
-                               - success (the student succeeded the task),
-                               - failed (there are error in the student answer),
-                               - timeout (the tests timed out),
-                               - overflow (there was a memory/disk overflow) or
-                               - crash (the tests crashed)
--e, --escape                   interprets the space-like escape chars.
--f, --feedback MSG             set the feedback message to MSG. It is possible to set different
-                               messages for each problems. You can use *-i* to change the problem
-                               to which you assign the message
--i, --id PROBLEMID             set the problem id to which the message from the *-f* option is
-                               assigned. Unused if *-f* is not set.
--g, --grade GRADE              the grade. Should be a floating point number between 0(no points) and
-                               100(all points) (bonuses, up to 200, are allowed).
--c, --custom CUSTOM            add a value VAL to the "custom" dictionnary, with key KEY, where CUSTOM is ``KEY:VAL``, which is stored in DB.
-                               Useful for plugins.
--j, --custom-json CUSTOM   same as ```--custom``` but VAL is a json-encoded dictionnary
-
-The *feedback* command can be called multiple times.
-
-::
-
-    feedback --result success --feedback "You're right, the answer is 42!"

@@ -172,7 +172,7 @@ class WebAppCourse(Course):
             return self._all_tags_cache
     
         tag_list_common = set()
-        tag_list_antitag = set()
+        tag_list_misconception = set()
         tag_list_org = set()
 
         tasks = self.get_tasks()
@@ -180,15 +180,15 @@ class WebAppCourse(Course):
             for tag in task.get_tags()[0]:
                 tag_list_common.add(tag)
             for tag in task.get_tags()[1]:
-                tag_list_antitag.add(tag)
+                tag_list_misconception.add(tag)
             for tag in task.get_tags()[2]:
                 tag_list_org.add(tag)
         
         tag_list_common = natsorted(tag_list_common, key=lambda y: y.get_name().lower())
-        tag_list_antitag = natsorted(tag_list_antitag, key=lambda y: y.get_name().lower())
+        tag_list_misconception = natsorted(tag_list_misconception, key=lambda y: y.get_name().lower())
         tag_list_org = natsorted(tag_list_org, key=lambda y: y.get_name().lower())
              
-        self._all_tags_cache = (list(tag_list_common), list(tag_list_antitag), list(tag_list_org))
+        self._all_tags_cache = (list(tag_list_common), list(tag_list_misconception), list(tag_list_org))
         return self._all_tags_cache
         
     def get_all_tags_names_as_list(self, admin=False, language="en"):

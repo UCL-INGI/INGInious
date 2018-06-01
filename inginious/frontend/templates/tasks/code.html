@@ -1,4 +1,4 @@
-$def with (inputId,header,lines,maxChars,language,optional)
+$def with (inputId,header,lines,maxChars,language,optional,default)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -15,4 +15,4 @@ $:header
           data-x-language="$language"
           data-x-lines="$lines"
           data-optional="$bool(optional)"
-></textarea>
+>$default</textarea>
