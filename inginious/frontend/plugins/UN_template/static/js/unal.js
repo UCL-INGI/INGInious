@@ -63,47 +63,6 @@ jQuery(document).ready(function($) {
 
   /*Menu lateral programas academicos y Ancla*/
 
-
-
-    var altura = $('.list_menu_lateral').offset().top;
-    var ancho = $('.list_menu_lateral').width();
-    var alturaContent;
-    var alturaMenu;
-    var limit;
-
-    if ($(window).width()>=992){
-            
-    $(window).on('scroll', function(){
-        alturaContent=$('.detalle').offset().top+$('.detalle').height()-48;
-        alturaMenu=$('.list_menu_lateral').height();
-        limit=alturaContent-alturaMenu;
-
-        if ( $(window).scrollTop()+20 > altura ){
-            $('.list_menu_lateral').css('width',ancho);
-                $('.list_menu_lateral').addClass('list_menu_fixed');
-            }
-            else {
-                $('.list_menu_lateral').removeClass('list_menu_fixed');
-            }
-
-            if($(window).scrollTop() > limit){
-                $('.list_menu_lateral').css('top',-20+limit-$(window).scrollTop());
-            }
-            else{
-                $('.list_menu_lateral').css('top',20);      
-            }
-            
-        });
-    }
-      
-    $('.ancla').click(function(event){
-        var tope=$(this.hash).offset().top;  
-        $('html,body').animate({scrollTop:tope-10}, 1000);
-        event.preventDefault();
-
-    });
-  
-
     function crearFilaAsignatura(value, id, ar){
       if(value.tipologia=='T'){
         value.tipologia='E'
@@ -148,7 +107,10 @@ jQuery(document).ready(function($) {
      *  Inicio modificacion UNCode
      */
 
-    $('#wrapper > div.navbar.navbar-default.navbar-static-top > div > div.navbar-header > a > img').attr("src", window.location.origin + "/UN_template/static/images/LogotipoUNAL.png")
+    $('#wrapper').find('> div.navbar.navbar-default.navbar-static-top > div > div.navbar-header > a > img').attr("src", window.location.origin + "/UN_template/static/images/LogotipoUNAL.png")
+    var footer = $('#footer');
+    footer.find('> div > div > div > p').html(' &copy; 2017-' + (new Date()).getFullYear() + ' Universidad Nacional de Colombia')
+    footer.find('> div > div > div > div > p > a').html('UNCode is distributed under AGPL license - Powered by INGInious');
 
     /**
      *  fin modificacion UNCode
