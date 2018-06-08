@@ -144,6 +144,17 @@ jQuery(document).ready(function($) {
       cargarAsignaturasSIA($('#asignaturasSIA')[0].getAttribute("coodigoSIA"))
     }
 
+    /**
+     *  Inicio modificacion UNCode
+     */
+
+    $('#wrapper > div.navbar.navbar-default.navbar-static-top > div > div.navbar-header > a > img').attr("src", window.location.origin + "/UN_template/static/images/LogotipoUNAL.png")
+
+    /**
+     *  fin modificacion UNCode
+     */
+
+
 });
 
 

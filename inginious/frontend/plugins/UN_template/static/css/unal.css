@@ -216,7 +216,6 @@ ul.dropdown-menu a:hover, ul.dropdown-menu a:active, ul.dropdown-menu a:focus {
 
 #unalTop {
   position: relative;
-  z-index: 1003;
 }
 
 #unalTop .logo {
