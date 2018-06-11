@@ -47,7 +47,7 @@ class LTIBindPage(INGIniousAuthPage):
 
         try:
             cookieless_session, data = self.fetch_lti_data(input_data["sessionid"])
-        except KeyError as _:
+        except KeyError:
             return self.template_helper.get_renderer().lti_bind(False, "", None, _("Invalid LTI session id"))
 
         return self.template_helper.get_renderer().lti_bind(False, cookieless_session["session_id"], data, "")
@@ -59,7 +59,7 @@ class LTIBindPage(INGIniousAuthPage):
 
         try:
             cookieless_session, data = self.fetch_lti_data(input_data["sessionid"])
-        except KeyError as _:
+        except KeyError:
             return self.template_helper.get_renderer().lti_bind(False, "", None, _("Invalid LTI session id"))
 
         try:
