@@ -110,7 +110,13 @@ jQuery(document).ready(function($) {
     $('#wrapper').find('> div.navbar.navbar-default.navbar-static-top > div > div.navbar-header > a > img').attr("src", window.location.origin + "/UN_template/static/images/LogotipoUNAL.png")
     var footer = $('#footer');
     footer.find('> div > div > div > p').html(' &copy; 2017-' + (new Date()).getFullYear() + ' Universidad Nacional de Colombia')
-    footer.find('> div > div > div > div > p > a').html('UNCode is distributed under AGPL license - Powered by INGInious');
+    footer.find('> div > div > div > div > p').html('<a target="_blank" href="https://github.com/JuezUN/INGInious" class="navbar-link">\n' +
+                                                    'UNCode is distributed under AGPL license' +
+                                                    '</a>' + ' - <a target="_blank" href="http://www.inginious.org" class="navbar-link">\n' +
+                                                    'Powered by INGInious\n</a>');
+
+    //favicon
+     $('link[rel="icon"]').attr('href',  window.location.origin + "/UN_template/static/images/LogotipoUNAL.png");
 
     /**
      *  fin modificacion UNCode
