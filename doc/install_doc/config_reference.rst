@@ -129,10 +129,12 @@ Several plugins are available to complete the INGInious feature set.
 External authentication plugins
 ```````````````````````````````
 
-You need at least one auth plugin activated.
+You can allow account creation from an external authentication source. This will link the external credentials to the
+INGInious account so that the user can log in INGInious using these credentials in the future. Several authentication
+plugins are available.
 
-ldap_auth
-!!!!!!!!!
+LDAP
+!!!!
 
 Uses an LDAP server to authenticate users.
 
@@ -141,7 +143,7 @@ To enable this plugin, add to your configuration file:
 
     plugins:
         - plugin_module: inginious.frontend.plugins.auth.ldap_auth
-          id: some_id_for_ldap
+          id: <some_id_for_ldap>
           host: "your.ldap.server.com"
           encryption: "ssl" #can be tls or none
           base_dn: "ou=People,dc=info,dc=ucl,dc=ac,dc=be"
@@ -156,8 +158,8 @@ Most of the parameters are self-explaining, but:
 ``request``
     is the request made to the LDAP server to search the user to authentify. "{}" is replaced by the username indicated by the user.
 
-saml2_auth
-!!!!!!!!!!
+SAML2/Shibboleth
+!!!!!!!!!!!!!!!!
 
 Uses a SAML2-compliant identity provider (such as Shibboleth IdP) to authenticate users.
 
@@ -166,6 +168,7 @@ To enable this plugin, add to your configuration file:
 
     plugins:
         - plugin_module: inginious.frontend.plugins.auth.saml2_auth
+            id: <some_id_for_saml2>
             strict: true
             sp:
                 entityId: "<your_entity_id>"
@@ -187,6 +190,7 @@ To enable this plugin, add to your configuration file:
                  email: "urn:oid:1.3.6.1.4.1.5923.1.1.1.6"
                  uid: "urn:oid:0.9.2342.19200300.100.1.1"
 
+``id`` is the authentication method id. It must be alphanumerical and different from other external authentication methods.
 Your IdP is required to provide at least attributes corresponding to the username, the complete name and the email address.
 Use the ``attributes`` entry for the mapping. The ``additionalX509certs`` is a plugin-specific entry to specify several
 certificates in case your IdP is able to use more than one.
@@ -197,24 +201,53 @@ is automatically configured by the plugin.
 
 .. _python3-saml: https://github.com/onelogin/python3-saml/
 
-db_auth
-!!!!!!!
 
-Uses the MongoDB database to authenticate users. Provides a basic email-verification based registration and password
-recovery. It does not support manual user management yet. The superadmin has to register the same way other users do.
+Facebook/LinkedIn/GitHub/Google
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Uses a Facebook/LinkedIn/GitHub/Google application to allow authentication (and possibly sharing) via the network.
+You need to create an app on the appropriate developer platform in order to use this plugin.
 
 To enable this plugin, add to your configuration file:
 ::
 
     plugins:
-        - plugin_module: inginious.frontend.plugins.auth.db_auth
-          allow_deletion: true
+        - plugin_module: inginious.frontend.plugins.auth.facebook_auth
+            id: <some_id_for_facebook>
+            debug: false
+            client_id: <your_app_id>
+            client_secret: <your_app_secret>
 
-For mails to be sent by the registration module, you need to configure the ``smtp`` parameter of your configuration
-file. `allow_deletion` parameter can be used to specify if users can delete their accounts from INGInious.
+``id`` is the authentication method id. ``client_id`` and ``client_secret`` are the OAuth identifier and secret of the
+created app. Replace ``facebook_auth`` by ``linkedin_auth``, ``github_auth`` or ``google_auth`` according to your case.
 
-Scoreboard plugin (``webapp``)
-``````````````````````````````
+Set ``debug`` to ``true`` to allow OAuth to be run in debug mode (for instance, if SSL is not yet set up).
+
+Twitter
+!!!!!!!
+
+Uses a Twitter application to allow authentication and sharing via the network.
+You need to create two apps on the appropriate developer platform in order to use this plugin. One will only have
+authentication capabilities and the other one will be able to write posts for the user in order to share results.
+
+To enable this plugin, add to your configuration file:
+::
+
+    plugins:
+        - plugin_module: inginious.frontend.plugins.auth.twitter_auth
+          id: twitter
+          debug: false
+          client_id: <app_id_auth_only>
+          client_secret: <app_secret_auth_only>
+          share_client_id: <app_id_with_share_rights>
+          share_client_secret: <app_secret_with_share_rights>
+          user: <user_who_created_the_app>
+
+``id`` is the authentication method id. ``client_id`` and ``client_secret`` are the OAuth identifier and secret of the
+created app. Set ``debug`` to ``true`` to allow OAuth to be run in debug mode (for instance, if SSL is not yet set up).
+
+Scoreboard plugin
+`````````````````
 
 This plugin allows to generate course/tasks scoreboards. To enable the plugin, add to your configuration file:
 ::
@@ -243,8 +276,8 @@ both scores are added. The last one is more complex and will create a reversed s
 The score used by this plugin for each task must be generated via a key/value custom feedback
 (see :ref:`feedback-custom`) using the ``score`` key. Only the *succeeded* tasks are taken into account.
 
-Contests plugin (``webapp``)
-````````````````````````````
+Contests plugin
+```````````````
 
 This plugin allows to manage an ACM/ICPC like contest inside a course between students.
 To enable the plugin, add to your configuration file:
@@ -257,8 +290,8 @@ A new configuration page named *Contest* appears on the administration page. To 
 *Enable contest plugin* box on the appropriate course. Please note that the plugin will override the task
 accessibility dates.
 
-Simple grader plugin (``webapp``, ``lti``)
-``````````````````````````````````````````
+Simple grader plugin
+````````````````````
 
 This simple grader allows anonymous POST requests without storing submissions in database.
 
@@ -361,8 +394,8 @@ or
 
 where ``...`` are the results of the job, as defined in the ``return_fields`` configuration value.
 
-Git Repo plugin (``webapp``, ``lti``)
-`````````````````````````````````````
+Git Repo plugin
+```````````````
 This plugin allows saving submissions history in a Git repository, according to the following path pattern :
 ``courseid/taskid/username``. The version kept in the head of branch is the latest submission made.
 
@@ -375,26 +408,14 @@ To enable this plugin, add to your configuration file:
 
 The ``repo_directory`` parameter specify the path to the repository that must be initialized before configuration.
 
-Task file readers plugin (``webapp``, ``lti``)
-``````````````````````````````````````````````
+JSON task file readers plugin
+`````````````````````````````
 It is possible to store task files in other formats than YAML. **However, these plugins are provided for
 retro-compatibility with previous supported formats, which are deprecated. You therefore use these plugins at your own
 risks**.
-
-JSON
-!!!!
 
 To enable the JSON task file format:
 ::
 
     plugins:
         - plugin_module: inginious.frontend.plugins.task_file_readers.json_reader
-
-RST
-!!!
-
-To enable the reStructuredText task file format:
-::
-
-    plugins:
-        - plugin_module: inginious.frontend.plugins.task_file_readers.rst_reader

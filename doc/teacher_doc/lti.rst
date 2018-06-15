@@ -1,33 +1,26 @@
 .. _configure_LTI:
 
-Configuring the LTI frontend
-============================
+Using through LTI (edX, Moodle, ...)
+=====================================
 
-In order to use the LTI frontend with your favorite LMS, you first have to define your LTI keys (consumer key and secret), then installing them on
-your LMS.
+INGInious implements the LTI specification in order to integrate into edX, Moodle, or any other LMS that also implements
+this specification. To get started, all you need is to activate te LTI mode in the course administration and define
+your LTI keys (consumer key and secret). You'll then be able to use INGInious tasks as activities in your LMS.
 
-Defining your LTI keys
-----------------------
+Defining LTI keys
+-----------------
 
-The LTI keys are defined in the configuration file of the LTI frontend, usually ``configuration.lti.yaml``.
-Here is an example of configuration:
+The LTI keys are defined in the course administration by first activating the LTI mode. Then, add consumer keys and secrets
+separated by a colon in the LTI keys field. For instance, here's an example of a set of keys and secrets:
 
 ::
 
-    lti:
-        consumer_key_1:
-            secret: a_very_secret_password
-        consumer_key_2:
-            secret: wow_such_secret
-            courses:
-                - my_course
+        consumer_key_1:a_very_secret_password
+        consumer_key_2:wow_such_secret
 
 This obviously defines two LTI keys, ``consumer_key_1`` and ``consumer_key_2``, with passwords ``a_very_secret_password`` and
-``wow_such_secret``.
+``wow_such_secret``. You also need to check the *Send grades back* option to actually send the scores from INGInious to your LTI.
 
-By default, consumer keys allow accessing all courses data from the consumer. If you want a consumer to be restricted to
-only one course data, use the ``courses`` field and specify the list of courses to give access to. This is illustrated in
-the example with ``consumer_key_2``.
 
 Setting up your LMS
 -------------------
@@ -48,9 +41,10 @@ The ``launch url`` is, if your server is located at ``https://HOST:PORT/``, and 
 
 ::
 
-    https://HOST:PORT/launch/course_id/task_id
+    https://HOST:PORT/lti/course_id/task_id
 
-Please note that, for now, official edX *needs* https. You also need to set the LTI activity to accept a score back from INGInious, without which the activity won't launch.
+Please note that, for now, official edX *needs* https. You also need to set the LTI activity to accept a score back from INGInious if
+your have set up INGInious such that scores are sent back.
 
 .. _a good tutorial on how to install LTI components: http://edx-partner-course-staff.readthedocs.org/en/latest/exercises_tools/lti_component.html
 
@@ -66,11 +60,11 @@ from the course ``course_id``:
 
 ::
 
-    https://HOST:PORT/launch/course_id/task_id
+    https://HOST:PORT/lti/course_id/task_id
 
 For the field ``Launch Container``, the best value is "Embded without block".
 ``Consumer key`` and ``Consumer secret`` are the LTI key you defined earlier.
-In the ``Privacy`` fieldset, verify that ``accept grades from the tool`` is checked.
+In the ``Privacy`` fieldset, check that ``accept grades from the tool`` is checked.
 Leave the other fields blank (or modify them as you want).
 
 Save, and it should work.

@@ -7,7 +7,8 @@ Creating a new task
    :maxdepth: 2
 
    task_tuto
-   task_ref
+   run_file
+   task_file
    share_files
    common
    system_files

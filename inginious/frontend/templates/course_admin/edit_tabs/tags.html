@@ -14,92 +14,101 @@ $#
 <div class="tab-content">
 <div id="home" class="tab-pane fade in active">
 
-<div class="form-group">
-    <table class="table-striped" id="table">
-    <thead>
-        <tr>
-            <th class="col-sm-2">$:_("Id")</th>
-            <th class="col-sm-3">$:_("Name")</th>
-            <th class="col-sm-4">$:_("Description")</th>
-            <th class="col-sm-1">$:_("Show to students")</th>
-            <th class="col-sm-2">$:_("Type ")</th>
-        </tr>
-    </thead>
-    <tbody>
-    
-    <!-- An empty row so that we can copy it to add new rows. All 'disabled' are important to not send this row to INGInious when saving the task-->
-    <tr id="NEW" style="display:none;">
-        <td><input disabled type="text" ID_STOP id="id_NEW" class="form-control" name="tags[NEW][id]" value="ID_REPLACE"></td>
-        <td><input disabled type="text" class="form-control" name="tags[NEW][name]" value="NAME_REPLACE"/></td>
-        <td><textarea disabled class="form-control" onfocus="studio_expand_tag_description(this);" onblur="studio_expand_tag_description_not(this);" name="tags[NEW][description]" rows="1" style="resize:none">DESCRIPTION_REPLACE</textarea></td>
-        <td><input disabled type="checkbox" class="form-control" name="tags[NEW][visible]" VISIBLE_REPLACE)/></td>
-        <td>
-            <select disabled  class="form-control" name="tags[NEW][type]" onchange="studio_change_id_field(this, NEW)">
-                <option value="0" TYPE_REPLACE_0>$:_("Common")</option>
-                <option value="1" TYPE_REPLACE_1>$:_("Antitag")</option>
-                <option value="2" TYPE_REPLACE_2>$:_("Organisation")</option>
-            </select>
-        </td>
-    </tr>
-    
-    $ i=-1
-    $for key, tag in task_data.get('tags', {}).items():
-        $ i=i+1
-        $ id = tag["id"] if "id" in tag else "unknow_id"
-        $ name = tag["name"] if "name" in tag else "Unknow name"
-        $ description = tag["description"] if "description" in tag else ""
-        $ type = tag["type"] if "type" in tag else 0
-        $ visible = tag["visible"] if "visible" in tag else False
-        <tr id="$i">
-            <td><input type="text" id="id_$i" class="form-control" name="tags[$i][id]" value="$id" $('disabled' if type == 2 else '')/></td>
-            <td><input type="text" class="form-control" name="tags[$i][name]" value="$name"/></td>
-            <td><textarea class="form-control" onfocus="studio_expand_tag_description(this);" onblur="studio_expand_tag_description_not(this);" name="tags[$i][description]" rows="1" style="resize:none">$description</textarea></td>
-            <td><input type="checkbox" class="form-control" name="tags[$i][visible]" $('checked="checked"' if visible else '')/></td>
-            <td>
-                <select class="form-control" name="tags[$i][type]" onchange="studio_change_id_field(this, $i)">
-                    <option value="0" $('selected="selected"' if int(type) == 0 else '')>$:_("Common")</option>
-                    <option value="1" $('selected="selected"' if int(type) == 1 else '')>$:_("Antitag")</option>
-                    <option value="2" $('selected="selected"' if int(type) == 2 else '')>$:_("Organisation")</option>
-                </select>
-            </td>
-        </tr>
-    </tbody>
-    </table>
-    <button type="button" class="btn btn-success pull-right" onclick="studio_add_tag_line(-1)"><i class="fa fa-plus fa-lg"></i>$:_(" New tag")</button>
-</div>
+    <div class="form-group">
+        <div class="col-sm-12">
+            <table id="table">
+            <thead>
+                <tr>
+                    <th class="col-sm-2">$:_("Id")</th>
+                    <th class="col-sm-3">$:_("Name")</th>
+                    <th class="col-sm-4">$:_("Description")</th>
+                    <th class="col-sm-1">$:_("Show to students")</th>
+                    <th class="col-sm-2">$:_("Type ")</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            <!-- An empty row so that we can copy it to add new rows. All 'disabled' are important to not send this row to INGInious when saving the task-->
+            <tr id="NEW" style="display:none;">
+                <td class="col-sm-2"><input disabled type="text" ID_STOP id="id_NEW" class="form-control" name="tags[NEW][id]" value="ID_REPLACE"></td>
+                <td class="col-sm-3"><input disabled type="text" class="form-control" name="tags[NEW][name]" value="NAME_REPLACE"/></td>
+                <td class="col-sm-4"><textarea disabled class="form-control" onfocus="studio_expand_tag_description(this);" onblur="studio_expand_tag_description_not(this);" name="tags[NEW][description]" rows="1" style="resize:none">DESCRIPTION_REPLACE</textarea></td>
+                <td class="col-sm-1"><input disabled type="checkbox" class="form-control" name="tags[NEW][visible]" VISIBLE_REPLACE)/></td>
+                <td class="col-sm-2">
+                    <select disabled  class="form-control" name="tags[NEW][type]" onchange="studio_change_id_field(this, NEW)">
+                        <option value="0" TYPE_REPLACE_0>$:_("Skill")</option>
+                        <option value="1" TYPE_REPLACE_1>$:_("Misconception")</option>
+                        <option value="2" TYPE_REPLACE_2>$:_("Category")</option>
+                    </select>
+                </td>
+            </tr>
+
+            $ i=-1
+            $for key, tag in task_data.get('tags', {}).items():
+                $ i=i+1
+                $ id = tag["id"] if "id" in tag else "unknow_id"
+                $ name = tag["name"] if "name" in tag else "Unknow name"
+                $ description = tag["description"] if "description" in tag else ""
+                $ type = tag["type"] if "type" in tag else 0
+                $ visible = tag["visible"] if "visible" in tag else False
+                <tr id="$i">
+                    <td class="col-sm-2"><input type="text" id="id_$i" class="form-control" name="tags[$i][id]" value="$id" $('disabled' if type == 2 else '')/></td>
+                    <td class="col-sm-3"><input type="text" class="form-control" name="tags[$i][name]" value="$name"/></td>
+                    <td class="col-sm-4"><textarea class="form-control" onfocus="studio_expand_tag_description(this);" onblur="studio_expand_tag_description_not(this);" name="tags[$i][description]" rows="1" style="resize:none">$description</textarea></td>
+                    <td class="col-sm-1"><input type="checkbox" class="form-control" name="tags[$i][visible]" $('checked="checked"' if visible else '')/></td>
+                    <td class="col-sm-2">
+                        <select class="form-control" name="tags[$i][type]" onchange="studio_change_id_field(this, $i)">
+                            <option value="0" $('selected="selected"' if int(type) == 0 else '')>$:_("Skill")</option>
+                            <option value="1" $('selected="selected"' if int(type) == 1 else '')>$:_("Misconception")</option>
+                            <option value="2" $('selected="selected"' if int(type) == 2 else '')>$:_("Category")</option>
+                        </select>
+                    </td>
+                </tr>
+            </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-12">
+            <button type="button" class="btn btn-info pull-right btn-block" onclick="studio_add_tag_line(-1)"><i class="fa fa-plus fa-lg"></i>$:_(" New tag")</button>
+        </div>
+    </div>
 
 </div>
 <!-- Menu Tag Editor END-->
 
 <!-- Menu Import tag -->
 <div id="menu1" class="tab-pane fade">
-<table class="table-striped table-responsive" id="table">
-    <thead>
-        <tr>
-            <th class="col-sm-0">$:_("Import")</th>
-            <th class="col-sm-2">$:_("Id")</th>
-            <th class="col-sm-2">$:_("Name")</th>
-            <th class="col-sm-7">$:_("Description")</th>
-            <th class="col-sm-0">$:_("Show to students")</th>
-            <th class="col-sm-1">$:_("Type")</th>
-        </tr>
-    </thead>
-    <tbody>
-    $ i = -1
-    $for list_index in course.get_all_tags(): 
-        $for t in list_index:
-            $ i += 1
-            <tr>
-                <td><button type="button" onclick="studio_add_tag_line($i)" class="btn btn-primary btn-xs"><i class="fa fa-arrow-down" aria-hidden="true"></i></button></td>
-                <td id="A-$i" style="padding:4px">$t.get_id()</td>
-                <td id="B-$i" style="padding:4px">$t.get_name()</td>
-                <td id="C-$i" style="padding:4px">$t.get_description()</td>
-                <td id="D-$i" style="padding:4px">$t.is_visible_for_student()</td>
-                <td id="E-$i" style="padding:4px" data-type="$t.get_type()" >$t.get_type_as_str()</td>
-            </tr>
-    </tbody>
-</table>
-
+    <div class="form-group">
+        <div class="col-sm-12">
+            <table id="table">
+                <thead>
+                    <tr>
+                        <th class="col-sm-1">$:_("Import")</th>
+                        <th class="col-sm-2">$:_("Id")</th>
+                        <th class="col-sm-2">$:_("Name")</th>
+                        <th class="col-sm-5">$:_("Description")</th>
+                        <th class="col-sm-1">$:_("Show to students")</th>
+                        <th class="col-sm-1">$:_("Type")</th>
+                    </tr>
+                </thead>
+                <tbody>
+                $ i = -1
+                $for list_index in course.get_all_tags():
+                    $for t in list_index:
+                        $ i += 1
+                        <tr>
+                            <td class="col-sm-1"><button type="button" onclick="studio_add_tag_line($i)" class="btn btn-primary btn-xs"><i class="fa fa-arrow-down" aria-hidden="true"></i></button></td>
+                            <td class="col-sm-2" id="A-$i">$t.get_id()</td>
+                            <td class="col-sm-2" id="B-$i">$t.get_name()</td>
+                            <td class="col-sm-5" id="C-$i">$t.get_description()</td>
+                            <td class="col-sm-1" id="D-$i">$t.is_visible_for_student()</td>
+                            <td class="col-sm-1" id="E-$i" data-type="$t.get_type()">$t.get_type_as_str()</td>
+                        </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 </div>
 <!-- Menu Import tag END-->

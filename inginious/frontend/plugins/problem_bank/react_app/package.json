@@ -1,0 +1,21 @@
+{
+  "name": "react_app",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "jquery": "^3.3.1",
+    "react": "^16.0.0",
+    "react-autosuggest": "^9.3.2",
+    "react-bootstrap": "^0.31.5",
+    "react-bootstrap-sweetalert": "^4.4.1",
+    "react-dom": "^16.0.0",
+    "react-scripts": "1.0.14",
+    "react-ultimate-pagination": "^1.0.2"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  }
+}
