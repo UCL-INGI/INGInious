@@ -29,7 +29,7 @@ Documentation
 
 The documentation is available on Read the Docs:
 
-- For the stable branch : http://inginious.readthedocs.org/en/stable/index.html
+- For the stable branch : http://inginious.readthedocs.org/
 - For the master (dev) branch (not always up to date) : http://inginious.readthedocs.org/en/latest/index.html
 
 On Linux, run ``make html`` in the directory ``/doc`` to create a html version of the documentation.
