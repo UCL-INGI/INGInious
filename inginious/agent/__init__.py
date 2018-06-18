@@ -6,6 +6,7 @@
 import asyncio
 import logging
 import os
+import time
 from abc import abstractproperty, ABCMeta, abstractmethod
 from typing import Dict, Any, Optional
 
@@ -72,6 +73,10 @@ class Agent(object, metaclass=ABCMeta):
         self.__running_job = {}
         self.__running_batch_job = set()
 
+        self.__last_ping = None
+
+        self.__asyncio_tasks_running = set()
+
     @property
     @abstractmethod
     def environments(self):
@@ -94,6 +99,7 @@ class Agent(object, metaclass=ABCMeta):
     async def run(self):
         """
         Runs the agent. Answer to the requests made by the Backend.
+        May raise an asyncio.CancelledError, in which case the agent should clean itself and restart completely.
         """
         self._logger.info("Agent started")
         self.__backend_socket.connect(self.__backend_addr)
@@ -101,22 +107,35 @@ class Agent(object, metaclass=ABCMeta):
         # Tell the backend we are up and have `concurrency` threads available
         self._logger.info("Saying hello to the backend")
         await ZMQUtils.send(self.__backend_socket, AgentHello(self.__friendly_name, self.__concurrency, self.environments))
+        self.__last_ping = time.time()
 
-        try:
-            while True:
-                message = await ZMQUtils.recv(self.__backend_socket)
-                await self._handle_backend_message(message)
-        except asyncio.CancelledError:
-            return
-        except KeyboardInterrupt:
-            return
+        run_listen = self._loop.create_task(self.__run_listen())
 
-    async def _handle_backend_message(self, message):
+        self._loop.call_later(1, self._create_safe_task, self.__check_last_ping(run_listen))
+
+        await run_listen
+
+    async def __check_last_ping(self, run_listen):
+        """ Check if the last timeout is too old. If it is, kills the run_listen task """
+        if self.__last_ping < time.time()-10:
+            self._logger.warning("Last ping too old. Restarting the agent.")
+            run_listen.cancel()
+            self.__cancel_remaining_safe_tasks()
+        else:
+            self._loop.call_later(1, self._create_safe_task, self.__check_last_ping(run_listen))
+
+    async def __run_listen(self):
+        """ Listen to the backend """
+        while True:
+            message = await ZMQUtils.recv(self.__backend_socket)
+            await self.__handle_backend_message(message)
+
+    async def __handle_backend_message(self, message):
         """ Dispatch messages received from clients to the right handlers """
         message_handlers = {
-            BackendNewJob: self._handle_new_job,
+            BackendNewJob: self.__handle_new_job,
             BackendKillJob: self.kill_job,
-            Ping: self.handle_ping
+            Ping: self.__handle_ping
         }
         try:
             func = message_handlers[message.__class__]
@@ -124,11 +143,12 @@ class Agent(object, metaclass=ABCMeta):
             raise TypeError("Unknown message type %s" % message.__class__)
         self._create_safe_task(func(message))
 
-    async def handle_ping(self, _ : Ping):
+    async def __handle_ping(self, _ : Ping):
         """ Handle a Ping message. Pong the backend """
+        self.__last_ping = time.time()
         await ZMQUtils.send(self.__backend_socket, Pong())
 
-    async def _handle_new_job(self, message: BackendNewJob):
+    async def __handle_new_job(self, message: BackendNewJob):
         self._logger.info("Received request for jobid %s", message.job_id)
 
         # For send_job_result internal checks
@@ -219,12 +239,23 @@ class Agent(object, metaclass=ABCMeta):
         pass
 
     def _create_safe_task(self, coroutine):
-        """ Calls self._loop.create_task with a safe (== with logged exception) coroutine """
-        return self._loop.create_task(self._create_safe_task_coro(coroutine))
+        """ Calls self._loop.create_task with a safe (== with logged exception) coroutine. When run() ends, these tasks
+            are automatically cancelled"""
+        task = self._loop.create_task(coroutine)
+        self.__asyncio_tasks_running.add(task)
+        task.add_done_callback(self.__remove_safe_task)
 
-    async def _create_safe_task_coro(self, coroutine):
-        """ Helper for _create_safe_task """
+    def __remove_safe_task(self, task):
+        exception = task.exception()
+        if exception is not None:
+            self._logger.exception("An exception occurred while running a Task", exc_info=exception)
+
         try:
-            await coroutine
+            self.__asyncio_tasks_running.remove(task)
         except:
-            self._logger.exception("An exception occurred while running a Task.")
+            pass
+
+    def __cancel_remaining_safe_tasks(self):
+        """ Cancel existing safe tasks, to allow the agent to restart properly """
+        for x in self.__asyncio_tasks_running:
+            x.cancel()

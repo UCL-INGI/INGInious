@@ -25,6 +25,8 @@ if __name__ == "__main__":
     parser.add_argument("-v", "--verbose", help="increase output verbosity",
                         action="store_true")
     parser.add_argument("--debugmode", help="Enables debug mode. For developers only.", action="store_true")
+    parser.add_argument("--disable-autorestart", help="Disables the auto restart on agent failure.",
+                        action="store_true")
 
     (args, fsprovider) = get_args_and_filesystem(parser)
 
@@ -37,24 +39,33 @@ if __name__ == "__main__":
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
-    # start asyncio and zmq
-    loop = ZMQEventLoop()
-    asyncio.set_event_loop(loop)
-    if args.debugmode:
-        loop.set_debug(True)
-    context = Context()
+    closing = False
+    while not closing:
+        # start asyncio and zmq
+        loop = ZMQEventLoop()
+        asyncio.set_event_loop(loop)
+        if args.debugmode:
+            loop.set_debug(True)
+        context = Context()
 
-    # Create agent
-    agent = MCQAgent(context, args.backend, args.friendly_name, 1, fsprovider)
+        # Create agent
+        agent = MCQAgent(context, args.backend, args.friendly_name, 1, fsprovider)
 
-    # Run!
-    try:
-        loop.run_until_complete(agent.run())
-    except:
-        pass
-    finally:
-        logger.info("Closing loop")
-        loop.close()
-        logger.info("Waiting for ZMQ to send remaining messages to backend (can take 1 sec)")
-        context.destroy(1000)  # give zeromq 1 sec to send remaining messages
-        logger.info("Done")
+        # Run!
+        try:
+            loop.run_until_complete(agent.run())
+        except KeyboardInterrupt:
+            pass  # do not restart in this case
+        except:
+            # log the error, and restart if needed
+            closing = args.disable_autorestart
+            if closing:
+                logger.exception("Agent has received an exception forcing it to end")
+            else:
+                logger.exception("Agent has received an exception forcing it to restart")
+        finally:
+            logger.info("Closing loop")
+            loop.close()
+            logger.info("Waiting for ZMQ to send remaining messages to backend (can take 1 sec)")
+            context.destroy(1000)  # give zeromq 1 sec to send remaining messages
+            logger.info("Done")

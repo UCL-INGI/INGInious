@@ -46,6 +46,15 @@ def _run_asyncio(loop, zmq_context):
         loop.close()
         zmq_context.destroy(1000)
 
+async def _restart_on_cancel(logger, agent):
+    """ Restarts an agent when it is cancelled """
+    while True:
+        try:
+            await agent.run()
+        except asyncio.CancelledError:
+            logger.exception("Restarting agent")
+            pass
+
 def create_arch(configuration, tasks_fs, context):
     """ Helper that can start a simple complete INGInious arch locally if needed, or a client to a remote backend.
         Intended to be used on command line, makes uses of exit() and the logger inginious.frontend.
@@ -83,9 +92,9 @@ def create_arch(configuration, tasks_fs, context):
         agent_docker = DockerAgent(context, "inproc://backend_agent", "Docker - Local agent", concurrency, tasks_fs, debug_host, debug_ports, tmp_dir)
         agent_mcq = MCQAgent(context, "inproc://backend_agent", "MCQ - Local agent", 1, tasks_fs)
 
-        asyncio.ensure_future(agent_docker.run())
-        asyncio.ensure_future(agent_mcq.run())
-        asyncio.ensure_future(backend.run())
+        asyncio.ensure_future(_restart_on_cancel(logger, agent_docker))
+        asyncio.ensure_future(_restart_on_cancel(logger, agent_mcq))
+        asyncio.ensure_future(_restart_on_cancel(logger, backend))
     elif backend_link in ["remote", "remote_manuel", "docker_machine"]: #old-style config
         logger.error("Value '%s' for the 'backend' option is configuration.yaml is not supported anymore. \n"
                      "Have a look at the 'update' section of the INGInious documentation in order to upgrade your configuration.yaml", backend_link)
