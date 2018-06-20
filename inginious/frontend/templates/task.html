@@ -263,7 +263,8 @@ $# variable "input" has to be accessible to the eventual javascript present in t
     var input = {
         "@lang": "$user_manager.session_language()",
         "@username": "$user_manager.session_username()",
-        "@random": $input_random_list
+        "@random": $input_random_list,
+        "@state": "$(user_task.get('state', '') if registered else '')"
     }
 </script>
 $:task.get_context(user_manager.session_language())

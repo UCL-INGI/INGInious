@@ -519,10 +519,10 @@ class UserManager:
         """ Set in the database that the user has viewed this task """
         self._database.user_tasks.update({"username": username, "courseid": courseid, "taskid": taskid},
                                          {"$setOnInsert": {"username": username, "courseid": courseid, "taskid": taskid,
-                                                           "tried": 0, "succeeded": False, "grade": 0.0, "submissionid": None}},
+                                                           "tried": 0, "succeeded": False, "grade": 0.0, "submissionid": None, "state": ""}},
                                          upsert=True)
 
-    def update_user_stats(self, username, task, submission, result_str, grade, newsub):
+    def update_user_stats(self, username, task, submission, result_str, grade, state, newsub):
         """ Update stats with a new submission """
         self.user_saw_task(username, submission["courseid"], submission["taskid"])
 
@@ -538,7 +538,7 @@ class UserManager:
             if set_default:
                 self._database.user_tasks.find_one_and_update(
                     {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]},
-                    {"$set": {"succeeded": result_str == "success", "grade": grade, "submissionid": submission['_id']}})
+                    {"$set": {"succeeded": result_str == "success", "grade": grade, "state": state, "submissionid": submission['_id']}})
         else:
             old_submission = self._database.user_tasks.find_one(
                 {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]})
@@ -552,11 +552,20 @@ class UserManager:
                 if len(def_sub) > 0:
                     self._database.user_tasks.find_one_and_update(
                         {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]},
-                        {"$set": {"succeeded": def_sub[0]["result"] == "success", "grade": def_sub[0]["grade"], "submissionid": def_sub[0]['_id']}})
+                        {"$set": {
+                            "succeeded": def_sub[0]["result"] == "success",
+                            "grade": def_sub[0]["grade"],
+                            "state": def_sub[0]["state"],
+                            "submissionid": def_sub[0]['_id']
+                        }})
             elif old_submission["submissionid"] == submission["_id"]:  # otherwise, update cache if needed
                 self._database.user_tasks.find_one_and_update(
                     {"username": username, "courseid": submission["courseid"], "taskid": submission["taskid"]},
-                    {"$set": {"succeeded": submission["result"] == "success", "grade": submission["grade"]}})
+                    {"$set": {
+                        "succeeded": submission["result"] == "success",
+                        "grade": submission["grade"],
+                        "state": submission["state"]
+                    }})
 
     def task_is_visible_by_user(self, task, username=None, lti=None):
         """ Returns true if the task is visible by the user

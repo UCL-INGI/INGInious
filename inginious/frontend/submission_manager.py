@@ -81,7 +81,7 @@ class WebAppSubmissionManager:
         self._hook_manager.call_hook("submission_done", submission=submission, archive=archive, newsub=newsub)
 
         for username in submission["username"]:
-            self._user_manager.update_user_stats(username, task, submission, result[0], grade, newsub)
+            self._user_manager.update_user_stats(username, task, submission, result[0], grade, state, newsub)
 
         if "outcome_service_url" in submission and "outcome_result_id" in submission and "outcome_consumer_key" in submission:
             for username in submission["username"]:
@@ -254,8 +254,9 @@ class WebAppSubmissionManager:
         inputdata["@username"] = username
         inputdata["@lang"] = self._user_manager.session_language()
         # Retrieve input random
-        random_input = self._database.user_tasks.find_one({"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username}, { "random": 1 })
-        inputdata["@random"] = random_input["random"] if "random" in random_input else []
+        states = self._database.user_tasks.find_one({"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username}, {"random": 1, "state": 1})
+        inputdata["@random"] = states["random"] if "random" in states else []
+        inputdata["@state"] = states["state"] if "state" in states else ""
 
         self._hook_manager.call_hook("new_submission", submission=obj, inputdata=inputdata)
         obj["input"] = self._gridfs.put(bson.BSON.encode(inputdata))

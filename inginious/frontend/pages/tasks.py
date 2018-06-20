@@ -16,6 +16,7 @@ import time
 import web
 from bson.objectid import ObjectId
 from collections import OrderedDict
+from pymongo import ReturnDocument
 
 from inginious.common import exceptions
 from inginious.frontend.pages.utils import INGIniousPage
@@ -104,15 +105,6 @@ class BaseTaskPage(object):
         self.user_manager.user_saw_task(username, courseid, taskid)
 
         is_staff = self.user_manager.has_staff_rights_on_course(course, username)
-        
-        # Generate random inputs and save it into db
-        random_input_list = []
-        random.seed(str(username if username is not None else "") + taskid + courseid + str(time.time() if task.regenerate_input_random() else ""))
-        random_input_list = [random.random() for i in range(task.get_number_input_random())]
-        if username is not None and len(random_input_list) > 0: # Avoid errors when visitors/unregistered users and avoid pollute db if input random not using
-            self.database.user_tasks.update(
-                    {"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username},
-                    {"$set": {"random": random_input_list}})
 
         userinput = web.input()
         if "submissionid" in userinput and "questionid" in userinput:
@@ -135,12 +127,22 @@ class BaseTaskPage(object):
                 web.header('Content-Type', 'text/plain')
                 return sinput[userinput["questionid"]]
         else:
-            # user_task always exists as we called user_saw_task before
-            user_task = self.database.user_tasks.find_one({
-                "courseid": task.get_course_id(),
-                "taskid": task.get_id(),
-                "username": self.user_manager.session_username()
-            })
+            # Generate random inputs and save it into db
+            random.seed(str(username if username is not None else "") + taskid + courseid + str(
+                time.time() if task.regenerate_input_random() else ""))
+            random_input_list = [random.random() for i in range(task.get_number_input_random())]
+
+            user_task = self.database.user_tasks.find_one_and_update(
+                {
+                    "courseid": task.get_course_id(),
+                    "taskid": task.get_id(),
+                    "username": self.user_manager.session_username()
+                },
+                {
+                    "$set": {"random": random_input_list}
+                },
+                return_document=ReturnDocument.AFTER
+            )
 
             submissionid = user_task.get('submissionid', None)
             eval_submission = self.database.submissions.find_one({'_id': ObjectId(submissionid)}) if submissionid else None
