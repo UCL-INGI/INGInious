@@ -558,7 +558,7 @@ class DockerAgent(Agent):
 
                     # Accepted types for return dict
                     accepted_types = {"stdout": str, "stderr": str, "result": str, "text": str, "grade": float,
-                                      "problems": dict, "custom": dict, "tests": dict, "archive": str}
+                                      "problems": dict, "custom": dict, "tests": dict, "state": str, "archive": str}
 
                     keys_fct = {"problems": id_checker, "custom": id_checker, "tests": id_checker_tests}
 
@@ -580,6 +580,7 @@ class DockerAgent(Agent):
                     problems = return_value.get("problems", {})
                     custom = return_value.get("custom", {})
                     tests = return_value.get("tests", {})
+                    state = return_value.get("state", "")
                     archive = return_value.get("archive", None)
                     if archive is not None:
                         archive = base64.b64decode(archive)
@@ -613,7 +614,7 @@ class DockerAgent(Agent):
                 pass  # todo: run a docker container to force removal
 
             # Return!
-            await self.send_job_result(message.job_id, result, error_msg, grade, problems, tests, custom, archive, stdout, stderr)
+            await self.send_job_result(message.job_id, result, error_msg, grade, problems, tests, custom, state, archive, stdout, stderr)
 
             # Do not forget to remove data from internal state
             del self._container_for_job[message.job_id]

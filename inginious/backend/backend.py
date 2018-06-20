@@ -264,7 +264,8 @@ class Backend(object):
             # Sent the data back to the client
             await ZMQUtils.send_with_addr(self._client_socket, message.job_id[0], BackendJobDone(message.job_id[1], message.result,
                                                                                                  message.grade, message.problems,
-                                                                                                 message.tests, message.custom, message.archive,
+                                                                                                 message.tests, message.custom,
+                                                                                                 message.state, message.archive,
                                                                                                  message.stdout, message.stderr))
 
             # The agent is available now

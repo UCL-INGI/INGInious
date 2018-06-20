@@ -213,7 +213,7 @@ class Client(BetterParanoidPirateClient):
 
         # Call the callback
         try:
-            callback(message.result, message.grade, message.problems, message.tests, message.custom, message.archive, message.stdout, message.stderr)
+            callback(message.result, message.grade, message.problems, message.tests, message.custom, message.state, message.archive, message.stdout, message.stderr)
         except Exception as e:
             self._logger.exception("Failed to call the callback function for jobid %s: %s", job_id, repr(e), exc_info=True)
 

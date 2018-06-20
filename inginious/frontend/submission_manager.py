@@ -43,7 +43,7 @@ class WebAppSubmissionManager:
         self._logger = logging.getLogger("inginious.webapp.submissions")
         self._lti_outcome_manager = lti_outcome_manager
 
-    def _job_done_callback(self, submissionid, task, result, grade, problems, tests, custom, archive, stdout, stderr, newsub=True):
+    def _job_done_callback(self, submissionid, task, result, grade, problems, tests, custom, state, archive, stdout, stderr, newsub=True):
         """ Callback called by Client when a job is done. Updates the submission in the database with the data returned after the completion of the
         job """
         submission = self.get_submission(submissionid, False)
@@ -59,6 +59,7 @@ class WebAppSubmissionManager:
             "problems": problems,
             "archive": (self._gridfs.put(archive) if archive is not None else None),
             "custom": custom,
+            "state": state,
             "stdout": stdout,
             "stderr": stderr
         }
@@ -184,15 +185,15 @@ class WebAppSubmissionManager:
             submissionid = self._database.submissions.insert(submission)
 
         jobid = self._client.new_job(task, inputdata,
-                                     (lambda result, grade, problems, tests, custom, archive, stdout, stderr:
-                                      self._job_done_callback(submissionid, task, result, grade, problems, tests, custom, archive, stdout, stderr, copy)),
+                                     (lambda result, grade, problems, tests, custom, state, archive, stdout, stderr:
+                                      self._job_done_callback(submissionid, task, result, grade, problems, tests, custom, state, archive, stdout, stderr, copy)),
                                      "Frontend - {}".format(submission["username"]), debug, ssh_callback)
 
         # Clean the submission document in db
         self._database.submissions.update(
             {"_id": submission["_id"]},
             {"$set": {"jobid": jobid, "status": "waiting", "response_type": task.get_response_type()},
-             "$unset": {"result": "", "grade": "", "text": "", "tests": "", "problems": "", "archive": "", "custom": ""}
+             "$unset": {"result": "", "grade": "", "text": "", "tests": "", "problems": "", "archive": "", "state": "", "custom": ""}
              })
 
         if not copy:
@@ -268,8 +269,8 @@ class WebAppSubmissionManager:
             ssh_callback = lambda host, port, password: self._handle_ssh_callback(submissionid, host, port, password)
 
         jobid = self._client.new_job(task, inputdata,
-                                     (lambda result, grade, problems, tests, custom, archive, stdout, stderr:
-                                      self._job_done_callback(submissionid, task, result, grade, problems, tests, custom, archive, stdout, stderr, True)),
+                                     (lambda result, grade, problems, tests, custom, state, archive, stdout, stderr:
+                                      self._job_done_callback(submissionid, task, result, grade, problems, tests, custom, state, archive, stdout, stderr, True)),
                                      "Frontend - {}".format(username), debug, ssh_callback)
 
         self._database.submissions.update(

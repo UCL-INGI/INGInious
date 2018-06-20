@@ -198,7 +198,7 @@ class Agent(object, metaclass=ABCMeta):
         await ZMQUtils.send(self.__backend_socket, AgentJobSSHDebug(job_id, host, port, key))
 
     async def send_job_result(self, job_id: BackendJobId, result: str, text: str = "", grade: float = None, problems: Dict[str, SPResult] = None,
-                              tests: Dict[str, Any] = None, custom: Dict[str, Any] = None, archive: Optional[bytes] = None,
+                              tests: Dict[str, Any] = None, custom: Dict[str, Any] = None, state: str = "", archive: Optional[bytes] = None,
                               stdout: Optional[str] = None, stderr: Optional[str] = None):
         """
         Send the result of a job back to the backend. Must be called *once and only once* for each job
@@ -220,7 +220,7 @@ class Agent(object, metaclass=ABCMeta):
         if tests is None:
             tests = {}
 
-        await ZMQUtils.send(self.__backend_socket, AgentJobDone(job_id, (result, text), round(grade, 2), problems, tests, custom, archive, stdout, stderr))
+        await ZMQUtils.send(self.__backend_socket, AgentJobDone(job_id, (result, text), round(grade, 2), problems, tests, custom, state, archive, stdout, stderr))
 
     @abstractmethod
     async def new_job(self, message: BackendNewJob):
