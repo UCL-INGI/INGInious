@@ -86,6 +86,13 @@ def set_problem_feedback(feedback, problem_id, append=False):
     save_feedback(rdict)
 
 
+def set_state(state):
+    """ Set the task state """
+    rdict = load_feedback()
+    rdict['state'] = state
+    save_feedback(rdict)
+
+
 def set_tag(tag, value):
     """ 
     Set the tag 'tag' to the value True or False. 
