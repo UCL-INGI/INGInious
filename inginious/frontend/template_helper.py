@@ -35,7 +35,10 @@ class TemplateHelper(object):
                               "welcome_text": (lambda **kwargs: self._generic_hook('welcome_text', **kwargs)),
                               "javascript_header": (lambda **_: self._javascript_helper("header")),
                               "javascript_footer": (lambda **_: self._javascript_helper("footer")),
-                              "css": (lambda **_: self._css_helper())}
+                              "css": (lambda **_: self._css_helper()),
+                              "UN_header": (lambda **kwargs: self._generic_hook('UN_header', **kwargs)),
+                              "UN_footer": (lambda **kwargs: self._generic_hook('UN_footer', **kwargs))
+                              }
         self._plugin_manager = plugin_manager
         self._template_dir = default_template_dir
         self._user_manager = user_manager # can be None!

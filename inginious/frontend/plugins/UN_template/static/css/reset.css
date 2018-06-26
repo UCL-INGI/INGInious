@@ -1,0 +1,236 @@
+/*
+ * http://meyerweb.com/eric/tools/css/reset/   v2.0 | 20110126  License: none (public domain)
+ */
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  vertical-align: baseline;
+  outline: 0;
+}
+
+
+/*
+ * HTML5 display-role reset for older browsers
+ */
+article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
+  display: block;
+}
+
+
+body, html {
+  line-height: 1.125em;
+  font-size: 14px;
+}
+
+
+ol, ul {
+  list-style: none;
+}
+
+
+blockquote, q {
+  quotes: none;
+}
+
+
+blockquote:before, blockquote:after, q:before, q:after {
+  content: '';
+  content: none;
+}
+
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+
+/*
+ * YUI 3.18.1 (build f7e7bcb) Copyright 2014 Yahoo! Inc. All rights reserved. Licensed under the BSD License. http://yuilibrary.com/license/
+ */
+html {
+  color: black;
+  background: white;
+}
+
+
+input, textarea {
+  margin: 0;
+  padding: 0;
+}
+
+
+img, legend {
+  border: 0;
+}
+
+
+address, caption, cite, code, dfn, em, strong, th, var {
+  font-style: normal;
+}
+
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: normal;
+}
+
+
+input, textarea, select {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  *font-size: 100%;
+  vertical-align: middle;
+}
+
+
+legend {
+  color: black;
+}
+
+
+/*
+ * html5doctor.com Reset Stylesheet v1.6.1 Last Updated: 2010-09-17 Author: Richard Clark - http://richclarkdesign.com Twitter: @rich_clark
+ */
+ins {
+  background-color: #ffff99;
+  color: black;
+  text-decoration: none;
+}
+
+
+mark {
+  background-color: #ffff99;
+  color: black;
+  font-style: italic;
+  font-weight: bold;
+}
+
+
+del {
+  text-decoration: line-through;
+}
+
+
+abbr[title], dfn[title] {
+  border-bottom: 1px dotted;
+  cursor: help;
+}
+
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+
+hr {
+  display: block;
+  height: 1px;
+  border: 0;
+  border-top: 1px solid #333333;
+  margin: 1em 0;
+  padding: 0;
+}
+
+
+/*
+ * ! normalize.css v3.0.2 | MIT License | git.io/normalize
+ */
+audio, canvas, progress, video {
+  display: inline-block;
+  vertical-align: baseline;
+}
+
+
+audio:not([controls]) {
+  display: none;
+  height: 0;
+}
+
+
+[hidden], template {
+  display: none;
+}
+
+
+a:active, a:hover {
+  outline: 0;
+}
+
+
+abbr[title] {
+  border-bottom: 1px dotted;
+}
+
+
+svg:not(:root) {
+  overflow: hidden;
+}
+
+
+pre {
+  overflow: auto;
+}
+
+
+code, kbd, pre, samp {
+  font-family: monospace, monospace;
+  font-size: 1em;
+}
+
+
+button, input, optgroup, select, textarea {
+  color: inherit;
+}
+
+
+button, html input[type="button"], input[type="reset"], input[type="submit"] {
+  -webkit-appearance: button;
+  cursor: pointer;
+}
+
+
+button[disabled], html input[disabled] {
+  cursor: default;
+}
+
+
+button::-moz-focus-inner, input::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+
+
+input[type="checkbox"], input[type="radio"] {
+  box-sizing: border-box;
+  padding: 0;
+}
+
+
+input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button {
+  height: auto;
+}
+
+
+input[type="search"] {
+  -webkit-appearance: textfield;
+  -moz-box-sizing: content-box;
+  webkit-box-sizing: content-box;
+  box-sizing: content-box;
+}
+
+
+input[type="search"]::-webkit-search-cancel-button, input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+
+
+fieldset {
+  border: 1px solid silver;
+  margin: 0 2px;
+  padding: 0.35em 0.625em 0.75em;
+}
+
+

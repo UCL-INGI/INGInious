@@ -1,0 +1,544 @@
+/*IMAGEN DE FONDO CONTENIDOS*/
+
+.detalle-background{
+  background-attachment: fixed;
+  background-clip: padding-box !important;
+  background-image: url(//ingenieria.bogota.unal.edu.co/images/recursos/sliderProgramasAcademicos/FondoInternas.jpg);
+  background-color: rgba(0, 0, 0, 0);
+  background-origin: padding-box;
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-size: cover !important;
+  padding: 0 5% 0px !important;
+  margin:0px !important;
+}
+
+/*Slide home botones*/
+#btn-next{
+  position: absolute;
+  top:0px;
+  right:3px;
+  bottom:0px;
+  height:30px;
+  margin:auto;
+  
+}
+
+#btn-previus{
+  position: absolute;
+  top:0px;
+  left:3px;
+  bottom:0px;
+  height:30px;
+  margin:auto;
+}
+
+.btn-slide{
+  	color:#ccc;
+    background: rgba(91, 91, 91, 0.8);
+    border: none;
+    padding: 5px 7px 5px 7px;
+    line-height: 0px;
+    border-radius: 15px;
+}
+
+.btn-slide:hover{
+    background: rgba(85, 85, 85, 1);
+}
+
+
+/*------------------------------------------------------
+----------------------NUEVOS ESTILOS--------------------
+--------------------------------------------------------*/
+
+.a_disabled{
+  pointer-events: none;
+  cursor: default;
+}
+.center{
+  text-align:center !important;
+}
+
+.right{
+  text-align:right !important;
+}
+
+.left{
+  text-align:left !important;
+}
+
+.mt{
+  margin-top: 20px;
+}
+
+.mt-20{
+  margin-top: 20px;
+}
+
+.mt-50{
+  margin-top: 50px;
+}
+
+.no_padding{
+  padding: 0px !important;
+}
+
+.tab_text{
+  font-size: 1.1em;
+  line-height: 1.5;
+}
+
+.content_table .tab_text{
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+.head_table .tab_text{
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+
+.custom_table .col-md-6{
+  padding-left:3px;
+  padding-right:3px; 
+
+}
+
+
+.head_table,.conten_table,.gray_content_table,.foot_table p{
+   font-size: 1.1em;
+  line-height: 1.5;
+}
+
+.head_table{
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid black;
+  background: #eee;
+}
+
+
+.foot_table{
+  padding-top: 10px;
+  padding-bottom: 10px;
+  background: #436f6f;
+  color: #fff;
+}
+
+.content_table{
+  border-bottom: 1px solid #22191966;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.gray_content_table{
+  border-bottom: 1px solid #22191966;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  background: #bababa;
+}
+
+.contact_row .custom_table .tab_text{
+  line-height: 2.5em;
+}
+
+
+.col_photo{
+  width:auto;
+}
+
+.tablePregrado{
+  width:100%;
+}
+
+.file_icon{
+  width:25px;
+  vertical-align:middle;
+}
+
+.img_semilleros{
+  height:150px;
+  max-width:100%;
+}
+.img_semilleros:hover{
+  border-bottom:2px solid #50992e;
+}
+
+
+.td_primary_left{
+  vertical-align:middle;
+  text-align:left;
+  font-weight:bold;
+}
+.td_secundary{
+  vertical-align:middle;
+}
+
+
+.person_photo{
+  width:160px;
+  height:160px;
+  border: 3px solid #2b6161;
+}
+
+
+.person_photo2{
+  width:auto;
+  height:160px;
+  border: 3px solid #50992e;
+}
+
+.subtitle_slide{
+  margin-top:15px !important;
+  margin-bottom:15px !important;
+}
+.text_intro,.text_slide{
+  font-size: 1.1em;
+  text-align: justify;
+  line-height: 1.5em;
+}
+
+
+
+.list_enumerate{
+  font-size:1.1em;
+  list-style-type: decimal;
+  line-height: 1.5em;
+  text-align: justify;
+}
+
+.list_disc{
+  font-size:1.1em;
+  line-height: 1.5em;
+  text-align: justify;
+  list-style: disc;
+}
+
+.list_roman{
+  font-size:1em;
+  line-height: 1.5em;
+  text-align: justify;
+  list-style: upper-roman;
+}
+
+.table_acreditacion{
+  width: 500px;
+  margin:15px auto;
+}
+
+/*ESPECIALIZACIONES*/
+
+.subtitle_border{
+  border-bottom:1px solid black;
+}
+
+.text_note{
+  margin-top:1em;
+  text-align:justify;
+  font-size:15px;
+  font-style: italic;
+}
+
+.text_other{
+  line-height: 1.6em;
+  font-size:1em;
+  margin-top:10px;
+}
+
+
+.list_normal{
+  font-size:1.1em;
+  list-style:none;
+  line-height: 2em;
+  text-align: justify;
+  margin:0;
+}
+
+
+
+.table_espec{
+  width:100%;
+}
+
+.img_full_width{
+  width: 100%;
+  height:auto;
+}
+
+/*HORARIO*/
+.row_horario{
+  padding: 10px;
+  border-radius: 10px;
+  background: #033254d1;
+}
+.content_horario{
+  border: 3px solid #eee;
+  background: #ccc;
+  padding: 0;
+}
+
+.head_days .col-md-2{
+  border: 3px solid #eee;
+}
+
+.head_days .horario_text{
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.horario_text{
+  margin:10px 0px 10px 0px;
+  font-weight:600;
+}
+.gray_cell{
+  background:#ababab;
+  border-right: 3px solid #eee;
+  border-left: 3px solid #eee;
+}
+.blue_cell{
+  border-right: 3px solid #eee;
+  border-left: 3px solid #eee;
+  border-radius:4px;
+  background:#3BAFE0;  
+}
+.green_cell{
+  border-right: 3px solid #eee;
+  border-left: 3px solid #eee;
+  border-radius:4px;
+  background:#005f72;  
+}
+.green_cell .horario_text{
+    color:#fff;
+}
+.orange_cell{
+  border-right: 3px solid #eee;
+  border-left: 3px solid #eee;
+  border-radius:4px;
+  background:#EC7708;
+  
+}
+
+
+/*-----------------------------------------*/
+/*-----------Ajustes Pogramas Academicos------------*/
+/*-----------------------------------------*/
+.rl_tabs>.tab-content>.tab-pane{
+  overflow-x:hidden !important;
+}
+
+.content_program{
+    background:rgba(255,255,255,0.8);
+  	padding-bottom:50px;
+  	margin-bottom:20px;
+}
+
+.row-title-program{
+  padding: 30px 0px;
+  color: #fff;
+  background: #144242;
+}
+
+.title-program{
+	font-family:inherit;  
+}
+
+.content_program ul,.content_program h2,.content_program h3,.content_program h4,.content_program p,.content_program a{
+  padding-left:10px !important;
+  padding-right:10px !important;
+  font-family:inherit;
+}
+
+
+.subtitle_content{
+  background:#144242;
+  color:#FFF;
+  padding-top:15px !important;
+  padding-bottom:15px !important;
+  margin-top:10px !important;
+  margin-bottom:10px !important;
+  font-family:inherit;
+}
+
+.font_green{
+  color:#144242;
+}
+
+
+.list_menu_lateral li a:hover{
+  	background:rgba(255,255,255,1);
+}
+
+.list_menu_lateral li a{
+  	display:block;
+  	text-align:center;
+  	margin-bottom:5px;
+  	background:rgba(255,255,255,0.8);
+  	padding:15px 10px 15px 10px;
+  	color:#144242;
+  	font-size:1.1em;
+  	text-decoration:none; 	
+}
+
+.list_menu_fixed {
+	position:fixed;
+	z-index:1000;
+	top:20px;
+}
+
+
+.list_menu_fixed_responsive{
+	position:fixed;
+	z-index:1000;
+	top:20px;
+ 	left:-100%;
+  	background: #436f6f;
+}
+
+#item-admisiones{
+    background: rgba(20,66,66,0.8) !important;
+    color: #fff !important;
+}
+
+
+#item-admisiones:hover{
+    background: rgba(20,66,66,1) !important;
+}
+
+#info-autoevaluacion{
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow: ellipsis;
+}
+
+
+/*representicion*/
+.candidatos div{
+  vertical-align:middle;
+}
+
+/*Representantes*/
+
+.candidatos {
+  line-height:0px !important;
+}
+
+/*Dependencias*/
+
+.content_program a{
+  color:#144242 !important;
+}
+.content_program .accordion-heading{
+  border:2px solid #144242 !important;
+}
+
+
+.content_program div[class*="accordion-group panel rl_sliders-group nn_sliders-group"]{
+  background:transparent !important;
+}
+
+.itemNavigation{
+  display:none;
+}
+
+.moduletable h3{
+  padding: 6px;
+  text-align: center;
+  margin-bottom: 7px;
+}
+
+/*Titulos*/
+
+.div-title-content{
+  padding: 30px 15px;
+  color: #fff;
+  background: #144242;
+}
+
+.div-title-content .itemTitle{
+  font-family:inherit;
+  width:50%;
+  text-align:right;
+  text-transform: uppercase;
+  padding:0px !important;
+}
+
+/*-----------------------------------------*/
+/*-----------Modificaciones K2------------*/
+/*-----------------------------------------*/
+
+
+.itemBody{
+  padding:0px !important;
+}
+
+/*-----------------------------------------*/
+/*-----------Ajustes Responsive------------*/
+/*-----------------------------------------*/
+
+
+@media screen and (min-width: 300px) and (max-width: 767px) {
+
+  .head_table .tab_text{
+    white-space: nowrap;
+  }
+  
+  #arrow-right-icon{
+  	display:block !important;
+    
+  }
+  
+  .div-title-content .itemTitle{
+    width:100%;
+  }
+
+}
+
+@media screen and (min-width: 768px) and (max-width: 991px) {
+
+  .head_table .tab_text{
+    white-space: nowrap;
+  }
+  
+  
+   #arrow-right-icon{
+  	display:block !important;
+    
+  }
+  .div-title-content .itemTitle{
+    width:100%;
+  }
+  
+}
+
+@media screen and (min-width: 992px) and (max-width: 1199px) {
+}
+
+@media screen and (min-width: 1200px) {
+}
+
+
+/*BOOTRAP VIDEOS*/
+
+.embed-responsive.embed-responsive-16by9 {
+    padding-bottom: 56.25%;
+}
+.embed-responsive {
+    position: relative;
+    display: block;
+    height: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.embed-responsive .embed-responsive-item, .embed-responsive iframe, .embed-responsive embed, .embed-responsive object {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
