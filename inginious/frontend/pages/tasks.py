@@ -382,13 +382,17 @@ class TaskPageStaticDownload(INGIniousPage):
             if not self.user_manager.course_is_open_to_user(course):
                 return self.template_helper.get_renderer().course_unavailable()
 
-            task = course.get_task(taskid)
-            if not self.user_manager.task_is_visible_by_user(task):  # ignore LTI check here
-                return self.template_helper.get_renderer().task_unavailable()
-
             path_norm = posixpath.normpath(urllib.parse.unquote(path))
 
-            public_folder = task.get_fs().from_subfolder("public")
+            if taskid == "$common":
+                public_folder = course.get_fs().from_subfolder("$common_public")
+            else:
+
+                task = course.get_task(taskid)
+                if not self.user_manager.task_is_visible_by_user(task):  # ignore LTI check here
+                    return self.template_helper.get_renderer().task_unavailable()
+
+                public_folder = task.get_fs().from_subfolder("public")
             (method, mimetype_or_none, file_or_url) = public_folder.distribute(path_norm, False)
 
             if method == "local":
