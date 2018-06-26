@@ -17,7 +17,6 @@ def footer(template_helper):
 
 
 def init(plugin_manager, course_factory, client, config):
-    print("UN_Template")
     plugin_manager.add_page(r'/UN_template/static/(.*)', create_static_resource_page(_static_folder_path))
     plugin_manager.add_hook('UN_header', header(plugin_manager._app.template_helper))
     plugin_manager.add_hook('UN_footer', footer(plugin_manager._app.template_helper))
