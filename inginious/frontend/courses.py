@@ -7,10 +7,11 @@
 
 import gettext
 from collections import OrderedDict
+from natsort import natsorted
 
 from inginious.common.courses import Course
 from inginious.frontend.accessible_time import AccessibleTime
-from natsort import natsorted
+from inginious.frontend.parsable_text import ParsableText
 
 class WebAppCourse(Course):
     """ A course with some modification for users """
@@ -21,7 +22,7 @@ class WebAppCourse(Course):
         try:
             self._name = self._content['name']
         except:
-            raise Exception("Course has an invalid description: " + self.get_id())
+            raise Exception("Course has an invalid name: " + self.get_id())
 
         if self._content.get('nofrontend', False):
             raise Exception("That course is not allowed to be displayed directly in the webapp")
@@ -29,6 +30,7 @@ class WebAppCourse(Course):
         try:
             self._admins = self._content.get('admins', [])
             self._tutors = self._content.get('tutors', [])
+            self._description = self._content.get('description', '')
             self._accessible = AccessibleTime(self._content.get("accessible", None))
             self._registration = AccessibleTime(self._content.get("registration", None))
             self._registration_password = self._content.get('registration_password', None)
@@ -44,7 +46,7 @@ class WebAppCourse(Course):
             self._lti_keys = self._content.get('lti_keys', {})
             self._lti_send_back_grade = self._content.get('lti_send_back_grade', False)
         except:
-            raise Exception("Course has an invalid description: " + self.get_id())
+            raise Exception("Course has an invalid YAML spec: " + self.get_id())
 
         # Force some parameters if LTI is active
         if self.is_lti():
@@ -161,6 +163,11 @@ class WebAppCourse(Course):
     def get_name(self, language):
         """ Return the name of this course """
         return self.gettext(language, self._name) if self._name else ""
+
+    def get_description(self, language):
+        """Returns the course description """
+        description = self.gettext(language, self._description) if self._description else ''
+        return ParsableText(description, "rst", self._translations.get(language, gettext.NullTranslations()))
         
     def get_all_tags(self):
         """ 
