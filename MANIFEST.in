@@ -14,3 +14,4 @@ recursive-include inginious/frontend/plugins/utils *
 recursive-include inginious/frontend/plugins/multilang *
 recursive-include inginious/frontend/plugins/problem_bank *
 recursive-include inginious/frontend/plugins/custom_input *
+recursive-include inginious/frontend/plugins/UN_template *
