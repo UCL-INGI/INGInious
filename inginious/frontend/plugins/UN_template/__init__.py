@@ -12,7 +12,7 @@ def header(template_helper):
 
 def footer(template_helper):
     def hook():
-        return str(template_helper.get_custom_renderer('frontend/plugins/UN_template', layout=False).footer("UNCode"))
+        return str(template_helper.get_custom_renderer('frontend/plugins/UN_template', layout=False).footer())
     return hook
 
 
