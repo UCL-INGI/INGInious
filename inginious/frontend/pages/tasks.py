@@ -385,7 +385,7 @@ class TaskPageStaticDownload(INGIniousPage):
             path_norm = posixpath.normpath(urllib.parse.unquote(path))
 
             if taskid == "$common":
-                public_folder = course.get_fs().from_subfolder("$common_public")
+                public_folder = course.get_fs().from_subfolder("$common").from_subfolder("public")
             else:
 
                 task = course.get_task(taskid)
