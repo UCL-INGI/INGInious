@@ -307,7 +307,12 @@ $if user_manager.has_admin_rights_on_course(course):
         </div>
     </div>
 
-<form id="task" action="$get_homepath()/course/$course.get_id()/$task.get_id()" method="post" enctype="multipart/form-data"
+$if is_lti():
+    $ action = "/lti/task"
+$else:
+    $ action = "/course/" + course.get_id() + "/" + task.get_id()
+
+<form id="task" action="$(get_homepath() + action)" method="post" enctype="multipart/form-data"
     $for submission in submissions:
         $if submission["status"] == "waiting":
             data-wait-submission="$submission['_id']"
