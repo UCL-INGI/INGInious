@@ -219,7 +219,7 @@ class DockerAgent(Agent):
         systemfiles_path = path_join(task_path, 'systemfiles')  # tmp_dir/id/task/systemfiles/
 
         course_common_path = path_join(course_path, 'common')
-        course_common_student_path = path_join(course_path, 'common_student')
+        course_common_student_path = path_join(course_path, 'common', 'student')
 
         # Create the needed directories
         os.mkdir(sockets_path)
@@ -235,15 +235,15 @@ class DockerAgent(Agent):
             os.mkdir(student_path)
             os.chmod(student_path, 0o777)
 
-        # Copy common and common_student if needed
+        # Copy common and common/student if needed
         # TODO: avoid copy
         if course_fs.from_subfolder("$common").exists():
             course_fs.from_subfolder("$common").copy_from(None, course_common_path)
         else:
             os.mkdir(course_common_path)
 
-        if course_fs.from_subfolder("$common_student").exists():
-            course_fs.from_subfolder("$common_student").copy_from(None, course_common_student_path)
+        if course_fs.from_subfolder("$common").from_subfolder("student").exists():
+            course_fs.from_subfolder("$common").from_subfolder("student").copy_from(None, course_common_student_path)
         else:
             os.mkdir(course_common_student_path)
 

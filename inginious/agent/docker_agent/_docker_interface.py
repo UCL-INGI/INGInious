@@ -91,7 +91,7 @@ class DockerInterface(object):  # pragma: no cover
                 task_path: {'bind': '/task'},
                 sockets_path: {'bind': '/sockets'},
                 course_common_path: {'bind': '/course/common', 'mode': 'ro'},
-                course_common_student_path: {'bind': '/course/common_student', 'mode': 'ro'}
+                course_common_student_path: {'bind': '/course/common/student', 'mode': 'ro'}
             }
         )
         return response.id
@@ -127,7 +127,7 @@ class DockerInterface(object):  # pragma: no cover
                 student_path: {'bind': '/task/student'},
                  socket_path: {'bind': '/__parent.sock'},
                  systemfiles_path: {'bind': '/task/systemfiles', 'mode': 'ro'},
-                 course_common_student_path: {'bind': '/course/common_student', 'mode': 'ro'}
+                 course_common_student_path: {'bind': '/course/common/student', 'mode': 'ro'}
             }
         )
         return response.id
