@@ -368,7 +368,8 @@ li.placeholder:before {
   left: -5px;
   border-right: none;
 }
-#edit_task_form .CodeMirror {
+#edit_task_form .CodeMirror,
+#edit_course_form .CodeMirror {
   border: 1px solid #cccccc;
   border-radius: 0;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
@@ -377,9 +378,11 @@ li.placeholder:before {
   -o-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
   transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
 }
-#edit_task_form .CodeMirror.CodeMirror-focused {
+#edit_task_form .CodeMirror.CodeMirror-focused,
+#edit_course_form .CodeMirror.CodeMirror-focused {
   border-color: #66afe9;
   outline: 0;
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);
 }
+/*# sourceMappingURL=INGInious.css.map */

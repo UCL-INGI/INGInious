@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2018-05-14 15:08+0200\n"
+"POT-Creation-Date: 2018-06-28 08:35+0200\n"
 "PO-Revision-Date: 2017-08-10 14:37+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -199,80 +199,80 @@ msgstr ""
 msgid "Your password has been successfully changed."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:185
+#: inginious/frontend/pages/tasks.py:187
 msgid "You are not allowed to submit for this task."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:193
+#: inginious/frontend/pages/tasks.py:195
 msgid "Your task has been regenerated. This current task is outdated."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:204
+#: inginious/frontend/pages/tasks.py:206
 msgid ""
 "Please answer to all the questions and verify the extensions of the files"
 " you want to upload. Your responses were not tested."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:219 inginious/frontend/pages/tasks.py:328
+#: inginious/frontend/pages/tasks.py:221 inginious/frontend/pages/tasks.py:330
 msgid "<b>Your submission has been sent...</b>"
 msgstr ""
 
 #: inginious/frontend/pages/course_admin/task_edit_file.py:202
 #: inginious/frontend/pages/course_admin/task_edit_file.py:223
 #: inginious/frontend/pages/course_admin/task_edit_file.py:227
-#: inginious/frontend/pages/tasks.py:228
+#: inginious/frontend/pages/tasks.py:230
 msgid "Internal error"
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:297
+#: inginious/frontend/pages/tasks.py:299
 msgid "<b>INGInious is currently grading your answers.<b/> (almost done)"
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:299
+#: inginious/frontend/pages/tasks.py:301
 msgid ""
 "<b>INGInious is currently grading your answers.<b/> (Approx. wait time: "
 "{} seconds)"
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:302
+#: inginious/frontend/pages/tasks.py:304
 msgid "<b>You are next in the waiting queue!</b>"
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:304
+#: inginious/frontend/pages/tasks.py:306
 msgid "<b>There is one task in front of you in the waiting queue.</b>"
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:306
+#: inginious/frontend/pages/tasks.py:308
 msgid "<b>There are {} tasks in front of you in the waiting queue.</b>"
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:330
+#: inginious/frontend/pages/tasks.py:332
 msgid "There are some errors in your answer. Your score is {score}%."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:332
+#: inginious/frontend/pages/tasks.py:334
 msgid "Your answer passed the tests! Your score is {score}%."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:334
+#: inginious/frontend/pages/tasks.py:336
 msgid "Your submission timed out. Your score is {score}%."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:336
+#: inginious/frontend/pages/tasks.py:338
 msgid "Your submission made an overflow. Your score is {score}%."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:338
+#: inginious/frontend/pages/tasks.py:340
 msgid "Your submission was killed."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:340
+#: inginious/frontend/pages/tasks.py:342
 msgid ""
 "An internal error occurred. Please retry later. If the error persists, "
 "send an email to the course administrator."
 msgstr ""
 
-#: inginious/frontend/pages/tasks.py:343
+#: inginious/frontend/pages/tasks.py:345
 msgid "[Submission #{submissionid}]"
 msgstr ""
 
@@ -326,7 +326,7 @@ msgid "You have no rights to add/change classrooms"
 msgstr ""
 
 #: inginious/frontend/pages/course_admin/aggregation_list.py:76
-#: inginious/frontend/pages/course_admin/settings.py:95
+#: inginious/frontend/pages/course_admin/settings.py:96
 msgid "User returned an invalid form."
 msgstr ""
 
@@ -395,23 +395,23 @@ msgstr ""
 msgid "Invalid name"
 msgstr ""
 
-#: inginious/frontend/pages/course_admin/settings.py:36
+#: inginious/frontend/pages/course_admin/settings.py:37
 msgid "You cannot remove yourself from the administrators of this course"
 msgstr ""
 
-#: inginious/frontend/pages/course_admin/settings.py:58
+#: inginious/frontend/pages/course_admin/settings.py:59
 msgid "Invalid accessibility dates"
 msgstr ""
 
-#: inginious/frontend/pages/course_admin/settings.py:73
+#: inginious/frontend/pages/course_admin/settings.py:74
 msgid "Invalid registration dates"
 msgstr ""
 
-#: inginious/frontend/pages/course_admin/settings.py:81
+#: inginious/frontend/pages/course_admin/settings.py:82
 msgid "Invalid ACL value"
 msgstr ""
 
-#: inginious/frontend/pages/course_admin/settings.py:91
+#: inginious/frontend/pages/course_admin/settings.py:92
 msgid "LTI keys must be alphanumerical."
 msgstr ""
 
@@ -564,7 +564,7 @@ msgstr ""
 #: inginious/frontend/pages/course_admin/utils.py:262
 #: inginious/frontend/templates/course_admin/aggregation_list.html:21
 #: inginious/frontend/templates/course_admin/aggregation_list.html:27
-#: inginious/frontend/templates/course_admin/settings.html:89
+#: inginious/frontend/templates/course_admin/settings.html:95
 #: inginious/frontend/templates/course_admin/submissions.html:70
 #: inginious/frontend/templates/team.html:63
 msgid "Teams"
@@ -592,14 +592,19 @@ msgstr ""
 msgid "Download submissions"
 msgstr ""
 
-#: inginious/frontend/pages/course_admin/utils.py:269
+#: inginious/frontend/pages/course_admin/utils.py:270
+#: inginious/frontend/templates/course_admin/webdav.html:22
+msgid "WebDAV access"
+msgstr ""
+
+#: inginious/frontend/pages/course_admin/utils.py:271
 #: inginious/frontend/templates/course_admin/replay.html:8
 #: inginious/frontend/templates/course_admin/replay.html:19
 #: inginious/frontend/templates/course_admin/replay.html:23
 msgid "Replay submissions"
 msgstr ""
 
-#: inginious/frontend/pages/course_admin/utils.py:270
+#: inginious/frontend/pages/course_admin/utils.py:272
 #: inginious/frontend/templates/course_admin/danger_zone.html:8
 #: inginious/frontend/templates/course_admin/danger_zone.html:19
 #: inginious/frontend/templates/course_admin/danger_zone.html:23
@@ -686,10 +691,12 @@ msgid "Close"
 msgstr ""
 
 #: inginious/frontend/templates/auth.html:23
+#: inginious/frontend/templates/course_admin/webdav.html:27
 msgid "Username"
 msgstr ""
 
 #: inginious/frontend/templates/auth.html:26
+#: inginious/frontend/templates/course_admin/webdav.html:28
 #: inginious/frontend/templates/mycourses.html:120
 #: inginious/frontend/templates/register_button.html:31
 msgid "Password"
@@ -740,6 +747,7 @@ msgstr ""
 #: inginious/frontend/templates/course_admin/task_edit.html:22
 #: inginious/frontend/templates/course_admin/task_list.html:18
 #: inginious/frontend/templates/course_admin/teams_edit.html:21
+#: inginious/frontend/templates/course_admin/webdav.html:18
 #: inginious/frontend/templates/index.html:13
 #: inginious/frontend/templates/mycourses.html:13
 #: inginious/frontend/templates/preferences/bindings.html:17
@@ -849,23 +857,23 @@ msgstr ""
 msgid "\"Course list\""
 msgstr ""
 
-#: inginious/frontend/templates/course.html:84
-msgid "{course_name} - List of exercises"
+#: inginious/frontend/templates/course.html:92
+msgid "About this course"
 msgstr ""
 
-#: inginious/frontend/templates/course.html:89
+#: inginious/frontend/templates/course.html:128
+msgid "List of exercises"
+msgstr ""
+
+#: inginious/frontend/templates/course.html:132
 msgid "Filter tasks by tags"
 msgstr ""
 
-#: inginious/frontend/templates/course.html:91
-msgid "No filter"
-msgstr ""
-
-#: inginious/frontend/templates/course.html:131
+#: inginious/frontend/templates/course.html:154
 msgid "task hidden to students"
 msgstr ""
 
-#: inginious/frontend/templates/course.html:133
+#: inginious/frontend/templates/course.html:156
 msgid "deadline reached"
 msgstr ""
 
@@ -1118,7 +1126,6 @@ msgid "Running jobs"
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/download.html:47
-#: inginious/frontend/templates/course_admin/edit_tabs/tags.html:92
 #: inginious/frontend/templates/course_admin/subproblems/code.html:22
 #: inginious/frontend/templates/course_admin/subproblems/file.html:27
 #: inginious/frontend/templates/queue.html:26
@@ -1134,8 +1141,6 @@ msgstr ""
 msgid "Agent name"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/tags.html:23
-#: inginious/frontend/templates/course_admin/edit_tabs/tags.html:89
 #: inginious/frontend/templates/course_admin/settings.html:29
 #: inginious/frontend/templates/course_admin/task_edit.html:140
 #: inginious/frontend/templates/queue.html:29
@@ -1156,13 +1161,13 @@ msgstr ""
 msgid "Timeout at"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:211
+#: inginious/frontend/templates/course_admin/settings.html:217
 #: inginious/frontend/templates/queue.html:39
 #: inginious/frontend/templates/queue.html:68
 msgid "Yes"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:217
+#: inginious/frontend/templates/course_admin/settings.html:223
 #: inginious/frontend/templates/queue.html:41
 #: inginious/frontend/templates/queue.html:70
 msgid "No"
@@ -1351,7 +1356,7 @@ msgid "Edit task"
 msgstr ""
 
 #: inginious/frontend/templates/task.html:125
-#: inginious/frontend/templates/task.html:287
+#: inginious/frontend/templates/task.html:298
 msgid "Debug information"
 msgstr ""
 
@@ -1408,79 +1413,79 @@ msgstr ""
 msgid "\"Next task\""
 msgstr ""
 
-#: inginious/frontend/templates/task.html:267
+#: inginious/frontend/templates/task.html:278
 msgid "Alternatively, you can also paste this command into your terminal:"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:269
+#: inginious/frontend/templates/task.html:280
 msgid "Paste this command into your terminal:"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:272
+#: inginious/frontend/templates/task.html:283
 msgid "The password to connect is {}"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:275
+#: inginious/frontend/templates/task.html:286
 msgid "Please answer to all the questions."
 msgstr ""
 
-#: inginious/frontend/templates/task.html:290
+#: inginious/frontend/templates/task.html:301
 msgid ""
 "The raw data from the container will be displayed here, helping you to "
 "debug the task.<br/> This box is only displayed because you are an "
 "administrator of this course. It is not displayed to students."
 msgstr ""
 
-#: inginious/frontend/templates/task.html:318
+#: inginious/frontend/templates/task.html:329
 msgid "Question {}"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:331
+#: inginious/frontend/templates/task.html:342
 msgid "Please enroll in the course to submit."
 msgstr ""
 
-#: inginious/frontend/templates/task.html:337
-#: inginious/frontend/templates/task.html:347
+#: inginious/frontend/templates/task.html:348
+#: inginious/frontend/templates/task.html:358
 msgid "Submit"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:341
+#: inginious/frontend/templates/task.html:352
 msgid "\"Start remote SSH console with this input\""
 msgstr ""
 
-#: inginious/frontend/templates/task.html:349
+#: inginious/frontend/templates/task.html:360
 msgid "The deadline is over, you cannot submit anymore"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:351
+#: inginious/frontend/templates/task.html:362
 msgid "Please register in a group"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:351
+#: inginious/frontend/templates/task.html:362
 msgid "Please register in a team"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:354
+#: inginious/frontend/templates/task.html:365
 msgid "You have reached the submission limit."
 msgstr ""
 
-#: inginious/frontend/templates/task.html:354
+#: inginious/frontend/templates/task.html:365
 msgid "Your group have reached the submission limit."
 msgstr ""
 
-#: inginious/frontend/templates/task.html:354
+#: inginious/frontend/templates/task.html:365
 msgid "Your team have reached the submission limit."
 msgstr ""
 
-#: inginious/frontend/templates/task.html:356
+#: inginious/frontend/templates/task.html:367
 msgid "It will be refilled within the next {} hour(s)"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:359
+#: inginious/frontend/templates/task.html:370
 msgid "You are not allowed to submit"
 msgstr ""
 
-#: inginious/frontend/templates/task.html:370
+#: inginious/frontend/templates/task.html:381
 msgid "Share my result on: "
 msgstr ""
 
@@ -1655,6 +1660,7 @@ msgstr ""
 #: inginious/frontend/templates/course_admin/task_info.html:18
 #: inginious/frontend/templates/course_admin/task_list.html:16
 #: inginious/frontend/templates/course_admin/teams_edit.html:17
+#: inginious/frontend/templates/course_admin/webdav.html:16
 msgid "\"Administration\""
 msgstr ""
 
@@ -1984,10 +1990,14 @@ msgid "\"Usernames of the tutors, separated by commas\""
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/settings.html:49
-msgid "Enable LTI"
+msgid "Description"
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/settings.html:55
+msgid "Enable LTI"
+msgstr ""
+
+#: inginious/frontend/templates/course_admin/settings.html:61
 msgid ""
 "Enable this option to allow your INGInious course to be used in external "
 "Learning Management Systems (LMS) such as Moodle or edX. Note that this "
@@ -1995,145 +2005,145 @@ msgid ""
 " members of the course, and the team/classroom system."
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:60
+#: inginious/frontend/templates/course_admin/settings.html:66
 msgid "Course preview"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:66
+#: inginious/frontend/templates/course_admin/settings.html:72
 msgid "Allowed (read-only for non-registered users)"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:72
+#: inginious/frontend/templates/course_admin/settings.html:78
 msgid "Not allowed"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:77
+#: inginious/frontend/templates/course_admin/settings.html:83
 msgid "Students aggregations"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:83
+#: inginious/frontend/templates/course_admin/settings.html:89
 msgid "Classrooms with groups"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:83
 #: inginious/frontend/templates/course_admin/settings.html:89
+#: inginious/frontend/templates/course_admin/settings.html:95
 msgid "(Warning : changing this will unregister all students)"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:94
+#: inginious/frontend/templates/course_admin/settings.html:100
 msgid "Group/Team attribution"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:100
+#: inginious/frontend/templates/course_admin/settings.html:106
 msgid "Staff only"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:106
+#: inginious/frontend/templates/course_admin/settings.html:112
 msgid "Staff and students"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:111
+#: inginious/frontend/templates/course_admin/settings.html:117
 msgid "Accessibility"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:118
+#: inginious/frontend/templates/course_admin/settings.html:124
 msgid "Course hidden from students"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:124
+#: inginious/frontend/templates/course_admin/settings.html:130
 msgid "Always accessible"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:130
-#: inginious/frontend/templates/course_admin/settings.html:176
+#: inginious/frontend/templates/course_admin/settings.html:136
+#: inginious/frontend/templates/course_admin/settings.html:182
 msgid "Custom:"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:134
-#: inginious/frontend/templates/course_admin/settings.html:180
+#: inginious/frontend/templates/course_admin/settings.html:140
+#: inginious/frontend/templates/course_admin/settings.html:186
 msgid "From"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:141
-#: inginious/frontend/templates/course_admin/settings.html:187
+#: inginious/frontend/templates/course_admin/settings.html:147
+#: inginious/frontend/templates/course_admin/settings.html:193
 msgid "To"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:158
+#: inginious/frontend/templates/course_admin/settings.html:164
 msgid "Registration"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:164
+#: inginious/frontend/templates/course_admin/settings.html:170
 msgid "Closed"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:170
+#: inginious/frontend/templates/course_admin/settings.html:176
 msgid "Always open"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:204
+#: inginious/frontend/templates/course_admin/settings.html:210
 msgid "Allow auto-unregistration"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:222
+#: inginious/frontend/templates/course_admin/settings.html:228
 msgid "Registration password"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:225
+#: inginious/frontend/templates/course_admin/settings.html:231
 msgid ""
 "\"Password needed for registration. Leave blank if you don't want to set "
 "a password.\""
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:230
+#: inginious/frontend/templates/course_admin/settings.html:236
 msgid "Access control"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:236
+#: inginious/frontend/templates/course_admin/settings.html:242
 msgid "No access control (everyone can register)"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:242
+#: inginious/frontend/templates/course_admin/settings.html:248
 msgid "Check by username"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:248
+#: inginious/frontend/templates/course_admin/settings.html:254
 msgid "Check by authentication binding"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:254
+#: inginious/frontend/templates/course_admin/settings.html:260
 msgid "Check by email"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:259
+#: inginious/frontend/templates/course_admin/settings.html:265
 msgid "Access control list"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:261
+#: inginious/frontend/templates/course_admin/settings.html:267
 msgid "\"Only used if access control is activated. Separate users by new lines.\""
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:265
+#: inginious/frontend/templates/course_admin/settings.html:271
 msgid "LTI keys"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:268
+#: inginious/frontend/templates/course_admin/settings.html:274
 msgid ""
 "\"LTI keys in the form name:key, separated by newlines. Please ensure "
 "keys are long enough and random.\""
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:273
+#: inginious/frontend/templates/course_admin/settings.html:279
 msgid "Send back grades"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:279
+#: inginious/frontend/templates/course_admin/settings.html:285
 msgid ""
 "Enable this to send back grades to the calling Tool Consumer (which is, "
 "most of the time, your LMS)."
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/settings.html:283
+#: inginious/frontend/templates/course_admin/settings.html:289
 #: inginious/frontend/templates/course_admin/task_edit.html:30
 #: inginious/frontend/templates/course_admin/task_edit.html:89
 msgid "Save changes"
@@ -2397,6 +2407,8 @@ msgstr ""
 msgid "taskid"
 msgstr ""
 
+#: inginious/frontend/templates/course_admin/edit_tabs/tags.html:22
+#: inginious/frontend/templates/course_admin/edit_tabs/tags.html:88
 #: inginious/frontend/templates/course_admin/submissions.html:335
 msgid "id"
 msgstr ""
@@ -2591,6 +2603,18 @@ msgstr ""
 msgid "Delete all teams"
 msgstr ""
 
+#: inginious/frontend/templates/course_admin/webdav.html:18
+msgid "WebDAV"
+msgstr ""
+
+#: inginious/frontend/templates/course_admin/webdav.html:23
+msgid "Use this URL to access to your course folder using WebDav:"
+msgstr ""
+
+#: inginious/frontend/templates/course_admin/webdav.html:26
+msgid "URL"
+msgstr ""
+
 #: inginious/frontend/templates/course_admin/edit_tabs/basic.html:22
 msgid "Filetype"
 msgstr ""
@@ -2778,23 +2802,23 @@ msgstr ""
 msgid "Import tags"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/edit_tabs/tags.html:22
-#: inginious/frontend/templates/course_admin/edit_tabs/tags.html:88
-msgid "Id"
+#: inginious/frontend/templates/course_admin/edit_tabs/tags.html:23
+#: inginious/frontend/templates/course_admin/edit_tabs/tags.html:89
+msgid "name"
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/edit_tabs/tags.html:24
 #: inginious/frontend/templates/course_admin/edit_tabs/tags.html:90
-msgid "Description"
+msgid "description"
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/edit_tabs/tags.html:25
 #: inginious/frontend/templates/course_admin/edit_tabs/tags.html:91
-msgid "Show to students"
+msgid "show to students"
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/edit_tabs/tags.html:26
-msgid "Type "
+msgid "type "
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/edit_tabs/tags.html:39
@@ -2817,7 +2841,11 @@ msgid " New tag"
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/edit_tabs/tags.html:87
-msgid "Import"
+msgid "import"
+msgstr ""
+
+#: inginious/frontend/templates/course_admin/edit_tabs/tags.html:92
+msgid "type"
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/submissions_tabs/tasks.html:11
@@ -2876,6 +2904,10 @@ msgstr ""
 
 #: inginious/frontend/templates/course_admin/subproblems/code.html:33
 msgid "Optional?"
+msgstr ""
+
+#: inginious/frontend/templates/course_admin/subproblems/code.html:43
+msgid "Default value"
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/subproblems/file.html:15

@@ -81,27 +81,26 @@ $def NavbarF():
 $var Navbar: $:NavbarF()
 
 $# Start content
-<h2>$:_("{course_name} - List of exercises").format(course_name=course.get_name(user_manager.session_language()))</h2>
+<h2>$:course.get_name(user_manager.session_language())</h2>
 
 $if course.get_descriptor().get("description", ""):
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h3 class="panel-title">About this course</h3>
-        </div>
-        <div class="panel-body">
-              $:course.get_description(user_manager.session_language())
+    <div class="panel-group" id="desc_accord" role="tablist" aria-multiselectable="true">
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="course_desc_head">
+                <h4 class="panel-title">
+                    <a role="button" data-toggle="collapse" data-parent="#desc_accord" href="#course_desc" aria-expanded="false" aria-controls="course_desc">
+                        $:_("About this course")
+                    </a>
+                </h4>
+            </div>
+            <div id="course_desc" class="panel-collapse collapse" role="tabpanel" aria-labelledby="course_desc_head">
+                <div class="panel-body">
+                    $:course.get_description(user_manager.session_language())
+                </div>
+            </div>
         </div>
     </div>
-<!-- Tag filter -->
-$if tag_filter_list:
-    <div class="form-group">
-        <label for="sel1">$:_("Filter tasks by tags")</label>
-        <select class="form-control" id="tag_filter" onchange="filter_tag(this)">
-            <option value="">$:_("No filter")</option>
-        $for tag_name in tag_filter_list:
-            <option value="$tag_name">$tag_name</option>
-        </select>
-    </div>
+
 <script>
 function filter_tag(tag) {
     tag = tag.value;
@@ -121,38 +120,54 @@ function filter_tag(tag) {
     });
 }
 </script>
-<!-- End tag filter -->
 
-<div id="tasks-list" class="list-group list-group-progress" style="margin-left: 16px; margin-right: 16px;">
-    $for taskid, task in tasks.items()
-        $if tasks_data[taskid]["visible"]:
-            $ succeeded=tasks_data[taskid]["succeeded"]
-            $ completion=tasks_data[taskid]["grade"]
-            <a href="$get_homepath()/course/$course.get_id()/$taskid" class="row list-group-item
-                $if not task.is_visible_by_students() or not task.get_accessible_time().is_open():
-                    disabled
-                ">
-                <div class="col-xs-12 col-md-7">
-                    $if succeeded:
-                        <i style="color:#468847; position: absolute; left: -5px;" class="fa fa-check"></i>
-                    $task.get_name(user_manager.session_language())
-                    $if not task.is_visible_by_students():
-                        - <b>$:_("task hidden to students")</b>
-                    $if not task.get_accessible_time().is_open():
-                        - <b>$:_("deadline reached")</b>
-                </div>
-                <div class="col-xs-12 col-md-5">
-                    $if registered:
-                        <div class="progress">
-                            <div class="progress-bar progress-bar-success" aria-valuenow="$int(completion)" aria-valuemin="0" aria-valuemax="100" style="width: $completion%">
-                                $(int(completion) if completion.is_integer() else completion)%
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">
+            <div class="row">
+                <div class="col-md-8">$:_("List of exercises")</div>
+                $if tag_filter_list:
+                    <div class="col-md-4">
+                        <select class="form-control input-sm" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" id="tag_filter" onchange="filter_tag(this)">
+                            <option value="">$:_("Filter tasks by tags")</option>
+                            $for tag_name in tag_filter_list:
+                                <option value="$tag_name">$tag_name</option>
+                        </select>
+                    </div>
+            </div>
+        </h3>
+    </div>
+    <div id="tasks-list" class="list-group list-group-progress" style="margin-left: 16px; margin-right: 16px;">
+        $for taskid, task in tasks.items()
+            $if tasks_data[taskid]["visible"]:
+                $ succeeded=tasks_data[taskid]["succeeded"]
+                $ completion=tasks_data[taskid]["grade"]
+                <a href="$get_homepath()/course/$course.get_id()/$taskid" class="row list-group-item
+                    $if not task.is_visible_by_students() or not task.get_accessible_time().is_open():
+                        disabled
+                    ">
+                    <div class="col-xs-12 col-md-7">
+                        $if succeeded:
+                            <i style="color:#468847; position: absolute; left: -5px;" class="fa fa-check"></i>
+                        $task.get_name(user_manager.session_language())
+                        $if not task.is_visible_by_students():
+                            - <b>$:_("task hidden to students")</b>
+                        $if not task.get_accessible_time().is_open():
+                            - <b>$:_("deadline reached")</b>
+                    </div>
+                    <div class="col-xs-12 col-md-5">
+                        $if registered:
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-success" aria-valuenow="$int(completion)" aria-valuemin="0" aria-valuemax="100" style="width: $completion%">
+                                    $(int(completion) if completion.is_integer() else completion)%
+                                </div>
                             </div>
-                        </div>
-                </div>
-                <div id="tags_of_task" style="display:none;">
-                    $for tag in (task.get_tags()[2]+task.get_tags()[0]):
-                        $if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course):
-                            <div id="tag" data-tag-name="$:_(tag.get_name())"></div>
-                </div>
-            </a>
+                    </div>
+                    <div id="tags_of_task" style="display:none;">
+                        $for tag in (task.get_tags()[2]+task.get_tags()[0]):
+                            $if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course):
+                                <div id="tag" data-tag-name="$:_(tag.get_name())"></div>
+                    </div>
+                </a>
+    </div>
 </div>
