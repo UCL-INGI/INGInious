@@ -21,9 +21,9 @@ class ClientSync(object):
         """
         job_semaphore = threading.Semaphore(0)
 
-        def manage_output(result, grade, problems, tests, custom, archive, stdout, stderr):
+        def manage_output(result, grade, problems, tests, custom, state, archive, stdout, stderr):
             """ Manages the output of this job """
-            manage_output.job_return = (result, grade, problems, tests, custom, archive, stdout, stderr)
+            manage_output.job_return = (result, grade, problems, tests, custom, state, archive, stdout, stderr)
             job_semaphore.release()
 
         manage_output.job_return = None

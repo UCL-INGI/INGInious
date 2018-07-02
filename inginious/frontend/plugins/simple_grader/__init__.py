@@ -89,8 +89,8 @@ def init(plugin_manager, course_factory, client, config):
                 if post_input.get("async") is None:
                     # New sync job
                     try:
-                        result, grade, problems, tests, custom, archive, stdout, stderr = client_sync.new_job(task, task_input, "Plugin - Simple Grader")
-                        job_return = {"result":result, "grade": grade, "problems": problems, "tests": tests, "custom": custom, "archive": archive, "stdout": stdout, "stderr": stderr}
+                        result, grade, problems, tests, custom, state, archive, stdout, stderr = client_sync.new_job(task, task_input, "Plugin - Simple Grader")
+                        job_return = {"result":result, "grade": grade, "problems": problems, "tests": tests, "custom": custom, "state": state, "archive": archive, "stdout": stdout, "stderr": stderr}
                     except:
                         return json.dumps({"status": "error", "status_message": "An internal error occurred"})
 
@@ -104,7 +104,7 @@ def init(plugin_manager, course_factory, client, config):
                 if client_buffer.is_waiting(post_input["jobid"]):
                     return json.dumps({"status": "waiting"})
                 elif client_buffer.is_done(post_input["jobid"]):
-                    result, grade, problems, tests, custom, archive, stdout, stderr = client_buffer.get_result(post_input["jobid"])
+                    result, grade, problems, tests, custom, state, archive, stdout, stderr = client_buffer.get_result(post_input["jobid"])
                     job_return = {"result": result, "grade": grade, "problems": problems, "tests": tests,
                                   "custom": custom, "archive": archive, "stdout": stdout, "stderr": stderr}
                     return json.dumps(dict(list({"status": "done"}.items()) + list(self.keep_only_config_return_values(job_return).items())))
