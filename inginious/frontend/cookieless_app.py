@@ -42,7 +42,7 @@ class CookieLessCompatibleApplication(web.application):
             """
             def take(seq, n):
                 for i in range(n):
-                    # The except clause is the added part to web.py clause
+                    # The except clause is the added part to this method 
                     try:
                         yield next(seq)
                     except StopIteration:
