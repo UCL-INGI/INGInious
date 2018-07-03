@@ -32,7 +32,10 @@ class CookieLessCompatibleApplication(web.application):
         return self._session
 
     def init_mapping(self, mapping):
-        def group(seq, size):  # from web/utils.py
+        # The following method is copied from the web/utils.py file in order to fix a problem with python3.7+
+        # Due to PEP 479 (https://www.python.org/dev/peps/pep-0479/), Python3.7+ won't accept anymore generators raising
+        # StopIteration instead returning.
+        def group(seq, size):
             """
             Returns an iterator over a series of lists of length size from iterable.
                 >>> list(group([1,2,3,4], 2))
@@ -42,7 +45,7 @@ class CookieLessCompatibleApplication(web.application):
             """
             def take(seq, n):
                 for i in range(n):
-                    # The except clause is the added part to this method 
+                    # The except clause is the added part to this method
                     try:
                         yield next(seq)
                     except StopIteration:
