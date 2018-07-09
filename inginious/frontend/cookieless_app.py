@@ -32,11 +32,39 @@ class CookieLessCompatibleApplication(web.application):
         return self._session
 
     def init_mapping(self, mapping):
-        self.mapping = [(r"(/@[a-f0-9A-F_]*@)?" +a, b) for a,b in utils.group(mapping, 2)]
+        # The following method is copied from the web/utils.py file in order to fix a problem with python3.7+
+        # Due to PEP 479 (https://www.python.org/dev/peps/pep-0479/), Python3.7+ won't accept anymore generators raising
+        # StopIteration instead returning.
+        def group(seq, size):
+            """
+            Returns an iterator over a series of lists of length size from iterable.
+                >>> list(group([1,2,3,4], 2))
+                [[1, 2], [3, 4]]
+                >>> list(group([1,2,3,4,5], 2))
+                [[1, 2], [3, 4], [5]]
+            """
+            def take(seq, n):
+                for i in range(n):
+                    # The except clause is the added part to this method
+                    try:
+                        yield next(seq)
+                    except StopIteration:
+                        break
+
+            if not hasattr(seq, 'next'):
+                seq = iter(seq)
+            while True:
+                x = list(take(seq, size))
+                if x:
+                    yield x
+                else:
+                    break
+
+        self.mapping = [(r"(/@[a-f0-9A-F_]*@)?" +a, b) for a,b in group(mapping, 2)]
 
     def add_mapping(self, pattern, classname):
         self.mapping.append((r"(/@[a-f0-9A-F_]*@)?" + pattern, classname))
-    
+
     def _delegate(self, f, fvars, args=None):
         if args is None:
             args = [None]
@@ -77,10 +105,10 @@ class CookieLessCompatibleApplication(web.application):
 
 
 class CookieLessCompatibleSession(object):
-    """ A session that can either store its session id in a Cookie or directly in the webpage URL. 
-        The load(session_id) function must be called manually, in order for the session to be loaded. 
+    """ A session that can either store its session id in a Cookie or directly in the webpage URL.
+        The load(session_id) function must be called manually, in order for the session to be loaded.
         This is usually done by the CookieLessCompatibleApplication.
-        
+
         Original code from web.py (public domain)
     """
 

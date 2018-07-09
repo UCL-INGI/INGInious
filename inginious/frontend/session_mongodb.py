@@ -9,14 +9,14 @@
 """ Saves sessions in the database """
 
 from datetime import datetime
-from re import _pattern_type
+from typing import Pattern
 from time import time
 
 from bson.binary import Binary, USER_DEFINED_SUBTYPE
 from web.session import Store
 
 valid_key_types = {str}
-atomic_types = {bool, int, float, str, bytes, type(None), _pattern_type, datetime}
+atomic_types = {bool, int, float, str, bytes, type(None), Pattern, datetime}
 
 
 def needs_encode(obj):
