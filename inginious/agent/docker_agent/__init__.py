@@ -546,6 +546,7 @@ class DockerAgent(Agent):
             custom = {}
             tests = {}
             archive = None
+            state = ""
 
             if killed is not None:
                 result = killed
