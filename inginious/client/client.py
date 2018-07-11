@@ -224,7 +224,7 @@ class Client(BetterParanoidPirateClient):
             self._logger.exception("Error occurred while calling ssh_callback for job %s", message.job_id)
 
     async def _handle_job_abort(self, job_id: str, task, callback, ssh_callback):
-        await self._handle_job_done(BackendJobDone(job_id, ("crash", "Backend unavailable, retry later"), 0.0, {}, {}, {}, None, "", ""), task, callback,
+        await self._handle_job_done(BackendJobDone(job_id, ("crash", "Backend unavailable, retry later"), 0.0, {}, {}, {}, "", None, "", ""), task, callback,
                                     ssh_callback)
 
     async def _on_disconnect(self):
