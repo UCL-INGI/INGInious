@@ -40,7 +40,39 @@ class CourseEditTask(INGIniousAdminPage):
         except:
             task_data = None
         if task_data is None:
-            task_data = {}
+            # Default task
+            data = OrderedDict([
+                ('accessible', True), 
+                ('author', ''), 
+                ('context', ''), 
+                ('environment', 'mcq'), 
+                ('evaluate', 'best'), 
+                ('groups', False), 
+                ('input_random', '0'), 
+                ('limits', OrderedDict([
+                    ('output', '2'), 
+                    ('memory', '100'), 
+                    ('time', '30')
+                ])), 
+                ('name', 'default'), 
+                ('network_grading', False), 
+                ('problems', OrderedDict([
+                    ('default', OrderedDict([
+                        ('type', 'file'), 
+                        ('header', ''), 
+                        ('name', 'default')
+                    ]))
+                ])), 
+                ('stored_submissions', 0), 
+                ('submission_limit', OrderedDict([
+                    ('amount', -1), 
+                    ('period', -1)
+                ])), 
+                ('tags', OrderedDict()), 
+                ('weight', 1.0)
+            ])
+            self.task_factory.update_task_descriptor_content(courseid, taskid, data, force_extension="yaml")
+            task_data = self.task_factory.get_task_descriptor_content(courseid, taskid)
 
         environments = self.containers
 
