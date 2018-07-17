@@ -60,10 +60,7 @@ class CourseEditTask(INGIniousAdminPage):
             self.task_factory.get_problem_types(),
             task_data,
             environments,
-            json.dumps(
-                task_data.get(
-                    'problems',
-                    {})),
+            task_data.get('problems',{}),
             self.contains_is_html(task_data),
             current_filetype,
             available_filetypes,

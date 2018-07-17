@@ -8,6 +8,7 @@ import os
 
 import web
 import inginious
+import json
 
 class TemplateHelper(object):
     """ Class accessible from templates that calls function defined in the Python part of the code. """
@@ -53,6 +54,7 @@ class TemplateHelper(object):
         self.add_to_template_globals("plugin_manager", plugin_manager)
         self.add_to_template_globals("use_minified", use_minified)
         self.add_to_template_globals("is_lti", self.is_lti)
+        self.add_to_template_globals("json", self._json_safe_dump)
 
     def is_lti(self):
         """ True if the current session is an LTI one """
@@ -147,3 +149,10 @@ class TemplateHelper(object):
         """ A generic hook that links the TemplateHelper with PluginManager """
         entries = [entry for entry in self._plugin_manager.call_hook(name, **kwargs) if entry is not None]
         return "\n".join(entries)
+
+    def _json_safe_dump(self, data):
+        """ Make a json dump of `data`, that can be used directly in a `<script>` tag. Available as json() inside templates """
+        return json.dumps(data).replace(u'<', u'\\u003c') \
+            .replace(u'>', u'\\u003e') \
+            .replace(u'&', u'\\u0026') \
+            .replace(u"'", u'\\u0027')
