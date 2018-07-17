@@ -1,4 +1,4 @@
-$def with (inputId,header,max_size,allowed_exts, json)
+$def with (inputId,header,max_size,allowed_exts)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -24,7 +24,7 @@ $ max_size= max_size or default_max_file_size
         type="file"
         name="$inputId"
         data-max-size="$max_size"
-        data-allowed-exts="$json.dumps(allowed_exts)"
+        data-allowed-exts="$json(allowed_exts)"
         /><br/>
 
 <object id="download-input-file-pdf-$inputId" data="" type="application/pdf" style="display:none; width: 100%; min-height: 800px;">

@@ -1,4 +1,4 @@
-$def with (course,taskid,problem_types,task_data,environments,problemdump,contains_is_html,current_filetype,available_filetypes,AccessibleTime,file_list, additional_tabs)
+$def with (course,taskid,problem_types,task_data,environments,problemdata,contains_is_html,current_filetype,available_filetypes,AccessibleTime,file_list, additional_tabs)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -156,6 +156,6 @@ $:include.course_admin.edit_tabs.file_modals()
 <!-- Init the javascript for the subproblem tab -->
 <script type="text/javascript">
     delete_subproblem_message = '$:_("Are you sure that you want to delete this subproblem?")';
-    problem_data = $:{problemdump};
+    problem_data = $:json(problemdata);
     $$ (function(){ studio_load(problem_data); });
 </script>
