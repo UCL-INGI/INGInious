@@ -7,6 +7,8 @@ Assistant to create a complete configuration file for the INGInious frontend.
 
 Read and follow screen instructions.
 
+If you want to configure the frontend by hand, see :ref:`ConfigReference` for a list of entries.
+
 .. program:: inginious-install
 
 ::

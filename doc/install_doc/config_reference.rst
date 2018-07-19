@@ -4,7 +4,7 @@ Configuration reference
 =======================
 
 .. HINT::
-    The best way to configure INGInious is to use ``inginious-install``. See :ref:`config`.
+    The best way to configure INGInious is to use :ref:`inginious-install`. See :ref:`config`.
 
 Configuring INGInious is done via a file named ``configuration.yaml`` or ``configuration.lti.yaml``.
 To get started, files named ``configuration.example.yaml`` and ``configuration.lti.example.yaml`` are provided.

@@ -6,7 +6,7 @@ INGInious is made from three different packages:
 - The :doc:`common` which contains basic blocks, like *tasks* and
   *courses*. Derivates from this blocks are created by the frontend and other modules.
   The :doc:`common` does not need the :doc:`backend` nor the :doc:`frontend`;
-- The :doc:`agent`, that runs jobs. It interacts directly with Docker to start new containers, and send the grades back to the backend.
+- The :doc:`agent`, that runs jobs. It interacts directly with Docker to start new containers, and sends the grades back to the backend.
   A specific part of the :doc:`backend` is in charge of starting the agents automatically; you most of time won't need to it manually.
   The agent needs to be run *on* the Docker host, as it interacts with other containers with Unix sockets, and must also interact with CGroups
   to allow a very fine management of timeouts and memory limits.
@@ -34,9 +34,10 @@ The completely horizontal scalability is (nearly) without additional configurati
 
 Scalability of the INGInious frontend
 -------------------------------------
-As the backend only store information about *running* submission, and the frontend is stateless, we can use the replication feature of MongoDB to
-scale horizontally the frontends too. The (final) schema below show the most advanced way of configuring INGInious, with multiple frontends
-replicated and multiple docker hosts.
+As the backend only stores information about *running* submission, and the frontend is stateless,
+we can use the replication feature of MongoDB to scale horizontally the frontends too.
+The (final) schema below shows the most advanced way of configuring INGInious,
+with multiple frontends replicated and multiple Docker hosts.
 
 .. image:: /dev_doc/inginious_arch_full.png
     :align: center
@@ -54,8 +55,8 @@ Jobs
 
 When you send a student's input to the backend, it creates what we call a *job*.
 Jobs are sent to an object called the *Client*, which itself is a simple communication layer to a job queue that we call the *Backend*.
-The *Backend* itself can be used by multiple *Client*s, and dispatch jobs among *Agent*s, which can be of different types (for now, we have two
-kind of agents, *DockerAgent* and *MCQAgent*)
+The *Backend* itself can be used by multiple *Clients*, and dispatch jobs among *Agents*, which can be of different types (for now, we have two
+kinds of agents, *DockerAgent* and *MCQAgent*)
 
 When a job is submitted, a callback must be given: it is automatically called when the task is done, asynchronously.
 

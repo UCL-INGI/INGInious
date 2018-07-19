@@ -89,7 +89,7 @@ Students may want to interfere with the normal work of your grading script to ge
 Make small tests
 ----------------
 
-Inside your tasks, do not test everything is a single test file.
+Inside your tasks, do not test everything in a single test file.
 Using a file for each test is a good practice, and will allow you to debug your code efficiently,
 while providing students fine-grained error descriptions.
 
