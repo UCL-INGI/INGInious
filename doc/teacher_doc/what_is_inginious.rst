@@ -76,7 +76,7 @@ Docker allow to create and ship any software on any free Linux distribution.
 As there are no hypervisor, the processes launched in the container are in fact directly
 run by the host operating system, which allows applications to be amazingly fast.
 
-Docker allow teachers to build new containers easily, to add new dependencies to the tests
+Docker allows teachers to build new containers easily, to add new dependencies to the tests
 applied on the student's code (see :doc:`create_container`)
 
 .. _isolation:

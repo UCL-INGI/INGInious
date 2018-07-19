@@ -173,7 +173,7 @@ To run INInious with a remote backend (and agents), do as follows:
 
         inginious-agent-docker tcp://backend-host:2001
         inginious-agent-mcq tcp://backend-host:2001
-#. In you INGInious frontend configuration file (see :ref:`ConfigReference`), set ``backend`` to :
+#. In your INGInious frontend configuration file (see :ref:`ConfigReference`), set ``backend`` to :
    ::
 
         backend: tcp://backend-host:2000

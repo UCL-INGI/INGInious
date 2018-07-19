@@ -29,5 +29,5 @@ producer have reasonably synchronous clocks.
 Impossible to get the LTI frontend work
 ---------------------------------------
 
-You may find `http://ltiapps.net/test/tp.php` and `http://ltiapps.net/test/t.php` useful when debugging
+You may find `http://ltiapps.net/test/tp.php`_ and `http://ltiapps.net/test/t.php`_ useful when debugging
 producers and consumers.
