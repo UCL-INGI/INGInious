@@ -259,7 +259,7 @@ Additional subproblems can be defined and added via plugins. A basic example is 
 `UCL-INGI/INGInious-problems-demo <https://github.com/UCL-INGI/INGInious-problems-demo>`_.
 
 Subproblems are defined at both the backend and frontend side. At the backend side, it consists of a class inheriting
-from ``inginious.common.tasks_problems.BasicProblem`` and implementing the following abstract methods:
+from ``inginious.common.tasks_problems.Problem`` and implementing the following abstract methods:
 
    - ``get_type(cls)`` returning an alphanumerical string representing the problem type.
    - ``input_is_consistent(self, task_input, default_allowed_extension, default_max_size`` returning ``True`` if the
@@ -281,7 +281,7 @@ from ``inginious.common.tasks_problems.BasicProblem`` and implementing the follo
    - ``parse_problem(self, problem_content)`` returns the modified `problem_content`` returned by the INGInious studio.
      For instance, strings-encoded int values can be cast to int here.
 
-At the frontend side, it consists of a class inheriting from ``inginious.frontend.tasks_problems.DisplayableBasicProblem``
+At the frontend side, it consists of a class inheriting from ``inginious.frontend.tasks_problems.DisplayableProblem``
 and implementing th following abstract methods:
 
   - ``get_type_name(self, gettext)`` returning a human-readable transleted string representing the problem type. ``gettext``
@@ -292,7 +292,7 @@ and implementing th following abstract methods:
     student. ``template_helper`` is the webapp ``TemplateHelper`` singleton. `language`` is the gettext 2-letter language
     code. ``seed`` is a seed to be used in the random number generator. For simplicity, it should be a string and the usage
     of the username is recommended, as the seed is made to ensure that a user always see the same exercise.
-    Classes inheriting from DisplayableBasicProblem should prepend/append a salt to the seed and then create a new
+    Classes inheriting from DisplayableProblem should prepend/append a salt to the seed and then create a new
     instance of Random from it. See ``inginious.frontend.tasks_problems.DisplayableMultipleChoiceProblem``
     for an example.
   - ``show_editbox(cls, template_helper, key)`` returning a HTML code corresponding to the subproblem edition box.
