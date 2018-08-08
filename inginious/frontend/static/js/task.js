@@ -622,7 +622,7 @@ function load_feedback_match(key, content) {
     load_feedback_code(key, content);
 }
 
-function load_feedback_single_line_code(key, content) {
+function load_feedback_code_single_line(key, content) {
     load_feedback_code(key, content);
 }
 
