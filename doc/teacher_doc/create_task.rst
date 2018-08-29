@@ -11,6 +11,7 @@ Creating a new task
    task_file
    share_files
    common
+   random
    system_files
    testing
    best_practices
