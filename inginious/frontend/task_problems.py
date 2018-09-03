@@ -96,7 +96,7 @@ class DisplayableCodeSingleLineProblem(CodeSingleLineProblem, DisplayableProblem
         header = ParsableText(self.gettext(language, self._header), "rst",
                               translation=self._translations.get(language, gettext.NullTranslations()))
         return str(DisplayableCodeSingleLineProblem.get_renderer(template_helper)
-                   .tasks.code_single_line(self.get_id(), header, "text", 0, self._optional, self._default))
+                   .tasks.single_line_code(self.get_id(), header, "text", 0, self._optional, self._default))
 
     @classmethod
     def show_editbox(cls, template_helper, key):
