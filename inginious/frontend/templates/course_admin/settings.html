@@ -52,17 +52,6 @@ $elif saved:
         </div>
     </div>
     <div class="form-group">
-        <label for="lti" class="col-sm-2 control-label">$:_("Enable LTI")</label>
-        <div class="col-sm-10">
-            <label>
-                <input type="checkbox" value="true" id="lti" name="lti"
-                       $if course.is_lti():
-                        checked="checked"
-                /> $:_("Enable this option to allow your INGInious course to be used in external Learning Management Systems (LMS) such as Moodle or edX. Note that this will deactivate the access to the course from the main page for non-staff members of the course, and the team/classroom system.")
-            </label><br/>
-        </div>
-    </div>
-    <div class="form-group no-lti">
         <label for="allow_preview" class="col-sm-2 control-label">$:_("Course preview")</label>
         <div class="col-sm-10">
             <label>
@@ -77,6 +66,17 @@ $elif saved:
                         checked="checked"
                 /> $:_("Not allowed")
             </label>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="lti" class="col-sm-2 control-label">$:_("Enable LTI")</label>
+        <div class="col-sm-10">
+            <label>
+                <input type="checkbox" value="true" id="lti" name="lti"
+                       $if course.is_lti():
+                        checked="checked"
+                /> $:_("Enable this option to allow your INGInious course to be used in external Learning Management Systems (LMS) such as Moodle or edX. Note that this will deactivate the access to the course from the main page for non-staff members of the course, and the team/classroom system.")
+            </label><br/>
         </div>
     </div>
     <div class="form-group no-lti">

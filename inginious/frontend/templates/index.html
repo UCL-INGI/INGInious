@@ -37,7 +37,9 @@ $# Start content
 <div class="list-group list-group-progress" style="margin-left: 16px; margin-right: 16px;">
     $ username = user_manager.session_username()
     $for courseid, course in open_courses.items():
-        $ no_display = (course.is_lti() or (not user_manager.course_is_user_registered(course, username) and not course.allow_preview())) and not user_manager.has_admin_rights_on_course(course)
+        $ no_display_filter = not user_manager.course_is_user_registered(course, username) and not course.allow_preview()
+        $ no_display_lti_filter =  course.lti_send_back_grade() or no_display_filter
+        $ no_display = (no_display_lti_filter if course.is_lti() else no_display_filter) and not user_manager.has_admin_rights_on_course(course)
         <a href="$('#' if no_display else (get_homepath()+'/course/'+courseid))" class="list-group-item row $('disabled' if no_display else '')">
             <div class="col-xs-12 col-md-8">
                 $course.get_name(user_manager.session_language())

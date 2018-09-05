@@ -57,8 +57,7 @@ class WebAppCourse(Course):
             self._registration_ac_list = []
             self._groups_student_choice = False
             self._use_classrooms = True
-            self._allow_unregister = True
-            self._allow_preview = False
+            self._allow_unregister = False
         else:
             self._lti_keys = {}
             self._lti_send_back_grade = False

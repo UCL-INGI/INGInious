@@ -739,8 +739,11 @@ class UserManager:
         if not course.get_accessibility().is_open() or (not self.course_is_user_registered(course, username) and not course.allow_preview()):
             return False
 
-        if lti is not None and course.is_lti() != lti:
+        if lti and course.is_lti() != lti:
             return False
+
+        if not lti and course.is_lti():
+            return not course.lti_send_back_grade()
 
         return True
 
