@@ -1,11 +1,11 @@
 $def with (course, taskid, task_data)
 
-<div>This is an example tab for course "$course.get_name("en")" (id: "$course.get_id()"), and task "$taskid". We can show data
-from the task descriptor, such as the name "$task_data.get('name', '')"</div>
+<p>This is an example tab for course "$course.get_name("en")" (id: "$course.get_id()"), and task "$taskid". We can show data
+from the task descriptor, such as the name "$task_data.get('name', '')"</p>
 
-<div>We can also include some data for a form:</div>
+<p>We can also include some data for a form:</p>
 
-<div class="form-group">
+<div class="form-group row">
     <label for="example_task_hint" class="col-sm-4 control-label">Task hint</label>
     <div class="col-sm-8">
         <input type="text" class="form-control" id="example_task_hint" name="example_task_hint"
@@ -13,4 +13,4 @@ from the task descriptor, such as the name "$task_data.get('name', '')"</div>
     </div>
 </div>
 
-<div>Note that form data needs to be processed by a separate hook</div>
+<p>Note that form data needs to be processed by a separate hook</p>

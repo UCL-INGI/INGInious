@@ -2,30 +2,11 @@
 /* Fonts */
 @import url(//fonts.googleapis.com/css?family=Yanone+Kaffeesatz:300);
 @import url(//fonts.googleapis.com/css?family=Source+Code+Pro);
-/*Fixes for bootstrap*/
-.form-inline.form-control {
-  display: inline-block;
-  width: auto;
-  vertical-align: middle;
-}
-.table td.td-collapse {
-  padding: 0;
-  border: none;
-  background-color: #f9f9f9;
-}
-.table td.td-collapse > div {
-  border-top: 1px solid #dddddd;
-  border-left: 1px solid black;
-  padding-left: 50px;
-  padding-right: 0px;
-}
-.table td.td-collapse > div table.table {
-  margin-top: 0px;
-  margin-bottom: 10px;
-}
+/* Progress bars */
 .progress-bar[aria-valuenow] {
   line-height: 18px !important;
   min-width: 30px;
+  color: #ffffff;
 }
 .progress-bar[aria-valuenow="0"] {
   background-color: transparent !important;
@@ -34,17 +15,15 @@
   -moz-box-shadow: none;
   box-shadow: none;
 }
-/* Other */
-.list-group .progress {
-  margin: 0;
-}
-label p {
-  margin: 0;
-  padding: 0;
+/* Code elements */
+pre {
+  border: 1px solid #cccccc;
+  padding: 10px;
 }
 input.monospace {
   font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
 }
+/* Task submission form*/
 form#task {
   -webkit-transition: all 0.3s ease-in-out;
   -moz-transition: all 0.3s ease-in-out;
@@ -59,24 +38,18 @@ form#task .form-blur {
   -ms-filter: blur(5px);
   filter: blur(5px);
 }
-form#task #task-submit,
-form#task #task-submit-debug {
-  margin-top: 10px;
-}
 form#task label {
   display: block;
 }
+/* Task alert message (feedbacks...) */
 #task_alert {
   position: relative;
 }
-#task_alert #ssh_remote_info {
-  font-size: 14px;
-}
 #task_alert #ssh_remote_info pre {
-  font-size: 10px;
   -moz-user-select: all;
   -webkit-user-select: all;
   user-select: all;
+  background-color: #f5f5f5;
 }
 #task_alert #ssh_remote_info pre:before {
   content: "$ ";
@@ -85,6 +58,8 @@ form#task label {
   -moz-user-select: all;
   -webkit-user-select: all;
   user-select: all;
+  background-color: #f5f5f5;
+  padding: 2px 4px;
 }
 #task_alert .kill-submission-btn {
   position: absolute;
@@ -100,6 +75,7 @@ form#task label {
   width: 100%;
   height: 600px;
 }
+/* Submission history */
 #submissions_restrictsize {
   overflow: auto;
   max-height: 223px;
@@ -107,35 +83,6 @@ form#task label {
 }
 .submission {
   cursor: pointer;
-}
-.panel {
-  position: relative;
-}
-.panel .panel-heading {
-  overflow: visible;
-}
-.panel .panel-heading .btn-group,
-.panel .download-tabs-user-group {
-  position: absolute;
-  right: 10px;
-  top: 28px;
-  z-index: 1000;
-}
-.panel .panel-body .CodeMirror.single {
-  margin: 10px -15px -15px;
-}
-.caution .first {
-  display: none;
-}
-.caution p.last {
-  font-size: 12px;
-  font-weight: 300;
-  background-color: #e99002;
-  color: #ffffff;
-  padding: 15px;
-  margin-bottom: 21px;
-  border: 1px solid #d08002;
-  border-radius: 0;
 }
 /* Codemirror */
 .cm-s-default {
@@ -164,53 +111,46 @@ form#task label {
   background-position: right;
   background-repeat: no-repeat;
 }
-.container-fluid {
-  max-width: 1200px;
-}
+/* Main navbar */
 .navbar-brand {
   font-family: 'Yanone Kaffeesatz', sans-serif;
   font-weight: 300;
   font-size: 25px;
+  line-height: 45px;
+  padding: 0;
 }
 .navbar-brand img {
   height: 45px;
-  margin-top: -12px;
-  vertical-align: top;
+  vertical-align: bottom;
   display: inline;
 }
+.navbar-text {
+  margin: 0;
+  padding: 0;
+  line-height: 45px;
+}
 .navbar {
-  -webkit-backface-visibility: hidden;
+  padding: 0;
 }
-#main_container #sidebar {
-  height: 100%;
-}
-#main_container #sidebar #sidebar_inner {
+/* Sticky footer */
+html {
   position: relative;
-  overflow: hidden;
+  min-height: 100%;
 }
-@media screen and (max-width: 768px) {
-  #main_container #sidebar #sidebar_affix {
-    position: static !important;
-    margin-bottom: 60px;
-  }
+body {
+  margin-bottom: 45px;
+  /* Margin bottom by footer height */
 }
-#main_container #sidebar .affix {
-  top: 0;
-}
-#main_container #sidebar .affix-bottom {
-  position: relative;
-}
-#main_container #sidebar .affix-top {
-  position: relative;
-}
-.index-logo {
+#footer {
   position: absolute;
-  right: 0;
-}
-.index-logo img {
+  bottom: 0;
   width: 100%;
-  max-width: 300px;
+  height: 45px;
+  /* Set the fixed height of the footer here */
+  line-height: 45px;
+  /* Vertically center the text there */
 }
+/*Task debug modal*/
 #task_debug dd {
   border-left: 1px solid #cccccc;
   padding-left: 20px;
@@ -222,94 +162,51 @@ form#task label {
 #task_debug dd dl {
   margin-bottom: 0;
 }
-.nav-tabs {
-  margin-bottom: 15px;
-}
+/* Studio files tab close button*/
 .nav-tabs > li.studio_file_editor_tab a .closetab {
-  color: #008cba;
+  cursor: pointer;
   border: none;
   background-color: transparent;
   margin: 0;
   padding: 0;
 }
-.list-group.list-group-progress {
-  line-height: 22px;
+/* Nav menu breadcrumb */
+.breadcrumb {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  text-transform: none;
 }
-.list-group.list-group-progress * {
-  line-height: 22px;
-}
-.nav-breadcrumb li {
-  max-width: 250px;
-}
-@media screen and (max-width: 1024px) {
-  .nav-breadcrumb li {
-    max-width: 150px;
-  }
-}
-@media screen and (max-width: 800px) {
-  .nav-breadcrumb li {
-    max-width: 120px;
-  }
-}
-.nav-breadcrumb li a {
+.breadcrumb .breadcrumb-item {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 250px;
+  color: rgba(255, 255, 255, 0.7);
 }
-.nav-breadcrumb li:after {
+.breadcrumb .breadcrumb-item:before {
   font: normal normal normal 24px/1 FontAwesome;
   content: "\f105";
+  margin-top: -4px;
+  color: #888;
   position: absolute;
-  left: -3px;
-  top: 10px;
-  color: rgba(255, 255, 255, 0.5);
 }
-div[data-toggle="buttons"] label {
-  color: #ffffff;
-  background-color: #f04124;
-  border-color: #ea2f10;
+.breadcrumb .breadcrumb-item span {
+  padding-left: 1rem;
 }
-div[data-toggle="buttons"] label:before {
-  display: inline-block;
-  font: normal normal normal 14px/1 FontAwesome;
-  font-size: inherit;
-  text-rendering: auto;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  transform: translate(0, 0);
-  content: "\f00d";
-  width: 1.28571429em;
-  text-align: center;
+.breadcrumb .breadcrumb-item a {
+  color: rgba(255, 255, 255, 0.7);
+  padding-left: 1rem;
 }
-div[data-toggle="buttons"] label.active {
-  color: #ffffff;
-  background-color: #43ac6a;
-  border-color: #3c9a5f;
+.breadcrumb .breadcrumb-item a:hover {
+  text-decoration: none;
+  color: white;
 }
-div[data-toggle="buttons"] label.active:before {
-  content: "\f00c";
+.breadcrumb .active {
+  max-width: 100%;
 }
-/* Footer */
-html,
-body {
-  height: 100%;
-}
-#wrapper {
-  min-height: 100%;
-  height: auto !important;
-  height: 100%;
-  margin: 0 auto -81px;
-}
-#footer,
-.footer_push {
-  padding-top: 36px;
-  height: 81px;
-}
-#footer .navbar,
-.footer_push .navbar {
-  margin-bottom: 0;
-}
-/* Checked list group */
+/* Checked list group download/replay page */
 ul.checked-list-box {
   max-height: 315px;
   overflow-y: scroll;
@@ -322,6 +219,10 @@ ul.checked-list-box .list-group-item-primary {
   color: #ffffff;
   background-color: #428bca;
 }
+ul.checked-list-box input[type="checkbox"] {
+  display: none;
+}
+/* Sorted tables dragging style*/
 .dragging {
   cursor: move !important;
 }
@@ -331,25 +232,8 @@ ul.checked-list-box .list-group-item-primary {
   opacity: 0.5;
   z-index: 2000;
 }
-li.placeholder {
-  position: relative;
-  margin: 0;
-  padding: 0;
-  border: none;
-}
-li.placeholder:before {
-  position: absolute;
-  content: "" !important;
-  width: 0;
-  height: 0;
-  margin-top: -5px;
-  left: -5px;
-  top: -4px;
-  border: 5px solid transparent;
-  border-left-color: black;
-  border-right: none;
-}
-.sorted_table tr.placeholder {
+/* Sorted tables placeholders */
+.placeholder {
   display: block;
   background: black;
   position: relative;
@@ -357,7 +241,7 @@ li.placeholder:before {
   padding: 0;
   border: none;
 }
-.sorted_table tr.placeholder:before {
+.placeholder:before {
   content: "";
   position: absolute;
   width: 0;
@@ -368,6 +252,7 @@ li.placeholder:before {
   left: -5px;
   border-right: none;
 }
+/* CodeMirror style */
 #edit_task_form .CodeMirror,
 #edit_course_form .CodeMirror {
   border: 1px solid #cccccc;
@@ -385,4 +270,3 @@ li.placeholder:before {
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);
 }
-/*# sourceMappingURL=INGInious.css.map */

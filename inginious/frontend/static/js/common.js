@@ -141,7 +141,7 @@ jQuery.fn.extend({
 function download_page_select(select, panel_member)
 {
     panel_member = $(panel_member);
-    while(!panel_member.hasClass('panel'))
+    while(!panel_member.hasClass('card'))
         panel_member = panel_member.parent();
     $('input[type="checkbox"]', panel_member).prop('checked', select);
     $('input[type="checkbox"]', panel_member).trigger('change');

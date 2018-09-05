@@ -159,7 +159,7 @@ can be specified. Details are available at :ref:`inginious-webapp`.
 
 With remote backend/agent
 `````````````````````````
-To run INInious with a remote backend (and agents), do as follows:
+To run INGInious with a remote backend (and agents), do as follows:
 
 #. On the backend host, launch the backend (see :ref:`inginious-backend`) :
    ::

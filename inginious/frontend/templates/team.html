@@ -12,7 +12,7 @@ $# Left column content
 $def ColumnF():
     $:template_helper.call('course_menu',course=course, template_helper=template_helper)
     <h3>$:_("Current grade")</h3>
-    <div class="progress">
+    <div class="progress mb-3">
         $ grade=user_manager.get_course_cache(username, course)["grade"]
         <div class="progress-bar progress-bar-success" aria-valuenow="$int(grade)" aria-valuemin="0" aria-valuemax="100" style="width: $grade%">
             $int(grade)%
@@ -21,7 +21,7 @@ $def ColumnF():
 
     <h3>$:_("Last tried exercises")</h3>
 
-    <div class="list-group">
+    <div class="list-group mb-3">
         $if submissions:
             $for submission in submissions:
                 <a class="list-group-item
@@ -40,23 +40,27 @@ $def ColumnF():
         $else:
             <a class="list-group-item disabled submission-empty">$:_("No submissions")</a>
     </div>
-    <div class="list-group">
-        $if course.allow_unregister():
-            $:include.unregister_button(course)
-    </div>
+    $if course.allow_unregister():
+        <div class="list-group">
+            <a href="#" data-toggle="modal" data-target="#unregister_modal" class="list-group-item list-group-item-info">
+                <i class="fa fa-user-times fa-fw"></i>&nbsp; $:_("Unregister from this course")
+            </a>
+        </div>
 $var Column: $:ColumnF()
 
 $def NavbarF():
-    <ol class="nav navbar-nav nav-breadcrumb">
-        <li><a  href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
-        <li class="active"><a href="#"><i class="fa fa-group"></i>
-            $if myteam is None:
-                $:_("Register for a group")
-            $else:
-                $:_("Groups")
-            <span class="sr-only">$:_("(current)")</span></a>
-        </li>
-    </ol>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a  href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
+            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-group"></i>
+                $if myteam is None:
+                    $:_("Register for a group")
+                $else:
+                    $:_("Groups")
+                <span class="sr-only">$:_("(current)")</span></a>
+            </li>
+        </ol>
+    </nav>
 $var Navbar: $:NavbarF()
 
 $# Start content
@@ -74,20 +78,18 @@ $elif msg:
 
 $if len(myteam["groups"]) > 0 and username in myteam["groups"][0]["students"]:
     <h3>$:_("My team : {}").format(myteam["description"])</h3>
-    <div class="panel panel-info">
-        <div class="panel-heading" role="tab" id="heading">
-            <h4 class="panel-title">
-                $:_("Students")
-                $if course.can_students_choose_group():
-                <div class="pull-right">
-                    <a href="?unregister_group" data-toggle="tooltip" data-placement="left" title="$:_('Quit team')">
-                        <i style="color:white;" class="fa fa-user-times"></i>
-                    </a>
-                </div>
-            </h4>
+    <div class="card mb-3 border-info" >
+        <div class="card-header text-white bg-info">
+            $:_("Students")
+            $if course.can_students_choose_group():
+            <div class="pull-right">
+                <a href="?unregister_group" data-toggle="tooltip" data-placement="left" title="$:_('Quit team')">
+                    <i style="color:white;" class="fa fa-user-times"></i>
+                </a>
+            </div>
         </div>
 
-        <ul class="list-group">
+        <ul class="list-group list-group-flush">
         $for user in myteam["groups"][0]["students"]:
             <li class="list-group-item">
                 $if users[user] is not None:
@@ -103,10 +105,10 @@ $if len(myteam["groups"]) > 0 and username in myteam["groups"][0]["students"]:
         </ul>
 
     $if len(myteam["tutors"]) > 0:
-            <div class="panel-heading" role="tab" id="heading">
-                <h4 class="panel-title">$:_("Tutors")</h4>
+            <div class="card-header" role="tab" id="heading">
+                $:_("Tutors")
             </div>
-                <ul class="list-group">
+                <ul class="list-group list-group-flush">
                 $for user in myteam["tutors"]:
                     <li class="list-group-item">
                         $if users[user] is not None:
@@ -144,23 +146,22 @@ $if not len(teams) == 0:
         $if len(team["groups"])>0:
             <h4>$:_("Team : {}").format(team["description"])</h4>
             $ group = team["groups"][0]
-                    $if len(myteam["groups"]) == 0 or username not in myteam["groups"][0]["students"] and (group["size"]-len(group["students"])) > 0 and course.can_students_choose_group():
-                        <div class="panel panel-success">
-                    $else:
-                        <div class="panel panel-default">
-                <div class="panel-heading" role="tab" id="heading_$index">
-                    <h4 class="panel-title">
-                        $:_("Students")
-                        $if len(myteam["groups"]) == 0 or username not in myteam["groups"][0]["students"] and (group["size"]-len(group["students"])) > 0 and course.can_students_choose_group():
-                            $:_("(available : {})").format(group["size"]-len(group["students"]))
-                            <div class="pull-right">
-                                <a href="?register_group=$team['_id']" data-toggle="tooltip" data-placement="left" title="$:_('Join in')">
-                                    <i style="color:white;" class="fa fa-sign-in"></i>
-                                </a>
-                            </div>
-                    </h4>
+            <div class="card">
+                $if len(myteam["groups"]) == 0 or username not in myteam["groups"][0]["students"] and (group["size"]-len(group["students"])) > 0 and course.can_students_choose_group():
+                    <div class="card-header bg-success text-white" id="heading_$index">
+                $else:
+                    <div class="card-header" role="tab" id="heading_$index">
+
+                $:_("Students")
+                $if len(myteam["groups"]) == 0 or username not in myteam["groups"][0]["students"] and (group["size"]-len(group["students"])) > 0 and course.can_students_choose_group():
+                    $:_("(available : {})").format(group["size"]-len(group["students"]))
+                    <div class="pull-right">
+                        <a href="?register_group=$team['_id']" data-toggle="tooltip" data-placement="left" title="$:_('Join in')">
+                            <i style="color:white;" class="fa fa-sign-in"></i>
+                        </a>
+                    </div>
                 </div>
-                <ul class="list-group">
+                <ul class="list-group list-group-flush">
 
                 $if len(group["students"]) == 0:
                     <li class="list-group-item"><i>$:_("No registered member.")</i></li>
@@ -180,10 +181,10 @@ $if not len(teams) == 0:
 
                 </ul>
                 $if len(team["tutors"]) > 0:
-                    <div class="panel-heading" role="tab" id="heading">
-                        <h4 class="panel-title">$:_("Tutors")</h4>
+                    <div class="card-header" id="heading">
+                        $:_("Tutors")
                     </div>
-                        <ul class="list-group">
+                        <ul class="list-group list-group-flush">
                         $for user in team["tutors"]:
                             <li class="list-group-item">
                                 $if users[user] is not None:
@@ -199,3 +200,5 @@ $if not len(teams) == 0:
                         </ul>
 
              </div>
+
+$:include.unregister_modal(course)

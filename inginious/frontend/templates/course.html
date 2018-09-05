@@ -13,17 +13,17 @@ $def ColumnF():
     $:template_helper.call('course_menu', course=course, template_helper=template_helper)
     $if registered or staff:
         <h3>$:_("Current grade")</h3>
-        <div class="progress">
-            <div class="progress-bar progress-bar-success" aria-valuenow="$int(grade)" aria-valuemin="0" aria-valuemax="100" style="width: $grade%">
+        <div class="progress mb-3">
+            <div class="progress-bar bg-success" aria-valuenow="$int(grade)" aria-valuemin="0" aria-valuemax="100" style="width: $grade%">
                 $int(grade)%
             </div>
         </div>
 
         <h3>$:_("Last tried exercises")</h3>
-        <div class="list-group">
+        <div class="list-group mb-3">
             $if submissions:
                 $for submission in submissions:
-                    <a class="list-group-item
+                    <a class="list-group-item list-group-item-action
                         $if submission['status'] == 'done' and submission['result'] == 'success':
                             list-group-item-success
                         $elif submission['status'] == 'done' and submission['result'] == 'save':
@@ -37,7 +37,7 @@ $def ColumnF():
                         $submission['taskname']
                     </a>
             $else:
-                <a class="list-group-item disabled submission-empty">$:_("No submissions")</a>
+                <a class="list-group-item list-group-item-action disabled submission-empty">$:_("No submissions")</a>
         </div>
     $if staff:
         $if not course.is_open_to_non_staff():
@@ -45,13 +45,13 @@ $def ColumnF():
                 $:_("This course is currently invisible for students. You can change this by modifying the \"accessibility\" option in the configuration of the course.")
             </div>
         <div class="list-group">
-            <a class="list-group-item list-group-item-info" href="$get_homepath()/admin/$course.get_id()">
+            <a class="list-group-item list-group-item-action list-group-item-info" href="$get_homepath()/admin/$course.get_id()">
                 <i class="fa fa-user-secret fa-fw"></i>&nbsp; $:_("Course administration")
             </a>
         </div>
     $elif registered:
         <div class="list-group">
-            <a class="list-group-item list-group-item-info" href="$get_homepath()/aggregation/$course.get_id()">
+            <a class="list-group-item list-group-item-action list-group-item-info" href="$get_homepath()/aggregation/$course.get_id()">
                 <i class="fa fa-group fa-fw"></i>&nbsp;
                 $ myaggregation = user_manager.get_course_user_aggregation(course)
                 $if course.use_classrooms():
@@ -62,39 +62,51 @@ $def ColumnF():
                     $:_("Teams management")
             </a>
             $if course.allow_unregister():
-                $:include.unregister_button(course)
+                <a href="#" data-toggle="modal" data-target="#unregister_modal" class="list-group-item list-group-item-action list-group-item-info">
+                    <i class="fa fa-user-times fa-fw"></i>&nbsp; $:_("Unregister from this course")
+                </a>
         </div>
     $elif not user_manager.session_logged_in():
         $:include.signin_button()
     $elif course.is_registration_possible(user_info):
-        $:include.register_button(course)
+        <h3>$:_("Enroll in the course")</h3>
+
+        <div class="alert alert-warning" role="alert">
+            $:_("Please enroll in the course to be able to submit answers to problems.")
+        </div>
+        <div class="list-group">
+            <a href="#" class="list-group-item list-group-item-action list-group-item-info" data-toggle='modal' data-target='#register'>
+                <i class="fa fa-sign-in fa-fw"></i>&nbsp; $:_("Enroll in the course")
+            </a>
+        </div>
+
 $var Column: $:ColumnF()
 
 $def NavbarF():
-    <ol class="nav navbar-nav nav-breadcrumb">
-        $if registered:
-            <li><a href="$get_homepath()/mycourses" title=$:_('"My courses"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-th-list"></i></a></li>
-        $else:
-            <li><a href="$get_homepath()/courselist" title=$:_('"Course list"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-th-list"></i></a></li>
-        <li class="active"><a href="#">$course.get_name(user_manager.session_language()) <span class="sr-only">$:_("(current)")</span></a></li>
-    </ol>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            $if registered:
+                <li class="breadcrumb-item"><a href="$get_homepath()/mycourses" title=$:_('"My courses"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-th-list"></i></a></li>
+            $else:
+                <li class="breadcrumb-item"><a href="$get_homepath()/courselist" title=$:_('"Course list"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-th-list"></i></a></li>
+            <li class="breadcrumb-item active"><a href="#">$course.get_name(user_manager.session_language()) <span class="sr-only">$:_("(current)")</span></a></li>
+        </ol>
+    </nav>
 $var Navbar: $:NavbarF()
 
 $# Start content
 <h2>$:course.get_name(user_manager.session_language())</h2>
 
 $if course.get_descriptor().get("description", ""):
-    <div class="panel-group" id="desc_accord" role="tablist" aria-multiselectable="true">
-        <div class="panel panel-default">
-            <div class="panel-heading" role="tab" id="course_desc_head">
-                <h4 class="panel-title">
-                    <a role="button" data-toggle="collapse" data-parent="#desc_accord" href="#course_desc" aria-expanded="false" aria-controls="course_desc">
-                        $:_("About this course")
-                    </a>
-                </h4>
+    <div class="mb-3" id="desc_accord" role="tablist" aria-multiselectable="true">
+        <div class="card">
+            <div class="card-header" id="course_desc_head">
+                <div style="cursor: pointer" data-toggle="collapse" data-parent="#desc_accord" href="#course_desc" aria-expanded="false" aria-controls="course_desc">
+                    <i class="fa fa-fw fa-chevron-right"></i>$:_("About this course")
+                </div>
             </div>
-            <div id="course_desc" class="panel-collapse collapse" role="tabpanel" aria-labelledby="course_desc_head">
-                <div class="panel-body">
+            <div id="course_desc" class="collapse" role="tabpanel" aria-labelledby="course_desc_head">
+                <div class="card-body">
                     $:course.get_description(user_manager.session_language())
                 </div>
             </div>
@@ -121,47 +133,46 @@ function filter_tag(tag) {
 }
 </script>
 
-<div class="panel panel-default">
-    <div class="panel-heading">
-        <h3 class="panel-title">
-            <div class="row">
-                <div class="col-md-8">$:_("List of exercises")</div>
-                $if tag_filter_list:
-                    <div class="col-md-4">
-                        <select class="form-control input-sm" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" id="tag_filter" onchange="filter_tag(this)">
-                            <option value="">$:_("Filter tasks by tags")</option>
-                            $for tag_name in tag_filter_list:
-                                <option value="$tag_name">$tag_name</option>
-                        </select>
-                    </div>
-            </div>
-        </h3>
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-md-8">$:_("List of exercises")</div>
+            $if tag_filter_list:
+                <div class="col-md-4">
+                    <select class="form-control input-sm" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" id="tag_filter" onchange="filter_tag(this)">
+                        <option value="">$:_("Filter tasks by tags")</option>
+                        $for tag_name in tag_filter_list:
+                            <option value="$tag_name">$tag_name</option>
+                    </select>
+                </div>
+        </div>
     </div>
-    <div id="tasks-list" class="list-group list-group-progress" style="margin-left: 16px; margin-right: 16px;">
+    <div id="tasks-list" class="list-group list-group-flush">
         $for taskid, task in tasks.items()
             $if tasks_data[taskid]["visible"]:
                 $ succeeded=tasks_data[taskid]["succeeded"]
                 $ completion=tasks_data[taskid]["grade"]
-                <a href="$get_homepath()/course/$course.get_id()/$taskid" class="row list-group-item
+                <a href="$get_homepath()/course/$course.get_id()/$taskid" class="list-group-item list-group-item-action
                     $if not task.is_visible_by_students() or not task.get_accessible_time().is_open():
                         disabled
                     ">
-                    <div class="col-xs-12 col-md-7">
-                        $if succeeded:
-                            <i style="color:#468847; position: absolute; left: -5px;" class="fa fa-check"></i>
-                        $task.get_name(user_manager.session_language())
-                        $if not task.is_visible_by_students():
-                            - <b>$:_("task hidden to students")</b>
-                        $if not task.get_accessible_time().is_open():
-                            - <b>$:_("deadline reached")</b>
-                    </div>
-                    <div class="col-xs-12 col-md-5">
-                        $if registered:
-                            <div class="progress">
-                                <div class="progress-bar progress-bar-success" aria-valuenow="$int(completion)" aria-valuemin="0" aria-valuemax="100" style="width: $completion%">
-                                    $(int(completion) if completion.is_integer() else completion)%
+                    <div class="row">
+                        <div class="col-xs-12 col-md-7 pl-1">
+                            <i style="color: $('#468847;' if succeeded else 'transparent')" class="fa fa-check"></i>
+                            $task.get_name(user_manager.session_language())
+                            $if not task.is_visible_by_students():
+                                - <b>$:_("task hidden to students")</b>
+                            $if not task.get_accessible_time().is_open():
+                                - <b>$:_("deadline reached")</b>
+                        </div>
+                        <div class="col-xs-12 col-md-5">
+                            $if registered:
+                                <div class="progress">
+                                    <div class="progress-bar bg-success" aria-valuenow="$int(completion)" aria-valuemin="0" aria-valuemax="100" style="width: $completion%">
+                                        $(int(completion) if completion.is_integer() else completion)%
+                                    </div>
                                 </div>
-                            </div>
+                        </div>
                     </div>
                     <div id="tags_of_task" style="display:none;">
                         $for tag in (task.get_tags()[2]+task.get_tags()[0]):
@@ -171,3 +182,6 @@ function filter_tag(tag) {
                 </a>
     </div>
 </div>
+
+$:include.unregister_modal(course)
+$:include.register_modal(course)

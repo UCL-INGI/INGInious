@@ -9,15 +9,17 @@ $var title: $:_("Job queue")
 
 $# Start content
 $def NavbarF():
-    <ol class="nav navbar-nav nav-breadcrumb">
-        <li class="active"><a href="#"><i class="fa fa-dashboard"></i> $:_("Job queue")
-            <span class="sr-only">$:_("(current)")</span></a>
-        </li>
-    </ol>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-dashboard"></i> $:_("Job queue")
+                <span class="sr-only">$:_("(current)")</span></a>
+            </li>
+        </ol>
+    </nav>
 $var Navbar: $:NavbarF()
 
 <h2>$:_("Job queue")</h2>
-$:_("This page shows a <strong>snapshot</strong> of the job queue.")
+<p>$:_("This page shows a <strong>snapshot</strong> of the job queue.")</p>
 
 <h3>$:_("Running jobs")</h3>
 $if jobs_running is not None and len(jobs_running) > 0:
@@ -48,7 +50,7 @@ $if jobs_running is not None and len(jobs_running) > 0:
             </tr>
     </table>
 $else:
-    $:_("There are no jobs running")
+    <p>$:_("There are no jobs running")</p>
 
 <h3>$:_("Jobs in queue")</h3>
 $if jobs_waiting is not None and len(jobs_waiting) > 0:
@@ -75,4 +77,4 @@ $if jobs_waiting is not None and len(jobs_waiting) > 0:
         </tr>
     </table>
 $else:
-    $:_("There are no jobs waiting in queue")
+    <p>$:_("There are no jobs waiting in queue")</p>

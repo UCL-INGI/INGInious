@@ -12,12 +12,14 @@ $def ColumnF():
 $var Column: $:ColumnF()
 
 $def NavbarF():
-    <ol class="nav navbar-nav nav-breadcrumb">
-        <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()" title="$:_('Administration')" data-toggle="tooltip" data-placement="bottom">
-            <i class="fa fa-user-secret"></i></a></li>
-        <li class="active"><a href="#"><i class="fa fa-bomb"></i> $:_("Danger zone") <span class="sr-only">$:_("(current)")</span></a></li>
-    </ol>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
+            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()" title="$:_('Administration')" data-toggle="tooltip" data-placement="bottom">
+                <i class="fa fa-user-secret"></i></a></li>
+            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-bomb"></i> $:_("Danger zone") <span class="sr-only">$:_("(current)")</span></a></li>
+        </ol>
+    </nav>
 $var Navbar: $:NavbarF()
 
 <h2>$:_("Danger zone")</h2>
@@ -32,22 +34,24 @@ $elif msg:
         $:msg
     </div>
 
-<div role="tabpanel">
-    <ul class="nav nav-tabs" role="tablist">
-        <li role="presentation" class="active">
-            <a href="#tab_archive_data" role="tab" data-toggle="tab"><i class="fa fa-archive fa-fw"></i> $:_("Archive data")</a>
-        </li>
-        <li role="presentation">
-            <a href="#tab_delete_course" role="tab" data-toggle="tab"><i class="fa fa-trash fa-fw"></i> $:_("Delete course")</a>
-        </li>
-    </ul>
+<div class="card">
+    <div class="card-header">
+        <ul class="nav nav-tabs card-header-tabs" role="tablist">
+            <li role="presentation" class="nav-item">
+                <a class=" active nav-link" href="#tab_archive_data" role="tab" data-toggle="tab"><i class="fa fa-archive fa-fw"></i> $:_("Archive data")</a>
+            </li>
+            <li role="presentation" class="nav-item">
+                <a href="#tab_delete_course" class="nav-link" role="tab" data-toggle="tab"><i class="fa fa-trash fa-fw"></i> $:_("Delete course")</a>
+            </li>
+        </ul>
+    </div>
     <div class="tab-content">
-        <div role="tabpanel" class="tab-pane active" id="tab_archive_data">
-            <div class="panel panel-warning">
-                <div class="panel-heading">
-                    <h3 class="panel-title">$:_("Archive course data")</h3>
+        <div role="tabpanel" class="card-body tab-pane active" id="tab_archive_data">
+            <div class="card border-warning mb-3">
+                <div class="card-header bg-warning text-white">
+                    $:_("Archive course data")
                 </div>
-                <div class="panel-body">
+                <div class="card-body">
                     $:_("<p>This will reset and backup all course data (submissions, classrooms/teams, user statistics) from the database.</p><p>To confirm your will, please type the course id below :</p>")
                     <form class="form-horizontal" method="post">
                         <input type="hidden" name="token" value="$thehash">
@@ -63,13 +67,13 @@ $elif msg:
                 </div>
             </div>
 
-            <div class="panel panel-default">
+            <div class="card">
                 <div id="restore_modal" class="modal fade">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                                 <h4 class="modal-title">$:_("Restore backup from {}").format('<span class="backupdate"></span>')</h4>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                             </div>
                             <div class="modal-body">
                                 $:_("<p>This will restore your course data to {}. Are you sure ?</p>").format("<span class='backupdate'></span>")
@@ -78,7 +82,7 @@ $elif msg:
                                 <form method="post">
                                     <input type="hidden" name="backupdate" id="backupdate">
                                     <input type="hidden" name="token" value="$thehash">
-                                    <button type="button" class="btn btn-default" data-dismiss="modal">$:_("Cancel")</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">$:_("Cancel")</button>
                                     <button type="submit" name="restore" class="btn btn-danger">$:_("Restore backup")</button>
                                 </form>
                             </div>
@@ -86,11 +90,11 @@ $elif msg:
                     </div>
                 </div>
 
-                <div class="panel-heading">
-                    <h3 class="panel-title">$:_("Backups")</h3>
+                <div class="card-header">
+                    $:_("Backups")
                 </div>
-                <table class="table">
-                    <thead>
+                <table class="table mb-0">
+                    <thead class="table-borderless">
                         <tr>
                             <th>$:_("backup date")</th>
                             <th><span class="pull-right">$:_("download")</span></th>
@@ -101,13 +105,13 @@ $elif msg:
                             <tr>
                                 <td>$backup['date']</td>
                                 <td>
-                                    <div class="pull-right btn-group">
+                                    <div class="pull-right btn-group btn-group-sm">
 
-                                        <button type="button" data-backupdate="$backup['date']" data-backupfile="$backup['file']" data-toggle="modal" data-target="#restore_modal" class="btn btn-danger btn-xs restore" title="$:_('Restore backup')">
+                                        <button type="button" data-backupdate="$backup['date']" data-backupfile="$backup['file']" data-toggle="modal" data-target="#restore_modal" class="btn btn-danger restore" title="$:_('Restore backup')">
                                             <i class="fa fa-recycle"></i>
                                         </button>
 
-                                        <a href="?download=$backup['file']" class="btn btn-default btn-xs" title=$:_('"Download backup"')
+                                        <a href="?download=$backup['file']" class="btn btn-secondary" title=$:_('"Download backup"')
                                            data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
                                     </div>
                                 </td>
@@ -127,12 +131,12 @@ $elif msg:
                 </script>
             </div>
         </div>
-        <div role="tabpanel" class="tab-pane " id="tab_delete_course">
-            <div class="panel panel-danger">
-                <div class="panel-heading">
-                    <h3 class="panel-title">$:_("Delete course")</h3>
+        <div role="tabpanel" class="tab-pane card-body" id="tab_delete_course">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    $:_("Delete course")
                 </div>
-                <div class="panel-body">
+                <div class="card-body">
                     $:_("<p> This will <b>permanently</b> remove the course and all its data (including tasks and backups) from INGInious.</p><p>To confirm your will, please type the course id below :</p>")
                     <form class="form-horizontal" method="post">
                         <input type="hidden" name="token" value="$thehash">
@@ -150,14 +154,14 @@ $elif msg:
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                                         <h4 class="modal-title">$:_("Delete course")</h4>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                                     </div>
                                     <div class="modal-body">
                                         $:_("<p>This will <b>permanently</b> remove the course and all its data (including tasks and backups) from INGInious. Are you really sure ?</p>")
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-default" data-dismiss="modal">$:_("Cancel")</button>
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">$:_("Cancel")</button>
                                         <button type="submit" name="deleteall" class="btn btn-danger">$:_("Delete course")</button>
                                     </div>
                                 </div>

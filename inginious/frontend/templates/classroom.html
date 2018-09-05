@@ -12,7 +12,7 @@ $# Left column content
 $def ColumnF():
     $:template_helper.call('course_menu',course=course, template_helper=template_helper)
     <h3>Current grade</h3>
-    <div class="progress">
+    <div class="progress mb-3">
         $ grade=user_manager.get_course_cache(username, course)["grade"]
         <div class="progress-bar progress-bar-success" aria-valuenow="$int(grade)" aria-valuemin="0" aria-valuemax="100" style="width: $grade%">
             $int(grade)%
@@ -21,7 +21,7 @@ $def ColumnF():
 
     <h3>$:_("Last tried exercises")</h3>
 
-    <div class="list-group">
+    <div class="list-group mb-3">
         $if submissions:
             $for submission in submissions:
                 <a class="list-group-item
@@ -40,20 +40,26 @@ $def ColumnF():
         $else:
             <a class="list-group-item disabled submission-empty">$:_("No submissions")</a>
     </div>
-    <div class="list-group">
-        $if course.allow_unregister():
-            $:include.unregister_button(course)
-    </div>
+
+    $if course.allow_unregister():
+        <div class="list-group">
+            <a href="#" data-toggle="modal" data-target="#unregister_modal" class="list-group-item list-group-item-info">
+                <i class="fa fa-user-times fa-fw"></i>&nbsp; $:_("Unregister from this course")
+            </a>
+        </div>
+
 $var Column: $:ColumnF()
 
 $def NavbarF():
-    <ol class="nav navbar-nav nav-breadcrumb">
-        <li><a  href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
-        <li class="active"><a href="#"><i class="fa fa-group"></i>
-            $classroom["description"]
-            <span class="sr-only">$:_("(current)")</span></a>
-        </li>
-    </ol>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a  href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
+            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-group"></i>
+                $classroom["description"]
+                <span class="sr-only">$:_("(current)")</span></a>
+            </li>
+        </ol>
+    </nav>
 $var Navbar: $:NavbarF()
 
 $# Start content
@@ -69,21 +75,28 @@ $elif msg:
         $:msg
     </div>
 
-<div role="tabpanel">
-    <ul class="nav nav-tabs" id="edit_task_tabs" role="tablist">
-        <li role="presentation" class="$('active' if not change else '')"><a href="#tab_basic" aria-controls="basic" role="tab" data-toggle="tab">
-            <i class="fa fa-users fa-fw"></i>&nbsp; $:_("Members")</a></li>
-        <li role="presentation" class="$('active' if change else '')"><a href="#tab_groups" aria-controls="groups" role="tab" data-toggle="tab">
-            <i class="fa fa-list-ul fa-fw"></i>&nbsp; $:_("Groups")</a></li>
-    </ul>
-    <div id="edit_task_tabs_content" class="tab-content">
-        <div role="tabpanel" class="tab-pane $('active' if not change else '')" id="tab_basic">
+
+<div class="card">
+    <div class="card-header">
+        <ul class="nav nav-tabs card-header-tabs">
+            <li class="nav-item">
+                <a class=" nav-link $('active' if not change else '')" id="nav_tab_basic" data-toggle="tab" href="#tab_basic" role="tab" aria-controls="tab_basic" aria-selected="true">
+                <i class="fa fa-users fa-fw"></i>&nbsp; $:_("Members")</a>
+            </li>
+            <li class="nav-item">
+                <a class=" nav-link $('active' if change else '')" id="nav_tab_groups" data-toggle="tab" href="#tab_groups" role="tab" aria-controls="tab_groups" aria-selected="false">
+                <i class="fa fa-list-ul fa-fw"></i>&nbsp; $:_("Groups")</a>
+            </li>
+        </ul>
+    </div>
+    <div class="tab-content">
+        <div role="tabpanel" class="card-body tab-pane $('show active' if not change else '')" id="tab_basic" aria-labelledby="nav_tab_basic">
             $if len(classroom["tutors"]) > 0:
-                <div class="panel panel-info">
-                    <div class="panel-heading" role="tab" id="heading">
-                        <h4 class="panel-title">$:_("Tutors")</h4>
+                <div class="card bg-info mb-3">
+                    <div class="card-header text-white">
+                        $:_("Tutors")
                     </div>
-                        <ul class="list-group">
+                        <ul class="list-group list-group-flush">
                         $for user in classroom["tutors"]:
                             <li class="list-group-item">
                                 $if users[user] is not None:
@@ -99,11 +112,11 @@ $elif msg:
                         </ul>
                 </div>
             $if len(classroom["students"]) > 0:
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="heading">
-                        <h4 class="panel-title">$:_("Students")</h4>
+                <div class="card">
+                    <div class="card-header">
+                        $:_("Students")
                     </div>
-                        <ul class="list-group">
+                        <ul class="list-group list-group-flush">
                         $for user in classroom["students"]:
                             <li class="list-group-item">
                                 $if users[user] is not None:
@@ -120,23 +133,21 @@ $elif msg:
                 </div>
         </div>
 
-        <div role="tabpanel" class="tab-pane $('active' if change else '')" id="tab_groups">
+        <div role="tabpanel" class="card-body tab-pane fade $('show active' if change else '')" id="tab_groups" aria-labelledby="nav_tab_groups">
             $if mygroup is not None:
                 <h3>$:_("My group")</h3>
-                <div class="panel panel-info">
-                    <div class="panel-heading" role="tab" id="heading">
-                        <h4 class="panel-title">
-                            $:_("Group #{}").format(mygroup['index'])
-                            $if course.can_students_choose_group():
+                <div class="card bg-info mb-3">
+                    <div class="card-header text-white">
+                        $:_("Group #{}").format(mygroup['index'])
+                        $if course.can_students_choose_group():
                             <div class="pull-right">
                                 <a href="?unregister_group" data-toggle="tooltip" data-placement="left" title="$:_('Quit group')">
                                     <i style="color:white;" class="fa fa-user-times"></i>
                                 </a>
                             </div>
-                        </h4>
                     </div>
 
-                    <ul class="list-group">
+                    <ul class="list-group list-group-flush">
                     $for user in mygroup["students"]:
                         <li class="list-group-item">
                             $if users[user] is not None:
@@ -171,11 +182,13 @@ $elif msg:
                 <h3>$:_("All groups")</h3>
                 $for index, group in enumerate(classroom["groups"]):
                                 $if mygroup is None and (group["size"]-len(group["students"])) > 0 and course.can_students_choose_group():
-                                    <div class="panel panel-success">
+                                    <div class="card bg-success">
+                                    $ text_white = "text-white"
                                 $else:
-                                    <div class="panel panel-default">
-                            <div class="panel-heading" role="tab" id="heading_$index">
-                                <h4 class="panel-title">
+                                    <div class="card">
+                                    $ text_white = ""
+
+                                <div class="card-header $text_white">
                                     $:_("Group #{}").format(index+1)
                                     $if mygroup is None and (group["size"]-len(group["students"])) > 0 and course.can_students_choose_group():
                                         (available : $(group["size"]-len(group["students"])) )
@@ -184,9 +197,9 @@ $elif msg:
                                                 <i style="color:white;" class="fa fa-sign-in"></i>
                                             </a>
                                         </div>
-                                </h4>
-                            </div>
-                            <ul class="list-group">
+                                </div>
+
+                            <ul class="list-group list-group-flush">
 
                             $if len(group["students"]) == 0:
                                 <li class="list-group-item"><i>$:_("No registered member.")</i></li>
@@ -210,3 +223,5 @@ $elif msg:
         </div>
     </div>
 </div>
+
+$:include.unregister_modal(course)

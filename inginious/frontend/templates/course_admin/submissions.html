@@ -16,12 +16,14 @@ $ is_admin = user_manager.has_admin_rights_on_course(course)
 $ use_classrooms = course.use_classrooms()
 
 $def NavbarF():
-    <ol class="nav navbar-nav nav-breadcrumb">
-        <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
-            <i class="fa fa-user-secret"></i></a></li>
-        <li class="active"><a href="#"><i class="fa fa-search"></i> $:_("View submissions") <span class="sr-only">$:_("(current)")</span></a></li>
-    </ol>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
+            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
+                <i class="fa fa-user-secret"></i></a></li>
+            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-search"></i> $:_("View submissions") <span class="sr-only">$:_("(current)")</span></a></li>
+        </ol>
+    </nav>
 $var Navbar: $:NavbarF()
 
 $for m in msg:
@@ -45,18 +47,16 @@ $if len(old_input.task) == 1:
 <form id="select_form" method="post" action="submissions">
 
 <!-- Query submissions -->
-<div class="panel panel-default">
-    <div class="panel-heading">
-        <h4 class="panel-title">
-            <a data-toggle="collapse" data-target="#collapseMAIN">$:_("Query submissions")</a>
-        </h4>
+<div class="card mb-3">
+    <div class="card-header">
+        <a data-toggle="collapse" data-target="#collapseMAIN">$:_("Query submissions")</a>
     </div>
     <div id="collapseMAIN" class="panel-collapse collapse $('in' if show_collapse else '')">
-    <div class="panel-body">
+    <div class="card-body">
         <div class="row">
             
             <!-- Users -->
-            <div class="col-xs-6 form-group">
+            <div class="col-sm-6 form-group">
                 <label>$:_("Users")</label>
                 <select name="user" multiple size="7" class="form-control" id="select_user">
                 $for u in users:
@@ -66,16 +66,18 @@ $if len(old_input.task) == 1:
             </div>
 
             <!-- aggregations -->
-            <div class="col-xs-6 form-group">
+            <div class="col-sm-6 form-group">
                 <label>$(_("Classrooms") if use_classrooms else _("Teams"))</label>
                 <select name="aggregation" multiple size="7" class="form-control" id="select_aggregation">
                 $for c in aggregations:
                     <option value="$c['_id']" $('selected' if str(c['_id']) in old_input['aggregation'] else '')>$c["description"]</option>
                 </select>
             </div>
+        </div>
+        <div class="row">
 
             <!-- Tasks -->
-            <div class="col-xs-8 form-group">
+            <div class="col-sm-8 form-group">
                 <label>$:_("Tasks")</label>
                 <select name="task" multiple size="9" class="form-control" id="select_task">
                 $for t in tasks:
@@ -84,148 +86,138 @@ $if len(old_input.task) == 1:
             </div>
                 
             <!-- Organisational tags -->
-            <div class="col-xs-4 form-group">
+            <div class="col-sm-4 form-group">
                 <label>$:_("Tasks based on organisational tags")</label>
                 <select name="org_tags" multiple size="9" class="form-control" id="select_org_tags">
                 $for t in course.get_all_tags()[2]:
                     <option value="$t.get_name()" $('selected' if t.get_name() in old_input['org_tags'] else '')>$:_(t.get_name())</option>
                 </select>
             </div>
+        </div>
+        <div class="row">
             
-            
-            <div class="col-xs-12 form-group">
-                <div class="panel-group">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h4 class="panel-title">
-                                <a data-toggle="collapse" data-target="#collapseAdvanced">$:_("Advanced query")</a>
-                            </h4>
-                        </div>
-                        <div id="collapseAdvanced" class="panel-collapse collapse">
-                            <div class="panel-body">
-                            
-            <!-- Content coolspse Advanced query -->
-            <!-- Checkboxs -->
-            $ list_checkboxes = [("eval", _("Only evaluation submissions")), 
-            $                    ("show_tags", _("Show tags")), 
-            $                    ("show_id", _("Show submission id")), 
-            $                    ("show_task_name", _("Show task name")),
-            $                    ("show_stud_name", _("Show student name"))]
-            <div class="col-xs-12 form-group">
-                <div class="row">
-                $for c in list_checkboxes:
-                    <div class="col-xs-1 col-sm-2">
-                        <label class="form-check-label">
-                            <input name="$c[0]" class="form-check-input" type="checkbox" $('checked' if c[0] in old_input else '')> $c[1]
-                        </label>
+            <div class="col-sm-12 form-group">
+                <div class="card">
+                    <div class="card-header">
+                        <a data-toggle="collapse" data-target="#collapseAdvanced">$:_("Advanced query")</a>
                     </div>
-                </div>
-            </div>
-
-            <!-- Grade -->
-            <div class="col-xs-4 form-group">
-                <div class="row">
-                    <div class="col-xs-12 col-sm-6">
-                        <label class="col-xs-12">$:_("Min grade")</label>
-                        <input name="grade_min" class="form-control" type="number" placeholder="0" id="select_grade_min" value="$old_input['grade_min']"/>
-                    </div>
-                    <div class="col-xs-12 col-sm-6">
-                        <label class="col-xs-12">$:_("Max grade")</label>
-                        <input name="grade_max" class="form-control" type="number" placeholder="100" id="select_grade_max" value="$old_input['grade_max']"/>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Date -->
-            <div class="col-xs-8 form-group">
-                <div class="row">
-                    <div class="col-xs-12 col-sm-6">
-                        <label class="col-xs-12">$:_("After date")</label>
-                        <div class="input-group date" id="date_after_picker">
-                            <input name="date_after" data-date-format="YYYY-MM-DD HH:mm:ss" value="$old_input['date_after']" placeholder="2014-06-29 10:00" type="text" class="form-control">
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                        </div>
-                    </div>
-                    <div class="col-xs-12 col-sm-6">
-                        <label class="col-xs-12">$:_("Before date")</label>
-                        <div class="input-group date" id="date_before_picker">
-                            <input name="date_before" data-date-format="YYYY-MM-DD HH:mm:ss" value="$old_input['date_before']" placeholder="2014-06-29 10:00" type="text" class="form-control">
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <script type="text/javascript">
-                \$(function() {
-                    \$('#date_before_picker').datetimepicker({locale: '$user_manager.session_language()', sideBySide: true});
-                    \$('#date_after_picker').datetimepicker({locale: '$user_manager.session_language()', sideBySide: true});
-                });
-            </script>
-
-            <!-- Tag filtering -->
-            $if "show_tags" in old_input:
-                $for i in range(num_tags_filter):
-                    <div class="col-xs-6 form-group">
-                        <div class="row borders">
-                            <div class="col-xs-6 col-sm-6">
-                                <label>$:_("The tag")</label>
-                                <select name="filter_tags" class="form-control" id="select_filter_tags_$i">
-                                    <option value=""></option>
-                                $for tag in course.get_all_tags()[0] + course.get_all_tags()[1]:
-                                    <option value="$tag.get_id()" $('selected' if len(old_input['filter_tags']) > i and old_input['filter_tags'][i] == tag.get_id() else '')>$tag.get_name()</option>
-                                </select>
+                    <div id="collapseAdvanced" class="collapse">
+                        <div class="card-body">
+                            <!-- Content coolspse Advanced query -->
+                            <!-- Checkboxs -->
+                            $ list_checkboxes = [("eval", _("Only evaluation submissions")),
+                            $                    ("show_tags", _("Show tags")),
+                            $                    ("show_id", _("Show submission id")),
+                            $                    ("show_task_name", _("Show task name")),
+                            $                    ("show_stud_name", _("Show student name"))]
+                            <div class="col-xs-12 form-group">
+                                $for c in list_checkboxes:
+                                    <div class="form-check form-check-inline">
+                                        <label class="form-check-label"></label>
+                                        <input name="$c[0]" class="form-check-input" type="checkbox" $('checked' if c[0] in old_input else '')> $c[1]
+                                    </div>
                             </div>
-                            <div class="col-xs-6 col-sm-6">
-                                <label>$:_("is")</label>
-                                <select name="filter_tags_presence" class="form-control" id="select_filter_tags_presence_$i">
-                                    <option value="True">$:_("present")</option>
-                                    <option value="False" $('selected' if len(old_input['filter_tags_presence']) > i and old_input['filter_tags_presence'][i] == "False" else '')>$:_("not present")</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
 
-            <!-- Sort by -->
-            <div class="col-xs-12 form-group">
-                <div class="row">
-                    <div class="col-xs-3 col-sm-3">
-                        <label>$:_("Sort by")</label>
-                        <select name="sort_by" class="form-control" id="select_sort_by">
-                        $for i in range(0, len(allowed_sort)):
-                            <option value="$allowed_sort[i]" $('selected' if old_input['sort_by'] == allowed_sort[i] else '')>$allowed_sort_name[i]</option>
-                        </select>
-                    </div>
-                    <div class="col-xs-3 col-sm-3">
-                        <label>$:_("Order")</label>
-                        <select name="order" class="form-control" id="select_order">
-                            <option value="0" $('selected' if old_input['order'] == '0' else '')>$:_("Descending")</option>
-                            <option value="1" $('selected' if old_input['order'] == '1' else '')>$:_("Ascending")</option>
-                        </select>
-                    </div>
-                    <div class="col-xs-2 col-sm-2"  title="$:_('Only visual. Statistics, download, replay and csv always consider all queried submissions.')" data-toggle="tooltip" data-placement="top">
-                        <label>$:_("Limit") *</label>
-                        <input name="limit" class="form-control" type="number" placeholder="0" id="select_limit" value="$old_input['limit']"/>
-                    </div>
-                    <div class="col-xs-4 col-sm-4">
-                        <label>$:_("Statistics")</label>
-                        <select name="stat" class="form-control">
-                            <option value="no_stat" $('selected' if old_input['stat'] == 'no_stat' else '')>$:_("No statistics")</option>
-                            <option value="with_stat" $('selected' if old_input['stat'] == 'with_stat' else '')>$:_("With statistics")</option>
-                            <option value="with_pond_stat" $('selected' if old_input['stat'] == 'with_pond_stat' else '')>$:_("With weighted statistics")</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <!-- END Content coolspse Advanced query -->
-
+                            <!-- Grade -->
+                            <div class="col-xs-4 form-group row">
+                                <div class="col-xs-12 col-sm-6">
+                                    <label class="col-xs-12">$:_("Min grade")</label>
+                                    <input name="grade_min" class="form-control" type="number" placeholder="0" id="select_grade_min" value="$old_input['grade_min']"/>
+                                </div>
+                                <div class="col-xs-12 col-sm-6">
+                                    <label class="col-xs-12">$:_("Max grade")</label>
+                                    <input name="grade_max" class="form-control" type="number" placeholder="100" id="select_grade_max" value="$old_input['grade_max']"/>
+                                </div>
                             </div>
+
+                            <!-- Date -->
+                            <div class="col-xs-8 form-group row">
+                                <div class="col-xs-12 col-sm-6">
+                                    <label class="col-xs-12">$:_("After date")</label>
+                                    <div class="input-group date" id="date_after_picker" data-target-input="nearest">
+                                        <input data-target='#date_after_picker' name="date_after" data-date-format="YYYY-MM-DD HH:mm:ss" value="$old_input['date_after']" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
+                                        <div class="input-group-append" data-target="#date_after_picker" data-toggle="datetimepicker">
+                                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-6">
+                                    <label class="col-xs-12">$:_("Before date")</label>
+                                    <div class="input-group date" id="date_before_picker" data-target-input="nearest">
+                                        <input data-target="#date_before_picker" name="date_before" data-date-format="YYYY-MM-DD HH:mm:ss" value="$old_input['date_before']" placeholder="2014-06-29 10:00" type="text" class="form-control datetimepicker-input">
+                                        <div class="input-group-append" data-target="#date_before_picker" data-toggle="datetimepicker">
+                                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <script type="text/javascript">
+                                \$(function() {
+                                    \$('#date_before_picker').datetimepicker({locale: '$user_manager.session_language()', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+                                    \$('#date_after_picker').datetimepicker({locale: '$user_manager.session_language()', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+                                });
+                            </script>
+
+                            <!-- Tag filtering -->
+                            $if "show_tags" in old_input:
+                                $for i in range(num_tags_filter):
+                                    <div class="col-xs-6 form-group row">
+                                        <div class="col-xs-6 col-sm-6">
+                                            <label>$:_("The tag")</label>
+                                            <select name="filter_tags" class="form-control" id="select_filter_tags_$i">
+                                                <option value=""></option>
+                                            $for tag in course.get_all_tags()[0] + course.get_all_tags()[1]:
+                                                <option value="$tag.get_id()" $('selected' if len(old_input['filter_tags']) > i and old_input['filter_tags'][i] == tag.get_id() else '')>$tag.get_name()</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-xs-6 col-sm-6">
+                                            <label>$:_("is")</label>
+                                            <select name="filter_tags_presence" class="form-control" id="select_filter_tags_presence_$i">
+                                                <option value="True">$:_("present")</option>
+                                                <option value="False" $('selected' if len(old_input['filter_tags_presence']) > i and old_input['filter_tags_presence'][i] == "False" else '')>$:_("not present")</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                            <!-- Sort by -->
+                            <div class="col-xs-12 form-group row">
+                                <div class="col-xs-3 col-sm-3">
+                                    <label>$:_("Sort by")</label>
+                                    <select name="sort_by" class="form-control" id="select_sort_by">
+                                    $for i in range(0, len(allowed_sort)):
+                                        <option value="$allowed_sort[i]" $('selected' if old_input['sort_by'] == allowed_sort[i] else '')>$allowed_sort_name[i]</option>
+                                    </select>
+                                </div>
+                                <div class="col-xs-3 col-sm-3">
+                                    <label>$:_("Order")</label>
+                                    <select name="order" class="form-control" id="select_order">
+                                        <option value="0" $('selected' if old_input['order'] == '0' else '')>$:_("Descending")</option>
+                                        <option value="1" $('selected' if old_input['order'] == '1' else '')>$:_("Ascending")</option>
+                                    </select>
+                                </div>
+                                <div class="col-xs-2 col-sm-2"  title="$:_('Only visual. Statistics, download, replay and csv always consider all queried submissions.')" data-toggle="tooltip" data-placement="top">
+                                    <label>$:_("Limit") *</label>
+                                    <input name="limit" class="form-control" type="number" placeholder="0" id="select_limit" value="$old_input['limit']"/>
+                                </div>
+                                <div class="col-xs-4 col-sm-4">
+                                    <label>$:_("Statistics")</label>
+                                    <select name="stat" class="form-control">
+                                        <option value="no_stat" $('selected' if old_input['stat'] == 'no_stat' else '')>$:_("No statistics")</option>
+                                        <option value="with_stat" $('selected' if old_input['stat'] == 'with_stat' else '')>$:_("With statistics")</option>
+                                        <option value="with_pond_stat" $('selected' if old_input['stat'] == 'with_pond_stat' else '')>$:_("With weighted statistics")</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- END Content coolspse Advanced query -->
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <button type="submit" onclick="reset_option_download()" class="btn btn-default pull-right">$:_("Filter")</button>
-        <button type="button" onclick="window.location.href='$get_homepath()/admin/${course.get_id()}/submissions'" class="btn btn-default pull-right">$:_("Reset")</button>
+        <div class="btn-group pull-right mb-2">
+            <button type="submit" onclick="reset_option_download()" class="btn btn-secondary">$:_("Filter")</button>
+            <button type="button" onclick="window.location.href='$get_homepath()/admin/${course.get_id()}/submissions'" class="btn btn-secondary">$:_("Reset")</button>
+        </div>
     </div>
 </div>
 </div>
@@ -236,8 +228,8 @@ $if len(old_input.task) == 1:
     <div class="modal-dialog">
         <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title">$:_("Download format")</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 </div>
                 <div class="modal-body row">
                     <label for="folder_format" class="col-sm-2 control-label">$:_("Folder format")</label>
@@ -262,65 +254,65 @@ $if len(old_input.task) == 1:
 
 <!-- Statistics -->
 $if statistics != None and len(data) > 0:
-    <div class="table-responsive">
-    <div class="col-sm-5">
-        <div class="panel panel-default">
-            <div class="panel-heading">$:_("Submissions statistics")</div>
-            <div class="panel-body ">
-                <table class="table table-condensed table-summary table-borderless ">
-                    <tbody>
-                        $for stat in statistics[0]:
-                            <tr>
-                                <td class="summary-heading">$stat[0]</td>
-                                <td class="summary-content">$stat[1]</td>
-                            </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-    $if len(statistics) >= 2 and len(statistics[1]) > 0:
-        <div class="col-sm-7">
-            <div class="panel panel-default">
-                <div class="panel-heading">$:_("Tag statistics")</div>
-                <div class="panel-body ">
-                    <table class="table table-condensed table-summary table-borderless ">
-                        <thead>
-                            <tr>
-                                <th>$:_("Tag")</th>
-                                <th>$:_("All submissions")</th>
-                                <th>$:_("Best submissions")</th>
-                            </tr>
-                        </thead>
+    <div class="row mb-3">
+        <div class="col-sm-5">
+            <div class="card">
+                <div class="card-header">$:_("Submissions statistics")</div>
+                <div class="card-body ">
+                    <table class="table table-sm table-borderless">
                         <tbody>
-                            $for (tag, v_total, v_best) in statistics[1]:
-                                $ color = "badge alert-danger" if tag.is_misconception() else "badge alert-info"
+                            $for stat in statistics[0]:
                                 <tr>
-                                    <td><span class="$color" id="$tag.get_id()" data-toggle="tooltip" data-placement="left" title="$tag.get_description(translated=True)">$:_(tag.get_name())</span></td>
-                                    $# The number of decimal digits. (10 for 1 decimal, 100 for two decimals, ...)
-                                    $ accuracy = 10
-                                    $ val_displayed_total = int(v_total*accuracy)/accuracy
-                                    $ val_displayed_best = int(v_best*accuracy)/accuracy
-
-                                    $# If the displayed value is 0 but in fact the value is not 0 (e.g. 0.00001), we display the '>' character because we need to know that there is at least one tag True.
-                                    $if val_displayed_total == 0 and v_total != 0:
-                                        $ val_displayed_total = "> " + str(val_displayed_total)
-                                    $if val_displayed_best == 0 and v_best != 0:
-                                        $ val_displayed_best = "> " + str(val_displayed_best)
-                                    <td>$val_displayed_total %</td>
-                                    <td>$val_displayed_best %</td>
+                                    <td class="summary-heading">$stat[0]</td>
+                                    <td class="summary-content">$stat[1]</td>
                                 </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
+        $if len(statistics) >= 2 and len(statistics[1]) > 0:
+            <div class="col-sm-7">
+                <div class="card">
+                    <div class="card-header">$:_("Tag statistics")</div>
+                    <div class="card-body">
+                        <table class="table table-sm table-borderless ">
+                            <thead>
+                                <tr>
+                                    <th>$:_("Tag")</th>
+                                    <th>$:_("All submissions")</th>
+                                    <th>$:_("Best submissions")</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                $for (tag, v_total, v_best) in statistics[1]:
+                                    $ color = "badge alert-danger" if tag.is_misconception() else "badge alert-info"
+                                    <tr>
+                                        <td><span class="$color" id="$tag.get_id()" data-toggle="tooltip" data-placement="left" title="$tag.get_description(translated=True)">$:_(tag.get_name())</span></td>
+                                        $# The number of decimal digits. (10 for 1 decimal, 100 for two decimals, ...)
+                                        $ accuracy = 10
+                                        $ val_displayed_total = int(v_total*accuracy)/accuracy
+                                        $ val_displayed_best = int(v_best*accuracy)/accuracy
+
+                                        $# If the displayed value is 0 but in fact the value is not 0 (e.g. 0.00001), we display the '>' character because we need to know that there is at least one tag True.
+                                        $if val_displayed_total == 0 and v_total != 0:
+                                            $ val_displayed_total = "> " + str(val_displayed_total)
+                                        $if val_displayed_best == 0 and v_best != 0:
+                                            $ val_displayed_best = "> " + str(val_displayed_best)
+                                        <td>$val_displayed_total %</td>
+                                        <td>$val_displayed_best %</td>
+                                    </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
     </div>
 <!-- Statistics End -->
 
 <!-- Submission table -->
 <table class="table">
-    <thead>
+    <thead class="table-borderless">
         <tr>
             <th></th>
             $if "show_stud_name" in old_input:
@@ -338,14 +330,13 @@ $if statistics != None and len(data) > 0:
             $if "show_tags" in old_input:
                 <th>$:_("tags")</th>
             <th>
-                <!-- the 73px is there to force horizontal button-group. The btn-group may becomes vertical without this. -->
-                <div class="btn-group" role="group" style="width:73px">
-                    <button class="btn btn-info btn-xs" type="submit" name="csv" formmethod="post" title=$:_('"Download CSV"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></button>
-                    <div class="btn btn-danger btn-xs" data-toggle="modal" data-target="#download_modal">
+                <div class="btn-group btn-group-sm" role="group">
+                    <button class="btn btn-info" type="submit" name="csv" formmethod="post" title=$:_('"Download CSV"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></button>
+                    <div class="btn btn-danger" data-toggle="modal" data-target="#download_modal">
                         <div data-toggle="tooltip" data-placement="top" title=$:_('"Download current selection"')><i class="fa fa-download"></i></div>
                     </div>
                     $if is_admin:
-                        <button class="btn btn-warning btn-xs" type="submit" name="replay" formmethod="post" title=$:_('"Replay current selection"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></button>
+                        <button class="btn btn-warning" type="submit" name="replay" formmethod="post" title=$:_('"Replay current selection"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></button>
                 </div>
             </th>
         </tr>
@@ -355,11 +346,11 @@ $if statistics != None and len(data) > 0:
         $ succeeded = "result" in submission and submission["result"] == "success"
         <tr
             $if succeeded:
-                class="success"
+                class="table-success"
             $elif submission['status'] == 'waiting':
-                class="warning"
+                class="table-warning"
             $else:
-                class="danger"
+                class="table-danger"
         >
             <td>
                 $if "best" in submission and submission["best"]:
@@ -419,14 +410,14 @@ $if statistics != None and len(data) > 0:
             <!-- END TAGS td -->
             
             <td>
-                <div class="btn-group" role="group">
+                <div class="btn-group btn-group-sm" role="group">
                     <a href="$get_homepath()/submission/$submission['_id']"
-                       class="btn btn-default btn-xs" title=$:_('"View submission"') data-toggle="tooltip" data-placement="bottom"><i class="fa
+                       class="btn btn-secondary" title=$:_('"View submission"') data-toggle="tooltip" data-placement="bottom"><i class="fa
                        fa-search"></i></a>
-                    <a href="$get_homepath()/admin/${course.get_id()}/download$submission['url']" class="btn btn-default btn-xs" title=$:_('"Download submission"') data-toggle="tooltip"
+                    <a href="$get_homepath()/admin/${course.get_id()}/download$submission['url']" class="btn btn-secondary" title=$:_('"Download submission"') data-toggle="tooltip"
                        data-placement="bottom"><i class="fa fa-download"></i></a>
                     $if is_admin:
-                        <a class="replay btn btn-default btn-xs" title=$:_('"Replay submission"') data-toggle="tooltip" data-submissionid="$submission['_id']"
+                        <a href="#" class="replay btn btn-secondary" title=$:_('"Replay submission"') data-toggle="tooltip" data-submissionid="$submission['_id']"
                            data-placement="bottom"><i class="fa fa-refresh"></i></a>
                 </div>
             </td>

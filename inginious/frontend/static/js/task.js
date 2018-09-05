@@ -192,8 +192,9 @@ function setSelectedSubmission(id, fade, makepost) {
         var applyfn = function (data) {
             if ('status' in data && data['status'] == 'done') {
                 var submission_link = jQuery('<a/>', {
+                    href: "#",
                     id: "my_submission",
-                    class: "submission list-group-item list-group-item-info",
+                    class: "submission list-group-item list-group-item-action list-group-item-info",
                     "data-submission-id": id
                 }).on('click', clickOnSubmission);
 
@@ -635,7 +636,7 @@ function load_feedback_multiple_choice(key, content) {
 //dismissible is a boolean
 function getAlertCode(content, type, dismissible)
 {
-    var a = '<div class="alert fade in ';
+    var a = '<div class="alert fade show ';
     if(dismissible)
         a += 'alert-dismissible ';
     a += 'alert-' + type + '" role="alert">';

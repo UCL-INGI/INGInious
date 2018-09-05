@@ -10,12 +10,14 @@ $var title: $:course.get_name(user_manager.session_language()) - $:_("Settings")
 $var Column: $:template_helper.call('course_admin_menu',course=course,current='settings')
 
 $def NavbarF():
-    <ol class="nav navbar-nav nav-breadcrumb">
-        <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
-            <i class="fa fa-user-secret"></i></a></li>
-        <li class="active"><a href="#"><i class="fa fa-cog"></i> $:_("Course settings") <span class="sr-only">$:_("(current)")</span></a></li>
-    </ol>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
+            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
+                <i class="fa fa-user-secret"></i></a></li>
+            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-cog"></i> $:_("Course settings") <span class="sr-only">$:_("(current)")</span></a></li>
+        </ol>
+    </nav>
 $var Navbar: $:NavbarF()
 
 <h2>$:_("Course settings")</h2>
@@ -24,34 +26,34 @@ $if errors is not None:
         <div class="alert alert-danger" role="alert">$error</div>
 $elif saved:
     <div class="alert alert-success" role="alert">$:_("Settings saved.")</div>
-<form id="edit_course_form" action="$get_homepath()/admin/${course.get_id()}/settings" method="post" class="form-horizontal">
-    <div class="form-group">
+<form id="edit_course_form" action="$get_homepath()/admin/${course.get_id()}/settings" method="post">
+    <div class="form-group row">
         <label for="name" class="col-sm-2 control-label">$:_("Name")</label>
         <div class="col-sm-10">
             <input type="text" class="form-control" id="name" name="name" placeholder="title" value="$course.get_name(user_manager.session_language())">
         </div>
     </div>
-    <div class="form-group">
+    <div class="form-group row">
         <label for="admins" class="col-sm-2 control-label">$:_("Administrators")</label>
         <div class="col-sm-10">
             <input type="text" class="form-control" id="admins" name="admins" placeholder=$:_('"Usernames of the administrators, separated by commas"')
                    value="$','.join(course.get_admins())">
         </div>
     </div>
-    <div class="form-group">
+    <div class="form-group row">
         <label for="tutors" class="col-sm-2 control-label">$:_("Tutors")</label>
         <div class="col-sm-10">
             <input type="text" class="form-control" id="tutors" name="tutors" placeholder=$:_('"Usernames of the tutors, separated by commas"')
                    value="$','.join(course.get_tutors())">
         </div>
     </div>
-    <div class="form-group">
+    <div class="form-group row">
         <label for="description" class="col-sm-2 control-label">$:_("Description")</label>
         <div class="col-sm-10">
             <textarea id="description" class="code-editor form-control" name="description" data-x-language="rst" data-x-lines="10">${course.get_descriptor().get('description','')}</textarea>
         </div>
     </div>
-    <div class="form-group">
+    <div class="form-group row">
         <label for="allow_preview" class="col-sm-2 control-label">$:_("Course preview")</label>
         <div class="col-sm-10">
             <label>
@@ -68,7 +70,7 @@ $elif saved:
             </label>
         </div>
     </div>
-    <div class="form-group">
+    <div class="form-group row">
         <label for="lti" class="col-sm-2 control-label">$:_("Enable LTI")</label>
         <div class="col-sm-10">
             <label>
@@ -79,7 +81,7 @@ $elif saved:
             </label><br/>
         </div>
     </div>
-    <div class="form-group no-lti">
+    <div class="form-group row no-lti">
         <label for="groups_student_choice" class="col-sm-2 control-label">$:_("Students aggregations")</label>
         <div class="col-sm-10">
             <label>
@@ -96,7 +98,7 @@ $elif saved:
             </label>
         </div>
     </div>
-    <div class="form-group no-lti">
+    <div class="form-group row no-lti">
         <label for="groups_student_choice" class="col-sm-2 control-label">$:_("Group/Team attribution")</label>
         <div class="col-sm-10">
             <label>
@@ -113,7 +115,7 @@ $elif saved:
             </label>
         </div>
     </div>
-    <div class="form-group no-lti">
+    <div class="form-group row no-lti">
         <label for="accessible" class="col-sm-2 control-label">$:_("Accessibility")</label>
         <div class="col-sm-10">
             $ at = course.get_accessibility(False)
@@ -139,28 +141,39 @@ $elif saved:
             <div class="row">
                 <div class="col-xs-2 col-lg-2"><label class="control-label">$:_("From")</label></div>
                 <div class="col-xs-10 col-lg-4">
-                    <div class='input-group date' id='accessible_start_picker'>
-                        <input name="accessible_start" data-date-format="YYYY-MM-DD HH:mm:ss" value="${at.get_std_start_date()}" placeholder="2014-06-29 10:00" type='text' class="form-control" />
-                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    <div class="form-group">
+                        <div class='input-group date' id='accessible_start_picker' data-target-input="nearest">
+                                <input data-target='#accessible_start_picker' name="accessible_start" data-date-format="YYYY-MM-DD HH:mm:ss" value="${at.get_std_start_date()}" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
+                                <div class="input-group-append" data-target="#accessible_start_picker" data-toggle="datetimepicker">
+                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                </div>
+
+                        </div>
                     </div>
+
                 </div>
                 <div class="col-xs-2 col-lg-2"><label class="control-label">$:_("To")</label></div>
                 <div class="col-xs-10 col-lg-4">
-                    <div class='input-group date' id='accessible_end_picker'>
-                        <input name="accessible_end" data-date-format="YYYY-MM-DD HH:mm:ss" value="${at.get_std_end_date()}" placeholder="2014-06-29 10:00" type='text' class="form-control" />
-                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    <div class="form-group">
+                        <div class='input-group date' id='accessible_end_picker' data-target-input="nearest">
+                                <input data-target='#accessible_end_picker' name="accessible_end" data-date-format="YYYY-MM-DD HH:mm:ss" value="${at.get_std_end_date()}" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
+                                <div class="input-group-append" data-target="#accessible_end_picker" data-toggle="datetimepicker">
+                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                </div>
+
+                        </div>
                     </div>
                 </div>
             </div>
             <script type="text/javascript">
                 \$(function() {
-                    \$('#accessible_start_picker').datetimepicker({locale: '$user_manager.session_language()', sideBySide: true});
-                    \$('#accessible_end_picker').datetimepicker({locale: '$user_manager.session_language()', sideBySide: true});
+                    \$('#accessible_start_picker').datetimepicker({locale: '$user_manager.session_language()', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+                    \$('#accessible_end_picker').datetimepicker({locale: '$user_manager.session_language()', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
                 });
             </script>
         </div>
     </div>
-    <div class="form-group no-lti">
+    <div class="form-group row no-lti">
         <label for="accessible" class="col-sm-2 control-label">$:_("Registration")</label>
         <div class="col-sm-10">
             <label>
@@ -185,28 +198,38 @@ $elif saved:
             <div class="row">
                 <div class="col-xs-2 col-lg-2"><label class="control-label">$:_("From")</label></div>
                 <div class="col-xs-10 col-lg-4">
-                    <div class='input-group date' id='registration_start_picker'>
-                        <input name="registration_start" data-date-format="YYYY-MM-DD HH:mm:ss" value="${at.get_std_start_date()}" placeholder="2014-06-29 10:00" type='text' class="form-control" />
-                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                    <div class="form-group">
+                        <div class='input-group date' id='registration_start_picker' data-target-input="nearest">
+                                <input data-target='#registration_start_picker' name="registration_start" data-date-format="YYYY-MM-DD HH:mm:ss" value="${at.get_std_start_date()}" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
+                                <div class="input-group-append" data-target="#registration_start_picker" data-toggle="datetimepicker">
+                                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                </div>
+
+                        </div>
                     </div>
                 </div>
                 <div class="col-xs-2 col-lg-2"><label class="control-label">$:_("To")</label></div>
                 <div class="col-xs-10 col-lg-4">
-                    <div class='input-group date' id='registration_end_picker'>
-                        <input name="registration_end" data-date-format="YYYY-MM-DD HH:mm:ss" value="${at.get_std_end_date()}" placeholder="2014-06-29 10:00" type='text' class="form-control" />
-                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                    </div>
+                    <div class="form-group">
+                            <div class='input-group date' id='registration_end_picker' data-target-input="nearest">
+                                    <input data-target='#registration_end_picker' name="registration_start" data-date-format="YYYY-MM-DD HH:mm:ss" value="${at.get_std_end_date()}" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
+                                    <div class="input-group-append" data-target="#registration_end_picker" data-toggle="datetimepicker">
+                                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                    </div>
+
+                            </div>
+                        </div>
                 </div>
             </div>
             <script type="text/javascript">
                 \$(function() {
-                    \$('#registration_start_picker').datetimepicker({locale: '$user_manager.session_language()', sideBySide: true});
-                    \$('#registration_end_picker').datetimepicker({locale: '$user_manager.session_language()', sideBySide: true});
+                    \$('#registration_start_picker').datetimepicker({locale: '$user_manager.session_language()', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+                    \$('#registration_end_picker').datetimepicker({locale: '$user_manager.session_language()', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
                 });
             </script>
         </div>
     </div>
-    <div class="form-group no-lti">
+    <div class="form-group row no-lti">
         <label for="groups_student_choice" class="col-sm-2 control-label">$:_("Allow auto-unregistration")</label>
         $ allow_unregister = course.allow_unregister(False)
         <div class="col-sm-10">
@@ -224,7 +247,7 @@ $elif saved:
             </label>
         </div>
     </div>
-    <div class="form-group no-lti">
+    <div class="form-group row no-lti">
         <label for="name" class="col-sm-2 control-label">$:_("Registration password")</label>
         <div class="col-sm-10">
             <input type="text" class="form-control" id="registration_password" name="registration_password" 
@@ -232,7 +255,7 @@ $elif saved:
             value="${course.get_registration_password()}">
         </div>
     </div>
-    <div class="form-group no-lti">
+    <div class="form-group row no-lti">
         <label for="registration_ac" class="col-sm-2 control-label">$:_("Access control")</label>
         <div class="col-sm-10">
             <label>
@@ -261,13 +284,13 @@ $elif saved:
             </label>
         </div>
     </div>
-    <div class="form-group no-lti">
+    <div class="form-group row no-lti">
         <label for="registration_ac_list" class="col-sm-2 control-label">$:_("Access control list")</label>
         <div class="col-sm-10">
             <textarea class="form-control" id="registration_ac_list" name="registration_ac_list" rows="10" placeholder=$:_('"Only used if access control is activated. Separate users by new lines."')>$"\n".join(course.get_access_control_list())</textarea>
         </div>
     </div>
-    <div class="form-group lti">
+    <div class="form-group row lti">
         <label for="lti_keys" class="col-sm-2 control-label">$:_("LTI keys")</label>
         <div class="col-sm-10">
             <textarea class="form-control" id="lti_keys" name="lti_keys" rows="10"
@@ -275,7 +298,7 @@ $elif saved:
 $"\n".join([a+":"+b for (a, b) in course.lti_keys().items()])</textarea>
         </div>
     </div>
-    <div class="form-group lti">
+    <div class="form-group row lti">
         <label for="lti_send_back_grade" class="col-sm-2 control-label">$:_("Send back grades")</label>
         <div class="col-sm-10">
             <label>

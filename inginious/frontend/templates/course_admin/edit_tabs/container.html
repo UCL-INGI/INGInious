@@ -5,32 +5,32 @@ $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
-<div class="form-group">
+<div class="form-group row">
     <label for="limit-time" class="col-sm-4 control-label">$:_("Timeout limit (in seconds)")</label>
     <div class="col-sm-8">
         <input type="number" class="form-control" id="limit-time" name="limits[time]" placeholder="30" value="${task_data.get('limits',{}).get('time',30)}"/>
     </div>
 </div>
-<div class="form-group">
+<div class="form-group row">
     <label for="limit-hard-time" class="col-sm-4 control-label">$:_("Hard timeout limit (in seconds) <small>Default to 3*timeout</small>")</label>
     <div class="col-sm-8">
         <input type="number" class="form-control" id="limit-hard-time" name="limits[hard_time]"
                placeholder="" value="${task_data.get('limits',{}).get('hard_time','')}"/>
     </div>
 </div>
-<div class="form-group">
+<div class="form-group row">
     <label for="limit-memory" class="col-sm-4 control-label">$:_("Memory limit (in megabytes)")</label>
     <div class="col-sm-8">
         <input type="number" class="form-control" id="limit-memory" name="limits[memory]" placeholder="30" value="${task_data.get('limits',{}).get('memory',100)}"/>
     </div>
 </div>
-<div class="form-group">
+<div class="form-group row">
     <label for="limit-output" class="col-sm-4 control-label">$:_("Output limit (in megabytes)")</label>
     <div class="col-sm-8">
         <input type="number" class="form-control" id="limit-output" name="limits[output]" placeholder="2" value="${task_data.get('limits',{}).get('output',2)}"/>
     </div>
 </div>
-<div class="form-group">
+<div class="form-group row">
     <label for="environment" class="col-sm-4 control-label">$:_("Grading environment")</label>
     <div class="col-sm-8">
         <select id="environment" class="form-control" name="environment">
@@ -42,7 +42,7 @@ $#
         </select>
     </div>
 </div>
-<div class="form-group">
+<div class="form-group row">
     <label for="network_grading" class="col-sm-4 control-label">$:_("Allow internet access inside the grading container?")</label>
 
     <div class="col-sm-8">
@@ -55,7 +55,7 @@ $#
     </div>
 </div>
 $if contains_is_html:
-    <div class="form-group">
+    <div class="form-group row">
         <label for="responseIsHTML" class="col-sm-4 control-label">$:_("Are the task's responses written in HTML instead of restructuredText?")</label>
         <div class="col-sm-8">
             <div class="checkbox"><label>
@@ -66,4 +66,3 @@ $if contains_is_html:
             </label></div>
         </div>
     </div>
-

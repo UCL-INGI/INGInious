@@ -5,8 +5,8 @@ $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
-<div class="panel panel-default">
-    <div class="panel-heading">
+<div class="card mb-3 ">
+    <div class="card-header">
         $if download_or_replay == "download":
             $:_("Tasks to download submissions from")
         $else:
@@ -16,7 +16,7 @@ $#
             <button type="button" class="btn btn-primary btn-xs" onclick="download_page_select(false, this)">$:_("Deselect all")</button>
         </div>
     </div>
-    <ul class="list-group checked-list-box">
+    <ul class="list-group list-group-flush checked-list-box">
         $for taskid, task in tasks:
             <li class="list-group-item" data-value="$taskid" data-name="tasks"
                 $if taskid in checked_tasks:

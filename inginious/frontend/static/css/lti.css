@@ -2,30 +2,11 @@
 /* Fonts */
 @import url(//fonts.googleapis.com/css?family=Yanone+Kaffeesatz:300);
 @import url(//fonts.googleapis.com/css?family=Source+Code+Pro);
-/*Fixes for bootstrap*/
-.form-inline.form-control {
-  display: inline-block;
-  width: auto;
-  vertical-align: middle;
-}
-.table td.td-collapse {
-  padding: 0;
-  border: none;
-  background-color: #f9f9f9;
-}
-.table td.td-collapse > div {
-  border-top: 1px solid #dddddd;
-  border-left: 1px solid black;
-  padding-left: 50px;
-  padding-right: 0px;
-}
-.table td.td-collapse > div table.table {
-  margin-top: 0px;
-  margin-bottom: 10px;
-}
+/* Progress bars */
 .progress-bar[aria-valuenow] {
   line-height: 18px !important;
   min-width: 30px;
+  color: #ffffff;
 }
 .progress-bar[aria-valuenow="0"] {
   background-color: transparent !important;
@@ -34,17 +15,15 @@
   -moz-box-shadow: none;
   box-shadow: none;
 }
-/* Other */
-.list-group .progress {
-  margin: 0;
-}
-label p {
-  margin: 0;
-  padding: 0;
+/* Code elements */
+pre {
+  border: 1px solid #cccccc;
+  padding: 10px;
 }
 input.monospace {
   font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
 }
+/* Task submission form*/
 form#task {
   -webkit-transition: all 0.3s ease-in-out;
   -moz-transition: all 0.3s ease-in-out;
@@ -59,24 +38,18 @@ form#task .form-blur {
   -ms-filter: blur(5px);
   filter: blur(5px);
 }
-form#task #task-submit,
-form#task #task-submit-debug {
-  margin-top: 10px;
-}
 form#task label {
   display: block;
 }
+/* Task alert message (feedbacks...) */
 #task_alert {
   position: relative;
 }
-#task_alert #ssh_remote_info {
-  font-size: 14px;
-}
 #task_alert #ssh_remote_info pre {
-  font-size: 10px;
   -moz-user-select: all;
   -webkit-user-select: all;
   user-select: all;
+  background-color: #f5f5f5;
 }
 #task_alert #ssh_remote_info pre:before {
   content: "$ ";
@@ -85,6 +58,8 @@ form#task label {
   -moz-user-select: all;
   -webkit-user-select: all;
   user-select: all;
+  background-color: #f5f5f5;
+  padding: 2px 4px;
 }
 #task_alert .kill-submission-btn {
   position: absolute;
@@ -100,6 +75,7 @@ form#task label {
   width: 100%;
   height: 600px;
 }
+/* Submission history */
 #submissions_restrictsize {
   overflow: auto;
   max-height: 223px;
@@ -107,35 +83,6 @@ form#task label {
 }
 .submission {
   cursor: pointer;
-}
-.panel {
-  position: relative;
-}
-.panel .panel-heading {
-  overflow: visible;
-}
-.panel .panel-heading .btn-group,
-.panel .download-tabs-user-group {
-  position: absolute;
-  right: 10px;
-  top: 28px;
-  z-index: 1000;
-}
-.panel .panel-body .CodeMirror.single {
-  margin: 10px -15px -15px;
-}
-.caution .first {
-  display: none;
-}
-.caution p.last {
-  font-size: 12px;
-  font-weight: 300;
-  background-color: #e99002;
-  color: #ffffff;
-  padding: 15px;
-  margin-bottom: 21px;
-  border: 1px solid #d08002;
-  border-radius: 0;
 }
 /* Codemirror */
 .cm-s-default {

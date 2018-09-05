@@ -6,13 +6,13 @@ $# more information about the licensing of this file.
 $#
 
 <h3>Contest</h3>
-<div class="list-group">
+<div class="list-group mb-3">
     <div class="list-group-item list-group-item-info">
         <div class="row">
-            <div class="col-xs-1">
+            <div class="col-sm-1">
                 <i class="fa fa-info fa-fw"></i>
             </div>
-            <div class="col-xs-11" style="margin-left:-10px;">
+            <div class="col-sm-11" style="margin-left:-10px;">
                 Contest starts: $start.strftime('%d/%m/%Y %H:%M:%S')<br/>
                 Contest ends: $end.strftime('%d/%m/%Y %H:%M:%S')
             </div>
@@ -20,10 +20,10 @@ $#
     </div>
     <div class="list-group-item list-group-item-info">
         <div class="row">
-            <div class="col-xs-1">
+            <div class="col-sm-1">
                 <i class="fa fa-info fa-fw"></i>
             </div>
-            <div class="col-xs-11" style="margin-left:-10px;">
+            <div class="col-sm-11" style="margin-left:-10px;">
                 $if start > start.now():
                     <span class="contest_starting_time" starts-at="$start.strftime('%Y-%m-%d %H:%M:%S')"></span>
                 $else:
@@ -34,7 +34,7 @@ $#
             </div>
         </div>
     </div>
-    <a href="$get_homepath()/contest/$course.get_id()" class="list-group-item list-group-item-info">
+    <a href="$get_homepath()/contest/$course.get_id()" class="list-group-item list-group-item-action list-group-item-info">
         <i class="fa fa-trophy fa-fw"></i>
         Scoreboard
     </a>

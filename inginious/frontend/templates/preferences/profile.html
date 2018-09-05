@@ -10,12 +10,14 @@ $var title: $:_("My profile")
 $var Column: $:template_helper.call('preferences_menu',current='profile')
 
 $def NavbarF():
-    <ol class="nav navbar-nav nav-breadcrumb">
-        <li>
-            <a href="$get_homepath()/preferences" title="$:_('Preferences')" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-gears"></i></a>
-        </li>
-        <li class="active"><a href="#"><i class="fa fa-user"></i> $:_("My profile") <span class="sr-only">$:_("(current)")</span></a></li>
-    </ol>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="$get_homepath()/preferences" title="$:_('Preferences')" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-gears"></i></a>
+            </li>
+            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-user"></i> $:_("My profile") <span class="sr-only">$:_("(current)")</span></a></li>
+        </ol>
+    </nav>
 $var Navbar: $:NavbarF()
 
 <h2>$:_("My profile")</h2>
@@ -37,7 +39,7 @@ $if not user_manager.session_username():
         $:_("Please set a new username")
     </div>
 
-<form method="post" class="form-horizontal">
+<form method="post">
     <div class="row">
         <div class="col-sm-12">
             <label class="control-label">$:_("Username :") </label>
