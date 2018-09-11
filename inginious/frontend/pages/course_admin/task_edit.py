@@ -60,7 +60,10 @@ class CourseEditTask(INGIniousAdminPage):
             self.task_factory.get_problem_types(),
             task_data,
             environments,
-            task_data.get('problems',{}),
+            json.dumps(
+                task_data.get(
+                    'problems',
+                    {})),
             self.contains_is_html(task_data),
             current_filetype,
             available_filetypes,
@@ -154,13 +157,13 @@ class CourseEditTask(INGIniousAdminPage):
 
             problems = self.dict_from_prefix("problem", data)
             limits = self.dict_from_prefix("limits", data)
-            
+
             #Tags
             tags = self.dict_from_prefix("tags", data)
             if tags is None:
                 tags = {}
             tags = OrderedDict(sorted(tags.items(), key=lambda item: item[0])) # Sort by key
-            
+
             # Repair tags
             for k in tags:
                 tags[k]["visible"] = ("visible" in tags[k])  # Since unckecked checkboxes are not present here, we manually add them to avoid later errors
@@ -171,12 +174,12 @@ class CourseEditTask(INGIniousAdminPage):
                     tags[k]["id"] = "" # Force no id if organisational tag
 
             # Remove uncompleted tags (tags with no name or no id)
-            for k in list(tags.keys()): 
+            for k in list(tags.keys()):
                 if (tags[k]["id"] == "" and tags[k]["type"] != 2) or tags[k]["name"] == "":
                     del tags[k]
-            
+
             # Find duplicate ids. Return an error if some tags use the same id.
-            for k in tags: 
+            for k in tags:
                 if tags[k]["type"] != 2: # Ignore organisational tags since they have no id.
                     count = 0
                     id = str(tags[k]["id"])
@@ -188,7 +191,7 @@ class CourseEditTask(INGIniousAdminPage):
                         if tags[k2]["type"] != 2 and tags[k2]["id"] == id:
                             count = count+1
                     if count > 1:
-                        return json.dumps({"status": "error", "message": _("Some tags have the same id! The id of a tag must be unique.")})                
+                        return json.dumps({"status": "error", "message": _("Some tags have the same id! The id of a tag must be unique.")})
 
             data = {key: val for key, val in data.items() if
                     not key.startswith("problem")
@@ -205,10 +208,11 @@ class CourseEditTask(INGIniousAdminPage):
 
             # Parse and order the problems (also deletes @order from the result)
             if problems is None:
-                return json.dumps({"status": "error", "message": _("You cannot create a task without subproblems")})
-
-            data["problems"] = OrderedDict([(key, self.parse_problem(val))
-                                            for key, val in sorted(iter(problems.items()), key=lambda x: int(x[1]['@order']))])
+                #return json.dumps({"status": "error", "message": _("You cannot create a task without subproblems")})
+                data["problems"] = OrderedDict([])
+            else:
+                data["problems"] = OrderedDict([(key, self.parse_problem(val))
+                                                for key, val in sorted(iter(problems.items()), key=lambda x: int(x[1]['@order']))])
 
             # Task limits
             data["limits"] = limits
@@ -259,7 +263,7 @@ class CourseEditTask(INGIniousAdminPage):
                 del data["submission_limit_soft_0"]
                 del data["submission_limit_soft_1"]
                 data["submission_limit"] = result
-                                
+
             # Accessible
             if data["accessible"] == "custom":
                 data["accessible"] = "{}/{}".format(data["accessible_start"], data["accessible_end"])
@@ -326,5 +330,5 @@ class CourseEditTask(INGIniousAdminPage):
         self.task_factory.delete_all_possible_task_files(courseid, taskid)
         self.task_factory.update_task_descriptor_content(courseid, taskid, data, force_extension=file_ext)
         course.update_all_tags_cache()
-        
+
         return json.dumps({"status": "ok"})
