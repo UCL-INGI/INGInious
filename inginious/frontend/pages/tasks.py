@@ -16,6 +16,7 @@ import time
 import web
 from bson.objectid import ObjectId
 from collections import OrderedDict
+from pymongo import ReturnDocument
 
 from inginious.common import exceptions
 from inginious.frontend.pages.utils import INGIniousPage
@@ -37,16 +38,28 @@ class BaseTaskPage(object):
         self.plugin_manager = self.cp.plugin_manager
 
     def set_selected_submission(self, course, task, submissionid):
+        """ Set submission whose id is `submissionid` to selected grading submission for the given course/task.
+            Returns a boolean indicating whether the operation was successful or not.
+        """
+
         submission = self.submission_manager.get_submission(submissionid)
 
         # Do not continue if submission does not exist or is not owned by current user
         if not submission:
-            return None
+            return False
+
+        # Check if the submission if from this task/course!
+        if submission["taskid"] != task.get_id() or submission["courseid"] != course.get_id():
+            return False
 
         is_staff = self.user_manager.has_staff_rights_on_course(course, self.user_manager.session_username())
 
         # Do not enable submission selection after deadline
         if not task.get_accessible_time().is_open() and not is_staff:
+            return False
+
+        # Only allow to set submission if the student must choose their best submission themselves
+        if task.get_evaluate() != 'student' and not is_staff:
             return False
 
         # Check if task is done per group/team
@@ -105,15 +118,6 @@ class BaseTaskPage(object):
 
         is_staff = self.user_manager.has_staff_rights_on_course(course, username)
 
-        # Generate random inputs and save it into db
-        random_input_list = []
-        random.seed(str(username if username is not None else "") + taskid + courseid + str(time.time() if task.regenerate_input_random() else ""))
-        random_input_list = [random.random() for i in range(task.get_number_input_random())]
-        if username is not None and len(random_input_list) > 0: # Avoid errors when visitors/unregistered users and avoid pollute db if input random not using
-            self.database.user_tasks.update(
-                    {"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username},
-                    {"$set": {"random": random_input_list}})
-
         userinput = web.input()
         if "submissionid" in userinput and "questionid" in userinput:
             # Download a previously submitted file
@@ -135,12 +139,22 @@ class BaseTaskPage(object):
                 web.header('Content-Type', 'text/plain')
                 return sinput[userinput["questionid"]]
         else:
-            # user_task always exists as we called user_saw_task before
-            user_task = self.database.user_tasks.find_one({
-                "courseid": task.get_course_id(),
-                "taskid": task.get_id(),
-                "username": self.user_manager.session_username()
-            })
+            # Generate random inputs and save it into db
+            random.seed(str(username if username is not None else "") + taskid + courseid + str(
+                time.time() if task.regenerate_input_random() else ""))
+            random_input_list = [random.random() for i in range(task.get_number_input_random())]
+
+            user_task = self.database.user_tasks.find_one_and_update(
+                {
+                    "courseid": task.get_course_id(),
+                    "taskid": task.get_id(),
+                    "username": self.user_manager.session_username()
+                },
+                {
+                    "$set": {"random": random_input_list}
+                },
+                return_document=ReturnDocument.AFTER
+            )
 
             submissionid = user_task.get('submissionid', None)
             eval_submission = self.database.submissions.find_one({'_id': ObjectId(submissionid)}) if submissionid else None
@@ -183,7 +197,7 @@ class BaseTaskPage(object):
                 # Verify rights
                 if not self.user_manager.task_can_user_submit(task, username, isLTI):
                     return json.dumps({"status": "error", "text": _("You are not allowed to submit for this task.")})
-
+                    
                 # Retrieve input random and check still valid
                 random_input = self.database.user_tasks.find_one({"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username}, { "random": 1 })
                 random_input = random_input["random"] if "random" in random_input else []
@@ -205,15 +219,12 @@ class BaseTaskPage(object):
                                                                   "you want to upload. Your responses were not tested.")})
                 del userinput['@action']
 
-                # Get debug info if the current user is an admin or if it's a ssh environment
-                if (task.get_environment() == "qemu-Debian"):
-                    debug = "ssh"
-                else:
-                    debug = is_admin
-                    if "@debug-mode" in userinput:
-                        if userinput["@debug-mode"] == "ssh" and debug:
-                            debug = "ssh"
-                        del userinput['@debug-mode']
+                # Get debug info if the current user is an admin
+                debug = is_admin
+                if "@debug-mode" in userinput:
+                    if userinput["@debug-mode"] == "ssh" and debug:
+                        debug = "ssh"
+                    del userinput['@debug-mode']
 
                 # Start the submission
                 try:
@@ -241,13 +252,12 @@ class BaseTaskPage(object):
                         "username": self.user_manager.session_username()
                     })
 
-                    submissionid = user_task.get('submissionid', None)
-                    default_submission = self.database.submissions.find_one({'_id': ObjectId(submissionid)}) if submissionid else None
-                    if default_submission is None:
-                        self.set_selected_submission(course, task, userinput['submissionid'])
+                    default_submissionid = user_task.get('submissionid', None)
+                    if default_submissionid is None:
+                        # This should never happen, as user_manager.update_user_stats is called whenever a submission is done.
+                        return json.dumps({'status': "error", "text": _("Internal error")})
 
-                    return self.submission_to_json(task, result, is_admin, False, True if default_submission is None else default_submission['_id'] == result['_id'], tags=task.get_tags())
-
+                    return self.submission_to_json(task, result, is_admin, False, default_submissionid == result['_id'], tags=task.get_tags())
                 else:
                     web.header('Content-Type', 'application/json')
                     return self.submission_to_json(task, result, is_admin)
@@ -259,9 +269,9 @@ class BaseTaskPage(object):
                 if not submission:
                     raise web.notfound()
                 web.header('Content-Type', 'application/json')
-
+                
                 return self.submission_to_json(task, submission, is_admin, True, tags=task.get_tags())
-
+                
             elif "@action" in userinput and userinput["@action"] == "kill" and "submissionid" in userinput:
                 self.submission_manager.kill_running_submission(userinput["submissionid"])  # ignore return value
                 web.header('Content-Type', 'application/json')
@@ -383,13 +393,17 @@ class TaskPageStaticDownload(INGIniousPage):
             if not self.user_manager.course_is_open_to_user(course):
                 return self.template_helper.get_renderer().course_unavailable()
 
-            task = course.get_task(taskid)
-            if not self.user_manager.task_is_visible_by_user(task):  # ignore LTI check here
-                return self.template_helper.get_renderer().task_unavailable()
-
             path_norm = posixpath.normpath(urllib.parse.unquote(path))
 
-            public_folder = task.get_fs().from_subfolder("public")
+            if taskid == "$common":
+                public_folder = course.get_fs().from_subfolder("$common").from_subfolder("public")
+            else:
+
+                task = course.get_task(taskid)
+                if not self.user_manager.task_is_visible_by_user(task):  # ignore LTI check here
+                    return self.template_helper.get_renderer().task_unavailable()
+
+                public_folder = task.get_fs().from_subfolder("public")
             (method, mimetype_or_none, file_or_url) = public_folder.distribute(path_norm, False)
 
             if method == "local":
@@ -413,4 +427,4 @@ class TaskPage(INGIniousPage):
         return BaseTaskPage(self).GET(courseid, taskid, False)
 
     def POST(self, courseid, taskid):
-        return BaseTaskPage(self).POST(courseid, taskid, False)
+return BaseTaskPage(self).POST(courseid, taskid, False)
