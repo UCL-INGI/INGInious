@@ -430,4 +430,4 @@ class TaskPage(INGIniousPage):
         return BaseTaskPage(self).GET(courseid, taskid, False)
 
     def POST(self, courseid, taskid):
-return BaseTaskPage(self).POST(courseid, taskid, False)
+        return BaseTaskPage(self).POST(courseid, taskid, False)
