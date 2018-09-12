@@ -220,14 +220,11 @@ class BaseTaskPage(object):
                 del userinput['@action']
 
                 # Get debug info if the current user is an admin or if it's a ssh environment
-                if (task.get_environment() == "qemu-Debian"):
-                    debug = "ssh"
-                else:
-                    debug = is_admin
-                    if "@debug-mode" in userinput:
-                        if userinput["@debug-mode"] == "ssh" and debug:
-                            debug = "ssh"
-                        del userinput['@debug-mode']
+                debug = is_admin
+                if "@debug-mode" in userinput:
+                    if userinput["@debug-mode"] == "ssh" and debug:
+                        debug = "ssh"
+                    del userinput['@debug-mode']
 
                 # Start the submission
                 try:
