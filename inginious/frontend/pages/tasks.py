@@ -219,7 +219,7 @@ class BaseTaskPage(object):
                                                                   "you want to upload. Your responses were not tested.")})
                 del userinput['@action']
 
-                # Get debug info if the current user is an admin or if it's a ssh environment
+                # Get debug info if the current user is an admin
                 debug = is_admin
                 if "@debug-mode" in userinput:
                     if userinput["@debug-mode"] == "ssh" and debug:
