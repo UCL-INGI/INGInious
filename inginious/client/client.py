@@ -62,7 +62,7 @@ class AbstractClient(object, metaclass=ABCMeta):
         :type callback: __builtin__.function or __builtin__.instancemethod
         :param launcher_name: for informational use
         :type launcher_name: str
-        :param debug: Either True(outputs more info) or False(default, starts a remote ssh server. ssh_callback needs to be defined)
+        :param debug: Either True(outputs more info), False(default), or "ssh" (starts a remote ssh server. ssh_callback needs to be defined)
         :type debug: bool or string
         :param ssh_callback: a callback function that will be called with (host, port, password), the needed credentials to connect to the
                              remote ssh server. May be called with host, port, password being None, meaning no session was open.
@@ -267,7 +267,7 @@ class Client(BetterParanoidPirateClient):
         :type callback: __builtin__.function or __builtin__.instancemethod
         :param launcher_name: for informational use
         :type launcher_name: str
-        :param debug: Either True(outputs more info) or False(default, starts a remote ssh server. ssh_callback needs to be defined)
+        :param debug: Either True(outputs more info), False(default), or "ssh" (starts a remote ssh server. ssh_callback needs to be defined)
         :type debug: bool or string
         :param ssh_callback: a callback function that will be called with (host, port, password), the needed credentials to connect to the
                              remote ssh server. May be called with host, port, password being None, meaning no session was open.
@@ -276,7 +276,7 @@ class Client(BetterParanoidPirateClient):
         """
         job_id = str(uuid.uuid4())
 
-        if debug == False and ssh_callback is None:
+        if debug == "ssh" and ssh_callback is None:
             self._logger.error("SSH callback not set in %s/%s", task.get_course_id(), task.get_id())
             callback(("crash", "SSH callback not set."), 0.0, {}, {}, {}, None, "", "")
             return

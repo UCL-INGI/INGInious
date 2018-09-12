@@ -205,9 +205,9 @@ class CourseEditTask(INGIniousAdminPage):
 
             # Parse and order the problems (also deletes @order from the result)
             if problems is None:
-                data["problems"] = OrderedDict([])
-            else:
-                data["problems"] = OrderedDict([(key, self.parse_problem(val))
+                return json.dumps({"status": "error", "message": _("You cannot create a task without subproblems")})
+
+            data["problems"] = OrderedDict([(key, self.parse_problem(val))
                                             for key, val in sorted(iter(problems.items()), key=lambda x: int(x[1]['@order']))])
 
             # Task limits

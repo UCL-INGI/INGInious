@@ -197,7 +197,7 @@ class BaseTaskPage(object):
                 # Verify rights
                 if not self.user_manager.task_can_user_submit(task, username, isLTI):
                     return json.dumps({"status": "error", "text": _("You are not allowed to submit for this task.")})
-
+                    
                 # Retrieve input random and check still valid
                 random_input = self.database.user_tasks.find_one({"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username}, { "random": 1 })
                 random_input = random_input["random"] if "random" in random_input else []
@@ -269,9 +269,9 @@ class BaseTaskPage(object):
                 if not submission:
                     raise web.notfound()
                 web.header('Content-Type', 'application/json')
-
+                
                 return self.submission_to_json(task, submission, is_admin, True, tags=task.get_tags())
-
+                
             elif "@action" in userinput and userinput["@action"] == "kill" and "submissionid" in userinput:
                 self.submission_manager.kill_running_submission(userinput["submissionid"])  # ignore return value
                 web.header('Content-Type', 'application/json')

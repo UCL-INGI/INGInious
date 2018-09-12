@@ -53,7 +53,8 @@ class ClientNewJob(metaclass=MessageMeta, msgtype="client_new_job"):
         :param mem_limit: memory limit in Mo, for supporting envs.
         :param debug:
             True to enable debug
-            False to disable it and enable ssh
+            False to disable it
+            "ssh" to enable ssh debug
         :param launcher: the name of the entity that launched this job, for logging purposes
         """
         self.job_id = job_id
@@ -232,7 +233,8 @@ class BackendNewJob(metaclass=MessageMeta, msgtype="backend_new_job"):
         :param mem_limit: memory limit in Mo, for supporting envs.
         :param debug:
             True to enable debug
-            False to disable it and enable ssh
+            False to disable it
+            "ssh" to enable ssh debug
         """
         self.job_id = job_id
         self.course_id = course_id
