@@ -29,19 +29,22 @@ class DockerInterface(object):  # pragma: no cover
             "name": {                          #for example, "default"
                 "id": "container img id",      #             "sha256:715c5cb5575cdb2641956e42af4a53e69edf763ce701006b2c6e0f4f39b68dd3"
                 "created": 12345678            # create date
+                "ports": [22, 434]             # list of ports needed
             }
         }
         """
 
-        # First, create a dict with {"id": {"title": "alias", "created": 000}}
-        images = {x.attrs['Id']: {"title": x.labels["org.inginious.grading.name"], "created": datetime.strptime(x.attrs['Created'][:-4], "%Y-%m-%dT%H:%M:%S.%f").timestamp()}
+        # First, create a dict with {"id": {"title": "alias", "created": 000, "ports": [0, 1]}}
+        images = {x.attrs['Id']: {"title": x.labels["org.inginious.grading.name"],
+                                  "created": datetime.strptime(x.attrs['Created'][:-4], "%Y-%m-%dT%H:%M:%S.%f").timestamp(),
+                                  "ports": x.labels["org.inginious.grading.ports"].split(",") if "org.inginious.grading.ports" in x.labels else []}
                   for x in self._docker.images.list(filters={"label": "org.inginious.grading.name"})}
 
         # Then, we keep only the last version of each name
         latest = {}
         for img_id, img_c in images.items():
             if img_c["title"] not in latest or latest[img_c["title"]]["created"] < img_c["created"]:
-                latest[img_c["title"]] = {"id": img_id, "created": img_c["created"]}
+                latest[img_c["title"]] = {"id": img_id, "created": img_c["created"], "ports": img_c["ports"]}
         return latest
 
     def get_host_ip(self, env_with_dig='ingi/inginious-c-default'):
@@ -61,7 +64,7 @@ class DockerInterface(object):  # pragma: no cover
             return None
 
     def create_container(self, environment, network_grading, mem_limit, task_path, sockets_path,
-                         course_common_path, course_common_student_path, ssh_port=None):
+                         course_common_path, course_common_student_path, _ports={}):
         """
         Creates a container.
         :param environment: env to start (name/id of a docker image)
@@ -70,7 +73,7 @@ class DockerInterface(object):  # pragma: no cover
         :param mem_limit: in Mo
         :param task_path: path to the task directory that will be mounted in the container
         :param sockets_path: path to the socket directory that will be mounted in the container
-        :param ssh_port: port that will be bound to 22 inside the container
+        :param _ports: pairs of ports that will be bound inside the container
         :return: the container id
         """
         task_path = os.path.abspath(task_path)
@@ -85,8 +88,8 @@ class DockerInterface(object):  # pragma: no cover
             memswap_limit=str(mem_limit) + "M",
             mem_swappiness=0,
             oom_kill_disable=True,
-            network_mode=("bridge" if (network_grading or ssh_port is not None) else 'none'),
-            ports= {22: ssh_port} if ssh_port is not None else {},
+            network_mode=("bridge" if (network_grading or len(_ports) > 0) else 'none'),
+            ports= _ports, #{22: ssh_port} if ssh_port is not None else {},
             volumes={
                 task_path: {'bind': '/task'},
                 sockets_path: {'bind': '/sockets'},
