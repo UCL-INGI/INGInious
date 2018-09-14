@@ -228,10 +228,6 @@ class BaseTaskPage(object):
                         "you want to upload. Your responses were not tested.")})
                 del userinput['@action']
 
-                # Get debug info if the current user is an admin
-#                if (task.get_environment() == "qemu-Debian"):
-#                    debug = "ssh"
-#                else:
                 debug = is_admin
                 if "@debug-mode" in userinput:
                     if userinput["@debug-mode"] == "ssh" and debug:

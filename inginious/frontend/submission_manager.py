@@ -263,8 +263,6 @@ class WebAppSubmissionManager:
         submissionid = self._database.submissions.insert(obj)
         to_remove = self._after_submission_insertion(task, inputdata, debug, obj, submissionid)
 
-#        ssh_callback = lambda host, port, password: None
-#        if debug == "ssh":
         ssh_callback = lambda host, port, password: self._handle_ssh_callback(submissionid, host, port, password)
 
         jobid = self._client.new_job(task, inputdata,
