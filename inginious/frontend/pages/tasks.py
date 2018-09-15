@@ -100,8 +100,7 @@ class BaseTaskPage(object):
 
         # Fetch the task
         try:
-            tasks = OrderedDict((tid, t) for tid, t in course.get_tasks().items() if
-                                self.user_manager.task_is_visible_by_user(t, username, isLTI))
+            tasks = OrderedDict((tid, t) for tid, t in course.get_tasks().items() if self.user_manager.task_is_visible_by_user(t, username, isLTI))
             task = tasks[taskid]
         except exceptions.TaskNotFoundException as ex:
             raise web.notfound(str(ex))
@@ -132,8 +131,7 @@ class BaseTaskPage(object):
             if isinstance(sinput[userinput["questionid"]], dict):
                 # File uploaded previously
                 mimetypes.init()
-                mime_type = mimetypes.guess_type(
-                    urllib.request.pathname2url(sinput[userinput["questionid"]]['filename']))
+                mime_type = mimetypes.guess_type(urllib.request.pathname2url(sinput[userinput["questionid"]]['filename']))
                 web.header('Content-Type', mime_type[0])
                 return sinput[userinput["questionid"]]['value']
             else:
@@ -159,8 +157,7 @@ class BaseTaskPage(object):
             )
 
             submissionid = user_task.get('submissionid', None)
-            eval_submission = self.database.submissions.find_one(
-                {'_id': ObjectId(submissionid)}) if submissionid else None
+            eval_submission = self.database.submissions.find_one({'_id': ObjectId(submissionid)}) if submissionid else None
 
             students = [self.user_manager.session_username()]
             if task.is_group_task() and not self.user_manager.has_admin_rights_on_course(course, username):
@@ -171,14 +168,12 @@ class BaseTaskPage(object):
                     students = group["groups"][0]["students"]
                 # we don't care for the other case, as the student won't be able to submit.
 
-            submissions = self.submission_manager.get_user_submissions(
-                task) if self.user_manager.session_logged_in() else []
+            submissions = self.submission_manager.get_user_submissions(task) if self.user_manager.session_logged_in() else []
             user_info = self.database.users.find_one({"username": username})
 
             # Display the task itself
             return self.template_helper.get_renderer().task(user_info, course, task, submissions,
-                                                            students, eval_submission, user_task, previous_taskid,
-                                                            next_taskid, self.webterm_link, random_input_list)
+                                                            students, eval_submission, user_task, previous_taskid, next_taskid, self.webterm_link, random_input_list)
 
     def POST(self, courseid, taskid, isLTI):
         """ POST a new submission """
@@ -202,16 +197,14 @@ class BaseTaskPage(object):
                 # Verify rights
                 if not self.user_manager.task_can_user_submit(task, username, isLTI):
                     return json.dumps({"status": "error", "text": _("You are not allowed to submit for this task.")})
-
+                    
                 # Retrieve input random and check still valid
-                random_input = self.database.user_tasks.find_one(
-                    {"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username}, {"random": 1})
+                random_input = self.database.user_tasks.find_one({"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username}, { "random": 1 })
                 random_input = random_input["random"] if "random" in random_input else []
                 for i in range(0, len(random_input)):
                     s = "@random_" + str(i)
                     if s not in userinput or float(userinput[s]) != random_input[i]:
-                        return json.dumps({"status": "error",
-                                           "text": _("Your task has been regenerated. This current task is outdated.")})
+                        return json.dumps({"status": "error", "text": _("Your task has been regenerated. This current task is outdated.")})
 
                 # Reparse user input with array for multiple choices
                 init_var = {
@@ -220,14 +213,13 @@ class BaseTaskPage(object):
                 }
                 userinput = task.adapt_input_for_backend(web.input(**init_var))
 
-                if not task.input_is_consistent(userinput, self.default_allowed_file_extensions,
-                                                self.default_max_file_size):
+                if not task.input_is_consistent(userinput, self.default_allowed_file_extensions, self.default_max_file_size):
                     web.header('Content-Type', 'application/json')
-                    return json.dumps({"status": "error", "text": _(
-                        "Please answer to all the questions and verify the extensions of the files "
-                        "you want to upload. Your responses were not tested.")})
+                    return json.dumps({"status": "error", "text": _("Please answer to all the questions and verify the extensions of the files "
+                                                                  "you want to upload. Your responses were not tested.")})
                 del userinput['@action']
 
+                # Get debug info if the current user is an admin
                 debug = is_admin
                 if "@debug-mode" in userinput:
                     if userinput["@debug-mode"] == "ssh" and debug:
@@ -238,8 +230,7 @@ class BaseTaskPage(object):
                 try:
                     submissionid, oldsubids = self.submission_manager.add_job(task, userinput, debug)
                     web.header('Content-Type', 'application/json')
-                    return json.dumps({"status": "ok", "submissionid": str(submissionid), "remove": oldsubids,
-                                       "text": _("<b>Your submission has been sent...</b>")})
+                    return json.dumps({"status": "ok", "submissionid": str(submissionid), "remove": oldsubids, "text": _("<b>Your submission has been sent...</b>")})
                 except Exception as ex:
                     web.header('Content-Type', 'application/json')
                     return json.dumps({"status": "error", "text": str(ex)})
@@ -256,7 +247,7 @@ class BaseTaskPage(object):
 
                     # user_task always exists as we called user_saw_task before
                     user_task = self.database.user_tasks.find_one({
-                        "courseid": task.get_course_id(),
+                        "courseid":task.get_course_id(),
                         "taskid": task.get_id(),
                         "username": self.user_manager.session_username()
                     })
@@ -266,23 +257,21 @@ class BaseTaskPage(object):
                         # This should never happen, as user_manager.update_user_stats is called whenever a submission is done.
                         return json.dumps({'status': "error", "text": _("Internal error")})
 
-                    return self.submission_to_json(task, result, is_admin, False, default_submissionid == result['_id'],
-                                                   tags=task.get_tags())
+                    return self.submission_to_json(task, result, is_admin, False, default_submissionid == result['_id'], tags=task.get_tags())
                 else:
                     web.header('Content-Type', 'application/json')
                     return self.submission_to_json(task, result, is_admin)
 
-            elif "@action" in userinput and userinput[
-                "@action"] == "load_submission_input" and "submissionid" in userinput:
+            elif "@action" in userinput and userinput["@action"] == "load_submission_input" and "submissionid" in userinput:
                 submission = self.submission_manager.get_submission(userinput["submissionid"], user_check=not is_staff)
                 submission = self.submission_manager.get_input_from_submission(submission)
                 submission = self.submission_manager.get_feedback_from_submission(submission, show_everything=is_staff)
                 if not submission:
                     raise web.notfound()
                 web.header('Content-Type', 'application/json')
-
+                
                 return self.submission_to_json(task, submission, is_admin, True, tags=task.get_tags())
-
+                
             elif "@action" in userinput and userinput["@action"] == "kill" and "submissionid" in userinput:
                 self.submission_manager.kill_running_submission(userinput["submissionid"])  # ignore return value
                 web.header('Content-Type', 'application/json')
@@ -351,8 +340,7 @@ class BaseTaskPage(object):
         if tojson['status'] == 'waiting':
             tojson["text"] = _("<b>Your submission has been sent...</b>")
         elif tojson["result"] == "failed":
-            tojson["text"] = _("There are some errors in your answer. Your score is {score}%.").format(
-                score=data["grade"])
+            tojson["text"] = _("There are some errors in your answer. Your score is {score}%.").format(score=data["grade"])
         elif tojson["result"] == "success":
             tojson["text"] = _("Your answer passed the tests! Your score is {score}%.").format(score=data["grade"])
         elif tojson["result"] == "timeout":
@@ -365,11 +353,8 @@ class BaseTaskPage(object):
             tojson["text"] = _("An internal error occurred. Please retry later. "
                                "If the error persists, send an email to the course administrator.")
 
-        tojson["text"] = "<b>" + tojson["text"] + " " + _("[Submission #{submissionid}]").format(
-            submissionid=data["_id"]) + "</b>" + data.get("text", "")
-        tojson["text"] = \
-        self.plugin_manager.call_hook_recursive("feedback_text", task=task, submission=data, text=tojson["text"])[
-            "text"]
+        tojson["text"] = "<b>" + tojson["text"] + " " + _("[Submission #{submissionid}]").format(submissionid=data["_id"]) + "</b>" + data.get("text", "")
+        tojson["text"] = self.plugin_manager.call_hook_recursive("feedback_text", task=task, submission=data, text=tojson["text"])["text"]
 
         if reloading:
             # Set status='ok' because we are reloading an old submission.
@@ -380,18 +365,16 @@ class BaseTaskPage(object):
         if "tests" in data:
             tojson["tests"] = {}
             if tags:
-                for tag in tags[0] + tags[
-                    1]:  # Tags only visible for admins should not appear in the json for students.
+                for tag in tags[0]+tags[1]: # Tags only visible for admins should not appear in the json for students.
                     if (tag.is_visible_for_student() or debug) and tag.get_id() in data["tests"]:
                         tojson["tests"][tag.get_id()] = data["tests"][tag.get_id()]
-            if debug:  # We add also auto tags when we are admin
+            if debug: #We add also auto tags when we are admin
                 for tag in data["tests"]:
                     if tag.startswith("*auto-tag-"):
                         tojson["tests"][tag] = data["tests"][tag]
 
         # allow plugins to insert javascript to be run in the browser after the submission is loaded
-        tojson["feedback_script"] = "".join(
-            self.plugin_manager.call_hook("feedback_script", task=task, submission=data))
+        tojson["feedback_script"] = "".join(self.plugin_manager.call_hook("feedback_script", task=task, submission=data))
 
         return json.dumps(tojson, default=str)
 

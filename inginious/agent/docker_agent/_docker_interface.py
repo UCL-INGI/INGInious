@@ -64,16 +64,15 @@ class DockerInterface(object):  # pragma: no cover
             return None
 
     def create_container(self, environment, network_grading, mem_limit, task_path, sockets_path,
-                         course_common_path, course_common_student_path, _ports={}):
+                         course_common_path, course_common_student_path, ports={}):
         """
         Creates a container.
         :param environment: env to start (name/id of a docker image)
-        :param debug: True/False or "ssh"
         :param network_grading: boolean to indicate if the network should be enabled in the container or not
         :param mem_limit: in Mo
         :param task_path: path to the task directory that will be mounted in the container
         :param sockets_path: path to the socket directory that will be mounted in the container
-        :param _ports: pairs of ports that will be bound inside the container
+        :param ports: dictionary in the form {docker_port: external_port}
         :return: the container id
         """
         task_path = os.path.abspath(task_path)
@@ -88,8 +87,8 @@ class DockerInterface(object):  # pragma: no cover
             memswap_limit=str(mem_limit) + "M",
             mem_swappiness=0,
             oom_kill_disable=True,
-            network_mode=("bridge" if (network_grading or len(_ports) > 0) else 'none'),
-            ports= _ports,
+            network_mode=("bridge" if (network_grading or len(ports) > 0) else 'none'),
+            ports=ports,
             volumes={
                 task_path: {'bind': '/task'},
                 sockets_path: {'bind': '/sockets'},
