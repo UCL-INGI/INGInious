@@ -537,9 +537,6 @@ class DockerAgent(Agent):
             killed = await self._timeout_watcher.was_killed(container_id)
             if container_id in self._containers_killed:
                 killed = self._containers_killed[container_id]
-                if container_id in self._assigned_external_ports:
-                    for p in self._assigned_external_ports[container_id]:
-                        self._external_ports.add(p)
                 del self._containers_killed[container_id]
 
             stdout = ""

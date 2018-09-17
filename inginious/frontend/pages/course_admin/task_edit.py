@@ -208,7 +208,7 @@ class CourseEditTask(INGIniousAdminPage):
                 data["problems"] = OrderedDict([])
             else:
                 data["problems"] = OrderedDict([(key, self.parse_problem(val))
-                                            for key, val in sorted(iter(problems.items()), key=lambda x: int(x[1]['@order']))])
+                                                for key, val in sorted(iter(problems.items()), key=lambda x: int(x[1]['@order']))])
 
             # Task limits
             data["limits"] = limits

@@ -45,7 +45,7 @@ class DockerInterface(object):  # pragma: no cover
                     ",")] if "org.inginious.grading.ports" in x.labels else []
                 images[x.attrs['Id']] = {"title": title, "created": created, "ports": ports}
             except:
-                logging.getLogger("inginious.agent").warning("Container " + title + " requested an invalid port")
+                logging.getLogger("inginious.agent").exception("Container %s is badly formatted", title)
 
         # Then, we keep only the last version of each name
         latest = {}
@@ -71,7 +71,7 @@ class DockerInterface(object):  # pragma: no cover
             return None
 
     def create_container(self, environment, network_grading, mem_limit, task_path, sockets_path,
-                         course_common_path, course_common_student_path, ports={}):
+                         course_common_path, course_common_student_path, ports=None):
         """
         Creates a container.
         :param environment: env to start (name/id of a docker image)
@@ -86,6 +86,8 @@ class DockerInterface(object):  # pragma: no cover
         sockets_path = os.path.abspath(sockets_path)
         course_common_path = os.path.abspath(course_common_path)
         course_common_student_path = os.path.abspath(course_common_student_path)
+        if ports is None:
+            ports = {}
 
         response = self._docker.containers.create(
             environment,
