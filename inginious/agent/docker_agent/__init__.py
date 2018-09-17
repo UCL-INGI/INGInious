@@ -191,8 +191,8 @@ class DockerAgent(Agent):
 
         ports_needed = self._containers[environment_name]["ports"]
 
-        if debug == "ssh" and '22' not in ports_needed:
-            ports_needed.append('22')
+        if debug == "ssh" and 22 not in ports_needed:
+            ports_needed.append(22)
 
         ports = {}
         if len(ports_needed) > 0:
@@ -426,7 +426,7 @@ class DockerAgent(Agent):
                             elif msg["type"] == "ssh_key":
                                 # send the data to the backend (and client)
                                 self._logger.info("%s %s", container_id, str(msg))
-                                await self.send_ssh_job_info(job_id, self._address_host, ports['22'], msg["ssh_key"])
+                                await self.send_ssh_job_info(job_id, self._address_host, ports[22], msg["ssh_key"])
                             elif msg["type"] == "result":
                                 # last message containing the results of the container
                                 result = msg["result"]
