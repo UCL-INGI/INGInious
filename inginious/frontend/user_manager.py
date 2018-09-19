@@ -742,7 +742,7 @@ class UserManager:
         if lti and course.is_lti() != lti:
             return False
 
-        if not lti and course.is_lti():
+        if lti is False and course.is_lti():
             return not course.lti_send_back_grade()
 
         return True
