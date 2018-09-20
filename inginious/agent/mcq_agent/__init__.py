@@ -14,19 +14,16 @@ from inginious.common.tasks_problems import MultipleChoiceProblem, MatchProblem
 
 
 class MCQAgent(Agent):
-    def __init__(self, context, backend_addr, friendly_name, concurrency, tasks_filesystem):
+    def __init__(self, context, backend_addr, friendly_name, concurrency, tasks_filesystem, course_factory):
         """
         :param context: ZeroMQ context for this process
         :param backend_addr: address of the backend (for example, "tcp://127.0.0.1:2222")
         :param friendly_name: a string containing a friendly name to identify agent
         :param tasks_filesystem: FileSystemProvider to the course/tasks
+        :param course_factory: Course factory used to get course/tasks
         """
         super().__init__(context, backend_addr, friendly_name, concurrency, tasks_filesystem)
         self._logger = logging.getLogger("inginious.agent.mcq")
-
-        # Create a course factory
-        problem_types = {problem_type.get_type(): problem_type for problem_type in [MultipleChoiceProblem, MatchProblem]}
-        course_factory, _ = create_factories(tasks_filesystem, problem_types)
         self.course_factory = course_factory
 
         # Init gettext

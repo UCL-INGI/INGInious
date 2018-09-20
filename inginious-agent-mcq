@@ -14,8 +14,19 @@ import sys
 from zmq.asyncio import ZMQEventLoop, Context
 import asyncio
 
+from inginious.common.course_factory import create_factories
 from inginious.common.entrypoints import get_args_and_filesystem
 from inginious.agent.mcq_agent import MCQAgent
+from inginious.common.tasks_problems import MultipleChoiceProblem, MatchProblem
+
+
+def import_class(name):
+    m = name.split('.')
+    mod = __import__(m[0])
+
+    for comp in m[1:]:
+        mod = getattr(mod, comp)
+    return mod
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -27,6 +38,7 @@ if __name__ == "__main__":
     parser.add_argument("--debugmode", help="Enables debug mode. For developers only.", action="store_true")
     parser.add_argument("--disable-autorestart", help="Disables the auto restart on agent failure.",
                         action="store_true")
+    parser.add_argument("--ptype", nargs="+", help="Python class import path for additionnal subproblem types")
 
     (args, fsprovider) = get_args_and_filesystem(parser)
 
@@ -39,6 +51,18 @@ if __name__ == "__main__":
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
+    # load ptypes
+    ptypes = {MultipleChoiceProblem, MatchProblem}
+    for ptype_loc in args.ptype:
+        try:
+            ptypes.add(import_class(ptype_loc))
+        except:
+            logger.exception("Cannot load %s, exiting", ptype_loc)
+            exit(1)
+
+    # create course factory
+    course_factory, _ = create_factories(fsprovider, {problem_type.get_type(): problem_type for problem_type in ptypes})
+
     closing = False
     while not closing:
         # start asyncio and zmq
@@ -49,7 +73,7 @@ if __name__ == "__main__":
         context = Context()
 
         # Create agent
-        agent = MCQAgent(context, args.backend, args.friendly_name, 1, fsprovider)
+        agent = MCQAgent(context, args.backend, args.friendly_name, 1, fsprovider, course_factory)
 
         # Run!
         try:
