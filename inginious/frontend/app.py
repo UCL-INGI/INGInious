@@ -194,7 +194,7 @@ def get_app(config):
 
     update_pending_jobs(database)
 
-    client = create_arch(config, fs_provider, zmq_context)
+    client = create_arch(config, fs_provider, zmq_context, course_factory)
 
     lti_outcome_manager = LTIOutcomeManager(database, user_manager, course_factory)
 
