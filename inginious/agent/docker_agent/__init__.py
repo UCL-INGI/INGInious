@@ -196,7 +196,7 @@ class DockerAgent(Agent):
 
         ports = {}
         if len(ports_needed) > 0:
-            time_limite = 30 * 60
+            time_limit = 30 * 60
             hard_time_limit = 30 * 60
         for p in ports_needed:
             if len(self._external_ports) == 0:

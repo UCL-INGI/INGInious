@@ -76,11 +76,12 @@ class MCQAgent(Agent):
 
         nb_subproblems = len(task.get_problems())
         if nb_subproblems == 0:
-            grade = 100.0
+            grade = 0.0
+            text.append("No subproblems defined")
+            await self.send_job_result(msg.job_id, "crashed", "\n".join(text), grade, problems, {}, {}, "", None)
         else:
             grade = 100.0 * float(nb_subproblems - error_count) / float(nb_subproblems)
-
-        await self.send_job_result(msg.job_id, ("success" if result else "failed"), "\n".join(text), grade, problems, {}, {}, "", None)
+            await self.send_job_result(msg.job_id, ("success" if result else "failed"), "\n".join(text), grade, problems, {}, {}, "", None)
 
     async def kill_job(self, message: BackendKillJob):
         pass
