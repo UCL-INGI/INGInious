@@ -273,7 +273,7 @@ class AgentHello(metaclass=MessageMeta, msgtype="agent_hello"):
         Let the agent say hello and announce which containers it has available
     """
 
-    def __init__(self, friendly_name: str, available_job_slots: int, available_containers: Dict[str, Dict[str, str]]):
+    def __init__(self, friendly_name: str, available_job_slots: int, available_containers: Dict[str, Dict[str, Any]]):
         """
             :param friendly_name: a string containing a friendly name to identify agent
             :param available_job_slots: an integer giving the number of concurrent
@@ -282,6 +282,7 @@ class AgentHello(metaclass=MessageMeta, msgtype="agent_hello"):
                 "name": {                          #for example, "default"
                     "id": "container img id",      #             "sha256:715c5cb5575cdb2641956e42af4a53e69edf763ce701006b2c6e0f4f39b68dd3"
                     "created": 12345678            # create date
+                    "ports": [22, 434]             # list of ports needed
                 }
             }
         """

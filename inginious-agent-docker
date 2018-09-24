@@ -87,8 +87,8 @@ if __name__ == "__main__":
         context = Context()
 
         # Create agent
-        agent = DockerAgent(context, args.backend, args.friendly_name, args.concurrency, fsprovider, ssh_host=args.debug_host,
-                            ssh_ports=args.debug_ports, tmp_dir=args.tmpdir)
+        agent = DockerAgent(context, args.backend, args.friendly_name, args.concurrency, fsprovider, address_host=args.debug_host,
+                            external_ports=args.debug_ports, tmp_dir=args.tmpdir)
 
         # Run!
         try:

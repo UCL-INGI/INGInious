@@ -85,7 +85,8 @@ class Agent(object, metaclass=ABCMeta):
             {
                 "name": {                          #for example, "default"
                     "id": "container img id",      #             "sha256:715c5cb5575cdb2641956e42af4a53e69edf763ce701006b2c6e0f4f39b68dd3"
-                    "created": 12345678            # create date, as an unix timestamp
+                    "created": 12345678            # create date
+                    "ports": [22, 434]             # list of ports needed
                 }
             }
 

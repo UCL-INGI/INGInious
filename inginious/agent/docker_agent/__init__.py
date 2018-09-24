@@ -25,15 +25,15 @@ from inginious.common.messages import BackendNewJob, BackendKillJob
 
 
 class DockerAgent(Agent):
-    def __init__(self, context, backend_addr, friendly_name, concurrency, tasks_fs: FileSystemProvider, ssh_host=None, ssh_ports=None, tmp_dir="./agent_tmp"):
+    def __init__(self, context, backend_addr, friendly_name, concurrency, tasks_fs: FileSystemProvider, address_host=None, external_ports=None, tmp_dir="./agent_tmp"):
         """
         :param context: ZeroMQ context for this process
         :param backend_addr: address of the backend (for example, "tcp://127.0.0.1:2222")
         :param friendly_name: a string containing a friendly name to identify agent
         :param concurrency: number of simultaneous jobs that can be run by this agent
         :param tasks_fs: FileSystemProvider for the course / tasks
-        :param ssh_host: hostname/ip/... to which external client should connect to access to an ssh remote debug session
-        :param ssh_ports: iterable containing ports to which the docker instance can assign ssh servers (for remote debugging)
+        :param address_host: hostname/ip/... to which external client should connect to access to the docker
+        :param external_ports: iterable containing ports to which the docker instance can bind internal ports
         :param tmp_dir: temp dir that is used by the agent to start new containers
         """
         super(DockerAgent, self).__init__(context, backend_addr, friendly_name, concurrency, tasks_fs)
@@ -47,8 +47,8 @@ class DockerAgent(Agent):
         self._tmp_dir = tmp_dir
 
         # SSH remote debug
-        self._ssh_host = ssh_host
-        self._ssh_ports = set(ssh_ports) if ssh_ports is not None else set()
+        self._address_host = address_host
+        self._external_ports = set(external_ports) if address_host is not None else set()
 
         # Async proxy to os
         self._aos = AsyncProxy(os)
@@ -83,17 +83,17 @@ class DockerAgent(Agent):
         self._logger.info("Discovering containers")
         self._containers = await self._docker.get_containers()
 
-        self._running_ssh_debug = {}  # container_id : ssh_port
+        self._assigned_external_ports = {}  # container_id : [external_ports]
 
-        if self._ssh_host is None and len(self._containers) != 0:
+        if self._address_host is None and len(self._containers) != 0:
             self._logger.info("Guessing external host IP")
-            self._ssh_host = await self._docker.get_host_ip(next(iter(self._containers.values()))["id"])
-        if self._ssh_host is None:
+            self._address_host = await self._docker.get_host_ip(next(iter(self._containers.values()))["id"])
+        if self._address_host is None:
             self._logger.warning(
                 "Cannot find external host IP. Please indicate it in the configuration. Remote SSH debug has been deactivated.")
-            self._ssh_ports = None
+            self._external_ports = None
         else:
-            self._logger.info("External address for SSH remote debug is %s", self._ssh_host)
+            self._logger.info("External address for SSH remote debug is %s", self._address_host)
 
         # Watchers
         self._timeout_watcher = TimeoutWatcher(self._docker)
@@ -189,26 +189,28 @@ class DockerAgent(Agent):
 
         environment = self._containers[environment_name]["id"]
 
-        # Handle ssh debugging
-        ssh_port = None
-        if debug == "ssh":
-            # allow 30 minutes of real time.
+        ports_needed = self._containers[environment_name]["ports"]
+
+        if debug == "ssh" and 22 not in ports_needed:
+            ports_needed.append(22)
+
+        ports = {}
+        if len(ports_needed) > 0:
             time_limit = 30 * 60
             hard_time_limit = 30 * 60
-
-            # select a port
-            if len(self._ssh_ports) == 0:
-                self._logger.warning("User asked for an ssh debug but no ports are available")
-                raise CannotCreateJobException('No ports are available for SSH debug right now. Please retry later.')
-            ssh_port = self._ssh_ports.pop()
+        for p in ports_needed:
+            if len(self._external_ports) == 0:
+                self._logger.warning("User asked for a port but no one are available")
+                raise CannotCreateJobException('No ports are available right now. Please retry later.')
+            ports[p] = self._external_ports.pop()
 
         # Create directories for storing all the data for the job
         try:
             container_path = tempfile.mkdtemp(dir=self._tmp_dir)
         except Exception as e:
             self._logger.error("Cannot make container temp directory! %s", str(e), exc_info=True)
-            if ssh_port is not None:
-                self._ssh_ports.add(ssh_port)
+            for p in ports:
+                self._external_ports.add(ports[p])
             raise CannotCreateJobException('Cannot make container temp directory.')
 
         task_path = path_join(container_path, 'task')  # tmp_dir/id/task/
@@ -251,20 +253,21 @@ class DockerAgent(Agent):
         try:
             container_id = self._docker.sync.create_container(environment, enable_network, mem_limit, task_path,
                                                               sockets_path, course_common_path,
-                                                              course_common_student_path, ssh_port)
+                                                              course_common_student_path, ports)
         except Exception as e:
             self._logger.warning("Cannot create container! %s", str(e), exc_info=True)
             shutil.rmtree(container_path)
-            if ssh_port is not None:
-                self._ssh_ports.add(ssh_port)
+            for p in ports:
+                self._external_ports.add(ports[p])
             raise CannotCreateJobException('Cannot create container.')
 
         # Store info
         self._containers_running[container_id] = message, container_path, future_results
         self._container_for_job[message.job_id] = container_id
         self._student_containers_for_job[message.job_id] = set()
-        if ssh_port is not None:
-            self._running_ssh_debug[container_id] = ssh_port
+
+        if len(ports) != 0:
+            self._assigned_external_ports[container_id] = list(ports.values())
 
         try:
             # Start the container
@@ -272,8 +275,8 @@ class DockerAgent(Agent):
         except Exception as e:
             self._logger.warning("Cannot start container! %s", str(e), exc_info=True)
             shutil.rmtree(container_path)
-            if ssh_port is not None:
-                self._ssh_ports.add(ssh_port)
+            for p in ports:
+                self._external_ports.add(ports[p])
 
             raise CannotCreateJobException('Cannot start container')
 
@@ -282,7 +285,7 @@ class DockerAgent(Agent):
             "container_id": container_id,
             "inputdata": message.inputdata,
             "debug": debug,
-            "ssh_port": ssh_port,
+            "ports": ports,
             "orig_env": environment_name,
             "orig_memory_limit": mem_limit,
             "orig_time_limit": time_limit,
@@ -370,7 +373,7 @@ class DockerAgent(Agent):
         write_stream.write(msg)
         await write_stream.drain()
 
-    async def handle_running_container(self, job_id, container_id, inputdata, debug, ssh_port, orig_env,
+    async def handle_running_container(self, job_id, container_id, inputdata, debug, ports, orig_env,
                                        orig_memory_limit, orig_time_limit, orig_hard_time_limit, sockets_path,
                                        student_path, systemfiles_path, course_common_student_path, future_results):
         """ Talk with a container. Sends the initial input. Allows to start student containers """
@@ -422,8 +425,8 @@ class DockerAgent(Agent):
                                                                                      hard_time_limit, share_network, write_stream))
                             elif msg["type"] == "ssh_key":
                                 # send the data to the backend (and client)
-                                self._logger.info("%s %s", self._running_ssh_debug[container_id], str(msg))
-                                await self.send_ssh_job_info(job_id, self._ssh_host, ssh_port, msg["ssh_key"])
+                                self._logger.info("%s %s", container_id, str(msg))
+                                await self.send_ssh_job_info(job_id, self._address_host, ports[22], msg["ssh_key"])
                             elif msg["type"] == "result":
                                 # last message containing the results of the container
                                 result = msg["result"]
@@ -524,17 +527,16 @@ class DockerAgent(Agent):
                 self._create_safe_task(close_and_delete(student_container_id_loop))
             del self._student_containers_for_job[message.job_id]
 
-            # Allow other container to reuse the ssh port this container has finished to use
-            if container_id in self._running_ssh_debug:
-                self._ssh_ports.add(self._running_ssh_debug[container_id])
-                del self._running_ssh_debug[container_id]
+            # Allow other container to reuse the external ports this container has finished to use
+            if container_id in self._assigned_external_ports:
+                for p in self._assigned_external_ports[container_id]:
+                    self._external_ports.add(p)
+                del self._assigned_external_ports[container_id]
 
             # Verify if the container was killed, either by the client, by an OOM or by a timeout
             killed = await self._timeout_watcher.was_killed(container_id)
             if container_id in self._containers_killed:
                 killed = self._containers_killed[container_id]
-                if container_id in self._running_ssh_debug:
-                    self._ssh_ports.add(self._running_ssh_debug[container_id])
                 del self._containers_killed[container_id]
 
             stdout = ""

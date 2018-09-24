@@ -159,9 +159,7 @@ class WebAppSubmissionManager:
             raise Exception("A user must be logged in to submit an object")
 
         # Don't enable ssh debug
-        ssh_callback = lambda host, port, password: None
-        if debug == "ssh":
-            ssh_callback = lambda host, port, password: self._handle_ssh_callback(submission["_id"], host, port, password)
+        ssh_callback = lambda host, port, password: self._handle_ssh_callback(submission["_id"], host, port, password)
 
         # Load input data and add username to dict
         inputdata = bson.BSON.decode(self._gridfs.get(submission["input"]).read())
@@ -222,7 +220,7 @@ class WebAppSubmissionManager:
         :param inputdata: the input as a dictionary
         :type inputdata: dict
         :param debug: If debug is true, more debug data will be saved
-        :type debug: bool
+        :type debug: bool or string
         :returns: the new submission id and the removed submission id
         """
         if not self._user_manager.session_logged_in():
@@ -265,9 +263,7 @@ class WebAppSubmissionManager:
         submissionid = self._database.submissions.insert(obj)
         to_remove = self._after_submission_insertion(task, inputdata, debug, obj, submissionid)
 
-        ssh_callback = lambda host, port, password: None
-        if debug == "ssh":
-            ssh_callback = lambda host, port, password: self._handle_ssh_callback(submissionid, host, port, password)
+        ssh_callback = lambda host, port, password: self._handle_ssh_callback(submissionid, host, port, password)
 
         jobid = self._client.new_job(task, inputdata,
                                      (lambda result, grade, problems, tests, custom, state, archive, stdout, stderr:
