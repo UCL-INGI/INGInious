@@ -73,7 +73,7 @@ class CourseEditTask(INGIniousAdminPage):
     def contains_is_html(cls, data):
         """ Detect if the problem has at least one "xyzIsHTML" key """
         for key, val in data.items():
-            if key.endswith("IsHTML"):
+            if isinstance(key, str) and key.endswith("IsHTML"):
                 return True
             if isinstance(val, (OrderedDict, dict)) and cls.contains_is_html(val):
                 return True
