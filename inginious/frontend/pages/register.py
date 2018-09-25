@@ -71,7 +71,7 @@ class RegistrationPage(INGIniousPage):
             r')@(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?$', re.IGNORECASE)  # domain
 
         # Check input format
-        if re.match(r"^[-_.|~0-9A-Z]{4,}$", data["username"], re.IGNORECASE) is None:
+        if re.match(r"^[-_|~0-9A-Z]{4,}$", data["username"], re.IGNORECASE) is None:
             error = True
             msg = _("Invalid username format.")
         elif email_re.match(data["email"]) is None:
