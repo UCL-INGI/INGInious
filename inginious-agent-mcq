@@ -53,12 +53,13 @@ if __name__ == "__main__":
 
     # load ptypes
     ptypes = {MultipleChoiceProblem, MatchProblem}
-    for ptype_loc in args.ptype:
-        try:
-            ptypes.add(import_class(ptype_loc))
-        except:
-            logger.exception("Cannot load %s, exiting", ptype_loc)
-            exit(1)
+    if args.ptype:
+        for ptype_loc in args.ptype:
+            try:
+                ptypes.add(import_class(ptype_loc))
+            except:
+                logger.exception("Cannot load %s, exiting", ptype_loc)
+                exit(1)
 
     # create course factory
     course_factory, _ = create_factories(fsprovider, {problem_type.get_type(): problem_type for problem_type in ptypes})
