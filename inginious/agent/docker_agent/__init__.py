@@ -48,7 +48,7 @@ class DockerAgent(Agent):
 
         # SSH remote debug
         self._address_host = address_host
-        self._external_ports = set(external_ports) if address_host is not None else set()
+        self._external_ports = set(external_ports) if external_ports is not None else set()
 
         # Async proxy to os
         self._aos = AsyncProxy(os)
