@@ -36,7 +36,8 @@ class GithubAuthMethod(AuthMethod):
             profile = json.loads(r.content.decode('utf-8'))
             r = github.get('https://api.github.com/user/emails')
             profile["email"] = json.loads(r.content.decode('utf-8'))[0]["email"]
-            return str(profile["id"]), profile.get("name", ""), profile["email"]
+            realname = profile["name"] if profile.get("name", None) else profile["login"]
+            return str(profile["id"]), realname, profile["email"]
         except:
             return None
 
