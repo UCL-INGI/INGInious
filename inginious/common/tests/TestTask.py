@@ -56,7 +56,7 @@ class test_tasks_basic(object):
         try:
             t = inginious.common.tasks.Task(self.course_factory.get_course('test3'), 'invalid_task',
                                             {"environment": "default", "limits": {"time": "a string!"}},
-                                            'fake_path', HookManager(), problem_types)
+                                            'fake_path', None, HookManager(), problem_types)
             a = t.get_limits()
             print(a)
         except Exception as e:
@@ -67,7 +67,7 @@ class test_tasks_basic(object):
     def test_invalid_limits_2(self):
         try:
             inginious.common.tasks.Task(self.course_factory.get_course('test3'), 'invalid_task',
-                                        {"environment": "default", "limits": {"time": -1}}, 'fake_path', HookManager(), problem_types)
+                                        {"environment": "default", "limits": {"time": -1}}, 'fake_path', None, HookManager(), problem_types)
         except Exception as e:
             assert str(e) == "Invalid limit"
             return
@@ -75,7 +75,7 @@ class test_tasks_basic(object):
 
     def test_no_problems(self):
         try:
-            inginious.common.tasks.Task(self.course_factory.get_course('test3'), 'invalid_task', {"environment": "default"}, 'fake_path', HookManager(), problem_types)
+            inginious.common.tasks.Task(self.course_factory.get_course('test3'), 'invalid_task', {"environment": "default"}, 'fake_path', None, HookManager(), problem_types)
         except Exception as e:
             assert str(e) == "Tasks must have some problems descriptions"
             return

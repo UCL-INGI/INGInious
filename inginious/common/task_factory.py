@@ -206,14 +206,7 @@ class TaskFactory(object):
             return True
 
         try:
-            descriptor_name = self._get_task_descriptor_info(course.get_id(), taskid)[0]
-            last_update = {descriptor_name: task_fs.get_last_modification_time(descriptor_name)}
-            translations_fs = task_fs.from_subfolder("$i18n")
-            if translations_fs.exists():
-                for f in translations_fs.list(folders=False, files=True, recursive=False):
-                    lang = f[0:len(f) - 3]
-                    if translations_fs.exists(lang + ".mo"):
-                        last_update["$i18n/" + lang + ".mo"] = translations_fs.get_last_modification_time(lang + ".mo")
+            last_update, __, __ = self._get_last_updates(course, taskid, task_fs, False)
         except:
             raise TaskNotFoundException()
 
@@ -223,6 +216,34 @@ class TaskFactory(object):
                 return True
 
         return False
+
+    def _get_last_updates(self, course, taskid, task_fs, need_content=False):
+        descriptor_name, descriptor_reader = self._get_task_descriptor_info(course.get_id(), taskid)
+        last_update = {descriptor_name: task_fs.get_last_modification_time(descriptor_name)}
+        translations_fs = task_fs.from_subfolder("$i18n")
+
+        if not translations_fs.exists():
+            translations_fs = task_fs.from_subfolder("student").from_subfolder("$i18n")
+        if not translations_fs.exists():
+            translations_fs = course.get_fs().from_subfolder("$common").from_subfolder("$i18n")
+        if not translations_fs.exists():
+            translations_fs = course.get_fs().from_subfolder("$common").from_subfolder("student").from_subfolder(
+                "$i18n")
+
+        if translations_fs.exists():
+            for f in translations_fs.list(folders=False, files=True, recursive=False):
+                lang = f[0:len(f) - 3]
+                if translations_fs.exists(lang + ".mo"):
+                    last_update["$i18n/" + lang + ".mo"] = translations_fs.get_last_modification_time(lang + ".mo")
+
+        if need_content:
+            try:
+                task_content = descriptor_reader.load(task_fs.get(descriptor_name))
+            except Exception as e:
+                raise TaskUnreadableException(str(e))
+            return last_update, translations_fs, task_content
+        else:
+            return last_update, translations_fs, None
 
     def _update_cache(self, course, taskid):
         """
@@ -235,22 +256,10 @@ class TaskFactory(object):
             raise InvalidNameException("Task with invalid name: " + taskid)
 
         task_fs = self.get_task_fs(course.get_id(), taskid)
-        descriptor_name, descriptor_reader = self._get_task_descriptor_info(course.get_id(), taskid)
-        try:
-            task_content = descriptor_reader.load(task_fs.get(descriptor_name))
-        except Exception as e:
-            raise TaskUnreadableException(str(e))
-
-        last_modif = {descriptor_name: task_fs.get_last_modification_time(descriptor_name)}
-        translations_fs = task_fs.from_subfolder("$i18n")
-        if translations_fs.exists():
-            for f in translations_fs.list(folders=False, files=True, recursive=False):
-                lang = f[0:len(f) - 3]
-                if translations_fs.exists(lang + ".mo"):
-                    last_modif["$i18n/" + lang + ".mo"] = translations_fs.get_last_modification_time(lang + ".mo")
+        last_modif, translation_fs, task_content = self._get_last_updates(course, taskid, task_fs, True)
 
         self._cache[(course.get_id(), taskid)] = (
-            self._task_class(course, taskid, task_content, task_fs, self._hook_manager, self._task_problem_types),
+            self._task_class(course, taskid, task_content, task_fs, translation_fs, self._hook_manager, self._task_problem_types),
             last_modif
         )
 

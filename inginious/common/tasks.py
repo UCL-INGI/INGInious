@@ -12,7 +12,7 @@ from inginious.common.base import id_checker
 class Task(object):
     """ Contains the data for a task """
 
-    def __init__(self, course, taskid, content, task_fs, hook_manager, task_problem_types):
+    def __init__(self, course, taskid, content, task_fs, translations_fs, hook_manager, task_problem_types):
         """
             Init the task. course is a Course object, taskid the task id, and content is a dictionnary containing the data needed to initialize the Task object.
             If init_data is None, the data will be taken from the course tasks' directory.
@@ -49,7 +49,8 @@ class Task(object):
 
         # i18n
         self._translations = {}
-        translations_fs = self._fs.from_subfolder("$i18n")
+        if not translations_fs:
+            translations_fs = task_fs.from_subfolder("$i18n")
         if translations_fs.exists():
             for f in translations_fs.list(folders=False, files=True, recursive=False):
                 lang = f[0:len(f) - 3]

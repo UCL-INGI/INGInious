@@ -305,7 +305,7 @@ class CourseEditTask(INGIniousAdminPage):
             return error
 
         try:
-            WebAppTask(course, taskid, data, task_fs, self.plugin_manager, self.task_factory.get_problem_types())
+            WebAppTask(course, taskid, data, task_fs, None, self.plugin_manager, self.task_factory.get_problem_types())
         except Exception as message:
             return json.dumps({"status": "error", "message": _("Invalid data: {}").format(str(message))})
 
