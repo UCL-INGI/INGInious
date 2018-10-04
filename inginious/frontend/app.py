@@ -240,16 +240,6 @@ def get_app(config):
     if config.get('log_level', 'INFO') == 'DEBUG':
         appli.internalerror = debugerror
 
-    # Init webdav if possible (for now, only available with LocalFSProvider)
-    if isinstance(fs_provider, LocalFSProvider):
-        from inginious.frontend.webdav import WebDavProxy, init_webdav
-        webdav_available = True
-        webdav = init_webdav(user_manager, course_factory, task_factory)
-        appli_wsgi = lambda: WebDavProxy(appli.wsgifunc(), webdav)
-    else:
-        webdav_available = False
-        appli_wsgi = lambda: appli.wsgifunc()
-
     # Insert the needed singletons into the application, to allow pages to call them
     appli.plugin_manager = plugin_manager
     appli.course_factory = course_factory
@@ -269,7 +259,7 @@ def get_app(config):
     appli.available_languages = available_languages
     appli.welcome_page = config.get("welcome_page", None)
     appli.static_directory = config.get("static_directory", "./static")
-    appli.webdav_available = webdav_available
+    appli.webdav_host = config.get("webdav_host", None)
 
     # Init the mapping of the app
     appli.init_mapping(urls)
@@ -280,4 +270,4 @@ def get_app(config):
     # Start the inginious.backend
     client.start()
 
-    return appli_wsgi(), lambda: _close_app(appli, mongo_client, client)
+    return appli.wsgifunc(), lambda: _close_app(appli, mongo_client, client)

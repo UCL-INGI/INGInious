@@ -4,26 +4,18 @@
 # more information about the licensing of this file.
 
 import os
+from pymongo import MongoClient
 
-import wsgidav.wsgidav_app
-from wsgidav import util
+from wsgidav import util, wsgidav_app
 from wsgidav.dav_provider import DAVProvider
 from wsgidav.fs_dav_provider import FolderResource, FileResource
 
+from inginious.common.course_factory import create_factories
 from inginious.common.filesystems.local import LocalFSProvider
-
-
-class WebDavProxy(object):
-    """ Redirect webdav requests to the webdav app, and the other requests to the webpy app"""
-    def __init__(self, webpy_app, webdav_app):
-        self.webpy_app = webpy_app
-        self.webdav_app = webdav_app
-
-    def __call__(self, environ, start_response):
-        if environ.get("PATH_INFO", "/").startswith("/dav/"):
-            return self.webdav_app(environ, start_response)
-        else:
-            return self.webpy_app(environ, start_response)
+from inginious.frontend.user_manager import UserManager
+from inginious.frontend.session_mongodb import MongoStore
+from inginious.frontend.courses import WebAppCourse
+from inginious.frontend.tasks import WebAppTask
 
 
 class INGIniousDAVDomainController(object):
@@ -97,8 +89,6 @@ class INGIniousFilesystemProvider(DAVProvider):
             raise RuntimeError("Unknown course {}".format(course_id))
 
         path_to_course_fs = course.get_fs()
-        if not isinstance(path_to_course_fs, LocalFSProvider):
-            raise RuntimeError("WebDav access is only supported if INGInious is using a local filesystem to access tasks")
         path_to_course = os.path.abspath(path_to_course_fs.prefix)
 
         file_path = os.path.abspath(os.path.join(path_to_course, *path_parts[1:]))
@@ -127,18 +117,24 @@ class INGIniousFilesystemProvider(DAVProvider):
         return FileResource(path, environ, fp)
 
 
-def init_webdav(user_manager, course_factory, task_factory):
+def get_app(config):
     """ Init the webdav app """
+    mongo_client = MongoClient(host=config.get('mongo_opt', {}).get('host', 'localhost'))
+    database = mongo_client[config.get('mongo_opt', {}).get('database', 'INGInious')]
 
-    rp = INGIniousFilesystemProvider(course_factory, task_factory)
-    provider_mapping = {}
-    provider_mapping["/dav/"] = rp
+    # Create the FS provider
+    if "tasks_directory" not in config:
+        raise RuntimeError("WebDav access is only supported if INGInious is using a local filesystem to access tasks")
 
-    config = dict(wsgidav.wsgidav_app.DEFAULT_CONFIG)
-    config["provider_mapping"] = provider_mapping
+    fs_provider = LocalFSProvider(config["tasks_directory"])
+    course_factory, task_factory = create_factories(fs_provider, {}, None, WebAppCourse, WebAppTask)
+    user_manager = UserManager(MongoStore(database, 'sessions'), database, config.get('superadmins', []))
+
+    config = dict(wsgidav_app.DEFAULT_CONFIG)
+    config["provider_mapping"] = {"/": INGIniousFilesystemProvider(course_factory, task_factory)}
     config["domaincontroller"] = INGIniousDAVDomainController(user_manager, course_factory)
     config["verbose"] = 0
 
-    app = wsgidav.wsgidav_app.WsgiDAVApp(config)
+    app = wsgidav_app.WsgiDAVApp(config)
 
     return app

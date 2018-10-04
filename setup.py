@@ -69,6 +69,7 @@ setup(
         'inginious-agent-mcq',
         'inginious-backend',
         'inginious-webapp',
+        'inginious-webdav',
         'inginious-install',
         'utils/sync/inginious-synchronize',
         'utils/container_update/inginious-container-update',

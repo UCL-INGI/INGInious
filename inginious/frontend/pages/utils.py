@@ -111,9 +111,9 @@ class INGIniousPage(object):
         return self.app.lti_outcome_manager
 
     @property
-    def webdav_available(self) -> bool:
+    def webdav_host(self) -> str:
         """ True if webdav is available """
-        return self.app.webdav_available
+        return self.app.webdav_host
 
     @property
     def logger(self) -> logging.Logger:

@@ -266,7 +266,7 @@ def get_menu(course, current, renderer, plugin_manager, user_manager):
                         ("download", "<i class='fa fa-download fa-fw'></i>&nbsp; " + _("Download submissions"))]
 
     if user_manager.has_admin_rights_on_course(course):
-        if web.ctx.app_stack[0].webdav_available:
+        if web.ctx.app_stack[0].webdav_host:
             default_entries += [("webdav", "<i class='fa fa-folder-open fa-fw'></i>&nbsp; " + _("WebDAV access"))]
         default_entries += [("replay", "<i class='fa fa-refresh fa-fw'></i>&nbsp; " + _("Replay submissions")),
                             ("danger", "<i class='fa fa-bomb fa-fw'></i>&nbsp; " + _("Danger zone"))]
