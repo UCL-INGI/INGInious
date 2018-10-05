@@ -9,6 +9,7 @@ Frontend commands
 
     commands_doc/inginious-install
     commands_doc/inginious-webapp
+    commands_doc/inginious-webdav
 
 Backend commands
 ----------------

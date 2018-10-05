@@ -178,6 +178,29 @@ To run INInious with a remote backend (and agents), do as follows:
 
         backend: tcp://backend-host:2000
 #. Run the frontend using :ref:`inginious-webapp`.
+   ::
+
+         inginious-webapp --config /path/to/configuration.yaml
+
+.. _webdav_setup:
+
+WebDAV setup
+------------
+
+An optional WebDAV server can be used with INGInious to allow course administrators to access
+their course filesystem. This is an additional app that needs to be launched on another port or hostname.
+Run the WebDAV server using :ref:`inginious-webdav`.
+ ::
+
+    inginious-webdav --config /path/to/configuration.yaml --port 8000
+
+In your configuration file (see :ref:`ConfigReference`), set ``webdav_host`` to:
+  ::
+
+    <protocol>://<hostname>:<port>
+
+where ``protocol`` is either ``http`` or ``https``, ``hostname`` and ``port`` the hostname and port
+where the WebDAV app is running.
 
 .. _webterm_setup:
 
@@ -210,6 +233,9 @@ note that INGInious-xterm must be launched using SSL if the frontend is launched
 
 Webserver configuration
 -----------------------
+
+The following guides suggest to run the INGInious webapp on http port and WebDAV on port 8080 on the same host.
+You are free to adapt thm to your use case (for instance, adding SSL support or using two hostnames).
 
 .. _lighttpd:
 
@@ -260,37 +286,59 @@ Once this is done, we can configure lighttpd. First, the file ``/etc/lighttpd/mo
     include "conf.d/compress.conf"
     include "conf.d/fastcgi.conf"
 
-You can then replace the content of fastcgi.conf with:
+You can then add virtual host entries in a ``/etc/lighttpd/vhosts.d/inginious.conf`` file and apply the following rules:
 ::
 
     server.modules   += ( "mod_fastcgi" )
     server.modules   += ( "mod_rewrite" )
 
-    alias.url = (
-        "/static/" => "/usr/lib/python3.5/site-packages/inginious/frontend/static/"
-    )
+    $SERVER["socket"] == ":80" {
+        alias.url = (
+            "/static/" => "/usr/lib/python3.5/site-packages/inginious/frontend/static/"
+        )
 
-    fastcgi.server = ( "/inginious-webapp" =>
-        (( "socket" => "/tmp/fastcgi.socket",
-            "bin-path" => "/usr/bin/inginious-webapp",
-            "max-procs" => 1,
-            "bin-environment" => (
-                "INGINIOUS_WEBAPP_HOST" => "0.0.0.0",
-                "INGINIOUS_WEBAPP_PORT" => "80",
-                "INGINIOUS_WEBAPP_CONFIG" => "/var/www/INGInious/configuration.yaml",
-                "REAL_SCRIPT_NAME" => ""
-            ),
-            "check-local" => "disable"
-        ))
-    )
+        fastcgi.server = ( "/inginious-webapp" =>
+            (( "socket" => "/tmp/fastcgi.socket",
+                "bin-path" => "/usr/bin/inginious-webapp",
+                "max-procs" => 1,
+                "bin-environment" => (
+                    "INGINIOUS_WEBAPP_HOST" => "0.0.0.0",
+                    "INGINIOUS_WEBAPP_PORT" => "80",
+                    "INGINIOUS_WEBAPP_CONFIG" => "/var/www/INGInious/configuration.yaml",
+                    "REAL_SCRIPT_NAME" => ""
+                ),
+                "check-local" => "disable"
+            ))
+        )
 
-    url.rewrite-once = (
-        "^/favicon.ico$" => "/static/icons/favicon.ico",
-        "^/static/(.*)$" => "/static/$1",
-        "^/(.*)$" => "/inginious-webapp/$1"
-    )
+        url.rewrite-once = (
+            "^/favicon.ico$" => "/static/icons/favicon.ico",
+            "^/static/(.*)$" => "/static/$1",
+            "^/(.*)$" => "/inginious-webapp/$1"
+        )
+    }
 
-The ``INGINIOUS_WEBAPP`` prefixed environment variables are used to replace the default command line parameters.
+    $SERVER["socket"] == ":8080" {
+        fastcgi.server = ( "/inginious-webdav" =>
+            (( "socket" => "/tmp/fastcgi.socket",
+                "bin-path" => "/usr/bin/inginious-webdav",
+                "max-procs" => 1,
+                "bin-environment" => (
+                    "INGINIOUS_WEBDAV_HOST" => "0.0.0.0",
+                    "INGINIOUS_WEBDAV_PORT" => "8080",
+                    "INGINIOUS_WEBAPP_CONFIG" => "/var/www/INGInious/configuration.yaml",
+                    "REAL_SCRIPT_NAME" => ""
+                ),
+                "check-local" => "disable"
+            ))
+        )
+
+        url.rewrite-once = (
+            "^/(.*)$" => "/inginious-webdav/$1"
+        )
+    }
+
+The ``INGINIOUS_WEBAPP`` and ``INGINIOUS_WEBDAV`` prefixed environment variables are used to replace the default command line parameters.
 See :ref:`inginious-webapp` for more details.
 
 The ``REAL_SCRIPT_NAME`` environment variable must be specified under lighttpd if you plan to access the application
@@ -348,24 +396,41 @@ Set the environment variables used by the INGInious CLI scripts in the Apache se
 Please note that the service environment file ``/etc/sysconfig/httpd`` may differ from your distribution and wether it
 uses *systemd* or *init*.
 
-You can then modify your ``/etc/httpd/conf/httpd.conf`` file to apply the following rules:
+You can then add virtual host entries in a ``/etc/httpd/vhosts.d/inginious.conf`` file and apply the following rules:
 ::
 
-    LoadModule wsgi_module /usr/lib64/python3.5/site-packages/mod_wsgi/server/mod_wsgi-py35.cpython-35m-x86_64-linux-gnu.so
+    <VirtualHost *:80>
+        ServerName my_inginious_domain
+        LoadModule wsgi_module /usr/lib64/python3.5/site-packages/mod_wsgi/server/mod_wsgi-py35.cpython-35m-x86_64-linux-gnu.so
 
-    WSGIScriptAlias / "/usr/bin/inginious-webapp"
-    WSGIScriptReloading On
+        WSGIScriptAlias / "/usr/bin/inginious-webapp"
+        WSGIScriptReloading On
 
-    Alias /static /usr/lib/python3.5/site-packages/inginious/frontend/static
+        Alias /static /usr/lib/python3.5/site-packages/inginious/frontend/static
 
-    <Directory "/usr/bin">
-        <Files "inginious-webapp">
+        <Directory "/usr/bin">
+            <Files "inginious-webapp">
+                Require all granted
+            </Files>
+        </Directory>
+
+        <DirectoryMatch "/usr/lib/python3.5/site-packages/inginious/frontend/static">
             Require all granted
-        </Files>
-    </Directory>
+        </DirectoryMatch>
+    </VirtualHost>
 
-    <DirectoryMatch "/usr/lib/python3.5/site-packages/inginious/frontend/static">
-        Require all granted
-    </DirectoryMatch>
+    <VirtualHost *:8080>
+        ServerName my_inginious_domain
+        LoadModule wsgi_module /usr/lib64/python3.5/site-packages/mod_wsgi/server/mod_wsgi-py35.cpython-35m-x86_64-linux-gnu.so
+
+        WSGIScriptAlias / "/usr/bin/inginious-webdav"
+        WSGIScriptReloading On
+
+        <Directory "/usr/bin">
+            <Files "inginious-webdav">
+                Require all granted
+            </Files>
+        </Directory>
+    </VirtualHost>
 
 Please note that the compiled *wsgi* module path may differ according to the exact Python version you are running.
