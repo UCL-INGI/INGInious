@@ -1,0 +1,77 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+# more information about the licensing of this file.
+
+import os
+import sys
+import argparse
+import logging
+import web
+
+from inginious.common.log import init_logging, CustomLogMiddleware
+from inginious.common.base import load_json_or_yaml
+import inginious.frontend.webdav
+
+# Apache wsgi module only set env vars when a request is done
+os.environ['INGINIOUS_WEBAPP_CONFIG'] = os.environ.get("INGINIOUS_WEBAPP_CONFIG", "")
+os.environ['INGINIOUS_WEBDAV_HOST'] = os.environ.get("INGINIOUS_WEBDAV_HOST", "localhost")
+os.environ['INGINIOUS_WEBDAV_PORT'] = os.environ.get("INGINIOUS_WEBDAV_PORT", "8080")
+
+# If INGInious files are not installed in Python path
+sys.path.append(os.path.dirname(__file__))
+
+if __name__ == "__main__":
+    # Parse the paramaters from command line arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config",
+                        help="Path to configuration file. By default: configuration.yaml or configuration.json", default=os.environ["INGINIOUS_WEBAPP_CONFIG"])
+    parser.add_argument("--host", help="Host to bind to. Default is localhost.", default=os.environ["INGINIOUS_WEBDAV_HOST"])
+    parser.add_argument("--port", help="Port to listen to. Default is 8080.", type=int, default=os.environ["INGINIOUS_WEBDAV_PORT"])
+    args = parser.parse_args()
+
+    host = args.host
+    port = args.port
+    configfile = args.config
+else:
+    # Parse the parameters from environment variables
+    host = os.environ["INGINIOUS_WEBDAV_HOST"]
+    port = os.environ["INGINIOUS_WEBDAV_PORT"]
+    configfile = os.environ["INGINIOUS_WEBAPP_CONFIG"]
+
+if not configfile:
+    if os.path.isfile("./configuration.yaml"):
+        configfile = "./configuration.yaml"
+    elif os.path.isfile("./configuration.json"):
+        configfile = "./configuration.json"
+    else:
+        raise Exception("No configuration file found")
+
+# Load configuration and application (!!! For mod_wsgi, application identifier must be present)
+config = load_json_or_yaml(configfile)
+application = inginious.frontend.webdav.get_app(config)
+
+# Init logging
+init_logging(config.get('log_level', 'INFO'))
+logging.getLogger("inginious.webdav").info("http://%s:%d/" % (host, int(port)))
+
+if 'SERVER_SOFTWARE' in os.environ:  # cgi
+    os.environ['FCGI_FORCE_CGI'] = 'Y'
+
+if 'PHP_FCGI_CHILDREN' in os.environ or 'SERVER_SOFTWARE' in os.environ:  # lighttpd fastcgi
+    import flup.server.fcgi as flups
+    flups.WSGIServer(application, multiplexed=True, bindAddress=None, debug=False).run()
+
+# Launch the integrated websever if app launched in cmd line
+if __name__ == "__main__":
+    # Add static redirection and request log
+    application = CustomLogMiddleware(application, logging.getLogger("inginious.webdav.requests"))
+
+    # Launch the app
+    server = web.httpserver.WSGIServer((host, int(port)), application)
+    try:
+        server.start()
+    except KeyboardInterrupt:
+        server.stop()
+

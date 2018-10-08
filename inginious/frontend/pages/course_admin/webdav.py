@@ -18,10 +18,10 @@ class WebDavInfoPage(INGIniousAdminPage):
 
     def page(self, course):
         """ Get all data and display the page """
-        if not self.webdav_available:
+        if not self.webdav_host:
             raise web.notfound()
 
-        url = web.ctx.home + "/dav/"+course.get_id()
+        url = self.webdav_host + "/" + course.get_id()
         username = self.user_manager.session_username()
         apikey = self.user_manager.session_api_key()
         return self.template_helper.get_renderer().course_admin.webdav(course, url, username, apikey)

@@ -116,6 +116,11 @@ The different entries are :
     If set, it allows to use in-browser task debug via ssh. (See :ref:`_webterm_setup` for
     more information)
 
+``webdav_host``
+   Link to the INGInious webdav app with the following syntax: ``http[s]://host:port``.
+   If set, a new page displays a WebDAV URL and login/password for administrators to access
+   the course filesystem.
+
 .. _configuration.example.yaml: https://github.com/UCL-INGI/INGInious/blob/master/configuration.example.yaml
 .. _docker-py API: https://github.com/docker/docker-py/blob/master/docs/api.md#client-api
 

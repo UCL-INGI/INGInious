@@ -1,16 +1,16 @@
 .. _inginious-webapp:
 
-inginious-webapp
+inginious-webdav
 ================
 
 Start the Web App Frontend. This command can run a standalone web server (see ``--host`` and ``--port`` options),
 but also as a FastCGI or WSGI backend.
 
-.. program:: inginious-webapp
+.. program:: inginious-webdav
 
 ::
 
-    inginious-webapp [-h] [--config CONFIG] [--host HOST] [--port PORT]
+    inginious-webdav [-h] [--config CONFIG] [--host HOST] [--port PORT]
 
 .. option:: --config
 
@@ -20,12 +20,12 @@ but also as a FastCGI or WSGI backend.
 .. option:: --host HOST
 
    Specify the host to which to bind to. By default, it is localhost.
-   This can also be specified via the ``INGINIOUS_WEBAPP_HOST`` environment variable.
+   This can also be specified via the ``INGINIOUS_WEBDAV_HOST`` environment variable.
 
 .. option:: --port PORT
 
    Specify the port to which to bind to. By default, it is 8080.
-   This can also be specified via the ``INGINIOUS_WEBAPP_PORT`` environment variable.
+   This can also be specified via the ``INGINIOUS_WEBDAV_PORT`` environment variable.
 
 .. option:: -h, --help
 
