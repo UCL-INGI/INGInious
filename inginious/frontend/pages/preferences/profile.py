@@ -48,7 +48,7 @@ class ProfilePage(INGIniousAuthPage):
             else:
                 msg = _("Profile updated.")
         elif not userdata["username"] and "username" in data:
-            if re.match(r"^[-_.|~0-9A-Z]{4,}$", data["username"], re.IGNORECASE) is None:
+            if re.match(r"^[-_|~0-9A-Z]{4,}$", data["username"], re.IGNORECASE) is None:
                 error = True
                 msg = _("Invalid username format.")
             elif self.database.users.find_one({"username": data["username"]}):
