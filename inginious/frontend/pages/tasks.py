@@ -247,7 +247,7 @@ class BaseTaskPage(object):
                     user_task = self.database.user_tasks.find_one({
                         "courseid":task.get_course_id(),
                         "taskid": task.get_id(),
-                        "username": self.user_manager.session_username()
+                        "username": {"$in": result["username"]}
                     })
 
                     default_submissionid = user_task.get('submissionid', None)

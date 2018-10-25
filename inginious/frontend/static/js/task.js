@@ -432,7 +432,7 @@ function waitForSubmission(submissionid)
                 }
                 else
                 {
-                    displayTaskStudentAlertWithProblems($("#internalerror").text(), "danger", false);
+                    displayTaskStudentAlertWithProblems(data, "danger", false);
                     updateSubmission(submissionid, "error", "0.0", []);
                     updateTaskStatus("Failed", 0);
                     unblurTaskForm();
@@ -441,7 +441,7 @@ function waitForSubmission(submissionid)
             })
             .fail(function()
             {
-                displayTaskStudentAlertWithProblems($("#internalerror").text(), "danger", false);
+                displayTaskStudentAlertWithProblems(data, "danger", false);
                 updateSubmission(submissionid, "error", "0.0", []);
                 updateTaskStatus("Failed", 0);
                 unblurTaskForm();
