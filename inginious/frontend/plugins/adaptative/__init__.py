@@ -51,7 +51,7 @@ class HomeAdaptativePage(INGIniousPage):
 		return HomePage(self).GET()
     
 def init(plugin_manager, course_factory, client, plugin_config):
-	"""  course name, initial level"""
+    """  course name, initial level"""
     global course_name
     course_name = plugin_config["course_name"]
     
