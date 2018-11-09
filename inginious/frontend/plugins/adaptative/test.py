@@ -21,14 +21,10 @@ import random
 from pymongo import MongoClient
 from inginious.frontend.pages.utils import INGIniousPage
 
-from inginious.frontend.plugins.adaptative.utils import  get_testing_tasks, update_level_task, get_test_state, update_test_state
-from inginious.frontend.plugins.adaptative.cat import task_level_evaluation, student_level_evaluation, get_parameters, get_first_question, get_next_question, init_item_bank
 
-from rpy2.robjects import r
 from random import randrange, sample
 import scipy.stats
 
-r('library(catR)')
 
 class AdaptTaskPage(BaseTaskPage):
 
@@ -120,36 +116,10 @@ class AdaptTaskPage(BaseTaskPage):
 
 			submissions = self.submission_manager.get_user_submissions(task) if self.user_manager.session_logged_in() else []
 			user_info = self.database.users.find_one({"username": username})
-
-			#############################################################
-			test_state = get_test_state(self.database, username)
+			######################################################
+			return self.plugin_manager.call_hook("get_hook", username=username, page=self, course=course, courseid=courseid, task=task, taskid=taskid, students=students, eval_submission=eval_submission, user_task=user_task, random_input_list=random_input_list)[0]
+			######################################################
 			
-			if(test_state != None):
-				items_names = get_testing_tasks(course, courseid)
-				items_bank = init_item_bank(items_names, self.database)
-				(username, level, testing_limit, current_question_index, path, answers) = test_state
-				task_index = items_bank.rownames.index(taskid) + 1 # index in bank
-				if(task_index not in path): # multiple gets
-					is_finished = len(path) == int(testing_limit)
-					if is_finished: 
-						student_level = student_level_evaluation(answers)
-						return self.template_helper.get_custom_renderer('frontend/plugins/adaptative').test_end(answers, student_level.__round__(3))
-
-					else:
-						path.append(task_index)
-						next_task_index = get_next_question(items_bank, level, path)
-						next_task_name = items_bank.rownames[int(next_task_index)-1]
-						next_task_object = course.get_task(next_task_name)
-						update_test_state(self.database, username, level, testing_limit, next_task_index, path, answers)
-						return self.template_helper.get_custom_renderer('frontend/plugins/adaptative').task_view(course, task, self.submission_manager.get_user_submissions(task), students, eval_submission, user_task, self.webterm_link, next_task_object, random_input_list)
-				else:
-					next_task_index = get_next_question(items_bank, level, path)
-					next_task_name = items_bank.rownames[int(next_task_index)-1]
-					next_task_object = course.get_task(next_task_name)
-					return self.template_helper.get_custom_renderer('frontend/plugins/adaptative').task_view(course, task, self.submission_manager.get_user_submissions(task), students, eval_submission, user_task, self.webterm_link, next_task_object, random_input_list)
-			#############################################################
-		
-
 	def POST(self, courseid, taskid, isLTI):
 		""" POST a new submission """
 		username = self.user_manager.session_username()
@@ -232,16 +202,8 @@ class AdaptTaskPage(BaseTaskPage):
 						return json.dumps({'status': "error", "text": _("Internal error")})
 					######################################################
 					# At each submission
+					self.plugin_manager.call_hook("post_hook", username=username, page=self, result=result)
 					
-					test_state = get_test_state(self.database, username)
-					(username, level, testing_limit, current_question_index, path, answers) = test_state
-					
-					if(result['result']=="failed" and answers[path[len(path)-1]-1] == 'NA'): 
-						answers[path[len(path)-1]-1] = '0'
-					elif result['result']=="success":  
-						answers[path[len(path)-1]-1] = '1'
-					level = student_level_evaluation(answers)
-					update_test_state(self.database, username, level, testing_limit, current_question_index, path, answers)
 					########################################################
 					
 					return self.submission_to_json(task, result, is_admin, False, default_submissionid == result['_id'], tags=task.get_tags())

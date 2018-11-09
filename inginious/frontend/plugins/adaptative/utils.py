@@ -1,5 +1,3 @@
-
-
 # Return a list of names of all task in the course
 def get_testing_tasks(course, courseid):
 	test_tasks = []
