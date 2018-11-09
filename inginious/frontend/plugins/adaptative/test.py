@@ -122,7 +122,6 @@ class AdaptTaskPage(BaseTaskPage):
 			user_info = self.database.users.find_one({"username": username})
 
 			#############################################################
-			print("------GET---------")
 			test_state = get_test_state(self.database, username)
 			
 			if(test_state != None):
@@ -130,36 +129,23 @@ class AdaptTaskPage(BaseTaskPage):
 				items_bank = init_item_bank(items_names, self.database)
 				(username, level, testing_limit, current_question_index, path, answers) = test_state
 				task_index = items_bank.rownames.index(taskid) + 1 # index in bank
-				
 				if(task_index not in path): # multiple gets
 					is_finished = len(path) == int(testing_limit)
 					if is_finished: 
-						print("\n--- State ---\n" + str(test_state) + "\n")
-						print("Current Taskid: " + taskid)
-						print("Item bank index: "+ str(task_index))
 						student_level = student_level_evaluation(answers)
 						return self.template_helper.get_custom_renderer('frontend/plugins/adaptative').test_end(answers, student_level.__round__(3))
 
 					else:
-						print("NOT IN PATH")  
 						path.append(task_index)
 						next_task_index = get_next_question(items_bank, level, path)
 						next_task_name = items_bank.rownames[int(next_task_index)-1]
 						next_task_object = course.get_task(next_task_name)
 						update_test_state(self.database, username, level, testing_limit, next_task_index, path, answers)
-						print("\n--- State ---\n" + str(test_state) + "\n")
-						print("Current Taskid: " + taskid)
-						print("Item bank index: "+ str(task_index))
-						print("Next task IB index: " + str(next_task_index))
 						return self.template_helper.get_custom_renderer('frontend/plugins/adaptative').task_view(course, task, self.submission_manager.get_user_submissions(task), students, eval_submission, user_task, self.webterm_link, next_task_object, random_input_list)
 				else:
-					print("IN PATH")
 					next_task_index = get_next_question(items_bank, level, path)
 					next_task_name = items_bank.rownames[int(next_task_index)-1]
 					next_task_object = course.get_task(next_task_name)
-					print("\n--- State ---\n" + str(test_state) + "\n")
-					print("Current Taskid: " + taskid)
-					print("Item bank index: "+ str(task_index))
 					return self.template_helper.get_custom_renderer('frontend/plugins/adaptative').task_view(course, task, self.submission_manager.get_user_submissions(task), students, eval_submission, user_task, self.webterm_link, next_task_object, random_input_list)
 			#############################################################
 		
@@ -245,12 +231,9 @@ class AdaptTaskPage(BaseTaskPage):
 						# This should never happen, as user_manager.update_user_stats is called whenever a submission is done.
 						return json.dumps({'status': "error", "text": _("Internal error")})
 					######################################################
-					print("------POST---------")
 					# At each submission
 					
 					test_state = get_test_state(self.database, username)
-					#path = test_state[4]
-					#answers = test_state[5]
 					(username, level, testing_limit, current_question_index, path, answers) = test_state
 					
 					if(result['result']=="failed" and answers[path[len(path)-1]-1] == 'NA'): 
