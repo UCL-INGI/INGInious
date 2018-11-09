@@ -1,0 +1,129 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+#
+#  Copyright (c)  2016 Naitali Brandon 2018
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU Affero General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU Affero General Public License for more details.
+#
+#  You should have received a copy of the GNU Affero General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+import os
+import json
+import subprocess
+import shlex
+import sys
+import re
+from json import JSONDecodeError
+
+from inginious import feedback
+from inginious import input
+
+from gramm_utils import get_conj, conjugate, string_to_code
+
+
+with open('public/file.json', 'r') as f:
+    data = json.load(f)
+    print(data)
+    rand_verb = int(input.get_input("@random")[0] * len(data["random_tab"]))
+    rand_pers = int(input.get_input("@random")[1] * len(data["random_tab_person"]))
+    rand_tense = int(input.get_input("@random")[2] * len(data["random_tab_tenses"]))
+    verbe = data["random_tab"][rand_verb]
+    tense = string_to_code(data["random_tab_tenses"][rand_tense])
+    person = string_to_code(data["random_tab_person"][rand_pers])
+    answer = conjugate(tense, person, verbe)
+print(verbe)
+print(tense)
+print(person)
+print(answer)
+
+def getfilename(file):
+    """ Retourne le nom de fichier (sans l'extension) du fichier nommé file """
+    return os.path.splitext(file)[0]
+
+def parsetemplate():
+    """ Parse les réponse de l'étudiant
+
+    Cette fonction s'occupe de mettre les réponse de l'étudiant aux endroit appropriés.
+    Pour chaque fichier dans le dossiers /task/Templates , si il possède une ou plusieurs
+    fois le pattern @@<id-question>@@, la réponse de la question avec l'id <id-question>
+    sera placée à la place du pattern et le fichier résultant sera copier dans le dossier
+    /task/StudentCode (créer au début de la fonction) avec une extension .java
+    """
+    os.mkdir('./StudentCode')
+    for file in os.listdir('./Templates'):
+        filename = getfilename(file)
+  
+        input.parse_template('./Templates/' + file,'./StudentCode/' + filename + '.txt');
+
+
+if __name__ == '__main__':
+    
+    parsetemplate()
+    
+    line = ['python3'] + ['gramm/grammalecte-cli.py'] + ['-f'] + ["StudentCode/answer.txt"] + ['-j']
+    print(line)
+    output = subprocess.check_output(line, universal_newlines=True)
+    results = json.loads(output)
+
+    file = open("StudentCode/answer.txt", "r") 
+    student_answer = file.read()
+    if len(results['data'][0]['lSpellingErrors']) != 0:
+        feedback.set_global_result('failed')
+        spel_error_str = str(len(results['data'][0]['lSpellingErrors']))+ ' mot(s) dans votre réponse n\'existe(nt) pas:\n\n'
+        for err in results['data'][0]['lSpellingErrors']:
+            spel_error_str = spel_error_str + err['sValue'] + '\n\n'
+        feedback.set_global_feedback(spel_error_str)
+    	
+        
+    elif student_answer != answer:
+        student_conj = get_conj(verbe, student_answer)
+        answer_conj = get_conj(verbe, answer)
+        
+        if not student_conj:
+            feedback.set_global_result('failed')
+            error_str = 'Vous n\'avez pas conjugué le verbe '+ verbe +'.'
+            feedback.set_global_feedback(error_str)
+        else:
+            tempsOk = False
+            persOk = False
+            tempPersOk = False
+        
+            errT = ''
+            for (tStud, pStud) in student_conj:
+                if(tStud == tense):
+                    tempsOk = True
+                    errT = "Le temps semble correct.\n\n"
+            if not tempsOk:
+        	    errT = "Le temps est incorrect.\n\n"
+        
+            errP = ''        
+            for (tStud, pStud) in student_conj:
+                if(pStud == person):
+                    persOk = True
+                    errP = "La personne semble correcte.\n\n"
+            if not persOk:
+        	    errP = 'La personne est incorrecte.\n\n'
+        
+            errTot = ''
+            for (tStud, pStud) in student_conj:
+                if(pStud == person and tStud == tense):
+                    tempPersOk = True
+                    errP = "La personne et le temps sont tous les deux corrects.\n\n"
+            if not tempPersOk:
+        	    errTot = 'La personne et le temps ne sont pas tous les deux corrects.\n\n'
+        
+            feedback.set_global_result('failed')
+            error_str = errP + errT + errTot
+            feedback.set_global_feedback(error_str)
+        
+    else:
+        feedback.set_global_result('success')

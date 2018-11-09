@@ -1,0 +1,282 @@
+$def with (course, task, submissions, students, eval_submission, user_task, webterm_link, next_task, input_random_list=[])
+
+$#
+$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+$# more information about the licensing of this file.
+$#
+
+$var title: $:"Adaptative Tests"
+
+$# Left column content
+$def ColumnF():
+    <h3>$:_("Information")</h3>
+    <table class="table table-condensed">
+        $if task.get_authors(user_manager.session_language()):
+            <tr>
+                <td>$:_("Author(s)")</td>
+                <td>$task.get_authors(user_manager.session_language())</td>
+            </tr>
+        $if not is_lti():
+            <tr>
+                <td>$:_("Deadline")</td>
+                <td>
+                    $task.get_deadline()
+                </td>
+            </tr>
+        <tr>
+            <td>$:_("Status")</td>
+            <td id="task_status">
+                $if not eval_submission and len(submissions) == 0:
+                    $:_("Not yet attempted")
+                $elif eval_submission is not None and eval_submission["status"] == "done" and eval_submission["result"] == "success":
+                    $:_("Succeeded")
+                $else:
+                    $ waiting=False
+                    $for submission in submissions:
+                        $if submission["status"] == "waiting":
+                            $ waiting=True
+                            $break
+                    $if waiting:
+                        $:_("Waiting for verification")
+                    $else:
+                        $:_("Failed")
+            </td>
+        </tr>
+        <tr>
+            <td>$:_("Grade")</td>
+            <td>
+                <span id="task_grade">$user_task.get('grade', 0)</span>%
+            </td>
+        </tr>
+        $if not is_lti():
+            <tr>
+                <td>$:_("Grading weight")</td>
+                <td>$task.get_grading_weight()</td>
+            </tr>
+        <tr>
+            <td>$:_("Attempts")</td>
+            <td id="task_tries">
+                $(user_task.get('tried', 0))
+            </td>
+        </tr>
+        <tr>
+            <td>$:_("Submission limit")</td>
+            <td>
+                $ submission_limit = task.get_submission_limit()
+                $if submission_limit == {"amount":-1, "period":-1}:
+                    $:_("No limitation")
+                $else:
+                    $if submission_limit["period"] > 0:
+                        $:_("{nb_submissions} submissions<br /> every {nb_hours} hour(s)").format(nb_submissions=submission_limit["amount"], nb_hours=submission_limit["period"])
+                    $else:
+                        $:_("{nb_submissions} submissions").format(nb_submissions=submission_limit["amount"])
+            </td>
+        </tr>
+    </table>
+    <h3>$:_("Administration")</h3>
+    $if not course.is_open_to_non_staff():
+        <div class="alert alert-warning" role="alert">
+            $:_("This course is currently invisible for students.  You can change this by modifying the \"accessible\" option in the configuration of the course.")
+        </div>
+    $if not task.get_accessible_time().after_start():
+        <div class="alert alert-warning" role="alert">
+            $:_("This task is currently invisible for students. You can change this by modifying the \"accessible\" option in the configuration of the task.")
+        </div>
+    <div class="list-group">
+        <a class="list-group-item list-group-item-info" href="$get_homepath()/admin/$course.get_id()/task/$task.get_id()">
+            <i class="fa fa-tasks fa-fw"></i>&nbsp; $:_("View submissions")
+        </a>
+        $if user_manager.has_admin_rights_on_course(course):
+            <a class="list-group-item list-group-item-info" href="$get_homepath()/admin/$course.get_id()/edit/task/$task.get_id()">
+                <i class="fa fa-edit fa-fw"></i>&nbsp; $:_("Edit task")
+            </a>
+            <a style="cursor:pointer;" class="list-group-item list-group-item-info" data-toggle="modal" data-target="#modal-debug">
+                <i class="fa fa-wrench fa-fw"></i>&nbsp; $:_("Debug information")
+            </a>
+    </div>
+
+
+    $:template_helper.call('task_menu', course=course, task=task, template_helper=template_helper)
+
+    <h3>$:_("For evaluation")</h3>
+    <div class="list-group">
+        <div class="list-group-item list-group-item-info"><i class="fa fa-info fa-fw"></i>
+            $if task.get_evaluate() == "last":
+                $:_("Last submission")
+            $elif task.get_evaluate() == "best":
+                $:_("Best submission")
+            $else:
+                $:_("Selected submission")
+        </div>
+        $if eval_submission:
+            <a id="my_submission" class="submission list-group-item list-group-item-info" data-submission-id="$eval_submission['_id']">
+                <i class="fa fa-chevron-right fa-fw"></i>
+                $eval_submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S") - $eval_submission.get("grade",0.0)%
+            </a>
+        $else:
+            <div id="my_submission" class="list-group-item list-group-item-info"><i class="fa fa-chevron-right fa-fw"></i> $:_("No submission")</div>
+    </div>
+
+    <h3>$:_("Submission history")</h3>
+    <div id="submissions_restrictsize">
+	    <ul id="submissions" class="list-group">
+	        $if submissions:
+	            $for submission in submissions:
+	                <li class="submission list-group-item
+	                    $if submission['status'] == 'done' and submission['result'] == 'success':
+	                        list-group-item-success
+	                    $elif submission['status'] == 'waiting':
+	                        list-group-item-warning
+	                    $else:
+	                        list-group-item-danger
+	                    "
+	                    data-submission-id="$submission['_id']">
+                        $if task.get_accessible_time().is_open() or user_manager.has_admin_rights_on_course(course):
+                            $if task.get_evaluate() == 'student' and students == submission['username']:
+                                <a class="allowed" title="Select for evaluation" data-toggle="tooltip" data-placement="right"><i class="fa fa-star fa-fw"></i></a>&nbsp;
+                            $elif task.get_evaluate() == 'student':
+                                <a class="notallowed" title="Not the same $('group' if course.use_classrooms() else 'team')" data-toggle="tooltip" data-placement="right"><i class="fa fa-minus-circle fa-fw"></i></a>&nbsp;
+
+                        $if "grade" in submission:
+                            <span>$submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S") - $submission["grade"]%</span>
+                        $else:
+                            <span>$submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S")</span>
+	                </li>
+
+	        $else:
+	            <li class="list-group-item disabled submission-empty">$:_("No submission")</li>
+	    </ul>
+    </div>
+$var Column: $:ColumnF()
+
+$def NavbarF():
+    <ol class="nav navbar-nav nav-breadcrumb">
+        <li><a href="$get_homepath()/course/$task.get_course().get_id()">$course.get_name(user_manager.session_language())</a></li>
+        <li class="active"><a href="#">$task.get_name(user_manager.session_language()) <span class="sr-only">$:_("(current)")</span></a></li>
+    </ol>
+$var Navbar: $:NavbarF()
+
+$# Start content
+<h2>$task.get_name(user_manager.session_language())</h2>
+$:task.get_context(user_manager.session_language())
+<hr/>
+<div id="task_alert"></div>
+<div id="ssh_template" style="display:none;">
+    $if webterm_link:
+        <div id="webterm">
+            <input type="hidden" value="$webterm_link" id="webterm_link"/>
+        </div>
+        $:_("Alternatively, you can also paste this command into your terminal:") <br/>
+    $else:
+        $:_("Paste this command into your terminal:") <br/>
+
+    <pre id="commandssh"></pre>
+    $:_("The password to connect is {}").format("<code></code>")
+</div>
+<div id="messages" style="display:none;">
+    <span id="answerall">$:_("Please answer to all the questions.")</span>
+    <span id="internalerror">$:("Internal error")</span>
+    <span id="invalidext">$:("{} has not a valid extension.")</span>
+    <span id="filetooheavy">$:("{} is too heavy.")</span>
+</div>
+
+$if user_manager.has_admin_rights_on_course(course):
+    <div class="modal fade" id="modal-debug">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">$:_("Debug information")</h4>
+                </div>
+                <div class="modal-body">
+                    $:_("The raw data from the container will be displayed here, helping you to debug the task.<br/> This box is only displayed because you are an administrator of this course. It is not displayed to students.")
+                    <hr/>
+                    <div id="task_debug">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<form id="task" method="post" enctype="multipart/form-data"
+    $for submission in submissions:
+        $if submission["status"] == "waiting":
+            data-wait-submission="$submission['_id']"
+            $break
+>
+    $# Hide input random in form
+    $ i = 0
+    $for elem in input_random_list:
+        <input type="hidden" name="@random_$i" id="random_input" value="$elem"/>
+        $ i = i+1
+    <input type="hidden" name="@action" value="submit"/>
+    $for key, problem in enumerate(task.get_problems()):
+        <div class="panel panel-default problem">
+            $if len(task.get_problems()) != 1 or problem.get_name(user_manager.session_language()) != "":
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        $if len(task.get_problems()) != 1:
+                            $:_("Question {}").format(str(key+1)):
+                        $problem.get_name(user_manager.session_language())
+                    </h3>
+                </div>
+            <div class="panel-body">
+                $:problem.show_input(template_helper, user_manager.session_language(), user_manager.session_username())
+            </div>
+        </div>
+
+    $# no need to check with lti=True/False here as it was already checked by the calling python script.
+    $ groups_ok = user_manager.task_can_user_submit(task, user_manager.session_username(), 'groups')
+    $ tokens_ok = user_manager.task_can_user_submit(task, user_manager.session_username(), 'tokens')
+
+	<input type="hidden" name="@debug-mode" id="task-debug-mode" value=""/>
+    <div class="row">
+        <div class="col-xs-9 col-md-10">
+            <button type="submit" class="btn btn-default btn-lg btn-block center-block" id="task-submit">$:_("Corriger")</button>
+            <button type="button" class="btn btn-default btn-lg btn-block center-block" id="task-next" disabled="disabled" onclick="nextQuestion()">$:_("Suivant")</button>
+        </div>
+        <div class="col-xs-3 col-md-2">
+            <button type="button" class="btn btn-info btn-lg btn-block center-block" id="task-submit-debug" data-toggle="tooltip"
+                    data-placement="top" title=$:_('"Start remote SSH console with this input"')>
+                <i class="fa fa-terminal"></i>
+            </button>
+        </div>
+    </div>
+
+</form>
+
+<script type="text/javascript">
+$ pdict = {problem.get_id(): problem.get_type() for problem in task.get_problems()}
+var problems_types = $:pdict
+
+$$(document).ready(function() {
+    init_task_page("$task.get_evaluate()");
+});
+
+$$(document).ready(function() {
+    init_task_page("$task.get_evaluate()");
+});
+
+$# Input random
+$# set up some useful variable that may be used by task author
+  
+    var input = {
+        "@lang": "$user_manager.session_language()",
+        "@username": "$user_manager.session_username()",
+        "@random": $input_random_list
+    }
+
+
+//button "next" becomes disabled
+function setSubmit() {
+  if(confirm('Are you sure you want to submit definitely?')){
+	  document.getElementById('task-definitive').setAttribute("disabled","disabled");
+	  document.getElementById('task-submit').setAttribute("disabled","disabled");
+	  document.getElementById('task-next').disabled = false;
+  }
+}
+function nextQuestion(){
+	window.location.href="/adaptative/" + "$course.get_id()/" + "$next_task.get_id()"; 
+}
+</script>

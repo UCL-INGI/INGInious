@@ -1,0 +1,29 @@
+{
+  "random_tab" : [
+    "avoir",
+    "être",
+    "pouvoir",
+    "faire",
+    "dire",
+    "voir",
+    "savoir",
+    "devoir",
+    "vouloir",
+    "prendre",
+    "aller",
+    "donner"
+  ],
+  "random_tab_person" : [
+    "troisième personne du singulier",
+    "troisième personne du pluriel",
+    "première personne du singulier",
+    "première personne du pluriel"
+  ],
+  "random_tab_tenses" : [
+    "indicatif imparfait",
+    "impératif présent",
+    "indicatif futur simple",
+    "conditionnel présent",
+    "indicatif passé simple"
+  ]
+}

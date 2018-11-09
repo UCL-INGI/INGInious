@@ -1,0 +1,174 @@
+accessible: true
+author: The INGInious authors
+context: |-
+    .. container:: row
+
+        .. container:: col-md-10 text-justify
+
+            The INGInious platform can host different courses. Each course is composed of a set of different tasks or assignments. Each of these are stored in a unique folder and identified using an alphanumerical identifier, referred as the *course id* or *task id*.
+
+            Courses are created by the super administrator(s) from the main page displaying the available courses, by specifying a new *course id*.
+
+        .. container:: col-md-2 text-center
+
+            .. raw:: html
+
+               <i style="font-size:120px;" class="fa fa-sitemap"></i>
+
+    The course administration
+    -------------------------
+
+    Settings
+    ````````
+
+    .. class:: text-justify
+
+        The `Course settings`_ are mostly used by the *micro-LMS* (webapp) frontend. Several parameters can be changed from there:
+
+        - **Name** : This is the complete displayed name of the course.
+        - **Administrators and tutors/teaching assistants** : This is the username list (separated by comma) of the course administrators or teaching assistants (TA). Administrators can access and change everything, and even delete the entire course. TA can acces the student submissions and change the student registrations.
+        - **Student aggregations** : A one-level (teams) or two-level (classrooms and groups) hierarchy can be chosen. The first level is teaching assistant relative and the second level is submission relative.
+        - **Accessibility** : A course can be open to students for a selected period only, if desired.
+        - **Registration policy** : Registrations can be open for a selected period only, with an optional registration password. This has to be differentiated from accessibility. Indeed, a course can be accessible while registrations are closed.
+        - **Access control** : This is used to restrict the course access to selected users.
+
+        All these settings are stored in a ``course.yaml`` file, in the course-associated folder.
+
+    .. _`Course settings`: /admin/tutorial/settings
+
+    Course organization and statistics
+    ``````````````````````````````````
+
+    .. class:: text-justify
+
+        The Students_, `Classrooms/Teams`_ and Tasks_ pages allow you to manage student registrations, classroom/team compositions and course tasks, respectively.
+
+        - Students_ page allows you to enroll/unenroll users from your course. It also displays some basic statistics on your students and the teaching staff that can be expanded by clicking on *View submissions* to unique submissions.
+        - `Classrooms/Teams`_ page allows you to create, remove and edit classrooms/groups or teams according to your course settings. It also displays basic statistics on your classrooms/teams that can be expanded by clicking on *View submissions* to unique submissions.
+        - Tasks_ page allows you to edit the course tasks using the graphical editor. It also displays basic statistics on your tasks that can be expanded by clicking on *View submissions* to unique submissions.
+
+        They also allows you to browse the course submissions filtered according to several criteria.
+
+    .. _Students: /admin/tutorial/students
+    .. _`Classrooms/Teams`: /admin/tutorial/aggregations
+    .. _Tasks: /admin/tutorial/tasks
+
+    Submissions download
+    ````````````````````
+
+    .. class:: text-justify
+
+        The `Download submissions`_ page lets you download a filtered set of your students submissions. These archive contain the input and output data of the tests execution as well as the archive generated during code execution. This gives you total control on the submission data for manual verification in case of doubt.
+
+    .. _`Download submissions`: /admin/tutorial/download
+
+    Submissions replay
+    ``````````````````
+
+    .. class:: text-justify
+
+        The `Replay submissions`_ page gives you the ability to re-run a set of submissions for re-evaluation. This is particularly useful when modifications have been applied to the tests suite, and you want the students to be graded in a fair way.
+
+        The submission preview page, available through statistics page, also gives you the ability to copy and replay a student submission as an adminstrator or teaching assistant. This will help you test and update the tests suite in case of a problem with a particular submission.
+
+    .. _`Replay submissions`: /admin/tutorial/replay
+
+    Batch operations
+    ````````````````
+
+    .. class:: text-justify
+
+        The `Batch operations`_ feature is made for advanced users who want to execute particular jobs in a secure environment with an arbitrary input. INGInious comes with a JPlag plagiarism detector suite that can be launched using a submissions archive
+
+    .. _`Batch operations`: /admin/tutorial/batch
+
+    Let's take a tour
+    -----------------
+
+    Browse the INGInious course administration pages to discover the full set of features. Once you've made that, answer to the small MCQ below to check your understanding and learn more.
+environment: mcq
+evaluate: best
+groups: false
+limits:
+    time: '3'
+    memory: '100'
+    output: '2'
+name: 2. Courses
+network_grading: false
+order: 1
+problems:
+    q1:
+        header: You've been preparing your course material during last summer and  are
+            now ready to open your course to users. You want an assignment to be done
+            by groups/teams of max. 3 students and let the students form their groups.
+            How can you achieve this ?
+        choices:
+        -   text: You create a sufficient amount of empty groups/teams with appropriate
+                maximum size.
+            feedback: For the students to register by themselves in groups, you also
+                need to give them this ability via the Course settings.
+        -   valid: true
+            text: You create a sufficient amount of empty groups/teams with appropriate
+                maximum size and check that students are allowed to register by themselves.
+        -   feedback: Students won't be able to create groups/teams by their own.
+                You first need to create empty groups/teams before the students can
+                populate them.
+            text: You check that students are allowed to register by themselves.
+        limit: 0
+        name: Groups/Teams composition
+        type: multiple_choice
+    q2:
+        header: 'You want students to work together and need to choose between the
+            teams or classrooms model for your course. The later is organized on different
+            locations, and students should be able to change their partners but only
+            between those following the course on the same location. What model would
+            you choose ? '
+        limit: 0
+        choices:
+        -   text: Classrooms and groups.
+            feedback: Indeed, classrooms composition are only managed by the staff
+                and students cannot work with students in other classrooms. The whole
+                classroom is supervised by a common teaching assistant.
+            valid: true
+        -   feedback: The team model makes no distinction between students and assumes
+                they can collaborate with any other student following the course.
+                This is a common scheme yet.
+            text: Teams.
+        type: multiple_choice
+        name: Student aggregation model
+    q3:
+        choices:
+        -   text: You ask the super-administrator to duplicate the course.
+        -   valid: true
+            text: In the administration *Danger zone*, you archive the course data,
+                so that past year are wiped and backup if needed later.
+        type: multiple_choice
+        limit: 0
+        header: You're about to restart your course this semester and want all the
+            student data to be cleaned while keeping the course and tasks unmodified
+            for the new students. How do you do that ?
+        name: Course archive
+    q4:
+        choices:
+        -   text: All the submissions of a given student
+            valid: true
+        -   valid: true
+            text: The submissions for a given task of a given student
+        -   valid: true
+            text: All the classrooms submissions
+        -   text: The submissions for a given task of a given team
+            valid: true
+        type: multiple_choice
+        error_message: The statistics pages offer more possibilities.
+        name: Statistics view
+        limit: 0
+        success_message: All these views are actually available, but many more can
+            be generated, just browse the pages.
+        multiple: true
+        header: Among the following suggestions, what statistics tables are actually
+            available through the course administration pages ?
+stored_submissions: 0
+submission_limit:
+    amount: -1
+    period: -1
+weight: 1.0

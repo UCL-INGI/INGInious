@@ -1,0 +1,62 @@
+accessible: true
+author: The INGInious authors
+context: |-
+    .. container:: row
+
+        .. container:: col-md-10 text-justify
+
+            Sometimes, when designing your assigments on INGInious, you may face some issues because you use a different software set on your local machine than the available environments, or because you did not take a specific student input into account. As your script are run at the server side, this may be difficult to find the solution only with a set of input/output.
+
+            INGInious comes with an embedded debugging facility that will help you fix some undesired behaviour that may arise while running your test suite.
+
+        .. container:: col-md-2 text-center
+
+            .. raw:: html
+
+               <i style="font-size:120px;" class="fa fa-terminal"></i>
+
+    The SSH debugging facility
+    --------------------------
+
+    .. class:: text-justify
+
+        SSH (Secure Shell) is a common remote-access protocol used on Unix platforms. SSH clients are widely available on the mostly used platforms, and will give you access to a shell on the remote server.
+
+        INGInious offers the ability to launch an SSH server inside the *grading container* and to access it remotely. This is achieved via the admin-only *Start remote SSH console* (``>_``) button next to the *Submit* button. Two configurations are available:
+
+        - **Default** : By default, when pressing the ``>_`` button, a command line and password will be provided to you in order to access the remote shell.
+        - **Web terminal** : If set up (see complete documentation for more information), an embedded web terminal will open a shell session in the browser. No SSH client is needed in this configuration.
+
+    Let's take a tour
+    -----------------
+
+    This task provided with some input fields as well as a basic ``run`` file. To open an SSH debug session:
+
+    #. Click on the *>_* button to start a debugging session.
+    #. If prompted, copy and paste the command line to connect to the server in a local shell and type the given password.
+    #. Once connected, you are able to do anything you want. To run the test suite normally, just type ``./run``.
+    #. When you are done, type ``exit`` to close the remote SSH session. Feedback will be displayed as if the submission was done normally.
+
+    If something goes wrong here, you'll be able to run your test suite command by command.
+environment: default
+evaluate: best
+groups: false
+limits:
+    time: '3'
+    memory: '100'
+    output: '2'
+name: 9. Debugging tasks
+network_grading: false
+order: 8
+problems:
+    thecode:
+        name: ''
+        optional: true
+        language: ''
+        type: code
+        header: This unique optional input box is provided with *problem id*  ``thecode``.
+stored_submissions: 0
+submission_limit:
+    amount: -1
+    period: -1
+weight: 1.0

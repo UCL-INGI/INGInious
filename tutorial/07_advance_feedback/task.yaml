@@ -1,0 +1,140 @@
+accessible: true
+author: The INGInious authors
+context: |-
+    .. container:: row
+
+        .. container:: col-md-10 text-justify
+
+            The more information you'll provide to students, the more they will understand what is going wrong with their work and be able to improve it. A bunch of textual information may be somewhat limitating, or boring for the students.
+
+            You may want to return complex feedback, such as code snippet to highlight some errors, formatted terminal output, links to some material to review to better understand the assignment concepts, or even generated images or files based on the student input.
+
+        .. container:: col-md-2 text-center
+
+            .. raw:: html
+
+               <i style="font-size:120px;" class="fa fa-paragraph"></i>
+
+    .. class:: text-justify
+
+            In this section you'll be introduced to some built-in reStructuredText tools shipped with INGInious to help you deal with feedback formatting in a faster way.
+
+    The ``rst-code`` API
+    --------------------
+
+    .. class:: text-justify
+
+        The ``rst-code`` API is used to produce a reStructuredText code-block on standard output with a code snippet passed on standard input of via an optional argument. The complete list of arguments is detailed below:
+
+        --code CODE
+            snippet code
+        --escape
+            interprets backslash escapes
+        --language LANGUAGE
+            snippet language, leave empty to disable syntax highlighting
+
+        For instance, to add the content of a file to the feedback:
+
+        .. code-block:: bash
+
+            cat myfile.java | rst-code --language java | feedback-msg -a
+
+
+    The ``rst-msgblock`` API
+    ------------------------
+    .. class:: text-justify
+
+        The ``rst-msgblock`` API is used to produce an alert message, or admonition, on standard output. The admonition content can be passed on standard input or as an optional argument. The complete list of optional arguments is detailed below:
+
+        --escape
+            interprets backslash escapes
+        --class CSS_CLASS
+            Bootstrap alert CSS class
+        --message MESSAGE
+            message text
+        --title THE_TITLE
+            message title
+
+        The Bootstrap CSS alert class can be chosen among: ``success``, ``info``, ``warning``, and ``danger``. For instance, to add a ``warning`` alert message to the feedback:
+
+        .. code-block:: bash
+
+            rst-msgblock --class warning --message "lol" | feedback-msg -a
+
+    The ``rst-image`` API
+    ---------------------
+
+    .. class:: text-justify
+
+        Returning images into submission feedback can be achieved using the ``rst-image`` API which print the reStructuredText code on standard output. This command takes the filepath to the generated image file inside the *grading container* as well as an optional ``--format`` paramater for specifying the image type if different from the file extension.
+
+        For instance, to add the ``result.jpg`` image file to the feedback:
+
+        .. code-block:: bash
+
+            rst-image result.jpg | feedback -a
+
+
+    The ``rst-indent`` API
+    ----------------------
+
+    .. class:: text-justify
+
+        You may need to add some indentation level when using the above APIs, for instance, to add a clode block inside a bulleted list. This is achieved using the ``rst-indent`` API. This reads the text to indent from standard input or from the optional arguments and outputs the indented text on the standard output. The complete list of arguments are :
+
+        --escape
+            interprets backslash escapes
+        --indent-char INDENT_CHAR
+            indentation char, by default default, tabulation
+        --amount AMOUNT
+            amount of indentation, by default, 1
+        --message MESSAGE
+            message text
+
+        For instance, to add a four-space indentation to a code-block and add it to the feedback:
+
+        .. code-block:: bash
+
+            cat myfile.java | rst-code --language java | rst-indent --indent-char "    " | feedback-msg -a
+
+    Let's take a tour
+    -----------------
+
+    .. class:: text-justify
+
+        Use the code input defined below along with the sandbox to find out in details the reStructuredText APIs features. A ``logo.png`` file is provided at the task folder root. The feedback you produce in the sandbox will be directly returned as the submission feedback.
+environment: default
+evaluate: best
+groups: false
+limits:
+    time: '3'
+    memory: '100'
+    output: '2'
+name: 7. Writing advanced feedback
+network_grading: false
+order: 6
+problems:
+    studentcode:
+        header: This optional field can be used inside the sandbox below as *problem
+            id* ``studentcode``.
+        language: ''
+        optional: true
+        name: Optional student code
+        type: code
+    thecode:
+        name: Sandbox
+        language: shell
+        header: |-
+            Use this code box as a sandbox for testing both the feedback APIs. **Here you'll write an executable script**, so do not forget beginning your code, for instance, by:
+
+            .. code-block:: bash
+
+                #!/bin/bash
+
+            The displayed feedback will reflect the APIs you invoke.
+        type: code
+stored_submissions: 0
+submission_limit:
+    amount: -1
+    period: -1
+weight: 1.0

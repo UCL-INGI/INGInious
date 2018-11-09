@@ -1,0 +1,7 @@
+#!/bin/bash
+
+for D in `find .  -name 'm9*' -type d -depth`
+do
+    git mv "$D" "${D:0:3}0${D:3}"
+done
+

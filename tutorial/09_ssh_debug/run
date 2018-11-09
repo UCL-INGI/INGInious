@@ -1,0 +1,11 @@
+#!/bin/bash
+
+DEBUG=$(python3 debug_check.py)
+
+if [ "$DEBUG" = "ssh" ]; then
+    feedback-result success
+    feedback-msg -m "You have successfully ended a submission using SSH debugging."
+else
+    feedback-result failed
+    feedback-msg -m "You did not press the \`\`>_\`\` button."
+fi

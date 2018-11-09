@@ -1,0 +1,29 @@
+$def with (course, task)
+
+$#
+$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+$# more information about the licensing of this file.
+$#
+$var title: $:"Adaptative Testing"
+<style>
+	h4{
+		margin-bottom : 10%;
+	}
+</style>
+<input type="hidden" name="@debug-mode" id="task-debug-mode"/>
+
+<div class="form-group">
+	<div class="col-xs-9 col-md-10">
+		 <form>
+		 	<h4><center>$:_("Test adaptatif en conjugaison (2ème, 3ème, 4ème cycle)")</center></h4>
+			<input type="button" value="Commencer" class="btn btn-default btn-lg btn-block center-block" onclick="beginTest()"/>
+		</form> 
+	</div>
+</div>
+
+
+<script type="text/javascript">
+function beginTest(){
+	window.location.href="/adaptative/" + "$course.get_id()/" + "$task.get_id()";
+}
+</script>

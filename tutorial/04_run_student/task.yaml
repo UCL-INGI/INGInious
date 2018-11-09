@@ -1,0 +1,136 @@
+accessible: true
+author: The INGInious authors
+context: |-
+    .. container:: row
+
+        .. container:: col-md-10 text-justify
+
+            The next sections of this tutorial will help you interfacing your test suite with INGInious.
+
+            In the *Getting started* section of this tutorial, you were asked to provide a small Python program printing ``Hello World!`` on standard output. The grading script was the following one:
+
+            .. code-block:: bash
+
+                #!/bin/bash
+
+                getinput "thecode" > student/student_code.py
+                output=$(python3 student/student_code.py)
+
+                if [ "$output" = "Hello World!" ]; then
+                    feedback-result success
+                else
+                    feedback-result failed
+                    feedback-msg -em "Your program displayed : $output"
+                fi
+
+        .. container:: col-md-2 text-center
+
+            .. raw:: html
+
+               <i style="font-size:120px;" class="fa fa-shield"></i>
+
+    Breaking the grading script
+    ---------------------------
+
+    .. class:: text-justify
+
+        The grading script shown above will execute the grading code and student-provided code in the same context. An alert student who knows how the INGInious API interact between the grading script and the submission manager may try to open several new processes to change its own result.
+
+        For instance, this grading script is particularly sensible on the ``feedback-grade`` and ``feedback-msg`` API (discussed later). Try again mission *1. Getting started* with this simple code and observe the result:
+
+        .. code-block:: python
+
+            import os
+            print("Hello World!")
+            os.system("feedback-msg -em 'You have made it.' ")
+
+        Moreover, students are also able to modify grading scripts that would not yet be loaded at the time their code is executed. One can easily conclude that a badly written grading script may leave the student with total control on how (s)he's graded, requiring the teaching staff to read manually all the submissions to detect fraud.
+
+    The ``run_student`` API
+    -----------------------
+    .. class:: text-justify
+
+        To ensure the student has no access to your grading scripts or the INGInious interface, a specific ``run_student`` API is provided.
+
+        This tool is used to add a layer of isolation by spawning a process in a new container which possibly has overriden limitations and has only access to the ``student`` task subdirectory. This is known as the *student container*, in contrast to the *grading container*.
+
+    Using the API
+    ``````````````
+    .. class:: text-justify
+
+        The ``run_student`` API is a *grading container*-accessible shell command that takes as positional argument the shell command to launch inside the *student container*, as well as the following optional parameters:
+
+        --container CONTAINER
+            Name of the environment to use. The default is the same as the current environment.
+
+        --time TIMEOUT_VALUE
+            Timeout (CPU time) for the container. The default is the same as the grading container.
+
+        --hard-time TIMEOUT_VALUE
+            Hard timeout for the container (wall time). The default is three times the value indicated for ``--time``.
+
+        --memory MEMORY
+            Maximum memory for the container, in MB. The default is the same as the current container.
+
+        --share-network
+            Share the network stack of the grading container with the student container. This is not the case by default.
+
+
+        It forwards standard I/O, most signals and returns specific additional exit codes:
+
+        - ``252`` : *student container* killed due to an out-of-memory
+        - ``253`` : *student container* timed out
+        - ``254`` : I/O redirection failed
+
+    Adapting the grading script
+    ```````````````````````````
+
+    .. class:: text-justify
+
+        The existing grading script can now be adapted easily. This will become:
+
+        .. code-block:: bash
+
+            #!/bin/bash
+
+            getinput "thecode" > student/student_code.py
+            output=$(run_student python3 student/student_code.py)
+
+            if [ "$output" = "Hello World!" ]; then
+                feedback-result success
+            else
+                feedback-result failed
+                feedback-msg -em "Your program displayed : $output"
+            fi
+
+        Please note that the *student container* will be started with the same working directory as the *grading container*. You may need to change it to ``/student`` before to allow students to perform IO in the working directory.
+
+    Retry to break the code
+    ```````````````````````
+    .. class:: text-justify
+
+        The current task ``run`` script has been corrected to reflect the need for student process isolation. Try to break the grading script again !
+environment: default
+evaluate: best
+groups: false
+limits:
+    time: '3'
+    memory: '100'
+    output: '2'
+name: 4. Running student programs
+network_grading: false
+order: 3
+problems:
+    thecode:
+        name: Hello World !
+        language: python
+        header: |-
+            Here you are asked to provide a basic Python 3 program displaying ``Hello World!`` on standard output.
+
+            *Hint :* to display something on standard output, use the built-in ``print`` method.
+        type: code
+stored_submissions: 0
+submission_limit:
+    amount: -1
+    period: -1
+weight: 1.0

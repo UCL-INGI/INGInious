@@ -1,0 +1,162 @@
+accessible: true
+author: The INGInious authors
+context: |-
+    .. container:: row
+
+        .. container:: col-md-10 text-justify
+
+            You have now reached the end of this tutorial and should be able to design assignments using INGInious. Some things remain uncovered like natch jobs and plugins. Those are advanced features for the superadministrator; please refer to the complete documentation.
+
+            In this last section you'll find out how to add some environments to your INGInious installation. Indeed, our default environment only provides Python 2/3 along with some standard command-line tools. **Please note that this is only accessible to the superadministrator, who has access to the INGInious installation.**
+
+        .. container:: col-md-2 text-center
+
+            .. raw:: html
+
+               <i style="font-size:120px;" class="fa fa-trophy"></i>
+
+    Supported environments
+    ----------------------
+
+    .. class:: text-justify
+
+        Some environments based on free and open source software are provided by the INGInious authors:
+
+        :``default``:
+            Default Python 2/3 environment.
+        :``cpp``:
+            Includes GCC toolchain for C/C++ development.
+        :``java7``:
+            Includes Java 7 and JUnit.
+        :``java8scala``:
+            Includes Java 8 and Scala.
+        :``math``:
+            Includes Octave and Julia.
+        :``mono``:
+            Includes the Mono framework for cross-platform dotnet development.
+        :``oz``:
+            Includes Mozart/Oz v2.0.0alpha.
+        :``php``:
+            Includes PHP5.
+        :``r``:
+            Includes R.
+        :``sekexe``:
+            Includes Sekexe to run process in user-mode Linux.
+        :``verilog``:
+            Includes Icarus Verilog.
+
+        INGInious supported environments are available through the Docker hub, and can be downloaded via the following command on your INGInious instances:
+
+        .. code-block:: shell
+
+            docker pull ingi/inginious-c-ENVIRONMENT_NAME
+
+        Then, restart the INGInious agent in order to see the new environment on the environment list.
+
+    Custom environments
+    -------------------
+
+    .. class:: text-justify
+
+        All INGInious environment containers inherits from the ``ingi/inginious-c-base`` container which provides the INGInious API on CentOS distribution. To define a new environment, you'll need to:
+
+        - Define a Docker container that inherits from ``ingi/inginious-c-base`` using a ``Dockerfile``.
+        - Name the environment using the ``org.inginious.grading.name`` label.
+
+        For instance, these basic ``Dockerfile`` will provide you with GCC for C/C++ development with environment name ``cpp``:
+
+        .. code-block::
+
+            FROM  ingi/inginious-c-base
+            LABEL org.inginious.grading.name="cpp"
+            RUN   yum install -y gcc cpp make binutils libstdc++ && yum clean all
+
+        This new container can be built and used inside INGInious (after INGInious restart) by using the following command:
+
+        .. code-block:: shell
+
+            docker build -t ingi/inginious-c-ENVIRONMENT_NAME FOLDER_TO_DOCKERFILE
+
+    Let's review
+    ------------
+
+    Below you'll find a small MCQ to review and better understand how to make additional INGInious environments.
+environment: mcq
+evaluate: best
+groups: false
+limits:
+    time: '30'
+    memory: '100'
+    output: '2'
+name: 10. Additional environments
+network_grading: false
+order: 9
+problems:
+    q1:
+        choices:
+        -   valid: true
+            text: |-
+                .. code-block:: shell
+
+                    docker pull ingi/inginious-c-cpp
+        -   feedback: No. All INGInious supported environments correspond to Docker
+                container prefixed with ``ingi/inginious-c-``
+            text: |-
+                .. code-block:: shell
+
+                    docker pull cpp
+        header: You want to download the provided ``cpp`` environment. What should
+            you type into your shell ?
+        limit: 0
+        name: Supported environments
+        type: multiple_choice
+    q2:
+        header: How is the INGInious environment name provided from the container
+            ?
+        limit: 0
+        choices:
+        -   text: Via the ``org.inginious.grading.name`` label.
+            valid: true
+        -   text: Via the container tag suffix.
+        -   text: Both.
+        error_message: While we suggest this naming convention, only the ``org.inginious.grading.name``
+            label is used  by INGInious to determine the environment name.
+        name: Environment names
+        type: multiple_choice
+    q3:
+        choices:
+        -   valid: true
+            text: |-
+                .. code-block:: shell
+
+                    docker build -t ingi/inginious-c-go /home/tux/go
+        -   text: |-
+                .. code-block:: shell
+
+                    docker build -t ingi/inginious-c-go /home/tux/go/Dockerfile
+            feedback: The ``FOLDER_TO_DOCKERFILE`` argument is actually the path to
+                the folder containing your ``Dockerfile``.
+        type: multiple_choice
+        limit: 0
+        header: You want to build a new ``go`` environment. The path to your *Dockerfile*
+            is ``/home/tux/go/Dockerfile``. What would you type in yourterminal ?
+        name: Building a new environment
+    q4:
+        choices:
+        -   text: Yes.
+            valid: true
+        -   feedback: You actually can. As the ``ingi/inginious-c-php`` container
+                inherits from ``ingi/inginious-c-base``, your new container will contain
+                the INGInious API. However, the ``org.inginious.grading.name`` still
+                must be defined for the new enviroment.
+            text: No.
+        type: multiple_choice
+        name: Environment inheritance
+        limit: 0
+        header: Can you define a new environment ``lamp`` by inheriting from an existing
+            environment container, such as ``ingi/inginious-c-php`` ?
+stored_submissions: 0
+submission_limit:
+    amount: -1
+    period: -1
+weight: 1.0

@@ -1,0 +1,113 @@
+accessible: true
+author: The INGInious authors
+context: |-
+    .. container:: row
+
+        .. container:: col-md-10 text-justify
+
+            In this section you'll see how to fetch the student input in order to perform the evaluation and provide feedback.
+
+            The task problems are identified using their *problem ids*, which are specified at the new problem addition. Using these *problem ids*, you'll either store the content of the problem field somewhere, or include it in an existing template.
+
+        .. container:: col-md-2 text-center
+
+            .. raw:: html
+
+               <i style="font-size:120px;" class="fa fa-edit"></i>
+
+    The ``getinput`` API
+    ---------------------
+
+    .. class:: text-justify
+
+        The following exercise defines an additional code box with *problem id* ``studentcode``. The ``getinput`` API is used with *problem id* as argument and returns the value of the associated input field.
+
+        The following command will fetch the ``studentcode`` problem and store the code into a ``studentcode.py`` file.
+
+        .. code-block:: bash
+
+            getinput studentcode > studentcode.py
+
+        The API will, by default, return the binary content of file in case of a file upload problem. Additional syntax using ``problemid:filename`` and ``problemid:value`` will give you explicit access to the filename as it was uploaded and binary file content. For instance, the following command will store the ``studentupload`` problem filename inside variable ``FILENAME``:
+
+        .. code-block:: bash
+
+            FILENAME=$(getinput studentupload:filename)
+
+    The ``parsetemplate`` API
+    -------------------------
+
+    .. class:: text-justify
+
+        Sometimes you'll only ask students for a little piece of code which will be part of a partial implementation. You'll then need to put the student input into what is called a template file.
+
+    Writing templates
+    `````````````````
+    .. class:: text-justify
+
+        Problem input can be inserted easily into existing code by inserting ``@[indent_chars]@problem_id@[ident_chars]@`` tags into those files. For instance, the following Python template will be used to load a student implemented into an existing function:
+
+        .. code-block:: python
+
+            def signature(arg1, arg2):
+                print("Start of student code...")
+            @    @studentcode@@
+                print("End of student code...")
+
+    Parsing templates
+    `````````````````
+    .. class:: text-justify
+
+        The ``parsetemplate`` API is used with a template file as argument as well as the optional ``--output OUTPUTFILE`` argument if the output file shoud be different than the input file.
+
+        For instance, the following command will parse the ``template.py`` file into a new ``studentcode.py`` file:
+
+        .. code-block:: bash
+
+            parsetemplate --output studentcode.py template.py
+
+    Let's take a tour
+    -----------------
+
+    .. class:: text-justify
+
+        Use the two code and file upload inputs defined below along with the sandbox to find out in details the ``getinput`` and ``parsetemplate`` features. Your script output will be shown in feedback.
+environment: default
+evaluate: best
+groups: false
+limits:
+    time: '3'
+    memory: '100'
+    output: '2'
+name: 5. Fetching student input
+network_grading: false
+order: 4
+problems:
+    studentupload:
+        name: File upload
+        type: file
+        header: This box is used to upload a file and has *problem id* ``studentupload``.
+            Please select any file on your disk that meet the requirements. Please
+            note that it will be stored within the submission.
+    studentcode:
+        header: This box is used to type code and has problem id ``studentcode``.
+            No syntax highlighting is configured.
+        language: ''
+        name: Code box
+        type: code
+    thecode:
+        name: Sandbox
+        language: shell
+        header: |-
+            Use this code box as a sandbox for testing both the ``getinput`` and ``parsetemplate`` API. **Here you'll write an executable script**, so do not forget beginning your code, for instance, by:
+
+            .. code-block:: bash
+
+                #!/bin/bash
+        type: code
+        optional: true
+stored_submissions: 0
+submission_limit:
+    amount: -1
+    period: -1
+weight: 1.0

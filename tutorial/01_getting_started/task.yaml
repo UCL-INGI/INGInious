@@ -1,0 +1,87 @@
+accessible: true
+author: The INGInious authors
+context: |-
+    .. container:: row
+
+       .. container:: col-xs-8 col-md-9 text-justify
+
+          Welcome on the INGInious platform ! INGInious is an automatic grading platform mainly designed for coding-like assignments and widely extensible.
+
+          It allows to run any kind of test with any kind of software in secure environments, and to provide students with feedback on their programming assignments or MCQ quizzes in a friendly graphical environment.
+
+          INGInious comes with a *micro LMS* (webapp) that allows storing and managing/restricting student submissions, producing statistics, and provides grouped submissions facilities such as teams or classrooms with up to two levels of hierarchy.
+
+       .. container:: col-xs-4 col-md-3 text-center
+
+          .. image:: 01_getting_started/inginious.png
+               :height: 180px
+
+    .. class:: text-justify
+
+        If you already rely on an existing LMS such as Moodle or edX, you can integrate the INGInious grading features using our LTI interface and keep using your now-augmented existing e-learning platform.
+
+    Roles
+    -----
+    .. class:: text-justify
+
+        According to your role in a course, you may see things a bit differently on this page:
+
+
+        - **Student**: Below you'll find the questions to answer to succeed this mission. Once you've answered to all the questions, click on *Submit*. No submission limit or deadline is set on this mission. Your score for this mission is, by default, the best one you've submitted.
+        - **Tutor/teaching assistant**: You then have read access to submissions made by registered students by clicking on *View submissions*.
+        - **(Super-)Administrator**: If a deadline or submission limit is set, this won't apply to you. You can change the parameters and edit the test files by clicking on *Edit Task*. An additional button is available next to the *Submit* button. This button allows you to get an SSH remote access to your secure grading environment.
+
+    Hello World!
+    ------------
+
+    This basic introduction task aims at getting you familiar with the INGInious submission interface.
+
+    Your mission
+    ````````````
+
+    In this mission, you'll have to use the Python 3 built-in ``print`` function to display an ``Hello World!`` message on the console.
+
+    How is this checked ?
+    `````````````````````
+
+    Each INGInious programming assignment tests are started using the task ``run`` script, which can be any executable file. This mission is evaluated using the following ``run`` script :
+
+    .. code:: bash
+
+        #!/bin/bash
+
+        getinput "thecode" > student/student_code.py
+        output=$(python3 student/student_code.py)
+
+        if [ "$output" = "Hello World!" ]; then
+            feedback-result success
+        else
+            feedback-result failed
+            feedback-msg -em "Your program displayed : $output"
+        fi
+
+    This fetches the ``thecode`` problem content and stores it in a ``student/student_code.py`` file. It then checks if the program output is ``Hello World!`` or prints a feedback message with the actual program output.
+environment: default
+evaluate: best
+groups: false
+limits:
+    time: '3'
+    memory: '100'
+    output: '2'
+name: 1. Getting started
+network_grading: false
+order: 0
+problems:
+    thecode:
+        name: Hello World !
+        language: python
+        type: code
+        header: |-
+            Here you are asked to provide a basic Python 3 program displaying ``Hello World!`` on standard output.
+
+            *Hint :* to display something on standard output, use the built-in ``print`` method.
+stored_submissions: 0
+submission_limit:
+    amount: -1
+    period: -1
+weight: 1.0

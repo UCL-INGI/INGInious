@@ -1,0 +1,133 @@
+accessible: true
+author: The INGInious authors
+context: |-
+    .. container:: row
+
+        .. container:: col-md-10 text-justify
+
+            In this section you'll see how to actually grade student submissions by providing a result, score, and detailed feedback. Feedback should be provided for at least the whole task (or assignment), and can be provided for each of the subproblem too.
+
+            Detailed feedback is one of the main INGInious assets. INGInious is not designed to coldly return success or failed messages but to also to provide an extensive feedback for the students to understand their mistake and improve their submissions.
+
+        .. container:: col-md-2 text-center
+
+            .. raw:: html
+
+               <i style="font-size:120px;" class="fa fa-comments"></i>
+
+    .. class:: text-justify
+
+        Therefore, writing feedback may become a challenging task for the assignment designer, requiring an extensive testbench. But the most extensive is the testbench and feedback, the most you'll get from INGInious : the teaching assistants will save a huge amount of time and the students will actually learn from their mistakes.
+
+    The ``feedback-result`` API
+    ---------------------------
+
+    .. class:: text-justify
+
+        The task result is **mandatory** and is provided via the ``feedback-result`` API which takes as positional argument the status and accepts an optional argument the specific *problem id* ``--id PROBLEMID`` to which the status apply.
+
+        The result is used by the frontends to indicate wether it is considered as succeeded or not, and wether the test execution failed or not.
+
+        The available results are listed below:
+
+        - ``success`` : The submission is considered as succeeded. This status can be displayed if the student submission is considered as sufficient, or perfect, according to your appreciation.
+        - ``failed`` : The submission is considered as failed. This status can be displayed if the student submission was evaluated without inconvenient but does not match your success criteria. This typically means that the student should improve the submission to pass.
+        - ``timeout`` : The submission timed out. This status is typically returned by forwarding the exit code of a process spawned in a *student container*.
+        - ``overflow`` : The submission overflowed. This status is typically returned by forwarding the exit code of a process spawned in a *student container*.
+        - ``crash`` : **Your code crashed.** This status is typically returned when the grading script is not able to end correctly. This helps distinguish INGInious internal errors from ``run`` script errors.
+
+        INGInious internal errors results in a submission stored with no ``result`` field attached. An internal error status is associated with those submissions in order to differentiate the error origins.
+
+        For instance, to set the task global feedback to ``failed`` and the ``thecode`` problem to ``success``:
+
+        .. code-block:: bash
+
+            feedback-result failed
+            feedback-result --id thecode success
+
+    The ``feedback-grade`` API
+    --------------------------
+
+    .. class:: text-justify
+
+        The task grade, or score, is an optional task-wide value to return by the grading script. If not specified, a successful submission will be scored 100%, while a failed submission will be scored 0%. The score you provide is the only parameter taken into account to select the *best* submission. Therefore, if the student always fails, the *best* submission will always be the most favorable (highest score).
+
+        The score is provided via the ``feedback-grade`` API which takes the score as unique positional argument. This value is expressed in percents, and a dot (``.``) is used as decimal mark.
+
+        For instance, fto set a score of 75.4% for the submission:
+
+        .. code-block:: bash
+
+            feedback-grade 75.4
+
+    The ``feedback-msg`` API
+    ------------------------
+
+    .. class:: text-justify
+
+        The feedback message is the way you provide students with an extensive feedback that can be provided for the whole task or each of the subproblems. Based on the result of your test suite, you'll be able to tell the students what is going wrong with the submission and give some indication to unlock the situation.
+
+        Feedback messages use the reStruturedText syntax and |latex| syntax for mathematical expressions, as for problem descriptions, and are provided through the ``feedback-msg`` API.
+
+        .. |latex| raw:: html latex
+
+            \( \LaTeX \)
+
+        By default, this command reads the message from standard input, but can also be used with an inline message. The complete set of optional arguments are:
+
+        --append
+            Append to current feedback, if not specified, replace the current feedback.
+        --escape
+            Interprets backslash escapes
+        --id PROBLEM_ID
+             Problem id to which associate the feedback, leave empty for the whole task.
+        --message MESSAGE
+            Feedback message
+
+        For instance, to provide a simple feedback message:
+
+        .. code-block:: bash
+
+            feedback-msg --message "Your code could not be run. Check that you've defined the ``main`` function."
+
+    Let's take a tour
+    -----------------
+
+    .. class:: text-justify
+
+        Use the code input defined below along with the sandbox to find out in details the feedback APIs features. The feedback you produce in the sandbox will be directly returned as the submission feedback.
+environment: default
+evaluate: best
+groups: false
+limits:
+    time: '3'
+    memory: '100'
+    output: '2'
+name: 6. Writing feedback
+network_grading: false
+order: 5
+problems:
+    studentcode:
+        header: This optional field can be used inside the sandbox below as *problem
+            id* ``studentcode``.
+        language: ''
+        optional: true
+        name: Optional student code
+        type: code
+    thecode:
+        name: Sandbox
+        language: shell
+        header: |-
+            Use this code box as a sandbox for testing both the feedback APIs. **Here you'll write an executable script**, so do not forget beginning your code, for instance, by:
+
+            .. code-block:: bash
+
+                #!/bin/bash
+
+            The displayed feedback will reflect the APIs you invoke.
+        type: code
+stored_submissions: 0
+submission_limit:
+    amount: -1
+    period: -1
+weight: 1.0

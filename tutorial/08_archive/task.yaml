@@ -1,0 +1,64 @@
+accessible: true
+author: The INGInious authors
+context: |-
+    .. container:: row
+
+        .. container:: col-md-10 text-justify
+
+            Sometimes providing students with scores is not sufficient : you may want to archive some files that were generated during the execution of the test suite in order to later analyze some (possibly debugging) files, or to run a plagiarism detection tool on the submissions.
+
+            In this section, you'll see how to export some generated files into an archive that will be downloadable along with the submission metadata. When this feature is not used, only the input/output fields accessible and shown to the student are downloadable.
+
+        .. container:: col-md-2 text-center
+
+            .. raw:: html
+
+               <i style="font-size:120px;" class="fa fa-archive"></i>
+
+    The ``archive`` API
+    -------------------
+
+    .. class:: text-justify
+
+        The ``archive`` API is used either to add or remove a file to the archive. If no output subdirectory is specified, the file will be stored at the root of the archive folder, only preserving its filename. The ``archive`` API is used with the following optional arguments:
+
+        --add FILEPATH
+            add the file to the archive
+        --remove FILEPATH
+            remove the file from the archive
+        --outsubdir DIRECTORY
+            will put the file in the specified sub-directory in the output archive
+
+        For instance, to put the ``student/student_code.py`` file at the root of the archive:
+
+        .. code-block:: shell
+
+            archive --add student/student_code.py
+
+    Submission archive
+    ------------------
+
+    Answer to the small assignment below. Then, go to your submission summary page in order to download the submission archive. You should find a file in the ``archive`` subdirectory.
+environment: default
+evaluate: best
+groups: false
+limits:
+    time: '3'
+    memory: '100'
+    output: '2'
+name: 8. Export generated files
+network_grading: false
+order: 7
+problems:
+    thecode:
+        name: Archiving a file
+        language: shell
+        header: Write an executable script (do not forget ``#!``) which generates
+            some dummy ``generated.txt`` file and stores it at the root of your submission
+            archive.
+        type: code
+stored_submissions: 0
+submission_limit:
+    amount: -1
+    period: -1
+weight: 1.0

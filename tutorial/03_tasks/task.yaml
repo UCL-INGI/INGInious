@@ -1,0 +1,234 @@
+accessible: true
+author: The INGInious authors
+context: |-
+    .. container:: row
+
+        .. container:: col-md-10 text-justify
+
+            Tasks, or activities, or assignments, form the course content. Each INGInious task is composed of a problem set graded at the same time (run on a predefined environment) and possibly depending on each other. A task is linked to a course and is identified with a *course id/task id* pair.
+
+            Tasks can be created by course administrators by specifying a new *task id* on the Tasks_ page.
+
+            .. _Tasks: /admin/tutorial/tasks
+
+        .. container:: col-md-2 text-center
+
+            .. raw:: html
+
+               <i style="font-size:120px;" class="fa fa-list-alt"></i>
+
+    Task edition
+    ------------
+    .. class:: text-justify
+
+        Tasks are entirely editable from the *micro-LMS* (webapp). However, these parameters are stored in a ``task.yaml``, in the task-associated folder.
+
+    Basic settings
+    ``````````````
+    .. class:: text-justify
+
+        Except the name and context information, the task basic settings are mainly used by the *micro-LMS* (webapp). These settings include:
+
+        - **Submission mode** : If you allow your students to work in group/team, you need to configure the submission mode accordingly.
+        - **Submission storage** : This option limits the size of the submission history.
+        - **Submission limit** : This option is used to restrict the number of submissions students can make per time period.
+        - **Evaluation submission** : This option provides download facility for the administrator by tagging a submission as the reference one. Note that submissions are tagged just after execution.
+        - **Accessibility** : Some tasks may be made accessible for a short amount of time only if some deadline is applicable.
+
+    Container setup
+    ```````````````
+
+    .. container:: row
+
+        .. container:: col-md-2 text-center
+
+            .. image:: 03_tasks/docker.png
+              :height: 100px
+
+        .. container:: col-md-10 text-justify
+
+            INGInious runs the test suite in a container, an operating system component allowing resources isolation in a faster way than with virtual machines.
+
+            This is further simplified by the usage of **Docker**, an open-source API for creating and defining containers, also providing disk image abstraction, making the definition of additional INGInious environments easy for the administrators.
+
+    .. class:: text-justify
+
+        Except the ``mcq`` environment used for multiple_choice questions, all the INGInious environments will start a container when launching the test suite. These containers can be preconfigured with the following parameters:
+
+        - **(Hard) timeout** : The timeout value is the maximum CPU (computation) time allowed for the task. Once this threshold is reached, the container is shut down and the student is returned a *Time out* feedback. The hard timeout is the maximum wall (human) time allowed for the task.
+        - **Memory** : This is the maximum amount of RAM the container can allocate. If this value is evaluated as too high by the INGInious agent, it will warn you at the container launch.
+        - **Output limit** : This is the maximum amount of data that can be output from the container. This parameter is useful if you need to print student generated data on feedback.
+        - **Grading environment** : The grading environment is defined by the provided software set.
+        - **Internet connectivity** : If, for some reason, you need to access the Internet during the tests, check this option is activated.
+
+
+    Subproblems
+    ```````````
+    .. class:: text-justify
+
+        Different kinds of problems can be displayed on the INGInious task page:
+
+        - **Code** : This box displays an editable text area with syntax highlighting and automatic indentation.
+        - **File upload** : This box provides a file upload facility, if several files have to be submitted in a single archive for instance.
+        - **Match** : This box displays a small input field used for matching student and expected result.
+        - **MCQ** : This box displays a multiple choice question, with the ability to select multiple valid answers, and displaying feedback for each chosen option.
+
+        Match and MCQ questions can be automatically graded using the ``mcq`` environment that will use the feedback defined using the task editor. However, all problem inputs can be fetched from a container-based environment.
+
+    Task files
+    ``````````
+    .. class:: text-justify
+
+        Task files are mainly used for launching the tests in container-based environments. Those tests will be started using the ``run`` file. This file must be placed at the task files root folder and be executable (either script or binary).
+
+        Two special subdirectories can be created in the task files folder:
+
+        - ``/public`` : This folder is publicly available from the frontends and can be used to share some initial documents, implementations, or skeletons with students.
+          To give access to those file, place a link to ``taskid/filepath`` inside your task description.
+        - ``/student`` : This folder is used in combination with the ``run_student`` API to provide another level of isolation while running the tests.
+          More information about this folder will be provided further in this tutorial.
+
+    Description
+    -----------
+
+    .. class:: text-justify
+
+        Task and problems context descriptions can be formatted using reStructuredText syntax and :math:`\LaTeX` syntax for mathematical expressions. Please refer to both their documentation to find out the full set of features.
+
+        :math:`\LaTeX` expressions can be inserted via the following snippet:
+
+        .. code-block:: rst
+
+            This is a :math:`\LaTeX` expression !
+
+        Syntax-highlighted code blocks can be inserted via the following snippet and CodeMirror language identifiers:
+
+        .. code-block:: rst
+
+           Copy and paste the code below:
+
+           .. code-block:: python
+
+              print "Hello World!"
+
+    Let's take a tour
+    -----------------
+
+    .. class:: text-justify
+
+        Browse the INGInious task edition tabs to discover the full set of features. Once you've made that, answer to the small MCQ below to check your understanding and learn more.
+environment: mcq
+evaluate: best
+groups: false
+limits:
+    time: '3'
+    memory: '100'
+    output: '2'
+name: 3. Tasks
+network_grading: false
+order: 2
+problems:
+    q1:
+        header: Your course contains two tasks ``task1`` and ``task2``. You want them
+            to weight respectively for 20% and 80% of the final student course score.
+            How can you do that ?
+        choices:
+        -   text: The *grading weight* of ``task1`` and ``task2`` can be set respectively
+                to ``2`` and ``8``.
+            valid: true
+        -   valid: true
+            text: The *grading weight* of ``task1`` and ``task2`` can be set respectively
+                to ``0.2`` and ``0.8``.
+        -   feedback: You can. In the task basic settings, simply set the *grading
+                weight* to some float value. This value will be used to compute a
+                weighted average.
+            text: You can't.
+        multiple: true
+        limit: 0
+        name: Grading weight
+        type: multiple_choice
+    q2:
+        choices:
+        -   text: No, MCQ are statically checked, no student code is run and no ``run``
+                file is required.
+            valid: true
+            feedback: Indeed. This means that student code cannot be checked under
+                the ``mcq`` environment. However, you are able to use the MCQ input
+                data under the Docker environments.
+        -   feedback: This is not true. The built-in MCQ environments performs static
+                checks and automatically generates feedback based on the task configuration.
+            text: Yes, you'll need to create a ``run`` file that parse all data and
+                displays the appropriate feedback to the student.
+        type: multiple_choice
+        name: Grading environments
+        header: The *Container setup* tab allows you to set some limitation parameters
+            for code execution. Does it apply to the built-in ``mcq`` environment
+            ?
+        limit: 0
+    q3:
+        header: |-
+            .. code:: HTML
+
+                <p style="text-align: center;">This is a new paragraph.</p>
+
+            Is this a correct context description ?
+        choices:
+        -   feedback: 'By default, only reStructuredText is allowed for context description.
+                You can however put some HTML code in your context inside a ``.. raw::
+                html`` directive.'
+            text: 'Yes'
+        -   valid: true
+            text: 'No'
+            feedback: 'This is correct. You can however put some HTML code in your
+                context inside a ``.. raw:: html`` directive.'
+        type: multiple_choice
+        limit: 0
+        name: Task and problems contexts
+    q4:
+        name: Deadlines
+        choices:
+        -   text: You can setup the task with custom accessibility and specify at
+                least an ending date.
+            valid: true
+        -   text: You can set the task inacessible when the deadline is over.
+            feedback: 'You do not need this: you can specify an accessibility range'
+        limit: 0
+        type: multiple_choice
+        header: How can you set a deadline on a given task ?
+    q5:
+        choices:
+        -   feedback: Not necessary. Moreover, the file should begin with ``#!/bin/env
+                bash`` even if this is not inherent to Bash.
+            text: It must be a Bash script.
+        -   text: It must be a Python script.
+            feedback: Not necessary. Moreover, the file should begin with ``#!/bin/env
+                python`` even if this is not inherent to Python.
+        -   valid: true
+            text: It can be any executable file.
+        name: The run file
+        type: multiple_choice
+        limit: 0
+        header: Container-based grading environments require an executable ``run``
+            script at the root of your task files folder to initiate the tests. What
+            is the particularity of that file ?
+    q6:
+        name: Serving static files
+        choices:
+        -   text: You host the file on an external server and add the image using
+                the ``.. image::`` directive to the task context.
+            feedback: You can, but this is not necessary. You can serve files from
+                your task folder, even using MCQ environment.
+        -   text: You place the image file into the ``public`` subdirectory of your
+                task files and use the ``.. image::`` directive to add it to the task
+                context
+            valid: true
+        type: multiple_choice
+        header: You want to display the UML scheme of a class to be implemented by
+            the student as an image on the task context. This image file has been
+            specifically created for that assignment. How do you do that ?
+        limit: 0
+stored_submissions: 0
+submission_limit:
+    amount: -1
+    period: -1
+weight: 1.0

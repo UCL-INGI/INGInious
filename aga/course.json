@@ -1,0 +1,22 @@
+{
+    "name": "[LFSAB1401-dev] Informatique 1 - Beta",
+    "registration": true,
+    "registration_ac_list": [
+        ""
+    ],
+    "groups_student_choice": false,
+    "tutors": [],
+    "allow_unregister": true,
+    "registration_password": null,
+    "use_classrooms": true,
+    "registration_ac": null,
+    "admins": [
+        "detienne",
+        "ogoletti",
+        "aldubray",
+        "martinol",
+        "scourtain",
+        "naitali"
+    ],
+    "accessible": false
+}

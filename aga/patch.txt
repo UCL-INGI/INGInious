@@ -1,0 +1,7 @@
+191,192c191,193
+<                     regex_question = re.findall('Question ' + str(i) + ' :\n(.*?)\n^(?:[^\n]*Question [^\D1] :)?',
+<                                                 outerr, re.DOTALL | re.MULTILINE)
+---
+>                     regex_question = re.findall('Question '+str(i)+' :\n(.*?)(?=Question \d+ :)', outerr, re.DOTALL | re.MULTILINE)
+>                     if regex_question == []:
+>                         regex_question = re.findall('Question '+str(i)+' :\n(.*)', outerr, re.DOTALL | re.MULTILINE)

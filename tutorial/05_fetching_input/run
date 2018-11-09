@@ -1,0 +1,18 @@
+#!/bin/bash
+
+#Get code input and performs dos2unix
+getinput thecode | tr -d '\r' > thecode
+
+#Execute the code
+chmod +x thecode
+OUTPUT=$(./thecode 2>&1)
+
+if [ $? -ne 0 ]; then
+    feedback-result failed
+	feedback-msg -em "Your code did not run correctly. Here is the output :\n\n"
+else
+    feedback-result success
+	feedback-msg -em "Your code ran correctly. Here is the output :\n\n"
+fi
+
+echo "$OUTPUT" | rst-code -e | feedback-msg -a
