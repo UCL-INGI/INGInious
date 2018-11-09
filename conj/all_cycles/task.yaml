@@ -1,0 +1,35 @@
+accessible: true
+author: Naitali Brandon
+context: |-
+    .. raw:: html
+
+        Conjuguez le verbe "<span id="verb"></span>" à la <span id="pers"></span>, <span id="tense"></span>.
+
+    Exemple avec "fêter": fête
+
+
+    .. raw:: html
+
+        <script src="/course/conj/all_cycles/input_random.js"></script>
+environment: default
+evaluate: best
+groups: false
+input_random: '3'
+limits:
+    output: '2'
+    memory: '100'
+    time: '30'
+name: 'Conjugaison: Récapitulatif'
+network_grading: false
+problems:
+    verbe1:
+        name: ''
+        type: match
+        answer: ''
+        header: ''
+stored_submissions: 0
+submission_limit:
+    amount: -1
+    period: -1
+tags: {}
+weight: 1.0
