@@ -10,14 +10,10 @@ from inginious.frontend.plugins.adaptative.utils import  get_testing_tasks, upda
 from inginious.frontend.plugins.adaptative.cat import task_level_evaluation, student_level_evaluation, get_parameters, get_first_question, get_next_question, init_item_bank
 from inginious.frontend.pages.tasks import BaseTaskPage
 
-class CourseName():
-	def __init__(course_name):
-		course
-
 class HomePage(BaseTaskPage):
-	def GET(self):
+	def GET(self, config):
 		username = self.user_manager.session_username()
-		courseid = course_name
+		courseid = config["course_name"]
 		try:
 			course = self.course_factory.get_course(courseid)
 		except exceptions.CourseNotFoundException as ex:
@@ -36,9 +32,9 @@ class HomePage(BaseTaskPage):
 				taskid = items_bank.rownames[int(path[len(path)-1])-1]
 			
 		else: # newcomers
-			nbr_questions = 5
+			nbr_questions = config["nbr_questions"]
 			answers = ['NA'] * len(items_names) 
-			level = 0.0 # starting level
+			level = config["initial_level"] # starting level
 			next_task_index = get_first_question(items_bank, level)
 			path = [next_task_index]
 			taskid = items_bank.rownames[next_task_index-1]
@@ -50,11 +46,17 @@ class HomePage(BaseTaskPage):
 			
 		return self.template_helper.get_custom_renderer('frontend/plugins/adaptative').home_test(course, task)
 
-class HomeAdaptativePage(INGIniousPage):
-	def GET(self):
-		return HomePage(self).GET()
 
-
+"""
+	Return an instance of the class displaying the page with plugin parameters as arguments in the GET method
+"""
+def plugin_parameters(config):
+	class HomeAdaptativePage(INGIniousPage):
+				def GET(self):
+					return HomePage(self).GET(config)
+	return HomeAdaptativePage 
+		
+		
 """
 	- Render the page: test_end or taskview
 	- Choose next task
@@ -110,11 +112,9 @@ def post_hook(username, page, result):
 
 def init(plugin_manager, course_factory, client, plugin_config):
     """  course name, initial level"""
-    global course_name
-    course_name = plugin_config["course_name"]
-    
+    #global course_name
     plugin_manager.add_hook("get_hook", get_hook)
     plugin_manager.add_hook("post_hook", post_hook)
     """ Init the plugin """
-    plugin_manager.add_page("/adaptative", HomeAdaptativePage)
+    plugin_manager.add_page("/adaptative", plugin_parameters(plugin_config))
     plugin_manager.add_page("/adaptative/([^/]*)/([^.]*)", AdaptativePage)

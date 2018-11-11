@@ -1,0 +1,19 @@
+Metadata-Version: 1.1
+Name: Grammalecte-fr
+Version: 0.6.2
+Summary: French grammar checker
+Home-page: http://grammalecte.net
+Author: Olivier R.
+Author-email: UNKNOWN
+License: GPL3
+Description: UNKNOWN
+Keywords: French grammar checker correcteur grammatical français
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Text Processing :: Linguistic
+Classifier: License :: OSI Approved :: GNU General Public License v3 (GPLv3)
+Classifier: Programming Language :: Python :: 3.3
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6

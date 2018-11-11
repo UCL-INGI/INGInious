@@ -1,0 +1,3417 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-09-19 16:00+0200\n"
+"PO-Revision-Date: 2017-09-14 08:08+0000\n"
+"Last-Translator: Olivier MARTIN <olivier.martin@student.uclouvain.be>\n"
+"Language-Team: none\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 2.16\n"
+
+#: utilities/run.py:165
+msgid "La limite de mémoire de votre programme est dépassée"
+msgstr "Se ha superado el límite de memoria de su programa"
+
+#: utilities/run.py:168
+msgid "La limite de temps d'exécution de votre programme est dépassée"
+msgstr "Se ha superado el límite de tiempo de su programa"
+
+#: utilities/run.py:173 utilities/run.py:191
+#, fuzzy
+msgid ""
+"Il semble que vous ayiez fait des erreurs dans votre code…\n"
+"\n"
+msgstr "Parece que has cometido errores en tu código ...\n"
+
+#: utilities/run.py:187
+msgid "Vous avez bien répondu à cette question"
+msgstr "Contestaste bien esta pregunta"
+
+#: utilities/run.py:196
+msgid "Le programme ne compile pas : \n"
+msgstr "El programa no compila: \n"
+
+#: utilities/run.py:204
+msgid "Impossible de décoder le config.json"
+msgstr "No se puede descodificar config.json"
+
+#: m01Q10/src/Tests.java:33
+#, java-format
+msgid "{0} < {1} < {2} est {3} mais votre code indique {4}.\n"
+msgstr "{0} <{1} <{2} es {3} pero su código dice {4}.\n"
+
+#: m01Q10/src/Tests.java:54 m01Q11/src/Tests.java:52 m01Q12/src/Tests.java:55
+#: m01Q13/src/Tests.java:54 m01Q14/src/Tests.java:52 m01Q15/src/Tests.java:63
+#: m01Q16/src/Tests.java:50 m01Q17/src/Tests.java:67 m01Q18/src/Tests.java:56
+#: m01Q2/src/Tests.java:86 m01Q20/src/Tests.java:70 m01Q3/src/Tests.java:59
+#: m01Q4/src/Tests.java:54 m01Q5/src/Tests.java:50 m01Q6/src/Tests.java:49
+#: m01Q7/src/Tests.java:49 m01Q8/src/Tests.java:54 m01Q9/src/Tests.java:77
+#: m01_bf/src/Tests.java:49 m02Q1/src/Tests.java:46 m02Q10/src/Tests.java:52
+#: m02Q3/src/Tests.java:68 m02Q4/src/Tests.java:50 m02Q5/src/Tests.java:49
+#: m02Q6/src/Tests.java:47 m02Q7/src/Tests.java:50 m02Q8/src/Tests.java:74
+#: m02Q9/src/Tests.java:46 m02_bf/src/Tests.java:49 m02dem2/src/Tests.java:57
+#: m02dem3/src/Tests.java:62 m02dem4/src/Tests.java:49
+#: m02dem5/src/Tests.java:88 m03Q1/src/Tests.java:81 m03Q2/src/Tests.java:55
+#: m03Q3/src/Tests.java:57 m03Q4/src/Tests.java:61 m03Q5/src/Tests.java:55
+#: m03Q6/src/Tests.java:54 m03Q7/src/Tests.java:54 m03_bf/src/Tests.java:56
+#: m03dem2/src/Tests.java:63 m03dem3/src/Tests.java:51
+#: m03dem4/src/Tests.java:78 m03dem5/src/Tests.java:49 m04Q1/src/Tests.java:57
+#: m04Q10/src/Tests.java:52 m04Q11/src/Tests.java:51 m04Q2/src/Tests.java:52
+#: m04Q3/src/Tests.java:58 m04Q4/src/Tests.java:145 m04Q5/src/Tests.java:60
+#: m04Q6/src/Tests.java:64 m04Q7/src/Tests.java:61 m04Q8/src/Tests.java:59
+#: m04Q9/src/Tests.java:52 m04_bf/src/Tests.java:70 m04dem1/src/Tests.java:74
+#: m04dem2/src/Tests.java:73 m04dem3/src/Tests.java:67
+#: m04dem4/src/Tests.java:61 m04dem5/src/Tests.java:89 m05Q1/src/Tests.java:64
+#: m05Q10/src/Tests.java:66 m05Q11/src/Tests.java:70
+#: m05Q12/src/TestsQ1.java:62 m05Q12/src/TestsQ2.java:58
+#: m05Q2/src/Tests.java:65 m05Q3/src/Tests.java:64 m05Q4/src/Tests.java:63
+#: m05Q5/src/Tests.java:54 m05Q6/src/Tests.java:59 m05Q7/src/Tests.java:71
+#: m05Q8/src/Tests.java:79 m05Q9/src/Tests.java:65 m05_bf/src/Tests.java:92
+#: m05dem1/src/Tests.java:95 m05dem2/src/Tests.java:71
+#: m05dem3/src/Tests.java:56 m05dem4/src/Tests.java:175
+#: m05dem5/src/Tests.java:101 m06Q1/src/TestCode.java:61
+#: m06Q10/src/TestCode.java:110 m06Q11/src/TestParam.java:67
+#: m06Q2/src/TestCode.java:102 m06Q3/src/TestCode.java:71
+#: m06Q3/src/TestParam.java:66 m06Q4/src/TestCode.java:84
+#: m06Q4/src/TestParam.java:64 m06Q5/src/TestCode.java:86
+#: m06Q6/src/TestCode.java:77 m06Q6/src/TestParam.java:66
+#: m06Q7/src/TestCode.java:87 m06Q8/src/TestCode.java:89
+#: m06Q8/src/TestParam.java:74 m06Q9/src/TestCode.java:107
+#: m06_bf/src/TestInspect.java:57 m06_bf/src/TestCode.java:58
+#: m06dem1/src/TestCode.java:136 m06dem2/src/TestCode.java:268
+#: m06dem3/src/TestCode.java:105 m06dem4/src/TestCode.java:116
+#: m07Q1/src/TestParam.java:66 m07Q10/src/TestCode.java:49
+#: m07Q11/src/TestParam.java:75 m07Q2/src/TestCode.java:101
+#: m07Q3/src/TestParam.java:76 m07Q4/src/TestCode.java:48
+#: m07Q5/src/TestCode.java:49 m07Q6/src/TestParam.java:69
+#: m07Q7/src/TestCode.java:49 m07Q8/src/TestCode.java:50
+#: m07Q9/src/TestCode.java:48 m07_bf/src/TestItem.java:62
+#: m07_bf/src/TestCD.java:119 m07_bf/src/TestInspectCD.java:57
+#: m07dem1/src/TestCode.java:172 m07dem2/src/TestCode.java:86
+#: m08Q1/src/TestCode.java:50 m08Q2/src/TestCode.java:51
+#: m08Q3/src/TestParam.java:67 m08Q4/src/TestAnd.java:75
+#: m08Q4/src/TestGet.java:79 m08Q4/src/TestReset.java:78
+#: m08Q4/src/TestRotate.java:74 m08Q4/src/TestSet.java:85
+#: m08Q4/src/TestShift.java:74 m08Q4/src/TestConstruct.java:49
+#: m08Q5/src/TestGet.java:74 m08Q5/src/TestReset.java:77
+#: m08Q5/src/TestRotate.java:79 m08Q5/src/TestSet.java:77
+#: m08Q5/src/TestShift.java:79 m08Q6/src/TestMax.java:65
+#: m08Q6/src/TestMin.java:65 m08Q6/src/TestMoyenne.java:63
+#: m08Q7/src/TestMax.java:64 m08Q7/src/TestMin.java:64
+#: m08Q7/src/TestMoyenne.java:64 m08dem1/src/TestParam1.java:65
+#: m08dem1/src/TestParam2.java:76 m08dem2/src/TestCode.java:61
+#: m09Q1/src/TestParam.java:82 m09Q2/src/TestParam.java:80
+#: m09Q3/src/TestCode.java:65 m09Q4/src/TestParam.java:67
+#: m09Q4/src/TestCode.java:65 m09Q5/src/TestCode.java:56
+#: m09Q6/src/TestCode.java:59 m09Q7/src/TestCode.java:61
+#: m09_bf/src/TestErr.java:90 m09_bf/src/Tests.java:78
+#: m09_bf/src/TestsException.java:88 m09dem1/src/TestParam.java:80
+#: m09dem2/src/TestCode.java:62 m09dem2/src/TestRes.java:62
+#: m10Q1/src/Tests.java:78 m10Q2/src/Tests.java:118 m10Q3/src/Tests.java:163
+#: m10Q4/src/TestListAdd.java:107 m10Q4/src/TestListContains.java:106
+#: m10Q4/src/TestListGet.java:106 m10Q4/src/TestListSet.java:94
+#: m10dem1/src/Tests.java:162 m10dem1/src/TestOut.java:85
+#: m10dem2/src/TestContenuFichier.java:135
+#: m10dem2/src/TestValeurRetour.java:108 m11Q1/src/Tests.java:170
+#: m11Q2/src/Tests.java:159 m11Q3/src/Tests.java:110 m11Q4/src/Tests.java:166
+#: m11Q5/src/Tests.java:170 m11Q6/src/Tests.java:138 mX1Q19/src/Tests.java:110
+msgid "Attention, il est interdit de diviser par zéro."
+msgstr "Atención, se prohíbe dividir por cero."
+
+#: m01Q10/src/Tests.java:56 m01Q11/src/Tests.java:54 m01Q12/src/Tests.java:57
+#: m01Q13/src/Tests.java:56 m01Q14/src/Tests.java:54 m01Q15/src/Tests.java:65
+#: m01Q16/src/Tests.java:52 m01Q17/src/Tests.java:69 m01Q18/src/Tests.java:58
+#: m01Q2/src/Tests.java:88 m01Q20/src/Tests.java:72 m01Q3/src/Tests.java:61
+#: m01Q4/src/Tests.java:56 m01Q5/src/Tests.java:52 m01Q6/src/Tests.java:51
+#: m01Q7/src/Tests.java:51 m01Q8/src/Tests.java:56 m01Q9/src/Tests.java:79
+#: m01_bf/src/Tests.java:51 m02Q1/src/Tests.java:48 m02Q10/src/Tests.java:54
+#: m02Q3/src/Tests.java:70 m02Q4/src/Tests.java:52 m02Q5/src/Tests.java:51
+#: m02Q6/src/Tests.java:49 m02Q7/src/Tests.java:52 m02Q8/src/Tests.java:76
+#: m02Q9/src/Tests.java:48 m02_bf/src/Tests.java:51 m02dem2/src/Tests.java:59
+#: m02dem3/src/Tests.java:64 m02dem4/src/Tests.java:51
+#: m02dem5/src/Tests.java:90 m03Q1/src/Tests.java:83 m03Q2/src/Tests.java:57
+#: m03Q3/src/Tests.java:59 m03Q4/src/Tests.java:63 m03Q5/src/Tests.java:57
+#: m03Q6/src/Tests.java:56 m03Q7/src/Tests.java:56 m03_bf/src/Tests.java:58
+#: m03dem2/src/Tests.java:65 m03dem3/src/Tests.java:53
+#: m03dem4/src/Tests.java:80 m03dem5/src/Tests.java:51 m04Q1/src/Tests.java:59
+#: m04Q10/src/Tests.java:54 m04Q11/src/Tests.java:53 m04Q2/src/Tests.java:54
+#: m04Q3/src/Tests.java:60 m04Q4/src/Tests.java:147 m04Q5/src/Tests.java:62
+#: m04Q6/src/Tests.java:66 m04Q7/src/Tests.java:63 m04Q8/src/Tests.java:61
+#: m04Q9/src/Tests.java:54 m04_bf/src/Tests.java:72 m04dem1/src/Tests.java:76
+#: m04dem2/src/Tests.java:75 m04dem3/src/Tests.java:69
+#: m04dem4/src/Tests.java:63 m04dem5/src/Tests.java:91 m05Q1/src/Tests.java:66
+#: m05Q10/src/Tests.java:68 m05Q11/src/Tests.java:72
+#: m05Q12/src/TestsQ1.java:64 m05Q12/src/TestsQ2.java:60
+#: m05Q2/src/Tests.java:67 m05Q3/src/Tests.java:66 m05Q4/src/Tests.java:65
+#: m05Q5/src/Tests.java:56 m05Q6/src/Tests.java:61 m05Q7/src/Tests.java:73
+#: m05Q8/src/Tests.java:81 m05Q9/src/Tests.java:67 m05_bf/src/Tests.java:94
+#: m05dem1/src/Tests.java:97 m05dem2/src/Tests.java:73
+#: m05dem3/src/Tests.java:58 m05dem4/src/Tests.java:177
+#: m05dem5/src/Tests.java:103 m06Q1/src/TestCode.java:63
+#: m06Q10/src/TestCode.java:112 m06Q11/src/TestParam.java:69
+#: m06Q2/src/TestCode.java:104 m06Q3/src/TestCode.java:73
+#: m06Q3/src/TestParam.java:68 m06Q4/src/TestCode.java:86
+#: m06Q4/src/TestParam.java:66 m06Q5/src/TestCode.java:88
+#: m06Q6/src/TestCode.java:79 m06Q6/src/TestParam.java:68
+#: m06Q7/src/TestCode.java:89 m06Q8/src/TestCode.java:91
+#: m06Q8/src/TestParam.java:76 m06Q9/src/TestCode.java:109
+#: m06_bf/src/TestInspect.java:59 m06_bf/src/TestCode.java:60
+#: m06dem1/src/TestCode.java:138 m06dem2/src/TestCode.java:270
+#: m06dem3/src/TestCode.java:107 m06dem4/src/TestCode.java:118
+#: m07Q1/src/TestParam.java:68 m07Q10/src/TestCode.java:51
+#: m07Q11/src/TestParam.java:77 m07Q2/src/TestCode.java:103
+#: m07Q3/src/TestParam.java:78 m07Q4/src/TestCode.java:50
+#: m07Q5/src/TestCode.java:51 m07Q6/src/TestParam.java:71
+#: m07Q7/src/TestCode.java:51 m07Q8/src/TestCode.java:52
+#: m07Q9/src/TestCode.java:50 m07_bf/src/TestItem.java:64
+#: m07_bf/src/TestCD.java:121 m07_bf/src/TestInspectCD.java:59
+#: m07dem1/src/TestCode.java:174 m07dem2/src/TestCode.java:88
+#: m08Q1/src/TestCode.java:52 m08Q2/src/TestCode.java:53
+#: m08Q3/src/TestParam.java:69 m08Q4/src/TestAnd.java:77
+#: m08Q4/src/TestGet.java:81 m08Q4/src/TestReset.java:80
+#: m08Q4/src/TestRotate.java:76 m08Q4/src/TestSet.java:87
+#: m08Q4/src/TestShift.java:76 m08Q4/src/TestConstruct.java:51
+#: m08Q5/src/TestGet.java:76 m08Q5/src/TestReset.java:79
+#: m08Q5/src/TestRotate.java:81 m08Q5/src/TestSet.java:79
+#: m08Q5/src/TestShift.java:81 m08Q6/src/TestMax.java:67
+#: m08Q6/src/TestMin.java:67 m08Q6/src/TestMoyenne.java:65
+#: m08Q7/src/TestMax.java:66 m08Q7/src/TestMin.java:66
+#: m08Q7/src/TestMoyenne.java:66 m08dem1/src/TestParam1.java:67
+#: m08dem1/src/TestParam2.java:78 m08dem2/src/TestCode.java:64
+#: m09Q1/src/TestParam.java:84 m09Q2/src/TestParam.java:82
+#: m09Q3/src/TestCode.java:67 m09Q4/src/TestParam.java:69
+#: m09Q4/src/TestCode.java:67 m09Q5/src/TestCode.java:58
+#: m09Q6/src/TestCode.java:61 m09Q7/src/TestCode.java:63
+#: m09_bf/src/TestErr.java:92 m09_bf/src/Tests.java:80
+#: m09_bf/src/TestsException.java:90 m09dem1/src/TestParam.java:82
+#: m09dem2/src/TestCode.java:65 m09dem2/src/TestRes.java:65
+#: m10Q1/src/Tests.java:80 m10Q2/src/Tests.java:120 m10Q3/src/Tests.java:165
+#: m10Q4/src/TestListAdd.java:109 m10Q4/src/TestListContains.java:108
+#: m10Q4/src/TestListGet.java:108 m10Q4/src/TestListSet.java:96
+#: m10dem1/src/Tests.java:164 m10dem1/src/TestOut.java:87
+#: m10dem2/src/TestContenuFichier.java:137
+#: m10dem2/src/TestValeurRetour.java:110 m11Q1/src/Tests.java:172
+#: m11Q2/src/Tests.java:161 m11Q3/src/Tests.java:112 m11Q4/src/Tests.java:168
+#: m11Q5/src/Tests.java:172 m11Q6/src/Tests.java:140 mX1Q19/src/Tests.java:112
+msgid "Attention, certaines variables ont été mal castées !"
+msgstr "Atención, algunas variables han sido mal fundidas!"
+
+#: m01Q10/src/Tests.java:58 m01Q11/src/Tests.java:56 m01Q12/src/Tests.java:59
+#: m01Q13/src/Tests.java:58 m01Q14/src/Tests.java:56 m01Q15/src/Tests.java:67
+#: m01Q16/src/Tests.java:54 m01Q17/src/Tests.java:71 m01Q18/src/Tests.java:60
+#: m01Q2/src/Tests.java:90 m01Q20/src/Tests.java:74 m01Q3/src/Tests.java:63
+#: m01Q4/src/Tests.java:58 m01Q5/src/Tests.java:54 m01Q6/src/Tests.java:53
+#: m01Q7/src/Tests.java:53 m01Q8/src/Tests.java:58 m01Q9/src/Tests.java:81
+#: m01_bf/src/Tests.java:53 m02Q1/src/Tests.java:50 m02Q10/src/Tests.java:56
+#: m02Q3/src/Tests.java:72 m02Q4/src/Tests.java:54 m02Q5/src/Tests.java:53
+#: m02Q6/src/Tests.java:51 m02Q7/src/Tests.java:54 m02Q8/src/Tests.java:78
+#: m02Q9/src/Tests.java:50 m02_bf/src/Tests.java:53 m02dem2/src/Tests.java:61
+#: m02dem3/src/Tests.java:66 m02dem4/src/Tests.java:53
+#: m02dem5/src/Tests.java:92 m03Q1/src/Tests.java:85 m03Q2/src/Tests.java:59
+#: m03Q3/src/Tests.java:61 m03Q4/src/Tests.java:65 m03Q5/src/Tests.java:59
+#: m03Q6/src/Tests.java:58 m03Q7/src/Tests.java:58 m03_bf/src/Tests.java:60
+#: m03dem2/src/Tests.java:67 m03dem3/src/Tests.java:55
+#: m03dem4/src/Tests.java:82 m03dem5/src/Tests.java:53 m04Q1/src/Tests.java:61
+#: m04Q10/src/Tests.java:56 m04Q11/src/Tests.java:55 m04Q2/src/Tests.java:56
+#: m04Q3/src/Tests.java:62 m04Q4/src/Tests.java:149 m04Q5/src/Tests.java:64
+#: m04Q6/src/Tests.java:68 m04Q7/src/Tests.java:65 m04Q8/src/Tests.java:63
+#: m04Q9/src/Tests.java:56 m04_bf/src/Tests.java:74 m04dem1/src/Tests.java:78
+#: m04dem2/src/Tests.java:77 m04dem3/src/Tests.java:71
+#: m04dem4/src/Tests.java:65 m04dem5/src/Tests.java:93 m05Q1/src/Tests.java:68
+#: m05Q10/src/Tests.java:70 m05Q11/src/Tests.java:74
+#: m05Q12/src/TestsQ1.java:66 m05Q12/src/TestsQ2.java:62
+#: m05Q2/src/Tests.java:69 m05Q3/src/Tests.java:68 m05Q4/src/Tests.java:67
+#: m05Q5/src/Tests.java:58 m05Q6/src/Tests.java:63 m05Q7/src/Tests.java:75
+#: m05Q8/src/Tests.java:83 m05Q9/src/Tests.java:69 m05_bf/src/Tests.java:96
+#: m05dem1/src/Tests.java:99 m05dem2/src/Tests.java:75
+#: m05dem3/src/Tests.java:60 m05dem4/src/Tests.java:179
+#: m05dem5/src/Tests.java:105 m06Q1/src/TestCode.java:65
+#: m06Q10/src/TestCode.java:114 m06Q11/src/TestParam.java:71
+#: m06Q2/src/TestCode.java:106 m06Q3/src/TestCode.java:75
+#: m06Q3/src/TestParam.java:70 m06Q4/src/TestCode.java:88
+#: m06Q4/src/TestParam.java:68 m06Q5/src/TestCode.java:90
+#: m06Q6/src/TestCode.java:81 m06Q6/src/TestParam.java:70
+#: m06Q7/src/TestCode.java:91 m06Q8/src/TestCode.java:93
+#: m06Q8/src/TestParam.java:78 m06Q9/src/TestCode.java:111
+#: m06_bf/src/TestInspect.java:61 m06_bf/src/TestCode.java:62
+#: m06dem1/src/TestCode.java:140 m06dem2/src/TestCode.java:272
+#: m06dem3/src/TestCode.java:109 m06dem4/src/TestCode.java:120
+#: m07Q1/src/TestParam.java:70 m07Q10/src/TestCode.java:53
+#: m07Q11/src/TestParam.java:79 m07Q2/src/TestCode.java:105
+#: m07Q3/src/TestParam.java:80 m07Q4/src/TestCode.java:52
+#: m07Q5/src/TestCode.java:53 m07Q6/src/TestParam.java:73
+#: m07Q7/src/TestCode.java:53 m07Q8/src/TestCode.java:54
+#: m07Q9/src/TestCode.java:52 m07_bf/src/TestItem.java:66
+#: m07_bf/src/TestCD.java:123 m07_bf/src/TestInspectCD.java:61
+#: m07dem1/src/TestCode.java:176 m07dem2/src/TestCode.java:90
+#: m08Q1/src/TestCode.java:54 m08Q2/src/TestCode.java:55
+#: m08Q3/src/TestParam.java:71 m08Q4/src/TestAnd.java:79
+#: m08Q4/src/TestGet.java:83 m08Q4/src/TestReset.java:82
+#: m08Q4/src/TestRotate.java:78 m08Q4/src/TestSet.java:89
+#: m08Q4/src/TestShift.java:78 m08Q4/src/TestConstruct.java:53
+#: m08Q5/src/TestGet.java:78 m08Q5/src/TestReset.java:81
+#: m08Q5/src/TestRotate.java:83 m08Q5/src/TestSet.java:81
+#: m08Q5/src/TestShift.java:83 m08Q6/src/TestMax.java:69
+#: m08Q6/src/TestMin.java:69 m08Q6/src/TestMoyenne.java:67
+#: m08Q7/src/TestMax.java:68 m08Q7/src/TestMin.java:68
+#: m08Q7/src/TestMoyenne.java:68 m08dem1/src/TestParam1.java:69
+#: m08dem1/src/TestParam2.java:80 m08dem2/src/TestCode.java:68
+#: m09Q1/src/TestParam.java:86 m09Q2/src/TestParam.java:84
+#: m09Q3/src/TestCode.java:69 m09Q4/src/TestParam.java:71
+#: m09Q4/src/TestCode.java:69 m09Q5/src/TestCode.java:60
+#: m09Q6/src/TestCode.java:63 m09Q7/src/TestCode.java:65
+#: m09_bf/src/TestErr.java:94 m09_bf/src/Tests.java:82
+#: m09_bf/src/TestsException.java:92 m09dem1/src/TestParam.java:84
+#: m09dem2/src/TestCode.java:68 m09dem2/src/TestRes.java:68
+#: m10Q1/src/Tests.java:82 m10Q2/src/Tests.java:122 m10Q3/src/Tests.java:167
+#: m10Q4/src/TestListAdd.java:111 m10Q4/src/TestListContains.java:110
+#: m10Q4/src/TestListGet.java:110 m10Q4/src/TestListSet.java:98
+#: m10dem1/src/Tests.java:166 m10dem1/src/TestOut.java:89
+#: m10dem2/src/TestContenuFichier.java:139
+#: m10dem2/src/TestValeurRetour.java:112 m11Q1/src/Tests.java:174
+#: m11Q2/src/Tests.java:163 m11Q3/src/Tests.java:114 m11Q4/src/Tests.java:170
+#: m11Q5/src/Tests.java:174 m11Q6/src/Tests.java:142 mX1Q19/src/Tests.java:114
+msgid ""
+"Attention, vous tentez de lire en dehors des limites d'un String ! "
+"(StringIndexOutOfBoundsException)"
+msgstr ""
+"Atención, intenta leer fuera de los límites de una cadena! "
+"(StringIndexOutOfBoundsException)"
+
+#: m01Q10/src/Tests.java:60 m01Q11/src/Tests.java:58 m01Q12/src/Tests.java:61
+#: m01Q13/src/Tests.java:60 m01Q14/src/Tests.java:58 m01Q15/src/Tests.java:69
+#: m01Q16/src/Tests.java:56 m01Q17/src/Tests.java:73 m01Q18/src/Tests.java:62
+#: m01Q2/src/Tests.java:92 m01Q20/src/Tests.java:76 m01Q3/src/Tests.java:65
+#: m01Q4/src/Tests.java:60 m01Q5/src/Tests.java:56 m01Q6/src/Tests.java:55
+#: m01Q7/src/Tests.java:55 m01Q8/src/Tests.java:60 m01Q9/src/Tests.java:83
+#: m01_bf/src/Tests.java:55 m02Q1/src/Tests.java:52 m02Q10/src/Tests.java:58
+#: m02Q3/src/Tests.java:74 m02Q4/src/Tests.java:56 m02Q5/src/Tests.java:55
+#: m02Q6/src/Tests.java:53 m02Q7/src/Tests.java:56 m02Q8/src/Tests.java:80
+#: m02Q9/src/Tests.java:52 m02_bf/src/Tests.java:55 m02dem2/src/Tests.java:63
+#: m02dem3/src/Tests.java:68 m02dem4/src/Tests.java:55
+#: m02dem5/src/Tests.java:94 m03Q1/src/Tests.java:87 m03Q2/src/Tests.java:61
+#: m03Q3/src/Tests.java:63 m03Q4/src/Tests.java:67 m03Q5/src/Tests.java:61
+#: m03Q6/src/Tests.java:60 m03Q7/src/Tests.java:60 m03_bf/src/Tests.java:62
+#: m03dem2/src/Tests.java:69 m03dem3/src/Tests.java:57
+#: m03dem4/src/Tests.java:84 m03dem5/src/Tests.java:55 m04Q1/src/Tests.java:63
+#: m04Q10/src/Tests.java:58 m04Q11/src/Tests.java:57 m04Q2/src/Tests.java:58
+#: m04Q3/src/Tests.java:64 m04Q4/src/Tests.java:151 m04Q5/src/Tests.java:66
+#: m04Q6/src/Tests.java:70 m04Q7/src/Tests.java:67 m04Q8/src/Tests.java:65
+#: m04Q9/src/Tests.java:58 m04_bf/src/Tests.java:76 m04dem1/src/Tests.java:80
+#: m04dem2/src/Tests.java:79 m04dem3/src/Tests.java:73
+#: m04dem4/src/Tests.java:67 m04dem5/src/Tests.java:95 m05Q1/src/Tests.java:70
+#: m05Q10/src/Tests.java:72 m05Q11/src/Tests.java:76
+#: m05Q12/src/TestsQ1.java:68 m05Q12/src/TestsQ2.java:64
+#: m05Q2/src/Tests.java:71 m05Q3/src/Tests.java:70 m05Q4/src/Tests.java:69
+#: m05Q5/src/Tests.java:60 m05Q6/src/Tests.java:65 m05Q7/src/Tests.java:79
+#: m05Q8/src/Tests.java:87 m05Q9/src/Tests.java:71 m05_bf/src/Tests.java:98
+#: m05dem1/src/Tests.java:101 m05dem2/src/Tests.java:77
+#: m05dem3/src/Tests.java:62 m05dem4/src/Tests.java:181
+#: m05dem5/src/Tests.java:107 m06Q1/src/TestCode.java:67
+#: m06Q10/src/TestCode.java:116 m06Q11/src/TestParam.java:73
+#: m06Q2/src/TestCode.java:108 m06Q3/src/TestCode.java:77
+#: m06Q3/src/TestParam.java:72 m06Q4/src/TestCode.java:90
+#: m06Q4/src/TestParam.java:70 m06Q5/src/TestCode.java:92
+#: m06Q6/src/TestCode.java:83 m06Q6/src/TestParam.java:72
+#: m06Q7/src/TestCode.java:93 m06Q8/src/TestCode.java:95
+#: m06Q8/src/TestParam.java:80 m06Q9/src/TestCode.java:113
+#: m06_bf/src/TestInspect.java:63 m06_bf/src/TestCode.java:64
+#: m06dem1/src/TestCode.java:142 m06dem2/src/TestCode.java:274
+#: m06dem3/src/TestCode.java:111 m06dem4/src/TestCode.java:122
+#: m07Q1/src/TestParam.java:72 m07Q10/src/TestCode.java:55
+#: m07Q11/src/TestParam.java:81 m07Q2/src/TestCode.java:107
+#: m07Q3/src/TestParam.java:82 m07Q4/src/TestCode.java:54
+#: m07Q5/src/TestCode.java:55 m07Q6/src/TestParam.java:75
+#: m07Q7/src/TestCode.java:55 m07Q8/src/TestCode.java:56
+#: m07Q9/src/TestCode.java:54 m07_bf/src/TestItem.java:68
+#: m07_bf/src/TestCD.java:125 m07_bf/src/TestInspectCD.java:63
+#: m07dem1/src/TestCode.java:178 m07dem2/src/TestCode.java:92
+#: m08Q1/src/TestCode.java:56 m08Q2/src/TestCode.java:57
+#: m08Q3/src/TestParam.java:73 m08Q4/src/TestAnd.java:81
+#: m08Q4/src/TestGet.java:85 m08Q4/src/TestReset.java:84
+#: m08Q4/src/TestRotate.java:80 m08Q4/src/TestSet.java:91
+#: m08Q4/src/TestShift.java:80 m08Q4/src/TestConstruct.java:55
+#: m08Q5/src/TestGet.java:80 m08Q5/src/TestReset.java:83
+#: m08Q5/src/TestRotate.java:85 m08Q5/src/TestSet.java:83
+#: m08Q5/src/TestShift.java:85 m08Q6/src/TestMax.java:71
+#: m08Q6/src/TestMin.java:71 m08Q6/src/TestMoyenne.java:69
+#: m08Q7/src/TestMax.java:70 m08Q7/src/TestMin.java:70
+#: m08Q7/src/TestMoyenne.java:70 m08dem1/src/TestParam1.java:71
+#: m08dem1/src/TestParam2.java:82 m08dem2/src/TestCode.java:72
+#: m09Q1/src/TestParam.java:88 m09Q2/src/TestParam.java:86
+#: m09Q3/src/TestCode.java:71 m09Q4/src/TestParam.java:73
+#: m09Q4/src/TestCode.java:71 m09Q5/src/TestCode.java:62
+#: m09Q6/src/TestCode.java:65 m09Q7/src/TestCode.java:67
+#: m09_bf/src/TestErr.java:96 m09_bf/src/Tests.java:84
+#: m09_bf/src/TestsException.java:94 m09dem1/src/TestParam.java:86
+#: m09dem2/src/TestCode.java:71 m09dem2/src/TestRes.java:71
+#: m10Q1/src/Tests.java:84 m10Q2/src/Tests.java:124 m10Q3/src/Tests.java:169
+#: m10Q4/src/TestListAdd.java:113 m10Q4/src/TestListContains.java:112
+#: m10Q4/src/TestListGet.java:112 m10Q4/src/TestListSet.java:100
+#: m10dem1/src/Tests.java:168 m10dem1/src/TestOut.java:91
+#: m10dem2/src/TestContenuFichier.java:141
+#: m10dem2/src/TestValeurRetour.java:114 m11Q1/src/Tests.java:176
+#: m11Q2/src/Tests.java:165 m11Q3/src/Tests.java:116 m11Q4/src/Tests.java:172
+#: m11Q5/src/Tests.java:176 m11Q6/src/Tests.java:144 mX1Q19/src/Tests.java:116
+msgid ""
+"Attention, vous tentez de lire en dehors des limites d'un tableau ! "
+"(ArrayIndexOutOfBoundsException)"
+msgstr ""
+"Atención tratando de leer fuera de los límites de una mesa! "
+"(ArrayIndexOutOfBoundsException)"
+
+#: m01Q10/src/Tests.java:62 m01Q11/src/Tests.java:60 m01Q12/src/Tests.java:63
+#: m01Q13/src/Tests.java:62 m01Q14/src/Tests.java:60 m01Q15/src/Tests.java:71
+#: m01Q16/src/Tests.java:58 m01Q17/src/Tests.java:75 m01Q18/src/Tests.java:64
+#: m01Q2/src/Tests.java:94 m01Q20/src/Tests.java:78 m01Q3/src/Tests.java:67
+#: m01Q4/src/Tests.java:62 m01Q5/src/Tests.java:58 m01Q6/src/Tests.java:57
+#: m01Q7/src/Tests.java:57 m01Q8/src/Tests.java:62 m01Q9/src/Tests.java:85
+#: m01_bf/src/Tests.java:57 m02Q1/src/Tests.java:54 m02Q10/src/Tests.java:60
+#: m02Q3/src/Tests.java:76 m02Q4/src/Tests.java:58 m02Q5/src/Tests.java:57
+#: m02Q6/src/Tests.java:55 m02Q7/src/Tests.java:58 m02Q8/src/Tests.java:82
+#: m02Q9/src/Tests.java:54 m02_bf/src/Tests.java:57 m02dem2/src/Tests.java:65
+#: m02dem3/src/Tests.java:70 m02dem4/src/Tests.java:57
+#: m02dem5/src/Tests.java:96 m03Q1/src/Tests.java:89 m03Q2/src/Tests.java:63
+#: m03Q3/src/Tests.java:65 m03Q4/src/Tests.java:69 m03Q5/src/Tests.java:63
+#: m03Q6/src/Tests.java:62 m03Q7/src/Tests.java:62 m03_bf/src/Tests.java:64
+#: m03dem2/src/Tests.java:71 m03dem3/src/Tests.java:59
+#: m03dem4/src/Tests.java:86 m03dem5/src/Tests.java:57 m04Q1/src/Tests.java:65
+#: m04Q10/src/Tests.java:60 m04Q11/src/Tests.java:59 m04Q2/src/Tests.java:60
+#: m04Q3/src/Tests.java:66 m04Q4/src/Tests.java:153 m04Q5/src/Tests.java:68
+#: m04Q6/src/Tests.java:72 m04Q7/src/Tests.java:69 m04Q8/src/Tests.java:67
+#: m04Q9/src/Tests.java:60 m04_bf/src/Tests.java:78 m04dem1/src/Tests.java:82
+#: m04dem2/src/Tests.java:81 m04dem3/src/Tests.java:75
+#: m04dem4/src/Tests.java:69 m04dem5/src/Tests.java:97 m05Q1/src/Tests.java:72
+#: m05Q10/src/Tests.java:74 m05Q11/src/Tests.java:78
+#: m05Q12/src/TestsQ1.java:70 m05Q12/src/TestsQ2.java:66
+#: m05Q2/src/Tests.java:73 m05Q3/src/Tests.java:72 m05Q4/src/Tests.java:71
+#: m05Q5/src/Tests.java:62 m05Q6/src/Tests.java:67 m05Q7/src/Tests.java:81
+#: m05Q8/src/Tests.java:89 m05Q9/src/Tests.java:73 m05_bf/src/Tests.java:100
+#: m05dem1/src/Tests.java:103 m05dem2/src/Tests.java:79
+#: m05dem3/src/Tests.java:64 m05dem4/src/Tests.java:183
+#: m05dem5/src/Tests.java:109 m06Q1/src/TestCode.java:69
+#: m06Q10/src/TestCode.java:118 m06Q11/src/TestParam.java:75
+#: m06Q2/src/TestCode.java:110 m06Q3/src/TestCode.java:79
+#: m06Q3/src/TestParam.java:74 m06Q4/src/TestCode.java:92
+#: m06Q4/src/TestParam.java:72 m06Q5/src/TestCode.java:94
+#: m06Q6/src/TestCode.java:85 m06Q6/src/TestParam.java:74
+#: m06Q7/src/TestCode.java:95 m06Q8/src/TestCode.java:97
+#: m06Q8/src/TestParam.java:82 m06Q9/src/TestCode.java:115
+#: m06_bf/src/TestInspect.java:66 m06_bf/src/TestCode.java:67
+#: m06dem1/src/TestCode.java:144 m06dem2/src/TestCode.java:276
+#: m06dem3/src/TestCode.java:113 m06dem4/src/TestCode.java:124
+#: m07Q1/src/TestParam.java:74 m07Q10/src/TestCode.java:57
+#: m07Q11/src/TestParam.java:83 m07Q2/src/TestCode.java:109
+#: m07Q3/src/TestParam.java:84 m07Q4/src/TestCode.java:56
+#: m07Q5/src/TestCode.java:57 m07Q6/src/TestParam.java:77
+#: m07Q7/src/TestCode.java:57 m07Q8/src/TestCode.java:58
+#: m07Q9/src/TestCode.java:56 m07_bf/src/TestItem.java:70
+#: m07_bf/src/TestCD.java:127 m07_bf/src/TestInspectCD.java:66
+#: m07dem1/src/TestCode.java:180 m07dem2/src/TestCode.java:94
+#: m08Q1/src/TestCode.java:58 m08Q2/src/TestCode.java:59
+#: m08Q3/src/TestParam.java:75 m08Q4/src/TestAnd.java:83
+#: m08Q4/src/TestGet.java:87 m08Q4/src/TestReset.java:86
+#: m08Q4/src/TestRotate.java:82 m08Q4/src/TestSet.java:93
+#: m08Q4/src/TestShift.java:82 m08Q4/src/TestConstruct.java:57
+#: m08Q5/src/TestGet.java:82 m08Q5/src/TestReset.java:85
+#: m08Q5/src/TestRotate.java:87 m08Q5/src/TestSet.java:85
+#: m08Q5/src/TestShift.java:87 m08Q6/src/TestMax.java:73
+#: m08Q6/src/TestMin.java:73 m08Q6/src/TestMoyenne.java:71
+#: m08Q7/src/TestMax.java:72 m08Q7/src/TestMin.java:72
+#: m08Q7/src/TestMoyenne.java:72 m08dem1/src/TestParam1.java:73
+#: m08dem1/src/TestParam2.java:84 m08dem2/src/TestCode.java:75
+#: m09Q1/src/TestParam.java:90 m09Q2/src/TestParam.java:88
+#: m09Q3/src/TestCode.java:74 m09Q4/src/TestParam.java:75
+#: m09Q4/src/TestCode.java:73 m09Q5/src/TestCode.java:65
+#: m09Q6/src/TestCode.java:68 m09Q7/src/TestCode.java:69
+#: m09_bf/src/TestErr.java:98 m09_bf/src/Tests.java:86
+#: m09_bf/src/TestsException.java:96 m09dem1/src/TestParam.java:88
+#: m09dem2/src/TestCode.java:74 m09dem2/src/TestRes.java:74
+#: m10Q1/src/Tests.java:86 m10Q2/src/Tests.java:126 m10Q3/src/Tests.java:171
+#: m10Q4/src/TestListAdd.java:115 m10Q4/src/TestListContains.java:114
+#: m10Q4/src/TestListGet.java:114 m10Q4/src/TestListSet.java:102
+#: m10dem1/src/Tests.java:170 m10dem1/src/TestOut.java:93
+#: m10dem2/src/TestContenuFichier.java:143
+#: m10dem2/src/TestValeurRetour.java:116 m11Q1/src/Tests.java:178
+#: m11Q2/src/Tests.java:167 m11Q3/src/Tests.java:118 m11Q4/src/Tests.java:174
+#: m11Q5/src/Tests.java:178 m11Q6/src/Tests.java:146 mX1Q19/src/Tests.java:118
+msgid ""
+"Attention, vous faites une opération sur un objet qui vaut null ! Veillez à "
+"bien gérer ce cas."
+msgstr ""
+"Atención haces una operación en un objeto que es nulo! Asegúrese de manejar "
+"este caso."
+
+#: m01Q10/src/Tests.java:64 m01Q11/src/Tests.java:62 m01Q12/src/Tests.java:65
+#: m01Q13/src/Tests.java:64 m01Q14/src/Tests.java:62 m01Q15/src/Tests.java:73
+#: m01Q16/src/Tests.java:60 m01Q17/src/Tests.java:77 m01Q18/src/Tests.java:66
+#: m01Q2/src/Tests.java:96 m01Q20/src/Tests.java:80 m01Q3/src/Tests.java:69
+#: m01Q4/src/Tests.java:64 m01Q5/src/Tests.java:60 m01Q6/src/Tests.java:59
+#: m01Q7/src/Tests.java:59 m01Q8/src/Tests.java:64 m01Q9/src/Tests.java:87
+#: m01_bf/src/Tests.java:63 m02Q1/src/Tests.java:56 m02Q10/src/Tests.java:62
+#: m02Q3/src/Tests.java:78 m02Q4/src/Tests.java:60 m02Q5/src/Tests.java:59
+#: m02Q6/src/Tests.java:57 m02Q7/src/Tests.java:60 m02Q8/src/Tests.java:84
+#: m02Q9/src/Tests.java:56 m02_bf/src/Tests.java:63 m02dem2/src/Tests.java:67
+#: m02dem3/src/Tests.java:72 m02dem4/src/Tests.java:59
+#: m02dem5/src/Tests.java:98 m03Q1/src/Tests.java:93 m03Q1/src/Tests.java:96
+#: m03Q2/src/Tests.java:67 m03Q2/src/Tests.java:70 m03Q3/src/Tests.java:69
+#: m03Q3/src/Tests.java:72 m03Q4/src/Tests.java:73 m03Q4/src/Tests.java:76
+#: m03Q5/src/Tests.java:67 m03Q5/src/Tests.java:70 m03Q6/src/Tests.java:66
+#: m03Q6/src/Tests.java:69 m03Q7/src/Tests.java:66 m03Q7/src/Tests.java:69
+#: m03_bf/src/Tests.java:70 m03dem2/src/Tests.java:75
+#: m03dem2/src/Tests.java:78 m03dem3/src/Tests.java:63
+#: m03dem3/src/Tests.java:66 m03dem4/src/Tests.java:90
+#: m03dem4/src/Tests.java:93 m03dem5/src/Tests.java:61 m04Q1/src/Tests.java:71
+#: m04Q1/src/Tests.java:74 m04Q10/src/Tests.java:66 m04Q10/src/Tests.java:69
+#: m04Q11/src/Tests.java:65 m04Q11/src/Tests.java:68 m04Q2/src/Tests.java:66
+#: m04Q2/src/Tests.java:69 m04Q3/src/Tests.java:72 m04Q3/src/Tests.java:75
+#: m04Q4/src/Tests.java:159 m04Q4/src/Tests.java:162 m04Q5/src/Tests.java:74
+#: m04Q5/src/Tests.java:77 m04Q6/src/Tests.java:78 m04Q6/src/Tests.java:81
+#: m04Q7/src/Tests.java:75 m04Q7/src/Tests.java:78 m04Q8/src/Tests.java:73
+#: m04Q8/src/Tests.java:76 m04Q9/src/Tests.java:66 m04Q9/src/Tests.java:69
+#: m04_bf/src/Tests.java:84 m04dem1/src/Tests.java:84
+#: m04dem2/src/Tests.java:85 m04dem3/src/Tests.java:77
+#: m04dem4/src/Tests.java:75 m04dem5/src/Tests.java:103
+#: m05Q1/src/Tests.java:78 m05Q1/src/Tests.java:81 m05Q10/src/Tests.java:80
+#: m05Q10/src/Tests.java:83 m05Q11/src/Tests.java:84 m05Q11/src/Tests.java:87
+#: m05Q12/src/TestsQ1.java:76 m05Q12/src/TestsQ1.java:79
+#: m05Q12/src/TestsQ2.java:72 m05Q12/src/TestsQ2.java:75
+#: m05Q2/src/Tests.java:79 m05Q2/src/Tests.java:82 m05Q3/src/Tests.java:78
+#: m05Q3/src/Tests.java:81 m05Q4/src/Tests.java:77 m05Q4/src/Tests.java:80
+#: m05Q5/src/Tests.java:68 m05Q5/src/Tests.java:71 m05Q6/src/Tests.java:73
+#: m05Q6/src/Tests.java:76 m05Q7/src/Tests.java:87 m05Q7/src/Tests.java:90
+#: m05Q8/src/Tests.java:95 m05Q8/src/Tests.java:98 m05Q9/src/Tests.java:79
+#: m05Q9/src/Tests.java:82 m05_bf/src/Tests.java:106
+#: m05dem1/src/Tests.java:109 m05dem2/src/Tests.java:85
+#: m05dem3/src/Tests.java:70 m05dem4/src/Tests.java:189
+#: m05dem5/src/Tests.java:115 m06Q1/src/TestCode.java:75
+#: m06Q10/src/TestCode.java:124 m06Q11/src/TestParam.java:81
+#: m06Q2/src/TestCode.java:116 m06Q3/src/TestCode.java:85
+#: m06Q3/src/TestParam.java:80 m06Q4/src/TestCode.java:98
+#: m06Q4/src/TestParam.java:78 m06Q5/src/TestCode.java:100
+#: m06Q6/src/TestCode.java:91 m06Q6/src/TestParam.java:80
+#: m06Q7/src/TestCode.java:101 m06Q8/src/TestCode.java:103
+#: m06Q8/src/TestParam.java:88 m06Q9/src/TestCode.java:121
+#: m06_bf/src/TestInspect.java:72 m06_bf/src/TestCode.java:73
+#: m06dem1/src/TestCode.java:150 m06dem2/src/TestCode.java:282
+#: m06dem3/src/TestCode.java:119 m06dem4/src/TestCode.java:130
+#: m07Q1/src/TestParam.java:80 m07Q10/src/TestCode.java:63
+#: m07Q11/src/TestParam.java:89 m07Q2/src/TestCode.java:115
+#: m07Q3/src/TestParam.java:90 m07Q4/src/TestCode.java:62
+#: m07Q5/src/TestCode.java:63 m07Q6/src/TestParam.java:83
+#: m07Q7/src/TestCode.java:63 m07Q8/src/TestCode.java:64
+#: m07Q9/src/TestCode.java:62 m07_bf/src/TestItem.java:76
+#: m07_bf/src/TestCD.java:133 m07_bf/src/TestInspectCD.java:72
+#: m07dem1/src/TestCode.java:182 m07dem1/src/TestCode.java:185
+#: m07dem2/src/TestCode.java:100 m08Q1/src/TestCode.java:64
+#: m08Q2/src/TestCode.java:65 m08Q3/src/TestParam.java:81
+#: m08Q4/src/TestAnd.java:89 m08Q4/src/TestGet.java:93
+#: m08Q4/src/TestReset.java:92 m08Q4/src/TestRotate.java:88
+#: m08Q4/src/TestSet.java:99 m08Q4/src/TestShift.java:88
+#: m08Q4/src/TestConstruct.java:63 m08Q5/src/TestGet.java:88
+#: m08Q5/src/TestReset.java:91 m08Q5/src/TestRotate.java:93
+#: m08Q5/src/TestSet.java:91 m08Q5/src/TestShift.java:93
+#: m08Q6/src/TestMax.java:79 m08Q6/src/TestMin.java:79
+#: m08Q6/src/TestMoyenne.java:77 m08Q7/src/TestMax.java:78
+#: m08Q7/src/TestMin.java:78 m08Q7/src/TestMoyenne.java:78
+#: m08dem1/src/TestParam1.java:79 m08dem1/src/TestParam2.java:90
+#: m09Q1/src/TestParam.java:96 m09Q2/src/TestParam.java:94
+#: m09Q3/src/TestCode.java:80 m09Q4/src/TestParam.java:81
+#: m09Q4/src/TestCode.java:79 m09Q5/src/TestCode.java:71
+#: m09Q6/src/TestCode.java:74 m09Q6/src/TestCode.java:115
+#: m09Q6/src/TestCode.java:132 m09Q6/src/TestCode.java:146
+#: m09Q6/src/TestCode.java:148 m09Q6/src/TestCode.java:165
+#: m09Q6/src/TestCode.java:173 m09Q6/src/TestCode.java:200
+#: m09Q7/src/TestCode.java:75 m09Q7/src/TestCode.java:140
+#: m09Q7/src/TestCode.java:153 m09Q7/src/TestCode.java:155
+#: m09Q7/src/TestCode.java:174 m09Q7/src/TestCode.java:182
+#: m09Q7/src/TestCode.java:200 m09Q7/src/TestCode.java:202
+#: m09Q7/src/TestCode.java:229 m09Q7/src/TestCode.java:235
+#: m09Q7/src/TestCode.java:237 m09Q7/src/TestCode.java:245
+#: m09_bf/src/TestErr.java:104 m09_bf/src/Tests.java:92
+#: m09_bf/src/TestsException.java:102 m09dem1/src/TestParam.java:94
+#: m09dem2/src/TestCode.java:83 m09dem2/src/TestRes.java:83
+#: m10Q1/src/Tests.java:92 m10Q1/src/Tests.java:95 m10Q3/src/Tests.java:177
+#: m10Q4/src/TestListAdd.java:122 m10Q4/src/TestListContains.java:121
+#: m10Q4/src/TestListGet.java:121 m10Q4/src/TestListSet.java:109
+#: m10dem1/src/Tests.java:176 m10dem1/src/Tests.java:179
+#: m10dem1/src/TestOut.java:99 m10dem1/src/TestOut.java:102
+#: m10dem2/src/TestContenuFichier.java:149
+#: m10dem2/src/TestValeurRetour.java:122 m11Q1/src/Tests.java:184
+#: m11Q2/src/Tests.java:173 m11Q3/src/Tests.java:124 m11Q4/src/Tests.java:180
+#: m11Q5/src/Tests.java:184 m11Q6/src/Tests.java:152 mX1Q19/src/Tests.java:120
+msgid "Une erreur inattendue est survenue dans votre tâche : "
+msgstr "Se ha producido un error inesperado en la tarea: "
+
+#: m01Q11/src/Tests.java:38
+#, java-format
+msgid ""
+"La moyenne entre {0,number,#}, {1,number,#} et {2,number,#} vaut "
+"{3,number,#}, or votre programme calcule {4,number,#}.\n"
+msgstr ""
+"El promedio de {0,number,#}, {1,number,#} y {2,number,#} es {3,number,#} y "
+"su programa calcula {4,number,#}.\n"
+
+#: m01Q12/src/Tests.java:34 m01Q13/src/Tests.java:33 m01Q3/src/Tests.java:33
+msgid "Veuillez placer le résultat dans la variable"
+msgstr "Coloque el resultado en la variable"
+
+#: m01Q12/src/Tests.java:38 m03Q3/src/Tests.java:36
+#, java-format
+msgid ""
+"Le maximum entre les variables a={0}, b={1} et c={2} est {3} or votre "
+"programme calcule {4}.\n"
+msgstr ""
+
+#: m01Q13/src/Tests.java:37
+#, java-format
+msgid ""
+"Le minimum entre les variables a={0}, b={1}, c={2} et d={3} est {4} or votre "
+"programme calcule {5}.\n"
+msgstr ""
+
+#: m01Q14/src/Tests.java:33
+#, java-format
+msgid ""
+"Il y a {0} valeurs différentes parmi {1}, {2}, {3}.\n"
+"Cependant, votre code indique qu''il y en a {4}.\n"
+msgstr ""
+
+#: m01Q15/src/Tests.java:34
+#, java-format
+msgid ""
+"Pour le {0}/{1}/2016 la saison est ''{2}'' alors que votre code indique "
+"''{3}''.\n"
+msgstr ""
+
+#: m01Q16/src/Tests.java:33
+#, java-format
+msgid ""
+"Pour {0}h{1}m{2}s, le total attendu est {3,number,#}s or votre code indique "
+"{4,number,#}s.\n"
+msgstr ""
+
+#: m01Q17/src/Tests.java:32 m01Q9/src/Tests.java:31 m03Q1/src/Tests.java:32
+msgid "est"
+msgstr ""
+
+#: m01Q17/src/Tests.java:33 m01Q9/src/Tests.java:32 m03Q1/src/Tests.java:33
+msgid "n'est pas"
+msgstr ""
+
+#: m01Q17/src/Tests.java:34
+#, java-format
+msgid ""
+"L''année {0,number,#} {1} une année bissextile.\n"
+"Cependant, votre code indique que {0,number,#} {2} une année bissextile\n"
+msgstr ""
+
+#: m01Q18/src/Tests.java:31
+#, java-format
+msgid ""
+"L''année {0,number,#} est au siècle {1,number,#} or votre code indique "
+"siècle {2,number,#}.\n"
+msgstr ""
+
+#: m01Q2/src/Tests.java:33
+#, java-format
+msgid ""
+"{0} : Un véhicule roulant à {1}km/h dans une zone limitée à {2}km/h doit "
+"recevoir une amende de {3}€. Cependant, votre code calcule {4}€.\n"
+msgstr ""
+
+#: m01Q2/src/Tests.java:52 m02Q8/src/Tests.java:65 m04Q4/src/Tests.java:134
+#: m05dem4/src/Tests.java:83 m05dem4/src/Tests.java:103
+#: m05dem4/src/Tests.java:135 m05dem4/src/Tests.java:161
+#: m06Q10/src/TestCode.java:50 m06Q2/src/TestCode.java:41
+#: m06Q4/src/TestCode.java:46 m06Q5/src/TestCode.java:40
+#: m06Q6/src/TestCode.java:45 m06Q7/src/TestCode.java:45
+#: m06Q8/src/TestCode.java:50 m06Q9/src/TestCode.java:50
+#: m06_bf/src/TestInspect.java:44 m06_bf/src/TestCode.java:45
+#: m06dem1/src/TestCode.java:37 m06dem2/src/TestCode.java:38
+#: m06dem3/src/TestCode.java:36 m06dem4/src/TestCode.java:42
+#: m07Q10/src/TestCode.java:36 m07Q2/src/TestCode.java:37
+#: m07Q4/src/TestCode.java:35 m07Q5/src/TestCode.java:36
+#: m07Q7/src/TestCode.java:36 m07Q8/src/TestCode.java:37
+#: m07Q9/src/TestCode.java:35 m07_bf/src/TestInspectCD.java:44
+#: m07dem1/src/TestCode.java:53 m07dem2/src/TestCode.java:49
+#: m08Q1/src/TestCode.java:37 m08Q2/src/TestCode.java:38
+#: m08Q4/src/TestConstruct.java:36 m08dem2/src/TestCode.java:48
+#: m09Q3/src/TestCode.java:52 m09Q4/src/TestCode.java:52
+#: m09Q5/src/TestCode.java:43 m09Q6/src/TestCode.java:46
+#: m09Q7/src/TestCode.java:48 m09dem2/src/TestCode.java:48
+#: m09dem2/src/TestRes.java:48 m10Q2/src/Tests.java:77
+#: m10Q2/src/Tests.java:105 m10Q3/src/Tests.java:113 m10Q3/src/Tests.java:151
+#: m10dem1/src/Tests.java:151 m10dem1/src/TestOut.java:74
+#: m10dem2/src/TestContenuFichier.java:105
+#: m10dem2/src/TestValeurRetour.java:99
+#, java-format
+msgid "{0} : réussi"
+msgstr "{0}: exitoso"
+
+#: m01Q2/src/Tests.java:64
+msgid "Lorsque l'excès de vitesse dépasse 10km/h, l'amende est doublée.\n"
+msgstr ""
+
+#: m01Q2/src/Tests.java:69 m01Q2/src/Tests.java:74
+msgid "Lorsque les vitesses sont égales, l'amende doit être de zéro.\n"
+msgstr ""
+
+#: m01Q2/src/Tests.java:79
+msgid ""
+"Pas d'amende requise car la vitesse du véhicule est inférieure à la vitesse "
+"maximale.\n"
+msgstr ""
+
+#: m01Q20/src/Tests.java:30
+msgid "une consonne"
+msgstr ""
+
+#: m01Q20/src/Tests.java:31
+msgid "une voyelle"
+msgstr ""
+
+#: m01Q20/src/Tests.java:32
+msgid "un chiffre"
+msgstr ""
+
+#: m01Q20/src/Tests.java:38
+#, java-format
+msgid "''{0}'' est {1}. Cependant, votre code indique que c''est {2}.\n"
+msgstr ""
+
+#: m01Q3/src/Tests.java:36
+#, java-format
+msgid ""
+"Pour une personne de {0}m et {1}kg, votre réponse {2} ne correspond pas à la "
+"valeur attendue {3}.\n"
+msgstr ""
+
+#: m01Q4/src/Tests.java:31
+#, java-format
+msgid ""
+"Lorsque la voiture entre en section {0} et sort en section {1}, la voiture a "
+"pacouru {2} section(s) et le prix attendu est {3}€ alors que votre code "
+"calcule {4}€.\n"
+msgstr ""
+
+#: m01Q5/src/Tests.java:30
+#, java-format
+msgid "{0} XOR {1} ne retourne pas le bon résultat.\n"
+msgstr ""
+
+#: m01Q6/src/Tests.java:30
+#, java-format
+msgid ""
+"Pour i={0}, vous avez répondu ''{1}'' alors qu''il faut répondre ''{2}''.\n"
+msgstr ""
+
+#: m01Q7/src/Tests.java:30
+#, java-format
+msgid ""
+"Pour n={0}, vous avez répondu ''{1}'' alors qu''il faut répondre ''{2}''.\n"
+msgstr ""
+
+#: m01Q8/src/Tests.java:34 m03Q4/src/Tests.java:37
+#, java-format
+msgid ""
+"La mediane entre {0}, {1} et {2} vaut {3}, or votre programme calcule {4}.\n"
+msgstr ""
+
+#: m01Q9/src/Tests.java:34 m03Q1/src/Tests.java:34
+#, java-format
+msgid ""
+"Le nombre {0} {1} dans l''intervalle [{2}, {3}].\n"
+"Cependant, votre code indique le contraire.\n"
+msgstr ""
+
+#: m01_bf/src/Tests.java:32
+#, java-format
+msgid ""
+"Vous affichez mal la suite de Syracuse sur la sortie standard quand s0 = "
+"{0}.\n"
+"La vraie suite est : {1}\n"
+"Votre suite est : {2}"
+msgstr ""
+"No muestra la secuencia Syracuse correctamente en la salida estándar cuando "
+"s0 = {0}.\n"
+"La secuencia de números reales es: {1}\n"
+"Su secuencia numérica es: {2}"
+
+#: m01_bf/src/Tests.java:59 m02_bf/src/Tests.java:59 m03_bf/src/Tests.java:66
+#: m04Q1/src/Tests.java:67 m04Q10/src/Tests.java:62 m04Q11/src/Tests.java:61
+#: m04Q2/src/Tests.java:62 m04Q3/src/Tests.java:68 m04Q4/src/Tests.java:155
+#: m04Q5/src/Tests.java:70 m04Q6/src/Tests.java:74 m04Q7/src/Tests.java:71
+#: m04Q8/src/Tests.java:69 m04Q9/src/Tests.java:62 m04_bf/src/Tests.java:80
+#: m04dem4/src/Tests.java:71 m04dem5/src/Tests.java:99 m05Q1/src/Tests.java:74
+#: m05Q10/src/Tests.java:76 m05Q11/src/Tests.java:80
+#: m05Q12/src/TestsQ1.java:72 m05Q12/src/TestsQ2.java:68
+#: m05Q2/src/Tests.java:75 m05Q3/src/Tests.java:74 m05Q4/src/Tests.java:73
+#: m05Q5/src/Tests.java:64 m05Q6/src/Tests.java:69 m05Q7/src/Tests.java:83
+#: m05Q8/src/Tests.java:91 m05Q9/src/Tests.java:75 m05_bf/src/Tests.java:102
+#: m05dem1/src/Tests.java:105 m05dem2/src/Tests.java:81
+#: m05dem3/src/Tests.java:66 m05dem4/src/Tests.java:185
+#: m05dem5/src/Tests.java:111 m06Q1/src/TestCode.java:71
+#: m06Q10/src/TestCode.java:120 m06Q11/src/TestParam.java:77
+#: m06Q2/src/TestCode.java:112 m06Q3/src/TestCode.java:81
+#: m06Q3/src/TestParam.java:76 m06Q4/src/TestCode.java:94
+#: m06Q4/src/TestParam.java:74 m06Q5/src/TestCode.java:96
+#: m06Q6/src/TestCode.java:87 m06Q6/src/TestParam.java:76
+#: m06Q7/src/TestCode.java:97 m06Q8/src/TestCode.java:99
+#: m06Q8/src/TestParam.java:84 m06Q9/src/TestCode.java:117
+#: m06_bf/src/TestInspect.java:68 m06_bf/src/TestCode.java:69
+#: m06dem1/src/TestCode.java:146 m06dem2/src/TestCode.java:278
+#: m06dem3/src/TestCode.java:115 m06dem4/src/TestCode.java:126
+#: m07Q1/src/TestParam.java:76 m07Q10/src/TestCode.java:59
+#: m07Q11/src/TestParam.java:85 m07Q2/src/TestCode.java:111
+#: m07Q3/src/TestParam.java:86 m07Q4/src/TestCode.java:58
+#: m07Q5/src/TestCode.java:59 m07Q6/src/TestParam.java:79
+#: m07Q7/src/TestCode.java:59 m07Q8/src/TestCode.java:60
+#: m07Q9/src/TestCode.java:58 m07_bf/src/TestItem.java:72
+#: m07_bf/src/TestCD.java:129 m07_bf/src/TestInspectCD.java:68
+#: m07dem2/src/TestCode.java:96 m08Q1/src/TestCode.java:60
+#: m08Q2/src/TestCode.java:61 m08Q3/src/TestParam.java:77
+#: m08Q4/src/TestAnd.java:85 m08Q4/src/TestGet.java:89
+#: m08Q4/src/TestReset.java:88 m08Q4/src/TestRotate.java:84
+#: m08Q4/src/TestSet.java:95 m08Q4/src/TestShift.java:84
+#: m08Q4/src/TestConstruct.java:59 m08Q5/src/TestGet.java:84
+#: m08Q5/src/TestReset.java:87 m08Q5/src/TestRotate.java:89
+#: m08Q5/src/TestSet.java:87 m08Q5/src/TestShift.java:89
+#: m08Q6/src/TestMax.java:75 m08Q6/src/TestMin.java:75
+#: m08Q6/src/TestMoyenne.java:73 m08Q7/src/TestMax.java:74
+#: m08Q7/src/TestMin.java:74 m08Q7/src/TestMoyenne.java:74
+#: m08dem1/src/TestParam1.java:75 m08dem1/src/TestParam2.java:86
+#: m09Q1/src/TestParam.java:92 m09Q2/src/TestParam.java:90
+#: m09Q3/src/TestCode.java:76 m09Q4/src/TestParam.java:77
+#: m09Q4/src/TestCode.java:75 m09Q5/src/TestCode.java:67
+#: m09Q6/src/TestCode.java:70 m09Q7/src/TestCode.java:71
+#: m09_bf/src/TestErr.java:100 m09_bf/src/Tests.java:88
+#: m09_bf/src/TestsException.java:98 m09dem1/src/TestParam.java:90
+#: m09dem2/src/TestCode.java:77 m09dem2/src/TestRes.java:77
+#: m10Q1/src/Tests.java:88 m10Q2/src/Tests.java:128 m10Q3/src/Tests.java:173
+#: m10Q4/src/TestListAdd.java:117 m10Q4/src/TestListContains.java:116
+#: m10Q4/src/TestListGet.java:116 m10Q4/src/TestListSet.java:104
+#: m10dem1/src/Tests.java:172 m10dem1/src/TestOut.java:95
+#: m10dem2/src/TestContenuFichier.java:145
+#: m10dem2/src/TestValeurRetour.java:118 m11Q1/src/Tests.java:180
+#: m11Q2/src/Tests.java:169 m11Q3/src/Tests.java:120 m11Q4/src/Tests.java:176
+#: m11Q5/src/Tests.java:180 m11Q6/src/Tests.java:148
+msgid "Vous initialisez un tableau avec une taille négative."
+msgstr ""
+
+#: m01_bf/src/Tests.java:61 m02_bf/src/Tests.java:61 m03Q1/src/Tests.java:91
+#: m03Q2/src/Tests.java:65 m03Q3/src/Tests.java:67 m03Q4/src/Tests.java:71
+#: m03Q5/src/Tests.java:65 m03Q6/src/Tests.java:64 m03Q7/src/Tests.java:64
+#: m03_bf/src/Tests.java:68 m03dem2/src/Tests.java:73
+#: m03dem3/src/Tests.java:61 m03dem4/src/Tests.java:88
+#: m03dem5/src/Tests.java:59 m04Q1/src/Tests.java:69 m04Q10/src/Tests.java:64
+#: m04Q11/src/Tests.java:63 m04Q2/src/Tests.java:64 m04Q3/src/Tests.java:70
+#: m04Q4/src/Tests.java:157 m04Q5/src/Tests.java:72 m04Q6/src/Tests.java:76
+#: m04Q7/src/Tests.java:73 m04Q8/src/Tests.java:71 m04Q9/src/Tests.java:64
+#: m04_bf/src/Tests.java:82 m04dem2/src/Tests.java:83
+#: m04dem4/src/Tests.java:73 m04dem5/src/Tests.java:101
+#: m05Q1/src/Tests.java:76 m05Q10/src/Tests.java:78 m05Q11/src/Tests.java:82
+#: m05Q12/src/TestsQ1.java:74 m05Q12/src/TestsQ2.java:70
+#: m05Q2/src/Tests.java:77 m05Q3/src/Tests.java:76 m05Q4/src/Tests.java:75
+#: m05Q5/src/Tests.java:66 m05Q6/src/Tests.java:71 m05Q7/src/Tests.java:85
+#: m05Q8/src/Tests.java:93 m05Q9/src/Tests.java:77 m05_bf/src/Tests.java:104
+#: m05dem1/src/Tests.java:107 m05dem2/src/Tests.java:83
+#: m05dem3/src/Tests.java:68 m05dem4/src/Tests.java:187
+#: m05dem5/src/Tests.java:113 m06Q1/src/TestCode.java:73
+#: m06Q10/src/TestCode.java:122 m06Q11/src/TestParam.java:79
+#: m06Q2/src/TestCode.java:114 m06Q3/src/TestCode.java:83
+#: m06Q3/src/TestParam.java:78 m06Q4/src/TestCode.java:96
+#: m06Q4/src/TestParam.java:76 m06Q5/src/TestCode.java:98
+#: m06Q6/src/TestCode.java:89 m06Q6/src/TestParam.java:78
+#: m06Q7/src/TestCode.java:99 m06Q8/src/TestCode.java:101
+#: m06Q8/src/TestParam.java:86 m06Q9/src/TestCode.java:119
+#: m06_bf/src/TestInspect.java:70 m06_bf/src/TestCode.java:71
+#: m06dem1/src/TestCode.java:148 m06dem2/src/TestCode.java:280
+#: m06dem3/src/TestCode.java:117 m06dem4/src/TestCode.java:128
+#: m07Q1/src/TestParam.java:78 m07Q10/src/TestCode.java:61
+#: m07Q11/src/TestParam.java:87 m07Q2/src/TestCode.java:113
+#: m07Q3/src/TestParam.java:88 m07Q4/src/TestCode.java:60
+#: m07Q5/src/TestCode.java:61 m07Q6/src/TestParam.java:81
+#: m07Q7/src/TestCode.java:61 m07Q8/src/TestCode.java:62
+#: m07Q9/src/TestCode.java:60 m07_bf/src/TestItem.java:74
+#: m07_bf/src/TestCD.java:131 m07_bf/src/TestInspectCD.java:70
+#: m07dem2/src/TestCode.java:98 m08Q1/src/TestCode.java:62
+#: m08Q2/src/TestCode.java:63 m08Q3/src/TestParam.java:79
+#: m08Q4/src/TestAnd.java:87 m08Q4/src/TestGet.java:91
+#: m08Q4/src/TestReset.java:90 m08Q4/src/TestRotate.java:86
+#: m08Q4/src/TestSet.java:97 m08Q4/src/TestShift.java:86
+#: m08Q4/src/TestConstruct.java:61 m08Q5/src/TestGet.java:86
+#: m08Q5/src/TestReset.java:89 m08Q5/src/TestRotate.java:91
+#: m08Q5/src/TestSet.java:89 m08Q5/src/TestShift.java:91
+#: m08Q6/src/TestMax.java:77 m08Q6/src/TestMin.java:77
+#: m08Q6/src/TestMoyenne.java:75 m08Q7/src/TestMax.java:76
+#: m08Q7/src/TestMin.java:76 m08Q7/src/TestMoyenne.java:76
+#: m08dem1/src/TestParam1.java:77 m08dem1/src/TestParam2.java:88
+#: m08dem2/src/TestCode.java:78 m09Q1/src/TestParam.java:94
+#: m09Q2/src/TestParam.java:92 m09Q3/src/TestCode.java:78
+#: m09Q4/src/TestParam.java:79 m09Q4/src/TestCode.java:77
+#: m09Q5/src/TestCode.java:69 m09Q6/src/TestCode.java:72
+#: m09Q7/src/TestCode.java:73 m09_bf/src/TestErr.java:102
+#: m09_bf/src/Tests.java:90 m09_bf/src/TestsException.java:100
+#: m09dem1/src/TestParam.java:92 m09dem2/src/TestCode.java:80
+#: m09dem2/src/TestRes.java:80 m10Q1/src/Tests.java:90
+#: m10Q2/src/Tests.java:130 m10Q3/src/Tests.java:175
+#: m10Q4/src/TestListAdd.java:119 m10Q4/src/TestListContains.java:118
+#: m10Q4/src/TestListGet.java:118 m10Q4/src/TestListSet.java:106
+#: m10dem1/src/Tests.java:174 m10dem1/src/TestOut.java:97
+#: m10dem2/src/TestContenuFichier.java:147
+#: m10dem2/src/TestValeurRetour.java:120 m11Q1/src/Tests.java:182
+#: m11Q2/src/Tests.java:171 m11Q3/src/Tests.java:122 m11Q4/src/Tests.java:178
+#: m11Q5/src/Tests.java:182 m11Q6/src/Tests.java:150
+msgid ""
+"Il semble que votre code boucle. Ceci peut arriver si votre fonction "
+"s'appelle elle-même."
+msgstr ""
+
+#: m02Q1/src/Tests.java:27
+#, java-format
+msgid ""
+"Le reste de la division entière entre {0,number,#} et {1,number,#} vaut "
+"{2,number,#} et votre programme calcule {3,number,#}.\n"
+msgstr ""
+
+#: m02Q10/src/Tests.java:32
+#, java-format
+msgid ""
+"Le nombre de diviseur de {0,number,#} est {1,number,#} or votre programme "
+"calcule {2,number,#}.\n"
+msgstr ""
+
+#: m02Q3/src/Tests.java:32
+#, java-format
+msgid ""
+"Un triangle de côté {0} donne :\n"
+"{1}\n"
+"Votre programme affiche :\n"
+"{2}\n"
+msgstr ""
+
+#: m02Q3/src/Tests.java:51 m02Q4/src/Tests.java:38
+msgid "Vous affichez trop de caractères ! ⛔"
+msgstr ""
+
+#: m02Q4/src/Tests.java:34
+#, java-format
+msgid ""
+"Le dessin de la lettre H de hauteur {0} et de largeur {1} donne \n"
+"\n"
+"{2}\n"
+" et votre programme donne\n"
+"\n"
+"{3}\n"
+msgstr ""
+
+#: m02Q5/src/Tests.java:34
+#, java-format
+msgid ""
+"Le dessin de la lettre X de hauteur {0} donne \n"
+"\n"
+"{1}\n"
+" et votre programme donne\n"
+"\n"
+"{2}\n"
+msgstr ""
+
+#: m02Q5/src/Tests.java:36 m02Q6/src/Tests.java:35
+msgid "Vous affichez trop de caractères!"
+msgstr ""
+
+#: m02Q6/src/Tests.java:33
+#, java-format
+msgid ""
+"Le dessin de la lettre S de hauteur {0} donne \n"
+"\n"
+"{1}\n"
+" et votre programme donne\n"
+"\n"
+"{2}\n"
+msgstr ""
+
+#: m02Q7/src/Tests.java:30
+#, java-format
+msgid ""
+"Le calcul d''intérêts avec une base de {0,number,#} sur {1,number,#} années "
+"au taux d''intérêt {2,number,#} donne {3,number,#} mais votre programme "
+"calcule {4,number,#}.\n"
+msgstr ""
+
+#: m02Q8/src/Tests.java:35 m02Q8/src/Tests.java:40
+#, java-format
+msgid "Vérifiez que vous gérez la factorielle de {0}.\n"
+msgstr ""
+
+#: m02Q8/src/Tests.java:62
+#, java-format
+msgid ""
+"La factorielle de {0} donne {1,number,#}, pourtant, votre code renvoie "
+"{2,number,#}.\n"
+msgstr ""
+
+#: m02Q9/src/Tests.java:27
+#, java-format
+msgid ""
+"La somme des nombres dans l''intervalle [{0,number,#}, {1,number,#}] vaut "
+"{2,number,#} et votre programme calcule {3,number,#}.\n"
+msgstr ""
+
+#: m02_bf/src/Tests.java:31
+msgid "<rien>"
+msgstr ""
+
+#: m02_bf/src/Tests.java:33
+#, java-format
+msgid ""
+"Vous affichez mal les diviseurs propres sur la sortie standard quand n = "
+"{0}.\n"
+"Vous affichez :\n"
+"{1}\n"
+"Il est attendu :\n"
+"{2}"
+msgstr ""
+"No muestra divisores limpios en la salida estándar cuando n = {0}.\n"
+"Usted verá:\n"
+"{1}\n"
+"Se espera:\n"
+"{2}"
+
+#: m02dem2/src/Tests.java:36
+#, java-format
+msgid ""
+"Test {0} : La somme des {1,number,#} entiers pairs supérieurs à zéro vaut "
+"{2,number,#} et votre programme calcule {3,number,#}.\n"
+msgstr ""
+
+#: m02dem3/src/Tests.java:34
+#, java-format
+msgid ""
+"Test {0} : l''entier {1,number,#} exposant {2,number,#} vaut {3,number,#} et "
+"votre programme calcule {4,number,#}.\n"
+msgstr ""
+
+#: m02dem4/src/Tests.java:30
+#, java-format
+msgid ""
+"Test {0} : le plus grand diviseur entier de {1,number,#} est {2,number,#} et "
+"votre programme calcule {3,number,#}.\n"
+msgstr ""
+
+#: m02dem5/src/Tests.java:29
+#, java-format
+msgid ""
+"Test {0} : le test de nombre premier sur {1,number,#} renvoie {2} et votre "
+"programme renvoie {3}.\n"
+msgstr ""
+
+#: m03Q1/src/librairies/FunctionHelper.java:47
+#: m03Q2/src/librairies/FunctionHelper.java:47
+#: m03Q3/src/librairies/FunctionHelper.java:47
+#: m03Q4/src/librairies/FunctionHelper.java:47
+#: m03Q5/src/librairies/FunctionHelper.java:47
+#: m03Q6/src/librairies/FunctionHelper.java:47
+#: m03Q7/src/librairies/FunctionHelper.java:47
+#: m03_bf/src/librairies/FunctionHelper.java:47
+#: m03dem2/src/librairies/FunctionHelper.java:47
+#: m03dem3/src/librairies/FunctionHelper.java:47
+#: m03dem4/src/librairies/FunctionHelper.java:47
+#: m03dem5/src/librairies/FunctionHelper.java:47
+#: m04Q1/src/librairies/FunctionHelper.java:47
+#: m04Q10/src/librairies/FunctionHelper.java:47
+#: m04Q11/src/librairies/FunctionHelper.java:47
+#: m04Q2/src/librairies/FunctionHelper.java:47
+#: m04Q3/src/librairies/FunctionHelper.java:47
+#: m04Q4/src/librairies/FunctionHelper.java:47
+#: m04Q5/src/librairies/FunctionHelper.java:47
+#: m04Q6/src/librairies/FunctionHelper.java:47
+#: m04Q7/src/librairies/FunctionHelper.java:47
+#: m04Q8/src/librairies/FunctionHelper.java:47
+#: m04Q9/src/librairies/FunctionHelper.java:47
+#: m05Q1/src/librairies/FunctionHelper.java:47
+#: m05Q10/src/librairies/FunctionHelper.java:47
+#: m05Q11/src/librairies/FunctionHelper.java:47
+#: m05Q12/src/librairies/FunctionHelper.java:47
+#: m05Q2/src/librairies/FunctionHelper.java:47
+#: m05Q3/src/librairies/FunctionHelper.java:47
+#: m05Q4/src/librairies/FunctionHelper.java:47
+#: m05Q5/src/librairies/FunctionHelper.java:47
+#: m05Q6/src/librairies/FunctionHelper.java:47
+#: m05Q7/src/librairies/FunctionHelper.java:47
+#: m05Q8/src/librairies/FunctionHelper.java:47
+#: m05Q9/src/librairies/FunctionHelper.java:47 m07dem1/src/TestCode.java:70
+#: m09Q5/src/librairies/FunctionHelper.java:47
+#: m09_bf/src/librairies/FunctionHelper.java:47
+#: m10Q1/src/librairies/FunctionHelperCustom.java:46
+#: m10Q3/src/librairies/FunctionHelper.java:47
+#: m10dem1/src/librairies/FunctionHelper.java:47
+#: m10dem2/src/librairies/FunctionHelper.java:47
+#: utilities/FunctionHelper.java:47
+#, java-format
+msgid "Le type de retour de votre fonction doit être du type {0} !\n"
+msgstr ""
+
+#: m03Q1/src/librairies/FunctionHelper.java:50
+#: m03Q2/src/librairies/FunctionHelper.java:50
+#: m03Q3/src/librairies/FunctionHelper.java:50
+#: m03Q4/src/librairies/FunctionHelper.java:50
+#: m03Q5/src/librairies/FunctionHelper.java:50
+#: m03Q6/src/librairies/FunctionHelper.java:50
+#: m03Q7/src/librairies/FunctionHelper.java:50
+#: m03_bf/src/librairies/FunctionHelper.java:50
+#: m03dem2/src/librairies/FunctionHelper.java:50
+#: m03dem3/src/librairies/FunctionHelper.java:50
+#: m03dem4/src/librairies/FunctionHelper.java:50
+#: m03dem5/src/librairies/FunctionHelper.java:50
+#: m04Q1/src/librairies/FunctionHelper.java:50
+#: m04Q10/src/librairies/FunctionHelper.java:50
+#: m04Q11/src/librairies/FunctionHelper.java:50
+#: m04Q2/src/librairies/FunctionHelper.java:50
+#: m04Q3/src/librairies/FunctionHelper.java:50
+#: m04Q4/src/librairies/FunctionHelper.java:50
+#: m04Q5/src/librairies/FunctionHelper.java:50
+#: m04Q6/src/librairies/FunctionHelper.java:50
+#: m04Q7/src/librairies/FunctionHelper.java:50
+#: m04Q8/src/librairies/FunctionHelper.java:50
+#: m04Q9/src/librairies/FunctionHelper.java:50
+#: m05Q1/src/librairies/FunctionHelper.java:50
+#: m05Q10/src/librairies/FunctionHelper.java:50
+#: m05Q11/src/librairies/FunctionHelper.java:50
+#: m05Q12/src/librairies/FunctionHelper.java:50
+#: m05Q2/src/librairies/FunctionHelper.java:50
+#: m05Q3/src/librairies/FunctionHelper.java:50
+#: m05Q4/src/librairies/FunctionHelper.java:50
+#: m05Q5/src/librairies/FunctionHelper.java:50
+#: m05Q6/src/librairies/FunctionHelper.java:50
+#: m05Q7/src/librairies/FunctionHelper.java:50
+#: m05Q8/src/librairies/FunctionHelper.java:50
+#: m05Q9/src/librairies/FunctionHelper.java:50 m07dem1/src/TestCode.java:73
+#: m09Q5/src/librairies/FunctionHelper.java:50
+#: m09_bf/src/librairies/FunctionHelper.java:50
+#: m10Q1/src/librairies/FunctionHelperCustom.java:49
+#: m10Q3/src/librairies/FunctionHelper.java:50
+#: m10dem1/src/librairies/FunctionHelper.java:50
+#: m10dem2/src/librairies/FunctionHelper.java:50
+#: utilities/FunctionHelper.java:50
+#, java-format
+msgid "Votre fonction doit prendre {0} argument(s) !\n"
+msgstr ""
+
+#: m03Q1/src/librairies/FunctionHelper.java:54
+#: m03Q2/src/librairies/FunctionHelper.java:54
+#: m03Q3/src/librairies/FunctionHelper.java:54
+#: m03Q4/src/librairies/FunctionHelper.java:54
+#: m03Q5/src/librairies/FunctionHelper.java:54
+#: m03Q6/src/librairies/FunctionHelper.java:54
+#: m03Q7/src/librairies/FunctionHelper.java:54
+#: m03_bf/src/librairies/FunctionHelper.java:54
+#: m03dem2/src/librairies/FunctionHelper.java:54
+#: m03dem3/src/librairies/FunctionHelper.java:54
+#: m03dem4/src/librairies/FunctionHelper.java:54
+#: m03dem5/src/librairies/FunctionHelper.java:54
+#: m04Q1/src/librairies/FunctionHelper.java:54
+#: m04Q10/src/librairies/FunctionHelper.java:54
+#: m04Q11/src/librairies/FunctionHelper.java:54
+#: m04Q2/src/librairies/FunctionHelper.java:54
+#: m04Q3/src/librairies/FunctionHelper.java:54
+#: m04Q4/src/librairies/FunctionHelper.java:54
+#: m04Q5/src/librairies/FunctionHelper.java:54
+#: m04Q6/src/librairies/FunctionHelper.java:54
+#: m04Q7/src/librairies/FunctionHelper.java:54
+#: m04Q8/src/librairies/FunctionHelper.java:54
+#: m04Q9/src/librairies/FunctionHelper.java:54
+#: m05Q1/src/librairies/FunctionHelper.java:54
+#: m05Q10/src/librairies/FunctionHelper.java:54
+#: m05Q11/src/librairies/FunctionHelper.java:54
+#: m05Q12/src/librairies/FunctionHelper.java:54
+#: m05Q2/src/librairies/FunctionHelper.java:54
+#: m05Q3/src/librairies/FunctionHelper.java:54
+#: m05Q4/src/librairies/FunctionHelper.java:54
+#: m05Q5/src/librairies/FunctionHelper.java:54
+#: m05Q6/src/librairies/FunctionHelper.java:54
+#: m05Q7/src/librairies/FunctionHelper.java:54
+#: m05Q8/src/librairies/FunctionHelper.java:54
+#: m05Q9/src/librairies/FunctionHelper.java:54 m07dem1/src/TestCode.java:77
+#: m09Q5/src/librairies/FunctionHelper.java:54
+#: m09_bf/src/librairies/FunctionHelper.java:54
+#: m10Q3/src/librairies/FunctionHelper.java:54
+#: m10dem1/src/librairies/FunctionHelper.java:54
+#: m10dem2/src/librairies/FunctionHelper.java:54
+#: utilities/FunctionHelper.java:54
+#, java-format
+msgid "L''argument n°{0} n''est pas de type ''{1}'' comme demandé !\n"
+msgstr ""
+
+#: m03Q1/src/librairies/FunctionHelper.java:60
+#: m03Q2/src/librairies/FunctionHelper.java:60
+#: m03Q3/src/librairies/FunctionHelper.java:60
+#: m03Q4/src/librairies/FunctionHelper.java:60
+#: m03Q5/src/librairies/FunctionHelper.java:60
+#: m03Q6/src/librairies/FunctionHelper.java:60
+#: m03Q7/src/librairies/FunctionHelper.java:60
+#: m03_bf/src/librairies/FunctionHelper.java:60
+#: m03dem2/src/librairies/FunctionHelper.java:60
+#: m03dem3/src/librairies/FunctionHelper.java:60
+#: m03dem4/src/librairies/FunctionHelper.java:60
+#: m03dem5/src/librairies/FunctionHelper.java:60
+#: m04Q1/src/librairies/FunctionHelper.java:60
+#: m04Q10/src/librairies/FunctionHelper.java:60
+#: m04Q11/src/librairies/FunctionHelper.java:60
+#: m04Q2/src/librairies/FunctionHelper.java:60
+#: m04Q3/src/librairies/FunctionHelper.java:60
+#: m04Q4/src/librairies/FunctionHelper.java:60
+#: m04Q5/src/librairies/FunctionHelper.java:60
+#: m04Q6/src/librairies/FunctionHelper.java:60
+#: m04Q7/src/librairies/FunctionHelper.java:60
+#: m04Q8/src/librairies/FunctionHelper.java:60
+#: m04Q9/src/librairies/FunctionHelper.java:60
+#: m05Q1/src/librairies/FunctionHelper.java:60
+#: m05Q10/src/librairies/FunctionHelper.java:60
+#: m05Q11/src/librairies/FunctionHelper.java:60
+#: m05Q12/src/librairies/FunctionHelper.java:60
+#: m05Q2/src/librairies/FunctionHelper.java:60
+#: m05Q3/src/librairies/FunctionHelper.java:60
+#: m05Q4/src/librairies/FunctionHelper.java:60
+#: m05Q5/src/librairies/FunctionHelper.java:60
+#: m05Q6/src/librairies/FunctionHelper.java:60
+#: m05Q7/src/librairies/FunctionHelper.java:60
+#: m05Q8/src/librairies/FunctionHelper.java:60
+#: m05Q9/src/librairies/FunctionHelper.java:60 m07dem1/src/TestCode.java:83
+#: m09Q5/src/librairies/FunctionHelper.java:60
+#: m09_bf/src/librairies/FunctionHelper.java:60
+#: m10Q1/src/librairies/FunctionHelperCustom.java:63
+#: m10Q3/src/librairies/FunctionHelper.java:60
+#: m10dem1/src/librairies/FunctionHelper.java:60
+#: m10dem2/src/librairies/FunctionHelper.java:60
+#: utilities/FunctionHelper.java:60
+msgid ""
+"Votre fonction n'a pas été définie correctement. Assurez vous que son nom "
+"est correctement défini !\n"
+msgstr ""
+
+#: m03Q1/src/librairies/FunctionHelper.java:60
+#: m03Q2/src/librairies/FunctionHelper.java:60
+#: m03Q3/src/librairies/FunctionHelper.java:60
+#: m03Q4/src/librairies/FunctionHelper.java:60
+#: m03Q5/src/librairies/FunctionHelper.java:60
+#: m03Q6/src/librairies/FunctionHelper.java:60
+#: m03Q7/src/librairies/FunctionHelper.java:60
+#: m03_bf/src/librairies/FunctionHelper.java:60
+#: m03dem2/src/librairies/FunctionHelper.java:60
+#: m03dem3/src/librairies/FunctionHelper.java:60
+#: m03dem4/src/librairies/FunctionHelper.java:60
+#: m03dem5/src/librairies/FunctionHelper.java:60
+#: m04Q1/src/librairies/FunctionHelper.java:60
+#: m04Q10/src/librairies/FunctionHelper.java:60
+#: m04Q11/src/librairies/FunctionHelper.java:60
+#: m04Q2/src/librairies/FunctionHelper.java:60
+#: m04Q3/src/librairies/FunctionHelper.java:60
+#: m04Q4/src/librairies/FunctionHelper.java:60
+#: m04Q5/src/librairies/FunctionHelper.java:60
+#: m04Q6/src/librairies/FunctionHelper.java:60
+#: m04Q7/src/librairies/FunctionHelper.java:60
+#: m04Q8/src/librairies/FunctionHelper.java:60
+#: m04Q9/src/librairies/FunctionHelper.java:60
+#: m05Q1/src/librairies/FunctionHelper.java:60
+#: m05Q10/src/librairies/FunctionHelper.java:60
+#: m05Q11/src/librairies/FunctionHelper.java:60
+#: m05Q12/src/librairies/FunctionHelper.java:60
+#: m05Q2/src/librairies/FunctionHelper.java:60
+#: m05Q3/src/librairies/FunctionHelper.java:60
+#: m05Q4/src/librairies/FunctionHelper.java:60
+#: m05Q5/src/librairies/FunctionHelper.java:60
+#: m05Q6/src/librairies/FunctionHelper.java:60
+#: m05Q7/src/librairies/FunctionHelper.java:60
+#: m05Q8/src/librairies/FunctionHelper.java:60
+#: m05Q9/src/librairies/FunctionHelper.java:60
+#: m09Q5/src/librairies/FunctionHelper.java:60
+#: m09_bf/src/librairies/FunctionHelper.java:60
+#: m10Q1/src/librairies/FunctionHelperCustom.java:63
+#: m10Q3/src/librairies/FunctionHelper.java:60
+#: m10dem1/src/librairies/FunctionHelper.java:60
+#: m10dem2/src/librairies/FunctionHelper.java:60
+#: utilities/FunctionHelper.java:60
+#, java-format
+msgid "Le nom attendu est : ''{0}''.\n"
+msgstr ""
+
+#: m03Q2/src/Tests.java:35
+#, java-format
+msgid ""
+"Le surface d''un rectangle de longueur {0} et de largeur {1} est {2}.\n"
+"Cependant, votre code calcule {3}.\n"
+msgstr ""
+
+#: m03Q5/src/Tests.java:35
+#, java-format
+msgid ""
+"La surface d''une sphère de rayon {0} est {1}.\n"
+"Cependant, votre code calcule {2}.\n"
+msgstr ""
+
+#: m03Q6/src/Tests.java:36
+#, java-format
+msgid ""
+"La factorielle de {0,number,#} vaut {1,number,#} et votre programme calcule "
+"{2,number,#}.\n"
+msgstr ""
+
+#: m03Q7/src/Tests.java:36
+#, java-format
+msgid "Avec x={0}, votre code ne donne pas la bonne réponse.\n"
+msgstr ""
+
+#: m03_bf/src/Tests.java:32
+#, java-format
+msgid "Votre méthode {0} a retourné {1} quand elle est appelée avec n = {2}.\n"
+msgstr ""
+
+#: m03_bf/src/Tests.java:33
+msgid "Faites attention au cas où n est négatif.\n"
+msgstr ""
+
+#: m03dem2/src/Tests.java:44
+msgid "Votre code n'affiche pas le nombre le plus grand.\n"
+msgstr ""
+
+#: m03dem3/src/Tests.java:35
+#, java-format
+msgid ""
+"Votre code indique que impair de {0} est {1} alors que cela devrait être "
+"{2}.\n"
+msgstr ""
+
+#: m03dem4/src/Tests.java:60
+#, java-format
+msgid ""
+"Le dessin de la lettre L avec le caractère {0} de hauteur {1} et largeur {2} "
+"donne \n"
+"\n"
+"{3}\n"
+"et votre programme donne\n"
+"\n"
+"{4}\n"
+"Assurez vous aussi de ne pas mettre des espaces inutiles dans vos prints."
+msgstr ""
+
+#: m03dem5/src/Tests.java:30
+#, java-format
+msgid ""
+"Le nombre de diviseurs entiers du nombre {0} est {1}.\n"
+"Cependant, votre code indique {2}.\n"
+msgstr ""
+
+#: m04Q1/src/Tests.java:32 m04Q2/src/Tests.java:30
+#, java-format
+msgid ""
+"Avec les arguments c=\"{0}\" et s=\"{1}\", la réponse attendue est\n"
+"{2}\n"
+"Malheureusement, votre code renvoie \n"
+"{3}\n"
+msgstr ""
+
+#: m04Q10/src/Tests.java:30 m04Q11/src/Tests.java:29 m04Q3/src/Tests.java:30
+#: m04Q5/src/Tests.java:30 m04Q7/src/Tests.java:29 m04Q9/src/Tests.java:30
+#, java-format
+msgid ""
+"Avec l''argument s=\"{0}\", la réponse attendue est\n"
+"{1}\n"
+"Malheureusement, votre code renvoie \n"
+"{2}\n"
+msgstr ""
+
+#: m04Q4/src/Tests.java:94
+msgid "Vérifiez-vous la présence d'une majuscule ?\n"
+msgstr ""
+
+#: m04Q4/src/Tests.java:100
+msgid "Vérifiez-vous la présence d'une minuscule ?\n"
+msgstr ""
+
+#: m04Q4/src/Tests.java:106
+msgid "Vérifiez-vous la présence d'un chiffre ?\n"
+msgstr ""
+
+#: m04Q4/src/Tests.java:112
+msgid "Vérifiez-vous toutes les conditions simultanément ?\n"
+msgstr ""
+
+#: m04Q4/src/Tests.java:118
+msgid "Vérifiez-vous la longueur du mot de passe ?\n"
+msgstr ""
+
+#: m04Q4/src/Tests.java:130
+#, java-format
+msgid ""
+"Avec l''argument s=\"{0}\", la réponse attendue est {1}, malheureusement, "
+"votre code renvoie {2}.\n"
+msgstr ""
+
+#: m04Q6/src/Tests.java:36 m04Q8/src/Tests.java:36 m04dem5/src/Tests.java:70
+#, java-format
+msgid ""
+"Avec les arguments s1=\"{0}\" et s2=\"{1}\", la réponse attendue est\n"
+"{2}\n"
+"Malheureusement, votre code renvoie \n"
+"{3}\n"
+msgstr ""
+
+#: m04_bf/src/Tests.java:34
+#, java-format
+msgid ""
+"Votre méthode {0} a retourné {1} quand elle est appelée avec p = \"{2}\" et "
+"s = \"{3}\".\n"
+msgstr ""
+
+#: m04dem3/src/Tests.java:27
+#, java-format
+msgid ""
+"Avec les arguments {1}, votre méthode doit afficher\n"
+"{2}\n"
+"Malheureusement, votre code renvoie \n"
+"{3}\n"
+msgstr ""
+
+#: m04dem4/src/Tests.java:44
+#, java-format
+msgid ""
+"Avec l''argument \"{0}\", la réponse attendue est\n"
+"{1}\n"
+"Malheureusement, votre code renvoie \n"
+"{2}\n"
+msgstr ""
+
+#: m05Q1/src/Tests.java:33 m05Q10/src/Tests.java:32 m05Q11/src/Tests.java:32
+#: m05Q12/src/TestsQ1.java:33 m05Q2/src/Tests.java:33 m05Q3/src/Tests.java:33
+#: m05Q4/src/Tests.java:31 m05Q7/src/Tests.java:34 m05dem4/src/Tests.java:74
+msgid ""
+"Votre méthode modifie le contenu du tableau passé en argument. Une telle "
+"modification n'est autorisée que si elle est explicitement indiquée dans les "
+"spécifications. Ce n'est pas le cas pour cette méthode.\n"
+msgstr ""
+
+#: m05Q1/src/Tests.java:40
+#, java-format
+msgid "Avec le tableau {0}, votre méthode devrait retourner {1}.\n"
+msgstr ""
+
+#: m05Q10/src/Tests.java:31
+#, java-format
+msgid ""
+"L''appel de votre méthode avec a = {0} et b = {1}\n"
+"retourne {2} au lieux de {3}"
+msgstr ""
+
+#: m05Q11/src/Tests.java:31
+#, java-format
+msgid ""
+"L''appel de votre méthode avec n = {0} et v = {1}\n"
+"retourne {2} au lieux de {3}"
+msgstr ""
+
+#: m05Q12/src/TestsQ1.java:32 m05Q9/src/Tests.java:31
+#, java-format
+msgid "L''appel de votre méthode avec v = {0} retourne {1} au lieux de {2}"
+msgstr ""
+
+#: m05Q12/src/TestsQ2.java:32
+#, java-format
+msgid ""
+"L''appel de votre méthode avec v = {0} doit donner {1}.\n"
+"Or, vos modifications du tableau donnent {2}"
+msgstr ""
+
+#: m05Q2/src/Tests.java:40 m05Q3/src/Tests.java:40
+#, java-format
+msgid ""
+"Avec le tableau {0}, votre méthode devrait retourner {1,number,#} mais elle "
+"retourne {2,number,#}.\n"
+msgstr ""
+
+#: m05Q4/src/Tests.java:38
+#, java-format
+msgid ""
+"Avec le tableau {0}, votre méthode devrait retourner {1} mais elle retourne "
+"{2}.\n"
+msgstr ""
+
+#: m05Q5/src/Tests.java:33 m05Q6/src/Tests.java:38 m05dem3/src/Tests.java:39
+msgid "Votre code retourne null."
+msgstr ""
+
+#: m05Q5/src/Tests.java:34
+msgid "Votre tableau n'a pas la bonne taille."
+msgstr ""
+
+#: m05Q5/src/Tests.java:36
+msgid "Un des élément de votre tableau n'a pas la bonne valeur."
+msgstr ""
+
+#: m05Q6/src/Tests.java:31 m05dem3/src/Tests.java:32
+#, java-format
+msgid ""
+"Avec une taille de {0}, votre code génère :\n"
+"\n"
+"{1}\n"
+"\n"
+"Or, vous devriez avoir : \n"
+"\n"
+"{2}"
+msgstr ""
+
+#: m05Q6/src/Tests.java:32 m05dem3/src/Tests.java:33
+msgid "Votre matrice n'a pas la bonne taille.\n"
+msgstr ""
+
+#: m05Q7/src/Tests.java:33
+#, java-format
+msgid ""
+"Votre code retourne {0} à la place de {1} avec l''occurence {2} et le "
+"tableau :\n"
+"\n"
+"{3}\n"
+msgstr ""
+
+#: m05Q7/src/Tests.java:79 m05Q8/src/Tests.java:87
+msgid "Cette exception est survenue quand le tableau est :\n"
+msgstr ""
+
+#: m05Q8/src/Tests.java:33
+#, java-format
+msgid ""
+"L''appel de votre méthode avec v = {0} et w = {1} et m = \n"
+"{2}\n"
+"retourne\n"
+"{3}\n"
+"au lieux de\n"
+"{4}"
+msgstr ""
+
+#: m05_bf/src/Tests.java:35
+#, java-format
+msgid ""
+"Votre méthode {0} ne modifie pas correctement le tableau.\n"
+"Le tableau original est :\n"
+"{1}\n"
+"La réponse attendue est :\n"
+"{2}\n"
+"Votre tableau est :\n"
+"{3}"
+msgstr ""
+
+#: m05_bf/src/Tests.java:36
+#, java-format
+msgid ""
+"Votre méthode {0} ne modifie pas correctement le tableau avec n = {1}.\n"
+"Le tableau original est :\n"
+"{2}\n"
+"La réponse attendue est :\n"
+"{3}\n"
+"Votre tableau est :\n"
+"{4}"
+msgstr ""
+
+#: m05dem1/src/Tests.java:33
+#, java-format
+msgid ""
+"Le tableau doit avoir une taille de {1}. Cependant, votre code crée un "
+"tableau de taille {2}.\n"
+msgstr ""
+
+#: m05dem1/src/Tests.java:34
+#, java-format
+msgid ""
+"La matrice devrait avoir {1} lignes et {2} colonnes. Cependant, votre code "
+"crée une matrice de {3} lignes et {4} colonnes."
+msgstr ""
+
+#: m05dem1/src/Tests.java:36
+msgid ""
+"Vous n'effectuez pas la bonne opération pour obtenir le nombre de lignes.\n"
+msgstr ""
+
+#: m05dem1/src/Tests.java:37
+msgid ""
+"Vous n'effectuez pas la bonne opération pour obtenir le nombre de colonnes.\n"
+msgstr ""
+
+#: m05dem2/src/Tests.java:33
+msgid "Le test t1 == t2 ne réussi pas.\n"
+msgstr ""
+
+#: m05dem2/src/Tests.java:34
+#, java-format
+msgid "Avec t1 = {1} et t2 = {2}, votre code ne donne pas le bon résultat."
+msgstr ""
+
+#: m05dem2/src/Tests.java:77
+msgid "Les deux tableaux ne sont pas forcément de la même taille…"
+msgstr ""
+
+#: m05dem4/src/Tests.java:71
+#, java-format
+msgid "{0} : vous utilisez mal les assertions."
+msgstr ""
+
+#: m05dem4/src/Tests.java:79
+#, java-format
+msgid "{0} : votre code retourne null."
+msgstr ""
+
+#: m05dem4/src/Tests.java:81
+#, java-format
+msgid "{0} : votre code ne calcule pas la somme correctement."
+msgstr ""
+
+#: m05dem4/src/Tests.java:106 m05dem4/src/Tests.java:109
+#, java-format
+msgid "{0} : vous devez lancer un assert dans le cas où a et/ou b est null."
+msgstr ""
+
+#: m05dem4/src/Tests.java:106
+msgid ""
+"Faites aussi attention à l''ordre de vos assertions. Par exemple, "
+"l''assertion qui vérifie que ''a'' est différent de null doit venir avant "
+"l''assertion qui vérifie la taille de la matrice car sinon, vous allez "
+"provoquer une NullPointerException."
+msgstr ""
+
+#: m05dem4/src/Tests.java:140
+#, java-format
+msgid ""
+"{0} : vous devez lancer un assert dans le cas où les lignes/colonnes ne sont "
+"pas TOUTES de le même longeur (si un des double tableaux est arrangé sous "
+"forme triangle par exemple)."
+msgstr ""
+
+#: m05dem4/src/Tests.java:166
+#, java-format
+msgid ""
+"{0} : vous devez lancer un assert dans le cas où les matrices ne sont pas de "
+"la même taille."
+msgstr ""
+
+#: m05dem5/src/Tests.java:59
+msgid ""
+"Vous n'affichez pas correctement les Strings présents dans args. N'oubliez "
+"pas de faire un retour à la ligne après chaque élément de args."
+msgstr ""
+
+#: m05dem5/src/Tests.java:91
+#, java-format
+msgid ""
+"Avec args = {0} vous affichez ''{1}'' alors qu''il faut afficher ''{2}''.\n"
+msgstr ""
+
+#: m06Q1/src/TestCode.java:40
+#, java-format
+msgid "lorsque on fait new Date({0},{1},{2}), votre date est {3}/{4}/{5}"
+msgstr ""
+
+#: m06Q10/src/TestCode.java:68
+#, java-format
+msgid ""
+"{0} : vous devez utiliser la méthode surface() pour récupérer les valeurs "
+"des surfaces !"
+msgstr ""
+
+#: m06Q10/src/TestCode.java:96
+#, java-format
+msgid ""
+"{0} : lorsque l''on compare les rectangle {1} et {2}, votre méthode devrait "
+"renvoyer {3} mais ce n'est pas le cas !"
+msgstr ""
+
+#: m06Q11/src/TestParam.java:63
+#, java-format
+msgid ""
+"Lorsque l''on exécute votre code avec les rectangles {0} et {1}, votre "
+"méthode devrait renvoyer {2} mais ce n'est pas le cas !"
+msgstr ""
+
+#: m06Q2/src/TestCode.java:58
+#, java-format
+msgid ""
+"{0} : lorsque l''on fait getJour() sur la date {1}, votre code renvoie {2} "
+"au lieu de {3}"
+msgstr ""
+
+#: m06Q2/src/TestCode.java:73
+#, java-format
+msgid ""
+"{0} : lorsque l''on fait getMois() sur la date {1}, votre code renvoie {2} "
+"au lieu de {3}"
+msgstr ""
+
+#: m06Q2/src/TestCode.java:89
+#, java-format
+msgid ""
+"{0} : lorsque l''on fait getAnnee() sur la date {1}, votre code renvoie {2} "
+"au lieu de {3}"
+msgstr ""
+
+#: m06Q3/src/TestCode.java:62 m06Q4/src/TestCode.java:74
+#: m06Q8/src/TestCode.java:67 m06Q9/src/TestCode.java:65
+#: m06dem1/src/TestCode.java:56 m07Q2/src/TestCode.java:91
+#: m07dem1/src/TestCode.java:158
+#, java-format
+msgid ""
+"{0} : vous devez utiliser les getters pour récupérer les valeurs des "
+"variables d''instances !"
+msgstr ""
+
+#: m06Q3/src/TestParam.java:62
+#, java-format
+msgid ""
+"Test 2 : Attention, pour les date {0} et {1}, votre code devrait renvoyer "
+"{2} mais ce n'est pas la cas !"
+msgstr ""
+
+#: m06Q4/src/TestParam.java:60
+#, java-format
+msgid ""
+"Test 2 : Attention, pour la date {0} vous renvoyez {1} à la place de {2}"
+msgstr ""
+
+#: m06Q5/src/TestCode.java:59
+#, java-format
+msgid ""
+"{0} : lorsque la fraction vaut {1}, votre méthode getNum() retourne {2} au "
+"lieu de {3}"
+msgstr ""
+
+#: m06Q5/src/TestCode.java:74
+#, java-format
+msgid ""
+"Test : lorsque la fraction vaut {0}, votre méthode getDen() retourne {1} au "
+"lieu de {2}"
+msgstr ""
+
+#: m06Q6/src/TestCode.java:66
+#, java-format
+msgid ""
+"{0} : vous devez utiliser les méthodes getNum() et getDen() pour récupérer "
+"les valeurs des variables d''instances !"
+msgstr ""
+
+#: m06Q6/src/TestParam.java:62
+#, java-format
+msgid ""
+"Test 2 : lorsque l''on lance la fonction entier() avec la fraction {0}, "
+"votre code devrait renvoyer {1} mais ce n''est pas le cas."
+msgstr ""
+
+#: m06Q7/src/TestCode.java:59
+#, java-format
+msgid ""
+"{0} : pour la paire {1}, votre méthode getX() renvoie {2} au lieu de {3}"
+msgstr ""
+
+#: m06Q7/src/TestCode.java:76
+#, java-format
+msgid ""
+"{0} : pour la paire {1}, votre méthode getY() renvoie {2} au lieu de {3}"
+msgstr ""
+
+#: m06Q8/src/TestParam.java:70
+#, java-format
+msgid ""
+"Test 2 : lorsque l''on exécute votre code avec les points {0} et {1}, votre "
+"code renvoie {2} au lieu de {3}"
+msgstr ""
+
+#: m06Q9/src/TestCode.java:92
+#, java-format
+msgid ""
+"{0} : lorsque l''on appelle votre méthode sur le rectangle {1}, elle renvoie "
+"{2} au lieu de {3}"
+msgstr ""
+
+#: m06_bf/src/librairies/Inspector.java:216
+#: m07_bf/src/librairies/Inspector.java:214 utilities/Inspector.java:168
+#, java-format
+msgid ""
+"Le constructeur avec comme modificateur [{0}], comme types d''arguments {1} "
+"et comme exceptions déclarée via throws {2} n''as pas été trouvé !"
+msgstr ""
+
+#: m06_bf/src/librairies/Inspector.java:220
+#: m07_bf/src/librairies/Inspector.java:218 utilities/Inspector.java:172
+#, java-format
+msgid ""
+"Le constructeur avec comme modificateur [{0}], comme types d''arguments {1} "
+"n''as pas été trouvé !"
+msgstr ""
+
+#: m06_bf/src/librairies/Inspector.java:223
+#: m07_bf/src/librairies/Inspector.java:221 utilities/Inspector.java:175
+#, java-format
+msgid ""
+"Le constructeur avec comme types d''arguments {0} et comme exceptions "
+"déclarée via throws {1} n''as pas été trouvé !"
+msgstr ""
+
+#: m06_bf/src/librairies/Inspector.java:226
+#: m07_bf/src/librairies/Inspector.java:224 utilities/Inspector.java:178
+#, java-format
+msgid ""
+"Le constructeur avec comme types d''arguments {0} n''as pas été trouvé !"
+msgstr ""
+
+#: m06_bf/src/librairies/Inspector.java:291
+#: m07_bf/src/librairies/Inspector.java:289 utilities/Inspector.java:243
+#, java-format
+msgid ""
+"La méthode avec comme modificateur [{0}], comme type de retour {1}, comme "
+"nom {2}, comme type d''arguments {3} et comme exceptions déclarée via throws "
+"{4} n''as pas été trouvée !"
+msgstr ""
+
+#: m06_bf/src/librairies/Inspector.java:295
+#: m07_bf/src/librairies/Inspector.java:293 utilities/Inspector.java:247
+#, java-format
+msgid ""
+"La méthode avec comme modificateur [{0}], comme type de retour {1}, comme "
+"nom {2}, comme type d''arguments {3} n''as pas été trouvée !"
+msgstr ""
+
+#: m06_bf/src/librairies/Inspector.java:298
+#: m07_bf/src/librairies/Inspector.java:296 utilities/Inspector.java:250
+#, java-format
+msgid ""
+"La méthode avec comme type de retour {0}, comme nom {1}, comme type "
+"d''arguments {2} et comme exceptions déclarée via throws {3} n''as pas été "
+"trouvée !"
+msgstr ""
+
+#: m06_bf/src/librairies/Inspector.java:301
+#: m07_bf/src/librairies/Inspector.java:299 utilities/Inspector.java:253
+#, java-format
+msgid ""
+"La méthode avec comme type de retour {0}, comme nom {1}, comme type "
+"d''arguments {2} n''as pas été trouvée !"
+msgstr ""
+
+#: m06_bf/src/TestCode.java:126 m06_bf/src/TestCode.java:150
+#: m06_bf/src/TestCode.java:174 m06_bf/src/TestCode.java:197
+#: m06_bf/src/TestCode.java:221
+#, java-format
+msgid ""
+"{0} : aucun constructeur public prenant comme premier paramètre un String et "
+"comme deuxième un float n''as été trouvé dans votre réponse !"
+msgstr ""
+
+#: m06_bf/src/TestCode.java:127
+#, java-format
+msgid ""
+"{0} : lorsque l''on construit un nouvel objet Employe avec comme paramètre "
+"{1} et {2,number,#}, il n''y a pas de variable d''instance de type {3} avec "
+"la valeur {4}"
+msgstr ""
+
+#: m06_bf/src/TestCode.java:130
+#, fuzzy
+msgid ""
+"Une erreur inattendu est survenue dans votre tâche, veuillez contactez une "
+"administrateur"
+msgstr "Se ha producido un error inesperado en la tarea: "
+
+#: m06_bf/src/TestCode.java:151
+#, java-format
+msgid ""
+"{0} : lorsque l''on a un employé avec le nom {1}, votre méthode getNom() "
+"retourne {2}"
+msgstr ""
+
+#: m06_bf/src/TestCode.java:157 m06_bf/src/TestCode.java:180
+#: m06_bf/src/TestCode.java:203 m06_bf/src/TestCode.java:230
+#, java-format
+msgid "{0} : la méthode {1} n''as pas été trouvée dans votre réponse !"
+msgstr ""
+
+#: m06_bf/src/TestCode.java:177
+#, java-format
+msgid ""
+"{0} : lorsque l''on a un employé avec un salaire de {1}, votre méthode "
+"getSalaire() retourne {2}"
+msgstr ""
+
+#: m06_bf/src/TestCode.java:200
+#, java-format
+msgid ""
+"{0} : lorsque l''on a un l''Employe {1} avec le salaire {2}, votre méthode "
+"toString retourn {3}"
+msgstr ""
+
+#: m06_bf/src/TestCode.java:226
+#, java-format
+msgid ""
+"{0} : lorsque l''on a un Employe avec un salaire de {1} et que l''on "
+"augmente de {2}, votre méthode fixe son salaire à {3}"
+msgstr ""
+
+#: m06dem1/src/TestCode.java:70
+#, java-format
+msgid ""
+"{0} : Il semblerait que votre méthode renvoie un résultat incorrect. La "
+"méthode doit renvoyer une nouvelle paire !"
+msgstr ""
+
+#: m06dem1/src/TestCode.java:92
+#, java-format
+msgid ""
+"{0} : Votre méthode ne renvoie pas une paire avec les bonne valeurs. Pour la "
+"pair ({1},{2}), vous renvoyez ({3},{4}) au lieu de ({5},{6})."
+msgstr ""
+
+#: m06dem1/src/TestCode.java:115
+#, java-format
+msgid ""
+"{0} : Votre méthode semble modifier les variable d''instances de l''instance "
+"appelante. La paire appelante vallait ({1},{2}) et vaut maintenant ({3},{4})."
+msgstr ""
+
+#: m06dem2/src/TestCode.java:55 m06dem2/src/TestCode.java:68
+#: m06dem2/src/TestCode.java:85 m06dem2/src/TestCode.java:98
+#, java-format
+msgid ""
+"{0} : vous devez utilisez setOrdered pour changer la valeur de ordered !"
+msgstr ""
+
+#: m06dem2/src/TestCode.java:113
+#, java-format
+msgid ""
+"{0} : après l''appel à setA({1}), nous avons la paire ({2},{3}) et "
+"''ordered'' devrait valoir {4} car {5} <= {6} mais ce n''est pas le cas"
+msgstr ""
+
+#: m06dem2/src/TestCode.java:149
+#, java-format
+msgid ""
+"{0} : après l''appel à setB({1}), nous avons la paire ({2},{3}) et "
+"''ordered'' devrait valoir {4} car {5} <= {6}, mais ce n''est pas le cas"
+msgstr ""
+
+#: m06dem2/src/TestCode.java:180
+#, java-format
+msgid "{0} : après l''appel à setA({1}), ''a'' vaut {2} au lieu de {3}"
+msgstr ""
+
+#: m06dem2/src/TestCode.java:181
+#, java-format
+msgid ""
+"{0}: après l''appel à setA({1}), {2} ''a'' changé et est passé de {3} à {4}"
+msgstr ""
+
+#: m06dem2/src/TestCode.java:225
+#, java-format
+msgid "{0} : après l''appel setB({1}), ''b'' vaut {2} au lieu de {3}"
+msgstr ""
+
+#: m06dem2/src/TestCode.java:226
+#, java-format
+msgid ""
+"{0} : après l''appel setB({0}) {2} ''a'' changé et est passé de {3} à {4}"
+msgstr ""
+
+#: m06dem3/src/TestCode.java:65
+#, java-format
+msgid ""
+"{0} : Vous devez utiliser la méthode get() pour récupérer la valeur du "
+"drapeau !"
+msgstr ""
+
+#: m06dem3/src/TestCode.java:80
+#, java-format
+msgid ""
+"{0} : lorsque ''d'' a l''état {1} et que la variable drapeau vaut {2}, votre "
+"méthode devrait retourner {3} mais ce n''est pas le cas."
+msgstr ""
+
+#: m06dem4/src/TestCode.java:53
+#, java-format
+msgid ""
+"{0} : Attention, vous ne lisez pas toutes les lignes du fichier, vérifiez la "
+"condition"
+msgstr ""
+
+#: m06dem4/src/TestCode.java:60
+#, java-format
+msgid "{0} : Vérifiez votre condition, vous avez provoqué une EOFException !"
+msgstr ""
+
+#: m06dem4/src/TestCode.java:77
+#, java-format
+msgid ""
+"{0} : Le fichier ''student/cotes.txt'' n''est pas lu correctement. Vérifiez "
+"la condition de boucle !"
+msgstr ""
+
+#: m06dem4/src/TestCode.java:98
+#, java-format
+msgid ""
+"{0} : Vous avez causé une FileNotfoundException, vérifiez le nom du fichier !"
+msgstr ""
+
+#: m07Q1/src/TestParam.java:62
+#, java-format
+msgid ""
+"Test 2 : lorsque l''on exécute votre code avec l'employé {0} par rapport à "
+"l'objet {1}, votre code renvoie {2} au lieu de {3}"
+msgstr ""
+
+#: m07Q10/src/TestCode.java:80
+#, java-format
+msgid ""
+"{0} : votre code ne semble pas renvoyez le bon String. Vous renvoyez\n"
+"''{1}'' à la place de\n"
+"''{2}''"
+msgstr ""
+
+#: m07Q10/src/TestCode.java:101
+#, java-format
+msgid ""
+"{0} : votre code ne semble pas utiliser la méthode toString() de la classe "
+"mère"
+msgstr ""
+
+#: m07Q11/src/TestParam.java:71
+#, java-format
+msgid ""
+"Test 1 : lorsque l''on exécute votre méthode avec le DeStats {0} par rapport "
+"à l''objet {1}, votre code renvoie {2} au lieu de {3}"
+msgstr ""
+
+#: m07Q2/src/TestCode.java:55
+#, java-format
+msgid ""
+"{0} : votre code ne semble pas renvoyé un String contenant le nom de "
+"l''employé !"
+msgstr ""
+
+#: m07Q2/src/TestCode.java:70
+#, java-format
+msgid ""
+"{0} : votre code ne semble pas renvoyé un String contenant le salaire de "
+"l''employé !"
+msgstr ""
+
+#: m07Q3/src/TestParam.java:72
+#, java-format
+msgid ""
+"Test 1 : lorsque l''on exécute votre code avec le dé {0} par rapport à "
+"l''objet {1}, votre code renvoie {2} au lieu de {3}"
+msgstr ""
+
+#: m07Q4/src/TestCode.java:75
+#, java-format
+msgid ""
+"{0} : attention, votre constructeur ne construit pas un directeur avec le "
+"bon nom !"
+msgstr ""
+
+#: m07Q4/src/TestCode.java:89
+#, java-format
+msgid ""
+"{0} : attention, votre constructeur ne construit pas un directeur avec le "
+"bon salaire !"
+msgstr ""
+
+#: m07Q4/src/TestCode.java:103
+#, java-format
+msgid ""
+"{0} : attention, votre constructeur ne construit pas un directeur avec la "
+"bonne prime !"
+msgstr ""
+
+#: m07Q5/src/TestCode.java:81
+#, java-format
+msgid ""
+"{0} : vous devez faire appel à la méthode getSalaire() de la classe mère !"
+msgstr ""
+
+#: m07Q5/src/TestCode.java:100
+#, java-format
+msgid ""
+"{0} : Pour le directeur {1}, votre méthode renvoie {2,number,#} au lieu de "
+"{3,number,#}"
+msgstr ""
+
+#: m07Q6/src/TestParam.java:65
+#, java-format
+msgid ""
+"Test 2 : lorsque l''on exécute votre code avec le directeur {0} par rapport "
+"à l''objet {1}, votre code renvoie {2} au lieu de {3}"
+msgstr ""
+
+#: m07Q7/src/TestCode.java:76
+#, java-format
+msgid ""
+"{0} : votre code ne semble pas initialiser un object DeStat avec le bon nom !"
+msgstr ""
+
+#: m07Q7/src/TestCode.java:91
+#, java-format
+msgid ""
+"{0} : votre code ne semble pas initialiser un object DeStats avec le bon "
+"nombre de lancers totaux !"
+msgstr ""
+
+#: m07Q7/src/TestCode.java:106
+#, java-format
+msgid ""
+"{0} : votre code ne semble pas initialiser le tableau de résultats (il est "
+"null) !"
+msgstr ""
+
+#: m07Q7/src/TestCode.java:121
+#, java-format
+msgid ""
+"{0} : votre code ne semble pas initialiser le tableau de résultats avec la "
+"bonne taille !"
+msgstr ""
+
+#: m07Q7/src/TestCode.java:137
+#, java-format
+msgid ""
+"{0} : votre code ne semble pas initialiser le tableau de résultats avec les "
+"bonnes valeurs !"
+msgstr ""
+
+#: m07Q8/src/TestCode.java:81
+#, java-format
+msgid "{0} : votre code ne semble pas renvoyer le résultat donné par le dé"
+msgstr ""
+
+#: m07Q8/src/TestCode.java:101
+#, java-format
+msgid ""
+"{0} : votre code ne semble pas incrémenter correctement le nombre de "
+"lancers !"
+msgstr ""
+
+#: m07Q8/src/TestCode.java:120
+#, java-format
+msgid ""
+"{0} : votre code ne semble pas incrémenter correctement le nombre de lancers "
+"pour un résultat particulier !"
+msgstr ""
+
+#: m07Q8/src/TestCode.java:141
+#, java-format
+msgid ""
+"{0} : votre code ne semble pas appeler la méthode lance() de la classe mère"
+msgstr ""
+
+#: m07Q9/src/TestCode.java:76
+#, java-format
+msgid "{0} : votre code ne semble pas renvoyer le tableau de résultats"
+msgstr ""
+
+#: m07_bf/src/TestItem.java:57
+#, java-format
+msgid ""
+"{0} : lorsque l''on exécute votre méthode avec l''item qui a comme auteur "
+"{1}, comme titre {2} et comme numéros de série {3,number,#}, votre méthode "
+"renvoie ''{4}'' au lieu de ''{5}''"
+msgstr ""
+
+#: m07_bf/src/TestCD.java:102
+#, java-format
+msgid ""
+"{0} : aucun constructeur avec comme premier paramètre un String, comme "
+"deuxième un String et comme troisème un int n''a été trouvé dans votre "
+"réponse !"
+msgstr ""
+
+#: m07_bf/src/TestCD.java:106
+msgid ""
+"{0} : après avoir appelé votre constructeur avec les paramètre {1} (auteur), "
+"{2} (titre} et {3} (durée), il manque certaines variables d''instance avec "
+"ces valeurs !"
+msgstr ""
+
+#: m07_bf/src/TestCD.java:111
+msgid "La méthode toString() n''as pas été trouvée dans votre réponse !"
+msgstr ""
+
+#: m07_bf/src/TestCD.java:114
+#, java-format
+msgid ""
+"{0} : lorsque l''on exécute votre méthode toString() sur le CD ayant pour "
+"auteur {1}, titre {2}, et durée {3,number,#}, votre méthode retourne\n"
+"{4}\n"
+"au lieu de\n"
+"{5}"
+msgstr ""
+
+#: m07dem1/src/TestCode.java:123
+#, java-format
+msgid ""
+"{0} : lorsque l''on appelle votre méthode avec les paires {1} et {2}, votre "
+"code devrait renvoyer {3} mais ce n'est pas le cas !"
+msgstr ""
+
+#: m07dem2/src/TestCode.java:60
+#, java-format
+msgid "{0} : votre classe n''incrémente pas les tickets !"
+msgstr ""
+
+#: m07dem2/src/TestCode.java:75
+#, java-format
+msgid "{0} : le premier ticket n''as pas le numéro 1, il a le numéro {1}"
+msgstr ""
+
+#: m08Q1/src/TestCode.java:103 m08Q1/src/TestCode.java:124
+#: m08Q1/src/TestCode.java:144
+#, java-format
+msgid "{0} : votre code construit une instance où s est null !"
+msgstr ""
+
+#: m08Q1/src/TestCode.java:106
+#, java-format
+msgid "{0} : votre code ne construit pas un StringTab de taille 1 !"
+msgstr ""
+
+#: m08Q1/src/TestCode.java:127
+#, java-format
+msgid ""
+"{0} : lorsque l''on exécute votre constructeur avec comme paramètre {1}, la "
+"première lettre de votre StringTab est {2}"
+msgstr ""
+
+#: m08Q1/src/TestCode.java:147
+#, java-format
+msgid ""
+"{0} : lorsque l''on passe comme paramètre {1} à votre constructeur, vous "
+"construisez un String de taille {2}"
+msgstr ""
+
+#: m08Q1/src/TestCode.java:164
+#, java-format
+msgid ""
+"{0} : lorsque l''on passe comme paramètre {1} à votre constructeur, votre "
+"tableau est {2}"
+msgstr ""
+
+#: m08Q1/src/TestCode.java:181
+#, java-format
+msgid ""
+"{0} lorsque l''on utilise votre méthode length() sur le StringTab {1}, votre "
+"méthode renvoie {2}"
+msgstr ""
+
+#: m08Q1/src/TestCode.java:199
+#, java-format
+msgid ""
+"{0} lorsque l''on a le tableau {1} et que l''on fait charAt({2}), votre "
+"méthode renvoie {3}"
+msgstr ""
+
+#: m08Q2/src/TestCode.java:109
+#, java-format
+msgid "{0} : lorsque l''on concatène {1} avec {2}, votre code renvoie {2}"
+msgstr ""
+
+#: m08Q3/src/TestParam.java:63
+#, java-format
+msgid ""
+"Lorsque l''on vérifie que le StringTab {0} apparait dans {1}, votre code "
+"renvoie {2} au lieu de {3}"
+msgstr ""
+
+#: m08Q4/src/TestAnd.java:71
+#, java-format
+msgid ""
+"Test 8 : lorsque l''on fait un ET logique entre les ByteString {0} et {1} "
+"(représentation en String), votre méthode retourne le Byte {2} au lieu de "
+"{3} (représentation String)"
+msgstr ""
+
+#: m08Q4/src/TestGet.java:75
+#, java-format
+msgid ""
+"Test 3 : lorsque l''on exécute votre méthode getBit({0}) sur le ByteString "
+"dont la représentation naturelle est {1}, votre code renvoie {2} au lieu de "
+"{3}."
+msgstr ""
+
+#: m08Q4/src/TestReset.java:73
+#, java-format
+msgid ""
+"Test 5 : lorsque l''on exécute votre méthode resetBit({0}) sur le ByteString "
+"dont la représentation en ByteString est {1}, le chaîne devient {2} au lieu "
+"de {3}."
+msgstr ""
+
+#: m08Q4/src/TestRotate.java:70
+#, java-format
+msgid ""
+"Test 7 : lorsque l''on exécute votre méthode rotateRight() sur le ByteString "
+"{0}, la chaîne devient {1} au lieu de {2}"
+msgstr ""
+
+#: m08Q4/src/TestSet.java:80
+#, java-format
+msgid ""
+"Test 4 : lorsque l''on exécute votre méthode setBit({0}) sur le ByteString "
+"dont la représentation en ByteString est {1}, le chaîne devient {2} au lieu "
+"de {3}."
+msgstr ""
+
+#: m08Q4/src/TestShift.java:70
+#, java-format
+msgid ""
+"Test 6 : lorsque l''on exécute votre méthode shiftLeft() sur le ByteString "
+"{0}, la chaîne devient {1} au lieu de {2}"
+msgstr ""
+
+#: m08Q4/src/TestConstruct.java:82
+#, java-format
+msgid ""
+"{0} : votre code construit le byte {1} (représentation naturelle) au lieu du "
+"byte 00000000 (représentation naturelle)"
+msgstr ""
+
+#: m08Q4/src/TestConstruct.java:83
+#, java-format
+msgid "{0} : votre code ne construit pas un String de taille 8"
+msgstr ""
+
+#: m08Q4/src/TestConstruct.java:104
+#, java-format
+msgid ""
+"{0} : lorsque l''on passe comme argument {1} à votre constructeur, il crée "
+"le byte {2} (représentation naturelle)"
+msgstr ""
+
+#: m08Q4/src/TestConstruct.java:108
+#, java-format
+msgid "{0} : votre code ne construit pas un byte de taille 8"
+msgstr ""
+
+#: m08Q5/src/TestGet.java:70
+#, java-format
+msgid ""
+"Test 1 : lorsque l''on appelle votre méthode getBit({0}) avec comme byte {1} "
+"(représentation en String), votre méthode renvoie {2} au lieu de {3}"
+msgstr ""
+
+#: m08Q5/src/TestReset.java:73
+#, java-format
+msgid ""
+"Test 2 : lorsque l''on appelle votre méthode resetBit({0}) avec comme byte "
+"{1} (représentation en String), le byte devient {2} au lieu de {3}"
+msgstr ""
+
+#: m08Q5/src/TestRotate.java:75
+#, java-format
+msgid ""
+"Test 5 : lorsque l''on appelle votre méthode rotateRight() sur le String {0} "
+"(représentation en String), il devient {1} au lieu de {2}"
+msgstr ""
+
+#: m08Q5/src/TestSet.java:73
+#, java-format
+msgid ""
+"Test 2 : lorsque l''on appelle votre méthode setBit({0}) avec comme byte {1} "
+"(représentation en String), le byte devient {2} au lieu de {3}"
+msgstr ""
+
+#: m08Q5/src/TestShift.java:75
+#, java-format
+msgid ""
+"Test 4 : lorsque l''on appelle votre méthode shiftLeft() sur le byte {0} "
+"(représentation en String), il devient {1} au lieu de {2}"
+msgstr ""
+
+#: m08Q6/src/TestMax.java:61
+#, java-format
+msgid ""
+"Test max : lorsque l''on exécute la méthode max() avec le tableau {0}, le "
+"résultat est {1} au lieu de {2}"
+msgstr ""
+
+#: m08Q6/src/TestMin.java:61
+#, java-format
+msgid ""
+"Test min : lorsque l''on exécute la méthode min() avec le tableau {0}, le "
+"résultat est {1} au lieu de {2}"
+msgstr ""
+
+#: m08Q6/src/TestMoyenne.java:59
+#, java-format
+msgid ""
+"Test moyenne : lorsque l''on exécute la méthode moyenne() avec le tableau "
+"{0}, le résultat est {1} au lieu de {2}"
+msgstr ""
+
+#: m08Q7/src/TestMax.java:60
+#, java-format
+msgid ""
+"Test max : lorsque l''on exécute votre méthode max() sur la matrice\n"
+"{0}\n"
+"votre code renvoie {1} au lieu de {2}"
+msgstr ""
+
+#: m08Q7/src/TestMin.java:60
+#, java-format
+msgid ""
+"Test min : lorsque l''on exécute votre méthode min() sur la matrice\n"
+"{0}\n"
+"votre code renvoie {1} au lieu de {2}"
+msgstr ""
+
+#: m08Q7/src/TestMoyenne.java:60
+#, java-format
+msgid ""
+"Test moyenne : lorsque l''on exécute votre méthode moyenne() sur la matrice\n"
+"{0}\n"
+"votre code renvoie {1} au lieu de {2}"
+msgstr ""
+
+#: m08dem1/src/TestParam1.java:61
+#, java-format
+msgid ""
+"Test 1 : lorsque l''on exécute votre méthode set({0}) sur un drapeau avec "
+"l''état {1}, l''état du drapeau devient {2}"
+msgstr ""
+
+#: m08dem1/src/TestParam2.java:72
+#, java-format
+msgid ""
+"Test 2 : lorsque l''on exécute votre méthode set(''{0}'') sur un drapeau "
+"avec l''état {1}, l''état du drapeau devient {2}\n"
+msgstr ""
+
+#: m08dem2/src/TestCode.java:95
+#, java-format
+msgid "{0} : attention, lorsque s vaut null, vous renvoyez {1} au lieu de null"
+msgstr ""
+
+#: m08dem2/src/TestCode.java:109
+#, java-format
+msgid "{0} : attention, lorsque n vaut 0, vous renvoyez {1} au lieu de null"
+msgstr ""
+
+#: m08dem2/src/TestCode.java:129
+#, java-format
+msgid ""
+"{0} : votre code ne semble pas répéter assez de fois la chaîne de carctère, "
+"vérifiez votre condition!"
+msgstr ""
+
+#: m08dem2/src/TestCode.java:131
+#, java-format
+msgid ""
+"{0} : votre code ne semble pas renvoyez un string contenant la chaîne de "
+"caractère passé en paramètre!"
+msgstr ""
+
+#: m09Q1/src/TestParam.java:67
+#, java-format
+msgid ""
+"Lorsque l''on appelle votre méthode avec la fraction {0} sur l''objet {1}, "
+"votre méthode renvoie {2}. Relisez les spécifications !"
+msgstr ""
+
+#: m09Q2/src/TestParam.java:70
+#, java-format
+msgid ""
+"Lorsque l''on appelle votre méthode avec l''employé {0} sur l''objet {1}, "
+"votre méthode renvoie {2}. Relisez les spécifications !"
+msgstr ""
+
+#: m09Q3/src/TestCode.java:93 m09Q4/src/TestCode.java:92
+#: m09Q7/src/TestCode.java:92
+#, java-format
+msgid "{0} : vous devez utiliser un BufferedReader !"
+msgstr ""
+
+#: m09Q3/src/TestCode.java:115
+#, java-format
+msgid ""
+"{0} : vous ne faîtes pas appel à close lorsque la méthode se termine sans "
+"erreur !"
+msgstr ""
+
+#: m09Q3/src/TestCode.java:131
+#, java-format
+msgid "{0} : votre code ne compte pas le bon nombre de lignes !"
+msgstr ""
+
+#: m09Q3/src/TestCode.java:155
+#, java-format
+msgid "{0} : vous ne renvoyez pas -1 lorsqu''une erreur se produit !"
+msgstr ""
+
+#: m09Q3/src/TestCode.java:159 m09Q3/src/TestCode.java:183
+#: m09Q4/src/TestCode.java:119 m09Q4/src/TestCode.java:194
+#: m09Q7/src/TestCode.java:117
+#, java-format
+msgid "{0} : vous ne gérez pas bien les IOExceptions !"
+msgstr ""
+
+#: m09Q3/src/TestCode.java:187 m09Q4/src/TestCode.java:198
+#, java-format
+msgid "{0} : vous ne fermez pas le flux lorsqu''une exception apparait !"
+msgstr ""
+
+#: m09Q4/src/TestParam.java:64
+msgid " Test 1 : votre code en renvoie pas le bon résultat !"
+msgstr ""
+
+#: m09Q4/src/TestCode.java:115
+#, java-format
+msgid "{0} : vous ne renvoyez pas false lorsqu''une erreur se produit !"
+msgstr ""
+
+#: m09Q4/src/TestCode.java:139
+#, java-format
+msgid ""
+"{0} : lorsque l''on appelle votre méthode avec un String se trouvant dans le "
+"fichier, vous ne fermez pas le flux !"
+msgstr ""
+
+#: m09Q4/src/TestCode.java:168
+#, java-format
+msgid ""
+"{0} : lorsque le String ''s'' ne se trouve pas dans le fichier, vous ne "
+"fermez pas le flux !"
+msgstr ""
+
+#: m09Q5/src/TestCode.java:93
+#, java-format
+msgid ""
+"{0} : lorsque le fichier n''existe pas, votre méthode devrait renvoyer false "
+"mais ce n''est pas le cas !"
+msgstr ""
+
+#: m09Q5/src/TestCode.java:108
+#, java-format
+msgid ""
+"{0} : lorsque le fichier existe et est accessible, votre méthode devrait "
+"renvoyer true mais ce n''est pas le cas !"
+msgstr ""
+
+#: m09Q6/src/TestCode.java:89 m09Q6/src/TestCode.java:121
+#, java-format
+msgid "{0} : vous ne gérez pas les exceptions !"
+msgstr ""
+
+#: m09Q6/src/TestCode.java:123
+#, java-format
+msgid "{0} : vous ne faîtes pas appel à close() !"
+msgstr ""
+
+#: m09Q6/src/TestCode.java:194
+#, java-format
+msgid ""
+"{0} : lorsque l''on exécute votre code avec le tableau {1}\n"
+"le contenu de votre fichier est\n"
+"{2}\n"
+"au lieu de \n"
+"{3}"
+msgstr ""
+
+#: m09Q7/src/TestCode.java:112
+#, java-format
+msgid "{0} : vous ne renvoyez pas null lorsqu''une IOException se produit !"
+msgstr ""
+
+#: m09Q7/src/TestCode.java:121
+#, java-format
+msgid "{0} : lorsqu''une IOException surgit, vous ne fermez pas le flux"
+msgstr ""
+
+#: m09Q7/src/TestCode.java:145
+#, java-format
+msgid ""
+"{0} : vous ne renvoyez pas null lorsque le fichier a un mauvais format !"
+msgstr ""
+
+#: m09Q7/src/TestCode.java:149
+#, java-format
+msgid ""
+"{0} : vous ne gérez pas le cas ou le fichier a un mauvais format de chiffre !"
+msgstr ""
+
+#: m09Q7/src/TestCode.java:151
+#, java-format
+msgid ""
+"{0} : vous ne fermez pas le flux lorsque le fichier a un mauvais format de "
+"chiffres !"
+msgstr ""
+
+#: m09Q7/src/TestCode.java:208
+#, java-format
+msgid ""
+"{0} : lorsque l''on lit le fichier suivant\n"
+"{1} avec votre méthode, vous renvoyez {2} au lieu de {3} !"
+msgstr ""
+
+#: m09Q7/src/TestCode.java:243
+#, java-format
+msgid ""
+"{0} : lorsque tout se déroule sans exception, vous ne fermez pas le flux !"
+msgstr ""
+
+#: m09_bf/src/TestErr.java:52
+msgid ""
+"votre méthode n''affiche pas \"ERREUR\" sur la sortie d''erreur standard.\n"
+msgstr ""
+
+#: m09_bf/src/TestErr.java:63 m09_bf/src/Tests.java:61
+#: m09_bf/src/TestsException.java:63
+#, java-format
+msgid "{0} : raté : "
+msgstr "{0}: perdido: "
+
+#: m09_bf/src/TestErr.java:72 m09_bf/src/Tests.java:69
+#: m09_bf/src/TestsException.java:72
+#, java-format
+msgid "{0} : réussi\n"
+msgstr "{0}: exitoso\n"
+
+#: m09_bf/src/TestErr.java:80 m09_bf/src/TestsException.java:78
+#, java-format
+msgid "{0} : raté : votre programme génère une exception non gérée : "
+msgstr ""
+
+#: m09_bf/src/Tests.java:37
+msgid ""
+"votre méthode ne renvoie pas la bonne valeur du maximum sur un fichier "
+"complètement erroné.\n"
+msgstr ""
+
+#: m09_bf/src/Tests.java:41
+msgid ""
+"votre méthode ne renvoie pas la bonne valeur du maximum sur un fichier avec "
+"une ligne malformée contenant un maximum.\n"
+msgstr ""
+
+#: m09_bf/src/Tests.java:45
+msgid ""
+"votre méthode ne renvoie pas la bonne valeur du maximum sur un fichier avec "
+"une ligne malformée.\n"
+msgstr ""
+
+#: m09_bf/src/Tests.java:50
+msgid ""
+"votre méthode ne renvoie pas la bonne valeur du maximum avec un fichier au "
+"bon format.\n"
+msgstr ""
+
+#: m09_bf/src/TestsException.java:52
+msgid "votre méthode ne gère pas les IOExceptions.\n"
+msgstr ""
+
+#: m09dem1/src/TestParam.java:66
+#, java-format
+msgid ""
+"Lorsque l''on appelle votre méthode sur l''Integer {0} avec comme argument "
+"{1}, votre méthode dit qu''ils sont égaux !"
+msgstr ""
+
+#: m09dem1/src/TestParam.java:67
+#, java-format
+msgid ""
+"Lorsque l''on appelle votre méthode sur l''Integer {0} avec comme argument "
+"{1}, votre méthode dit que {0} < {1}"
+msgstr ""
+
+#: m09dem1/src/TestParam.java:68
+#, java-format
+msgid ""
+"Lorsque l''on appelle votre méthode sur l''Integer {0} avec comme argument "
+"{1}, votre méthode dit que {0} > {1}"
+msgstr ""
+
+#: m09dem2/src/TestCode.java:98
+#, java-format
+msgid ""
+"{0} : attention, lorsqu''une exception est lancée, votre code doit renvoyer "
+"-1 !"
+msgstr ""
+
+#: m09dem2/src/TestCode.java:103
+#, java-format
+msgid "{0} : attention, vous ne gérer pas les exceptions !"
+msgstr ""
+
+#: m09dem2/src/TestRes.java:99
+#, java-format
+msgid ""
+"{0} : vous ne lisez pas bien le fichier, le résultat n'est pas celui "
+"attendu !"
+msgstr ""
+
+#: m10Q1/src/Tests.java:53
+#, java-format
+msgid ""
+"Avec les fractions f1=\"{0}\" et f2=\"{1}\", la réponse attendue est\n"
+"{2}\n"
+"Malheureusement, votre code renvoie \n"
+"{3}\n"
+msgstr ""
+
+#: m10Q2/src/Tests.java:49
+#, java-format
+msgid ""
+"{0} : le test avec une fraction avec 0 au dénominateur ne fonctionne pas : "
+msgstr ""
+
+#: m10Q2/src/Tests.java:54
+#, java-format
+msgid "{0} : le test avec un string null ne fonctionne pas : "
+msgstr ""
+
+#: m10Q2/src/Tests.java:59
+#, java-format
+msgid ""
+"{0} : le test avec un string non-conforme au format \"a/b\" ne fonctionne "
+"pas : "
+msgstr ""
+
+#: m10Q2/src/Tests.java:65
+msgid "lancez-vous la bonne exception ? \n"
+msgstr ""
+
+#: m10Q2/src/Tests.java:66
+msgid "vérifiez que vous gérez bien ce cas. \n"
+msgstr ""
+
+#: m10Q2/src/Tests.java:86
+#, java-format
+msgid "{0} : le test avec un string correct ne fonctionne pas : "
+msgstr ""
+
+#: m10Q2/src/Tests.java:92
+msgid "respectez vous le format \"a/b\" ?\n"
+msgstr ""
+
+#: m10Q2/src/Tests.java:93
+msgid "modifiez-vous les variables d'instances de la classe Fraction ?\n"
+msgstr ""
+
+#: m10Q3/src/Tests.java:85
+#, java-format
+msgid ""
+"{0} : le test de parsing d'un string qui n'est pas un double ne passe pas : "
+msgstr ""
+
+#: m10Q3/src/Tests.java:90
+#, java-format
+msgid ""
+"{0} : le test avec un étudiant possédant une cote supérieure à 20 ne passe "
+"pas : "
+msgstr ""
+
+#: m10Q3/src/Tests.java:95
+#, java-format
+msgid ""
+"{0} : le test avec un étudiant possédant une cote négative ne passe pas : "
+msgstr ""
+
+#: m10Q3/src/Tests.java:101
+msgid "vous ne lancez pas la bonne exception.\n"
+msgstr ""
+
+#: m10Q3/src/Tests.java:102
+msgid "vous ne lancez pas une exception dans les cas particuliers.\n"
+msgstr ""
+
+#: m10Q3/src/Tests.java:122 m10Q3/src/Tests.java:127
+#, java-format
+msgid "{0} : les cotes sont comprises entre 0 et 20 !\n"
+msgstr ""
+
+#: m10Q3/src/Tests.java:132
+#, java-format
+msgid "{0} : le test avec un string correct ne passe pas : "
+msgstr ""
+
+#: m10Q3/src/Tests.java:138
+msgid ""
+"vous ne respectez pas le format \"nom; cote1, cote2, cote3\" avec les cotes "
+"<=20 et >=0.\n"
+msgstr ""
+
+#: m10Q3/src/Tests.java:139
+msgid ""
+"vous n'initialisez pas correctement les variables d'instances de la classe "
+"Student.\n"
+msgstr ""
+
+#: m10Q4/src/TestListAdd.java:85
+#, java-format
+msgid ""
+"@{0} :\n"
+"la fonction add avec l''AList\n"
+"{1}\n"
+"l''objet {2} et l''index {3} doit modifier la liste en\n"
+"{4}\n"
+"pourtant, votre code donne\n"
+"{5}\n"
+msgstr ""
+
+#: m10Q4/src/TestListAdd.java:96
+msgid ""
+"votre méthode add() tente d'accéder à un index hors de l'AList sans "
+"l'agrandir !\n"
+msgstr ""
+
+#: m10Q4/src/TestListAdd.java:98
+msgid "votre méthode add() lance une exception ("
+msgstr ""
+
+#: m10Q4/src/TestListContains.java:83
+#, java-format
+msgid ""
+"@{0} :\n"
+"la fonction contains avec l''AList\n"
+"{1}\n"
+"et l''objet {2} doit renvoyer\n"
+"{3}\n"
+"pourtant, votre code donne\n"
+"{4}\n"
+msgstr ""
+
+#: m10Q4/src/TestListContains.java:84
+#, java-format
+msgid ""
+"@{0} :\n"
+"votre méthode contains ne doit pas modifier le tableau !\n"
+msgstr ""
+
+#: m10Q4/src/TestListContains.java:95
+msgid "votre méthode contains() tente d'accéder à un index hors de l'AList !\n"
+msgstr ""
+
+#: m10Q4/src/TestListContains.java:97
+msgid "votre méthode contains() lance une exception ("
+msgstr ""
+
+#: m10Q4/src/TestListGet.java:83
+#, java-format
+msgid ""
+"@{0} :\n"
+"la fonction get avec l''AList\n"
+"{1}\n"
+"et l''indice {2} doit renvoyer\n"
+"{3}\n"
+"pourtant, votre code donne\n"
+"{4}\n"
+msgstr ""
+
+#: m10Q4/src/TestListGet.java:84
+#, java-format
+msgid ""
+"@{0} :\n"
+"votre méthode get ne doit pas modifier le tableau !\n"
+msgstr ""
+
+#: m10Q4/src/TestListGet.java:95
+msgid ""
+"votre méthode get() tente d'accéder à un index hors de l'AList ! Pensez à "
+"regarder les pré-conditions.\n"
+msgstr ""
+
+#: m10Q4/src/TestListGet.java:97
+msgid "votre méthode get() lance une exception ("
+msgstr ""
+
+#: m10Q4/src/TestListSet.java:72
+#, java-format
+msgid ""
+"@{0} :\n"
+"la fonction set avec l''AList\n"
+"{1}\n"
+"l''objet {2} et l''index {3} doit modifier la liste en\n"
+"{4}\n"
+"pourtant, votre code donne\n"
+"{5}\n"
+msgstr ""
+
+#: m10Q4/src/TestListSet.java:83
+msgid ""
+"votre méthode set() tente d'accéder à un index hors de l'AList sans "
+"l'agrandir !\n"
+msgstr ""
+
+#: m10Q4/src/TestListSet.java:85
+msgid "votre méthode set() lance une exception ("
+msgstr ""
+
+#: m10Q5/src/VectorTest.java:46
+msgid ""
+"Lors de l'exécution de votre méthode loadVector avec comme argument un "
+"fichier contenant \n"
+"{0}, votre méthode a lancé une exception "
+msgstr ""
+
+#: m10Q5/src/VectorTest.java:52
+msgid ""
+"Lors de l'exécution de votre méthode loadVector avec comme argument un "
+"fichier contenant \n"
+"{0}, votre méthode a retourné le tableau {1} alors que le résultat attendu "
+"est {2}"
+msgstr ""
+
+#: m10Q5/src/VectorTestMock.java:32
+msgid "génère une IOException"
+msgstr ""
+
+#: m10Q5/src/VectorTestMock.java:33
+msgid ""
+"Lors de l'exécution de votre méthode loadVector avec un fichier qui {0}, "
+"votre méthode a lancé une exception "
+msgstr ""
+
+#: m10Q5/src/VectorTestMock.java:34
+msgid ""
+"Lors de l'exécution de votre méthode loadVector avec un fichier qui {0}, "
+"votre méthode a retourné le tableau {1} alors que le résultat attendu est "
+"null"
+msgstr ""
+
+#: m10Q5/src/VectorTestMock.java:65
+msgid ""
+"Lors de l'exécution de votre méthode loadVector avec une IOException lancée "
+"par le readLine() du BufferedReader, le fichier n'a pas été fermé "
+"correctement."
+msgstr ""
+
+#: m10Q5/src/VectorTestMock.java:129
+msgid "n'existe pas"
+msgstr ""
+
+#: m10dem1/src/Tests.java:42
+msgid "vérifiez l'output sur la sortie standard (stdOut).\n"
+msgstr ""
+
+#: m10dem1/src/Tests.java:43
+msgid "vérifiez l'output sur la sortie d'erreur standard (stdErr).\n"
+msgstr ""
+
+#: m10dem1/src/Tests.java:44 m10dem1/src/TestOut.java:26
+msgid "vérifiez les valeurs de retour de votre programme.\n"
+msgstr ""
+
+#: m10dem1/src/Tests.java:45 m10dem1/src/TestOut.java:27
+msgid "vérifiez que vous gérez bien les exceptions.\n"
+msgstr ""
+
+#: m10dem1/src/Tests.java:82
+msgid "la division par 0 ne donne pas le résultat attendu : \n"
+msgstr ""
+
+#: m10dem1/src/Tests.java:90
+msgid ""
+"le parsing d''un String composé de lettres ne donne pas le résultat "
+"attendu : \n"
+msgstr ""
+
+#: m10dem1/src/TestOut.java:49
+msgid ""
+"tous les arguments ne sont pas vérifiés ! Appelez divise avec tous les "
+"arguments !\n"
+msgstr ""
+
+#: m10dem2/src/TestContenuFichier.java:47
+msgid ""
+"Vous n'écrivez pas tous les n premiers entiers positifs ou vous ne fermez "
+"votre flux.\n"
+msgstr ""
+
+#: m10dem2/src/TestContenuFichier.java:48
+msgid "Vous n'écrivez pas tous les n premiers entiers positifs"
+msgstr ""
+
+#: m10dem2/src/TestContenuFichier.java:49
+msgid "Vous écrivez plus d'un entier par ligne.\n"
+msgstr ""
+
+#: m10dem2/src/TestContenuFichier.java:50
+msgid "vous écrivez plus d'un entier par ligne.\n"
+msgstr ""
+
+#: m10dem2/src/TestContenuFichier.java:118
+msgid " et "
+msgstr ""
+
+#: m10dem2/src/TestValeurRetour.java:51
+msgid ""
+"La valeur de retour de votre programme n'est pas correcte dans le cas où il "
+"y a une IOException."
+msgstr ""
+
+#: m10dem2/src/TestValeurRetour.java:72
+msgid ""
+"La valeur de retour de votre programme n'est pas correcte dans le cas où "
+"tout se déroule bien."
+msgstr ""
+
+#: m11Q1/Templates/PileInt.java:99 m11Q2/Templates/Pile.java:110
+msgid "Pile vide\n"
+msgstr ""
+
+#: m11Q1/Templates/PileInt.java:107 m11Q2/Templates/Pile.java:118
+msgid ""
+"Attention : votre pile est mal formée. Parcourir votre pile provoque une "
+"boucle infinie…"
+msgstr ""
+
+#: m11Q1/Templates/PileInt.java:109
+#, java-format
+msgid ""
+"Sommet : Noeud[{0}]\n"
+"Profondeur : {1}\n"
+msgstr ""
+
+#: m11Q1/Templates/PileInt.java:113 m11Q2/Templates/Pile.java:124
+#: m11Q3/Templates/FIFOQueue.java:118 m11Q6/Templates/Liste.java:143
+#, java-format
+msgid "Noeud[{0}] : contenu : {1}, noeud suivant : Noeud[{2}]\n"
+msgstr ""
+
+#: m11Q1/Templates/PileInt.java:116 m11Q2/Templates/Pile.java:127
+#: m11Q3/Templates/FIFOQueue.java:121 m11Q6/Templates/Liste.java:146
+#, java-format
+msgid "Noeud[{0}] : contenu : {1}, noeud suivant : null\n"
+msgstr ""
+
+#: m11Q1/Templates/PileInt.java:120
+#, java-format
+msgid ""
+"Attention : la variable d''instance ''{0}'' ({1}) ne correspond pas au "
+"nombre d''entiers sur la pile.\n"
+msgstr ""
+
+#: m11Q1/src/Tests.java:40 m11Q2/src/Tests.java:40
+#, java-format
+msgid ""
+"Vous ne retournez pas le bon sommet de la pile. Quand le sommet est {0}, "
+"votre méthode pop() retourne {1}"
+msgstr ""
+
+#: m11Q1/src/Tests.java:41 m11Q2/src/Tests.java:41
+msgid ""
+"Voici l'évolution de votre pile durant les tests afin que vous puissiez "
+"corriger votre code :\n"
+"\n"
+msgstr ""
+
+#: m11Q1/src/Tests.java:55
+msgid ""
+"Lorsque l'on exécute votre méthode pop() sur une pile vide, elle ne lance "
+"pas l'exception IllegalStateException.\n"
+msgstr ""
+
+#: m11Q1/src/Tests.java:79 m11Q1/src/Tests.java:85
+msgid "Le sommet de votre pile vaut null après un push().\n"
+msgstr ""
+
+#: m11Q1/src/Tests.java:80
+msgid "L'élément au sommet de votre pile ne vaut pas 4 après un push(4).\n"
+msgstr ""
+
+#: m11Q1/src/Tests.java:81
+msgid "La méthode depth() ne retourne pas 1 après un push().\n"
+msgstr ""
+
+#: m11Q1/src/Tests.java:86
+msgid "L'élément au sommet de votre pile ne vaut pas 6 après un push(6).\n"
+msgstr ""
+
+#: m11Q1/src/Tests.java:87
+msgid ""
+"La méthode depth() ne retourne pas 2 après avoir effectué 2 fois la méthode "
+"push().\n"
+msgstr ""
+
+#: m11Q1/src/Tests.java:88
+msgid ""
+"Le noeud suivant du sommet vaut null après avoir effectué 2 fois la méthode "
+"push().\n"
+msgstr ""
+
+#: m11Q1/src/Tests.java:89
+msgid ""
+"L'élément suivant du sommet (l'élément tout en dessous de la pile) ne vaut "
+"pas 4 après avoir effectué push(4) suivi d'un push(6).\n"
+msgstr ""
+
+#: m11Q1/src/Tests.java:142 m11Q2/src/Tests.java:134
+msgid "Pile après l'opération : "
+msgstr ""
+
+#: m11Q1/src/Tests.java:166 m11Q2/src/Tests.java:155
+msgid "Cette erreur est survenue quand la pile est :\n"
+msgstr ""
+
+#: m11Q2/Templates/Pile.java:120
+#, java-format
+msgid "Sommet : Noeud[{0}]\n"
+msgstr ""
+
+#: m11Q2/src/Tests.java:75
+#, java-format
+msgid ""
+"Votre méthode depth() retourne {0} alors que la véritable profondeur est "
+"{1}. Voici la pile :\n"
+"\n"
+"{2}"
+msgstr ""
+
+#: m11Q2/src/Tests.java:79
+msgid "Votre méthode a modifié la pile. C'est inacceptable."
+msgstr ""
+
+#: m11Q2/src/Tests.java:93
+msgid "Votre méthode pop() doit retourner null si la pile est vide.\n"
+msgstr ""
+
+#: m11Q3/Templates/FIFOQueue.java:95 m11Q4/Templates/Queue.java:109
+msgid "Queue vide\n"
+msgstr ""
+
+#: m11Q3/Templates/FIFOQueue.java:97 m11Q4/Templates/Queue.java:111
+#: m11Q5/Templates/OrderedList.java:132 m11Q5/Templates/OrderedList.java:134
+#, java-format
+msgid "Attention ''{0}'' pointe vers null mais pas ''{1}'' !\n"
+msgstr ""
+
+#: m11Q3/Templates/FIFOQueue.java:105 m11Q4/Templates/Queue.java:119
+msgid ""
+"Attention : votre queue est mal formée. Parcourir votre queue provoque une "
+"boucle infinie…\n"
+msgstr ""
+
+#: m11Q3/Templates/FIFOQueue.java:107 m11Q4/Templates/Queue.java:121
+#, java-format
+msgid "Entrée : Noeud[{0}]\n"
+msgstr ""
+
+#: m11Q3/Templates/FIFOQueue.java:110 m11Q4/Templates/Queue.java:124
+#, java-format
+msgid "Attention : ''{0}'' pointe vers un noeud non présent dans la queue !\n"
+msgstr ""
+
+#: m11Q3/Templates/FIFOQueue.java:112 m11Q4/Templates/Queue.java:126
+#, java-format
+msgid "Sortie : Noeud[{0}]\n"
+msgstr ""
+
+#: m11Q3/Templates/FIFOQueue.java:114 m11Q4/Templates/Queue.java:128
+#, java-format
+msgid "Attention ''{0}'' pointe vers null !\n"
+msgstr ""
+
+#: m11Q3/src/Tests.java:40 m11Q4/src/Tests.java:96
+msgid "Quand la queue est vide, vous devez retourner null.\n"
+msgstr ""
+
+#: m11Q3/src/Tests.java:56
+msgid "Quand la queue ne contient qu'un élément, vous retournez null !\n"
+msgstr ""
+
+#: m11Q3/src/Tests.java:57
+msgid ""
+"Quand la queue ne contient qu'un élément, vous vous ne le retournez pas "
+"correctment.\n"
+msgstr ""
+
+#: m11Q3/src/Tests.java:58 m11Q3/src/Tests.java:59 m11Q4/src/Tests.java:115
+#: m11Q4/src/Tests.java:116
+#, java-format
+msgid ""
+"Vous n''avez pas mis la variable ''{0}'' à null quand la queue contient un "
+"seul élément et qu''on le retire.\n"
+msgstr ""
+
+#: m11Q3/src/Tests.java:97 m11Q4/src/Tests.java:153
+#, java-format
+msgid ""
+"Vous n''avez pas bien mis à jour la queue en retirant un noeud de la "
+"structure. La queue avant l''opération retire() est :\n"
+"{0}\n"
+"La queue attendue est :\n"
+"{1}\n"
+"Votre queue est :\n"
+"{2}"
+msgstr ""
+
+#: m11Q3/src/Tests.java:98 m11Q4/src/Tests.java:154 m11Q5/src/Tests.java:158
+#, java-format
+msgid ""
+"Vous avez retourné {0} alors que la réponse attendue est {1}. Le queue "
+"est :\n"
+"{2}"
+msgstr ""
+
+#: m11Q3/src/Tests.java:106 m11Q4/src/Tests.java:162
+msgid "Cette erreur est survenue quand la queue est :\n"
+msgstr ""
+
+#: m11Q4/Templates/Queue.java:131 m11Q4/Templates/Queue.java:132
+#: m11Q5/Templates/OrderedList.java:148 m11Q5/Templates/OrderedList.java:149
+#, java-format
+msgid "Noeud[{0}]"
+msgstr ""
+
+#: m11Q4/Templates/Queue.java:133 m11Q5/Templates/OrderedList.java:150
+#, java-format
+msgid ""
+"Noeud[{0}] : contenu : {1}, noeud précérent : {2}, noeud suivant : {3}\n"
+msgstr ""
+
+#: m11Q4/src/Tests.java:53 m11Q4/src/Tests.java:54
+#, java-format
+msgid ""
+"Quand la queue est vide, et qu''on ajoute un noeud à votre queue, ''{0}'' "
+"vaut null alors qu''il devrait référer un nouveau noeud.\n"
+msgstr ""
+
+#: m11Q4/src/Tests.java:55
+#, java-format
+msgid ""
+"Quand la queue est vide, et qu''on ajoute un noeud à votre queue, ''{0}'' et "
+"la ''{1}'' ne réfèrent pas le même noeud.\n"
+msgstr ""
+
+#: m11Q4/src/Tests.java:56
+msgid ""
+"Quand la queue est vide, et qu'on ajoute un noeud à votre queue, ce noeud ne "
+"contient pas le bon élément.\n"
+msgstr ""
+
+#: m11Q4/src/Tests.java:76
+#, java-format
+msgid ""
+"Vous n''avez pas bien mis à jour la queue en ajoutant un noeud dans la "
+"structure. La queue avant l''opération ajoute() est :\n"
+"{0}\n"
+"La queue attendue est :\n"
+"{1}\n"
+"Votre queue est :\n"
+"{2}"
+msgstr ""
+
+#: m11Q5/Templates/OrderedList.java:130 m11Q6/Templates/Liste.java:129
+msgid "Liste vide\n"
+msgstr ""
+
+#: m11Q5/Templates/OrderedList.java:142 m11Q6/Templates/Liste.java:137
+msgid ""
+"Attention : votre liste est mal formée. Parcourir votre liste provoque une "
+"boucle infinie…\n"
+msgstr ""
+
+#: m11Q5/Templates/OrderedList.java:144
+#, java-format
+msgid "Min : Noeud[{0}]\n"
+msgstr ""
+
+#: m11Q5/Templates/OrderedList.java:145
+#, java-format
+msgid "Max : Noeud[{0}]\n"
+msgstr ""
+
+#: m11Q5/src/Tests.java:53 m11Q5/src/Tests.java:54
+#, java-format
+msgid ""
+"Quand la liste est vide, et qu''on ajoute un noeud à votre liste, ''{0}'' "
+"vaut null alors qu''il devrait référer un nouveau noeud.\n"
+msgstr ""
+
+#: m11Q5/src/Tests.java:55
+#, java-format
+msgid ""
+"Quand la liste est vide, et qu''on ajoute un noeud à votre liste, ''{0}'' et "
+"la ''{1}'' ne réfèrent pas le même noeud.\n"
+msgstr ""
+
+#: m11Q5/src/Tests.java:56
+msgid ""
+"Quand la liste est vide, et qu'on ajoute un noeud à votre liste, ce noeud ne "
+"contient pas le bon élément.\n"
+msgstr ""
+
+#: m11Q5/src/Tests.java:76
+#, java-format
+msgid ""
+"Vous n''avez pas bien mis à jour la liste en ajoutant un noeud dans la "
+"structure. La liste avant l''opération ajoute() est :\n"
+"{0}\n"
+"La liste attendue est :\n"
+"{1}\n"
+"Votre liste est :\n"
+"{2}"
+msgstr ""
+
+#: m11Q5/src/Tests.java:102
+msgid ""
+"Vous ne lancez pas une IllegalStateException quand on essaye de retirer un "
+"élément alors que la liste est vide.\n"
+msgstr ""
+
+#: m11Q5/src/Tests.java:119 m11Q5/src/Tests.java:120
+#, java-format
+msgid ""
+"Vous n''avez pas mis la variable ''{0}'' à null quand la liste contient un "
+"seul élément et qu''on le retire.\n"
+msgstr ""
+
+#: m11Q5/src/Tests.java:157
+#, java-format
+msgid ""
+"Vous n''avez pas bien mis à jour la liste en retirant un noeud de la "
+"structure. La liste avant l''opération retire() est :\n"
+"{0}\n"
+"La liste attendue est :\n"
+"{1}\n"
+"Votre liste est :\n"
+"{2}"
+msgstr ""
+
+#: m11Q5/src/Tests.java:166 m11Q6/src/Tests.java:134
+msgid "Cette erreur est survenue quand la liste est :\n"
+msgstr ""
+
+#: m11Q6/Templates/Liste.java:139
+#, java-format
+msgid "Tête : Noeud[{0}]\n"
+msgstr ""
+
+#: m11Q6/src/Tests.java:81
+msgid "Vous devez retourner 0 quand la liste est vide.\n"
+msgstr ""
+
+#: m11Q6/src/Tests.java:116
+msgid "Votre méthode a modifié la liste. C'est inacceptable.\n"
+msgstr ""
+
+#: m11Q6/src/Tests.java:117
+#, java-format
+msgid ""
+"{0}(\"{1}\") a retourné {2} avec la liste :\n"
+"{3}"
+msgstr ""
+
+#: m11Q6/src/Tests.java:126
+#, java-format
+msgid ""
+"Vous retournez {0} alors qu''il faut retourner {1} lors de l''appel de {2}"
+"(\"{3}\") sur la liste :\n"
+"{4}"
+msgstr ""
+
+#: m11Q6/src/Tests.java:129
+#, java-format
+msgid ""
+"Votre méthode {0}(\"{1}\") ne retire pas correctement les éléments.\n"
+"La liste est :\n"
+"{2}\n"
+"Votre liste modifiée est :\n"
+"{3}\n"
+"La liste attendue est :\n"
+"{4}"
+msgstr ""
+
+#: mX1Q19/src/Tests.java:33
+#, java-format
+msgid "{1} en valeur absolue donne {2}. Cependant, votre code calcule {3}.\n"
+msgstr ""
+
+#: mX1Q19/src/Tests.java:34
+#, java-format
+msgid "{1} arrondi au dessus donne {2}. Cependant, votre code calcule {3}.\n"
+msgstr ""
+
+#: mX1Q19/src/Tests.java:35
+#, java-format
+msgid "{1} arrondi donne {2}. Cependant, votre code calcule {3}.\n"
+msgstr ""
+
+#: mX1Q19/src/Tests.java:36
+#, java-format
+msgid "{1} arrondi en dessous donne {2}. Cependant, votre code calcule {3}.\n"
+msgstr ""
+
+#: m01Q12/custom_translatable.py:29
+msgid "Il est interdit d'utiliser Math.max, même en commentaires."
+msgstr ""
+
+#: m01Q13/custom_translatable.py:29
+msgid "Il est interdit d'utiliser Math.min, même en commentaires."
+msgstr ""
+
+#: m01Q5/custom_translatable.py:29
+msgid ""
+"Il est interdit d'utiliser l'opérateur xor (^) de java, même en commentaires."
+msgstr ""
+
+#: m02Q1/custom_translatable.py:29
+msgid "Il est interdit d'utiliser le modulo de java, même en commentaires."
+msgstr ""
+
+#: m02dem3/custom_translatable.py:29
+msgid "Il est interdit d'utiliser Math.pow, même en commentaires."
+msgstr ""
+
+#: m04Q10/custom_translatable.py:29 m04Q9/custom_translatable.py:29
+msgid ""
+"Il est interdit d'utiliser une méthode de parsing déjà implémentée, même en "
+"commentaires."
+msgstr ""
+
+#: m04Q6/custom_translatable.py:29 m04Q8/custom_translatable.py:29
+msgid ""
+"Il est interdit d'utiliser la méthode contains() de la classe String, même "
+"en commentaires."
+msgstr ""
+
+#: m04Q8/custom_translatable.py:33
+msgid ""
+"Il est interdit d'utiliser la méthode indexOf() de la classe String, même en "
+"commentaires."
+msgstr ""
+
+#: m04dem3/custom_translatable.py:29
+msgid ""
+"Vous n'avez pas besoin de l'instruction return dans cet exercice ! Observez "
+"la signature de votre méthode."
+msgstr ""
+
+#: m04dem4/custom_translatable.py:29
+msgid "Vous n'utilisez pas la méthode Character.toUpperCase()."
+msgstr ""
+
+#: m04dem4/custom_translatable.py:36
+msgid ""
+"Il est interdit d'utiliser autre chose que Character.toUpperCase(), même en "
+"commentaires."
+msgstr ""
+
+#: utilities/exmaples/custom_translatable.py:31
+msgid "Il est interdit d'utiliser ?????, même en commentaires."
+msgstr ""
+
+#~ msgid "{0} : raté"
+#~ msgstr "{0}: perdido"
+
+#~ msgid "Bravo, votre code est correct !"
+#~ msgstr "Felicitaciones, su código es correcto!"
