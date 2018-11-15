@@ -1,17 +1,15 @@
 accessible: true
 author: Naitali Brandon
-context: |+
+context: |-
     .. raw:: html
 
         Conjuguez le verbe "<span id="verb"></span>" à la <span id="pers"></span>, <span id="tense"></span>.
 
-    Exemple avec "fêter": fête
 
 
     .. raw:: html
 
         <script src="/course/conj/cycle32/input_random.js"></script>
-
 environment: default
 evaluate: best
 groups: false
