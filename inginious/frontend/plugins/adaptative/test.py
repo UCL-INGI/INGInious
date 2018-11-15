@@ -21,17 +21,14 @@ import random
 from pymongo import MongoClient
 from inginious.frontend.pages.utils import INGIniousPage
 
-
 from random import randrange, sample
 import scipy.stats
-
 
 class AdaptTaskPage(BaseTaskPage):
 
 	def GET(self, courseid, taskid, isLTI):
-		""" GET request """
+		
 		username = self.user_manager.session_username()
-
 		# Fetch the course
 		try:
 			course = self.course_factory.get_course(courseid)
@@ -117,7 +114,7 @@ class AdaptTaskPage(BaseTaskPage):
 			submissions = self.submission_manager.get_user_submissions(task) if self.user_manager.session_logged_in() else []
 			user_info = self.database.users.find_one({"username": username})
 			######################################################
-			return self.plugin_manager.call_hook("get_hook", username=username, page=self, course=course, courseid=courseid, task=task, taskid=taskid, students=students, eval_submission=eval_submission, user_task=user_task, random_input_list=random_input_list)[0]
+			return self.plugin_manager.call_hook("adaptive_get_hook", username=username, page=self, course=course, courseid=courseid, task=task, taskid=taskid, students=students, eval_submission=eval_submission, user_task=user_task, random_input_list=random_input_list)[0]
 			######################################################
 			
 	def POST(self, courseid, taskid, isLTI):
@@ -202,7 +199,7 @@ class AdaptTaskPage(BaseTaskPage):
 						return json.dumps({'status': "error", "text": _("Internal error")})
 					######################################################
 					# At each submission
-					self.plugin_manager.call_hook("post_hook", username=username, page=self, result=result)
+					self.plugin_manager.call_hook("adaptive_post_hook", username=username, page=self, result=result)
 					
 					########################################################
 					
@@ -326,10 +323,11 @@ class AdaptTaskPage(BaseTaskPage):
 		    return json.dumps(tojson, default=str)
 
 	        
-
 class AdaptativePage(INGIniousPage):
-    def GET(self, testCourse, testTask):
-        return AdaptTaskPage(self).GET(testCourse, testTask, False)
+	def GET(self, testCourse, testTask):
+	    return AdaptTaskPage(self).GET(testCourse, testTask, False)
 
-    def POST(self, testCourse, testTask):
-        return AdaptTaskPage(self).POST(testCourse, testTask, False)
+	def POST(self, testCourse, testTask):
+	    return AdaptTaskPage(self).POST(testCourse, testTask, False)
+
+

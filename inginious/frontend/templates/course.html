@@ -48,6 +48,9 @@ $def ColumnF():
             <a class="list-group-item list-group-item-info" href="$get_homepath()/admin/$course.get_id()">
                 <i class="fa fa-user-secret fa-fw"></i>&nbsp; $:_("Course administration")
             </a>
+            <a class="list-group-item list-group-item-info" href="$get_homepath()/adaptative/$course.get_id()">
+                <i class="fa fa-user-secret fa-fw"></i>&nbsp; $:_("Adaptive testing")
+            </a>
         </div>
     $elif registered:
         <div class="list-group">
@@ -60,6 +63,9 @@ $def ColumnF():
                     $:_("Team : {}").format(myaggregation['description'])
                 $else:
                     $:_("Teams management")
+            </a>
+            <a class="list-group-item list-group-item-info" href="$get_homepath()/adaptative/$course.get_id()">
+                <i class="fa fa-user-secret fa-fw"></i>&nbsp; $:_("Adaptive testing")
             </a>
             $if course.allow_unregister():
                 $:include.unregister_button(course)

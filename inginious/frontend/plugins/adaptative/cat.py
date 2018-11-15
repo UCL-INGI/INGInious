@@ -107,3 +107,4 @@ def init_item_bank(question_set, database):
 			items = r('items <- c(items, c(%s,%s,%s,%s))' % (w,x,y,z))
 	return r('itembank <- matrix(%s, ncol=4, nrow=%s, byrow=TRUE, dimnames=list(%s, NULL))' % ("items", len(question_set), "questions"))
 
+

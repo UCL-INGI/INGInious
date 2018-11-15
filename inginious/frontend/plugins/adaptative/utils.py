@@ -1,3 +1,9 @@
+from inginious.common.filesystems.local import LocalFSProvider
+from inginious.common.course_factory import create_factories
+from inginious.frontend.tasks import WebAppTask
+from inginious.frontend.courses import WebAppCourse
+from inginious.frontend.task_problems import *
+
 # Return a list of names of all task in the course
 def get_testing_tasks(course, courseid):
 	test_tasks = []
@@ -16,14 +22,20 @@ def update_level_task(db, taskid, level):
 	
 	
 """
-	Return the level of the task
+	Return the level of the task if it exists in database; else it assigns 0.0 level to the new task;
 """
 def get_level_task(db, taskid):
-	return db.levels.find_one({"taskid": taskid})['level']
+	try:
+		level = db.levels.find_one({"taskid": taskid})['level']
+	except TypeError: # we do not have an entry for this task
+		print("Task " + taskid + " has been registered with level 0.0")
+		level = 0.0 
+		update_level_task(db, taskid, level)
+	return level
 
 
 """
-	Return the test state
+	Return the test state; None if it does not exist
 """
 def get_test_state(db, username):
 	state = db.test_state.find_one({"user": username})

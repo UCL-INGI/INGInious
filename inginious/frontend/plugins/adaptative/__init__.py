@@ -4,21 +4,20 @@
 # more information about the licensing of this file.
 
 from inginious.frontend.pages.utils import INGIniousPage
-from inginious.frontend.plugins.adaptative.test import AdaptativePage
 from collections import OrderedDict
 from inginious.frontend.plugins.adaptative.utils import  get_testing_tasks, update_level_task, get_test_state, update_test_state
 from inginious.frontend.plugins.adaptative.cat import task_level_evaluation, student_level_evaluation, get_parameters, get_first_question, get_next_question, init_item_bank
 from inginious.frontend.pages.tasks import BaseTaskPage
+from inginious.frontend.plugins.adaptative.test import AdaptativePage
 
 class HomePage(BaseTaskPage):
-	def GET(self, config):
+	def GET(self, courseid, config):
 		username = self.user_manager.session_username()
-		courseid = config["course_name"]
 		try:
 			course = self.course_factory.get_course(courseid)
 		except exceptions.CourseNotFoundException as ex:
 			raise web.notfound(str(ex))
-			
+		print(course)
 		test_state = get_test_state(self.database, username)	
 		items_names = get_testing_tasks(course, courseid)
 		items_bank = init_item_bank(items_names, self.database)
@@ -50,10 +49,10 @@ class HomePage(BaseTaskPage):
 """
 	Return an instance of the class displaying the page with plugin parameters as arguments in the GET method
 """
-def plugin_parameters(config):
+def home_plugin_parameters(config):
 	class HomeAdaptativePage(INGIniousPage):
-				def GET(self):
-					return HomePage(self).GET(config)
+				def GET(self, course):
+					return HomePage(self).GET(course, config)
 	return HomeAdaptativePage 
 		
 		
@@ -65,7 +64,7 @@ def plugin_parameters(config):
 	at each GET request
 
 """
-def get_hook(username, page, course, courseid, task, taskid, students, eval_submission, user_task, random_input_list):
+def adaptive_get_hook(username, page, course, courseid, task, taskid, students, eval_submission, user_task, random_input_list):
 	test_state = get_test_state(page.database, username)
 	if(test_state != None):
 		items_names = get_testing_tasks(course, courseid)
@@ -99,7 +98,7 @@ def get_hook(username, page, course, courseid, task, taskid, students, eval_subm
 	at each POST request
 
 """
-def post_hook(username, page, result):
+def adaptive_post_hook(username, page, result):
 	test_state = get_test_state(page.database, username)
 	(username, level, testing_limit, current_question_index, path, answers) = test_state
 	if(result['result']=="failed" and answers[path[len(path)-1]-1] == 'NA'): 
@@ -113,8 +112,8 @@ def post_hook(username, page, result):
 def init(plugin_manager, course_factory, client, plugin_config):
     """  course name, initial level"""
     #global course_name
-    plugin_manager.add_hook("get_hook", get_hook)
-    plugin_manager.add_hook("post_hook", post_hook)
+    plugin_manager.add_hook("adaptive_get_hook", adaptive_get_hook)
+    plugin_manager.add_hook("adaptive_post_hook", adaptive_post_hook)
     """ Init the plugin """
-    plugin_manager.add_page("/adaptative", plugin_parameters(plugin_config))
+    plugin_manager.add_page("/adaptative/([^/]*)", home_plugin_parameters(plugin_config))
     plugin_manager.add_page("/adaptative/([^/]*)/([^.]*)", AdaptativePage)

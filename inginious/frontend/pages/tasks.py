@@ -170,10 +170,12 @@ class BaseTaskPage(object):
 
             submissions = self.submission_manager.get_user_submissions(task) if self.user_manager.session_logged_in() else []
             user_info = self.database.users.find_one({"username": username})
-
+            
+            # Call to adaptive hook
+            #return self.plugin_manager.call_hook("adaptive_get_hook", username=username, page=self, course=course, courseid=courseid, task=task, taskid=taskid, students=students, eval_submission=eval_submission, user_task=user_task, random_input_list=random_input_list)[0]
+            
             # Display the task itself
-            return self.template_helper.get_renderer().task(user_info, course, task, submissions,
-                                                            students, eval_submission, user_task, previous_taskid, next_taskid, self.webterm_link, random_input_list)
+            return self.template_helper.get_renderer().task(user_info, course, task, submissions,students, eval_submission, user_task, previous_taskid, next_taskid, self.webterm_link, random_input_list)
 
     def POST(self, courseid, taskid, isLTI):
         """ POST a new submission """
@@ -256,8 +258,12 @@ class BaseTaskPage(object):
                     if default_submissionid is None:
                         # This should never happen, as user_manager.update_user_stats is called whenever a submission is done.
                         return json.dumps({'status': "error", "text": _("Internal error")})
-
+					
+					# Adaptive hook call
+					#self.plugin_manager.call_hook("adaptive_post_hook", username=username, page=self, result=result)
+					
                     return self.submission_to_json(task, result, is_admin, False, default_submissionid == result['_id'], tags=task.get_tags())
+                    
                 else:
                     web.header('Content-Type', 'application/json')
                     return self.submission_to_json(task, result, is_admin)
