@@ -232,10 +232,7 @@ $if user_manager.has_admin_rights_on_course(course):
 
 	<input type="hidden" name="@debug-mode" id="task-debug-mode" value=""/>
     <div class="row">
-        <div class="col-xs-9 col-md-10">
-        	<button type="submit" class="btn btn-default btn-lg btn-block center-block" id="task-submit">$:_("Correct")</button>
-		    <button type="button" class="btn btn-default btn-lg btn-block center-block" id="task-next" disabled="disabled" onclick="nextQuestion()">$:_("Next")</button>
-        </div>
+		$:plugin_manager.call_hook('task_buttons_hook', template_helper=template_helper, course=course, task=next_task)[0]
         <div class="col-xs-3 col-md-2">
             <button type="button" class="btn btn-info btn-lg btn-block center-block" id="task-submit-debug" data-toggle="tooltip"
                     data-placement="top" title=$:_('"Start remote SSH console with this input"')>
@@ -245,6 +242,7 @@ $if user_manager.has_admin_rights_on_course(course):
     </div>
 
 </form>
+
 
 <script type="text/javascript">
 $ pdict = {problem.get_id(): problem.get_type() for problem in task.get_problems()}
@@ -267,16 +265,4 @@ $# set up some useful variable that may be used by task author
         "@random": $input_random_list
     }
 
-
-//button "next" becomes disabled
-function setSubmit() {
-  if(confirm('Are you sure you want to submit definitely?')){
-	  document.getElementById('task-definitive').setAttribute("disabled","disabled");
-	  document.getElementById('task-submit').setAttribute("disabled","disabled");
-	  document.getElementById('task-next').disabled = false;
-  }
-}
-function nextQuestion(){
-	window.location.href="/adaptative/" + "$course.get_id()/" + "$next_task.get_id()"; 
-}
 </script>

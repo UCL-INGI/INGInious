@@ -1,4 +1,4 @@
-$def with (user_info, course, task, submissions, students, eval_submission, user_task, previous_taskid, next_taskid, webterm_link, input_random_list=[])
+$def with (user_info, course, task, submissions, students, eval_submission, user_task, previous_taskid, next_taskid, webterm_link, input_random_list=[], adaptive_next_taskid=None)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -339,7 +339,7 @@ $else:
                 $:problem.show_input(template_helper, user_manager.session_language(), user_manager.session_username())
             </div>
         </div>
-
+	
     $# no need to check with lti=True/False here as it was already checked by the calling python script.
     $ groups_ok = user_manager.task_can_user_submit(task, user_manager.session_username(), 'groups')
     $ tokens_ok = user_manager.task_can_user_submit(task, user_manager.session_username(), 'tokens')
@@ -350,8 +350,9 @@ $else:
             <input type="hidden" name="@debug-mode" id="task-debug-mode" value=""/>
             <div class="row">
                 <div class="col-xs-9 col-md-10">
-                    <button type="submit" class="btn btn-default btn-lg btn-block center-block" id="task-submit">$:_("Submit")</button>
+                    $:plugin_manager.call_hook('task_buttons_hook', template_helper=template_helper, course=course, task=adaptive_next_taskid)[0]
                 </div>
+                
                 <div class="col-xs-3 col-md-2">
                     <button type="button" class="btn btn-info btn-lg btn-block center-block" id="task-submit-debug" data-toggle="tooltip"
                             data-placement="top" title=$:_('"Start remote SSH console with this input"')>
@@ -360,7 +361,7 @@ $else:
                 </div>
             </div>
         $else:
-            <button type="submit" class="btn btn-default btn-lg btn-block center-block" id="task-submit">$:_("Submit")</button>
+            $:plugin_manager.call_hook('task_buttons_hook', template_helper=template_helper, course=course, task=adaptive_next_taskid)[0]
     $elif not task.get_accessible_time().is_open():
         <button type="submit" class="btn btn-default btn-lg btn-block center-block" disabled="disabled">$:_("The deadline is over, you cannot submit anymore")</button>
     $elif task.is_group_task() and not groups_ok:

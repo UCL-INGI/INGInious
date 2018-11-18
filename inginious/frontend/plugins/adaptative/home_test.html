@@ -6,7 +6,7 @@ $# more information about the licensing of this file.
 $#
 $var title: $:"Adaptative Testing"
 <style>
-	h4{
+	h4, input{
 		margin-bottom : 10%;
 	}
 </style>
@@ -15,8 +15,11 @@ $var title: $:"Adaptative Testing"
 <div class="form-group">
 	<div class="col-xs-9 col-md-10">
 		 <form>
-		 	<h4><center>$:_("Test adaptatif en conjugaison (2ème, 3ème, 4ème cycle)")</center></h4>
-			<input type="button" value="Commencer" class="btn btn-default btn-lg btn-block center-block" onclick="beginTest()"/>
+		 	<h4><center>$:_("Adaptive testing for " + course.get_id() + " course")</center></h4>
+			<label for="name">$:_("E-mail address")</label>
+			<input type="email" class="form-control" id="name"></input>
+			<input type="button" value=$:_("Begin") class="btn btn-default btn-lg btn-block center-block" onclick="beginTest()"/>
+			
 		</form> 
 	</div>
 </div>
@@ -24,6 +27,7 @@ $var title: $:"Adaptative Testing"
 
 <script type="text/javascript">
 function beginTest(){
+	var name = document.getElementById('name');
 	window.location.href="/adaptative/" + "$course.get_id()/" + "$task.get_id()";
 }
 </script>

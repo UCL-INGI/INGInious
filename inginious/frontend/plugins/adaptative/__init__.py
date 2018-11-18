@@ -7,17 +7,17 @@ from inginious.frontend.pages.utils import INGIniousPage
 from collections import OrderedDict
 from inginious.frontend.plugins.adaptative.utils import  get_testing_tasks, update_level_task, get_test_state, update_test_state
 from inginious.frontend.plugins.adaptative.cat import task_level_evaluation, student_level_evaluation, get_parameters, get_first_question, get_next_question, init_item_bank
-from inginious.frontend.plugins.adaptative.hooks import adaptive_get_hook, adaptive_post_hook
+from inginious.frontend.plugins.adaptative.hooks import adaptive_get_hook, adaptive_post_hook, task_buttons_hook, course_button_hook
 from inginious.frontend.pages.tasks import BaseTaskPage
 
 class HomePage(BaseTaskPage):
 	def GET(self, courseid, config):
+		#print("Button hook: " + str(self.plugin_manager.call_hook("buttons_hook", template_helper=self.template_helper)))
 		username = self.user_manager.session_username()
 		try:
 			course = self.course_factory.get_course(courseid)
 		except exceptions.CourseNotFoundException as ex:
 			raise web.notfound(str(ex))
-		print(course)
 		test_state = get_test_state(self.database, username)	
 		items_names = get_testing_tasks(course, courseid)
 		items_bank = init_item_bank(items_names, self.database)
@@ -69,6 +69,9 @@ def init(plugin_manager, course_factory, client, plugin_config):
     #global course_name
     plugin_manager.add_hook("adaptive_get_hook", adaptive_get_hook)
     plugin_manager.add_hook("adaptive_post_hook", adaptive_post_hook)
+    plugin_manager.add_hook("task_buttons_hook", task_buttons_hook)
+    plugin_manager.add_hook("course_button_hook", course_button_hook)
+    
     """ Init the plugin """
     plugin_manager.add_page("/adaptative/([^/]*)", home_plugin_parameters(plugin_config))
     plugin_manager.add_page("/adaptative/([^/]*)/([^.]*)", AdaptativePage)

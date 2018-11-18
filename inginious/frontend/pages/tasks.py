@@ -170,13 +170,9 @@ class BaseTaskPage(object):
 
             submissions = self.submission_manager.get_user_submissions(task) if self.user_manager.session_logged_in() else []
             user_info = self.database.users.find_one({"username": username})
-            
+      
             # Call to adaptive hook
-            if "adaptative" in web.ctx.fullpath:
-            	return self.plugin_manager.call_hook("adaptive_get_hook", username=username, page=self, course=course, courseid=courseid, task=task, taskid=taskid, students=students, eval_submission=eval_submission, user_task=user_task, random_input_list=random_input_list)[0]
-            
-            # Display the task itself
-            return self.template_helper.get_renderer().task(user_info, course, task, submissions,students, eval_submission, user_task, previous_taskid, next_taskid, self.webterm_link, random_input_list)
+            return self.plugin_manager.call_hook("adaptive_get_hook", username=username, page=self, course=course, courseid=courseid, task=task, taskid=taskid, students=students, eval_submission=eval_submission, user_task=user_task, user_info=user_info, submissions=submissions, previous_taskid=previous_taskid, next_taskid=next_taskid, random_input_list=random_input_list)[0]
 
     def POST(self, courseid, taskid, isLTI):
         """ POST a new submission """
@@ -261,8 +257,7 @@ class BaseTaskPage(object):
                         return json.dumps({'status': "error", "text": _("Internal error")})
 					
                     # Adaptive hook call
-                    if "adaptative" in web.ctx.fullpath:
-                        self.plugin_manager.call_hook("adaptive_post_hook", username=username, page=self, result=result)
+                    self.plugin_manager.call_hook("adaptive_post_hook", username=username, page=self, result=result)
                     
                     return self.submission_to_json(task, result, is_admin, False, default_submissionid == result['_id'], tags=task.get_tags())
                     

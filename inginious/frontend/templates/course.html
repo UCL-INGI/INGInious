@@ -11,6 +11,7 @@ $ staff = user_manager.has_staff_rights_on_course(course)
 $# Left column content
 $def ColumnF():
     $:template_helper.call('course_menu', course=course, template_helper=template_helper)
+    $:plugin_manager.call_hook('course_button_hook', template_helper=template_helper, course=course)[0]
     $if registered or staff:
         <h3>$:_("Current grade")</h3>
         <div class="progress">
@@ -48,9 +49,6 @@ $def ColumnF():
             <a class="list-group-item list-group-item-info" href="$get_homepath()/admin/$course.get_id()">
                 <i class="fa fa-user-secret fa-fw"></i>&nbsp; $:_("Course administration")
             </a>
-            <a class="list-group-item list-group-item-info" href="$get_homepath()/adaptative/$course.get_id()">
-                <i class="fa fa-user-secret fa-fw"></i>&nbsp; $:_("Adaptive testing")
-            </a>
         </div>
     $elif registered:
         <div class="list-group">
@@ -64,9 +62,6 @@ $def ColumnF():
                 $else:
                     $:_("Teams management")
             </a>
-            <a class="list-group-item list-group-item-info" href="$get_homepath()/adaptative/$course.get_id()">
-                <i class="fa fa-user-secret fa-fw"></i>&nbsp; $:_("Adaptive testing")
-            </a>
             $if course.allow_unregister():
                 $:include.unregister_button(course)
         </div>
@@ -75,7 +70,7 @@ $def ColumnF():
     $elif course.is_registration_possible(user_info):
         $:include.register_button(course)
 $var Column: $:ColumnF()
-
+	
 $def NavbarF():
     <ol class="nav navbar-nav nav-breadcrumb">
         $if registered:
@@ -106,7 +101,6 @@ $if course.get_descriptor().get("description", ""):
             </div>
         </div>
     </div>
-
 <script>
 function filter_tag(tag) {
     tag = tag.value;
