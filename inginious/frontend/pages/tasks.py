@@ -255,7 +255,7 @@ class BaseTaskPage(object):
                     if default_submissionid is None:
                         # This should never happen, as user_manager.update_user_stats is called whenever a submission is done.
                         return json.dumps({'status': "error", "text": _("Internal error")})
-					
+                    
                     # Adaptive hook call
                     self.plugin_manager.call_hook("adaptive_post_hook", username=username, page=self, result=result)
                     
