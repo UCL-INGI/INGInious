@@ -37,7 +37,7 @@ class LdapAuthMethod(AuthMethod):
         if self._imlink:
             return '<img src="' + self._imlink + \
                    '" style="-moz-user-select: none; -webkit-user-select: none; ' \
-                   'user-select: none; max-width: 50px; max-height:50px;" />'
+                   'user-select: none; max-height:50px;" />'
         else:
             return '<i class="fa fa-address-book" style="font-size:50px; color:#000000;"></i>'
 
