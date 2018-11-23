@@ -9,18 +9,20 @@ $var title: $:_("Edit {}").format(taskid)
 
 $def ColumnF():
     $:template_helper.call('course_admin_menu',course=course,current='tasks')
-    <a href="#task_edit_submit_status" class="btn btn-primary btn-block task_edit_submit_button" type="button" onclick="studio_submit()"><i class="fa fa-save"></i> Save changes</a>
+    <button class="btn btn-primary btn-block mt-3 task_edit_submit_button" type="button" onclick="studio_submit()"><i class="fa fa-save"></i> Save changes</button>
 $var Column: $:ColumnF()
 
 $def NavbarF():
-    <ol class="nav navbar-nav nav-breadcrumb">
-        <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
-            <i class="fa fa-user-secret"></i></a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()/tasks" title=$:_('"Tasks"') data-toggle="tooltip" data-placement="bottom">
-            <i class="fa fa-tasks"></i></a></li>
-        <li class="active"><a href="#">$:_("Edit task \"{}\"").format(taskid) <span class="sr-only">$:_("(current)")</span></a></li>
-    </ol>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
+            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
+                <i class="fa fa-user-secret"></i></a></li>
+            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()/tasks" title=$:_('"Tasks"') data-toggle="tooltip" data-placement="bottom">
+                <i class="fa fa-tasks"></i></a></li>
+            <li class="breadcrumb-item active"><a href="#">$:_("Edit task \"{}\"").format(taskid) <span class="sr-only">$:_("(current)")</span></a></li>
+        </ol>
+    </nav>
 $var Navbar: $:NavbarF()
 
 <h2>
@@ -32,47 +34,58 @@ $var Navbar: $:NavbarF()
         </div>
     </div>
 </h2>
+
 <div id="task_edit_submit_status"></div>
+
 <form id="edit_task_form" method="post" enctype="multipart/form-data" class="form-horizontal">
     <input type="hidden" name="@action" value="edit_task"/>
-    
-    <div role="tabpanel">
-        <ul class="nav nav-tabs" id="edit_task_tabs" role="tablist">
-            <li role="presentation" class="active"><a href="#tab_basic" aria-controls="basicinfo" role="tab" data-toggle="tab"><i class="fa
-                fa-cog fa-fw"></i>&nbsp; $:_("Basic settings")</a></li>
-            <li role="presentation"><a href="#tab_container" aria-controls="container" role="tab" data-toggle="tab"><i class="fa
-                fa-cube fa-fw"></i>&nbsp; $:_("Container setup")</a></li>
-            <li role="presentation"><a href="#tab_subproblems" aria-controls="subproblems" role="tab" data-toggle="tab"><i class="fa
-                fa-list-ul fa-fw"></i>&nbsp; $:_("Subproblems")</a></li>
-            <li role="presentation"><a href="#tab_tags" aria-controls="tags" role="tab" data-toggle="tab"><i class="fa
-                fa-tags fa-fw"></i>&nbsp; $:_("Tags")</a></li>
-            <li role="presentation"><a href="#tab_files" aria-controls="files" role="tab" data-toggle="tab"><i class="fa
-                fa-edit fa-fw"></i>&nbsp; $:_("Task files")</a></li>
+    <div class="card mb-3">
+        <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs" id="edit_task_tabs" role="tablist">
+                <li role="presentation" class="nav-item">
+                    <a href="#tab_basic" class="nav-link active" aria-controls="basicinfo" role="tab" data-toggle="tab"><i class="fa
+                    fa-cog fa-fw"></i>&nbsp; $:_("Basic settings")</a></li>
+                <li role="presentation" class="nav-item">
+                    <a href="#tab_container" class="nav-link" aria-controls="container" role="tab" data-toggle="tab"><i class="fa
+                    fa-cube fa-fw"></i>&nbsp; $:_("Container setup")</a></li>
+                <li role="presentation" class="nav-item">
+                    <a href="#tab_subproblems" class="nav-link" aria-controls="subproblems" role="tab" data-toggle="tab"><i class="fa
+                    fa-list-ul fa-fw"></i>&nbsp; $:_("Subproblems")</a></li>
+                <li role="presentation" class="nav-item">
+                    <a href="#tab_tags" class="nav-link" aria-controls="tags" role="tab" data-toggle="tab"><i class="fa
+                    fa-tags fa-fw"></i>&nbsp; $:_("Tags")</a></li>
+                <li role="presentation" class="nav-item">
+                    <a href="#tab_files" class="nav-link" aria-controls="files" role="tab" data-toggle="tab"><i class="fa
+                    fa-edit fa-fw"></i>&nbsp; $:_("Task files")</a></li>
 
-            $for tab_id, link, tab_content in additional_tabs:
-                <li role="presentation"><a href="#$tab_id" aria-controls="$tab_id" role="tab" data-toggle="tab">$:link</a></li>
-        </ul>
+                $for tab_id, link, tab_content in additional_tabs:
+                    <li role="presentation" class="nav-item"><a href="#$tab_id" class="nav-link" aria-controls="$tab_id" role="tab" data-toggle="tab">$:link</a></li>
+            </ul>
+        </div>
         <div id="edit_task_tabs_content" class="tab-content">
-            <div role="tabpanel" class="tab-pane active" id="tab_basic">
+            <div role="tabpanel" class="card-body tab-pane active" id="tab_basic">
                 $:include.course_admin.edit_tabs.basic(course,task_data,available_filetypes,AccessibleTime,current_filetype,contains_is_html)
             </div>
 
-            <div role="tabpanel" class="tab-pane" id="tab_container">
+            <div role="tabpanel" class="card-body tab-pane" id="tab_container">
                 $:include.course_admin.edit_tabs.container(task_data,environments,contains_is_html)
             </div>
 
-            <div role="tabpanel" class="tab-pane" id="tab_subproblems">
+            <div role="tabpanel" class="card-body tab-pane" id="tab_subproblems">
                 $:include.course_admin.edit_tabs.subproblems(problem_types)
             </div>
-            
-            <div role="tabpanel" class="tab-pane" id="tab_tags">
+
+            <div role="tabpanel" class="card-body tab-pane" id="tab_tags">
                 $:include.course_admin.edit_tabs.tags(course,task_data)
             </div>
 
-            <div role="tabpanel" class="tab-pane" id="tab_files">
+            <div role="tabpanel" class="card-body tab-pane" id="tab_files">
                 <ul class="nav nav-tabs" id="edit_file_tabs" role="tablist">
-                    <li role="presentation" class="active"><a href="#tab_file_list" aria-controls="basicinfo" role="tab" data-toggle="tab"><i class="fa
-                            fa-cog fa-list-ul"></i>&nbsp; $:_("File list")</a></li>
+                    <li class="nav-item" >
+                        <a href="#tab_file_list" class="nav-link active" aria-controls="basicinfo" role="tab" data-toggle="tab">
+                            <i class="fa fa-cog fa-list-ul"></i>&nbsp; $:_("File list")
+                        </a>
+                    </li>
                 </ul>
                 <div id="edit_file_tabs_content" class="tab-content">
                     $:include.course_admin.edit_tabs.files(course,taskid,file_list,None)
@@ -80,32 +93,32 @@ $var Navbar: $:NavbarF()
             </div>
 
             $for tab_id, link, tab_content in additional_tabs:
-                <div role="tabpanel" class="tab-pane" id="$tab_id">
+                <div role="tabpanel" class="card-body tab-pane" id="$tab_id">
                     $:tab_content
                 </div>
 
         </div>
     </div>
-    <a href="#task_edit_submit_status" class="btn btn-primary btn-block task_edit_submit_button" type="button" onclick="studio_submit()"><i class="fa fa-save"></i> $:_("Save changes")</a>
+    <button class="btn btn-primary btn-block task_edit_submit_button" type="button" onclick="studio_submit()"><i class="fa fa-save"></i> $:_("Save changes")</button>
 </form>
+
 <div id="delete_modal" class="modal fade">
     <div class="modal-dialog">
         <div class="modal-content">
             <form method="post">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title">$:_("Delete task")</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 </div>
                 <div class="modal-body">
                     <p>$:_("This will <b>permanently</b> remove the task and its files from INGInious.")</p>
-                    <div class="checkbox">
-                        <label>
-                          <input type="checkbox" name="wipe"> $:_("Wipe all submissions")
-                        </label>
+                    <div class="form-check">
+                          <input class="form-check-input" type="checkbox" name="wipe">
+                        <label  class="form-check-label">$:_("Wipe all submissions")</label>
                       </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">$:_("Cancel")</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">$:_("Cancel")</button>
                     <button type="submit" name="delete" class="btn btn-danger">$:_("Delete task")</button>
                 </div>
             </form>
@@ -117,8 +130,8 @@ $var Navbar: $:NavbarF()
 <div id="subproblem_templates" style="display:none">
     $for key, problem_type in problem_types.items():
         <div id="subproblem_$key">
-            <div class="panel panel-default" id="subproblem_well_PID" >
-                <div class="panel-heading" role="tab" id="heading_PID">
+            <div class="card mb-3" id="subproblem_well_PID" >
+                <div class="card-header" role="tab" id="heading_PID">
                     <div class="row">
                         <div class="col-md-10" >
                             <span role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse_PID" aria-controls="collapse_PID">
@@ -126,17 +139,17 @@ $var Navbar: $:NavbarF()
                             </span>
                         </div>
                         <div class="col-md-2">
-                            <a style="margin: 0px 4px 0px; cursor:pointer;" class="pull-right" type="button" onclick="studio_subproblem_delete('PID')"><i class="fa fa-lg fa-trash-o"></i></a>
-                            <a style="margin: 0px 4px 0px; cursor:pointer;" class="pull-right" type="button" onclick="studio_subproblem_down('PID')"><i class="fa fa-lg fa-arrow-down"></i></a>
-                            <a style="margin: 0px 4px 0px; cursor:pointer;" class="pull-right" type="button" onclick="studio_subproblem_up('PID')"><i class="fa fa-lg fa-arrow-up"></i></a>
+                            <a href="#" class="pull-right ml-2" onclick="studio_subproblem_delete('PID')"><i class="fa fa-lg fa-trash-o"></i></a>
+                            <a href="#" class="pull-right ml-2" onclick="studio_subproblem_down('PID')"><i class="fa fa-lg fa-arrow-down"></i></a>
+                            <a href="#" class="pull-right" onclick="studio_subproblem_up('PID')"><i class="fa fa-lg fa-arrow-up"></i></a>
                         </div>
                     </div>
                 </div>
-                <div id="collapse_PID" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="heading_PID">
-                    <div class="panel-body">
+                <div id="collapse_PID" class="collapse in" role="tabpanel" aria-labelledby="heading_PID">
+                    <div class="card-body">
                         <input type="hidden" name="problem[PID][type]" value="$key"/>
                         <input type="hidden" class="subproblem_order" name="problem[PID][@order]" value="ORDER"/>
-                        <div class="form-group">
+                        <div class="form-group row">
                             <label for="name-PID" class="col-sm-2 control-label">$:_("Name")</label>
                             <div class="col-sm-10">
                                 <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="$:_('A title for this question')"/>

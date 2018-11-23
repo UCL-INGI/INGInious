@@ -10,29 +10,41 @@ $if show_aggregations:
 $else:
     <input type="hidden" name="filter_type" id="filter_type" value="users"/>
 
-<div class="panel" id="panel-download-user-aggregation">
-    <ul class="nav nav-tabs" role="tablist">
-        <li role="presentation"
-            $if not show_aggregations:
-                class="active"
-        >
-            <a href="#user_filter" aria-controls="user_filter" role="tab" data-toggle="tab">$:_("Select students")</a>
-        </li>
-        <li role="presentation"
-            $if show_aggregations:
-                class="active"
-        >
-            <a href="#aggregation_filter" aria-controls="aggregation_filter" role="tab" data-toggle="tab">$:(_('Select classrooms') if use_classrooms else _('Select teams'))</a>
-        </li>
-    </ul>
-    <div class="btn-group download-tabs-user-aggregation">
-        <button type="button" class="btn btn-primary btn-xs" onclick="download_page_select(true, this)">$:_("Select all")</button>
-        <button type="button" class="btn btn-primary btn-xs" onclick="download_page_select(false, this)">$:_("Deselect all")</button>
-        $if len(tutored_users) != 0 or len(tutored_aggregations) != 0:
-            <button type="button" class="btn btn-primary btn-xs" onclick="download_page_select_tutor(this,
-                        ['$'\',\''.join(tutored_users)'],
-                        ['$'\',\''.join(tutored_aggregations)'])">Tutored only</button>
+<div class="card mb-3" id="panel-download-user-aggregation">
+    <div class="card-header">
+        <ul class="nav nav-tabs card-header-tabs" role="tablist">
+            <li role="presentation" class="nav-item">
+                <a
+                $if not show_aggregations:
+                    class="nav-link active"
+                $else:
+                    class="nav-link"
+                 href="#user_filter" aria-controls="user_filter" role="tab" data-toggle="tab">$:_("Select students")</a>
+            </li>
+            <li role="presentation" class="nav-item">
+                <a
+                $if show_aggregations:
+                    class="nav-link active"
+                $else:
+                    class="nav-link"
+                href="#aggregation_filter" aria-controls="aggregation_filter" role="tab" data-toggle="tab">$:(_('Select classrooms') if use_classrooms else _('Select teams'))</a>
+            </li>
+
+            <li class="nav-item">
+                <button type="button" class="ml-3 btn btn-primary btn-xs" onclick="download_page_select(true, this)">$:_("Select all")</button>
+            </li>
+            <li class="nav-item">
+                <button type="button" class="btn btn-primary btn-xs" onclick="download_page_select(false, this)">$:_("Deselect all")</button>
+            </li>
+            $if len(tutored_users) != 0 or len(tutored_aggregations) != 0:
+                <li class="nav-item">
+                    <button type="button" class="btn btn-primary btn-xs" onclick="download_page_select_tutor(this,
+                            ['$'\',\''.join(tutored_users)'],
+                            ['$'\',\''.join(tutored_aggregations)'])">Tutored only</button>
+                </li>
+        </ul>
     </div>
+
     <div class="tab-content">
         <div role="tabpanel" class="tab-pane
             $if not show_aggregations:
@@ -41,7 +53,7 @@ $else:
             $if len(user_data) == 0:
                 <div class="alert alert-warning">$:_("No user to display")</div>
             $else:
-                <ul class="list-group checked-list-box">
+                <ul class="list-group list-group-flush checked-list-box">
                     $for userid, username in user_data.items():
                     <li class="list-group-item" data-value="$userid" data-name="users"
                         $if userid in checked_users:
@@ -56,7 +68,7 @@ $else:
             $if len(aggregations) == 0:
                 <div class="alert alert-warning">$:(_('No classroom to display') if use_classrooms else _('No team to display'))</div>
             $else:
-                <ul class="list-group checked-list-box">
+                <ul class="list-group list-group-flush checked-list-box">
                     $for aggregation in aggregations:
                         $if use_classrooms or len(aggregation['groups']) > 0:
                             <li class="list-group-item" data-value="$aggregation['_id']" data-name="aggregations" data-checked="$('true' if aggregation['checked'] else 'false')">

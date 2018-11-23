@@ -5,82 +5,50 @@
 
 @import "common.less";
 
-.container-fluid
-{
-    max-width: 1200px;
-}
-
-.navbar-brand
-{
+/* Main navbar */
+.navbar-brand {
     font-family: 'Yanone Kaffeesatz', sans-serif;
     font-weight: 300;
     font-size: 25px;
+    line-height: 45px;
+    padding:0;
 
-    img
-    {
+    img {
         height: 45px;
-        margin-top: -12px;
-        vertical-align: top;
+        vertical-align: bottom;
         display: inline;
     }
 }
 
-.navbar
-{
-    -webkit-backface-visibility: hidden;
+.navbar-text {
+    margin:0;
+    padding: 0;
+    line-height: 45px;
 }
 
-#main_container
-{
-    #sidebar
-    {
-        height: 100%;
-
-        #sidebar_inner
-        {
-            position: relative;
-            overflow: hidden;
-        }
-
-        #sidebar_affix
-        {
-            @media screen and (max-width: 768px)
-            {
-                position: static !important;
-                margin-bottom: 60px;
-            }
-        }
-
-        .affix
-        {
-            top: 0;
-        }
-
-        .affix-bottom
-        {
-            position: relative;
-        }
-
-        .affix-top
-        {
-            position: relative;
-        }
-
-
-    }
+.navbar {
+    padding: 0;
 }
 
-.index-logo
-{
-    position: absolute;
-    right: 0;
-    img
-    {
-        width: 100%;
-        max-width: 300px;
-    }
+/* Sticky footer */
+html {
+  position: relative;
+  min-height: 100%;
 }
 
+body {
+  margin-bottom: 45px; /* Margin bottom by footer height */
+}
+
+#footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 45px; /* Set the fixed height of the footer here */
+  line-height: 45px; /* Vertically center the text there */
+}
+
+/*Task debug modal*/
 #task_debug
 {
     dd
@@ -100,183 +68,98 @@
     }
 }
 
-.nav-tabs
-{
-    margin-bottom: 15px;
-}
-
+/* Studio files tab close button*/
 .nav-tabs > li.studio_file_editor_tab a .closetab
 {
-    color: #008cba;
+    cursor: pointer;
     border: none;
     background-color: transparent;
     margin: 0;
     padding: 0;
 }
 
-.list-group.list-group-progress
-{
-    line-height: 22px;
+/* Nav menu breadcrumb */
+.breadcrumb {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    text-transform: none;
 
-    *
+    .breadcrumb-item
     {
-        line-height: 22px;
-    }
-}
-
-.nav-breadcrumb
-{
-    li
-    {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
         max-width: 250px;
-        @media screen and (max-width: 1024px)
-        {
-            max-width: 150px;
-        }
-        @media screen and (max-width: 800px)
-        {
-            max-width: 120px;
-        }
+        color: rgba(255, 255, 255, 0.7);
 
-
-        a
-        {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        &:after
-        {
+        &:before {
 
             font: normal normal normal 24px/1 FontAwesome;
             content: "\f105";
+            margin-top: -4px;
+            color: #888;
             position: absolute;
-            left: -3px;
-            top: 10px;
-            color: rgba(255, 255, 255, 0.5);
         }
-    }
-}
 
-div[data-toggle="buttons"] label
-{
-    color: #ffffff;
-    background-color: #f04124;
-    border-color: #ea2f10;
+        span {
+            padding-left: 1rem;
+        }
 
-    &:before
-    {
-        display: inline-block;
-        font: normal normal normal 14px/1 FontAwesome;
-        font-size: inherit;
-        text-rendering: auto;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        transform: translate(0, 0);
-        content: "\f00d";
-        width: 1.28571429em;
-        text-align: center;
-    }
+        a {
+            color: rgba(255,255,255,0.7);
+            padding-left: 1rem;
 
-    &.active
-    {
-        color: #ffffff;
-        background-color: #43ac6a;
-        border-color: #3c9a5f;
-
-        &:before
-        {
-            content: "\f00c";
+            &:hover {
+                text-decoration: none;
+                color: white;
+            }
         }
     }
 
-}
-label.active:before
-{
-
-}
-
-/* Footer */
-html, body
-{
-    height: 100%;
-}
-
-#wrapper
-{
-    min-height: 100%;
-    height: auto !important;
-    height: 100%;
-    margin: 0 auto -81px;
-}
-
-#footer, .footer_push
-{
-    padding-top: 36px;
-    height: 81px;
-    .navbar
-    {
-        margin-bottom: 0;
+    .active {
+        max-width: 100%;
     }
 }
 
-/* Checked list group */
+/* Checked list group download/replay page */
 ul.checked-list-box
 {
     max-height: 315px;
     overflow-y: scroll;
     margin: 0;
 
-    .state-icon
-    {
+    .state-icon {
         left: -5px;
     }
 
-    .list-group-item-primary
-    {
+    .list-group-item-primary {
         color: rgb(255, 255, 255);
         background-color: rgb(66, 139, 202);
 
     }
+
+    input[type="checkbox"] {
+        display: none;
+    }
 }
 
-.dragging
-{
+
+/* Sorted tables dragging style*/
+.dragging {
     cursor: move !important;
 }
 
-.dragged
-{
+.dragged {
     position: absolute;
     top:0;
     opacity: 0.5;
     z-index: 2000;
 }
 
-li.placeholder
-{
-    position: relative;
-    margin: 0;
-    padding: 0;
-    border: none;
-}
-
-li.placeholder:before {
-    position: absolute;
-    content: "" !important;
-    width: 0;
-    height: 0;
-    margin-top: -5px;
-    left: -5px;
-    top: -4px;
-    border: 5px solid transparent;
-    border-left-color: black;
-    border-right: none;
-}
-
-.sorted_table tr.placeholder
-{
+/* Sorted tables placeholders */
+.placeholder {
     display: block;
     background: black;
     position: relative;
@@ -285,8 +168,7 @@ li.placeholder:before {
     border: none;
 }
 
-.sorted_table tr.placeholder:before
-{
+.placeholder:before {
   content: "";
   position: absolute;
   width: 0;
@@ -298,8 +180,8 @@ li.placeholder:before {
   border-right: none;
 }
 
-#edit_task_form .CodeMirror, #edit_course_form .CodeMirror
-{
+/* CodeMirror style */
+#edit_task_form .CodeMirror, #edit_course_form .CodeMirror {
     border: 1px solid #cccccc;
     border-radius: 0;
     -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
@@ -308,8 +190,7 @@ li.placeholder:before {
     -o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
     transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
 
-    &.CodeMirror-focused
-    {
+    &.CodeMirror-focused {
         border-color: #66afe9;
         outline: 0;
         -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);

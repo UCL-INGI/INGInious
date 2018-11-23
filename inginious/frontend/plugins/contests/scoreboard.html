@@ -8,18 +8,21 @@ $#
 $var title: $:course.get_name(user_manager.session_language()) - Scoreboard
 
 $def NavbarF():
-    <ol class="nav navbar-nav nav-breadcrumb">
-        <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
-        <li class="active"><a href="#"><i class="fa fa-trophy"></i> Scoreboard <span class="sr-only">(current)</span></a></li>
-    </ol>
+    <nav aria-label="breadcrumb">
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item"><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
+			<li class="breadcrumb-item active"><a href="#"><i class="fa fa-trophy"></i> Scoreboard <span class="sr-only">(current)</span></a></li>
+		</ol>
+	</nav>
 $var Navbar: $:NavbarF()
 
 $if end > end.now():
     <meta http-equiv="refresh" content="30" />
 
 <h2>$course.get_name(user_manager.session_language()) - Scoreboard</h2>
-<div class="well">
-    <div class="row">
+
+<div class="card card-body bg-light mb-3">
+	<div class="row">
         <div class="col-md-4" style="margin-top:2px;">
             Contest starts: $start.strftime('%d/%m/%Y %H:%M:%S')<br/>
             Contest ends: $end.strftime('%d/%m/%Y %H:%M:%S')<br/>
@@ -38,15 +41,16 @@ $if end > end.now():
         </div>
     </div>
 </div>
+
 $if start <= start.now():
-	<table class="contest_scoreboard">
-	    <tr>
+	<table class="contest_scoreboard mb-3">
+	    <thead>
 	        <th class="contest_rank">Rank</th>
 	        <th class="contest_contestant">Contestant</th>
 	        <th colspan="2" class="contest_score_header">Score</th>
 	        $for taskid in tasks:
 	            <th class="contest_task"><a href="$get_homepath()/course/${course.get_id()}/$taskid">$taskid</a></th>
-	    </tr>
+	    </thead>
 	    $for username, data in results.items():
 	        <tr>
 	            <td class="contest_rank">$data['displayed_rank']</td>
@@ -65,7 +69,7 @@ $if start <= start.now():
 	        </tr>
 	</table>
 	<h3>Activity</h3>
-	<table class="table table-centered table-condensed table-bordered">
+	<table class="table table-centered table-bordered">
 	    <tr><th>Time</th><th>Contestant</th><th>Task</th><th>Result</th></tr>
 	    $for a in activity:
 	        <tr>

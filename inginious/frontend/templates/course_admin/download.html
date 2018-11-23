@@ -12,12 +12,14 @@ $var Column: $:template_helper.call('course_admin_menu',course=course,current='d
 $ use_classrooms = course.use_classrooms()
 
 $def NavbarF():
-    <ol class="nav navbar-nav nav-breadcrumb">
-        <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
-            <i class="fa fa-user-secret"></i></a></li>
-        <li class="active"><a href="#"><i class="fa fa-download"></i> $:_("Download submissions") <span class="sr-only">$:_("(current)")</span></a></li>
-    </ol>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
+            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
+                <i class="fa fa-user-secret"></i></a></li>
+            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-download"></i> $:_("Download submissions") <span class="sr-only">$:_("(current)")</span></a></li>
+        </ol>
+    </nav>
 $var Navbar: $:NavbarF()
 
 <h2>$:_("Download submissions")</h2>
@@ -26,11 +28,11 @@ $var Navbar: $:NavbarF()
     $:include.course_admin.submissions_tabs.tasks(tasks, checked_tasks, "download")
     $:include.course_admin.submissions_tabs.users(user_data, aggregations, tutored_aggregations, tutored_users, checked_users, show_aggregations, use_classrooms)
 
-    <div class="panel panel-default">
-        <div class="panel-heading">
+    <div class="card mb-3">
+        <div class="card-header">
             $:_("Other options")
         </div>
-        <div class="panel-body">
+        <div class="card-body">
             <div class="form-group">
                 <label for="folder_format" class="col-sm-2 control-label">$:_("Folder format")</label>
                 <div class="col-sm-10">

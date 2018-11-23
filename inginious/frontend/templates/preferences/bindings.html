@@ -10,12 +10,14 @@ $var title: $:_("Authentication bindings")
 $var Column: $:template_helper.call('preferences_menu',current='bindings')
 
 $def NavbarF():
-    <ol class="nav navbar-nav nav-breadcrumb">
-        <li>
-            <a href="$get_homepath()/preferences" title="$:_('Preferences')" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-gears"></i></a>
-        </li>
-        <li class="active"><a href="#"><i class="fa fa-id-card-o"></i> $:_("Authentication bindings") <span class="sr-only">$:_("(current)")</span></a></li>
-    </ol>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="$get_homepath()/preferences" title="$:_('Preferences')" data-toggle="tooltip" data-placement="bottom"><i class="fa fa-gears"></i></a>
+            </li>
+            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-id-card-o"></i> $:_("Authentication bindings") <span class="sr-only">$:_("(current)")</span></a></li>
+        </ol>
+    </nav>
 $var Navbar: $:NavbarF()
 
 $if error:
@@ -36,20 +38,17 @@ $elif msg:
 </form>
 $for id, auth_method in auth_methods.items():
     $if id in bindings.keys():
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title">
-                    $auth_method.get_name()
-                    <div class="pull-right">
-                            <a href="$get_homepath()/auth/signin/$auth_method.get_id()" data-toggle="tooltip" data-placement="bottom" title=$:_('"Refresh fields"')><i class="fa fa-refresh fa-fw"></i></a>
-                            <a href="#" onclick="$$('#revoke_auth_binding').val('$auth_method.get_id()'); $$('#revoke').submit()" data-toggle="tooltip" data-placement="bottom" title=$:_('"Revoke access"')>
-                                <i style="color:red;" class="fa fa-trash-o fa-fw"></i>
-                            </a>
-                        </div>
-                </h3>
-
+        <div class="card mb-3">
+            <div class="card-header">
+                $auth_method.get_name()
+                <div class="pull-right">
+                    <a href="$get_homepath()/auth/signin/$auth_method.get_id()" data-toggle="tooltip" data-placement="bottom" title=$:_('"Refresh fields"')><i class="fa fa-refresh fa-fw"></i></a>
+                    <a href="#" onclick="$$('#revoke_auth_binding').val('$auth_method.get_id()'); $$('#revoke').submit()" data-toggle="tooltip" data-placement="bottom" title=$:_('"Revoke access"')>
+                        <i style="color:red;" class="fa fa-trash-o fa-fw"></i>
+                    </a>
+                </div>
             </div>
-            <div class="panel-body">
+            <div class="card-body">
                 <div class="row">
                     <div class="col-md-1">
                         $:auth_method.get_imlink()
@@ -74,6 +73,6 @@ $for id, auth_method in auth_methods.items():
             </select>
         </div>
         <div class="form-group col-sm-3">
-            <button type="submit" class="btn btn-block btn-default">$:_("Add new binding")</button>
+            <button type="submit" class="btn btn-block btn-secondary">$:_("Add new binding")</button>
         </div>
     </form>

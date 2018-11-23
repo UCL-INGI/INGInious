@@ -7,9 +7,8 @@ $#
 
 $ is_admin = user_manager.has_admin_rights_on_course(course)
 <form method="post">
-
     <table class="table">
-        <thead>
+        <thead class="table-borderless">
             <tr>
                 $if is_staff:
                     <th>$:_("member")</th>
@@ -19,13 +18,13 @@ $ is_admin = user_manager.has_admin_rights_on_course(course)
                 <th>$:_("# task done")</th>
                 <th>$:_("current grade")</th>
                 <th>
-                    <div class="btn-group" role="group">
-                        <a href="$get_homepath()/admin/${course.get_id()}/download?format=taskid%2Fusername" class="btn btn-danger btn-xs"
+                    <div class="btn-group btn-group-sm" role="group">
+                        <a href="$get_homepath()/admin/${course.get_id()}/download?format=taskid%2Fusername" class="btn btn-danger"
                            title=$:_('"Download  all submissions"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                        <a href="$get_homepath()/admin/${course.get_id()}/students?csv" class="btn btn-info btn-xs"
+                        <a href="$get_homepath()/admin/${course.get_id()}/students?csv" class="btn btn-info"
                            title=$:_('"Download CSV"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
                         $if not is_staff and is_admin:
-                            <button type="button" data-toggle="modal" data-username="all students" data-type="all" data-target="#remove_modal" class="btn btn-warning btn-xs remove_user" title=$:_('"Unregister all"')><i class="fa fa-user-times"></i></button>
+                            <button type="button" data-toggle="modal" data-username="all students" data-type="all" data-target="#remove_modal" class="btn btn-warning remove_user" title=$:_('"Unregister all"')><i class="fa fa-user-times"></i></button>
                     </div>
                 </th>
             </tr>
@@ -44,21 +43,21 @@ $ is_admin = user_manager.has_admin_rights_on_course(course)
                 <td>$user["task_succeeded"]</td>
                 <td>
                     <div class="progress">
-                        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="$user['grade']" aria-valuemin="0" aria-valuemax="100" style="width: $user['grade']%">
+                        <div class="progress-bar bg-success" role="progressbar" aria-valuenow="$user['grade']" aria-valuemin="0" aria-valuemax="100" style="width: $user['grade']%">
                             <span>$user["grade"]%</span>
                         </div>
                     </div>
                 </td>
                 <td>
-                    <div class="btn-group" role="group">
-                        <a href="$get_homepath()/admin/${course.get_id()}/student/$user['username']" class="btn btn-default btn-xs" title=$:_('"View submissions"')
+                    <div class="btn-group btn-group-sm" role="group">
+                        <a href="$get_homepath()/admin/${course.get_id()}/student/$user['username']" class="btn btn-secondary" title=$:_('"View submissions"')
                            data-toggle="tooltip" data-placement="bottom"><i class="fa fa-search"></i></a>
-                        <a href="$get_homepath()/admin/${course.get_id()}/download$user['url']" class="btn btn-default btn-xs" title=$:_('"Download submissions"')
+                        <a href="$get_homepath()/admin/${course.get_id()}/download$user['url']" class="btn btn-secondary" title=$:_('"Download submissions"')
                            data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                        $if is_admin:
-                            <a href="$get_homepath()/admin/${course.get_id()}/replay$user['url']" class="btn btn-default btn-xs" title=$:_('"Replay submissions"')
+                        $if is_admin and not is_staff:
+                            <a href="$get_homepath()/admin/${course.get_id()}/replay$user['url']" class="btn btn-secondary" title=$:_('"Replay submissions"')
                                data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
-                            <button type="button" data-username="$user['username']" data-type="single" data-toggle="modal" data-target="#remove_modal" class="btn btn-warning btn-xs remove_user" title="Unregister"><i class="fa fa-user-times"></i></button>
+                            <button type="button" data-username="$user['username']" data-type="single" data-toggle="modal" data-target="#remove_modal" class="btn btn-warning remove_user" title="Unregister"><i class="fa fa-user-times"></i></button>
                     </div>
                 </td>
             </tr>
@@ -70,8 +69,8 @@ $ is_admin = user_manager.has_admin_rights_on_course(course)
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                         <h4 class="modal-title">$:_("Unregister") <span class="username"></span></h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     </div>
                     <div class="modal-body">
                         <p>$:_("This will remove {} from the course. Are you sure ?").format('<span class="username"></span>')</p>

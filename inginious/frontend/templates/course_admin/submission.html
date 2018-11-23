@@ -12,22 +12,24 @@ $ is_admin = user_manager.has_admin_rights_on_course(course)
 $var Column: $:template_helper.call('course_admin_menu',course=course,current='students')
 
 $def NavbarF():
-    <ol class="nav navbar-nav nav-breadcrumb">
-        <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
-        <li>
-            <a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
-                <i class="fa fa-user-secret"></i>
-            </a>
-        </li>
-        <li>
-            <a href="$get_homepath()/admin/$course.get_id()/students" title=$:_('"Students"') data-toggle="tooltip" data-placement="bottom">
-                <i class="fa fa-user"></i>
-            </a>
-        </li>
-        <li><a href="$get_homepath()/admin/$course.get_id()/student/$username">$user_realname</a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()/student/$username/$task.get_id()">$:task.get_name(user_manager.session_language())</a></li>
-        <li class="active"><a href="#">$str(submission['_id'])[0:10] <span class="sr-only">$:_("(current)")</span></a></li>
-    </ol>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
+            <li class="breadcrumb-item">
+                <a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
+                    <i class="fa fa-user-secret"></i>
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="$get_homepath()/admin/$course.get_id()/students" title=$:_('"Students"') data-toggle="tooltip" data-placement="bottom">
+                    <i class="fa fa-user"></i>
+                </a>
+            </li>
+            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()/student/$username">$user_realname</a></li>
+            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()/student/$username/$task.get_id()">$:task.get_name(user_manager.session_language())</a></li>
+            <li class="breadcrumb-item active"><a href="#">$str(submission['_id'])[0:10] <span class="sr-only">$:_("(current)")</span></a></li>
+        </ol>
+    </nav>
 $var Navbar: $:NavbarF()
 
 <h2>$:_("Submission {}").format(str(submission['_id'])[0:10]) - "$:task.get_name(user_manager.session_language())" - $user_realname ($username)</h2>
@@ -93,17 +95,15 @@ $if (len(visible_tags) > 0) or (len(visible_misconception_tags) > 0) or user_man
 
 $ task_problems = {problem.get_id(): problem for problem in task.get_problems()}
 $for key, problem in enumerate(to_display):
-    <div class="panel panel-default problem">
-        <div class="panel-heading">
-            <h3 class="panel-title">
-                Question ${key+1}: $problem["name"]
-                <a href="/course/$course.get_id()/$task.get_id()?submissionid=$submission['_id']&questionid=$problem['id']" class="btn btn-default btn-xs" title=$:_('"Download as file"')
-                   data-toggle="tooltip" data-placement="bottom">
-                    <i class="fa fa-download"></i>
-                </a>
-            </h3>
+    <div class="card mb-3 problem">
+        <div class="card-header">
+            Question ${key+1}: $problem["name"]
+            <a href="/course/$course.get_id()/$task.get_id()?submissionid=$submission['_id']&questionid=$problem['id']" class="pull-right" title=$:_('"Download as file"')
+               data-toggle="tooltip" data-placement="bottom">
+                <i class="fa fa-download"></i>
+            </a>
         </div>
-        <div class="panel-body">
+        <div class="card-body">
             $if problem["id"] in task_problems:
                 $:task_problems[problem["id"]].show_input(template_helper, user_manager.session_language(), username)
             $elif not problem["defined"]:

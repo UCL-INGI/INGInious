@@ -5,8 +5,7 @@
 
 @import "common.less";
 
-#lti-sidebar
-{
+#lti-sidebar {
     width: 0px;
     height: 100%;
     position: absolute;
@@ -16,14 +15,11 @@
 
     .transition(all 0.5s ease);
 
-    #lti-sidebar-btn button
-    {
-        &.sidebar-open
-        {
+    #lti-sidebar-btn button {
+        &.sidebar-open {
             display: block;
         }
-        &.sidebar-close
-        {
+        &.sidebar-close {
             display: none;
         }
 
@@ -41,10 +37,8 @@
         font-size: 25px;
     }
 
-    #lti-sidebar-inner
-    {
-        #lti-sidebar-content
-        {
+    #lti-sidebar-inner {
+        #lti-sidebar-content {
             width: 300px;
             padding: 0px 15px;
             margin: 0;
@@ -62,36 +56,28 @@
     }
 }
 
-html
-{
+html {
     height: 100%;
 }
 
-body.sidebar-active
-{
-    #lti-sidebar
-    {
+body.sidebar-active {
+    #lti-sidebar {
         width: 300px;
-        #lti-sidebar-inner
-        {
+        #lti-sidebar-inner {
             width: 300px;
         }
 
-        #lti-sidebar-btn button
-        {
-            &.sidebar-open
-            {
+        #lti-sidebar-btn button {
+            &.sidebar-open {
                 display: none;
             }
-            &.sidebar-close
-            {
+            &.sidebar-close {
                 display: block;
             }
         }
     }
 
-    #content
-    {
+    #content {
         left: 300px;
         .custom_filter(blur(10px) grayscale(0.8));
     }
@@ -100,14 +86,12 @@ body.sidebar-active
     min-height: 100%;
 }
 
-#main_container
-{
+#main_container {
     overflow: hidden;
     position: relative;
 }
 
-#content
-{
+#content {
     -webkit-transition: all 0.5s ease;
     -moz-transition: all 0.5s ease;
     -o-transition: all 0.5s ease;
@@ -119,14 +103,12 @@ body.sidebar-active
     left: 0;
 }
 
-#powered
-{
+#powered {
     text-align: right;
     font-size: 12px;
     margin: 10px;
 
-    a
-    {
+    a {
         color: #43ac6a;
         font-weight: bold;
         font-family: 'Yanone Kaffeesatz', sans-serif;

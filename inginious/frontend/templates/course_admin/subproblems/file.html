@@ -5,25 +5,25 @@ $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
-<div class="form-group">
+<div class="form-group row">
     <label for="header-PID" class="col-sm-2 control-label">$:_("Context")</label>
     <div class="col-sm-10">
         <textarea id="header-PID" class="form-control" name="problem[PID][header]"></textarea>
     </div>
 </div>
-<div class="form-group">
+<div class="form-group row">
     <label for="extensions-PID" class="col-sm-2 control-label">$:_("Allowed file extensions (including the dot, separated by spaces)")</label>
     <div class="col-sm-10">
         <input type="text" class="form-control" id="extensions-PID" name="problem[PID][allowed_exts]" placeholder=".txt,.zip,.gz"/>
     </div>
 </div>
-<div class="form-group">
+<div class="form-group row">
     <label for="maxsize-PID" class="col-sm-2 control-label">$:_("Maximum file size (in bytes)")</label>
     <div class="col-sm-10">
         <input type="text" class="form-control" id="maxsize-PID" name="problem[PID][max_size]" placeholder="1000000"/>
     </div>
 </div>
-<div class="form-group">
+<div class="form-group row">
     <label class="col-sm-2 control-label">$:_("Type")</label>
     <div class="col-sm-10">
         <select class="form-control" disabled="disabled">

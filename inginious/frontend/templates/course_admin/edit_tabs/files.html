@@ -5,19 +5,19 @@ $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
-<div role="tabpanel" class="tab-pane active" id="tab_file_list">
+<div role="tabpanel" class="tab-pane show active" id="tab_file_list">
     $if error is not None:
         <div class="alert alert-danger" role="alert" style="text-align: center;">
             $error
         </div>
-    <table class="table table-bordered table-condensed">
-        <tr>
+    <table class="table table-bordered table-sm">
+        <thead class="table-borderless">
             <th class="col-sm-8">$:_("Path")</th>
             <th class="col-sm-1">$:_("Download")</th>
             <th class="col-sm-1">$:_("Edit")</th>
             <th class="col-sm-1">$:_("Move")</th>
             <th class="col-sm-1">$:_("Delete")</th>
-        </tr>
+        </thead>
         <tr>
             <td><i class="fa fa-folder-open"></i>&nbsp;/</td>
             <td><a href="$get_homepath()/admin/${course.get_id()}/edit/task/$taskid/files?action=download&path=/"

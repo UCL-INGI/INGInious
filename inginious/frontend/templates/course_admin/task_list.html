@@ -11,26 +11,28 @@ $var Column: $:template_helper.call('course_admin_menu',course=course,current='t
 $ is_admin = user_manager.has_admin_rights_on_course(course)
 
 $def NavbarF():
-    <ol class="nav navbar-nav nav-breadcrumb">
-        <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
-            <i class="fa fa-user-secret"></i></a></li>
-        <li class="active"><a href="#"><i class="fa fa-tasks"></i> $:_("Tasks") <span class="sr-only">$:_("(current)")</span></a></li>
-    </ol>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
+            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
+                <i class="fa fa-user-secret"></i></a></li>
+            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-tasks"></i> $:_("Tasks") <span class="sr-only">$:_("(current)")</span></a></li>
+        </ol>
+    </nav>
 $var Navbar: $:NavbarF()
 
 <form method="post">
 <h2>$:_("Tasks")
     <div class="pull-right">
-        <div class="btn-group">
-            <button type="button" id="switch" class="btn-sm btn btn-default"><i class="fa fa-list-ol"></i> $:_("Change task order")</button>
-            <button type="submit" id="switch" class="btn-sm btn btn-success"><i class="fa fa-check"></i> $:_("Update task order")</button>
+        <div class="btn-group btn-group-sm">
+            <button type="button" id="switch" class="btn btn-default"><i class="fa fa-list-ol"></i> $:_("Change task order")</button>
+            <button type="submit" id="switch" class="btn btn-success"><i class="fa fa-check"></i> $:_("Update task order")</button>
         </div>
     </div>
 </h2>
 
 <table class="table sorted_table">
-    <thead>
+    <thead class="table-borderless">
         <tr>
             <th>$:_("task name")</th>
             <th>$:_("# student viewed")</th>
@@ -38,10 +40,10 @@ $var Navbar: $:NavbarF()
             <th>$:_("# student succeeded")</th>
             <th>$:_("# attempts")</th>
             <th>
-                <div class="btn-group" role="group">
-                    <a href="$get_homepath()/admin/${course.get_id()}/download?format=taskid%2Fusername" class="btn btn-danger btn-xs"
+                <div class="btn-group btn-group-sm" role="group">
+                    <a href="$get_homepath()/admin/${course.get_id()}/download?format=taskid%2Fusername" class="btn btn-danger"
                        title=$:_('"Download all submissions"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                    <a href="$get_homepath()/admin/${course.get_id()}/tasks?csv" class="btn btn-info btn-xs"
+                    <a href="$get_homepath()/admin/${course.get_id()}/tasks?csv" class="btn btn-info"
                        title=$:_('"Download CSV"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
                 </div>
             </th>
@@ -59,16 +61,16 @@ $var Navbar: $:NavbarF()
             <td>$data[taskid]["succeeded"]</td>
             <td>$data[taskid]["attempts"]</td>
     		<td style="min-width:120px">
-                <div class="btn-group" role="group">
+                <div class="btn-group btn-group-sm" role="group">
                     $if is_admin:
-                        <a href="$get_homepath()/admin/${course.get_id()}/edit/task/$taskid" class="btn btn-primary btn-xs" title=$:_('"Edit task"') data-toggle="tooltip"
+                        <a href="$get_homepath()/admin/${course.get_id()}/edit/task/$taskid" class="btn btn-primary" title=$:_('"Edit task"') data-toggle="tooltip"
                            data-placement="bottom"><i class="fa fa-edit"></i></a>
-                    <a href="$get_homepath()/admin/${course.get_id()}/task/$taskid" class="btn btn-default btn-xs" title=$:_('"View results"') data-toggle="tooltip"
+                    <a href="$get_homepath()/admin/${course.get_id()}/task/$taskid" class="btn btn-secondary" title=$:_('"View results"') data-toggle="tooltip"
                        data-placement="bottom"><i class="fa fa-users"></i></a>
-                    <a href="$get_homepath()/admin/${course.get_id()}/download$data[taskid]['url']" class="btn btn-default btn-xs" title=$:_('"Download submissions"')
+                    <a href="$get_homepath()/admin/${course.get_id()}/download$data[taskid]['url']" class="btn btn-secondary" title=$:_('"Download submissions"')
                        data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
                     $if is_admin:
-                        <a href="$get_homepath()/admin/${course.get_id()}/replay$data[taskid]['url']" class="btn btn-default btn-xs" title=$:_('"Replay submissions"')
+                        <a href="$get_homepath()/admin/${course.get_id()}/replay$data[taskid]['url']" class="btn btn-secondary" title=$:_('"Replay submissions"')
                            data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
                 </div>
     		</td>
@@ -77,19 +79,18 @@ $var Navbar: $:NavbarF()
 </table>
 </form>
 
-<div class="row">
-    <div class="form-group">
+
+<div class="form-group row">
         <div class="col-sm-9"><input type="text" class="form-control" id="new_task_id" placeholder=$:_('"New task id"')/></div>
         <div class="col-sm-3"><a href="javascript:studio_create_new_task();" class="btn btn-info btn-large btn-block">$:_("Create new task")</a></div>
-    </div>
 </div>
 $if len(errors) != 0:
     <h3>$:_("Errors while loading tasks")</h3>
     <table class="table">
-        <tr>
+        <thead class="table-borderless">
             <th>$:_("task id")</th>
             <th>$:_("error")</th>
-        </tr>
+        </thead>
         $for task in errors:
             <tr>
                 <td>$task['taskid']</td>

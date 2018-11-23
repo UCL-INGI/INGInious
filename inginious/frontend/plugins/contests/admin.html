@@ -10,12 +10,14 @@ $var title: $:course.get_name(user_manager.session_language()) - Contest setting
 $var Column: $:template_helper.call('course_admin_menu',course=course,current='contest')
 
 $def NavbarF():
-    <ol class="nav navbar-nav nav-breadcrumb">
-        <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
-            <i class="fa fa-user-secret"></i></a></li>
-        <li class="active"><a href="#"><i class="fa fa-trophy"></i> Contest plugin <span class="sr-only">(current)</span></a></li>
-    </ol>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
+            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()" title="Administration" data-toggle="tooltip" data-placement="bottom">
+                <i class="fa fa-user-secret"></i></a></li>
+            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-trophy"></i> Contest plugin <span class="sr-only">(current)</span></a></li>
+        </ol>
+    </nav>
 $var Navbar: $:NavbarF()
 
 <h2>Contest settings</h2>
@@ -35,7 +37,7 @@ You may want to configure the course such that:<br/>
 accessibility date of the course &lt; registration start date &lt; registration end date &lt; contest start &lt; contest end.<br/>
 </p>
 <form id="edit_contest_form" action="$get_homepath()/admin/${course.get_id()}/contest" method="post" class="form-horizontal">
-    <div class="form-group">
+    <div class="form-group row">
         <label for="enabled" class="col-sm-2 control-label">Enable contest plugin</label>
         <div class="col-sm-10">
             <div class="checkbox"><label>
@@ -46,41 +48,45 @@ accessibility date of the course &lt; registration start date &lt; registration 
             </label></div>
         </div>
     </div>
-    <div class="form-group">
+    <div class="form-group row">
         <label for="start" class="col-sm-2 control-label">Contest starts</label>
         <div class="col-sm-10">
-            <div class='input-group date' id='start_picker'>
-                <input name="start" data-date-format="YYYY-MM-DD HH:mm:ss" value="${data['start']}" placeholder="2014-06-29 10:00:00" type='text' class="form-control" />
-                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+            <div class='input-group date' id='start_picker' data-target-input="nearest">
+                <input data-target='#start_picker' name="start" data-date-format="YYYY-MM-DD HH:mm:ss" value="${data['start']}" placeholder="2014-06-29 10:00:00" type='text' class="form-control datetimepicker-input" />
+                <div class="input-group-append" data-target="#start_picker" data-toggle="datetimepicker">
+                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                </div>
             </div>
             <script type="text/javascript">
                 \$(function() {
-                    \$('#start_picker').datetimepicker({sideBySide: true});
+                    \$('#start_picker').datetimepicker({locale: '$user_manager.session_language()', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
                 });
             </script>
         </div>
     </div>
-    <div class="form-group">
+    <div class="form-group row">
         <label for="end" class="col-sm-2 control-label">Contest ends</label>
         <div class="col-sm-10">
-            <div class='input-group date' id='end_picker'>
-                <input name="end" data-date-format="YYYY-MM-DD HH:mm:ss" value="${data['end']}" placeholder="2014-06-29 10:00:00" type='text' class="form-control" />
-                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+            <div class='input-group date' id='end_picker' data-target-input="nearest">
+                <input data-target='#end_picker' name="end" data-date-format="YYYY-MM-DD HH:mm:ss" value="${data['end']}" placeholder="2014-06-29 10:00:00" type='text' class="form-control datetimepicker-input" />
+                <div class="input-group-append" data-target="#end_picker" data-toggle="datetimepicker">
+                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                </div>
             </div>
             <script type="text/javascript">
                 \$(function() {
-                    \$('#end_picker').datetimepicker({sideBySide: true});
+                    \$('#end_picker').datetimepicker({locale: '$user_manager.session_language()', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
                 });
             </script>
         </div>
     </div>
-    <div class="form-group">
+    <div class="form-group row">
         <label for="blackout" class="col-sm-2 control-label">Blackout duration (in hours)</label>
         <div class="col-sm-10">
              <input type="text" class="form-control" id="blackout" name="blackout" placeholder="0" value="$data['blackout']">
         </div>
     </div>
-    <div class="form-group">
+    <div class="form-group row">
         <label for="penalty" class="col-sm-2 control-label">Penalty for wrong submissions (in minutes)</label>
         <div class="col-sm-10">
              <input type="text" class="form-control" id="penalty" name="penalty" placeholder="0" value="$data['penalty']">

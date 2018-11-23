@@ -8,11 +8,13 @@ $#
 $var title: $:_("My courses")
 
 $def NavbarF():
-    <ol class="nav navbar-nav nav-breadcrumb">
-        <li class="active"><a href="#"><i class="fa fa-th-list"></i> $:_("My courses")
-            <span class="sr-only">$:_("(current)")</span></a>
-        </li>
-    </ol>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active"><a href="#"><i class="fa fa-th-list"></i> $:_("My courses")
+                <span class="sr-only">$:_("(current)")</span></a>
+            </li>
+        </ol>
+    </nav>
 $var Navbar: $:NavbarF()
 
 $# Left column content
@@ -22,7 +24,7 @@ $def ColumnF():
     <div class="list-group">
         $if submissions:
             $for submission in submissions:
-                <a class="list-group-item
+                <a class="list-group-item list-group-item-action
                     $if submission['status'] == 'done' and submission['result'] == 'success':
                         list-group-item-success
                     $elif submission['status'] == 'done' and submission['result'] == 'save':
@@ -36,40 +38,42 @@ $def ColumnF():
                     <b>$submission["task"].get_course().get_name(user_manager.session_language())</b>: $submission["task"].get_name(user_manager.session_language())
                 </a>
         $else:
-            <a class="list-group-item disabled submission-empty">$:_("No submissions")</a>
+            <a class="list-group-item list-group-item-action disabled submission-empty">$:_("No submissions")</a>
     </div>
     $:template_helper.call('main_menu', template_helper=template_helper)
 $var Column: $:ColumnF()
 
 $# Start content
 <h2>$:_("My courses")</h2>
-<div class="list-group list-group-progress" style="margin-left: 16px; margin-right: 16px;">
+<div class="list-group">
 	$if len(open_courses) != 0:
         $ username = user_manager.session_username()
         $for courseid, course in open_courses.items():
-            <a href="$get_homepath()/course/$courseid" class="list-group-item row $(('list-group-item-warning' if not course.is_lti() else 'list-group-item-info') if not course.is_open_to_non_staff() else '')">
-                <div class="col-xs-12 col-md-8">
-                    $course.get_name(user_manager.session_language())
-                </div>
-                <div class="col-xs-12 col-md-4">
-                    <i class="pull-right">
-                        $if not course.is_open_to_non_staff():
-                            $if course.is_lti():
-                                $:_("LTI course") -
-                            $else:
-                                $:_("Hidden course") -
+            <a href="$get_homepath()/course/$courseid" class="list-group-item list-group-item-action $(('list-group-item-warning' if not course.is_lti() else 'list-group-item-info') if not course.is_open_to_non_staff() else '')">
+                <div class="row">
+                    <div class="col-xs-12 col-md-8">
+                        $course.get_name(user_manager.session_language())
+                    </div>
+                    <div class="col-xs-12 col-md-4">
+                        <i class="pull-right">
+                            $if not course.is_open_to_non_staff():
+                                $if course.is_lti():
+                                    $:_("LTI course") -
+                                $else:
+                                    $:_("Hidden course") -
 
-                        $if username in course.get_admins() or user_manager.user_is_superadmin():
-                            $:_("Administrator")
-                        $elif username in course.get_tutors():
-                            $:_("Tutor")
-                        $elif user_manager.course_is_user_registered(course):
-                            $:_("Student")
-                    </i>
+                            $if username in course.get_admins() or user_manager.user_is_superadmin():
+                                $:_("Administrator")
+                            $elif username in course.get_tutors():
+                                $:_("Tutor")
+                            $elif user_manager.course_is_user_registered(course):
+                                $:_("Student")
+                        </i>
+                    </div>
                 </div>
             </a>
     $else:
-        <a href="#register" class="list-group-item row disabled">$:_("You are not registered to any course")</a>
+        <a href="#register" class="list-group-item list-group-item-action row disabled">$:_("You are not registered to any course")</a>
 </div>
 <hr/>
 $if user_manager.user_is_superadmin():

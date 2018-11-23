@@ -8,11 +8,13 @@ $#
 $var title: $:course.get_name(user_manager.session_language()) - Available scoreboards
 
 $def NavbarF():
-    <ol class="nav navbar-nav nav-breadcrumb">
-        <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
-        <li><a href="$get_homepath()/scoreboard/$course.get_id()"><i class="fa fa-trophy"></i></a></li>
-        <li class="active"><a href="#">$scoreboard_name <span class="sr-only">(current)</span></a></li>
-    </ol>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
+            <li class="breadcrumb-item"><a href="$get_homepath()/scoreboard/$course.get_id()"><i class="fa fa-trophy"></i></a></li>
+            <li class="breadcrumb-item active"><a href="#">$scoreboard_name <span class="sr-only">(current)</span></a></li>
+        </ol>
+    </nav>
 $var Navbar: $:NavbarF()
 
 $def showline(type, line):
@@ -20,14 +22,14 @@ $def showline(type, line):
         $for colid, val in enumerate(line):
             <$type
                 $if colid in emphasized_columns:
-                    class="info"
+                    class="table-info"
             >
                 $val
             </$type>
     </tr>
 
 <h3>$scoreboard_name</h3>
-<table class="table table-condensed table-hover">
+<table class="table table-hover">
     $:showline('th', header)
     $for line in table:
         $:showline('td', line)

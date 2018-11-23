@@ -12,25 +12,27 @@ $ use_classrooms = course.use_classrooms()
 $ is_admin = user_manager.has_admin_rights_on_course(course)
 
 $def NavbarF():
-    <ol class="nav navbar-nav nav-breadcrumb">
-        <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
-            <i class="fa fa-user-secret"></i></a></li>
-        <li class="active">
-            <a href="#">
-                <i class="fa fa-group"></i> $(_("Classrooms") if use_classrooms else _("Teams")) <span class="sr-only"> $:_("(current)")</span>
-            </a>
-        </li>
-    </ol>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
+            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
+                <i class="fa fa-user-secret"></i></a></li>
+            <li class="breadcrumb-item active">
+                <a href="#">
+                    <i class="fa fa-group"></i> $(_("Classrooms") if use_classrooms else _("Teams")) <span class="sr-only"> $:_("(current)")</span>
+                </a>
+            </li>
+        </ol>
+    </nav>
 $var Navbar: $:NavbarF()
 
 <h2>$(_("Classrooms") if use_classrooms else _("Teams"))
     <div class="pull-right">
-        <div class="btn-group">
+        <div class="btn-group btn-group-sm">
             $if not course.use_classrooms():
-                <a type="button" id="switch" class="btn-sm btn btn-primary" href="edit/aggregations"><i class="fa fa-edit"></i>  $:_("Edit teams")</a>
-            <button type="submit" id="switch" class="btn-sm btn btn-danger" data-toggle="modal" data-target="#upload_modal"><i class="fa fa-upload"></i>  $:_("Upload structure")</button>
-            <a href="?download" class="btn-sm btn btn-success"><i class="fa fa-download"></i>  $:_("Download structure")</a>
+                <a id="switch" class=" btn btn-primary" href="edit/aggregations"><i class="fa fa-edit"></i>  $:_("Edit teams")</a>
+            <button type="submit" id="switch" class="btn btn-danger" data-toggle="modal" data-target="#upload_modal"><i class="fa fa-upload"></i>  $:_("Upload structure")</button>
+            <a href="?download" class="btn btn-success"><i class="fa fa-download"></i>  $:_("Download structure")</a>
         </div>
     </div>
 </h2>
@@ -50,8 +52,8 @@ $var Navbar: $:NavbarF()
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title"> $:_("Upload course structure")</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 </div>
                 <div class="modal-body">
                     <p> $:_("Note : Please refer to documentation for file format")</p>
@@ -69,14 +71,14 @@ $var Navbar: $:NavbarF()
 </div>
 
 <table class="table">
-    <thead>
+    <thead class="table-borderless">
         <tr>
             <th>$(_("Classroom") if use_classrooms else _("Team"))</th>
             <th>$:_("# students")</th>
             <th>$:_("# task tried")</th>
             <th>$:_("# task done")</th>
             <th>
-                <div class="btn-group" role="group">
+                <div class="btn-group btn-group-sm" role="group">
                     <a href="$get_homepath()/admin/${course.get_id()}/download?format=taskid%2Faggregation" class="btn btn-danger btn-xs"
                        title=$:_('"Download all submissions"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
                     <a href="$get_homepath()/admin/${course.get_id()}/aggregations?csv" class="btn btn-info btn-xs"
@@ -103,16 +105,16 @@ $var Navbar: $:NavbarF()
                         <td>$aggregation["tried"]</td>
                         <td>$aggregation["done"]</td>
                         <td>
-                            <div class="btn-group" role="group">
+                            <div class="btn-group btn-group-sm" role="group">
                                 $if course.use_classrooms():
-                                    <a href="$get_homepath()/admin/${course.get_id()}/edit/aggregation/$aggregation['_id']" class="btn btn-primary btn-xs" title=$:_('"Edit classroom"') data-toggle="tooltip"
+                                    <a href="$get_homepath()/admin/${course.get_id()}/edit/aggregation/$aggregation['_id']" class="btn btn-primary" title=$:_('"Edit classroom"') data-toggle="tooltip"
                                        data-placement="bottom"><i class="fa fa-edit"></i></a>
-                                <a href="$get_homepath()/admin/${course.get_id()}/aggregation/$aggregation['_id']" class="btn btn-default btn-xs" title=$:_('"View submissions"') data-toggle="tooltip"
+                                <a href="$get_homepath()/admin/${course.get_id()}/aggregation/$aggregation['_id']" class="btn btn-secondary" title=$:_('"View submissions"') data-toggle="tooltip"
                                    data-placement="bottom"><i class="fa fa-search"></i></a>
-                                <a href="$get_homepath()/admin/${course.get_id()}/download$aggregation['url']" class="btn btn-default btn-xs" title=$:_('"Download submissions"')
+                                <a href="$get_homepath()/admin/${course.get_id()}/download$aggregation['url']" class="btn btn-secondary" title=$:_('"Download submissions"')
                                    data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
                                 $if is_admin:
-                                    <a href="$get_homepath()/admin/${course.get_id()}/replay$aggregation['url']" class="btn btn-default btn-xs" title=$:_('"Replay submissions"')
+                                    <a href="$get_homepath()/admin/${course.get_id()}/replay$aggregation['url']" class="btn btn-secondary" title=$:_('"Replay submissions"')
                                        data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
                             </div>
                         </td>
@@ -122,7 +124,7 @@ $var Navbar: $:NavbarF()
 
 $if course.use_classrooms():
     <form class="form-horizontal" method="post">
-        <div class="form-group">
+        <div class="form-group row">
             <label for="default" class="col-sm-2 control-label">$:_("Default classroom :") </label>
             <div class="col-sm-7">
                 <select name="default" class="form-control">
@@ -135,18 +137,12 @@ $if course.use_classrooms():
             <div class="col-sm-3"><button type="submit" class="btn btn-info btn-block">$:_("Set as default")</button></div>
         </div>
     </form>
-    <div class="row">
-        $ placeholder = _('New classroom description')
-        $ btn = _("New classroom")
-        <form class=form-horizontal" method="post">
-            <div class="form-group">
-                <div class="col-sm-9"><input type="text" class="form-control" name="classroom" placeholder="$placeholder"/></div>
-                <div class="col-sm-3"><button type="submit" class="btn btn-warning btn-block"><i class="fa fa-plus fa-lg"></i> $btn</button></div>
-            </div>
-        </form>
-    </div>
-
-
-
-
-
+    
+    $ placeholder = _('New classroom description')
+    $ btn = _("New classroom")
+    <form class="form-horizontal" method="post">
+        <div class="form-group row">
+            <div class="col-sm-9"><input type="text" class="form-control" name="classroom" placeholder="$placeholder"/></div>
+            <div class="col-sm-3"><button type="submit" class="btn btn-warning btn-block"><i class="fa fa-plus fa-lg"></i> $btn</button></div>
+        </div>
+    </form>

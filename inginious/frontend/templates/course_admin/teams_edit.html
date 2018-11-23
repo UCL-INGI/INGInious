@@ -12,14 +12,16 @@ $def ColumnF():
 $var Column: $:ColumnF()
 
 $def NavbarF():
-    <ol class="nav navbar-nav nav-breadcrumb">
-        <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
-            <i class="fa fa-user-secret"></i></a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()/aggregations" title=$:_('"Teams"') data-toggle="tooltip" data-placement="bottom">
-            <i class='fa fa-users'></i></a></li>
-        <li class="active"><a href="#">$:_("Edit teams") <span class="sr-only">$:_("(current)")</span></a></li>
-    </ol>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
+            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
+                <i class="fa fa-user-secret"></i></a></li>
+            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()/aggregations" title=$:_('"Teams"') data-toggle="tooltip" data-placement="bottom">
+                <i class='fa fa-users'></i></a></li>
+            <li class="breadcrumb-item active"><a href="#">$:_("Edit teams") <span class="sr-only">$:_("(current)")</span></a></li>
+        </ol>
+    </nav>
 $var Navbar: $:NavbarF()
 
 <h2>$:_("Edit teams")</h2>
@@ -39,12 +41,12 @@ $elif msg:
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title">$:_("Add student")</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
                 <form onsubmit="student_add();return false;">
-                    <div id="tab_new_student" role="tabpanel" class="tab-pane active">
+                    <div id="tab_new_student">
                         <div class="row">
                             <div class="col-md-6">
                                 <label class="control-label" for="new_student">$:_("Student username (will be registered) :")</label>
@@ -67,17 +69,15 @@ $elif msg:
 <form method="post" enctype="multipart/form-data" class="form-horizontal">
     <input type="hidden" id="classrooms" name="classrooms" value="false" />
     <div id="groups" class='list-group'>
-        <div class="panel panel-warning group">
-            <div class="panel-heading clearfix" role="tab">
-                <h4 class="panel-title">
-                    $:_("Non teamed students")
-                    <a class="pull-right" id="group_delete" href="#" data-toggle="modal" data-target="#student_modal">
-                        <i class="fa fa-plus"></i>
-                    </a>
-                </h4>
+        <div class="card border-warning mb-3 group">
+            <div class="card-header bg-warning text-white clearfix" role="tab">
+                $:_("Non teamed students")
+                <a class="text-white pull-right" id="group_delete" href="#" data-toggle="modal" data-target="#student_modal">
+                    <i class="fa fa-plus"></i>
+                </a>
             </div>
             <input id="size" type="hidden" class="form-control" value="0">
-            <ul id="group_0" style="list-style-type: none;" class="students list-group">
+            <ul id="group_0" class="students list-group list-group-flush">
                 $for username, student in student_list.items():
                     $if not student["grouped"]:
                         <li data-username="$username" class="list-group-item group-entry">
@@ -92,9 +92,8 @@ $elif msg:
 
         $for index,aggregation in enumerate((aggregations + [None])):
                 $if (aggregation is None) or (len(aggregation["groups"])==0):
-                    <div id="$(index+1)" style="display:none;" class="panel panel-default group-panel">
-                        <div class="panel-heading clearfix" role="tab">
-                        <h4 class="panel-title">
+                    <div id="$(index+1)" style="display:none;" class="card mb-3 group-card">
+                        <div class="card-header clearfix" role="tab">
                             <div class="row">
                                 <div class="col-sm-6 col-xs-12">
                                     <input type="text" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" class="form-control" id="description" name="description" placeholder="$:_('Team description')" value="$:_('New team')">
@@ -106,64 +105,59 @@ $elif msg:
                                     <input style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" id="size" type="number" class="form-control" value="2">
                                 </div>
                                 <div class="col-sm-1 col-xs-2">
-                                    <a class="pull-right" id="group_delete" href="#" onclick="javascript:group_delete($$(this).rparent(5).attr('id'))" data-toggle="tooltip" title=$:_('"Delete team"')>
+                                    <a class="pull-right" id="group_delete" href="#" onclick="javascript:group_delete($$(this).rparent(4).attr('id'))" data-toggle="tooltip" title=$:_('"Delete team"')>
                                         <i class="fa fa-trash-o"></i>
                                     </a>
                                 </div>
                             </div>
-                        </h4>
-                    </div>
+                        </div>
                 $else:
                     $ group = aggregation["groups"][0]
-                    <div id="$(index+1)" class="panel panel-default group-panel group">
+                    <div id="$(index+1)" class="card mb-3 group-card group">
                         <input type="hidden" id="_id" name="_id" value="$aggregation['_id']" />
-                        <div class="panel-heading clearfix" role="tab">
-                            <h4 class="panel-title">
-                                <div class="row">
-                                    <div class="col-sm-6 col-xs-12">
-                                        <input type="text" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" class="form-control" id="description" name="description" placeholder="$:_('Team description')" value="$aggregation['description']">
-                                    </div>
-                                    <div class="col-sm-2 col-xs-3" style="text-align: right;">
-                                        <label>$:_("Max team size :")</label>
-                                    </div>
-                                    <div class="col-sm-3 col-xs-7">
-                                        <input style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" id="size" type="number" class="form-control" value="$(group['size'] if group is not None else 2)">
-                                    </div>
-                                    <div class="col-sm-1 col-xs-2">
-                                        <a class="pull-right" id="group_delete" href="#" onclick="javascript:aggregation_delete($$(this).rparent(5).attr('id'))" data-toggle="tooltip" title=$:_('"Delete team"')>
-                                            <i class="fa fa-trash-o"></i>
-                                        </a>
-                                    </div>
+                        <div class="card-header clearfix" role="tab">
+                            <div class="row">
+                                <div class="col-sm-6 col-xs-12">
+                                    <input type="text" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" class="form-control" id="description" name="description" placeholder="$:_('Team description')" value="$aggregation['description']">
                                 </div>
-                            </h4>
+                                <div class="col-sm-2 col-xs-3" style="text-align: right;">
+                                    <label>$:_("Max team size :")</label>
+                                </div>
+                                <div class="col-sm-3 col-xs-7">
+                                    <input style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" id="size" type="number" class="form-control" value="$(group['size'] if group is not None else 2)">
+                                </div>
+                                <div class="col-sm-1 col-xs-2">
+                                    <a class="pull-right" id="group_delete" href="#" onclick="javascript:aggregation_delete($$(this).rparent(4).attr('id'))" data-toggle="tooltip" title=$:_('"Delete team"')>
+                                        <i class="fa fa-trash-o"></i>
+                                    </a>
+                                </div>
+                            </div>
                         </div>
 
-                <div class="panel-heading clearfix" role="tab">
-                    <h4 class="panel-title">
-                        <div class="row">
-                            <div class="col-sm-6 col-xs-12">
-                                $:_("Tutors")
-                            </div>
-                            <div class="col-sm-4 col-xs-6" style="text-align: center">
-                                <select type="text" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" class="form-control input-xs" id="tutor_list_$(index+1)" name="tutor_list_$index">
-                                    $for tutor in tutor_list:
-                                        $if not aggregation or tutor not in aggregation["tutors"]:
-                                            $if users_info[tutor] is not None:
-                                                <option value="$tutor">$users_info[tutor][0] ($tutor)</option>
-                                            $else:
-                                                <option value="$tutor">$tutor</option>
-                                </select>
-                            </div>
-                            <div class="col-sm-2 col-xs-6">
-                                <button type="button" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" onclick="javascript:tutor_add($$('#tutor_list_$(index+1)').val(), $$('#tutor_list_$(index+1) option:selected').text(), $(index+1))" class="form-control btn btn-xs btn-warning"><span class="fa fa-plus"></span> $:_("Add tutor")</button>
-                            </div>
+                <div class="card-header clearfix" role="tab">
+                    <div class="row">
+                        <div class="col-sm-6 col-xs-12">
+                            $:_("Tutors")
                         </div>
-                    </h4>
+                        <div class="col-sm-4 col-xs-6" style="text-align: center">
+                            <select type="text" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" class="form-control input-xs" id="tutor_list_$(index+1)" name="tutor_list_$index">
+                                $for tutor in tutor_list:
+                                    $if not aggregation or tutor not in aggregation["tutors"]:
+                                        $if users_info[tutor] is not None:
+                                            <option value="$tutor">$users_info[tutor][0] ($tutor)</option>
+                                        $else:
+                                            <option value="$tutor">$tutor</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-2 col-xs-6">
+                            <button type="button" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" onclick="javascript:tutor_add($$('#tutor_list_$(index+1)').val(), $$('#tutor_list_$(index+1) option:selected').text(), $(index+1))" class="form-control btn btn-xs btn-warning"><span class="fa fa-plus"></span> $:_("Add tutor")</button>
+                        </div>
+                    </div>
                 </div>
 
                 $if aggregation and (len(aggregation["groups"])!=0):
                     $ group = aggregation["groups"][0]
-                    <ul class="list-group" id="tutors_$(index+1)">
+                    <ul class="list-group list-group-flush" id="tutors_$(index+1)">
                     $for user in (aggregation["tutors"] + [None]):
                             $if user is None:
                                 <li class="list-group-item" style="display:none;">
@@ -177,7 +171,7 @@ $elif msg:
                         </li>
                     </ul>
                 $else:
-                    <ul class="list-group" id="tutors_$(index+1)">
+                    <ul class="list-group list-group-flush" id="tutors_$(index+1)">
                         <li class="list-group-item" style="display:none;">
                             <span></span>
                             <div class="pull-right"><a href="#" onclick="javascript:tutor_remove($$(this).rparent(2).attr('id'), $(index+1))"><i class="fa fa-trash-o fa-lg"></i></a></div>
@@ -185,13 +179,13 @@ $elif msg:
                     </ul>
 
 
-                <div class="panel-heading clearfix" role="tab">
-                    <h4 class="panel-title">$:_("Students")</h4>
+                <div class="card-header clearfix" role="tab">
+                    $:_("Students")
                 </div>
 
                 $if aggregation and (len(aggregation["groups"])!=0):
                     $ group = aggregation["groups"][0]
-                    <ul id="students" style="list-style-type: none; padding:0;" class="list-group students">
+                    <ul id="students" class="list-group list-group-flush students">
                         $if group is not None:
                             $for student in group["students"]:
                                 <li data-username="$student" class="list-group-item group-entry">
@@ -202,12 +196,12 @@ $elif msg:
                                 </li>
                     </ul>
                 $else:
-                    <ul style="list-style-type: none; padding:0;" class="list-group students"></ul>
+                    <ul style="padding:0;" class="list-group list-group-flush students"></ul>
             </div>
 
-        <div class="row">
+        <div class="row mb-3">
             <div class="col-md-4">
-                    <a href="#group_add" onclick="javascript:aggregation_add()" id="group_add" class="btn btn-block btn-default">
+                    <a href="#group_add" onclick="javascript:aggregation_add()" id="group_add" class="btn btn-block btn-secondary">
                         <i class="fa fa-plus fa-lg"></i> $:_("New team")
                     </a>
             </div>

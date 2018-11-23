@@ -95,7 +95,7 @@ function aggregations_prepare_submit()
 function aggregation_add()
 {
     // New group hidden item
-    var new_group_li = $("#groups .panel").last();
+    var new_group_li = $("#groups .card").last();
 
     // Clone and change id for deletion
     var clone = new_group_li.clone();
@@ -148,7 +148,7 @@ function aggregation_delete(id)
     $("#" + id).remove();
 
     // Renumbering groups
-    $("#groups .group-panel").each(function(index) {
+    $("#groups .group-card").each(function(index) {
         $(this).attr("id", index);
         $(this).find("#group_number").text(index+1);
     });

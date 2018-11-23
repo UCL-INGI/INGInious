@@ -5,7 +5,7 @@ $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
-<div class="form-group">
+<div class="form-group row">
     <label for="name" class="col-sm-2 control-label">Name</label>
     <div class="col-sm-7">
         <input type="text" class="form-control" id="name" name="name" placeholder="title for this task" value="${task_data.get('name','')}">
@@ -18,7 +18,7 @@ $#
 
 </div>
 $if len(available_filetypes) != 1:
-    <div class="form-group">
+    <div class="form-group row">
         <label for="name" class="col-sm-2 control-label">$:_("Filetype")</label>
         <div class="col-sm-10">
             <select class="form-control" id="@filetype" name="@filetype">
@@ -32,13 +32,13 @@ $if len(available_filetypes) != 1:
     </div>
 $else:
     <input type="hidden" id="@filetype" name="@filetype" value="$available_filetypes[0]"/>
-<div class="form-group">
+<div class="form-group row">
     <label for="context" class="col-sm-2 control-label">$:_("Context")</label>
     <div class="col-sm-10">
         <textarea id="context" class="code-editor form-control" name="context" data-x-language="rst" data-x-lines="10">${task_data.get('context','')}</textarea>
     </div>
 </div>
-<div class="form-group">
+<div class="form-group row">
     <label for="author" class="col-sm-2 control-label">$:_("Author")</label>
     <div class="col-sm-10">
         $if isinstance(task_data.get('author',[]),list):
@@ -48,13 +48,13 @@ $else:
         <input type="text" class="form-control" id="author" name="author" placeholder="$:_('Your name')" value="$a"/>
     </div>
 </div>
-<div class="form-group">
+<div class="form-group row">
     <label for="author" class="col-sm-2 control-label">$:_("Grade weight (in comparison to other tasks)")</label>
     <div class="col-sm-10">
         <input type="text" class="form-control" id="weight" name="weight" placeholder="1.00" value="${task_data.get('weight',1.00)}">
     </div>
 </div>
-<div class="form-group">
+<div class="form-group row">
     <label for="groups" class="col-sm-2 control-label">$:_("Submission mode")</label>
     <div class="col-sm-10">
         <label>
@@ -71,7 +71,7 @@ $else:
         </label>
     </div>
 </div>
-<div class="form-group">
+<div class="form-group row">
     <label for="groups" class="col-sm-2 control-label">$:_("Submission storage")</label>
     <div class="col-sm-10">
         $ stored_submissions = task_data.get('stored_submissions', 0)
@@ -94,7 +94,7 @@ $else:
         </div>
     </div>
 </div>
-<div class="form-group">
+<div class="form-group row">
     <label for="groups" class="col-sm-2 control-label">$:_("Submission limits")</label>
     <div class="col-sm-10">
         $ submission_limit = task_data.get('submission_limit', {"amount":-1, "period":-1})
@@ -125,7 +125,7 @@ $else:
         </div>
     </div>
 </div>
-<div class="form-group">
+<div class="form-group row">
     <label for="groups" class="col-sm-2 control-label">$:_("Evaluation submission")</label>
     <div class="col-sm-10">
         <label>
@@ -148,7 +148,7 @@ $else:
         </label>
     </div>
 </div>
-<div class="form-group">
+<div class="form-group row">
     <label for="accessible" class="col-sm-2 control-label">$:_("Accessible")</label>
     <div class="col-sm-10">
         <label>
@@ -175,48 +175,48 @@ $else:
             </div>
             $ at = AccessibleTime(task_data.get('accessible',True))
             <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-4">
-                <div class='input-group date' id='accessible_start_picker'>
-                    <input name="accessible_start" data-date-format="YYYY-MM-DD HH:mm:ss" value="${at.get_std_start_date()}" placeholder="2014-06-29 10:00" type='text' class="input-xs" />
-                    <span class="input-group-addon btn-xs" style="width:0px;"><i class="fa fa-calendar"></i></span>
+                <div class='input-group date' id='accessible_start_picker' data-target-input="nearest">
+                        <input data-target='#accessible_start_picker' name="accessible_start" data-date-format="YYYY-MM-DD HH:mm:ss" value="${at.get_std_start_date()}" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
+                        <div class="input-group-append" data-target="#accessible_start_picker" data-toggle="datetimepicker">
+                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                        </div>
+
                 </div>
             </div>
             <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-1"><label class="control-label">$text[1]</label></div>
             <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-4">
-                <div class='input-group date' id='accessible_end_picker'>
-                    <input name="accessible_end" data-date-format="YYYY-MM-DD HH:mm:ss" value="${at.get_std_end_date()}" placeholder="2014-06-29 10:00" type='text' class="input-xs" />
-                    <span class="input-group-addon btn-xs" style="width:0px;"><i class="fa fa-calendar"></i></span>
+                <div class='input-group date' id='accessible_end_picker' data-target-input="nearest">
+                        <input data-target='#accessible_end_picker' name="accessible_end" data-date-format="YYYY-MM-DD HH:mm:ss" value="${at.get_std_end_date()}" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
+                        <div class="input-group-append" data-target="#accessible_end_picker" data-toggle="datetimepicker">
+                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                        </div>
+
                 </div>
             </div>
         </div>
         <script type="text/javascript">
             \$(function() {
-                \$('#accessible_start_picker').datetimepicker({locale: '$user_manager.session_language()', sideBySide: true});
-                \$('#accessible_end_picker').datetimepicker({locale: '$user_manager.session_language()', sideBySide: true});
+                \$('#accessible_start_picker').datetimepicker({locale: '$user_manager.session_language()', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+                \$('#accessible_end_picker').datetimepicker({locale: '$user_manager.session_language()', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
             });
         </script>
     </div>
 </div>
-<!-- Random Inputs Form -->
-<div class="form-group">
+<div class="form-group row">
     <label for="groups" class="col-md-2 control-label">$:_("Random inputs")</label>
     <div class="col-md-2">
         $ n_inputs_random = task_data.get('input_random', 0)
-        <div class="row">
-            <div>
-                <label>
-                    <input name="input_random" class="form-control input-xs" value="$n_inputs_random" placeholder="0" type="number">
-                </label>
-            </div>
-        </div>
-    </div>
-    <label for="regenerate_input_random" class="col-md-2 control-label" data-toggle="tooltip" data-placement="top" title="$:_('Regenerate random inputs for each reloading of the task page')">$:_("Regenerate input random")</label>
-    <div class="col-md-1">
-        <div class="checkbox"><label>
-            <input type="checkbox" id="regenerate_input_random" name="regenerate_input_random"
-                   $if task_data.get('regenerate_input_random',False):
-                       checked="checked"
-            />&nbsp;
-        </label></div>
+        <input name="input_random" class="form-control input-xs" style="height:20px;padding: 0 10px;" value="$n_inputs_random" placeholder="0" type="number">
     </div>
 </div>
-<!-- END Random Inputs Form -->
+<div class="form-group row">
+    <label for="regenerate_input_random" class="col-md-2 control-label" data-toggle="tooltip" data-placement="top" title="$:_('Regenerate random inputs for each reloading of the task page')">$:_("Regenerate input random")</label>
+    <div class="col-md-1">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="regenerate_input_random" name="regenerate_input_random"
+                   $if task_data.get('regenerate_input_random',False):
+                       checked="checked"
+            />
+        </div>
+    </div>
+</div>

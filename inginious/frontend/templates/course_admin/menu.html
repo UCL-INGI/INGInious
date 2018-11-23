@@ -5,9 +5,9 @@ $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
-<div class="list-group">
+<div class="list-group mb-3">
     $for link, name in entries:
-        <a href="$get_homepath()/admin/${course.get_id()}/${link}" class="list-group-item
+        <a href="$get_homepath()/admin/${course.get_id()}/${link}" class="list-group-item list-group-item-action
         $if link=='danger':
             list-group-item-danger
 
@@ -17,6 +17,6 @@ $#
 </div>
 
 <div class="list-group">
-    <a class="list-group-item list-group-item-info" href="http://inginious.readthedocs.org/en/latest/teacher_doc/task_tuto.html">$:_("How to create a task?")</a>
-    <a class="list-group-item list-group-item-info" href="http://inginious.readthedocs.org/en/latest/teacher_documentation.html">$:_("Documentation")</a>
+    <a class="list-group-item list-group-item-action list-group-item-info" href="http://inginious.readthedocs.org/en/latest/teacher_doc/task_tuto.html">$:_("How to create a task?")</a>
+    <a class="list-group-item list-group-item-action list-group-item-info" href="http://inginious.readthedocs.org/en/latest/teacher_documentation.html">$:_("Documentation")</a>
 </div>

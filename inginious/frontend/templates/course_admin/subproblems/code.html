@@ -5,20 +5,20 @@ $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
-<div class="form-group">
+<div class="form-group row">
     <label for="header-PID" class="col-sm-2 control-label">$:_("Context")</label>
     <div class="col-sm-10">
         <textarea id="header-PID" class="form-control" name="problem[PID][header]"></textarea>
     </div>
 </div>
 $if multiline:
-    <div class="form-group">
+    <div class="form-group row">
         <label for="language-PID" class="col-sm-2 control-label">$:_("Language")</label>
         <div class="col-sm-10">
             <input type="text" class="form-control" id="language-PID" name="problem[PID][language]" placeholder="$:_('Language used in this question (c/c++/java/python/oz/...)')"/>
         </div>
     </div>
-<div class="form-group">
+<div class="form-group row">
     <label for="type-PID" class="col-sm-2 control-label">$:_("Type")</label>
     <div class="col-sm-10">
         <select class="form-control" disabled="disabled">
@@ -29,7 +29,7 @@ $if multiline:
         </select>
     </div>
 </div>
-<div class="form-group">
+<div class="form-group row">
     <label for="optional-PID" class="col-sm-2 control-label">$:_("Optional?")</label>
 
     <div class="col-sm-10">
@@ -39,7 +39,7 @@ $if multiline:
     </div>
 </div>
 
-<div class="form-group">
+<div class="form-group row">
     <label for="default-PID" class="col-sm-2 control-label">$:_("Default value")</label>
     <div class="col-sm-10">
         $if multiline:

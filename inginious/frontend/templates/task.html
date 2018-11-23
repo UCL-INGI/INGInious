@@ -12,7 +12,7 @@ $ staff = user_manager.has_staff_rights_on_course(course)
 $# Left column content
 $def ColumnF():
     <h3>$:_("Information")</h3>
-    <table class="table table-condensed">
+    <table class="table table-sm">
         $if task.get_authors(user_manager.session_language()):
             <tr>
                 <td>$:_("Author(s)")</td>
@@ -95,7 +95,7 @@ $def ColumnF():
     $# We do not show the tag header for students if they can not get tags
     $if len(visible_tags) > 0 or len(visible_misconception_tags) > 0:
         <h3>$:_("Tags")</h3>
-        <div id="main_tag_group">
+        <div class="mb-3" id="main_tag_group">
         $for tag in visible_tags:
             <span class="badge alert-info" id="$tag.get_id()" data-placement="right" data-toggle="tooltip" title="$tag.get_description(translated=True)">$:_(tag.get_name())</span>
         $for tag in visible_misconception_tags:
@@ -113,28 +113,28 @@ $def ColumnF():
             <div class="alert alert-warning" role="alert">
                 $:_("This task is currently invisible for students. You can change this by modifying the \"accessible\" option in the configuration of the task.")
             </div>
-        <div class="list-group">
-            <a class="list-group-item list-group-item-info" href="$get_homepath()/admin/$course.get_id()/task/$task.get_id()">
+        <div class="list-group mb-3">
+            <a class="list-group-item list-group-item-action list-group-item-info" href="$get_homepath()/admin/$course.get_id()/task/$task.get_id()">
                 <i class="fa fa-tasks fa-fw"></i>&nbsp; $:_("View submissions")
             </a>
             $if user_manager.has_admin_rights_on_course(course):
-                <a class="list-group-item list-group-item-info" href="$get_homepath()/admin/$course.get_id()/edit/task/$task.get_id()">
+                <a class="list-group-item list-group-item-action list-group-item-info" href="$get_homepath()/admin/$course.get_id()/edit/task/$task.get_id()">
                     <i class="fa fa-edit fa-fw"></i>&nbsp; $:_("Edit task")
                 </a>
-                <a style="cursor:pointer;" class="list-group-item list-group-item-info" data-toggle="modal" data-target="#modal-debug">
+                <a href="#" class="list-group-item list-group-item-action list-group-item-info" data-toggle="modal" data-target="#modal-debug">
                     <i class="fa fa-wrench fa-fw"></i>&nbsp; $:_("Debug information")
                 </a>
         </div>
     $elif not is_lti() and registered:
         <h3>$:_("Submitting as")</h3>
-        <div class="list-group">
-            <div class="list-group-item list-group-item-info">
+        <div class="list-group mb-3">
+            <div class="list-group-item list-group-item-action list-group-item-info">
                 $if task.is_group_task():
                     <i class="fa fa-chevron-right fa-fw"></i>&nbsp; <b>$(_('Group') if course.use_classrooms() else _('Team'))</b>
                 $else:
                     <i class="fa fa-chevron-right fa-fw"></i>&nbsp; <b>$user_manager.session_realname()</b>
             </div>
-            <a class="list-group-item list-group-item-info" href="$get_homepath()/aggregation/$course.get_id()">
+            <a class="list-group-item list-group-item-action list-group-item-info" href="$get_homepath()/aggregation/$course.get_id()">
                 <i class="fa fa-group fa-fw"></i>&nbsp;
                 $ myaggregation = user_manager.get_course_user_aggregation(course)
                 $if course.use_classrooms():
@@ -149,7 +149,7 @@ $def ColumnF():
     $:template_helper.call('task_menu', course=course, task=task, template_helper=template_helper)
     $if registered:
         <h3>$:_("For evaluation")</h3>
-        <div class="list-group">
+        <div class="list-group mb-3">
             <div class="list-group-item list-group-item-info"><i class="fa fa-info fa-fw"></i>
                 $if task.get_evaluate() == "last":
                     $:_("Last submission")
@@ -159,7 +159,7 @@ $def ColumnF():
                     $:_("Selected submission")
             </div>
             $if eval_submission:
-                <a id="my_submission" class="submission list-group-item list-group-item-info" data-submission-id="$eval_submission['_id']">
+                <a href="#" id="my_submission" class="submission list-group-item list-group-item-action list-group-item-info" data-submission-id="$eval_submission['_id']">
                     <i class="fa fa-chevron-right fa-fw"></i>
                     $eval_submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S") - $eval_submission.get("grade",0.0)%
                 </a>
@@ -167,7 +167,7 @@ $def ColumnF():
                 <div id="my_submission" class="list-group-item list-group-item-info"><i class="fa fa-chevron-right fa-fw"></i> $:_("No submission")</div>
 
             $if len([method for key, method in user_manager.get_auth_methods().items() if method.allow_share()]):
-                <a id="share_my_submission" href="#" class="list-group-item list-group-item-info $('hidden' if not eval_submission else '')" data-toggle='modal' data-target='#share'>
+                <a id="share_my_submission" href="#" class="list-group-item list-group-item-action list-group-item-info $('hidden' if not eval_submission else '')" data-toggle='modal' data-target='#share'>
                     <i class="fa fa-share-alt fa-fw"></i>
                     $:_("Share my result")
                 </a>
@@ -178,7 +178,7 @@ $def ColumnF():
             <ul id="submissions" class="list-group">
                 $if submissions:
                     $for submission in submissions:
-                        <li class="submission list-group-item
+                        <li class="submission list-group-item list-group-item-action
                             $if submission['status'] == 'done' and submission['result'] == 'success':
                                 list-group-item-success
                             $elif submission['status'] == 'waiting':
@@ -218,25 +218,36 @@ $def ColumnF():
                         </li>
                         
                 $else:
-                    <li class="list-group-item disabled submission-empty">$:_("No submission")</li>
+                    <li class="list-group-item list-group-item-action disabled submission-empty">$:_("No submission")</li>
             </ul>
         </div>
     $elif not user_manager.session_logged_in():
         $:include.signin_button()
     $elif course.is_registration_possible(user_info):
-        $:include.register_button(course)
+        <h3>$:_("Enroll in the course")</h3>
+
+        <div class="alert alert-warning" role="alert">
+            $:_("Please enroll in the course to be able to submit answers to problems.")
+        </div>
+        <div class="list-group">
+            <a href="#" class="list-group-item list-group-item-action list-group-item-info" data-toggle='modal' data-target='#register'>
+                <i class="fa fa-sign-in fa-fw"></i>&nbsp; $:_("Enroll in the course")
+            </a>
+        </div>
 
 $var Column: $:ColumnF()
 
 $def NavbarF():
-    <ol class="nav navbar-nav nav-breadcrumb">
-        $if registered:
-            <li><a href="$get_homepath()/mycourses" title=$:_('"My courses"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-th-list"></i></a></li>
-        $else:
-            <li><a href="$get_homepath()/courselist" title=$:_('"Course list"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-th-list"></i></a></li>
-        <li><a href="$get_homepath()/course/$task.get_course().get_id()">$course.get_name(user_manager.session_language())</a></li>
-        <li class="active"><a href="#">$task.get_name(user_manager.session_language()) <span class="sr-only">$:_("(current)")</span></a></li>
-    </ol>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            $if registered:
+                <li class="breadcrumb-item"><a href="$get_homepath()/mycourses" title=$:_('"My courses"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-th-list"></i></a></li>
+            $else:
+                <li class="breadcrumb-item"><a href="$get_homepath()/courselist" title=$:_('"Course list"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-th-list"></i></a></li>
+            <li class="breadcrumb-item"><a href="$get_homepath()/course/$task.get_course().get_id()">$course.get_name(user_manager.session_language())</a></li>
+            <li class="breadcrumb-item active"><span>$task.get_name(user_manager.session_language()) <span class="sr-only">$:_("(current)")</span></span></li>
+        </ol>
+    </nav>
 $var Navbar: $:NavbarF()
 
 $# Start content
@@ -294,8 +305,9 @@ $if user_manager.has_admin_rights_on_course(course):
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+
                     <h4 class="modal-title">$:_("Debug information")</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 </div>
                 <div class="modal-body">
                     $:_("The raw data from the container will be displayed here, helping you to debug the task.<br/> This box is only displayed because you are an administrator of this course. It is not displayed to students.")
@@ -326,16 +338,17 @@ $else:
         $ i = i+1
     <input type="hidden" name="@action" value="submit"/>
     $for key, problem in enumerate(task.get_problems()):
-        <div class="panel panel-default problem">
+        <div class="problem card card-default mb-4">
             $if len(task.get_problems()) != 1 or problem.get_name(user_manager.session_language()) != "":
-                <div class="panel-heading">
-                    <h3 class="panel-title">
+                <div class="card-heading">
+                    <h5 class="card-header">
                         $if len(task.get_problems()) != 1:
                             $:_("Question {}").format(str(key+1)):
                         $problem.get_name(user_manager.session_language())
-                    </h3>
+                    </h5>
+
                 </div>
-            <div class="panel-body">
+            <div class="card-body">
                 $:problem.show_input(template_helper, user_manager.session_language(), user_manager.session_username())
             </div>
         </div>
@@ -382,8 +395,8 @@ $ auth_methods = user_manager.get_auth_methods()
     <div class="modal-dialog modal-sm" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="socialModalLabel">$:_("Share my result on: ")</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
                 $for key, method in auth_methods.items():
@@ -401,4 +414,17 @@ var problems_types = $:pdict
 $$(document).ready(function() {
     init_task_page("$task.get_evaluate()");
 });
+
 </script>
+
+$# Input random
+$# set up some useful variable that may be used by task author
+<script>
+    var input = {
+        "@lang": "$user_manager.session_language()",
+        "@username": "$user_manager.session_username()",
+        "@random": $input_random_list
+    }
+</script>
+
+$:include.register_modal(course)

@@ -16,7 +16,7 @@ $#
     <link rel="icon" href="$get_homepath(True)/static/icons/favicon.ico">
     <link rel="mask-icon" href="$get_homepath(True)/static/icons/wb.svg" color="#5E932E">
 
-    <title>INGInious - $content.title</title>
+    <title>$content.title | INGInious</title>
 
     <!-- Bootstrap -->
     <link href="$get_homepath(True)/static/css/bootstrap.min.css" rel="stylesheet">
@@ -57,22 +57,24 @@ $#
         <script src="$get_homepath(True)/static/js/libs/jquery.form.min.js" type="text/javascript" charset="utf-8"></script>
         <script src="$get_homepath(True)/static/js/codemirror/codemirror.js" type="text/javascript" charset="utf-8"></script>
         <script src="$get_homepath(True)/static/js/codemirror/mode/meta.js" type="text/javascript" charset="utf-8"></script>
+        <script src="$get_homepath(True)/static/js/libs/popper.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="$get_homepath(True)/static/js/libs/moment.min.js" type="text/javascript" charset="utf-8"></script>
         <script src="$get_homepath(True)/static/js/libs/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
         <script src="$get_homepath(True)/static/js/libs/bootstrap-datetimepicker.min.js" type="text/javascript" charset="utf-8"></script>
-        <script src="$get_homepath(True)/static/js/libs/checked-list-group.js" type="text/javascript" charset="utf-8"></script>
+        <script src='$get_homepath(True)/static/js/libs/jquery-sortable.min.js' type="text/javascript" charset="utf-8"></script>
+        <script src="$get_homepath(True)/static/js/checked-list-group.js" type="text/javascript" charset="utf-8"></script>
         <script src="$get_homepath(True)/static/js/common.js" type="text/javascript" charset="utf-8"></script>
         <script src="$get_homepath(True)/static/js/task.js" type="text/javascript" charset="utf-8"></script>
         <script src="$get_homepath(True)/static/js/webapp.js" type="text/javascript" charset="utf-8"></script>
         <script src="$get_homepath(True)/static/js/studio.js" type="text/javascript" charset="utf-8"></script>
         <script src="$get_homepath(True)/static/js/aggregations.js" type="text/javascript" charset="utf-8"></script>
-        <script src='$get_homepath(True)/static/js/jquery-sortable.min.js' type="text/javascript" charset="utf-8"></script>
 
     <script type="text/javascript">
         CodeMirror.modeURL = "$get_homepath(True)/static/js/codemirror/mode/%N/%N.js";
     </script>
 
     $if "header" in content:
-    $:content.header
+        $:content.header
 
     $:template_helper.call('css')
     $:template_helper.call('javascript_header')

@@ -5,24 +5,23 @@ $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
-<div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-</div>
-<div class="row" id="new_subproblem">
-    <div class="form-group col-xs-12">
-        <label for="new_subproblem_pid" class="col-sm-2 control-label">$:_("New problem id")</label>
-        <div class="col-sm-3">
-            <input type="text" class="form-control" id="new_subproblem_pid" value="" placeholder="new-problem-id"/>
-        </div>
-        <label for="new_subproblem_type" class="col-sm-2 control-label">$:_("Problem type")</label>
-        <div class="col-sm-3">
-            <select class="form-control" id="new_subproblem_type">
-                $for key, problem_type in problem_types.items():
-                    <option value="subproblem_$key">$:problem_type.get_type_name(_)</option>
-            </select>
-        </div>
-        <div class="col-sm-2">
-            <button type="button" class="btn btn-primary btn-block" onclick="studio_create_new_subproblem();">$:_("Add")</button>
-        </div>
-    </div>
+<div id="accordion">
 </div>
 
+<div class="form-group row" id="new_subproblem">
+    <label for="new_subproblem_pid" class="col-sm-2 control-label">$:_("New problem id")</label>
+    <div class="col-sm-3">
+        <input type="text" class="form-control" id="new_subproblem_pid" value="" placeholder="new-problem-id"/>
+    </div>
+
+    <label for="new_subproblem_type" class="col-sm-2 control-label">$:_("Problem type")</label>
+    <div class="col-sm-3">
+        <select class="form-control" id="new_subproblem_type">
+            $for key, problem_type in problem_types.items():
+                <option value="subproblem_$key">$:problem_type.get_type_name(_)</option>
+        </select>
+    </div>
+    <div class="col-sm-2">
+        <button type="button" class="btn btn-primary btn-block" onclick="studio_create_new_subproblem();">$:_("Add")</button>
+    </div>
+</div>

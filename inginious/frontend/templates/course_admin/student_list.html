@@ -10,44 +10,47 @@ $var title: $:course.get_name(user_manager.session_language())
 $var Column: $:template_helper.call('course_admin_menu',course=course,current='students')
 
 $def NavbarF():
-    <ol class="nav navbar-nav nav-breadcrumb">
-        <li><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
-        <li><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
-            <i class="fa fa-user-secret"></i></a></li>
-        <li class="active">
-            <a href="#">
-                <i class="fa fa-user"></i> $:_("Students") <span class="sr-only">$:_("(current)")</span>
-            </a>
-        </li>
-    </ol>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
+            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
+                <i class="fa fa-user-secret"></i></a></li>
+            <li class="breadcrumb-item active">
+                <a href="#">
+                    <i class="fa fa-user"></i> $:_("Students") <span class="sr-only">$:_("(current)")</span>
+                </a>
+            </li>
+        </ol>
+    </nav>
 $var Navbar: $:NavbarF()
 
 <h2>$:_("Students")</h2>
 
-<div role="tabpanel">
-    <ul class="nav nav-tabs" role="tablist">
-        <li role="presentation" class="active"><a href="#tab_students" aria-controls="students" role="tab" data-toggle="tab">
-            <i class="fa fa-user fa-fw"></i>&nbsp; $:_("Students")</a>
-        </li>
-        <li role="presentation"><a href="#tab_staff" aria-controls="staff" role="tab" data-toggle="tab">
-            <i class="fa fa-user-secret fa-fw"></i>&nbsp; $:_("Teaching staff")</a>
-        </li>
-
-    </ul>
+<div class="card">
+    <div class="card-header">
+        <ul class="nav nav-tabs card-header-tabs">
+            <li class="nav-item">
+                <a href="#tab_students" class="nav-link active" aria-controls="students" role="tab" data-toggle="tab">
+                <i class="fa fa-user fa-fw"></i>&nbsp; $:_("Students")</a>
+            </li>
+            <li class="nav-item">
+                <a href="#tab_staff" class="nav-link" aria-controls="staff" role="tab" data-toggle="tab">
+                <i class="fa fa-user-secret fa-fw"></i>&nbsp; $:_("Teaching staff")</a>
+            </li>
+        </ul>
+    </div>
     <div class="tab-content">
-        <div role="tabpanel" class="tab-pane active" id="tab_students">
+        <div role="tabpanel" class="card-body tab-pane active" id="tab_students">
             $:include.course_admin.student_list_table(course,user_data[len(course.get_staff()):len(user_data)], False)
             $if user_manager.has_admin_rights_on_course(course):
-                <div class="row">
-                    <form class=form-horizontal" method="post">
-                        <div class="form-group">
-                            <div class="col-sm-9"><input type="text" class="form-control" name="username" placeholder=$:_('"Student username"')/></div>
-                            <div class="col-sm-3"><button name="register" type="submit" class="btn btn-warning btn-block"><i class="fa fa-plus fa-lg"></i> $:_("Add student")</button></div>
-                        </div>
-                    </form>
-                </div>
+                <form method="post">
+                    <div class="form-group row">
+                        <div class="col-sm-9"><input class="form-control" name="username" placeholder="Student username" style="background-image: url(&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAkCAYAAADo6zjiAAAAAXNSR0IArs4c6QAAAbNJREFUWAntV8FqwkAQnaymUkpChB7tKSfxWCie/Yb+gbdeCqGf0YsQ+hU95QNyDoWCF/HkqdeiIaEUqyZ1ArvodrOHxanQOiCzO28y781skKwFW3scPV1/febP69XqarNeNTB2KGs07U3Ttt/Ozp3bh/u7V7muheQf6ftLUWyYDB5yz1ijuPAub2QRDDunJsdGkAO55KYYjl0OUu1VXOzQZ64Tr+IiPXedGI79bQHdbheCIAD0dUY6gV6vB67rAvo6IxVgWVbFy71KBKkAFaEc2xPQarXA931ot9tyHphiPwpJgSbfe54Hw+EQHMfZ/msVEEURjMfjCjbFeG2dFxPo9/sVOSYzxmAwGIjnTDFRQLMQAjQ5pJAQkCQJ5HlekeERxHEsiE0xUUCzEO9AmqYQhiF0Oh2Yz+ewWCzEY6aYKKBZCAGYs1wuYTabKdNNMWWxnaA4gp3Yry5JBZRlWTXDvaozUgGTyQSyLAP0dbb3DtQlmcan0yngT2ekE9ARc+z4AvC7nauh9iouhpcGamJeX8XF8MaClwaeROWRA7nk+tUnyzGvZrKg0/40gdME/t8EvgG0/NOS6v9NHQAAAABJRU5ErkJggg==&quot;); background-repeat: no-repeat; background-attachment: scroll; background-size: 16px 18px; background-position: 98% 50%; cursor: auto;" autocomplete="off" type="text"></div>
+                        <div class="col-sm-3"><button name="register" type="submit" class="btn btn-warning btn-block"><i class="fa fa-plus fa-lg"></i> Ajouter un étudiant</button></div>
+                    </div>
+                </form>
         </div>
-        <div role="tabpanel" class="tab-pane" id="tab_staff">
+        <div role="tabpanel" class="card-body tab-pane" id="tab_staff">
             $:include.course_admin.student_list_table(course,user_data[0:len(course.get_staff())], True)
         </div>
     </div>

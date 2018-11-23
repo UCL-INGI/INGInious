@@ -145,9 +145,9 @@ function studio_task_file_open_tab(path)
         studio_file_editor_tabs[path] = tab_id;
 
         var edit_file_tabs = $('#edit_file_tabs');
-        edit_file_tabs.append('<li role="presentation" class="studio_file_editor_tab">' +
-            '<a href="#' + tab_id + '" aria-controls="editor" role="tab" data-toggle="tab"><i class="fa fa-file-code-o"></i>&nbsp; ' + path +
-            ' <button class="closetab" type="button"><i class="fa fa-remove"></i></button>' +
+        edit_file_tabs.append('<li class="nav-item studio_file_editor_tab">' +
+            '<a class="nav-link" href="#' + tab_id + '" aria-controls="editor" role="tab" data-toggle="tab"><i class="fa fa-file-code-o"></i>&nbsp; ' + path +
+            ' <button type="button" class="closetab"><i class="fa fa-remove"></i></button>' +
             '</a></li>');
         $('a[href="#' + studio_file_editor_tabs[path] + '"] .closetab', edit_file_tabs).click(function()
         {
@@ -232,7 +232,7 @@ function studio_task_file_delete_tab(path)
         }
 
         var edit_file_tabs = $('#edit_file_tabs');
-        if($('a[href="#' + studio_file_editor_tabs[path] + '"]', edit_file_tabs).parent().hasClass('active'))
+        if($('a[href="#' + studio_file_editor_tabs[path] + '"]', edit_file_tabs).hasClass('active'))
             $('li:eq(0) a', edit_file_tabs).tab('show');
         $('a[href="#' + studio_file_editor_tabs[path] + '"]', edit_file_tabs).parent().remove();
         $('#' + studio_file_editor_tabs[path]).remove();
@@ -485,8 +485,7 @@ function studio_init_template_multiple_choice(well, pid, problem)
  * @param pid
  * @param choice_data
  */
-function studio_create_choice(pid, choice_data)
-{
+function studio_create_choice(pid, choice_data) {
     var well = $(studio_get_problem(pid));
 
     var index = 0;
@@ -506,11 +505,24 @@ function studio_create_choice(pid, choice_data)
     if("feedback" in choice_data)
         editor_feedback.setValue(choice_data["feedback"]);
 
-    if("valid" in choice_data && choice_data["valid"] == true)
-    {
-        $(".subproblem_multiple_choice_valid", new_row).trigger('click');
-        $(".subproblem_multiple_choice_valid", new_row).attr('checked', true);
+    if("valid" in choice_data && choice_data["valid"] == true) {
+        studio_toggle_choice($(".subproblem_multiple_choice_valid", new_row).attr('name'));
     }
+}
+
+/**
+ * Toggle multiple choice valid field
+ * @param input_name Name of the checkbox input
+ */
+function studio_toggle_choice(input_name) {
+    var checkbox = $("input[name='" + input_name + "']");
+    checkbox.click();
+    var btn = checkbox.next("button");
+    btn.toggleClass("btn-danger");
+    btn.toggleClass("btn-success");
+    var icon = btn.find("i");
+    icon.toggleClass("fa-times");
+    icon.toggleClass("fa-check");
 }
 
 /**

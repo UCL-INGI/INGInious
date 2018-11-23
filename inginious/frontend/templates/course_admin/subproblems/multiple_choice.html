@@ -5,13 +5,13 @@ $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
-<div class="form-group">
+<div class="form-group row">
     <label for="header-PID" class="col-sm-2 control-label">$:_("Context")</label>
     <div class="col-sm-10">
         <textarea id="header-PID" class="form-control" name="problem[PID][header]"></textarea>
     </div>
 </div>
-<div class="form-group">
+<div class="form-group row">
     <label for="multiple-PID" class="col-sm-2 control-label">$:_("Can select multiple answers")</label>
     <div class="col-sm-10">
         <div class="checkbox"><label>
@@ -19,7 +19,7 @@ $#
         </label></div>
     </div>
 </div>
-<div class="form-group">
+<div class="form-group row">
     <label for="centralize-PID" class="col-sm-2 control-label">$:_("Count error only at top of the page?")</label>
     <div class="col-sm-10">
         <div class="checkbox"><label>
@@ -27,13 +27,13 @@ $#
         </label></div>
     </div>
 </div>
-<div class="form-group">
+<div class="form-group row">
     <label for="limit-PID" class="col-sm-2 control-label">$:_("Number of choices to display (0 = all choices)")</label>
     <div class="col-sm-10">
         <input type="text" class="form-control" id="limit-PID" name="problem[PID][limit]" placeholder="0"/>
     </div>
 </div>
-<div class="form-group">
+<div class="form-group row">
     <label for="success_message-PID" class="col-sm-2 control-label">$:_("Success message")</label>
 
     <div class="col-sm-10">
@@ -41,7 +41,7 @@ $#
                   placeholder="$:_('An optional success message')"></textarea>
     </div>
 </div>
-<div class="form-group">
+<div class="form-group row">
     <label for="error_message-PID" class="col-sm-2 control-label">$:_("Error message")</label>
 
     <div class="col-sm-10">
@@ -52,13 +52,13 @@ $#
 <div class="form-group">
     <div class="col-sm-12">
         <h4 style="text-align: center">$:_("Choices")</h4>
-        <div id="choices-PID">
+        <div id="choices-PID" class="mb-3">
 
         </div>
         <button class="btn btn-info btn-sm btn-block" type="button" onclick="studio_create_choice('PID',{})">
             <i class="fa fa-plus"></i> $:_("Add new choice")
         </button>
-        <div style="height:30px"></div>
+
         </div>
 </div>
 

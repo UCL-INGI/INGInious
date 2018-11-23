@@ -1,11 +1,11 @@
-<!DOCTYPE html>
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
+<!DOCTYPE html>
 <html lang="en">
 <head>
-        <meta charset="utf-8">
+    <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="INGInious">
@@ -13,25 +13,17 @@ $#
     <link rel="icon" href="$get_homepath(True)/static/icons/favicon.ico">
     <link rel="mask-icon" href="$get_homepath(True)/static/icons/wb.svg" color="#5E932E">
 
-    <title>$:_("Maintenance") | INGInious</title>
+    <title>Maintenance | INGInious</title>
 
     <!-- Bootstrap -->
     <link href="$get_homepath(True)/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="$get_homepath(True)/static/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
 
+    <!-- Font Awesome -->
+    <link href="$get_homepath(True)/static/css/font-awesome.min.css" rel="stylesheet">
+
     <!-- INGInious Style -->
     <link href="$get_homepath(True)/static/css/INGInious.css" rel="stylesheet">
-
-    <!-- Codemirror Style -->
-    <link href="$get_homepath(True)/static/css/codemirror.css" rel="stylesheet">
-
-    <!-- JQuery -->
-$if use_minified:
-    <script src="$get_homepath(True)/static/js/all-minified.js"></script>
-$else:
-    <script src="$get_homepath(True)/static/js/libs/jquery.min.js" type="text/javascript" charset="utf-8"></script>
-    <script src="$get_homepath(True)/static/js/libs/jquery.form.min.js" type="text/javascript" charset="utf-8"></script>
-    <script src="$get_homepath(True)/static/js/common.js" type="text/javascript" charset="utf-8"></script>
 
     <!-- Icons -->
     <link rel="shortcut icon" href="$get_homepath(True)/static/icons/favicon.ico">
@@ -53,51 +45,33 @@ $else:
     <meta name="msapplication-config" content="$get_homepath(True)/static/icons/browserconfig.xml">
 </head>
 
-<body role="document">
-    <div id="wrapper">
-        <div class="navbar navbar-default navbar-static-top" role="navigation">
-            <div class="container-fluid">
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle" data-toggle="collapse"
-                            data-target=".navbar-collapse">
-                        <span class="sr-only">Toggle navigation</span> <span
-                            class="icon-bar"></span> <span class="icon-bar"></span> <span
-                            class="icon-bar"></span>
-                    </button>
-                    <a class="navbar-brand" href="$get_homepath()/index"><img src="$get_homepath(True)/static/images/header.png" alt="logo"/> INGInious</a>
-                </div>
-                <div class="collapse navbar-collapse">
+<body>
 
-                </div>
-            </div>
-        </div>
-
-        <div class="container-fluid" role="main">
-            <div id="content" class="col-xs-12">
-                <img src="$get_homepath(True)/static/images/logo_maintenance.png" style="margin:auto; display:block;"/>
-                <div class="alert alert-danger" role="alert" style="text-align: center;">
-                    $:_("<b>This INGInious instance is currently under maintenance.</b> Please come back in a few minutes!")
-                </div>
-                <div class="footer_push"></div>
-            </div>
+    <div class="navbar navbar-expand-sm bg-dark navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="$get_homepath()/index"><img src="$get_homepath(True)/static/images/header.png" alt="logo"/> INGInious</a>
         </div>
     </div>
-    <div id="footer">
-        <div class="navbar navbar-default navbar-static-top" style="position:absolute; width:100%" role="navigation">
-            <div class="container-fluid">
-                <div class="navbar-header" style="width: 100%">
-                    <p class="navbar-text">&copy; 2014-2018 Universit&eacute; catholique de Louvain</p>
-                    <div class="navbar-right">
-                        <p class="navbar-text">
-                            <a target="_blank" href="http://www.inginious.org" class="navbar-link">
-                                $:_("INGInious is distributed under AGPL license")
-                            </a>
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
 
+    <div class="container-fluid" role="main" style="margin-top: 20px; margin-bottom: 65px;">
+        <img src="$get_homepath(True)/static/images/logo_maintenance.png" style="margin:auto; display:block;"/>
+        <div class="alert alert-danger" role="alert" style="text-align: center;">
+            $:_("<b>This INGInious instance is currently under maintenance.</b> Please come back in a few minutes!")
+        </div>
     </div>
+
+    <div id="footer" class="navbar navbar-expand-sm bg-dark navbar-dark bg-dark">
+        <div class="container-fluid">
+            <p class="navbar-text">
+                &copy; 2014-2018 Universit&eacute; catholique de Louvain
+            </p>
+            <p class="navbar-text">
+                <a target="_blank" href="http://www.inginious.org" class="navbar-link">
+                    $:_("INGInious is distributed under AGPL license")
+                </a>
+            </p>
+        </div>
+    </div>
+
 </body>
 </html>
