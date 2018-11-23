@@ -288,7 +288,7 @@ class BaseTaskPage(object):
         else:
             raise web.notfound()
 
-    def submission_to_json(self, task, data, debug, reloading=False, replace=False, tags={}):
+    def submission_to_json(self, task, data, debug, reloading=False, replace=False, tags=[]):
         """ Converts a submission to json (keeps only needed fields) """
 
         if "ssh_host" in data:
@@ -359,8 +359,9 @@ class BaseTaskPage(object):
 
         if "tests" in data:
             tojson["tests"] = {}
-            if tags:
-                for tag in tags[0]+tags[1]: # Tags only visible for admins should not appear in the json for students.
+            categories = task.get_categories()
+            if categories:
+                for tag in [tag for tag in tags if tag.get_id() in categories]: # Tags only visible for admins should not appear in the json for students.
                     if (tag.is_visible_for_student() or debug) and tag.get_id() in data["tests"]:
                         tojson["tests"][tag.get_id()] = data["tests"][tag.get_id()]
             if debug: #We add also auto tags when we are admin

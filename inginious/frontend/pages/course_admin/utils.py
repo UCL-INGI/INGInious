@@ -263,6 +263,7 @@ def get_menu(course, current, renderer, plugin_manager, user_manager):
                              (_("Classrooms") if course.use_classrooms() else _("Teams")))]
 
     default_entries += [("tasks", "<i class='fa fa-tasks fa-fw'></i>&nbsp; " + _("Tasks")),
+                        ("tags", "<i class='fa fa-tags fa-fw'></i>&nbsp;" + _("Tags")),
                         ("submissions", "<i class='fa fa-search fa-fw'></i>&nbsp; " + _("View submissions")),
                         ("download", "<i class='fa fa-download fa-fw'></i>&nbsp; " + _("Download submissions"))]
 

@@ -58,8 +58,8 @@ class WebAppTask(Task):
         # Regenerate input random
         self._regenerate_input_random = bool(self._data.get("regenerate_input_random", False))
 
-        # Tags
-        self._tags = Tag.create_tags_from_dict(self._data.get("tags", {}))
+        # Category tags
+        self._categories = self._data.get("categories", [])
 
     def get_grading_weight(self):
         """ Get the relative weight of this task in the grading """
@@ -120,10 +120,10 @@ class WebAppTask(Task):
     def get_evaluate(self):
         """ Indicates the default download for the task """
         return self._evaluate
-    
-    def get_tags(self):
-        """ Get the tuple of list of the task """
-        return self._tags
+
+    def get_categories(self):
+        """ Returns the tags id associated to the task """
+        return self._categories
         
     def get_number_input_random(self):
         """ Return the number of random inputs """

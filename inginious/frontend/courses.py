@@ -10,8 +10,10 @@ from collections import OrderedDict
 from natsort import natsorted
 
 from inginious.common.courses import Course
+from inginious.common.tags import Tag
 from inginious.frontend.accessible_time import AccessibleTime
 from inginious.frontend.parsable_text import ParsableText
+
 
 class WebAppCourse(Course):
     """ A course with some modification for users """
@@ -45,6 +47,7 @@ class WebAppCourse(Course):
             self._is_lti = self._content.get('is_lti', False)
             self._lti_keys = self._content.get('lti_keys', {})
             self._lti_send_back_grade = self._content.get('lti_send_back_grade', False)
+            self._tags = self._content.get("tags", [])
         except:
             raise Exception("Course has an invalid YAML spec: " + self.get_id())
 
@@ -61,13 +64,6 @@ class WebAppCourse(Course):
         else:
             self._lti_keys = {}
             self._lti_send_back_grade = False
-            
-        # Caches for tag lists
-        self._all_tags_cache = None
-        self._all_tags_cache_list = {}
-        self._all_tags_cache_list_admin = {}
-        self._organisational_tags_to_task = {}
-        self.update_all_tags_cache()
 
     def get_staff(self):
         """ Returns a list containing the usernames of all the staff users """
@@ -167,87 +163,10 @@ class WebAppCourse(Course):
         """Returns the course description """
         description = self.gettext(language, self._description) if self._description else ''
         return ParsableText(description, "rst", self._translations.get(language, gettext.NullTranslations()))
-        
-    def get_all_tags(self):
-        """ 
-        Return a tuple of lists ([common_tags], [anti_tags], [organisational_tags]) all tags of all tasks of this course 
-        Since this is an heavy procedure, we use a cache to cache results. Cache should be updated when a task is modified.
-        """
-        
-        if self._all_tags_cache != None:
-            return self._all_tags_cache
-    
-        tag_list_common = set()
-        tag_list_misconception = set()
-        tag_list_org = set()
 
-        tasks = self.get_tasks()
-        for id, task in tasks.items():
-            for tag in task.get_tags()[0]:
-                tag_list_common.add(tag)
-            for tag in task.get_tags()[1]:
-                tag_list_misconception.add(tag)
-            for tag in task.get_tags()[2]:
-                tag_list_org.add(tag)
-        
-        tag_list_common = natsorted(tag_list_common, key=lambda y: y.get_name().lower())
-        tag_list_misconception = natsorted(tag_list_misconception, key=lambda y: y.get_name().lower())
-        tag_list_org = natsorted(tag_list_org, key=lambda y: y.get_name().lower())
-             
-        self._all_tags_cache = (list(tag_list_common), list(tag_list_misconception), list(tag_list_org))
-        return self._all_tags_cache
-        
-    def get_all_tags_names_as_list(self, admin=False, language="en"):
-        """ Computes and cache two list containing all tags name sorted by natural order on name """
-
-        if admin:
-            if self._all_tags_cache_list_admin != {} and language in self._all_tags_cache_list_admin:
-                return self._all_tags_cache_list_admin[language] #Cache hit
-        else:
-            if self._all_tags_cache_list != {} and language in self._all_tags_cache_list:
-                return self._all_tags_cache_list[language] #Cache hit
-                        
-        #Cache miss, computes everything
-        s_stud = set()
-        s_admin = set()
-        (common, _, org) = self.get_all_tags()
-        for tag in common + org:
-            # Is tag_name_with_translation correct by doing that like that ?
-            tag_name_with_translation = self.gettext(language, tag.get_name()) if tag.get_name() else ""
-            s_admin.add(tag_name_with_translation) 
-            if tag.is_visible_for_student():
-                s_stud.add(tag_name_with_translation) 
-        self._all_tags_cache_list_admin[language] = natsorted(s_admin, key=lambda y: y.lower())
-        self._all_tags_cache_list[language] = natsorted(s_stud, key=lambda y: y.lower())
-        
-        if admin:
-            return self._all_tags_cache_list_admin[language]
-        return self._all_tags_cache_list[language]
-        
-    def get_organisational_tags_to_task(self):
-        """ This build a dict for fast retrive tasks id based on organisational tags. The form of the dict is:
-        
-            { 'org_tag_1': ['task_id', 'task_id', ...], 
-              'org_tag_2' : ['task_id', 'task_id', ...], 
-              ... }
-         """
-        if self._organisational_tags_to_task != {}:
-            return self._organisational_tags_to_task
-
-        for taskid, task in self.get_tasks().items():
-            for tag in task.get_tags()[2]:
-                self._organisational_tags_to_task.setdefault(tag.get_name(), []).append(taskid)
-
-        return self._organisational_tags_to_task
-        
-    def update_all_tags_cache(self):
-        """ Force the cache refreshing """
-        
-        self._all_tags_cache = None
-        self._all_tags_cache_list = {}
-        self._all_tags_cache_list_admin = {}
-        self._organisational_tags_to_task = {}
-            
-        self.get_all_tags()
-        self.get_all_tags_names_as_list()
-        self.get_organisational_tags_to_task()
+    def get_tags(self, language, type_filter=[]):
+        for tag in self._tags:
+            tag["name"] = self.gettext(language, tag["name"]) if "name" in tag else ""
+            tag["description"] = self.gettext(language, tag["description"]) if "description" in tag else ""
+            if not type_filter or tag["type"] in type_filter:
+                yield Tag.create_tags_from_dict(tag)

@@ -38,13 +38,11 @@ class Tag:
         """ Returns True is the tag should be visible to students """
         return self._visible
 
-    def get_description(self, translated=False):
+    def get_description(self):
         """ 
         Returns the description of this tag 
         translated=True can be use to avoid getting garbage when calling _() with an empty string since the description of a tag CAN be empty
         """
-        if translated and self._description != "":
-            return _(self._description)
         return self._description
         
     def is_organisational(self):
@@ -78,36 +76,10 @@ class Tag:
             - The second list contains misconception tags
             - The third list contains category tags
          """
-        tag_list_common = []
-        tag_list_misconception = []
-        tag_list_organisational = []
-        for tag in tag_dict:
-            try:
-                id = tag_dict[tag]["id"]
-                name = tag_dict[tag]["name"]
-                visible = tag_dict[tag]["visible"]
-                description = tag_dict[tag]["description"]
-                type = tag_dict[tag]["type"]
-                
-                if type == 2:
-                    tag_list_organisational.insert(int(tag), Tag(id, name, description, visible, type))
-                elif type == 1:
-                    tag_list_misconception.insert(int(tag), Tag(id, name, description, visible, type))
-                else:
-                    tag_list_common.insert(int(tag), Tag(id, name, description, visible, type))
-            except KeyError:
-                pass
-        return tag_list_common, tag_list_misconception, tag_list_organisational
+        id = tag_dict["id"]
+        name = tag_dict["name"]
+        visible = tag_dict["visible"]
+        description = tag_dict["description"]
+        type = tag_dict["type"]
 
-    @classmethod
-    def check_format(cls, tags):
-        """
-        Check the tags arg only contains valid type for tags
-        :param tags: output of create_tags_from_dict
-        :return: True if correct format, False otherwise
-        """
-        common, _, _ = tags
-        for tag in common:
-            if tag.get_type() != 0:  # Unknown type -> incorrect
-                return False
-        return True
+        return Tag(id, name, description, visible, type)
