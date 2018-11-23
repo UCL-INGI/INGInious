@@ -6,12 +6,13 @@ import web
 def task_buttons_hook(template_helper, course, task):
 	"""
 		Render the button "Correct" & "Next" in course.html
-	"""   
-	if "adaptative" in web.ctx.env.get('HTTP_REFERER'):
+	""" 
+	url = web.ctx.env.get('PATH_INFO')
+	if "adaptative" in url:
 		return str(template_helper.get_custom_renderer('frontend/plugins/adaptative', layout=False).task_buttons(course=course, next_task=task))
 	else:
 		return str(template_helper.get_custom_renderer('frontend/plugins/adaptative', layout=False).submit_button())
-		
+	
 	
 def course_button_hook(template_helper, course):
 	"""
@@ -29,18 +30,19 @@ def adaptive_get_hook(username, page, course, courseid, task, taskid, students, 
 		at each GET request
 
 	"""
-	if "adaptative" in web.ctx.env.get('HTTP_REFERER'):
+	url = web.ctx.env.get('PATH_INFO')
+	if "adaptative" in url:
 		test_state = get_test_state(page.database, username)
-		
+	
 		if(test_state != None):
 			items_names = get_testing_tasks(course, courseid)
 			items_bank = init_item_bank(items_names, page.database)
 			(username, ability, testing_limit, current_question_index, path, answers) = test_state
 			task_index = items_bank.rownames.index(taskid) + 1 # index in bank
-			
+		
 			if(task_index not in path): # multiple gets
 				is_finished = len(path) == int(testing_limit)
-				
+			
 				if is_finished: 
 					(ability, standard_error) = ability_estimation(answers)
 					return page.template_helper.get_custom_renderer('frontend/plugins/adaptative', layout=True).test_end(answers, ability.__round__(3))
@@ -69,15 +71,16 @@ def adaptive_post_hook(username, page, result):
 		at each POST request
 
 	"""
-	if "adaptative" in web.ctx.env.get('HTTP_REFERER'):
+	url = web.ctx.env.get('PATH_INFO')
+	if "adaptative" in url:
 		test_state = get_test_state(page.database, username)
 		(username, ability, testing_limit, current_question_index, path, answers) = test_state
-		
+	
 		if(result['result']=="failed" and answers[path[len(path)-1]-1] == 'NA'): 
 			answers[path[len(path)-1]-1] = '0'
 		elif result['result']=="success":  
 			answers[path[len(path)-1]-1] = '1'
-			
+		
 		(ability, standard_error) = ability_estimation(answers)
 
 		update_test_state(page.database, username, ability, testing_limit, current_question_index, path, answers)

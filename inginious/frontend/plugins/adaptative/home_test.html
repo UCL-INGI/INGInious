@@ -18,8 +18,10 @@ $var title: $:"Adaptative Testing"
 	<div class="col-xs-9 col-md-10">
 		 <form>
 		 	<h4><center>$:_("Adaptive testing for " + course.get_id() + " course")</center></h4>
-			<label for="name">$:_("E-mail address")</label>
-			<input type="email" class="form-control" id="name"></input>
+		 	<h5>$:_("The following test is a \"Computerized Adaptive Test\", a kind of test that will ask you questions based on what you previously answer. This INGInious plugin is currently in test, so feel free to give an email feedback to the following address:")</h5>
+		 	<br>
+		 	<h4><center><mark>$:_("brandon.naitali@student.uclouvain.be")</mark></center></h4>
+		 	 
 			<input type="button" value=$:_("Begin") class="btn btn-default btn-lg btn-block center-block" onclick="beginTest()"/>
 		</form> 
 	</div>
@@ -27,11 +29,6 @@ $var title: $:"Adaptative Testing"
 
 <script type="text/javascript">
 function beginTest(){
-	var name = document.getElementById('name').value;
-	if (name != ""){
-		window.location.href="/adaptative/" + "$course.get_id()/" + "$task.get_id()" + "?user=" + name;
-	}else{
-		window.location.href="/adaptative/" + "$course.get_id()/" + "$task.get_id()/"
-	}
+	window.location.href="/adaptative/" + "$course.get_id()/" + "$task.get_id()"
 }
 </script>
