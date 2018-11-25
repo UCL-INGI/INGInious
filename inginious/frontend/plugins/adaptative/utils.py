@@ -40,14 +40,14 @@ def get_level_task(db, taskid):
 def get_test_state(db, username):
 	state = db.test_state.find_one({"user": username})
 	if state != None:
-		return (state["user"], state["level"], state["testing_limit"], state["current_question"], state["path"], state["answers"], )
+		return (state["user"], state["level"], state["testing_limit"], state["current_question"], state["path"], state["answers"], state["task_selection"] )
 	return None	
 	
 	
 """
 	Update the test state which have the same username
 """
-def update_test_state(db, username, level, testing_limit, current_question, path, answers):
-	db.test_state.update({"user": username},{"$set": {"user": username, "level": level, "testing_limit": testing_limit, "current_question": current_question,  "path" : path, "answers" : answers}}, upsert=True)
+def update_test_state(db, username, level, testing_limit, current_question, path, answers, task_selection):
+	db.test_state.update({"user": username},{"$set": {"user": username, "level": level, "testing_limit": testing_limit, "current_question": current_question,  "path" : path, "answers" : answers, "task_selection": task_selection}}, upsert=True)
 
 

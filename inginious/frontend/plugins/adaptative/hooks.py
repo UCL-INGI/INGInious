@@ -37,7 +37,7 @@ def adaptive_get_hook(username, page, course, courseid, task, taskid, students, 
 		if(test_state != None):
 			items_names = get_testing_tasks(course, courseid)
 			items_bank = init_item_bank(items_names, page.database)
-			(username, ability, testing_limit, current_question_index, path, answers) = test_state
+			(username, ability, testing_limit, current_question_index, path, answers, next_item_selection) = test_state
 			task_index = items_bank.rownames.index(taskid) + 1 # index in bank
 		
 			if(task_index not in path): # multiple gets
@@ -49,13 +49,13 @@ def adaptive_get_hook(username, page, course, courseid, task, taskid, students, 
 
 				else:
 					path.append(task_index)
-					next_task_index = get_next_question(items_bank, ability, path)
+					next_task_index = get_next_question(items_bank, ability, path, next_item_selection)
 					next_task_name = items_bank.rownames[int(next_task_index)-1]
 					next_task_object = course.get_task(next_task_name)
-					update_test_state(page.database, username, ability, testing_limit, next_task_index, path, answers)
+					update_test_state(page.database, username, ability, testing_limit, next_task_index, path, answers, next_item_selection)
 					return page.template_helper.get_renderer().task(user_info, course, task, submissions, students, eval_submission, user_task, previous_taskid, next_taskid, page.webterm_link, random_input_list, next_task_object)
 			else:
-				next_task_index = get_next_question(items_bank, ability, path)
+				next_task_index = get_next_question(items_bank, ability, path, next_item_selection)
 				next_task_name = items_bank.rownames[int(next_task_index)-1]
 				next_task_object = course.get_task(next_task_name)
 				return page.template_helper.get_renderer().task(user_info, course, task, submissions, students, eval_submission, user_task, previous_taskid, next_taskid, page.webterm_link, random_input_list, next_task_object)
@@ -74,7 +74,7 @@ def adaptive_post_hook(username, page, result):
 	url = web.ctx.env.get('PATH_INFO')
 	if "adaptative" in url:
 		test_state = get_test_state(page.database, username)
-		(username, ability, testing_limit, current_question_index, path, answers) = test_state
+		(username, ability, testing_limit, current_question_index, path, answers, next_item_selection) = test_state
 	
 		if(result['result']=="failed" and answers[path[len(path)-1]-1] == 'NA'): 
 			answers[path[len(path)-1]-1] = '0'
@@ -83,7 +83,7 @@ def adaptive_post_hook(username, page, result):
 		
 		(ability, standard_error) = ability_estimation(answers)
 
-		update_test_state(page.database, username, ability, testing_limit, current_question_index, path, answers)
+		update_test_state(page.database, username, ability, testing_limit, current_question_index, path, answers, next_item_selection)
 
 
 

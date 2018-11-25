@@ -68,7 +68,7 @@ def ability_estimation(results):
 	return (theta, standard_error)
 
 
-def get_next_question(itembank, proficiency, already_answered):
+def get_next_question(itembank, proficiency, already_answered, method):
 	"""
 		Returns the index of the next question
 	"""
@@ -77,7 +77,7 @@ def get_next_question(itembank, proficiency, already_answered):
 	for q in already_answered: # building the list in R
 			r("already_answered <- c(already_answered,c(%s))" % q)
 			
-	indice = r('nextItem(itembank, theta=%s, criterion = "thOpt", out = already_answered)'% (proficiency))[0][0]
+	indice = r('nextItem(itembank, theta=%s, criterion = "%s", out = already_answered)'% (proficiency, method))[0][0]
 	
 	return indice #itembank.rownames[indice-1]
 

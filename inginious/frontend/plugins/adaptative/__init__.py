@@ -46,7 +46,7 @@ class HomePage(BaseTaskPage):
 		items_bank = init_item_bank(items_names, self.database)
 		
 		if(test_state != None):
-			(username, ability, testing_limit, current_question_index, path, answers) = test_state	
+			(username, ability, testing_limit, current_question_index, path, answers, method) = test_state	
 			is_finished = len(path) == int(testing_limit)
 			
 			if is_finished: 
@@ -61,7 +61,7 @@ class HomePage(BaseTaskPage):
 			next_task_index = get_first_question(items_bank, ability, first_item_method)
 			path = [next_task_index]
 			taskid = items_bank.rownames[next_task_index-1]
-			update_test_state(self.database, username, ability, nbr_questions, next_task_index, path, answers)
+			update_test_state(self.database, username, ability, nbr_questions, next_task_index, path, answers, next_item_selection)
 		
 		try:
 			task = course.get_task(taskid)
