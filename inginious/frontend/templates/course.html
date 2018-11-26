@@ -141,9 +141,9 @@ function filter_tag(tag) {
                 <div class="col-md-4">
                     <select class="form-control input-sm" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" id="tag_filter" onchange="filter_tag(this)">
                         <option value="">$:_("Filter tasks by tags")</option>
-                        $for tag in tag_filter_list:
-                            $if tag.is_visible_for_student():
-                                <option value="$tag.get_id()">$tag.get_name()</option>
+                        $for key, tag in tag_filter_list.items():
+                            $if tag.get_type() in [0, 2] and tag.is_visible_for_student():
+                                <option value="$tag.get_id()">$tag.get_name(user_manager.session_language())</option>
                     </select>
                 </div>
         </div>
@@ -176,9 +176,9 @@ function filter_tag(tag) {
                         </div>
                     </div>
                     <div id="tags_of_task" style="display:none;">
-                        $ categories = task.get_categories()
-                        $for tag in tag_filter_list:
-                            $if tag.get_id() in categories and (tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course)):
+                        $for category in task.get_categories():
+                            $ tag = tag_filter_list[category]
+                            $if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course):
                                 <div id="tag" data-tag-name="$:tag.get_id()"></div>
                     </div>
                 </a>

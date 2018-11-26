@@ -13,12 +13,13 @@ class Tag:
     - 2: Category tags. Never appear. Only used for organisation and when we perform tasks search.
     """
 
-    def __init__(self, id, name, description="", visible=False, type=0):
-        self._id = id
-        self._name = name
-        self._description = description
-        self._visible = visible
-        self._type = type
+    def __init__(self, tag_dict, gettext):
+        self._id = tag_dict["id"]
+        self._name = tag_dict["name"]
+        self._visible = tag_dict.get("visible", False)
+        self._description = tag_dict.get("description", "")
+        self._type = tag_dict.get("type", 0)
+        self._gettext = gettext
         
     def __eq__(self, other):
         return self._id == other._id and self._name == other._name
@@ -26,9 +27,9 @@ class Tag:
     def __hash__(self):
         return hash((self._id, self._name))
 
-    def get_name(self):
+    def get_name(self, language):
         """ Returns the name of this tag """
-        return self._name
+        return self._gettext(language, self._name) if self._name else ""
 
     def get_id(self):
         """ Returns the id of this tag """
@@ -38,12 +39,12 @@ class Tag:
         """ Returns True is the tag should be visible to students """
         return self._visible
 
-    def get_description(self):
+    def get_description(self, language):
         """ 
         Returns the description of this tag 
         translated=True can be use to avoid getting garbage when calling _() with an empty string since the description of a tag CAN be empty
         """
-        return self._description
+        return self._gettext(language, self._name) if self._name else ""
         
     def is_organisational(self):
         """ Returns True if this tag is for organisational purposes """

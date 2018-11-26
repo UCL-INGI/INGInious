@@ -9,6 +9,9 @@ $var title: $:task.get_name(user_manager.session_language()) - $:course.get_name
 
 $ registered = user_manager.course_is_user_registered(course)
 $ staff = user_manager.has_staff_rights_on_course(course)
+$ course_tags = course.get_tags()
+$ task_categories = task.get_categories()
+
 $# Left column content
 $def ColumnF():
     <h3>$:_("Information")</h3>
@@ -84,10 +87,10 @@ $def ColumnF():
             </td>
         </tr>
         $ tags = ""
-        $ categories = task.get_categories()
-        $for tag in course.get_tags(user_manager.session_language, [2]):
-            $if tag.get_id() in categories and (tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course)):
-                $ tags += (_(tag.get_name()) + ", ")
+        $for category in task_categories:
+            $ tag = course_tags[category]
+            $if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course):
+                $ tags += (_(tag.get_name(user_manager.session_language())) + ", ")
         $ tags = tags[:-2]
         $if tags != "":
         <tr>
@@ -97,18 +100,18 @@ $def ColumnF():
     </table>
      
     <!-- Tags -->
-    $ visible_tags = [tag for tag in course.get_tags(user_manager.session_language(), [0]) if tag.get_id() in categories and (tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course))]
-    $ visible_misconception_tags = [tag for tag in course.get_tags(user_manager.session_language(), [1]) if tag.get_id() in categories and (tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course))]
+    $ visible_tags = [course_tags[category] for category in task_categories if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course)]
 
     $# Auto tags may appear for admins. So we force the h3 title even if there is not predefined tags
     $# We do not show the tag header for students if they can not get tags
-    $if len(visible_tags) > 0 or len(visible_misconception_tags) > 0:
+    $if len(visible_tags) > 0 :
         <h3>$:_("Tags")</h3>
         <div class="mb-3" id="main_tag_group">
         $for tag in visible_tags:
-            <span class="badge alert-info" id="$tag.get_id()" data-placement="right" data-toggle="tooltip" title="$tag.get_description()">$:tag.get_name()</span>
-        $for tag in visible_misconception_tags:
-            <span class="badge alert-danger" id="$tag.get_id()" data-placement="right" data-toggle="tooltip" title="$tag.get_description()" style="display:none;">$:tag.get_name()</span>
+            $if tag.get_type() == 0:
+                <span class="badge alert-info" id="$tag.get_id()" data-placement="right" data-toggle="tooltip" title="$tag.get_description(user_manager.session_language())">$:tag.get_name(user_manager.session_language())</span>
+            $elif tag.get_type() == 1:
+                <span class="badge alert-danger" id="$tag.get_id()" data-placement="right" data-toggle="tooltip" title="$tag.get_description(user_manager.session_language())" style="display:none;">$:tag.get_name(user_manager.session_language())</span>
         </div>
     <!-- End Tags -->
     
@@ -208,12 +211,13 @@ $def ColumnF():
                             $if (len(visible_tags) > 0):
                                 $ tags_ok_counter = 0
                                 $ list_tags_ok = []
-                                $for tag in course.get_tags(user_manager.session_language(), [0]):
-                                    $if tag.get_id() in categories and (tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course)):
+                                $for category in task_categories:
+                                    $ tag = course_tags[category]
+                                    $if tag.get_type() == 0 and (tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course)):
                                         $ class_tag = "badge alert-info"
                                         $if "tests" in submission and tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()]:
                                             $ tags_ok_counter += 1
-                                            $list_tags_ok.append(tag.get_name())
+                                            $list_tags_ok.append(tag.get_name(user_manager.session_language()))
                                 $if tags_ok_counter == len(visible_tags):
                                     <span class="badge alert-success" id="tag_counter">$tags_ok_counter</span>
                                 $else:

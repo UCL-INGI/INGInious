@@ -257,10 +257,10 @@ class BaseTaskPage(object):
                     # This should never happen, as user_manager.update_user_stats is called whenever a submission is done.
                     return json.dumps({'status': "error", "text": _("Internal error")})
 
-                return self.submission_to_json(task, result, is_admin, False, default_submissionid == result['_id'], tags=task.get_tags())
+                return self.submission_to_json(task, result, is_admin, False, default_submissionid == result['_id'], tags=course.get_tags())
             else:
                 web.header('Content-Type', 'application/json')
-                return self.submission_to_json(task, result, is_admin)
+                return self.submission_to_json(task, submission, is_admin, True, tags=course.get_tags())
 
         elif "@action" in userinput and userinput["@action"] == "load_submission_input" and "submissionid" in userinput:
             submission = self.submission_manager.get_submission(userinput["submissionid"], user_check=not is_staff)
@@ -270,7 +270,7 @@ class BaseTaskPage(object):
                 raise web.notfound()
             web.header('Content-Type', 'application/json')
 
-            return self.submission_to_json(task, submission, is_admin, True, tags=task.get_tags())
+            return self.submission_to_json(task, submission, is_admin, True, tags=course.get_tags())
 
         elif "@action" in userinput and userinput["@action"] == "kill" and "submissionid" in userinput:
             self.submission_manager.kill_running_submission(userinput["submissionid"])  # ignore return value
@@ -359,11 +359,9 @@ class BaseTaskPage(object):
 
         if "tests" in data:
             tojson["tests"] = {}
-            categories = task.get_categories()
-            if categories:
-                for tag in [tag for tag in tags if tag.get_id() in categories]: # Tags only visible for admins should not appear in the json for students.
-                    if (tag.is_visible_for_student() or debug) and tag.get_id() in data["tests"]:
-                        tojson["tests"][tag.get_id()] = data["tests"][tag.get_id()]
+            for key, tag in tags.items():  # Tags only visible for admins should not appear in the json for students.
+                if tag.get_type() in [0, 1] and (tag.is_visible_for_student() or debug) and key in data["tests"]:
+                    tojson["tests"][key] = data["tests"][key]
             if debug: #We add also auto tags when we are admin
                 for tag in data["tests"]:
                     if tag.startswith("*auto-tag-"):

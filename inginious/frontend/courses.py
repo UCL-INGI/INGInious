@@ -47,7 +47,7 @@ class WebAppCourse(Course):
             self._is_lti = self._content.get('is_lti', False)
             self._lti_keys = self._content.get('lti_keys', {})
             self._lti_send_back_grade = self._content.get('lti_send_back_grade', False)
-            self._tags = self._content.get("tags", [])
+            self._tags = {key: Tag(tag_dict, self.gettext) for key, tag_dict in self._content.get("tags", {}).items()}
         except:
             raise Exception("Course has an invalid YAML spec: " + self.get_id())
 
@@ -164,9 +164,5 @@ class WebAppCourse(Course):
         description = self.gettext(language, self._description) if self._description else ''
         return ParsableText(description, "rst", self._translations.get(language, gettext.NullTranslations()))
 
-    def get_tags(self, language, type_filter=[]):
-        for tag in self._tags:
-            tag["name"] = self.gettext(language, tag["name"]) if "name" in tag else ""
-            tag["description"] = self.gettext(language, tag["description"]) if "description" in tag else ""
-            if not type_filter or tag["type"] in type_filter:
-                yield Tag.create_tags_from_dict(tag)
+    def get_tags(self):
+        return self._tags
