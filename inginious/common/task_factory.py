@@ -280,12 +280,9 @@ class TaskFactory(object):
 
         task_fs = self.get_task_fs(courseid, taskid)
 
-        if not task_fs.exists():
-            raise TaskNotFoundException()
-
-        task_fs.delete()
-
-        get_course_logger(courseid).info("Task %s erased from the factory.", taskid)
+        if task_fs.exists():
+            task_fs.delete()
+            get_course_logger(courseid).info("Task %s erased from the factory.", taskid)
 
     def get_problem_types(self):
         """
