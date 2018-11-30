@@ -262,13 +262,14 @@ class CourseEditTask(INGIniousAdminPage):
 
             # Accessible
             if data["accessible"] == "custom":
-                data["accessible"] = "{}/{}".format(data["accessible_start"], data["accessible_end"])
+                data["accessible"] = "{}/{}/{}".format(data["accessible_start"], data["accessible_soft_end"], data["accessible_end"])
             elif data["accessible"] == "true":
                 data["accessible"] = True
             else:
                 data["accessible"] = False
             del data["accessible_start"]
             del data["accessible_end"]
+            del data["accessible_soft_end"]
 
             # Checkboxes
             if data.get("responseIsHTML"):

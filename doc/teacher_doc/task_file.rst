@@ -56,6 +56,10 @@ subdirectory.
     ``"START/END"``
         where *START* and *END* are valid dates, like "2014-05-10 10:11:12", or
         "2014-06-18". The task is only accessible between *START* and *END*.
+    ``"START/SOFT_DEADLINE/END"``
+        where *START*, *SOFT_DEADLINE* and *END* are valid dates, like "2014-05-10 10:11:12",
+        or "2014-06-18". The task is only accessible between *START* and *END*, but the
+        publicly communicated end time is *SOFT_DEADLINE*.
 
 -   ``problems`` describes sub-problems of this task. This field is mandatory and must contain
     at least one problem. Problem types are described in the following section
