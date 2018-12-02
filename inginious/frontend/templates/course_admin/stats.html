@@ -1,0 +1,149 @@
+$def with (course, stats_graph, stats_tasks, stats_users, daterange, error)
+
+$#
+$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+$# more information about the licensing of this file.
+$#
+
+$var title: $:course.get_name(user_manager.session_language())
+
+$var header:
+    <script src="$get_homepath(True)/static/js/libs/chart.min.js"></script>
+
+$var Column: $:template_helper.call('course_admin_menu',course=course,current='stats')
+
+$def NavbarF():
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
+            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
+                <i class="fa fa-user-secret"></i></a></li>
+            <li class="breadcrumb-item active">
+                <a href="#">
+                    <i class="fa fa-area-chart"></i> $:_("Stats") <span class="sr-only">$:_("(current)")</span>
+                </a>
+            </li>
+        </ol>
+    </nav>
+$var Navbar: $:NavbarF()
+
+<h2>$:_("Stats")</h2>
+<form onsubmit="return submitStats();">
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="stats_from">$:_("Compute stats since")</label>
+            <input type="datetime-local" class="form-control" id="stats_from" placeholder="From" value="$daterange[0].strftime('%Y-%m-%dT%H:%M:%S')">
+        </div>
+        <div class="form-group col-md-6">
+            <label for="stats_to">$:_("until")</label>
+            <input type="datetime-local" class="form-control" id="stats_to" placeholder="To" value="$daterange[1].strftime('%Y-%m-%dT%H:%M:%S')">
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Update</button>
+</form>
+
+<h2>$:_("Stats between {} and {}").format(daterange[0].strftime("%d/%m/%Y %H:%M:%S"), daterange[1].strftime("%d/%m/%Y %H:%M:%S"))</h2>
+
+<h3>$:_("Submissions")</h3>
+<canvas id="canvas"></canvas>
+<script type="text/javascript">"use strict";
+    function submitStats() {
+        var a = $$("#stats_from").val();
+        var b = $$("#stats_to").val();
+        var redirectTo = "$get_homepath(True)/admin/$course.get_id()/stats/"+a+"/"+b;
+        console.log(redirectTo);
+        window.location.pathname = redirectTo;
+        return false;
+    }
+
+    var color = Chart.helpers.color;
+    var config = {
+        type: 'line',
+        data: {
+            datasets: [{
+                label: 'All submissions',
+                backgroundColor: color('rgb(255, 99, 132)').alpha(0.5).rgbString(),
+                borderColor: 'rgb(255, 99, 132)',
+                fill: false,
+                type: "line",
+                data: [
+                    /*
+                    $for entry in stats_graph[0]:
+                        //*/
+                        {
+                            x: "$entry[0]",
+                            y: $entry[1]
+                        },
+                ]
+            }, {
+                label: 'Valid submissions',
+                backgroundColor: color('rgb(54, 162, 235)').alpha(0.5).rgbString(),
+                borderColor: 'rgb(54, 162, 235)',
+                fill: true,
+                type: "line",
+                data: [
+                    /*
+                    $for entry in stats_graph[1]:
+                        //*/
+                        {
+                            x: "$entry[0]",
+                            y: $entry[1]
+                        },
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    distribution: 'series',
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Date'
+                    },
+                    ticks: {
+                        major: {
+                            fontStyle: 'bold',
+                            fontColor: '#FF0000'
+                        }
+                    }
+                }],
+                yAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: '# submissions'
+                    }
+                }]
+            }
+        }
+    };
+
+    window.onload = function() {
+        var ctx = document.getElementById('canvas').getContext('2d');
+        window.myLine = new Chart(ctx, config);
+    };
+</script>
+<h3>$:_("Tasks")</h3>
+<table class="table">
+    <tr><th>Tasks</th><th># submissions</th><th># valid submissions</th></tr>
+    $for entry in stats_tasks:
+        <tr>
+            <td>$entry['name']</td>
+            <td>$entry['submissions']</td>
+            <td>$entry['validSubmissions']</td>
+        </tr>
+</table>
+
+<h3>$:_("Users")</h3>
+<table class="table">
+    <tr><th>User</th><th># submissions</th><th># valid submissions</th></tr>
+    $for entry in stats_users:
+        <tr>
+            <td>$entry['name']</td>
+            <td>$entry['submissions']</td>
+            <td>$entry['validSubmissions']</td>
+        </tr>
+</table>
