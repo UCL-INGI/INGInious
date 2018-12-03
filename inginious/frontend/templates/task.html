@@ -19,12 +19,20 @@ $def ColumnF():
                 <td>$task.get_authors(user_manager.session_language())</td>
             </tr>
         $if not is_lti():
-            <tr>
-                <td>$:_("Deadline")</td>
-                <td>
-                    $task.get_deadline()
-                </td>
-            </tr>
+            $if task.get_accessible_time().is_open() and not task.get_accessible_time().is_open_with_soft_deadline():
+                <tr class="list-group-item-danger">
+                    <td>$:_("Deadline")</td>
+                    <td>
+                        $task.get_deadline()
+                    </td>
+                </tr>
+            $else:
+                <tr>
+                    <td>$:_("Deadline")</td>
+                    <td>
+                        $task.get_deadline()
+                    </td>
+                </tr>
         $if registered or staff:
             <tr>
                 <td>$:_("Status")</td>

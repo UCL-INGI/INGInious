@@ -194,10 +194,29 @@ $else:
                 </div>
             </div>
         </div>
+        <div class="row">
+            <!-- Padding -->
+            <div class="col-xs-12 col-lg-3"></div>
+            <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-4"></div>
+            <!-- End of padding -->
+            <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-1"><label class="control-label">$:_("Soft Deadline")</label></div>
+            <div class="col-xs-offset-1 col-lg-offset-0 col-xs-11 col-lg-4">
+                <div class="form-group">
+                    <div class='input-group date' id='accessible_soft_end_picker' data-target-input="nearest">
+                            <input data-target='#accessible_soft_end_picker' name="accessible_soft_end" data-date-format="YYYY-MM-DD HH:mm:ss" value="${at.get_std_soft_end_date()}" placeholder="2014-06-29 10:00" type='text' class="form-control datetimepicker-input" />
+                            <div class="input-group-append" data-target="#accessible_soft_end_picker" data-toggle="datetimepicker">
+                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                            </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
         <script type="text/javascript">
             \$(function() {
                 \$('#accessible_start_picker').datetimepicker({locale: '$user_manager.session_language()', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
                 \$('#accessible_end_picker').datetimepicker({locale: '$user_manager.session_language()', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
+                \$('#accessible_soft_end_picker').datetimepicker({locale: '$user_manager.session_language()', sideBySide: true, format:'YYYY-MM-DD HH:mm:ss'});
             });
         </script>
     </div>

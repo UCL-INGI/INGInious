@@ -81,7 +81,8 @@ class WebAppTask(Task):
         elif self.get_accessible_time().is_never_accessible():
             return _("It's too late")
         else:
-            return self.get_accessible_time().get_end_date().strftime("%d/%m/%Y %H:%M:%S")
+            # Prefer to show the soft deadline rather than the hard one
+            return self.get_accessible_time().get_soft_end_date().strftime("%d/%m/%Y %H:%M:%S")
 
     def is_group_task(self):
         """ Indicates if the task submission mode is per groups """
