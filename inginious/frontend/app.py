@@ -75,6 +75,8 @@ urls = (
     r'/admin/([^/]+)/replay', 'inginious.frontend.pages.course_admin.replay.CourseReplaySubmissions',
     r'/admin/([^/]+)/danger', 'inginious.frontend.pages.course_admin.danger_zone.CourseDangerZonePage',
     r'/admin/([^/]+)/webdav', 'inginious.frontend.pages.course_admin.webdav.WebDavInfoPage',
+    r'/admin/([^/]+)/stats', 'inginious.frontend.pages.course_admin.statistics.CourseStatisticsPage',
+    r'/admin/([^/]+)/stats/([^/]+)/([^/]+)', 'inginious.frontend.pages.course_admin.statistics.CourseStatisticsPage',
     r'/api/v0/auth_methods', 'inginious.frontend.pages.api.auth_methods.APIAuthMethods',
     r'/api/v0/authentication', 'inginious.frontend.pages.api.authentication.APIAuthentication',
     r'/api/v0/courses', 'inginious.frontend.pages.api.courses.APICourses',
