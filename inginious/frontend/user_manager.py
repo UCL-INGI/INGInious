@@ -642,6 +642,10 @@ class UserManager:
 
         user_info = self._database.users.find_one({"username":username})
 
+        # Do not continue registering the user in the course if username is empty.
+        if not username:
+            return False
+
         if not force:
             if not course.is_registration_possible(user_info):
                 return False
