@@ -48,6 +48,7 @@ class Task(object):
         self._network_grading = self._data.get("network_grading", False)
 
         # i18n
+        self._translations_fs = translations_fs
         self._translations = {}
         if not translations_fs:
             translations_fs = task_fs.from_subfolder("$i18n")
@@ -119,6 +120,14 @@ class Task(object):
     def get_fs(self):
         """ Returns a FileSystemProvider which points to the folder of this task """
         return self._fs
+
+    def get_hook(self):
+        """ Returns the hook manager parameter for this task"""
+        return self._hook_manager
+
+    def get_translation_fs(self):
+        """ Return the translation_fs parameter for this task"""
+        return self._translations_fs
 
     def check_answer(self, task_input, language):
         """

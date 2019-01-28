@@ -69,8 +69,8 @@ class Tag:
     def get_type(self):
         return self._type
         
-    @staticmethod
-    def create_tags_from_dict(tag_dict):
+    @classmethod
+    def create_tags_from_dict(cls, tag_dict):
         """ 
             Build a tuple of list of Tag objects based on the tag_dict.
             The tuple contains 3 lists.
@@ -89,13 +89,25 @@ class Tag:
                 description = tag_dict[tag]["description"]
                 type = tag_dict[tag]["type"]
                 
-                if(type == 2):
-                    tag_list_organisational.insert(int(tag), Tag(id, name, description, visible, 2))
-                elif(type == 1):
-                    tag_list_misconception.insert(int(tag), Tag(id, name, description, visible, 1))
+                if type == 2:
+                    tag_list_organisational.insert(int(tag), Tag(id, name, description, visible, type))
+                elif type == 1:
+                    tag_list_misconception.insert(int(tag), Tag(id, name, description, visible, type))
                 else:
-                    tag_list_common.insert(int(tag), Tag(id, name, description, visible, 0))
-
+                    tag_list_common.insert(int(tag), Tag(id, name, description, visible, type))
             except KeyError:
                 pass
         return tag_list_common, tag_list_misconception, tag_list_organisational
+
+    @classmethod
+    def check_format(cls, tags):
+        """
+        Check the tags arg only contains valid type for tags
+        :param tags: output of create_tags_from_dict
+        :return: True if correct format, False otherwise
+        """
+        common, _, _ = tags
+        for tag in common:
+            if tag.get_type() != 0:  # Unknown type -> incorrect
+                return False
+        return True

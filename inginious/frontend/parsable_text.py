@@ -141,16 +141,19 @@ class ParsableText(object):
         """ Returns the original content """
         return self._content
 
-    def parse(self):
+    def parse(self, debug=False):
         """Returns parsed text"""
         if self._parsed is None:
             try:
                 if self._mode == "html":
                     self._parsed = self.html(self._content, self._show_everything, self._translation)
                 else:
-                    self._parsed = self.rst(self._content, self._show_everything, self._translation)
-            except:
-                self._parsed = self._translation.gettext("<b>Parsing failed</b>: <pre>{}</pre>").format(html.escape(self._content))
+                    self._parsed = self.rst(self._content, self._show_everything, self._translation, debug=debug)
+            except Exception as e:
+                if debug:
+                    raise BaseException("Parsing failed") from e
+                else:
+                    self._parsed = self._translation.gettext("<b>Parsing failed</b>: <pre>{}</pre>").format(html.escape(self._content))
         return self._parsed
 
     def __str__(self):
@@ -168,7 +171,7 @@ class ParsableText(object):
         return out
 
     @classmethod
-    def rst(cls, string, show_everything=False, translation=gettext.NullTranslations(), initial_header_level=3):
+    def rst(cls, string, show_everything=False, translation=gettext.NullTranslations(), initial_header_level=3, debug=False):
         """Parses reStructuredText"""
         overrides = {
             'initial_header_level': initial_header_level,
@@ -178,5 +181,8 @@ class ParsableText(object):
             'translation': translation,
             'math_output': 'MathJax'
         }
+        if debug:
+            overrides['halt_level'] = 2
+            overrides['traceback'] = True
         parts = core.publish_parts(source=string, writer=_CustomHTMLWriter(), settings_overrides=overrides)
         return parts['body_pre_docinfo'] + parts['fragment']
