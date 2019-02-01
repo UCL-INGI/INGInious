@@ -255,6 +255,10 @@ class WebAppSubmissionManager:
         states = self._database.user_tasks.find_one({"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username}, {"random": 1, "state": 1})
         inputdata["@random"] = states["random"] if "random" in states else []
         inputdata["@state"] = states["state"] if "state" in states else ""
+        # Record if the submission was late or not
+        accessible_time = task.get_accessible_time()
+        is_late = accessible_time.is_open() and not accessible_time.is_open_with_soft_deadline()
+        inputdata["@late"] = is_late
 
         self._hook_manager.call_hook("new_submission", submission=obj, inputdata=inputdata)
         obj["input"] = self._gridfs.put(bson.BSON.encode(inputdata))
