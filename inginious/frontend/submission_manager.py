@@ -259,6 +259,8 @@ class WebAppSubmissionManager:
         accessible_time = task.get_accessible_time()
         is_late = accessible_time.is_open() and not accessible_time.is_open_with_soft_deadline()
         inputdata["@late"] = is_late
+        # We duplicate this in its own submission field to get this attribute at front-end
+        obj["late"] = is_late
 
         self._hook_manager.call_hook("new_submission", submission=obj, inputdata=inputdata)
         obj["input"] = self._gridfs.put(bson.BSON.encode(inputdata))

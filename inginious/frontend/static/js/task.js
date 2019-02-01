@@ -116,6 +116,8 @@ function displayNewSubmission(id)
     }
 
     jQuery('<span id="txt"/>', {}).text(getDateTime()).appendTo(submission_link);
+    submission_link.append(" ");
+    jQuery('<i id="status"/>', {class: ""}).appendTo(submission_link);
     
     //If there exists tags, we add a badge with '0' in the new submission.
     if($('span', $('#main_tag_group')).length > 0){
@@ -141,7 +143,7 @@ function removeSubmission(id) {
 }
 
 //Updates a loading submission
-function updateSubmission(id, result, grade, tags)
+function updateSubmission(id, result, grade, tags, late)
 {
     grade = grade || "0.0";
 
@@ -156,7 +158,12 @@ function updateSubmission(id, result, grade, tags)
             $(this).removeClass('list-group-item-warning').addClass(nclass);
             var date = $(this).find("span[id='txt']");
             date.text(date.text() + " - " + grade + "%");
-            
+
+            if (late) {
+                var status = $(this).find("i[id='status']");
+                status.addClass("fa fa-clock-o");
+            }
+
             //update the badge
             updateTagsToNewSubmission($(this), tags);  
         }
@@ -418,10 +425,15 @@ function waitForSubmission(submissionid)
                     else // == "error"
                         displayTaskStudentAlertWithProblems(data, "danger", false);
 
+                    var late = false;
+                    if ("late" in data) {
+                        late = data["late"];
+                    }
+
                     if("tests" in data){
-                        updateSubmission(submissionid, data['result'], data["grade"], data["tests"]);
+                        updateSubmission(submissionid, data['result'], data["grade"], data["tests"], late);
                     }else{
-                        updateSubmission(submissionid, data['result'], data["grade"], []);
+                        updateSubmission(submissionid, data['result'], data["grade"], [], late);
                     }
                     unblurTaskForm();
 
@@ -434,7 +446,7 @@ function waitForSubmission(submissionid)
                 else
                 {
                     displayTaskStudentAlertWithProblems(data, "danger", false);
-                    updateSubmission(submissionid, "error", "0.0", []);
+                    updateSubmission(submissionid, "error", "0.0", [], false);
                     updateTaskStatus("Failed", 0);
                     unblurTaskForm();
                 }
@@ -443,7 +455,7 @@ function waitForSubmission(submissionid)
             .fail(function()
             {
                 displayTaskStudentAlertWithProblems(data, "danger", false);
-                updateSubmission(submissionid, "error", "0.0", []);
+                updateSubmission(submissionid, "error", "0.0", [], false);
                 updateTaskStatus("Failed", 0);
                 unblurTaskForm();
             });

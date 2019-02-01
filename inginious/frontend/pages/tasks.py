@@ -355,6 +355,7 @@ class BaseTaskPage(object):
 
         tojson["text"] = "<b>" + tojson["text"] + " " + _("[Submission #{submissionid}]").format(submissionid=data["_id"]) + "</b>" + data.get("text", "")
         tojson["text"] = self.plugin_manager.call_hook_recursive("feedback_text", task=task, submission=data, text=tojson["text"])["text"]
+        tojson["late"] = data.get("late", False)
 
         if reloading:
             # Set status='ok' because we are reloading an old submission.
