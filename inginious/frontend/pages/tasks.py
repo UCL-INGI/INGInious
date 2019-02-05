@@ -169,6 +169,9 @@ class BaseTaskPage(object):
                 # we don't care for the other case, as the student won't be able to submit.
 
             submissions = self.submission_manager.get_user_submissions(task) if self.user_manager.session_logged_in() else []
+            # Also fetch the late attribute in the submission input
+            submissions = [dict(submission, **{"late": self.submission_manager.get_input_from_submission(submission, only_input=True).get("@late", False)})
+                            for submission in submissions]
             user_info = self.database.users.find_one({"username": username})
 
             # Display the task itself
@@ -355,6 +358,8 @@ class BaseTaskPage(object):
 
         tojson["text"] = "<b>" + tojson["text"] + " " + _("[Submission #{submissionid}]").format(submissionid=data["_id"]) + "</b>" + data.get("text", "")
         tojson["text"] = self.plugin_manager.call_hook_recursive("feedback_text", task=task, submission=data, text=tojson["text"])["text"]
+        userinput = data.get("input", {})
+        tojson["late"] = userinput.get("@late", False)
 
         if reloading:
             # Set status='ok' because we are reloading an old submission.

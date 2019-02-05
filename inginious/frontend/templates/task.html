@@ -223,6 +223,11 @@ $def ColumnF():
                                 <span id="txt">$submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S") - $submission["grade"]%</span>
                             $else:
                                 <span id="txt">$submission["submitted_on"].strftime("%d/%m/%Y %H:%M:%S")</span>
+
+                            $if submission.get("late", False):
+                                <i id="status" class="fa fa-clock-o"></i>
+                            $else:
+                                <i id="status" class=""></i>
                         </li>
                         
                 $else:
