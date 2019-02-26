@@ -112,9 +112,26 @@ class LTILoginPage(INGIniousPage):
         except:
             return self.template_helper.get_renderer().lti_bind(False, "", None, "Invalid LTI data")
 
-        user_profile = self.database.users.find_one({"ltibindings." + data["task"][0] + "." + data["consumer_key"]: data["username"]})
+        if course.lti_auto_bind():
+            lti_email = data['email']
+            lti_name = data['realname']
+            lti_id = lti_email[0:lti_email.find('@')]
+            user_profile = self.database.users.find_one({"username": lti_id})
+            if not user_profile:
+                # New user, create an account using email address
+                user_profile = {"username": lti_id,
+                                "realname": lti_name,
+                                "email": lti_email,
+                                "bindings": {data["consumer_key"]: [lti_id, {}]},
+                                "language": self.app.get_session().get("language", "en")}
+                self.database.users.insert(user_profile)
+        else:
+            user_profile = self.database.users.find_one({"ltibindings." + data["task"][0] + "." + data["consumer_key"]:
+                                                         data["username"]})
+
         if user_profile:
-            self.user_manager.connect_user(user_profile["username"], user_profile["realname"], user_profile["email"], user_profile["language"])
+            self.user_manager.connect_user(user_profile["username"], user_profile["realname"],
+                                           user_profile["email"], user_profile["language"])
 
         if self.user_manager.session_logged_in():
             raise web.seeother(self.app.get_homepath() + "/lti/task")

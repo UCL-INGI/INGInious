@@ -44,6 +44,7 @@ class WebAppCourse(Course):
             self._allow_preview = self._content.get('allow_preview', False)
             self._is_lti = self._content.get('is_lti', False)
             self._lti_keys = self._content.get('lti_keys', {})
+            self._lti_auto_bind = self._content.get('lti_auto_bind', False)
             self._lti_send_back_grade = self._content.get('lti_send_back_grade', False)
         except:
             raise Exception("Course has an invalid YAML spec: " + self.get_id())
@@ -132,6 +133,10 @@ class WebAppCourse(Course):
     def lti_keys(self):
         """ {name: key} for the LTI customers """
         return self._lti_keys if self._is_lti else {}
+
+    def lti_auto_bind(self):
+        """ True if the current course shall automatically bind to a lti-provided user """
+        return self._lti_auto_bind
 
     def lti_send_back_grade(self):
         """ True if the current course should send back grade to the LTI Tool Consumer """
