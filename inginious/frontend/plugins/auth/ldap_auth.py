@@ -63,6 +63,101 @@ class LDAPAuthenticationPage(AuthenticationPage):
         return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(settings,
                                                                                                          False)
 
+    @staticmethod
+    def _ldap_request(login, password, host, port=None, encryption=None, bind_dn=None, bind_password=None,
+                      bind_password_file=None, base_dn=None, request=None, start_tls='NONE', cn='cn', mail='mail'):
+        # Define ldap server object
+        server = ldap3.Server(host, port=port, use_ssl=encryption == 'ssl', get_info=ldap3.ALL)
+
+        # auto_bind can be NONE, NO_TLS, TLS_AFTER_BIND, TLS_BEFORE_BIND
+        if start_tls == 'NO_TLS':
+            auto_bind = ldap3.AUTO_BIND_NO_TLS
+        elif start_tls == 'TLS_AFTER_BIND':
+            auto_bind = ldap3.AUTO_BIND_TLS_AFTER_BIND
+        elif start_tls == 'TLS_BEFORE_BIND':
+            auto_bind = ldap3.AUTO_BIND_TLS_BEFORE_BIND
+        else:
+            auto_bind = ldap3.AUTO_BIND_NONE
+
+        # If bind_dn is used, try to get the configured password
+        # 1. bind_password
+        # 2. First line from file bind_password_file
+        # 3. Password provided by the user from the website
+        if bind_dn:
+            if bind_password is None:
+                if bind_password_file is None:
+                    bind_password = password
+                else:
+                    try:
+                        file = open(bind_password_file, 'r')
+                        bind_password = file.readline()
+                        if bind_password[-1] == '\r':
+                            bind_password = bind_password[:-2]
+                        file.close()
+                    except FileNotFoundError:
+                        raise Exception('Invalid configuration: Password file not found')
+                    except PermissionError:
+                        raise Exception('Invalid configuration: Insufficient permissions on password file')
+
+        # Connect to the server
+        # With auto bind:
+        #   Bind (Log in) to a specific user to query ldap and afterward check the password
+        # Without auto bind:
+        #   Query anonymously the user data and check the password (anonymously querying is not always possible)
+        try:
+            logger.debug('Connecting to {}, port {} (SSL={})'.format(host, port, encryption == 'ssl'))
+            if bind_dn:
+                # Connect with auto bind
+                bind_dn = bind_dn.format(login)
+                conn = ldap3.Connection(server, auto_bind=auto_bind, user=bind_dn, password=bind_password)
+            else:
+                # Connect normally
+                conn = ldap3.Connection(server, auto_bind=auto_bind)
+        except Exception as e:
+            logger.error('Unable to connect to {}, port {} (SSL={}): {}'.format(host, port,
+                                                                                encryption == 'ssl', str(e)))
+            if type(e) == ldap3.core.exceptions.LDAPBindError:
+                raise Exception('Invalid credentials')
+            else:
+                raise Exception('Unable to contact ldap server')
+
+        # Request configured 'cn' and 'mail' from the server
+        try:
+            request = request.format(login)
+            conn.search(base_dn, request, attributes=[cn, mail])
+            user_data = conn.response[0]
+        except ldap3.core.exceptions.LDAPSocketOpenError as e:
+            logger.error('Unable to contact host: {} ({})'.format(str(e), host))
+            conn.unbind()
+            raise Exception('Unable to contact host')
+        except Exception as e:
+            logger.error('Unable to get user data: {}'.format(str(e)))
+            conn.unbind()
+            raise Exception('Unknown User')
+
+        # 'Log in' (bind) to the ldap connection
+        if conn.rebind(user_data['dn'], password=password):
+            try:
+                email = user_data['attributes'][mail]
+                username = login
+                realname = user_data['attributes'][cn]
+
+                logger.debug('Successfully fetched data from ldap for user {}'.format(login))
+
+                return email, username, realname
+            except KeyError as e:
+                logger.error('Unable to fetch attribute "{}"'.format(str(e)))
+                raise Exception('Unable to fetch attribute "{}"'.format(str(e)))
+            except Exception as e:
+                logger.error('Unable to fetch some attributes: {}'.format(str(e)))
+                raise Exception('Unable to fetch some attributes')
+            finally:
+                conn.unbind()
+        else:
+            logger.error('Unable to authenticate user')
+            conn.unbind()
+            raise Exception('Unable to authenticate user')
+
     def POST(self, id):
         # Get configuration
         settings = self.user_manager.get_auth_method(id).get_settings()
@@ -72,56 +167,38 @@ class LDAPAuthenticationPage(AuthenticationPage):
 
         # do not send empty password to the LDAP
         if password.rstrip() == "":
-            return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(
-                settings, "Empty password")
+            return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(settings,
+                                                                                                      'Empty password')
 
-        try:
-            # Connect to the ldap
-            logger.debug('Connecting to ' + settings['host'] + ", port " + str(settings['port']))
-            conn = ldap3.Connection(
-                ldap3.Server(settings['host'], port=settings['port'], use_ssl=settings["encryption"] == 'ssl',
-                             get_info=ldap3.ALL), auto_bind=True)
-            logger.debug('Connected to ' + settings['host'] + ", port " + str(settings['port']))
-        except Exception as e:
-            logger.exception("Can't initialze connection to " + settings['host'] + ': ' + str(e))
-            return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(
-                settings, "Cannot contact host")
+        email, username, realname = None, None, None
 
-        try:
-            request = settings["request"].format(login)
-            conn.search(settings["base_dn"], request, attributes=["cn", "mail"])
-            user_data = conn.response[0]
-        except Exception as ex:
-            logger.exception("Can't get user data : " + str(ex))
-            conn.unbind()
-            return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(
-                settings, "Unknown user")
-
-        if conn.rebind(user_data['dn'], password=password):
-            try:
-                email = user_data["attributes"][settings.get("mail", "mail")][0]
-                username = login
-                realname = user_data["attributes"][settings.get("cn", "cn")][0]
-            except KeyError as e:
-                logger.exception("Can't get field " + str(e) + " from your LDAP server")
-                return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(
-                    settings, "Can't get field " + str(e) + " from your LDAP server")
-            except Exception as e:
-                logger.exception("Can't get some user fields")
-                return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(
-                settings, "Can't get some user fields")
-
-            conn.unbind()
-
-            self.user_manager.bind_user(id, (username, realname, email))
-            
-            auth_storage = self.user_manager.session_auth_storage().setdefault(id, {})
-            raise web.seeother(auth_storage.get("redir_url", "/"))
+        if settings['chain']:
+            exc = set()
+            for config in settings['chain']:
+                try:
+                    email, username, realname = self._ldap_request(login, password, **config)
+                except Exception as e:
+                    exc.add(str(e))
+                if email and username and realname:
+                    break
+            if (not email or not username or not realname) and len(exc) > 0:
+                errors = ', '.join(exc)
+                return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(settings,
+                                                                                                          errors)
         else:
-            logger.debug('Auth Failed')
-            conn.unbind()
-            return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(
-                settings, "Incorrect password")
+            try:
+                email, username, realname = self._ldap_request(login, password, **settings)
+            except Exception as e:
+                return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(settings,
+                                                                                                          str(e))
+        if not email or not username or not realname:
+            # Unknown Auth Error
+            return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(settings,
+                                                                                                      'Unknown error')
+
+        self.user_manager.bind_user(id, (username, realname, email))
+        auth_storage = self.user_manager.session_auth_storage().setdefault(id, {})
+        raise web.seeother(auth_storage.get("redir_url", "/"))
 
 
 def init(plugin_manager, _, _2, conf):
