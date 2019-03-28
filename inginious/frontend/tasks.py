@@ -59,7 +59,7 @@ class WebAppTask(Task):
         self._regenerate_input_random = bool(self._data.get("regenerate_input_random", False))
 
         # Tags
-        self._tags = Tag.create_tags_from_dict(self._data.get("tags", {})) 
+        self._tags = Tag.create_tags_from_dict(self._data.get("tags", {}))
 
     def get_grading_weight(self):
         """ Get the relative weight of this task in the grading """
@@ -100,8 +100,8 @@ class WebAppTask(Task):
         """ Get the context(description) of this task """
         context = self.gettext(language, self._context) if self._context else ""
         vals = self._hook_manager.call_hook('task_context', course=self.get_course(), task=self, default=context)
-        return ParsableText(vals[0], "rst", self._translations.get(language, gettext.NullTranslations())) if len(vals) else \
-            ParsableText(context, "rst", self._translations.get(language, gettext.NullTranslations()))
+        return ParsableText(vals[0], "rst", self._translations.get(language, gettext.NullTranslations())) if len(vals) \
+            else ParsableText(context, "rst", self._translations.get(language, gettext.NullTranslations()))
 
     def get_authors(self, language):
         """ Return the list of this task's authors """

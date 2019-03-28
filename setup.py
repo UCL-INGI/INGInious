@@ -71,6 +71,7 @@ setup(
         'inginious-webapp',
         'inginious-webdav',
         'inginious-install',
+        'inginious-autotest',
         'utils/sync/inginious-synchronize',
         'utils/container_update/inginious-container-update',
         'utils/database_updater/inginious-database-update'
