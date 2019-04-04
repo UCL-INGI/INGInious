@@ -7,6 +7,13 @@ backend: local
 # Logging level
 log_level: INFO
 
+# Display errors? Possible values:
+# - false : do not display the error outside the log
+# - true : display the error directly in the browser. useful when debugging locally, but dangerous in production,
+#         as it may expose passwords and other sensitive data
+# - "your@email.com": send error report to the indicated email
+web_debug: false
+
 # Only for backend: local
 local-config:
     # debug_host: localhost  # host that will be indicated to users when they want to use the task remote debug feature. Automatically guessed by
