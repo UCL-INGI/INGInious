@@ -10,6 +10,7 @@ import pymongo
 import inginious.frontend.pages.course_admin.utils as course_admin_utils
 import web
 from inginious.frontend.fix_webpy_cookies import fix_webpy_cookies
+from inginious.frontend.pages.internalerror import internalerror_generator
 
 fix_webpy_cookies() # TODO: remove me once https://github.com/webpy/webpy/pull/419 is merge in web.py
 
@@ -243,6 +244,7 @@ def get_app(config):
 
     # Enable stacktrace display if needed
     web_debug = config.get('web_debug', False)
+    appli.internalerror = internalerror_generator(template_helper.get_renderer(False))
     if web_debug is True:
         web.config.debug = True
         appli.internalerror = debugerror
