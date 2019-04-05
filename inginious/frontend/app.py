@@ -10,6 +10,7 @@ import pymongo
 import inginious.frontend.pages.course_admin.utils as course_admin_utils
 import web
 from inginious.frontend.fix_webpy_cookies import fix_webpy_cookies
+from inginious.frontend.pages.internalerror import internalerror_generator
 
 fix_webpy_cookies() # TODO: remove me once https://github.com/webpy/webpy/pull/419 is merge in web.py
 
@@ -25,7 +26,7 @@ from inginious.frontend.tasks import WebAppTask
 from inginious.frontend.template_helper import TemplateHelper
 from inginious.frontend.user_manager import UserManager
 from pymongo import MongoClient
-from web.debugerror import debugerror
+from web.debugerror import debugerror, emailerrors
 
 import inginious.frontend.pages.preferences.utils as preferences_utils
 from inginious import get_root_path
@@ -121,6 +122,9 @@ def get_app(config):
     :param config: the configuration dict
     :return: A new app
     """
+    # First, disable debug. It will be enabled in the configuration, later.
+    web.config.debug = False
+
     config = _put_configuration_defaults(config)
 
     mongo_client = MongoClient(host=config.get('mongo_opt', {}).get('host', 'localhost'))
@@ -238,9 +242,15 @@ def get_app(config):
     # Not found page
     appli.notfound = lambda: web.notfound(template_helper.get_renderer().notfound('Page not found'))
 
-    # Enable stacktrace display if logging is at level DEBUG
-    if config.get('log_level', 'INFO') == 'DEBUG':
+    # Enable stacktrace display if needed
+    web_debug = config.get('web_debug', False)
+    appli.internalerror = internalerror_generator(template_helper.get_renderer(False))
+    if web_debug is True:
+        web.config.debug = True
         appli.internalerror = debugerror
+    elif isinstance(web_debug, str):
+        web.config.debug = False
+        appli.internalerror = emailerrors(web_debug, appli.internalerror)
 
     # Insert the needed singletons into the application, to allow pages to call them
     appli.plugin_manager = plugin_manager
