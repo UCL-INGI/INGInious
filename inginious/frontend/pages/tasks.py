@@ -181,120 +181,115 @@ class BaseTaskPage(object):
     def POST(self, courseid, taskid, isLTI):
         """ POST a new submission """
         username = self.user_manager.session_username()
-        try:
-            course = self.course_factory.get_course(courseid)
-            if not self.user_manager.course_is_open_to_user(course, username, isLTI):
-                return self.template_helper.get_renderer().course_unavailable()
 
-            task = course.get_task(taskid)
-            if not self.user_manager.task_is_visible_by_user(task, username, isLTI):
-                return self.template_helper.get_renderer().task_unavailable()
+        course = self.course_factory.get_course(courseid)
+        if not self.user_manager.course_is_open_to_user(course, username, isLTI):
+            return self.template_helper.get_renderer().course_unavailable()
 
-            self.user_manager.user_saw_task(username, courseid, taskid)
+        task = course.get_task(taskid)
+        if not self.user_manager.task_is_visible_by_user(task, username, isLTI):
+            return self.template_helper.get_renderer().task_unavailable()
 
-            is_staff = self.user_manager.has_staff_rights_on_course(course, username)
-            is_admin = self.user_manager.has_admin_rights_on_course(course, username)
+        self.user_manager.user_saw_task(username, courseid, taskid)
 
-            userinput = web.input()
-            if "@action" in userinput and userinput["@action"] == "submit":
-                # Verify rights
-                if not self.user_manager.task_can_user_submit(task, username, isLTI):
-                    return json.dumps({"status": "error", "text": _("You are not allowed to submit for this task.")})
-                    
-                # Retrieve input random and check still valid
-                random_input = self.database.user_tasks.find_one({"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username}, { "random": 1 })
-                random_input = random_input["random"] if "random" in random_input else []
-                for i in range(0, len(random_input)):
-                    s = "@random_" + str(i)
-                    if s not in userinput or float(userinput[s]) != random_input[i]:
-                        return json.dumps({"status": "error", "text": _("Your task has been regenerated. This current task is outdated.")})
+        is_staff = self.user_manager.has_staff_rights_on_course(course, username)
+        is_admin = self.user_manager.has_admin_rights_on_course(course, username)
 
-                # Reparse user input with array for multiple choices
-                init_var = {
-                    problem.get_id(): problem.input_type()()
-                    for problem in task.get_problems() if problem.input_type() in [dict, list]
-                }
-                userinput = task.adapt_input_for_backend(web.input(**init_var))
+        userinput = web.input()
+        if "@action" in userinput and userinput["@action"] == "submit":
+            # Verify rights
+            if not self.user_manager.task_can_user_submit(task, username, isLTI):
+                return json.dumps({"status": "error", "text": _("You are not allowed to submit for this task.")})
 
-                if not task.input_is_consistent(userinput, self.default_allowed_file_extensions, self.default_max_file_size):
-                    web.header('Content-Type', 'application/json')
-                    return json.dumps({"status": "error", "text": _("Please answer to all the questions and verify the extensions of the files "
-                                                                  "you want to upload. Your responses were not tested.")})
-                del userinput['@action']
+            # Retrieve input random and check still valid
+            random_input = self.database.user_tasks.find_one({"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username}, { "random": 1 })
+            random_input = random_input["random"] if "random" in random_input else []
+            for i in range(0, len(random_input)):
+                s = "@random_" + str(i)
+                if s not in userinput or float(userinput[s]) != random_input[i]:
+                    return json.dumps({"status": "error", "text": _("Your task has been regenerated. This current task is outdated.")})
 
-                # Get debug info if the current user is an admin
-                debug = is_admin
-                if "@debug-mode" in userinput:
-                    if userinput["@debug-mode"] == "ssh" and debug:
-                        debug = "ssh"
-                    del userinput['@debug-mode']
+            # Reparse user input with array for multiple choices
+            init_var = {
+                problem.get_id(): problem.input_type()()
+                for problem in task.get_problems() if problem.input_type() in [dict, list]
+            }
+            userinput = task.adapt_input_for_backend(web.input(**init_var))
 
-                # Start the submission
-                try:
-                    submissionid, oldsubids = self.submission_manager.add_job(task, userinput, debug)
-                    web.header('Content-Type', 'application/json')
-                    return json.dumps({"status": "ok", "submissionid": str(submissionid), "remove": oldsubids, "text": _("<b>Your submission has been sent...</b>")})
-                except Exception as ex:
-                    web.header('Content-Type', 'application/json')
-                    return json.dumps({"status": "error", "text": str(ex)})
+            if not task.input_is_consistent(userinput, self.default_allowed_file_extensions, self.default_max_file_size):
+                web.header('Content-Type', 'application/json')
+                return json.dumps({"status": "error", "text": _("Please answer to all the questions and verify the extensions of the files "
+                                                              "you want to upload. Your responses were not tested.")})
+            del userinput['@action']
 
-            elif "@action" in userinput and userinput["@action"] == "check" and "submissionid" in userinput:
-                result = self.submission_manager.get_submission(userinput['submissionid'], user_check=not is_staff)
-                if result is None:
-                    web.header('Content-Type', 'application/json')
+            # Get debug info if the current user is an admin
+            debug = is_admin
+            if "@debug-mode" in userinput:
+                if userinput["@debug-mode"] == "ssh" and debug:
+                    debug = "ssh"
+                del userinput['@debug-mode']
+
+            # Start the submission
+            try:
+                submissionid, oldsubids = self.submission_manager.add_job(task, userinput, debug)
+                web.header('Content-Type', 'application/json')
+                return json.dumps({"status": "ok", "submissionid": str(submissionid), "remove": oldsubids, "text": _("<b>Your submission has been sent...</b>")})
+            except Exception as ex:
+                web.header('Content-Type', 'application/json')
+                return json.dumps({"status": "error", "text": str(ex)})
+
+        elif "@action" in userinput and userinput["@action"] == "check" and "submissionid" in userinput:
+            result = self.submission_manager.get_submission(userinput['submissionid'], user_check=not is_staff)
+            if result is None:
+                web.header('Content-Type', 'application/json')
+                return json.dumps({'status': "error", "text": _("Internal error")})
+            elif self.submission_manager.is_done(result, user_check=not is_staff):
+                web.header('Content-Type', 'application/json')
+                result = self.submission_manager.get_input_from_submission(result)
+                result = self.submission_manager.get_feedback_from_submission(result, show_everything=is_staff)
+
+                # user_task always exists as we called user_saw_task before
+                user_task = self.database.user_tasks.find_one({
+                    "courseid":task.get_course_id(),
+                    "taskid": task.get_id(),
+                    "username": {"$in": result["username"]}
+                })
+
+                default_submissionid = user_task.get('submissionid', None)
+                if default_submissionid is None:
+                    # This should never happen, as user_manager.update_user_stats is called whenever a submission is done.
                     return json.dumps({'status': "error", "text": _("Internal error")})
-                elif self.submission_manager.is_done(result, user_check=not is_staff):
-                    web.header('Content-Type', 'application/json')
-                    result = self.submission_manager.get_input_from_submission(result)
-                    result = self.submission_manager.get_feedback_from_submission(result, show_everything=is_staff)
 
-                    # user_task always exists as we called user_saw_task before
-                    user_task = self.database.user_tasks.find_one({
-                        "courseid":task.get_course_id(),
-                        "taskid": task.get_id(),
-                        "username": {"$in": result["username"]}
-                    })
-
-                    default_submissionid = user_task.get('submissionid', None)
-                    if default_submissionid is None:
-                        # This should never happen, as user_manager.update_user_stats is called whenever a submission is done.
-                        return json.dumps({'status': "error", "text": _("Internal error")})
-
-                    return self.submission_to_json(task, result, is_admin, False, default_submissionid == result['_id'], tags=task.get_tags())
-                else:
-                    web.header('Content-Type', 'application/json')
-                    return self.submission_to_json(task, result, is_admin)
-
-            elif "@action" in userinput and userinput["@action"] == "load_submission_input" and "submissionid" in userinput:
-                submission = self.submission_manager.get_submission(userinput["submissionid"], user_check=not is_staff)
-                submission = self.submission_manager.get_input_from_submission(submission)
-                submission = self.submission_manager.get_feedback_from_submission(submission, show_everything=is_staff)
-                if not submission:
-                    raise web.notfound()
+                return self.submission_to_json(task, result, is_admin, False, default_submissionid == result['_id'], tags=task.get_tags())
+            else:
                 web.header('Content-Type', 'application/json')
-                
-                return self.submission_to_json(task, submission, is_admin, True, tags=task.get_tags())
-                
-            elif "@action" in userinput and userinput["@action"] == "kill" and "submissionid" in userinput:
-                self.submission_manager.kill_running_submission(userinput["submissionid"])  # ignore return value
-                web.header('Content-Type', 'application/json')
+                return self.submission_to_json(task, result, is_admin)
+
+        elif "@action" in userinput and userinput["@action"] == "load_submission_input" and "submissionid" in userinput:
+            submission = self.submission_manager.get_submission(userinput["submissionid"], user_check=not is_staff)
+            submission = self.submission_manager.get_input_from_submission(submission)
+            submission = self.submission_manager.get_feedback_from_submission(submission, show_everything=is_staff)
+            if not submission:
+                raise web.notfound()
+            web.header('Content-Type', 'application/json')
+
+            return self.submission_to_json(task, submission, is_admin, True, tags=task.get_tags())
+
+        elif "@action" in userinput and userinput["@action"] == "kill" and "submissionid" in userinput:
+            self.submission_manager.kill_running_submission(userinput["submissionid"])  # ignore return value
+            web.header('Content-Type', 'application/json')
+            return json.dumps({'status': 'done'})
+        elif "@action" in userinput and userinput["@action"] == "set_submission" and "submissionid" in userinput:
+            web.header('Content-Type', 'application/json')
+            if task.get_evaluate() != 'student':
+                return json.dumps({'status': "error"})
+
+            if self.set_selected_submission(course, task, userinput["submissionid"]):
                 return json.dumps({'status': 'done'})
-            elif "@action" in userinput and userinput["@action"] == "set_submission" and "submissionid" in userinput:
-                web.header('Content-Type', 'application/json')
-                if task.get_evaluate() != 'student':
-                    return json.dumps({'status': "error"})
-
-                if self.set_selected_submission(course, task, userinput["submissionid"]):
-                    return json.dumps({'status': 'done'})
-                else:
-                    return json.dumps({'status': 'error'})
             else:
-                raise web.notfound()
-        except:
-            if web.config.debug:
-                raise
-            else:
-                raise web.notfound()
+                return json.dumps({'status': 'error'})
+        else:
+            raise web.notfound()
 
     def submission_to_json(self, task, data, debug, reloading=False, replace=False, tags={}):
         """ Converts a submission to json (keeps only needed fields) """
