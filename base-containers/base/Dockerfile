@@ -5,12 +5,14 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en  
 ENV LC_ALL en_US.UTF-8
 
-# Install python, needed for scripts used in INGInious
+# Install python, needed for scripts used in INGInious + locale support
 RUN     yum clean metadata && \
         yum -y install https://centos7.iuscommunity.org/ius-release.rpm && \
         yum -y upgrade && \
         yum -y install python python35u-pip python35u zip unzip tar sed openssh-server openssl bind-utils iproute file && \
-        pip3.5 install msgpack-python pyzmq jinja2 PyYAML timeout-decorator && ln -s /usr/bin/python3.5 /usr/bin/python3 && \
+        pip3.5 install msgpack-python pyzmq jinja2 PyYAML timeout-decorator ipython && ln -s /usr/bin/python3.5 /usr/bin/python3 && \
+        sed -i "s/override_install_langs=en_US.utf8/#override_install_langs=en_US.utf8/g" /etc/yum.conf && \
+        yum -y reinstall glibc-common && \
         yum clean all
 
 # Allow to run commands
@@ -24,10 +26,6 @@ RUN     chmod -R 644 /INGInious/inginious && \
         mkdir -p /usr/lib/python3.5/site-packages/inginious && \
         cp -R /INGInious/inginious/*.py  /usr/lib/python3.5/site-packages/inginious && \
         echo "inginious" > /usr/lib/python3.5/site-packages/inginious.pth
-
-# Install locale support
-RUN     sed -i "s/override_install_langs=en_US.utf8/#override_install_langs=en_US.utf8/g" /etc/yum.conf && \
-        yum -y reinstall glibc-common
 
 # Delete unneeded folders
 RUN     rm -R /INGInious

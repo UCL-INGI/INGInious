@@ -1,0 +1,13 @@
+#! /usr/bin/python3
+# coding=utf-8
+
+import sys
+import IPython
+
+if len(sys.argv) == 1:
+    print("No file given", file=sys.stderr)
+    exit(1)
+
+shell = IPython.core.interactiveshell.InteractiveShell()
+sys.argv = sys.argv[1:]  # correct the args
+shell.safe_execfile_ipy(sys.argv[0])

@@ -27,6 +27,9 @@ import zmq
 import zmq.asyncio
 from msgpack import Unpacker
 
+ELF_MAGIC = b"\x7F\x45\x4C\x46"
+SHEBANG_MAGIC = b"\x23\x21"
+
 class INGIniousMainRunner(object):
     def __init__(self, ctx, loop):
         self._ctx = ctx
@@ -58,6 +61,7 @@ class INGIniousMainRunner(object):
     def setlimits(self):
         os.setgid(4242)
         os.setuid(4242)
+        os.environ["HOME"] = "/task"
         resource.setrlimit(resource.RLIMIT_NPROC, (1000, 1000))
     
     def setExecutable(self, filename):
@@ -251,6 +255,19 @@ class INGIniousMainRunner(object):
         f.write(json.dumps(data))
         f.close()
 
+    def _detect_and_start_run(self):
+        """ By default, we run the `run` script under IPython. This function checks
+            it is not meant to be run by another shell or is a binary executable """
+        filepath = "/task/run"
+
+        magic = open(filepath, 'rb').read(4)
+
+        if magic == ELF_MAGIC or magic[0:2] == SHEBANG_MAGIC:
+            return self.executeProcess([filepath])
+        else:
+            return self.executeProcess(["/bin/inginious-ipython", filepath])
+
+
     def _start_cmd_sync(self, data):
         self._logger.info("starting run")
         # Determining if debug mode or not
@@ -313,7 +330,7 @@ class INGIniousMainRunner(object):
             if os.path.exists("/task/run"):
                 os.chdir("/task")
                 try:
-                    stdout, stderr = self.executeProcess("/task/run")
+                    stdout, stderr = self._detect_and_start_run()
                 except:
                     inginious.feedback.set_global_result('crash')
                     inginious.feedback.set_global_feedback("An error occured while running the grading script. It is possible that it is non-executable or made a timeout")
