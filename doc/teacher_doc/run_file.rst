@@ -10,6 +10,14 @@ directory of your task.
 
 Here is a simple example of a *run* file, compatible with the *default* environment,
 that simply returns that the student's code is OK:
+
+::
+
+    !feedback-result success
+
+This is actually an IPython code. You can actually use your favorite shell. Here is an
+equivalent script in bash
+
 ::
 
     #!/bin/bash
@@ -22,17 +30,67 @@ commands (also available as python libraries) to interact with the backend.
 By default, the script is run inside the container in the /task directory, by a non-root
 user. You can modify the container to change this (and everything else).
 
+IPython is the default shell
+----------------------------
+
+When your run script does not indicate a shebang (i.e. does not begin with `#!`) and is not a binary file,
+INGInious runs your script throught IPython.
+
+IPython is a Python interpreter that adds some very useful features to Python, notably magic commands.
+
+The main feature that you will use is probably the bang (`!`) magic command, that allows your to run a command
+like if you were in bash (or any "basic" shell):
+
+::
+
+    # run a command
+    ! touch hello.txt
+
+    # you can store the output, as an array of line
+    out = !ls -1
+
+    # we are still in python
+    length = len(out)
+    print(length, ";".join(out))
+
+By default, the INGInious version of IPython loads utility libraries of INGInious (feedback, input, lang, rst)
+into the global namespace, so you don't have to.
+
+If you want to use the INGInious IPython interpreter in another script, the interpreter is
+located at `/bin/inginious-ipython`.
+
 Feedback commands
 -----------------
 
 feedback-result
 ```````````````
-The *feedback-result* command sets the submission result of a task, or a problem,
-and uses the following syntax :
+The *feedback-result* command sets the submission result of a task, or a problem.
 
-::
+.. tabs::
 
-    feedback-result [-i|--id PROBLEM_ID] RESULT
+    .. code-tab:: ipython3
+
+        # set the global result
+        set_global_result("success")  # Set global result to success
+
+        # set the result of a specific suproblem
+        set_problem_result("failed", "q1")  # Set 'q1' subproblem result to failed
+
+    .. code-tab:: py
+
+        from inginious import feedback
+
+        # set the global result
+        feedback.set_global_result("success")  # Set global result to success
+
+        # set the result of a specific suproblem
+        feedback.set_problem_result("failed", "q1")  # Set 'q1' subproblem result to failed
+
+    .. code-tab:: bash
+
+        # format: feedback-result [-i|--id PROBLEM_ID] RESULT
+        feedback-result success  # Set global result to success
+        feedback-result -i q1 failed  # Set 'q1' subproblem result to failed
 
 The execution result can be of different types:
 
@@ -42,42 +100,35 @@ The execution result can be of different types:
 - overflow :there was a memory/disk overflow
 - crash : the tests crashed
 
-For instance, the following command will inform that the student succeeded:
-
-::
-
-    feedback-result success
-
-**In Python** : the equivalent command can be directly obtained with:
-
-.. code-block:: python
-
-    from inginious import feedback
-    feedback.set_global_result("success") # Set global result to success
-    feedback.set_problem_result("failed", "q1") # Set 'q1' subproblem result to failed
+Any other type will be modified to "crash".
 
 feedback-grade
 ``````````````
-The *feedback-grade* command sets the submission grade and uses the following syntax:
-::
 
-    feedback-grade GRADE
+The *feedback-grade* command sets the submission grade.
 
-If no grade is specified, the result score will be binary. This means that a failed
+.. tabs::
+
+    .. code-tab:: ipython3
+
+        set_grade(87.8) # Set the grade to 87.8%
+
+    .. code-tab:: py
+
+        from inginious import feedback
+        feedback.set_grade(87.8) # Set the grade to 87.8%
+
+    .. code-tab:: bash
+
+        # format: feedback-grade GRADE
+        feedback-grade 87.8
+
+
+If no grade is specified (i.e. the command is never called), the result score will be binary.
+This means that a failed
 submission will give a 0.0% score to the student, while a successful submission will
-give a 100.0% score to the student. For instance, the following command will give
-an 87.8% grade to the student:
+give a 100.0% score to the student.
 
-::
-
-    feedback-grade 87.8
-
-**In Python** : the equivalent command can be directly obtained with:
-
-.. code-block:: python
-
-    from inginious import feedback
-    feedback.set_grade(87.8) # Set the grade to 87.8%
 
 feedback-msg-tpl
 ````````````````
@@ -92,136 +143,238 @@ argument to the command, *feedback-msg-tpl* will attempt to find the template, b
 - `[local_dir]/TPLNAME.tpl`
 
 Once found, the template is parsed using `Jinja2 <http://jinja.pocoo.org/docs/2.9/>`, which allows you to send parameters to the template.
-These parameters should be given in the command line, in the form `name=value`:
+
+.. tabs::
+
+    .. code-tab:: ipython3
+
+        # format:
+        # set_feedback_from_tpl(template_name, template_options, problem_id=None, append=False)
+        # template_name is the file to format. See above for details.
+        # template_options is a dict in the form {name: value}. See below
+        # problem_id is the problem id to which the feedback must be assigned. If None, the feedback is global
+        # append is a boolean indicating if the feedback must be appended or not (overwritting the current feedback)
+
+        set_feedback_from_tpl("feedback.tpl", {"option1":"value1", "anothername":"anothervalue"})
+
+    .. code-tab:: py
+
+        from inginious import feedback
+
+        # format:
+        # feedback.set_feedback_from_tpl(template_name, template_options, problem_id=None, append=False)
+        # template_name is the file to format. See above for details.
+        # template_options is a dict in the form {name: value}. See below
+        # problem_id is the problem id to which the feedback must be assigned. If None, the feedback is global
+        # append is a boolean indicating if the feedback must be appended or not (overwritting the current feedback)
+
+        feedback.set_feedback_from_tpl("feedback.tpl", {"option1":"value1", "anothername":"anothervalue"})
+
+    .. code-tab:: bash
+
+        # format: feedback-msg-tpl [-a | --append] [-i | --id PROBLEM_ID] TPLNAME [option1=value1 option2=value2 ...]
+        # TPLNAME is the file to format. See above for details.
+        # Options can be indicated at the end of the command, and will be passed to the template (see below)
+        # --append is a boolean flag indicating if the feedback must be appended or not (overwritting the current feedback)
+        # --id PROBLEM_ID. PROBLEM_ID is the problem id to which the feedback must be assigned.
+        #                  If not indicated, the feedback is global
+
+        feedback-msg-tpl "feedback.tpl" option1=value1 anothername=anothervalue
+
+
+Inside your template (named `feedback.tpl` in the examples above), you can use these parameters like this:
 
 ::
 
-    feedback-msg-tpl TPLNAME option1=value1 option2=value2
-
-Inside your template, you can use these parameters like this:
-
-::
-
-    Option 1 was {{ option1 }} and the option 2 was {{ option 2 }}
+    Option 1 was {{ option1 }} and the option 2 was {{ anothername }}
 
 Which will return
 
 ::
 
-    Option 1 was value1 and the option 2 was value2
+    Option 1 was value1 and the option 2 was anothervalue
 
 See the Jinja2 documentation to discover all possibilities.
 
 Your template must return a valid RestructuredText.
 
-Optional parameters:
-
--a, --append                        append to current feedback, if not specified, replace the
-                                    current feedback.
--i, --id PROBLEM_ID                 problem id to which associate the feedback, leave empty
-                                    for the whole task.
-
 feedback-msg
 ````````````
-The *feedback-msg* command sets the feedback message associated to the task or a subproblem. It has several
-optional parameters:
+The *feedback-msg* command sets the feedback message associated to the task or a subproblem.
 
--a, --append                        append to current feedback, if not specified, replace the
-                                    current feedback.
--i, --id PROBLEM_ID                 problem id to which associate the feedback, leave empty
-                                    for the whole task.
--e, --escape                        interprets backslash escapes
--m, --message MESSAGE               feedback message
+.. tabs::
 
-If the message is not specified, the feedback message is read from stdin. For instance, the command can be
-used as follows:
+    .. code-tab:: ipython3
 
-::
+        # format:
+        # set_global_feedback(feedback, append=False)
+        # append is a boolean indicating if the feedback must be appended or not (overwritting the current feedback)
 
-    feedback-msg -ae -m "This is the correct answer.\n\nWell done!"
+        set_global_feedback(
+            """This is the correct answer.
 
-**In Python** : the equivalent command can be directly obtained with:
+            Well done!"""
+        )
 
-.. code-block:: python
+        # format:
+        # set_problem_feedback(feedback, problem_id, append=False)
+        # problem_id is the problem id to which this feedback must be associated
+        # append is a boolean indicating if the feedback must be appended or not (overwritting the current feedback)
 
-    from inginious import feedback
-    feedback.set_global_feedback("Well done !") # Set global feedback text to `Well done !`
-    feedback.set_problem_feedback("This is not correct.", "q1") # Set 'q1' problem feedback to `This is not correct.`
+        set_problem_feedback(
+            """This is the correct answer.
+
+            Well done!"""
+        , "q1")
+
+    .. code-tab:: py
+
+        from inginious import feedback
+
+        # format:
+        # set_global_feedback(feedback, append=False)
+        # append is a boolean indicating if the feedback must be appended or not (overwritting the current feedback)
+
+        feedback.set_global_feedback(
+            """This is the correct answer.
+
+            Well done!"""
+        )
+
+        # format:
+        # set_problem_feedback(feedback, problem_id, append=False)
+        # problem_id is the problem id to which this feedback must be associated
+        # append is a boolean indicating if the feedback must be appended or not (overwritting the current feedback)
+
+        feedback.set_problem_feedback(
+            """This is the correct answer.
+
+            Well done!"""
+        , "q1")
+
+    .. code-tab:: bash
+
+        feedback-msg -ae -m "This is the correct answer.\n\nWell done!"
+
+        # It has several
+        # optional parameters:
+        #
+        # -a, --append                        append to current feedback, if not specified, replace the
+        #                                     current feedback.
+        # -i, --id PROBLEM_ID                 problem id to which associate the feedback, leave empty
+        #                                     for the whole task.
+        # -e, --escape                        interprets backslash escapes
+        # -m, --message MESSAGE               feedback message
+        # If the message is not specified, the feedback message is read from stdin.
 
 .. _feedback-custom:
 
 feedback-custom
 ```````````````
-The *feedback-custom* command sets a pair of key/value custom feedback, mainly used with plugins,
-and uses the following syntax :
+The *feedback-custom* command sets a pair of key/value custom feedback, mainly used with plugins.
 
-::
+.. tabs::
 
-    feedback-custom [-j|--json] key value
+    .. code-tab:: ipython3
 
-The ``--json`` parameter indicates if ``value`` must be parsed as a JSON string.
-Please refer to the plugin documentation to know which value you have to set for ``key`` and ``value`` parameters.
+        # format: set_custom_value(key, value)
+        # Please refer to the plugin documentation to know which value you have to set for ``key`` and ``value`` parameters.
+        # value can be anything that can be encoded to JSON by the default python library.
+        set_custom_value("score", 56) # Set the `score` key to value 56
 
-For instance, the following command set the value ``56`` to the ``score`` key:
+    .. code-tab:: py
 
-::
+        # format: set_custom_value(key, value)
+        # Please refer to the plugin documentation to know which value you have to set for ``key`` and ``value`` parameters.
+        # value can be anything that can be encoded to JSON by the default python library.
+        feedback.set_custom_value("score", 56) # Set the `score` key to value 56
 
-    feedback-custom score 56
+    .. code-tab:: bash
 
-**In Python** : the equivalent command can be directly obtained with:
+        # format: feedback-custom [-j|--json] key value
 
-.. code-block:: python
+        # The ``--json`` parameter indicates if ``value`` must be parsed as a JSON string.
+        # Please refer to the plugin documentation to know which value you have to set for ``key`` and ``value`` parameters.
 
-    from inginious import feedback
-    feedback.set_custom_value("score", 56) # Set the `score` key to value 56
+        # For instance, the following command set the value ``56`` to the ``score`` key:
+        feedback-custom score 56
+
 
 tag-set
 ```````
 
-The *tag-set* command sets the value of the tag specified by the tag identifier to ``True`` or ``False``. It uses the
-following syntax:
-
-::
-
-    tag-set tag value
-
-For instance, the following command set the value of the ``my_tag`` tag to ``True``:
-
-::
-
-    tag-set my_tag true
+The *tag-set* command sets the value of the tag specified by the tag identifier to ``True`` or ``False``.
 
 
-**In Python** : the equivalent command can be directly obtained with:
 
-.. code-block:: python
+.. tabs::
 
-    from inginious import feedback
-    feedback.feedback.set_tag("my_tag", True) # Sets the skill/misconception tag as True
+    .. code-tab:: ipython3
+
+        # format: set_tag(tag, value):
+        # Set the tag 'tag' to the value True or False.
+        # :param value: should be a boolean
+        # :param tag: should be the id of the tag. Can not starts with '*auto-tag-'
+
+        # For instance, the following command set the value of the ``my_tag`` tag to ``True``:
+        set_tag("my_tag", True)
+
+
+    .. code-tab:: py
+
+        from inginious import feedback
+
+        # format: set_tag(tag, value):
+        # Set the tag 'tag' to the value True or False.
+        # :param value: should be a boolean
+        # :param tag: should be the id of the tag. Can not starts with '*auto-tag-'
+
+        # For instance, the following command set the value of the ``my_tag`` tag to ``True``:
+        feedback.set_tag("my_tag", True)
+
+    .. code-tab:: bash
+
+        # format: tag-set tag value
+
+        # For instance, the following command set the value of the ``my_tag`` tag to ``True``:
+        tag-set my_tag true
 
 tag
 ```
 
-The *tag* command defines a new unexpected tag to appear in the submission feedback. It uses the followig syntax:
+The *tag* command defines a new unexpected tag to appear in the submission feedback.
 
-::
+.. tabs::
 
-    tag value
+    .. code-tab:: ipython3
 
-For instance, the following command defines a new ``A new tag`` tag that will appear in the submission feedback:
+        # format: set_tag(tag, value):
+        # Set the tag 'tag' to the value True or False.
+        # :param value: should be a boolean
+        # :param tag: should be the id of the tag. Can not starts with '*auto-tag-'
 
-::
+        # # For instance, the following command defines a new ``A new tag`` tag that will appear in the submission feedback:
+        tag("A new tag") # Sets a new unexpected tag
 
-    tag "A new tag"
 
+    .. code-tab:: py
 
-**In Python** : the equivalent command can be directly obtained with:
+        from inginious import feedback
 
-.. code-block:: python
+        # format: set_tag(tag, value):
+        # Set the tag 'tag' to the value True or False.
+        # :param value: should be a boolean
+        # :param tag: should be the id of the tag. Can not starts with '*auto-tag-'
 
-    from inginious import feedback
-    feedback.tag("A new tag") # Sets a new unexpected tag
+        # # For instance, the following command defines a new ``A new tag`` tag that will appear in the submission feedback:
+        feedback.tag("A new tag") # Sets a new unexpected tag
 
+    .. code-tab:: bash
+
+        # format: tag value
+
+        # For instance, the following command defines a new ``A new tag`` tag that will appear in the submission feedback:
+        tag "A new tag"
 
 reStructuredText helper commands
 --------------------------------
@@ -232,82 +385,114 @@ rst-code
 ````````
 
 The *rst-code* command generates a code-block with the specified code snippet and language
-to enable syntax highlighting. It has the following parameters:
+to enable syntax highlighting.
 
--l, --language LANGUAGE    snippet language, leave empty to disable syntax highlighting
--e, --escape               interprets backslash escapes
--c, --code CODE            snippet code
 
-If the code parameter is not specified, it is read on standard input. The result is written on standard output.
-For instance, the command can be used as follows:
+.. tabs::
 
-::
+    .. code-tab:: ipython3
 
-    cat test.java | rst-code -l java | feedback-msg -a
+        codeblock = get_codeblock("java", "int a = 42;") # Java codeblock with `int a = 42;` code
 
-**In Python** : the equivalent command can be directly obtained with:
+        set_global_feedback(codeblock, True) # Appends the codeblock to the global feedback
 
-.. code-block:: python
 
-    from inginious import rst
-    codeblock = rst.get_codeblock("java", "int a = 42;") # Java codeblock with `int a = 42;` code
-    feedback.set_global_feedback(codeblock, True) # Appends the codeblock to the global feedback
+    .. code-tab:: py
+
+        from inginious import rst, feedback
+
+        codeblock = rst.get_codeblock("java", "int a = 42;") # Java codeblock with `int a = 42;` code
+
+        feedback.set_global_feedback(codeblock, True) # Appends the codeblock to the global feedback
+
+    .. code-tab:: bash
+
+        # format: rst-code [-l | --language LANGUAGE] [-e | --escape] [-c | --code CODE]
+
+        # -l, --language LANGUAGE    snippet language, leave empty to disable syntax highlighting
+        # -e, --escape               interprets backslash escapes
+        # -c, --code CODE            snippet code
+
+        # If the code parameter is not specified, it is read on standard input. The result is written on standard output.
+        # For instance, the command can be used as follows:
+        cat test.java | rst-code -l java | feedback-msg -a
+
+
 
 rst-image
 `````````
 
-The *rst-image* command generates a raw reStructuredText block containing the image to display. It has the
-following syntax
+The *rst-image* command generates a raw reStructuredText block containing an image to display.
 
-::
+.. tabs::
 
-    rst-image [-f|--format FORMAT] FILEPATH
+    .. code-tab:: ipython3
+
+        # get_imageblock(filename, format='')
+        imgblock = get_imageblock("smiley.png") # RST block with image
+        set_global_feedback(imgblock, True) # Appends the image block to the global feedback
+
+
+    .. code-tab:: py
+
+        from inginious import rst, feedback
+
+        # get_imageblock(filename, format='')
+        imgblock = rst.get_imageblock("smiley.png") # RST block with image
+        feedback.set_global_feedback(imgblock, True) # Appends the image block to the global feedback
+
+    .. code-tab:: bash
+
+        # format: rst-image [-f|--format FORMAT] FILEPATH
+
+        # Appends the image block to the global feedback
+        rst-image smiley.png | feedback-msg -a
 
 The optional *format* parameter is used to specify the image format (jpg, png,...) if this is not explicitly specified
 the the image filename. The output is written on the standard output. For instance, the command can be used as follows:
 
-::
+get_admonition / rst-msgblock
+`````````````````````````````
 
-    rst-image generated.png | feedback -a
+The *get_admonition* (python) / *rst-msgblock* (bash) command is used to generate a reStructuredText admonition in a
+specific colour according to the message type.
 
-**In Python** : the equivalent command can be directly obtained with:
+You must indicate a type for the admonition (via the first arg in Python, or via the `-c` arg in bash). The type can be:
 
-.. code-block:: python
+- `success` (green box)
+- `info` (blue box)
+- `warning` (orange box)
+- `danger` (red box)
 
-    from inginious import rst
-    imgblock = rst.get_imageblock("smiley.png") # RST block with image
-    feedback.set_global_feedback(imgblock, True) # Appends the image block to the global feedback
+You can also indicate a title (second parameter in Python, `-t` in bash). It can be empty.
+
+.. tabs::
+
+    .. code-tab:: ipython3
+
+        # RST message block of class "success" and title "Yeah!"
+        admonition = get_admonition("success", "Yeah!", "Well done!")
+        set_global_feedback(admonition, True) # Appends the block to the global feedback
 
 
-rst-msgblock
-````````````
-The *rst-msgblock* command is used to generate a reStructuredText admonition in a specific colour according to the
-message type. It has the following optional parameters:
+    .. code-tab:: py
 
--c, --class CSS_CLASS    Bootstrap alert CSS class:
+        from inginious import rst, feedback
 
-                          - success
-                          - info
-                          - warning
-                          - danger
--e, --escape             interprets backslash escapes
--t, --title TITLE        message title
--m, --message MESSAGE    message text
+        # RST message block of class "success" and title "Yeah!"
+        admonition = rst.get_admonition("success", "Yeah!", "Well done!")
+        feedback.set_global_feedback(admonition, True) # Appends the block to the global feedback
 
-If the message parameter is not set, the message is read from standard input. For instance, the command can
-be used as follows:
+    .. code-tab:: bash
 
-::
+        # format: rst-image [-c | --class CSS_CLASS] [-e | --escape] [-t | --title TITLE] [-m | --message MESSAGE]
+        # -c, --class CSS_CLASS    Type (Bootstrap alert CSS class). See above for details.
+        # -e, --escape             interprets backslash escapes
+        # -t, --title TITLE        message title
+        # -m, --message MESSAGE    message text
+        # If the message parameter is not set, the message is read from standard input.
 
-    rst-msgblock -c info -m "This is a note" | feedback -ae
-
-**In Python** : the equivalent command can be directly obtained with:
-
-.. code-block:: python
-
-    from inginious import rst
-    admonition = rst.get_admonition("success", "Yeah!", "Well done!") # RST message block of class "success" and title "Yeah!"
-    feedback.set_global_feedback(admonition, True) # Appends the block to the global feedback
+        rst-msgblock -c info -m "This is a note" | feedback -ae
 
 rst-indent
 ``````````
