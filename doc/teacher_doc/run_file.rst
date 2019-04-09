@@ -496,28 +496,39 @@ You can also indicate a title (second parameter in Python, `-t` in bash). It can
 
 rst-indent
 ``````````
-The *rst-indent* command is used to handle the indentation of the given text. It has the following optional arguments:
 
--e, --escape                      interprets backslash escapes
--c, --indent-char INDENT_CHAR     indentation char, default = tabulation
--a, --amount AMOUNT               amount of indentation, default = 1
--m, --message MESSAGE             message text
+The *rst-indent* command is used to add indentation to a given text.
 
-If the message parameter is not set, the text is read from standard input. The amount of indentation can be negative
-to de-indent the text. For instance, the command can be used as follows, to add an image to the feedback,
-inside a list item, for instance :
+.. tabs::
 
-::
+    .. code-tab:: ipython3
 
-     rst-image generated.png | rst-indent | feedback -a
+        rawhtml = indent_block(1, "<p>A paragraph!</p>", "\t") # Indent the HTML code with 1 unit of tabulations
+        set_global_feedback(".. raw::\n\n" + rawhtml, True) # Appends the block to the global feedback
 
-**In Python** : the equivalent command can be directly obtained with:
+    .. code-tab:: py
 
-.. code-block:: python
+        from inginious import rst, feedback
 
-    from inginious import rst
-    rawhtml = rst.indent_block(1, "<p>A paragraph!</p>", "\t") # Indent the HTML code with 1 unit of tabulations
-    feedback.set_global_feedback(".. raw::\n\n" + rawhtml, True) # Appends the block to the global feedback
+        rawhtml = rst.indent_block(1, "<p>A paragraph!</p>", "\t") # Indent the HTML code with 1 unit of tabulations
+        feedback.set_global_feedback(".. raw::\n\n" + rawhtml, True) # Appends the block to the global feedback
+
+    .. code-tab:: bash
+
+        # format: rst-image [-c | --class CSS_CLASS] [-e | --escape] [-t | --title TITLE] [-m | --message MESSAGE]
+        # -e, --escape                      interprets backslash escapes
+        # -c, --indent-char INDENT_CHAR     indentation char, default = tabulation
+        # -a, --amount AMOUNT               amount of indentation, default = 1
+        # -m, --message MESSAGE             message text
+
+        # If the message parameter is not set, the message is read from standard input.
+
+        # For instance, the command can be used as follows, to add an image to the feedback,
+        # (inside a list item, for instance):
+        rst-msgblock -c info -m "This is a note" | feedback -ae
+
+
+The amount of indentation can be negative to de-indent the text.
 
 Input commands
 --------------
@@ -525,51 +536,95 @@ Input commands
 getinput
 ````````
 
-The *getinput* command returns the input given by the student for a specific problem id.
-For example, for the problem id "pid", the command to run is:
-::
+The *getinput* command/function returns the input given by the student for a specific problem id.
+For example, for the problem id "pid":
 
-    getinput pid
+.. tabs::
+
+    .. code-tab:: ipython3
+
+        thecode = get_input("pid")
+
+    .. code-tab:: py
+
+        from inginious import input
+        thecode = input.get_input("pid")
+
+    .. code-tab:: bash
+
+        getinput pid
 
 When a problem is defined with several boxes, the argument becomes *pid/bid* where "pid"
 stands for the problem id and "bid" for "box id". If the problem is a file upload, the problem id can be appended
 with ``:filename`` or ``:value`` to retrieve its filename or value.
 
 Note that *getinput* can also retrieve the username/group of the user that submitted the task. You simply have to run
-::
 
-    getinput @username
+.. tabs::
+
+    .. code-tab:: ipython3
+
+        # note: by default, IPython will already have a variable `USERNAME` defined with this value.
+        username = get_input("@username")
+
+    .. code-tab:: py
+
+        username = input.get_input("@username")
+
+    .. code-tab:: bash
+
+        getinput @username
 
 If the submission is made as a user, it will contain the username. It it's made as a group,
 it will contain the list of the user's usernames in the
 group, joined with ','.
 
 The four letter code of the student's language (for example `en_US` or `fr_FR`) can also be retrieved using
-::
 
-    getinput @lang
+.. tabs::
+
+    .. code-tab:: ipython3
+
+        # note: by default, IPython will already have a variable `LANG` defined with this value.
+        lang = get_input("@lang")
+
+    .. code-tab:: py
+
+        lang = input.get_input("@lang")
+
+    .. code-tab:: bash
+
+        getinput @lang
 
 Note that plugins are free to add new `@`-prefixed fields to the available input using the `new_submission` hook.
-
-**In Python** : the equivalent command can be directly obtained with:
-
-.. code-block:: python
-
-    from inginious import input
-    thecode = input.get_input("q1") # Fetch the code for problem `q1`
-
 
 parsetemplate
 `````````````
 
 The *parsetemplate* command injects the input given by the student in a template.
-The command has this form:
-::
 
-    parsetemplate [-o|--output outputfile] template
+A template file must be given to the function/command. An output file can also be given, and if
+none is given, the template will be replaced.
 
-where *template* is the file to parse. Output file is the destination file.
-If the *-o* option is not given, the template will be replaced.
+.. tabs::
+
+    .. code-tab:: ipython3
+
+        thecode = parse_template("student.c") # Parse the `student.c` template file
+        thecode = parse_template("template.c", "student.c") # Parse the `template.c` template file and save the parsed file into `student.c`
+
+    .. code-tab:: py
+
+        from inginious import input
+        thecode = input.parse_template("student.c") # Parse the `student.c` template file
+        thecode = input.parse_template("template.c", "student.c") # Parse the `template.c` template file and save the parsed file into `student.c`
+
+    .. code-tab:: bash
+
+        # parsetemplate [-o|--output outputfile] template
+        parsetemplate "student.c" # Parse the `student.c` template file
+        parsetemplate -o "student.c" "template.c" # Parse the `template.c` template file and save the parsed file into `student.c`
+
 
 The markup in the templates is very simple: *@prefix@problemid@suffix@*.
 Prefix allows to correct the indentation when needed (this is useful in Python).
@@ -588,15 +643,6 @@ Example of template file (in java)
 To access the filename and text content of a submitted file, the *problemid* can be
 followed by a *:filename* or *:value* suffix.
 
-
-**In Python** : the equivalent command can be directly obtained with:
-
-.. code-block:: python
-
-    from inginious import input
-    thecode = input.parse_template("student.c") # Parse the `student.c` template file
-    thecode = input.parse_template("template.c", "student.c") # Parse the `template.c` template file and save the parsed file into `student.c`
-
 .. _run_student:
 
 run_student
@@ -611,22 +657,61 @@ subdirectory. Only the changes made in that directory will remain in the main co
 *run_student* is fully configurable; you can change the container image (environment), set new timeouts, new memory
 limits, ... And you can call it as many time as you want.
 
---container CONTAINER             Name of the container to use. The default is the same as the current container.
---time TIME                       Timeout (in CPU time) for the container. The default is the same as the current container.
---hard-time TIME                  Hard timeout for the container (in real time). The default is three times the value indicated for --time.
---memory MEMORY                   Maximum memory for the container, in Megabytes. The default is the same as the current container.
---share-network                   Share the network stack of the grading container with the student container. This is not the case by
-                                  default. If the container container has network access, this will also be the case for the student!
+Here is the list of the main parameters:
 
-Beyond these optionals args, *run_student* also takes an additional (mandatory) arguments: the command to be run in the new container.
+- container (--container in the run_student command)
+        Name of the container to use. The default is the same as the current container.
+- time limit (--time)
+        Timeout (in CPU time) for the container, in seconds. The default is the same as the current container.
+- hard time limit (--hard-time)
+        Hard timeout for the container (in real time), in seconds.
+        The default is three times the value indicated for the time limit.
+- memory limit (--memory)
+        Maximum memory for the container, in Megabytes. The default is the same as the current container.
+- network sharing (--share-network)
+        Share the network stack of the grading container with the student container. This is not the case by
+        default. If the container container has network access, this will also be the case for the student!
+
+Beyond these optionals args, *run_student* various commands also takes an additional (mandatory) argument:
+the command to be run in the new container.
 
 More technically, please note that:
 
-- *run_student* proxies stdin, stdout, stderr, most signals and the return value
+- the *run_student* **command** (accesible in bash) proxies stdin, stdout, stderr, most signals and the return value
 - There are special return values:
     - 252 means that the command was killed due to an out-of-memory
     - 253 means that the command timed out
     - 254 means that an error occurred while running the proxy
+
+In Python, two flavours of *run_student* are available: `run` and `run_simple`. The first is a low-level function,
+which allows you to modify most of the behavior of the behavior of the function. The second aims to solve the most used
+use case: run a command with a given input, and returns its output. A small description of `run_simple` is available in
+the examples below, please check the API directly for more information.
+
+.. tabs::
+
+    .. code-tab:: ipython3
+
+        # runs student/script.sh in another safe container, with a timeout of 60 seconds,
+        # and stores the output in the variables `stdout` and `stderr`, and the return value
+        # inside the variable `retval`.
+        stdout, stderr, retval = run_simple("student/script.sh", time=60)
+
+    .. code-tab:: py
+
+        from inginious import run_student
+
+        # runs student/script.sh in another safe container, with a timeout of 60 seconds,
+        # and stores the output in the variables `stdout` and `stderr`, and the return value
+        # inside the variable `retval`.
+        stdout, stderr, retval = run_student.run_simple("student/script.sh", time=60)
+
+    .. code-tab:: bash
+
+        # runs student/script.sh in another safe container, with a timeout of 60 seconds,
+        # and stores the output in the variable `output`, as an array of lines.
+        output=`run_student --time 60 student/script.sh`
+
 
 archive
 -------
