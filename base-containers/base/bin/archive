@@ -5,7 +5,6 @@
 # more information about the licensing of this file.
 
 import os
-import re
 import sys
 import shutil
 import argparse
@@ -15,28 +14,29 @@ parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter,
                                  epilog='If specified whith --remove, it prefixes the filepath')
 parser.add_argument('-o', '--outsubdir', help="put the file in the specified sub-directory in the output archive", default="")
 parser.add_argument('-a', '--add', help="add the given filepath to archive", default="")
-parser.add_argument('-r', '--remove', help="remove the given filepath to archive", default="")
+parser.add_argument('-r', '--remove', help="remove the given filepath from the archive", default="")
 args = parser.parse_args()
 
+print("The usage of the 'archive' command is deprecated. Use the /archive folder directly.")
 addfile = args.add
 rmfile = args.remove
 outsubdir = args.outsubdir
-        
+
 if addfile:
     try:
-        os.makedirs('/.__output/' + outsubdir)
+        os.makedirs('/archive/' + outsubdir)
     except OSError as e:
         pass
     
     try:    
-        shutil.copy(addfile, '/.__output/' + outsubdir + '/' + os.path.basename(addfile))
+        shutil.copy(addfile, '/archive/' + outsubdir + '/' + os.path.basename(addfile))
     except IOError as e:
         print(e)
         sys.exit(2)
 
 if rmfile:
     try:
-        os.remove('/.__output/' + outsubdir + '/' + rmfile)
+        os.remove('/archive/' + outsubdir + '/' + rmfile)
     except IOError as e:
         print(e)
         sys.exit(2)

@@ -89,11 +89,11 @@ class INGIniousMainRunner(object):
         stderr.seek(0)
         return stdout.read(), stderr.read()
 
-    def b64tarfile(self, source_dir):
-        with tarfile.open('/.__output/archive.tgz', "w:gz") as tar:
-            tar.add(source_dir, arcname='/')
+    def b64tararchive(self):
+        with tarfile.open('/tmp/archive.tgz', "w:gz") as tar:
+            tar.add('/archive/', arcname='/')
 
-        with open('/.__output/archive.tgz', "rb") as tar:
+        with open('/tmp/archive.tgz', "rb") as tar:
             encoded_string = base64.b64encode(tar.read())
 
         return encoded_string.decode('utf-8')
@@ -281,6 +281,10 @@ class INGIniousMainRunner(object):
         if not os.path.exists("/.__output"):
             os.mkdir("/.__output")
 
+        # Create archive directory
+        if not os.path.exists("/archive"):
+            os.mkdir("/archive")
+
         # Touch __feedback.json (to set the rights)
         open('/.__output/__feedback.json', 'w').close()
 
@@ -296,6 +300,7 @@ class INGIniousMainRunner(object):
         self.setDirectoryRights("/tmp")
         self.setDirectoryRights("/task")
         self.setDirectoryRights("/.__output")
+        self.setDirectoryRights("/archive")
 
         ok_to_start = True
 
@@ -392,7 +397,7 @@ class INGIniousMainRunner(object):
             if debug:
                 feedback['stdout'] = stdout.decode('utf-8', 'replace')
                 feedback['stderr'] = stderr.decode('utf-8', 'replace')
-            feedback['archive'] = self.b64tarfile('/.__output')
+            feedback['archive'] = self.b64tararchive()
             self.setDirectoryRights('/task')
             self._logger.info("returning results")
             return feedback

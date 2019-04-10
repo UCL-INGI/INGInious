@@ -716,16 +716,11 @@ the examples below, please check the API directly for more information.
         # and stores the output in the variable `output`, as an array of lines.
         output=`run_student --time 60 student/script.sh`
 
+Archiving files
+---------------
 
-archive
--------
+The folder /archive inside the container allows you to store anything you may need outside the container.
+The content of the folder will be automatically compressed and saved in the database, and will be downloadable
+in the INGInious web interface.
 
-*archive* allows you to put some data in an archive that will be returned to the frontend
-and stored in the database for future reading. You can put there debug data, for example.
-
-The command takes some arguments, which are all optional:
-
--o, --outsubdir DIRECTORY           will put the file (specified with -a or -r)in the
-                                    specified sub-directory in the output archive
--a, --add FILEPATH                  add the file to the archive
--r, --remove FILEPATH               remove the file from the archive
+This feature is useful for debug purposes, but also for analytics and for more complex plugins.
