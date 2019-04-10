@@ -177,6 +177,10 @@ function studio_task_file_open_tab(path)
                           if(mode == undefined)
                           {
                               mode = "text/plain";
+
+                              if(path === "/run") //the default interpreter is IPython
+                                  mode = "python";
+
                               //verify if it is a UNIX executable file that starts with #!
                               if(data['content'].substring(0, 2) == "#!")
                               {
