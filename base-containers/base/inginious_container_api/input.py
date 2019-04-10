@@ -7,11 +7,11 @@ import os
 import re
 import json
 
-import inginious
+import inginious_container_api
 
-_input_file = '/.__input/__inputdata.json' if not inginious.DEBUG else './__inputdata.json'
+_input_file = '/.__input/__inputdata.json' if not inginious_container_api.DEBUG else './__inputdata.json'
 
-def load_input():
+def _load_input():
     """ Open existing input file """
     file = open(_input_file, 'r')
     result = json.loads(file.read().strip('\0').strip())
@@ -34,7 +34,7 @@ def get_input(problem):
          problem: problem id
          Returns string, or bytes if a file is loaded
     """
-    input_data = load_input()
+    input_data = _load_input()
     pbsplit = problem.split(":")
     problem_input = input_data['input'][pbsplit[0]]
     if isinstance(problem_input, dict) and "filename" in problem_input and "value" in problem_input:
@@ -54,7 +54,7 @@ def parse_template(input_filename, output_filename=''):
         input_filename: file to parse
         output_filename: if not specified, overwrite input file
     """
-    data = load_input()
+    data = _load_input()
     with open(input_filename, 'rb') as file:
         template = file.read().decode("utf-8")
     

@@ -14,7 +14,7 @@ import stat
 import resource
 import subprocess
 
-import inginious.feedback
+import inginious_container_api.feedback
 import time
 import tempfile
 import tarfile
@@ -25,7 +25,6 @@ import asyncio
 import struct
 import zmq
 import zmq.asyncio
-from msgpack import Unpacker
 
 ELF_MAGIC = b"\x7F\x45\x4C\x46"
 SHEBANG_MAGIC = b"\x23\x21"
@@ -307,8 +306,8 @@ class INGIniousMainRunner(object):
                 try:
                     open(spath, 'ab' if append else 'wb').write(b'\n' + open(os.path.join('/task/systemfiles/', name), 'rb').read())
                 except IOError:
-                    inginious.feedback.set_global_result('crash')
-                    inginious.feedback.set_global_feedback("Cannot read/use %s" % os.path.join('/task/systemfiles/', name))
+                    inginious_container_api.feedback.set_global_result('crash')
+                    inginious_container_api.feedback.set_global_feedback("Cannot read/use %s" % os.path.join('/task/systemfiles/', name))
                     ok_to_start = False
         os.chown('/etc/hosts', 0, 4242)
         os.chown('/etc/resolv.conf', 0, 4242)
@@ -332,11 +331,11 @@ class INGIniousMainRunner(object):
                 try:
                     stdout, stderr = self._detect_and_start_run()
                 except:
-                    inginious.feedback.set_global_result('crash')
-                    inginious.feedback.set_global_feedback("An error occured while running the grading script. It is possible that it is non-executable or made a timeout")
+                    inginious_container_api.feedback.set_global_result('crash')
+                    inginious_container_api.feedback.set_global_feedback("An error occured while running the grading script. It is possible that it is non-executable or made a timeout")
             else:
-                inginious.feedback.set_global_result('crash')
-                inginious.feedback.set_global_feedback("'/task/run' could not be found")
+                inginious_container_api.feedback.set_global_result('crash')
+                inginious_container_api.feedback.set_global_feedback("'/task/run' could not be found")
         else: #start the ssh server
             # generate a password for the worker user
             password, _ = self.executeProcess(["/usr/bin/openssl", "rand", "-base64", "10"], as_root=True)
@@ -374,13 +373,13 @@ class INGIniousMainRunner(object):
                     connected_workers = int(stdout)
                     attempts += 1
             else:
-                inginious.feedback.set_global_result('crash')
-                inginious.feedback.set_global_feedback('[SSH Debug] Nobody connected to the SSH server.')
+                inginious_container_api.feedback.set_global_result('crash')
+                inginious_container_api.feedback.set_global_feedback('[SSH Debug] Nobody connected to the SSH server.')
 
             stdout, stderr = b"", b""
 
         # Produce feedback
-        feedback = inginious.feedback.get_feedback()
+        feedback = inginious_container_api.feedback.get_feedback()
         if not feedback:
             result = {"result":"crash", "text":"No feedback was given !", "problems":{}, "tests":{}}
             if debug:

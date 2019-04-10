@@ -22,9 +22,14 @@ RUN     chmod -R 755 /INGInious/bin && \
         mv /INGInious/bin/* /bin
 
 # Install everything needed to allow INGInious' python libs to be loaded
-RUN     chmod -R 644 /INGInious/inginious && \
-        mkdir -p /usr/lib/python3.5/site-packages/inginious && \
-        cp -R /INGInious/inginious/*.py  /usr/lib/python3.5/site-packages/inginious && \
+RUN     chmod -R 644 /INGInious/inginious_container_api && \
+        mkdir -p /usr/lib/python3.5/site-packages/inginious_container_api && \
+        cp -R /INGInious/inginious_container_api/*.py  /usr/lib/python3.5/site-packages/inginious_container_api && \
+        echo "inginious_container_api" > /usr/lib/python3.5/site-packages/inginious_container_api.pth
+
+# This maintains backward compatibility
+RUN     mkdir -p /usr/lib/python3.5/site-packages/inginious && \
+        cp -R /INGInious/inginious_container_api/*.py  /usr/lib/python3.5/site-packages/inginious && \
         echo "inginious" > /usr/lib/python3.5/site-packages/inginious.pth
 
 # Delete unneeded folders

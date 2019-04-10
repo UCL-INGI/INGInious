@@ -4,14 +4,9 @@
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
 
-import os
-import re
 import sys
-import codecs
-import json
 import argparse
-import inginious
-from inginious import input
+import inginious_container_api.input
 
 parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, description='Get data associated with an input field.\n')
 parser.add_argument('problem', help="problem id")
@@ -21,7 +16,7 @@ problem = args.problem
 
 # Do the real job
 try:
-    result = inginious.input.get_input(problem)
+    result = inginious_container_api.input.get_input(problem)
     try:
         sys.stdout.buffer.write(result)
     except:

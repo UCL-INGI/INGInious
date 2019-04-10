@@ -9,13 +9,13 @@ import traceback
 
 from jinja2 import Template
 
-from inginious.input import get_lang
-import inginious.lang
+from inginious_container_api.input import get_lang
+import inginious_container_api.lang
 
-_feedback_dir = '/.__output' if not inginious.DEBUG else './'
+_feedback_dir = '/.__output' if not inginious_container_api.DEBUG else './'
 _feedback_file = os.path.join(_feedback_dir, '__feedback.json')
 
-def load_feedback():
+def _load_feedback():
     """ Open existing feedback file """
     result = {}
     if os.path.exists(_feedback_file):
@@ -47,14 +47,14 @@ def save_feedback(rdict):
 # Doing the real stuff
 def set_global_result(result):
     """ Set global result value """
-    rdict = load_feedback()
+    rdict = _load_feedback()
     rdict['result'] = result
     save_feedback(rdict)
 
 
 def set_problem_result(result, problem_id):
     """ Set problem specific result value """
-    rdict = load_feedback()
+    rdict = _load_feedback()
     if not 'problems' in rdict:
         rdict['problems'] = {}
     cur_val = rdict['problems'].get(problem_id, '')
@@ -64,21 +64,21 @@ def set_problem_result(result, problem_id):
 
 def set_grade(grade):
     """ Set global grade of this job """
-    rdict = load_feedback()
+    rdict = _load_feedback()
     rdict['grade'] = float(grade)
     save_feedback(rdict)
 
 
 def set_global_feedback(feedback, append=False):
     """ Set global feedback in case of error """
-    rdict = load_feedback()
+    rdict = _load_feedback()
     rdict['text'] = rdict.get('text', '') + feedback if append else feedback
     save_feedback(rdict)
 
 
 def set_problem_feedback(feedback, problem_id, append=False):
     """ Set problem specific feedback """
-    rdict = load_feedback()
+    rdict = _load_feedback()
     if not 'problems' in rdict:
         rdict['problems'] = {}
     cur_val = rdict['problems'].get(problem_id, '')
@@ -88,7 +88,7 @@ def set_problem_feedback(feedback, problem_id, append=False):
 
 def set_state(state):
     """ Set the task state """
-    rdict = load_feedback()
+    rdict = _load_feedback()
     rdict['state'] = state
     save_feedback(rdict)
 
@@ -100,7 +100,7 @@ def set_tag(tag, value):
     :param tag: should be the id of the tag. Can not starts with '*auto-tag-'
     """ 
     if not tag.startswith("*auto-tag-"):
-        rdict = load_feedback()
+        rdict = _load_feedback()
         tests = rdict.setdefault("tests", {})
         tests[tag] = (value == True)
         save_feedback(rdict)
@@ -110,7 +110,7 @@ def tag(value):
     Add a tag with generated id.
     :param value: everything working with the str() function
     """
-    rdict = load_feedback()
+    rdict = _load_feedback()
     tests = rdict.setdefault("tests", {})
     tests["*auto-tag-" + str(hash(str(value)))] = str(value)
     save_feedback(rdict)
@@ -121,7 +121,7 @@ def set_custom_value(custom_name, custom_val):
     :param custom_name: name/key of the entry to be placed in the custom dict
     :param custom_val: content of the entry to be placed in the custom dict
     """
-    rdict = load_feedback()
+    rdict = _load_feedback()
     if not "custom" in rdict:
         rdict["custom"] = {}
     rdict["custom"][custom_name] = custom_val
@@ -130,7 +130,7 @@ def set_custom_value(custom_name, custom_val):
 
 def get_feedback():
     """ Returns the dictionary containing the feedback """
-    rdict = load_feedback()
+    rdict = _load_feedback()
     return rdict
 
 
@@ -152,12 +152,12 @@ def set_feedback_from_tpl(tpl_name, parameters, problem_id=None, append=False):
 
         Parameters is a dictionnary that will be given to the Jinja template.
     """
-    inginious.lang.init()
+    inginious_container_api.lang.init()
     lang = get_lang()
 
     tpl_location = None
     possible_locations = [".".join([tpl_name, lang, "tpl"]),
-                          os.path.join(inginious.lang.get_lang_dir_path(), lang, tpl_name) + ".tpl",
+                          os.path.join(inginious_container_api.lang.get_lang_dir_path(), lang, tpl_name) + ".tpl",
                           ".".join([tpl_name, "tpl"])]
     for path in possible_locations:
         if os.path.exists(path):

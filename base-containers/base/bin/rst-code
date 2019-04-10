@@ -6,10 +6,9 @@
 #
 # Tool to produce rst for code snippet
 
-import os
 import sys
 import argparse
-from inginious import rst
+from inginious_container_api import rst
 
 parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, 
                                  description='Generates reStructuredText for a given snippet.',

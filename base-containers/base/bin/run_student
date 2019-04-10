@@ -6,7 +6,7 @@
 import argparse
 import sys
 
-from inginious import run_student
+from inginious_container_api import run_student
 
 parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, description='Runs a command in a secure environment.\n\
 This command will proxy stdin, stdout, stderr, most signals and the return value. \n\n\
@@ -29,4 +29,4 @@ exit(run_student.run(' '.join(args.cmd), container=args.container, time_limit=ar
                      hard_time_limit=args.hard_time, memory_limit=args.memory,
                      share_network=args.share_network,
                      stdin=sys.stdin.fileno(), stdout=sys.stdout.fileno(), stderr=sys.stderr.fileno(),
-                     signal_handler_callback=run_student.hack_signals))
+                     signal_handler_callback=run_student._hack_signals))

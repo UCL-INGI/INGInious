@@ -4,12 +4,9 @@
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
 
-import os
-import sys
-import json
 import argparse
-import inginious
-from inginious import feedback
+import inginious_container_api
+from inginious_container_api import feedback
 
 parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, description='Set the task state as a string.\n')
 parser.add_argument('value', help="the task state")
@@ -18,4 +15,4 @@ args = parser.parse_args()
 value = args.value
 
 # Doing the real stuff
-inginious.feedback.set_state(value)
+inginious_container_api.feedback.set_state(value)

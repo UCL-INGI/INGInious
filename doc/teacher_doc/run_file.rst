@@ -13,7 +13,7 @@ that simply returns that the student's code is OK:
 
 ::
 
-    !feedback-result success
+    set_global_result("success")
 
 This is actually an IPython code. You can actually use your favorite shell. Here is an
 equivalent script in bash
@@ -58,6 +58,12 @@ into the global namespace, so you don't have to.
 
 If you want to use the INGInious IPython interpreter in another script, the interpreter is
 located at `/bin/inginious-ipython`.
+
+Check the API documentation
+---------------------------
+
+The prefered way to create run script is via the IPython interpreter.
+:ref:`The full description of the API available from Python is available here.<inginious_container_api>`
 
 Feedback commands
 -----------------
@@ -564,7 +570,6 @@ Note that *getinput* can also retrieve the username/group of the user that submi
 
     .. code-tab:: ipython3
 
-        # note: by default, IPython will already have a variable `USERNAME` defined with this value.
         username = get_input("@username")
 
     .. code-tab:: py
@@ -585,7 +590,6 @@ The four letter code of the student's language (for example `en_US` or `fr_FR`) 
 
     .. code-tab:: ipython3
 
-        # note: by default, IPython will already have a variable `LANG` defined with this value.
         lang = get_input("@lang")
 
     .. code-tab:: py

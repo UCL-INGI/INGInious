@@ -8,8 +8,7 @@
 
 import sys
 import argparse
-import inginious
-from inginious import input
+import inginious_container_api.input
 
 parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, 
                                  description='Parse the template file and generate an output file.',
@@ -23,7 +22,7 @@ infile = args.input
 
 # Do the real job
 try:
-    inginious.input.parse_template(infile, outfile)
+    inginious_container_api.input.parse_template(infile, outfile)
 except IOError as e:
     sys.stderr.write("Input file not found")
     sys.exit(2)

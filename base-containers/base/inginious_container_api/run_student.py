@@ -174,7 +174,7 @@ def run_simple(cmd, cmd_input=None, container=None,
     else:
         return stdout, retval
 
-def hack_signals(receive_signal):
+def _hack_signals(receive_signal):
     """ Catch every signal, and send it to the remote process """
     uncatchable = ['SIG_DFL', 'SIGSTOP', 'SIGKILL']
     for i in [x for x in dir(signal) if x.startswith("SIG")]:
