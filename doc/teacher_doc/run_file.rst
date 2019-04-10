@@ -84,7 +84,7 @@ The *feedback-result* command sets the submission result of a task, or a problem
 
     .. code-tab:: py
 
-        from inginious import feedback
+        from inginious_container_api import feedback
 
         # set the global result
         feedback.set_global_result("success")  # Set global result to success
@@ -121,7 +121,7 @@ The *feedback-grade* command sets the submission grade.
 
     .. code-tab:: py
 
-        from inginious import feedback
+        from inginious_container_api import feedback
         feedback.set_grade(87.8) # Set the grade to 87.8%
 
     .. code-tab:: bash
@@ -165,7 +165,7 @@ Once found, the template is parsed using `Jinja2 <http://jinja.pocoo.org/docs/2.
 
     .. code-tab:: py
 
-        from inginious import feedback
+        from inginious_container_api import feedback
 
         # format:
         # feedback.set_feedback_from_tpl(template_name, template_options, problem_id=None, append=False)
@@ -235,7 +235,7 @@ The *feedback-msg* command sets the feedback message associated to the task or a
 
     .. code-tab:: py
 
-        from inginious import feedback
+        from inginious_container_api import feedback
 
         # format:
         # set_global_feedback(feedback, append=False)
@@ -328,7 +328,7 @@ The *tag-set* command sets the value of the tag specified by the tag identifier 
 
     .. code-tab:: py
 
-        from inginious import feedback
+        from inginious_container_api import feedback
 
         # format: set_tag(tag, value):
         # Set the tag 'tag' to the value True or False.
@@ -365,7 +365,7 @@ The *tag* command defines a new unexpected tag to appear in the submission feedb
 
     .. code-tab:: py
 
-        from inginious import feedback
+        from inginious_container_api import feedback
 
         # format: set_tag(tag, value):
         # Set the tag 'tag' to the value True or False.
@@ -405,7 +405,7 @@ to enable syntax highlighting.
 
     .. code-tab:: py
 
-        from inginious import rst, feedback
+        from inginious_container_api import rst, feedback
 
         codeblock = rst.get_codeblock("java", "int a = 42;") # Java codeblock with `int a = 42;` code
 
@@ -441,7 +441,7 @@ The *rst-image* command generates a raw reStructuredText block containing an ima
 
     .. code-tab:: py
 
-        from inginious import rst, feedback
+        from inginious_container_api import rst, feedback
 
         # get_imageblock(filename, format='')
         imgblock = rst.get_imageblock("smiley.png") # RST block with image
@@ -483,7 +483,7 @@ You can also indicate a title (second parameter in Python, `-t` in bash). It can
 
     .. code-tab:: py
 
-        from inginious import rst, feedback
+        from inginious_container_api import rst, feedback
 
         # RST message block of class "success" and title "Yeah!"
         admonition = rst.get_admonition("success", "Yeah!", "Well done!")
@@ -514,7 +514,7 @@ The *rst-indent* command is used to add indentation to a given text.
 
     .. code-tab:: py
 
-        from inginious import rst, feedback
+        from inginious_container_api import rst, feedback
 
         rawhtml = rst.indent_block(1, "<p>A paragraph!</p>", "\t") # Indent the HTML code with 1 unit of tabulations
         feedback.set_global_feedback(".. raw::\n\n" + rawhtml, True) # Appends the block to the global feedback
@@ -539,10 +539,10 @@ The amount of indentation can be negative to de-indent the text.
 Input commands
 --------------
 
-getinput
-````````
+get_input
+`````````
 
-The *getinput* command/function returns the input given by the student for a specific problem id.
+The *get_input* command/function returns the input given by the student for a specific problem id.
 For example, for the problem id "pid":
 
 .. tabs::
@@ -553,7 +553,7 @@ For example, for the problem id "pid":
 
     .. code-tab:: py
 
-        from inginious import input
+        from inginious_container_api import input
         thecode = input.get_input("pid")
 
     .. code-tab:: bash
@@ -564,7 +564,7 @@ When a problem is defined with several boxes, the argument becomes *pid/bid* whe
 stands for the problem id and "bid" for "box id". If the problem is a file upload, the problem id can be appended
 with ``:filename`` or ``:value`` to retrieve its filename or value.
 
-Note that *getinput* can also retrieve the username/group of the user that submitted the task. You simply have to run
+Note that *get_input* can also retrieve the username/group of the user that submitted the task. You simply have to run
 
 .. tabs::
 
@@ -619,7 +619,7 @@ none is given, the template will be replaced.
 
     .. code-tab:: py
 
-        from inginious import input
+        from inginious_container_api import input
         thecode = input.parse_template("student.c") # Parse the `student.c` template file
         thecode = input.parse_template("template.c", "student.c") # Parse the `template.c` template file and save the parsed file into `student.c`
 
@@ -699,16 +699,16 @@ the examples below, please check the API directly for more information.
         # runs student/script.sh in another safe container, with a timeout of 60 seconds,
         # and stores the output in the variables `stdout` and `stderr`, and the return value
         # inside the variable `retval`.
-        stdout, stderr, retval = run_simple("student/script.sh", time=60)
+        stdout, stderr, retval = run_student_simple("student/script.sh", time=60)
 
     .. code-tab:: py
 
-        from inginious import run_student
+        from inginious_container_api import run_student
 
         # runs student/script.sh in another safe container, with a timeout of 60 seconds,
         # and stores the output in the variables `stdout` and `stderr`, and the return value
         # inside the variable `retval`.
-        stdout, stderr, retval = run_student.run_simple("student/script.sh", time=60)
+        stdout, stderr, retval = run_student.run_student_simple("student/script.sh", time=60)
 
     .. code-tab:: bash
 

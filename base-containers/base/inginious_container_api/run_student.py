@@ -11,7 +11,7 @@ import tempfile
 import msgpack
 import zmq
 
-def run(cmd, container=None,
+def run_student(cmd, container=None,
         time_limit=0, hard_time_limit=0,
         memory_limit=0, share_network=False,
         working_dir=None, stdin=None, stdout=None, stderr=None,
@@ -118,7 +118,7 @@ def run(cmd, container=None,
     except:
         return 254
 
-def run_simple(cmd, cmd_input=None, container=None,
+def run_student_simple(cmd, cmd_input=None, container=None,
         time_limit=0, hard_time_limit=0,
         memory_limit=0, share_network=False,
         working_dir=None, stdout_err_fuse=False, text="utf-8"):
@@ -161,7 +161,8 @@ def run_simple(cmd, cmd_input=None, container=None,
     else:
         stderr_r, stderr_w = os.pipe()
 
-    retval = run(cmd, container, time_limit, hard_time_limit, memory_limit, share_network, working_dir, stdin, stdout_w, stderr_w)
+    retval = run_student(cmd, container, time_limit, hard_time_limit, memory_limit,
+                         share_network, working_dir, stdin, stdout_w, stderr_w)
 
     preprocess_out = (lambda x: x.decode(text)) if text is not False else (lambda x: x)
 

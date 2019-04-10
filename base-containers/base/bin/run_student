@@ -25,8 +25,8 @@ parser.add_argument('--share-network', help="Share the network stack of the grad
 parser.add_argument('cmd', help="Command to be run on the remote container", nargs=argparse.REMAINDER)
 args = parser.parse_args()
 
-exit(run_student.run(' '.join(args.cmd), container=args.container, time_limit=args.time,
-                     hard_time_limit=args.hard_time, memory_limit=args.memory,
-                     share_network=args.share_network,
-                     stdin=sys.stdin.fileno(), stdout=sys.stdout.fileno(), stderr=sys.stderr.fileno(),
-                     signal_handler_callback=run_student._hack_signals))
+exit(run_student.run_student(' '.join(args.cmd), container=args.container, time_limit=args.time,
+                             hard_time_limit=args.hard_time, memory_limit=args.memory,
+                             share_network=args.share_network,
+                             stdin=sys.stdin.fileno(), stdout=sys.stdout.fileno(), stderr=sys.stderr.fileno(),
+                             signal_handler_callback=run_student._hack_signals))
