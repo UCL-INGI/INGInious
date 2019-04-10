@@ -2,7 +2,7 @@
 # coding=utf-8
 
 import sys
-import IPython
+import IPython.core.interactiveshell
 
 if len(sys.argv) == 1:
     print("No file given", file=sys.stderr)
@@ -10,4 +10,11 @@ if len(sys.argv) == 1:
 
 shell = IPython.core.interactiveshell.InteractiveShell()
 sys.argv = sys.argv[1:]  # correct the args
+
+shell.run_cell("from inginious_container_api.input import *", store_history=False)
+shell.run_cell("from inginious_container_api.feedback import *", store_history=False)
+shell.run_cell("from inginious_container_api.lang import *", store_history=False)
+shell.run_cell("from inginious_container_api.rst import *", store_history=False)
+shell.run_cell("from inginious_container_api.run_student import *", store_history=False)
+
 shell.safe_execfile_ipy(sys.argv[0])
