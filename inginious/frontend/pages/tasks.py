@@ -369,7 +369,7 @@ class BaseTaskPage(object):
                         tojson["tests"][tag] = data["tests"][tag]
 
         # allow plugins to insert javascript to be run in the browser after the submission is loaded
-        tojson["feedback_script"] = "".join(self.plugin_manager.call_hook("feedback_script", task=task, submission=data))
+        tojson["feedback_script"] = "".join(self.plugin_manager.call_hook("feedback_script", task=task, submission=data, reloading=reloading))
 
         return json.dumps(tojson, default=str)
 

@@ -116,7 +116,7 @@ function displayNewSubmission(id)
     }
 
     jQuery('<span id="txt"/>', {}).text(getDateTime()).appendTo(submission_link);
-    
+
     //If there exists tags, we add a badge with '0' in the new submission.
     if($('span', $('#main_tag_group')).length > 0){
         submission_link.append('<span class="badge alert-info" id="tag_counter" >0</span>');
@@ -156,9 +156,9 @@ function updateSubmission(id, result, grade, tags)
             $(this).removeClass('list-group-item-warning').addClass(nclass);
             var date = $(this).find("span[id='txt']");
             date.text(date.text() + " - " + grade + "%");
-            
+
             //update the badge
-            updateTagsToNewSubmission($(this), tags);  
+            updateTagsToNewSubmission($(this), tags);
         }
     });
 }
@@ -604,6 +604,9 @@ function displayTaskStudentAlertWithProblems(content, type)
 
     colorizeStaticCode();
     MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+
+    if ("feedback_script" in content)
+        eval(content["feedback_script"]);
 }
 
 function load_feedback_code(key, content) {
@@ -704,8 +707,6 @@ function loadOldFeedback(data)
     }
     else
         displayTaskStudentAlertWithProblems($("#internalerror").text(), "danger", false);
-    if("feedback_script" in data)
-        eval(data["feedback_script"]);
 }
 
 //Load data from input into the form inputs
@@ -812,7 +813,7 @@ function updateMainTags(data){
             $(this).attr('class', 'badge alert-info');
         }
     });
-        
+
     if("tests" in data){
         for (var tag in data["tests"]){
             //Get and update the color of HTML nodes that represent tags
@@ -839,7 +840,7 @@ function updateMainTags(data){
 }
 
 /*
- * Update color of tags presents in 'elem' node. 
+ * Update color of tags presents in 'elem' node.
  * 'data' is a dictionnary that should contains tag values in data["tests"][tag] = True/False
  */
 function updateTagsToNewSubmission(elem, data){
@@ -848,7 +849,7 @@ function updateTagsToNewSubmission(elem, data){
     var tags_ok = [];
     var n_tot = 0;  // total number of tags
     var badge = elem.find('span[id="tag_counter"]');
-    
+
     //Get all tags listed in main tag section
     $('span', $('#main_tag_group')).each(function() {
         var id = $(this).attr("id");
