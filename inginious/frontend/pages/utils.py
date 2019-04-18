@@ -188,11 +188,11 @@ class SignInPage(INGIniousAuthPage):
 class LogOutPage(INGIniousAuthPage):
     def GET_AUTH(self, *args, **kwargs):
         self.user_manager.disconnect_user()
-        raise web.seeother(web.ctx.env.get('HTTP_REFERER', '/'))
+        raise web.seeother("/courselist")
 
     def POST_AUTH(self, *args, **kwargs):
         self.user_manager.disconnect_user()
-        raise web.seeother(web.ctx.env.get('HTTP_REFERER', '/'))
+        raise web.seeother("/courselist")
 
 
 class INGIniousStaticPage(INGIniousPage):
