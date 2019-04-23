@@ -15,6 +15,7 @@ import resource
 import subprocess
 
 import inginious_container_api.feedback
+from inginious_container_api.run_types import run_types
 import time
 import tempfile
 import tarfile
@@ -254,18 +255,30 @@ class INGIniousMainRunner(object):
         f.write(json.dumps(data))
         f.close()
 
-    def _detect_and_start_run(self):
-        """ By default, we run the `run` script under IPython. This function checks
-            it is not meant to be run by another shell or is a binary executable """
-        filepath = "/task/run"
+    def _detect_run_file(self, run_cmd=None):
+        """ Detect the run file. The order of the resolution is as follows:
+        - If run_cmd is not None, then run it.
+        - If /task/run exists, then run it.
+        - For all runtypes (with extension `ext` and command `cmd`) inside the runtypes dictionnary:
+            - if `/task/run.ext` exists, then run  `cmd /task/run.ext`
+        - If /course/run exists, then run it
+        - For all runtypes (with extension `ext` and command `cmd`) inside the runtypes dictionnary:
+            - if `/course/run.ext` exists, then run  `cmd /task/run.ext`
+        - Produce an error.
 
-        magic = open(filepath, 'rb').read(4)
+        :returns: a list containing the command to be run by execute_process, or None if no run file is found.
+        """
 
-        if magic == ELF_MAGIC or magic[0:2] == SHEBANG_MAGIC:
-            return self.executeProcess([filepath])
-        else:
-            return self.executeProcess(["/bin/inginious-ipython", filepath])
+        if run_cmd is not None:
+            return run_cmd.split(" ")
+        for prefix in ["task", "course"]:
+            if os.path.exists("/{}/run".format(prefix)):
+                return ["/{}/run".format(prefix)]
+            for ext, cmd in run_types.items():
+                if os.path.exists("/{}/run.{}".format(prefix, ext)):
+                    return cmd + ["/{}/run.{}".format(prefix, ext)]
 
+        return None
 
     def _start_cmd_sync(self, data):
         self._logger.info("starting run")
@@ -331,10 +344,12 @@ class INGIniousMainRunner(object):
         if not ok_to_start:
             pass # do not start ;-)
         elif debug != "ssh": #normal start
-            if os.path.exists("/task/run"):
+            run_final_cmd = self._detect_run_file(data.get("run_cmd"))
+
+            if run_final_cmd is not None:
                 os.chdir("/task")
                 try:
-                    stdout, stderr = self._detect_and_start_run()
+                    stdout, stderr = self.executeProcess(run_final_cmd)
                 except:
                     inginious_container_api.feedback.set_global_result('crash')
                     inginious_container_api.feedback.set_global_feedback("An error occured while running the grading script. It is possible that it is non-executable or made a timeout")
