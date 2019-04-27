@@ -10,7 +10,8 @@ from functools import partial
 
 _script = """
 let params = {params_obj};
-if (localStorage.getItem("taskNotifications") === "on") {{
+
+if (localStorage.getItem("taskNotifications") === "on" && document.visibilityState === "hidden") {{
     new Notification(params.taskName, {{
         body: `Task finished (${{params.result}}). Your score is ${{params.grade}}%.`,
         icon: "/static/images/header.png",
