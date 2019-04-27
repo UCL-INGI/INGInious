@@ -96,6 +96,7 @@ $#
                     $:content.Navbar
             $if user_manager.session_logged_in():
                 <ul class="nav navbar-nav navbar-right ml-auto">
+                    $:template_helper.call('navbar', template_helper=template_helper)
                     <li class="nav-item"><a href="$get_homepath()/courselist" class="nav-link"><i class="fa fa-th-list fa-fw"></i> $:_("Course list")</a></li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" id="dropdownMenuButton">
@@ -113,6 +114,7 @@ $#
                 </ul>
             $else:
                 <ul class="nav navbar-nav navbar-right ml-auto">
+                    $:template_helper.call('navbar', template_helper=template_helper)
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" id="dropdownMenuButton">
                             <i class="fa fa-globe fa-fw"></i> $:_("English") <span class="caret"></span>

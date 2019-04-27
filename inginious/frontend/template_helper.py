@@ -30,6 +30,7 @@ class TemplateHelper(object):
         """
 
         self._base_helpers = {"header_hook": (lambda **kwargs: self._generic_hook('header_html', **kwargs)),
+                              "navbar": (lambda **kwargs: self._generic_hook('navbar', **kwargs)),
                               "main_menu": (lambda **kwargs: self._generic_hook('main_menu', **kwargs)),
                               "course_menu": (lambda **kwargs: self._generic_hook('course_menu', **kwargs)),
                               "task_menu": (lambda **kwargs: self._generic_hook('task_menu', **kwargs)),

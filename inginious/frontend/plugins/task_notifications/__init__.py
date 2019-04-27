@@ -29,10 +29,10 @@ def on_feedback_script(plugin_manager, submission, task, reloading):
 
     return _script.format(params_obj=params_json)
 
-def task_menu(template_helper):
-    template_helper.add_javascript('static/plugins/task_notifications/task_notifications.js')
-    return str(template_helper.get_custom_renderer('frontend/plugins/task_notifications', layout=False).task_menu())
+def navbar(template_helper):
+    template_helper.add_javascript('/static/plugins/task_notifications/task_notifications.js')
+    return str(template_helper.get_custom_renderer('frontend/plugins/task_notifications', layout=False).navbar())
 
 def init(plugin_manager, course_factory, client, plugin_config):  # pylint: disable=unused-argument
     plugin_manager.add_hook('feedback_script', partial(on_feedback_script, plugin_manager))
-    plugin_manager.add_hook('main_menu', task_menu)
+    plugin_manager.add_hook('navbar', navbar)
