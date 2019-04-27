@@ -1,8 +1,13 @@
 "use strict";
 
-$("#notifications-checkbox").change((e) => {
+$("#notifications-checkbox").change(function (e) {
     if ($(e.target).is(":checked")) {
-        Notification.requestPermission().then(permission => {
+        if (!("Notification" in window)) {
+            alert("This browser does not support notifications.");
+            return;
+        }
+
+        Notification.requestPermission().then(function (permission) {
             if (permission === "granted") {
                 localStorage.setItem("taskNotifications", "on");
             }
