@@ -15,6 +15,9 @@ notificationCheckbox.addEventListener("change", function (e) {
         Notification.requestPermission().then(function (permission) {
             if (permission === "granted") {
                 localStorage.setItem("taskNotifications", "on");
+            } else {
+                e.target.checked = false;
+                alert("Your browser has not granted permission to INGInious to send you notifications. Please check your browser's settings.");
             }
         });
     } else {
