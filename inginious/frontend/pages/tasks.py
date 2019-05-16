@@ -233,7 +233,7 @@ class BaseTaskPage(object):
                 }))
             elif self.submission_manager.is_done(result, user_check=not is_staff):
                 result = self.submission_manager.get_input_from_submission(result)
-                result = self.submission_manager.get_feedback_from_submission(task, result, show_everything=is_staff)
+                result = self.submission_manager.get_feedback_from_submission(task=task, submission=result, show_everything=is_staff)
 
                 # user_task always exists as we called user_saw_task before
                 user_task = self.database.user_tasks.find_one({
