@@ -41,7 +41,6 @@ class GoogleAuthMethod(AuthMethod):
 
             response = google.get('https://www.googleapis.com/oauth2/v3/userinfo')
             profile = json.loads(response.content.decode('utf-8'))
-            auth_storage["session"] = google
             return str(profile["sub"]), profile["name"], profile["email"]
         except Exception as e:
             return None
