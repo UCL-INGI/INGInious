@@ -47,6 +47,7 @@ class DisplayableProblem(Problem, metaclass=ABCMeta):
     @classmethod
     @abstractmethod
     def prepare_feedback(cls, feedback, show_everything, translation):
+        """ get parsed feedback for this problem """
         return ""
 
 
