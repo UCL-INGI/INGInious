@@ -47,7 +47,7 @@ class WebAppCourse(Course):
             self._is_lti = self._content.get('is_lti', False)
             self._lti_keys = self._content.get('lti_keys', {})
             self._lti_send_back_grade = self._content.get('lti_send_back_grade', False)
-            self._tags = {key: Tag(tag_dict, self.gettext) for key, tag_dict in self._content.get("tags", {}).items()}
+            self._tags = {key: Tag(key, tag_dict, self.gettext) for key, tag_dict in self._content.get("tags", {}).items()}
         except:
             raise Exception("Course has an invalid YAML spec: " + self.get_id())
 

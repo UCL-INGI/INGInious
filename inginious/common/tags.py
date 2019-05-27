@@ -13,8 +13,8 @@ class Tag:
     - 2: Category tags. Never appear. Only used for organisation and when we perform tasks search.
     """
 
-    def __init__(self, tag_dict, gettext):
-        self._id = tag_dict["id"]
+    def __init__(self, tag_id, tag_dict, gettext):
+        self._id = tag_id
         self._name = tag_dict["name"]
         self._visible = tag_dict.get("visible", False)
         self._description = tag_dict.get("description", "")
@@ -67,20 +67,3 @@ class Tag:
             
     def get_type(self):
         return self._type
-        
-    @classmethod
-    def create_tags_from_dict(cls, tag_dict):
-        """ 
-            Build a tuple of list of Tag objects based on the tag_dict.
-            The tuple contains 3 lists.
-            - The first list contains skill tags
-            - The second list contains misconception tags
-            - The third list contains category tags
-         """
-        id = tag_dict["id"]
-        name = tag_dict["name"]
-        visible = tag_dict["visible"]
-        description = tag_dict["description"]
-        type = tag_dict["type"]
-
-        return Tag(id, name, description, visible, type)
