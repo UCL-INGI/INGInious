@@ -5,11 +5,13 @@ $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
-<div role="tabpanel" class="tab-pane show active" id="tab_file_list">
+<div role="tabpanel" class="tab-pane show active upload-area" id="tab_file_list">
     $if error is not None:
         <div class="alert alert-danger" role="alert" style="text-align: center;">
             $error
         </div>
+
+    <input type="file" name="file" id="file" style="display: none;">
     <table class="table table-bordered table-sm">
         <thead class="table-borderless">
             <th class="col-sm-8">$:_("Path")</th>
@@ -61,4 +63,8 @@ $#
             </th>
         </tr>
     </table>
+    <script>
+    drag_drop_handler();
+    </script>
 </div>
+
