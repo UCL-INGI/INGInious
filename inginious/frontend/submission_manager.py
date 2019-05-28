@@ -176,6 +176,9 @@ class WebAppSubmissionManager:
             username = self._user_manager.session_username()
             submission["username"] = [username]
             submission["submitted_on"] = datetime.now()
+            my_user_task = self._database.user_tasks.find_one({"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username}, { "tried" : 1, "_id" : 0 })
+            tried_count = my_user_task["tried"]
+            inputdata["@attempts"] = str(tried_count + 1)
             inputdata["@username"] = username
             inputdata["@lang"] = self._user_manager.session_language()
             submission["input"] = self._gridfs.put(bson.BSON.encode(inputdata))
@@ -251,6 +254,9 @@ class WebAppSubmissionManager:
         # new_submission hook
         inputdata["@username"] = username
         inputdata["@lang"] = self._user_manager.session_language()
+        my_user_task = self._database.user_tasks.find_one({"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username}, { "tried" : 1, "_id" : 0 })
+        tried_count = my_user_task["tried"]
+        inputdata["@attempts"] = str(tried_count + 1)
         # Retrieve input random
         states = self._database.user_tasks.find_one({"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username}, {"random": 1, "state": 1})
         inputdata["@random"] = states["random"] if "random" in states else []
