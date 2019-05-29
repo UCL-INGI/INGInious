@@ -23,6 +23,7 @@ $var Navbar: $:NavbarF()
 
 <h2>$:_("Tags")</h2>
 
+<form id="tags_form" method="post" enctype="multipart/form-data" class="form-horizontal">
 <table class="table">
     <thead class="table-borderless">
         <tr>
@@ -74,4 +75,6 @@ $var Navbar: $:NavbarF()
     </tbody>
 </table>
 
-<button type="button" class="mt-3 btn btn-info btn-block" onclick="studio_add_tag_line(-1)"><i class="fa fa-plus fa-lg"></i>$:_(" New tag")</button>
+    <button type="button" class="mt-3 btn btn-info btn-block" onclick="studio_add_tag_line(-1)"><i class="fa fa-plus fa-lg"></i>$:_(" New tag")</button>
+    <button class="btn btn-primary btn-block task_edit_submit_button" type="button"><i class="fa fa-save"></i> $:_("Save changes")</button>
+</form>
