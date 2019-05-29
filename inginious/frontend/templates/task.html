@@ -100,7 +100,7 @@ $def ColumnF():
     </table>
      
     <!-- Tags -->
-    $ visible_tags = [course_tags[category] for category in task_categories if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course)]
+    $ visible_tags = [course_tags[category] for category in task_categories if course_tags[category].is_visible_for_student() or user_manager.has_staff_rights_on_course(course)]
 
     $# Auto tags may appear for admins. So we force the h3 title even if there is not predefined tags
     $# We do not show the tag header for students if they can not get tags

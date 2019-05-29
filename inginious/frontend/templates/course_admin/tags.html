@@ -53,13 +53,13 @@ $var Navbar: $:NavbarF()
     $ i=-1
     $for key, tag in course.get_descriptor().get("tags", {}).items():
         $ i=i+1
-        $ id = tag["id"] if "id" in tag else "unknow_id"
+        $ id = key
         $ name = tag["name"] if "name" in tag else "Unknow name"
         $ description = tag["description"] if "description" in tag else ""
         $ type = tag["type"] if "type" in tag else 0
         $ visible = tag["visible"] if "visible" in tag else False
         <tr id="$i">
-            <td><input type="text" id="id_$i" class="form-control" name="tags[$i][id]" value="$id" $('disabled' if type == 2 else '')/></td>
+            <td><input type="text" id="id_$i" class="form-control" name="tags[$i][id]" value="$id"/></td>
             <td><input type="text" class="form-control" name="tags[$i][name]" value="$name"/></td>
             <td><textarea class="form-control" onfocus="studio_expand_tag_description(this);" onblur="studio_expand_tag_description_not(this);" name="tags[$i][description]" rows="1" style="resize:none">$description</textarea></td>
             <td><input type="checkbox" class="form-control" name="tags[$i][visible]" $('checked="checked"' if visible else '')/></td>

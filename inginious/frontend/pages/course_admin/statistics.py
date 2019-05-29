@@ -7,6 +7,7 @@
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 from datetime import datetime, date, timedelta
 
+
 class CourseStatisticsPage(INGIniousAdminPage):
     def _tasks_stats(self, courseid, tasks, daterange):
         stats_tasks = self.database.submissions.aggregate(
@@ -115,8 +116,6 @@ class CourseStatisticsPage(INGIniousAdminPage):
         return self.template_helper.get_renderer().course_admin.stats(course, stats_graph, stats_tasks, stats_users, daterange, error)
 
 
-
-
 def compute_statistics(tasks, data, ponderation):
     """ 
     Compute statistics about submissions and tags.
@@ -131,8 +130,8 @@ def compute_statistics(tasks, data, ponderation):
     for submission in data:
         task = tasks[submission["taskid"]]
         username = "".join(submission["username"])
-        tags_of_task = task.get_tags()[0] + task.get_tags()[1]
-        for tag in tags_of_task:
+        tags_of_course = [tag for key, tag in task.get_course().get_tags().items() if tag.get_type() in [0,1]]
+        for tag in tags_of_course:
             super_dict.setdefault(tag, {})
             super_dict[tag].setdefault(username, {})
             super_dict[tag][username].setdefault(submission["taskid"], [0,0,0,0])
