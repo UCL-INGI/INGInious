@@ -55,39 +55,33 @@ class CourseTagsPage(INGIniousSubmissionAdminPage):
         tags = self.dict_from_prefix("tags", web.input())
         if tags is None:
             tags = {}
-        tags = OrderedDict(sorted(tags.items(), key=lambda item: item[0]))  # Sort by key
+
+        tags_id = [tag["id"] for key, tag in tags.items()]
+
+        if len(tags_id) != len(set(tags_id)):
+            return {"status": "error", "message": "Some tags have the same id! The id of a tag must be unique."}
+
+        tags = {tag["id"]: tag for key, tag in tags.items()}
 
         # Repair tags
-        for k in tags:
-            tags[k]["visible"] = ("visible" in tags[
-                k])  # Since unckecked checkboxes are not present here, we manually add them to avoid later errors
-            tags[k]["type"] = int(tags[k]["type"])
-            if not "id" in tags[k]:
-                tags[k][
-                    "id"] = ""  # Since textinput is disabled when the tag is organisational, the id field is missing. We add it to avoid Keys Errors
-            if tags[k]["type"] == 2:
-                tags[k]["id"] = ""  # Force no id if organisational tag
+        for key, tag in tags.items():
+            # Since unckecked checkboxes are not present here, we manually add them to avoid later errors
+            tag["visible"] = "visible" in tag
+            tag["type"] = int(tag["type"])
 
-        # Remove uncompleted tags (tags with no name or no id)
-        for k in list(tags.keys()):
-            if (tags[k]["id"] == "" and tags[k]["type"] != 2) or tags[k]["name"] == "":
-                del tags[k]
+            if (tag["id"] == "" and tag["type"] != 2) or tag["name"] == "":
+                return json.dumps({"status": "error", "message": _("Some tag fields are missing.")})
 
-        # Find duplicate ids. Return an error if some tags use the same id.
-        for k in tags:
-            if tags[k]["type"] != 2:  # Ignore organisational tags since they have no id.
-                count = 0
-                id = str(tags[k]["id"])
-                if (" " in id):
-                    return json.dumps({"status": "error", "message": _("You can not use spaces in the tag id field.")})
-                if not id_checker(id):
-                    return json.dumps({"status": "error", "message": _("Invalid tag id: {}").format(id)})
-                for k2 in tags:
-                    if tags[k2]["type"] != 2 and tags[k2]["id"] == id:
-                        count = count + 1
-                if count > 1:
-                    return json.dumps({"status": "error",
-                                       "message": _("Some tags have the same id! The id of a tag must be unique.")})
+            if not id_checker(tag["id"]):
+                return json.dumps({"status": "error", "message": _("Invalid tag id: {}").format(tag["id"])})
+
+            del tag["id"]
+
+        course_content = self.course_factory.get_course_descriptor_content(courseid)
+        course_content["tags"] = tags
+        self.course_factory.update_course_descriptor_content(courseid, course_content)
+
+        course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
 
         return self.show_page(course, web.input())
 
