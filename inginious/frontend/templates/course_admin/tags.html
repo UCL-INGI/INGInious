@@ -1,4 +1,4 @@
-$def with (course)
+$def with (course, saved, error)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -22,9 +22,23 @@ $def NavbarF():
 $var Navbar: $:NavbarF()
 
 <h2>$:_("Tags")</h2>
+$if error:
+    <div class="alert alert-danger" role="alert">
+        $error
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+$elif saved:
+    <div class="alert alert-success" role="alert">
+        $:_("Settings saved.")
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
 
 <form id="tags_form" method="post" enctype="multipart/form-data" class="form-horizontal">
-<table class="table">
+<table id="table" class="table">
     <thead class="table-borderless">
         <tr>
             <th>$:_("id")</th>

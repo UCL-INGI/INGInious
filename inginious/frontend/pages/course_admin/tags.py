@@ -56,12 +56,12 @@ class CourseTagsPage(INGIniousSubmissionAdminPage):
         if tags is None:
             tags = {}
 
-        tags_id = [tag["id"] for key, tag in tags.items()]
+        tags_id = [tag["id"] for key, tag in tags.items() if tag["id"]]
 
         if len(tags_id) != len(set(tags_id)):
-            return {"status": "error", "message": "Some tags have the same id! The id of a tag must be unique."}
+            return self.show_page(course, False, _("Some tags have the same id! The id of a tag must be unique."))
 
-        tags = {tag["id"]: tag for key, tag in tags.items()}
+        tags = {tag["id"]: tag for key, tag in tags.items() if tag["id"]}
 
         # Repair tags
         for key, tag in tags.items():
@@ -70,10 +70,10 @@ class CourseTagsPage(INGIniousSubmissionAdminPage):
             tag["type"] = int(tag["type"])
 
             if (tag["id"] == "" and tag["type"] != 2) or tag["name"] == "":
-                return json.dumps({"status": "error", "message": _("Some tag fields are missing.")})
+                return self.show_page(course, False, _("Some tag fields were missing."))
 
             if not id_checker(tag["id"]):
-                return json.dumps({"status": "error", "message": _("Invalid tag id: {}").format(tag["id"])})
+                return self.show_page(course, False,  _("Invalid tag id: {}").format(tag["id"]))
 
             del tag["id"]
 
@@ -83,12 +83,12 @@ class CourseTagsPage(INGIniousSubmissionAdminPage):
 
         course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
 
-        return self.show_page(course, web.input())
+        return self.show_page(course, True, "")
 
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
         course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
-        return self.show_page(course, web.input())
+        return self.show_page(course, False, "")
 
-    def show_page(self, course, user_input):
-        return self.template_helper.get_renderer().course_admin.tags(course)
+    def show_page(self, course, saved, error):
+        return self.template_helper.get_renderer().course_admin.tags(course, saved, error)
