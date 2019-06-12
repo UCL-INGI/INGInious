@@ -11,6 +11,7 @@ import hashlib
 import re
 
 import inginious.common.custom_yaml
+from collections import OrderedDict
 
 
 def id_checker(id_to_test):
@@ -100,3 +101,34 @@ def directory_compare_from_hash(from_directory, to_directory):
         if path not in from_directory:
             to_delete.append(path)
     return (to_upload, to_delete)
+
+
+def dict_from_prefix(prefix, dictionary):
+    """
+        >>> from collections import OrderedDict
+        >>> od = OrderedDict()
+        >>> od["problem[q0][a]"]=1
+        >>> od["problem[q0][b][c]"]=2
+        >>> od["problem[q1][first]"]=1
+        >>> od["problem[q1][second]"]=2
+        >>> AdminCourseEditTask.dict_from_prefix("problem",od)
+        OrderedDict([('q0', OrderedDict([('a', 1), ('b', OrderedDict([('c', 2)]))])), ('q1', OrderedDict([('first', 1), ('second', 2)]))])
+    """
+    o_dictionary = OrderedDict()
+    for key, val in dictionary.items():
+        if key.startswith(prefix):
+            o_dictionary[key[len(prefix):].strip()] = val
+    dictionary = o_dictionary
+
+    if len(dictionary) == 0:
+        return None
+    elif len(dictionary) == 1 and "" in dictionary:
+        return dictionary[""]
+    else:
+        return_dict = OrderedDict()
+        for key, val in dictionary.items():
+            ret = re.search(r"^\[([^\]]+)\](.*)$", key)
+            if ret is None:
+                continue
+            return_dict[ret.group(1)] = dict_from_prefix("[{}]".format(ret.group(1)), dictionary)
+        return return_dict
