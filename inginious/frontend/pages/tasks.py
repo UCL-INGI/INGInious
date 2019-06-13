@@ -260,7 +260,7 @@ class BaseTaskPage(object):
                 return self.submission_to_json(task, result, is_admin, False, default_submissionid == result['_id'], tags=course.get_tags())
             else:
                 web.header('Content-Type', 'application/json')
-                return self.submission_to_json(task, submission, is_admin, True, tags=course.get_tags())
+                return self.submission_to_json(task, result, is_admin, True, tags=course.get_tags())
 
         elif "@action" in userinput and userinput["@action"] == "load_submission_input" and "submissionid" in userinput:
             submission = self.submission_manager.get_submission(userinput["submissionid"], user_check=not is_staff)
