@@ -185,7 +185,7 @@ class WebAppSubmissionManager:
             submission["tests"] = {} # Be sure tags are reinitialized
             submissionid = self._database.submissions.insert(submission)
 
-        jobid = self._client.new_job(task, inputdata,
+        jobid = self._client.new_job(1, task, inputdata,
                                      (lambda result, grade, problems, tests, custom, state, archive, stdout, stderr:
                                       self._job_done_callback(submissionid, task, result, grade, problems, tests, custom, state, archive, stdout, stderr, copy)),
                                      "Frontend - {}".format(submission["username"]), debug, ssh_callback)
@@ -271,7 +271,7 @@ class WebAppSubmissionManager:
 
         ssh_callback = lambda host, port, password: self._handle_ssh_callback(submissionid, host, port, password)
 
-        jobid = self._client.new_job(task, inputdata,
+        jobid = self._client.new_job(0, task, inputdata,
                                      (lambda result, grade, problems, tests, custom, state, archive, stdout, stderr:
                                       self._job_done_callback(submissionid, task, result, grade, problems, tests, custom, state, archive, stdout, stderr, True)),
                                      "Frontend - {}".format(username), debug, ssh_callback)

@@ -4,8 +4,7 @@
 # more information about the licensing of this file.
 import asyncio
 import logging
-from collections import OrderedDict
-
+import queue
 import time
 import zmq
 from zmq.asyncio import Poller
@@ -45,15 +44,12 @@ class Backend(object):
         #     "name": ("last_id", "created_last", ["agent_addr1", "agent_addr2"])
         # }
         self._containers = {}
-
-        # Containers available per agent {"agent_addr": ["container_id_1", ...]}
-        self._containers_on_agent = {}
-
         self._registered_clients = set()  # addr of registered clients
         self._registered_agents = {}  # addr of registered agents
         self._available_agents = []  # addr of available agents
-        self._ping_count = {} # ping count per addr of agents
-        self._waiting_jobs = OrderedDict()  # rb queue for waiting jobs format:[(client_addr_as_bytes, ClientNewJob])]
+        self._ping_count = {}  # ping count per addr of agents
+        self._waiting_jobs_pq = queue.PriorityQueue() # priority queue for waiting jobs
+        self._waiting_jobs = {}  # mapping job to job message, with key: [(client_addr_as_bytes, ClientNewJob])]
         self._job_running = {}  # indicates on which agent which job is running. format: {BackendJobId:(addr_as_bytes,ClientNewJob,start_time)}
 
     async def handle_agent_message(self, agent_addr, message):
@@ -113,14 +109,22 @@ class Backend(object):
     async def handle_client_new_job(self, client_addr, message: ClientNewJob):
         """ Handle an ClientNewJob message. Add a job to the queue and triggers an update """
         self._logger.info("Adding a new job %s %s to the queue", client_addr, message.job_id)
-        self._waiting_jobs[(client_addr, message.job_id)] = message
+
+        job = (message.priority, client_addr, message.job_id, message)
+        self._waiting_jobs[(client_addr, message.job_id)] = job
+        self._waiting_jobs_pq.put(job)
+
         await self.update_queue()
 
     async def handle_client_kill_job(self, client_addr, message: ClientKillJob):
         """ Handle an ClientKillJob message. Remove a job from the waiting list or send the kill message to the right agent. """
         # Check if the job is not in the queue
         if (client_addr, message.job_id) in self._waiting_jobs:
-            del self._waiting_jobs[(client_addr, message.job_id)]
+
+            # Erase the job reference in priority queue
+            job = self._waiting_jobs.pop((client_addr, message.job_id))
+            job[-1] = None
+
             # Do not forget to send a JobDone
             await ZMQUtils.send_with_addr(self._client_socket, client_addr, BackendJobDone(message.job_id, ("killed", "You killed the job"),
                                                                                            0.0, {}, {}, {}, "", None, "", ""))
@@ -146,7 +150,8 @@ class Backend(object):
         #(job_id, is_current_client_job, info, launcher, max_time)
         jobs_waiting = list()
 
-        for job_client_addr, msg in self._waiting_jobs.items():
+        for job_client_addr, job in self._waiting_jobs.items():
+            msg = job[-1]
             if isinstance(msg, ClientNewJob):
                 jobs_waiting.append((msg.job_id, job_client_addr[0] == client_addr, msg.course_id+"/"+msg.task_id, msg.launcher,
                                      msg.time_limit))
@@ -158,28 +163,36 @@ class Backend(object):
         Send waiting jobs to available agents
         """
 
-        # For now, round-robin
-        not_found_for_agent = []
+        # Loop on available agents to maximize running jobs, and break if priority queue empty
+        for i in range(0, len(self._available_agents)):
+            if self._waiting_jobs_pq.empty():
+                break
 
-        while len(self._available_agents) > 0 and len(self._waiting_jobs) > 0:
-            agent_addr = self._available_agents.pop(0)
+            priority, client_addr, job_id, job_msg = self._waiting_jobs_pq.get()
 
-            # Find first job that can be run on this agent
-            found = False
-            client_addr, job_id, job_msg = None, None, None
-            for (client_addr, job_id), job_msg in self._waiting_jobs.items():
-                if job_msg.environment in self._containers_on_agent[agent_addr]:
-                    found = True
-                    break
-
-            if not found:
-                self._logger.debug("Nothing to do for agent %s", agent_addr)
-                not_found_for_agent.append(agent_addr)
+            # Killed job, removing it from the mapping
+            if not job_msg:
+                del self._waiting_jobs[(client_addr, job_id)]
                 continue
+
+            # Find agents that can run this job
+            possible_agents = list(set(self._containers[job_msg.environment][2]).intersection(set(self._available_agents)))
+
+            # No agent available, put job back to queue with lower priority
+            if not possible_agents:
+                job = (priority+1, client_addr, job_id, job_msg)
+                self._waiting_jobs_pq.put(job)
+                self._logger.warning("No agent for job id %s, putting it back in the queue.", job_id)
+                continue
+
+            # Agent chosen, removing it from availability list
+            agent_addr = possible_agents[0]
+            self._available_agents.remove(agent_addr)
 
             # Remove the job from the queue
             del self._waiting_jobs[(client_addr, job_id)]
 
+            # Send the job to agent
             job_id = (client_addr, job_msg.job_id)
             self._job_running[job_id] = (agent_addr, job_msg, time.time())
             self._logger.info("Sending job %s %s to agent %s", client_addr, job_msg.job_id, agent_addr)
@@ -188,9 +201,6 @@ class Backend(object):
                                                                                         job_msg.enable_network, job_msg.time_limit,
                                                                                         job_msg.hard_time_limit, job_msg.mem_limit,
                                                                                         job_msg.debug))
-
-        # Do not forget to add again for which we did not find jobs to do
-        self._available_agents += not_found_for_agent
 
     async def handle_agent_hello(self, agent_addr, message: AgentHello):
         """
@@ -204,7 +214,6 @@ class Backend(object):
 
         self._registered_agents[agent_addr] = message.friendly_name
         self._available_agents.extend([agent_addr for _ in range(0, message.available_job_slots)])
-        self._containers_on_agent[agent_addr] = message.available_containers.keys()
         self._ping_count[agent_addr] = 0
 
         # update information about available containers
