@@ -119,11 +119,9 @@ class CourseSubmissionsPage(INGIniousAdminPage):
         more_username = [s["students"] for s in classroom]  # Extract usernames of students
         more_username = [y for x in more_username for y in x]  # Flatten lists
         
-        # Get tasks based on organisational tags
-        more_tasks = []
-        for org_tag in user_input.org_tags:
-            if org_tag in course.get_organisational_tags_to_task():
-                more_tasks += course.get_organisational_tags_to_task()[org_tag]
+        # Get tasks based on categories
+        categories = set(user_input.org_tags)
+        more_tasks = [taskid for taskid, task in course.get_tasks().items() if categories.intersection(task.get_categories())]
 
         #Base query
         query_base = {

@@ -628,14 +628,6 @@ function studio_get_feedback(sid)
  * Functions for tags edition. Use in tags.html
  */
 
-// Enable or disabled the id field of line {line}
-function studio_change_id_field(type, line) {
-    if(type.value == 2){    
-        $("#id_"+line).prop('disabled', true);
-    }else{
-        $("#id_"+line).prop('disabled', false);
-    }
-}
 function studio_expand_tag_description(elem){
     elem.rows = 5;
 }
@@ -673,11 +665,7 @@ function studio_add_tag_line(line) {
     //TYPE
     var type = $('#E-'+line).attr("data-type");
     modified_row = modified_row.replace("type_replace_"+type, 'selected="selected"');
-    if(type == 2){
-        modified_row = modified_row.replace("id_stop", "disabled");
-    }else{
-        modified_row = modified_row.replace("id_stop", "");
-    }
+    modified_row = modified_row.replace("id_stop", "");
 
     $('#table').find('tbody').append("<tr id="+new_id+">" + modified_row + "</tr>");
     new_row.show();

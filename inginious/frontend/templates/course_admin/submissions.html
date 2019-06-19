@@ -61,7 +61,7 @@ $if len(old_input.task) == 1:
                 <select name="user" multiple size="7" class="form-control" id="select_user">
                 $for u in users:
                     $ complete_name = users[u][0] if users[u] != None and len(users[u]) > 0 else ''
-                    <option value="$u" $('selected' if u in old_input['user'] else '')>$u ($complete_name)</option>
+                    <option value="$u" $('selected' if u in old_input['user'] else '')>$complete_name ($u)</option>
                  </select>
             </div>
 
@@ -89,8 +89,9 @@ $if len(old_input.task) == 1:
             <div class="col-sm-4 form-group">
                 <label>$:_("Tasks based on organisational tags")</label>
                 <select name="org_tags" multiple size="9" class="form-control" id="select_org_tags">
-                $for t in course.get_all_tags()[2]:
-                    <option value="$t.get_name()" $('selected' if t.get_name() in old_input['org_tags'] else '')>$:_(t.get_name())</option>
+                $for key, t in course.get_tags().items():
+                    $if t.get_type() == 2:
+                        <option value="$t.get_name(user_manager.session_language())" $('selected' if t.get_name(user_manager.session_language()) in old_input['org_tags'] else '')>$:_(t.get_name(user_manager.session_language()))</option>
                 </select>
             </div>
         </div>
@@ -166,8 +167,9 @@ $if len(old_input.task) == 1:
                                             <label>$:_("The tag")</label>
                                             <select name="filter_tags" class="form-control" id="select_filter_tags_$i">
                                                 <option value=""></option>
-                                            $for tag in course.get_all_tags()[0] + course.get_all_tags()[1]:
-                                                <option value="$tag.get_id()" $('selected' if len(old_input['filter_tags']) > i and old_input['filter_tags'][i] == tag.get_id() else '')>$tag.get_name()</option>
+                                            $for key, tag in course.get_tags().items():
+                                                $if tag.get_type() in [0,1]:
+                                                    <option value="$tag.get_id()" $('selected' if len(old_input['filter_tags']) > i and old_input['filter_tags'][i] == tag.get_id() else '')>$tag.get_name(user_manager.session_language())</option>
                                             </select>
                                         </div>
                                         <div class="col-xs-6 col-sm-6">
@@ -288,7 +290,7 @@ $if statistics != None and len(data) > 0:
                                 $for (tag, v_total, v_best) in statistics[1]:
                                     $ color = "badge alert-danger" if tag.is_misconception() else "badge alert-info"
                                     <tr>
-                                        <td><span class="$color" id="$tag.get_id()" data-toggle="tooltip" data-placement="left" title="$tag.get_description(translated=True)">$:_(tag.get_name())</span></td>
+                                        <td><span class="$color" id="$tag.get_id()" data-toggle="tooltip" data-placement="left" title="$tag.get_description(user_manager.session_language())">$:_(tag.get_name(user_manager.session_language()))</span></td>
                                         $# The number of decimal digits. (10 for 1 decimal, 100 for two decimals, ...)
                                         $ accuracy = 10
                                         $ val_displayed_total = int(v_total*accuracy)/accuracy
@@ -384,18 +386,19 @@ $if statistics != None and len(data) > 0:
             <!-- TAGS td -->
             $if "show_tags" in old_input:
                 <td>
-                $for tag in tasks[submission["taskid"]].get_tags()[0]:
-                    <span style="line-height: 18px;">
-                    $if "tests" in submission and tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()]:
-                        <span class="badge alert-success" id="$tag.get_id()">$:_(tag.get_name())</span>
-                    $else:
-                        <span class="badge alert-info" id="$tag.get_id()">$:_(tag.get_name())</span>
-                    </span>
-                $for tag in tasks[submission["taskid"]].get_tags()[1]:
-                    <span style="line-height: 18px;">
-                    $if "tests" in submission and tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()]:
-                        <span class="badge alert-danger" id="$tag.get_id()">$:_(tag.get_name())</span> 
-                    </span>
+                $for key, tag in course.get_tags().items():
+                    $if tag.get_type() == 0 :
+                        <span style="line-height: 18px;">
+                        $if "tests" in submission and tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()]:
+                            <span class="badge alert-success" id="$tag.get_id()">$:_(tag.get_name(user_manager.session_language()))</span>
+                        $else:
+                            <span class="badge alert-info" id="$tag.get_id()">$:_(tag.get_name(user_manager.session_language()))</span>
+                        </span>
+                    $elif tag.get_type() == 1:
+                        <span style="line-height: 18px;">
+                        $if "tests" in submission and tag.get_id() in submission["tests"] and submission["tests"][tag.get_id()]:
+                            <span class="badge alert-danger" id="$tag.get_id()">$:_(tag.get_name(user_manager.session_language()))</span>
+                        </span>
                 $# Auto-tags not defined in task
                 $if "tests" in submission:
                     $for tag in submission["tests"]:
