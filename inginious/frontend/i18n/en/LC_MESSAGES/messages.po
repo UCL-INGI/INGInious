@@ -2608,7 +2608,7 @@ msgid "WebDAV"
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/webdav.html:23
-msgid "Use this URL to access to your course folder using WebDav:"
+msgid "Use this URL to access your course folder using WebDav:"
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/webdav.html:26
