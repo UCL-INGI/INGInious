@@ -7,10 +7,10 @@ ENV LC_ALL en_US.UTF-8
 
 # Install python, needed for scripts used in INGInious
 RUN     yum clean metadata && \
-        yum -y install https://centos7.iuscommunity.org/ius-release.rpm && \
+        yum -y install epel-release && \
         yum -y upgrade && \
-        yum -y install python python36u-pip python36u zip unzip tar sed openssh-server openssl bind-utils iproute file && \
-        pip3.6 install msgpack-python pyzmq jinja2 PyYAML timeout-decorator && ln -s /usr/bin/python3.6 /usr/bin/python3 && \
+        yum -y install python python36-pip python36 zip unzip tar sed openssh-server openssl bind-utils iproute file && \
+        pip3.6 install msgpack-python pyzmq jinja2 PyYAML timeout-decorator && \
         yum clean all
 
 # Allow to run commands
