@@ -429,6 +429,9 @@ function waitForSubmission(submissionid)
                     } else if($('#my_submission').length) {
                         setSelectedSubmission($('#my_submission').attr('data-submission-id'), false);
                     }
+
+                    if("feedback_script" in data)
+                        eval(data["feedback_script"]);
                 }
                 else
                 {
