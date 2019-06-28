@@ -110,7 +110,7 @@ class Backend(object):
         """ Handle an ClientNewJob message. Add a job to the queue and triggers an update """
         self._logger.info("Adding a new job %s %s to the queue", client_addr, message.job_id)
 
-        job = (message.priority, client_addr, message.job_id, message)
+        job = (message.priority, time.time(), client_addr, message.job_id, message)
         self._waiting_jobs[(client_addr, message.job_id)] = job
         self._waiting_jobs_pq.put(job)
 
@@ -168,7 +168,7 @@ class Backend(object):
             if self._waiting_jobs_pq.empty():
                 break
 
-            priority, client_addr, job_id, job_msg = self._waiting_jobs_pq.get()
+            priority, insert_time, client_addr, job_id, job_msg = self._waiting_jobs_pq.get()
 
             # Killed job, removing it from the mapping
             if not job_msg:
@@ -180,7 +180,7 @@ class Backend(object):
 
             # No agent available, put job back to queue with lower priority
             if not possible_agents:
-                job = (priority+1, client_addr, job_id, job_msg)
+                job = (priority+1, insert_time, client_addr, job_id, job_msg)
                 self._waiting_jobs_pq.put(job)
                 self._logger.warning("No agent for job id %s, putting it back in the queue.", job_id)
                 continue
