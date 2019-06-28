@@ -250,9 +250,9 @@ class Client(BetterParanoidPirateClient):
         """
         return self._available_containers
 
-    def new_job(self, task, inputdata, callback, launcher_name="Unknown", debug=False, ssh_callback=None):
+    def new_job(self, priority, task, inputdata, callback, launcher_name="Unknown", debug=False, ssh_callback=None):
         """ Add a new job. Every callback will be called once and only once.
-
+        :param priority: Priority of the job
         :type task: Task
         :param inputdata: input from the student
         :type inputdata: Storage or dict
@@ -303,7 +303,7 @@ class Client(BetterParanoidPirateClient):
             callback(("crash", "Error while reading task limits"), 0.0, {}, {}, "", {}, None, "", "")
             return
 
-        msg = ClientNewJob(job_id, task.get_course_id(), task.get_id(), inputdata, environment, enable_network, time_limit,
+        msg = ClientNewJob(job_id, priority, task.get_course_id(), task.get_id(), inputdata, environment, enable_network, time_limit,
                            hard_time_limit, mem_limit, debug, launcher_name)
         self._loop.call_soon_threadsafe(asyncio.ensure_future, self._create_transaction(msg, task=task, callback=callback,
                                                                                         ssh_callback=ssh_callback))

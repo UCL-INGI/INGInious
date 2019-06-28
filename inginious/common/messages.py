@@ -37,12 +37,13 @@ class ClientNewJob(metaclass=MessageMeta, msgtype="client_new_job"):
         B->A.
     """
 
-    def __init__(self, job_id: ClientJobId,
+    def __init__(self, job_id: ClientJobId, priority: int,
                  course_id: str, task_id: str, inputdata: Dict[str, Any],
                  environment: str, enable_network: bool, time_limit: int, hard_time_limit: Optional[int], mem_limit: int,
                  debug: Union[str, bool], launcher: str):
         """
         :param job_id: the client-side job id that is associated to this job
+        :param priority: the job priority
         :param course_id: course id of the task to run
         :param task_id: task id of the task to run
         :param inputdata: student input data
@@ -58,6 +59,7 @@ class ClientNewJob(metaclass=MessageMeta, msgtype="client_new_job"):
         :param launcher: the name of the entity that launched this job, for logging purposes
         """
         self.job_id = job_id
+        self.priority = priority
         self.course_id = course_id
         self.task_id = task_id
         self.inputdata = inputdata
