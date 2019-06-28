@@ -24,7 +24,7 @@ class TestHookManager(object):
         assert '<non existing tag>' not in rendered
 
     def test_parsable_text_once(self):
-        def fake_parser(input, language, show_everything):
+        def fake_parser(string, show_everything=False, translation=None, initial_header_level=3, debug=False):
             fake_parser.count += 1
             return ""
 
