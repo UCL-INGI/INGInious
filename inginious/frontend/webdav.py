@@ -7,6 +7,7 @@ import os
 from pymongo import MongoClient
 
 from wsgidav import util, wsgidav_app
+from wsgidav.dav_error import DAVError, HTTP_FORBIDDEN
 from wsgidav.dav_provider import DAVProvider
 from wsgidav.fs_dav_provider import FolderResource, FileResource
 
@@ -16,6 +17,54 @@ from inginious.frontend.user_manager import UserManager
 from inginious.frontend.session_mongodb import MongoStore
 from inginious.frontend.courses import WebAppCourse
 from inginious.frontend.tasks import WebAppTask
+
+
+class INGIniousDAVCourseFile(FileResource):
+    """ Protects the course description file. """
+    def __init__(self, path, environ, filePath, course_factory, course_id):
+        super(INGIniousDAVCourseFile, self).__init__(path, environ, filePath)
+        self._course_factory = course_factory
+        self._course_id = course_id
+
+    def delete(self):
+        """ It is forbidden to delete a course description file"""
+        raise DAVError(HTTP_FORBIDDEN)
+
+    def copyMoveSingle(self, destPath, isMove):
+        """ It is forbidden to delete a course description file"""
+        raise DAVError(HTTP_FORBIDDEN)
+
+    def moveRecursive(self, destPath):
+        """ It is forbidden to delete a course description file"""
+        raise DAVError(HTTP_FORBIDDEN)
+
+    def beginWrite(self, contentType=None):
+        """Open content as a stream for writing. Do not put the content into course.yaml directly."""
+        return open(self._filePath+".webdav_tmp", "wb", 8192)
+
+    def endWrite(self, withErrors):
+        """Update the course.yaml if possible"""
+        if withErrors:
+            os.remove(self._filePath+".webdav_tmp")
+        else:
+            with open(self._filePath, "rb") as orig_file:
+                orig_content = orig_file.read()
+            with open(self._filePath+".webdav_tmp", "rb") as new_file:
+                new_content = new_file.read()
+            os.remove(self._filePath + ".webdav_tmp")
+
+            with open(self._filePath + ".webdav_backup", "wb", 8192) as backup_file:
+                backup_file.write(orig_content)
+            with open(self._filePath, "wb", 8192) as orig_file:
+                orig_file.write(new_content)
+
+            try:
+                self._course_factory.get_course(self._course_id)
+            except:
+                #rollback!
+                with open(self._filePath, "wb", 8192) as orig_file:
+                    orig_file.write(orig_content)
+                os.remove(self._filePath + ".webdav_backup")
 
 
 class INGIniousDAVDomainController(object):
@@ -76,13 +125,25 @@ class INGIniousFilesystemProvider(DAVProvider):
         self.task_factory = task_factory
         self.readonly = False
 
-    def _locToFilePath(self, path, environ=None):
+    def _get_course_id(self, path):
+        path_parts = self._get_path_parts(path)
+        return path_parts[0]
+
+    def _get_inner_path(self, path):
+        """ Get the path to the file (as a list of string) beyond the course main folder """
+        path_parts = self._get_path_parts(path)
+        return path_parts[1:]
+
+    def _get_path_parts(self, path):
         path_parts = path.strip("/").split("/")
 
         if len(path_parts) < 1:
             raise RuntimeError("Security exception: tried to access root")
 
-        course_id = path_parts[0]
+        return path_parts
+
+    def _locToFilePath(self, path, environ=None):
+        course_id = self._get_course_id(path)
         try:
             course = self.course_factory.get_course(course_id)
         except:
@@ -91,7 +152,7 @@ class INGIniousFilesystemProvider(DAVProvider):
         path_to_course_fs = course.get_fs()
         path_to_course = os.path.abspath(path_to_course_fs.prefix)
 
-        file_path = os.path.abspath(os.path.join(path_to_course, *path_parts[1:]))
+        file_path = os.path.abspath(os.path.join(path_to_course, *self._get_inner_path(path)))
         if not file_path.startswith(path_to_course):
             raise RuntimeError("Security exception: tried to access file outside course root: {}".format(file_path))
 
@@ -114,6 +175,12 @@ class INGIniousFilesystemProvider(DAVProvider):
 
         if os.path.isdir(fp):
             return FolderResource(path, environ, fp)
+
+        # course.yaml needs a special protection
+        inner_path = self._get_inner_path(path)
+        if len(inner_path) == 1 and inner_path[0] in ["course.yaml", "course.json"]:
+            return INGIniousDAVCourseFile(path, environ, fp, self.course_factory, self._get_course_id(path))
+
         return FileResource(path, environ, fp)
 
 
