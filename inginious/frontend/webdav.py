@@ -40,31 +40,45 @@ class INGIniousDAVCourseFile(FileResource):
 
     def beginWrite(self, contentType=None):
         """Open content as a stream for writing. Do not put the content into course.yaml directly."""
+
+        # In order to avoid to temporarily lose the content of the file, we write somewhere else.
+        # endWrite will be in charge of putting the content in the correct file, after verifying its content.
         return open(self._filePath+".webdav_tmp", "wb", 8192)
 
     def endWrite(self, withErrors):
-        """Update the course.yaml if possible"""
+        """ Update the course.yaml if possible. Verifies the content first, and make backups beforehand. """
+
         if withErrors:
+            # something happended while uploading, let's remove the tmp file
             os.remove(self._filePath+".webdav_tmp")
         else:
+            # get the original content of the file
             with open(self._filePath, "rb") as orig_file:
                 orig_content = orig_file.read()
+            # get the new content that just has been uploaded
             with open(self._filePath+".webdav_tmp", "rb") as new_file:
                 new_content = new_file.read()
-            os.remove(self._filePath + ".webdav_tmp")
+            os.remove(self._filePath + ".webdav_tmp") #the file is not needed anymore
 
+            # backup the original content. In case inginious-webdav crashes while updating the file.
             with open(self._filePath + ".webdav_backup", "wb", 8192) as backup_file:
                 backup_file.write(orig_content)
+
+            # Put the new content in the file, temporarily
             with open(self._filePath, "wb", 8192) as orig_file:
                 orig_file.write(new_content)
 
+            # Now we check if we can still load the course...
             try:
                 self._course_factory.get_course(self._course_id)
+                # Everything ok, let's leave things as-is
             except:
-                #rollback!
+                # We can't load the new file, rollback!
                 with open(self._filePath, "wb", 8192) as orig_file:
                     orig_file.write(orig_content)
-                os.remove(self._filePath + ".webdav_backup")
+
+            # Remove the unneeded backup
+            os.remove(self._filePath + ".webdav_backup")
 
 
 class INGIniousDAVDomainController(object):
