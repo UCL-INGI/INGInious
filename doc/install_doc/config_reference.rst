@@ -121,6 +121,9 @@ The different entries are :
    If set, a new page displays a WebDAV URL and login/password for administrators to access
    the course filesystem.
 
+``sentry_io_url``
+    The Sentry.io *Data Source Name* to use for error reporting in the frontend. If not set, sentry.io is not loaded.
+
 .. _configuration.example.yaml: https://github.com/UCL-INGI/INGInious/blob/master/configuration.example.yaml
 .. _docker-py API: https://github.com/docker/docker-py/blob/master/docs/api.md#client-api
 
