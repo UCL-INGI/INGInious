@@ -34,6 +34,22 @@ def import_class(name):
     return mod
 
 
+#def tag_check_format(tags):
+    """
+    Check the tags arg only contains valid type for tags
+    :param tags: output of create_tags_from_dict
+    :return: True if correct format, False otherwise
+    """
+#    TODO: update when tags use fixed for courses
+#    try:
+#        for tag in tags:
+#            if tag.get_type() != 0:  # Unknown type -> incorrect
+#                return False
+#        return True
+#    except ValueError as e:
+#        raise BaseException('TAG ERROR: ' + str(e))
+
+
 def create_client(config, course_factory, fs_provider):
     """
     Create a new client and return it
@@ -128,7 +144,7 @@ def test_task(yaml_data, task, client, client_sync):
     :return: dict whose the format is specified in compare_all_outputs function doc
     """
     if task.get_environment() not in client.get_available_containers():
-        time.sleep(1)
+        time.sleep(2)
     if task.get_environment() not in client.get_available_containers():
         raise Exception('Environment not available')
     new_output = client_sync.new_job(0, task, yaml_data['input'])  # request the client with input from yaml and given task
@@ -158,8 +174,9 @@ def test_web_task(yaml_data, task, config, yaml_path):
             config["default_problem_types"]
         )  # Test of init a web task with the yaml_data. if the values are incorrect, exception will be raised
         web_task.get_context('English').parse(debug=True)  # Test of compiling the context
-        if not Tag.check_format(web_task.get_tags()):
-            raise BaseException("Tag type not correct")
+#       TODO: tag checking
+#        if not tag_check_format(web_task.get_categories()):
+#            raise BaseException("Tag type not correct")
         if web_task.get_evaluate() not in ["best", "last", "student"]:
             raise BaseException("Not correct evaluation type")
         for sub_prob in yaml_data["problems"]:
