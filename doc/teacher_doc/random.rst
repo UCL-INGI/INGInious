@@ -25,7 +25,7 @@ Through the webapp
 Several context-specific inputs are accessible through a ``input`` Javascript dictionary
 in the task and subproblems context.
 
-.. code-block::
+.. code-block:: Javascript
 
     var input = {
         "@lang": "fr",
@@ -46,13 +46,13 @@ id ``@random``.
 
 Using the shell API:
 
-.. code-block::
+.. code-block:: bash
 
     getinput @random
 
 Using the Python API:
 
-.. code-block::
+.. code-block:: python
 
     from inginious import input as inginious_input
     random_list = inginious_input.get_input("@random")

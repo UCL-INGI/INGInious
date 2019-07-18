@@ -16,7 +16,7 @@ To get started, files named ``configuration.example.yaml`` and ``configuration.l
 The different entries are :
 
 ``allow_deletion``
-    ``false`` if users cannot delete their accounts (and all related data from database), ``true``otherwise.
+    ``false`` if users cannot delete their accounts (and all related data from database), ``true`` otherwise.
 
 ``allow_registration``
     ``false`` if database registration should be disabled. In this mode no password can be set and accounts
@@ -101,7 +101,7 @@ The different entries are :
 ``static_directory``
     Path to the directory where YAML-defined static pages are located.
 
-`superadmins``
+``superadmins``
     A list of super-administrators who have admin access on the whole stored content.
 
 ``tasks_directory``
