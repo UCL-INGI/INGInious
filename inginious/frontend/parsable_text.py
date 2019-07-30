@@ -179,7 +179,7 @@ class ParsableText(object):
             'syntax_highlight': 'none',
             'force_show_hidden_until': show_everything,
             'translation': translation,
-            'math_output': 'MathJax'
+            'math_output': 'MathJax /this/does/not/need/to/exist.js'
         }
         if debug:
             overrides['halt_level'] = 2
