@@ -35,6 +35,9 @@ function init_task_page(evaluate)
         $(this).on('click', clickOnSubmission);
         $(this).find('a').on('click', selectSubmission);
     });
+
+    // Allows to close cards
+    $(document).on('click', '[data-dismiss="card"]', function(event) {event.target.closest('.card').remove()});
 }
 
 var evaluatedSubmission = 'best';
@@ -315,7 +318,7 @@ function taskFormValid()
             first = false;
             content.append($('<span></span>').text(elem));
         });
-        task_alert.html(getAlertCode(content.html(), "danger", false));
+        task_alert.html(getAlertCode("Error", content.html(), "danger", false));
         $('html, body').animate({
             scrollTop: task_alert.offset().top - 100
         }, 200);
@@ -494,25 +497,25 @@ function displayDebugInfoRecur(info, box)
 }
 
 //Get the code for a "loading" alert, with a button to kill the current submission
-function getLoadingAlertCode(content, submissionid)
+function getLoadingAlertCode(title, content, submissionid)
 {
-    var kill_button = "";
+    var kill_button = undefined;
     if(submissionid != null)
         kill_button =   "<button type='button' onclick='killSubmission(\""+submissionid+"\")' class='btn btn-danger kill-submission-btn btn-small'>"+
                             "<i class='fa fa-close'></i>"+
                         "</button>";
-    var div_content =   "<div class='loading-alert'>"+content+"</div>";
-    return getAlertCode(kill_button + div_content, "info", false);
+    return getAlertCode(title, content, "info", false, kill_button);
 }
 
 //Displays a loading alert in task form
 function displayTaskLoadingAlert(submission_wait_data, submissionid)
 {
     var task_alert = $('#task_alert');
-    var content = '<i class="fa fa-spinner fa-pulse fa-fw" aria-hidden="true"></i> ';
+    var title = '<i class="fa fa-spinner fa-pulse fa-fw" aria-hidden="true"></i> ';
+    var content = "";
     if(submission_wait_data != null)
         content += submission_wait_data["text"];
-    task_alert.html(getLoadingAlertCode(content, submissionid));
+    task_alert.html(getLoadingAlertCode(title, content, submissionid));
 }
 
 //Display informations for remote debugging
@@ -524,8 +527,8 @@ function displayRemoteDebug(submissionid, submission_wait_data)
 
     var pre_content = "ssh worker@" + ssh_host + " -p " + ssh_port+ " -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no";
     var task_alert = $('#task_alert');
-    var content = '<i class="fa fa-spinner fa-pulse fa-fw" aria-hidden="true"></i> ';
-    content += submission_wait_data["text"];
+    var title = '<i class="fa fa-spinner fa-pulse fa-fw" aria-hidden="true"></i> ';
+    var content = submission_wait_data["text"];
 
     //If not already set
     if($('pre#commandssh', task_alert).text() != pre_content)
@@ -549,7 +552,7 @@ function displayRemoteDebug(submissionid, submission_wait_data)
             }).appendTo(webtermdiv);
         }
 
-        task_alert.html(getLoadingAlertCode(content, submissionid));
+        task_alert.html(getLoadingAlertCode(title, content, submissionid));
         remote_info.appendTo($(".loading-alert"), task_alert);
         $("#ssh_remote_info code", task_alert).text(ssh_password);
         $("#ssh_remote_info", task_alert).show();
@@ -560,7 +563,7 @@ function displayRemoteDebug(submissionid, submission_wait_data)
 function displayTaskInputLoadingAlert()
 {
     var task_alert = $('#task_alert');
-    task_alert.html(getAlertCode("<i class=\"fa fa-spinner fa-pulse fa-fw\" aria-hidden=\"true\"></i>", "info", false));
+    task_alert.html(getAlertCode("<i class=\"fa fa-spinner fa-pulse fa-fw\" aria-hidden=\"true\"></i>", "", "info", false));
     $('html, body').animate(
         {
             scrollTop: task_alert.offset().top - 100
@@ -571,7 +574,7 @@ function displayTaskInputLoadingAlert()
 function displayTaskInputErrorAlert()
 {
     var task_alert = $('#task_alert');
-    task_alert.html(getAlertCode("<b>" + $("#internalerror").text() + "</b>", "danger", false));
+    task_alert.html(getAlertCode("<b>" + $("#internalerror").text() + "</b>", "", "danger", false));
     $('html, body').animate(
         {
             scrollTop: task_alert.offset().top - 100
@@ -586,9 +589,9 @@ function displayTaskStudentAlertWithProblems(content, type)
     var firstPos = -1;
     var task_alert = $('#task_alert');
 
-    if("text" in content && content.text != "")
+    if("title" in content)
     {
-        task_alert.html(getAlertCode(content.text, type, true));
+        task_alert.html(getAlertCode(content.title, content.text, type, true));
         firstPos = task_alert.offset().top;
     }
 
@@ -611,11 +614,11 @@ function displayTaskStudentAlertWithProblems(content, type)
 
 function load_feedback_code(key, content) {
     var alert_type = "danger";
-    if(content[0] == "timeout" || content[0] == "overflow")
+    if(content[0] === "timeout" || content[0] === "overflow")
         alert_type = "warning";
-    if(content[0] == "success")
+    if(content[0] === "success")
         alert_type = "success";
-    $("#task_alert_" + key).html(getAlertCode(content[1], alert_type, true));
+    $("#task_alert_" + key).html(getAlertCode("", content[1], alert_type, true));
 }
 
 function load_feedback_file(key, content) {
@@ -637,15 +640,57 @@ function load_feedback_multiple_choice(key, content) {
 //Create an alert
 //type is either alert, info, danger, warning
 //dismissible is a boolean
-function getAlertCode(content, type, dismissible)
+function getAlertCode(title, content, type, dismissible, additionnal_content)
 {
-    var a = '<div class="alert fade show ';
-    if(dismissible)
-        a += 'alert-dismissible ';
-    a += 'alert-' + type + '" role="alert">';
-    if(dismissible)
-        a += '<button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>';
-    a += content;
+    var a = '<div class="card border-' + type + ' mb-3" role="card">';
+    a += '<div class="row no-gutters">';
+
+    //Style 1, when there is a title, display it
+    if(title !== "") {
+        a += '<div class="col">';
+        a += '<div class="card-header bg-' + type + ' text-white">';
+        if (dismissible)
+            a += '<button type="button" class="close" data-dismiss="card" style="color: white;"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>';
+        a += title;
+        a += '</div>';
+        if (content !== "") {
+            a += '<div class="card-body">';
+            a += content;
+            a += '</div>';
+        }
+        a += '</div>';
+    }
+    else {
+        //left part
+        a += '<div class="col-auto bg-' + type + ' text-white card-left-icon">';
+        if(type === "danger") {
+            a += '&times;';
+        }
+        else if(type === "success") {
+            a += '&#x2713;';
+        }
+        else {
+            a += '?';
+        }
+        a += '</div>';
+
+        //right part
+        a += '<div class="col">';
+        a += '<div class="card-body px-2">';
+        if (dismissible)
+            a += '<button type="button" class="close" data-dismiss="card"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>';
+        a += content;
+        a += '</div>';
+        a += '</div>';
+    }
+
+    if(additionnal_content !== undefined) {
+        a += '<div class="col-auto">';
+        a += additionnal_content;
+        a += '</div>';
+    }
+
+    a += '</div>';
     a += '</div>';
     return a;
 }
