@@ -8,23 +8,21 @@ import gettext
 
 from inginious.agent import Agent, CannotCreateJobException
 from inginious import get_root_path
-from inginious.common.course_factory import create_factories
 from inginious.common.messages import BackendNewJob, BackendKillJob
 from inginious.common.tasks_problems import MultipleChoiceProblem, MatchProblem
 import os.path
 
 class MCQAgent(Agent):
-    def __init__(self, context, backend_addr, friendly_name, concurrency, tasks_filesystem, course_factory):
+    def __init__(self, context, backend_addr, friendly_name, concurrency, task_factory):
         """
         :param context: ZeroMQ context for this process
         :param backend_addr: address of the backend (for example, "tcp://127.0.0.1:2222")
         :param friendly_name: a string containing a friendly name to identify agent
-        :param tasks_filesystem: FileSystemProvider to the course/tasks
-        :param course_factory: Course factory used to get course/tasks
+        :param task_factory: Task factory used to get tasks
         """
-        super().__init__(context, backend_addr, friendly_name, concurrency, tasks_filesystem)
+        super().__init__(context, backend_addr, friendly_name, concurrency, task_factory)
         self._logger = logging.getLogger("inginious.agent.mcq")
-        self.course_factory = course_factory
+        self.task_factory = task_factory
 
         # Init gettext
         self._translations = {"en": gettext.NullTranslations()}
@@ -40,11 +38,11 @@ class MCQAgent(Agent):
     async def new_job(self, msg: BackendNewJob):
         try:
             self._logger.info("Received request for jobid %s", msg.job_id)
-            task = self.course_factory.get_task(msg.course_id, msg.task_id)
+            task = self.task_factory.get_task(msg.course_id, msg.task_id)
         except asyncio.CancelledError:
             raise
         except Exception as e:
-            self._logger.error("Task %s/%s not available on this agent", msg.course_id, msg.task_id)
+            self._logger.error("Task %s/%s not available on this agent : %s", msg.course_id, msg.task_id, str(e))
             raise CannotCreateJobException("Task is not available on this agent")
 
         language = msg.inputdata.get("@lang", "")

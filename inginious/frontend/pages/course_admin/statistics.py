@@ -116,7 +116,7 @@ class CourseStatisticsPage(INGIniousAdminPage):
         return self.template_helper.get_renderer().course_admin.stats(course, stats_graph, stats_tasks, stats_users, daterange, error)
 
 
-def compute_statistics(tasks, data, ponderation):
+def compute_statistics(course, data, ponderation):
     """ 
     Compute statistics about submissions and tags.
     This function returns a tuple of lists following the format describe below:
@@ -128,9 +128,8 @@ def compute_statistics(tasks, data, ponderation):
     
     super_dict = {}
     for submission in data:
-        task = tasks[submission["taskid"]]
         username = "".join(submission["username"])
-        tags_of_course = [tag for key, tag in task.get_course().get_tags().items() if tag.get_type() in [0,1]]
+        tags_of_course = [tag for key, tag in course.get_tags().items() if tag.get_type() in [0,1]]
         for tag in tags_of_course:
             super_dict.setdefault(tag, {})
             super_dict[tag].setdefault(username, {})

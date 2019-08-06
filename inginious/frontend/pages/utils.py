@@ -19,7 +19,6 @@ from inginious.frontend.user_manager import UserManager
 from inginious.frontend.parsable_text import ParsableText
 from pymongo.database import Database
 
-from inginious.common.course_factory import CourseFactory
 from inginious.common.task_factory import TaskFactory
 from inginious.frontend.lti_outcome_manager import LTIOutcomeManager
 
@@ -44,11 +43,6 @@ class INGIniousPage(object):
     def plugin_manager(self) -> PluginManager:
         """ Returns the plugin manager singleton """
         return self.app.plugin_manager
-
-    @property
-    def course_factory(self) -> CourseFactory:
-        """ Returns the course factory singleton """
-        return self.app.course_factory
 
     @property
     def task_factory(self) -> TaskFactory:

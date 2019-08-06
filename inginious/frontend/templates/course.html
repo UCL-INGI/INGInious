@@ -152,16 +152,16 @@ function filter_tag(tag) {
                 $ succeeded=tasks_data[taskid]["succeeded"]
                 $ completion=tasks_data[taskid]["grade"]
                 <a href="$get_homepath()/course/$course.get_id()/$taskid" class="list-group-item list-group-item-action
-                    $if not task.is_visible_by_students() or not task.get_accessible_time().is_open():
+                    $if not task.is_visible_by_students(course) or not task.get_accessible_time(course).is_open():
                         disabled
                     ">
                     <div class="row">
                         <div class="col-xs-12 col-md-7 pl-1">
                             <i style="color: $('#468847;' if succeeded else 'transparent')" class="fa fa-check"></i>
                             $task.get_name(user_manager.session_language())
-                            $if not task.is_visible_by_students():
+                            $if not task.is_visible_by_students(course):
                                 - <b>$:_("task hidden to students")</b>
-                            $if not task.get_accessible_time().is_open():
+                            $if not task.get_accessible_time(course).is_open():
                                 - <b>$:_("deadline reached")</b>
                         </div>
                         <div class="col-xs-12 col-md-5">
@@ -174,7 +174,7 @@ function filter_tag(tag) {
                         </div>
                     </div>
                     <div id="tags_of_task" style="display:none;">
-                        $for category in task.get_categories():
+                        $for category in task.get_categories(course):
                             $ tag = tag_filter_list[category]
                             $if tag.is_visible_for_student() or user_manager.has_staff_rights_on_course(course):
                                 <div id="tag" data-tag-name="$:tag.get_id()"></div>

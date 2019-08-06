@@ -19,6 +19,7 @@ from collections import OrderedDict
 from pymongo import ReturnDocument
 
 from inginious.common import exceptions
+from inginious.frontend.courses import WebAppCourse
 from inginious.frontend.pages.utils import INGIniousPage
 
 
@@ -27,10 +28,10 @@ class BaseTaskPage(object):
 
     def __init__(self, calling_page):
         self.cp = calling_page
+        self.task_factory = self.cp.task_factory
         self.submission_manager = self.cp.submission_manager
         self.user_manager = self.cp.user_manager
         self.database = self.cp.database
-        self.course_factory = self.cp.course_factory
         self.template_helper = self.cp.template_helper
         self.default_allowed_file_extensions = self.cp.default_allowed_file_extensions
         self.default_max_file_size = self.cp.default_max_file_size
@@ -64,7 +65,7 @@ class BaseTaskPage(object):
 
         # Check if task is done per group
         if task.is_group_task() and not is_staff:
-            group = self.database.groups.find_one({"courseid": task.get_course_id(),
+            group = self.database.groups.find_one({"courseid": course.get_id(),
                                                  "students": self.user_manager.session_username()})
             students = group["students"]
         else:
@@ -73,7 +74,7 @@ class BaseTaskPage(object):
         # Check if group/group is the same
         if students == submission["username"]:
             self.database.user_tasks.update_many(
-                {"courseid": task.get_course_id(), "taskid": task.get_id(), "username": {"$in": students}},
+                {"courseid": course.get_id(), "taskid": task.get_id(), "username": {"$in": students}},
                 {"$set": {"submissionid": submission['_id'],
                           "grade": submission['grade'],
                           "succeeded": submission["result"] == "success"}})
@@ -87,7 +88,8 @@ class BaseTaskPage(object):
 
         # Fetch the course
         try:
-            course = self.course_factory.get_course(courseid)
+            course = self.database.courses.find_one({"_id": courseid})
+            course = WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager)
         except exceptions.CourseNotFoundException as ex:
             raise web.notfound(str(ex))
 
@@ -99,12 +101,12 @@ class BaseTaskPage(object):
 
         # Fetch the task
         try:
-            tasks = OrderedDict((tid, t) for tid, t in course.get_tasks().items() if self.user_manager.task_is_visible_by_user(t, username, isLTI))
+            tasks = OrderedDict((tid, t) for tid, t in course.get_tasks().items() if self.user_manager.task_is_visible_by_user(course, t, username, isLTI))
             task = tasks[taskid]
         except KeyError:
             raise web.notfound()
 
-        if not self.user_manager.task_is_visible_by_user(task, username, isLTI):
+        if not self.user_manager.task_is_visible_by_user(course, task, username, isLTI):
             return self.template_helper.get_renderer().task_unavailable()
 
         # Compute previous and next taskid
@@ -145,7 +147,7 @@ class BaseTaskPage(object):
 
             user_task = self.database.user_tasks.find_one_and_update(
                 {
-                    "courseid": task.get_course_id(),
+                    "courseid": task.get_courseid(),
                     "taskid": task.get_id(),
                     "username": self.user_manager.session_username()
                 },
@@ -160,13 +162,13 @@ class BaseTaskPage(object):
 
             students = [self.user_manager.session_username()]
             if task.is_group_task() and not self.user_manager.has_admin_rights_on_course(course, username):
-                group = self.database.groups.find_one({"courseid": task.get_course_id(),
+                group = self.database.groups.find_one({"courseid": course.get_id(),
                                                      "students": self.user_manager.session_username()})
                 if group is not None:
                     students = group["students"]
                 # we don't care for the other case, as the student won't be able to submit.
 
-            submissions = self.submission_manager.get_user_submissions(task) if self.user_manager.session_logged_in() else []
+            submissions = self.submission_manager.get_user_submissions(course, task) if self.user_manager.session_logged_in() else []
             user_info = self.database.users.find_one({"username": username})
 
             # Display the task itself
@@ -177,12 +179,14 @@ class BaseTaskPage(object):
         """ POST a new submission """
         username = self.user_manager.session_username()
 
-        course = self.course_factory.get_course(courseid)
+        course = self.database.courses.find_one({"_id": courseid})
+        course = WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager)
+
         if not self.user_manager.course_is_open_to_user(course, username, isLTI):
             return self.template_helper.get_renderer().course_unavailable()
 
         task = course.get_task(taskid)
-        if not self.user_manager.task_is_visible_by_user(task, username, isLTI):
+        if not self.user_manager.task_is_visible_by_user(course, task, username, isLTI):
             return self.template_helper.get_renderer().task_unavailable()
 
         self.user_manager.user_saw_task(username, courseid, taskid)
@@ -193,11 +197,11 @@ class BaseTaskPage(object):
         userinput = web.input()
         if "@action" in userinput and userinput["@action"] == "submit":
             # Verify rights
-            if not self.user_manager.task_can_user_submit(task, username, isLTI):
+            if not self.user_manager.task_can_user_submit(course, task, username, isLTI):
                 return json.dumps({"status": "error", "text": _("You are not allowed to submit for this task.")})
 
             # Retrieve input random and check still valid
-            random_input = self.database.user_tasks.find_one({"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username}, { "random": 1 })
+            random_input = self.database.user_tasks.find_one({"courseid": course.get_id(), "taskid": task.get_id(), "username": username}, { "random": 1 })
             random_input = random_input["random"] if "random" in random_input else []
             for i in range(0, len(random_input)):
                 s = "@random_" + str(i)
@@ -226,7 +230,7 @@ class BaseTaskPage(object):
 
             # Start the submission
             try:
-                submissionid, oldsubids = self.submission_manager.add_job(task, userinput, debug)
+                submissionid, oldsubids = self.submission_manager.add_job(course, task, userinput, debug)
                 web.header('Content-Type', 'application/json')
                 return json.dumps({"status": "ok", "submissionid": str(submissionid), "remove": oldsubids, "text": _("<b>Your submission has been sent...</b>")})
             except Exception as ex:
@@ -245,7 +249,7 @@ class BaseTaskPage(object):
 
                 # user_task always exists as we called user_saw_task before
                 user_task = self.database.user_tasks.find_one({
-                    "courseid":task.get_course_id(),
+                    "courseid": course.get_id(),
                     "taskid": task.get_id(),
                     "username": {"$in": result["username"]}
                 })
@@ -405,7 +409,10 @@ class TaskPageStaticDownload(INGIniousPage):
     def GET(self, courseid, taskid, path):  # pylint: disable=arguments-differ
         """ GET request """
         try:
-            course = self.course_factory.get_course(courseid)
+
+            course = self.database.courses.find_one({"_id": courseid})
+            course = WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager)
+
             if not self.user_manager.course_is_open_to_user(course):
                 return self.template_helper.get_renderer().course_unavailable()
 
@@ -416,7 +423,7 @@ class TaskPageStaticDownload(INGIniousPage):
             else:
 
                 task = course.get_task(taskid)
-                if not self.user_manager.task_is_visible_by_user(task):  # ignore LTI check here
+                if not self.user_manager.task_is_visible_by_user(course, task):  # ignore LTI check here
                     return self.template_helper.get_renderer().task_unavailable()
 
                 public_folder = task.get_fs().from_subfolder("public")
@@ -431,7 +438,7 @@ class TaskPageStaticDownload(INGIniousPage):
                 raise web.notfound()
         except web.HTTPError as error_or_redirect:
             raise error_or_redirect
-        except:
+        except Exception as e:
             if web.config.debug:
                 raise
             else:

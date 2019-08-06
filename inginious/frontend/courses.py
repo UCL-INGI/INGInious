@@ -6,20 +6,63 @@
 """ A course class with some modification for users """
 
 import gettext
+import copy
 from collections import OrderedDict
 from natsort import natsorted
 
-from inginious.common.courses import Course
 from inginious.common.tags import Tag
 from inginious.frontend.accessible_time import AccessibleTime
 from inginious.frontend.parsable_text import ParsableText
 
 
-class WebAppCourse(Course):
+class WebAppCourse(object):
     """ A course with some modification for users """
 
-    def __init__(self, courseid, content, course_fs, task_factory, hook_manager):
-        super(WebAppCourse, self).__init__(courseid, content, course_fs, task_factory, hook_manager)
+    def gettext(self, language, *args, **kwargs):
+        translation = self._translations.get(language, gettext.NullTranslations())
+        return translation.gettext(*args, **kwargs)
+
+    def get_id(self):
+        """ Return the _id of this course """
+        return self._id
+
+    def get_fs(self):
+        """ Returns a FileSystemProvider which points to the folder of this course """
+        return self._fs
+
+    def get_task(self, taskid):
+        """ Returns a Task object """
+        return self._task_factory.get_task(self.get_id(), taskid)
+
+    def get_tasks(self):
+        """ Get all tasks in this course """
+        return self._task_factory.get_all_tasks(self)
+
+    def get_descriptor(self):
+        """ Get (a copy) the description of the course """
+        return copy.deepcopy(self._content)
+
+    def __init__(self, courseid, content, task_factory, hook_manager):
+        """
+                :param courseid: the course id
+                :param content_description: a dict with all the infos of this course
+                :param task_factory: a function with one argument, the task id, that returns a Task object
+                """
+        self._id = courseid
+        self._content = content
+        self._fs = task_factory.get_course_fs(courseid)
+        self._task_factory = task_factory
+        self._hook_manager = hook_manager
+
+        self._translations = {}
+        translations_fs = self._fs.from_subfolder("$i18n")
+        if translations_fs.exists():
+            for f in translations_fs.list(folders=False, files=True, recursive=False):
+                lang = f[0:len(f) - 3]
+                if translations_fs.exists(lang + ".mo"):
+                    self._translations[lang] = gettext.GNUTranslations(translations_fs.get_fd(lang + ".mo"))
+                else:
+                    self._translations[lang] = gettext.NullTranslations()
 
         try:
             self._name = self._content['name']
@@ -101,7 +144,7 @@ class WebAppCourse(Course):
         return self._registration
 
     def get_tasks(self):
-        return OrderedDict(sorted(list(Course.get_tasks(self).items()), key=lambda t: (t[1].get_order(), t[1].get_id())))
+        return OrderedDict(sorted(self._task_factory.get_all_tasks(self._id).items(), key=lambda t: (t[1].get_order(), t[1].get_id())))
 
     def get_access_control_method(self):
         """ Returns either None, "username", "binding", or "email", depending on the method used to verify that users can register to the course """

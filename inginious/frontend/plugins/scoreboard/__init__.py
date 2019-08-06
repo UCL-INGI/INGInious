@@ -11,14 +11,15 @@ from collections import OrderedDict
 import web
 
 from inginious.frontend.pages.utils import INGIniousAuthPage
-
+from inginious.frontend.courses import WebAppCourse
 
 class ScoreBoardCourse(INGIniousAuthPage):
     """ Page displaying the different available scoreboards for the course """
 
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
-        course = self.course_factory.get_course(courseid)
+        course = self.database.courses.find_one({"_id": courseid})
+        course = WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager)
         scoreboards = course.get_descriptor().get('scoreboard', [])
 
         try:
@@ -46,7 +47,8 @@ class ScoreBoard(INGIniousAuthPage):
 
     def GET_AUTH(self, courseid, scoreboardid):  # pylint: disable=arguments-differ
         """ GET request """
-        course = self.course_factory.get_course(courseid)
+        course = self.database.courses.find_one({"_id": courseid})
+        course = WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager)
         scoreboards = course.get_descriptor().get('scoreboard', [])
 
         try:

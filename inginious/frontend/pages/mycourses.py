@@ -8,6 +8,7 @@ from collections import OrderedDict
 
 import web
 
+from inginious.frontend.courses import WebAppCourse
 from inginious.frontend.pages.utils import INGIniousAuthPage
 
 
@@ -29,7 +30,8 @@ class MyCoursesPage(INGIniousAuthPage):
         # Handle registration to a course
         if "register_courseid" in user_input and user_input["register_courseid"] != "":
             try:
-                course = self.course_factory.get_course(user_input["register_courseid"])
+                course = self.database.courses.find_one({"_id": user_input["register_courseid"]})
+                course = WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager)
                 if not course.is_registration_possible(user_info):
                     success = False
                 else:
@@ -39,7 +41,7 @@ class MyCoursesPage(INGIniousAuthPage):
         elif "new_courseid" in user_input and self.user_manager.user_is_superadmin():
             try:
                 courseid = user_input["new_courseid"]
-                self.course_factory.create_course(courseid, {"name": courseid, "accessible": False})
+                self.database.courses.insert({"_id": courseid, "name": courseid, "accessible": False})
                 success = True
             except:
                 success = False
@@ -51,7 +53,7 @@ class MyCoursesPage(INGIniousAuthPage):
         username = self.user_manager.session_username()
         user_info = self.database.users.find_one({"username": username})
 
-        all_courses = self.course_factory.get_all_courses()
+        all_courses = {course["_id"]: WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager) for course in self.database.courses.find()}
 
         # Display
         open_courses = {courseid: course for courseid, course in all_courses.items()

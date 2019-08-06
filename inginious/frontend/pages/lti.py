@@ -7,6 +7,7 @@ from inginious.frontend.pages.utils import INGIniousPage, INGIniousAuthPage
 from inginious.common import exceptions
 from inginious.frontend.lti_tool_provider import LTIWebPyToolProvider
 from inginious.frontend.pages.tasks import BaseTaskPage
+from inginious.frontend.courses import WebAppCourse
 
 
 class LTITaskPage(INGIniousAuthPage):
@@ -63,7 +64,8 @@ class LTIBindPage(INGIniousAuthPage):
             return self.template_helper.get_renderer().lti_bind(False, "", None, _("Invalid LTI session id"))
 
         try:
-            course = self.course_factory.get_course(data["task"][0])
+            course = self.database.courses.find_one({"_id": data["task"][0]})
+            course = WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager)
             if data["consumer_key"] not in course.lti_keys().keys():
                 raise Exception()
         except:
@@ -106,7 +108,8 @@ class LTILoginPage(INGIniousPage):
             raise web.notfound()
 
         try:
-            course = self.course_factory.get_course(data["task"][0])
+            course = self.database.courses.find_one({"_id": data["task"][0]})
+            course = WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager)
             if data["consumer_key"] not in course.lti_keys().keys():
                 raise Exception()
         except:
@@ -148,7 +151,8 @@ class LTILaunchPage(INGIniousPage):
         self.logger.debug('_parse_lti_data:' + str(post_input))
 
         try:
-            course = self.course_factory.get_course(courseid)
+            course = self.database.courses.find_one({"_id": courseid})
+            course = WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager)
         except exceptions.CourseNotFoundException as ex:
             raise web.notfound(str(ex))
 

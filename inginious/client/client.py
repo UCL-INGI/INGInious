@@ -277,7 +277,7 @@ class Client(BetterParanoidPirateClient):
         job_id = str(uuid.uuid4())
 
         if debug == "ssh" and ssh_callback is None:
-            self._logger.error("SSH callback not set in %s/%s", task.get_course_id(), task.get_id())
+            self._logger.error("SSH callback not set in %s/%s", task.get_courseid(), task.get_id())
             callback(("crash", "SSH callback not set."), 0.0, {}, {}, {}, None, "", "")
             return
         # wrap ssh_callback to ensure it is called at most once, and that it can always be called to simplify code
@@ -285,7 +285,7 @@ class Client(BetterParanoidPirateClient):
 
         environment = task.get_environment()
         if environment not in self._available_containers:
-            self._logger.warning("Env %s not available for task %s/%s", environment, task.get_course_id(), task.get_id())
+            self._logger.warning("Env %s not available for task %s/%s", environment, task.get_courseid(), task.get_id())
             ssh_callback(None, None, None)  # ssh_callback must be called once
             callback(("crash", "Environment not available."), 0.0, {}, {}, "", {}, None, "", "")
             return
@@ -300,13 +300,14 @@ class Client(BetterParanoidPirateClient):
             hard_time_limit = int(limits.get('hard_time', 3 * time_limit))
             mem_limit = int(limits.get('memory', 200))
         except:
-            self._logger.exception("Cannot retrieve limits for task %s/%s", task.get_course_id(), task.get_id())
+            self._logger.exception("Cannot retrieve limits for task %s/%s", task.get_courseid(), task.get_id())
             ssh_callback(None, None, None)  # ssh_callback must be called once
             callback(("crash", "Error while reading task limits"), 0.0, {}, {}, "", {}, None, "", "")
             return
 
-        msg = ClientNewJob(job_id, priority, task.get_course_id(), task.get_id(), inputdata, environment, enable_network, time_limit,
+        msg = ClientNewJob(job_id, priority, task.get_courseid(), task.get_id(), inputdata, environment, enable_network, time_limit,
                            hard_time_limit, mem_limit, debug, launcher_name, run_cmd)
+
         self._loop.call_soon_threadsafe(asyncio.ensure_future, self._create_transaction(msg, task=task, callback=callback,
                                                                                         ssh_callback=ssh_callback))
 

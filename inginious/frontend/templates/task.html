@@ -10,7 +10,7 @@ $var title: $:task.get_name(user_manager.session_language()) - $:course.get_name
 $ registered = user_manager.course_is_user_registered(course)
 $ staff = user_manager.has_staff_rights_on_course(course)
 $ course_tags = course.get_tags()
-$ task_categories = task.get_categories()
+$ task_categories = task.get_categories(course)
 
 $# Left column content
 $def ColumnF():
@@ -27,18 +27,18 @@ $def ColumnF():
                 <td><a href="$task.get_contact_url(user_manager.session_language()).format(course_id=course.get_id(), task_id=task.get_id(), username=user_manager.session_username())" target="_blank">$:_("Contact link")</a></td>
             </tr>
         $if not is_lti():
-            $if task.get_accessible_time().is_open() and not task.get_accessible_time().is_open_with_soft_deadline():
+            $if task.get_accessible_time(course).is_open() and not task.get_accessible_time(course).is_open_with_soft_deadline():
                 <tr class="list-group-item-danger">
                     <td>$:_("Deadline")</td>
                     <td>
-                        $task.get_deadline()
+                        $task.get_deadline(course)
                     </td>
                 </tr>
             $else:
                 <tr>
                     <td>$:_("Deadline")</td>
                     <td>
-                        $task.get_deadline()
+                        $task.get_deadline(course)
                     </td>
                 </tr>
         $if registered or staff:
@@ -126,7 +126,7 @@ $def ColumnF():
             <div class="alert alert-warning" role="alert">
                 $:_("This course is currently invisible for students.  You can change this by modifying the \"accessible\" option in the configuration of the course.")
             </div>
-        $if not task.get_accessible_time().after_start():
+        $if not task.get_accessible_time(course).after_start():
             <div class="alert alert-warning" role="alert">
                 $:_("This task is currently invisible for students. You can change this by modifying the \"accessible\" option in the configuration of the task.")
             </div>
@@ -202,7 +202,7 @@ $def ColumnF():
                                 list-group-item-danger
                             "
                             data-submission-id="$submission['_id']">
-                            $if task.get_accessible_time().is_open() or user_manager.has_admin_rights_on_course(course):
+                            $if task.get_accessible_time(course).is_open() or user_manager.has_admin_rights_on_course(course):
                                 $if task.get_evaluate() == 'student' and students == submission['username']:
                                     <a class="allowed" title="Select for evaluation" data-toggle="tooltip" data-placement="right"><i class="fa fa-star fa-fw"></i></a>&nbsp;
                                 $elif task.get_evaluate() == 'student':
@@ -260,7 +260,7 @@ $def NavbarF():
                 <li class="breadcrumb-item"><a href="$get_homepath()/mycourses" title=$:_('"My courses"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-th-list"></i></a></li>
             $else:
                 <li class="breadcrumb-item"><a href="$get_homepath()/courselist" title=$:_('"Course list"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-th-list"></i></a></li>
-            <li class="breadcrumb-item"><a href="$get_homepath()/course/$task.get_course().get_id()">$course.get_name(user_manager.session_language())</a></li>
+            <li class="breadcrumb-item"><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
             <li class="breadcrumb-item active"><span>$task.get_name(user_manager.session_language()) <span class="sr-only">$:_("(current)")</span></span></li>
         </ol>
     </nav>
@@ -296,7 +296,7 @@ $# variable "input" has to be accessible to the eventual javascript present in t
     }
 </script>
 <div id="task_context" class="collapse show">
-    $:task.get_context(user_manager.session_language())
+    $:task.get_context(course, user_manager.session_language())
 </div>
 <hr/>
 <div id="task_alert"></div>
@@ -373,8 +373,8 @@ $else:
         </div>
 
     $# no need to check with lti=True/False here as it was already checked by the calling python script.
-    $ groups_ok = user_manager.task_can_user_submit(task, user_manager.session_username(), 'groups')
-    $ tokens_ok = user_manager.task_can_user_submit(task, user_manager.session_username(), 'tokens')
+    $ groups_ok = user_manager.task_can_user_submit(course, task, user_manager.session_username(), 'groups')
+    $ tokens_ok = user_manager.task_can_user_submit(course, task, user_manager.session_username(), 'tokens')
     $if not registered:
         <button type="submit" class="btn btn-default btn-lg btn-block center-block" disabled="disabled">$:_("Please enroll in the course to submit.")</button>
     $elif groups_ok and tokens_ok:

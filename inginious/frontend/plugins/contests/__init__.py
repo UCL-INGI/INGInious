@@ -15,7 +15,7 @@ import web
 from inginious.frontend.accessible_time import AccessibleTime
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 from inginious.frontend.pages.utils import INGIniousAuthPage
-
+from inginious.frontend.courses import WebAppCourse
 
 def add_admin_menu(course): # pylint: disable=unused-argument
     """ Add a menu for the contest settings in the administration """
@@ -64,7 +64,8 @@ class ContestScoreboard(INGIniousAuthPage):
     """ Displays the scoreboard of the contest """
 
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
-        course = self.course_factory.get_course(courseid)
+        course = self.database.courses.find_one({"_id": courseid})
+        course = WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager)
         contest_data = get_contest_data(course)
         if not contest_data['enabled']:
             raise web.notfound()
@@ -156,9 +157,9 @@ class ContestAdmin(INGIniousAdminPage):
 
     def save_contest_data(self, course, contest_data):
         """ Saves updated contest data for the course """
-        course_content = self.course_factory.get_course_descriptor_content(course.get_id())
+        course_content = course.get_descriptor()
         course_content["contest_settings"] = contest_data
-        self.course_factory.update_course_descriptor_content(course.get_id(), course_content)
+        self.database.courses.replace_one({"_id": course.get_id()}, course_content)
 
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request: simply display the form """
@@ -215,7 +216,7 @@ class ContestAdmin(INGIniousAdminPage):
             return self.template_helper.get_custom_renderer('frontend/plugins/contests').admin(course, contest_data, errors, False)
 
 
-def init(plugin_manager, course_factory, client, config):  # pylint: disable=unused-argument
+def init(plugin_manager, task_factory, client, config):  # pylint: disable=unused-argument
     """
         Init the contest plugin.
         Available configuration:

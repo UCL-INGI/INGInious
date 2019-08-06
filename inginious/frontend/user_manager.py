@@ -455,7 +455,7 @@ class UserManager:
                 }}
             ]))
 
-        student_visible_taskids = [taskid for taskid, task in tasks.items() if task.get_accessible_time().after_start()]
+        student_visible_taskids = [taskid for taskid, task in tasks.items() if task.get_accessible_time(course).after_start()]
         course_staff = course.get_staff()
         retval = {username: {"task_succeeded": 0, "task_grades": [], "grade": 0} for username in usernames}
 
@@ -522,7 +522,7 @@ class UserManager:
                                                            "tried": 0, "succeeded": False, "grade": 0.0, "submissionid": None, "state": ""}},
                                          upsert=True)
 
-    def update_user_stats(self, username, task, submission, result_str, grade, state, newsub):
+    def update_user_stats(self, username, course, task, submission, result_str, grade, state, newsub):
         """ Update stats with a new submission """
         self.user_saw_task(username, submission["courseid"], submission["taskid"])
 
@@ -545,7 +545,7 @@ class UserManager:
 
             if task.get_evaluate() == 'best':  # if best, update cache consequently (with best submission)
                 def_sub = list(self._database.submissions.find({
-                    "username": username, "courseid": task.get_course_id(),
+                    "username": username, "courseid": course.get_id(),
                     "taskid": task.get_id(), "status": "done"}
                 ).sort([("grade", pymongo.DESCENDING), ("submitted_on", pymongo.DESCENDING)]).limit(1))
 
@@ -567,7 +567,7 @@ class UserManager:
                         "state": submission["state"]
                     }})
 
-    def task_is_visible_by_user(self, task, username=None, lti=None):
+    def task_is_visible_by_user(self, course, task, username=None, lti=None):
         """ Returns true if the task is visible by the user
         :param lti: indicates if the user is currently in a LTI session or not.
             - None to ignore the check
@@ -578,10 +578,10 @@ class UserManager:
         if username is None:
             username = self.session_username()
 
-        return (self.course_is_open_to_user(task.get_course(), username, lti) and task.get_accessible_time().after_start()) or \
-               self.has_staff_rights_on_course(task.get_course(), username)
+        return (self.course_is_open_to_user(course, username, lti) and task.get_accessible_time(course).after_start()) or \
+               self.has_staff_rights_on_course(course, username)
 
-    def task_can_user_submit(self, task, username=None, only_check=None, lti=None):
+    def task_can_user_submit(self, course, task, username=None, only_check=None, lti=None):
         """ returns true if the user can submit his work for this task
             :param only_check : only checks for 'groups', 'tokens', or None if all checks
             :param lti: indicates if the user is currently in a LTI session or not.
@@ -594,14 +594,14 @@ class UserManager:
             username = self.session_username()
 
         # Check if course access is ok
-        course_registered = self.course_is_open_to_user(task.get_course(), username, lti)
+        course_registered = self.course_is_open_to_user(course, username, lti)
         # Check if task accessible to user
-        task_accessible = task.get_accessible_time().is_open()
+        task_accessible = task.get_accessible_time(course).is_open()
         # User has staff rights ?
-        staff_right = self.has_staff_rights_on_course(task.get_course(), username)
+        staff_right = self.has_staff_rights_on_course(course, username)
 
         # Check for group
-        group = self._database.groups.find_one({"courseid": task.get_course_id(), "students": self.session_username()})
+        group = self._database.groups.find_one({"courseid": course.get_id(), "students": self.session_username()})
 
         if not only_check or only_check == 'groups':
             group_filter = (group is not None and task.is_group_task()) or not task.is_group_task()
@@ -621,7 +621,7 @@ class UserManager:
                 enough_tokens = True
             else:
                 # select users with a cache for this particular task
-                user_tasks = list(self._database.user_tasks.find({"courseid": task.get_course_id(),
+                user_tasks = list(self._database.user_tasks.find({"courseid": course.get_id(),
                                                                   "taskid": task.get_id(),
                                                                   "username": {"$in": students}}))
 

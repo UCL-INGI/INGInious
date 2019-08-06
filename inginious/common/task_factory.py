@@ -26,13 +26,19 @@ class TaskFactory(object):
         self._task_problem_types = task_problem_types
         self.add_custom_task_file_manager(TaskYAMLFileReader())
 
+    def get_filesystem(self):
+        """
+        :return: TaskFactory filesystem
+        """
+        return self._filesystem
+
     def add_problem_type(self, problem_type):
         """
         :param problem_type: Problem class
         """
         self._task_problem_types.update({problem_type.get_type(): problem_type})
 
-    def get_task(self, course, taskid):
+    def get_task(self, courseid, taskid):
         """
         :param course: a Course object
         :param taskid: the task id of the task
@@ -41,10 +47,10 @@ class TaskFactory(object):
         """
         if not id_checker(taskid):
             raise InvalidNameException("Task with invalid name: " + taskid)
-        if self._cache_update_needed(course, taskid):
-            self._update_cache(course, taskid)
+        if self._cache_update_needed(courseid, taskid):
+            self._update_cache(courseid, taskid)
 
-        return self._cache[(course.get_id(), taskid)][0]
+        return self._cache[(courseid, taskid)][0]
 
     def get_task_descriptor_content(self, courseid, taskid):
         """
@@ -119,9 +125,9 @@ class TaskFactory(object):
         except:
             raise TaskNotFoundException()
 
-    def get_readable_tasks(self, course):
+    def get_readable_tasks(self, courseid):
         """ Returns the list of all available tasks in a course """
-        course_fs = self._filesystem.from_subfolder(course.get_id())
+        course_fs = self.get_course_fs(courseid)
         tasks = [
             task[0:len(task)-1]  # remove trailing /
             for task in course_fs.list(folders=True, files=False, recursive=False)
@@ -148,17 +154,17 @@ class TaskFactory(object):
             except:
                 pass
 
-    def get_all_tasks(self, course):
+    def get_all_tasks(self, courseid):
         """
         :return: a table containing taskid=>Task pairs
         """
-        tasks = self.get_readable_tasks(course)
+        tasks = self.get_readable_tasks(courseid)
         output = {}
         for task in tasks:
             try:
-                output[task] = self.get_task(course, task)
-            except:
-                pass
+                output[task] = self.get_task(courseid, task)
+            except Exception as e:
+                print(e)
         return output
 
     def _get_task_descriptor_info(self, courseid, taskid):
@@ -190,7 +196,7 @@ class TaskFactory(object):
         """ Get a list of all the extensions possible for task descriptors """
         return list(self._task_file_managers.keys())
 
-    def _cache_update_needed(self, course, taskid):
+    def _cache_update_needed(self, courseid, taskid):
         """
         :param course: a Course object
         :param taskid: a (valid) task id
@@ -200,34 +206,34 @@ class TaskFactory(object):
         if not id_checker(taskid):
             raise InvalidNameException("Task with invalid name: " + taskid)
 
-        task_fs = self.get_task_fs(course.get_id(), taskid)
+        task_fs = self.get_task_fs(courseid, taskid)
 
-        if (course.get_id(), taskid) not in self._cache:
+        if (courseid, taskid) not in self._cache:
             return True
 
         try:
-            last_update, __, __ = self._get_last_updates(course, taskid, task_fs, False)
+            last_update, __, __ = self._get_last_updates(courseid, taskid, task_fs, False)
         except:
             raise TaskNotFoundException()
 
-        last_modif = self._cache[(course.get_id(), taskid)][1]
+        last_modif = self._cache[(courseid, taskid)][1]
         for filename, mftime in last_update.items():
             if filename not in last_modif or last_modif[filename] < mftime:
                 return True
 
         return False
 
-    def _get_last_updates(self, course, taskid, task_fs, need_content=False):
-        descriptor_name, descriptor_reader = self._get_task_descriptor_info(course.get_id(), taskid)
+    def _get_last_updates(self, courseid, taskid, task_fs, need_content=False):
+        descriptor_name, descriptor_reader = self._get_task_descriptor_info(courseid, taskid)
         last_update = {descriptor_name: task_fs.get_last_modification_time(descriptor_name)}
         translations_fs = task_fs.from_subfolder("$i18n")
 
         if not translations_fs.exists():
             translations_fs = task_fs.from_subfolder("student").from_subfolder("$i18n")
         if not translations_fs.exists():
-            translations_fs = course.get_fs().from_subfolder("$common").from_subfolder("$i18n")
+            translations_fs = self.get_course_fs(courseid).from_subfolder("$common").from_subfolder("$i18n")
         if not translations_fs.exists():
-            translations_fs = course.get_fs().from_subfolder("$common").from_subfolder("student").from_subfolder(
+            translations_fs = self.get_course_fs(courseid).from_subfolder("$common").from_subfolder("student").from_subfolder(
                 "$i18n")
         if not translations_fs.exists():
             translations_fs = course.get_fs().from_subfolder("$i18n")
@@ -247,7 +253,7 @@ class TaskFactory(object):
         else:
             return last_update, translations_fs, None
 
-    def _update_cache(self, course, taskid):
+    def _update_cache(self, courseid, taskid):
         """
         Updates the cache
         :param course: a Course object
@@ -257,11 +263,11 @@ class TaskFactory(object):
         if not id_checker(taskid):
             raise InvalidNameException("Task with invalid name: " + taskid)
 
-        task_fs = self.get_task_fs(course.get_id(), taskid)
-        last_modif, translation_fs, task_content = self._get_last_updates(course, taskid, task_fs, True)
+        task_fs = self.get_task_fs(courseid, taskid)
+        last_modif, translation_fs, task_content = self._get_last_updates(courseid, taskid, task_fs, True)
 
-        self._cache[(course.get_id(), taskid)] = (
-            self._task_class(course, taskid, task_content, task_fs, translation_fs, self._hook_manager, self._task_problem_types),
+        self._cache[(courseid, taskid)] = (
+            self._task_class(courseid, taskid, task_content, task_fs, translation_fs, self._hook_manager, self._task_problem_types),
             last_modif
         )
 
@@ -300,3 +306,8 @@ class TaskFactory(object):
         Returns the supported problem types by this task factory
         """
         return self._task_problem_types
+
+    def get_course_fs(self, courseid):
+        course_fs = self._filesystem.from_subfolder(courseid)
+        course_fs.ensure_exists()
+        return course_fs

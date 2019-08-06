@@ -7,6 +7,7 @@
 
 from inginious.frontend.pages.api._api_page import APIAuthenticatedPage, APINotFound, APIForbidden
 from inginious.frontend.parsable_text import ParsableText
+from inginious.frontend.courses import WebAppCourse
 
 
 class APITasks(APIAuthenticatedPage):
@@ -58,7 +59,8 @@ class APITasks(APIAuthenticatedPage):
         """
 
         try:
-            course = self.course_factory.get_course(courseid)
+            course = self.database.courses.find_one({"_id": courseid})
+            course = WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager)
         except:
             raise APINotFound("Course not found")
 

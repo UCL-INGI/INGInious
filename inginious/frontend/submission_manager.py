@@ -43,7 +43,7 @@ class WebAppSubmissionManager:
         self._logger = logging.getLogger("inginious.webapp.submissions")
         self._lti_outcome_manager = lti_outcome_manager
 
-    def _job_done_callback(self, submissionid, task, result, grade, problems, tests, custom, state, archive, stdout, stderr, newsub=True):
+    def _job_done_callback(self, submissionid, course, task, result, grade, problems, tests, custom, state, archive, stdout, stderr, newsub=True):
         """ Callback called by Client when a job is done. Updates the submission in the database with the data returned after the completion of the
         job """
         submission = self.get_submission(submissionid, False)
@@ -81,7 +81,7 @@ class WebAppSubmissionManager:
         self._hook_manager.call_hook("submission_done", submission=submission, archive=archive, newsub=newsub)
 
         for username in submission["username"]:
-            self._user_manager.update_user_stats(username, task, submission, result[0], grade, state, newsub)
+            self._user_manager.update_user_stats(username, course, task, submission, result[0], grade, state, newsub)
 
         if "outcome_service_url" in submission and "outcome_result_id" in submission and "outcome_consumer_key" in submission:
             for username in submission["username"]:
@@ -92,7 +92,7 @@ class WebAppSubmissionManager:
                                               submission["outcome_service_url"],
                                               submission["outcome_result_id"])
 
-    def _before_submission_insertion(self, task, inputdata, debug, obj):
+    def _before_submission_insertion(self, course, task, inputdata, debug, obj):
         """
         Called before any new submission is inserted into the database. Allows you to modify obj, the new document that will be inserted into the
         database. Should be overridden in subclasses.
@@ -104,14 +104,14 @@ class WebAppSubmissionManager:
         """
         username = self._user_manager.session_username()
 
-        if task.is_group_task() and not self._user_manager.has_staff_rights_on_course(task.get_course(), username):
-            group = self._database.groups.find_one({"courseid": task.get_course_id(), "students": username})
+        if task.is_group_task() and not self._user_manager.has_staff_rights_on_course(course, username):
+            group = self._database.groups.find_one({"courseid": course.get_id(), "students": username})
             obj.update({"username": group["students"]})
         else:
             obj.update({"username": [username]})
 
         lti_info = self._user_manager.session_lti_info()
-        if lti_info is not None and task.get_course().lti_send_back_grade():
+        if lti_info is not None and course.lti_send_back_grade():
             outcome_service_url = lti_info["outcome_service_url"]
             outcome_result_id = lti_info["outcome_result_id"]
             outcome_consumer_key = lti_info["consumer_key"]
@@ -125,7 +125,7 @@ class WebAppSubmissionManager:
                         "outcome_result_id": outcome_result_id,
                         "outcome_consumer_key": outcome_consumer_key})
 
-    def _after_submission_insertion(self, task, inputdata, debug, submission, submissionid):
+    def _after_submission_insertion(self, course, task, inputdata, debug, submission, submissionid):
         """
                 Called after any new submission is inserted into the database, but before starting the job.  Should be overridden in subclasses.
                 :param task: Task related to the submission
@@ -137,13 +137,14 @@ class WebAppSubmissionManager:
         # If we are submitting for a group, send the group (user list joined with ",") as username
         if "group" not in [p.get_id() for p in task.get_problems()]:  # do not overwrite
             username = self._user_manager.session_username()
-            if task.is_group_task() and not self._user_manager.has_staff_rights_on_course(task.get_course(), username):
-                group = self._database.groups.find_one({"courseid": task.get_course_id(), "students": username})
+
+            if task.is_group_task() and not self._user_manager.has_staff_rights_on_course(course, username):
+                group = self._database.groups.find_one({"courseid": course.get_id(), "students": username})
                 inputdata["username"] = ','.join(group["students"])
 
-        return self._delete_exceeding_submissions(self._user_manager.session_username(), task)
+        return self._delete_exceeding_submissions(self._user_manager.session_username(), course, task)
 
-    def replay_job(self, task, submission, copy=False, debug=False):
+    def replay_job(self, course, task, submission, copy=False, debug=False):
         """
         Replay a submission: add the same job in the queue, keeping submission id, submission date and input data
         :param submission: Submission to replay
@@ -171,7 +172,7 @@ class WebAppSubmissionManager:
             username = self._user_manager.session_username()
             submission["username"] = [username]
             submission["submitted_on"] = datetime.now()
-            my_user_task = self._database.user_tasks.find_one({"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username}, { "tried" : 1, "_id" : 0 })
+            my_user_task = self._database.user_tasks.find_one({"courseid": course.get_id(), "taskid": task.get_id(), "username": username}, { "tried" : 1, "_id" : 0 })
             tried_count = my_user_task["tried"]
             inputdata["@attempts"] = str(tried_count + 1)
             inputdata["@username"] = username
@@ -182,7 +183,7 @@ class WebAppSubmissionManager:
 
         jobid = self._client.new_job(1, task, inputdata,
                                      (lambda result, grade, problems, tests, custom, state, archive, stdout, stderr:
-                                      self._job_done_callback(submissionid, task, result, grade, problems, tests, custom, state, archive, stdout, stderr, copy)),
+                                      self._job_done_callback(submissionid, course, task, result, grade, problems, tests, custom, state, archive, stdout, stderr, copy)),
                                      "Frontend - {}".format(submission["username"]), debug, ssh_callback)
 
         # Clean the submission document in db
@@ -210,7 +211,7 @@ class WebAppSubmissionManager:
             return None
         return sub
 
-    def add_job(self, task, inputdata, debug=False):
+    def add_job(self, course, task, inputdata, debug=False):
         """
         Add a job in the queue and returns a submission id.
         :param task:  Task instance
@@ -228,7 +229,7 @@ class WebAppSubmissionManager:
 
         # Prevent student from submitting several submissions together
         waiting_submission = self._database.submissions.find_one({
-            "courseid": task.get_course_id(),
+            "courseid": course.get_id(),
             "taskid": task.get_id(),
             "username": username,
             "status": "waiting"})
@@ -237,7 +238,7 @@ class WebAppSubmissionManager:
             raise Exception("A submission is already pending for this task!")
 
         obj = {
-            "courseid": task.get_course_id(),
+            "courseid": course.get_id(),
             "taskid": task.get_id(),
             "status": "waiting",
             "submitted_on": datetime.now(),
@@ -249,26 +250,26 @@ class WebAppSubmissionManager:
         # new_submission hook
         inputdata["@username"] = username
         inputdata["@lang"] = self._user_manager.session_language()
-        my_user_task = self._database.user_tasks.find_one({"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username}, { "tried" : 1, "_id" : 0 })
+        my_user_task = self._database.user_tasks.find_one({"courseid": course.get_id(), "taskid": task.get_id(), "username": username}, { "tried" : 1, "_id" : 0 })
         tried_count = my_user_task["tried"]
         inputdata["@attempts"] = str(tried_count + 1)
         # Retrieve input random
-        states = self._database.user_tasks.find_one({"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username}, {"random": 1, "state": 1})
+        states = self._database.user_tasks.find_one({"courseid": course.get_id(), "taskid": task.get_id(), "username": username}, {"random": 1, "state": 1})
         inputdata["@random"] = states["random"] if "random" in states else []
         inputdata["@state"] = states["state"] if "state" in states else ""
 
         self._hook_manager.call_hook("new_submission", submission=obj, inputdata=inputdata)
         obj["input"] = self._gridfs.put(bson.BSON.encode(inputdata))
 
-        self._before_submission_insertion(task, inputdata, debug, obj)
+        self._before_submission_insertion(course, task, inputdata, debug, obj)
         submissionid = self._database.submissions.insert(obj)
-        to_remove = self._after_submission_insertion(task, inputdata, debug, obj, submissionid)
+        to_remove = self._after_submission_insertion(course, task, inputdata, debug, obj, submissionid)
 
         ssh_callback = lambda host, port, password: self._handle_ssh_callback(submissionid, host, port, password)
 
         jobid = self._client.new_job(0, task, inputdata,
                                      (lambda result, grade, problems, tests, custom, state, archive, stdout, stderr:
-                                      self._job_done_callback(submissionid, task, result, grade, problems, tests, custom, state, archive, stdout, stderr, True)),
+                                      self._job_done_callback(submissionid, course, task, result, grade, problems, tests, custom, state, archive, stdout, stderr, True)),
                                      "Frontend - {}".format(username), debug, ssh_callback)
 
         self._database.submissions.update(
@@ -277,12 +278,12 @@ class WebAppSubmissionManager:
         )
 
         self._logger.info("New submission from %s - %s - %s/%s - %s", self._user_manager.session_username(),
-                          self._user_manager.session_email(), task.get_course_id(), task.get_id(),
+                          self._user_manager.session_email(), course.get_id(), task.get_id(),
                           web.ctx['ip'])
 
         return submissionid, to_remove
 
-    def _delete_exceeding_submissions(self, username, task, max_submissions_bound=-1):
+    def _delete_exceeding_submissions(self, username, course, task, max_submissions_bound=-1):
         """ Deletes exceeding submissions from the database, to keep the database relatively small """
 
         if max_submissions_bound <= 0:
@@ -295,7 +296,7 @@ class WebAppSubmissionManager:
         if max_submissions <= 0:
             return []
         tasks = list(self._database.submissions.find(
-            {"username": username, "courseid": task.get_course_id(), "taskid": task.get_id()},
+            {"username": username, "courseid": course.get_id(), "taskid": task.get_id()},
             projection=["_id", "status", "result", "grade", "submitted_on"],
             sort=[('submitted_on', pymongo.ASCENDING)]))
 
@@ -315,7 +316,7 @@ class WebAppSubmissionManager:
                 to_keep.add(tasks[idx_best]["_id"])
         elif task.get_evaluate() == 'student':
             user_task = self._database.user_tasks.find_one({
-                "courseid": task.get_course_id(),
+                "courseid": course.get_id(),
                 "taskid": task.get_id(),
                 "username": username
             })
@@ -409,13 +410,13 @@ class WebAppSubmissionManager:
 
         return self._user_manager.session_username() in submission["username"]
 
-    def get_user_submissions(self, task):
+    def get_user_submissions(self, course, task):
         """ Get all the user's submissions for a given task """
         if not self._user_manager.session_logged_in():
             raise Exception("A user must be logged in to get his submissions")
 
         cursor = self._database.submissions.find({"username": self._user_manager.session_username(),
-                                                  "taskid": task.get_id(), "courseid": task.get_course_id()})
+                                                  "taskid": task.get_id(), "courseid": course.get_id()})
         cursor.sort([("submitted_on", -1)])
         return list(cursor)
 

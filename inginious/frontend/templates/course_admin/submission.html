@@ -14,7 +14,7 @@ $var Column: $:template_helper.call('course_admin_menu',course=course,current='s
 
 $ is_admin = user_manager.has_admin_rights_on_course(course)
 $ course_tags = course.get_tags()
-$ task_categories = task.get_categories()
+$ task_categories = task.get_categories(course)
 
 $def NavbarF():
     <nav aria-label="breadcrumb">
@@ -76,7 +76,7 @@ $var Navbar: $:NavbarF()
     </form>
 </div>
 <div class="student_view">
-    $:task.get_context(user_manager.session_language())
+    $:task.get_context(course, user_manager.session_language())
 </div>
 
 <!-- Tags -->

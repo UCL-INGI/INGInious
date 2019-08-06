@@ -12,15 +12,17 @@ import time
 from lti import OutcomeRequest
 
 from pymongo import ReturnDocument
+from inginious.frontend.courses import WebAppCourse
 
 
 class LTIOutcomeManager(threading.Thread):
-    def __init__(self, database, user_manager, course_factory):
+    def __init__(self, database, user_manager, task_factory, plugin_manager):
         super(LTIOutcomeManager, self).__init__()
         self.daemon = True
         self._database = database
         self._user_manager = user_manager
-        self._course_factory = course_factory
+        self._task_factory = task_factory
+        self._plugin_manager = plugin_manager
         self._queue = queue.Queue()
         self._stopped = False
         self._logger = logging.getLogger("inginious.webapp.lti_outcome_manager")
@@ -42,12 +44,13 @@ class LTIOutcomeManager(threading.Thread):
                 mongo_id, username, courseid, taskid, consumer_key, service_url, result_id, nb_attempt = data
 
                 try:
-                    course = self._course_factory.get_course(courseid)
+                    course = self._database.courses.find_one({"_id": courseid})
+                    course = WebAppCourse(course["_id"], course, self._task_factory, self._plugin_manager)
                     task = course.get_task(taskid)
 
                     consumer_secret = course.lti_keys()[consumer_key]
 
-                    grade = self._user_manager.get_task_cache(username, task.get_course_id(), task.get_id())["grade"]
+                    grade = self._user_manager.get_task_cache(username, course.get_id(), task.get_id())["grade"]
                     grade = grade / 100.0
                     if grade > 1:
                         grade = 1

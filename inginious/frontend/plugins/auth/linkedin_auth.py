@@ -70,7 +70,7 @@ class LinkedInAuthMethod(AuthMethod):
         return '<i class="fa fa-linkedin-square" style="font-size:50px; color:#008CC9;"></i>'
 
 
-def init(plugin_manager, course_factory, client, conf):
+def init(plugin_manager, task_factory, client, conf):
 
     if conf.get("debug", False):
         os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'

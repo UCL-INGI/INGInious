@@ -25,7 +25,7 @@ from inginious.common.messages import BackendNewJob, BackendKillJob
 
 
 class DockerAgent(Agent):
-    def __init__(self, context, backend_addr, friendly_name, concurrency, tasks_fs: FileSystemProvider, address_host=None, external_ports=None, tmp_dir="./agent_tmp"):
+    def __init__(self, context, backend_addr, friendly_name, concurrency, task_factory, address_host=None, external_ports=None, tmp_dir="./agent_tmp"):
         """
         :param context: ZeroMQ context for this process
         :param backend_addr: address of the backend (for example, "tcp://127.0.0.1:2222")
@@ -36,12 +36,10 @@ class DockerAgent(Agent):
         :param external_ports: iterable containing ports to which the docker instance can bind internal ports
         :param tmp_dir: temp dir that is used by the agent to start new containers
         """
-        super(DockerAgent, self).__init__(context, backend_addr, friendly_name, concurrency, tasks_fs)
+        super(DockerAgent, self).__init__(context, backend_addr, friendly_name, concurrency, task_factory)
         self._logger = logging.getLogger("inginious.agent.docker")
 
         self._max_memory_per_slot = int(psutil.virtual_memory().total / concurrency / 1024 / 1024)
-
-        self.tasks_fs = tasks_fs
 
         # Temp dir
         self._tmp_dir = tmp_dir
@@ -167,7 +165,7 @@ class DockerAgent(Agent):
         mem_limit = message.mem_limit
         run_cmd = message.run_cmd
 
-        course_fs = self.tasks_fs.from_subfolder(course_id)
+        course_fs = self._tasks_fs.from_subfolder(course_id)
         task_fs = course_fs.from_subfolder(task_id)
 
         if not course_fs.exists() or not task_fs.exists():

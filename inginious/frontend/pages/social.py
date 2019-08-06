@@ -9,6 +9,7 @@ from pymongo import ReturnDocument
 
 from inginious.frontend.pages.utils import INGIniousAuthPage
 from inginious.frontend.pages.utils import INGIniousPage
+from inginious.frontend.courses import WebAppCourse
 
 
 class AuthenticationPage(INGIniousPage):
@@ -45,7 +46,8 @@ class CallbackPage(INGIniousPage):
         elif user and auth_storage.get("method", "") == "share":
             submission = self.submission_manager.get_submission(auth_storage["submissionid"], True)
             if submission:
-                course = self.course_factory.get_course(submission["courseid"])
+                course = self.database.courses.find_one({"_id": submission["courseid"]})
+                course = WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager)
                 task = course.get_task(submission["taskid"])
                 auth_method.share(auth_storage, course, task, submission, self.user_manager.session_language())
             else:

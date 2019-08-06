@@ -12,12 +12,12 @@ from inginious.common.base import id_checker
 class Task(object):
     """ Contains the data for a task """
 
-    def __init__(self, course, taskid, content, task_fs, translations_fs, hook_manager, task_problem_types):
+    def __init__(self, courseid, taskid, content, task_fs, translations_fs, hook_manager, task_problem_types):
         """
             Init the task. course is a Course object, taskid the task id, and content is a dictionnary containing the data needed to initialize the Task object.
             If init_data is None, the data will be taken from the course tasks' directory.
         """
-        self._course = course
+        self._courseid = courseid
         self._taskid = taskid
         self._fs = task_fs
         self._hook_manager = hook_manager
@@ -102,22 +102,18 @@ class Task(object):
         """ Get problems contained in this task """
         return self._problems
 
-    def get_course_id(self):
+    def get_courseid(self):
         """ Return the courseid of the course that contains this task """
-        return self._course.get_id()
-
-    def get_course(self):
-        """ Return the course that contains this task """
-        return self._course
+        return self._courseid
 
     def get_limits(self):
         """ Return the limits of this task """
-        vals = self._hook_manager.call_hook('task_limits', course=self.get_course(), task=self, default=self._limits)
+        vals = self._hook_manager.call_hook('task_limits', course=self._courseid, task=self, default=self._limits)
         return vals[0] if len(vals) else self._limits
 
     def allow_network_access_grading(self):
         """ Return True if the grading container should have access to the network """
-        vals = self._hook_manager.call_hook('task_network_grading', course=self.get_course(), task=self, default=self._network_grading)
+        vals = self._hook_manager.call_hook('task_network_grading', course=self._courseid, task=self, default=self._network_grading)
         return vals[0] if len(vals) else self._network_grading
 
     def get_custom_run_cmd(self):

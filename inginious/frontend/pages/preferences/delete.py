@@ -7,6 +7,7 @@
 import web
 
 from inginious.frontend.pages.utils import INGIniousAuthPage
+from inginious.frontend.courses import WebAppCourse
 
 
 class DeletePage(INGIniousAuthPage):
@@ -29,7 +30,7 @@ class DeletePage(INGIniousAuthPage):
             self.database.submissions.remove({"username": username})
             self.database.user_tasks.remove({"username": username})
 
-            all_courses = self.course_factory.get_all_courses()
+            all_courses = {course["_id"]: WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager) for course in self.database.courses.find()}
 
             for courseid, course in all_courses.items():
                 if self.user_manager.course_is_open_to_user(course, username):

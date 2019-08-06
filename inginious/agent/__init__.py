@@ -49,17 +49,17 @@ class Agent(object, metaclass=ABCMeta):
     An INGInious agent, that grades specific kinds of jobs, and interacts with a Backend.
     """
 
-    def __init__(self, context, backend_addr, friendly_name, concurrency, tasks_filesystem):
+    def __init__(self, context, backend_addr, friendly_name, concurrency, task_factory):
         """
         :param context: a ZMQ context to which the agent will be linked
         :param backend_addr: address of the backend to which the agent should connect. The format is the same as ZMQ
         :param concurrency: number of simultaneous jobs that can be run by this agent
-        :param tasks_filesystem: FileSystemProvider to the course/tasks
+        :param task_factory: TaskFactory for the tasks
         """
         # These fields can be read/modified/overridden in subclasses
         self._logger = logging.getLogger("inginious.agent")
         self._loop = asyncio.get_event_loop()
-        self._tasks_filesystem = tasks_filesystem
+        self._tasks_fs = task_factory.get_filesystem()
 
         # These fields should not be read/modified/overridden in subclasses
         self.__concurrency = concurrency
@@ -164,7 +164,7 @@ class Agent(object, metaclass=ABCMeta):
                                      message.environment)
                 raise CannotCreateJobException('This environment is not available in this agent. Please contact your course administrator.')
 
-            task_fs = self._tasks_filesystem.from_subfolder(message.course_id).from_subfolder(message.task_id)
+            task_fs = self._tasks_fs.from_subfolder(message.course_id).from_subfolder(message.task_id)
             if not task_fs.exists():
                 self._logger.warning("Task %s/%s unavailable on this agent", message.course_id, message.task_id)
                 raise CannotCreateJobException('Task unavailable on agent. Please retry later, the agents should synchronize soon. If the error '

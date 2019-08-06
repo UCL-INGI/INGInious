@@ -11,7 +11,7 @@ import web
 
 from inginious.common.base import id_checker
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
-
+from inginious.frontend.courses import WebAppCourse
 
 class CourseTaskFiles(INGIniousAdminPage):
     """ Edit a task """
@@ -54,8 +54,10 @@ class CourseTaskFiles(INGIniousAdminPage):
 
     def show_tab_file(self, courseid, taskid, error=None):
         """ Return the file tab """
+        course = self.database.courses.find_one({"_id": courseid})
+        course = WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager)
         return self.template_helper.get_renderer(False).course_admin.edit_tabs.files(
-            self.course_factory.get_course(courseid), taskid, self.get_task_filelist(self.task_factory, courseid, taskid), error)
+            course, taskid, self.get_task_filelist(self.task_factory, courseid, taskid), error)
 
     @classmethod
     def get_task_filelist(cls, task_factory, courseid, taskid):

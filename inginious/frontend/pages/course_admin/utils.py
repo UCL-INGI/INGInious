@@ -15,6 +15,7 @@ from bson.objectid import ObjectId
 
 from inginious.common.base import id_checker
 from inginious.frontend.pages.utils import INGIniousAuthPage
+from inginious.frontend.courses import WebAppCourse
 
 
 class INGIniousAdminPage(INGIniousAuthPage):
@@ -33,7 +34,9 @@ class INGIniousAdminPage(INGIniousAuthPage):
         """
 
         try:
-            course = self.course_factory.get_course(courseid)
+            course = self.database.courses.find_one({"_id": courseid})
+            course = WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager)
+
             if allow_all_staff:
                 if not self.user_manager.has_staff_rights_on_course(course):
                     raise web.notfound()

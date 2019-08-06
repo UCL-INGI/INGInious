@@ -35,7 +35,8 @@ $def ColumnF():
                         list-group-item-danger
                     "
                     href="$get_homepath()/course/$submission['courseid']/$submission['taskid']">
-                    <b>$submission["task"].get_course().get_name(user_manager.session_language())</b>: $submission["task"].get_name(user_manager.session_language())
+                    $ course = open_courses[submission["courseid"]]
+                    <b>$course.get_name(user_manager.session_language())</b>: $submission["task"].get_name(user_manager.session_language())
                 </a>
         $else:
             <a class="list-group-item list-group-item-action disabled submission-empty">$:_("No submissions")</a>

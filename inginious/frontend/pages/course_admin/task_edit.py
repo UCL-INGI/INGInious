@@ -22,6 +22,7 @@ from inginious.common.base import dict_from_prefix
 from inginious.common.base import id_checker
 from inginious.frontend.pages.course_admin.task_edit_file import CourseTaskFiles
 from inginious.frontend.tasks import WebAppTask
+from inginious.frontend.courses import WebAppCourse
 
 
 class CourseEditTask(INGIniousAdminPage):
@@ -220,7 +221,8 @@ class CourseEditTask(INGIniousAdminPage):
 
         # Get the course
         try:
-            course = self.course_factory.get_course(courseid)
+            course = self.database.courses.find_one({"_id": courseid})
+            course = WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager)
         except:
             return json.dumps({"status": "error", "message": _("Error while reading course's informations")})
 

@@ -17,12 +17,12 @@ from inginious.common.tags import Tag
 class WebAppTask(Task):
     """ A task that stores additional context information, specific to the web app """
 
-    def __init__(self, course, taskid, content, task_fs, translations_fs, hook_manager, task_problem_types):
+    def __init__(self, courseid, taskid, content, task_fs, translations_fs, hook_manager, task_problem_types):
         # We load the descriptor of the task here to allow plugins to modify settings of the task before it is read by the Task constructor
         if not id_checker(taskid):
-            raise Exception("Task with invalid id: " + course.get_id() + "/" + taskid)
+            raise Exception("Task with invalid id: " + courseid + "/" + taskid)
 
-        super(WebAppTask, self).__init__(course, taskid, content, task_fs, translations_fs, hook_manager, task_problem_types)
+        super(WebAppTask, self).__init__(courseid, taskid, content, task_fs, translations_fs, hook_manager, task_problem_types)
 
         self._name = self._data.get('name', 'Task {}'.format(self.get_id()))
 
@@ -70,24 +70,24 @@ class WebAppTask(Task):
         """ Get the relative weight of this task in the grading """
         return self._weight
 
-    def get_accessible_time(self, plugin_override=True):
+    def get_accessible_time(self, course, plugin_override=True):
         """  Get the accessible time of this task """
-        vals = self._hook_manager.call_hook('task_accessibility', course=self.get_course(), task=self, default=self._accessible)
+        vals = self._hook_manager.call_hook('task_accessibility', course=course, task=self, default=self._accessible)
         return vals[0] if len(vals) and plugin_override else self._accessible
 
-    def is_visible_by_students(self):
+    def is_visible_by_students(self, course):
         """ Returns true if the task is accessible by all students that are not administrator of the course """
-        return self.get_course().is_open_to_non_staff() and self.get_accessible_time().after_start()
+        return course.is_open_to_non_staff() and self.get_accessible_time(course).after_start()
 
-    def get_deadline(self):
+    def get_deadline(self, course):
         """ Returns a string containing the deadline for this task """
-        if self.get_accessible_time().is_always_accessible():
+        if self.get_accessible_time(course).is_always_accessible():
             return _("No deadline")
-        elif self.get_accessible_time().is_never_accessible():
+        elif self.get_accessible_time(course).is_never_accessible():
             return _("It's too late")
         else:
             # Prefer to show the soft deadline rather than the hard one
-            return self.get_accessible_time().get_soft_end_date().strftime("%d/%m/%Y %H:%M:%S")
+            return self.get_accessible_time(course).get_soft_end_date().strftime("%d/%m/%Y %H:%M:%S")
 
     def is_group_task(self):
         """ Indicates if the task submission mode is per groups """
@@ -101,10 +101,10 @@ class WebAppTask(Task):
         """ Returns the name of this task """
         return self.gettext(language, self._name) if self._name else ""
 
-    def get_context(self, language):
+    def get_context(self, course, language):
         """ Get the context(description) of this task """
         context = self.gettext(language, self._context) if self._context else ""
-        vals = self._hook_manager.call_hook('task_context', course=self.get_course(), task=self, default=context)
+        vals = self._hook_manager.call_hook('task_context', course=course, task=self, default=context)
         return ParsableText(vals[0], "rst", translation=self.get_translation_obj(language)) if len(vals) \
             else ParsableText(context, "rst", translation=self.get_translation_obj(language))
 
@@ -130,9 +130,9 @@ class WebAppTask(Task):
         """ Indicates the default download for the task """
         return self._evaluate
 
-    def get_categories(self):
+    def get_categories(self, course):
         """ Returns the tags id associated to the task """
-        return [category for category in self._categories if category in self._course.get_tags()]
+        return [category for category in self._categories if category in course.get_tags()]
         
     def get_number_input_random(self):
         """ Return the number of random inputs """

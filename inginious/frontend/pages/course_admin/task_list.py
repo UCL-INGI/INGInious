@@ -63,7 +63,7 @@ class CourseTaskListPage(INGIniousAdminPage):
             ]))
 
         # Load tasks and verify exceptions
-        files = self.task_factory.get_readable_tasks(course)
+        files = self.task_factory.get_readable_tasks(course.get_id())
         output = {}
         errors = []
         for task in files:

@@ -46,9 +46,9 @@ class CourseTagsPage(INGIniousSubmissionAdminPage):
 
             del tag["id"]
 
-        course_content = self.course_factory.get_course_descriptor_content(courseid)
+        course_content = course.get_descriptor()
         course_content["tags"] = tags
-        self.course_factory.update_course_descriptor_content(courseid, course_content)
+        self.database.courses.replace_one({"_id": courseid}, course_content)
 
         course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
 

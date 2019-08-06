@@ -22,7 +22,7 @@ The following code adds a new page displaying ``This is a simple demo plugin`` o
             return "This is a simple demo plugin"
 
 
-    def init(plugin_manager, course_factory, client, plugin_config):
+    def init(plugin_manager, task_factory, client, plugin_config):
         """ Init the plugin """
         plugin_manager.add_page("/plugindemo", DemoPage)
 
@@ -34,8 +34,8 @@ This method takes four arguments:
   :ref:`inginious.frontend.common.plugin_manager`. Please note that ``PluginManager`` inherits from
   :ref:`inginious.common.hook_manager`.
 
-- ``course_factory`` which is the course factory singleton object, giving you abstraction to the tasks folder. The detailed
-  API is available at :ref:`inginious.common.course_factory`.
+- ``task_factory`` which is the task factory singleton object, giving you abstraction to the tasks folder. The detailed
+  API is available at :ref:`inginious.common.task_factory`.
 
 - ``client`` which is the INGInious client singleton object, giving you access to the backend features, as launching
   a new job. The detailed API is available at :ref:`inginious.client.client`.
@@ -76,7 +76,7 @@ would therefore need to add a hook method. This can be done using the ``add_hook
     def submission_done(submission, archive, newsub):
         logging.getLogger("inginious.frontend.plugins.demo").info("Submission " + str(submission['_id']) + " done.")
 
-    def init(plugin_manager, course_factory, client, plugin_config):
+    def init(plugin_manager, task_factory, client, plugin_config):
         """ Init the plugin """
         plugin_manager.add_hook("submission_done", submission_done)
 

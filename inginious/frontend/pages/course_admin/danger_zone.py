@@ -112,7 +112,8 @@ class CourseDangerZonePage(INGIniousAdminPage):
         self.wipe_course(courseid)
 
         # Deletes the course from the factory (entire folder)
-        self.course_factory.delete_course(courseid)
+        self.task_factory.get_course_fs(courseid).delete()
+        self.database.courses.delete_one({"_id": courseid})
 
         # Removes backup
         filepath = os.path.join(self.backup_dir, courseid)
