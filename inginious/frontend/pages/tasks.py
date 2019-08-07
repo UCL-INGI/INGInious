@@ -333,22 +333,25 @@ class BaseTaskPage(object):
             tojson["debug"] = data
 
         if tojson['status'] == 'waiting':
-            tojson["text"] = _("<b>Your submission has been sent...</b>")
+            tojson["title"] = _("<b>Your submission has been sent...</b>")
         elif tojson["result"] == "failed":
-            tojson["text"] = _("There are some errors in your answer. Your score is {score}%.").format(score=data["grade"])
+            tojson["title"] = _("There are some errors in your answer. Your score is {score}%.").format(score=data["grade"])
         elif tojson["result"] == "success":
-            tojson["text"] = _("Your answer passed the tests! Your score is {score}%.").format(score=data["grade"])
+            tojson["title"] = _("Your answer passed the tests! Your score is {score}%.").format(score=data["grade"])
         elif tojson["result"] == "timeout":
-            tojson["text"] = _("Your submission timed out. Your score is {score}%.").format(score=data["grade"])
+            tojson["title"] = _("Your submission timed out. Your score is {score}%.").format(score=data["grade"])
         elif tojson["result"] == "overflow":
-            tojson["text"] = _("Your submission made an overflow. Your score is {score}%.").format(score=data["grade"])
+            tojson["title"] = _("Your submission made an overflow. Your score is {score}%.").format(score=data["grade"])
         elif tojson["result"] == "killed":
-            tojson["text"] = _("Your submission was killed.")
+            tojson["title"] = _("Your submission was killed.")
         else:
-            tojson["text"] = _("An internal error occurred. Please retry later. "
-                               "If the error persists, send an email to the course administrator.")
+            tojson["title"] = _("An internal error occurred. Please retry later. "
+                                "If the error persists, send an email to the course administrator.")
 
-        tojson["text"] = "<b>" + tojson["text"] + " " + _("[Submission #{submissionid}]").format(submissionid=data["_id"]) + "</b>" + data.get("text", "")
+        tojson["title"] += " " + _("[Submission #{submissionid}]").format(submissionid=data["_id"])
+        tojson["title"] = self.plugin_manager.call_hook_recursive("feedback_title", task=task, submission=data, title=tojson["title"])["title"]
+        
+        tojson["text"] = data.get("text", "")
         tojson["text"] = self.plugin_manager.call_hook_recursive("feedback_text", task=task, submission=data, text=tojson["text"])["text"]
 
         if reloading:

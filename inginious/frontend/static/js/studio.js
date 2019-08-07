@@ -243,9 +243,9 @@ function studio_task_file_delete_tab(path)
 /**
  * Display a message indicating the status of a save action
  */
-function studio_display_task_submit_message(content, type, dismissible)
+function studio_display_task_submit_message(title, content, type, dismissible)
 {
-    var code = getAlertCode(content, type, dismissible);
+    var code = getAlertCode(title, content, type, dismissible);
     $('#task_edit_submit_status').html(code);
 
     if(dismissible)
@@ -270,7 +270,7 @@ function studio_submit()
         return;
     studio_submitting = true;
 
-    studio_display_task_submit_message("Saving...", "info", false);
+    studio_display_task_submit_message("Saving...", "", "info", false);
 
     $('form#edit_task_form .subproblem_order').each(function(index, elem)
     {
@@ -315,9 +315,9 @@ function studio_submit()
     });
 
     if(error)
-        studio_display_task_submit_message("Some error(s) occurred when saving the task: <ul>" + error + "</ul>", "danger", true);
+        studio_display_task_submit_message("Some error(s) occurred when saving the task: <ul>" + error + "</ul>", "", "danger", true);
     else
-        studio_display_task_submit_message("Task saved.", "success", true);
+        studio_display_task_submit_message("Task saved.", "", "success", true);
 
     $('.task_edit_submit_button').attr('disabled', false);
     studio_submitting = false;
