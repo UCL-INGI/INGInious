@@ -103,7 +103,7 @@ class APISubmissionSingle(APIAuthenticatedPage):
         with_input = "input" in web.input()
         try:
             course = self.database.courses.find_one({"_id": courseid})
-            course = WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager)
+            course = WebAppCourse(course["_id"], course, self.filesystem, self.plugin_manager)
         except:
             raise APINotFound("Course not found")
 
@@ -145,7 +145,7 @@ class APISubmissions(APIAuthenticatedPage):
         with_input = "input" in web.input()
         try:
             course = self.database.courses.find_one({"_id": courseid})
-            course = WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager)
+            course = WebAppCourse(course["_id"], course, self.filesystem, self.plugin_manager)
         except:
             raise APINotFound("Course not found")
 
@@ -166,7 +166,7 @@ class APISubmissions(APIAuthenticatedPage):
 
         try:
             course = self.database.courses.find_one({"_id": courseid})
-            course = WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager)
+            course = WebAppCourse(course["_id"], course, self.filesystem, self.plugin_manager)
         except:
             raise APINotFound("Course not found")
 

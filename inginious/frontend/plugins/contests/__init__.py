@@ -17,6 +17,7 @@ from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 from inginious.frontend.pages.utils import INGIniousAuthPage
 from inginious.frontend.courses import WebAppCourse
 
+
 def add_admin_menu(course): # pylint: disable=unused-argument
     """ Add a menu for the contest settings in the administration """
     return ('contest', '<i class="fa fa-trophy fa-fw"></i>&nbsp; Contest')
@@ -65,7 +66,7 @@ class ContestScoreboard(INGIniousAuthPage):
 
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         course = self.database.courses.find_one({"_id": courseid})
-        course = WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager)
+        course = WebAppCourse(course["_id"], course, self.filesystem, self.plugin_manager)
         contest_data = get_contest_data(course)
         if not contest_data['enabled']:
             raise web.notfound()
@@ -74,7 +75,8 @@ class ContestScoreboard(INGIniousAuthPage):
         blackout = end - timedelta(hours=contest_data['blackout'])
 
         users = self.user_manager.get_course_registered_users(course)
-        tasks = list(course.get_tasks().keys())
+        task_descs = self.database.tasks.find({"courseid": course.get_id()}).sort("order")
+        tasks = [task_desc["taskid"] for task_desc in task_descs]
 
         db_results = self.database.submissions.find({
             "username": {"$in": users},
@@ -216,7 +218,7 @@ class ContestAdmin(INGIniousAdminPage):
             return self.template_helper.get_custom_renderer('frontend/plugins/contests').admin(course, contest_data, errors, False)
 
 
-def init(plugin_manager, task_factory, client, config):  # pylint: disable=unused-argument
+def init(plugin_manager, client, config):  # pylint: disable=unused-argument
     """
         Init the contest plugin.
         Available configuration:

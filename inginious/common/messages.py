@@ -38,14 +38,14 @@ class ClientNewJob(metaclass=MessageMeta, msgtype="client_new_job"):
     """
 
     def __init__(self, job_id: ClientJobId, priority: int,
-                 course_id: str, task_id: str, inputdata: Dict[str, Any],
-                 environment: str, enable_network: bool, time_limit: int, hard_time_limit: Optional[int], mem_limit: int,
+                 course_id: str, task_id: str, task_data: Dict[str, Any], inputdata: Dict[str, Any],
                  debug: Union[str, bool], launcher: str, run_cmd: Optional[str]):
         """
         :param job_id: the client-side job id that is associated to this job
         :param priority: the job priority
         :param course_id: course id of the task to run
         :param task_id: task id of the task to run
+        :param task_data: task dictionary
         :param inputdata: student input data
         :param environment: environment to use
         :param enable_network: wheter to enable the network or not, in supporting envs
@@ -63,13 +63,9 @@ class ClientNewJob(metaclass=MessageMeta, msgtype="client_new_job"):
         self.priority = priority
         self.course_id = course_id
         self.task_id = task_id
+        self.task_data = task_data
         self.inputdata = inputdata
         self.debug = debug
-        self.environment = environment
-        self.enable_network = enable_network
-        self.time_limit = time_limit
-        self.hard_time_limit = hard_time_limit
-        self.mem_limit = mem_limit
         self.launcher = launcher
         self.run_cmd = run_cmd
 
@@ -222,9 +218,8 @@ class BackendNewJob(metaclass=MessageMeta, msgtype="backend_new_job"):
         B->A.
     """
 
-    def __init__(self, job_id: BackendJobId, course_id: str, task_id: str, inputdata: Dict[str, Any],
-                 environment: str, enable_network: bool, time_limit: int, hard_time_limit: Optional[int], mem_limit: int,
-                 debug: Union[str, bool], run_cmd: Optional[str]):
+
+    def __init__(self, job_id: BackendJobId, course_id: str, task_id: str, task_data: Dict[str, Any], inputdata: Dict[str, Any], debug: Union[str, bool], run_cmd: Optional[str]):
         """
         :param job_id: the backend-side job id that is associated to this job
         :param course_id: course id of the task to run
@@ -246,12 +241,8 @@ class BackendNewJob(metaclass=MessageMeta, msgtype="backend_new_job"):
         self.task_id = task_id
         self.inputdata = inputdata
         self.debug = debug
-        self.environment = environment
-        self.enable_network = enable_network
-        self.time_limit = time_limit
-        self.hard_time_limit = hard_time_limit
-        self.mem_limit = mem_limit
         self.run_cmd = run_cmd
+        self.task_data = task_data
 
 
 class BackendKillJob(metaclass=MessageMeta, msgtype="backend_kill_job"):

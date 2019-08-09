@@ -12,6 +12,6 @@ class DemoPage(object):
         """ GET request """
         return "This is a simple demo plugin"
 
-def init(plugin_manager, _, _2, _3):
+def init(plugin_manager, _2, _3):
     """ Init the plugin """
     plugin_manager.add_page("/plugindemo", DemoPage)

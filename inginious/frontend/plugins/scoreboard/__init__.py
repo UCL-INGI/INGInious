@@ -19,7 +19,7 @@ class ScoreBoardCourse(INGIniousAuthPage):
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
         course = self.database.courses.find_one({"_id": courseid})
-        course = WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager)
+        course = WebAppCourse(course["_id"], course, self.filesystem, self.plugin_manager)
         scoreboards = course.get_descriptor().get('scoreboard', [])
 
         try:
@@ -48,7 +48,7 @@ class ScoreBoard(INGIniousAuthPage):
     def GET_AUTH(self, courseid, scoreboardid):  # pylint: disable=arguments-differ
         """ GET request """
         course = self.database.courses.find_one({"_id": courseid})
-        course = WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager)
+        course = WebAppCourse(course["_id"], course, self.filesystem, self.plugin_manager)
         scoreboards = course.get_descriptor().get('scoreboard', [])
 
         try:
@@ -204,7 +204,7 @@ def task_menu(course, task, template_helper):
         return None
 
 
-def init(plugin_manager, _, _2, _3):
+def init(plugin_manager, _2, _3):
     """
         Init the plugin.
         Available configuration in configuration.yaml:

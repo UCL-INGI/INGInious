@@ -25,7 +25,7 @@ class CourseListPage(INGIniousPage):
         """  Display main course list page """
         username = self.user_manager.session_username()
         user_info = self.database.users.find_one({"username": username})
-        all_courses = {course["_id"]: WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager) for course in self.database.courses.find()}
+        all_courses = {course["_id"]: WebAppCourse(course["_id"], course, self.filesystem, self.plugin_manager) for course in self.database.courses.find()}
 
         # Display
         open_courses = {courseid: course for courseid, course in all_courses.items() if course.is_open_to_non_staff()}

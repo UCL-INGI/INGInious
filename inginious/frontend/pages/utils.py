@@ -19,7 +19,8 @@ from inginious.frontend.user_manager import UserManager
 from inginious.frontend.parsable_text import ParsableText
 from pymongo.database import Database
 
-from inginious.common.task_factory import TaskFactory
+from inginious.common.tasks_problems import Problem
+from inginious.common.filesystems.provider import FileSystemProvider
 from inginious.frontend.lti_outcome_manager import LTIOutcomeManager
 
 
@@ -45,9 +46,14 @@ class INGIniousPage(object):
         return self.app.plugin_manager
 
     @property
-    def task_factory(self) -> TaskFactory:
-        """ Returns the task factory singleton """
-        return self.app.task_factory
+    def filesystem(self) -> FileSystemProvider:
+        """ Returns the task filesystem """
+        return self.app.filesystem
+
+    @property
+    def problem_types(self) -> dict:
+        """ Returns the problem types"""
+        return self.app.problem_types
 
     @property
     def submission_manager(self) -> WebAppSubmissionManager:

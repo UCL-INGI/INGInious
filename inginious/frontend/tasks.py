@@ -17,12 +17,12 @@ from inginious.common.tags import Tag
 class WebAppTask(Task):
     """ A task that stores additional context information, specific to the web app """
 
-    def __init__(self, courseid, taskid, content, task_fs, translations_fs, hook_manager, task_problem_types):
+    def __init__(self, courseid, taskid, content, filesystem, hook_manager, task_problem_types):
         # We load the descriptor of the task here to allow plugins to modify settings of the task before it is read by the Task constructor
         if not id_checker(taskid):
             raise Exception("Task with invalid id: " + courseid + "/" + taskid)
 
-        super(WebAppTask, self).__init__(courseid, taskid, content, task_fs, translations_fs, hook_manager, task_problem_types)
+        super(WebAppTask, self).__init__(courseid, taskid, content, filesystem, hook_manager, task_problem_types)
 
         self._name = self._data.get('name', 'Task {}'.format(self.get_id()))
 

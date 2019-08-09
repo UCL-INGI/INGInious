@@ -1,4 +1,4 @@
-$def with (course,taskid,problem_types,task_data,environments,problemdata,contains_is_html,current_filetype,available_filetypes,AccessibleTime,file_list, additional_tabs)
+$def with (course,taskid,problem_types,task_data,environments,problemdata,contains_is_html,AccessibleTime,file_list, additional_tabs)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -61,7 +61,7 @@ $var Navbar: $:NavbarF()
         </div>
         <div id="edit_task_tabs_content" class="tab-content">
             <div role="tabpanel" class="card-body tab-pane active" id="tab_basic">
-                $:include.course_admin.edit_tabs.basic(course,task_data,available_filetypes,AccessibleTime,current_filetype,contains_is_html)
+                $:include.course_admin.edit_tabs.basic(course,task_data,AccessibleTime,contains_is_html)
             </div>
 
             <div role="tabpanel" class="card-body tab-pane" id="tab_container">

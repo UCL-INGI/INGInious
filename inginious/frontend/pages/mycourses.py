@@ -31,7 +31,7 @@ class MyCoursesPage(INGIniousAuthPage):
         if "register_courseid" in user_input and user_input["register_courseid"] != "":
             try:
                 course = self.database.courses.find_one({"_id": user_input["register_courseid"]})
-                course = WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager)
+                course = WebAppCourse(course["_id"], course, self.filesystem, self.plugin_manager)
                 if not course.is_registration_possible(user_info):
                     success = False
                 else:
@@ -53,7 +53,7 @@ class MyCoursesPage(INGIniousAuthPage):
         username = self.user_manager.session_username()
         user_info = self.database.users.find_one({"username": username})
 
-        all_courses = {course["_id"]: WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager) for course in self.database.courses.find()}
+        all_courses = {course["_id"]: WebAppCourse(course["_id"], course, self.filesystem, self.plugin_manager) for course in self.database.courses.find()}
 
         # Display
         open_courses = {courseid: course for courseid, course in all_courses.items()

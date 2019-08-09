@@ -290,24 +290,10 @@ class Client(BetterParanoidPirateClient):
             callback(("crash", "Environment not available."), 0.0, {}, {}, "", {}, None, "", "")
             return
 
-        enable_network = task.allow_network_access_grading()
-
         run_cmd = task.get_custom_run_cmd()
-
-        try:
-            limits = task.get_limits()
-            time_limit = int(limits.get('time', 20))
-            hard_time_limit = int(limits.get('hard_time', 3 * time_limit))
-            mem_limit = int(limits.get('memory', 200))
-        except:
-            self._logger.exception("Cannot retrieve limits for task %s/%s", task.get_courseid(), task.get_id())
-            ssh_callback(None, None, None)  # ssh_callback must be called once
-            callback(("crash", "Error while reading task limits"), 0.0, {}, {}, "", {}, None, "", "")
-            return
-
-        msg = ClientNewJob(job_id, priority, task.get_courseid(), task.get_id(), inputdata, environment, enable_network, time_limit,
-                           hard_time_limit, mem_limit, debug, launcher_name, run_cmd)
-
+        test_dict = task.get_descriptor()
+        del test_dict["_id"]
+        msg = ClientNewJob(job_id, priority, task.get_courseid(), task.get_id(), test_dict, inputdata, debug, launcher_name, run_cmd)
         self._loop.call_soon_threadsafe(asyncio.ensure_future, self._create_transaction(msg, task=task, callback=callback,
                                                                                         ssh_callback=ssh_callback))
 

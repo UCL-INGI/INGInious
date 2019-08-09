@@ -8,6 +8,7 @@ from collections import OrderedDict
 import web
 
 from inginious.frontend.pages.course_admin.utils import make_csv, INGIniousAdminPage
+from inginious.frontend.tasks import WebAppTask
 
 
 class CourseStudentListPage(INGIniousAdminPage):
@@ -62,7 +63,10 @@ class CourseStudentListPage(INGIniousAdminPage):
             "task_grades": {"answer": 0, "match": 0}, "task_succeeded": 0, "task_tried": 0, "total_tries": 0,
             "grade": 0, "url": self.submission_url_generator(username)}) for username, user in users.items()])
 
-        for username, data in self.user_manager.get_course_caches(list(users.keys()), course).items():
+        task_descs = self.database.tasks.find({"courseid": course.get_id()}).sort("order")
+        tasks = OrderedDict((task_desc["taskid"], WebAppTask(course.get_id(), task_desc["taskid"], task_desc, self.filesystem, self.plugin_manager, self.problem_types)) for task_desc in task_descs)
+
+        for username, data in self.user_manager.get_course_caches(list(users.keys()), course, tasks).items():
             user_data[username].update(data if data is not None else {})
 
         if "csv" in web.input():

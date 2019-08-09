@@ -4,8 +4,12 @@
 # more information about the licensing of this file.
 
 """ Utilities for computation of statistics  """
-from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 from datetime import datetime, date, timedelta
+from collections import OrderedDict
+
+
+from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
+from inginious.frontend.tasks import WebAppTask
 
 
 class CourseStatisticsPage(INGIniousAdminPage):
@@ -96,7 +100,8 @@ class CourseStatisticsPage(INGIniousAdminPage):
     def GET_AUTH(self, courseid, f=None, t=None):  # pylint: disable=arguments-differ
         """ GET request """
         course, __ = self.get_course_and_check_rights(courseid)
-        tasks = course.get_tasks()
+        task_descs = self.database.tasks.find({"courseid": course.get_id()}).sort("order")
+        tasks = OrderedDict((task_desc["taskid"], WebAppTask(course.get_id(), task_desc["taskid"], task_desc, self.filesystem, self.plugin_manager, self.problem_types)) for task_desc in task_descs)
         now = datetime.now().replace(minute=0, second=0, microsecond=0)
 
         error = None

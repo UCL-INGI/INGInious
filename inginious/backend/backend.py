@@ -154,7 +154,7 @@ class Backend(object):
             msg = job[-1]
             if isinstance(msg, ClientNewJob):
                 jobs_waiting.append((msg.job_id, job_client_addr[0] == client_addr, msg.course_id+"/"+msg.task_id, msg.launcher,
-                                     msg.time_limit))
+                                     msg.task_data['limits']['time_limit']))
 
         await ZMQUtils.send_with_addr(self._client_socket, client_addr, BackendGetQueue(jobs_running, jobs_waiting))
 
@@ -176,7 +176,7 @@ class Backend(object):
                 continue
 
             # Find agents that can run this job
-            possible_agents = list(set(self._containers[job_msg.environment][2]).intersection(set(self._available_agents)))
+            possible_agents = list(set(self._containers[job_msg.task_data['environment']][2]).intersection(set(self._available_agents)))
 
             # No agent available, put job back to queue with lower priority
             if not possible_agents:
@@ -197,9 +197,7 @@ class Backend(object):
             self._job_running[job_id] = (agent_addr, job_msg, time.time())
             self._logger.info("Sending job %s %s to agent %s", client_addr, job_msg.job_id, agent_addr)
             await ZMQUtils.send_with_addr(self._agent_socket, agent_addr, BackendNewJob(job_id, job_msg.course_id, job_msg.task_id,
-                                                                                        job_msg.inputdata, job_msg.environment,
-                                                                                        job_msg.enable_network, job_msg.time_limit,
-                                                                                        job_msg.hard_time_limit, job_msg.mem_limit,
+                                                                                        job_msg.task_data, job_msg.inputdata,
                                                                                         job_msg.debug,
                                                                                         job_msg.run_cmd))
 

@@ -4,14 +4,16 @@
 # more information about the licensing of this file.
 
 import os
+import sys
 from pymongo import MongoClient
 
 from wsgidav import util, wsgidav_app
-from wsgidav.dav_error import DAVError, HTTP_FORBIDDEN
+import wsgidav.wsgidav_app
+import wsgidav.error_printer
+from wsgidav.dc.base_dc import BaseDomainController
 from wsgidav.dav_provider import DAVProvider
 from wsgidav.fs_dav_provider import FolderResource, FileResource
 
-from inginious.common.task_factory import TaskFactory
 from inginious.common.filesystems.local import LocalFSProvider
 from inginious.frontend.user_manager import UserManager
 from inginious.frontend.session_mongodb import MongoStore
@@ -19,63 +21,56 @@ from inginious.frontend.courses import WebAppCourse
 from inginious.frontend.tasks import WebAppTask
 
 
-class INGIniousDAVDomainController(object):
-    """ Authenticates users using the API key and their username """
-    def __init__(self, database, user_manager, task_factory):
-        self.database = database
-        self.task_factory = task_factory
-        self.user_manager = user_manager
+def get_dc(database, user_manager, filesystem):
 
-    def __repr__(self):
-        return self.__class__.__name__
+    class INGIniousDAVDomainController(BaseDomainController):
+        """ Authenticates users using the API key and their username """
+        def __init__(self, wsgidav_app, config):
+            super(INGIniousDAVDomainController, self).__init__(wsgidav_app, config)
 
-    def getDomainRealm(self, inputURL, environ):
-        """Resolve a relative url to the  appropriate realm name."""
-        # we don't get the realm here, its already been resolved in
-        # request_resolver
-        if inputURL.startswith("/"):
-            inputURL = inputURL[1:]
-        parts = inputURL.split("/")
-        return parts[0]
+        def __repr__(self):
+            return self.__class__.__name__
 
-    def requireAuthentication(self, realmname, environ):
-        """Return True if this realm requires authentication or False if it is
-        available for general access."""
-        return True
+        def get_domain_realm(self, pathinfo, environ):
+            """Resolve a relative url to the  appropriate realm name."""
+            # we don't get the realm here, its already been resolved in
+            # request_resolver
+            if pathinfo.startswith("/"):
+                pathinfo = pathinfo[1:]
+            parts = pathinfo.split("/")
+            return parts[0]
 
-    def isRealmUser(self, realmname, username, environ):
-        """Returns True if this username is valid for the realm, False otherwise."""
-        try:
-            course = self.database.courses.find_one({"_id": realmname})
-            course = WebAppCourse(course["_id"], course, self.task_factory, None)
-            ok = self.user_manager.has_admin_rights_on_course(course, username=username)
-            return ok
-        except:
+        def require_authentication(self, realm, environ):
+            """Return True if this realm requires authentication or False if it is
+            available for general access."""
+            return True
+
+        def supports_http_digest_auth(self):
+            # We don't have access to a plaintext password (or stored hash)
             return False
 
-    def getRealmUserPassword(self, realmname, username, environ):
-        """Return the password for the given username for the realm.
+        def basic_auth_user(self, realmname, username, password, environ):
+            """Returns True if this username/password pair is valid for the realm,
+            False otherwise. Used for basic authentication."""
+            try:
+                course = database.courses.find_one({"_id": realmname})
+                course = WebAppCourse(course["_id"], course, filesystem, None)
+                if not user_manager.has_admin_rights_on_course(course, username=username):
+                    return False
+                apikey = user_manager.get_user_api_key(username, create=None)
+                return apikey is not None and password == apikey
+            except Exception as ex:
+                return False
 
-        Used for digest authentication.
-        """
-        return self.user_manager.get_user_api_key(username, create=True)
-
-    def authDomainUser(self, realmname, username, password, environ):
-        """Returns True if this username/password pair is valid for the realm,
-        False otherwise. Used for basic authentication."""
-        try:
-            apikey = self.user_manager.get_user_api_key(username, create=None)
-            return apikey is not None and password == apikey
-        except:
-            return False
+    return INGIniousDAVDomainController
 
 
 class INGIniousFilesystemProvider(DAVProvider):
     """ A DAVProvider adapted to the structure of INGInious """
-    def __init__(self, database, task_factory):
+    def __init__(self, database, filesystem):
         super(INGIniousFilesystemProvider, self).__init__()
         self.database = database
-        self.task_factory = task_factory
+        self.filesystem = filesystem
         self.readonly = False
 
     def _get_course_id(self, path):
@@ -99,7 +94,7 @@ class INGIniousFilesystemProvider(DAVProvider):
         course_id = self._get_course_id(path)
         try:
             course = self.database.courses.find_one({"_id": course_id})
-            course = WebAppCourse(course["_id"], course, self.task_factory, None)
+            course = WebAppCourse(course["_id"], course, self.filesystem, None)
         except:
             raise RuntimeError("Unknown course {}".format(course_id))
 
@@ -111,18 +106,18 @@ class INGIniousFilesystemProvider(DAVProvider):
             raise RuntimeError("Security exception: tried to access file outside course root: {}".format(file_path))
 
         # Convert to unicode
-        file_path = util.toUnicode(file_path)
+        file_path = util.to_unicode_safe(file_path)
         return file_path
 
-    def isReadOnly(self):
+    def is_readonly(self):
         return False
 
-    def getResourceInst(self, path, environ):
+    def get_resource_inst(self, path, environ):
         """Return info dictionary for path.
 
         See DAVProvider.getResourceInst()
         """
-        self._count_getResourceInst += 1
+        self._count_get_resource_inst += 1
         fp = self._locToFilePath(path)
         if not os.path.exists(fp):
             return None
@@ -143,13 +138,20 @@ def get_app(config):
         raise RuntimeError("WebDav access is only supported if INGInious is using a local filesystem to access tasks")
 
     fs_provider = LocalFSProvider(config["tasks_directory"])
-    task_factory = TaskFactory(fs_provider, None, {}, WebAppTask)
     user_manager = UserManager(MongoStore(database, 'sessions'), database, config.get('superadmins', []))
 
     config = dict(wsgidav_app.DEFAULT_CONFIG)
-    config["provider_mapping"] = {"/": INGIniousFilesystemProvider(database, task_factory)}
-    config["domaincontroller"] = INGIniousDAVDomainController(database, user_manager, task_factory)
-    config["verbose"] = 0
+    config["provider_mapping"] = {"/": INGIniousFilesystemProvider(database, fs_provider)}
+    config["http_authenticator"]["domain_controller"] = get_dc(database, user_manager, fs_provider)
+    config["http_authenticator"]["accept_basic"] = True
+    config["http_authenticator"]["accept_digest"] = False
+    config["http_authenticator"]["default_to_digest"] = False
+
+    #config["verbose"] = 5
+
+    #import logging
+    #wsgidav.wsgidav_app._logger.addHandler(logging.StreamHandler(sys.stdout))
+    #wsgidav.error_printer._logger.addHandler(logging.StreamHandler(sys.stdout))
 
     app = wsgidav_app.WsgiDAVApp(config)
 

@@ -17,8 +17,6 @@ import asyncio
 from inginious.common.entrypoints import get_args_and_filesystem
 from inginious.agent.mcq_agent import MCQAgent
 from inginious.common.tasks_problems import MultipleChoiceProblem, MatchProblem
-from inginious.common.task_factory import TaskFactory
-
 
 def import_class(name):
     m = name.split('.')
@@ -61,9 +59,6 @@ if __name__ == "__main__":
                 logger.exception("Cannot load %s, exiting", ptype_loc)
                 exit(1)
 
-    # create course factory
-    task_factory = TaskFactory(fsprovider, None, {problem_type.get_type(): problem_type for problem_type in ptypes})
-
     closing = False
     while not closing:
         # start asyncio and zmq
@@ -74,7 +69,7 @@ if __name__ == "__main__":
         context = Context()
 
         # Create agent
-        agent = MCQAgent(context, args.backend, args.friendly_name, 1, fsprovider, task_factory)
+        agent = MCQAgent(context, args.backend, args.friendly_name, 1, fsprovider, {problem_type.get_type(): problem_type for problem_type in ptypes})
 
         # Run!
         try:

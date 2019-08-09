@@ -16,6 +16,7 @@ from bson.objectid import ObjectId
 from inginious.common.base import id_checker
 from inginious.frontend.pages.utils import INGIniousAuthPage
 from inginious.frontend.courses import WebAppCourse
+from inginious.frontend.tasks import WebAppTask
 
 
 class INGIniousAdminPage(INGIniousAuthPage):
@@ -35,7 +36,7 @@ class INGIniousAdminPage(INGIniousAuthPage):
 
         try:
             course = self.database.courses.find_one({"_id": courseid})
-            course = WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager)
+            course = WebAppCourse(course["_id"], course, self.filesystem, self.plugin_manager)
 
             if allow_all_staff:
                 if not self.user_manager.has_staff_rights_on_course(course):
@@ -47,8 +48,12 @@ class INGIniousAdminPage(INGIniousAuthPage):
             if taskid is None:
                 return course, None
             else:
-                return course, course.get_task(taskid)
-        except:
+                task_desc = self.database.tasks.find_one({"courseid": course.get_id(), "taskid": taskid})
+                task = WebAppTask(course.get_id(), task_desc["taskid"], task_desc, self.filesystem, self.plugin_manager,
+                                  self.problem_types)
+                return course, task
+        except Exception as ex:
+            print(str(ex))
             raise web.notfound()
 
 
@@ -110,7 +115,8 @@ class INGIniousSubmissionAdminPage(INGIniousAdminPage):
         return submissions, audiences
 
     def show_page_params(self, course, user_input):
-        tasks = sorted(list(course.get_tasks().items()), key=lambda task: (task[1].get_order(), task[1].get_id()))
+        task_descs = self.database.tasks.find({"courseid": course.get_id()}).sort("order")
+        tasks = OrderedDict((task_desc["taskid"],  WebAppTask(course.get_id(), task_desc["taskid"], task_desc, self.filesystem, self.plugin_manager, self.problem_types)) for task_desc in task_descs)
 
         user_list = self.user_manager.get_course_registered_users(course, False)
         users = OrderedDict(sorted(list(self.user_manager.get_users_info(user_list).items()),
@@ -127,7 +133,7 @@ class INGIniousSubmissionAdminPage(INGIniousAdminPage):
             if self.user_manager.session_username() in audience["tutors"]:
                 tutored_users += audience["students"]
 
-        checked_tasks = list(course.get_tasks().keys())
+        checked_tasks = [task_desc["taskid"] for task_desc in task_descs]
         checked_users = list(user_data.keys())
         checked_audiences = [audience['_id'] for audience in audiences]
         show_audiences = False

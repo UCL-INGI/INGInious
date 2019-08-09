@@ -5,8 +5,11 @@
 
 """ Courses """
 
+from collections import OrderedDict
+
 from inginious.frontend.pages.api._api_page import APIAuthenticatedPage, APINotFound
 from inginious.frontend.courses import WebAppCourse
+from inginious.frontend.tasks import WebAppTask
 
 class APICourses(APIAuthenticatedPage):
     r"""
@@ -41,10 +44,10 @@ class APICourses(APIAuthenticatedPage):
         output = []
 
         if courseid is None:
-            courses = {course["_id"]: WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager) for course in self.database.courses.find()}
+            courses = {course["_id"]: WebAppCourse(course["_id"], course, self.filesystem, self.plugin_manager) for course in self.database.courses.find()}
         else:
             try:
-                courses = {course["_id"]: WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager) for course in self.database.courses.find({"_id": courseid})}
+                courses = {course["_id"]: WebAppCourse(course["_id"], course, self.filesystem, self.plugin_manager) for course in self.database.courses.find({"_id": courseid})}
             except:
                 raise APINotFound("Course not found")
 
@@ -53,6 +56,8 @@ class APICourses(APIAuthenticatedPage):
 
         for courseid, course in courses.items():
             if self.user_manager.course_is_open_to_user(course, username, False) or course.is_registration_possible(user_info):
+                task_descs = self.database.tasks.find({"courseid": course.get_id()}).sort("order")
+                tasks = OrderedDict((task_desc["taskid"], WebAppTask(course.get_id(), task_desc["taskid"], task_desc, self.filesystem, self.plugin_manager, self.problem_types)) for task_desc in task_descs)
                 data = {
                     "id": courseid,
                     "name": course.get_name(self.user_manager.session_language()),
@@ -60,8 +65,8 @@ class APICourses(APIAuthenticatedPage):
                     "is_registered": self.user_manager.course_is_open_to_user(course, username, False)
                 }
                 if self.user_manager.course_is_open_to_user(course, username, False):
-                    data["tasks"] = {taskid: task.get_name(self.user_manager.session_language()) for taskid, task in course.get_tasks().items()}
-                    data["grade"] = self.user_manager.get_course_cache(username, course)["grade"]
+                    data["tasks"] = {taskid: task.get_name(self.user_manager.session_language()) for taskid, task in tasks.items()}
+                    data["grade"] = self.user_manager.get_course_cache(username, course, tasks)["grade"]
                 output.append(data)
 
         return 200, output

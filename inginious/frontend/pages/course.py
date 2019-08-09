@@ -6,7 +6,9 @@
 """ Course page """
 import web
 
+from collections import OrderedDict
 from inginious.frontend.courses import WebAppCourse
+from inginious.frontend.tasks import WebAppTask
 from inginious.frontend.pages.utils import INGIniousAuthPage, INGIniousPage
 
 
@@ -17,7 +19,7 @@ class CoursePage(INGIniousPage):
         """ Return the course """
         try:
             course = self.database.courses.find_one({"_id": courseid})
-            course = WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager)
+            course = WebAppCourse(course["_id"], course, self.filesystem, self.plugin_manager)
         except:
             raise web.notfound()
 
@@ -45,7 +47,8 @@ class CoursePage(INGIniousPage):
         if not self.user_manager.course_is_open_to_user(course, lti=False):
             return self.template_helper.get_renderer().course_unavailable()
         else:
-            tasks = course.get_tasks()
+            task_descs = self.database.tasks.find({"courseid": course.get_id()}).sort("order")
+            tasks = OrderedDict((task_desc["taskid"], WebAppTask(course.get_id(), task_desc["taskid"], task_desc, self.filesystem, self.plugin_manager, self.problem_types)) for task_desc in task_descs)
             last_submissions = self.submission_manager.get_user_last_submissions(5, {"courseid": course.get_id(), "taskid": {"$in": list(tasks.keys())}})
 
             for submission in last_submissions:

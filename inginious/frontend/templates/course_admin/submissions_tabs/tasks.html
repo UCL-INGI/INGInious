@@ -17,7 +17,7 @@ $#
         </div>
     </div>
     <ul class="list-group list-group-flush checked-list-box">
-        $for taskid, task in tasks:
+        $for taskid, task in tasks.items():
             <li class="list-group-item" data-value="$taskid" data-name="tasks"
                 $if taskid in checked_tasks:
                     data-checked="true"

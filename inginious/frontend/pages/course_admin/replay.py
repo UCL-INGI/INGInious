@@ -8,7 +8,9 @@ import json
 
 import web
 from bson.objectid import ObjectId
+from collections import OrderedDict
 
+from inginious.frontend.tasks import WebAppTask
 from inginious.frontend.pages.course_admin.utils import INGIniousSubmissionAdminPage
 
 
@@ -31,7 +33,8 @@ class CourseReplaySubmissions(INGIniousSubmissionAdminPage):
             return json.dumps({"status": "waiting"})
         else:
             # Replay several submissions, check input
-            tasks = course.get_tasks()
+            task_descs = self.database.tasks.find({"courseid": course.get_id()}).sort("order")
+            tasks = OrderedDict((task_desc["taskid"], WebAppTask(course.get_id(), task_desc["taskid"], task_desc, self.filesystem, self.plugin_manager, self.problem_types)) for task_desc in task_descs)
             error = False
             msg = _("Selected submissions were set for replay.")
             for i in user_input.tasks:

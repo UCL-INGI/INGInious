@@ -25,7 +25,7 @@ from inginious.common.messages import BackendNewJob, BackendKillJob
 
 
 class DockerAgent(Agent):
-    def __init__(self, context, backend_addr, friendly_name, concurrency, task_factory, address_host=None, external_ports=None, tmp_dir="./agent_tmp"):
+    def __init__(self, context, backend_addr, friendly_name, concurrency, filesystem, address_host=None, external_ports=None, tmp_dir="./agent_tmp"):
         """
         :param context: ZeroMQ context for this process
         :param backend_addr: address of the backend (for example, "tcp://127.0.0.1:2222")
@@ -36,7 +36,7 @@ class DockerAgent(Agent):
         :param external_ports: iterable containing ports to which the docker instance can bind internal ports
         :param tmp_dir: temp dir that is used by the agent to start new containers
         """
-        super(DockerAgent, self).__init__(context, backend_addr, friendly_name, concurrency, task_factory)
+        super(DockerAgent, self).__init__(context, backend_addr, friendly_name, concurrency, filesystem)
         self._logger = logging.getLogger("inginious.agent.docker")
 
         self._max_memory_per_slot = int(psutil.virtual_memory().total / concurrency / 1024 / 1024)
@@ -158,14 +158,15 @@ class DockerAgent(Agent):
         task_id = message.task_id
 
         debug = message.debug
-        environment_name = message.environment
-        enable_network = message.enable_network
-        time_limit = message.time_limit
-        hard_time_limit = message.hard_time_limit or time_limit * 3
-        mem_limit = message.mem_limit
+        environment_name = message.task_data.get("environment", None)
+        enable_network = message.task_data.get("network_grading", False)
+        limits = message.task_data.get("limits", {})
+        time_limit = int(limits.get('time', 20))
+        hard_time_limit = int(limits.get('hard_time', 3 * time_limit))
+        mem_limit = int(limits.get('memory', 200))
         run_cmd = message.run_cmd
 
-        course_fs = self._tasks_fs.from_subfolder(course_id)
+        course_fs = self._fs.from_subfolder(course_id)
         task_fs = course_fs.from_subfolder(task_id)
 
         if not course_fs.exists() or not task_fs.exists():

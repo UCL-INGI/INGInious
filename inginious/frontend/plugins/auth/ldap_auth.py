@@ -124,7 +124,7 @@ class LDAPAuthenticationPage(AuthenticationPage):
                 settings, "Incorrect password")
 
 
-def init(plugin_manager, _, _2, conf):
+def init(plugin_manager, _2, conf):
     """
         Allow to connect through a LDAP service
 

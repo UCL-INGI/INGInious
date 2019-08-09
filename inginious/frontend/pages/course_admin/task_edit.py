@@ -34,10 +34,13 @@ class CourseEditTask(INGIniousAdminPage):
         if not id_checker(taskid):
             raise Exception("Invalid task id")
 
-        course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
+        course, __ = self.get_course_and_check_rights(courseid, taskid, allow_all_staff=False)
 
         try:
-            task_data = self.task_factory.get_task_descriptor_content(courseid, taskid)
+            task_desc = self.database.tasks.find_one({"courseid": course.get_id(), "taskid": taskid})
+            task = WebAppTask(course.get_id(), task_desc["taskid"], task_desc, self.filesystem, self.plugin_manager,
+                              self.problem_types)
+            task_data = task.get_descriptor()
         except:
             task_data = None
         if task_data is None:
@@ -45,28 +48,19 @@ class CourseEditTask(INGIniousAdminPage):
 
         environments = self.containers
 
-        current_filetype = None
-        try:
-            current_filetype = self.task_factory.get_task_descriptor_extension(courseid, taskid)
-        except:
-            pass
-        available_filetypes = self.task_factory.get_available_task_file_extensions()
-
         additional_tabs = self.plugin_manager.call_hook('task_editor_tab', course=course, taskid=taskid,
                                                         task_data=task_data, template_helper=self.template_helper)
 
         return self.template_helper.get_renderer().course_admin.task_edit(
             course,
             taskid,
-            self.task_factory.get_problem_types(),
+            self.problem_types,
             task_data,
             environments,
             task_data.get('problems',{}),
             self.contains_is_html(task_data),
-            current_filetype,
-            available_filetypes,
             AccessibleTime,
-            CourseTaskFiles.get_task_filelist(self.task_factory, courseid, taskid),
+            CourseTaskFiles.get_task_filelist(self.filesystem, courseid, taskid),
             additional_tabs
         )
 
@@ -83,7 +77,7 @@ class CourseEditTask(INGIniousAdminPage):
     def parse_problem(self, problem_content):
         """ Parses a problem, modifying some data """
         del problem_content["@order"]
-        return self.task_factory.get_problem_types().get(problem_content["type"]).parse_problem(problem_content)
+        return self.problem_types.get(problem_content["type"]).parse_problem(problem_content)
 
     def wipe_task(self, courseid, taskid):
         """ Wipe the data associated to the taskid from DB"""
@@ -108,7 +102,9 @@ class CourseEditTask(INGIniousAdminPage):
 
         # Delete task ?
         if "delete" in data:
-            self.task_factory.delete_task(courseid, taskid)
+            course_fs = self.filesystem.from_subfolder(courseid)
+            task_fs = self.filesystem.from_subfolder(taskid)
+            task_fs.delete()
             if data.get("wipe", False):
                 self.wipe_task(courseid, taskid)
             raise web.seeother(self.app.get_homepath() + "/admin/"+courseid+"/tasks")
@@ -129,12 +125,6 @@ class CourseEditTask(INGIniousAdminPage):
                     and not key.startswith("limits")
                     and not key.startswith("/")}
             del data["@action"]
-
-            # Determines the task filetype
-            if data["@filetype"] not in self.task_factory.get_available_task_file_extensions():
-                return json.dumps({"status": "error", "message": _("Invalid file type: {}").format(str(data["@filetype"]))})
-            file_ext = data["@filetype"]
-            del data["@filetype"]
 
             # Parse and order the problems (also deletes @order from the result)
             if problems is None:
@@ -222,18 +212,21 @@ class CourseEditTask(INGIniousAdminPage):
         # Get the course
         try:
             course = self.database.courses.find_one({"_id": courseid})
-            course = WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager)
+            course = WebAppCourse(course["_id"], course, self.filesystem, self.plugin_manager)
         except:
             return json.dumps({"status": "error", "message": _("Error while reading course's informations")})
 
         # Get original data
         try:
-            orig_data = self.task_factory.get_task_descriptor_content(courseid, taskid)
-            data["order"] = orig_data["order"]
-        except:
-            pass
+            orig_data = self.database.tasks.find_one({"courseid": courseid, "taskid": taskid})
+            data["order"] = orig_data.get("order", 0)
+            data["taskid"] = orig_data["taskid"]
+            data["courseid"] = orig_data["courseid"]
+        except Exception as ex:
+            print(str(ex))
 
-        task_fs = self.task_factory.get_task_fs(courseid, taskid)
+        course_fs = self.filesystem.from_subfolder(courseid)
+        task_fs = course_fs.from_subfolder(taskid)
         task_fs.ensure_exists()
 
         # Call plugins and return the first error
@@ -246,7 +239,7 @@ class CourseEditTask(INGIniousAdminPage):
             return error
 
         try:
-            WebAppTask(course, taskid, data, task_fs, None, self.plugin_manager, self.task_factory.get_problem_types())
+            WebAppTask(courseid, taskid, data, self.filesystem, self.plugin_manager, self.problem_types)
         except Exception as message:
             return json.dumps({"status": "error", "message": _("Invalid data: {}").format(str(message))})
 
@@ -264,7 +257,6 @@ class CourseEditTask(INGIniousAdminPage):
                         {"status": "error", "message": _("There was a problem while extracting the zip archive. Some files may have been modified")})
                 task_fs.copy_to(tmpdirname)
 
-        self.task_factory.delete_all_possible_task_files(courseid, taskid)
-        self.task_factory.update_task_descriptor_content(courseid, taskid, data, force_extension=file_ext)
+        self.database.tasks.replace_one({"courseid": courseid, "taskid": taskid}, data)
 
         return json.dumps({"status": "ok"})

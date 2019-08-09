@@ -16,12 +16,12 @@ from inginious.frontend.courses import WebAppCourse
 
 
 class LTIOutcomeManager(threading.Thread):
-    def __init__(self, database, user_manager, task_factory, plugin_manager):
+    def __init__(self, database, user_manager, filesystem, plugin_manager):
         super(LTIOutcomeManager, self).__init__()
         self.daemon = True
         self._database = database
         self._user_manager = user_manager
-        self._task_factory = task_factory
+        self._fs = filesystem
         self._plugin_manager = plugin_manager
         self._queue = queue.Queue()
         self._stopped = False
@@ -45,12 +45,11 @@ class LTIOutcomeManager(threading.Thread):
 
                 try:
                     course = self._database.courses.find_one({"_id": courseid})
-                    course = WebAppCourse(course["_id"], course, self._task_factory, self._plugin_manager)
-                    task = course.get_task(taskid)
+                    course = WebAppCourse(course["_id"], course, self._fs, self._plugin_manager)
 
                     consumer_secret = course.lti_keys()[consumer_key]
 
-                    grade = self._user_manager.get_task_cache(username, course.get_id(), task.get_id())["grade"]
+                    grade = self._user_manager.get_task_cache(username, course.get_id(), taskid)["grade"]
                     grade = grade / 100.0
                     if grade > 1:
                         grade = 1

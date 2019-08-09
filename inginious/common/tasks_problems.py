@@ -213,7 +213,7 @@ class MultipleChoiceProblem(Problem):
         super(MultipleChoiceProblem, self).__init__(task, problemid, content)
         self._header = content['header'] if "header" in content else ""
         self._multiple = content.get("multiple", False)
-        if "choices" not in content or not isinstance(content['choices'], list):
+        if "choices" not in content or not isinstance(content['choices'], (list, tuple)):
             raise Exception("Multiple choice problem " + problemid + " does not have choices or choices are not an array")
         good_choices = []
         bad_choices = []

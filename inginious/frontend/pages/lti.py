@@ -65,7 +65,7 @@ class LTIBindPage(INGIniousAuthPage):
 
         try:
             course = self.database.courses.find_one({"_id": data["task"][0]})
-            course = WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager)
+            course = WebAppCourse(course["_id"], course, self.filesystem, self.plugin_manager)
             if data["consumer_key"] not in course.lti_keys().keys():
                 raise Exception()
         except:
@@ -109,7 +109,7 @@ class LTILoginPage(INGIniousPage):
 
         try:
             course = self.database.courses.find_one({"_id": data["task"][0]})
-            course = WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager)
+            course = WebAppCourse(course["_id"], course, self.filesystem, self.plugin_manager)
             if data["consumer_key"] not in course.lti_keys().keys():
                 raise Exception()
         except:
@@ -152,7 +152,7 @@ class LTILaunchPage(INGIniousPage):
 
         try:
             course = self.database.courses.find_one({"_id": courseid})
-            course = WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager)
+            course = WebAppCourse(course["_id"], course, self.filesystem, self.plugin_manager)
         except exceptions.CourseNotFoundException as ex:
             raise web.notfound(str(ex))
 

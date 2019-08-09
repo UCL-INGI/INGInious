@@ -33,14 +33,6 @@ inginious.common.base module
     :undoc-members:
     :show-inheritance:
 
-inginious.common.courses module
--------------------------------
-
-.. automodule:: inginious.common.courses
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 inginious.common.custom_yaml module
 -----------------------------------
 
@@ -87,14 +79,6 @@ inginious.common.messages module
 --------------------------------
 
 .. automodule:: inginious.common.messages
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-inginious.common.task_factory module
-------------------------------------
-
-.. automodule:: inginious.common.task_factory
     :members:
     :undoc-members:
     :show-inheritance:

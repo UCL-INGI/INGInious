@@ -5,10 +5,12 @@
 
 """ Tasks """
 
+from collections import OrderedDict
+
 from inginious.frontend.pages.api._api_page import APIAuthenticatedPage, APINotFound, APIForbidden
 from inginious.frontend.parsable_text import ParsableText
 from inginious.frontend.courses import WebAppCourse
-
+from inginious.frontend.tasks import WebAppTask
 
 class APITasks(APIAuthenticatedPage):
     r"""
@@ -60,7 +62,7 @@ class APITasks(APIAuthenticatedPage):
 
         try:
             course = self.database.courses.find_one({"_id": courseid})
-            course = WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager)
+            course = WebAppCourse(course["_id"], course, self.filesystem, self.plugin_manager)
         except:
             raise APINotFound("Course not found")
 
@@ -68,7 +70,8 @@ class APITasks(APIAuthenticatedPage):
             raise APIForbidden("You are not registered to this course")
 
         if taskid is None:
-            tasks = course.get_tasks()
+            task_descs = self.database.tasks.find({"courseid": course.get_id()}).sort("order")
+            tasks = OrderedDict((task_desc["taskid"], WebAppTask(course.get_id(), task_desc["taskid"], task_desc, self.filesystem, self.plugin_manager, self.problem_types)) for task_desc in task_descs)
         else:
             try:
                 tasks = {taskid: course.get_task(taskid)}

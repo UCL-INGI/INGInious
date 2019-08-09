@@ -34,7 +34,8 @@ class CourseDownloadSubmissions(INGIniousSubmissionAdminPage):
         if "filter_type" not in user_input or "type" not in user_input or "format" not in user_input or user_input.format not in self.valid_formats():
             raise web.notfound()
 
-        tasks = list(course.get_tasks().keys())
+        task_descs = self.database.tasks.find({"courseid": course.get_id()}).sort("order")
+        tasks = [task_desc["taskid"] for task_desc in task_descs]
         for i in user_input.tasks:
             if i not in tasks:
                 raise web.notfound()

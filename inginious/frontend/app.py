@@ -29,7 +29,6 @@ from web.debugerror import debugerror, emailerrors
 import inginious.frontend.pages.preferences.utils as preferences_utils
 from inginious import get_root_path
 from inginious.common.entrypoints import filesystem_from_config_dict
-from inginious.common.task_factory import TaskFactory
 from inginious.common.filesystems.local import LocalFSProvider
 from inginious.frontend.lti_outcome_manager import LTIOutcomeManager
 
@@ -195,15 +194,13 @@ def get_app(config):
                                                                    DisplayableMatchProblem]
     }
 
-    task_factory = TaskFactory(fs_provider, plugin_manager, default_problem_types, WebAppTask)
-
     user_manager = UserManager(appli.get_session(), database, config.get('superadmins', []))
 
     update_pending_jobs(database)
 
-    client = create_arch(config, task_factory, zmq_context)
+    client = create_arch(config, fs_provider, default_problem_types, zmq_context)
 
-    lti_outcome_manager = LTIOutcomeManager(database, user_manager, task_factory, plugin_manager)
+    lti_outcome_manager = LTIOutcomeManager(database, user_manager, fs_provider, plugin_manager)
 
     submission_manager = WebAppSubmissionManager(client, user_manager, database, gridfs, plugin_manager, lti_outcome_manager)
 
@@ -255,8 +252,9 @@ def get_app(config):
         appli.internalerror = emailerrors(web_debug, appli.internalerror)
 
     # Insert the needed singletons into the application, to allow pages to call them
+    appli.problem_types = default_problem_types
+    appli.filesystem = fs_provider
     appli.plugin_manager = plugin_manager
-    appli.task_factory = task_factory
     appli.submission_manager = submission_manager
     appli.user_manager = user_manager
     appli.template_helper = template_helper
@@ -278,7 +276,7 @@ def get_app(config):
     appli.init_mapping(urls)
 
     # Loads plugins
-    plugin_manager.load(client, appli, task_factory, database, user_manager, submission_manager, config.get("plugins", []))
+    plugin_manager.load(client, appli, database, user_manager, submission_manager, config.get("plugins", []))
 
     # Start the inginious.backend
     client.start()

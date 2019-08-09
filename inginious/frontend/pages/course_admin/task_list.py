@@ -7,6 +7,7 @@ from collections import OrderedDict
 
 import web
 
+from inginious.frontend.tasks import WebAppTask
 from inginious.frontend.pages.course_admin.utils import make_csv, INGIniousAdminPage
 
 
@@ -27,9 +28,9 @@ class CourseTaskListPage(INGIniousAdminPage):
             # Change tasks order
             for index, taskid in enumerate(data["task"]):
                 try:
-                    task = self.task_factory.get_task_descriptor_content(courseid, taskid)
-                    task["order"] = index
-                    self.task_factory.update_task_descriptor_content(courseid, taskid, task)
+                    task_desc = self.database.tasks.find_one({"courseid": courseid, "taskid": taskid})
+                    task_desc["order"] = index
+                    self.database.replace_one({"courseid": courseid, "taskid": taskid}, task_desc)
                 except:
                     pass
 
@@ -63,12 +64,12 @@ class CourseTaskListPage(INGIniousAdminPage):
             ]))
 
         # Load tasks and verify exceptions
-        files = self.task_factory.get_readable_tasks(course.get_id())
+        task_descs = OrderedDict((t["taskid"], t) for t in self.database.tasks.find({"courseid": course.get_id()}).sort("order"))
         output = {}
         errors = []
-        for task in files:
+        for task in task_descs:
             try:
-                output[task] = course.get_task(task)
+                output[task] = WebAppTask(course.get_id(), task_descs[task]["taskid"], task_descs[task], self.filesystem,  self.plugin_manager, self.problem_types)
             except Exception as inst:
                 errors.append({"taskid": task, "error": str(inst)})
         tasks = OrderedDict(sorted(list(output.items()), key=lambda t: (t[1].get_order(), t[1].get_id())))

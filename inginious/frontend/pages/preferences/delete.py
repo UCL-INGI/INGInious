@@ -30,7 +30,7 @@ class DeletePage(INGIniousAuthPage):
             self.database.submissions.remove({"username": username})
             self.database.user_tasks.remove({"username": username})
 
-            all_courses = {course["_id"]: WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager) for course in self.database.courses.find()}
+            all_courses = {course["_id"]: WebAppCourse(course["_id"], course, self.filesystem, self.plugin_manager) for course in self.database.courses.find()}
 
             for courseid, course in all_courses.items():
                 if self.user_manager.course_is_open_to_user(course, username):

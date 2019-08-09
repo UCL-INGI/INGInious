@@ -138,7 +138,7 @@ class MetadataPage(INGIniousPage):
             return ', '.join(errors)
 
 
-def init(plugin_manager, task_factory, client, conf):
+def init(plugin_manager, client, conf):
     plugin_manager.add_page(r'/auth/([^/]+)/metadata', MetadataPage)
     plugin_manager.register_auth_method(SAMLAuthMethod(conf.get("id"), conf.get('name', 'SAML'), conf.get('imlink', ''), conf))
 

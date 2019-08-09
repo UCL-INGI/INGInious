@@ -50,7 +50,8 @@ class LTIBestSubmissionPage(INGIniousAuthPage):
         # attach the input to the submission
         best_sub = self.submission_manager.get_input_from_submission(best_sub)
 
-        task = self.task_factory.get_task(courseid, taskid)
+        task_desc = self.database.tasks.find_one({"courseid": courseid, "taskid": taskid})
+        task = WebAppTask(courseid, task_desc["taskid"], task_desc, self.filesystem, self.plugin_manager, self.problem_types)
         question_answer_list = []
         for problem in task.get_problems():
             answer = best_sub["input"][problem.get_id()]

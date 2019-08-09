@@ -14,7 +14,7 @@ from inginious.client.client_sync import ClientSync
 from inginious.frontend.pages.utils import INGIniousPage
 from inginious.frontend.courses import WebAppCourse
 
-def init(plugin_manager, task_factory, client, config):
+def init(plugin_manager, client, config):
     """
         Init the external grader plugin. This simple grader allows only anonymous requests, and submissions are not stored in database.
 
@@ -67,7 +67,7 @@ def init(plugin_manager, task_factory, client, config):
         def POST(self):
             """ POST request """
             course = self.database.courses.find_one({"_id": courseid})
-            course = WebAppCourse(course["_id"], course, self.task_factory, self.plugin_manager)
+            course = WebAppCourse(course["_id"], course, self.filesystem, self.plugin_manager)
 
             web.header('Access-Control-Allow-Origin', '*')
             web.header('Content-Type', 'application/json')

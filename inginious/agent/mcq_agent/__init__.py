@@ -9,20 +9,21 @@ import gettext
 from inginious.agent import Agent, CannotCreateJobException
 from inginious import get_root_path
 from inginious.common.messages import BackendNewJob, BackendKillJob
-from inginious.common.tasks_problems import MultipleChoiceProblem, MatchProblem
 import os.path
+from inginious.common.tasks import Task
 
 class MCQAgent(Agent):
-    def __init__(self, context, backend_addr, friendly_name, concurrency, task_factory):
+    def __init__(self, context, backend_addr, friendly_name, concurrency, filesystem, problem_types):
         """
         :param context: ZeroMQ context for this process
         :param backend_addr: address of the backend (for example, "tcp://127.0.0.1:2222")
         :param friendly_name: a string containing a friendly name to identify agent
-        :param task_factory: Task factory used to get tasks
+        :param filesystem: Tasks filesystem
+        :param problem_types: Available problem types
         """
-        super().__init__(context, backend_addr, friendly_name, concurrency, task_factory)
+        super().__init__(context, backend_addr, friendly_name, concurrency, filesystem)
         self._logger = logging.getLogger("inginious.agent.mcq")
-        self.task_factory = task_factory
+        self._problem_types = problem_types
 
         # Init gettext
         self._translations = {"en": gettext.NullTranslations()}
@@ -38,7 +39,7 @@ class MCQAgent(Agent):
     async def new_job(self, msg: BackendNewJob):
         try:
             self._logger.info("Received request for jobid %s", msg.job_id)
-            task = self.task_factory.get_task(msg.course_id, msg.task_id)
+            task = Task(msg.course_id, msg.task_id, msg.task_data, self._fs, None, self._problem_types)
         except asyncio.CancelledError:
             raise
         except Exception as e:
