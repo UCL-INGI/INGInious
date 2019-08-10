@@ -61,7 +61,8 @@ class LDAPAuthenticationPage(AuthenticationPage):
     def GET(self, id):
         settings = self.user_manager.get_auth_method(id).get_settings()
         return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(settings,
-                                                                                                         False)
+                                                                                                  False)
+
     @staticmethod
     def _ldap_request(login, password, host, port=None, encryption=None, bind_dn=None, bind_password=None,
                       bind_password_file=None, base_dn=None, request=None, start_tls='NONE', cn='cn', mail='mail',
@@ -168,52 +169,18 @@ class LDAPAuthenticationPage(AuthenticationPage):
                 settings, "Empty password")
 
         try:
-            # Connect to the ldap
-            logger.debug('Connecting to ' + settings['host'] + ", port " + str(settings['port']))
-            conn = ldap3.Connection(
-                ldap3.Server(settings['host'], port=settings['port'], use_ssl=settings["encryption"] == 'ssl',
-                             get_info=ldap3.ALL), auto_bind=True)
-            logger.debug('Connected to ' + settings['host'] + ", port " + str(settings['port']))
+            email, username, realname = self._ldap_request(login, password, **settings)
         except Exception as e:
-            logger.exception("Can't initialze connection to " + settings['host'] + ': ' + str(e))
-            return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(
-                settings, "Cannot contact host")
+            return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(settings,
+                                                                                                      str(e))
+        if not email or not username or not realname:
+            # Unknown Auth Error
+            return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(settings,
+                                                                                                      'Unknown error')
 
-        try:
-            request = settings["request"].format(login)
-            conn.search(settings["base_dn"], request, attributes=["cn", "mail"])
-            user_data = conn.response[0]
-        except Exception as ex:
-            logger.exception("Can't get user data : " + str(ex))
-            conn.unbind()
-            return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(
-                settings, "Unknown user")
-
-        if conn.rebind(user_data['dn'], password=password):
-            try:
-                email = user_data["attributes"][settings.get("mail", "mail")][0]
-                username = login
-                realname = user_data["attributes"][settings.get("cn", "cn")][0]
-            except KeyError as e:
-                logger.exception("Can't get field " + str(e) + " from your LDAP server")
-                return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(
-                    settings, "Can't get field " + str(e) + " from your LDAP server")
-            except Exception as e:
-                logger.exception("Can't get some user fields")
-                return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(
-                settings, "Can't get some user fields")
-
-            conn.unbind()
-
-            self.user_manager.bind_user(id, (username, realname, email))
-            
-            auth_storage = self.user_manager.session_auth_storage().setdefault(id, {})
-            raise web.seeother(auth_storage.get("redir_url", "/"))
-        else:
-            logger.debug('Auth Failed')
-            conn.unbind()
-            return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(
-                settings, "Incorrect password")
+        self.user_manager.bind_user(id, (username, realname, email))
+        auth_storage = self.user_manager.session_auth_storage().setdefault(id, {})
+        raise web.seeother(auth_storage.get("redir_url", "/"))
 
 
 def init(plugin_manager, _, _2, conf):
