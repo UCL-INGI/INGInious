@@ -25,6 +25,7 @@ import sphinx_rtd_theme
 import sys
 from mock import Mock as MagicMock
 
+
 class Mock(MagicMock):
     @classmethod
     def __getattr__(cls, name):
@@ -62,7 +63,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'INGInious'
-copyright = '2014-2018, the INGInious authors'
+copyright = '2014-2019, the INGInious authors'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
