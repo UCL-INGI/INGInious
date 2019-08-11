@@ -166,6 +166,25 @@ Most of the parameters are self-explaining, but:
 ``request``
     is the request made to the LDAP server to search the user to authentify. "{}" is replaced by the username indicated by the user.
 
+
+Additional parameters to fine tune ldap authentication -- normaly not necessary:
+
+``start_tls``
+    see auto_bind at https://ldap3.readthedocs.io/connection.html
+
+    possible values: 'NO_TLS', 'TLS_AFTER_BIND', 'TLS_BEFORE_BIND', default: 'NONE'
+
+Use fixed username/password to bind to ldap sever:
+
+``bind_dn``
+    use this username
+
+``bind_password``
+    use this password
+
+``bind_password_file``
+    use first line from file as password
+
 SAML2/Shibboleth
 !!!!!!!!!!!!!!!!
 

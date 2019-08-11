@@ -208,6 +208,15 @@ def init(plugin_manager, _, _2, conf):
         *request*
             Request made to the server in order to find the dn of the user. The characters "{}" will be replaced by the login name.
 
+        Additional parameters to fine tune ldap authentication -- normaly not necessary:
+        *start_tls*: see auto_bind at https://ldap3.readthedocs.io/connection.html
+           possible values: 'NO_TLS', 'TLS_AFTER_BIND', 'TLS_BEFORE_BIND'
+           default: ldap3.AUTO_BIND_NONE
+
+        Use fixed username/password to bind to ldap sever:
+        *bind_dn*: use this username
+        *bind_password*: use this password
+        *bind_password_file*: use first line from file as password
     """
 
     encryption = conf.get("encryption", "none")
