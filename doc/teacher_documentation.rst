@@ -13,3 +13,4 @@ Contents:
    teacher_doc/create_container
    teacher_doc/course_admin
    teacher_doc/lti
+   teacher_doc/rst
