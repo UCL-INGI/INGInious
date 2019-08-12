@@ -8,8 +8,7 @@ import sys
 from pymongo import MongoClient
 
 from wsgidav import util, wsgidav_app
-import wsgidav.wsgidav_app
-import wsgidav.error_printer
+from wsgidav.dav_error import DAVError, HTTP_NOT_FOUND
 from wsgidav.dc.base_dc import BaseDomainController
 from wsgidav.dav_provider import DAVProvider
 from wsgidav.fs_dav_provider import FolderResource, FileResource
@@ -18,7 +17,6 @@ from inginious.common.filesystems.local import LocalFSProvider
 from inginious.frontend.user_manager import UserManager
 from inginious.frontend.session_mongodb import MongoStore
 from inginious.frontend.courses import WebAppCourse
-from inginious.frontend.tasks import WebAppTask
 
 
 def get_dc(database, user_manager, filesystem):
@@ -52,15 +50,17 @@ def get_dc(database, user_manager, filesystem):
         def basic_auth_user(self, realmname, username, password, environ):
             """Returns True if this username/password pair is valid for the realm,
             False otherwise. Used for basic authentication."""
-            try:
-                course = database.courses.find_one({"_id": realmname})
-                course = WebAppCourse(course["_id"], course, filesystem, None)
-                if not user_manager.has_admin_rights_on_course(course, username=username):
-                    return False
-                apikey = user_manager.get_user_api_key(username, create=None)
-                return apikey is not None and password == apikey
-            except Exception as ex:
+            course = database.courses.find_one({"_id": realmname})
+            if not course:
+                raise DAVError(HTTP_NOT_FOUND, "Could not find '{}'".format(realmname))
+            course = WebAppCourse(course["_id"], course, filesystem, None)
+            if not user_manager.has_admin_rights_on_course(course, username=username):
                 return False
+            apikey = user_manager.get_user_api_key(username, create=None)
+            return apikey is not None and password == apikey
+
+        def digest_auth_user(self, realm, user_name, environ):
+            return False
 
     return INGIniousDAVDomainController
 
@@ -146,12 +146,6 @@ def get_app(config):
     config["http_authenticator"]["accept_basic"] = True
     config["http_authenticator"]["accept_digest"] = False
     config["http_authenticator"]["default_to_digest"] = False
-
-    #config["verbose"] = 5
-
-    #import logging
-    #wsgidav.wsgidav_app._logger.addHandler(logging.StreamHandler(sys.stdout))
-    #wsgidav.error_printer._logger.addHandler(logging.StreamHandler(sys.stdout))
 
     app = wsgidav_app.WsgiDAVApp(config)
 
