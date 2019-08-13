@@ -7,8 +7,7 @@
 
 import gettext
 import copy
-from collections import OrderedDict
-from natsort import natsorted
+import logging
 
 from inginious.common.tags import Tag
 from inginious.frontend.accessible_time import AccessibleTime
@@ -17,6 +16,7 @@ from inginious.frontend.parsable_text import ParsableText
 
 class WebAppCourse(object):
     """ A course with some modification for users """
+    _logger = logging.getLogger("inginious.webapp.courses")
 
     def gettext(self, language, *args, **kwargs):
         translation = self._translations.get(language, gettext.NullTranslations())
@@ -51,7 +51,11 @@ class WebAppCourse(object):
             for f in translations_fs.list(folders=False, files=True, recursive=False):
                 lang = f[0:len(f) - 3]
                 if translations_fs.exists(lang + ".mo"):
-                    self._translations[lang] = gettext.GNUTranslations(translations_fs.get_fd(lang + ".mo"))
+                    try:
+                        #TODO temporary workaround to avoid crash while updating translations via webdav
+                        self._translations[lang] = gettext.GNUTranslations(translations_fs.get_fd(lang + ".mo"))
+                    except Exception as e:
+                        self._logger.error(str(e))
                 else:
                     self._translations[lang] = gettext.NullTranslations()
 
