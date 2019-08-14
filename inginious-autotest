@@ -10,18 +10,16 @@
 import argparse
 import os
 import time
-import json
 import sys
 
 from yaml import SafeLoader
-
-from inginious.common.tags import Tag
+from inginious.common import custom_yaml
+from inginious.common.tasks import Task
+from inginious.common.hook_manager import HookManager
 from inginious.frontend.tasks import WebAppTask
-from inginious.frontend.parsable_text import ParsableText
 from inginious.common.log import init_logging
 from inginious.client.client_sync import ClientSync
 from inginious.frontend.arch_helper import start_asyncio_and_zmq, create_arch
-from yaml import load
 from inginious.common.filesystems.local import LocalFSProvider
 from inginious.frontend.task_problems import *
 
@@ -150,17 +148,14 @@ def test_web_task(yaml_data, task, config, yaml_path):
     """
     try:
         web_task = WebAppTask(
-            task.get_course_id(),
+            task.get_courseid(),
             task.get_id(),
             yaml_data,
             task.get_fs(),
-            task.get_translation_fs(),
             task.get_hook(),
             config["default_problem_types"]
         )  # Test of init a web task with the yaml_data. if the values are incorrect, exception will be raised
-        web_task.get_context('English').parse(debug=True)  # Test of compiling the context
-        if not Tag.check_format(web_task.get_tags()):
-            raise BaseException("Tag type not correct")
+        web_task.get_context(task.get_courseid(), 'en').parse(debug=True)  # Test of compiling the context
         if web_task.get_evaluate() not in ["best", "last", "student"]:
             raise BaseException("Not correct evaluation type")
         for sub_prob in yaml_data["problems"]:
@@ -172,12 +167,12 @@ def test_web_task(yaml_data, task, config, yaml_path):
         return yaml_data
 
 
-def test_submission_yaml(client, filesystem, path, output, client_sync):
+def test_submission_yaml(client, filesystem, path, output, client_sync, config):
     """
     Test the content of a submission.test yaml by comparing it to the output of the client for this task and the same
     input.
     :param client: Client object
-    :param task_factory: TaskFactory object
+    :param filesystem: Filesystem object
     :param path: String, path to the submission.test
     :param output: dict, output variable
     :param client_sync: ClientSync object, client_sync = ClientSync(client)
@@ -185,8 +180,8 @@ def test_submission_yaml(client, filesystem, path, output, client_sync):
     """
     # print(os.path.join(test_path, yaml_file.name))
     with open(path, 'r') as yaml:
-        yaml_data = load(yaml, Loader=SafeLoader)
-        res = test_task(yaml_data, task_factory.get_task(yaml_data["courseid"], yaml_data["taskid"]), client, client_sync)
+        yaml_data = custom_yaml.load(yaml, Loader=SafeLoader)
+        res = test_task(yaml_data, get_task(filesystem, yaml_data["courseid"], yaml_data["taskid"], config["default_problem_types"]), client, client_sync)
         if res != {}:
             output[path] = res
 
@@ -196,17 +191,23 @@ def test_task_yaml(path, output, filesystem, task_name, course_name, config):
     Test the format and content of a task.yaml file and, if incorrect, the data is stored in the output dict
     :param path: path to the task.yaml
     :param output: output dictionary
-    :param task_factory: TaskFactory object
+    :param filesystem: Filesystem object
     :param task_name: String, name of the task
     :param course_name: String, name of the course
     :param config: dict, contains configuration variable
     :return: None
     """
     with open(path, 'r') as yaml_file:
-        yaml_data = load(yaml_file, Loader=SafeLoader)
-    res = test_web_task(yaml_data, task_factory.get_task(course_name, task_name), config, path)
+        yaml_data = custom_yaml.load(yaml_file, Loader=SafeLoader)
+    res = test_web_task(yaml_data, get_task(filesystem, course_name, task_name, config["default_problem_types"]), config, path)
     if res != {}:
         output[path] = res
+
+
+def get_task(filesystem, courseid, taskid, problem_types):
+    task_fs = filesystem.from_subfolder(courseid).from_subfolder(taskid)
+    task_desc = custom_yaml.load(task_fs.get("task.yaml"))
+    return Task(courseid, taskid, task_desc, filesystem, HookManager(), problem_types)
 
 
 def test_all_files(config, client, filesystem):
@@ -215,7 +216,7 @@ def test_all_files(config, client, filesystem):
     the test_task function
     :param config: dict for configuration
     :param client: backend client of type Client
-    :param task_factory: TaskFactory object
+    :param filesystem: Filesystem object
     :return: None
     """
     test_output = {}
@@ -232,7 +233,7 @@ def test_all_files(config, client, filesystem):
                     test_files = os.scandir(test_path)
                     for yaml_file in test_files:
                         if not yaml_file.name.startswith('.') and yaml_file.is_file():  # Exclude possible failures
-                            test_submission_yaml(client, filesystem, yaml_file.path, test_output, client_sync)
+                            test_submission_yaml(client, filesystem, yaml_file.path, test_output, client_sync, config)
                 task_yaml_path = os.path.join(task.path, "task.yaml")
                 test_task_yaml(task_yaml_path, test_output, filesystem, task.name, os.path.split(dir_path)[1], config)
     if test_output != {}:  # errors in task.yaml ou submission.test
@@ -291,11 +292,8 @@ if __name__ == "__main__":
 
     try:
         client = create_client(config, fs_provider, problem_types)
-
         client.start()
-
         test_all_files(config, client, fs_provider)
-
     except BaseException as e:
         print("\nAn error has occured: {}\n".format(e), file=sys.stderr)
         exit(66)

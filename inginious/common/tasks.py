@@ -59,20 +59,20 @@ class Task(object):
         self._task_fs = self._course_fs.from_subfolder(taskid)
         self._task_fs.ensure_exists()
 
-        translations_fs = self._task_fs.from_subfolder("$i18n")
+        self._translations_fs = self._task_fs.from_subfolder("$i18n")
 
-        if not translations_fs.exists():
-            translations_fs = self._task_fs.from_subfolder("student").from_subfolder("$i18n")
-        if not translations_fs.exists():
-            translations_fs = self._course_fs.from_subfolder("$common").from_subfolder("$i18n")
-        if not translations_fs.exists():
-            translations_fs = self._course_fs.from_subfolder("$common").from_subfolder("student").from_subfolder("$i18n")
+        if not self._translations_fs.exists():
+            self._translations_fs = self._task_fs.from_subfolder("student").from_subfolder("$i18n")
+        if not self._translations_fs.exists():
+            self._translations_fs = self._course_fs.from_subfolder("$common").from_subfolder("$i18n")
+        if not self._translations_fs.exists():
+            self._translations_fs = self._course_fs.from_subfolder("$common").from_subfolder("student").from_subfolder("$i18n")
 
-        if translations_fs.exists():
-            for f in translations_fs.list(folders=False, files=True, recursive=False):
+        if self._translations_fs.exists():
+            for f in self._translations_fs.list(folders=False, files=True, recursive=False):
                 lang = f[0:len(f) - 3]
-                if translations_fs.exists(lang + ".mo"):
-                    self._translations[lang] = gettext.GNUTranslations(translations_fs.get_fd(lang + ".mo"))
+                if self._translations_fs.exists(lang + ".mo"):
+                    self._translations[lang] = gettext.GNUTranslations(self._translations_fs.get_fd(lang + ".mo"))
                 else:
                     self._translations[lang] = gettext.NullTranslations()
 

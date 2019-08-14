@@ -292,7 +292,8 @@ class Client(BetterParanoidPirateClient):
 
         run_cmd = task.get_custom_run_cmd()
         test_dict = task.get_descriptor()
-        del test_dict["_id"]
+        if "_id" in test_dict:
+            del test_dict["_id"]
         msg = ClientNewJob(job_id, priority, task.get_courseid(), task.get_id(), test_dict, inputdata, debug, launcher_name, run_cmd)
         self._loop.call_soon_threadsafe(asyncio.ensure_future, self._create_transaction(msg, task=task, callback=callback,
                                                                                         ssh_callback=ssh_callback))
