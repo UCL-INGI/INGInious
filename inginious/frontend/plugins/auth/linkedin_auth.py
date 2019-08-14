@@ -16,7 +16,7 @@ from inginious.frontend.user_manager import AuthMethod
 
 authorization_base_url = 'https://www.linkedin.com/uas/oauth2/authorization'
 token_url = 'https://www.linkedin.com/uas/oauth2/accessToken'
-scope = ["r_basicprofile", "r_emailaddress"]
+scope = ["r_liteprofile", "r_basicprofile", "r_emailaddress"]
 
 
 class LinkedInAuthMethod(AuthMethod):
@@ -33,48 +33,25 @@ class LinkedInAuthMethod(AuthMethod):
     def callback(self, auth_storage):
         linkedin = OAuth2Session(self._client_id, state=auth_storage["oauth_state"], redirect_uri=web.ctx.home + self._callback_page)
         try:
-            linkedin.fetch_token(token_url, client_secret=self._client_secret,
+            linkedin.fetch_token(token_url, include_client_id=True, client_secret=self._client_secret,
                                  authorization_response=web.ctx.home + web.ctx.fullpath)
-            r = linkedin.get('https://api.linkedin.com/v1/people/~:(id,first-name,last-name,email-address)?format=json')
+            r = linkedin.get('https://api.linkedin.com/v2/me?projection=(id,localizedFirstName,localizedLastName)')
             profile = json.loads(r.content.decode('utf-8'))
-            auth_storage["session"] = linkedin
-            return str(profile["id"]), profile["firstName"] + " " + profile["lastName"], profile["emailAddress"]
-        except:
+            r = linkedin.get('https://api.linkedin.com/v2/clientAwareMemberHandles?q=members&projection=(elements*(primary,type,handle~))')
+            result  = json.loads(r.content.decode('utf-8'))
+            for contact in result["elements"]:
+                if contact["type"] == "EMAIL":
+                    profile["emailAddress"] = contact["handle~"]["emailAddress"]
+                    break
+            return str(profile["id"]), profile["localizedFirstName"] + " " + profile["localizedLastName"], profile["emailAddress"]
+        except Exception as e:
             return None
 
     def share(self, auth_storage, course, task, submission, language):
-        linkedin = auth_storage.get("session", None)
-        if linkedin:
-            r = linkedin.request("POST",
-                                 "https://api.linkedin.com/v1/people/~/shares?format=json",
-                                 json={
-                                     "comment": _("Check out INGInious course {course} and beat my score of {score}% on task {task} !").format(
-                                         course=course.get_name(language),
-                                         task=task.get_name(language),
-                                         score=submission["grade"]
-                                     ),
-                                     "content": {
-                                         "title":
-                                             _("INGInious | {course} - {task}").format(
-                                                 course=course.get_name(language),
-                                                 task=task.get_name(language)
-                                             ),
-                                         "description": _("Check out INGInious course {course} and beat my score of {score}% on task {task} !").format(
-                                             course=course.get_name(language),
-                                             task=task.get_name(language),
-                                             score=submission["grade"]
-                                         ),
-                                         "submitted-url": web.ctx.home + "/course/" + course.get_id() + "/" + task.get_id(),
-                                         "submitted-image-url": "http://www.inginious.org/assets/img/header.png"},
-                                     "visibility": {
-                                         "code": "anyone"
-                                     }
-                                 }, headers={"Content-Type": "application/json", "x-li-format": "json"})
-            result = json.loads(r.content.decode('utf-8'))
-            return "updateKey" in result
+        return False
 
     def allow_share(self):
-        return True
+        return False
 
     def get_id(self):
         return self._id

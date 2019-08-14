@@ -18,7 +18,7 @@ import web
 from inginious.frontend.accessible_time import AccessibleTime
 from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 
-import inginious.common.custom_yaml
+from inginious.common.base import dict_from_prefix
 from inginious.common.base import id_checker
 from inginious.frontend.pages.course_admin.task_edit_file import CourseTaskFiles
 from inginious.frontend.tasks import WebAppTask
@@ -79,37 +79,6 @@ class CourseEditTask(INGIniousAdminPage):
                 return True
         return False
 
-    @classmethod
-    def dict_from_prefix(cls, prefix, dictionary):
-        """
-            >>> from collections import OrderedDict
-            >>> od = OrderedDict()
-            >>> od["problem[q0][a]"]=1
-            >>> od["problem[q0][b][c]"]=2
-            >>> od["problem[q1][first]"]=1
-            >>> od["problem[q1][second]"]=2
-            >>> AdminCourseEditTask.dict_from_prefix("problem",od)
-            OrderedDict([('q0', OrderedDict([('a', 1), ('b', OrderedDict([('c', 2)]))])), ('q1', OrderedDict([('first', 1), ('second', 2)]))])
-        """
-        o_dictionary = OrderedDict()
-        for key, val in dictionary.items():
-            if key.startswith(prefix):
-                o_dictionary[key[len(prefix):].strip()] = val
-        dictionary = o_dictionary
-
-        if len(dictionary) == 0:
-            return None
-        elif len(dictionary) == 1 and "" in dictionary:
-            return dictionary[""]
-        else:
-            return_dict = OrderedDict()
-            for key, val in dictionary.items():
-                ret = re.search(r"^\[([^\]]+)\](.*)$", key)
-                if ret is None:
-                    continue
-                return_dict[ret.group(1)] = cls.dict_from_prefix("[{}]".format(ret.group(1)), dictionary)
-            return return_dict
-
     def parse_problem(self, problem_content):
         """ Parses a problem, modifying some data """
         del problem_content["@order"]
@@ -152,48 +121,12 @@ class CourseEditTask(INGIniousAdminPage):
                 task_zip = None
             del data["task_file"]
 
-            problems = self.dict_from_prefix("problem", data)
-            limits = self.dict_from_prefix("limits", data)
-
-            #Tags
-            tags = self.dict_from_prefix("tags", data)
-            if tags is None:
-                tags = {}
-            tags = OrderedDict(sorted(tags.items(), key=lambda item: item[0])) # Sort by key
-
-            # Repair tags
-            for k in tags:
-                tags[k]["visible"] = ("visible" in tags[k])  # Since unckecked checkboxes are not present here, we manually add them to avoid later errors
-                tags[k]["type"] = int(tags[k]["type"])
-                if not "id" in tags[k]:
-                    tags[k]["id"] = "" # Since textinput is disabled when the tag is organisational, the id field is missing. We add it to avoid Keys Errors
-                if tags[k]["type"] == 2:
-                    tags[k]["id"] = "" # Force no id if organisational tag
-
-            # Remove uncompleted tags (tags with no name or no id)
-            for k in list(tags.keys()):
-                if (tags[k]["id"] == "" and tags[k]["type"] != 2) or tags[k]["name"] == "":
-                    del tags[k]
-
-            # Find duplicate ids. Return an error if some tags use the same id.
-            for k in tags:
-                if tags[k]["type"] != 2: # Ignore organisational tags since they have no id.
-                    count = 0
-                    id = str(tags[k]["id"])
-                    if (" " in id):
-                        return json.dumps({"status": "error", "message": _("You can not use spaces in the tag id field.")})
-                    if not id_checker(id):
-                        return json.dumps({"status": "error", "message": _("Invalid tag id: {}").format(id)})
-                    for k2 in tags:
-                        if tags[k2]["type"] != 2 and tags[k2]["id"] == id:
-                            count = count+1
-                    if count > 1:
-                        return json.dumps({"status": "error", "message": _("Some tags have the same id! The id of a tag must be unique.")})
+            problems = dict_from_prefix("problem", data)
+            limits = dict_from_prefix("limits", data)
 
             data = {key: val for key, val in data.items() if
                     not key.startswith("problem")
                     and not key.startswith("limits")
-                    and not key.startswith("tags")
                     and not key.startswith("/")}
             del data["@action"]
 
@@ -210,9 +143,15 @@ class CourseEditTask(INGIniousAdminPage):
                 data["problems"] = OrderedDict([(key, self.parse_problem(val))
                                                 for key, val in sorted(iter(problems.items()), key=lambda x: int(x[1]['@order']))])
 
+            # Categories
+            course_tags = course.get_tags()
+            data['categories'] = [cat for cat in map(str.strip, data['categories'].split(',')) if cat]
+            for category in data['categories']:
+                if category not in course_tags:
+                    return json.dumps({"status": "error", "message": _("Unknown category tag.")})
+
             # Task limits
             data["limits"] = limits
-            data["tags"] = OrderedDict(sorted(tags.items(), key=lambda x: x[1]['type']))
             if "hard_time" in data["limits"] and data["limits"]["hard_time"] == "":
                 del data["limits"]["hard_time"]
 
@@ -326,6 +265,5 @@ class CourseEditTask(INGIniousAdminPage):
 
         self.task_factory.delete_all_possible_task_files(courseid, taskid)
         self.task_factory.update_task_descriptor_content(courseid, taskid, data, force_extension=file_ext)
-        course.update_all_tags_cache()
 
         return json.dumps({"status": "ok"})

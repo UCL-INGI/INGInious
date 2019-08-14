@@ -17,7 +17,8 @@ authorization_base_url = 'https://accounts.google.com/o/oauth2/v2/auth'
 token_url = 'https://www.googleapis.com/oauth2/v4/token'
 scope = [
     "https://www.googleapis.com/auth/userinfo.email",
-    "https://www.googleapis.com/auth/userinfo.profile"
+    "https://www.googleapis.com/auth/userinfo.profile",
+    "openid"
 ]
 
 class GoogleAuthMethod(AuthMethod):
@@ -41,7 +42,6 @@ class GoogleAuthMethod(AuthMethod):
 
             response = google.get('https://www.googleapis.com/oauth2/v3/userinfo')
             profile = json.loads(response.content.decode('utf-8'))
-            auth_storage["session"] = google
             return str(profile["sub"]), profile["name"], profile["email"]
         except Exception as e:
             return None

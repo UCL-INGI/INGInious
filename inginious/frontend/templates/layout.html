@@ -50,6 +50,19 @@ $#
     <meta name="msapplication-TileImage" content="$get_homepath(True)/static/icons/mstile-144x144.png">
     <meta name="msapplication-config" content="$get_homepath(True)/static/icons/browserconfig.xml">
 
+    $if sentry_io_url:
+        <script src="$get_homepath(True)/static/js/libs/sentry-io-bundle.min.js" type="text/javascript" charset="utf-8"></script>
+        <script>
+            Sentry.init({ dsn: "$sentry_io_url" });
+            $if user_manager.session_logged_in():
+                Sentry.configureScope(function(scope) {
+                    scope.setUser({
+                        "username": "$user_manager.session_username()",
+                        "realname": "$user_manager.session_realname()"
+                    })
+                });
+        </script>
+
     $if use_minified:
         <script src="$get_homepath(True)/static/js/all-minified.js"></script>
     $else:
@@ -152,7 +165,7 @@ $#
     <div id="footer" class="navbar navbar-expand-sm bg-dark navbar-dark bg-dark">
         <div class="container-fluid">
             <p class="navbar-text">
-                &copy; 2014-2018 Universit&eacute; catholique de Louvain
+                &copy; 2014-2019 Universit&eacute; catholique de Louvain
             </p>
             <p class="navbar-text">
                 <a target="_blank" href="http://www.inginious.org" class="navbar-link">

@@ -52,9 +52,6 @@ $var Navbar: $:NavbarF()
                     <a href="#tab_subproblems" class="nav-link" aria-controls="subproblems" role="tab" data-toggle="tab"><i class="fa
                     fa-list-ul fa-fw"></i>&nbsp; $:_("Subproblems")</a></li>
                 <li role="presentation" class="nav-item">
-                    <a href="#tab_tags" class="nav-link" aria-controls="tags" role="tab" data-toggle="tab"><i class="fa
-                    fa-tags fa-fw"></i>&nbsp; $:_("Tags")</a></li>
-                <li role="presentation" class="nav-item">
                     <a href="#tab_files" class="nav-link" aria-controls="files" role="tab" data-toggle="tab"><i class="fa
                     fa-edit fa-fw"></i>&nbsp; $:_("Task files")</a></li>
 
@@ -73,10 +70,6 @@ $var Navbar: $:NavbarF()
 
             <div role="tabpanel" class="card-body tab-pane" id="tab_subproblems">
                 $:include.course_admin.edit_tabs.subproblems(problem_types)
-            </div>
-
-            <div role="tabpanel" class="card-body tab-pane" id="tab_tags">
-                $:include.course_admin.edit_tabs.tags(course,task_data)
             </div>
 
             <div role="tabpanel" class="card-body tab-pane" id="tab_files">

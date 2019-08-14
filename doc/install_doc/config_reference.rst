@@ -16,7 +16,7 @@ To get started, files named ``configuration.example.yaml`` and ``configuration.l
 The different entries are :
 
 ``allow_deletion``
-    ``false`` if users cannot delete their accounts (and all related data from database), ``true``otherwise.
+    ``false`` if users cannot delete their accounts (and all related data from database), ``true`` otherwise.
 
 ``allow_registration``
     ``false`` if database registration should be disabled. In this mode no password can be set and accounts
@@ -101,7 +101,7 @@ The different entries are :
 ``static_directory``
     Path to the directory where YAML-defined static pages are located.
 
-`superadmins``
+``superadmins``
     A list of super-administrators who have admin access on the whole stored content.
 
 ``tasks_directory``
@@ -120,6 +120,9 @@ The different entries are :
    Link to the INGInious webdav app with the following syntax: ``http[s]://host:port``.
    If set, a new page displays a WebDAV URL and login/password for administrators to access
    the course filesystem.
+
+``sentry_io_url``
+    The Sentry.io *Data Source Name* to use for error reporting in the frontend. If not set, sentry.io is not loaded.
 
 .. _configuration.example.yaml: https://github.com/UCL-INGI/INGInious/blob/master/configuration.example.yaml
 .. _docker-py API: https://github.com/docker/docker-py/blob/master/docs/api.md#client-api

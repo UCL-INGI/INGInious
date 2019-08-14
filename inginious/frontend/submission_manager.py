@@ -176,13 +176,16 @@ class WebAppSubmissionManager:
             username = self._user_manager.session_username()
             submission["username"] = [username]
             submission["submitted_on"] = datetime.now()
+            my_user_task = self._database.user_tasks.find_one({"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username}, { "tried" : 1, "_id" : 0 })
+            tried_count = my_user_task["tried"]
+            inputdata["@attempts"] = str(tried_count + 1)
             inputdata["@username"] = username
             inputdata["@lang"] = self._user_manager.session_language()
             submission["input"] = self._gridfs.put(bson.BSON.encode(inputdata))
             submission["tests"] = {} # Be sure tags are reinitialized
             submissionid = self._database.submissions.insert(submission)
 
-        jobid = self._client.new_job(task, inputdata,
+        jobid = self._client.new_job(1, task, inputdata,
                                      (lambda result, grade, problems, tests, custom, state, archive, stdout, stderr:
                                       self._job_done_callback(submissionid, task, result, grade, problems, tests, custom, state, archive, stdout, stderr, copy)),
                                      "Frontend - {}".format(submission["username"]), debug, ssh_callback)
@@ -251,6 +254,9 @@ class WebAppSubmissionManager:
         # new_submission hook
         inputdata["@username"] = username
         inputdata["@lang"] = self._user_manager.session_language()
+        my_user_task = self._database.user_tasks.find_one({"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username}, { "tried" : 1, "_id" : 0 })
+        tried_count = my_user_task["tried"]
+        inputdata["@attempts"] = str(tried_count + 1)
         # Retrieve input random
         states = self._database.user_tasks.find_one({"courseid": task.get_course_id(), "taskid": task.get_id(), "username": username}, {"random": 1, "state": 1})
         inputdata["@random"] = states["random"] if "random" in states else []
@@ -265,7 +271,7 @@ class WebAppSubmissionManager:
 
         ssh_callback = lambda host, port, password: self._handle_ssh_callback(submissionid, host, port, password)
 
-        jobid = self._client.new_job(task, inputdata,
+        jobid = self._client.new_job(0, task, inputdata,
                                      (lambda result, grade, problems, tests, custom, state, archive, stdout, stderr:
                                       self._job_done_callback(submissionid, task, result, grade, problems, tests, custom, state, archive, stdout, stderr, True)),
                                      "Frontend - {}".format(username), debug, ssh_callback)

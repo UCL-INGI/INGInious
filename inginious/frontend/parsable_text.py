@@ -11,10 +11,24 @@ from datetime import datetime
 import tidylib
 from docutils import core, nodes
 from docutils.parsers.rst import directives, Directive
+from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 from docutils.statemachine import StringList
 from docutils.writers import html4css1
 
 from inginious.frontend.accessible_time import parse_date
+
+
+class CustomBaseAdmonition(BaseAdmonition):
+    """ A custom admonition that can have a title """
+    option_spec = {'class': directives.class_option,
+                   'name': directives.unchanged,
+                   'title': directives.unchanged}
+
+
+class CustomAdmonition(CustomBaseAdmonition):
+    """ A custom admonition with a specific class if needed """
+    required_arguments = 1
+    node_class = nodes.admonition
 
 
 class HiddenUntilDirective(Directive, object):
@@ -44,7 +58,8 @@ class HiddenUntilDirective(Directive, object):
             if not after_deadline and force_show:
                 node = nodes.caution()
                 self.add_name(node)
-                text = translation.gettext("The feedback below will be hidden to the students until {}.").format(hidden_until.strftime("%d/%m/%Y %H:%M:%S"))
+                text = translation.gettext("The feedback below will be hidden to the students until {}.").format(
+                    hidden_until.strftime("%d/%m/%Y %H:%M:%S"))
                 self.state.nested_parse(StringList(text.split("\n")), 0, node)
                 output.append(node)
 
@@ -58,13 +73,11 @@ class HiddenUntilDirective(Directive, object):
         else:
             node = nodes.caution()
             self.add_name(node)
-            text = translation.gettext("A part of this feedback is hidden until {}. Please come back later and reload the submission to see the full feedback.").format(
+            text = translation.gettext(
+                "A part of this feedback is hidden until {}. Please come back later and reload the submission to see the full feedback.").format(
                 hidden_until.strftime("%d/%m/%Y %H:%M:%S"))
             self.state.nested_parse(StringList(text.split("\n")), 0, node)
             return [node]
-
-
-directives.register_directive("hidden-until", HiddenUntilDirective)
 
 
 class _CustomHTMLWriter(html4css1.Writer, object):
@@ -118,6 +131,75 @@ class _CustomHTMLWriter(html4css1.Writer, object):
                 attributes["target"] = "_blank"
             return html4css1.HTMLTranslator.starttag(self, node, tagname, suffix, empty, **attributes)
 
+        def visit_table(self, node):
+            """ Remove needless borders """
+            self.context.append(self.compact_p)
+            self.compact_p = True
+            classes = ['docutils', 'table', 'table-bordered', self.settings.table_style]
+            if 'align' in node:
+                classes.append('align-%s' % node['align'])
+            self.body.append(
+                self.starttag(node, 'table', CLASS=' '.join(classes)))
+
+        def visit_tbody(self, node):
+            """ Remove needless valign"""
+            self.body.append(self.starttag(node, 'tbody'))
+
+        def visit_thead(self, node):
+            """ Remove needless valign, add bootstrap class """
+            self.body.append(self.starttag(node, 'thead', CLASS='thead-light'))
+
+        def visit_admonition(self, node):
+            """ Support for bootstrap alert/cards """
+            node['classes'].insert(0, 'admonition')
+            converter = {
+                'danger': 'danger',
+                'attention': 'warning',
+                'caution': 'warning',
+                'error': 'danger',
+                'hint': 'info',
+                'important': 'warning',
+                'note': 'default',
+                'tip': 'info',
+                'warning': 'warning',
+                'success': 'success',
+                'info': 'info',
+                'primary': 'primary',
+                'secondary': 'secondary',
+                'light': 'light',
+                'dark': 'dark'
+            }
+            cls = [x if not x.startswith('admonition-') else x[11:] for x in node['classes']]
+            cls = [converter.get(x) for x in cls if converter.get(x) is not None]
+            if len(cls) == 0:
+                cls = 'info'
+            else:
+                cls = cls[0]
+
+            if "title" in node and node['title'] != "":
+                self.body.append(self.starttag(node, 'div', CLASS='card mb-3 border-' + cls))
+
+                card_color = "bg-" + cls
+                if cls not in ['default', 'light', 'secondary']:
+                    card_color += ' text-white'
+
+                self.body.append(self.starttag(node, 'div', CLASS='card-header ' + card_color))
+                self.body.append(self.encode(node['title']))
+                self.body.append('</div>\n')
+                self.body.append(self.starttag(node, 'div', CLASS='card-body'))
+            else:
+                if cls == "default":
+                    cls = 'light'
+                self.body.append(self.starttag(node, 'div', CLASS='alert alert-' + cls))
+            self.set_first_last(node)
+
+            # drop unneeded title
+            node.children = node.children[1:]
+
+        def depart_admonition(self, node):
+            if "title" in node and node['title'] != "":
+                self.body.append('</div>\n')
+            self.body.append('</div>\n')
 
 class ParsableText(object):
     """Allow to parse a string with different parsers"""
@@ -153,7 +235,8 @@ class ParsableText(object):
                 if debug:
                     raise BaseException("Parsing failed") from e
                 else:
-                    self._parsed = self._translation.gettext("<b>Parsing failed</b>: <pre>{}</pre>").format(html.escape(self._content))
+                    self._parsed = self._translation.gettext("<b>Parsing failed</b>: <pre>{}</pre>").format(
+                        html.escape(self._content))
         return self._parsed
 
     def __str__(self):
@@ -165,13 +248,15 @@ class ParsableText(object):
         return self.parse()
 
     @classmethod
-    def html(cls, string, show_everything=False, translation=gettext.NullTranslations()):  # pylint: disable=unused-argument
+    def html(cls, string, show_everything=False,
+             translation=gettext.NullTranslations()):  # pylint: disable=unused-argument
         """Parses HTML"""
         out, _ = tidylib.tidy_fragment(string)
         return out
 
     @classmethod
-    def rst(cls, string, show_everything=False, translation=gettext.NullTranslations(), initial_header_level=3, debug=False):
+    def rst(cls, string, show_everything=False, translation=gettext.NullTranslations(), initial_header_level=3,
+            debug=False):
         """Parses reStructuredText"""
         overrides = {
             'initial_header_level': initial_header_level,
@@ -179,10 +264,31 @@ class ParsableText(object):
             'syntax_highlight': 'none',
             'force_show_hidden_until': show_everything,
             'translation': translation,
+            'raw_enabled': True,
+            'file_insertion_enabled': False,
             'math_output': 'MathJax'
         }
         if debug:
             overrides['halt_level'] = 2
             overrides['traceback'] = True
-        parts = core.publish_parts(source=string, writer=_CustomHTMLWriter(), settings_overrides=overrides)
+        parts = core.publish_parts(source=string, writer=_CustomHTMLWriter(),
+                                   settings_overrides=overrides)
         return parts['body_pre_docinfo'] + parts['fragment']
+
+# override base directives
+def _gen_admonition_cls(cls):
+    class GenAdm(CustomBaseAdmonition):
+        node_class = cls
+    return GenAdm
+
+directives.register_directive("admonition", CustomAdmonition)
+directives.register_directive("attention", _gen_admonition_cls(nodes.attention))
+directives.register_directive("caution", _gen_admonition_cls(nodes.caution))
+directives.register_directive("danger", _gen_admonition_cls(nodes.danger))
+directives.register_directive("error", _gen_admonition_cls(nodes.error))
+directives.register_directive("hint", _gen_admonition_cls(nodes.hint))
+directives.register_directive("important", _gen_admonition_cls(nodes.important))
+directives.register_directive("note", _gen_admonition_cls(nodes.note))
+directives.register_directive("tip", _gen_admonition_cls(nodes.tip))
+directives.register_directive("warning", _gen_admonition_cls(nodes.warning))
+directives.register_directive("hidden-until", HiddenUntilDirective)

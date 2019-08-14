@@ -24,7 +24,7 @@ subdirectory.
             header: A header for this question
             type: code
             language: c
-    limits
+    limits:
         time: 30
         memory: 128
     environment: default

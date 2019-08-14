@@ -85,6 +85,15 @@ class ScoreBoard(INGIniousAuthPage):
         result_per_user = {}
         users = set()
         for submission in results:
+            # Get the score
+            try:
+                new_score = submission["custom"]["score"]
+                if not isinstance(new_score, int) and not isinstance(new_score, float):
+                    new_score = float(new_score)
+            except:
+                # badly formatted, skip
+                continue
+
             # Be sure we have a list
             if not isinstance(submission["username"], list):
                 submission["username"] = [submission["username"]]
@@ -93,19 +102,17 @@ class ScoreBoard(INGIniousAuthPage):
             if submission["username"] not in result_per_user:
                 result_per_user[submission["username"]] = {}
 
-
+            # keep the best score
             if submission["taskid"] not in result_per_user[submission["username"]]:
-                result_per_user[submission["username"]][submission["taskid"]] = submission["custom"]["score"]
+                result_per_user[submission["username"]][submission["taskid"]] = new_score
             else:
-                # keep best score
                 current_score = result_per_user[submission["username"]][submission["taskid"]]
-                new_score = submission["custom"]["score"]
+
                 task_reversed = scoreboard_reverse != (scoreboard_content[submission["taskid"]] < 0)
                 if task_reversed and current_score > new_score:
                     result_per_user[submission["username"]][submission["taskid"]] = new_score
                 elif not task_reversed and current_score < new_score:
                     result_per_user[submission["username"]][submission["taskid"]] = new_score
-
 
             for user in submission["username"]:
                 users.add(user)

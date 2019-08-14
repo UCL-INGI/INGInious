@@ -249,3 +249,20 @@ class CourseTaskFiles(INGIniousAdminPage):
             raise web.redirect(file_or_url)
         else:
             raise web.notfound()
+
+class CourseTaskFileUpload(CourseTaskFiles):
+
+    def POST_AUTH(self, courseid, taskid):
+        if not id_checker(taskid):
+            raise Exception("Invalid task id")
+
+        self.get_course_and_check_rights(courseid, allow_all_staff=False)
+
+        request = web.input(file={})
+        if request.get('file') is not None:
+            file = request.get('file')
+            name = request.get('name')
+            filename = "/"+name
+            wanted_path = self.verify_path(courseid, taskid, filename, True)
+            self.action_upload(courseid, taskid, wanted_path, file)
+            return json.dumps("success")

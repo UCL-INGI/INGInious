@@ -257,10 +257,10 @@ class BaseTaskPage(object):
                     # This should never happen, as user_manager.update_user_stats is called whenever a submission is done.
                     return json.dumps({'status': "error", "text": _("Internal error")})
 
-                return self.submission_to_json(task, result, is_admin, False, default_submissionid == result['_id'], tags=task.get_tags())
+                return self.submission_to_json(task, result, is_admin, False, default_submissionid == result['_id'], tags=course.get_tags())
             else:
                 web.header('Content-Type', 'application/json')
-                return self.submission_to_json(task, result, is_admin)
+                return self.submission_to_json(task, result, is_admin, False, tags=course.get_tags())
 
         elif "@action" in userinput and userinput["@action"] == "load_submission_input" and "submissionid" in userinput:
             submission = self.submission_manager.get_submission(userinput["submissionid"], user_check=not is_staff)
@@ -270,7 +270,7 @@ class BaseTaskPage(object):
                 raise web.notfound()
             web.header('Content-Type', 'application/json')
 
-            return self.submission_to_json(task, submission, is_admin, True, tags=task.get_tags())
+            return self.submission_to_json(task, submission, is_admin, True, tags=course.get_tags())
 
         elif "@action" in userinput and userinput["@action"] == "kill" and "submissionid" in userinput:
             self.submission_manager.kill_running_submission(userinput["submissionid"])  # ignore return value
@@ -288,7 +288,7 @@ class BaseTaskPage(object):
         else:
             raise web.notfound()
 
-    def submission_to_json(self, task, data, debug, reloading=False, replace=False, tags={}):
+    def submission_to_json(self, task, data, debug, reloading=False, replace=False, tags=[]):
         """ Converts a submission to json (keeps only needed fields) """
 
         if "ssh_host" in data:
@@ -333,22 +333,25 @@ class BaseTaskPage(object):
             tojson["debug"] = data
 
         if tojson['status'] == 'waiting':
-            tojson["text"] = _("<b>Your submission has been sent...</b>")
+            tojson["title"] = _("<b>Your submission has been sent...</b>")
         elif tojson["result"] == "failed":
-            tojson["text"] = _("There are some errors in your answer. Your score is {score}%.").format(score=data["grade"])
+            tojson["title"] = _("There are some errors in your answer. Your score is {score}%.").format(score=data["grade"])
         elif tojson["result"] == "success":
-            tojson["text"] = _("Your answer passed the tests! Your score is {score}%.").format(score=data["grade"])
+            tojson["title"] = _("Your answer passed the tests! Your score is {score}%.").format(score=data["grade"])
         elif tojson["result"] == "timeout":
-            tojson["text"] = _("Your submission timed out. Your score is {score}%.").format(score=data["grade"])
+            tojson["title"] = _("Your submission timed out. Your score is {score}%.").format(score=data["grade"])
         elif tojson["result"] == "overflow":
-            tojson["text"] = _("Your submission made an overflow. Your score is {score}%.").format(score=data["grade"])
+            tojson["title"] = _("Your submission made an overflow. Your score is {score}%.").format(score=data["grade"])
         elif tojson["result"] == "killed":
-            tojson["text"] = _("Your submission was killed.")
+            tojson["title"] = _("Your submission was killed.")
         else:
-            tojson["text"] = _("An internal error occurred. Please retry later. "
-                               "If the error persists, send an email to the course administrator.")
+            tojson["title"] = _("An internal error occurred. Please retry later. "
+                                "If the error persists, send an email to the course administrator.")
 
-        tojson["text"] = "<b>" + tojson["text"] + " " + _("[Submission #{submissionid}]").format(submissionid=data["_id"]) + "</b>" + data.get("text", "")
+        tojson["title"] += " " + _("[Submission #{submissionid}]").format(submissionid=data["_id"])
+        tojson["title"] = self.plugin_manager.call_hook_recursive("feedback_title", task=task, submission=data, title=tojson["title"])["title"]
+        
+        tojson["text"] = data.get("text", "")
         tojson["text"] = self.plugin_manager.call_hook_recursive("feedback_text", task=task, submission=data, text=tojson["text"])["text"]
 
         if reloading:
@@ -359,10 +362,9 @@ class BaseTaskPage(object):
 
         if "tests" in data:
             tojson["tests"] = {}
-            if tags:
-                for tag in tags[0]+tags[1]: # Tags only visible for admins should not appear in the json for students.
-                    if (tag.is_visible_for_student() or debug) and tag.get_id() in data["tests"]:
-                        tojson["tests"][tag.get_id()] = data["tests"][tag.get_id()]
+            for key, tag in tags.items():  # Tags only visible for admins should not appear in the json for students.
+                if tag.get_type() in [0, 1] and (tag.is_visible_for_student() or debug) and key in data["tests"]:
+                    tojson["tests"][key] = data["tests"][key]
             if debug: #We add also auto tags when we are admin
                 for tag in data["tests"]:
                     if tag.startswith("*auto-tag-"):

@@ -64,7 +64,6 @@ function studio_update_file_tabs(data, method)
         data = {};
     if(method == undefined)
         method = "GET";
-
     jQuery.ajax({
         beforeSend: function()
                     {
@@ -248,9 +247,9 @@ function studio_task_file_delete_tab(path)
 /**
  * Display a message indicating the status of a save action
  */
-function studio_display_task_submit_message(content, type, dismissible)
+function studio_display_task_submit_message(title, content, type, dismissible)
 {
-    var code = getAlertCode(content, type, dismissible);
+    var code = getAlertCode(title, content, type, dismissible);
     $('#task_edit_submit_status').html(code);
 
     if(dismissible)
@@ -275,7 +274,7 @@ function studio_submit()
         return;
     studio_submitting = true;
 
-    studio_display_task_submit_message("Saving...", "info", false);
+    studio_display_task_submit_message("Saving...", "", "info", false);
 
     $('form#edit_task_form .subproblem_order').each(function(index, elem)
     {
@@ -320,9 +319,9 @@ function studio_submit()
     });
 
     if(error)
-        studio_display_task_submit_message("Some error(s) occurred when saving the task: <ul>" + error + "</ul>", "danger", true);
+        studio_display_task_submit_message("Some error(s) occurred when saving the task: <ul>" + error + "</ul>", "", "danger", true);
     else
-        studio_display_task_submit_message("Task saved.", "success", true);
+        studio_display_task_submit_message("Task saved.", "", "success", true);
 
     $('.task_edit_submit_button').attr('disabled', false);
     studio_submitting = false;
@@ -633,14 +632,6 @@ function studio_get_feedback(sid)
  * Functions for tags edition. Use in tags.html
  */
 
-// Enable or disabled the id field of line {line}
-function studio_change_id_field(type, line) {
-    if(type.value == 2){    
-        $("#id_"+line).prop('disabled', true);
-    }else{
-        $("#id_"+line).prop('disabled', false);
-    }
-}
 function studio_expand_tag_description(elem){
     elem.rows = 5;
 }
@@ -678,12 +669,85 @@ function studio_add_tag_line(line) {
     //TYPE
     var type = $('#E-'+line).attr("data-type");
     modified_row = modified_row.replace("type_replace_"+type, 'selected="selected"');
-    if(type == 2){
-        modified_row = modified_row.replace("id_stop", "disabled");
-    }else{
-        modified_row = modified_row.replace("id_stop", "");
-    }
+    modified_row = modified_row.replace("id_stop", "");
 
     $('#table').find('tbody').append("<tr id="+new_id+">" + modified_row + "</tr>");
     new_row.show();
+}
+
+
+function drag_drop_handler() {
+    // preventing page from redirecting
+    $("html").on("dragover", function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    });
+
+    $("html").on("drop", function(e) { e.preventDefault(); e.stopPropagation(); });
+
+    // Drag enter
+    $(".upload-area").on('dragenter', function (e) {
+        $("#edit_task_tabs_content").append("<p id='dragtext'><b>Drag a file here</b></p>");
+        e.stopPropagation();
+        e.preventDefault();
+
+    });
+
+    // Drag over
+    $(".upload-area").on('dragover', function (e) {
+        $(this).addClass("dragin");
+        e.stopPropagation();
+        e.preventDefault();
+
+    });
+
+    $(".upload-area").on('dragleave',function(e){
+        $(this).removeClass("dragin");
+        $("#dragtext").remove();
+    });
+
+    // Drop
+    $(".upload-area").on('drop', function (e) {
+        $("#dragtext").remove();
+        e.stopPropagation();
+        e.preventDefault();
+
+        var file = e.originalEvent.dataTransfer.files;
+        var fd = new FormData();
+        fd.append('file', file[0]);
+        fd.append('name',file[0].name);
+        uploadData(fd);
+    });
+
+    // Open file selector on div click
+    $(".upload-area").click(function(){
+        $("#file").click();
+    });
+
+    // file selected
+    $("#file").change(function(){
+        var fd = new FormData();
+        var files = $('#file')[0].files[0];
+        fd.append('file',files);
+        uploadData(fd);
+    });
+}
+
+// Sending AJAX request and upload file
+function uploadData(formdata){
+    $.ajax({
+        url: window.location.href+'/dd_upload',
+        type: 'post',
+        data: formdata,
+        contentType: false,
+        processData: false,
+        dataType: 'json',
+        success: function(response){
+            alert("uploaded!");
+            studio_update_file_tabs(undefined, undefined);
+        },
+        error: function () {
+            console.log("something went wrong");
+        }
+    });
 }

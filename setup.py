@@ -23,12 +23,12 @@ install_requires = [
     "oauth2>=1.9.0.post1",
     "httplib2>=0.9",
     "watchdog >= 0.8.3",
-    "msgpack-python >= 0.4.7",
+    "msgpack >= 0.5.6",
     "pyzmq >= 15.3.0",
     "natsort >= 5.0.1",
     "psutil >= 4.4.2",
     "zipstream >= 1.1.4",
-    "WsgiDAV >= 2.2.4"
+    "WsgiDAV == 2.2.4"
 ]
 
 test_requires = [
