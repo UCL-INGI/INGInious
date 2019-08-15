@@ -200,7 +200,8 @@ class Backend(object):
                                                                                         job_msg.inputdata, job_msg.environment,
                                                                                         job_msg.enable_network, job_msg.time_limit,
                                                                                         job_msg.hard_time_limit, job_msg.mem_limit,
-                                                                                        job_msg.debug))
+                                                                                        job_msg.debug,
+                                                                                        job_msg.run_cmd))
 
     async def handle_agent_hello(self, agent_addr, message: AgentHello):
         """

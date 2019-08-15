@@ -54,6 +54,13 @@ $#
         </label></div>
     </div>
 </div>
+<div class="form-group row">
+    <label for="run_cmd" class="col-sm-4 control-label">$:_("Custom command to be run in container <small>(instead of running the run script)</small>")</label>
+
+    <div class="col-sm-8">
+        <input type="text" class="form-control" id="run_cmd" name="run_cmd" placeholder="Optional" value="${task_data.get('run_cmd',"")}"/>
+    </div>
+</div>
 $if contains_is_html:
     <div class="form-group row">
         <label for="responseIsHTML" class="col-sm-4 control-label">$:_("Are the task's responses written in HTML instead of restructuredText?")</label>

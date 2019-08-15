@@ -292,6 +292,8 @@ class Client(BetterParanoidPirateClient):
 
         enable_network = task.allow_network_access_grading()
 
+        run_cmd = task.get_custom_run_cmd()
+
         try:
             limits = task.get_limits()
             time_limit = int(limits.get('time', 20))
@@ -304,7 +306,7 @@ class Client(BetterParanoidPirateClient):
             return
 
         msg = ClientNewJob(job_id, priority, task.get_course_id(), task.get_id(), inputdata, environment, enable_network, time_limit,
-                           hard_time_limit, mem_limit, debug, launcher_name)
+                           hard_time_limit, mem_limit, debug, launcher_name, run_cmd)
         self._loop.call_soon_threadsafe(asyncio.ensure_future, self._create_transaction(msg, task=task, callback=callback,
                                                                                         ssh_callback=ssh_callback))
 

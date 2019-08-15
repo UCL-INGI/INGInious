@@ -40,7 +40,7 @@ class ClientNewJob(metaclass=MessageMeta, msgtype="client_new_job"):
     def __init__(self, job_id: ClientJobId, priority: int,
                  course_id: str, task_id: str, inputdata: Dict[str, Any],
                  environment: str, enable_network: bool, time_limit: int, hard_time_limit: Optional[int], mem_limit: int,
-                 debug: Union[str, bool], launcher: str):
+                 debug: Union[str, bool], launcher: str, run_cmd: Optional[str]):
         """
         :param job_id: the client-side job id that is associated to this job
         :param priority: the job priority
@@ -57,6 +57,7 @@ class ClientNewJob(metaclass=MessageMeta, msgtype="client_new_job"):
             False to disable it
             "ssh" to enable ssh debug
         :param launcher: the name of the entity that launched this job, for logging purposes
+        :param run_cmd: custom command to be run inside the container, instead the default run file.
         """
         self.job_id = job_id
         self.priority = priority
@@ -70,6 +71,7 @@ class ClientNewJob(metaclass=MessageMeta, msgtype="client_new_job"):
         self.hard_time_limit = hard_time_limit
         self.mem_limit = mem_limit
         self.launcher = launcher
+        self.run_cmd = run_cmd
 
 
 class ClientKillJob(metaclass=MessageMeta, msgtype="client_kill_job"):
@@ -222,7 +224,7 @@ class BackendNewJob(metaclass=MessageMeta, msgtype="backend_new_job"):
 
     def __init__(self, job_id: BackendJobId, course_id: str, task_id: str, inputdata: Dict[str, Any],
                  environment: str, enable_network: bool, time_limit: int, hard_time_limit: Optional[int], mem_limit: int,
-                 debug: Union[str, bool]):
+                 debug: Union[str, bool], run_cmd: Optional[str]):
         """
         :param job_id: the backend-side job id that is associated to this job
         :param course_id: course id of the task to run
@@ -237,6 +239,7 @@ class BackendNewJob(metaclass=MessageMeta, msgtype="backend_new_job"):
             True to enable debug
             False to disable it
             "ssh" to enable ssh debug
+        :param run_cmd: custom command to be run inside the container, instead the default run file.
         """
         self.job_id = job_id
         self.course_id = course_id
@@ -248,6 +251,7 @@ class BackendNewJob(metaclass=MessageMeta, msgtype="backend_new_job"):
         self.time_limit = time_limit
         self.hard_time_limit = hard_time_limit
         self.mem_limit = mem_limit
+        self.run_cmd = run_cmd
 
 
 class BackendKillJob(metaclass=MessageMeta, msgtype="backend_kill_job"):
