@@ -4,37 +4,71 @@ Run file
 ========
 
 When the student have submit his/her code, INGInious starts a new Docker container
-with the right *environment* for the task (as given in the *.task* file). Inside this
-container is launched a script, called *run*, that you have to provide in the
+with the right *environment* for the task (as given in the *task.yaml* file). Inside this
+container is launched a script, that we call the *run* script, that you have to provide in the
 directory of your task.
 
-Here is a simple example of a *run* file, compatible with the *default* environment,
+Naming your `run` script
+------------------------
+
+.. tip::
+
+    TL;DR: name your script `run.py` if you use Python or `run.sh` if you use bash. You can put a run script
+    inside the *common* folder of a course, and it will be used by default if no run file exists in a task.
+
+The file chosen by INGInious as your *run* file is dependent on the environment. Here is how INGInious resolves
+the best file to run (the resolution ends a soon a one of the rule is respected):
+
+1. If a custom run command was provided, this command is run.
+2. If a file named **`run`** exists in the **task** folder, this file is run.
+   Note that in this case the file will need a shebang (see below)
+3. Depending on the container *environment*, files named **`run.EXT`** in the **task** folder,
+   where EXT is a container-specific extension, will be run.
+
+   ========== ==== ========
+   Container  EXT  Language
+   ========== ==== ========
+   all        py3  IPython3
+   all        py   IPython3
+   all        sh   bash
+   ========== ==== ========
+
+   It is possible to add your own extensions/languages in new containers.
+4. If a file named **`run`** exists in the **common course** folder, this file is run.
+   Note that in this case the file will need a shebang (see below)
+5. Depending on the container *environment*, files named **`run.EXT`** in the **common course** folder,
+   where EXT is a container-specific extension, will be run. See table above.
+
+.. tip::
+
+    If you simply name you run script **`run`**, don't forget to indicate which interpreter
+    should be used to execute the script.
+    To do that, use a shebang:
+
+    ::
+
+        #!/bin/bash
+        feedback-result success
+
+
+Here is a simple example of a *run.py* file, compatible with the *default* environment,
 that simply returns that the student's code is OK:
 
 ::
 
     set_global_result("success")
 
-This is actually an IPython code. You can actually use your favorite shell. Here is an
-equivalent script in bash
+This is actually an IPython code.
 
-::
-
-    #!/bin/bash
-    feedback-result success
-
-The *run* script is simply an executable application (a bash script, a python script, or
+In general, the *run* script is simply an executable application (a bash script, a python script, or
 a compiled executable runnable by the container). INGInious' default containers provides
 commands (also available as python libraries) to interact with the backend.
 
-By default, the script is run inside the container in the /task directory, by a non-root
-user. You can modify the container to change this (and everything else).
+By default, the script is run by a non-root user.
+You can modify the container to change this (and everything else).
 
-IPython is the default shell
-----------------------------
-
-When your run script does not indicate a shebang (i.e. does not begin with `#!`) and is not a binary file,
-INGInious runs your script throught IPython.
+Python run scripts are run with IPython
+---------------------------------------
 
 IPython is a Python interpreter that adds some very useful features to Python, notably magic commands.
 
