@@ -145,6 +145,14 @@ class LTILaunchPage(INGIniousPage):
         else:
             raise web.seeother(self.app.get_homepath() + "/lti/login")
 
+    def GET(self, taskid, filename):
+        data = self.user_manager.session_lti_info()
+        if data is None:
+            raise web.notfound()
+
+        courseid = data["task"][0]
+        raise web.seeother(self.app.get_homepath() + "/course/{}/{}/{}".format(courseid, taskid, filename))
+
     def _parse_lti_data(self, courseid, taskid):
         """ Verify and parse the data for the LTI basic launch """
         post_input = web.webapi.rawinput("POST")
