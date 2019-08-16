@@ -34,7 +34,7 @@ class CourseEditTask(INGIniousAdminPage):
         if not id_checker(taskid):
             raise Exception("Invalid task id")
 
-        course, __ = self.get_course_and_check_rights(courseid, taskid, allow_all_staff=False)
+        course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
 
         try:
             task_desc = self.database.tasks.find_one({"courseid": course.get_id(), "taskid": taskid})
@@ -217,13 +217,10 @@ class CourseEditTask(INGIniousAdminPage):
             return json.dumps({"status": "error", "message": _("Error while reading course's informations")})
 
         # Get original data
-        try:
-            orig_data = self.database.tasks.find_one({"courseid": courseid, "taskid": taskid})
-            data["order"] = orig_data.get("order", 0)
-            data["taskid"] = orig_data["taskid"]
-            data["courseid"] = orig_data["courseid"]
-        except Exception as ex:
-            print(str(ex))
+        orig_data = self.database.tasks.find_one({"courseid": courseid, "taskid": taskid})
+        data["order"] = orig_data.get("order", 0) if orig_data else 0
+        data["taskid"] = orig_data["taskid"] if orig_data else taskid
+        data["courseid"] = orig_data["courseid"] if orig_data else courseid
 
         course_fs = self.filesystem.from_subfolder(courseid)
         task_fs = course_fs.from_subfolder(taskid)
@@ -257,6 +254,9 @@ class CourseEditTask(INGIniousAdminPage):
                         {"status": "error", "message": _("There was a problem while extracting the zip archive. Some files may have been modified")})
                 task_fs.copy_to(tmpdirname)
 
-        self.database.tasks.replace_one({"courseid": courseid, "taskid": taskid}, data)
+        if orig_data:
+            self.database.tasks.replace_one({"courseid": courseid, "taskid": taskid}, data)
+        else:
+            self.database.tasks.insert(data)
 
         return json.dumps({"status": "ok"})
