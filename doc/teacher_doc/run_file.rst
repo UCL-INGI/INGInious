@@ -4,35 +4,133 @@ Run file
 ========
 
 When the student have submit his/her code, INGInious starts a new Docker container
-with the right *environment* for the task (as given in the *.task* file). Inside this
-container is launched a script, called *run*, that you have to provide in the
+with the right *environment* for the task (as given in the *task.yaml* file). Inside this
+container is launched a script, that we call the *run* script, that you have to provide in the
 directory of your task.
 
-Here is a simple example of a *run* file, compatible with the *default* environment,
+Naming your `run` script
+------------------------
+
+.. tip::
+
+    TL;DR: name your script `run.py` if you use Python or `run.sh` if you use bash. You can put a run script
+    inside the *common* folder of a course, and it will be used by default if no run file exists in a task.
+
+The file chosen by INGInious as your *run* file is dependent on the environment. Here is how INGInious resolves
+the best file to run (the resolution ends a soon a one of the rule is respected):
+
+1. If a custom run command was provided, this command is run.
+2. If a file named **`run`** exists in the **task** folder, this file is run.
+   Note that in this case the file will need a shebang (see below)
+3. Depending on the container *environment*, files named **`run.EXT`** in the **task** folder,
+   where EXT is a container-specific extension, will be run.
+
+   ========== ==== ========
+   Container  EXT  Language
+   ========== ==== ========
+   all        py3  IPython3
+   all        py   IPython3
+   all        sh   bash
+   ========== ==== ========
+
+   It is possible to add your own extensions/languages in new containers.
+4. If a file named **`run`** exists in the **common course** folder, this file is run.
+   Note that in this case the file will need a shebang (see below)
+5. Depending on the container *environment*, files named **`run.EXT`** in the **common course** folder,
+   where EXT is a container-specific extension, will be run. See table above.
+
+.. tip::
+
+    If you simply name you run script **`run`**, don't forget to indicate which interpreter
+    should be used to execute the script.
+    To do that, use a shebang:
+
+    ::
+
+        #!/bin/bash
+        feedback-result success
+
+
+Here is a simple example of a *run.py* file, compatible with the *default* environment,
 that simply returns that the student's code is OK:
+
 ::
 
-    #!/bin/bash
-    feedback-result success
+    set_global_result("success")
 
-The *run* script is simply an executable application (a bash script, a python script, or
+This is actually an IPython code.
+
+In general, the *run* script is simply an executable application (a bash script, a python script, or
 a compiled executable runnable by the container). INGInious' default containers provides
 commands (also available as python libraries) to interact with the backend.
 
-By default, the script is run inside the container in the /task directory, by a non-root
-user. You can modify the container to change this (and everything else).
+By default, the script is run by a non-root user.
+You can modify the container to change this (and everything else).
+
+Python run scripts are run with IPython
+---------------------------------------
+
+IPython is a Python interpreter that adds some very useful features to Python, notably magic commands.
+
+The main feature that you will use is probably the bang (`!`) magic command, that allows your to run a command
+like if you were in bash (or any "basic" shell):
+
+::
+
+    # run a command
+    ! touch hello.txt
+
+    # you can store the output, as an array of line
+    out = !ls -1
+
+    # we are still in python
+    length = len(out)
+    print(length, ";".join(out))
+
+By default, the INGInious version of IPython loads utility libraries of INGInious (feedback, input, lang, rst)
+into the global namespace, so you don't have to.
+
+If you want to use the INGInious IPython interpreter in another script, the interpreter is
+located at `/bin/inginious-ipython`.
+
+Check the API documentation
+---------------------------
+
+The prefered way to create run script is via the IPython interpreter.
+:ref:`The full description of the API available from Python is available here.<inginious_container_api>`
 
 Feedback commands
 -----------------
 
 feedback-result
 ```````````````
-The *feedback-result* command sets the submission result of a task, or a problem,
-and uses the following syntax :
+The *feedback-result* command sets the submission result of a task, or a problem.
 
-::
+.. tabs::
 
-    feedback-result [-i|--id PROBLEM_ID] RESULT
+    .. code-tab:: ipython3
+
+        # set the global result
+        set_global_result("success")  # Set global result to success
+
+        # set the result of a specific suproblem
+        set_problem_result("failed", "q1")  # Set 'q1' subproblem result to failed
+
+    .. code-tab:: py
+
+        from inginious_container_api import feedback
+
+        # set the global result
+        feedback.set_global_result("success")  # Set global result to success
+
+        # set the result of a specific suproblem
+        feedback.set_problem_result("failed", "q1")  # Set 'q1' subproblem result to failed
+
+    .. code-tab:: bash
+
+        # format: feedback-result [-i|--id PROBLEM_ID] RESULT
+        feedback-result success  # Set global result to success
+        feedback-result -i q1 failed  # Set 'q1' subproblem result to failed
 
 The execution result can be of different types:
 
@@ -42,42 +140,35 @@ The execution result can be of different types:
 - overflow :there was a memory/disk overflow
 - crash : the tests crashed
 
-For instance, the following command will inform that the student succeeded:
-
-::
-
-    feedback-result success
-
-**In Python** : the equivalent command can be directly obtained with:
-
-.. code-block:: python
-
-    from inginious import feedback
-    feedback.set_global_result("success") # Set global result to success
-    feedback.set_problem_result("failed", "q1") # Set 'q1' subproblem result to failed
+Any other type will be modified to "crash".
 
 feedback-grade
 ``````````````
-The *feedback-grade* command sets the submission grade and uses the following syntax:
-::
 
-    feedback-grade GRADE
+The *feedback-grade* command sets the submission grade.
 
-If no grade is specified, the result score will be binary. This means that a failed
+.. tabs::
+
+    .. code-tab:: ipython3
+
+        set_grade(87.8) # Set the grade to 87.8%
+
+    .. code-tab:: py
+
+        from inginious_container_api import feedback
+        feedback.set_grade(87.8) # Set the grade to 87.8%
+
+    .. code-tab:: bash
+
+        # format: feedback-grade GRADE
+        feedback-grade 87.8
+
+
+If no grade is specified (i.e. the command is never called), the result score will be binary.
+This means that a failed
 submission will give a 0.0% score to the student, while a successful submission will
-give a 100.0% score to the student. For instance, the following command will give
-an 87.8% grade to the student:
+give a 100.0% score to the student.
 
-::
-
-    feedback-grade 87.8
-
-**In Python** : the equivalent command can be directly obtained with:
-
-.. code-block:: python
-
-    from inginious import feedback
-    feedback.set_grade(87.8) # Set the grade to 87.8%
 
 feedback-msg-tpl
 ````````````````
@@ -92,136 +183,238 @@ argument to the command, *feedback-msg-tpl* will attempt to find the template, b
 - `[local_dir]/TPLNAME.tpl`
 
 Once found, the template is parsed using `Jinja2 <http://jinja.pocoo.org/docs/2.9/>`, which allows you to send parameters to the template.
-These parameters should be given in the command line, in the form `name=value`:
+
+.. tabs::
+
+    .. code-tab:: ipython3
+
+        # format:
+        # set_feedback_from_tpl(template_name, template_options, problem_id=None, append=False)
+        # template_name is the file to format. See above for details.
+        # template_options is a dict in the form {name: value}. See below
+        # problem_id is the problem id to which the feedback must be assigned. If None, the feedback is global
+        # append is a boolean indicating if the feedback must be appended or not (overwritting the current feedback)
+
+        set_feedback_from_tpl("feedback.tpl", {"option1":"value1", "anothername":"anothervalue"})
+
+    .. code-tab:: py
+
+        from inginious_container_api import feedback
+
+        # format:
+        # feedback.set_feedback_from_tpl(template_name, template_options, problem_id=None, append=False)
+        # template_name is the file to format. See above for details.
+        # template_options is a dict in the form {name: value}. See below
+        # problem_id is the problem id to which the feedback must be assigned. If None, the feedback is global
+        # append is a boolean indicating if the feedback must be appended or not (overwritting the current feedback)
+
+        feedback.set_feedback_from_tpl("feedback.tpl", {"option1":"value1", "anothername":"anothervalue"})
+
+    .. code-tab:: bash
+
+        # format: feedback-msg-tpl [-a | --append] [-i | --id PROBLEM_ID] TPLNAME [option1=value1 option2=value2 ...]
+        # TPLNAME is the file to format. See above for details.
+        # Options can be indicated at the end of the command, and will be passed to the template (see below)
+        # --append is a boolean flag indicating if the feedback must be appended or not (overwritting the current feedback)
+        # --id PROBLEM_ID. PROBLEM_ID is the problem id to which the feedback must be assigned.
+        #                  If not indicated, the feedback is global
+
+        feedback-msg-tpl "feedback.tpl" option1=value1 anothername=anothervalue
+
+
+Inside your template (named `feedback.tpl` in the examples above), you can use these parameters like this:
 
 ::
 
-    feedback-msg-tpl TPLNAME option1=value1 option2=value2
-
-Inside your template, you can use these parameters like this:
-
-::
-
-    Option 1 was {{ option1 }} and the option 2 was {{ option 2 }}
+    Option 1 was {{ option1 }} and the option 2 was {{ anothername }}
 
 Which will return
 
 ::
 
-    Option 1 was value1 and the option 2 was value2
+    Option 1 was value1 and the option 2 was anothervalue
 
 See the Jinja2 documentation to discover all possibilities.
 
 Your template must return a valid RestructuredText.
 
-Optional parameters:
-
--a, --append                        append to current feedback, if not specified, replace the
-                                    current feedback.
--i, --id PROBLEM_ID                 problem id to which associate the feedback, leave empty
-                                    for the whole task.
-
 feedback-msg
 ````````````
-The *feedback-msg* command sets the feedback message associated to the task or a subproblem. It has several
-optional parameters:
+The *feedback-msg* command sets the feedback message associated to the task or a subproblem.
 
--a, --append                        append to current feedback, if not specified, replace the
-                                    current feedback.
--i, --id PROBLEM_ID                 problem id to which associate the feedback, leave empty
-                                    for the whole task.
--e, --escape                        interprets backslash escapes
--m, --message MESSAGE               feedback message
+.. tabs::
 
-If the message is not specified, the feedback message is read from stdin. For instance, the command can be
-used as follows:
+    .. code-tab:: ipython3
 
-::
+        # format:
+        # set_global_feedback(feedback, append=False)
+        # append is a boolean indicating if the feedback must be appended or not (overwritting the current feedback)
 
-    feedback-msg -ae -m "This is the correct answer.\n\nWell done!"
+        set_global_feedback(
+            """This is the correct answer.
 
-**In Python** : the equivalent command can be directly obtained with:
+            Well done!"""
+        )
 
-.. code-block:: python
+        # format:
+        # set_problem_feedback(feedback, problem_id, append=False)
+        # problem_id is the problem id to which this feedback must be associated
+        # append is a boolean indicating if the feedback must be appended or not (overwritting the current feedback)
 
-    from inginious import feedback
-    feedback.set_global_feedback("Well done !") # Set global feedback text to `Well done !`
-    feedback.set_problem_feedback("This is not correct.", "q1") # Set 'q1' problem feedback to `This is not correct.`
+        set_problem_feedback(
+            """This is the correct answer.
+
+            Well done!"""
+        , "q1")
+
+    .. code-tab:: py
+
+        from inginious_container_api import feedback
+
+        # format:
+        # set_global_feedback(feedback, append=False)
+        # append is a boolean indicating if the feedback must be appended or not (overwritting the current feedback)
+
+        feedback.set_global_feedback(
+            """This is the correct answer.
+
+            Well done!"""
+        )
+
+        # format:
+        # set_problem_feedback(feedback, problem_id, append=False)
+        # problem_id is the problem id to which this feedback must be associated
+        # append is a boolean indicating if the feedback must be appended or not (overwritting the current feedback)
+
+        feedback.set_problem_feedback(
+            """This is the correct answer.
+
+            Well done!"""
+        , "q1")
+
+    .. code-tab:: bash
+
+        feedback-msg -ae -m "This is the correct answer.\n\nWell done!"
+
+        # It has several
+        # optional parameters:
+        #
+        # -a, --append                        append to current feedback, if not specified, replace the
+        #                                     current feedback.
+        # -i, --id PROBLEM_ID                 problem id to which associate the feedback, leave empty
+        #                                     for the whole task.
+        # -e, --escape                        interprets backslash escapes
+        # -m, --message MESSAGE               feedback message
+        # If the message is not specified, the feedback message is read from stdin.
 
 .. _feedback-custom:
 
 feedback-custom
 ```````````````
-The *feedback-custom* command sets a pair of key/value custom feedback, mainly used with plugins,
-and uses the following syntax :
+The *feedback-custom* command sets a pair of key/value custom feedback, mainly used with plugins.
 
-::
+.. tabs::
 
-    feedback-custom [-j|--json] key value
+    .. code-tab:: ipython3
 
-The ``--json`` parameter indicates if ``value`` must be parsed as a JSON string.
-Please refer to the plugin documentation to know which value you have to set for ``key`` and ``value`` parameters.
+        # format: set_custom_value(key, value)
+        # Please refer to the plugin documentation to know which value you have to set for ``key`` and ``value`` parameters.
+        # value can be anything that can be encoded to JSON by the default python library.
+        set_custom_value("score", 56) # Set the `score` key to value 56
 
-For instance, the following command set the value ``56`` to the ``score`` key:
+    .. code-tab:: py
 
-::
+        # format: set_custom_value(key, value)
+        # Please refer to the plugin documentation to know which value you have to set for ``key`` and ``value`` parameters.
+        # value can be anything that can be encoded to JSON by the default python library.
+        feedback.set_custom_value("score", 56) # Set the `score` key to value 56
 
-    feedback-custom score 56
+    .. code-tab:: bash
 
-**In Python** : the equivalent command can be directly obtained with:
+        # format: feedback-custom [-j|--json] key value
 
-.. code-block:: python
+        # The ``--json`` parameter indicates if ``value`` must be parsed as a JSON string.
+        # Please refer to the plugin documentation to know which value you have to set for ``key`` and ``value`` parameters.
 
-    from inginious import feedback
-    feedback.set_custom_value("score", 56) # Set the `score` key to value 56
+        # For instance, the following command set the value ``56`` to the ``score`` key:
+        feedback-custom score 56
+
 
 tag-set
 ```````
 
-The *tag-set* command sets the value of the tag specified by the tag identifier to ``True`` or ``False``. It uses the
-following syntax:
-
-::
-
-    tag-set tag value
-
-For instance, the following command set the value of the ``my_tag`` tag to ``True``:
-
-::
-
-    tag-set my_tag true
+The *tag-set* command sets the value of the tag specified by the tag identifier to ``True`` or ``False``.
 
 
-**In Python** : the equivalent command can be directly obtained with:
 
-.. code-block:: python
+.. tabs::
 
-    from inginious import feedback
-    feedback.feedback.set_tag("my_tag", True) # Sets the skill/misconception tag as True
+    .. code-tab:: ipython3
+
+        # format: set_tag(tag, value):
+        # Set the tag 'tag' to the value True or False.
+        # :param value: should be a boolean
+        # :param tag: should be the id of the tag. Can not starts with '*auto-tag-'
+
+        # For instance, the following command set the value of the ``my_tag`` tag to ``True``:
+        set_tag("my_tag", True)
+
+
+    .. code-tab:: py
+
+        from inginious_container_api import feedback
+
+        # format: set_tag(tag, value):
+        # Set the tag 'tag' to the value True or False.
+        # :param value: should be a boolean
+        # :param tag: should be the id of the tag. Can not starts with '*auto-tag-'
+
+        # For instance, the following command set the value of the ``my_tag`` tag to ``True``:
+        feedback.set_tag("my_tag", True)
+
+    .. code-tab:: bash
+
+        # format: tag-set tag value
+
+        # For instance, the following command set the value of the ``my_tag`` tag to ``True``:
+        tag-set my_tag true
 
 tag
 ```
 
-The *tag* command defines a new unexpected tag to appear in the submission feedback. It uses the followig syntax:
+The *tag* command defines a new unexpected tag to appear in the submission feedback.
 
-::
+.. tabs::
 
-    tag value
+    .. code-tab:: ipython3
 
-For instance, the following command defines a new ``A new tag`` tag that will appear in the submission feedback:
+        # format: set_tag(tag, value):
+        # Set the tag 'tag' to the value True or False.
+        # :param value: should be a boolean
+        # :param tag: should be the id of the tag. Can not starts with '*auto-tag-'
 
-::
+        # # For instance, the following command defines a new ``A new tag`` tag that will appear in the submission feedback:
+        tag("A new tag") # Sets a new unexpected tag
 
-    tag "A new tag"
 
+    .. code-tab:: py
 
-**In Python** : the equivalent command can be directly obtained with:
+        from inginious_container_api import feedback
 
-.. code-block:: python
+        # format: set_tag(tag, value):
+        # Set the tag 'tag' to the value True or False.
+        # :param value: should be a boolean
+        # :param tag: should be the id of the tag. Can not starts with '*auto-tag-'
 
-    from inginious import feedback
-    feedback.tag("A new tag") # Sets a new unexpected tag
+        # # For instance, the following command defines a new ``A new tag`` tag that will appear in the submission feedback:
+        feedback.tag("A new tag") # Sets a new unexpected tag
 
+    .. code-tab:: bash
+
+        # format: tag value
+
+        # For instance, the following command defines a new ``A new tag`` tag that will appear in the submission feedback:
+        tag "A new tag"
 
 reStructuredText helper commands
 --------------------------------
@@ -232,159 +425,244 @@ rst-code
 ````````
 
 The *rst-code* command generates a code-block with the specified code snippet and language
-to enable syntax highlighting. It has the following parameters:
+to enable syntax highlighting.
 
--l, --language LANGUAGE    snippet language, leave empty to disable syntax highlighting
--e, --escape               interprets backslash escapes
--c, --code CODE            snippet code
 
-If the code parameter is not specified, it is read on standard input. The result is written on standard output.
-For instance, the command can be used as follows:
+.. tabs::
 
-::
+    .. code-tab:: ipython3
 
-    cat test.java | rst-code -l java | feedback-msg -a
+        codeblock = get_codeblock("java", "int a = 42;") # Java codeblock with `int a = 42;` code
 
-**In Python** : the equivalent command can be directly obtained with:
+        set_global_feedback(codeblock, True) # Appends the codeblock to the global feedback
 
-.. code-block:: python
 
-    from inginious import rst
-    codeblock = rst.get_codeblock("java", "int a = 42;") # Java codeblock with `int a = 42;` code
-    feedback.set_global_feedback(codeblock, True) # Appends the codeblock to the global feedback
+    .. code-tab:: py
+
+        from inginious_container_api import rst, feedback
+
+        codeblock = rst.get_codeblock("java", "int a = 42;") # Java codeblock with `int a = 42;` code
+
+        feedback.set_global_feedback(codeblock, True) # Appends the codeblock to the global feedback
+
+    .. code-tab:: bash
+
+        # format: rst-code [-l | --language LANGUAGE] [-e | --escape] [-c | --code CODE]
+
+        # -l, --language LANGUAGE    snippet language, leave empty to disable syntax highlighting
+        # -e, --escape               interprets backslash escapes
+        # -c, --code CODE            snippet code
+
+        # If the code parameter is not specified, it is read on standard input. The result is written on standard output.
+        # For instance, the command can be used as follows:
+        cat test.java | rst-code -l java | feedback-msg -a
+
+
 
 rst-image
 `````````
 
-The *rst-image* command generates a raw reStructuredText block containing the image to display. It has the
-following syntax
+The *rst-image* command generates a raw reStructuredText block containing an image to display.
 
-::
+.. tabs::
 
-    rst-image [-f|--format FORMAT] FILEPATH
+    .. code-tab:: ipython3
+
+        # get_imageblock(filename, format='')
+        imgblock = get_imageblock("smiley.png") # RST block with image
+        set_global_feedback(imgblock, True) # Appends the image block to the global feedback
+
+
+    .. code-tab:: py
+
+        from inginious_container_api import rst, feedback
+
+        # get_imageblock(filename, format='')
+        imgblock = rst.get_imageblock("smiley.png") # RST block with image
+        feedback.set_global_feedback(imgblock, True) # Appends the image block to the global feedback
+
+    .. code-tab:: bash
+
+        # format: rst-image [-f|--format FORMAT] FILEPATH
+
+        # Appends the image block to the global feedback
+        rst-image smiley.png | feedback-msg -a
 
 The optional *format* parameter is used to specify the image format (jpg, png,...) if this is not explicitly specified
 the the image filename. The output is written on the standard output. For instance, the command can be used as follows:
 
-::
+get_admonition / rst-msgblock
+`````````````````````````````
 
-    rst-image generated.png | feedback -a
+The *get_admonition* (python) / *rst-msgblock* (bash) command is used to generate a reStructuredText admonition in a
+specific colour according to the message type.
 
-**In Python** : the equivalent command can be directly obtained with:
+You must indicate a type for the admonition (via the first arg in Python, or via the `-c` arg in bash). The type can be:
 
-.. code-block:: python
+- `success` (green box)
+- `info` (blue box)
+- `warning` (orange box)
+- `danger` (red box)
 
-    from inginious import rst
-    imgblock = rst.get_imageblock("smiley.png") # RST block with image
-    feedback.set_global_feedback(imgblock, True) # Appends the image block to the global feedback
+You can also indicate a title (second parameter in Python, `-t` in bash). It can be empty.
+
+.. tabs::
+
+    .. code-tab:: ipython3
+
+        # RST message block of class "success" and title "Yeah!"
+        admonition = get_admonition("success", "Yeah!", "Well done!")
+        set_global_feedback(admonition, True) # Appends the block to the global feedback
 
 
-rst-msgblock
-````````````
-The *rst-msgblock* command is used to generate a reStructuredText admonition in a specific colour according to the
-message type. It has the following optional parameters:
+    .. code-tab:: py
 
--c, --class CSS_CLASS    Bootstrap alert CSS class:
+        from inginious_container_api import rst, feedback
 
-                          - success
-                          - info
-                          - warning
-                          - danger
--e, --escape             interprets backslash escapes
--t, --title TITLE        message title
--m, --message MESSAGE    message text
+        # RST message block of class "success" and title "Yeah!"
+        admonition = rst.get_admonition("success", "Yeah!", "Well done!")
+        feedback.set_global_feedback(admonition, True) # Appends the block to the global feedback
 
-If the message parameter is not set, the message is read from standard input. For instance, the command can
-be used as follows:
+    .. code-tab:: bash
 
-::
+        # format: rst-image [-c | --class CSS_CLASS] [-e | --escape] [-t | --title TITLE] [-m | --message MESSAGE]
+        # -c, --class CSS_CLASS    Type (Bootstrap alert CSS class). See above for details.
+        # -e, --escape             interprets backslash escapes
+        # -t, --title TITLE        message title
+        # -m, --message MESSAGE    message text
+        # If the message parameter is not set, the message is read from standard input.
 
-    rst-msgblock -c info -m "This is a note" | feedback -ae
-
-**In Python** : the equivalent command can be directly obtained with:
-
-.. code-block:: python
-
-    from inginious import rst
-    admonition = rst.get_admonition("success", "Yeah!", "Well done!") # RST message block of class "success" and title "Yeah!"
-    feedback.set_global_feedback(admonition, True) # Appends the block to the global feedback
+        rst-msgblock -c info -m "This is a note" | feedback -ae
 
 rst-indent
 ``````````
-The *rst-indent* command is used to handle the indentation of the given text. It has the following optional arguments:
 
--e, --escape                      interprets backslash escapes
--c, --indent-char INDENT_CHAR     indentation char, default = tabulation
--a, --amount AMOUNT               amount of indentation, default = 1
--m, --message MESSAGE             message text
+The *rst-indent* command is used to add indentation to a given text.
 
-If the message parameter is not set, the text is read from standard input. The amount of indentation can be negative
-to de-indent the text. For instance, the command can be used as follows, to add an image to the feedback,
-inside a list item, for instance :
+.. tabs::
 
-::
+    .. code-tab:: ipython3
 
-     rst-image generated.png | rst-indent | feedback -a
+        rawhtml = indent_block(1, "<p>A paragraph!</p>", "\t") # Indent the HTML code with 1 unit of tabulations
+        set_global_feedback(".. raw::\n\n" + rawhtml, True) # Appends the block to the global feedback
 
-**In Python** : the equivalent command can be directly obtained with:
+    .. code-tab:: py
 
-.. code-block:: python
+        from inginious_container_api import rst, feedback
 
-    from inginious import rst
-    rawhtml = rst.indent_block(1, "<p>A paragraph!</p>", "\t") # Indent the HTML code with 1 unit of tabulations
-    feedback.set_global_feedback(".. raw::\n\n" + rawhtml, True) # Appends the block to the global feedback
+        rawhtml = rst.indent_block(1, "<p>A paragraph!</p>", "\t") # Indent the HTML code with 1 unit of tabulations
+        feedback.set_global_feedback(".. raw::\n\n" + rawhtml, True) # Appends the block to the global feedback
+
+    .. code-tab:: bash
+
+        # format: rst-image [-c | --class CSS_CLASS] [-e | --escape] [-t | --title TITLE] [-m | --message MESSAGE]
+        # -e, --escape                      interprets backslash escapes
+        # -c, --indent-char INDENT_CHAR     indentation char, default = tabulation
+        # -a, --amount AMOUNT               amount of indentation, default = 1
+        # -m, --message MESSAGE             message text
+
+        # If the message parameter is not set, the message is read from standard input.
+
+        # For instance, the command can be used as follows, to add an image to the feedback,
+        # (inside a list item, for instance):
+        rst-msgblock -c info -m "This is a note" | feedback -ae
+
+
+The amount of indentation can be negative to de-indent the text.
 
 Input commands
 --------------
 
-getinput
-````````
+get_input
+`````````
 
-The *getinput* command returns the input given by the student for a specific problem id.
-For example, for the problem id "pid", the command to run is:
-::
+The *get_input* command/function returns the input given by the student for a specific problem id.
+For example, for the problem id "pid":
 
-    getinput pid
+.. tabs::
+
+    .. code-tab:: ipython3
+
+        thecode = get_input("pid")
+
+    .. code-tab:: py
+
+        from inginious_container_api import input
+        thecode = input.get_input("pid")
+
+    .. code-tab:: bash
+
+        getinput pid
 
 When a problem is defined with several boxes, the argument becomes *pid/bid* where "pid"
 stands for the problem id and "bid" for "box id". If the problem is a file upload, the problem id can be appended
 with ``:filename`` or ``:value`` to retrieve its filename or value.
 
-Note that *getinput* can also retrieve the username/group of the user that submitted the task. You simply have to run
-::
+Note that *get_input* can also retrieve the username/group of the user that submitted the task. You simply have to run
 
-    getinput @username
+.. tabs::
+
+    .. code-tab:: ipython3
+
+        username = get_input("@username")
+
+    .. code-tab:: py
+
+        username = input.get_input("@username")
+
+    .. code-tab:: bash
+
+        getinput @username
 
 If the submission is made as a user, it will contain the username. It it's made as a group,
 it will contain the list of the user's usernames in the
 group, joined with ','.
 
 The four letter code of the student's language (for example `en_US` or `fr_FR`) can also be retrieved using
-::
 
-    getinput @lang
+.. tabs::
+
+    .. code-tab:: ipython3
+
+        lang = get_input("@lang")
+
+    .. code-tab:: py
+
+        lang = input.get_input("@lang")
+
+    .. code-tab:: bash
+
+        getinput @lang
 
 Note that plugins are free to add new `@`-prefixed fields to the available input using the `new_submission` hook.
-
-**In Python** : the equivalent command can be directly obtained with:
-
-.. code-block:: python
-
-    from inginious import input
-    thecode = input.get_input("q1") # Fetch the code for problem `q1`
-
 
 parsetemplate
 `````````````
 
 The *parsetemplate* command injects the input given by the student in a template.
-The command has this form:
-::
 
-    parsetemplate [-o|--output outputfile] template
+A template file must be given to the function/command. An output file can also be given, and if
+none is given, the template will be replaced.
 
-where *template* is the file to parse. Output file is the destination file.
-If the *-o* option is not given, the template will be replaced.
+.. tabs::
+
+    .. code-tab:: ipython3
+
+        thecode = parse_template("student.c") # Parse the `student.c` template file
+        thecode = parse_template("template.c", "student.c") # Parse the `template.c` template file and save the parsed file into `student.c`
+
+    .. code-tab:: py
+
+        from inginious_container_api import input
+        thecode = input.parse_template("student.c") # Parse the `student.c` template file
+        thecode = input.parse_template("template.c", "student.c") # Parse the `template.c` template file and save the parsed file into `student.c`
+
+    .. code-tab:: bash
+
+        # parsetemplate [-o|--output outputfile] template
+        parsetemplate "student.c" # Parse the `student.c` template file
+        parsetemplate -o "student.c" "template.c" # Parse the `template.c` template file and save the parsed file into `student.c`
+
 
 The markup in the templates is very simple: *@prefix@problemid@suffix@*.
 Prefix allows to correct the indentation when needed (this is useful in Python).
@@ -403,15 +681,6 @@ Example of template file (in java)
 To access the filename and text content of a submitted file, the *problemid* can be
 followed by a *:filename* or *:value* suffix.
 
-
-**In Python** : the equivalent command can be directly obtained with:
-
-.. code-block:: python
-
-    from inginious import input
-    thecode = input.parse_template("student.c") # Parse the `student.c` template file
-    thecode = input.parse_template("template.c", "student.c") # Parse the `template.c` template file and save the parsed file into `student.c`
-
 .. _run_student:
 
 run_student
@@ -426,32 +695,66 @@ subdirectory. Only the changes made in that directory will remain in the main co
 *run_student* is fully configurable; you can change the container image (environment), set new timeouts, new memory
 limits, ... And you can call it as many time as you want.
 
---container CONTAINER             Name of the container to use. The default is the same as the current container.
---time TIME                       Timeout (in CPU time) for the container. The default is the same as the current container.
---hard-time TIME                  Hard timeout for the container (in real time). The default is three times the value indicated for --time.
---memory MEMORY                   Maximum memory for the container, in Megabytes. The default is the same as the current container.
---share-network                   Share the network stack of the grading container with the student container. This is not the case by
-                                  default. If the container container has network access, this will also be the case for the student!
+Here is the list of the main parameters:
 
-Beyond these optionals args, *run_student* also takes an additional (mandatory) arguments: the command to be run in the new container.
+- container (--container in the run_student command)
+        Name of the container to use. The default is the same as the current container.
+- time limit (--time)
+        Timeout (in CPU time) for the container, in seconds. The default is the same as the current container.
+- hard time limit (--hard-time)
+        Hard timeout for the container (in real time), in seconds.
+        The default is three times the value indicated for the time limit.
+- memory limit (--memory)
+        Maximum memory for the container, in Megabytes. The default is the same as the current container.
+- network sharing (--share-network)
+        Share the network stack of the grading container with the student container. This is not the case by
+        default. If the container container has network access, this will also be the case for the student!
+
+Beyond these optionals args, *run_student* various commands also takes an additional (mandatory) argument:
+the command to be run in the new container.
 
 More technically, please note that:
 
-- *run_student* proxies stdin, stdout, stderr, most signals and the return value
+- the *run_student* **command** (accesible in bash) proxies stdin, stdout, stderr, most signals and the return value
 - There are special return values:
     - 252 means that the command was killed due to an out-of-memory
     - 253 means that the command timed out
     - 254 means that an error occurred while running the proxy
 
-archive
--------
+In Python, two flavours of *run_student* are available: `run` and `run_simple`. The first is a low-level function,
+which allows you to modify most of the behavior of the behavior of the function. The second aims to solve the most used
+use case: run a command with a given input, and returns its output. A small description of `run_simple` is available in
+the examples below, please check the API directly for more information.
 
-*archive* allows you to put some data in an archive that will be returned to the frontend
-and stored in the database for future reading. You can put there debug data, for example.
+.. tabs::
 
-The command takes some arguments, which are all optional:
+    .. code-tab:: ipython3
 
--o, --outsubdir DIRECTORY           will put the file (specified with -a or -r)in the
-                                    specified sub-directory in the output archive
--a, --add FILEPATH                  add the file to the archive
--r, --remove FILEPATH               remove the file from the archive
+        # runs student/script.sh in another safe container, with a timeout of 60 seconds,
+        # and stores the output in the variables `stdout` and `stderr`, and the return value
+        # inside the variable `retval`.
+        stdout, stderr, retval = run_student_simple("student/script.sh", time=60)
+
+    .. code-tab:: py
+
+        from inginious_container_api import run_student
+
+        # runs student/script.sh in another safe container, with a timeout of 60 seconds,
+        # and stores the output in the variables `stdout` and `stderr`, and the return value
+        # inside the variable `retval`.
+        stdout, stderr, retval = run_student.run_student_simple("student/script.sh", time=60)
+
+    .. code-tab:: bash
+
+        # runs student/script.sh in another safe container, with a timeout of 60 seconds,
+        # and stores the output in the variable `output`, as an array of lines.
+        output=`run_student --time 60 student/script.sh`
+
+Archiving files
+---------------
+
+The folder /archive inside the container allows you to store anything you may need outside the container.
+The content of the folder will be automatically compressed and saved in the database, and will be downloadable
+in the INGInious web interface.
+
+This feature is useful for debug purposes, but also for analytics and for more complex plugins.

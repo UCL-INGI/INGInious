@@ -4,12 +4,9 @@
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
 
-import os
-import sys
-import json
 import argparse
-import inginious
-from inginious import feedback
+import inginious_container_api
+from inginious_container_api import feedback
 
 parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, description='Set the result of the task or specified problem.\n')
 parser.add_argument('-i', '--id', help="problem id", default="")
@@ -21,6 +18,6 @@ problem = args.id
 
 # Doing the real stuff
 if not problem:
-    inginious.feedback.set_global_result(result)
+    inginious_container_api.feedback.set_global_result(result)
 else:
-    inginious.feedback.set_problem_result(result, problem)
+    inginious_container_api.feedback.set_problem_result(result, problem)

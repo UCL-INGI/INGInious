@@ -9,6 +9,7 @@ Contents:
    teacher_doc/what_is_inginious
    teacher_doc/create_course
    teacher_doc/create_task
+   teacher_doc/inginious_container_api
    teacher_doc/translating
    teacher_doc/create_container
    teacher_doc/course_admin

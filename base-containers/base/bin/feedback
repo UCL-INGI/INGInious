@@ -8,8 +8,8 @@ import os
 import sys
 import json
 import argparse
-import inginious
-from inginious import feedback
+import inginious_container_api
+from inginious_container_api import feedback
 
 
 parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, description='Set the result of the task or specified problem.\n')
@@ -35,18 +35,18 @@ custom_json = True if args.custom_json else False
 
 if result != '':
     if problem == '':
-        inginious.feedback.set_global_result(result)
+        inginious_container_api.feedback.set_global_result(result)
     else:
-        inginious.feedback.set_problem_result(result, problem)
+        inginious_container_api.feedback.set_problem_result(result, problem)
 
 if grade:
-    inginious.feedback.set_grade(grade)
+    inginious_container_api.feedback.set_grade(grade)
     
 if feedback != '':
     if problem == '':
-        inginious.feedback.set_global_feedback(feedback)
+        inginious_container_api.feedback.set_global_feedback(feedback)
     else:
-        inginious.feedback.set_problem_feedback(feedback, problem)
+        inginious_container_api.feedback.set_problem_feedback(feedback, problem)
 
 if custom_str:
     try:
@@ -72,7 +72,7 @@ if custom_str:
             except:
                 pass
 
-    inginious.feedback.set_custom_value(custom_name, custom_str)
+        inginious_container_api.feedback.set_custom_value(custom_name, custom_str)
 
 if getjson:
-    print(json.dumps(inginious.feedback.get_feedback()))
+    print(json.dumps(inginious_container_api.feedback.get_feedback()))

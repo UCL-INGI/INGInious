@@ -83,29 +83,28 @@ in the webapp in the *Task files* tab of the *Edit task* page.
 #. Create the ``run`` file. This file will be the script that is launched when the task is started. Here we will create
    a *bash* script, that parses the template and verifies its content.
 
-   .. code-block:: bash
+   .. code-block:: python
+        # This line parses the template and put the result in studentcode.py
+        parse_template("template.py", "student/studentcode.py")
 
-       #! /bin/bash
+        # Verify the output of the code... (we ignore stderr and retval here)
+        output, _, _ = run_student_simple(python student/studentcode.py)
 
-       # This line parses the template and put the result in studentcode.py
-       parsetemplate --output student/studentcode.py template.py
+        if output == "Hello World!":
+            # The student succeeded
+            set_global_result("success")
+            set_global_feedback("You solved this difficult task!")
+        else:
+            # The student succeeded
+            set_global_result("failed")
+            set_global_feedback("Your output is " + output)
 
-       # Verify the output of the code...
-       output=$(run_student python student/studentcode.py)
-       if [ "$output" = "Hello World!" ]; then
-           # The student succeeded
-           feedback-result success
-           feedback-msg -m "You solved this difficult task!"
-       else
-           # The student failed
-           feedback-result failed
-           feedback-msg -m "Your output is $output"
-       fi
-   Here we use three commands provided by INGInious, ``parsetemplate``, ``run_student`` and ``feedback``.
-   The code is self-explanatory; just notice the usage of ``run_student`` that ask INGInious (precisely the Docker agent)
-   to start a new *student container* and run inside the command ``python studentcode.py``.
+   Here we use four commands provided by INGInious, ``parse_template``, ``run_simple``,
+   ``set_global_result`` and ``set_global_feedback``.
+   The code is self-explanatory; just notice the usage of ``run_student_simple`` (a version of `run_student`) that ask INGInious
+   (precisely the Docker agent) to start a new *student container* and run inside the command ``python studentcode.py``.
 
-   Please note that the ``run_student`` command is fully configurable: you can change the environment on which you run
+   Please note that the ``run_student_simple`` command is fully configurable: you can change the environment on which you run
    the task, define new timeouts, memory limits, ... See :ref:`run_student` for more details.
 
 #. If not using the webapp, don't forget to give the ``run`` file the execution rights:

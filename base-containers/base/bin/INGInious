@@ -14,7 +14,8 @@ import stat
 import resource
 import subprocess
 
-import inginious.feedback
+import inginious_container_api.feedback
+from inginious_container_api.run_types import run_types
 import time
 import tempfile
 import tarfile
@@ -25,7 +26,9 @@ import asyncio
 import struct
 import zmq
 import zmq.asyncio
-from msgpack import Unpacker
+
+ELF_MAGIC = b"\x7F\x45\x4C\x46"
+SHEBANG_MAGIC = b"\x23\x21"
 
 class INGIniousMainRunner(object):
     def __init__(self, ctx, loop):
@@ -58,6 +61,7 @@ class INGIniousMainRunner(object):
     def setlimits(self):
         os.setgid(4242)
         os.setuid(4242)
+        os.environ["HOME"] = "/task"
         resource.setrlimit(resource.RLIMIT_NPROC, (1000, 1000))
     
     def setExecutable(self, filename):
@@ -86,11 +90,11 @@ class INGIniousMainRunner(object):
         stderr.seek(0)
         return stdout.read(), stderr.read()
 
-    def b64tarfile(self, source_dir):
-        with tarfile.open('/.__output/archive.tgz', "w:gz") as tar:
-            tar.add(source_dir, arcname='/')
+    def b64tararchive(self):
+        with tarfile.open('/tmp/archive.tgz', "w:gz") as tar:
+            tar.add('/archive/', arcname='/')
 
-        with open('/.__output/archive.tgz', "rb") as tar:
+        with open('/tmp/archive.tgz', "rb") as tar:
             encoded_string = base64.b64encode(tar.read())
 
         return encoded_string.decode('utf-8')
@@ -251,6 +255,31 @@ class INGIniousMainRunner(object):
         f.write(json.dumps(data))
         f.close()
 
+    def _detect_run_file(self, run_cmd=None):
+        """ Detect the run file. The order of the resolution is as follows:
+        - If run_cmd is not None, then run it.
+        - If /task/run exists, then run it.
+        - For all runtypes (with extension `ext` and command `cmd`) inside the runtypes dictionnary:
+            - if `/task/run.ext` exists, then run  `cmd /task/run.ext`
+        - If /course/run exists, then run it
+        - For all runtypes (with extension `ext` and command `cmd`) inside the runtypes dictionnary:
+            - if `/course/run.ext` exists, then run  `cmd /task/run.ext`
+        - Produce an error.
+
+        :returns: a list containing the command to be run by execute_process, or None if no run file is found.
+        """
+
+        if run_cmd is not None:
+            return run_cmd.split(" ")
+        for prefix in ["task", "course"]:
+            if os.path.exists("/{}/run".format(prefix)):
+                return ["/{}/run".format(prefix)]
+            for ext, cmd in run_types.items():
+                if os.path.exists("/{}/run.{}".format(prefix, ext)):
+                    return cmd + ["/{}/run.{}".format(prefix, ext)]
+
+        return None
+
     def _start_cmd_sync(self, data):
         self._logger.info("starting run")
         # Determining if debug mode or not
@@ -264,6 +293,10 @@ class INGIniousMainRunner(object):
         # Create output directory
         if not os.path.exists("/.__output"):
             os.mkdir("/.__output")
+
+        # Create archive directory
+        if not os.path.exists("/archive"):
+            os.mkdir("/archive")
 
         # Touch __feedback.json (to set the rights)
         open('/.__output/__feedback.json', 'w').close()
@@ -280,6 +313,7 @@ class INGIniousMainRunner(object):
         self.setDirectoryRights("/tmp")
         self.setDirectoryRights("/task")
         self.setDirectoryRights("/.__output")
+        self.setDirectoryRights("/archive")
 
         ok_to_start = True
 
@@ -290,8 +324,8 @@ class INGIniousMainRunner(object):
                 try:
                     open(spath, 'ab' if append else 'wb').write(b'\n' + open(os.path.join('/task/systemfiles/', name), 'rb').read())
                 except IOError:
-                    inginious.feedback.set_global_result('crash')
-                    inginious.feedback.set_global_feedback("Cannot read/use %s" % os.path.join('/task/systemfiles/', name))
+                    inginious_container_api.feedback.set_global_result('crash')
+                    inginious_container_api.feedback.set_global_feedback("Cannot read/use %s" % os.path.join('/task/systemfiles/', name))
                     ok_to_start = False
         os.chown('/etc/hosts', 0, 4242)
         os.chown('/etc/resolv.conf', 0, 4242)
@@ -310,16 +344,18 @@ class INGIniousMainRunner(object):
         if not ok_to_start:
             pass # do not start ;-)
         elif debug != "ssh": #normal start
-            if os.path.exists("/task/run"):
+            run_final_cmd = self._detect_run_file(data.get("run_cmd"))
+
+            if run_final_cmd is not None:
                 os.chdir("/task")
                 try:
-                    stdout, stderr = self.executeProcess("/task/run")
+                    stdout, stderr = self.executeProcess(run_final_cmd)
                 except:
-                    inginious.feedback.set_global_result('crash')
-                    inginious.feedback.set_global_feedback("An error occured while running the grading script. It is possible that it is non-executable or made a timeout")
+                    inginious_container_api.feedback.set_global_result('crash')
+                    inginious_container_api.feedback.set_global_feedback("An error occured while running the grading script. It is possible that it is non-executable or made a timeout")
             else:
-                inginious.feedback.set_global_result('crash')
-                inginious.feedback.set_global_feedback("'/task/run' could not be found")
+                inginious_container_api.feedback.set_global_result('crash')
+                inginious_container_api.feedback.set_global_feedback("'/task/run' could not be found")
         else: #start the ssh server
             # generate a password for the worker user
             password, _ = self.executeProcess(["/usr/bin/openssl", "rand", "-base64", "10"], as_root=True)
@@ -357,13 +393,13 @@ class INGIniousMainRunner(object):
                     connected_workers = int(stdout)
                     attempts += 1
             else:
-                inginious.feedback.set_global_result('crash')
-                inginious.feedback.set_global_feedback('[SSH Debug] Nobody connected to the SSH server.')
+                inginious_container_api.feedback.set_global_result('crash')
+                inginious_container_api.feedback.set_global_feedback('[SSH Debug] Nobody connected to the SSH server.')
 
             stdout, stderr = b"", b""
 
         # Produce feedback
-        feedback = inginious.feedback.get_feedback()
+        feedback = inginious_container_api.feedback.get_feedback()
         if not feedback:
             result = {"result":"crash", "text":"No feedback was given !", "problems":{}, "tests":{}}
             if debug:
@@ -376,7 +412,7 @@ class INGIniousMainRunner(object):
             if debug:
                 feedback['stdout'] = stdout.decode('utf-8', 'replace')
                 feedback['stderr'] = stderr.decode('utf-8', 'replace')
-            feedback['archive'] = self.b64tarfile('/.__output')
+            feedback['archive'] = self.b64tararchive()
             self.setDirectoryRights('/task')
             self._logger.info("returning results")
             return feedback

@@ -4,12 +4,10 @@
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
 
-import os
-import sys
 import json
 import argparse
-import inginious
-from inginious import feedback
+import inginious_container_api
+from inginious_container_api import feedback
 
 parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, description='Set a pair of custom key/value feedback fields\n')
 parser.add_argument('-j', '--json', help="interprets value as json", action='store_true')
@@ -38,4 +36,4 @@ else:
         except:
             pass
 
-inginious.feedback.set_custom_value(key, value)
+inginious_container_api.feedback.set_custom_value(key, value)

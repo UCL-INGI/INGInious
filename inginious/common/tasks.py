@@ -24,6 +24,11 @@ class Task(object):
         self._data = content
         self._environment = self._data.get('environment', None)
 
+        # Ensure that run_cmd is in the correct format
+        self._run_cmd = self._data.get('run_cmd')
+        if self._run_cmd == '':
+            self._run_cmd = None
+
         # Response is HTML
         self._response_is_html = self._data.get("responseIsHTML", False)
 
@@ -112,6 +117,12 @@ class Task(object):
         """ Return True if the grading container should have access to the network """
         vals = self._hook_manager.call_hook('task_network_grading', course=self.get_course(), task=self, default=self._network_grading)
         return vals[0] if len(vals) else self._network_grading
+
+    def get_custom_run_cmd(self):
+        """ Returns a string containing the custom run command to be run inside the container, instead of the default run file.
+            Returns None if no custom command has been set
+        """
+        return self._run_cmd
 
     def get_response_type(self):
         """ Returns the method used to parse the output of the task: HTML or rst """

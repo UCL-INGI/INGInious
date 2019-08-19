@@ -6,10 +6,8 @@
 #
 # Tool to generate an RST block for a given image file
 
-import os
-import sys
 import argparse
-from inginious import rst
+from inginious_container_api import rst
 
 parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, 
                                  description='Generates reStructuredText for a given image.')

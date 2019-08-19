@@ -26,6 +26,9 @@ def get_imageblock(filename, format=''):
 
 def get_admonition(cssclass, title, text):
     """ Generates rst admonition block given a bootstrap alert css class, title, and text"""
+    if cssclass not in ["info", "danger", "warning", "success"]:
+        cssclass = "info"
+
     rst = ("\n\n.. admonition:: " + title + "\n") if title else "\n\n.. note:: \n"
     rst += "\t:class: alert alert-" + cssclass + "\n\n"
     for line in text.splitlines():

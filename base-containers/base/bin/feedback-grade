@@ -4,15 +4,13 @@
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
 
-import os
-import sys
 import argparse
-import inginious
-from inginious import feedback
+import inginious_container_api
+from inginious_container_api import feedback
 
 parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter, description='Set the grade/score of the task.\n')
 parser.add_argument('grade', help="grade/score")
 args = parser.parse_args()
 
 # Do the real stuff
-inginious.feedback.set_grade(args.grade)
+inginious_container_api.feedback.set_grade(args.grade)

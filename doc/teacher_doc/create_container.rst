@@ -24,6 +24,9 @@ Here is an example of Dockerfile:
    # Add php
    RUN     yum -y install php-cli
 
+   # Add the php interpreter as run file interpreter (to allow run.php files)
+   RUN echo 'run_types["php"] = "/bin/php"' >> /usr/lib/python3.6/site-packages/inginious_container_api/run_types.py
+
 As easily seen, this Dockerfile creates a new container image that can launch PHP scripts.
 The syntax of these Dockerfiles is extensively described on the website of Docker_, 
 but we will detail here the most important things to know.

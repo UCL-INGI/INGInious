@@ -39,7 +39,7 @@ test_requires = [
 
 # Platform specific dependencies
 if not on_rtd:
-    install_requires += ["pytidylib>=0.2.4", "sphinx-rtd-theme>=0.1.8"]
+    install_requires += ["pytidylib>=0.2.4", "sphinx-rtd-theme>=0.1.8", "sphinx-tabs"]
 else:
     install_requires += test_requires + ["Pygments>=2.0.2"]
 

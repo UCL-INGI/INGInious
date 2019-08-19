@@ -165,6 +165,7 @@ class DockerAgent(Agent):
         time_limit = message.time_limit
         hard_time_limit = message.hard_time_limit or time_limit * 3
         mem_limit = message.mem_limit
+        run_cmd = message.run_cmd
 
         course_fs = self.tasks_fs.from_subfolder(course_id)
         task_fs = course_fs.from_subfolder(task_id)
@@ -293,7 +294,8 @@ class DockerAgent(Agent):
             "sockets_path": sockets_path,
             "student_path": student_path,
             "systemfiles_path": systemfiles_path,
-            "course_common_student_path": course_common_student_path
+            "course_common_student_path": course_common_student_path,
+            "run_cmd": run_cmd
         }
 
     async def new_job(self, message: BackendNewJob):
@@ -373,7 +375,7 @@ class DockerAgent(Agent):
         write_stream.write(msg)
         await write_stream.drain()
 
-    async def handle_running_container(self, job_id, container_id, inputdata, debug, ports, orig_env,
+    async def handle_running_container(self, job_id, container_id, inputdata, run_cmd, debug, ports, orig_env,
                                        orig_memory_limit, orig_time_limit, orig_hard_time_limit, sockets_path,
                                        student_path, systemfiles_path, course_common_student_path, future_results):
         """ Talk with a container. Sends the initial input. Allows to start student containers """
@@ -387,7 +389,10 @@ class DockerAgent(Agent):
             return None
 
         # Send hello msg
-        await self._write_to_container_stdin(write_stream, {"type": "start", "input": inputdata, "debug": debug})
+        hello_msg = {"type": "start", "input": inputdata, "debug": debug}
+        if run_cmd is not None:
+            hello_msg["run_cmd"] = run_cmd
+        await self._write_to_container_stdin(write_stream, hello_msg)
         result = None
 
         buffer = bytearray()

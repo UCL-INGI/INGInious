@@ -5,7 +5,7 @@
 # more information about the licensing of this file.
 
 import argparse
-import inginious.feedback
+import inginious_container_api.feedback
 
 def check_dict_entry(entry):
     splitted = entry.split("=")
@@ -28,4 +28,4 @@ template_options = dict(args.options)
 append = args.append
 problem = args.id
 
-inginious.feedback.set_feedback_from_tpl(template_name, template_options, problem, append)
+inginious_container_api.feedback.set_feedback_from_tpl(template_name, template_options, problem, append)
