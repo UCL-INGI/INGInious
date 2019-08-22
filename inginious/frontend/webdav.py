@@ -49,8 +49,8 @@ def get_dc(database, user_manager, filesystem):
             return True
 
         def supports_http_digest_auth(self):
-            # We don't have access to a plaintext password (or stored hash)
-            return False
+            # We have access to a plaintext password (or stored hash)
+            return True
 
         def basic_auth_user(self, realmname, username, password, environ):
             """Returns True if this username/password pair is valid for the realm,
@@ -65,7 +65,9 @@ def get_dc(database, user_manager, filesystem):
             return apikey is not None and password == apikey
 
         def digest_auth_user(self, realm, user_name, environ):
-            return False
+            """Computes digest hash A1 part."""
+            password = user_manager.get_user_api_key(user_name, create=True)
+            return self._compute_http_digest_a1(realm, user_name, password)
 
     return INGIniousDAVDomainController
 
@@ -193,7 +195,7 @@ class INGIniousFilesystemProvider(DAVProvider):
             course = self.database.courses.find_one({"_id": course_id})
             course = WebAppCourse(course["_id"], course, self.filesystem, None)
         except:
-            raise RuntimeError("Unknown course {}".format(course_id))
+            raise DAVError(HTTP_NOT_FOUND, "Unknown course {}".format(course_id))
 
         path_to_course_fs = course.get_fs()
         path_to_course = os.path.abspath(path_to_course_fs.prefix)
@@ -254,8 +256,6 @@ def get_app(config):
     config["provider_mapping"] = {"/": INGIniousFilesystemProvider(database, fs_provider)}
     config["http_authenticator"]["domain_controller"] = get_dc(database, user_manager, fs_provider)
     config["http_authenticator"]["accept_basic"] = True
-    config["http_authenticator"]["accept_digest"] = False
-    config["http_authenticator"]["default_to_digest"] = False
     config["verbose"] = 0
 
     app = wsgidav_app.WsgiDAVApp(config)
