@@ -66,6 +66,8 @@ class WebAppCourse(Course):
             self._lti_keys = {}
             self._lti_send_back_grade = False
 
+        self._hook_manager.call_hook('course_created', course=self)
+
     def get_staff(self):
         """ Returns a list containing the usernames of all the staff users """
         return list(set(self.get_tutors() + self.get_admins()))
