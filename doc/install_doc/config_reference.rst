@@ -185,6 +185,24 @@ Use fixed username/password to bind to ldap sever:
 ``bind_password_file``
     use first line from file as password
 
+If you need to use different configurations e.g. primary and backup ldap server or different groups:
+it is possible to use multiple configs, the first valid config in the chain will be used
+
+::
+
+    plugins:
+    - plugin_module: inginious.frontend.plugins.auth.ldap_auth
+      id: "ldap"
+      name: "LDAP Login"
+      chain:
+      -   host: "ldap.test.be"
+          bind_dn: "cn={},ou=teachers,dc=test,dc=be"
+          ...
+      -   host: "ldap.test.be"
+          bind_dn: "cn={},ou=students,dc=test,dc=be"
+          ...
+
+
 SAML2/Shibboleth
 !!!!!!!!!!!!!!!!
 

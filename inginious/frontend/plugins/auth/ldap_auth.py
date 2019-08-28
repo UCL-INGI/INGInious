@@ -168,11 +168,29 @@ class LDAPAuthenticationPage(AuthenticationPage):
             return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(
                 settings, "Empty password")
 
-        try:
-            email, username, realname = self._ldap_request(login, password, **settings)
-        except Exception as e:
-            return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(settings,
-                                                                                                      str(e))
+        email, username, realname = None, None, None
+
+        if settings.get('chain', False):
+            exc = set()
+            for config in settings['chain']:
+                try:
+                    email, username, realname = self._ldap_request(login, password, **config)
+                except Exception as e:
+                    exc.add(str(e))
+                finally:
+                    if email and username and realname:
+                        break
+            if (not email or not username or not realname) and len(exc) > 0:
+                errors = ', '.join(exc)
+                return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(settings,
+                                                                                                          errors)
+        else:
+            try:
+                email, username, realname = self._ldap_request(login, password, **settings)
+            except Exception as e:
+                return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(settings,
+                                                                                                          str(e))
+
         if not email or not username or not realname:
             # Unknown Auth Error
             return self.template_helper.get_custom_renderer('frontend/plugins/auth').custom_auth_form(settings,
@@ -217,6 +235,23 @@ def init(plugin_manager, _, _2, conf):
         *bind_dn*: use this username
         *bind_password*: use this password
         *bind_password_file*: use first line from file as password
+
+        If you need to use different configurations e.g. primary and backup ldap server or different groups:
+        it is possible to use multiple configs, the first valid config in the chain will be used
+
+        ::
+
+            plugins:
+            - plugin_module: inginious.frontend.plugins.auth.ldap_auth
+              id: "ldap"
+              name: "LDAP Login"
+              chain:
+              -   host: "ldap.test.be"
+                  bind_dn: "cn={},ou=teachers,dc=test,dc=be"
+                  ...
+              -   host: "ldap.test.be"
+                  bind_dn: "cn={},ou=students,dc=test,dc=be"
+                  ...
     """
 
     encryption = conf.get("encryption", "none")
