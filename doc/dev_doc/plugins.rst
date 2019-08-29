@@ -142,6 +142,12 @@ Each hook available in INGInious is described here, starting with its name and p
 
     Used to add Javascript files in the footer. 
     Should return the path to a Javascript file (relative to the root of INGInious).
+``course_created`` (``course``)
+    Returns: inginious.common.courses.Course
+
+    ``course`` : inginious.common.courses.Course
+
+    Used to modify a newly created course.
 ``course_accessibility`` (``course``, ``default``)
     Returns: inginious.frontend.accessible_time.AccessibleTime
 

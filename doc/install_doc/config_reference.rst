@@ -254,6 +254,23 @@ To enable this plugin, add to your configuration file:
 ``id`` is the authentication method id. ``client_id`` and ``client_secret`` are the OAuth identifier and secret of the
 created app. Set ``debug`` to ``true`` to allow OAuth to be run in debug mode (for instance, if SSL is not yet set up).
 
+LTI-auto-bind plugin
+````````````````````
+This plugin allows the *automatic* creation of users at first access via lti request (eg. via moodle).
+To enable the plugin, add to your configuration file:
+::
+
+    plugins:
+        - plugin_module: inginious.frontend.plugins.ltiautobind
+
+Use with care:
+
+- this trusts the sender of the lti request
+- this will lead to a severe security issue enabling account hijacking. This may seem harmless in a closed environment
+  such as a university Moodle instance where all students have the same email domain, but in case an LTI course
+  is used in a public environment (such as our edX Louv1.x on inginious.org), somebody@somedomain may be bound
+  to the somebody@anotherdomain account, or, actually, simply an alreay existing account with corresponding user id.
+
 Scoreboard plugin
 `````````````````
 
