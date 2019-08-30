@@ -10,13 +10,21 @@ from datetime import datetime
 
 import tidylib
 from docutils import core, nodes
+from docutils.nodes import paragraph
 from docutils.parsers.rst import directives, Directive
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
+from docutils.parsers.rst.directives.body import CodeBlock
 from docutils.statemachine import StringList
 from docutils.writers import html4css1
 
 from inginious.frontend.accessible_time import parse_date
 
+class EmptiableCodeBlock(CodeBlock):
+    def run(self):
+        if not self.content:
+            translation = self.state.document.settings.translation
+            self.content = [translation.gettext("[no content]")]
+        return super(EmptiableCodeBlock, self).run()
 
 class CustomBaseAdmonition(BaseAdmonition):
     """ A custom admonition that can have a title """
@@ -292,3 +300,4 @@ directives.register_directive("note", _gen_admonition_cls(nodes.note))
 directives.register_directive("tip", _gen_admonition_cls(nodes.tip))
 directives.register_directive("warning", _gen_admonition_cls(nodes.warning))
 directives.register_directive("hidden-until", HiddenUntilDirective)
+directives.register_directive("code-block", EmptiableCodeBlock)
