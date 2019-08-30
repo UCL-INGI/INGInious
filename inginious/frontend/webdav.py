@@ -21,6 +21,21 @@ from inginious.frontend.session_mongodb import MongoStore
 from inginious.frontend.courses import WebAppCourse
 
 
+class FakeIO(object):
+    """ Fake fd-like object """
+    def __init__(self):
+        self._content = None
+
+    def write(self, content):
+        self._content = content
+
+    def close(self):
+        pass
+
+    def getvalue(self):
+        return self._content
+
+
 def get_dc(database, user_manager, filesystem):
 
     class INGIniousDAVDomainController(BaseDomainController):
@@ -74,12 +89,12 @@ def get_dc(database, user_manager, filesystem):
 
 class INGIniousTaskFile(DAVNonCollection):
     """ Protects the course description file. """
-    def __init__(self, path, environ, file_path, database, course_id, task_id):
+    def __init__(self, path, environ, database, course_id, task_id):
         super(INGIniousTaskFile, self).__init__(path, environ)
-        self._file_path = file_path
         self._database = database
         self._course_id = course_id
         self._task_id = task_id
+        self._content = FakeIO()
 
     def support_recursive_delete(self):
         return False
@@ -116,14 +131,13 @@ class INGIniousTaskFile(DAVNonCollection):
         raise DAVError(HTTP_FORBIDDEN)
 
     def begin_write(self, content_type=None):
-        return open(self._file_path, "wb", 8192)
+        return self._content
 
     def end_write(self, with_errors):
         """ Update the course.yaml if possible. Verifies the content first, and make backups beforehand. """
         logger = logging.getLogger("inginious.webdav")
         logger.info("Importing task {}/{}".format(self._course_id, self._task_id))
-        task_desc = custom_yaml.load(open(self._file_path))
-        os.unlink(self._file_path)
+        task_desc = custom_yaml.load(self._content.getvalue())
         task_desc["courseid"] = self._course_id
         task_desc["taskid"] = self._task_id
         if self._database.tasks.find_one({"courseid": self._course_id, "taskid": self._task_id}):
@@ -151,7 +165,7 @@ class INGIniousTaskFolder(FolderResource):
         if name == "task.yaml":
             fp = os.path.join(self._file_path, compat.to_unicode(name))
             path = util.join_uri(self.path, name)
-            return INGIniousTaskFile(path, self.environ, fp, self._database, self._course_id, self._task_id)
+            return INGIniousTaskFile(path, self.environ, self._database, self._course_id, self._task_id)
         else:
             return super(INGIniousTaskFolder, self).get_member(name)
 
@@ -159,7 +173,7 @@ class INGIniousTaskFolder(FolderResource):
         if name == "task.yaml":
             fp = os.path.join(self._file_path, compat.to_unicode(name))
             path = util.join_uri(self.path, name)
-            return INGIniousTaskFile(path, self.environ, fp, self._database, self._course_id, self._task_id)
+            return INGIniousTaskFile(path, self.environ, self._database, self._course_id, self._task_id)
         else:
             return super(INGIniousTaskFolder, self).create_empty_resource(name)
 
@@ -223,7 +237,7 @@ class INGIniousFilesystemProvider(DAVProvider):
         if len(inner_path) == 2 and inner_path[1] == "task.yaml":
             task_desc = self.database.tasks.find_one({"courseid": self._get_course_id(path), "taskid": inner_path[0]})
             if task_desc:
-                return INGIniousTaskFile(path, environ, fp, self.database, self._get_course_id(path), inner_path[0])
+                return INGIniousTaskFile(path, environ, self.database, self._get_course_id(path), inner_path[0])
             else:
                 return None
 
