@@ -33,9 +33,11 @@ class Course(object):
                 else:
                     self._translations[lang] = gettext.NullTranslations()
 
+    def get_translation_obj(self, language):
+        return self._translations.get(language, gettext.NullTranslations())
+
     def gettext(self, language, *args, **kwargs):
-        translation = self._translations.get(language, gettext.NullTranslations())
-        return translation.gettext(*args, **kwargs)
+        return self.get_translation_obj(language).gettext(*args, **kwargs)
 
     def get_id(self):
         """ Return the _id of this course """
