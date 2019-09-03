@@ -1,0 +1,28 @@
+Updating i18n
+=============
+
+Extrating new messages
+----------------------
+Extract messages in a PO template file:
+
+.. code-block::
+
+    pybabel extract -F inginious/frontend/babel.cfg ./ -o messages.pot
+
+Then update the PO files for each language:
+
+.. code-block::
+
+    pybabel update -i messages.pot -o inginious/frontend/i18n/en/LC_MESSAGES/messages.po -l en
+    pybabel update -i messages.pot -o inginious/frontend/i18n/fr/LC_MESSAGES/messages.po -l fr
+    ...
+
+Updating translation
+--------------------
+
+After modifying the .po file (example for the french translation):
+
+.. code-block::
+
+    pybabel compile -i inginious/frontend/i18n/fr/LC_MESSAGES/messages.po -o inginious/frontend/i18n/fr/LC_MESSAGES/messages.mo -l fr
+
