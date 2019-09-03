@@ -272,18 +272,21 @@ class Installer:
         """ Try MongoDB configuration """
         try:
             mongo_client = MongoClient(host=host)
+            mongo_version = str(mongo_client.server_info()['version'])
+            self._display_info("Found mongodb server running version %s on %s." % (mongo_version, host))
         except Exception as e:
             self._display_warning("Cannot connect to MongoDB on host %s: %s" % (host, str(e)))
             return None
 
         try:
             database = mongo_client[database_name]
+            database.list_collection_names()
         except Exception as e:
             self._display_warning("Cannot access database %s: %s" % (database_name, str(e)))
             return None
 
         try:
-            GridFS(database)
+            GridFS(database).find_one()
         except Exception as e:
             self._display_warning("Cannot access gridfs %s: %s" % (database_name, str(e)))
             return None
