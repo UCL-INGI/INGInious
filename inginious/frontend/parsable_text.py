@@ -10,7 +10,6 @@ from datetime import datetime
 
 import tidylib
 from docutils import core, nodes
-from docutils.nodes import paragraph
 from docutils.parsers.rst import directives, Directive
 from docutils.parsers.rst.directives.admonitions import BaseAdmonition
 from docutils.parsers.rst.directives.body import CodeBlock
@@ -18,13 +17,25 @@ from docutils.statemachine import StringList
 from docutils.writers import html4css1
 
 from inginious.frontend.accessible_time import parse_date
+import web
+
+
+def _get_inginious_translation():
+    try:
+        # If we are on a webpage, or even anywhere in the app, this should be defined
+        return web.ctx.app_stack[0].get_translation_obj()
+    except:
+        # If this is not the case, then, no translation for you!
+        return gettext.NullTranslations()
+
 
 class EmptiableCodeBlock(CodeBlock):
     def run(self):
         if not self.content:
-            translation = self.state.document.settings.translation
+            translation = _get_inginious_translation()
             self.content = [translation.gettext("[no content]")]
         return super(EmptiableCodeBlock, self).run()
+
 
 class CustomBaseAdmonition(BaseAdmonition):
     """ A custom admonition that can have a title """
@@ -56,7 +67,7 @@ class HiddenUntilDirective(Directive, object):
                              '%s' % (self.name, hidden_until))
 
         force_show = self.state.document.settings.force_show_hidden_until
-        translation = self.state.document.settings.translation
+        translation = _get_inginious_translation()
 
         after_deadline = hidden_until <= datetime.now()
         if after_deadline or force_show:
