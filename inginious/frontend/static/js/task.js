@@ -24,7 +24,7 @@ function init_task_page(evaluate)
 
     if(task_form.attr("data-wait-submission"))
     {
-        loadOldSubmissionInput(task_form.attr("data-wait-submission"), false);
+        loadOldSubmissionInput(task_form.attr("data-wait-submission"));
         blurTaskForm();
         resetAlerts();
         displayTaskLoadingAlert(null, null);
@@ -230,7 +230,7 @@ function clickOnSubmission()
 {
     if(loadingSomething)
         return;
-    loadOldSubmissionInput($(this).attr('data-submission-id'), true);
+    loadOldSubmissionInput($(this).attr('data-submission-id'));
     $('body').removeClass('sidebar-active');
 }
 
@@ -384,6 +384,67 @@ function submitTask(with_ssh)
     }, 200);
 }
 
+function handleSubmissionLoaded(submissionid, data) {
+    if("status" in data && data['status'] === "waiting")
+    {
+        waitForSubmission(submissionid);
+        if("ssh_host" in data && "ssh_port" in data && "ssh_password" in data)
+            displayRemoteDebug(submissionid, data);
+        else
+            displayTaskLoadingAlert(data, submissionid);
+    }
+    else if("status" in data && "result" in data && "grade" in data)
+    {
+        updateMainTags(data);
+        if("debug" in data)
+            displayDebugInfo(data["debug"]);
+
+        if(data['result'] == "failed")
+            displayTaskStudentAlertWithProblems(data, "danger", false);
+        else if(data['result'] == "success")
+            displayTaskStudentAlertWithProblems(data, "success", false);
+        else if(data['result'] == "timeout")
+            displayTaskStudentAlertWithProblems(data, "warning", false);
+        else if(data['result'] == "overflow")
+            displayTaskStudentAlertWithProblems(data, "warning", false);
+        else if(data['result'] == "killed")
+            displayTaskStudentAlertWithProblems(data, "warning", false);
+        else // == "error"
+            displayTaskStudentAlertWithProblems(data, "danger", false);
+
+        if("tests" in data) {
+            updateSubmission(submissionid, data['result'], data["grade"], data["tests"]);
+        }
+        else {
+            updateSubmission(submissionid, data['result'], data["grade"], []);
+        }
+        unblurTaskForm();
+
+        if("replace" in data && data["replace"] && $('#my_submission').length) {
+            setSelectedSubmission(submissionid, true);
+        } else if($('#my_submission').length) {
+            setSelectedSubmission($('#my_submission').attr('data-submission-id'), false);
+        }
+
+        if("feedback_script" in data)
+            eval(data["feedback_script"]);
+    }
+    else
+    {
+        displayTaskStudentAlertWithProblems(data, "danger", false);
+        updateSubmission(submissionid, "error", "0.0", []);
+        updateTaskStatus("Failed", 0);
+        unblurTaskForm();
+    }
+}
+
+function handleSubmissionFailedLoading(submissionid) {
+    displayTaskStudentAlertWithProblems(data, "danger", false);
+    updateSubmission(submissionid, "error", "0.0", []);
+    updateTaskStatus("Failed", 0);
+    unblurTaskForm();
+}
+
 //Wait for a job to end
 function waitForSubmission(submissionid)
 {
@@ -391,68 +452,8 @@ function waitForSubmission(submissionid)
     {
         var url = $('form#task').attr("action");
         jQuery.post(url, {"@action": "check", "submissionid": submissionid}, null, "json")
-            .done(function(data)
-            {
-                if("status" in data && data['status'] == "waiting")
-                {
-                    waitForSubmission(submissionid);
-                    if("ssh_host" in data && "ssh_port" in data && "ssh_password" in data)
-                        displayRemoteDebug(submissionid, data);
-                    else
-                        displayTaskLoadingAlert(data, submissionid);
-
-                }
-                else if("status" in data && "result" in data && "grade" in data)
-                {
-                    updateMainTags(data);
-                    if("debug" in data)
-                        displayDebugInfo(data["debug"]);
-
-                    if(data['result'] == "failed")
-                        displayTaskStudentAlertWithProblems(data, "danger", false);
-                    else if(data['result'] == "success")
-                        displayTaskStudentAlertWithProblems(data, "success", false);
-                    else if(data['result'] == "timeout")
-                        displayTaskStudentAlertWithProblems(data, "warning", false);
-                    else if(data['result'] == "overflow")
-                        displayTaskStudentAlertWithProblems(data, "warning", false);
-                    else if(data['result'] == "killed")
-                        displayTaskStudentAlertWithProblems(data, "warning", false);
-                    else // == "error"
-                        displayTaskStudentAlertWithProblems(data, "danger", false);
-
-                    if("tests" in data){
-                        updateSubmission(submissionid, data['result'], data["grade"], data["tests"]);
-                    }else{
-                        updateSubmission(submissionid, data['result'], data["grade"], []);
-                    }
-                    unblurTaskForm();
-
-                    if("replace" in data && data["replace"] && $('#my_submission').length) {
-                        setSelectedSubmission(submissionid, true);
-                    } else if($('#my_submission').length) {
-                        setSelectedSubmission($('#my_submission').attr('data-submission-id'), false);
-                    }
-
-                    if("feedback_script" in data)
-                        eval(data["feedback_script"]);
-                }
-                else
-                {
-                    displayTaskStudentAlertWithProblems(data, "danger", false);
-                    updateSubmission(submissionid, "error", "0.0", []);
-                    updateTaskStatus("Failed", 0);
-                    unblurTaskForm();
-                }
-
-            })
-            .fail(function()
-            {
-                displayTaskStudentAlertWithProblems(data, "danger", false);
-                updateSubmission(submissionid, "error", "0.0", []);
-                updateTaskStatus("Failed", 0);
-                unblurTaskForm();
-            });
+            .done(function(data) { handleSubmissionLoaded(submissionid, data); })
+            .fail(function() { handleSubmissionFailedLoading(submissionid); });
     }, 1000);
 }
 
@@ -694,7 +695,7 @@ function getAlertCode(title, content, type, dismissible, additionnal_content)
 }
 
 //Load an old submission input
-function loadOldSubmissionInput(id, with_feedback)
+function loadOldSubmissionInput(id)
 {
     if(loadingSomething)
         return;
@@ -707,13 +708,10 @@ function loadOldSubmissionInput(id, with_feedback)
     jQuery.post(url, {"@action": "load_submission_input", "submissionid": id}, null, "json")
         .done(function(data)
         {
-            if("status" in data && data['status'] == "ok" && "input" in data)
+            if("status" in data && (data['status'] === "ok" || data["status"] === "waiting") && "input" in data)
             {
-                updateMainTags(data);
-                unblurTaskForm();
                 load_input(id, data['input']);
-                if(with_feedback) // load feedback in second place as it may affect the input
-                    loadOldFeedback(data);
+                handleSubmissionLoaded(id, data);
             }
             else
             {
@@ -725,33 +723,6 @@ function loadOldSubmissionInput(id, with_feedback)
             displayTaskInputErrorAlert();
             unblurTaskForm();
         });
-}
-
-//Load feedback from an old submission
-function loadOldFeedback(data)
-{
-    if("status" in data && "result" in data)
-    {
-        if("debug" in data)
-            displayDebugInfo(data["debug"]);
-
-        if(data['result'] == "failed")
-            displayTaskStudentAlertWithProblems(data, "danger", false);
-        else if(data['result'] == "success")
-            displayTaskStudentAlertWithProblems(data, "success", false);
-        else if(data['result'] == "timeout")
-            displayTaskStudentAlertWithProblems(data, "warning", false);
-        else if(data['result'] == "overflow")
-            displayTaskStudentAlertWithProblems(data, "warning", false);
-        else if(data['result'] == "killed")
-            displayTaskStudentAlertWithProblems(data, "warning", false);
-        else // == "error"
-            displayTaskStudentAlertWithProblems(data, "danger", false);
-    }
-    else
-        displayTaskStudentAlertWithProblems($("#internalerror").text(), "danger", false);
-    if("feedback_script" in data)
-        eval(data["feedback_script"]);
 }
 
 //Load data from input into the form inputs
