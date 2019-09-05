@@ -21,6 +21,42 @@ class CookieLessCompatibleApplication(web.application):
         self._session = CookieLessCompatibleSession(self, session_storage)
         self._translations = {}
 
+        # hacky fix until web.py is fixed
+        self.processors = [self.fix_unloadhook(x) for x in self.processors]
+
+    def fix_unloadhook(self, orig_func):
+        """ Fix web.py that raises StopIterations everywhere.
+
+            The bug in web.py lies (partly) on line 574 of application.py:
+
+                def build_result(result):
+                    for r in result:
+                        if PY2:
+                            yield utils.safestr(r)
+
+            The for loop "r in result" fails as result is a generator that raise sometimes StopIteration.
+            This is difficult to fix directly without modifying webpy in a lot of place, so we prefer fixing the symptoms.
+
+            When you do next(x) on a generator, and that this generator raise a StopIteration, next() catches the
+            StopIteration and raise in return a RuntimeError(("generator raised StopIteration",)).
+
+            That's what we catch here.
+
+            The generator is then given to another one, then to another one, etc, until it reaches the function
+            "unloadhook", that is a preprocessor, and is init by the constructor of the web.application (i.e. the super
+            constructor of this class) and is put inside the self.processors array.
+
+            We apply the fix on all processors as we can't find the one that is actually the one created by unloadhook
+            by inspection. This should not change anything.
+        """
+        def fix(x):
+            try:
+                yield from orig_func(x)
+            except RuntimeError as e:
+                if e.args != ("generator raised StopIteration",):
+                    raise
+        return fix
+
     def add_translation(self, lang, translation):
         self._translations[lang] = translation
 
