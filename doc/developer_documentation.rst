@@ -7,6 +7,7 @@ Developer's documentation
    dev_doc/understand_inginious
    dev_doc/plugins
    dev_doc/how_to_extend
+   dev_doc/i18n
 
 Code documentation
 ------------------

@@ -73,9 +73,11 @@ class Task(object):
         # Order
         self._order = int(self._data.get('order', -1))
 
+    def get_translation_obj(self, language):
+        return self._translations.get(language, gettext.NullTranslations())
+
     def gettext(self, language, *args, **kwargs):
-        translation = self._translations.get(language, gettext.NullTranslations())
-        return translation.gettext(*args, **kwargs)
+        return self.get_translation_obj(language).gettext(*args, **kwargs)
 
     def input_is_consistent(self, task_input, default_allowed_extension, default_max_size):
         """ Check if an input for a task is consistent. Return true if this is case, false else """
@@ -178,4 +180,4 @@ class Task(object):
         if problem_content.get('type', "") not in task_problem_types:
             raise Exception("Invalid type for problem " + problemid)
 
-        return task_problem_types.get(problem_content.get('type', ""))(self, problemid, problem_content, self._translations)
+        return task_problem_types.get(problem_content.get('type', ""))(self, problemid, problem_content)

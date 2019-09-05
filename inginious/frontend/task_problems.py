@@ -53,8 +53,8 @@ class DisplayableProblem(Problem, metaclass=ABCMeta):
 class DisplayableCodeProblem(CodeProblem, DisplayableProblem):
     """ A basic class to display all BasicCodeProblem derivatives """
 
-    def __init__(self, task, problemid, content, translations=None):
-        super(DisplayableCodeProblem, self).__init__(task, problemid, content, translations)
+    def __init__(self, task, problemid, content):
+        super(DisplayableCodeProblem, self).__init__(task, problemid, content)
 
     @classmethod
     def get_type_name(cls, gettext):
@@ -66,7 +66,7 @@ class DisplayableCodeProblem(CodeProblem, DisplayableProblem):
     def show_input(self, template_helper, language, seed):
         """ Show BasicCodeProblem and derivatives """
         header = ParsableText(self.gettext(language,self._header), "rst",
-                              translation=self._translations.get(language, gettext.NullTranslations()))
+                              translation=self.get_translation_obj(language))
         return str(DisplayableCodeProblem.get_renderer(template_helper).tasks.code(self.get_id(), header, 8, 0, self._language, self._optional, self._default))
 
     @classmethod
@@ -81,8 +81,8 @@ class DisplayableCodeProblem(CodeProblem, DisplayableProblem):
 class DisplayableCodeSingleLineProblem(CodeSingleLineProblem, DisplayableProblem):
     """ A displayable single code line problem """
 
-    def __init__(self, task, problemid, content, translations=None):
-        super(DisplayableCodeSingleLineProblem, self).__init__(task, problemid, content, translations)
+    def __init__(self, task, problemid, content):
+        super(DisplayableCodeSingleLineProblem, self).__init__(task, problemid, content)
 
     def adapt_input_for_backend(self, input_data):
         return input_data
@@ -94,7 +94,7 @@ class DisplayableCodeSingleLineProblem(CodeSingleLineProblem, DisplayableProblem
     def show_input(self, template_helper, language, seed):
         """ Show InputBox """
         header = ParsableText(self.gettext(language, self._header), "rst",
-                              translation=self._translations.get(language, gettext.NullTranslations()))
+                              translation=self.get_translation_obj(language))
         return str(DisplayableCodeSingleLineProblem.get_renderer(template_helper)
                    .tasks.single_line_code(self.get_id(), header, "text", 0, self._optional, self._default))
 
@@ -110,8 +110,8 @@ class DisplayableCodeSingleLineProblem(CodeSingleLineProblem, DisplayableProblem
 class DisplayableFileProblem(FileProblem, DisplayableProblem):
     """ A displayable code problem """
 
-    def __init__(self, task, problemid, content, translations=None):
-        super(DisplayableFileProblem, self).__init__(task, problemid, content, translations)
+    def __init__(self, task, problemid, content):
+        super(DisplayableFileProblem, self).__init__(task, problemid, content)
 
     @classmethod
     def get_type_name(self, gettext):
@@ -132,7 +132,7 @@ class DisplayableFileProblem(FileProblem, DisplayableProblem):
     def show_input(self, template_helper, language, seed):
         """ Show FileBox """
         header = ParsableText(self.gettext(language, self._header), "rst",
-                              translation=self._translations.get(language, gettext.NullTranslations()))
+                              translation=self.get_translation_obj(language))
         return str(DisplayableFileProblem.get_renderer(template_helper).tasks.file(self.get_id(), header, self._max_size, self._allowed_exts))
 
     @classmethod
@@ -143,8 +143,8 @@ class DisplayableFileProblem(FileProblem, DisplayableProblem):
 class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableProblem):
     """ A displayable multiple choice problem """
 
-    def __init__(self, task, problemid, content, translations=None):
-        super(DisplayableMultipleChoiceProblem, self).__init__(task, problemid, content, translations)
+    def __init__(self, task, problemid, content):
+        super(DisplayableMultipleChoiceProblem, self).__init__(task, problemid, content)
 
     @classmethod
     def get_type_name(self, gettext):
@@ -191,12 +191,12 @@ class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableProblem
         rand.shuffle(choices)
 
         header = ParsableText(self.gettext(language, self._header), "rst",
-                              translation=self._translations.get(language, gettext.NullTranslations()))
+                              translation=self.get_translation_obj(language))
 
         return str(DisplayableMultipleChoiceProblem.get_renderer(template_helper).tasks.multiple_choice(
             self.get_id(), header, self._multiple, choices,
             lambda text: ParsableText(self.gettext(language, text) if text else "", "rst",
-                                      translation=self._translations.get(language, gettext.NullTranslations()))))
+                                      translation=self.get_translation_obj(language))))
 
     @classmethod
     def show_editbox(cls, template_helper, key):
@@ -210,8 +210,8 @@ class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableProblem
 class DisplayableMatchProblem(MatchProblem, DisplayableProblem):
     """ A displayable match problem """
 
-    def __init__(self, task, problemid, content, translations=None):
-        super(DisplayableMatchProblem, self).__init__(task, problemid, content, translations)
+    def __init__(self, task, problemid, content):
+        super(DisplayableMatchProblem, self).__init__(task, problemid, content)
 
     @classmethod
     def get_type_name(self, gettext):
@@ -220,7 +220,7 @@ class DisplayableMatchProblem(MatchProblem, DisplayableProblem):
     def show_input(self, template_helper, language, seed):
         """ Show MatchProblem """
         header = ParsableText(self.gettext(language, self._header), "rst",
-                              translation=self._translations.get(language, gettext.NullTranslations()))
+                              translation=self.get_translation_obj(language))
         return str(DisplayableMatchProblem.get_renderer(template_helper).tasks.match(self.get_id(), header))
 
     @classmethod

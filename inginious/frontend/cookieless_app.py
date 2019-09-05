@@ -60,9 +60,13 @@ class CookieLessCompatibleApplication(web.application):
     def add_translation(self, lang, translation):
         self._translations[lang] = translation
 
+    def get_translation_obj(self, lang=None):
+        if lang is None:
+            lang = self._session.get("language", "")
+        return self._translations.get(lang, gettext.NullTranslations())
+
     def gettext(self, *args, **kwargs):
-        translation = self._translations.get(self._session.get("language", ""), gettext.NullTranslations())
-        return translation.gettext(*args, **kwargs)
+        return self.get_translation_obj().gettext(*args, **kwargs)
 
     def get_session(self):
         return self._session

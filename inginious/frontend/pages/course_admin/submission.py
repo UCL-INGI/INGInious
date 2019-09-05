@@ -57,7 +57,7 @@ class SubmissionPage(INGIniousAdminPage):
         submission = self.submission_manager.get_feedback_from_submission(
             submission,
             show_everything=True,
-            translation=self.app._translations.get(self.user_manager.session_language(), gettext.NullTranslations())
+            translation=self.app.get_translation_obj()
         )
 
         to_display = {
