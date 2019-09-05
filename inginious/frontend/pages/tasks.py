@@ -291,14 +291,14 @@ class BaseTaskPage(object):
     def submission_to_json(self, task, data, debug, reloading=False, replace=False, tags=[]):
         """ Converts a submission to json (keeps only needed fields) """
 
-        if "ssh_host" in data:
-            return json.dumps({'status': "waiting", 'text': "<b>SSH server active</b>",
-                               'ssh_host': data["ssh_host"], 'ssh_port': data["ssh_port"],
-                               'ssh_password': data["ssh_password"]})
-
-        # Here we are waiting. Let's send some useful information.
         waiting_data = self.submission_manager.get_job_queue_info(data["jobid"]) if "jobid" in data else None
-        if waiting_data is not None and not reloading:
+
+        if "ssh_host" in data:
+            tojson = {'status': "waiting", 'text': "<b>SSH server active</b>",
+                      'ssh_host': data["ssh_host"], 'ssh_port': data["ssh_port"],
+                      'ssh_password': data["ssh_password"]}
+        elif waiting_data is not None:
+            # Here we are waiting. Let's send some useful information.
             nb_tasks_before, approx_wait_time = waiting_data
             wait_time = round(approx_wait_time)
             if nb_tasks_before == -1 and wait_time <= 0:
@@ -313,65 +313,63 @@ class BaseTaskPage(object):
             else:
                 text = _("<b>There are {} tasks in front of you in the waiting queue.</b>").format(nb_tasks_before)
 
-            return json.dumps({'status': "waiting", 'text': text})
-
-        tojson = {
-            'status': data['status'],
-            'result': data.get('result', 'crash'),
-            'id': str(data["_id"]),
-            'submitted_on': str(data['submitted_on']),
-            'grade': str(data.get("grade", 0.0)),
-            'replace': replace and not reloading  # Replace the evaluated submission
-        }
-
-        if "text" in data:
-            tojson["text"] = data["text"]
-        if "problems" in data:
-            tojson["problems"] = data["problems"]
-
-        if debug:
-            tojson["debug"] = data
-
-        if tojson['status'] == 'waiting':
-            tojson["title"] = _("<b>Your submission has been sent...</b>")
-        elif tojson["result"] == "failed":
-            tojson["title"] = _("There are some errors in your answer. Your score is {score}%.").format(score=data["grade"])
-        elif tojson["result"] == "success":
-            tojson["title"] = _("Your answer passed the tests! Your score is {score}%.").format(score=data["grade"])
-        elif tojson["result"] == "timeout":
-            tojson["title"] = _("Your submission timed out. Your score is {score}%.").format(score=data["grade"])
-        elif tojson["result"] == "overflow":
-            tojson["title"] = _("Your submission made an overflow. Your score is {score}%.").format(score=data["grade"])
-        elif tojson["result"] == "killed":
-            tojson["title"] = _("Your submission was killed.")
+            tojson = {'status': "waiting", 'text': text}
         else:
-            tojson["title"] = _("An internal error occurred. Please retry later. "
-                                "If the error persists, send an email to the course administrator.")
 
-        tojson["title"] += " " + _("[Submission #{submissionid}]").format(submissionid=data["_id"])
-        tojson["title"] = self.plugin_manager.call_hook_recursive("feedback_title", task=task, submission=data, title=tojson["title"])["title"]
-        
-        tojson["text"] = data.get("text", "")
-        tojson["text"] = self.plugin_manager.call_hook_recursive("feedback_text", task=task, submission=data, text=tojson["text"])["text"]
+            tojson = {
+                'status': data['status'],
+                'result': data.get('result', 'crash'),
+                'id': str(data["_id"]),
+                'submitted_on': str(data['submitted_on']),
+                'grade': str(data.get("grade", 0.0)),
+                'replace': replace and not reloading  # Replace the evaluated submission
+            }
+
+            if "text" in data:
+                tojson["text"] = data["text"]
+            if "problems" in data:
+                tojson["problems"] = data["problems"]
+
+            if debug:
+                tojson["debug"] = data
+
+            if tojson['status'] == 'waiting':
+                tojson["title"] = _("<b>Your submission has been sent...</b>")
+            elif tojson["result"] == "failed":
+                tojson["title"] = _("There are some errors in your answer. Your score is {score}%.").format(score=data["grade"])
+            elif tojson["result"] == "success":
+                tojson["title"] = _("Your answer passed the tests! Your score is {score}%.").format(score=data["grade"])
+            elif tojson["result"] == "timeout":
+                tojson["title"] = _("Your submission timed out. Your score is {score}%.").format(score=data["grade"])
+            elif tojson["result"] == "overflow":
+                tojson["title"] = _("Your submission made an overflow. Your score is {score}%.").format(score=data["grade"])
+            elif tojson["result"] == "killed":
+                tojson["title"] = _("Your submission was killed.")
+            else:
+                tojson["title"] = _("An internal error occurred. Please retry later. "
+                                    "If the error persists, send an email to the course administrator.")
+
+            tojson["title"] += " " + _("[Submission #{submissionid}]").format(submissionid=data["_id"])
+            tojson["title"] = self.plugin_manager.call_hook_recursive("feedback_title", task=task, submission=data, title=tojson["title"])["title"]
+
+            tojson["text"] = data.get("text", "")
+            tojson["text"] = self.plugin_manager.call_hook_recursive("feedback_text", task=task, submission=data, text=tojson["text"])["text"]
+
+            if "tests" in data:
+                tojson["tests"] = {}
+                for key, tag in tags.items():  # Tags only visible for admins should not appear in the json for students.
+                    if tag.get_type() in [0, 1] and (tag.is_visible_for_student() or debug) and key in data["tests"]:
+                        tojson["tests"][key] = data["tests"][key]
+                if debug: #We add also auto tags when we are admin
+                    for tag in data["tests"]:
+                        if tag.startswith("*auto-tag-"):
+                            tojson["tests"][tag] = data["tests"][tag]
+
+            # allow plugins to insert javascript to be run in the browser after the submission is loaded
+            tojson["feedback_script"] = "".join(self.plugin_manager.call_hook("feedback_script", task=task, submission=data))
 
         if reloading:
-            # Set status='ok' because we are reloading an old submission.
-            tojson["status"] = 'ok'
-            # And also include input
             tojson["input"] = data.get('input', {})
-
-        if "tests" in data:
-            tojson["tests"] = {}
-            for key, tag in tags.items():  # Tags only visible for admins should not appear in the json for students.
-                if tag.get_type() in [0, 1] and (tag.is_visible_for_student() or debug) and key in data["tests"]:
-                    tojson["tests"][key] = data["tests"][key]
-            if debug: #We add also auto tags when we are admin
-                for tag in data["tests"]:
-                    if tag.startswith("*auto-tag-"):
-                        tojson["tests"][tag] = data["tests"][tag]
-
-        # allow plugins to insert javascript to be run in the browser after the submission is loaded
-        tojson["feedback_script"] = "".join(self.plugin_manager.call_hook("feedback_script", task=task, submission=data))
 
         return json.dumps(tojson, default=str)
 
