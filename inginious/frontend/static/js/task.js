@@ -534,14 +534,13 @@ function displayRemoteDebug(submissionid, submission_wait_data)
     if($('pre#commandssh', task_alert).text() != pre_content)
     {
         var remote_info = $("#ssh_template").clone();
-        remote_info.attr("id", "ssh_remote_info");
 
         $('#commandssh', remote_info).text(pre_content);
 
         // Generate iframe
         var webtermdiv = $("#webterm", remote_info);
         var webterm_link = $('#webterm_link', remote_info).val();
-        if(webterm_link != undefined)
+        if(webterm_link !== undefined)
         {
             var full_link = webterm_link + "?host=" + ssh_host + "&port=" + ssh_port + "&password=" + ssh_password;
             var iframe = $('<iframe>', {
@@ -552,8 +551,7 @@ function displayRemoteDebug(submissionid, submission_wait_data)
             }).appendTo(webtermdiv);
         }
 
-        task_alert.html(getLoadingAlertCode(title, content, submissionid));
-        remote_info.appendTo($(".loading-alert"), task_alert);
+        task_alert.html(getLoadingAlertCode(title, "<div id='ssh_remote_info'>"+remote_info.html()+"</div>", submissionid));
         $("#ssh_remote_info code", task_alert).text(ssh_password);
         $("#ssh_remote_info", task_alert).show();
     }
