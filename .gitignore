@@ -11,6 +11,7 @@ configuration.*.yaml
 dump
 doc/_*
 utils/task_manual_tester/tests/
+**/package-lock.json
 node_modules/
 INGInious.egg-info/
 dist/
