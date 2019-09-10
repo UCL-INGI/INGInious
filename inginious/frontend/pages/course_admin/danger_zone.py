@@ -27,8 +27,9 @@ class CourseDangerZonePage(INGIniousAdminPage):
         submissions = self.database.submissions.find({"courseid": courseid})
         for submission in submissions:
             for key in ["input", "archive"]:
-                if key in submission and type(submission[key]) == bson.objectid.ObjectId:
-                    self.submission_manager.get_gridfs().delete(submission[key])
+                gridfs = self.submission_manager.get_gridfs()
+                if key in submission and type(submission[key]) == bson.objectid.ObjectId and gridfs.exists(submission[key]):
+                    gridfs.delete(submission[key])
 
         self.database.aggregations.remove({"courseid": courseid})
         self.database.user_tasks.remove({"courseid": courseid})
@@ -51,15 +52,22 @@ class CourseDangerZonePage(INGIniousAdminPage):
             zipf.writestr("user_tasks.json", bson.json_util.dumps(user_tasks), zipfile.ZIP_DEFLATED)
 
             submissions = self.database.submissions.find({"courseid": courseid})
-            zipf.writestr("submissions.json", bson.json_util.dumps(submissions), zipfile.ZIP_DEFLATED)
-
-            submissions.rewind()
+            erroneous_subs = set()
 
             for submission in submissions:
                 for key in ["input", "archive"]:
+                    gridfs = self.submission_manager.get_gridfs()
                     if key in submission and type(submission[key]) == bson.objectid.ObjectId:
-                        infile = self.submission_manager.get_gridfs().get(submission[key])
-                        zipf.writestr(key + "/" + str(submission[key]) + ".data", infile.read(), zipfile.ZIP_DEFLATED)
+                        if gridfs.exists(submission[key]):
+                            infile = gridfs.get(submission[key])
+                            zipf.writestr(key + "/" + str(submission[key]) + ".data", infile.read(), zipfile.ZIP_DEFLATED)
+                        else:
+                            self._logger.error("Missing {} in grifs, skipping submission {}".format(str(submission[key]), str(submission["_id"])))
+                            erroneous_subs.add(submission["_id"])
+
+            submissions.rewind()
+            submissions = [submission for submission in submissions if submission["_id"] not in erroneous_subs]
+            zipf.writestr("submissions.json", bson.json_util.dumps(submissions), zipfile.ZIP_DEFLATED)
 
         self._logger.info("Course %s dumped to backup directory.", courseid)
         self.wipe_course(courseid)
