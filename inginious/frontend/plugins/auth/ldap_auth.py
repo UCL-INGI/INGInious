@@ -137,8 +137,12 @@ class LDAPAuthenticationPage(AuthenticationPage):
         if conn.rebind(user_data['dn'], password=password):
             try:
                 email = user_data['attributes'][mail]
+                if isinstance(email, list):
+                    email = email[0]
                 username = login
                 realname = user_data['attributes'][cn]
+                if isinstance(realname, list):
+                    realname = realname[0]
 
                 logger.debug('Successfully fetched data from ldap for user {}'.format(login))
 
