@@ -112,20 +112,9 @@ class LTILoginPage(INGIniousPage):
         except:
             return self.template_helper.get_renderer().lti_bind(False, "", None, "Invalid LTI data")
 
-        if course.lti_auto_bind():
-            lti_email = data['email']
-            lti_name = data['realname']
-            lti_id = lti_email[0:lti_email.find('@')]
-            user_profile = self.database.users.find_one({"username": lti_id})
-            if not user_profile:
-                # New user, create an account using email address
-                user_profile = {"username": lti_id,
-                                "realname": lti_name,
-                                "email": lti_email,
-                                "bindings": {data["consumer_key"]: [lti_id, {}]},
-                                "language": self.app.get_session().get("language", "en")}
-                self.database.users.insert(user_profile)
-        else:
+        user_profile = course._hook_manager.call_hook('get_lti_user', ltipage=self)
+
+        if not user_profile:
             user_profile = self.database.users.find_one({"ltibindings." + data["task"][0] + "." + data["consumer_key"]: data["username"]})
 
         if user_profile:

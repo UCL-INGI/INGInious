@@ -148,6 +148,12 @@ Each hook available in INGInious is described here, starting with its name and p
     ``course`` : inginious.common.courses.Course
 
     Used to modify a newly created course.
+``get_lti_user`` (``ltipage``)
+    Returns: dict
+
+    ``ltipage`` : inginious.frontend.pages.LTILoginPage
+
+    Used to create to the user_info out of the LTILoginPage and the session data.
 ``course_accessibility`` (``course``, ``default``)
     Returns: inginious.frontend.accessible_time.AccessibleTime
 
