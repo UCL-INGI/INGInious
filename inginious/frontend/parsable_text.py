@@ -285,7 +285,7 @@ class ParsableText(object):
             'translation': translation,
             'raw_enabled': True,
             'file_insertion_enabled': False,
-            'math_output': 'MathJax'
+            'math_output': 'MathJax /this/does/not/need/to/exist.js'
         }
         if debug:
             overrides['halt_level'] = 2
