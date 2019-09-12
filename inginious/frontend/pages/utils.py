@@ -210,6 +210,7 @@ class INGIniousStaticPage(INGIniousPage):
 
         # Check for the file
         filename = None
+        mtime = None
         filepaths = [os.path.join(static_directory, page + ".yaml"),
                      os.path.join(static_directory, page + "." + language + ".yaml")]
 
@@ -222,11 +223,11 @@ class INGIniousStaticPage(INGIniousPage):
             raise web.notfound()
 
         # Check and update cache
-        if INGIniousStaticPage.cache.get(filepath, (0, None))[0] < mtime:
+        if INGIniousStaticPage.cache.get(filename, (0, None))[0] < mtime:
             with open(filename, "r") as f:
-                INGIniousStaticPage.cache[filepath] = mtime, custom_yaml.load(f)
+                INGIniousStaticPage.cache[filename] = mtime, custom_yaml.load(f)
 
-        filecontent = INGIniousStaticPage.cache[filepath][1]
+        filecontent = INGIniousStaticPage.cache[filename][1]
         title = filecontent["title"]
         content = ParsableText.rst(filecontent["content"], initial_header_level=2)
 
