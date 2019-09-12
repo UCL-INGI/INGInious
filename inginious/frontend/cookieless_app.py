@@ -2,13 +2,14 @@
 #
 # This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 # more information about the licensing of this file.
-
+import inspect
 import os, time, gettext, re
 import os.path
 from copy import deepcopy
 import hashlib
 from web import utils
 import web
+from web.py3helpers import is_iter
 from web.session import SessionExpired
 
 
@@ -49,12 +50,22 @@ class CookieLessCompatibleApplication(web.application):
             We apply the fix on all processors as we can't find the one that is actually the one created by unloadhook
             by inspection. This should not change anything.
         """
-        def fix(x):
+        def fix_generator(orig_generator):
             try:
-                yield from orig_func(x)
+                yield from orig_generator
             except RuntimeError as e:
                 if e.args != ("generator raised StopIteration",):
                     raise
+
+        def fix(x):
+            y = orig_func(x)
+            # the wsgi process thingy differenties things that are a generator from things that are not one
+            # we need to fix only the generators
+            if is_iter(y): # web.py use this to check for generators. A more "safe" way to do it would be to use
+                           # inspect.isgenerator(y) or inspect.isgeneratorfunction(y), but like this we ensure
+                           # we mimick the behavior of web.py
+                return fix_generator(y)
+            return y
         return fix
 
     def add_translation(self, lang, translation):
