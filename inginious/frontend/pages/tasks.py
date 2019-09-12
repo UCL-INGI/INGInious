@@ -288,8 +288,11 @@ class BaseTaskPage(object):
         else:
             raise web.notfound()
 
-    def submission_to_json(self, task, data, debug, reloading=False, replace=False, tags=[]):
+    def submission_to_json(self, task, data, debug, reloading=False, replace=False, tags=None):
         """ Converts a submission to json (keeps only needed fields) """
+
+        if tags is None:
+            tags = []
 
         if "ssh_host" in data:
             return json.dumps({'status': "waiting", 'text': "<b>SSH server active</b>",
