@@ -61,7 +61,7 @@ def dump(data, stream=None, **kwds):
     # Display long strings correctly
     def _long_str_representer(dumper, data):
         if data.find("\n") != -1:
-            # Drop some uneeded data
+            # Drop some unneeded data
             # \t are forbidden in YAML
             data = data.replace("\t", "    ")
             # empty spaces at end of line are always useless in INGInious, and forbidden in YAML

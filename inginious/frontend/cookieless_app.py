@@ -59,11 +59,11 @@ class CookieLessCompatibleApplication(web.application):
 
         def fix(x):
             y = orig_func(x)
-            # the wsgi process thingy differenties things that are a generator from things that are not one
+            # the wsgi process thingy differentiates things that are a generator from things that are not one
             # we need to fix only the generators
-            if is_iter(y): # web.py use this to check for generators. A more "safe" way to do it would be to use
+            if is_iter(y): # web.py uses this to check for generators. A more "safe" way to do it would be to use
                            # inspect.isgenerator(y) or inspect.isgeneratorfunction(y), but like this we ensure
-                           # we mimick the behavior of web.py
+                           # we mimic the behavior of web.py
                 return fix_generator(y)
             return y
         return fix

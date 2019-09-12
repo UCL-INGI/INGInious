@@ -165,7 +165,7 @@ class CourseEditTask(INGIniousAdminPage):
             if "groups" in data:
                 data["groups"] = True if data["groups"] == "true" else False
 
-            # Submision storage
+            # Submission storage
             if "store_all" in data:
                 try:
                     stored_submissions = data["stored_submissions"]

@@ -99,7 +99,7 @@ class APIPage(INGIniousPage):
 
 class APIAuthenticatedPage(APIPage):
     """
-        A wrapper for pages that needs authentification. Automatically checks that the client is authenticated and returns "403 Forbidden" if it's
+        A wrapper for pages that needs authentication. Automatically checks that the client is authenticated and returns "403 Forbidden" if it's
         not the case.
     """
 

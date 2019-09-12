@@ -36,7 +36,7 @@ class LTIBestSubmissionPage(INGIniousAuthPage):
             {"submissionid": 1, "_id": 0}))
 
         if not user_best_sub:
-            # no submission to retreive
+            # no submission to retrieve
             return json_util.dumps({"status": "success", "submission": None})
 
         user_best_sub_id = user_best_sub[0]["submissionid"]

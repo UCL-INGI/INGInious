@@ -176,13 +176,13 @@ class Agent(object, metaclass=ABCMeta):
             await self.send_job_result(message.job_id, "crash", e.message)
         except TooManyCallsException:
             self._logger.exception("TooManyCallsException in new_job")
-            await self.send_job_result(message.job_id, "crash", "An unknown error occured in the agent. Please contact your course "
+            await self.send_job_result(message.job_id, "crash", "An unknown error occurred in the agent. Please contact your course "
                                                                 "administrator.")
         except JobNotRunningException:
             self._logger.exception("JobNotRunningException in new_job")
         except:
             self._logger.exception("Unknown exception in new_job")
-            await self.send_job_result(message.job_id, "crash", "An unknown error occured in the agent. Please contact your course "
+            await self.send_job_result(message.job_id, "crash", "An unknown error occurred in the agent. Please contact your course "
                                                                 "administrator.")
 
     async def send_ssh_job_info(self, job_id: BackendJobId, host: str, port: int, key: str):

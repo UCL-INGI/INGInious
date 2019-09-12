@@ -107,7 +107,7 @@ def run_student(cmd, container=None,
         # Wait for everything to end
         message = msgpack.loads(zmq_socket.recv(), encoding="utf8", use_list=False)
 
-        # Unlink uneeded files
+        # Unlink unneeded files
         try:
             os.unlink(socket_path)
             os.unlink(path)

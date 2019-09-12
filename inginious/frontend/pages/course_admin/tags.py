@@ -34,7 +34,7 @@ class CourseTagsPage(INGIniousSubmissionAdminPage):
 
         # Repair tags
         for key, tag in tags.items():
-            # Since unckecked checkboxes are not present here, we manually add them to avoid later errors
+            # Since unchecked checkboxes are not present here, we manually add them to avoid later errors
             tag["visible"] = "visible" in tag
             tag["type"] = int(tag["type"])
 

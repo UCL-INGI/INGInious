@@ -49,7 +49,7 @@ class INGIniousDAVCourseFile(FileResource):
         """ Update the course.yaml if possible. Verifies the content first, and make backups beforehand. """
 
         if withErrors:
-            # something happended while uploading, let's remove the tmp file
+            # something happened while uploading, let's remove the tmp file
             os.remove(self._filePath+".webdav_tmp")
         else:
             # get the original content of the file

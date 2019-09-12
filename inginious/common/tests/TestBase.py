@@ -126,7 +126,7 @@ class TestDirectoryHash(object):
         l1 = directory_content_with_hash(test_dir)
         l2 = copy.deepcopy(l1)
 
-        # Pertub the data
+        # Perturb the data
         l2["file1"] = (l2["file1"][0], 0)
         l2["file2"] = ("not a valid hash", l2["file2"])
         l2["file4"] = ("not a valid hash", 0)

@@ -288,7 +288,7 @@ class Installer:
             return None
 
         try:
-            # Effective access only occurs when we call a method on the grifs object.
+            # Effective access only occurs when we call a method on the gridfs object.
             GridFS(database).find_one()
         except Exception as e:
             self._display_warning("Cannot access gridfs %s: %s" % (database_name, str(e)))

@@ -408,7 +408,7 @@ class DockerAgent(Agent):
                     if outtype == 2:  # stderr
                         self._logger.debug("Received stderr from containers:\n%s", content)
 
-                    # 4 first bytes are the lenght of the message. If we have a complete message...
+                    # 4 first bytes are the length of the message. If we have a complete message...
                     while len(buffer) > 4 and len(buffer) >= 4+struct.unpack('I',buffer[0:4])[0]:
                         msg_encoded = buffer[4:4 + struct.unpack('I', buffer[0:4])[0]]  # ... get it
                         buffer = buffer[4 + struct.unpack('I', buffer[0:4])[0]:]  # ... withdraw it from the buffer
