@@ -11,6 +11,8 @@ from datetime import datetime
 import docker
 import logging
 
+DOCKER_AGENT_VERSION = 2
+
 class DockerInterface(object):  # pragma: no cover
     """
         (not asyncio) Interface to Docker
@@ -40,6 +42,14 @@ class DockerInterface(object):  # pragma: no cover
         for x in self._docker.images.list(filters={"label": "org.inginious.grading.name"}):
             try:
                 title = x.labels["org.inginious.grading.name"]
+
+                if x.labels.get("org.inginious.grading.agent_version") != str(DOCKER_AGENT_VERSION):
+                    logging.getLogger("inginious.agent").warning(
+                        "Container %s is made for an old/newer version of the docker agent (container version is %s, "
+                        "but it should be %i). INGInious will ignore the container.", title,
+                        str(x.labels.get("org.inginious.grading.agent_version")), DOCKER_AGENT_VERSION)
+                    continue
+
                 created = datetime.strptime(x.attrs['Created'][:-4], "%Y-%m-%dT%H:%M:%S.%f").timestamp()
                 ports = [int(y) for y in x.labels["org.inginious.grading.ports"].split(
                     ",")] if "org.inginious.grading.ports" in x.labels else []
