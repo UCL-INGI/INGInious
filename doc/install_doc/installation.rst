@@ -59,7 +59,7 @@ The previously mentioned dependencies can be installed, for Ubuntu 16.04+:
 ::
 
     # curl -fsSL https://get.docker.com/ | sh #This will setup the Docker repo
-    # apt-get install git mongodb gcc tidy python3 python3-pip python3-dev libzmq-dev
+    # apt-get install git mongodb gcc tidy python3 python3-pip python3-dev libzmq3-dev
 
 You may also add ``libldap2-dev libsasl2-dev libssl-dev`` if you want to use the LDAP auth plugin and
 ``libxmlsec1-dev libltdl-dev`` for the SAML2 auth plugin
