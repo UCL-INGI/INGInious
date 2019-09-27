@@ -51,6 +51,13 @@ $def ColumnF():
                     <span id="task_grade">$user_task.get('grade', 0)</span>%
                 </td>
             </tr>
+            $if task.get_pass_grade() != 100:
+                <tr>
+                    <td>$:_("Minimum pass grade")</td>
+                    <td>
+                        <span id="pass_grade">$task.get_pass_grade()</span>%
+                    </td>
+                </tr>
             $if not is_lti():
                 <tr>
                     <td>$:_("Grading weight")</td>

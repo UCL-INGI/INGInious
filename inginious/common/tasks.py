@@ -26,6 +26,7 @@ class Task(object):
 
         # Response is HTML
         self._response_is_html = self._data.get("responseIsHTML", False)
+        self._pass_grade = float(self._data.get("pass_grade", 100))
 
         # Limits
         self._limits = {"time": 20, "memory": 1024, "disk": 1024}
@@ -93,6 +94,9 @@ class Task(object):
         """ Get problems contained in this task """
         return self._problems
 
+    def get_pass_grade(self):
+        return self._pass_grade
+
     def get_course_id(self):
         """ Return the courseid of the course that contains this task """
         return self._course.get_id()
@@ -129,25 +133,28 @@ class Task(object):
             5th: Number of subproblems that (already) contain errors. <= Number of subproblems
             6th: Number of errors in MCQ problems. Not linked to the number of subproblems
         """
-        valid = True
         need_launch = False
         main_message = []
         problem_messages = {}
         error_count = 0
         multiple_choice_error_count = 0
+        correct_count = 0
         for problem in self._problems:
             problem_is_valid, problem_main_message, problem_s_messages, problem_mc_error_count = problem.check_answer(task_input, language)
             if problem_is_valid is None:
                 need_launch = True
-            elif problem_is_valid == False:
+            elif problem_is_valid:
+                correct_count += 1
+            elif not problem_is_valid:
                 error_count += 1
-                valid = False
             if problem_main_message is not None:
                 main_message.append(problem_main_message)
             if problem_s_messages is not None:
                 problem_messages[problem.get_id()] = (("success" if problem_is_valid else "failed"), problem_s_messages)
             multiple_choice_error_count += problem_mc_error_count
-        return valid, need_launch, main_message, problem_messages, error_count, multiple_choice_error_count
+
+        is_approved = (correct_count / len(self._problems)) >= self._pass_grade / 100
+        return is_approved, need_launch, main_message, problem_messages, error_count, multiple_choice_error_count
 
     def _create_task_problem(self, problemid, problem_content, task_problem_types):
         """Creates a new instance of the right class for a given problem."""
