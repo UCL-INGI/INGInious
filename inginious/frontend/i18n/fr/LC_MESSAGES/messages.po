@@ -2143,13 +2143,11 @@ msgstr "Activer LTI"
 msgid ""
 "Enable this option to allow your INGInious course to be used in external "
 "Learning Management Systems (LMS) such as Moodle or edX. Note that this "
-"will deactivate the access to the course from the main page for non-staff"
-" members of the course, and the team/classroom system."
+"will deactivate the team/classroom system."
 msgstr ""
 "Activez cette option pour permettre l'accès aux exercices du cours par "
 "une plateforme LMS externe telle que Moodle ou edX. Notez que ceci "
-"désactivera l'accès au cours depuis la page d'accueil d'INGInious aux "
-"étudiants du cours, ainsi qu'au système d'équipes/de classes."
+"désactivera l'accès au système d'équipes/de classes."
 
 #: inginious/frontend/templates/course_admin/settings.html:85
 msgid "Students aggregations"
@@ -2280,8 +2278,14 @@ msgstr "Envoyer les notes"
 #: inginious/frontend/templates/course_admin/settings.html:308
 msgid ""
 "Enable this to send back grades to the calling Tool Consumer (which is, "
-"most of the time, your LMS)."
-msgstr "Activez cette option pour envoyer les notes à la plateforme LMS hôte."
+"most of the time, your LMS). INGInious will deactivate students' access "
+"to the course and tasks from the web application when enabled. Tasks "
+"will be only available from the LTI interface."
+msgstr ""
+"Activez cette option pour envoyer les notes à la plateforme LMS hôte. "
+"INGInious désactivera l'accès des étudiants au cours et aux tâches "
+"depuis l'interface web classique. Les tâches seront seulement accessibles "
+"depuis l'interface LTI."
 
 #: inginious/frontend/templates/course_admin/settings.html:312
 #: inginious/frontend/templates/course_admin/tags.html:93

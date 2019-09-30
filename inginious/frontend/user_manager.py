@@ -743,9 +743,12 @@ class UserManager:
         if not course.get_accessibility().is_open() or (not self.course_is_user_registered(course, username) and not course.allow_preview()):
             return False
 
+        # LTI courses can only be accessed from a LTI session
         if lti and course.is_lti() != lti:
             return False
 
+        # If we are not in a LTI session, an LTI course can be accessed if we do not need to send grades back
+        # to the LMS
         if lti is False and course.is_lti():
             return not course.lti_send_back_grade()
 

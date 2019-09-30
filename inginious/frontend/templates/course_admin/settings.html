@@ -77,7 +77,7 @@ $elif saved:
                 <input type="checkbox" value="true" id="lti" name="lti"
                        $if course.is_lti():
                         checked="checked"
-                /> $:_("Enable this option to allow your INGInious course to be used in external Learning Management Systems (LMS) such as Moodle or edX. Note that this will deactivate the access to the course from the main page for non-staff members of the course, and the team/classroom system.")
+                /> $:_("Enable this option to allow your INGInious course to be used in external Learning Management Systems (LMS) such as Moodle or edX. Note that this will deactivate the team/classroom system.")
             </label><br/>
         </div>
     </div>
@@ -305,7 +305,7 @@ $"\n".join([a+":"+b for (a, b) in course.lti_keys().items()])</textarea>
                 <input type="checkbox" value="true" id="lti_send_back_grade" name="lti_send_back_grade"
                        $if course.lti_send_back_grade():
                             checked="checked"
-                /> $:_("Enable this to send back grades to the calling Tool Consumer (which is, most of the time, your LMS).")
+                /> $:_("Enable this to send back grades to the calling Tool Consumer (which is, most of the time, your LMS). INGInious will deactivate students' access to the course and tasks from the web application when enabled. Tasks will be only available from the LTI interface.")
             </label><br/>
         </div>
     </div>

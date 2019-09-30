@@ -2044,8 +2044,7 @@ msgstr ""
 msgid ""
 "Enable this option to allow your INGInious course to be used in external "
 "Learning Management Systems (LMS) such as Moodle or edX. Note that this "
-"will deactivate the access to the course from the main page for non-staff"
-" members of the course, and the team/classroom system."
+"will deactivate the team/classroom system."
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/settings.html:85
@@ -2171,7 +2170,9 @@ msgstr ""
 #: inginious/frontend/templates/course_admin/settings.html:308
 msgid ""
 "Enable this to send back grades to the calling Tool Consumer (which is, "
-"most of the time, your LMS)."
+"most of the time, your LMS). INGInious will deactivate students' access "
+"to the course and tasks from the web application when enabled. Tasks "
+"will be only available from the LTI interface."
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/settings.html:312
