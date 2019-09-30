@@ -87,7 +87,7 @@ $if (len(visible_tags) > 0) or (len(visible_misconception_tags) > 0) or user_man
     </div>
 
 
-<form id="task" method="post" action="/course/$course.get_id()/$task.get_id()">
+<form id="task" method="post" action="$get_homepath()/course/$course.get_id()/$task.get_id()">
 
 <div id="task_alert"></div>
 
@@ -97,7 +97,7 @@ $for key, problem in enumerate(to_display):
         <div class="panel-heading">
             <h3 class="panel-title">
                 Question ${key+1}: $problem["name"]
-                <a href="/course/$course.get_id()/$task.get_id()?submissionid=$submission['_id']&questionid=$problem['id']" class="btn btn-default btn-xs" title=$:_('"Download as file"')
+                <a href="$get_homepath()/course/$course.get_id()/$task.get_id()?submissionid=$submission['_id']&questionid=$problem['id']" class="btn btn-default btn-xs" title=$:_('"Download as file"')
                    data-toggle="tooltip" data-placement="bottom">
                     <i class="fa fa-download"></i>
                 </a>
