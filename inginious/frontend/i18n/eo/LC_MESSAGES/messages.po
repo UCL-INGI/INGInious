@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-09-25 16:04+0200\n"
 "PO-Revision-Date: 2019-10-04 13:46+0000\n"
-"Last-Translator: Anthony Gego <anthonygego@hotmail.com>\n"
+"Last-Translator: Test Account <c3338111@urhen.com>\n"
 "Language-Team: Esperanto <http://weblate.info.ucl.ac.be/projects/inginious/"
 "frontend/eo/>\n"
 "Language: eo\n"
@@ -1489,7 +1489,7 @@ msgstr ""
 
 #: inginious/frontend/templates/task.html:391
 msgid "The deadline is over, you cannot submit anymore"
-msgstr ""
+msgstr "La limdato estas finita. Vi ne povas plu sendi"
 
 #: inginious/frontend/templates/task.html:393
 msgid "Please register in a group"
