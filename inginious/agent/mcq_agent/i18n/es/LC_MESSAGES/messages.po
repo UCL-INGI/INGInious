@@ -1,0 +1,38 @@
+# Translations template for PROJECT.
+# Copyright (C) 2019 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2019-10-03 14:13+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.7.0\n"
+
+#: inginious/agent/mcq_agent/__init__.py:56
+msgid "Wrong answer. Make sure to select all the valid possibilities"
+msgstr ""
+
+#: inginious/agent/mcq_agent/__init__.py:57
+msgid "Wrong answer"
+msgstr ""
+
+#: inginious/agent/mcq_agent/__init__.py:58
+msgid "Correct answer"
+msgstr ""
+
+#: inginious/agent/mcq_agent/__init__.py:70
+msgid "You have {} wrong answer(s)."
+msgstr ""
+
+#: inginious/agent/mcq_agent/__init__.py:72
+msgid "Among them, you have {} invalid answers in the multiple choice questions"
+msgstr ""
