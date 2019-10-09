@@ -153,7 +153,8 @@ def get_app(config):
     # Init gettext
     available_languages = {
         "en": "English",
-        "fr": "Français"
+        "fr": "Français",
+        "es": "Español"
     }
 
     for lang in available_languages.keys():

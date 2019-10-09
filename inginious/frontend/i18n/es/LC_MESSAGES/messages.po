@@ -995,7 +995,7 @@ msgstr ""
 
 #: inginious/frontend/templates/layout.html:131
 msgid "English"
-msgstr ""
+msgstr "Español"
 
 #: inginious/frontend/templates/layout.html:142
 #: inginious/frontend/templates/mycourses.html:127

@@ -27,7 +27,7 @@ class MCQAgent(Agent):
         self.course_factory = course_factory
 
         # Init gettext
-        languages = ["en", "fr"]
+        languages = ["en", "fr", "es"]
         self._translations = {
             lang: gettext.translation('messages', get_root_path() + '/agent/mcq_agent/i18n', [lang]) for lang in languages
         }
