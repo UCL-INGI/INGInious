@@ -1,5 +1,5 @@
 # DOCKER-VERSION 1.1.0
-FROM    centos
+FROM    centos:7
 
 ENV LANG en_US.UTF-8  
 ENV LANGUAGE en_US:en  
