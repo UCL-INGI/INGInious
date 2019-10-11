@@ -96,6 +96,8 @@ $var Navbar: $:NavbarF()
                                         $if is_admin:
                                             <a href="$get_homepath()/admin/${course.get_id()}/replay$user['url']" class="btn btn-secondary"
                                                title=$:_('"Replay submissions"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
+                                            <a href="$get_homepath()/admin/${course.get_id()}/${task.get_id()}/reset_state$user['url']" class="btn btn-secondary"
+                                               title=$:_('"Reset submissions state"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
                                     </div>
                                 </td>
                             </tr>
