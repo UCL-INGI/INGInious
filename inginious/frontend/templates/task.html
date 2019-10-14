@@ -280,6 +280,7 @@ $# Start content
     </div>
     </div>
 </h2>
+<button type="button" class="btn btn-info" data-toggle="collapse" data-target="#task_context">Collapse context</button>
 $# Input random
 $# set up some useful variable that may be used by task author
 $# variable "input" has to be accessible to the eventual javascript present in the context of the task.
@@ -291,7 +292,9 @@ $# variable "input" has to be accessible to the eventual javascript present in t
         "@state": "$(user_task.get('state', '') if registered else '')"
     }
 </script>
-$:task.get_context(user_manager.session_language())
+<div id="task_context" class="collapse show">
+    $:task.get_context(user_manager.session_language())
+</div>
 <hr/>
 <div id="task_alert"></div>
 <div id="ssh_template" style="display:none;">
