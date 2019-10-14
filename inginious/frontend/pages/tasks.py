@@ -330,7 +330,7 @@ class BaseTaskPage(object):
             tojson["problems"] = data["problems"]
 
         if debug:
-            tojson["debug"] = data
+            tojson["debug"] = self._cut_long_chains(data)
 
         if tojson['status'] == 'waiting':
             tojson["title"] = _("<b>Your submission has been sent...</b>")
@@ -374,6 +374,24 @@ class BaseTaskPage(object):
         tojson["feedback_script"] = "".join(self.plugin_manager.call_hook("feedback_script", task=task, submission=data))
 
         return json.dumps(tojson, default=str)
+
+    def _cut_long_chains(self, data, limit=1000):
+        """ Cut all strings and byte chains in a dictionary
+            if they exceed a limit in characters or bytes """
+
+        if isinstance(data, dict):
+            new_data = {}
+            for key, value in data.items():
+                if isinstance(value, bytes) and len(value) > limit:
+                    new_data[key] = value[:limit] + _(" <text cut due to its length>").encode("utf-8")
+                elif isinstance(value, str) and len(value) > limit:
+                    new_data[key] = value[:limit] + _(" <text cut due to its length>")
+                elif isinstance(value, dict):
+                    new_data[key] = self._cut_long_chains(value)
+                else:
+                    new_data[key] = value
+            return new_data
+        return data
 
 
 class TaskPageStaticDownload(INGIniousPage):
