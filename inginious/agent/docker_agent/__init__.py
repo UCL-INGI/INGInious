@@ -190,7 +190,7 @@ class DockerAgent(Agent):
 
         environment = self._containers[environment_name]["id"]
 
-        ports_needed = self._containers[environment_name]["ports"]
+        ports_needed = list(self._containers[environment_name]["ports"])  # copy, as we modify it later!
 
         if debug == "ssh" and 22 not in ports_needed:
             ports_needed.append(22)
