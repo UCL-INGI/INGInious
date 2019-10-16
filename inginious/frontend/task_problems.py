@@ -21,7 +21,7 @@ class DisplayableProblem(Problem, metaclass=ABCMeta):
 
     @classmethod
     @abstractmethod
-    def get_type_name(self, gettext):
+    def get_type_name(cls, language):
         pass
 
     def adapt_input_for_backend(self, input_data):
@@ -57,8 +57,8 @@ class DisplayableCodeProblem(CodeProblem, DisplayableProblem):
         super(DisplayableCodeProblem, self).__init__(task, problemid, content)
 
     @classmethod
-    def get_type_name(cls, gettext):
-        return gettext("code")
+    def get_type_name(cls, language):
+        return _("code")
 
     def adapt_input_for_backend(self, input_data):
         return input_data
@@ -88,8 +88,8 @@ class DisplayableCodeSingleLineProblem(CodeSingleLineProblem, DisplayableProblem
         return input_data
 
     @classmethod
-    def get_type_name(cls, gettext):
-        return gettext("single-line code")
+    def get_type_name(cls, language):
+        return _("single-line code")
 
     def show_input(self, template_helper, language, seed):
         """ Show InputBox """
@@ -114,8 +114,8 @@ class DisplayableFileProblem(FileProblem, DisplayableProblem):
         super(DisplayableFileProblem, self).__init__(task, problemid, content)
 
     @classmethod
-    def get_type_name(self, gettext):
-        return gettext("file upload")
+    def get_type_name(cls, language):
+        return _("file upload")
 
     def adapt_input_for_backend(self, input_data):
         try:
@@ -147,8 +147,8 @@ class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableProblem
         super(DisplayableMultipleChoiceProblem, self).__init__(task, problemid, content)
 
     @classmethod
-    def get_type_name(self, gettext):
-        return gettext("multiple choice")
+    def get_type_name(cls, language):
+        return _("multiple choice")
 
     def show_input(self, template_helper, language, seed):
         """ Show multiple choice problems """
@@ -214,8 +214,8 @@ class DisplayableMatchProblem(MatchProblem, DisplayableProblem):
         super(DisplayableMatchProblem, self).__init__(task, problemid, content)
 
     @classmethod
-    def get_type_name(self, gettext):
-        return gettext("match")
+    def get_type_name(cls, language):
+        return _("match")
 
     def show_input(self, template_helper, language, seed):
         """ Show MatchProblem """

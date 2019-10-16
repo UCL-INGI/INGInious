@@ -284,12 +284,11 @@ from ``inginious.common.tasks_problems.Problem`` and implementing the following 
 At the frontend side, it consists of a class inheriting from ``inginious.frontend.tasks_problems.DisplayableProblem``
 and implementing th following abstract methods:
 
-  - ``get_type_name(self, gettext)`` returning a human-readable transleted string representing the problem type. ``gettext``
-    is the frontend user-associated gettext function.
+  - ``get_type_name(cls)`` returning a human-readable transleted string representing the problem type.
   - ``get_renderer(cls, template_helper)`` returning the template renderer used for the subproblem. ``template_helper``
     is the webapp ``TemplateHelper`` singleton. It can be used to specify a local template folder.
   - ``show_input(self, template_helper, language, seed)`` returning a HTML code displayed after the subproblem context to the
-    student. ``template_helper`` is the webapp ``TemplateHelper`` singleton. `language`` is the gettext 2-letter language
+    student. ``template_helper`` is the webapp ``TemplateHelper`` singleton. ``language`` is the gettext 2-letter language
     code. ``seed`` is a seed to be used in the random number generator. For simplicity, it should be a string and the usage
     of the username is recommended, as the seed is made to ensure that a user always see the same exercise.
     Classes inheriting from DisplayableProblem should prepend/append a salt to the seed and then create a new

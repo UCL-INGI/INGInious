@@ -17,6 +17,14 @@ def import_class(name):
     return mod
 
 def get_strings(content, fields):
+    # If fields is an empty list or dict, take all the elements
+    if isinstance(fields, dict) and not len(fields):
+        for key, val in content.items():
+            yield val, key
+    elif isinstance(fields, list) and not len(fields):
+        for val in content:
+            yield val, ""
+
     for key, val in fields.items():
         if isinstance(val, dict):
             yield from get_strings(content.get(key, {}), val)
