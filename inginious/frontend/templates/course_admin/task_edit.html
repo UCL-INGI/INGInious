@@ -148,13 +148,13 @@ $var Navbar: $:NavbarF()
                                 <input type="text" class="form-control" id="name-PID" name="problem[PID][name]" placeholder="$:_('A title for this question')"/>
                             </div>
                         </div>
-                        $:problem_type.show_editbox(template_helper, key)
+                        $:problem_type.show_editbox(template_helper, key, user_manager.session_language())
                     </div>
                 </div>
             </div>
         </div>
         <div id="subproblem_$(key)_templates">
-            $:problem_type.show_editbox_templates(template_helper, key)
+            $:problem_type.show_editbox_templates(template_helper, key, user_manager.session_language())
         </div>
 </div>
 $:include.course_admin.edit_tabs.file_modals()

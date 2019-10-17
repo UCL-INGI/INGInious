@@ -284,7 +284,8 @@ from ``inginious.common.tasks_problems.Problem`` and implementing the following 
 At the frontend side, it consists of a class inheriting from ``inginious.frontend.tasks_problems.DisplayableProblem``
 and implementing th following abstract methods:
 
-  - ``get_type_name(cls)`` returning a human-readable transleted string representing the problem type.
+  - ``get_type_name(cls, language)`` returning a human-readable transleted string representing the problem type.
+    ``language`` is the gettext 2-letter language code.
   - ``get_renderer(cls, template_helper)`` returning the template renderer used for the subproblem. ``template_helper``
     is the webapp ``TemplateHelper`` singleton. It can be used to specify a local template folder.
   - ``show_input(self, template_helper, language, seed)`` returning a HTML code displayed after the subproblem context to the
@@ -294,5 +295,6 @@ and implementing th following abstract methods:
     Classes inheriting from DisplayableProblem should prepend/append a salt to the seed and then create a new
     instance of Random from it. See ``inginious.frontend.tasks_problems.DisplayableMultipleChoiceProblem``
     for an example.
-  - ``show_editbox(cls, template_helper, key)`` returning a HTML code corresponding to the subproblem edition box.
-    ``template_helper`` is the webapp ``TemplateHelper`` singleton. ``key`` is the problem type sent by the frontend.
+  - ``show_editbox(cls, template_helper, key, language)`` returning a HTML code corresponding to the subproblem edition box.
+    ``language`` is the gettext 2-letter language code. ``template_helper`` is the webapp ``TemplateHelper`` singleton.
+    ``key`` is the problem type sent by the frontend.
