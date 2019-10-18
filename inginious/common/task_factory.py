@@ -229,6 +229,8 @@ class TaskFactory(object):
         if not translations_fs.exists():
             translations_fs = course.get_fs().from_subfolder("$common").from_subfolder("student").from_subfolder(
                 "$i18n")
+        if not translations_fs.exists():
+            translations_fs = course.get_fs().from_subfolder("$i18n")
 
         if translations_fs.exists():
             for f in translations_fs.list(folders=False, files=True, recursive=False):

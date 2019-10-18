@@ -94,7 +94,7 @@ $def ColumnF():
         $ tags = tags[:-2]
         $if tags != "":
         <tr>
-            <td>Category Tags</td>
+            <td>$:_("Category tags")</td>
             <td>$tags</td>
         </tr>
     </table>
@@ -271,6 +271,7 @@ $# Start content
         $if not is_lti():
             <div class="pull-right">
                 <div class="btn-group">
+                    <button type="button" class="btn btn-info mr-1" data-toggle="collapse" data-target="#task_context">$:_("Collapse context")</button>
                     $if previous_taskid:
                         <a class="btn-sm btn btn-info" href="$get_homepath()/course/$course.get_id()/$previous_taskid" title=$:_('"Previous task"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-arrow-left"></i></a>
                     $if next_taskid:
@@ -291,7 +292,9 @@ $# variable "input" has to be accessible to the eventual javascript present in t
         "@state": "$(user_task.get('state', '') if registered else '')"
     }
 </script>
-$:task.get_context(user_manager.session_language())
+<div id="task_context" class="collapse show">
+    $:task.get_context(user_manager.session_language())
+</div>
 <hr/>
 <div id="task_alert"></div>
 <div id="ssh_template" style="display:none;">

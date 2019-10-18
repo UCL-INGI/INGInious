@@ -21,7 +21,7 @@ class DisplayableProblem(Problem, metaclass=ABCMeta):
 
     @classmethod
     @abstractmethod
-    def get_type_name(self, gettext):
+    def get_type_name(cls, language):
         pass
 
     def adapt_input_for_backend(self, input_data):
@@ -40,13 +40,13 @@ class DisplayableProblem(Problem, metaclass=ABCMeta):
 
     @classmethod
     @abstractmethod
-    def show_editbox(cls, template_helper, key):
+    def show_editbox(cls, template_helper, key, language):
         """ get the edit box html for this problem """
         pass
 
     @classmethod
     @abstractmethod
-    def show_editbox_templates(cls, template_helper, key):
+    def show_editbox_templates(cls, template_helper, key, language):
         return ""
 
 
@@ -57,8 +57,8 @@ class DisplayableCodeProblem(CodeProblem, DisplayableProblem):
         super(DisplayableCodeProblem, self).__init__(task, problemid, content)
 
     @classmethod
-    def get_type_name(cls, gettext):
-        return gettext("code")
+    def get_type_name(cls, language):
+        return _("code")
 
     def adapt_input_for_backend(self, input_data):
         return input_data
@@ -70,11 +70,11 @@ class DisplayableCodeProblem(CodeProblem, DisplayableProblem):
         return str(DisplayableCodeProblem.get_renderer(template_helper).tasks.code(self.get_id(), header, 8, 0, self._language, self._optional, self._default))
 
     @classmethod
-    def show_editbox(cls, template_helper, key):
+    def show_editbox(cls, template_helper, key, language):
         return DisplayableCodeProblem.get_renderer(template_helper).course_admin.subproblems.code(key, True)
 
     @classmethod
-    def show_editbox_templates(cls, template_helper, key):
+    def show_editbox_templates(cls, template_helper, key, language):
         return ""
 
 
@@ -88,8 +88,8 @@ class DisplayableCodeSingleLineProblem(CodeSingleLineProblem, DisplayableProblem
         return input_data
 
     @classmethod
-    def get_type_name(cls, gettext):
-        return gettext("single-line code")
+    def get_type_name(cls, language):
+        return _("single-line code")
 
     def show_input(self, template_helper, language, seed):
         """ Show InputBox """
@@ -99,11 +99,11 @@ class DisplayableCodeSingleLineProblem(CodeSingleLineProblem, DisplayableProblem
                    .tasks.single_line_code(self.get_id(), header, "text", 0, self._optional, self._default))
 
     @classmethod
-    def show_editbox(cls, template_helper, key):
+    def show_editbox(cls, template_helper, key, language):
         return DisplayableCodeSingleLineProblem.get_renderer(template_helper).course_admin.subproblems.code(key, False)
 
     @classmethod
-    def show_editbox_templates(cls, template_helper, key):
+    def show_editbox_templates(cls, template_helper, key, language):
         return ""
 
 
@@ -114,8 +114,8 @@ class DisplayableFileProblem(FileProblem, DisplayableProblem):
         super(DisplayableFileProblem, self).__init__(task, problemid, content)
 
     @classmethod
-    def get_type_name(self, gettext):
-        return gettext("file upload")
+    def get_type_name(cls, language):
+        return _("file upload")
 
     def adapt_input_for_backend(self, input_data):
         try:
@@ -126,7 +126,7 @@ class DisplayableFileProblem(FileProblem, DisplayableProblem):
         return input_data
 
     @classmethod
-    def show_editbox(cls, template_helper, key):
+    def show_editbox(cls, template_helper, key, language):
         return DisplayableFileProblem.get_renderer(template_helper).course_admin.subproblems.file(key)
 
     def show_input(self, template_helper, language, seed):
@@ -136,7 +136,7 @@ class DisplayableFileProblem(FileProblem, DisplayableProblem):
         return str(DisplayableFileProblem.get_renderer(template_helper).tasks.file(self.get_id(), header, self._max_size, self._allowed_exts))
 
     @classmethod
-    def show_editbox_templates(cls, template_helper, key):
+    def show_editbox_templates(cls, template_helper, key, language):
         return ""
 
 
@@ -147,8 +147,8 @@ class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableProblem
         super(DisplayableMultipleChoiceProblem, self).__init__(task, problemid, content)
 
     @classmethod
-    def get_type_name(self, gettext):
-        return gettext("multiple choice")
+    def get_type_name(cls, language):
+        return _("multiple choice")
 
     def show_input(self, template_helper, language, seed):
         """ Show multiple choice problems """
@@ -199,11 +199,11 @@ class DisplayableMultipleChoiceProblem(MultipleChoiceProblem, DisplayableProblem
                                       translation=self.get_translation_obj(language))))
 
     @classmethod
-    def show_editbox(cls, template_helper, key):
+    def show_editbox(cls, template_helper, key, language):
         return DisplayableMultipleChoiceProblem.get_renderer(template_helper).course_admin.subproblems.multiple_choice(key)
 
     @classmethod
-    def show_editbox_templates(cls, template_helper, key):
+    def show_editbox_templates(cls, template_helper, key, language):
         return DisplayableMultipleChoiceProblem.get_renderer(template_helper).course_admin.subproblems.multiple_choice_templates(key)
 
 
@@ -214,8 +214,8 @@ class DisplayableMatchProblem(MatchProblem, DisplayableProblem):
         super(DisplayableMatchProblem, self).__init__(task, problemid, content)
 
     @classmethod
-    def get_type_name(self, gettext):
-        return gettext("match")
+    def get_type_name(cls, language):
+        return _("match")
 
     def show_input(self, template_helper, language, seed):
         """ Show MatchProblem """
@@ -224,9 +224,9 @@ class DisplayableMatchProblem(MatchProblem, DisplayableProblem):
         return str(DisplayableMatchProblem.get_renderer(template_helper).tasks.match(self.get_id(), header))
 
     @classmethod
-    def show_editbox(cls, template_helper, key):
+    def show_editbox(cls, template_helper, key, language):
         return DisplayableMatchProblem.get_renderer(template_helper).course_admin.subproblems.match(key)
 
     @classmethod
-    def show_editbox_templates(cls, template_helper, key):
+    def show_editbox_templates(cls, template_helper, key, language):
         return ""
