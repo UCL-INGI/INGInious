@@ -40,6 +40,7 @@ class DockerInterface(object):  # pragma: no cover
         # First, create a dict with {"id": {"title": "alias", "created": 000, "ports": [0, 1]}}
         images = {}
         for x in self._docker.images.list(filters={"label": "org.inginious.grading.name"}):
+            title = None
             try:
                 title = x.labels["org.inginious.grading.name"]
 
@@ -55,7 +56,7 @@ class DockerInterface(object):  # pragma: no cover
                     ",")] if "org.inginious.grading.ports" in x.labels else []
                 images[x.attrs['Id']] = {"title": title, "created": created, "ports": ports}
             except:
-                logging.getLogger("inginious.agent").exception("Container %s is badly formatted", title)
+                logging.getLogger("inginious.agent").exception("Container %s is badly formatted", title or "[cannot load title]")
 
         # Then, we keep only the last version of each name
         latest = {}

@@ -121,12 +121,16 @@ class CourseEditClassroom(INGIniousAdminPage):
         if course.is_lti():
             raise web.notfound()
 
+        return self._print_page(course, classroomid)
+
+    def _print_page(self, course, classroomid, msg="", error=False):
         student_list, tutor_list, other_students, users_info = self.get_user_lists(course, classroomid)
-        classroom = self.database.classrooms.find_one({"_id": ObjectId(classroomid), "courseid": courseid})
+        classroom = self.database.classrooms.find_one({"_id": ObjectId(classroomid), "courseid": course.get_id()})
 
         if classroom:
-            return self.template_helper.get_renderer().course_admin.edit_classroom(course, student_list, tutor_list, other_students, users_info,
-                                                                                   classroom, "", False)
+            return self.template_helper.get_renderer().course_admin.edit_classroom(course, student_list, tutor_list,
+                                                                                   other_students, users_info,
+                                                                                   classroom, msg, error)
         else:
             raise web.notfound()
 
@@ -181,11 +185,13 @@ class CourseEditClassroom(INGIniousAdminPage):
                     error = True
                 else:
                     msg = _("Classroom updated.")
+
+                return self.template_helper.get_renderer().course_admin.edit_classroom(course, student_list, tutor_list,
+                                                                                       other_students, users_info,
+                                                                                       classroom, msg, error)
             except:
-                classroom = self.database.classrooms.find_one({"_id": ObjectId(classroomid), "courseid": courseid})
-                student_list, tutor_list, other_students, users_info = self.get_user_lists(course, classroom["_id"])
                 msg = _('An error occurred while parsing the data.')
                 error = True
 
-        return self.template_helper.get_renderer().course_admin.edit_classroom(course, student_list, tutor_list, other_students, users_info,
-                                                                               classroom, msg, error)
+        # If we are here, it means that something went wrong: msg/error are defined.
+        return self._print_page(course, classroomid, msg, error)
