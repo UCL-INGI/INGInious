@@ -259,8 +259,8 @@ def get_menu(course, current, renderer, plugin_manager, user_manager):
                         ("students", "<i class='fa fa-user fa-fw'></i>&nbsp; " + _("Students"))]
 
     if not course.is_lti():
-        default_entries += [("aggregations", "<i class='fa fa-group fa-fw'></i>&nbsp; " +
-                             (_("Classrooms") if course.use_classrooms() else _("Teams")))]
+        default_entries += [("classrooms", "<i class='fa fa-group fa-fw'></i>&nbsp; " + _("Classrooms")),
+                            ("teams", "<i class='fa fa-group fa-fw'></i>&nbsp; " +_("Teams"))]
 
     default_entries += [("tasks", "<i class='fa fa-tasks fa-fw'></i>&nbsp; " + _("Tasks")),
                         ("tags", "<i class='fa fa-tags fa-fw'></i>&nbsp;" + _("Tags")),

@@ -17,7 +17,7 @@ $def NavbarF():
             <li class="breadcrumb-item"><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
             <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
                 <i class="fa fa-user-secret"></i></a></li>
-            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()/aggregations" title=$:_('"Classrooms"') data-toggle="tooltip" data-placement="bottom">
+            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()/classrooms" title=$:_('"Classrooms"') data-toggle="tooltip" data-placement="bottom">
                 <i class='fa fa-users'></i></a></li>
             <li class="breadcrumb-item active"><a href="#">$:_("Edit classroom {}").format(aggregation["description"]) <span class="sr-only">$:_("(current)")</span></a></li>
         </ol>

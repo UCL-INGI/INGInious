@@ -69,4 +69,4 @@ class CourseAggregationInfoPage(INGIniousAdminPage):
             return make_csv(result)
 
         results = sorted(list(result.values()), key=lambda result: (tasks[result["taskid"]].get_order(), result["taskid"]))
-        return self.template_helper.get_renderer().course_admin.aggregation_info(course, aggregation, results)
+        return self.template_helper.get_renderer().course_admin.team_info(course, aggregation, results)

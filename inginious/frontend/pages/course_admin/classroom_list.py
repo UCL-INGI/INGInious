@@ -120,4 +120,4 @@ class CourseAggregationListPage(INGIniousAdminPage):
         if "csv" in web.input():
             return make_csv(data)
 
-        return self.template_helper.get_renderer().course_admin.aggregation_list(course, [my_aggregations, other_aggregations], msg, error)
+        return self.template_helper.get_renderer().course_admin.classroom_list(course, [my_aggregations, other_aggregations], msg, error)

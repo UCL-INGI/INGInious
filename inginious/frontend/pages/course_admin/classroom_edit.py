@@ -195,7 +195,7 @@ class CourseEditAggregation(INGIniousAdminPage):
                     msg = _("Classroom updated.")
 
             if aggregationid and aggregationid in data["delete"]:
-                raise web.seeother(self.app.get_homepath() + "/admin/" + courseid + "/aggregations")
+                raise web.seeother(self.app.get_homepath() + "/admin/" + courseid + "/classrooms")
 
         try:
             if "upload" in data:
@@ -230,7 +230,6 @@ class CourseEditAggregation(INGIniousAdminPage):
             elif not error:
                 msg = _("Classroom updated.") if course.use_classrooms() else _("Teams updated.")
         except:
-            raise
             msg = _('An error occurred while parsing the data.')
             error = True
 
