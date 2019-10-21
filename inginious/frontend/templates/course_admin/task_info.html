@@ -26,7 +26,10 @@ $def NavbarF():
 $var Navbar: $:NavbarF()
 
 <h2>$:_("Results for task \"{}\"").format(task.get_name(user_manager.session_language()))</h2>
+<form method="post">
                     $if not course.is_lti():
+
+
                         <div class="card">
                             <div class="card-header">
                                 <ul class="nav nav-tabs card-header-tabs">
@@ -96,13 +99,14 @@ $var Navbar: $:NavbarF()
                                         $if is_admin:
                                             <a href="$get_homepath()/admin/${course.get_id()}/replay$user['url']" class="btn btn-secondary"
                                                title=$:_('"Replay submissions"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
-                                            <a href="$get_homepath()/admin/${course.get_id()}/${task.get_id()}/reset_state$user['url']" class="btn btn-secondary"
-                                               title=$:_('"Reset submissions state"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
+                                            <button type="button" data-toggle="modal" data-username="$user['username']" data-target="#reset_modal" class="btn btn-warning reset_state" title="Reset state"><i class="fa fa-eraser"></i></button>
+
                                     </div>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
+
 
         $if not course.is_lti():
                     </div>
@@ -167,7 +171,7 @@ $var Navbar: $:NavbarF()
                                                        title=$:_('"Download  submissions"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
                                                     $if is_admin:
                                                         <a href="$get_homepath()/admin/${course.get_id()}/replay$aggregation['url']" class="btn btn-secondary"
-                                                           title=$:_('"Replay submissions"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
+                                                           title=$:_('"Replay submissions"')  data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
                                                 </div>
                                             </td>
                                         </tr>
@@ -176,3 +180,35 @@ $var Navbar: $:NavbarF()
                     </div>
                 </div>
             </div>
+
+        <div id="reset_modal" class="modal fade">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">$:_("Reset State") </h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>$:_("This will reset the state for {}. Are you sure ?").format('<span class="username"></span>')</p>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="hidden" name="username" id="username">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">$:_("Cancel")</button>
+                        <button type="submit" name="reset" class="btn btn-danger">$:_("Reset")</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+</form>
+        <script type="text/javascript">
+            $$('#reset_modal').on('show.bs.modal', function (event) {
+              $$('.modal-dialog .username').each(function (index) {
+                  $$(this).text($$(event.relatedTarget).data('username'));
+              });
+              $$('.modal-dialog #username').val($$(event.relatedTarget).data('username'));
+            });
+            $$(".reset_modal").each(function(index) {
+                $$(this).tooltip({"placement": "bottom"});
+            });
+        </script>
+
