@@ -25,9 +25,11 @@ $var Navbar: $:NavbarF()
 <h2>$:_("Tasks")
     <div class="pull-right">
         <div class="btn-group btn-group-sm">
+            <button type="button" id="disable_tasks" class="btn btn-success"><i class="fa fa-low-vision"></i> $:_("Make mutliple tasks inaccessible")</button>
+
             <button type="button" id="switch" class="btn btn-default"><i class="fa fa-list-ol"></i> $:_("Change task order")</button>
-            <button type="submit" id="switch" class="btn btn-success"><i class="fa fa-check"></i> $:_("Update task order")</button>
-        </div>
+            <button type="submit" id="switch" class="btn btn-success"><i class="fa fa-check"></i> $:_("Update")</button>
+            </div>
     </div>
 </h2>
 
@@ -53,6 +55,7 @@ $if webdav_host:
         </div>
     </div>
 
+<input type="hidden" id="selected_task_ids" name="selected_task_ids" value="">
 <table class="table sorted_table">
     <thead class="table-borderless">
         <tr>
@@ -73,7 +76,7 @@ $if webdav_host:
     </thead>
     <tbody>
     $for taskid in data:
-    	<tr>
+    	<tr data-task-id="$taskid">
     		<td>
     			$data[taskid]["name"]
                 <input type="hidden" name="task" value="$taskid">
@@ -139,5 +142,39 @@ $$("#switch").click(function  (e) {
         $$(".sorted_table tr").attr("style", "cursor: pointer;");
     }
     $$('.sorted_table').sortable($$(this).hasClass("active") ? "enable" : "disable");
+});
+
+$$("#disable_tasks").click(function  (e) {
+    if($$(this).hasClass("active")) {
+        //update selected tasks
+        $$(this).removeClass("active");
+        $$(".sorted_table tr.selected_disable").each(function(e){
+            let task_id = $$(this).data("task-id");
+            $$("#selected_task_ids").val(function() {
+                if (this.value ===""){
+                    return task_id;
+                }else{
+                    return this.value +","+ task_id;
+                }
+            });
+        });
+    }else{
+        //select multiple tasks
+        $$(this).addClass("active");
+    }
+});
+
+$$(".sorted_table tr").click(function (e) {
+    if($$("#disable_tasks").hasClass("active")) {
+        if($$(this).hasClass("selected_disable")) {
+
+            $$(this).removeClass("selected_disable");
+            $$(this).removeClass("table-active");
+        }else{
+            $$(this).addClass("selected_disable");
+            $$(this).addClass("table-active");
+        }
+
+    }
 });
 </script>

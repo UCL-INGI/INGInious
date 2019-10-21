@@ -21,14 +21,22 @@ class CourseTaskListPage(INGIniousAdminPage):
     def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request """
         course, __ = self.get_course_and_check_rights(courseid)
-        data = web.input(task=[])
-
+        data = web.input(task=[], selected_task_ids='')
         if "task" in data:
             # Change tasks order
             for index, taskid in enumerate(data["task"]):
                 try:
                     task = self.task_factory.get_task_descriptor_content(courseid, taskid)
                     task["order"] = index
+                    self.task_factory.update_task_descriptor_content(courseid, taskid, task)
+                except:
+                    pass
+        if "selected_task_ids" in data:
+            task_ids = data["selected_task_ids"].split(",")
+            for taskid in task_ids:
+                try:
+                    task = self.task_factory.get_task_descriptor_content(courseid, taskid)
+                    task["accessible"] = False
                     self.task_factory.update_task_descriptor_content(courseid, taskid, task)
                 except:
                     pass
