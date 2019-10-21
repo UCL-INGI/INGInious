@@ -150,8 +150,8 @@ $def ColumnF():
                 <i class="fa fa-group fa-fw"></i>&nbsp;
                 $ myaggregation = user_manager.get_course_user_aggregation(course)
                 $if course.use_classrooms():
-                    $:_("Classroom : {}").format(myaggregation["description"])
-                $elif len(myaggregation['groups']) > 0 and user_manager.session_username() in myaggregation['groups'][0]['students']:
+                    $:_("Classroom : {}").format(myaggregation['description'] if myaggregation else _("none"))
+                $elif myaggregation and len(myaggregation['groups']) > 0 and user_manager.session_username() in myaggregation['groups'][0]['students']:
                     $:_("Team : {}").format(myaggregation['description'])
                 $else:
                     $:_("Teams management")
@@ -393,7 +393,7 @@ $else:
     $elif not task.get_accessible_time().is_open():
         <button type="submit" class="btn btn-default btn-lg btn-block center-block" disabled="disabled">$:_("The deadline is over, you cannot submit anymore")</button>
     $elif task.is_group_task() and not groups_ok:
-        <a href="$get_homepath()/aggregation/$course.get_id()" class="btn btn-default btn-lg btn-block center-block">$(_('Please register in a group') if course.use_classrooms() else _('Please register in a team'))</a>
+        <button class="btn btn-default btn-lg btn-block center-block" disabled="disabled">$(_('Please register in a group') if course.use_classrooms() else _('Please register in a team'))</button>
     $elif not tokens_ok:
         <button type="submit" class="btn btn-default btn-lg btn-block center-block" disabled="disabled">
             $(_('You have reached the submission limit.') if not task.is_group_task() else _('Your group have reached the submission limit.') if course.use_classrooms() else _('Your team have reached the submission limit.'))

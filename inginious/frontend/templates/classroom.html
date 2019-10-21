@@ -55,7 +55,7 @@ $def NavbarF():
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a  href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
             <li class="breadcrumb-item active"><a href="#"><i class="fa fa-group"></i>
-                $classroom["description"]
+                $(classroom["description"] if classroom else _('My classroom'))
                 <span class="sr-only">$:_("(current)")</span></a>
             </li>
         </ol>
@@ -63,7 +63,8 @@ $def NavbarF():
 $var Navbar: $:NavbarF()
 
 $# Start content
-<h2>$course.get_name(user_manager.session_language()) - $classroom["description"]</h2>
+<h2>$course.get_name(user_manager.session_language()) - $:(classroom["description"] if classroom else _('My classroom'))</h2>
+
 $if error:
     <div class="alert alert-danger alert-dismissable" role="alert">
         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
@@ -75,153 +76,158 @@ $elif msg:
         $:msg
     </div>
 
-
-<div class="card">
-    <div class="card-header">
-        <ul class="nav nav-tabs card-header-tabs">
-            <li class="nav-item">
-                <a class=" nav-link $('active' if not change else '')" id="nav_tab_basic" data-toggle="tab" href="#tab_basic" role="tab" aria-controls="tab_basic" aria-selected="true">
-                <i class="fa fa-users fa-fw"></i>&nbsp; $:_("Members")</a>
-            </li>
-            <li class="nav-item">
-                <a class=" nav-link $('active' if change else '')" id="nav_tab_groups" data-toggle="tab" href="#tab_groups" role="tab" aria-controls="tab_groups" aria-selected="false">
-                <i class="fa fa-list-ul fa-fw"></i>&nbsp; $:_("Groups")</a>
-            </li>
-        </ul>
+$if not classroom:
+    <div class="alert alert-warning alert-dismissable" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        $:_("You are not registered in any classroom. Please contact you course administrator.")
     </div>
-    <div class="tab-content">
-        <div role="tabpanel" class="card-body tab-pane $('show active' if not change else '')" id="tab_basic" aria-labelledby="nav_tab_basic">
-            $if len(classroom["tutors"]) > 0:
-                <div class="card bg-info mb-3">
-                    <div class="card-header text-white">
-                        $:_("Tutors")
-                    </div>
-                        <ul class="list-group list-group-flush">
-                        $for user in classroom["tutors"]:
-                            <li class="list-group-item">
-                                $if users[user] is not None:
-                                    $users[user][0]
-                                    <div class="pull-right">
-                                        <a class="mailto" href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="$:_('Send an email')">
-                                            <i class="fa fa-envelope-o"></i>
-                                        </a>
-                                    </div>
-                                $else:
-                                    $user
-                            </li>
-                        </ul>
-                </div>
-            $if len(classroom["students"]) > 0:
-                <div class="card">
-                    <div class="card-header">
-                        $:_("Students")
-                    </div>
-                        <ul class="list-group list-group-flush">
-                        $for user in classroom["students"]:
-                            <li class="list-group-item">
-                                $if users[user] is not None:
-                                    $users[user][0]
-                                    <div class="pull-right">
-                                        <a class="mailto" href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="$:_('Send an email')">
-                                            <i class="fa fa-envelope-o"></i>
-                                        </a>
-                                    </div>
-                                $else:
-                                    $user
-                            </li>
-                        </ul>
-                </div>
+$else:
+    <div class="card">
+        <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs">
+                <li class="nav-item">
+                    <a class=" nav-link $('active' if not change else '')" id="nav_tab_basic" data-toggle="tab" href="#tab_basic" role="tab" aria-controls="tab_basic" aria-selected="true">
+                    <i class="fa fa-users fa-fw"></i>&nbsp; $:_("Members")</a>
+                </li>
+                <li class="nav-item">
+                    <a class=" nav-link $('active' if change else '')" id="nav_tab_groups" data-toggle="tab" href="#tab_groups" role="tab" aria-controls="tab_groups" aria-selected="false">
+                    <i class="fa fa-list-ul fa-fw"></i>&nbsp; $:_("Groups")</a>
+                </li>
+            </ul>
         </div>
-
-        <div role="tabpanel" class="card-body tab-pane fade $('show active' if change else '')" id="tab_groups" aria-labelledby="nav_tab_groups">
-            $if mygroup is not None:
-                <h3>$:_("My group")</h3>
-                <div class="card bg-info mb-3">
-                    <div class="card-header text-white">
-                        $:_("Group #{}").format(mygroup['index'])
-                        $if course.can_students_choose_group():
-                            <div class="pull-right">
-                                <a href="?unregister_group" data-toggle="tooltip" data-placement="left" title="$:_('Quit group')">
-                                    <i style="color:white;" class="fa fa-user-times"></i>
-                                </a>
-                            </div>
-                    </div>
-
-                    <ul class="list-group list-group-flush">
-                    $for user in mygroup["students"]:
-                        <li class="list-group-item">
-                            $if users[user] is not None:
-                                $users[user][0]
-                                <div class="pull-right">
-                                    <a class="mailto" href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="$:_('Send an email')">
-                                        <i class="fa fa-envelope-o"></i>
-                                    </a>
-                                </div>
-                            $else:
-                                $user
-                        </li>
-                    </ul>
-                </div>
-
-            $elif len(classroom["groups"]) == 0:
-                <div class="alert alert-info alert-dismissable" role="alert">
-                    $:_("No set group in this classroom. If you think this is a mistake, please contact the course administrator.")
-                </div>
-            $elif course.can_students_choose_group():
-                <h3>$:_("My group")</h3>
-                <div class="alert alert-warning alert-dismissable" role="alert">
-                    $:_("You're not registered to a group. Please consider registration in one of the group below to take part in all course activities. If no more group is available, please contact the course administrator.")
-                </div>
-            $else:
-                <h3>$:_("My group")</h3>
-                <div class="alert alert-warning alert-dismissable" role="alert">
-                    $:_("You're not yet registered to a group. Please contact the course administrator for more information.")
-                </div>
-
-            $if not len(classroom["groups"]) == 0:
-                <h3>$:_("All groups")</h3>
-                $for index, group in enumerate(classroom["groups"]):
-                                $if mygroup is None and (group["size"]-len(group["students"])) > 0 and course.can_students_choose_group():
-                                    <div class="card bg-success">
-                                    $ text_white = "text-white"
-                                $else:
-                                    <div class="card">
-                                    $ text_white = ""
-
-                                <div class="card-header $text_white">
-                                    $:_("Group #{}").format(index+1)
-                                    $if mygroup is None and (group["size"]-len(group["students"])) > 0 and course.can_students_choose_group():
-                                        (available : $(group["size"]-len(group["students"])) )
+        <div class="tab-content">
+            <div role="tabpanel" class="card-body tab-pane $('show active' if not change else '')" id="tab_basic" aria-labelledby="nav_tab_basic">
+                $if len(classroom["tutors"]) > 0:
+                    <div class="card bg-info mb-3">
+                        <div class="card-header text-white">
+                            $:_("Tutors")
+                        </div>
+                            <ul class="list-group list-group-flush">
+                            $for user in classroom["tutors"]:
+                                <li class="list-group-item">
+                                    $if users[user] is not None:
+                                        $users[user][0]
                                         <div class="pull-right">
-                                            <a href="?register_group=$index" data-toggle="tooltip" data-placement="left" title="$:_('Join in')">
-                                                <i style="color:white;" class="fa fa-sign-in"></i>
+                                            <a class="mailto" href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="$:_('Send an email')">
+                                                <i class="fa fa-envelope-o"></i>
                                             </a>
                                         </div>
-                                </div>
-
+                                    $else:
+                                        $user
+                                </li>
+                            </ul>
+                    </div>
+                $if len(classroom["students"]) > 0:
+                    <div class="card">
+                        <div class="card-header">
+                            $:_("Students")
+                        </div>
                             <ul class="list-group list-group-flush">
+                            $for user in classroom["students"]:
+                                <li class="list-group-item">
+                                    $if users[user] is not None:
+                                        $users[user][0]
+                                        <div class="pull-right">
+                                            <a class="mailto" href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="$:_('Send an email')">
+                                                <i class="fa fa-envelope-o"></i>
+                                            </a>
+                                        </div>
+                                    $else:
+                                        $user
+                                </li>
+                            </ul>
+                    </div>
+            </div>
 
-                            $if len(group["students"]) == 0:
-                                <li class="list-group-item"><i>$:_("No registered member.")</i></li>
-                            $else:
+            <div role="tabpanel" class="card-body tab-pane fade $('show active' if change else '')" id="tab_groups" aria-labelledby="nav_tab_groups">
+                $if mygroup is not None:
+                    <h3>$:_("My group")</h3>
+                    <div class="card bg-info mb-3">
+                        <div class="card-header text-white">
+                            $:_("Group #{}").format(mygroup['index'])
+                            $if course.can_students_choose_group():
+                                <div class="pull-right">
+                                    <a href="?unregister_group" data-toggle="tooltip" data-placement="left" title="$:_('Quit group')">
+                                        <i style="color:white;" class="fa fa-user-times"></i>
+                                    </a>
+                                </div>
+                        </div>
 
-                                $for user in group["students"]:
-                                    <li class="list-group-item">
-                                        $if users[user] is not None:
-                                            $users[user][0]
+                        <ul class="list-group list-group-flush">
+                        $for user in mygroup["students"]:
+                            <li class="list-group-item">
+                                $if users[user] is not None:
+                                    $users[user][0]
+                                    <div class="pull-right">
+                                        <a class="mailto" href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="$:_('Send an email')">
+                                            <i class="fa fa-envelope-o"></i>
+                                        </a>
+                                    </div>
+                                $else:
+                                    $user
+                            </li>
+                        </ul>
+                    </div>
+
+                $elif len(classroom["groups"]) == 0:
+                    <div class="alert alert-info alert-dismissable" role="alert">
+                        $:_("No set group in this classroom. If you think this is a mistake, please contact the course administrator.")
+                    </div>
+                $elif course.can_students_choose_group():
+                    <h3>$:_("My group")</h3>
+                    <div class="alert alert-warning alert-dismissable" role="alert">
+                        $:_("You're not registered to a group. Please consider registration in one of the group below to take part in all course activities. If no more group is available, please contact the course administrator.")
+                    </div>
+                $else:
+                    <h3>$:_("My group")</h3>
+                    <div class="alert alert-warning alert-dismissable" role="alert">
+                        $:_("You're not yet registered to a group. Please contact the course administrator for more information.")
+                    </div>
+
+                $if not len(classroom["groups"]) == 0:
+                    <h3>$:_("All groups")</h3>
+                    $for index, group in enumerate(classroom["groups"]):
+                                    $if mygroup is None and (group["size"]-len(group["students"])) > 0 and course.can_students_choose_group():
+                                        <div class="card bg-success">
+                                        $ text_white = "text-white"
+                                    $else:
+                                        <div class="card">
+                                        $ text_white = ""
+
+                                    <div class="card-header $text_white">
+                                        $:_("Group #{}").format(index+1)
+                                        $if mygroup is None and (group["size"]-len(group["students"])) > 0 and course.can_students_choose_group():
+                                            (available : $(group["size"]-len(group["students"])) )
                                             <div class="pull-right">
-                                                <a class="mailto" href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="$:_('Send an email')">
-                                                    <i class="fa fa-envelope-o"></i>
+                                                <a href="?register_group=$index" data-toggle="tooltip" data-placement="left" title="$:_('Join in')">
+                                                    <i style="color:white;" class="fa fa-sign-in"></i>
                                                 </a>
                                             </div>
-                                        $else:
-                                            $user
-                                    </li>
+                                    </div>
 
-                            </ul>
-                        </div>
+                                <ul class="list-group list-group-flush">
+
+                                $if len(group["students"]) == 0:
+                                    <li class="list-group-item"><i>$:_("No registered member.")</i></li>
+                                $else:
+
+                                    $for user in group["students"]:
+                                        <li class="list-group-item">
+                                            $if users[user] is not None:
+                                                $users[user][0]
+                                                <div class="pull-right">
+                                                    <a class="mailto" href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="$:_('Send an email')">
+                                                        <i class="fa fa-envelope-o"></i>
+                                                    </a>
+                                                </div>
+                                            $else:
+                                                $user
+                                        </li>
+
+                                </ul>
+                            </div>
+            </div>
         </div>
     </div>
-</div>
 
-$:include.unregister_modal(course)
+    $:include.unregister_modal(course)

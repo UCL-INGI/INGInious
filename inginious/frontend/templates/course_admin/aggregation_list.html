@@ -123,21 +123,6 @@ $var Navbar: $:NavbarF()
 </table>
 
 $if course.use_classrooms():
-    <form class="form-horizontal" method="post">
-        <div class="form-group row">
-            <label for="default" class="col-sm-2 control-label">$:_("Default classroom :") </label>
-            <div class="col-sm-7">
-                <select name="default" class="form-control">
-                    $for ind in range(0,2):
-                        $for aggregation in data[ind]:
-                            $ sel = 'selected' if aggregation['default'] else ''
-                            <option value="$aggregation['_id']" $sel>$aggregation['description']</option>
-                </select>
-            </div>
-            <div class="col-sm-3"><button type="submit" class="btn btn-info btn-block">$:_("Set as default")</button></div>
-        </div>
-    </form>
-    
     $ placeholder = _('New classroom description')
     $ btn = _("New classroom")
     <form class="form-horizontal" method="post">

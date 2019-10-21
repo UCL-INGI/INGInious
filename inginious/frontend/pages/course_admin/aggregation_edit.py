@@ -23,6 +23,8 @@ class CourseEditAggregation(INGIniousAdminPage):
         tutor_list = course.get_staff()
 
         # Determine student list and if they are grouped
+        course_obj = self.database.courses.find_one({"_id": course.get_id()})
+        students = course_obj["students"] if course_obj else []
         student_list = list(self.database.aggregations.aggregate([
             {"$match": {"courseid": course.get_id()}},
             {"$unwind": "$students"},
@@ -50,6 +52,7 @@ class CourseEditAggregation(INGIniousAdminPage):
         ]))
 
         student_list = dict([(student["students"], student) for student in student_list])
+        student_list = {student: student_list[student] if student in student_list else {"students": student, "classroom": None, "grouped": False} for student in students}
         users_info = self.user_manager.get_users_info(list(student_list.keys()) + tutor_list)
 
         if aggregationid:
@@ -102,10 +105,11 @@ class CourseEditAggregation(INGIniousAdminPage):
                 if user_info is None or student in aggregation["tutors"]:
                     errored_students.append(student)
                 else:
+                    self.user_manager.course_register_user(course, student, force=True)
                     students.append(student)
 
         removed_students = [student for student in aggregation["students"] if student not in new_data["students"]]
-        self.database.aggregations.find_one_and_update({"courseid": course.get_id(), "default": True},
+        self.database.aggregations.find_one_and_update({"courseid": course.get_id()},
                                                      {"$push": {"students": {"$each": removed_students}}})
 
         new_data["students"] = students
@@ -118,16 +122,11 @@ class CourseEditAggregation(INGIniousAdminPage):
 
         new_data["groups"] = groups
 
-        # Check for default aggregation
-        if new_data['default']:
-            self.database.aggregations.find_one_and_update({"courseid": course.get_id(), "default": True},
-                                                         {"$set": {"default": False}})
-
         aggregation = self.database.aggregations.find_one_and_update(
             {"_id": ObjectId(aggregationid)},
             {"$set": {"description": new_data["description"],
                       "students": students, "tutors": new_data["tutors"],
-                      "groups": groups, "default": new_data['default']}}, return_document=ReturnDocument.AFTER)
+                      "groups": groups}}, return_document=ReturnDocument.AFTER)
 
         return aggregation, errored_students
 
@@ -187,7 +186,7 @@ class CourseEditAggregation(INGIniousAdminPage):
                     msg = _("You can't remove your default classroom.")
                     error = True
                 else:
-                    self.database.aggregations.find_one_and_update({"courseid": courseid, "default": True},
+                    self.database.aggregations.find_one_and_update({"courseid": courseid},
                                                                  {"$push": {
                                                                      "students": {"$each": aggregation["students"]}
                                                                  }})
@@ -209,9 +208,6 @@ class CourseEditAggregation(INGIniousAdminPage):
                 # In case of file upload, no id specified
                 new_aggregation['_id'] = new_aggregation['_id'] if '_id' in new_aggregation else 'None'
 
-                # In case of no aggregation usage, set the first entry default
-                new_aggregation["default"] = not aggregationid and index == 0
-
                 # If no groups field set, create group from class students if in groups only mode
                 if "groups" not in new_aggregation:
                     new_aggregation["groups"] = [] if aggregationid else [{'size': len(new_aggregation['students']),
@@ -221,7 +217,7 @@ class CourseEditAggregation(INGIniousAdminPage):
                 aggregation, errors = self.update_aggregation(course, new_aggregation['_id'], new_aggregation)
 
                 # If file upload was done, get the default aggregation id
-                if course.use_classrooms() and aggregation['default']:
+                if course.use_classrooms():
                     aggregationid = aggregation['_id']
                 errored_students += errors
 
@@ -234,6 +230,7 @@ class CourseEditAggregation(INGIniousAdminPage):
             elif not error:
                 msg = _("Classroom updated.") if course.use_classrooms() else _("Teams updated.")
         except:
+            raise
             msg = _('An error occurred while parsing the data.')
             error = True
 

@@ -26,15 +26,13 @@ class CourseAggregationListPage(INGIniousAdminPage):
             web.header('Content-Type', 'text/x-yaml', unique=True)
             web.header('Content-Disposition', 'attachment; filename="aggregations.yaml"', unique=True)
             if course.use_classrooms():
-                aggregations = [{"default": aggregation["default"],
-                               "description": aggregation["description"],
+                aggregations = [{"description": aggregation["description"],
                                "groups": aggregation["groups"],
                                "students": aggregation["students"],
                                "tutors": aggregation["tutors"]} for aggregation in
                               self.user_manager.get_course_aggregations(course)]
             else:
-                aggregations = [{"default": aggregation["default"],
-                               "description": aggregation["description"],
+                aggregations = [{"description": aggregation["description"],
                                "groups": aggregation["groups"],
                                "students": aggregation["students"],
                                "tutors": aggregation["tutors"]} for aggregation in
@@ -56,17 +54,10 @@ class CourseAggregationListPage(INGIniousAdminPage):
             if self.user_manager.has_admin_rights_on_course(course):
                 data = web.input()
                 if 'classroom' in data:
-                    default = True if self.database.aggregations.find_one({"courseid": courseid, "default": True}) is None else False
-                    self.database.aggregations.insert({"default": default, "courseid": courseid, "students": [],
+                    self.database.aggregations.insert({"courseid": courseid, "students": [],
                                                      "tutors": [], "groups": [],
                                                      "description": data['classroom']})
                     msg = _("New classroom created.")
-                elif 'default' in data:
-                    self.database.aggregations.find_one_and_update({"courseid": courseid, "default": True},
-                                                                 {"$set": {"default": False}})
-                    self.database.aggregations.find_one_and_update({"_id": ObjectId(data['default'])},
-                                                                 {"$set": {"default": True}})
-                    msg = _("Default classroom changed.")
                 else:  # default, but with no classroom detected
                     msg = _("Invalid classroom selected.")
             else:

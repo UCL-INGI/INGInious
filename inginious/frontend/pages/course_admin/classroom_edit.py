@@ -94,7 +94,7 @@ class CourseEditClassroom(INGIniousAdminPage):
                         students.append(student)
 
         removed_students = [student for student in student_list if student not in new_data["students"]]
-        self.database.classrooms.find_one_and_update({"courseid": course.get_id(), "default": True},
+        self.database.classrooms.find_one_and_update({"courseid": course.get_id()},
                                                      {"$push": {"students": {"$each": removed_students}}})
 
         new_data["students"] = students
@@ -150,11 +150,8 @@ class CourseEditClassroom(INGIniousAdminPage):
             if classroom is None:
                 msg = _("Classroom not found.")
                 error = True
-            elif classroom['default']:
-                msg = _("You can't remove your default classroom.")
-                error = True
             else:
-                self.database.classrooms.find_one_and_update({"courseid": courseid, "default": True},
+                self.database.classrooms.find_one_and_update({"courseid": courseid},
                                                              {"$push": {
                                                                  "students": {"$each": classroom["students"]}
                                                              }})

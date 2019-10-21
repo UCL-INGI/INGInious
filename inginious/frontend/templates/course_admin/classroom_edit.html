@@ -100,7 +100,6 @@ $elif msg:
 
 <form method="post" enctype="multipart/form-data" class="form-horizontal">
     <input type="hidden" id="classrooms" name="classrooms" value="true" />
-    <input type="hidden" id="default" name="default" value="$aggregation['default']" />
     <input type="hidden" id="_id" name="_id" value="$aggregation['_id']" />
     <div class="card">
         <div class="card-header">
@@ -115,25 +114,17 @@ $elif msg:
         </div>
 		<div class="tab-content">
 			<div role="tabpanel" class="card-body tab-pane active" id="tab_basic">
-                $if aggregation["default"]:
-                    <div class="alert alert-info alert-dismissable" role="alert">
-                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                        $:_("This is your default classroom. It can't be deleted and students can't be removed from.")
-                    </div>
                 <div class="form-group row">
                     <label for="name" class="col-sm-2 control-label">Classroom description</label>
                     <div class="col-sm-10">
-                        $if aggregation["default"]:
-                            <input type="text" class="form-control" id="description" name="description" placeholder="Classroom description" value="$aggregation['description']">
-                        $else:
-                            <div class="row">
-                                <div class="col-xs-12 col-md-8">
-                                    <input type="text" class="form-control" id="description" name="description" placeholder="Classroom description" value="$aggregation['description']">
-                                </div>
-                                <div class="col-xs-12 col-md-4">
-                                    <button name="delete" onclick="javascript:classroom_delete('$aggregation['_id']')" class="form-control btn btn-block btn-danger"><span class="fa fa-trash"></span> $:_("Delete classroom")</button>
-                                </div>
+                        <div class="row">
+                            <div class="col-xs-12 col-md-8">
+                                <input type="text" class="form-control" id="description" name="description" placeholder="Classroom description" value="$aggregation['description']">
                             </div>
+                            <div class="col-xs-12 col-md-4">
+                                <button name="delete" onclick="javascript:classroom_delete('$aggregation['_id']')" class="form-control btn btn-block btn-danger"><span class="fa fa-trash"></span> $:_("Delete classroom")</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -192,8 +183,7 @@ $elif msg:
                                             <span id="$username']"><i class="fa fa-arrows"></i> $user[0] ($username)</span>
                                         $else:
                                             <span id="$username']"><i class="fa fa-arrows"></i>  $username</span>
-                                        $ style = 'style="display:none;"' if aggregation["default"] else ''
-                                        <a $:style class="pull-right" id="user_delete" href="#" onclick="javascript:student_remove('$username')" data-toggle="tooltip" data-placement="left" title="$:_('Remove student')">
+                                        <a class="pull-right" id="user_delete" href="#" onclick="javascript:student_remove('$username')" data-toggle="tooltip" data-placement="left" title="$:_('Remove student')">
                                             <i class="fa fa-user-times"></i>
                                         </a>
                                     </li>
@@ -233,8 +223,7 @@ $elif msg:
                                                 <span id="$student"><i class="fa fa-arrows"></i> $users_info[student][0] ($student)</span>
                                             $else:
                                                 <span id="$student"><i class="fa fa-arrows"></i>  $student</span>
-                                            $ style = 'style="display:none;"' if aggregation["default"] else ''
-                                            <a $:style class="pull-right" id="user_delete" href="#" onclick="javascript:student_remove('$student')" data-toggle="tooltip" data-placement="left" title="$:_('Remove student')">
+                                            <a class="pull-right" id="user_delete" href="#" onclick="javascript:student_remove('$student')" data-toggle="tooltip" data-placement="left" title="$:_('Remove student')">
                                                 <i class="fa fa-user-times"></i>
                                             </a>
                                         </li>

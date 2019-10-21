@@ -688,13 +688,7 @@ class UserManager:
         if self.course_is_user_registered(course, username):
             return False  # already registered?
 
-        aggregation = self._database.aggregations.find_one({"courseid": course.get_id(), "default": True})
-        if aggregation is None:
-            self._database.aggregations.insert({"courseid": course.get_id(), "description": "Default classroom",
-                                              "students": [username], "tutors": [], "groups": [], "default": True})
-        else:
-            self._database.aggregations.find_one_and_update({"courseid": course.get_id(), "default": True},
-                                                          {"$push": {"students": username}})
+        self._database.courses.find_one_and_update({"_id": course.get_id()}, {"$push": {"students": username}}, upsert=True)
 
         self._logger.info("User %s registered to course %s", username, course.get_id())
         return True
@@ -717,6 +711,8 @@ class UserManager:
         self._database.aggregations.find_one_and_update(
             {"courseid": course.get_id(), "students": username},
             {"$pull": {"students": username}})
+
+        self._database.courses.find_one_and_update({"_id": course.get_id()}, {"$pull": {"students": username}})
 
         self._logger.info("User %s unregistered from course %s", username, course.get_id())
 
@@ -767,7 +763,7 @@ class UserManager:
         if self.has_staff_rights_on_course(course, username):
             return True
 
-        return self._database.aggregations.find_one({"students": username, "courseid": course.get_id()}) is not None
+        return self._database.courses.find_one({"students": username, "_id": course.get_id()}) is not None
 
     def get_course_registered_users(self, course, with_admins=True):
         """
@@ -777,11 +773,9 @@ class UserManager:
         :return: a list of usernames that are registered to the course
         """
 
-        l = [entry['students'] for entry in list(self._database.aggregations.aggregate([
-            {"$match": {"courseid": course.get_id()}},
-            {"$unwind": "$students"},
-            {"$project": {"_id": 0, "students": 1}}
-        ]))]
+        course_obj = self._database.courses.find_one({"_id": course.get_id()})
+        l = course_obj["students"] if course_obj else []
+
         if with_admins:
             return list(set(l + course.get_staff()))
         else:

@@ -103,10 +103,11 @@ class AggregationPage(INGIniousAuthPage):
 
         if course.use_classrooms():
             mygroup = None
-            for index, group in enumerate(aggregation["groups"]):
-                if self.user_manager.session_username() in group["students"]:
-                    mygroup = group
-                    mygroup["index"] = index + 1
+            if aggregation:
+                for index, group in enumerate(aggregation["groups"]):
+                    if self.user_manager.session_username() in group["students"]:
+                        mygroup = group
+                        mygroup["index"] = index + 1
 
             return self.template_helper.get_renderer().classroom(course, last_submissions, aggregation, users,
                                                                  mygroup, msg, error, change)

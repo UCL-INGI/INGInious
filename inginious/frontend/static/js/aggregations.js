@@ -30,9 +30,8 @@ function aggregations_prepare_submit()
 
         var id = $("#_id").val();
         var description = $("#description").val();
-        var cdefault = JSON.parse($("#default").val().toLowerCase());
         var aggregations = [{_id: id, description: description, students: students,
-            groups: groups, tutors: tutors, default: cdefault}];
+            groups: groups, tutors: tutors}];
 
         var inputField = jQuery('<input/>', {
                 type:"hidden",
@@ -71,14 +70,14 @@ function aggregations_prepare_submit()
             if (i > 0) {
                 var groups = [{size: group_size, students: group_students}];
                 var aggregation = {_id: id, description: description, students: students,
-                    groups: groups, tutors: tutors, default: (i == 1)};
+                    groups: groups, tutors: tutors};
                 aggregations.push(aggregation);
             }
         });
 
         if($(".group").length <= 1){
             var aggregation = {_id: 'None', description: '', students: ungrouped,
-                    groups: [], tutors: [], default: true};
+                    groups: [], tutors: []};
                 aggregations.push(aggregation);
         }
 

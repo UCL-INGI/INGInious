@@ -76,97 +76,41 @@ $elif msg:
         $:msg
     </div>
 
-$if len(myteam["groups"]) > 0 and username in myteam["groups"][0]["students"]:
-    <h3>$:_("My team : {}").format(myteam["description"])</h3>
-    <div class="card mb-3 border-info" >
-        <div class="card-header text-white bg-info">
-            $:_("Students")
-            $if course.can_students_choose_group():
-            <div class="pull-right">
-                <a href="?unregister_group" data-toggle="tooltip" data-placement="left" title="$:_('Quit team')">
-                    <i style="color:white;" class="fa fa-user-times"></i>
-                </a>
-            </div>
-        </div>
-
-        <ul class="list-group list-group-flush">
-        $for user in myteam["groups"][0]["students"]:
-            <li class="list-group-item">
-                $if users[user] is not None:
-                    $users[user][0]
-                    <div class="pull-right">
-                        <a class="mailto" href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="$:_('Send an email')">
-                            <i class="fa fa-envelope-o"></i>
-                        </a>
-                    </div>
-                $else:
-                    $user
-            </li>
-        </ul>
-
-    $if len(myteam["tutors"]) > 0:
-            <div class="card-header" role="tab" id="heading">
-                $:_("Tutors")
-            </div>
-                <ul class="list-group list-group-flush">
-                $for user in myteam["tutors"]:
-                    <li class="list-group-item">
-                        $if users[user] is not None:
-                            $users[user][0]
-                            <div class="pull-right">
-                                <a class="mailto" href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="$:_('Send an email')">
-                                    <i class="fa fa-envelope-o"></i>
-                                </a>
-                            </div>
-                        $else:
-                            $user
-                    </li>
-                </ul>
-
-    </div>
-
-$elif len(myteam["groups"]) == 0:
-    <div class="alert alert-info alert-dismissable" role="alert">
-        $:_("No set team in this course. If you think this is a mistake, please contact the course administrator.")
-    </div>
-$elif course.can_students_choose_group():
-    <h3>$:_("My team")</h3>
-    <div class="alert alert-warning alert-dismissable" role="alert">
-        $:_("You're not registered to a team. Please consider registration in one of the team below to take part in all course activities. If no more team is available, please contact the course administrator.")
-    </div>
-$else:
-    <h3>$:_("My team")</h3>
-    <div class="alert alert-warning alert-dismissable" role="alert">
-        $:_("You're not yet registered to a team. Please contact the course administrator for more information.")
-    </div>
-
-$if not len(teams) == 0:
-    <h3 style="margin-bottom: 20px">$:_("All teams")</h3>
-    $for index, team in enumerate(teams):
-        $if len(team["groups"])>0:
-            <h4>$:_("Team : {}").format(team["description"])</h4>
-            $ group = team["groups"][0]
-            <div class="card">
-                $if len(myteam["groups"]) == 0 or username not in myteam["groups"][0]["students"] and (group["size"]-len(group["students"])) > 0 and course.can_students_choose_group():
-                    <div class="card-header bg-success text-white" id="heading_$index">
-                $else:
-                    <div class="card-header" role="tab" id="heading_$index">
-
+$if myteam:
+    $if len(myteam["groups"]) > 0 and username in myteam["groups"][0]["students"]:
+        <h3>$:_("My team : {}").format(myteam["description"])</h3>
+        <div class="card mb-3 border-info" >
+            <div class="card-header text-white bg-info">
                 $:_("Students")
-                $if len(myteam["groups"]) == 0 or username not in myteam["groups"][0]["students"] and (group["size"]-len(group["students"])) > 0 and course.can_students_choose_group():
-                    $:_("(available : {})").format(group["size"]-len(group["students"]))
-                    <div class="pull-right">
-                        <a href="?register_group=$team['_id']" data-toggle="tooltip" data-placement="left" title="$:_('Join in')">
-                            <i style="color:white;" class="fa fa-sign-in"></i>
-                        </a>
-                    </div>
+                $if course.can_students_choose_group():
+                <div class="pull-right">
+                    <a href="?unregister_group" data-toggle="tooltip" data-placement="left" title="$:_('Quit team')">
+                        <i style="color:white;" class="fa fa-user-times"></i>
+                    </a>
                 </div>
-                <ul class="list-group list-group-flush">
+            </div>
 
-                $if len(group["students"]) == 0:
-                    <li class="list-group-item"><i>$:_("No registered member.")</i></li>
-                $else:
-                    $for user in group["students"]:
+            <ul class="list-group list-group-flush">
+            $for user in myteam["groups"][0]["students"]:
+                <li class="list-group-item">
+                    $if users[user] is not None:
+                        $users[user][0]
+                        <div class="pull-right">
+                            <a class="mailto" href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="$:_('Send an email')">
+                                <i class="fa fa-envelope-o"></i>
+                            </a>
+                        </div>
+                    $else:
+                        $user
+                </li>
+            </ul>
+
+        $if len(myteam["tutors"]) > 0:
+                <div class="card-header" role="tab" id="heading">
+                    $:_("Tutors")
+                </div>
+                    <ul class="list-group list-group-flush">
+                    $for user in myteam["tutors"]:
                         <li class="list-group-item">
                             $if users[user] is not None:
                                 $users[user][0]
@@ -178,14 +122,52 @@ $if not len(teams) == 0:
                             $else:
                                 $user
                         </li>
+                    </ul>
 
-                </ul>
-                $if len(team["tutors"]) > 0:
-                    <div class="card-header" id="heading">
-                        $:_("Tutors")
+        </div>
+
+    $elif len(myteam["groups"]) == 0:
+        <div class="alert alert-info alert-dismissable" role="alert">
+            $:_("No set team in this course. If you think this is a mistake, please contact the course administrator.")
+        </div>
+    $elif course.can_students_choose_group():
+        <h3>$:_("My team")</h3>
+        <div class="alert alert-warning alert-dismissable" role="alert">
+            $:_("You're not registered to a team. Please consider registration in one of the team below to take part in all course activities. If no more team is available, please contact the course administrator.")
+        </div>
+    $else:
+        <h3>$:_("My team")</h3>
+        <div class="alert alert-warning alert-dismissable" role="alert">
+            $:_("You're not yet registered to a team. Please contact the course administrator for more information.")
+        </div>
+
+    $if not len(teams) == 0:
+        <h3 style="margin-bottom: 20px">$:_("All teams")</h3>
+        $for index, team in enumerate(teams):
+            $if len(team["groups"])>0:
+                <h4>$:_("Team : {}").format(team["description"])</h4>
+                $ group = team["groups"][0]
+                <div class="card">
+                    $if len(myteam["groups"]) == 0 or username not in myteam["groups"][0]["students"] and (group["size"]-len(group["students"])) > 0 and course.can_students_choose_group():
+                        <div class="card-header bg-success text-white" id="heading_$index">
+                    $else:
+                        <div class="card-header" role="tab" id="heading_$index">
+
+                    $:_("Students")
+                    $if len(myteam["groups"]) == 0 or username not in myteam["groups"][0]["students"] and (group["size"]-len(group["students"])) > 0 and course.can_students_choose_group():
+                        $:_("(available : {})").format(group["size"]-len(group["students"]))
+                        <div class="pull-right">
+                            <a href="?register_group=$team['_id']" data-toggle="tooltip" data-placement="left" title="$:_('Join in')">
+                                <i style="color:white;" class="fa fa-sign-in"></i>
+                            </a>
+                        </div>
                     </div>
-                        <ul class="list-group list-group-flush">
-                        $for user in team["tutors"]:
+                    <ul class="list-group list-group-flush">
+
+                    $if len(group["students"]) == 0:
+                        <li class="list-group-item"><i>$:_("No registered member.")</i></li>
+                    $else:
+                        $for user in group["students"]:
                             <li class="list-group-item">
                                 $if users[user] is not None:
                                     $users[user][0]
@@ -197,8 +179,27 @@ $if not len(teams) == 0:
                                 $else:
                                     $user
                             </li>
-                        </ul>
 
-             </div>
+                    </ul>
+                    $if len(team["tutors"]) > 0:
+                        <div class="card-header" id="heading">
+                            $:_("Tutors")
+                        </div>
+                            <ul class="list-group list-group-flush">
+                            $for user in team["tutors"]:
+                                <li class="list-group-item">
+                                    $if users[user] is not None:
+                                        $users[user][0]
+                                        <div class="pull-right">
+                                            <a class="mailto" href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="$:_('Send an email')">
+                                                <i class="fa fa-envelope-o"></i>
+                                            </a>
+                                        </div>
+                                    $else:
+                                        $user
+                                </li>
+                            </ul>
 
-$:include.unregister_modal(course)
+                 </div>
+
+    $:include.unregister_modal(course)
