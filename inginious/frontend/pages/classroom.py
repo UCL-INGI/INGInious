@@ -14,7 +14,7 @@ from inginious.frontend.pages.utils import INGIniousAuthPage
 
 
 class ClassroomPage(INGIniousAuthPage):
-    """ Aggregation page """
+    """ Classroom page """
 
     _logger = logging.getLogger("inginious.webapp.classrooms")
 

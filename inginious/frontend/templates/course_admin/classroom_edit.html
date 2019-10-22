@@ -161,7 +161,7 @@ $elif msg:
                         </div>
                     </div>
                 </div>
-                <button name="update" class="btn btn-primary btn-block" onclick="javascript:aggregations_prepare_submit()" type="submit"><i class="fa fa-floppy-o"></i> $:_("Update")</button>
+                <button name="update" class="btn btn-primary btn-block" onclick="javascript:classrooms_prepare_submit()" type="submit"><i class="fa fa-floppy-o"></i> $:_("Update")</button>
 			</div>
 
 			<div role="tabpanel" class="card-body tab-pane" id="tab_groups">
@@ -208,7 +208,7 @@ $elif msg:
                                         <input style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" id="size" type="number" class="form-control" value="$(group['size'] if group is not None else 2)">
                                     </div>
                                     <div class="col-sm-1 col-xs-2">
-                                        <a class="pull-right" id="group_delete" href="#" onclick="javascript:aggregation_delete($$(this).rparent(4).attr('id'))" data-toggle="tooltip" title="$:_('Delete group')">
+                                        <a class="pull-right" id="group_delete" href="#" onclick="javascript:classroom_delete($$(this).rparent(4).attr('id'))" data-toggle="tooltip" title="$:_('Delete group')">
                                             <i class="fa fa-fw fa-trash-o"></i>
                                         </a>
                                     </div>
@@ -232,23 +232,23 @@ $elif msg:
 
                     <div class="row mb-3">
                         <div class="col-md-4">
-                                <a href="#group_add" onclick="javascript:aggregation_add()" id="group_add" class="btn btn-block btn-secondary">
+                                <a href="#group_add" onclick="javascript:classroom_add()" id="group_add" class="btn btn-block btn-secondary">
                                     <i class="fa fa-plus fa-lg"></i> $:_("New group")
                                 </a>
                         </div>
                         <div class="col-md-4">
-                                <a href="#" onclick="javascript:aggregations_clean()" class="btn btn-block btn-warning">
+                                <a href="#" onclick="javascript:classrooms_clean()" class="btn btn-block btn-warning">
                                     <i class="fa fa-eraser fa-lg"></i> $:_("Clean groups")
                                 </a>
                         </div>
                         <div class="col-md-4">
-                                <a href="#" onclick="javascript:aggregations_delete()" class="btn btn-block btn-danger">
+                                <a href="#" onclick="javascript:classrooms_delete()" class="btn btn-block btn-danger">
                                     <i class="fa fa-trash fa-lg"></i> $:_("Delete all groups")
                                 </a>
                         </div>
                     </div>
                 </div>
-                <button name="update" class="btn btn-primary btn-block" onclick="javascript:aggregations_prepare_submit()" type="submit"><i class="fa fa-floppy-o"></i> Update</button>
+                <button name="update" class="btn btn-primary btn-block" onclick="javascript:classrooms_prepare_submit()" type="submit"><i class="fa fa-floppy-o"></i> Update</button>
             </div>
 		</div>
 	</div>
@@ -263,7 +263,7 @@ $$(document).ready(function() {
         $$("#tutor_list").prop("disabled", true);
 
     $$("ul.students").sortable({group:"students"});
-    $$("ul.students").bind("DOMSubtreeModified", function() {aggregation_update($$(this).parent())});
-    $$("input[id='size']").on('keyup click',function() {aggregation_update($$(this).rparent(5))});
+    $$("ul.students").bind("DOMSubtreeModified", function() {classroom_update($$(this).parent())});
+    $$("input[id='size']").on('keyup click',function() {classroom_update($$(this).rparent(5))});
 });
 </script>

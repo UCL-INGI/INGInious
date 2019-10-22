@@ -188,7 +188,7 @@ class CourseEditTeam(INGIniousAdminPage):
                 self.database.teams.delete_many({"courseid": course.get_id()})
                 teams = custom_yaml.load(data["teamfile"].file)
             else:
-                teams = json.loads(data["aggregations"])
+                teams = json.loads(data["teams"])
 
             for index, new_team in enumerate(teams):
                 # In case of file upload, no id specified

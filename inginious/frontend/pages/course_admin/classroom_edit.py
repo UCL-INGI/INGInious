@@ -191,7 +191,7 @@ class CourseEditClassroom(INGIniousAdminPage):
                 self.database.classrooms.delete_many({"courseid": course.get_id()})
                 classrooms = custom_yaml.load(data["classroomfile"].file)
             else:
-                classrooms = json.loads(data["aggregations"])
+                classrooms = json.loads(data["classrooms"])
 
             for index, new_classroom in enumerate(classrooms):
                 # In case of file upload, no id specified

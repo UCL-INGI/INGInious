@@ -14,7 +14,7 @@ from inginious.frontend.pages.utils import INGIniousAuthPage
 
 
 class TeamPage(INGIniousAuthPage):
-    """ Aggregation page """
+    """ Team page """
 
     _logger = logging.getLogger("inginious.webapp.teams")
 

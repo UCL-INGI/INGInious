@@ -4,7 +4,7 @@
 //
 "use strict";
 
-function aggregations_prepare_submit()
+function classrooms_prepare_submit()
 {
     // Check in which mode we are : classrooms or teams
     if(JSON.parse($("#classrooms").val())) {
@@ -30,18 +30,18 @@ function aggregations_prepare_submit()
 
         var id = $("#_id").val();
         var description = $("#description").val();
-        var aggregations = [{_id: id, description: description, students: students,
+        var classrooms = [{_id: id, description: description, students: students,
             groups: groups, tutors: tutors}];
 
         var inputField = jQuery('<input/>', {
                 type:"hidden",
-                name:"aggregations",
-                value: JSON.stringify(aggregations)
+                name:"classrooms",
+                value: JSON.stringify(classrooms)
         }).appendTo($("form"));
 
     } else {
 
-        var aggregations = [];
+        var classrooms = [];
 
         var ungrouped = [];
         // for each team
@@ -69,29 +69,29 @@ function aggregations_prepare_submit()
 
             if (i > 0) {
                 var groups = [{size: group_size, students: group_students}];
-                var aggregation = {_id: id, description: description, students: students,
+                var classroom = {_id: id, description: description, students: students,
                     groups: groups, tutors: tutors};
-                aggregations.push(aggregation);
+                classrooms.push(classroom);
             }
         });
 
         if($(".group").length <= 1){
-            var aggregation = {_id: 'None', description: '', students: ungrouped,
+            var classroom = {_id: 'None', description: '', students: ungrouped,
                     groups: [], tutors: []};
-                aggregations.push(aggregation);
+                classrooms.push(classroom);
         }
 
          var inputField = jQuery('<input/>', {
                 type:"hidden",
-                name:"aggregations",
-                value: JSON.stringify(aggregations)
+                name:"classrooms",
+                value: JSON.stringify(classrooms)
         }).appendTo($("form"));
     }
 
 
 }
 
-function aggregation_add()
+function classroom_add()
 {
     // New group hidden item
     var new_group_li = $("#groups .card").last();
@@ -119,18 +119,18 @@ function aggregation_add()
 
     // Regroup sortable lists
     $("ul.students").sortable({group:"students"});
-    $("ul.students").bind("DOMSubtreeModified", function() {aggregation_update($(this).parent())});
-    $("input[id='size']").on('keyup click',function() {aggregation_update($(this).rparent(5))});
+    $("ul.students").bind("DOMSubtreeModified", function() {classroom_update($(this).parent())});
+    $("input[id='size']").on('keyup click',function() {classroom_update($(this).rparent(5))});
 }
 
-function aggregation_delete(id)
+function classroom_delete(id)
 {
     // Append all the items to ungrouped users
     $("#" + id).find("#students li").each(function(index) {
         $(this).appendTo("#group_0");
     });
 
-    // add the aggregation id in delete field
+    // add the classroom id in delete field
     if(!JSON.parse($("#classrooms").val())) {
         // if group_id is not none, inform to delete
         // do not remove last group id
@@ -153,14 +153,14 @@ function aggregation_delete(id)
     });
 }
 
-function aggregations_delete() {
+function classrooms_delete() {
     $("#groups .group").each(function(i) {
         if(i!=0) // first .group must not be deleted : non-grouped/non-teamed
-            aggregation_delete($(this).attr("id"));
+            classroom_delete($(this).attr("id"));
     });
 }
 
-function aggregations_clean() {
+function classrooms_clean() {
     $("#groups .group").each(function(i) {
         $("#" + $(this).attr("id")).find("#students li").each(function(index) {
             $(this).appendTo("#group_0");
@@ -288,7 +288,7 @@ function classroom_delete(id) {
     $('form').submit();
 }
 
-function aggregation_update(ref) {
+function classroom_update(ref) {
     // Check group sizes
     var grp_size_input = ref.find("#size");
     var max_grp_size = parseInt(grp_size_input.val());
