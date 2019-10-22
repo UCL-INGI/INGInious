@@ -1,4 +1,4 @@
-$def with (course,student_list,tutor_list,users_info,aggregations,msg,error)
+$def with (course,student_list,tutor_list,users_info,teams,msg,error)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -8,7 +8,7 @@ $#
 $var title: $:_("Edit teams")
 
 $def ColumnF():
-    $:template_helper.call('course_admin_menu',course=course,current='aggregations')
+    $:template_helper.call('course_admin_menu',course=course,current='teams')
 $var Column: $:ColumnF()
 
 $def NavbarF():
@@ -90,8 +90,8 @@ $elif msg:
         </div>
 
 
-        $for index,aggregation in enumerate((aggregations + [None])):
-                $if (aggregation is None) or (len(aggregation["groups"])==0):
+        $for index,team in enumerate((teams + [None])):
+                $if (team is None) or (len(team["groups"])==0):
                     <div id="$(index+1)" style="display:none;" class="card mb-3 group-card">
                         <div class="card-header clearfix" role="tab">
                             <div class="row">
@@ -112,13 +112,13 @@ $elif msg:
                             </div>
                         </div>
                 $else:
-                    $ group = aggregation["groups"][0]
+                    $ group = team["groups"][0]
                     <div id="$(index+1)" class="card mb-3 group-card group">
-                        <input type="hidden" id="_id" name="_id" value="$aggregation['_id']" />
+                        <input type="hidden" id="_id" name="_id" value="$team['_id']" />
                         <div class="card-header clearfix" role="tab">
                             <div class="row">
                                 <div class="col-sm-6 col-xs-12">
-                                    <input type="text" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" class="form-control" id="description" name="description" placeholder="$:_('Team description')" value="$aggregation['description']">
+                                    <input type="text" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" class="form-control" id="description" name="description" placeholder="$:_('Team description')" value="$team['description']">
                                 </div>
                                 <div class="col-sm-2 col-xs-3" style="text-align: right;">
                                     <label>$:_("Max team size :")</label>
@@ -142,7 +142,7 @@ $elif msg:
                         <div class="col-sm-4 col-xs-6" style="text-align: center">
                             <select type="text" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" class="form-control input-xs" id="tutor_list_$(index+1)" name="tutor_list_$index">
                                 $for tutor in tutor_list:
-                                    $if not aggregation or tutor not in aggregation["tutors"]:
+                                    $if not team or tutor not in team["tutors"]:
                                         $if users_info[tutor] is not None:
                                             <option value="$tutor">$users_info[tutor][0] ($tutor)</option>
                                         $else:
@@ -155,10 +155,10 @@ $elif msg:
                     </div>
                 </div>
 
-                $if aggregation and (len(aggregation["groups"])!=0):
-                    $ group = aggregation["groups"][0]
+                $if team and (len(team["groups"])!=0):
+                    $ group = team["groups"][0]
                     <ul class="list-group list-group-flush" id="tutors_$(index+1)">
-                    $for user in (aggregation["tutors"] + [None]):
+                    $for user in (team["tutors"] + [None]):
                             $if user is None:
                                 <li class="list-group-item" style="display:none;">
                                     <span></span>
@@ -183,8 +183,8 @@ $elif msg:
                     $:_("Students")
                 </div>
 
-                $if aggregation and (len(aggregation["groups"])!=0):
-                    $ group = aggregation["groups"][0]
+                $if team and (len(team["groups"])!=0):
+                    $ group = team["groups"][0]
                     <ul id="students" class="list-group list-group-flush students">
                         $if group is not None:
                             $for student in group["students"]:

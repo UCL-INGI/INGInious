@@ -22,9 +22,9 @@ class CourseTaskInfoPage(INGIniousAdminPage):
         """ Generates a submission url """
         return "?format=taskid%2Fusername&users=" + task_data + "&tasks=" + task.get_id()
 
-    def aggregation_submission_url_generator(self, task, aggregation):
+    def classroom_submission_url_generator(self, task, classroom):
         """ Generates a submission url """
-        return "?format=taskid%2Faggregation&aggregations=" + str(aggregation['_id']) + "&tasks=" + task.get_id()
+        return "?format=taskid%2Fclassroom&classrooms=" + str(classroom['_id']) + "&tasks=" + task.get_id()
 
     def page(self, course, task):
         """ Get all data and display the page """
@@ -51,21 +51,21 @@ class CourseTaskInfoPage(INGIniousAdminPage):
                 individual_data[user["username"]]["status"] = "failed"
             individual_data[user["username"]]["grade"] = user["grade"]
 
-        aggregation_data = OrderedDict()
-        for aggregation in self.user_manager.get_course_aggregations(course):
-            aggregation_data[aggregation['_id']] = {"_id": aggregation['_id'], "description": aggregation['description'],
-                                                "url": self.aggregation_submission_url_generator(task, aggregation),
+        classroom_data = OrderedDict()
+        for classroom in self.user_manager.get_course_classrooms(course):
+            classroom_data[classroom['_id']] = {"_id": classroom['_id'], "description": classroom['description'],
+                                                "url": self.classroom_submission_url_generator(task, classroom),
                                                 "tried": 0, "grade": 0, "status": "notviewed",
-                                                "tutors": aggregation["tutors"], "groups": aggregation["groups"]}
+                                                "tutors": classroom["tutors"], "groups": classroom["groups"]}
 
-            aggregation_results = list(self.database.submissions.aggregate(
+            classroom_results = list(self.database.submissions.aggregate(
                 [
                     {
                         "$match":
                             {
                                 "courseid": course.get_id(),
                                 "taskid": task.get_id(),
-                                "username": {"$in": aggregation["students"]}
+                                "username": {"$in": classroom["students"]}
                             }
                     },
                     {
@@ -79,26 +79,26 @@ class CourseTaskInfoPage(INGIniousAdminPage):
                     }
                 ]))
 
-            for g in aggregation_results:
-                aggregation_data[aggregation['_id']]["tried"] = g["tried"]
+            for g in classroom_results:
+                classroom_data[classroom['_id']]["tried"] = g["tried"]
                 if g["tried"] == 0:
-                    aggregation_data[aggregation['_id']]["status"] = "notattempted"
+                    classroom_data[classroom['_id']]["status"] = "notattempted"
                 elif g["succeeded"]:
-                    aggregation_data[aggregation['_id']]["status"] = "succeeded"
+                    classroom_data[classroom['_id']]["status"] = "succeeded"
                 else:
-                    aggregation_data[aggregation['_id']]["status"] = "failed"
-                aggregation_data[aggregation['_id']]["grade"] = g["grade"]
+                    classroom_data[classroom['_id']]["status"] = "failed"
+                classroom_data[classroom['_id']]["grade"] = g["grade"]
 
-        my_aggregations, other_aggregations = [], []
-        for aggregation in aggregation_data.values():
-            if self.user_manager.session_username() in aggregation["tutors"]:
-                my_aggregations.append(aggregation)
+        my_classrooms, other_classrooms = [], []
+        for classroom in classroom_data.values():
+            if self.user_manager.session_username() in classroom["tutors"]:
+                my_classrooms.append(classroom)
             else:
-                other_aggregations.append(aggregation)
+                other_classrooms.append(classroom)
 
         if "csv" in web.input() and web.input()["csv"] == "students":
             return make_csv(list(individual_data.values()))
-        elif "csv" in web.input() and web.input()["csv"] == "aggregations":
-            return make_csv(list(aggregation_data.values()))
+        elif "csv" in web.input() and web.input()["csv"] == "classrooms":
+            return make_csv(list(classroom_data.values()))
 
-        return self.template_helper.get_renderer().course_admin.task_info(course, task, individual_data.values(), [my_aggregations, other_aggregations])
+        return self.template_helper.get_renderer().course_admin.task_info(course, task, individual_data.values(), [my_classrooms, other_classrooms])

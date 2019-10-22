@@ -18,7 +18,7 @@ class CourseReplaySubmissions(INGIniousSubmissionAdminPage):
     def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
         course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=False)
-        user_input = web.input(tasks=[], aggregations=[], users=[])
+        user_input = web.input(tasks=[], classrooms=[], users=[])
 
         if "submission" in user_input:
             # Replay a unique submission
@@ -41,7 +41,7 @@ class CourseReplaySubmissions(INGIniousSubmissionAdminPage):
 
             if not error:
                 # Load submissions
-                submissions, __ = self.get_selected_submissions(course, user_input.filter_type, user_input.tasks, user_input.users, user_input.aggregations, user_input.type)
+                submissions, __ = self.get_selected_submissions(course, user_input.filter_type, user_input.tasks, user_input.users, user_input.classrooms, user_input.type)
                 for submission in submissions:
                     self.submission_manager.replay_job(tasks[submission["taskid"]], submission)
 
@@ -54,11 +54,11 @@ class CourseReplaySubmissions(INGIniousSubmissionAdminPage):
 
     def show_page(self, course, user_input, msg="", error=False):
         # Load task list
-        tasks, user_data, aggregations, tutored_aggregations,\
-        tutored_users, checked_tasks, checked_users, show_aggregations = self.show_page_params(course, user_input)
+        tasks, user_data, classrooms, tutored_classrooms,\
+        tutored_users, checked_tasks, checked_users, show_classrooms = self.show_page_params(course, user_input)
 
         return self.template_helper.get_renderer().course_admin.replay(course,
-                                                                         tasks, user_data, aggregations,
-                                                                         tutored_aggregations, tutored_users,
+                                                                         tasks, user_data, classrooms,
+                                                                         tutored_classrooms, tutored_users,
                                                                          checked_tasks, checked_users,
-                                                                         show_aggregations, msg, error)
+                                                                         show_classrooms, msg, error)

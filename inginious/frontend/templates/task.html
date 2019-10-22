@@ -142,17 +142,23 @@ $def ColumnF():
         <div class="list-group mb-3">
             <div class="list-group-item list-group-item-action list-group-item-info">
                 $if task.is_group_task():
-                    <i class="fa fa-chevron-right fa-fw"></i>&nbsp; <b>$(_('Group') if course.use_classrooms() else _('Team'))</b>
+                    <i class="fa fa-chevron-right fa-fw"></i>&nbsp; <b>$(_('Team'))</b>
                 $else:
                     <i class="fa fa-chevron-right fa-fw"></i>&nbsp; <b>$user_manager.session_realname()</b>
             </div>
-            <a class="list-group-item list-group-item-action list-group-item-info" href="$get_homepath()/aggregation/$course.get_id()">
+            <a class="list-group-item list-group-item-action list-group-item-info" href="$get_homepath()/classroom/$course.get_id()">
                 <i class="fa fa-group fa-fw"></i>&nbsp;
-                $ myaggregation = user_manager.get_course_user_aggregation(course)
-                $if course.use_classrooms():
-                    $:_("Classroom : {}").format(myaggregation['description'] if myaggregation else _("none"))
-                $elif myaggregation and len(myaggregation['groups']) > 0 and user_manager.session_username() in myaggregation['groups'][0]['students']:
-                    $:_("Team : {}").format(myaggregation['description'])
+                $ myclassroom = user_manager.get_course_user_classroom(course)
+                $if myclassroom:
+                    $:_("Classroom : {}").format(myclassroom['description'])
+                $else:
+                    $:_("Classrooms")
+            </a>
+            <a class="list-group-item list-group-item-action list-group-item-info" href="$get_homepath()/team/$course.get_id()">
+                <i class="fa fa-group fa-fw"></i>&nbsp;
+                $ myteam = user_manager.get_course_user_team(course)
+                $if myteam and len(myteam['groups']) > 0 and user_manager.session_username() in myteam['groups'][0]['students']:
+                    $:_("Team : {}").format(myteam['description'])
                 $else:
                     $:_("Teams management")
             </a>
@@ -393,10 +399,10 @@ $else:
     $elif not task.get_accessible_time().is_open():
         <button type="submit" class="btn btn-default btn-lg btn-block center-block" disabled="disabled">$:_("The deadline is over, you cannot submit anymore")</button>
     $elif task.is_group_task() and not groups_ok:
-        <button class="btn btn-default btn-lg btn-block center-block" disabled="disabled">$(_('Please register in a group') if course.use_classrooms() else _('Please register in a team'))</button>
+        <button class="btn btn-default btn-lg btn-block center-block" disabled="disabled">$(_('Please register in a team'))</button>
     $elif not tokens_ok:
         <button type="submit" class="btn btn-default btn-lg btn-block center-block" disabled="disabled">
-            $(_('You have reached the submission limit.') if not task.is_group_task() else _('Your group have reached the submission limit.') if course.use_classrooms() else _('Your team have reached the submission limit.'))
+            $(_('You have reached the submission limit.') if not task.is_group_task() else _('Your team have reached the submission limit.'))
         $if task.get_submission_limit()["period"] > 0:
             <br/> $:_("It will be refilled within the next {} hour(s)").format(task.get_submission_limit()["period"])
         </button>

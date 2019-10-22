@@ -601,16 +601,16 @@ class UserManager:
         staff_right = self.has_staff_rights_on_course(task.get_course(), username)
 
         # Check for group
-        aggregation = self._database.aggregations.find_one(
+        team = self._database.teams.find_one(
             {"courseid": task.get_course_id(), "groups.students": self.session_username()},
             {"groups": {"$elemMatch": {"students": self.session_username()}}})
 
         if not only_check or only_check == 'groups':
-            group_filter = (aggregation is not None and task.is_group_task()) or not task.is_group_task()
+            group_filter = (team is not None and task.is_group_task()) or not task.is_group_task()
         else:
             group_filter = True
 
-        students = aggregation["groups"][0]["students"] if (aggregation is not None and task.is_group_task()) else [self.session_username()]
+        students = team["groups"][0]["students"] if (team is not None and task.is_group_task()) else [self.session_username()]
 
 
         # Check for token availability
@@ -647,11 +647,15 @@ class UserManager:
 
         return (course_registered and task_accessible and group_filter and enough_tokens) or staff_right
 
-    def get_course_aggregations(self, course):
-        """ Returns a list of the course aggregations"""
-        return natsorted(list(self._database.aggregations.find({"courseid": course.get_id()})), key=lambda x: x["description"])
+    def get_course_classrooms(self, course):
+        """ Returns a list of the course classrooms"""
+        return natsorted(list(self._database.classrooms.find({"courseid": course.get_id()})), key=lambda x: x["description"])
 
-    def get_course_user_aggregation(self, course, username=None):
+    def get_course_teams(self, course):
+        """ Returns a list of the course teams"""
+        return natsorted(list(self._database.teams.find({"courseid": course.get_id()})), key=lambda x: x["description"])
+
+    def get_course_user_classroom(self, course, username=None):
         """ Returns the classroom whose username belongs to
         :param course: a Course object
         :param username: The username of the user that we want to register. If None, uses self.session_username()
@@ -660,7 +664,19 @@ class UserManager:
         if username is None:
             username = self.session_username()
 
-        return self._database.aggregations.find_one({"courseid": course.get_id(), "students": username})
+        return self._database.classrooms.find_one({"courseid": course.get_id(), "students": username})
+
+    def get_course_user_team(self, course, username=None):
+        """ Returns the classroom whose username belongs to
+        :param course: a Course object
+        :param username: The username of the user that we want to register. If None, uses self.session_username()
+        :return: the classroom description
+        """
+        if username is None:
+            username = self.session_username()
+
+        return self._database.teams.find_one({"courseid": course.get_id(), "students": username})
+
 
     def course_register_user(self, course, username=None, password=None, force=False):
         """
@@ -703,12 +719,22 @@ class UserManager:
             username = self.session_username()
 
         # Needed if user belongs to a group
-        self._database.aggregations.find_one_and_update(
+        self._database.classrooms.find_one_and_update(
             {"courseid": course.get_id(), "groups.students": username},
             {"$pull": {"groups.$.students": username, "students": username}})
 
         # If user doesn't belong to a group, will ensure correct deletion
-        self._database.aggregations.find_one_and_update(
+        self._database.classrooms.find_one_and_update(
+            {"courseid": course.get_id(), "students": username},
+            {"$pull": {"students": username}})
+
+        # Needed if user belongs to a group
+        self._database.teams.find_one_and_update(
+            {"courseid": course.get_id(), "groups.students": username},
+            {"$pull": {"groups.$.students": username, "students": username}})
+
+        # If user doesn't belong to a group, will ensure correct deletion
+        self._database.teams.find_one_and_update(
             {"courseid": course.get_id(), "students": username},
             {"$pull": {"students": username}})
 

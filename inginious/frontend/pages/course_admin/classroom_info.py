@@ -10,25 +10,25 @@ from bson.objectid import ObjectId
 from inginious.frontend.pages.course_admin.utils import make_csv, INGIniousAdminPage
 
 
-class CourseAggregationInfoPage(INGIniousAdminPage):
-    """ List information about a aggregation """
+class CourseClassroomInfoPage(INGIniousAdminPage):
+    """ List information about a classroom """
 
-    def GET_AUTH(self, courseid, aggregationid):  # pylint: disable=arguments-differ
+    def GET_AUTH(self, courseid, classroomid):  # pylint: disable=arguments-differ
         """ GET request """
         course, __ = self.get_course_and_check_rights(courseid)
 
         if course.is_lti():
             raise web.notfound()
 
-        return self.page(course, aggregationid)
+        return self.page(course, classroomid)
 
-    def submission_url_generator(self, aggregationid, taskid):
+    def submission_url_generator(self, classroomid, taskid):
         """ Generates a submission url """
-        return "?format=taskid%2Faggregation&tasks=" + taskid + "&aggregations=" + str(aggregationid)
+        return "?format=taskid%2Fclassroom&tasks=" + taskid + "&classrooms=" + str(classroomid)
 
-    def page(self, course, aggregationid):
+    def page(self, course, classroomid):
         """ Get all data and display the page """
-        aggregation = self.database.aggregations.find_one({"_id": ObjectId(aggregationid)})
+        classroom = self.database.classrooms.find_one({"_id": ObjectId(classroomid)})
 
         data = list(self.database.submissions.aggregate(
             [
@@ -36,7 +36,7 @@ class CourseAggregationInfoPage(INGIniousAdminPage):
                     "$match":
                         {
                             "courseid": course.get_id(),
-                            "username": {"$in": aggregation["students"]}
+                            "username": {"$in": classroom["students"]}
                         }
                 },
                 {
@@ -52,7 +52,7 @@ class CourseAggregationInfoPage(INGIniousAdminPage):
 
         tasks = course.get_tasks()
         result = dict([(taskid, {"taskid": taskid, "name": tasks[taskid].get_name(self.user_manager.session_language()), "tried": 0, "status": "notviewed",
-                                 "grade": 0, "url": self.submission_url_generator(aggregationid, taskid)}) for taskid in tasks])
+                                 "grade": 0, "url": self.submission_url_generator(classroomid, taskid)}) for taskid in tasks])
 
         for taskdata in data:
             if taskdata["_id"] in result:
@@ -69,4 +69,4 @@ class CourseAggregationInfoPage(INGIniousAdminPage):
             return make_csv(result)
 
         results = sorted(list(result.values()), key=lambda result: (tasks[result["taskid"]].get_order(), result["taskid"]))
-        return self.template_helper.get_renderer().course_admin.classroom_info(course, aggregation, results)
+        return self.template_helper.get_renderer().course_admin.classroom_info(course, classroom, results)

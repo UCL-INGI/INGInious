@@ -105,7 +105,7 @@ class WebAppSubmissionManager:
         username = self._user_manager.session_username()
 
         if task.is_group_task() and not self._user_manager.has_staff_rights_on_course(task.get_course(), username):
-            group = self._database.aggregations.find_one(
+            group = self._database.teams.find_one(
                 {"courseid": task.get_course_id(), "groups.students": username},
                 {"groups": {"$elemMatch": {"students": username}}})
 
@@ -141,7 +141,7 @@ class WebAppSubmissionManager:
         if "group" not in [p.get_id() for p in task.get_problems()]:  # do not overwrite
             username = self._user_manager.session_username()
             if task.is_group_task() and not self._user_manager.has_staff_rights_on_course(task.get_course(), username):
-                group = self._database.aggregations.find_one(
+                group = self._database.teams.find_one(
                     {"courseid": task.get_course_id(), "groups.students": username},
                     {"groups": {"$elemMatch": {"students": username}}})
                 inputdata["username"] = ','.join(group["groups"][0]["students"])
@@ -474,7 +474,7 @@ class WebAppSubmissionManager:
         """ Returns the GridFS used by the submission manager """
         return self._gridfs
 
-    def get_submission_archive(self, submissions, sub_folders, aggregations, archive_file=None):
+    def get_submission_archive(self, submissions, sub_folders, classrooms, archive_file=None):
         """
         :param submissions: a list of submissions
         :param sub_folders: possible values:
@@ -503,15 +503,15 @@ class WebAppSubmissionManager:
                     elif sub_folder == 'username':
                         base_path = '_' + '-'.join(submission['username']) + base_path
                         base_path = base_path[1:]
-                    elif sub_folder == 'aggregation':
-                        if username in aggregations:
-                            if aggregations[username] is None:
+                    elif sub_folder == 'classroom':
+                        if username in classrooms:
+                            if classrooms[username] is None:
                                 # If classrooms are not used, and user is not grouped, his classroom is replaced by None
                                 base_path = '_' + '-'.join(submission['username']) + base_path
                                 base_path = base_path[1:]
                             else:
-                                base_path = (aggregations[username]["description"] +
-                                             " (" + str(aggregations[username]["_id"]) + ")").replace(" ", "_") + base_path
+                                base_path = (classrooms[username]["description"] +
+                                             " (" + str(classrooms[username]["_id"]) + ")").replace(" ", "_") + base_path
 
                     base_path = '/' + base_path
                 base_path = base_path[1:]

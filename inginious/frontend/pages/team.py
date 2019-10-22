@@ -13,10 +13,10 @@ from bson.objectid import ObjectId
 from inginious.frontend.pages.utils import INGIniousAuthPage
 
 
-class AggregationPage(INGIniousAuthPage):
+class TeamPage(INGIniousAuthPage):
     """ Aggregation page """
 
-    _logger = logging.getLogger("inginious.webapp.aggregations")
+    _logger = logging.getLogger("inginious.webapp.teams")
 
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
@@ -34,57 +34,42 @@ class AggregationPage(INGIniousAuthPage):
             return self.template_helper.get_renderer().course_unavailable()
         elif "register_group" in data:
             change = True
-            if course.can_students_choose_group() and course.use_classrooms():
-                aggregation = self.database.aggregations.find_one({"courseid": course.get_id(), "students": username})
+            if course.can_students_choose_group():
 
-                if int(data["register_group"]) >= 0 and (len(aggregation["groups"]) > int(data["register_group"])):
-                    group = aggregation["groups"][int(data["register_group"])]
-                    if group["size"] > len(group["students"]):
-                        for index, group in enumerate(aggregation["groups"]):
-                            if username in group["students"]:
-                                aggregation["groups"][index]["students"].remove(username)
-                        aggregation["groups"][int(data["register_group"])]["students"].append(username)
-                    self.database.aggregations.replace_one({"courseid": course.get_id(), "students": username}, aggregation)
-                    self._logger.info("User %s registered to group %s/%s/%s", username, courseid, aggregation["description"], data["register_group"])
-                else:
-                    error = True
-                    msg = _("Couldn't register to the specified group.")
-            elif course.can_students_choose_group():
-
-                aggregation = self.database.aggregations.find_one(
+                team = self.database.teams.find_one(
                     {"courseid": course.get_id(), "students": username})
 
-                if aggregation is not None:
-                    aggregation["students"].remove(username)
-                    for index, group in enumerate(aggregation["groups"]):
+                if team is not None:
+                    team["students"].remove(username)
+                    for index, group in enumerate(team["groups"]):
                         if username in group["students"]:
-                            aggregation["groups"][index]["students"].remove(username)
-                    self.database.aggregations.replace_one({"courseid": course.get_id(), "students": username}, aggregation)
+                            team["groups"][index]["students"].remove(username)
+                    self.database.teams.replace_one({"courseid": course.get_id(), "students": username}, team)
 
                 # Add student in the classroom and unique group
-                self.database.aggregations.find_one_and_update({"_id": ObjectId(data["register_group"])},
+                self.database.teams.find_one_and_update({"_id": ObjectId(data["register_group"])},
                                                              {"$push": {"students": username}})
-                new_aggregation = self.database.aggregations.find_one_and_update({"_id": ObjectId(data["register_group"])},
+                new_team = self.database.teams.find_one_and_update({"_id": ObjectId(data["register_group"])},
                                                                              {"$push": {"groups.0.students": username}})
 
-                if new_aggregation is None:
+                if new_team is None:
                     error = True
                     msg = _("Couldn't register to the specified group.")
                 else:
-                    self._logger.info("User %s registered to team %s/%s", username, courseid, aggregation["description"])
+                    self._logger.info("User %s registered to team %s/%s", username, courseid, team["description"])
             else:
                 error = True
                 msg = _("You are not allowed to change group.")
         elif "unregister_group" in data:
             change = True
             if course.can_students_choose_group():
-                aggregation = self.database.aggregations.find_one({"courseid": course.get_id(), "students": username, "groups.students": username})
-                if aggregation is not None:
-                    for index, group in enumerate(aggregation["groups"]):
+                team = self.database.teams.find_one({"courseid": course.get_id(), "students": username, "groups.students": username})
+                if team is not None:
+                    for index, group in enumerate(team["groups"]):
                         if username in group["students"]:
-                            aggregation["groups"][index]["students"].remove(username)
-                    self.database.aggregations.replace_one({"courseid": course.get_id(), "students": username}, aggregation)
-                    self._logger.info("User %s unregistered from group/team %s/%s", username, courseid, aggregation["description"])
+                            team["groups"][index]["students"].remove(username)
+                    self.database.teams.replace_one({"courseid": course.get_id(), "students": username}, team)
+                    self._logger.info("User %s unregistered from group/team %s/%s", username, courseid, team["description"])
                 else:
                     error = True
                     msg = _("You're not registered in a group.")
@@ -97,20 +82,9 @@ class AggregationPage(INGIniousAuthPage):
         for submission in last_submissions:
             submission["taskname"] = tasks[submission['taskid']].get_name(self.user_manager.session_language())
 
-        aggregation = self.user_manager.get_course_user_aggregation(course)
-        aggregations = self.user_manager.get_course_aggregations(course)
+        team = self.user_manager.get_course_user_team(course)
+        teams = self.user_manager.get_course_teams(course)
         users = self.user_manager.get_users_info(self.user_manager.get_course_registered_users(course))
 
-        if course.use_classrooms():
-            mygroup = None
-            if aggregation:
-                for index, group in enumerate(aggregation["groups"]):
-                    if self.user_manager.session_username() in group["students"]:
-                        mygroup = group
-                        mygroup["index"] = index + 1
-
-            return self.template_helper.get_renderer().classroom(course, last_submissions, aggregation, users,
-                                                                 mygroup, msg, error, change)
-        else:
-            return self.template_helper.get_renderer().team(course, last_submissions, aggregations, users,
-                                                            aggregation, msg, error)
+        return self.template_helper.get_renderer().team(course, last_submissions, teams, users,
+                                                            team, msg, error)

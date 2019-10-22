@@ -17,13 +17,22 @@ Subpackages
 Submodules
 ----------
 
-inginious.frontend.pages.aggregation module
+inginious.frontend.pages.classroom module
 --------------------------------------------------
 
-.. automodule:: inginious.frontend.pages.aggregation
+.. automodule:: inginious.frontend.pages.classroom
     :members:
     :undoc-members:
     :show-inheritance:
+
+inginious.frontend.pages.team module
+--------------------------------------------------
+
+.. automodule:: inginious.frontend.pages.team
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 inginious.frontend.pages.course module
 ---------------------------------------------

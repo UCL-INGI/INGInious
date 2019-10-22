@@ -41,7 +41,6 @@ class WebAppCourse(Course):
                 raise Exception("Course has an invalid value for registration_ac: " + self.get_id())
             self._registration_ac_list = self._content.get('registration_ac_list', [])
             self._groups_student_choice = self._content.get("groups_student_choice", False)
-            self._use_classrooms = self._content.get('use_classrooms', True)
             self._allow_unregister = self._content.get('allow_unregister', True)
             self._allow_preview = self._content.get('allow_preview', False)
             self._is_lti = self._content.get('is_lti', False)
@@ -59,7 +58,6 @@ class WebAppCourse(Course):
             self._registration_ac = None
             self._registration_ac_list = []
             self._groups_student_choice = False
-            self._use_classrooms = True
             self._allow_unregister = False
         else:
             self._lti_keys = {}
@@ -116,10 +114,6 @@ class WebAppCourse(Course):
     def can_students_choose_group(self):
         """ Returns True if the students can choose their groups """
         return self._groups_student_choice
-
-    def use_classrooms(self):
-        """ Returns True if classrooms are used """
-        return self._use_classrooms
 
     def is_lti(self):
         """ True if the current course is in LTI mode """

@@ -60,56 +60,46 @@ class INGIniousSubmissionAdminPage(INGIniousAdminPage):
             if not id_checker(i):
                 raise web.notfound()
 
-    def get_selected_submissions(self, course, filter_type, selected_tasks, users, aggregations, stype):
+    def get_selected_submissions(self, course, filter_type, selected_tasks, users, classrooms, stype):
         """
         Returns the submissions that have been selected by the admin
         :param course: course
-        :param filter_type: users or aggregations
+        :param filter_type: users or classrooms
         :param selected_tasks: selected tasks id
         :param users: selected usernames
-        :param aggregations: selected aggregations
+        :param classrooms: selected classrooms
         :param stype: single or all submissions
         :return:
         """
         if filter_type == "users":
             self._validate_list(users)
-            aggregations = list(self.database.aggregations.find({"courseid": course.get_id(),
+            classrooms = list(self.database.classrooms.find({"courseid": course.get_id(),
                                                                  "students": {"$in": users}}))
             # Tweak if not using classrooms : classroom['students'] may content ungrouped users
-            aggregations = dict([(username,
-                                  aggregation if course.use_classrooms() or (
-                                      len(aggregation['groups']) and
-                                      username in aggregation['groups'][0]["students"]
-                                  ) else None
-                                  ) for aggregation in aggregations for username in users])
+            classrooms = dict([(username, classroom ) for classroom in classrooms for username in users])
 
         else:
-            self._validate_list(aggregations)
-            aggregations = list(
-                self.database.aggregations.find({"_id": {"$in": [ObjectId(cid) for cid in aggregations]}}))
+            self._validate_list(classrooms)
+            classrooms = list(
+                self.database.classrooms.find({"_id": {"$in": [ObjectId(cid) for cid in classrooms]}}))
 
             # Tweak if not using classrooms : classroom['students'] may content ungrouped users
-            aggregations = dict([(username,
-                                  aggregation if course.use_classrooms() or (
-                                      len(aggregation['groups']) and
-                                      username in aggregation['groups'][0]["students"]
-                                  ) else None
-                                  ) for aggregation in aggregations for username in aggregation["students"]])
+            classrooms = dict([(username, classroom) for classroom in classrooms for username in classroom["students"]])
 
         if stype == "single":
-            user_tasks = list(self.database.user_tasks.find({"username": {"$in": list(aggregations.keys())},
+            user_tasks = list(self.database.user_tasks.find({"username": {"$in": list(classrooms.keys())},
                                                              "taskid": {"$in": selected_tasks},
                                                              "courseid": course.get_id()}))
 
             submissionsid = [user_task['submissionid'] for user_task in user_tasks if user_task['submissionid'] is not None]
             submissions = list(self.database.submissions.find({"_id": {"$in": submissionsid}}))
         else:
-            submissions = list(self.database.submissions.find({"username": {"$in": list(aggregations.keys())},
+            submissions = list(self.database.submissions.find({"username": {"$in": list(classrooms.keys())},
                                                                "taskid": {"$in": selected_tasks},
                                                                "courseid": course.get_id(),
                                                                "status": {"$in": ["done", "error"]}}))
 
-        return submissions, aggregations
+        return submissions, classrooms
 
     def show_page_params(self, course, user_input):
         tasks = sorted(list(course.get_tasks().items()), key=lambda task: (task[1].get_order(), task[1].get_id()))
@@ -120,44 +110,42 @@ class INGIniousSubmissionAdminPage(INGIniousAdminPage):
         user_data = OrderedDict(
             [(username, user[0] if user is not None else username) for username, user in users.items()])
 
-        aggregations = self.user_manager.get_course_aggregations(course)
-        tutored_aggregations = [str(aggregation["_id"]) for aggregation in aggregations if
-                                self.user_manager.session_username() in aggregation["tutors"] and len(
-                                    aggregation['groups']) > 0]
+        classrooms = self.user_manager.get_course_classrooms(course)
+        tutored_classrooms = [str(classroom["_id"]) for classroom in classrooms if
+                                self.user_manager.session_username() in classroom["tutors"] and len(
+                                    classroom['groups']) > 0]
 
         tutored_users = []
-        for aggregation in aggregations:
-            for username in aggregation["students"]:
+        for classroom in classrooms:
+            for username in classroom["students"]:
                 # If no classrooms used, only students inside groups
-                if self.user_manager.session_username() in aggregation["tutors"] and \
-                        (course.use_classrooms() or
-                             (len(aggregation['groups']) > 0 and username in aggregation['groups'][0]['students'])):
+                if self.user_manager.session_username() in classroom["tutors"]:
                     tutored_users += [username]
 
         checked_tasks = list(course.get_tasks().keys())
         checked_users = list(user_data.keys())
-        checked_aggregations = [aggregation['_id'] for aggregation in aggregations]
-        show_aggregations = False
+        checked_classrooms = [classroom['_id'] for classroom in classrooms]
+        show_classrooms = False
 
         if "tasks" in user_input:
             checked_tasks = user_input.tasks.split(',')
         if "users" in user_input:
             checked_users = user_input.users.split(',')
-        if "aggregations" in user_input:
-            checked_aggregations = user_input.aggregations.split(',')
-            show_aggregations = True
+        if "classrooms" in user_input:
+            checked_classrooms = user_input.classrooms.split(',')
+            show_classrooms = True
         if "tutored" in user_input:
-            if user_input.tutored == "aggregations":
-                checked_aggregations = tutored_aggregations
-                show_aggregations = True
+            if user_input.tutored == "classrooms":
+                checked_classrooms = tutored_classrooms
+                show_classrooms = True
             elif user_input.tutored == "users":
                 checked_users = tutored_users
-                show_aggregations = True
+                show_classrooms = True
 
-        for aggregation in aggregations:
-            aggregation['checked'] = str(aggregation['_id']) in checked_aggregations
+        for classroom in classrooms:
+            classroom['checked'] = str(classroom['_id']) in checked_classrooms
 
-        return tasks, user_data, aggregations, tutored_aggregations, tutored_users, checked_tasks, checked_users, show_aggregations
+        return tasks, user_data, classrooms, tutored_classrooms, tutored_users, checked_tasks, checked_users, show_classrooms
 
 class UnicodeWriter(object):
     """

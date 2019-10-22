@@ -22,8 +22,8 @@ class CourseSubmissionsPage(INGIniousAdminPage):
 
     _allowed_sort = ["submitted_on", "username", "grade", "taskid"]
     _allowed_sort_name = [_("Submitted on"), _("User"), _("Grade"), _("Task id")]
-    _valid_formats = ["taskid/username", "taskid/aggregation", "username/taskid", "aggregation/taskid"]
-    _valid_formats_name = [_("taskid/username"), _("taskid/aggregation"), _("username/taskid"), _("aggregation/taskid")]
+    _valid_formats = ["taskid/username", "taskid/classroom", "username/taskid", "classroom/taskid"]
+    _valid_formats_name = [_("taskid/username"), _("taskid/classroom"), _("username/taskid"), _("classroom/taskid")]
     _trunc_limit = 500  # To trunc submissions if there are too many submissions
 
     def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
@@ -62,7 +62,7 @@ class CourseSubmissionsPage(INGIniousAdminPage):
         if len(data) == 0 and not self.show_collapse(user_input):
             msgs.append(_("No submissions found"))
 
-        classrooms = self.user_manager.get_course_aggregations(course)  # ALL classrooms of the course
+        classrooms = self.user_manager.get_course_classrooms(course)  # ALL classrooms of the course
         users = self.get_users(course)  # All users of the course
         tasks = course.get_tasks()  # All tasks of the course
 
@@ -79,15 +79,12 @@ class CourseSubmissionsPage(INGIniousAdminPage):
             web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)
 
             # Tweak if not using classrooms : classroom['students'] may content ungrouped users
-            aggregations = dict([(username,
-                                  aggregation if course.use_classrooms() or (
-                                  username in aggregation['groups'][0]["students"]) else None
-                                  ) for aggregation in classroom for username in aggregation["students"]])
+            classrooms = dict([(username, classroom) for classroom in classroom for username in classroom["students"]])
 
             download_type = web.input(download_type=self._valid_formats[0]).download_type
             if download_type not in self._valid_formats:
                 download_type = self._valid_formats[0]
-            return self.submission_manager.get_submission_archive(data, list(reversed(download_type.split('/'))), aggregations)
+            return self.submission_manager.get_submission_archive(data, list(reversed(download_type.split('/'))), classrooms)
 
         if user_input.limit != '' and user_input.limit.isdigit():
             data = data[:int(user_input.limit)]
@@ -99,8 +96,8 @@ class CourseSubmissionsPage(INGIniousAdminPage):
 
     def show_collapse(self, user_input):
         """ Return True is we should display the main collapse. """
-        # If users has not specified any user/aggregation, there are no submissions so we display the main collapse.
-        if len(user_input['user']) == 0 and len(user_input['aggregation']) == 0:
+        # If users has not specified any user/classroom, there are no submissions so we display the main collapse.
+        if len(user_input['user']) == 0 and len(user_input['classroom']) == 0:
             return True
         return False
 
@@ -114,8 +111,8 @@ class CourseSubmissionsPage(INGIniousAdminPage):
         """ Returns the list of submissions and corresponding aggragations based on inputs """
 
         # Build lists of wanted users based on classrooms and specific users
-        list_classroom_id = [ObjectId(o) for o in user_input.aggregation]
-        classroom = list(self.database.aggregations.find({"_id": {"$in": list_classroom_id}}))
+        list_classroom_id = [ObjectId(o) for o in user_input.classroom]
+        classroom = list(self.database.classrooms.find({"_id": {"$in": list_classroom_id}}))
         more_username = [s["students"] for s in classroom]  # Extract usernames of students
         more_username = [y for x in more_username for y in x]  # Flatten lists
         
@@ -180,7 +177,7 @@ class CourseSubmissionsPage(INGIniousAdminPage):
         user_input = web.input(
             user=[],
             task=[],
-            aggregation=[],
+            classroom=[],
             org_tags=[],
             grade_min='',
             grade_max='',
@@ -195,7 +192,7 @@ class CourseSubmissionsPage(INGIniousAdminPage):
         )
 
         # Sanitise inputs
-        for item in itertools.chain(user_input.task, user_input.aggregation):
+        for item in itertools.chain(user_input.task, user_input.classroom):
             if not id_checker(item):
                 raise web.notfound()
 

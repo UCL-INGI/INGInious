@@ -25,12 +25,18 @@ class CourseStudentListPage(INGIniousAdminPage):
         if "remove" in data:
             try:
                 if data["type"] == "all":
-                    aggregations = list(self.database.aggregations.find({"courseid": courseid}))
-                    for aggregation in aggregations:
-                        aggregation["students"] = []
-                        for group in aggregation["groups"]:
+                    classrooms = list(self.database.classrooms.find({"courseid": courseid}))
+                    for classroom in classrooms:
+                        classroom["students"] = []
+                        for group in classroom["groups"]:
                             group["students"] = []
-                        self.database.aggregations.replace_one({"_id": aggregation["_id"]}, aggregation)
+                        self.database.classrooms.replace_one({"_id": classroom["_id"]}, classroom)
+                    teams = list(self.database.teams.find({"courseid": courseid}))
+                    for team in teams:
+                        team["students"] = []
+                        for group in team["groups"]:
+                            group["students"] = []
+                        self.database.teams.replace_one({"_id": team["_id"]}, team)
                 else:
                     self.user_manager.course_unregister_user(course, data["username"])
             except:

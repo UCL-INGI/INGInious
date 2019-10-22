@@ -92,7 +92,6 @@ class CourseEditTask(INGIniousAdminPage):
                 if key in submission and type(submission[key]) == bson.objectid.ObjectId:
                     self.submission_manager.get_gridfs().delete(submission[key])
 
-        self.database.aggregations.remove({"courseid": courseid, "taskid": taskid})
         self.database.user_tasks.remove({"courseid": courseid, "taskid": taskid})
         self.database.submissions.remove({"courseid": courseid, "taskid": taskid})
 
