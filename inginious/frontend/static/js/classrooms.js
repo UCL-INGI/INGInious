@@ -6,169 +6,30 @@
 
 function classrooms_prepare_submit()
 {
-    // Check in which mode we are : classrooms or teams
-    if(JSON.parse($("#classrooms").val())) {
-
-        var students = [];
-        var groups = [];
-        $("#groups .group").each(function(i) {
-            var group = {"size": parseInt($(this).find("#size").val()), "students": []};
-            $(this).find(".group-entry").each(function(j) {
-                var username = $(this).data('username');
-                group["students"].push(username);
-                students.push(username);
-            });
-
-            if(i!=0)  groups.push(group);
-        });
-
-        var tutors = [];
-        $(".tutor").each(function(i) {
-            var tutor = $(this).find("input").val();
-            tutors.push(tutor);
-        });
-
-        var id = $("#_id").val();
-        var description = $("#description").val();
-        var classrooms = [{_id: id, description: description, students: students,
-            groups: groups, tutors: tutors}];
-
-        var inputField = jQuery('<input/>', {
-                type:"hidden",
-                name:"classrooms",
-                value: JSON.stringify(classrooms)
-        }).appendTo($("form"));
-
-    } else {
-
-        var classrooms = [];
-
-        var ungrouped = [];
-        // for each team
-        $("#groups .group").each(function(i) {
-            var students = [];
-            var id = $(this).find("#_id").val();
-            var description = (i == 0) ? '' : $(this).find("#description").val();
-            var group_size = (i == 0) ? 0 : parseInt($(this).find("#size").val());
-            var group_students = [];
-
-            $(this).find(".group-entry").each(function (j) {
-                var username = $(this).data('username');
-                group_students.push(username);
-                students.push(username);
-            });
-
-            var tutors = [];
-            $(this).find(".tutor").each(function (i) {
-                var tutor = $(this).find("input").val();
-                tutors.push(tutor);
-            });
-
-            if (i == 0) ungrouped = ungrouped.concat(students);
-            else if (i == 1) students = students.concat(ungrouped);
-
-            if (i > 0) {
-                var groups = [{size: group_size, students: group_students}];
-                var classroom = {_id: id, description: description, students: students,
-                    groups: groups, tutors: tutors};
-                classrooms.push(classroom);
-            }
-        });
-
-        if($(".group").length <= 1){
-            var classroom = {_id: 'None', description: '', students: ungrouped,
-                    groups: [], tutors: []};
-                classrooms.push(classroom);
-        }
-
-         var inputField = jQuery('<input/>', {
-                type:"hidden",
-                name:"classrooms",
-                value: JSON.stringify(classrooms)
-        }).appendTo($("form"));
-    }
-
-
-}
-
-function classroom_add()
-{
-    // New group hidden item
-    var new_group_li = $("#groups .card").last();
-
-    // Clone and change id for deletion
-    var clone = new_group_li.clone();
-    clone.find("#tutor_list_" + parseInt(clone.attr("id"))).attr("id", "#tutor_list_" + (parseInt(clone.attr("id")) + 1));
-    clone.find("#tutors_" + parseInt(clone.attr("id"))).attr("id", "#tutors_" + (parseInt(clone.attr("id")) + 1));
-    clone.attr("id", parseInt(clone.attr("id")) + 1);
-    clone.find("#group_number").text(clone.attr("id"));
-
-    // Remove the hidden style attribute and push
-    new_group_li.removeAttr("style");
-    new_group_li.addClass("group");
-    new_group_li.after(clone);
-
-    if(!JSON.parse($("#classrooms").val())) {
-        jQuery('<input/>', {
-            type:'hidden',
-            name: '_id',
-            id: '_id',
-            value: 'None'
-        }).appendTo(new_group_li);
-    }
-
-    // Regroup sortable lists
-    $("ul.students").sortable({group:"students"});
-    $("ul.students").bind("DOMSubtreeModified", function() {classroom_update($(this).parent())});
-    $("input[id='size']").on('keyup click',function() {classroom_update($(this).rparent(5))});
-}
-
-function classroom_delete(id)
-{
-    // Append all the items to ungrouped users
-    $("#" + id).find("#students li").each(function(index) {
-        $(this).appendTo("#group_0");
+    var students = [];
+    $(".group-entry").each(function(i) {
+            var username = $(this).data('username');
+            students.push(username);
     });
 
-    // add the classroom id in delete field
-    if(!JSON.parse($("#classrooms").val())) {
-        // if group_id is not none, inform to delete
-        // do not remove last group id
-        if($("#" + id).find("#_id").val() != 'None') {
-            jQuery('<input/>', {
-                type: 'hidden',
-                name: 'delete',
-                value: $("#" + id).find("#_id").val()
-            }).appendTo($('form'));
-        }
-    }
-
-    // Remove item...
-    $("#" + id).remove();
-
-    // Renumbering groups
-    $("#groups .group-card").each(function(index) {
-        $(this).attr("id", index);
-        $(this).find("#group_number").text(index+1);
+    var tutors = [];
+    $(".tutor").each(function(i) {
+        var tutor = $(this).find("input").val();
+        tutors.push(tutor);
     });
+
+    var id = $("#_id").val();
+    var description = $("#description").val();
+    var classrooms = [{_id: id, description: description, students: students, tutors: tutors}];
+
+    var inputField = jQuery('<input/>', {
+            type:"hidden",
+            name:"classrooms",
+            value: JSON.stringify(classrooms)
+    }).appendTo($("form"));
 }
 
-function classrooms_delete() {
-    $("#groups .group").each(function(i) {
-        if(i!=0) // first .group must not be deleted : non-grouped/non-teamed
-            classroom_delete($(this).attr("id"));
-    });
-}
-
-function classrooms_clean() {
-    $("#groups .group").each(function(i) {
-        $("#" + $(this).attr("id")).find("#students li").each(function(index) {
-            $(this).appendTo("#group_0");
-        });
-    });
-}
-
-function tutor_add(username, complete_name, id) {
+function classrooms_tutor_add(username, complete_name, id) {
 
     // Check if valid entry
     if(username==null)
@@ -197,7 +58,7 @@ function tutor_add(username, complete_name, id) {
         $("#tutor_list_" + id ).prop("disabled", true);
 }
 
-function tutor_remove(username, id) {
+function classrooms_tutor_remove(username, id) {
     // Put user back to select list
     jQuery('<option/>', {
         value: username,
@@ -210,7 +71,7 @@ function tutor_remove(username, id) {
     $("#" + username).remove();
 }
 
-function student_add() {
+function classrooms_student_add() {
     if($("#tab_registered_student").hasClass("active")) {
 
         var new_li = jQuery('<li/>', {
@@ -267,7 +128,7 @@ function student_add() {
     $("#student_modal").modal('hide');
 }
 
-function student_remove(username) {
+function classrooms_student_remove(username) {
     jQuery('<option/>', {
         value: username,
         text:  $("#" + username).text()
@@ -286,21 +147,4 @@ function classroom_delete(id) {
     }).appendTo($('form'));
 
     $('form').submit();
-}
-
-function classroom_update(ref) {
-    // Check group sizes
-    var grp_size_input = ref.find("#size");
-    var max_grp_size = parseInt(grp_size_input.val());
-
-    var actual_grp_size = 0;
-    ref.find(".group-entry").each(function (j) {
-        actual_grp_size++;
-    });
-
-    // If actual size higher than max group size, update
-    if(actual_grp_size > max_grp_size || isNaN(max_grp_size)) {
-        grp_size_input.val(actual_grp_size);
-        grp_size_input.fadeTo('fast', 0.5).fadeTo('fast', 1.0);
-    }
 }

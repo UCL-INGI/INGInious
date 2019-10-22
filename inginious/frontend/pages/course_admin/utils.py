@@ -75,16 +75,12 @@ class INGIniousSubmissionAdminPage(INGIniousAdminPage):
             self._validate_list(users)
             classrooms = list(self.database.classrooms.find({"courseid": course.get_id(),
                                                                  "students": {"$in": users}}))
-            # Tweak if not using classrooms : classroom['students'] may content ungrouped users
-            classrooms = dict([(username, classroom ) for classroom in classrooms for username in users])
 
         else:
             self._validate_list(classrooms)
             classrooms = list(
                 self.database.classrooms.find({"_id": {"$in": [ObjectId(cid) for cid in classrooms]}}))
 
-            # Tweak if not using classrooms : classroom['students'] may content ungrouped users
-            classrooms = dict([(username, classroom) for classroom in classrooms for username in classroom["students"]])
 
         if stype == "single":
             user_tasks = list(self.database.user_tasks.find({"username": {"$in": list(classrooms.keys())},
@@ -112,15 +108,12 @@ class INGIniousSubmissionAdminPage(INGIniousAdminPage):
 
         classrooms = self.user_manager.get_course_classrooms(course)
         tutored_classrooms = [str(classroom["_id"]) for classroom in classrooms if
-                                self.user_manager.session_username() in classroom["tutors"] and len(
-                                    classroom['groups']) > 0]
+                                self.user_manager.session_username() in classroom["tutors"]]
 
         tutored_users = []
         for classroom in classrooms:
-            for username in classroom["students"]:
-                # If no classrooms used, only students inside groups
-                if self.user_manager.session_username() in classroom["tutors"]:
-                    tutored_users += [username]
+            if self.user_manager.session_username() in classroom["tutors"]:
+                tutored_users += classroom["students"]
 
         checked_tasks = list(course.get_tasks().keys())
         checked_users = list(user_data.keys())

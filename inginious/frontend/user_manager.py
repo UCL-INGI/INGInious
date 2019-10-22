@@ -718,11 +718,6 @@ class UserManager:
         if username is None:
             username = self.session_username()
 
-        # Needed if user belongs to a group
-        self._database.classrooms.find_one_and_update(
-            {"courseid": course.get_id(), "groups.students": username},
-            {"$pull": {"groups.$.students": username, "students": username}})
-
         # If user doesn't belong to a group, will ensure correct deletion
         self._database.classrooms.find_one_and_update(
             {"courseid": course.get_id(), "students": username},

@@ -26,7 +26,6 @@ class CourseClassroomListPage(INGIniousAdminPage):
             web.header('Content-Type', 'text/x-yaml', unique=True)
             web.header('Content-Disposition', 'attachment; filename="classrooms.yaml"', unique=True)
             classrooms = [{"description": classroom["description"],
-                           "groups": classroom["groups"],
                            "students": classroom["students"],
                            "tutors": classroom["tutors"]} for classroom in
                           self.user_manager.get_course_classrooms(course)]
@@ -48,7 +47,7 @@ class CourseClassroomListPage(INGIniousAdminPage):
                 data = web.input()
                 if 'classroom' in data:
                     self.database.classrooms.insert({"courseid": courseid, "students": [],
-                                                     "tutors": [], "groups": [],
+                                                     "tutors": [],
                                                      "description": data['classroom']})
                     msg = _("New classroom created.")
                 else:  # default, but with no classroom detected

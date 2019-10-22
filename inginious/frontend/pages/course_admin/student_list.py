@@ -28,8 +28,6 @@ class CourseStudentListPage(INGIniousAdminPage):
                     classrooms = list(self.database.classrooms.find({"courseid": courseid}))
                     for classroom in classrooms:
                         classroom["students"] = []
-                        for group in classroom["groups"]:
-                            group["students"] = []
                         self.database.classrooms.replace_one({"_id": classroom["_id"]}, classroom)
                     teams = list(self.database.teams.find({"courseid": courseid}))
                     for team in teams:

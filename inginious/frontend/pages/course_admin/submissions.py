@@ -78,9 +78,6 @@ class CourseSubmissionsPage(INGIniousAdminPage):
             web.header('Content-Type', 'application/x-gzip', unique=True)
             web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)
 
-            # Tweak if not using classrooms : classroom['students'] may content ungrouped users
-            classrooms = dict([(username, classroom) for classroom in classroom for username in classroom["students"]])
-
             download_type = web.input(download_type=self._valid_formats[0]).download_type
             if download_type not in self._valid_formats:
                 download_type = self._valid_formats[0]

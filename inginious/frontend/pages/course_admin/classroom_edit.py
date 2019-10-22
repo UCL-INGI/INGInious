@@ -21,44 +21,22 @@ class CourseEditClassroom(INGIniousAdminPage):
     def get_user_lists(self, course, classroomid=''):
         """ Get the available student and tutor lists for classroom edition"""
         tutor_list = course.get_staff()
+        student_list = self.user_manager.get_course_registered_users(course, False)
+        users_info = self.user_manager.get_users_info(student_list + tutor_list)
 
-        # Determine student list and if they are grouped
-        course_obj = self.database.courses.find_one({"_id": course.get_id()})
-        students = course_obj["students"] if course_obj else []
-        student_list = list(self.database.classrooms.aggregate([
+        classrooms_list = list(self.database.classrooms.aggregate([
             {"$match": {"courseid": course.get_id()}},
             {"$unwind": "$students"},
             {"$project": {
                 "classroom": "$_id",
-                "students": 1,
-                "grouped": {
-                    "$anyElementTrue": {
-                        "$map": {
-                            "input": "$groups.students",
-                            "as": "group",
-                            "in": {
-                                "$anyElementTrue": {
-                                    "$map": {
-                                        "input": "$$group",
-                                        "as": "groupmember",
-                                        "in": {"$eq": ["$$groupmember", "$students"]}
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                "students": 1
             }}
         ]))
-
-        student_list = dict([(student["students"], student) for student in student_list])
-        student_list = {student: student_list[student] if student in student_list else {"students": student, "classroom": None, "grouped": False} for student in students}
-        users_info = self.user_manager.get_users_info(list(student_list.keys()) + tutor_list)
+        classrooms_list = {d["students"]: d["classroom"] for d in classrooms_list}
 
         if classroomid:
             # Order the non-registered students
-            other_students = [student_list[entry]['students'] for entry in student_list.keys() if
-                              not student_list[entry]['classroom'] == ObjectId(classroomid)]
+            other_students = [entry for entry in student_list if not classrooms_list.get(entry, {}) == ObjectId(classroomid)]
             other_students = sorted(other_students, key=lambda val: (("0"+users_info[val][0]) if users_info[val] else ("1"+val)))
 
             return student_list, tutor_list, other_students, users_info
@@ -89,14 +67,12 @@ class CourseEditClassroom(INGIniousAdminPage):
         # Check tutors
         new_data["tutors"] = [tutor for tutor in new_data["tutors"] if tutor in course.get_staff()]
 
-        students, groups, errored_students = [], [], []
+        students, errored_students = [], []
 
         # Check the students
         for student in new_data["students"]:
             if student in student_list:
                 # Remove user from the other classroom
-                self.database.classrooms.find_one_and_update({"courseid": course.get_id(), "groups.students": student},
-                                                             {"$pull": {"groups.$.students": student, "students": student}})
                 self.database.classrooms.find_one_and_update({"courseid": course.get_id(), "students": student}, {"$pull": {"students": student}})
                 students.append(student)
             else:
@@ -114,33 +90,23 @@ class CourseEditClassroom(INGIniousAdminPage):
 
         new_data["students"] = students
 
-        # Check the groups
-        for group in new_data["groups"]:
-            group["students"] = [student for student in group["students"] if student in new_data["students"]]
-            if len(group["students"]) <= group["size"]:
-                groups.append(group)
-
-        new_data["groups"] = groups
-
         classroom = self.database.classrooms.find_one_and_update(
             {"_id": ObjectId(classroomid)},
             {"$set": {"description": new_data["description"],
-                      "students": students, "tutors": new_data["tutors"],
-                      "groups": groups}}, return_document=ReturnDocument.AFTER)
+                      "students": students, "tutors": new_data["tutors"]}}, return_document=ReturnDocument.AFTER)
 
         return classroom, errored_students
 
     def display_page(self, course, classroomid, msg='', error=False):
-        # If no classroom id specified, use the groups only template
-        student_list, tutor_list, other_students, users_info = self.get_user_lists(course, classroomid)
         classroom = self.database.classrooms.find_one({"_id": ObjectId(classroomid), "courseid": course.get_id()})
+        if not classroom:
+            raise web.notfound()
 
-        if classroom:
-            return self.template_helper.get_renderer().course_admin.classroom_edit(course, student_list, tutor_list,
+
+        student_list, tutor_list, other_students, users_info = self.get_user_lists(course, classroomid)
+        return self.template_helper.get_renderer().course_admin.classroom_edit(course, student_list, tutor_list,
                                                                                    other_students, users_info,
                                                                                    classroom, msg, error)
-        else:
-            raise web.notfound()
 
     def GET_AUTH(self, courseid, classroomid=''):  # pylint: disable=arguments-differ
         """ Edit a classroom """
@@ -161,7 +127,7 @@ class CourseEditClassroom(INGIniousAdminPage):
         msg=''
         error = False
         errored_students = []
-        data = web.input(delete=[], tutors=[], groups=[], classroomfile={})
+        data = web.input(delete=[], tutors=[], classroomfile={})
         if len(data["delete"]):
 
             for classid in data["delete"]:
@@ -196,11 +162,6 @@ class CourseEditClassroom(INGIniousAdminPage):
             for index, new_classroom in enumerate(classrooms):
                 # In case of file upload, no id specified
                 new_classroom['_id'] = new_classroom['_id'] if '_id' in new_classroom else 'None'
-
-                # If no groups field set, create group from class students if in groups only mode
-                if "groups" not in new_classroom:
-                    new_classroom["groups"] = [] if classroomid else [{'size': len(new_classroom['students']),
-                                                                       'students': new_classroom['students']}]
 
                 # Update the classroom
                 classroom, errors = self.update_classroom(course, new_classroom['_id'], new_classroom)
