@@ -104,7 +104,7 @@ $var Navbar: $:NavbarF()
                         <td>$team["done"]</td>
                         <td>
                             <div class="btn-group btn-group-sm" role="group">
-                                <a href="$get_homepath()/admin/${course.get_id()}/team/$team['_id']" class="btn btn-secondary" title=$:_('"View submissions"') data-toggle="tooltip"
+                                <a href="$get_homepath()/admin/${course.get_id()}/submissions$team['url']" class="btn btn-secondary" title=$:_('"View submissions"') data-toggle="tooltip"
                                    data-placement="bottom"><i class="fa fa-search"></i></a>
                                 <a href="$get_homepath()/admin/${course.get_id()}/download$team['url']" class="btn btn-secondary" title=$:_('"Download submissions"')
                                    data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
