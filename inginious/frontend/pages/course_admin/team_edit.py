@@ -6,6 +6,7 @@
 """ Pages that allow editing of tasks """
 
 import json
+import yaml
 
 import web
 from bson.objectid import ObjectId
@@ -110,6 +111,17 @@ class CourseEditTeam(INGIniousAdminPage):
 
         if course.is_lti():
             raise web.notfound()
+
+        if "download" in web.input():
+            web.header('Content-Type', 'text/x-yaml', unique=True)
+            web.header('Content-Disposition', 'attachment; filename="teams.yaml"', unique=True)
+            teams = [{"description": team["description"],
+                           "students": team["students"],
+                           "size": team["size"],
+                           "tutors": team["tutors"]} for team in
+                          self.user_manager.get_course_teams(course)]
+
+            return yaml.dump(teams)
 
         return self.display_page(course)
 
