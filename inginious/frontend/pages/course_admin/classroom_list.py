@@ -19,9 +19,6 @@ class CourseClassroomListPage(INGIniousAdminPage):
         """ GET request """
         course, __ = self.get_course_and_check_rights(courseid)
 
-        if course.is_lti():
-            raise web.notfound()
-
         if "download" in web.input():
             web.header('Content-Type', 'text/x-yaml', unique=True)
             web.header('Content-Disposition', 'attachment; filename="classrooms.yaml"', unique=True)
@@ -37,9 +34,6 @@ class CourseClassroomListPage(INGIniousAdminPage):
     def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ POST request """
         course, __ = self.get_course_and_check_rights(courseid)
-
-        if course.is_lti():
-            raise web.notfound()
 
         error = False
         try:

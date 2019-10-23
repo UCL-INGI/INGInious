@@ -655,17 +655,6 @@ class UserManager:
         """ Returns a list of the course teams"""
         return natsorted(list(self._database.teams.find({"courseid": course.get_id()})), key=lambda x: x["description"])
 
-    def get_course_user_classroom(self, course, username=None):
-        """ Returns the classroom whose username belongs to
-        :param course: a Course object
-        :param username: The username of the user that we want to register. If None, uses self.session_username()
-        :return: the classroom description
-        """
-        if username is None:
-            username = self.session_username()
-
-        return self._database.classrooms.find_one({"courseid": course.get_id(), "students": username})
-
     def get_course_user_team(self, course, username=None):
         """ Returns the classroom whose username belongs to
         :param course: a Course object
@@ -676,7 +665,6 @@ class UserManager:
             username = self.session_username()
 
         return self._database.teams.find_one({"courseid": course.get_id(), "students": username})
-
 
     def course_register_user(self, course, username=None, password=None, force=False):
         """

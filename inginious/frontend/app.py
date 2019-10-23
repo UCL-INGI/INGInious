@@ -52,7 +52,6 @@ urls = (
     r'/course/([^/]+)/([^/]+)', 'inginious.frontend.pages.tasks.TaskPage',
     r'/course/([^/]+)/([^/]+)/(.*)', 'inginious.frontend.pages.tasks.TaskPageStaticDownload',
     r'/team/([^/]+)', 'inginious.frontend.pages.team.TeamPage',
-    r'/classroom/([^/]+)', 'inginious.frontend.pages.classroom.ClassroomPage',
     r'/queue', 'inginious.frontend.pages.queue.QueuePage',
     r'/mycourses', 'inginious.frontend.pages.mycourses.MyCoursesPage',
     r'/preferences', 'inginious.frontend.pages.preferences.utils.RedirectPage',

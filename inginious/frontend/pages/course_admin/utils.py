@@ -237,11 +237,11 @@ def get_menu(course, current, renderer, plugin_manager, user_manager):
         default_entries += [("settings", "<i class='fa fa-cog fa-fw'></i>&nbsp; " + _("Course settings"))]
 
     default_entries += [("stats", "<i class='fa fa-area-chart fa-fw'></i>&nbsp; " + _("Stats")),
-                        ("students", "<i class='fa fa-user fa-fw'></i>&nbsp; " + _("Students"))]
+                        ("students", "<i class='fa fa-user fa-fw'></i>&nbsp; " + _("Students")),
+                        ("classrooms", "<i class='fa fa-group fa-fw'></i>&nbsp; " + _("Classrooms"))]
 
     if not course.is_lti():
-        default_entries += [("classrooms", "<i class='fa fa-group fa-fw'></i>&nbsp; " + _("Classrooms")),
-                            ("teams", "<i class='fa fa-group fa-fw'></i>&nbsp; " +_("Teams"))]
+        default_entries += [("teams", "<i class='fa fa-group fa-fw'></i>&nbsp; " +_("Teams"))]
 
     default_entries += [("tasks", "<i class='fa fa-tasks fa-fw'></i>&nbsp; " + _("Tasks")),
                         ("tags", "<i class='fa fa-tags fa-fw'></i>&nbsp;" + _("Tags")),

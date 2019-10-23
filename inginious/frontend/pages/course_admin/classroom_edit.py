@@ -72,8 +72,6 @@ class CourseEditClassroom(INGIniousAdminPage):
         # Check the students
         for student in new_data["students"]:
             if student in student_list:
-                # Remove user from the other classroom
-                self.database.classrooms.find_one_and_update({"courseid": course.get_id(), "students": student}, {"$pull": {"students": student}})
                 students.append(student)
             else:
                 # Check if user can be registered
@@ -102,7 +100,6 @@ class CourseEditClassroom(INGIniousAdminPage):
         if not classroom:
             raise web.notfound()
 
-
         student_list, tutor_list, other_students, users_info = self.get_user_lists(course, classroomid)
         return self.template_helper.get_renderer().course_admin.classroom_edit(course, student_list, tutor_list,
                                                                                    other_students, users_info,
@@ -112,17 +109,11 @@ class CourseEditClassroom(INGIniousAdminPage):
         """ Edit a classroom """
         course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=True)
 
-        if course.is_lti():
-            raise web.notfound()
-
         return self.display_page(course, classroomid)
 
     def POST_AUTH(self, courseid, classroomid=''):  # pylint: disable=arguments-differ
         """ Edit a classroom """
         course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=True)
-
-        if course.is_lti():
-            raise web.notfound()
 
         msg=''
         error = False

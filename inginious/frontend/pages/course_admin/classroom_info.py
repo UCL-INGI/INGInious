@@ -17,9 +17,6 @@ class CourseClassroomInfoPage(INGIniousAdminPage):
         """ GET request """
         course, __ = self.get_course_and_check_rights(courseid)
 
-        if course.is_lti():
-            raise web.notfound()
-
         return self.page(course, classroomid)
 
     def submission_url_generator(self, classroomid, taskid):
