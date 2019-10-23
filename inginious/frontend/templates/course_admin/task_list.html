@@ -53,7 +53,7 @@ $var Navbar: $:NavbarF()
     $for taskid in data:
     	<tr>
     		<td>
-    			<a href="$get_homepath()/admin/${course.get_id()}/task/$taskid">$data[taskid]["name"]</a>
+    			$data[taskid]["name"]
                 <input type="hidden" name="task" value="$taskid">
     		</td>
     		<td>$data[taskid]["viewed"]</td>
@@ -65,7 +65,7 @@ $var Navbar: $:NavbarF()
                     $if is_admin:
                         <a href="$get_homepath()/admin/${course.get_id()}/edit/task/$taskid" class="btn btn-primary" title=$:_('"Edit task"') data-toggle="tooltip"
                            data-placement="bottom"><i class="fa fa-edit"></i></a>
-                    <a href="$get_homepath()/admin/${course.get_id()}/task/$taskid" class="btn btn-secondary" title=$:_('"View results"') data-toggle="tooltip"
+                    <a href="$get_homepath()/admin/${course.get_id()}/submissions$data[taskid]['url']" class="btn btn-secondary" title=$:_('"View results"') data-toggle="tooltip"
                        data-placement="bottom"><i class="fa fa-users"></i></a>
                     <a href="$get_homepath()/admin/${course.get_id()}/download$data[taskid]['url']" class="btn btn-secondary" title=$:_('"Download submissions"')
                        data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
