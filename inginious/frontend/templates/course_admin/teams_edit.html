@@ -1,4 +1,4 @@
-$def with (course,student_list,tutor_list,users_info,teams,msg,error)
+$def with (course,student_list,tutor_list,other_students,users_info,teams,msg,error)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -78,8 +78,7 @@ $elif msg:
             </div>
             <input id="size" type="hidden" class="form-control" value="0">
             <ul id="group_0" class="students list-group list-group-flush">
-                $for username, student in student_list.items():
-                    $if not student["grouped"]:
+                $for username in other_students:
                         <li data-username="$username" class="list-group-item group-entry">
                             $if users_info[username] is not None:
                                 <span id="$username']"><i class="fa fa-arrows"></i> $users_info[username][0] ($username)</span>
@@ -91,7 +90,7 @@ $elif msg:
 
 
         $for index,team in enumerate((teams + [None])):
-                $if (team is None) or (len(team["groups"])==0):
+                $if team is None:
                     <div id="$(index+1)" style="display:none;" class="card mb-3 group-card">
                         <div class="card-header clearfix" role="tab">
                             <div class="row">
@@ -112,7 +111,6 @@ $elif msg:
                             </div>
                         </div>
                 $else:
-                    $ group = team["groups"][0]
                     <div id="$(index+1)" class="card mb-3 group-card group">
                         <input type="hidden" id="_id" name="_id" value="$team['_id']" />
                         <div class="card-header clearfix" role="tab">
@@ -124,7 +122,7 @@ $elif msg:
                                     <label>$:_("Max team size :")</label>
                                 </div>
                                 <div class="col-sm-3 col-xs-7">
-                                    <input style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" id="size" type="number" class="form-control" value="$(group['size'] if group is not None else 2)">
+                                    <input style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" id="size" type="number" class="form-control" value="$team['size']">
                                 </div>
                                 <div class="col-sm-1 col-xs-2">
                                     <a class="pull-right" id="group_delete" href="#" onclick="javascript:team_delete($$(this).rparent(4).attr('id'))" data-toggle="tooltip" title=$:_('"Delete team"')>
@@ -155,8 +153,7 @@ $elif msg:
                     </div>
                 </div>
 
-                $if team and (len(team["groups"])!=0):
-                    $ group = team["groups"][0]
+                $if team and (len(team["students"])!=0):
                     <ul class="list-group list-group-flush" id="tutors_$(index+1)">
                     $for user in (team["tutors"] + [None]):
                             $if user is None:
@@ -183,17 +180,15 @@ $elif msg:
                     $:_("Students")
                 </div>
 
-                $if team and (len(team["groups"])!=0):
-                    $ group = team["groups"][0]
+                $if team:
                     <ul id="students" class="list-group list-group-flush students">
-                        $if group is not None:
-                            $for student in group["students"]:
-                                <li data-username="$student" class="list-group-item group-entry">
-                                    $if users_info[student] is not None:
-                                        <span id="$student"><i class="fa fa-arrows"></i> $users_info[student][0] ($student)</span>
-                                    $else:
-                                        <span id="$student"><i class="fa fa-arrows"></i>$student</span>
-                                </li>
+                        $for student in team["students"]:
+                            <li data-username="$student" class="list-group-item group-entry">
+                                $if users_info[student] is not None:
+                                    <span id="$student"><i class="fa fa-arrows"></i> $users_info[student][0] ($student)</span>
+                                $else:
+                                    <span id="$student"><i class="fa fa-arrows"></i>$student</span>
+                            </li>
                     </ul>
                 $else:
                     <ul style="padding:0;" class="list-group list-group-flush students"></ul>

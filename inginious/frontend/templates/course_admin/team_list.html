@@ -94,25 +94,24 @@ $var Navbar: $:NavbarF()
                     <th colspan="5">$text[ind]</th>
                 </tr>
             $for team in data[ind]:
-                $if len(team['groups']) > 0:
-                    <tr>
-                        <td>
-                            <a href="$get_homepath()/admin/${course.get_id()}/team/$team['_id']">$team["description"]</a>
-                        </td>
-                        <td>$(len(team["groups"][0]["students"]))</td>
-                        <td>$team["tried"]</td>
-                        <td>$team["done"]</td>
-                        <td>
-                            <div class="btn-group btn-group-sm" role="group">
-                                <a href="$get_homepath()/admin/${course.get_id()}/submissions$team['url']" class="btn btn-secondary" title=$:_('"View submissions"') data-toggle="tooltip"
-                                   data-placement="bottom"><i class="fa fa-search"></i></a>
-                                <a href="$get_homepath()/admin/${course.get_id()}/download$team['url']" class="btn btn-secondary" title=$:_('"Download submissions"')
-                                   data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                                $if is_admin:
-                                    <a href="$get_homepath()/admin/${course.get_id()}/replay$team['url']" class="btn btn-secondary" title=$:_('"Replay submissions"')
-                                       data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
-                            </div>
-                        </td>
-                    </tr>
+                <tr>
+                    <td>
+                        <a href="$get_homepath()/admin/${course.get_id()}/team/$team['_id']">$team["description"]</a>
+                    </td>
+                    <td>$(len(team["students"]))</td>
+                    <td>$team["tried"]</td>
+                    <td>$team["done"]</td>
+                    <td>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <a href="$get_homepath()/admin/${course.get_id()}/submissions$team['url']" class="btn btn-secondary" title=$:_('"View submissions"') data-toggle="tooltip"
+                               data-placement="bottom"><i class="fa fa-search"></i></a>
+                            <a href="$get_homepath()/admin/${course.get_id()}/download$team['url']" class="btn btn-secondary" title=$:_('"Download submissions"')
+                               data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
+                            $if is_admin:
+                                <a href="$get_homepath()/admin/${course.get_id()}/replay$team['url']" class="btn btn-secondary" title=$:_('"Replay submissions"')
+                                   data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
+                        </div>
+                    </td>
+                </tr>
     </tbody>
 </table>

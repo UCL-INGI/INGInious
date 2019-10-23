@@ -149,7 +149,7 @@ $def ColumnF():
             <a class="list-group-item list-group-item-action list-group-item-info" href="$get_homepath()/team/$course.get_id()">
                 <i class="fa fa-group fa-fw"></i>&nbsp;
                 $ myteam = user_manager.get_course_user_team(course)
-                $if myteam and len(myteam['groups']) > 0 and user_manager.session_username() in myteam['groups'][0]['students']:
+                $if myteam and user_manager.session_username() in myteam['students']:
                     $:_("Team : {}").format(myteam['description'])
                 $else:
                     $:_("Teams management")

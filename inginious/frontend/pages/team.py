@@ -41,34 +41,26 @@ class TeamPage(INGIniousAuthPage):
 
                 if team is not None:
                     team["students"].remove(username)
-                    for index, group in enumerate(team["groups"]):
-                        if username in group["students"]:
-                            team["groups"][index]["students"].remove(username)
                     self.database.teams.replace_one({"courseid": course.get_id(), "students": username}, team)
 
                 # Add student in the classroom and unique group
-                self.database.teams.find_one_and_update({"_id": ObjectId(data["register_group"])},
-                                                             {"$push": {"students": username}})
                 new_team = self.database.teams.find_one_and_update({"_id": ObjectId(data["register_group"])},
-                                                                             {"$push": {"groups.0.students": username}})
+                                                             {"$push": {"students": username}})
 
                 if new_team is None:
                     error = True
                     msg = _("Couldn't register to the specified group.")
                 else:
-                    self._logger.info("User %s registered to team %s/%s", username, courseid, team["description"])
+                    self._logger.info("User %s registered to team %s/%s", username, courseid, new_team["description"])
             else:
                 error = True
                 msg = _("You are not allowed to change group.")
         elif "unregister_group" in data:
             change = True
             if course.can_students_choose_group():
-                team = self.database.teams.find_one({"courseid": course.get_id(), "students": username, "groups.students": username})
+                team = self.database.teams.find_one({"courseid": course.get_id(), "students": username})
                 if team is not None:
-                    for index, group in enumerate(team["groups"]):
-                        if username in group["students"]:
-                            team["groups"][index]["students"].remove(username)
-                    self.database.teams.replace_one({"courseid": course.get_id(), "students": username}, team)
+                    self.database.teams.find_one_and_update({"_id": team["_id"]}, {"$pull": {"students": username}})
                     self._logger.info("User %s unregistered from group/team %s/%s", username, courseid, team["description"])
                 else:
                     error = True

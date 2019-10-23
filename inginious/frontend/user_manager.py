@@ -601,16 +601,14 @@ class UserManager:
         staff_right = self.has_staff_rights_on_course(task.get_course(), username)
 
         # Check for group
-        team = self._database.teams.find_one(
-            {"courseid": task.get_course_id(), "groups.students": self.session_username()},
-            {"groups": {"$elemMatch": {"students": self.session_username()}}})
+        team = self._database.teams.find_one({"courseid": task.get_course_id(), "students": self.session_username()})
 
         if not only_check or only_check == 'groups':
             group_filter = (team is not None and task.is_group_task()) or not task.is_group_task()
         else:
             group_filter = True
 
-        students = team["groups"][0]["students"] if (team is not None and task.is_group_task()) else [self.session_username()]
+        students = team["students"] if (team is not None and task.is_group_task()) else [self.session_username()]
 
 
         # Check for token availability

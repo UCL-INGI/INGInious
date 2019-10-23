@@ -64,10 +64,9 @@ class BaseTaskPage(object):
 
         # Check if task is done per group/team
         if task.is_group_task() and not is_staff:
-            team = self.database.teams.find_one(
-                {"courseid": task.get_course_id(), "groups.students": self.user_manager.session_username()},
-                {"groups": {"$elemMatch": {"students": self.user_manager.session_username()}}})
-            students = team["groups"][0]["students"]
+            team = self.database.teams.find_one({"courseid": task.get_course_id(),
+                                                 "students": self.user_manager.session_username()})
+            students = team["students"]
         else:
             students = [self.user_manager.session_username()]
 
@@ -161,11 +160,10 @@ class BaseTaskPage(object):
 
             students = [self.user_manager.session_username()]
             if task.is_group_task() and not self.user_manager.has_admin_rights_on_course(course, username):
-                team = self.database.teams.find_one(
-                    {"courseid": task.get_course_id(), "groups.students": self.user_manager.session_username()},
-                    {"groups": {"$elemMatch": {"students": self.user_manager.session_username()}}})
-                if team is not None and len(team["groups"]) > 0:
-                    students = team["groups"][0]["students"]
+                team = self.database.teams.find_one({"courseid": task.get_course_id(),
+                                                     "students": self.user_manager.session_username()})
+                if team is not None:
+                    students = team["students"]
                 # we don't care for the other case, as the student won't be able to submit.
 
             submissions = self.submission_manager.get_user_submissions(task) if self.user_manager.session_logged_in() else []

@@ -6,88 +6,37 @@
 
 function teams_prepare_submit()
 {
-    // Check in which mode we are : classrooms or teams
-    if(JSON.parse($("#classrooms").val())) {
+    var teams = [];
 
-        var students = [];
-        var groups = [];
-        $("#groups .group").each(function(i) {
-            var group = {"size": parseInt($(this).find("#size").val()), "students": []};
-            $(this).find(".group-entry").each(function(j) {
-                var username = $(this).data('username');
-                group["students"].push(username);
-                students.push(username);
-            });
+    // for each team
+    $("#groups .group").each(function(i) {
+        var id = $(this).find("#_id").val();
+        var description = (i == 0) ? '' : $(this).find("#description").val();
+        var group_size = (i == 0) ? 0 : parseInt($(this).find("#size").val());
+        var group_students = [];
 
-            if(i!=0)  groups.push(group);
+        $(this).find(".group-entry").each(function (j) {
+            var username = $(this).data('username');
+            group_students.push(username);
         });
 
         var tutors = [];
-        $(".tutor").each(function(i) {
+        $(this).find(".tutor").each(function (i) {
             var tutor = $(this).find("input").val();
             tutors.push(tutor);
         });
 
-        var id = $("#_id").val();
-        var description = $("#description").val();
-        var teams = [{_id: id, description: description, students: students,
-            groups: groups, tutors: tutors}];
-
-        var inputField = jQuery('<input/>', {
-                type:"hidden",
-                name:"teams",
-                value: JSON.stringify(teams)
-        }).appendTo($("form"));
-
-    } else {
-
-        var teams = [];
-
-        var ungrouped = [];
-        // for each team
-        $("#groups .group").each(function(i) {
-            var students = [];
-            var id = $(this).find("#_id").val();
-            var description = (i == 0) ? '' : $(this).find("#description").val();
-            var group_size = (i == 0) ? 0 : parseInt($(this).find("#size").val());
-            var group_students = [];
-
-            $(this).find(".group-entry").each(function (j) {
-                var username = $(this).data('username');
-                group_students.push(username);
-                students.push(username);
-            });
-
-            var tutors = [];
-            $(this).find(".tutor").each(function (i) {
-                var tutor = $(this).find("input").val();
-                tutors.push(tutor);
-            });
-
-            if (i == 0) ungrouped = ungrouped.concat(students);
-            else if (i == 1) students = students.concat(ungrouped);
-
-            if (i > 0) {
-                var groups = [{size: group_size, students: group_students}];
-                var team = {_id: id, description: description, students: students,
-                    groups: groups, tutors: tutors};
-                teams.push(team);
-            }
-        });
-
-        if($(".group").length <= 1){
-            var team = {_id: 'None', description: '', students: ungrouped,
-                    groups: [], tutors: []};
-                teams.push(team);
+        if (i > 0) {
+            var team = {_id: id, description: description, size: group_size, students: group_students, tutors: tutors};
+            teams.push(team);
         }
+    });
 
-         var inputField = jQuery('<input/>', {
-                type:"hidden",
-                name:"teams",
-                value: JSON.stringify(teams)
-        }).appendTo($("form"));
-    }
-
+     var inputField = jQuery('<input/>', {
+            type:"hidden",
+            name:"teams",
+            value: JSON.stringify(teams)
+    }).appendTo($("form"));
 
 }
 
@@ -276,16 +225,6 @@ function student_remove(username) {
     $("#registered_students").prop("disabled", false);
 
     $(".group-entry[data-username='" + username + "']").remove();
-}
-
-function classroom_delete(id) {
-    jQuery('<input/>', {
-        type:'hidden',
-        name: 'delete',
-        value: id
-    }).appendTo($('form'));
-
-    $('form').submit();
 }
 
 function team_update(ref) {

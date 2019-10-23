@@ -26,10 +26,10 @@ class CourseTeamListPage(INGIniousAdminPage):
             web.header('Content-Type', 'text/x-yaml', unique=True)
             web.header('Content-Disposition', 'attachment; filename="teams.yaml"', unique=True)
             teams = [{"description": team["description"],
-                           "groups": team["groups"],
                            "students": team["students"],
+                           "size": team["size"],
                            "tutors": team["tutors"]} for team in
-                          self.user_manager.get_course_teams(course) if len(team["groups"]) > 0]
+                          self.user_manager.get_course_teams(course)]
 
             return yaml.dump(teams)
 
@@ -48,7 +48,7 @@ class CourseTeamListPage(INGIniousAdminPage):
                 data = web.input()
                 if 'classroom' in data:
                     self.database.teams.insert({"courseid": courseid, "students": [],
-                                                     "tutors": [], "groups": [],
+                                                     "tutors": [], "size": 2,
                                                      "description": data['classroom']})
                     msg = _("New classroom created.")
                 else:  # default, but with no classroom detected
