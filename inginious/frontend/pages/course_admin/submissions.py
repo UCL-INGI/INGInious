@@ -94,7 +94,7 @@ class CourseSubmissionsPage(INGIniousAdminPage):
     def show_collapse(self, user_input):
         """ Return True is we should display the main collapse. """
         # If users has not specified any user/classroom, there are no submissions so we display the main collapse.
-        if len(user_input['user']) == 0 and len(user_input['classroom']) == 0:
+        if len(user_input['users']) == 0 and len(user_input['classrooms']) == 0:
             return True
         return False
 
@@ -108,7 +108,7 @@ class CourseSubmissionsPage(INGIniousAdminPage):
         """ Returns the list of submissions and corresponding aggragations based on inputs """
 
         # Build lists of wanted users based on classrooms and specific users
-        list_classroom_id = [ObjectId(o) for o in user_input.classroom]
+        list_classroom_id = [ObjectId(o) for o in user_input.classrooms]
         classroom = list(self.database.classrooms.find({"_id": {"$in": list_classroom_id}}))
         more_username = [s["students"] for s in classroom]  # Extract usernames of students
         more_username = [y for x in more_username for y in x]  # Flatten lists
@@ -117,32 +117,32 @@ class CourseSubmissionsPage(INGIniousAdminPage):
         categories = set(user_input.org_tags)
         more_tasks = [taskid for taskid, task in course.get_tasks().items() if categories.intersection(task.get_categories())]
 
-        #Base query
-        query_base = {
-                "username": {"$in": user_input.user + more_username},
-                "courseid": course.get_id(),
-                "taskid": {"$in": user_input.task + more_tasks}
-                }
+        # Base query
+        query_base = {"courseid": course.get_id()}
+
+        students = user_input.users + more_username
+        if len(students):
+            query_base["username"] = {"$in": students}
+
+        tasks = user_input.tasks + more_tasks
+        if len(tasks):
+            query_base["taskid"] = {"$in": tasks}
+
+        if not len(tasks) and not len(students):
+            return {}, {}
 
         # Additional query field
         query_advanced = {}
-        if user_input.grade_min and not user_input.grade_max:
-            query_advanced["grade"] = {"$gte": float(user_input.grade_min)}
-        elif not user_input.grade_min and user_input.grade_max:
-            query_advanced["grade"] = {"$lte": float(user_input.grade_max)}
-        elif user_input.grade_min and user_input.grade_max:
-            query_advanced["grade"] = {"$gte": float(user_input.grade_min), "$lte": float(user_input.grade_max)}
+        if user_input.grade_min:
+            query_advanced.setdefault("grade", {})["$gte"] = float(user_input.grade_min)
+        if user_input.grade_max:
+            query_advanced.setdefault("grade", {})["$lte"] = float(user_input.grade_max)
 
         try:
-            date_before = datetime.strptime(user_input.date_before, "%Y-%m-%d %H:%M:%S") if user_input.date_before else ''
-            date_after = datetime.strptime(user_input.date_after, "%Y-%m-%d %H:%M:%S") if user_input.date_after else ''
-
-            if date_before and not date_after:
-                query_advanced["submitted_on"] = {"$lte": date_before}
-            elif not date_before and date_after:
-                query_advanced["submitted_on"] = {"$gte": date_after}
-            elif date_before and date_after:
-                query_advanced["submitted_on"] = {"$gte": date_after, "$lte": date_before}
+            if user_input.date_before:
+                query_advanced.setdefault("submitted_on", {})["$lte"] = datetime.strptime(user_input.date_before, "%Y-%m-%d %H:%M:%S")
+            if user_input.date_after:
+                query_advanced.setdefault("submitted_on", {})["$gte"] = datetime.strptime(user_input.date_after, "%Y-%m-%d %H:%M:%S")
         except ValueError:  # If match of datetime.strptime() fails
             pass
         
@@ -172,9 +172,9 @@ class CourseSubmissionsPage(INGIniousAdminPage):
     def get_input(self):
         """ Loads web input, initialise default values and check/sanitise some inputs from users """
         user_input = web.input(
-            user=[],
-            task=[],
-            classroom=[],
+            users=[],
+            tasks=[],
+            classrooms=[],
             org_tags=[],
             grade_min='',
             grade_max='',
@@ -189,7 +189,7 @@ class CourseSubmissionsPage(INGIniousAdminPage):
         )
 
         # Sanitise inputs
-        for item in itertools.chain(user_input.task, user_input.classroom):
+        for item in itertools.chain(user_input.tasks, user_input.classrooms):
             if not id_checker(item):
                 raise web.notfound()
 

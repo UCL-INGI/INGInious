@@ -25,22 +25,16 @@ $def NavbarF():
     </nav>
 $var Navbar: $:NavbarF()
 
-$for m in msg:
-    <div class="alert alert-warning alert-dismissable" role="alert">
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-        $m
-    </div>
-
 <h2>$:_("View submissions")</h2>
 <!-- Add a title if only one task and one user/classroom -->
-$if len(old_input.task) == 1:
-    $ task_name = tasks[old_input.task[0]].get_name(user_manager.session_language())
-    $if len(old_input.user) == 1 and len(old_input.classroom) == 0:
-        $ complete_name = users[old_input.user[0]][0] if users[old_input.user[0]] != None and len(users[old_input.user[0]]) > 0 else 'Unknow'
-        <h4>$:_('Submissions for task "{0}" - {1} ({2})').format(task_name, complete_name, old_input.user[0])</h4>
-    $if len(old_input.classroom) == 1 and len(old_input.user) == 0:
+$if len(old_input.tasks) == 1:
+    $ task_name = tasks[old_input.tasks[0]].get_name(user_manager.session_language())
+    $if len(old_input.users) == 1 and len(old_input.classrooms) == 0:
+        $ complete_name = users[old_input.users[0]][0] if users[old_input.users[0]] != None and len(users[old_input.users[0]]) > 0 else _('Unknown')
+        <h4>$:_('Submissions for task "{0}" - {1} ({2})').format(task_name, complete_name, old_input.users[0])</h4>
+    $if len(old_input.classrooms) == 1 and len(old_input.users) == 0:
         $for c in classrooms:
-            $if str(c['_id']) in old_input['classroom']:
+            $if str(c['_id']) in old_input['classrooms']:
                 <h4>$:_('Submissions for the task "{0}" - {1}').format(task_name, c["description"])</h4>
 
 <form id="select_form" method="post" action="submissions">
@@ -48,19 +42,19 @@ $if len(old_input.task) == 1:
 <!-- Query submissions -->
 <div class="card mb-3">
     <div class="card-header">
-        <a data-toggle="collapse" data-target="#collapseMAIN">$:_("Query submissions")</a>
+        $:_("Query submissions")
     </div>
-    <div id="collapseMAIN" class="panel-collapse collapse $('in' if show_collapse else '')">
+
     <div class="card-body">
         <div class="row">
             
             <!-- Users -->
             <div class="col-sm-6 form-group">
                 <label>$:_("Users")</label>
-                <select name="user" multiple size="7" class="form-control" id="select_user">
+                <select name="users" multiple size="7" class="form-control" id="select_user">
                 $for u in users:
                     $ complete_name = users[u][0] if users[u] != None and len(users[u]) > 0 else ''
-                    <option value="$u" $('selected' if u in old_input['user'] else '')>$complete_name ($u)</option>
+                    <option value="$u" $('selected' if u in old_input['users'] else '')>$complete_name ($u)</option>
                  </select>
             </div>
 
@@ -69,7 +63,7 @@ $if len(old_input.task) == 1:
                 <label>$:_("Classrooms")</label>
                 <select name="classroom" multiple size="7" class="form-control" id="select_classroom">
                 $for c in classrooms:
-                    <option value="$c['_id']" $('selected' if str(c['_id']) in old_input['classroom'] else '')>$c["description"]</option>
+                    <option value="$c['_id']" $('selected' if str(c['_id']) in old_input['classrooms'] else '')>$c["description"]</option>
                 </select>
             </div>
         </div>
@@ -80,7 +74,7 @@ $if len(old_input.task) == 1:
                 <label>$:_("Tasks")</label>
                 <select name="task" multiple size="9" class="form-control" id="select_task">
                 $for t in tasks:
-                    <option value="$t" $('selected' if t in old_input['task'] else '')>($t) $tasks[t].get_name(user_manager.session_language())</option>
+                    <option value="$t" $('selected' if t in old_input['tasks'] else '')>($t) $tasks[t].get_name(user_manager.session_language())</option>
                 </select>
             </div>
                 
@@ -221,8 +215,13 @@ $if len(old_input.task) == 1:
         </div>
     </div>
 </div>
-</div>
 <!-- Query submissions END -->
+
+$for m in msg:
+    <div class="alert alert-warning alert-dismissable" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        $m
+    </div>
 
 <!-- Modal to download submissions -->
 <div id="download_modal" class="modal fade">

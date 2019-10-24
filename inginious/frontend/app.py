@@ -69,7 +69,6 @@ urls = (
     r'/admin/([^/]+)/tags', 'inginious.frontend.pages.course_admin.tags.CourseTagsPage',
     r'/admin/([^/]+)/teams', 'inginious.frontend.pages.course_admin.team_edit.CourseEditTeam',
     r'/admin/([^/]+)/edit/classroom/([^/]+)', 'inginious.frontend.pages.course_admin.classroom_edit.CourseEditClassroom',
-    r'/admin/([^/]+)/edit/classrooms', 'inginious.frontend.pages.course_admin.classroom_edit.CourseEditClassroom',
     r'/admin/([^/]+)/edit/task/([^/]+)', 'inginious.frontend.pages.course_admin.task_edit.CourseEditTask',
     r'/admin/([^/]+)/edit/task/([^/]+)/files', 'inginious.frontend.pages.course_admin.task_edit_file.CourseTaskFiles',
     r'/admin/([^/]+)/edit/task/([^/]+)/dd_upload', 'inginious.frontend.pages.course_admin.task_edit_file.CourseTaskFileUpload',

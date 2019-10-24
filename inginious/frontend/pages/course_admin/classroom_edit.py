@@ -105,7 +105,7 @@ class CourseEditClassroom(INGIniousAdminPage):
                                                                                    other_students, users_info,
                                                                                    classroom, msg, error)
 
-    def GET_AUTH(self, courseid, classroomid=''):  # pylint: disable=arguments-differ
+    def GET_AUTH(self, courseid, classroomid):  # pylint: disable=arguments-differ
         """ Edit a classroom """
         course, __ = self.get_course_and_check_rights(courseid, allow_all_staff=True)
 
