@@ -95,7 +95,7 @@ $var Navbar: $:NavbarF()
             $for classroom in data[ind]:
                 <tr>
                     <td>
-                        <a href="$get_homepath()/admin/${course.get_id()}/classroom/$classroom['_id']">$classroom["description"]</a>
+                        $classroom["description"]
                     </td>
                     <td>$(len(classroom["students"]))</td>
                     <td>$classroom["tried"]</td>

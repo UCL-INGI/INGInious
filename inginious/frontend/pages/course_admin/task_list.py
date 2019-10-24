@@ -86,4 +86,5 @@ class CourseTaskListPage(INGIniousAdminPage):
                 result[entry["_id"]]["succeeded"] = entry["succeeded"]
         if "csv" in web.input():
             return make_csv(result)
-        return self.template_helper.get_renderer().course_admin.task_list(course, result, errors)
+
+        return self.template_helper.get_renderer().course_admin.task_list(course, result, errors, self.webdav_host)

@@ -61,7 +61,7 @@ $if len(old_input.tasks) == 1:
             <!-- classrooms -->
             <div class="col-sm-6 form-group">
                 <label>$:_("Classrooms")</label>
-                <select name="classroom" multiple size="7" class="form-control" id="select_classroom">
+                <select name="classrooms" multiple size="7" class="form-control" id="select_classroom">
                 $for c in classrooms:
                     <option value="$c['_id']" $('selected' if str(c['_id']) in old_input['classrooms'] else '')>$c["description"]</option>
                 </select>
