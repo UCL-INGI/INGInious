@@ -26,8 +26,14 @@ function teams_prepare_submit()
             tutors.push(tutor);
         });
 
+        var classrooms = [];
+        $(this).find(".classroom").each(function (i) {
+            var classroom = $(this).find("input").val();
+            classrooms.push(classroom);
+        });
+
         if (i > 0) {
-            var team = {_id: id, description: description, size: group_size, students: group_students, tutors: tutors};
+            var team = {_id: id, description: description, size: group_size, students: group_students, tutors: tutors, classrooms: classrooms};
             teams.push(team);
         }
     });
@@ -117,7 +123,7 @@ function teams_clean() {
     });
 }
 
-function tutor_add(username, complete_name, id) {
+function team_tutor_add(username, complete_name, id) {
 
     // Check if valid entry
     if(username==null)
@@ -146,7 +152,49 @@ function tutor_add(username, complete_name, id) {
         $("#tutor_list_" + id ).prop("disabled", true);
 }
 
-function tutor_remove(username, id) {
+function team_classroom_add(classroomid, description, id) {
+
+    // Check if valid entry
+    if(classroomid==null)
+        return;
+
+    var new_tutor_div = $("#classrooms_" + id + " li").last();
+    var clone = new_tutor_div.clone();
+
+    new_tutor_div.attr("id", classroomid);
+    new_tutor_div.find("span").text(description);
+
+    new_tutor_div.removeAttr("style");
+    new_tutor_div.addClass("classroom");
+    new_tutor_div.after(clone);
+
+    jQuery('<input/>', {
+            type:"hidden",
+            name:"classrooms",
+            value: classroomid
+        }).appendTo(new_tutor_div);
+
+    // Add entry in user list for user
+    // Remove user from select list and disable select if empty
+    $("#classroom_list_" + id + " option[value='"+ classroomid +"']").remove();
+    if(!$("#classroom_list_" + id ).val())
+        $("#classroom_list_" + id ).prop("disabled", true);
+}
+
+function team_classroom_remove(classroomid, id) {
+    // Put user back to select list
+    jQuery('<option/>', {
+        value: classroomid,
+        text:  $("#" + classroomid).text()
+    }).appendTo($("#classroom_list_" + id));
+
+    $("#classroom_list_" + id).prop("disabled", false);
+
+    // Remove user from user list
+    $("#" + classroomid).remove();
+}
+
+function team_tutor_remove(username, id) {
     // Put user back to select list
     jQuery('<option/>', {
         value: username,

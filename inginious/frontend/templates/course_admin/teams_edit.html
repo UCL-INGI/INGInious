@@ -1,4 +1,4 @@
-$def with (course,student_list,tutor_list,other_students,users_info,teams,msg,error)
+$def with (course,student_list,tutor_list,classroom_list,other_students,users_info,teams,msg,error)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -32,16 +32,6 @@ $var Navbar: $:NavbarF()
         </div>
     </div>
 </h2>
-    $if error:
-        <div class="alert alert-danger alert-dismissable" role="alert">
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-            $msg
-        </div>
-    $elif msg:
-        <div class="alert alert-success alert-dismissable" role="alert">
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-            $msg
-        </div>
 
 <div class="modal fade" id="upload_modal">
     <form method="post" enctype="multipart/form-data" action="#">
@@ -189,12 +179,12 @@ $elif msg:
                             </select>
                         </div>
                         <div class="col-sm-2 col-xs-6">
-                            <button type="button" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" onclick="javascript:tutor_add($$('#tutor_list_$(index+1)').val(), $$('#tutor_list_$(index+1) option:selected').text(), $(index+1))" class="form-control btn btn-xs btn-warning"><span class="fa fa-plus"></span> $:_("Add tutor")</button>
+                            <button type="button" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" onclick="javascript:team_tutor_add($$('#tutor_list_$(index+1)').val(), $$('#tutor_list_$(index+1) option:selected').text(), $(index+1))" class="form-control btn btn-xs btn-warning"><span class="fa fa-plus"></span> $:_("Add tutor")</button>
                         </div>
                     </div>
                 </div>
 
-                $if team and (len(team["students"])!=0):
+                $if team:
                     <ul class="list-group list-group-flush" id="tutors_$(index+1)">
                     $for user in (team["tutors"] + [None]):
                             $if user is None:
@@ -205,14 +195,56 @@ $elif msg:
                                     <span>$user ($user_manager.get_user_realname(user))</span>
                                     <input type="hidden" name="tutors" value="$user">
 
-                            <div class="pull-right"><a href="#" onclick="javascript:tutor_remove($$(this).rparent(2).attr('id'), $(index+1))"><i class="fa fa-trash-o fa-lg"></i></a></div>
+                            <div class="pull-right"><a href="#" onclick="javascript:team_tutor_remove($$(this).rparent(2).attr('id'), $(index+1))"><i class="fa fa-trash-o fa-lg"></i></a></div>
                         </li>
                     </ul>
                 $else:
                     <ul class="list-group list-group-flush" id="tutors_$(index+1)">
                         <li class="list-group-item" style="display:none;">
                             <span></span>
-                            <div class="pull-right"><a href="#" onclick="javascript:tutor_remove($$(this).rparent(2).attr('id'), $(index+1))"><i class="fa fa-trash-o fa-lg"></i></a></div>
+                            <div class="pull-right"><a href="#" onclick="javascript:team_tutor_remove($$(this).rparent(2).attr('id'), $(index+1))"><i class="fa fa-trash-o fa-lg"></i></a></div>
+                        </li>
+                    </ul>
+
+
+                <div class="card-header clearfix" role="tab">
+                    <div class="row">
+                        <div class="col-sm-6 col-xs-12">
+                            $:_("Restrict to classrooms")
+                        </div>
+                        <div class="col-sm-4 col-xs-6" style="text-align: center">
+                            <select type="text" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" class="form-control input-xs" id="classroom_list_$(index+1)" name="classroom_list_$index">
+                                $for key, classroom in classroom_list.items():
+                                    $if not team or classroom['_id'] not in team["classrooms"]:
+                                            <option value="$classroom['_id']">$classroom['description']</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-2 col-xs-6">
+                            <button type="button" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" onclick="javascript:team_classroom_add($$('#classroom_list_$(index+1)').val(), $$('#classroom_list_$(index+1) option:selected').text(), $(index+1))" class="form-control btn btn-xs btn-warning"><span class="fa fa-plus"></span> $:_("Add classroom")</button>
+                        </div>
+                    </div>
+                </div>
+
+                $if team:
+                    <ul class="list-group list-group-flush" id="classrooms_$(index+1)">
+                    $for classroom_id in (team["classrooms"] + [None]):
+                            $ classroom = classroom_list.get(classroom_id, None)
+                            $if classroom is None:
+                                <li class="list-group-item" style="display:none;">
+                                    <span></span>
+                            $else:
+                                <li class="list-group-item classroom" id="$classroom_id">
+                                    <span>$classroom["description"]</span>
+                                    <input type="hidden" name="classrooms" value="$classroom['_id']">
+
+                            <div class="pull-right"><a href="#" onclick="javascript:team_classroom_remove($$(this).rparent(2).attr('id'), $(index+1))"><i class="fa fa-trash-o fa-lg"></i></a></div>
+                        </li>
+                    </ul>
+                $else:
+                    <ul class="list-group list-group-flush" id="classrooms_$(index+1)">
+                        <li class="list-group-item" style="display:none;">
+                            <span></span>
+                            <div class="pull-right"><a href="#" onclick="javascript:team_classroom_remove($$(this).rparent(2).attr('id'), $(index+1))"><i class="fa fa-trash-o fa-lg"></i></a></div>
                         </li>
                     </ul>
 
