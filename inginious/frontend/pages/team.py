@@ -25,7 +25,6 @@ class TeamPage(INGIniousAuthPage):
         username = self.user_manager.session_username()
 
         error = False
-        change = False
         msg = ""
         data = web.input()
         if self.user_manager.has_staff_rights_on_course(course):
@@ -33,7 +32,6 @@ class TeamPage(INGIniousAuthPage):
         elif not self.user_manager.course_is_open_to_user(course, lti=False):
             return self.template_helper.get_renderer().course_unavailable()
         elif "register_group" in data:
-            change = True
             if course.can_students_choose_group():
 
                 team = self.database.teams.find_one(
@@ -56,7 +54,6 @@ class TeamPage(INGIniousAuthPage):
                 error = True
                 msg = _("You are not allowed to change group.")
         elif "unregister_group" in data:
-            change = True
             if course.can_students_choose_group():
                 team = self.database.teams.find_one({"courseid": course.get_id(), "students": username})
                 if team is not None:
@@ -74,9 +71,14 @@ class TeamPage(INGIniousAuthPage):
         for submission in last_submissions:
             submission["taskname"] = tasks[submission['taskid']].get_name(self.user_manager.session_language())
 
-        team = self.user_manager.get_course_user_team(course)
+        user_team = self.user_manager.get_course_user_team(course)
+        user_classrooms = [classroom["_id"] for classroom in self.database.classrooms.find({"courseid": courseid, "students": username})]
         teams = self.user_manager.get_course_teams(course)
+
+        student_allowed_in_team = lambda team: any(set(user_classrooms).intersection(team["classrooms"])) or not team["classrooms"]
+        allowed_teams = [team for team in teams if student_allowed_in_team(team)]
+
         users = self.user_manager.get_users_info(self.user_manager.get_course_registered_users(course))
 
-        return self.template_helper.get_renderer().team(course, last_submissions, teams, users,
-                                                            team, msg, error)
+        return self.template_helper.get_renderer().team(course, last_submissions, allowed_teams, teams, users,
+                                                            user_team, msg, error)

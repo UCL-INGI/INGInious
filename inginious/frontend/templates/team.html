@@ -1,4 +1,4 @@
-$def with (course,submissions,teams,users,myteam,msg, error)
+$def with (course,submissions,allowed_teams,teams,users,myteam,msg, error)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -130,6 +130,10 @@ $elif not len(teams):
     <div class="alert alert-info alert-dismissable" role="alert">
         $:_("No set team in this course. If you think this is a mistake, please contact the course administrator.")
     </div>
+$elif not len(allowed_teams):
+    <div class="alert alert-info alert-dismissable" role="alert">
+        $:_("Teams have been set up but you're not allowed to register in anyone. Please contact the course administrator.")
+    </div>
 $elif course.can_students_choose_group():
     <h3>$:_("My team")</h3>
     <div class="alert alert-warning alert-dismissable" role="alert">
@@ -141,9 +145,9 @@ $else:
         $:_("You're not yet registered to a team. Please contact the course administrator for more information.")
     </div>
 
-$if not len(teams) == 0:
+$if not len(allowed_teams) == 0:
     <h3 style="margin-bottom: 20px">$:_("All teams")</h3>
-    $for index, team in enumerate(teams):
+    $for index, team in enumerate(allowed_teams):
         <h4>$:_("Team : {}").format(team["description"])</h4>
         <div class="card mb-3">
             $if not myteam or username not in myteam["students"] and (team["size"]-len(group["students"])) > 0 and course.can_students_choose_group():
