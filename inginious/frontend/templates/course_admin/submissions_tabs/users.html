@@ -1,21 +1,21 @@
-$def with (user_data, classrooms, tutored_classrooms, tutored_users, checked_users, show_classrooms)
+$def with (user_data, audiences, tutored_audiences, tutored_users, checked_users, show_audiences)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
-$if show_classrooms:
-    <input type="hidden" name="filter_type" id="filter_type" value="classrooms"/>
+$if show_audiences:
+    <input type="hidden" name="filter_type" id="filter_type" value="audiences"/>
 $else:
     <input type="hidden" name="filter_type" id="filter_type" value="users"/>
 
-<div class="card mb-3" id="panel-download-user-classroom">
+<div class="card mb-3" id="panel-download-user-audience">
     <div class="card-header">
         <ul class="nav nav-tabs card-header-tabs" role="tablist">
             <li role="presentation" class="nav-item">
                 <a
-                $if not show_classrooms:
+                $if not show_audiences:
                     class="nav-link active"
                 $else:
                     class="nav-link"
@@ -23,11 +23,11 @@ $else:
             </li>
             <li role="presentation" class="nav-item">
                 <a
-                $if show_classrooms:
+                $if show_audiences:
                     class="nav-link active"
                 $else:
                     class="nav-link"
-                href="#classroom_filter" aria-controls="classroom_filter" role="tab" data-toggle="tab">$:_('Select classrooms')</a>
+                href="#audience_filter" aria-controls="audience_filter" role="tab" data-toggle="tab">$:_('Select audiences')</a>
             </li>
 
             <li class="nav-item">
@@ -36,18 +36,18 @@ $else:
             <li class="nav-item">
                 <button type="button" class="btn btn-primary btn-xs" onclick="download_page_select(false, this)">$:_("Deselect all")</button>
             </li>
-            $if len(tutored_users) != 0 or len(tutored_classrooms) != 0:
+            $if len(tutored_users) != 0 or len(tutored_audiences) != 0:
                 <li class="nav-item">
                     <button type="button" class="btn btn-primary btn-xs" onclick="download_page_select_tutor(this,
                             ['$'\',\''.join(tutored_users)'],
-                            ['$'\',\''.join(tutored_classrooms)'])">Tutored only</button>
+                            ['$'\',\''.join(tutored_audiences)'])">Tutored only</button>
                 </li>
         </ul>
     </div>
 
     <div class="tab-content">
         <div role="tabpanel" class="tab-pane
-            $if not show_classrooms:
+            $if not show_audiences:
                 active
         " id="user_filter">
             $if len(user_data) == 0:
@@ -62,16 +62,16 @@ $else:
                 </ul>
         </div>
         <div role="tabpanel" class="tab-pane
-            $if show_classrooms:
+            $if show_audiences:
                 active
-        " id="classroom_filter">
-            $if len(classrooms) == 0:
-                <div class="alert alert-warning">$:_('No classroom to display')</div>
+        " id="audience_filter">
+            $if len(audiences) == 0:
+                <div class="alert alert-warning">$:_('No audience to display')</div>
             $else:
                 <ul class="list-group list-group-flush checked-list-box">
-                    $for classroom in classrooms:
-                        <li class="list-group-item" data-value="$classroom['_id']" data-name="classrooms" data-checked="$('true' if classroom['checked'] else 'false')">
-                        $classroom['description']
+                    $for audience in audiences:
+                        <li class="list-group-item" data-value="$audience['_id']" data-name="audiences" data-checked="$('true' if audience['checked'] else 'false')">
+                        $audience['description']
                         </li>
                 </ul>
         </div>
@@ -79,9 +79,9 @@ $else:
 </div>
 <script type="text/javascript">
     $$(function(){
-        $$('#panel-download-user-classroom').find('a[data-toggle="tab"]').on('shown.bs.tab', function(e)
+        $$('#panel-download-user-audience').find('a[data-toggle="tab"]').on('shown.bs.tab', function(e)
         {
-            if($$(e.target).attr('href') == "#classroom_filter") $$('#filter_type').val('classrooms');
+            if($$(e.target).attr('href') == "#audience_filter") $$('#filter_type').val('audiences');
             else $$('#filter_type').val('users');
         });
     });

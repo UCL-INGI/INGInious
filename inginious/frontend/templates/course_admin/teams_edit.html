@@ -1,4 +1,4 @@
-$def with (course,student_list,tutor_list,classroom_list,other_students,users_info,teams,msg,error)
+$def with (course,student_list,tutor_list,audience_list,other_students,users_info,teams,msg,error)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -98,7 +98,7 @@ $elif msg:
 </div>
 
 <form method="post" enctype="multipart/form-data" class="form-horizontal">
-    <input type="hidden" id="classrooms" name="classrooms" value="false" />
+    <input type="hidden" id="audiences" name="audiences" value="false" />
     <div id="groups" class='list-group'>
         <div class="card border-warning mb-3 group">
             <div class="card-header bg-warning text-white clearfix" role="tab">
@@ -210,41 +210,41 @@ $elif msg:
                 <div class="card-header clearfix" role="tab">
                     <div class="row">
                         <div class="col-sm-6 col-xs-12">
-                            $:_("Restrict to classrooms")
+                            $:_("Restrict to audiences")
                         </div>
                         <div class="col-sm-4 col-xs-6" style="text-align: center">
-                            <select type="text" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" class="form-control input-xs" id="classroom_list_$(index+1)" name="classroom_list_$index">
-                                $for key, classroom in classroom_list.items():
-                                    $if not team or classroom['_id'] not in team["classrooms"]:
-                                            <option value="$classroom['_id']">$classroom['description']</option>
+                            <select type="text" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" class="form-control input-xs" id="audience_list_$(index+1)" name="audience_list_$index">
+                                $for key, audience in audience_list.items():
+                                    $if not team or audience['_id'] not in team["audiences"]:
+                                            <option value="$audience['_id']">$audience['description']</option>
                             </select>
                         </div>
                         <div class="col-sm-2 col-xs-6">
-                            <button type="button" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" onclick="javascript:team_classroom_add($$('#classroom_list_$(index+1)').val(), $$('#classroom_list_$(index+1) option:selected').text(), $(index+1))" class="form-control btn btn-xs btn-warning"><span class="fa fa-plus"></span> $:_("Add classroom")</button>
+                            <button type="button" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" onclick="javascript:team_audience_add($$('#audience_list_$(index+1)').val(), $$('#audience_list_$(index+1) option:selected').text(), $(index+1))" class="form-control btn btn-xs btn-warning"><span class="fa fa-plus"></span> $:_("Add audience")</button>
                         </div>
                     </div>
                 </div>
 
                 $if team:
-                    <ul class="list-group list-group-flush" id="classrooms_$(index+1)">
-                    $for classroom_id in (team["classrooms"] + [None]):
-                            $ classroom = classroom_list.get(classroom_id, None)
-                            $if classroom is None:
+                    <ul class="list-group list-group-flush" id="audiences_$(index+1)">
+                    $for audience_id in (team["audiences"] + [None]):
+                            $ audience = audience_list.get(audience_id, None)
+                            $if audience is None:
                                 <li class="list-group-item" style="display:none;">
                                     <span></span>
                             $else:
-                                <li class="list-group-item classroom" id="$classroom_id">
-                                    <span>$classroom["description"]</span>
-                                    <input type="hidden" name="classrooms" value="$classroom['_id']">
+                                <li class="list-group-item audience" id="$audience_id">
+                                    <span>$audience["description"]</span>
+                                    <input type="hidden" name="audiences" value="$audience['_id']">
 
-                            <div class="pull-right"><a href="#" onclick="javascript:team_classroom_remove($$(this).rparent(2).attr('id'), $(index+1))"><i class="fa fa-trash-o fa-lg"></i></a></div>
+                            <div class="pull-right"><a href="#" onclick="javascript:team_audience_remove($$(this).rparent(2).attr('id'), $(index+1))"><i class="fa fa-trash-o fa-lg"></i></a></div>
                         </li>
                     </ul>
                 $else:
-                    <ul class="list-group list-group-flush" id="classrooms_$(index+1)">
+                    <ul class="list-group list-group-flush" id="audiences_$(index+1)">
                         <li class="list-group-item" style="display:none;">
                             <span></span>
-                            <div class="pull-right"><a href="#" onclick="javascript:team_classroom_remove($$(this).rparent(2).attr('id'), $(index+1))"><i class="fa fa-trash-o fa-lg"></i></a></div>
+                            <div class="pull-right"><a href="#" onclick="javascript:team_audience_remove($$(this).rparent(2).attr('id'), $(index+1))"><i class="fa fa-trash-o fa-lg"></i></a></div>
                         </li>
                     </ul>
 

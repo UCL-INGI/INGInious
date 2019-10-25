@@ -1,4 +1,4 @@
-$def with (course, tasks, user_data, classrooms, tutored_classrooms, tutored_users, checked_tasks, checked_users, valid_formats, chosen_format, show_classrooms)
+$def with (course, tasks, user_data, audiences, tutored_audiences, tutored_users, checked_tasks, checked_users, valid_formats, chosen_format, show_audiences)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -24,7 +24,7 @@ $var Navbar: $:NavbarF()
 
 <form method="post" action="$get_homepath()/admin/$course.get_id()/download">
     $:include.course_admin.submissions_tabs.tasks(tasks, checked_tasks, "download")
-    $:include.course_admin.submissions_tabs.users(user_data, classrooms, tutored_classrooms, tutored_users, checked_users, show_classrooms)
+    $:include.course_admin.submissions_tabs.users(user_data, audiences, tutored_audiences, tutored_users, checked_users, show_audiences)
 
     <div class="card mb-3">
         <div class="card-header">
@@ -51,7 +51,7 @@ $var Navbar: $:NavbarF()
                         <li>
                             <label>
                                 <input type="radio" name="type" value="single" checked="checked"/>
-                                $:_("Download only the evaluation submission for each task/user")/$(_('classroom'))
+                                $:_("Download only the evaluation submission for each task/user")/$(_('audience'))
                             </label>
                         </li>
                         <li>

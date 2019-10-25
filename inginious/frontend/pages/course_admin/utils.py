@@ -60,42 +60,42 @@ class INGIniousSubmissionAdminPage(INGIniousAdminPage):
             if not id_checker(i):
                 raise web.notfound()
 
-    def get_selected_submissions(self, course, filter_type, selected_tasks, users, classrooms, stype):
+    def get_selected_submissions(self, course, filter_type, selected_tasks, users, audiences, stype):
         """
         Returns the submissions that have been selected by the admin
         :param course: course
-        :param filter_type: users or classrooms
+        :param filter_type: users or audiences
         :param selected_tasks: selected tasks id
         :param users: selected usernames
-        :param classrooms: selected classrooms
+        :param audiences: selected audiences
         :param stype: single or all submissions
         :return:
         """
         if filter_type == "users":
             self._validate_list(users)
-            classrooms = list(self.database.classrooms.find({"courseid": course.get_id(),
+            audiences = list(self.database.audiences.find({"courseid": course.get_id(),
                                                                  "students": {"$in": users}}))
 
         else:
-            self._validate_list(classrooms)
-            classrooms = list(
-                self.database.classrooms.find({"_id": {"$in": [ObjectId(cid) for cid in classrooms]}}))
+            self._validate_list(audiences)
+            audiences = list(
+                self.database.audiences.find({"_id": {"$in": [ObjectId(cid) for cid in audiences]}}))
 
 
         if stype == "single":
-            user_tasks = list(self.database.user_tasks.find({"username": {"$in": list(classrooms.keys())},
+            user_tasks = list(self.database.user_tasks.find({"username": {"$in": list(audiences.keys())},
                                                              "taskid": {"$in": selected_tasks},
                                                              "courseid": course.get_id()}))
 
             submissionsid = [user_task['submissionid'] for user_task in user_tasks if user_task['submissionid'] is not None]
             submissions = list(self.database.submissions.find({"_id": {"$in": submissionsid}}))
         else:
-            submissions = list(self.database.submissions.find({"username": {"$in": list(classrooms.keys())},
+            submissions = list(self.database.submissions.find({"username": {"$in": list(audiences.keys())},
                                                                "taskid": {"$in": selected_tasks},
                                                                "courseid": course.get_id(),
                                                                "status": {"$in": ["done", "error"]}}))
 
-        return submissions, classrooms
+        return submissions, audiences
 
     def show_page_params(self, course, user_input):
         tasks = sorted(list(course.get_tasks().items()), key=lambda task: (task[1].get_order(), task[1].get_id()))
@@ -106,39 +106,39 @@ class INGIniousSubmissionAdminPage(INGIniousAdminPage):
         user_data = OrderedDict(
             [(username, user[0] if user is not None else username) for username, user in users.items()])
 
-        classrooms = self.user_manager.get_course_classrooms(course)
-        tutored_classrooms = [str(classroom["_id"]) for classroom in classrooms if
-                                self.user_manager.session_username() in classroom["tutors"]]
+        audiences = self.user_manager.get_course_audiences(course)
+        tutored_audiences = [str(audience["_id"]) for audience in audiences if
+                                self.user_manager.session_username() in audience["tutors"]]
 
         tutored_users = []
-        for classroom in classrooms:
-            if self.user_manager.session_username() in classroom["tutors"]:
-                tutored_users += classroom["students"]
+        for audience in audiences:
+            if self.user_manager.session_username() in audience["tutors"]:
+                tutored_users += audience["students"]
 
         checked_tasks = list(course.get_tasks().keys())
         checked_users = list(user_data.keys())
-        checked_classrooms = [classroom['_id'] for classroom in classrooms]
-        show_classrooms = False
+        checked_audiences = [audience['_id'] for audience in audiences]
+        show_audiences = False
 
         if "tasks" in user_input:
             checked_tasks = user_input.tasks.split(',')
         if "users" in user_input:
             checked_users = user_input.users.split(',')
-        if "classrooms" in user_input:
-            checked_classrooms = user_input.classrooms.split(',')
-            show_classrooms = True
+        if "audiences" in user_input:
+            checked_audiences = user_input.audiences.split(',')
+            show_audiences = True
         if "tutored" in user_input:
-            if user_input.tutored == "classrooms":
-                checked_classrooms = tutored_classrooms
-                show_classrooms = True
+            if user_input.tutored == "audiences":
+                checked_audiences = tutored_audiences
+                show_audiences = True
             elif user_input.tutored == "users":
                 checked_users = tutored_users
-                show_classrooms = True
+                show_audiences = True
 
-        for classroom in classrooms:
-            classroom['checked'] = str(classroom['_id']) in checked_classrooms
+        for audience in audiences:
+            audience['checked'] = str(audience['_id']) in checked_audiences
 
-        return tasks, user_data, classrooms, tutored_classrooms, tutored_users, checked_tasks, checked_users, show_classrooms
+        return tasks, user_data, audiences, tutored_audiences, tutored_users, checked_tasks, checked_users, show_audiences
 
 class UnicodeWriter(object):
     """
@@ -238,7 +238,7 @@ def get_menu(course, current, renderer, plugin_manager, user_manager):
 
     default_entries += [("stats", "<i class='fa fa-area-chart fa-fw'></i>&nbsp; " + _("Stats")),
                         ("students", "<i class='fa fa-user fa-fw'></i>&nbsp; " + _("Students")),
-                        ("classrooms", "<i class='fa fa-group fa-fw'></i>&nbsp; " + _("Classrooms"))]
+                        ("audiences", "<i class='fa fa-group fa-fw'></i>&nbsp; " + _("Audiences"))]
 
     if not course.is_lti():
         default_entries += [("teams", "<i class='fa fa-group fa-fw'></i>&nbsp; " +_("Teams"))]

@@ -17,14 +17,6 @@ Subpackages
 Submodules
 ----------
 
-inginious.frontend.pages.classroom module
---------------------------------------------------
-
-.. automodule:: inginious.frontend.pages.classroom
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 inginious.frontend.pages.team module
 --------------------------------------------------
 

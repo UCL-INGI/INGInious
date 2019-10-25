@@ -19,9 +19,9 @@ class CourseDownloadSubmissions(INGIniousSubmissionAdminPage):
     def valid_formats(self):
         dict = {
             "taskid/username": _("taskid/username"),
-            "taskid/classroom": _("taskid/classroom"),
+            "taskid/audience": _("taskid/audience"),
             "username/taskid": _("username/taskid"),
-            "classroom/taskid": _("classroom/taskid")
+            "audience/taskid": _("audience/taskid")
         }
         return list(dict.keys())
 
@@ -29,7 +29,7 @@ class CourseDownloadSubmissions(INGIniousSubmissionAdminPage):
         """ GET request """
         course, __ = self.get_course_and_check_rights(courseid)
 
-        user_input = web.input(tasks=[], classrooms=[], users=[])
+        user_input = web.input(tasks=[], audiences=[], users=[])
 
         if "filter_type" not in user_input or "type" not in user_input or "format" not in user_input or user_input.format not in self.valid_formats():
             raise web.notfound()
@@ -40,13 +40,13 @@ class CourseDownloadSubmissions(INGIniousSubmissionAdminPage):
                 raise web.notfound()
 
         # Load submissions
-        submissions, classrooms = self.get_selected_submissions(course, user_input.filter_type, user_input.tasks,
-                                                    user_input.users, user_input.classrooms, user_input.type)
+        submissions, audiences = self.get_selected_submissions(course, user_input.filter_type, user_input.tasks,
+                                                    user_input.users, user_input.audiences, user_input.type)
 
         self._logger.info("Downloading %d submissions from course %s", len(submissions), courseid)
         web.header('Content-Type', 'application/x-gzip', unique=True)
         web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)
-        return self.submission_manager.get_submission_archive(submissions, list(reversed(user_input.format.split('/'))), classrooms)
+        return self.submission_manager.get_submission_archive(submissions, list(reversed(user_input.format.split('/'))), audiences)
 
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
@@ -69,17 +69,17 @@ class CourseDownloadSubmissions(INGIniousSubmissionAdminPage):
 
         # Else, display the complete page
 
-        tasks, user_data, classrooms, tutored_classrooms,\
-        tutored_users, checked_tasks, checked_users, show_classrooms = self.show_page_params(course, user_input)
+        tasks, user_data, audiences, tutored_audiences,\
+        tutored_users, checked_tasks, checked_users, show_audiences = self.show_page_params(course, user_input)
 
         chosen_format = self.valid_formats()[0]
         if "format" in user_input and user_input.format in self.valid_formats():
             chosen_format = user_input.format
-            if "classroom" in chosen_format:
-                show_classrooms = True
+            if "audience" in chosen_format:
+                show_audiences = True
 
-        return self.template_helper.get_renderer().course_admin.download(course, tasks, user_data, classrooms,
-                                                                         tutored_classrooms, tutored_users,
+        return self.template_helper.get_renderer().course_admin.download(course, tasks, user_data, audiences,
+                                                                         tutored_audiences, tutored_users,
                                                                          checked_tasks, checked_users,
                                                                          self.valid_formats(), chosen_format,
-                                                                         show_classrooms)
+                                                                         show_audiences)

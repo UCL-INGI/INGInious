@@ -81,8 +81,8 @@ subdirectory.
     This field is only needed if there is code to correct; a multiple-choice question does
     not need it. This environment will be used by default for the student containers.
 
--   ``groups`` allows to indicate if the submission is to be done individually or per groups/teams.
-    (see Classrooms and Teams).
+-   ``groups`` allows to indicate if the submission is to be done individually or per teams.
+    (see Teams).
 
 -   ``network_grading`` indicates if the grading container should have access to the net. This
     is not the case by default.

@@ -22,8 +22,8 @@ class CourseEditTeam(INGIniousAdminPage):
     def get_user_lists(self, course):
         """ Get the available student and tutor lists for team edition"""
         tutor_list = course.get_staff()
-        classroom_list = self.user_manager.get_course_classrooms(course)
-        classroom_list = {classroom["_id"]: classroom for classroom in classroom_list}
+        audience_list = self.user_manager.get_course_audiences(course)
+        audience_list = {audience["_id"]: audience for audience in audience_list}
 
         student_list = self.user_manager.get_course_registered_users(course, False)
         users_info = self.user_manager.get_users_info(student_list + tutor_list)
@@ -41,9 +41,9 @@ class CourseEditTeam(INGIniousAdminPage):
         other_students = [entry for entry in student_list if entry not in teams_list]
         other_students = sorted(other_students, key=lambda val: (("0"+users_info[val][0]) if users_info[val] else ("1"+val)))
 
-        return student_list, tutor_list, classroom_list, other_students, users_info
+        return student_list, tutor_list, audience_list, other_students, users_info
 
-    def update_team(self, course, teamid, new_data, classroom_students):
+    def update_team(self, course, teamid, new_data, audience_students):
         """ Update team and returns a list of errored students"""
 
         student_list = self.user_manager.get_course_registered_users(course, False)
@@ -64,8 +64,8 @@ class CourseEditTeam(INGIniousAdminPage):
         else:
             team = self.database.teams.find_one({"_id": ObjectId(teamid), "courseid": course.get_id()})
 
-        # Convert classroom ids to ObjectId
-        new_data["classrooms"] = [ObjectId(s) for s in new_data["classrooms"]]
+        # Convert audience ids to ObjectId
+        new_data["audiences"] = [ObjectId(s) for s in new_data["audiences"]]
 
         # Check tutors
         new_data["tutors"] = [tutor for tutor in new_data["tutors"] if tutor in course.get_staff()]
@@ -75,8 +75,8 @@ class CourseEditTeam(INGIniousAdminPage):
         if len(new_data["students"]) <= new_data["size"]:
             # Check the students
             for student in new_data["students"]:
-                student_allowed_in_team = any(set(classroom_students.get(student, [])).intersection(new_data["classrooms"]))
-                if student in student_list and (student_allowed_in_team or not new_data["classrooms"]):
+                student_allowed_in_team = any(set(audience_students.get(student, [])).intersection(new_data["audiences"]))
+                if student in student_list and (student_allowed_in_team or not new_data["audiences"]):
                     # Remove user from the other team
                     self.database.teams.find_one_and_update({"courseid": course.get_id(), "students": student}, {"$pull": {"students": student}})
                     students.append(student)
@@ -87,7 +87,7 @@ class CourseEditTeam(INGIniousAdminPage):
 
         team = self.database.teams.find_one_and_update(
             {"_id": ObjectId(teamid)},
-            {"$set": {"description": new_data["description"], "classrooms": new_data["classrooms"], "size": new_data["size"],
+            {"$set": {"description": new_data["description"], "audiences": new_data["audiences"], "size": new_data["size"],
                       "students": students, "tutors": new_data["tutors"]}}, return_document=ReturnDocument.AFTER)
 
         return team, errored_students
@@ -95,9 +95,9 @@ class CourseEditTeam(INGIniousAdminPage):
     def display_page(self, course, msg='', error=False):
         # If no team id specified, use the groups only template
         teams = self.user_manager.get_course_teams(course)
-        student_list, tutor_list, classroom_list, other_students, users_info = self.get_user_lists(course)
+        student_list, tutor_list, audience_list, other_students, users_info = self.get_user_lists(course)
         return self.template_helper.get_renderer().course_admin.teams_edit(course, student_list, tutor_list,
-                                                                           classroom_list, other_students,
+                                                                           audience_list, other_students,
                                                                            users_info, teams, msg, error)
 
     def GET_AUTH(self, courseid, teamid=''):  # pylint: disable=arguments-differ
@@ -113,7 +113,8 @@ class CourseEditTeam(INGIniousAdminPage):
             teams = [{"description": team["description"],
                            "students": team["students"],
                            "size": team["size"],
-                           "tutors": team["tutors"]} for team in
+                           "tutors": team["tutors"],
+                            "audiences": [str(c) for c in team["audiences"]]} for team in
                           self.user_manager.get_course_teams(course)]
 
             return yaml.dump(teams)
@@ -127,11 +128,11 @@ class CourseEditTeam(INGIniousAdminPage):
         if course.is_lti():
             raise web.notfound()
 
-        classroom_list = self.user_manager.get_course_classrooms(course)
-        classroom_students = {}
-        for classroom in classroom_list:
-            for stud in classroom["students"]:
-                classroom_students.setdefault(stud, []).append(classroom["_id"])
+        audience_list = self.user_manager.get_course_audiences(course)
+        audience_students = {}
+        for audience in audience_list:
+            for stud in audience["students"]:
+                audience_students.setdefault(stud, []).append(audience["_id"])
 
         msg=''
         error = False
@@ -153,7 +154,7 @@ class CourseEditTeam(INGIniousAdminPage):
                                                                  }})
 
                     self.database.teams.delete_one({"_id": ObjectId(classid)})
-                    msg = _("Classroom updated.")
+                    msg = _("Audience updated.")
 
             if teamid and teamid in data["delete"]:
                 raise web.seeother(self.app.get_homepath() + "/admin/" + courseid + "/teams")
@@ -170,7 +171,7 @@ class CourseEditTeam(INGIniousAdminPage):
                 new_team['_id'] = new_team['_id'] if '_id' in new_team else 'None'
 
                 # Update the team
-                team, errors = self.update_team(course, new_team['_id'], new_team, classroom_students)
+                team, errors = self.update_team(course, new_team['_id'], new_team, audience_students)
                 errored_students += errors
 
             if len(errored_students) > 0:

@@ -41,7 +41,7 @@ class TeamPage(INGIniousAuthPage):
                     team["students"].remove(username)
                     self.database.teams.replace_one({"courseid": course.get_id(), "students": username}, team)
 
-                # Add student in the classroom and unique group
+                # Add student in the audience and unique group
                 new_team = self.database.teams.find_one_and_update({"_id": ObjectId(data["register_group"])},
                                                              {"$push": {"students": username}})
 
@@ -72,10 +72,10 @@ class TeamPage(INGIniousAuthPage):
             submission["taskname"] = tasks[submission['taskid']].get_name(self.user_manager.session_language())
 
         user_team = self.user_manager.get_course_user_team(course)
-        user_classrooms = [classroom["_id"] for classroom in self.database.classrooms.find({"courseid": courseid, "students": username})]
+        user_audiences = [audience["_id"] for audience in self.database.audiences.find({"courseid": courseid, "students": username})]
         teams = self.user_manager.get_course_teams(course)
 
-        student_allowed_in_team = lambda team: any(set(user_classrooms).intersection(team["classrooms"])) or not team["classrooms"]
+        student_allowed_in_team = lambda team: any(set(user_audiences).intersection(team["audiences"])) or not team["audiences"]
         allowed_teams = [team for team in teams if student_allowed_in_team(team)]
 
         users = self.user_manager.get_users_info(self.user_manager.get_course_registered_users(course))

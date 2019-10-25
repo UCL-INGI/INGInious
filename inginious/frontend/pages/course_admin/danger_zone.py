@@ -20,7 +20,7 @@ from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 
 
 class CourseDangerZonePage(INGIniousAdminPage):
-    """ Course administration page: list of classrooms """
+    """ Course administration page: list of audiences """
     _logger = logging.getLogger("inginious.webapp.danger_zone")
 
     def wipe_course(self, courseid):
@@ -31,7 +31,7 @@ class CourseDangerZonePage(INGIniousAdminPage):
                 if key in submission and type(submission[key]) == bson.objectid.ObjectId and gridfs.exists(submission[key]):
                     gridfs.delete(submission[key])
 
-        self.database.classrooms.remove({"courseid": courseid})
+        self.database.audiences.remove({"courseid": courseid})
         self.database.teams.remove({"courseid": courseid})
         self.database.user_tasks.remove({"courseid": courseid})
         self.database.submissions.remove({"courseid": courseid})
@@ -46,8 +46,8 @@ class CourseDangerZonePage(INGIniousAdminPage):
             os.makedirs(os.path.dirname(filepath))
 
         with zipfile.ZipFile(filepath, "w", allowZip64=True) as zipf:
-            classrooms = self.database.classrooms.find({"courseid": courseid})
-            zipf.writestr("classrooms.json", bson.json_util.dumps(classrooms), zipfile.ZIP_DEFLATED)
+            audiences = self.database.audiences.find({"courseid": courseid})
+            zipf.writestr("audiences.json", bson.json_util.dumps(audiences), zipfile.ZIP_DEFLATED)
 
             teams = self.database.teams.find({"courseid": courseid})
             zipf.writestr("teams.json", bson.json_util.dumps(teams), zipfile.ZIP_DEFLATED)
@@ -83,9 +83,9 @@ class CourseDangerZonePage(INGIniousAdminPage):
         filepath = os.path.join(self.backup_dir, courseid, backup + ".zip")
         with zipfile.ZipFile(filepath, "r") as zipf:
 
-            classrooms = bson.json_util.loads(zipf.read("classrooms.json").decode("utf-8"))
-            if len(classrooms) > 0:
-                self.database.classrooms.insert(classrooms)
+            audiences = bson.json_util.loads(zipf.read("audiences.json").decode("utf-8"))
+            if len(audiences) > 0:
+                self.database.audiences.insert(audiences)
 
             teams = bson.json_util.loads(zipf.read("teams.json").decode("utf-8"))
             if len(teams) > 0:

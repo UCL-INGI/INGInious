@@ -22,8 +22,8 @@ class CourseSubmissionsPage(INGIniousAdminPage):
 
     _allowed_sort = ["submitted_on", "username", "grade", "taskid"]
     _allowed_sort_name = [_("Submitted on"), _("User"), _("Grade"), _("Task id")]
-    _valid_formats = ["taskid/username", "taskid/classroom", "username/taskid", "classroom/taskid"]
-    _valid_formats_name = [_("taskid/username"), _("taskid/classroom"), _("username/taskid"), _("classroom/taskid")]
+    _valid_formats = ["taskid/username", "taskid/audience", "username/taskid", "audience/taskid"]
+    _valid_formats_name = [_("taskid/username"), _("taskid/audience"), _("username/taskid"), _("audience/taskid")]
     _trunc_limit = 500  # To trunc submissions if there are too many submissions
 
     def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
@@ -58,11 +58,11 @@ class CourseSubmissionsPage(INGIniousAdminPage):
         msgs = msgs if msgs else []
         
         user_input = self.get_input()
-        data, classroom = self.get_submissions(course, user_input)  # ONLY classrooms user wants to query
+        data, audience = self.get_submissions(course, user_input)  # ONLY audiences user wants to query
         if len(data) == 0 and not self.show_collapse(user_input):
             msgs.append(_("No submissions found"))
 
-        classrooms = self.user_manager.get_course_classrooms(course)  # ALL classrooms of the course
+        audiences = self.user_manager.get_course_audiences(course)  # ALL audiences of the course
         users = self.get_users(course)  # All users of the course
         tasks = course.get_tasks()  # All tasks of the course
 
@@ -81,7 +81,7 @@ class CourseSubmissionsPage(INGIniousAdminPage):
             download_type = web.input(download_type=self._valid_formats[0]).download_type
             if download_type not in self._valid_formats:
                 download_type = self._valid_formats[0]
-            return self.submission_manager.get_submission_archive(data, list(reversed(download_type.split('/'))), classrooms)
+            return self.submission_manager.get_submission_archive(data, list(reversed(download_type.split('/'))), audiences)
 
         if user_input.limit != '' and user_input.limit.isdigit():
             data = data[:int(user_input.limit)]
@@ -89,12 +89,12 @@ class CourseSubmissionsPage(INGIniousAdminPage):
         if len(data) > self._trunc_limit:
             msgs.append(_("The result contains more than {0} submissions. The displayed submissions are truncated.\n").format(self._trunc_limit))
             data = data[:self._trunc_limit]
-        return self.template_helper.get_renderer().course_admin.submissions(course, tasks, users, classrooms, data, statistics, user_input, self._allowed_sort, self._allowed_sort_name, self._valid_formats, msgs, self.show_collapse(user_input))
+        return self.template_helper.get_renderer().course_admin.submissions(course, tasks, users, audiences, data, statistics, user_input, self._allowed_sort, self._allowed_sort_name, self._valid_formats, msgs, self.show_collapse(user_input))
 
     def show_collapse(self, user_input):
         """ Return True is we should display the main collapse. """
-        # If users has not specified any user/classroom, there are no submissions so we display the main collapse.
-        if len(user_input['users']) == 0 and len(user_input['classrooms']) == 0:
+        # If users has not specified any user/audience, there are no submissions so we display the main collapse.
+        if len(user_input['users']) == 0 and len(user_input['audiences']) == 0:
             return True
         return False
 
@@ -107,10 +107,10 @@ class CourseSubmissionsPage(INGIniousAdminPage):
     def get_submissions(self, course, user_input):
         """ Returns the list of submissions and corresponding aggragations based on inputs """
 
-        # Build lists of wanted users based on classrooms and specific users
-        list_classroom_id = [ObjectId(o) for o in user_input.classrooms]
-        classroom = list(self.database.classrooms.find({"_id": {"$in": list_classroom_id}}))
-        more_username = [s["students"] for s in classroom]  # Extract usernames of students
+        # Build lists of wanted users based on audiences and specific users
+        list_audience_id = [ObjectId(o) for o in user_input.audiences]
+        audience = list(self.database.audiences.find({"_id": {"$in": list_audience_id}}))
+        more_username = [s["students"] for s in audience]  # Extract usernames of students
         more_username = [y for x in more_username for y in x]  # Flatten lists
         
         # Get tasks based on categories
@@ -167,14 +167,14 @@ class CourseSubmissionsPage(INGIniousAdminPage):
         # Keep best submissions
         if "eval" in user_input or ("eval_dl" in user_input and "download" in web.input()):
             data = [d for d in data if d["best"]]
-        return data, classroom
+        return data, audience
 
     def get_input(self):
         """ Loads web input, initialise default values and check/sanitise some inputs from users """
         user_input = web.input(
             users=[],
             tasks=[],
-            classrooms=[],
+            audiences=[],
             org_tags=[],
             grade_min='',
             grade_max='',
@@ -189,7 +189,7 @@ class CourseSubmissionsPage(INGIniousAdminPage):
         )
 
         # Sanitise inputs
-        for item in itertools.chain(user_input.tasks, user_input.classrooms):
+        for item in itertools.chain(user_input.tasks, user_input.audiences):
             if not id_checker(item):
                 raise web.notfound()
 

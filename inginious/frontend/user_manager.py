@@ -645,19 +645,19 @@ class UserManager:
 
         return (course_registered and task_accessible and group_filter and enough_tokens) or staff_right
 
-    def get_course_classrooms(self, course):
-        """ Returns a list of the course classrooms"""
-        return natsorted(list(self._database.classrooms.find({"courseid": course.get_id()})), key=lambda x: x["description"])
+    def get_course_audiences(self, course):
+        """ Returns a list of the course audiences"""
+        return natsorted(list(self._database.audiences.find({"courseid": course.get_id()})), key=lambda x: x["description"])
 
     def get_course_teams(self, course):
         """ Returns a list of the course teams"""
         return natsorted(list(self._database.teams.find({"courseid": course.get_id()})), key=lambda x: x["description"])
 
     def get_course_user_team(self, course, username=None):
-        """ Returns the classroom whose username belongs to
+        """ Returns the audience whose username belongs to
         :param course: a Course object
         :param username: The username of the user that we want to register. If None, uses self.session_username()
-        :return: the classroom description
+        :return: the audience description
         """
         if username is None:
             username = self.session_username()
@@ -705,7 +705,7 @@ class UserManager:
             username = self.session_username()
 
         # If user doesn't belong to a group, will ensure correct deletion
-        self._database.classrooms.find_one_and_update(
+        self._database.audiences.find_one_and_update(
             {"courseid": course.get_id(), "students": username},
             {"$pull": {"students": username}})
 

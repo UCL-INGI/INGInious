@@ -201,7 +201,7 @@ $def ColumnF():
                                 $if task.get_evaluate() == 'student' and students == submission['username']:
                                     <a class="allowed" title="Select for evaluation" data-toggle="tooltip" data-placement="right"><i class="fa fa-star fa-fw"></i></a>&nbsp;
                                 $elif task.get_evaluate() == 'student':
-                                    <a class="notallowed" title="Not the same $('group' if course.use_classrooms() else 'team')" data-toggle="tooltip" data-placement="right"><i class="fa fa-minus-circle fa-fw"></i></a>&nbsp;
+                                    <a class="notallowed" title="Not the same team" data-toggle="tooltip" data-placement="right"><i class="fa fa-minus-circle fa-fw"></i></a>&nbsp;
 
                             <!-- Tags -->
                             $# This display a badge with the number of validated tags in each row of the submission history.

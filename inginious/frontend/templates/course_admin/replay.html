@@ -1,4 +1,4 @@
-$def with (course, tasks, user_data, classrooms, tutored_classrooms, tutored_users, checked_tasks, checked_users, show_classrooms, msg, error)
+$def with (course, tasks, user_data, audiences, tutored_audiences, tutored_users, checked_tasks, checked_users, show_audiences, msg, error)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -34,7 +34,7 @@ $elif msg:
 
 <form method="post" action="$get_homepath()/admin/$course.get_id()/replay">
     $:include.course_admin.submissions_tabs.tasks(tasks, checked_tasks, "replay")
-    $:include.course_admin.submissions_tabs.users(user_data, classrooms, tutored_classrooms, tutored_users, checked_users, show_classrooms)
+    $:include.course_admin.submissions_tabs.users(user_data, audiences, tutored_audiences, tutored_users, checked_users, show_audiences)
 
     <div class="card mb-3">
         <div class="card-header">

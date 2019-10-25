@@ -25,10 +25,10 @@ class CourseStudentListPage(INGIniousAdminPage):
         if "remove" in data:
             try:
                 if data["type"] == "all":
-                    classrooms = list(self.database.classrooms.find({"courseid": courseid}))
-                    for classroom in classrooms:
-                        classroom["students"] = []
-                        self.database.classrooms.replace_one({"_id": classroom["_id"]}, classroom)
+                    audiences = list(self.database.audiences.find({"courseid": courseid}))
+                    for audience in audiences:
+                        audience["students"] = []
+                        self.database.audiences.replace_one({"_id": audience["_id"]}, audience)
                     teams = list(self.database.teams.find({"courseid": courseid}))
                     for team in teams:
                         team["students"] = []

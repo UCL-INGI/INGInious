@@ -1,14 +1,14 @@
-$def with (course,student_list,tutor_list,other_students,users_info,classroom,msg,error)
+$def with (course,student_list,tutor_list,other_students,users_info,audience,msg,error)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
 $# more information about the licensing of this file.
 $#
 
-$var title: Edit $classroom["description"]
+$var title: Edit $audience["description"]
 
 $def ColumnF():
-    $:template_helper.call('course_admin_menu',course=course,current='classrooms')
+    $:template_helper.call('course_admin_menu',course=course,current='audiences')
 $var Column: $:ColumnF()
 
 $def NavbarF():
@@ -17,14 +17,14 @@ $def NavbarF():
             <li class="breadcrumb-item"><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
             <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
                 <i class="fa fa-user-secret"></i></a></li>
-            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()/classrooms" title=$:_('"Classrooms"') data-toggle="tooltip" data-placement="bottom">
+            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()/audiences" title=$:_('"Audiences"') data-toggle="tooltip" data-placement="bottom">
                 <i class='fa fa-users'></i></a></li>
-            <li class="breadcrumb-item active"><a href="#">$:_("Edit classroom {}").format(classroom["description"]) <span class="sr-only">$:_("(current)")</span></a></li>
+            <li class="breadcrumb-item active"><a href="#">$:_("Edit audience {}").format(audience["description"]) <span class="sr-only">$:_("(current)")</span></a></li>
         </ol>
     </nav>
 $var Navbar: $:NavbarF()
 
-<h2>$:_("Edit classroom {}").format(classroom["description"])</h2>
+<h2>$:_("Edit audience {}").format(audience["description"])</h2>
 $if error:
     <div class="alert alert-danger alert-dismissable" role="alert">
         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
@@ -45,7 +45,7 @@ $elif msg:
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                <form onsubmit="classrooms_student_add();return false;">
+                <form onsubmit="audiences_student_add();return false;">
                     <div class="card">
                         <div class="card-header">
                             <ul class="nav nav-tabs card-header-tabs">
@@ -92,15 +92,15 @@ $elif msg:
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">$:_("Cancel")</button>
-                <button type="button" class="btn btn-primary" onclick="javascript:classrooms_student_add()">$:_("Add student")</button>
+                <button type="button" class="btn btn-primary" onclick="javascript:audiences_student_add()">$:_("Add student")</button>
             </div>
         </div>
     </div>
 </div>
 
 <form method="post" enctype="multipart/form-data" class="form-horizontal">
-    <input type="hidden" id="classrooms" name="classrooms" value="true" />
-    <input type="hidden" id="_id" name="_id" value="$classroom['_id']" />
+    <input type="hidden" id="audiences" name="audiences" value="true" />
+    <input type="hidden" id="_id" name="_id" value="$audience['_id']" />
 
     <div class="card mb-3">
         <div class="card-header">
@@ -108,14 +108,14 @@ $elif msg:
         </div>
         <div class="card-body">
             <div class="form-group row">
-                <label for="name" class="col-sm-2 control-label">$:_("Classroom description")</label>
+                <label for="name" class="col-sm-2 control-label">$:_("Audience description")</label>
                 <div class="col-sm-10">
                     <div class="row">
                         <div class="col-xs-12 col-md-8">
-                            <input type="text" class="form-control" id="description" name="description" placeholder="Classroom description" value="$classroom['description']">
+                            <input type="text" class="form-control" id="description" name="description" placeholder=$:_('"Audience description"') value="$audience['description']">
                         </div>
                         <div class="col-xs-12 col-md-4">
-                            <button name="delete" onclick="javascript:classroom_delete('$classroom['_id']')" class="form-control btn btn-block btn-danger"><span class="fa fa-trash"></span> $:_("Delete classroom")</button>
+                            <button name="delete" onclick="javascript:audience_delete('$audience['_id']')" class="form-control btn btn-block btn-danger"><span class="fa fa-trash"></span> $:_("Delete audience")</button>
                         </div>
                     </div>
                 </div>
@@ -125,7 +125,7 @@ $elif msg:
                 <label for="name" class="col-sm-2 control-label">$:_("Tutor list")</label>
                 <div class="col-sm-10">
                     <ul class="list-group mb-3" id="tutors_">
-                    $for user in (classroom["tutors"] + [None]):
+                    $for user in (audience["tutors"] + [None]):
                             $if user is None:
                                 <li class="list-group-item" style="display:none;">
                                     <span></span>
@@ -134,14 +134,14 @@ $elif msg:
                                     <span>$user ($user_manager.get_user_realname(user))</span>
                                     <input type="hidden" name="tutors" value="$user">
 
-                            <div class="pull-right"><a href="#" onclick="javascript:classrooms_tutor_remove($$(this).rparent(2).attr('id'), '')"><i class="fa fa-trash-o fa-lg"></i></a></div>
+                            <div class="pull-right"><a href="#" onclick="javascript:audiences_tutor_remove($$(this).rparent(2).attr('id'), '')"><i class="fa fa-trash-o fa-lg"></i></a></div>
                         </li>
                     </ul>
                     <div class="row">
                         <div class="col-xs-12 col-md-8">
                             <select type="text" class="form-control" id="tutor_list_" name="tutor_list_">
                                 $for tutor in tutor_list:
-                                    $if tutor not in classroom["tutors"]:
+                                    $if tutor not in audience["tutors"]:
                                         $if users_info[tutor] is not None:
                                             <option value="$tutor">$users_info[tutor][0] ($tutor)</option>
                                         $else:
@@ -149,7 +149,7 @@ $elif msg:
                             </select>
                         </div>
                         <div class="col-xs-12 col-md-4">
-                            <button type="button" onclick="javascript:classrooms_tutor_add($$('#tutor_list_').val(), $$('#tutor_list_ option:selected').text(), '')" class="btn btn-block btn-warning"><span class="fa fa-plus"></span> $:_("Add tutor")</button>
+                            <button type="button" onclick="javascript:audiences_tutor_add($$('#tutor_list_').val(), $$('#tutor_list_ option:selected').text(), '')" class="btn btn-block btn-warning"><span class="fa fa-plus"></span> $:_("Add tutor")</button>
                         </div>
                     </div>
                 </div>
@@ -169,14 +169,14 @@ $elif msg:
             </div>
             <input id="size" type="hidden" class="form-control" value="0">
             <ul id="group_0" class="students list-group list-group-flush">
-                $for username in classroom["students"]:
+                $for username in audience["students"]:
                     $ user=users_info[username]
                     <li data-username="$username" class="list-group-item group-entry">
                         $if users_info[username] is not None:
                             <span id="$username"><i class="fa fa-arrows"></i> $user[0] ($username)</span>
                         $else:
                             <span id="$username"><i class="fa fa-arrows"></i>  $username</span>
-                        <a class="pull-right" id="user_delete" href="#" onclick="javascript:classrooms_student_remove('$username')" data-toggle="tooltip" data-placement="left" title=$:_('"Remove student"')>
+                        <a class="pull-right" id="user_delete" href="#" onclick="javascript:audiences_student_remove('$username')" data-toggle="tooltip" data-placement="left" title=$:_('"Remove student"')>
                             <i class="fa fa-user-times"></i>
                         </a>
                     </li>
@@ -185,7 +185,7 @@ $elif msg:
 
     </div>
 
-    <button name="update" class="btn btn-primary btn-block" onclick="javascript:classrooms_prepare_submit()" type="submit"><i class="fa fa-floppy-o"></i> $:_("Update")</button>
+    <button name="update" class="btn btn-primary btn-block" onclick="javascript:audiences_prepare_submit()" type="submit"><i class="fa fa-floppy-o"></i> $:_("Update")</button>
 
 </form>
 

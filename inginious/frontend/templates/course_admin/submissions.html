@@ -1,4 +1,4 @@
-$def with (course, tasks, users, classrooms, data, statistics, old_input, allowed_sort, allowed_sort_name, valid_formats, msg, show_collapse)
+$def with (course, tasks, users, audiences, data, statistics, old_input, allowed_sort, allowed_sort_name, valid_formats, msg, show_collapse)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -26,15 +26,15 @@ $def NavbarF():
 $var Navbar: $:NavbarF()
 
 <h2>$:_("View submissions")</h2>
-<!-- Add a title if only one task and one user/classroom -->
+<!-- Add a title if only one task and one user/audience -->
 $if len(old_input.tasks) == 1:
     $ task_name = tasks[old_input.tasks[0]].get_name(user_manager.session_language())
-    $if len(old_input.users) == 1 and len(old_input.classrooms) == 0:
+    $if len(old_input.users) == 1 and len(old_input.audiences) == 0:
         $ complete_name = users[old_input.users[0]][0] if users[old_input.users[0]] != None and len(users[old_input.users[0]]) > 0 else _('Unknown')
         <h4>$:_('Submissions for task "{0}" - {1} ({2})').format(task_name, complete_name, old_input.users[0])</h4>
-    $if len(old_input.classrooms) == 1 and len(old_input.users) == 0:
-        $for c in classrooms:
-            $if str(c['_id']) in old_input['classrooms']:
+    $if len(old_input.audiences) == 1 and len(old_input.users) == 0:
+        $for c in audiences:
+            $if str(c['_id']) in old_input['audiences']:
                 <h4>$:_('Submissions for the task "{0}" - {1}').format(task_name, c["description"])</h4>
 
 <form id="select_form" method="post" action="submissions">
@@ -58,12 +58,12 @@ $if len(old_input.tasks) == 1:
                  </select>
             </div>
 
-            <!-- classrooms -->
+            <!-- audiences -->
             <div class="col-sm-6 form-group">
-                <label>$:_("Classrooms")</label>
-                <select name="classrooms" multiple size="7" class="form-control" id="select_classroom">
-                $for c in classrooms:
-                    <option value="$c['_id']" $('selected' if str(c['_id']) in old_input['classrooms'] else '')>$c["description"]</option>
+                <label>$:_("Audiences")</label>
+                <select name="audiences" multiple size="7" class="form-control" id="select_audience">
+                $for c in audiences:
+                    <option value="$c['_id']" $('selected' if str(c['_id']) in old_input['audiences'] else '')>$c["description"]</option>
                 </select>
             </div>
         </div>

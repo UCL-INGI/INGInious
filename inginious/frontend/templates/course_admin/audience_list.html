@@ -6,7 +6,7 @@ $# more information about the licensing of this file.
 $#
 
 $var title: $:course.get_name(user_manager.session_language())
-$var Column: $:template_helper.call('course_admin_menu',course=course,current='classrooms')
+$var Column: $:template_helper.call('course_admin_menu',course=course,current='audiences')
 
 $ is_admin = user_manager.has_admin_rights_on_course(course)
 
@@ -18,14 +18,14 @@ $def NavbarF():
                 <i class="fa fa-user-secret"></i></a></li>
             <li class="breadcrumb-item active">
                 <a href="#">
-                    <i class="fa fa-group"></i> $(_("Classrooms")) <span class="sr-only"> $:_("(current)")</span>
+                    <i class="fa fa-group"></i> $(_("Audiences")) <span class="sr-only"> $:_("(current)")</span>
                 </a>
             </li>
         </ol>
     </nav>
 $var Navbar: $:NavbarF()
 
-<h2>$(_("Classrooms"))
+<h2>$(_("Audiences"))
     <div class="pull-right">
         <div class="btn-group btn-group-sm">
             <button type="submit" id="switch" class="btn btn-danger" data-toggle="modal" data-target="#upload_modal"><i class="fa fa-upload"></i>  $:_("Upload structure")</button>
@@ -45,7 +45,7 @@ $var Navbar: $:NavbarF()
         </div>
 
 <div class="modal fade" id="upload_modal">
-    <form method="post" enctype="multipart/form-data" action="edit/classrooms">
+    <form method="post" enctype="multipart/form-data" action="edit/audiences">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -56,7 +56,7 @@ $var Navbar: $:NavbarF()
                     <p> $:_("Note : Please refer to documentation for file format")</p>
                     <div class="form-group">
                         <label for="name" class="col-sm-2 control-label"> $:_("Course structure")</label>
-                        <input name="classroomfile" type="file">
+                        <input name="audiencefile" type="file">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -70,46 +70,46 @@ $var Navbar: $:NavbarF()
 <table class="table">
     <thead class="table-borderless">
         <tr>
-            <th>$:_("Classroom")</th>
+            <th>$:_("Audience")</th>
             <th>$:_("# students")</th>
             <th>$:_("# task tried")</th>
             <th>$:_("# task done")</th>
             <th>
                 <div class="btn-group btn-group-sm" role="group">
-                    <a href="$get_homepath()/admin/${course.get_id()}/download?format=taskid%2Fclassroom" class="btn btn-danger btn-xs"
+                    <a href="$get_homepath()/admin/${course.get_id()}/download?format=taskid%2Faudience" class="btn btn-danger btn-xs"
                        title=$:_('"Download all submissions"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
-                    <a href="$get_homepath()/admin/${course.get_id()}/classrooms?csv" class="btn btn-info btn-xs"
+                    <a href="$get_homepath()/admin/${course.get_id()}/audiences?csv" class="btn btn-info btn-xs"
                        title=$:_('"Download CSV"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-table"></i></a>
                 </div>
             </th>
         </tr>
     </thead>
     <tbody>
-    $ text = [_("My classroom(s)"), _("Other classroom(s)")]
+    $ text = [_("My audience(s)"), _("Other audience(s)")]
     $for ind in range(0,2):
         $if len(data[ind]) > 0:
             $if len(data[0]) > 0 and len(data[1]) > 0:
                 <tr>
                     <th colspan="5">$text[ind]</th>
                 </tr>
-            $for classroom in data[ind]:
+            $for audience in data[ind]:
                 <tr>
                     <td>
-                        $classroom["description"]
+                        $audience["description"]
                     </td>
-                    <td>$(len(classroom["students"]))</td>
-                    <td>$classroom["tried"]</td>
-                    <td>$classroom["done"]</td>
+                    <td>$(len(audience["students"]))</td>
+                    <td>$audience["tried"]</td>
+                    <td>$audience["done"]</td>
                     <td>
                         <div class="btn-group btn-group-sm" role="group">
-                            <a href="$get_homepath()/admin/${course.get_id()}/edit/classroom/$classroom['_id']" class="btn btn-primary" title=$:_('"Edit classroom"') data-toggle="tooltip"
+                            <a href="$get_homepath()/admin/${course.get_id()}/edit/audience/$audience['_id']" class="btn btn-primary" title=$:_('"Edit audience"') data-toggle="tooltip"
                                data-placement="bottom"><i class="fa fa-edit"></i></a>
-                            <a href="$get_homepath()/admin/${course.get_id()}/submissions$classroom['url']" class="btn btn-secondary" title=$:_('"View submissions"') data-toggle="tooltip"
+                            <a href="$get_homepath()/admin/${course.get_id()}/submissions$audience['url']" class="btn btn-secondary" title=$:_('"View submissions"') data-toggle="tooltip"
                                data-placement="bottom"><i class="fa fa-search"></i></a>
-                            <a href="$get_homepath()/admin/${course.get_id()}/download$classroom['url']" class="btn btn-secondary" title=$:_('"Download submissions"')
+                            <a href="$get_homepath()/admin/${course.get_id()}/download$audience['url']" class="btn btn-secondary" title=$:_('"Download submissions"')
                                data-toggle="tooltip" data-placement="bottom"><i class="fa fa-download"></i></a>
                             $if is_admin:
-                                <a href="$get_homepath()/admin/${course.get_id()}/replay$classroom['url']" class="btn btn-secondary" title=$:_('"Replay submissions"')
+                                <a href="$get_homepath()/admin/${course.get_id()}/replay$audience['url']" class="btn btn-secondary" title=$:_('"Replay submissions"')
                                    data-toggle="tooltip" data-placement="bottom"><i class="fa fa-refresh"></i></a>
                         </div>
                     </td>
@@ -117,11 +117,11 @@ $var Navbar: $:NavbarF()
     </tbody>
 </table>
 
-$ placeholder = _('New classroom description')
-$ btn = _("New classroom")
+$ placeholder = _('New audience description')
+$ btn = _("New audience")
 <form class="form-horizontal" method="post">
     <div class="form-group row">
-        <div class="col-sm-9"><input type="text" class="form-control" name="classroom" placeholder="$placeholder"/></div>
+        <div class="col-sm-9"><input type="text" class="form-control" name="audience" placeholder="$placeholder"/></div>
         <div class="col-sm-3"><button type="submit" class="btn btn-warning btn-block"><i class="fa fa-plus fa-lg"></i> $btn</button></div>
     </div>
 </form>

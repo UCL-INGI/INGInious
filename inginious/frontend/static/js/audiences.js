@@ -4,7 +4,7 @@
 //
 "use strict";
 
-function classrooms_prepare_submit()
+function audiences_prepare_submit()
 {
     var students = [];
     $(".group-entry").each(function(i) {
@@ -20,16 +20,16 @@ function classrooms_prepare_submit()
 
     var id = $("#_id").val();
     var description = $("#description").val();
-    var classrooms = [{_id: id, description: description, students: students, tutors: tutors}];
+    var audiences = [{_id: id, description: description, students: students, tutors: tutors}];
 
     var inputField = jQuery('<input/>', {
             type:"hidden",
-            name:"classrooms",
-            value: JSON.stringify(classrooms)
+            name:"audiences",
+            value: JSON.stringify(audiences)
     }).appendTo($("form"));
 }
 
-function classrooms_tutor_add(username, complete_name, id) {
+function audiences_tutor_add(username, complete_name, id) {
 
     // Check if valid entry
     if(username==null)
@@ -58,7 +58,7 @@ function classrooms_tutor_add(username, complete_name, id) {
         $("#tutor_list_" + id ).prop("disabled", true);
 }
 
-function classrooms_tutor_remove(username, id) {
+function audiences_tutor_remove(username, id) {
     // Put user back to select list
     jQuery('<option/>', {
         value: username,
@@ -71,7 +71,7 @@ function classrooms_tutor_remove(username, id) {
     $("#" + username).remove();
 }
 
-function classrooms_student_add() {
+function audiences_student_add() {
     if($("#tab_registered_student").hasClass("active")) {
 
         var new_li = jQuery('<li/>', {
@@ -128,7 +128,7 @@ function classrooms_student_add() {
     $("#student_modal").modal('hide');
 }
 
-function classrooms_student_remove(username) {
+function audiences_student_remove(username) {
     jQuery('<option/>', {
         value: username,
         text:  $("#" + username).text()
@@ -139,7 +139,7 @@ function classrooms_student_remove(username) {
     $(".group-entry[data-username='" + username + "']").remove();
 }
 
-function classroom_delete(id) {
+function audience_delete(id) {
     jQuery('<input/>', {
         type:'hidden',
         name: 'delete',

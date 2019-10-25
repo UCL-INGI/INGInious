@@ -26,14 +26,14 @@ function teams_prepare_submit()
             tutors.push(tutor);
         });
 
-        var classrooms = [];
-        $(this).find(".classroom").each(function (i) {
-            var classroom = $(this).find("input").val();
-            classrooms.push(classroom);
+        var audiences = [];
+        $(this).find(".audience").each(function (i) {
+            var audience = $(this).find("input").val();
+            audiences.push(audience);
         });
 
         if (i > 0) {
-            var team = {_id: id, description: description, size: group_size, students: group_students, tutors: tutors, classrooms: classrooms};
+            var team = {_id: id, description: description, size: group_size, students: group_students, tutors: tutors, audiences: audiences};
             teams.push(team);
         }
     });
@@ -63,7 +63,7 @@ function team_add()
     new_group_li.addClass("group");
     new_group_li.after(clone);
 
-    if(!JSON.parse($("#classrooms").val())) {
+    if(!JSON.parse($("#audiences").val())) {
         jQuery('<input/>', {
             type:'hidden',
             name: '_id',
@@ -86,7 +86,7 @@ function team_delete(id)
     });
 
     // add the team id in delete field
-    if(!JSON.parse($("#classrooms").val())) {
+    if(!JSON.parse($("#audiences").val())) {
         // if group_id is not none, inform to delete
         // do not remove last group id
         if($("#" + id).find("#_id").val() != 'None') {
@@ -152,46 +152,46 @@ function team_tutor_add(username, complete_name, id) {
         $("#tutor_list_" + id ).prop("disabled", true);
 }
 
-function team_classroom_add(classroomid, description, id) {
+function team_audience_add(audienceid, description, id) {
 
     // Check if valid entry
-    if(classroomid==null)
+    if(audienceid==null)
         return;
 
-    var new_tutor_div = $("#classrooms_" + id + " li").last();
+    var new_tutor_div = $("#audiences_" + id + " li").last();
     var clone = new_tutor_div.clone();
 
-    new_tutor_div.attr("id", classroomid);
+    new_tutor_div.attr("id", audienceid);
     new_tutor_div.find("span").text(description);
 
     new_tutor_div.removeAttr("style");
-    new_tutor_div.addClass("classroom");
+    new_tutor_div.addClass("audience");
     new_tutor_div.after(clone);
 
     jQuery('<input/>', {
             type:"hidden",
-            name:"classrooms",
-            value: classroomid
+            name:"audiences",
+            value: audienceid
         }).appendTo(new_tutor_div);
 
     // Add entry in user list for user
     // Remove user from select list and disable select if empty
-    $("#classroom_list_" + id + " option[value='"+ classroomid +"']").remove();
-    if(!$("#classroom_list_" + id ).val())
-        $("#classroom_list_" + id ).prop("disabled", true);
+    $("#audience_list_" + id + " option[value='"+ audienceid +"']").remove();
+    if(!$("#audience_list_" + id ).val())
+        $("#audience_list_" + id ).prop("disabled", true);
 }
 
-function team_classroom_remove(classroomid, id) {
+function team_audience_remove(audienceid, id) {
     // Put user back to select list
     jQuery('<option/>', {
-        value: classroomid,
-        text:  $("#" + classroomid).text()
-    }).appendTo($("#classroom_list_" + id));
+        value: audienceid,
+        text:  $("#" + audienceid).text()
+    }).appendTo($("#audience_list_" + id));
 
-    $("#classroom_list_" + id).prop("disabled", false);
+    $("#audience_list_" + id).prop("disabled", false);
 
     // Remove user from user list
-    $("#" + classroomid).remove();
+    $("#" + audienceid).remove();
 }
 
 function team_tutor_remove(username, id) {
