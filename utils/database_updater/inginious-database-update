@@ -93,10 +93,11 @@ if __name__ == "__main__":
         print("Updating database to db_version 15")
         aggregations = database.aggregations.find({})
         for aggregation in aggregations:
-            audience_id = database.audiences.insert_one({"courseid": aggregation["courseid"],
+            audience = database.audiences.insert_one({"courseid": aggregation["courseid"],
                                                          "description": aggregation["description"],
                                                          "students": aggregation["students"],
                                                          "tutors": aggregation["tutors"]})
+            audience_id = bson.ObjectId(audience.inserted_id)
 
             database.courses.update_one({"_id": aggregation["courseid"]},
                                                  {"$push": {"students": {"$each": aggregation["students"]}}},
