@@ -104,6 +104,8 @@ class BaseTaskPage(object):
             task = tasks[taskid]
         except exceptions.TaskNotFoundException as ex:
             raise web.notfound(str(ex))
+        except KeyError:
+            raise web.notfound()
 
         if not self.user_manager.task_is_visible_by_user(task, username, isLTI):
             return self.template_helper.get_renderer().task_unavailable()
