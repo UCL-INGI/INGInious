@@ -8,86 +8,91 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-09-25 16:04+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2019-10-28 09:50+0000\n"
+"Last-Translator: Mathieu Jadin <mathieu.jadin@uclouvain.be>\n"
+"Language-Team: Greek <http://weblate.info.ucl.ac.be/projects/inginious/"
+"frontend/el/>\n"
 "Language: el\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 3.8\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: inginious/frontend/parsable_text.py:36
 msgid "[no content]"
-msgstr ""
+msgstr "[κανένα περιεχόμενο]"
 
 #: inginious/frontend/parsable_text.py:80
 msgid "The feedback below will be hidden to the students until {}."
-msgstr ""
+msgstr "Η αξιολόγηση παρακάτω θα είναι κρυμμένη από τους μαθητές μέχρι τις {}."
 
 #: inginious/frontend/parsable_text.py:95
 msgid ""
 "A part of this feedback is hidden until {}. Please come back later and "
 "reload the submission to see the full feedback."
 msgstr ""
+"Ένας μερος της αξιολόγησης είναι κρυμμένος μέχρι τις {}. Να κατεβάλετε την "
+"υποβολή αργότερα πάλι για να δείτε όλη την αξιολόγηση."
 
 #: inginious/frontend/parsable_text.py:257
 msgid "<b>Parsing failed</b>: <pre>{}</pre>"
-msgstr ""
+msgstr "<b>Η ανάλυση απέτυχε</b>: <pre>{}</pre>"
 
 #: inginious/frontend/task_problems.py:61
 msgid "code"
-msgstr ""
+msgstr "κώδικας"
 
 #: inginious/frontend/task_problems.py:92
 msgid "single-line code"
-msgstr ""
+msgstr "κώδικας (σε μια γραμμή)"
 
 #: inginious/frontend/task_problems.py:118
 msgid "file upload"
-msgstr ""
+msgstr "ανέβασμα του αρχείου"
 
 #: inginious/frontend/task_problems.py:151
 msgid "multiple choice"
-msgstr ""
+msgstr "πολλαπλές επιλογές"
 
 #: inginious/frontend/task_problems.py:218
 msgid "match"
-msgstr ""
+msgstr "αντιστοίχιση"
 
 #: inginious/frontend/tasks.py:80
 msgid "No deadline"
-msgstr ""
+msgstr "Καμία προθεσμία"
 
 #: inginious/frontend/tasks.py:82
 msgid "It's too late"
-msgstr ""
+msgstr "Είναι πολύ αργά"
 
 #: inginious/frontend/pages/aggregation.py:51
 #: inginious/frontend/pages/aggregation.py:72
 msgid "Couldn't register to the specified group."
-msgstr ""
+msgstr "Δεν μπορούμε να σας εγγράψουμε σε αυτήν την ομάδα."
 
 #: inginious/frontend/pages/aggregation.py:77
 #: inginious/frontend/pages/aggregation.py:93
 msgid "You are not allowed to change group."
-msgstr ""
+msgstr "Δεν μπορείτε να αλλάξετε την ομάδα σας."
 
 #: inginious/frontend/pages/aggregation.py:90
 msgid "You're not registered in a group."
-msgstr ""
+msgstr "Δεν είναι εγγεγραμμένος/η σε μια ομάδα."
 
 #: inginious/frontend/pages/lti.py:46 inginious/frontend/pages/lti.py:58
 msgid "Missing LTI session id"
-msgstr ""
+msgstr "Χαμένο αναγνωριστικό της σύνδεσης LTI"
 
 #: inginious/frontend/pages/lti.py:51 inginious/frontend/pages/lti.py:63
 msgid "Invalid LTI session id"
-msgstr ""
+msgstr "Λάθος αναγνωριστικό της σύνδεσης LTI"
 
 #: inginious/frontend/pages/lti.py:70
 msgid "Invalid LTI data"
-msgstr ""
+msgstr "Λάθη LTI δεδομένων"
 
 #: inginious/frontend/pages/lti.py:90
 msgid "Your account is already bound with this context."
@@ -95,7 +100,7 @@ msgstr ""
 
 #: inginious/frontend/pages/lti.py:162
 msgid "Error while validating LTI request"
-msgstr ""
+msgstr "Σσφάλμα οτάν επιβεβαιώσαμε το LTI αίτημα"
 
 #: inginious/frontend/pages/lti.py:177
 msgid ""
@@ -103,52 +108,55 @@ msgid ""
 "lis_outcome_service_url and lis_outcome_result_id in the LTI basic-"
 "launch-request. Please contact your administrator."
 msgstr ""
+"Για να στείλουμε το βαθμός στο πλατφόρμα, INGInious χρειάζεται τους "
+"παράμετρους lis_outcome_service_url και lis_outcome_result_id. Παρακαλούμε, "
+"επικοινωνείτε με τον διαχειριστή συστήματο σας."
 
 #: inginious/frontend/pages/lti.py:197
 msgid "Couldn't validate LTI request"
-msgstr ""
+msgstr "Δεν μπορούμε να επιβεβαιώσouμε το LTI αίτημα."
 
 #: inginious/frontend/pages/register.py:57
 msgid "Invalid activation hash."
-msgstr ""
+msgstr "Λάθος κατατεμαχισμός της ενεργοποίησης."
 
 #: inginious/frontend/pages/register.py:59
 msgid "You are now activated. You can proceed to login."
-msgstr ""
+msgstr "Ο λογαριασμος σας είναι ενεργοποιημένος. Μπορείτε να συνδεθείτε."
 
 #: inginious/frontend/pages/preferences/profile.py:27
 #: inginious/frontend/pages/register.py:76
 msgid "Invalid username format."
-msgstr ""
+msgstr "Λάθος φορμάτ του όνομα χρήστης."
 
 #: inginious/frontend/pages/register.py:79
 #: inginious/frontend/pages/register.py:131
 msgid "Invalid email format."
-msgstr ""
+msgstr "Λάθος φορμάτ του email."
 
 #: inginious/frontend/pages/preferences/profile.py:47
 #: inginious/frontend/pages/register.py:82
 #: inginious/frontend/pages/register.py:161
 msgid "Password too short."
-msgstr ""
+msgstr "Πολύ σύντομος κωδικός πρόσβασης."
 
 #: inginious/frontend/pages/preferences/profile.py:51
 #: inginious/frontend/pages/register.py:85
 #: inginious/frontend/pages/register.py:164
 msgid "Passwords don't match !"
-msgstr ""
+msgstr "Οι κωδικούς πρόσβασης δεν ταιριάζουν!"
 
 #: inginious/frontend/pages/register.py:92
 msgid "This username is already taken !"
-msgstr ""
+msgstr "Αυτό το όνομα χρήστη έχει ήδη ληφθεί!"
 
 #: inginious/frontend/pages/register.py:94
 msgid "This email address is already in use !"
-msgstr ""
+msgstr "Aυτό το email χρησιμοποιείται ήδη!"
 
 #: inginious/frontend/pages/register.py:106
 msgid "Welcome on INGInious"
-msgstr ""
+msgstr "Καλωσόρισες στο INGInious"
 
 #: inginious/frontend/pages/register.py:107
 msgid ""
@@ -156,26 +164,34 @@ msgid ""
 "\n"
 "To activate your account, please click on the following link :\n"
 msgstr ""
+"Καλωσόρισες στο INGInious!\n"
+"\n"
+"Για να ενεργοποιήσουμε τον λογαριασμο σας, να κάνετε κλικ στο παρακάτω "
+"σύνδεσμο:\n"
 
 #: inginious/frontend/pages/register.py:112
 msgid ""
 "You are succesfully registered. An email has been sent to you for "
 "activation."
 msgstr ""
+"Ο λογαριασμός σας δημιουργήθηκε. Σας στείλαμε ένα email για να τον "
+"ενεργοποιήσετε."
 
 #: inginious/frontend/pages/register.py:115
 msgid ""
 "Something went wrong while sending you activation email. Please contact "
 "the administrator."
 msgstr ""
+"Κάτι πήγε στραβά όταν στείλουμε το email της ενεργοποίησης. Παρακαλούμε, "
+"επικοινωνείτε με τον διαχειριστή ιστοσελίδα."
 
 #: inginious/frontend/pages/register.py:138
 msgid "This email address was not found in database."
-msgstr ""
+msgstr "Αυτό το email δεν βρέθηκε στη βάση δεδομένων."
 
 #: inginious/frontend/pages/register.py:141
 msgid "INGInious password recovery"
-msgstr ""
+msgstr "Ανάκτηση κωδικού πρόσβασης στο INGInious"
 
 #: inginious/frontend/pages/register.py:142
 msgid ""
@@ -184,281 +200,296 @@ msgid ""
 "Someone (probably you) asked to reset your INGInious password. If this "
 "was you, please click on the following link :\n"
 msgstr ""
+"Αγαπητέ {realname},\n"
+"\n"
+"Κάποιος (πιθανώς εσείς) ζήτησε να ξαναρυθμίξετε το κωδικό πρόσβασης στο "
+"INGInious. Av ήταν εσεις, να κάνετε κλικ στο παρακάτω σύνδεσμο:\n"
 
 #: inginious/frontend/pages/register.py:146
 msgid "An email has been sent to you to reset your password."
-msgstr ""
+msgstr "Σας στείλαμε ένα email για να ξαναρυθμίξετε το κωδικό πρόσβασης σας."
 
 #: inginious/frontend/pages/register.py:149
 msgid ""
 "Something went wrong while sending you reset email. Please contact the "
 "administrator."
 msgstr ""
+"Κάτι πήγε στραβά όταν στείλουμε το email για να ξαναρυθμίξετε το κωδικό "
+"πρόσβασης σας. Παρακαλούμε, επικοινωνείτε με τον διαχειριστή ιστοσελίδα."
 
 #: inginious/frontend/pages/register.py:173
 msgid "Invalid reset hash."
-msgstr ""
+msgstr "Λάθος κατατεμαχισμός για να ξαναρυθμίξετε το κωδικό πρόσβασης."
 
 #: inginious/frontend/pages/register.py:175
 msgid "Your password has been successfully changed."
-msgstr ""
+msgstr "Ο κωδικός σας έχει αλλάξει επιτυχώς."
 
 #: inginious/frontend/pages/tasks.py:199
 msgid "You are not allowed to submit for this task."
-msgstr ""
+msgstr "Δεν μπορείτε να υποβάλετε για αυτή την άσκηση."
 
 #: inginious/frontend/pages/tasks.py:207
 msgid "Your task has been regenerated. This current task is outdated."
 msgstr ""
+"Την άσκηση ήνταν τροποποιημένη. Αυτή την εκδοχή της άσκησης δεν είναι "
+"ενημερωμένη."
 
 #: inginious/frontend/pages/tasks.py:218
 msgid ""
 "Please answer to all the questions and verify the extensions of the files"
 " you want to upload. Your responses were not tested."
 msgstr ""
+"Να απαντήσετε σε όλες τις ερωτήσεις και να επιβεβαιώσετε την επέκταση "
+"αρχείου που θέλετε να ανεβάλετε. Δεν ελέγξατε τις απάντησες σας."
 
 #: inginious/frontend/pages/tasks.py:233 inginious/frontend/pages/tasks.py:336
 msgid "<b>Your submission has been sent...</b>"
-msgstr ""
+msgstr "<b>Η υποβολή σας στάλθηκε...</b>"
 
 #: inginious/frontend/pages/course_admin/task_edit_file.py:202
 #: inginious/frontend/pages/course_admin/task_edit_file.py:223
 #: inginious/frontend/pages/course_admin/task_edit_file.py:227
 #: inginious/frontend/pages/tasks.py:242 inginious/frontend/pages/tasks.py:258
 msgid "Internal error"
-msgstr ""
+msgstr "Εσωτερικό σφάλμα"
 
 #: inginious/frontend/pages/tasks.py:305
 msgid "<b>INGInious is currently grading your answers.<b/> (almost done)"
-msgstr ""
+msgstr "<b>INGInious βαθμολογεί τις απαντήσεις σας.</b> (σχεδόν τελείωσα)"
 
 #: inginious/frontend/pages/tasks.py:307
 msgid ""
 "<b>INGInious is currently grading your answers.<b/> (Approx. wait time: "
 "{} seconds)"
 msgstr ""
+"<b>INGInious βαθμολογεί τις απαντήσεις σας.</b> (περίπου χρόνο αναμονής: {} "
+"δευτερόλεπτα)"
 
 #: inginious/frontend/pages/tasks.py:310
 msgid "<b>You are next in the waiting queue!</b>"
-msgstr ""
+msgstr "<b>Είστε επόμενος στην ουρά αναμονής!</b>"
 
 #: inginious/frontend/pages/tasks.py:312
 msgid "<b>There is one task in front of you in the waiting queue.</b>"
-msgstr ""
+msgstr "<b>Υπάρχει μια δουλειά μπροστά σας στην ουρά αναμονής.</b>"
 
 #: inginious/frontend/pages/tasks.py:314
 msgid "<b>There are {} tasks in front of you in the waiting queue.</b>"
-msgstr ""
+msgstr "<b>Υπάρχουν {} δουλειές μπροστά σας στην ουρά αναμονής.</b>"
 
 #: inginious/frontend/pages/tasks.py:338
 msgid "There are some errors in your answer. Your score is {score}%."
-msgstr ""
+msgstr "Υπάρχουν λάθη στην απάντησή σας. Ο βαθμός σας είναι {score}%."
 
 #: inginious/frontend/pages/tasks.py:340
 msgid "Your answer passed the tests! Your score is {score}%."
-msgstr ""
+msgstr "Η απάντησή σας πέρασε τις δοκιμές! Ο βαθμός σας είναι {score}%."
 
 #: inginious/frontend/pages/tasks.py:342
 msgid "Your submission timed out. Your score is {score}%."
-msgstr ""
+msgstr "H υποβολή σας έληξε. Ο βαθμός σας είναι {score}%."
 
 #: inginious/frontend/pages/tasks.py:344
 msgid "Your submission made an overflow. Your score is {score}%."
 msgstr ""
+"H υποβολή σας προκάλεσε μια υπερχείλιση μνήμης. Ο βαθμός σας είναι {score}%."
 
 #: inginious/frontend/pages/tasks.py:346
 msgid "Your submission was killed."
-msgstr ""
+msgstr "H υποβολή σας σκοτώθηκε."
 
 #: inginious/frontend/pages/tasks.py:348
 msgid ""
 "An internal error occurred. Please retry later. If the error persists, "
 "send an email to the course administrator."
 msgstr ""
+"Υπάρχει ένα εσωτερικό σφάλμα. Να ξανακάνετε αργότερα. Αν το σφάλμα επιμένει, "
+"να στείλετε ένα email στο διαχειριστής μαθημάτος."
 
 #: inginious/frontend/pages/tasks.py:351
 msgid "[Submission #{submissionid}]"
-msgstr ""
+msgstr "[Υποβολή #{submissionid}]"
 
 #: inginious/frontend/pages/course_admin/aggregation_edit.py:184
 msgid "Classroom with id {} not found."
-msgstr ""
+msgstr "Η αίθουσα με τη σύνδεση {} δεν βρέθηκε."
 
 #: inginious/frontend/pages/course_admin/aggregation_edit.py:184
 msgid "Team with id {} not found."
-msgstr ""
+msgstr "Η ομάδα με τη σύνδεση {} δεν βρέθηκε."
 
 #: inginious/frontend/pages/course_admin/aggregation_edit.py:187
 #: inginious/frontend/pages/course_admin/classroom_edit.py:150
 msgid "You can't remove your default classroom."
-msgstr ""
+msgstr "Δεν μπορείτε να αφαιρέσετε τη προεπιλεγμένη αίθουσα σας."
 
 #: inginious/frontend/pages/course_admin/aggregation_edit.py:196
 #: inginious/frontend/pages/course_admin/aggregation_edit.py:235
 #: inginious/frontend/pages/course_admin/classroom_edit.py:183
 msgid "Classroom updated."
-msgstr ""
+msgstr "Επικαιροποιημένη αίθουσα."
 
 #: inginious/frontend/pages/course_admin/aggregation_edit.py:229
 #: inginious/frontend/pages/course_admin/classroom_edit.py:177
 msgid "Changes couldn't be applied for following students :"
-msgstr ""
+msgstr "Δεν μπορούμε να απλώσουμε τους αλλαγές για το παρακάτω μαθητές:"
 
 #: inginious/frontend/pages/course_admin/aggregation_edit.py:235
 msgid "Teams updated."
-msgstr ""
+msgstr "Επικαιροποιημένη oμάδα."
 
 #: inginious/frontend/pages/course_admin/aggregation_edit.py:237
 #: inginious/frontend/pages/course_admin/classroom_edit.py:187
 msgid "An error occurred while parsing the data."
-msgstr ""
+msgstr "Ένα σφάλμα συνέβηκε οτάν αναλύσαμε τους δεδομένων."
 
 #: inginious/frontend/pages/course_admin/aggregation_list.py:63
 msgid "New classroom created."
-msgstr ""
+msgstr "Νέα αίθουσα δημιουργήθηκε."
 
 #: inginious/frontend/pages/course_admin/aggregation_list.py:69
 msgid "Default classroom changed."
-msgstr ""
+msgstr "Προεπιλεγμένη αίθουσα άλλαξε."
 
 #: inginious/frontend/pages/course_admin/aggregation_list.py:71
 msgid "Invalid classroom selected."
-msgstr ""
+msgstr "Λάθος αίθουσα επιλέγμεινε."
 
 #: inginious/frontend/pages/course_admin/aggregation_list.py:73
 msgid "You have no rights to add/change classrooms"
-msgstr ""
+msgstr "Δεν μπορείτε να προσθέσετε/αλλάξετε αίθουσες"
 
 #: inginious/frontend/pages/course_admin/aggregation_list.py:76
 #: inginious/frontend/pages/course_admin/settings.py:96
 msgid "User returned an invalid form."
-msgstr ""
+msgstr "Ο χρήστης υπέβαλε ένα εσφαλμένο έντυπο."
 
 #: inginious/frontend/pages/course_admin/classroom_edit.py:147
 msgid "Classroom not found."
-msgstr ""
+msgstr "Η αίθουσα {} δεν βρέθηκε."
 
 #: inginious/frontend/pages/course_admin/danger_zone.py:146
 msgid "Operation aborted due to invalid token."
-msgstr ""
+msgstr "Το διαδικασία αφαιρέθηκε λόγω της λάθος ένδειξης."
 
 #: inginious/frontend/pages/course_admin/danger_zone.py:150
 #: inginious/frontend/pages/course_admin/danger_zone.py:173
 msgid "Wrong course id."
-msgstr ""
+msgstr "Λάθος σύνδεση μαθήματος."
 
 #: inginious/frontend/pages/course_admin/danger_zone.py:155
 msgid "All course data have been deleted."
-msgstr ""
+msgstr "Όλοι μαθήματος δεδομένων διαγράφηκε."
 
 #: inginious/frontend/pages/course_admin/danger_zone.py:157
 msgid "An error occurred while dumping course from database."
-msgstr ""
+msgstr "Ένα σφάλμα συνέβηκε οτάν εγκαταλείψαμε τον μαθήματα στη βάση δεδομένων."
 
 #: inginious/frontend/pages/course_admin/danger_zone.py:167
 msgid "Course restored to date : {}."
-msgstr ""
+msgstr "Ανακτήσαμε το μάθημα μέχρι την ημερομηνία: {}."
 
 #: inginious/frontend/pages/course_admin/danger_zone.py:169
 msgid "An error occurred while restoring backup."
-msgstr ""
+msgstr "Υπάρχει ένα σφάλμα οτάν ανακτήσαμε ένα αντίγραφο."
 
 #: inginious/frontend/pages/course_admin/danger_zone.py:180
 msgid "An error occurred while deleting the course data."
-msgstr ""
+msgstr "Υπάρχει ένα σφάλμα οτάν διαγράψετε τους μαθήματων δεδομένων."
 
 #: inginious/frontend/pages/course_admin/download.py:21
 #: inginious/frontend/pages/course_admin/submissions.py:26
 msgid "taskid/username"
-msgstr ""
+msgstr "αναγνωριστικό άσκησης/όνομα χρήστη"
 
 #: inginious/frontend/pages/course_admin/download.py:22
 #: inginious/frontend/pages/course_admin/submissions.py:26
 msgid "taskid/aggregation"
-msgstr ""
+msgstr "αναγνωριστικό άσκησης/συσσωμάτωση"
 
 #: inginious/frontend/pages/course_admin/download.py:23
 #: inginious/frontend/pages/course_admin/submissions.py:26
 msgid "username/taskid"
-msgstr ""
+msgstr "όνομα χρήστη/αναγνωριστικό άσκησης"
 
 #: inginious/frontend/pages/course_admin/download.py:24
 #: inginious/frontend/pages/course_admin/submissions.py:26
 msgid "aggregation/taskid"
-msgstr ""
+msgstr "συσσωμάτωση/αναγνωριστικό άσκησης"
 
 #: inginious/frontend/pages/course_admin/replay.py:36
 msgid "Selected submissions were set for replay."
-msgstr ""
+msgstr "Θα επαναλάβουμε οι επιλεγμένες υποβολές."
 
 #: inginious/frontend/pages/course_admin/replay.py:39
 msgid "Task with id {} does not exist !"
-msgstr ""
+msgstr "Η άσκηση με id {} δεν υπάρχει!"
 
 #: inginious/frontend/pages/course_admin/settings.py:33
 msgid "Invalid name"
-msgstr ""
+msgstr "Λάθος όνομα"
 
 #: inginious/frontend/pages/course_admin/settings.py:37
 msgid "You cannot remove yourself from the administrators of this course"
-msgstr ""
+msgstr "Δεν μπορείτε να σας αφαιρέσετε από τοv διαχειριστή αυτού του μαθήματος"
 
 #: inginious/frontend/pages/course_admin/settings.py:59
 msgid "Invalid accessibility dates"
-msgstr ""
+msgstr "Λάθος ημερομηνίες προσβασιμότητας"
 
 #: inginious/frontend/pages/course_admin/settings.py:74
 msgid "Invalid registration dates"
-msgstr ""
+msgstr "Λάθος ημερομηνίες εγγραφής"
 
 #: inginious/frontend/pages/course_admin/settings.py:82
 msgid "Invalid ACL value"
-msgstr ""
+msgstr "Λάθος τιμή λίστας ελέγχου πρόσβασης"
 
 #: inginious/frontend/pages/course_admin/settings.py:92
 msgid "LTI keys must be alphanumerical."
-msgstr ""
+msgstr "Τα κλειδιά LTI πρέπει να είναι αλφαριθμητικά."
 
 #: inginious/frontend/pages/course_admin/statistics.py:185
 msgid "Number of submissions"
-msgstr ""
+msgstr "Aριθμός υποβολών"
 
 #: inginious/frontend/pages/course_admin/statistics.py:186
 msgid "Evaluation submissions (Total)"
-msgstr ""
+msgstr "Υποβολές αξιολόγησης (σύνολο)"
 
 #: inginious/frontend/pages/course_admin/statistics.py:187
 msgid "Evaluation submissions (Succeeded)"
-msgstr ""
+msgstr "Υποβολές αξιολόγησης (επιτυχείς)"
 
 #: inginious/frontend/pages/course_admin/statistics.py:188
 msgid "Evaluation submissions (Failed)"
-msgstr ""
+msgstr "Υποβολές αξιολόγησης (ανεπιτυχείς)"
 
 #: inginious/frontend/pages/course_admin/submissions.py:24
 msgid "Submitted on"
-msgstr ""
+msgstr "Υποβληθείσα στις"
 
 #: inginious/frontend/pages/course_admin/submissions.py:24
 msgid "User"
-msgstr ""
+msgstr "Χρήστης"
 
 #: inginious/frontend/pages/course_admin/submissions.py:24
 #: inginious/frontend/templates/task.html:60
 msgid "Grade"
-msgstr ""
+msgstr "Βαθμός"
 
 #: inginious/frontend/pages/course_admin/submissions.py:24
 msgid "Task id"
-msgstr ""
+msgstr "Σύνδεση άσκησης"
 
 #: inginious/frontend/pages/course_admin/submissions.py:43
 msgid "{0} selected submissions were set for replay."
-msgstr ""
+msgstr "Θα αξιολοξούμε {0} υποβολές."
 
 #: inginious/frontend/pages/course_admin/submissions.py:63
 msgid "No submissions found"
-msgstr ""
+msgstr "Καμία υποβολή βρέθηκε"
 
 #: inginious/frontend/pages/course_admin/submissions.py:96
 msgid ""

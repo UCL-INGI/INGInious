@@ -7,14 +7,16 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-09-25 16:04+0200\n"
-"PO-Revision-Date: 2017-08-10 14:37+0200\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: fr <LL@li.org>\n"
+"PO-Revision-Date: 2019-10-28 09:50+0000\n"
+"Last-Translator: Mathieu Jadin <mathieu.jadin@uclouvain.be>\n"
+"Language-Team: French <http://weblate.info.ucl.ac.be/projects/inginious/"
+"frontend/fr/>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 3.8\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: inginious/frontend/parsable_text.py:36
@@ -32,11 +34,11 @@ msgid ""
 "reload the submission to see the full feedback."
 msgstr ""
 "Une partie de cette évaluation est masquée jusqu'au {}. Rechargez la "
-"soumission ultérieurement pour voir l'évaluation complète"
+"soumission ultérieurement pour voir l'évaluation complète."
 
 #: inginious/frontend/parsable_text.py:257
 msgid "<b>Parsing failed</b>: <pre>{}</pre>"
-msgstr "<b>L'analyse a échoué<b>: <pre{}</pre>"
+msgstr "<b>L'analyse a échoué</b>: <pre>{}</pre>"
 
 #: inginious/frontend/task_problems.py:61
 msgid "code"
@@ -108,7 +110,7 @@ msgid ""
 msgstr ""
 "Afin d'envoyer la note à la plateforme hôte, les paramètres "
 "lis_outcome_service_urlet lis_outcome_result_id doivent être fournis à "
-"INGInious. Contactez l'administrateuren cas de doute."
+"INGInious. Contactez l'administrateur cas de doute."
 
 #: inginious/frontend/pages/lti.py:197
 msgid "Couldn't validate LTI request"
@@ -142,7 +144,7 @@ msgstr "Mot de passe trop court."
 #: inginious/frontend/pages/register.py:85
 #: inginious/frontend/pages/register.py:164
 msgid "Passwords don't match !"
-msgstr "Les mots de passe ne coïncident pas!"
+msgstr "Les mots de passe ne coïncident pas !"
 
 #: inginious/frontend/pages/register.py:92
 msgid "This username is already taken !"
@@ -179,7 +181,7 @@ msgid ""
 "administrator."
 msgstr ""
 "Une erreur s'est produite lors de l'envoi du mail d'activation. Veuillez "
-"contacter l'administrateur du site"
+"contacter l'administrateur du site."
 
 #: inginious/frontend/pages/register.py:138
 msgid "This email address was not found in database."
@@ -331,7 +333,7 @@ msgstr "Classe modifiée."
 #: inginious/frontend/pages/course_admin/classroom_edit.py:177
 msgid "Changes couldn't be applied for following students :"
 msgstr ""
-"Les changements n'ont pas pu être appliqués pour les étudiants suivants:"
+"Les changements n'ont pas pu être appliqués pour les étudiants suivants :"
 
 #: inginious/frontend/pages/course_admin/aggregation_edit.py:235
 msgid "Teams updated."
@@ -420,7 +422,7 @@ msgstr "aggregation/identifiant d'exercice"
 
 #: inginious/frontend/pages/course_admin/replay.py:36
 msgid "Selected submissions were set for replay."
-msgstr "Les soumissions sélectionnées vont être corrigées à nouveau"
+msgstr "Les soumissions sélectionnées vont être corrigées à nouveau."
 
 #: inginious/frontend/pages/course_admin/replay.py:39
 msgid "Task with id {} does not exist !"
@@ -445,7 +447,7 @@ msgstr "Dates d'inscription invalides"
 
 #: inginious/frontend/pages/course_admin/settings.py:82
 msgid "Invalid ACL value"
-msgstr "Valeur de liste de contrôle d'accès invalide."
+msgstr "Valeur de liste de contrôle d'accès invalide"
 
 #: inginious/frontend/pages/course_admin/settings.py:92
 msgid "LTI keys must be alphanumerical."
@@ -508,7 +510,7 @@ msgstr ""
 
 #: inginious/frontend/pages/course_admin/tags.py:42
 msgid "Some tag fields were missing."
-msgstr "Quelques champs d'étiquettes sont manquants"
+msgstr "Quelques champs d'étiquettes sont manquants."
 
 #: inginious/frontend/pages/course_admin/tags.py:45
 msgid "Invalid tag id: {}"
@@ -529,12 +531,12 @@ msgstr "Le poids de la note doit être un nombre réel."
 #: inginious/frontend/pages/course_admin/task_edit.py:175
 #: inginious/frontend/pages/course_admin/task_edit.py:178
 msgid "The number of stored submission must be positive!"
-msgstr "Le nombre de soumissions sauvegardées doit être positif"
+msgstr "Le nombre de soumissions sauvegardées doit être positif !"
 
 #: inginious/frontend/pages/course_admin/task_edit.py:189
 #: inginious/frontend/pages/course_admin/task_edit.py:195
 msgid "Invalid submission limit!"
-msgstr "Limite de soumission invalide!"
+msgstr "Limite de soumission invalide !"
 
 #: inginious/frontend/pages/course_admin/task_edit.py:220
 msgid "Your browser returned an invalid form ({})"
@@ -766,7 +768,7 @@ msgstr "Mot de passe"
 
 #: inginious/frontend/templates/auth.html:27
 msgid "Lost password?"
-msgstr "Mot de passe perdu?"
+msgstr "Mot de passe perdu ?"
 
 #: inginious/frontend/templates/auth.html:29
 #: inginious/frontend/templates/layout.html:143
@@ -1086,27 +1088,27 @@ msgid ""
 "[{username}]</strong> with the following LTI tool and context:"
 msgstr ""
 "Vous êtes sur le point de lié votre compte INGInious <strong>{realname} "
-"[{username}]</strong> avec l'outil et le contexte LTI suivant:"
+"[{username}]</strong> avec l'outil et le contexte LTI suivant :"
 
 #: inginious/frontend/templates/lti_bind.html:22
 msgid "Tool name:"
-msgstr "Nom de l'outil:"
+msgstr "Nom de l'outil :"
 
 #: inginious/frontend/templates/lti_bind.html:23
 msgid "Tool description:"
-msgstr "Description de l'outil:"
+msgstr "Description de l'outil :"
 
 #: inginious/frontend/templates/lti_bind.html:24
 msgid "Tool URL:"
-msgstr "URL de l'outil:"
+msgstr "URL de l'outil :"
 
 #: inginious/frontend/templates/lti_bind.html:25
 msgid "Tool context:"
-msgstr "Contexte de l'outil:"
+msgstr "Contexte de l'outil :"
 
 #: inginious/frontend/templates/lti_bind.html:26
 msgid "Tool identifiers:"
-msgstr "Identifiants de l'outil:"
+msgstr "Identifiants de l'outil :"
 
 #: inginious/frontend/templates/lti_bind.html:33
 msgid "Bind my account"
@@ -1126,7 +1128,7 @@ msgstr "Annuler"
 
 #: inginious/frontend/templates/lti_login.html:16
 msgid "Hello!"
-msgstr "Salut!"
+msgstr "Salut !"
 
 #: inginious/frontend/templates/lti_login.html:17
 msgid "Welcome on the INGInious platform."
@@ -1138,7 +1140,7 @@ msgid ""
 "account or create a new one."
 msgstr ""
 "Afin d'utiliser INGInious via cette platforme, veuillez lier votre compte "
-"existant ou en créer un nouveau"
+"existant ou en créer un nouveau."
 
 #: inginious/frontend/templates/lti_login.html:35
 msgid "Bind your INGInious account"
@@ -1154,7 +1156,7 @@ msgid ""
 "back in a few minutes!"
 msgstr ""
 "<b>Cette instance d'INGInious est sous maintenance.</b> Veuillez réessayer "
-"dans quelques minutes!"
+"dans quelques minutes !"
 
 #: inginious/frontend/templates/mycourses.html:61
 msgid "LTI course"
@@ -1187,7 +1189,7 @@ msgstr "Cours créé."
 
 #: inginious/frontend/templates/mycourses.html:88
 msgid "Failed to create the course."
-msgstr "Une erreur s'est produite lors de la création du cours"
+msgstr "Une erreur s'est produite lors de la création du cours."
 
 #: inginious/frontend/templates/mycourses.html:92
 #: inginious/frontend/templates/mycourses.html:113
@@ -1339,7 +1341,7 @@ msgstr "S'enregistrer"
 
 #: inginious/frontend/templates/register.html:54
 msgid "Lost password ?"
-msgstr "Mot de passe perdu?"
+msgstr "Mot de passe perdu ?"
 
 #: inginious/frontend/templates/register.html:62
 msgid "Reset my password"
@@ -1521,11 +1523,11 @@ msgstr "\"Exercice suivant\""
 #: inginious/frontend/templates/task.html:302
 msgid "Alternatively, you can also paste this command into your terminal:"
 msgstr ""
-"Vous pouvez également copier/coller cette commande dans votre terminal:"
+"Vous pouvez également copier/coller cette commande dans votre terminal :"
 
 #: inginious/frontend/templates/task.html:304
 msgid "Paste this command into your terminal:"
-msgstr "Copiez-collez cette commande dans votre terminal:"
+msgstr "Copiez-collez cette commande dans votre terminal :"
 
 #: inginious/frontend/templates/task.html:307
 msgid "The password to connect is {}"
@@ -1533,7 +1535,7 @@ msgstr "Le mot de pase pour se connecter est {}"
 
 #: inginious/frontend/templates/task.html:310
 msgid "Please answer to all the questions."
-msgstr "Veuillez répondre à toutes les questions"
+msgstr "Veuillez répondre à toutes les questions."
 
 #: inginious/frontend/templates/task.html:326
 msgid ""
@@ -1946,7 +1948,7 @@ msgstr "Utilisateurs non groupés"
 
 #: inginious/frontend/templates/course_admin/classroom_edit.html:215
 msgid "Max group size :"
-msgstr "Taille max. du groupe:"
+msgstr "Taille max. du groupe :"
 
 #: inginious/frontend/templates/course_admin/classroom_edit.html:247
 msgid "New group"
@@ -2078,7 +2080,7 @@ msgstr "Télécharger"
 
 #: inginious/frontend/templates/course_admin/menu.html:20
 msgid "How to create a task?"
-msgstr "Comment créer un exercice?"
+msgstr "Comment créer un exercice ?"
 
 #: inginious/frontend/templates/course_admin/menu.html:21
 msgid "Documentation"
@@ -2191,7 +2193,7 @@ msgstr "Toujours accessible"
 #: inginious/frontend/templates/course_admin/settings.html:138
 #: inginious/frontend/templates/course_admin/settings.html:195
 msgid "Custom:"
-msgstr "Personnalisé"
+msgstr "Personnalisé :"
 
 #: inginious/frontend/templates/course_admin/settings.html:142
 #: inginious/frontend/templates/course_admin/settings.html:199
@@ -2706,7 +2708,7 @@ msgstr "Effacer toutes les soumissions."
 
 #: inginious/frontend/templates/course_admin/task_edit.html:131
 msgid "Problem id:"
-msgstr "Identifiant du problème:"
+msgstr "Identifiant du problème :"
 
 #: inginious/frontend/templates/course_admin/task_info.html:28
 msgid "Results for task \"{}\""
@@ -2787,7 +2789,7 @@ msgstr "Étudiants n'étant pas en équipe"
 #: inginious/frontend/templates/course_admin/teams_edit.html:102
 #: inginious/frontend/templates/course_admin/teams_edit.html:124
 msgid "Max team size :"
-msgstr "Taille max. de l'équipe:"
+msgstr "Taille max. de l'équipe :"
 
 #: inginious/frontend/templates/course_admin/teams_edit.html:108
 #: inginious/frontend/templates/course_admin/teams_edit.html:130
@@ -2813,7 +2815,8 @@ msgstr "WebDAV"
 #: inginious/frontend/templates/course_admin/webdav.html:25
 msgid "Use this URL to access your course folder using WebDav:"
 msgstr ""
-"Utilisez cette URL pour accéder à votre dossier de cours en utilisant WebDAV:"
+"Utilisez cette URL pour accéder à votre dossier de cours en utilisant WebDAV "
+":"
 
 #: inginious/frontend/templates/course_admin/webdav.html:28
 msgid "URL"
@@ -2961,11 +2964,11 @@ msgstr "Télécharger un fichier"
 
 #: inginious/frontend/templates/course_admin/edit_tabs/file_modals.html:13
 msgid "File:"
-msgstr "Fichier:"
+msgstr "Fichier :"
 
 #: inginious/frontend/templates/course_admin/edit_tabs/file_modals.html:17
 msgid "File path:"
-msgstr "Chemin du fichier:"
+msgstr "Chemin du fichier :"
 
 #: inginious/frontend/templates/course_admin/edit_tabs/file_modals.html:24
 msgid "Upload"
@@ -3077,7 +3080,7 @@ msgstr "Ligne de code"
 
 #: inginious/frontend/templates/course_admin/subproblems/code.html:33
 msgid "Optional?"
-msgstr "Optionnel?"
+msgstr "Optionnel ?"
 
 #: inginious/frontend/templates/course_admin/subproblems/code.html:43
 msgid "Default value"
@@ -3151,7 +3154,7 @@ msgstr "\"Supprimer l'accès\""
 
 #: inginious/frontend/templates/preferences/bindings.html:57
 msgid "Identifier:"
-msgstr "Identifiant:"
+msgstr "Identifiant :"
 
 #: inginious/frontend/templates/preferences/bindings.html:64
 msgid "Add a new binding"
@@ -3199,11 +3202,11 @@ msgstr "Cliquez ici pour télécharger le fichier que vous aviez soumis"
 
 #: inginious/frontend/templates/tasks/file.html:34
 msgid "Max file size:"
-msgstr "Taille fichier max.:"
+msgstr "Taille fichier max. :"
 
 #: inginious/frontend/templates/tasks/file.html:35
 msgid "Allowed extensions:"
-msgstr "Extensions autorisées:"
+msgstr "Extensions autorisées :"
 
 #~ msgid "You can not use spaces in the tag id field."
 #~ msgstr ""

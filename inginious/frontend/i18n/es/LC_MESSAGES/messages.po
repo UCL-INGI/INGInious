@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-09-25 16:04+0200\n"
-"PO-Revision-Date: 2019-10-25 15:04+0000\n"
+"PO-Revision-Date: 2019-10-28 09:50+0000\n"
 "Last-Translator: Raziel CG <raziel.carvajal-gomez@uclouvain.be>\n"
 "Language-Team: Spanish <http://weblate.info.ucl.ac.be/projects/inginious/"
 "frontend/es/>\n"
@@ -2231,38 +2231,42 @@ msgid ""
 "\"Password needed for registration. Leave blank if you don't want to set "
 "a password.\""
 msgstr ""
+"\"La contraseña se necesita para hacer el registro. Deje en blanco el campo "
+"de contraseña si no se desea cambiar la misma.\""
 
 #: inginious/frontend/templates/course_admin/settings.html:259
 msgid "Access control"
-msgstr ""
+msgstr "Control de acceso"
 
 #: inginious/frontend/templates/course_admin/settings.html:265
 msgid "No access control (everyone can register)"
-msgstr ""
+msgstr "Sin control de acceso (acceso público)"
 
 #: inginious/frontend/templates/course_admin/settings.html:271
 msgid "Check by username"
-msgstr ""
+msgstr "Verificar por nombre de usuario"
 
 #: inginious/frontend/templates/course_admin/settings.html:277
 msgid "Check by authentication binding"
-msgstr ""
+msgstr "Verificar con autenticación la dependencia"
 
 #: inginious/frontend/templates/course_admin/settings.html:283
 msgid "Check by email"
-msgstr ""
+msgstr "Verificar con correo electrónico"
 
 #: inginious/frontend/templates/course_admin/settings.html:288
 msgid "Access control list"
-msgstr ""
+msgstr "Lista de control de acceso"
 
 #: inginious/frontend/templates/course_admin/settings.html:290
 msgid "\"Only used if access control is activated. Separate users by new lines.\""
 msgstr ""
+"\"Esta acción se permite solo si se activa el control de acceso. Por favor, "
+"escriba un solo nombre de usuario por línea.\""
 
 #: inginious/frontend/templates/course_admin/settings.html:294
 msgid "LTI keys"
-msgstr ""
+msgstr "Llaves LTI"
 
 #: inginious/frontend/templates/course_admin/settings.html:297
 msgid ""
