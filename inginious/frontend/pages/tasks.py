@@ -102,8 +102,8 @@ class BaseTaskPage(object):
         try:
             tasks = OrderedDict((tid, t) for tid, t in course.get_tasks().items() if self.user_manager.task_is_visible_by_user(t, username, isLTI))
             task = tasks[taskid]
-        except exceptions.TaskNotFoundException as ex:
-            raise web.notfound(str(ex))
+        except KeyError:
+            raise web.notfound()
 
         if not self.user_manager.task_is_visible_by_user(task, username, isLTI):
             return self.template_helper.get_renderer().task_unavailable()
