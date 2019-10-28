@@ -1,4 +1,4 @@
-$def with (course,submissions,allowed_teams,teams,users,myteam,msg, error)
+$def with (course,submissions,allowed_groups,groups,users,mygroup,msg, error)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -53,7 +53,7 @@ $def NavbarF():
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a  href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
             <li class="breadcrumb-item active"><a href="#"><i class="fa fa-group"></i>
-                $if myteam is None:
+                $if mygroup is None:
                     $:_("Register for a group")
                 $else:
                     $:_("Groups")
@@ -64,7 +64,7 @@ $def NavbarF():
 $var Navbar: $:NavbarF()
 
 $# Start content
-<h2>$course.get_name(user_manager.session_language()) - $:_("Teams")</h2>
+<h2>$course.get_name(user_manager.session_language()) - $:_("Groups")</h2>
 $if error:
     <div class="alert alert-danger alert-dismissable" role="alert">
         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
@@ -77,21 +77,21 @@ $elif msg:
     </div>
 
 
-$if myteam and username in myteam["students"]:
-    <h3>$:_("My team : {}").format(myteam["description"])</h3>
+$if mygroup and username in mygroup["students"]:
+    <h3>$:_("My group : {}").format(mygroup["description"])</h3>
     <div class="card mb-3 border-info" >
         <div class="card-header text-white bg-info">
             $:_("Students")
             $if course.can_students_choose_group():
             <div class="pull-right">
-                <a href="?unregister_group" data-toggle="tooltip" data-placement="left" title="$:_('Quit team')">
+                <a href="?unregister_group" data-toggle="tooltip" data-placement="left" title="$:_('Quit group')">
                     <i style="color:white;" class="fa fa-user-times"></i>
                 </a>
             </div>
         </div>
 
         <ul class="list-group list-group-flush">
-        $for user in myteam["students"]:
+        $for user in mygroup["students"]:
             <li class="list-group-item">
                 $if users[user] is not None:
                     $users[user][0]
@@ -105,12 +105,12 @@ $if myteam and username in myteam["students"]:
             </li>
         </ul>
 
-    $if len(myteam["tutors"]) > 0:
+    $if len(mygroup["tutors"]) > 0:
             <div class="card-header" role="tab" id="heading">
                 $:_("Tutors")
             </div>
                 <ul class="list-group list-group-flush">
-                $for user in myteam["tutors"]:
+                $for user in mygroup["tutors"]:
                     <li class="list-group-item">
                         $if users[user] is not None:
                             $users[user][0]
@@ -126,50 +126,50 @@ $if myteam and username in myteam["students"]:
 
     </div>
 
-$elif not len(teams):
+$elif not len(groups):
     <div class="alert alert-info alert-dismissable" role="alert">
-        $:_("No set team in this course. If you think this is a mistake, please contact the course administrator.")
+        $:_("No set group in this course. If you think this is a mistake, please contact the course administrator.")
     </div>
-$elif not len(allowed_teams):
+$elif not len(allowed_groups):
     <div class="alert alert-info alert-dismissable" role="alert">
-        $:_("Teams have been set up but you're not allowed to register in anyone. Please contact the course administrator.")
+        $:_("Groups have been set up but you're not allowed to register in anyone. Please contact the course administrator.")
     </div>
 $elif course.can_students_choose_group():
-    <h3>$:_("My team")</h3>
+    <h3>$:_("My group")</h3>
     <div class="alert alert-warning alert-dismissable" role="alert">
-        $:_("You're not registered to a team. Please consider registration in one of the team below to take part in all course activities. If no more team is available, please contact the course administrator.")
+        $:_("You're not registered to a group. Please consider registration in one of the group below to take part in all course activities. If no more group is available, please contact the course administrator.")
     </div>
 $else:
-    <h3>$:_("My team")</h3>
+    <h3>$:_("My group")</h3>
     <div class="alert alert-warning alert-dismissable" role="alert">
-        $:_("You're not yet registered to a team. Please contact the course administrator for more information.")
+        $:_("You're not yet registered to a group. Please contact the course administrator for more information.")
     </div>
 
-$if not len(allowed_teams) == 0:
-    <h3 style="margin-bottom: 20px">$:_("All teams")</h3>
-    $for index, team in enumerate(allowed_teams):
-        <h4>$:_("Team : {}").format(team["description"])</h4>
+$if not len(allowed_groups) == 0:
+    <h3 style="margin-bottom: 20px">$:_("All groups")</h3>
+    $for index, group in enumerate(allowed_groups):
+        <h4>$:_("Group : {}").format(group["description"])</h4>
         <div class="card mb-3">
-            $if not myteam or username not in myteam["students"] and (team["size"]-len(group["students"])) > 0 and course.can_students_choose_group():
+            $if not mygroup or username not in mygroup["students"] and (group["size"]-len(group["students"])) > 0 and course.can_students_choose_group():
                 <div class="card-header bg-success text-white" id="heading_$index">
             $else:
                 <div class="card-header" role="tab" id="heading_$index">
 
             $:_("Students")
-            $if not myteam or username not in myteam["students"] and (team["size"]-len(team["students"])) > 0 and course.can_students_choose_group():
-                $:_("(available : {})").format(team["size"]-len(team["students"]))
+            $if not mygroup or username not in mygroup["students"] and (group["size"]-len(group["students"])) > 0 and course.can_students_choose_group():
+                $:_("(available : {})").format(group["size"]-len(group["students"]))
                 <div class="pull-right">
-                    <a href="?register_group=$team['_id']" data-toggle="tooltip" data-placement="left" title="$:_('Join in')">
+                    <a href="?register_group=$group['_id']" data-toggle="tooltip" data-placement="left" title="$:_('Join in')">
                         <i style="color:white;" class="fa fa-sign-in"></i>
                     </a>
                 </div>
             </div>
             <ul class="list-group list-group-flush">
 
-            $if len(team["students"]) == 0:
+            $if len(group["students"]) == 0:
                 <li class="list-group-item"><i>$:_("No registered member.")</i></li>
             $else:
-                $for user in team["students"]:
+                $for user in group["students"]:
                     <li class="list-group-item">
                         $if users[user] is not None:
                             $users[user][0]
@@ -183,12 +183,12 @@ $if not len(allowed_teams) == 0:
                     </li>
 
             </ul>
-            $if len(team["tutors"]) > 0:
+            $if len(group["tutors"]) > 0:
                 <div class="card-header" id="heading">
                     $:_("Tutors")
                 </div>
                     <ul class="list-group list-group-flush">
-                    $for user in team["tutors"]:
+                    $for user in group["tutors"]:
                         <li class="list-group-item">
                             $if users[user] is not None:
                                 $users[user][0]

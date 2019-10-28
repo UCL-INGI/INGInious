@@ -147,4 +147,4 @@ the webapp. Here are the possible fields to set:
 
 - ``groups_student_choice``
   If this field is defined and set to ``true`` and if collaborative work is activated for a given task, students will be
-  invited to register by themselves for a group or team before submitting.
+  invited to register by themselves for a group before submitting.

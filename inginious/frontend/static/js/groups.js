@@ -4,11 +4,11 @@
 //
 "use strict";
 
-function teams_prepare_submit()
+function groups_prepare_submit()
 {
-    var teams = [];
+    var groups = [];
 
-    // for each team
+    // for each group
     $("#groups .group").each(function(i) {
         var id = $(this).find("#_id").val();
         var description = (i == 0) ? '' : $(this).find("#description").val();
@@ -33,20 +33,20 @@ function teams_prepare_submit()
         });
 
         if (i > 0) {
-            var team = {_id: id, description: description, size: group_size, students: group_students, tutors: tutors, audiences: audiences};
-            teams.push(team);
+            var group = {_id: id, description: description, size: group_size, students: group_students, tutors: tutors, audiences: audiences};
+            groups.push(group);
         }
     });
 
      var inputField = jQuery('<input/>', {
             type:"hidden",
-            name:"teams",
-            value: JSON.stringify(teams)
+            name:"groups",
+            value: JSON.stringify(groups)
     }).appendTo($("form"));
 
 }
 
-function team_add()
+function group_add()
 {
     // New group hidden item
     var new_group_li = $("#groups .card").last();
@@ -74,18 +74,18 @@ function team_add()
 
     // Regroup sortable lists
     $("ul.students").sortable({group:"students"});
-    $("ul.students").bind("DOMSubtreeModified", function() {team_update($(this).parent())});
-    $("input[id='size']").on('keyup click',function() {team_update($(this).rparent(5))});
+    $("ul.students").bind("DOMSubtreeModified", function() {group_update($(this).parent())});
+    $("input[id='size']").on('keyup click',function() {group_update($(this).rparent(5))});
 }
 
-function team_delete(id)
+function group_delete(id)
 {
     // Append all the items to ungrouped users
     $("#" + id).find("#students li").each(function(index) {
         $(this).appendTo("#group_0");
     });
 
-    // add the team id in delete field
+    // add the group id in delete field
     if(!JSON.parse($("#audiences").val())) {
         // if group_id is not none, inform to delete
         // do not remove last group id
@@ -108,14 +108,14 @@ function team_delete(id)
     });
 }
 
-function teams_delete() {
+function groups_delete() {
     $("#groups .group").each(function(i) {
-        if(i!=0) // first .group must not be deleted : non-grouped/non-teamed
-            team_delete($(this).attr("id"));
+        if(i!=0) // first .group must not be deleted : non-grouped
+            group_delete($(this).attr("id"));
     });
 }
 
-function teams_clean() {
+function groups_clean() {
     $("#groups .group").each(function(i) {
         $("#" + $(this).attr("id")).find("#students li").each(function(index) {
             $(this).appendTo("#group_0");
@@ -123,7 +123,7 @@ function teams_clean() {
     });
 }
 
-function team_tutor_add(username, complete_name, id) {
+function group_tutor_add(username, complete_name, id) {
 
     // Check if valid entry
     if(username==null)
@@ -152,7 +152,7 @@ function team_tutor_add(username, complete_name, id) {
         $("#tutor_list_" + id ).prop("disabled", true);
 }
 
-function team_audience_add(audienceid, description, id) {
+function group_audience_add(audienceid, description, id) {
 
     // Check if valid entry
     if(audienceid==null)
@@ -181,7 +181,7 @@ function team_audience_add(audienceid, description, id) {
         $("#audience_list_" + id ).prop("disabled", true);
 }
 
-function team_audience_remove(audienceid, id) {
+function group_audience_remove(audienceid, id) {
     // Put user back to select list
     jQuery('<option/>', {
         value: audienceid,
@@ -194,7 +194,7 @@ function team_audience_remove(audienceid, id) {
     $("#" + audienceid).remove();
 }
 
-function team_tutor_remove(username, id) {
+function group_tutor_remove(username, id) {
     // Put user back to select list
     jQuery('<option/>', {
         value: username,
@@ -275,7 +275,7 @@ function student_remove(username) {
     $(".group-entry[data-username='" + username + "']").remove();
 }
 
-function team_update(ref) {
+function group_update(ref) {
     // Check group sizes
     var grp_size_input = ref.find("#size");
     var max_grp_size = parseInt(grp_size_input.val());

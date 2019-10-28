@@ -17,10 +17,10 @@ Subpackages
 Submodules
 ----------
 
-inginious.frontend.pages.team module
+inginious.frontend.pages.group module
 --------------------------------------------------
 
-.. automodule:: inginious.frontend.pages.team
+.. automodule:: inginious.frontend.pages.group
     :members:
     :undoc-members:
     :show-inheritance:

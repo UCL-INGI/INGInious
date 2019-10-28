@@ -25,18 +25,18 @@ inginious.frontend.pages.course_admin.audience_list module
     :undoc-members:
     :show-inheritance:
 
-inginious.frontend.pages.course_admin.team_edit module
+inginious.frontend.pages.course_admin.group_edit module
 --------------------------------------------------------------------
 
-.. automodule:: inginious.frontend.pages.course_admin.team_edit
+.. automodule:: inginious.frontend.pages.course_admin.group_edit
     :members:
     :undoc-members:
     :show-inheritance:
 
-inginious.frontend.pages.course_admin.team_list module
+inginious.frontend.pages.course_admin.group_list module
 --------------------------------------------------------------------
 
-.. automodule:: inginious.frontend.pages.course_admin.team_list
+.. automodule:: inginious.frontend.pages.course_admin.group_list
     :members:
     :undoc-members:
     :show-inheritance:

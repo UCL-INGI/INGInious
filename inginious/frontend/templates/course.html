@@ -51,13 +51,13 @@ $def ColumnF():
         </div>
     $elif registered:
         <div class="list-group">
-            <a class="list-group-item list-group-item-action list-group-item-info" href="$get_homepath()/team/$course.get_id()">
+            <a class="list-group-item list-group-item-action list-group-item-info" href="$get_homepath()/group/$course.get_id()">
                 <i class="fa fa-group fa-fw"></i>&nbsp;
-                $ myteam = user_manager.get_course_user_team(course)
-                $if myteam and user_manager.session_username() in myteam['students']:
-                    $:_("Team : {}").format(myteam['description'])
+                $ mygroup = user_manager.get_course_user_group(course)
+                $if mygroup and user_manager.session_username() in mygroup['students']:
+                    $:_("Group : {}").format(mygroup['description'])
                 $else:
-                    $:_("Teams management")
+                    $:_("Groups management")
             </a>
             $if course.allow_unregister():
                 <a href="#" data-toggle="modal" data-target="#unregister_modal" class="list-group-item list-group-item-action list-group-item-info">

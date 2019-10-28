@@ -29,10 +29,10 @@ class CourseStudentListPage(INGIniousAdminPage):
                     for audience in audiences:
                         audience["students"] = []
                         self.database.audiences.replace_one({"_id": audience["_id"]}, audience)
-                    teams = list(self.database.teams.find({"courseid": courseid}))
-                    for team in teams:
-                        team["students"] = []
-                        self.database.teams.replace_one({"_id": team["_id"]}, team)
+                    groups = list(self.database.groups.find({"courseid": courseid}))
+                    for group in groups:
+                        group["students"] = []
+                        self.database.groups.replace_one({"_id": group["_id"]}, group)
                 else:
                     self.user_manager.course_unregister_user(course, data["username"])
             except:

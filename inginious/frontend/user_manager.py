@@ -601,14 +601,14 @@ class UserManager:
         staff_right = self.has_staff_rights_on_course(task.get_course(), username)
 
         # Check for group
-        team = self._database.teams.find_one({"courseid": task.get_course_id(), "students": self.session_username()})
+        group = self._database.groups.find_one({"courseid": task.get_course_id(), "students": self.session_username()})
 
         if not only_check or only_check == 'groups':
-            group_filter = (team is not None and task.is_group_task()) or not task.is_group_task()
+            group_filter = (group is not None and task.is_group_task()) or not task.is_group_task()
         else:
             group_filter = True
 
-        students = team["students"] if (team is not None and task.is_group_task()) else [self.session_username()]
+        students = group["students"] if (group is not None and task.is_group_task()) else [self.session_username()]
 
 
         # Check for token availability
@@ -649,11 +649,11 @@ class UserManager:
         """ Returns a list of the course audiences"""
         return natsorted(list(self._database.audiences.find({"courseid": course.get_id()})), key=lambda x: x["description"])
 
-    def get_course_teams(self, course):
-        """ Returns a list of the course teams"""
-        return natsorted(list(self._database.teams.find({"courseid": course.get_id()})), key=lambda x: x["description"])
+    def get_course_groups(self, course):
+        """ Returns a list of the course groups"""
+        return natsorted(list(self._database.groups.find({"courseid": course.get_id()})), key=lambda x: x["description"])
 
-    def get_course_user_team(self, course, username=None):
+    def get_course_user_group(self, course, username=None):
         """ Returns the audience whose username belongs to
         :param course: a Course object
         :param username: The username of the user that we want to register. If None, uses self.session_username()
@@ -662,7 +662,7 @@ class UserManager:
         if username is None:
             username = self.session_username()
 
-        return self._database.teams.find_one({"courseid": course.get_id(), "students": username})
+        return self._database.groups.find_one({"courseid": course.get_id(), "students": username})
 
     def course_register_user(self, course, username=None, password=None, force=False):
         """
@@ -710,12 +710,12 @@ class UserManager:
             {"$pull": {"students": username}})
 
         # Needed if user belongs to a group
-        self._database.teams.find_one_and_update(
+        self._database.groups.find_one_and_update(
             {"courseid": course.get_id(), "groups.students": username},
             {"$pull": {"groups.$.students": username, "students": username}})
 
         # If user doesn't belong to a group, will ensure correct deletion
-        self._database.teams.find_one_and_update(
+        self._database.groups.find_one_and_update(
             {"courseid": course.get_id(), "students": username},
             {"$pull": {"students": username}})
 

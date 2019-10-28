@@ -158,48 +158,48 @@ Audiences YAML structure
 -   *students* is a list of strings representing the usernames of the
     audience students.
 
-Teams
------
+Groups
+------
 
-Collaborative work is possible in INGInious. *Teams* define a set of users that
+Collaborative work is possible in INGInious. *Groups* define a set of users that
 will submit together. Their submissions will contain as authors all the students
-that were members of the team at submission time.
+that were members of the group at submission time.
 
 Creation and edition
 ````````````````````
-Teams are created and edited from the web app in the course
+Groups are created and edited from the web app in the course
 administration.
 
-To create a new team,  simply press on the "*New team*" button in the team list
-view. You'll then be able to specify the team description, its maximum size,
-assigned tutors and students, as well as the required audiences to enter the team.
+To create a new group,  simply press on the "*New group*" button in the group list
+view. You'll then be able to specify the group description, its maximum size,
+assigned tutors and students, as well as the required audiences to enter the group.
 
 The student list is entirely managed by drag-and-drop. Students can be moved
-from one team to another by simply moving his name to the new team.
+from one group to another by simply moving his name to the new group.
 
-Team attribution
-`````````````````
+Group attribution
+``````````````````
 
 If you do not really matter the way students work together, you can
-set empty teams with maximum size and allowed audiences and let the students choose their
-groups or teams themselves. Just check the option in the course settings to
-allow them to gather. When submissions will be retrieved, the group/team members will
-be displayed as the authors as with staff-defined groups or teams.
+set empty groups with maximum size and allowed audiences and let the students choose their
+groups or groups themselves. Just check the option in the course settings to
+allow them to gather. When submissions will be retrieved, the group members will
+be displayed as the authors as with staff-defined groups or groups.
 
 Course structure upload
 ```````````````````````
 
-You can generate the course team structure with an external tool
+You can generate the course group structure with an external tool
 and then upload it on INGInious. This is done with a YAML file, which structure
-for teams are similar and described below. The course structure
-can be uploaded on the team list view in the course administration.
+for groups are similar and described below. The course structure
+can be uploaded on the group list view in the course administration.
 
-Team YAML structure
-*******************
+Group YAML structure
+********************
 
 ::
 
-    -    description: Team 1
+    -    description: Group 1
          tutors:
                  - tutor1
                  - tutor2
@@ -209,7 +209,7 @@ Team YAML structure
          audiences:
                 - 5daffce21d064a2fb1f67527
                 - 5daf00d61d064a6c25ed7be1
-    -    description: Team 2
+    -    description: Group 2
          tutors:
                  - tutor1
                  - tutor2
@@ -217,17 +217,17 @@ Team YAML structure
                  - user3
                  - user4
 
--   *description* is a string and corresponds to your team description
+-   *description* is a string and corresponds to your group description
 -   *tutors* is a list of strings representing the usernames of the
-    assigned team tutors.
+    assigned group tutors.
 -   *students* is a list of strings representing the usernames of the
-    team students.
+    group students.
 -   *audiences* is a list of authorized audiences identifiers.
 
 Backup course structure
 ```````````````````````
 
-Course structures (audiences or teams) can be exported for backup or manual
-edition via the audience/team list page in the course administration pages.
+Course structures (audiences and groups) can be exported for backup or manual
+edition via the audience/group list page in the course administration pages.
 Simply click on the "*Download structure*" button. The download file will have
 the same format as described above.

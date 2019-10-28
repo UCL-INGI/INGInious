@@ -32,7 +32,7 @@ class CourseDangerZonePage(INGIniousAdminPage):
                     gridfs.delete(submission[key])
 
         self.database.audiences.remove({"courseid": courseid})
-        self.database.teams.remove({"courseid": courseid})
+        self.database.groups.remove({"courseid": courseid})
         self.database.user_tasks.remove({"courseid": courseid})
         self.database.submissions.remove({"courseid": courseid})
 
@@ -49,8 +49,8 @@ class CourseDangerZonePage(INGIniousAdminPage):
             audiences = self.database.audiences.find({"courseid": courseid})
             zipf.writestr("audiences.json", bson.json_util.dumps(audiences), zipfile.ZIP_DEFLATED)
 
-            teams = self.database.teams.find({"courseid": courseid})
-            zipf.writestr("teams.json", bson.json_util.dumps(teams), zipfile.ZIP_DEFLATED)
+            groups = self.database.groups.find({"courseid": courseid})
+            zipf.writestr("groups.json", bson.json_util.dumps(groups), zipfile.ZIP_DEFLATED)
 
             user_tasks = self.database.user_tasks.find({"courseid": courseid})
             zipf.writestr("user_tasks.json", bson.json_util.dumps(user_tasks), zipfile.ZIP_DEFLATED)
@@ -87,9 +87,9 @@ class CourseDangerZonePage(INGIniousAdminPage):
             if len(audiences) > 0:
                 self.database.audiences.insert(audiences)
 
-            teams = bson.json_util.loads(zipf.read("teams.json").decode("utf-8"))
-            if len(teams) > 0:
-                self.database.teams.insert(teams)
+            groups = bson.json_util.loads(zipf.read("groups.json").decode("utf-8"))
+            if len(groups) > 0:
+                self.database.groups.insert(groups)
 
             user_tasks = bson.json_util.loads(zipf.read("user_tasks.json").decode("utf-8"))
             if len(user_tasks) > 0:

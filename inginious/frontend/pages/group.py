@@ -13,10 +13,10 @@ from bson.objectid import ObjectId
 from inginious.frontend.pages.utils import INGIniousAuthPage
 
 
-class TeamPage(INGIniousAuthPage):
-    """ Team page """
+class GroupPage(INGIniousAuthPage):
+    """ Group page """
 
-    _logger = logging.getLogger("inginious.webapp.teams")
+    _logger = logging.getLogger("inginious.webapp.groups")
 
     def GET_AUTH(self, courseid):  # pylint: disable=arguments-differ
         """ GET request """
@@ -34,31 +34,31 @@ class TeamPage(INGIniousAuthPage):
         elif "register_group" in data:
             if course.can_students_choose_group():
 
-                team = self.database.teams.find_one(
+                group = self.database.groups.find_one(
                     {"courseid": course.get_id(), "students": username})
 
-                if team is not None:
-                    team["students"].remove(username)
-                    self.database.teams.replace_one({"courseid": course.get_id(), "students": username}, team)
+                if group is not None:
+                    group["students"].remove(username)
+                    self.database.groups.replace_one({"courseid": course.get_id(), "students": username}, group)
 
                 # Add student in the audience and unique group
-                new_team = self.database.teams.find_one_and_update({"_id": ObjectId(data["register_group"])},
+                new_group = self.database.groups.find_one_and_update({"_id": ObjectId(data["register_group"])},
                                                              {"$push": {"students": username}})
 
-                if new_team is None:
+                if new_group is None:
                     error = True
                     msg = _("Couldn't register to the specified group.")
                 else:
-                    self._logger.info("User %s registered to team %s/%s", username, courseid, new_team["description"])
+                    self._logger.info("User %s registered to group %s/%s", username, courseid, new_group["description"])
             else:
                 error = True
                 msg = _("You are not allowed to change group.")
         elif "unregister_group" in data:
             if course.can_students_choose_group():
-                team = self.database.teams.find_one({"courseid": course.get_id(), "students": username})
-                if team is not None:
-                    self.database.teams.find_one_and_update({"_id": team["_id"]}, {"$pull": {"students": username}})
-                    self._logger.info("User %s unregistered from group/team %s/%s", username, courseid, team["description"])
+                group = self.database.groups.find_one({"courseid": course.get_id(), "students": username})
+                if group is not None:
+                    self.database.groups.find_one_and_update({"_id": group["_id"]}, {"$pull": {"students": username}})
+                    self._logger.info("User %s unregistered from group %s/%s", username, courseid, group["description"])
                 else:
                     error = True
                     msg = _("You're not registered in a group.")
@@ -71,14 +71,14 @@ class TeamPage(INGIniousAuthPage):
         for submission in last_submissions:
             submission["taskname"] = tasks[submission['taskid']].get_name(self.user_manager.session_language())
 
-        user_team = self.user_manager.get_course_user_team(course)
+        user_group = self.user_manager.get_course_user_group(course)
         user_audiences = [audience["_id"] for audience in self.database.audiences.find({"courseid": courseid, "students": username})]
-        teams = self.user_manager.get_course_teams(course)
+        groups = self.user_manager.get_course_groups(course)
 
-        student_allowed_in_team = lambda team: any(set(user_audiences).intersection(team["audiences"])) or not team["audiences"]
-        allowed_teams = [team for team in teams if student_allowed_in_team(team)]
+        student_allowed_in_group = lambda group: any(set(user_audiences).intersection(group["audiences"])) or not group["audiences"]
+        allowed_groups = [group for group in groups if student_allowed_in_group(group)]
 
         users = self.user_manager.get_users_info(self.user_manager.get_course_registered_users(course))
 
-        return self.template_helper.get_renderer().team(course, last_submissions, allowed_teams, teams, users,
-                                                            user_team, msg, error)
+        return self.template_helper.get_renderer().group(course, last_submissions, allowed_groups, groups, users,
+                                                            user_group, msg, error)
