@@ -20,13 +20,12 @@ class CourseEditGroup(INGIniousAdminPage):
     """ Edit a task """
 
     def get_user_lists(self, course):
-        """ Get the available student and tutor lists for group edition"""
-        tutor_list = course.get_staff()
+        """ Get the available student list for group edition"""
         audience_list = self.user_manager.get_course_audiences(course)
         audience_list = {audience["_id"]: audience for audience in audience_list}
 
         student_list = self.user_manager.get_course_registered_users(course, False)
-        users_info = self.user_manager.get_users_info(student_list + tutor_list)
+        users_info = self.user_manager.get_users_info(student_list)
 
         groups_list = list(self.database.groups.aggregate([
             {"$match": {"courseid": course.get_id()}},
@@ -41,7 +40,7 @@ class CourseEditGroup(INGIniousAdminPage):
         other_students = [entry for entry in student_list if entry not in groups_list]
         other_students = sorted(other_students, key=lambda val: (("0"+users_info[val][0]) if users_info[val] else ("1"+val)))
 
-        return student_list, tutor_list, audience_list, other_students, users_info
+        return student_list, audience_list, other_students, users_info
 
     def update_group(self, course, groupid, new_data, audience_students):
         """ Update group and returns a list of errored students"""
@@ -67,9 +66,6 @@ class CourseEditGroup(INGIniousAdminPage):
         # Convert audience ids to ObjectId
         new_data["audiences"] = [ObjectId(s) for s in new_data["audiences"]]
 
-        # Check tutors
-        new_data["tutors"] = [tutor for tutor in new_data["tutors"] if tutor in course.get_staff()]
-
         students, errored_students = [], []
 
         if len(new_data["students"]) <= new_data["size"]:
@@ -88,15 +84,15 @@ class CourseEditGroup(INGIniousAdminPage):
         group = self.database.groups.find_one_and_update(
             {"_id": ObjectId(groupid)},
             {"$set": {"description": new_data["description"], "audiences": new_data["audiences"], "size": new_data["size"],
-                      "students": students, "tutors": new_data["tutors"]}}, return_document=ReturnDocument.AFTER)
+                      "students": students}}, return_document=ReturnDocument.AFTER)
 
         return group, errored_students
 
     def display_page(self, course, msg='', error=False):
         # If no group id specified, use the groups only template
         groups = self.user_manager.get_course_groups(course)
-        student_list, tutor_list, audience_list, other_students, users_info = self.get_user_lists(course)
-        return self.template_helper.get_renderer().course_admin.groups_edit(course, student_list, tutor_list,
+        student_list, audience_list, other_students, users_info = self.get_user_lists(course)
+        return self.template_helper.get_renderer().course_admin.groups_edit(course, student_list,
                                                                            audience_list, other_students,
                                                                            users_info, groups, msg, error)
 
@@ -113,7 +109,6 @@ class CourseEditGroup(INGIniousAdminPage):
             groups = [{"description": group["description"],
                            "students": group["students"],
                            "size": group["size"],
-                           "tutors": group["tutors"],
                             "audiences": [str(c) for c in group["audiences"]]} for group in
                           self.user_manager.get_course_groups(course)]
 
@@ -137,7 +132,7 @@ class CourseEditGroup(INGIniousAdminPage):
         msg=''
         error = False
         errored_students = []
-        data = web.input(delete=[], tutors=[], groupfile={})
+        data = web.input(delete=[], groupfile={})
         if len(data["delete"]):
 
             for classid in data["delete"]:

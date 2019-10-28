@@ -78,13 +78,12 @@ $elif msg:
 
 
 $if mygroup and username in mygroup["students"]:
-    <h3>$:_("My group : {}").format(mygroup["description"])</h3>
     <div class="card mb-3 border-info" >
         <div class="card-header text-white bg-info">
-            $:_("Students")
+            $:_("My group : {}").format(mygroup["description"])
             $if course.can_students_choose_group():
             <div class="pull-right">
-                <a href="?unregister_group" data-toggle="tooltip" data-placement="left" title="$:_('Quit group')">
+                <a href="?unregister_group" data-toggle="tooltip" data-placement="left" title=$:_('"Quit group"')>
                     <i style="color:white;" class="fa fa-user-times"></i>
                 </a>
             </div>
@@ -96,7 +95,7 @@ $if mygroup and username in mygroup["students"]:
                 $if users[user] is not None:
                     $users[user][0]
                     <div class="pull-right">
-                        <a class="mailto" href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="$:_('Send an email')">
+                        <a class="mailto" href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title=$:_('"Send an email"')>
                             <i class="fa fa-envelope-o"></i>
                         </a>
                     </div>
@@ -104,26 +103,6 @@ $if mygroup and username in mygroup["students"]:
                     $user
             </li>
         </ul>
-
-    $if len(mygroup["tutors"]) > 0:
-            <div class="card-header" role="tab" id="heading">
-                $:_("Tutors")
-            </div>
-                <ul class="list-group list-group-flush">
-                $for user in mygroup["tutors"]:
-                    <li class="list-group-item">
-                        $if users[user] is not None:
-                            $users[user][0]
-                            <div class="pull-right">
-                                <a class="mailto" href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="$:_('Send an email')">
-                                    <i class="fa fa-envelope-o"></i>
-                                </a>
-                            </div>
-                        $else:
-                            $user
-                    </li>
-                </ul>
-
     </div>
 
 $elif not len(groups):
@@ -148,14 +127,13 @@ $else:
 $if not len(allowed_groups) == 0:
     <h3 style="margin-bottom: 20px">$:_("All groups")</h3>
     $for index, group in enumerate(allowed_groups):
-        <h4>$:_("Group : {}").format(group["description"])</h4>
         <div class="card mb-3">
             $if not mygroup or username not in mygroup["students"] and (group["size"]-len(group["students"])) > 0 and course.can_students_choose_group():
                 <div class="card-header bg-success text-white" id="heading_$index">
             $else:
                 <div class="card-header" role="tab" id="heading_$index">
 
-            $:_("Students")
+            $group["description"]
             $if not mygroup or username not in mygroup["students"] and (group["size"]-len(group["students"])) > 0 and course.can_students_choose_group():
                 $:_("(available : {})").format(group["size"]-len(group["students"]))
                 <div class="pull-right">
@@ -183,25 +161,6 @@ $if not len(allowed_groups) == 0:
                     </li>
 
             </ul>
-            $if len(group["tutors"]) > 0:
-                <div class="card-header" id="heading">
-                    $:_("Tutors")
-                </div>
-                    <ul class="list-group list-group-flush">
-                    $for user in group["tutors"]:
-                        <li class="list-group-item">
-                            $if users[user] is not None:
-                                $users[user][0]
-                                <div class="pull-right">
-                                    <a class="mailto" href="mailto:$users[user][1]" data-toggle="tooltip" data-placement="left" title="$:_('Send an email')">
-                                        <i class="fa fa-envelope-o"></i>
-                                    </a>
-                                </div>
-                            $else:
-                                $user
-                        </li>
-                    </ul>
-
          </div>
 
 $:include.unregister_modal(course)

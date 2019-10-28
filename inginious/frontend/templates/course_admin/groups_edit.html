@@ -1,4 +1,4 @@
-$def with (course,student_list,tutor_list,audience_list,other_students,users_info,groups,msg,error)
+$def with (course,student_list,audience_list,other_students,users_info,groups,msg,error)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -17,9 +17,7 @@ $def NavbarF():
             <li class="breadcrumb-item"><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
             <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
                 <i class="fa fa-user-secret"></i></a></li>
-            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()/groups" title=$:_('"Groups"') data-toggle="tooltip" data-placement="bottom">
-                <i class='fa fa-users'></i></a></li>
-            <li class="breadcrumb-item active"><a href="#">$:_("Edit groups") <span class="sr-only">$:_("(current)")</span></a></li>
+            <li class="breadcrumb-item active"><a href="#"><i class='fa fa-users'></i> $:_("Groups") <span class="sr-only">$:_("(current)")</span></a></li>
         </ol>
     </nav>
 $var Navbar: $:NavbarF()
@@ -102,7 +100,7 @@ $elif msg:
     <div id="groups" class='list-group'>
         <div class="card border-warning mb-3 group">
             <div class="card-header bg-warning text-white clearfix" role="tab">
-                $:_("Non grouped students")
+                $:_("Ungrouped students")
                 <a class="text-white pull-right" id="group_delete" href="#" data-toggle="modal" data-target="#student_modal">
                     <i class="fa fa-plus"></i>
                 </a>
@@ -162,50 +160,6 @@ $elif msg:
                                 </div>
                             </div>
                         </div>
-
-                <div class="card-header clearfix" role="tab">
-                    <div class="row">
-                        <div class="col-sm-6 col-xs-12">
-                            $:_("Tutors")
-                        </div>
-                        <div class="col-sm-4 col-xs-6" style="text-align: center">
-                            <select type="text" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" class="form-control input-xs" id="tutor_list_$(index+1)" name="tutor_list_$index">
-                                $for tutor in tutor_list:
-                                    $if not group or tutor not in group["tutors"]:
-                                        $if users_info[tutor] is not None:
-                                            <option value="$tutor">$users_info[tutor][0] ($tutor)</option>
-                                        $else:
-                                            <option value="$tutor">$tutor</option>
-                            </select>
-                        </div>
-                        <div class="col-sm-2 col-xs-6">
-                            <button type="button" style="height: 22px; padding: 2px 5px; font-size: 12px; line-height: 1.5;" onclick="javascript:group_tutor_add($$('#tutor_list_$(index+1)').val(), $$('#tutor_list_$(index+1) option:selected').text(), $(index+1))" class="form-control btn btn-xs btn-warning"><span class="fa fa-plus"></span> $:_("Add tutor")</button>
-                        </div>
-                    </div>
-                </div>
-
-                $if group:
-                    <ul class="list-group list-group-flush" id="tutors_$(index+1)">
-                    $for user in (group["tutors"] + [None]):
-                            $if user is None:
-                                <li class="list-group-item" style="display:none;">
-                                    <span></span>
-                            $else:
-                                <li class="list-group-item tutor" id="$user">
-                                    <span>$user ($user_manager.get_user_realname(user))</span>
-                                    <input type="hidden" name="tutors" value="$user">
-
-                            <div class="pull-right"><a href="#" onclick="javascript:group_tutor_remove($$(this).rparent(2).attr('id'), $(index+1))"><i class="fa fa-trash-o fa-lg"></i></a></div>
-                        </li>
-                    </ul>
-                $else:
-                    <ul class="list-group list-group-flush" id="tutors_$(index+1)">
-                        <li class="list-group-item" style="display:none;">
-                            <span></span>
-                            <div class="pull-right"><a href="#" onclick="javascript:group_tutor_remove($$(this).rparent(2).attr('id'), $(index+1))"><i class="fa fa-trash-o fa-lg"></i></a></div>
-                        </li>
-                    </ul>
-
 
                 <div class="card-header clearfix" role="tab">
                     <div class="row">
@@ -288,11 +242,11 @@ $elif msg:
     <button name="update" class="btn btn-primary btn-block" onclick="javascript:groups_prepare_submit()" type="submit"><i class="fa fa-floppy-o"></i> $:_("Update")</button>
 </form>
 
-<!-- Javascript for managing student/tutor lists -->
+<!-- Javascript for managing student lists -->
 <script type="text/javascript">
 $$(document).ready(function() {
-    if(!$$("#tutor_list").val())
-        $$("#tutor_list").prop("disabled", true);
+    if(!$$("#audience_list").val())
+        $$("#audience_list").prop("disabled", true);
 
     $$("ul.students").sortable({group:"students"});
     $$("ul.students").bind("DOMSubtreeModified", function() {group_update($$(this).parent())});

@@ -20,12 +20,6 @@ function groups_prepare_submit()
             group_students.push(username);
         });
 
-        var tutors = [];
-        $(this).find(".tutor").each(function (i) {
-            var tutor = $(this).find("input").val();
-            tutors.push(tutor);
-        });
-
         var audiences = [];
         $(this).find(".audience").each(function (i) {
             var audience = $(this).find("input").val();
@@ -33,7 +27,7 @@ function groups_prepare_submit()
         });
 
         if (i > 0) {
-            var group = {_id: id, description: description, size: group_size, students: group_students, tutors: tutors, audiences: audiences};
+            var group = {_id: id, description: description, size: group_size, students: group_students, audiences: audiences};
             groups.push(group);
         }
     });
@@ -53,8 +47,8 @@ function group_add()
 
     // Clone and change id for deletion
     var clone = new_group_li.clone();
-    clone.find("#tutor_list_" + parseInt(clone.attr("id"))).attr("id", "#tutor_list_" + (parseInt(clone.attr("id")) + 1));
-    clone.find("#tutors_" + parseInt(clone.attr("id"))).attr("id", "#tutors_" + (parseInt(clone.attr("id")) + 1));
+    clone.find("#audience_list_" + parseInt(clone.attr("id"))).attr("id", "#audience_list_" + (parseInt(clone.attr("id")) + 1));
+    clone.find("#audiences_" + parseInt(clone.attr("id"))).attr("id", "#audiences_" + (parseInt(clone.attr("id")) + 1));
     clone.attr("id", parseInt(clone.attr("id")) + 1);
     clone.find("#group_number").text(clone.attr("id"));
 
@@ -123,56 +117,27 @@ function groups_clean() {
     });
 }
 
-function group_tutor_add(username, complete_name, id) {
-
-    // Check if valid entry
-    if(username==null)
-        return;
-
-    var new_tutor_div = $("#tutors_" + id + " li").last();
-    var clone = new_tutor_div.clone();
-
-    new_tutor_div.attr("id", username);
-    new_tutor_div.find("span").text(complete_name);
-
-    new_tutor_div.removeAttr("style");
-    new_tutor_div.addClass("tutor");
-    new_tutor_div.after(clone);
-
-    jQuery('<input/>', {
-            type:"hidden",
-            name:"tutors",
-            value: username
-        }).appendTo(new_tutor_div);
-
-    // Add entry in user list for user
-    // Remove user from select list and disable select if empty
-    $("#tutor_list_" + id + " option[value='"+ username +"']").remove();
-    if(!$("#tutor_list_" + id ).val())
-        $("#tutor_list_" + id ).prop("disabled", true);
-}
-
 function group_audience_add(audienceid, description, id) {
 
     // Check if valid entry
     if(audienceid==null)
         return;
 
-    var new_tutor_div = $("#audiences_" + id + " li").last();
-    var clone = new_tutor_div.clone();
+    var new_audience_div = $("#audiences_" + id + " li").last();
+    var clone = new_audience_div.clone();
 
-    new_tutor_div.attr("id", audienceid);
-    new_tutor_div.find("span").text(description);
+    new_audience_div.attr("id", audienceid);
+    new_audience_div.find("span").text(description);
 
-    new_tutor_div.removeAttr("style");
-    new_tutor_div.addClass("audience");
-    new_tutor_div.after(clone);
+    new_audience_div.removeAttr("style");
+    new_audience_div.addClass("audience");
+    new_audience_div.after(clone);
 
     jQuery('<input/>', {
             type:"hidden",
             name:"audiences",
             value: audienceid
-        }).appendTo(new_tutor_div);
+        }).appendTo(new_audience_div);
 
     // Add entry in user list for user
     // Remove user from select list and disable select if empty
@@ -192,19 +157,6 @@ function group_audience_remove(audienceid, id) {
 
     // Remove user from user list
     $("#" + audienceid).remove();
-}
-
-function group_tutor_remove(username, id) {
-    // Put user back to select list
-    jQuery('<option/>', {
-        value: username,
-        text:  $("#" + username).text()
-    }).appendTo($("#tutor_list_" + id));
-
-    $("#tutor_list_" + id).prop("disabled", false);
-
-    // Remove user from user list
-    $("#" + username).remove();
 }
 
 function student_add() {
