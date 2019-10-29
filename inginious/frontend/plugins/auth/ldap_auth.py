@@ -113,7 +113,7 @@ class LDAPAuthenticationPage(AuthenticationPage):
 
             conn.unbind()
 
-            self.user_manager.bind_user(id, (username, realname, email))
+            self.user_manager.bind_user(id, (username, realname, email, {}))
             
             auth_storage = self.user_manager.session_auth_storage().setdefault(id, {})
             raise web.seeother(auth_storage.get("redir_url", "/"))

@@ -362,7 +362,7 @@ class UserManager:
 
 
     def bind_user(self, auth_id, user):
-        username, realname, email = user
+        username, realname, email, additional = user
 
         auth_method = self.get_auth_method(auth_id)
         if not auth_method:
@@ -376,15 +376,15 @@ class UserManager:
             self.connect_user(user_profile["username"], user_profile["realname"], user_profile["email"], user_profile["language"])
         elif user_profile and self.session_username() == user_profile["username"]:
             # Logged in, refresh fields if found profile username matches session username
-            pass
+            self._database.users.find_one_and_update({"username": self.session_username()},
+                                                     {"$set": {"bindings." + auth_id: [username, additional]}})
         elif user_profile:
             # Logged in, but already linked to another account
             self._logger.exception("Tried to bind an already bound account !")
         elif self.session_logged_in():
             # No binding, but logged: add new binding
             self._database.users.find_one_and_update({"username": self.session_username()},
-                                                    {"$set": {"bindings." + auth_id: [username, {}]}},
-                                                    return_document=pymongo.ReturnDocument.AFTER)
+                                                    {"$set": {"bindings." + auth_id: [username, additional]}})
 
         else:
             # No binding, check for email
@@ -397,7 +397,7 @@ class UserManager:
                 self._database.users.insert({"username": "",
                                             "realname": realname,
                                             "email": email,
-                                            "bindings": {auth_id: [username, {}]},
+                                            "bindings": {auth_id: [username, additional]},
                                             "language": self._session.get("language", "en")})
                 self.connect_user("", realname, email, self._session.get("language", "en"))
 

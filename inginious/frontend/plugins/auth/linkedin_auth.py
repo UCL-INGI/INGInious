@@ -43,7 +43,7 @@ class LinkedInAuthMethod(AuthMethod):
                 if contact["type"] == "EMAIL":
                     profile["emailAddress"] = contact["handle~"]["emailAddress"]
                     break
-            return str(profile["id"]), profile["localizedFirstName"] + " " + profile["localizedLastName"], profile["emailAddress"]
+            return str(profile["id"]), profile["localizedFirstName"] + " " + profile["localizedLastName"], profile["emailAddress"], {}
         except Exception as e:
             return None
 
