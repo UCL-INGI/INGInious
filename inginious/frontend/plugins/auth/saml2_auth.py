@@ -76,7 +76,7 @@ class SAMLAuthMethod(AuthMethod):
 
             additional = {}
             for field, urn in self._settings.get("additional", {}).items():
-                additional[field] = attrs[urn][0]
+                additional[field] = attrs[urn][0] if urn in attrs else ""
 
             # Redirect to desired url
             self_url = OneLogin_Saml2_Utils.get_self_url(req)
