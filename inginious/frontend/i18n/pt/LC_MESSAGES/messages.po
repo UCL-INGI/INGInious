@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-09-25 16:04+0200\n"
-"PO-Revision-Date: 2019-10-31 14:43+0000\n"
-"Last-Translator: Guillaume Derval <guillaume.derval@uclouvain.be>\n"
+"PO-Revision-Date: 2019-10-31 15:05+0000\n"
+"Last-Translator: Rosana Veroneze <rveroneze@gmail.com>\n"
 "Language-Team: Portuguese <http://weblate.info.ucl.ac.be/projects/inginious/"
 "frontend/pt/>\n"
 "Language: pt\n"
@@ -1268,126 +1268,129 @@ msgstr "Nome do iniciador"
 
 #: inginious/frontend/templates/queue.html:33
 msgid "Started at"
-msgstr ""
+msgstr "Começou em"
 
 #: inginious/frontend/templates/queue.html:34
 msgid "Timeout at"
-msgstr ""
+msgstr "Tempo limite às"
 
 #: inginious/frontend/templates/course_admin/settings.html:240
 #: inginious/frontend/templates/queue.html:41
 #: inginious/frontend/templates/queue.html:70
 msgid "Yes"
-msgstr ""
+msgstr "Sim"
 
 #: inginious/frontend/templates/course_admin/settings.html:246
 #: inginious/frontend/templates/queue.html:43
 #: inginious/frontend/templates/queue.html:72
 msgid "No"
-msgstr ""
+msgstr "Não"
 
 #: inginious/frontend/templates/queue.html:53
 msgid "There are no jobs running"
-msgstr ""
+msgstr "Não há trabalhos em execução"
 
 #: inginious/frontend/templates/queue.html:55
 msgid "Jobs in queue"
-msgstr ""
+msgstr "Trabalhos na fila"
 
 #: inginious/frontend/templates/queue.html:60
 msgid "Local"
-msgstr ""
+msgstr "Local"
 
 #: inginious/frontend/templates/queue.html:63
 msgid "Maximum runtime in seconds"
-msgstr ""
+msgstr "Tempo de execução máximo em segundos"
 
 #: inginious/frontend/templates/queue.html:80
 msgid "There are no jobs waiting in queue"
-msgstr ""
+msgstr "Não há trabalhos aguardando na fila"
 
 #: inginious/frontend/templates/register.html:24
 msgid "Register in INGInious"
-msgstr ""
+msgstr "Registre-se no INGInious"
 
 #: inginious/frontend/templates/register.html:28
 msgid "Username (min. 4 alphanumerical characters) :"
-msgstr ""
+msgstr "Nome de usuário (mínimo de 4 caracteres alfanuméricos):"
 
 #: inginious/frontend/templates/preferences/profile.html:49
 #: inginious/frontend/templates/register.html:32
 msgid "Complete name :"
-msgstr ""
+msgstr "Nome completo:"
 
 #: inginious/frontend/templates/preferences/profile.html:53
 #: inginious/frontend/templates/register.html:36
 #: inginious/frontend/templates/register.html:58
 msgid "Email address :"
-msgstr ""
+msgstr "Endereço de e-mail:"
 
 #: inginious/frontend/templates/register.html:40
 #: inginious/frontend/templates/register.html:81
 msgid "Password (min. 6 characters) :"
-msgstr ""
+msgstr "Senha (mínimo de 6 caracteres):"
 
 #: inginious/frontend/templates/register.html:44
 #: inginious/frontend/templates/register.html:85
 msgid "Confirm password :"
-msgstr ""
+msgstr "Confirme a Senha:"
 
 #: inginious/frontend/templates/register.html:48
 msgid "Sign up"
-msgstr ""
+msgstr "Inscrever-se"
 
 #: inginious/frontend/templates/register.html:54
 msgid "Lost password ?"
-msgstr ""
+msgstr "Esqueceu a senha?"
 
 #: inginious/frontend/templates/register.html:62
 msgid "Reset my password"
-msgstr ""
+msgstr "Redefinir minha senha"
 
 #: inginious/frontend/templates/register.html:75
 msgid "Set new password for {} [{}]"
-msgstr ""
+msgstr "Definir nova senha para {} [{}]"
 
 #: inginious/frontend/templates/register.html:90
 msgid "Set new password"
-msgstr ""
+msgstr "Definir nova senha"
 
 #: inginious/frontend/templates/register_modal.html:19
 msgid "This will enroll you in the course {}."
-msgstr ""
+msgstr "Isso o inscreverá no curso {}."
 
 #: inginious/frontend/templates/signin_button.html:10
 msgid ""
 "Please register or sign in to see the complete list of courses and be "
 "able to submit answers to problems."
 msgstr ""
+"Por favor, registre-se ou faça login para ver a lista completa de cursos e "
+"poder enviar respostas para problemas."
 
 #: inginious/frontend/templates/task.html:17
 msgid "Information"
-msgstr ""
+msgstr "Informações"
 
 #: inginious/frontend/templates/task.html:21
 msgid "Author(s)"
-msgstr ""
+msgstr "Autores"
 
 #: inginious/frontend/templates/task.html:27
 #: inginious/frontend/templates/task.html:34
 msgid "Deadline"
-msgstr ""
+msgstr "Prazo de entrega"
 
 #: inginious/frontend/templates/course_admin/aggregation_info.html:34
 #: inginious/frontend/templates/course_admin/task_info.html:47
 #: inginious/frontend/templates/course_admin/task_info.html:112
 #: inginious/frontend/templates/task.html:41
 msgid "Status"
-msgstr ""
+msgstr "Status"
 
 #: inginious/frontend/templates/task.html:44
+#, fuzzy
 msgid "Not yet attempted"
-msgstr ""
+msgstr "Ainda não tentou"
 
 #: inginious/frontend/templates/course_admin/aggregation_info.html:68
 #: inginious/frontend/templates/course_admin/student_info.html:68
@@ -1396,11 +1399,11 @@ msgstr ""
 #: inginious/frontend/templates/course_admin/task_info.html:154
 #: inginious/frontend/templates/task.html:46
 msgid "Succeeded"
-msgstr ""
+msgstr "Sucedido"
 
 #: inginious/frontend/templates/task.html:54
 msgid "Waiting for verification"
-msgstr ""
+msgstr "Aguardando verificação"
 
 #: inginious/frontend/templates/course_admin/aggregation_info.html:70
 #: inginious/frontend/templates/course_admin/student_info.html:71
@@ -1409,126 +1412,131 @@ msgstr ""
 #: inginious/frontend/templates/course_admin/task_info.html:156
 #: inginious/frontend/templates/task.html:56
 msgid "Failed"
-msgstr ""
+msgstr "Falhou"
 
 #: inginious/frontend/templates/task.html:67
 msgid "Grading weight"
-msgstr ""
+msgstr "Peso da nota"
 
 #: inginious/frontend/templates/task.html:71
 msgid "Attempts"
-msgstr ""
+msgstr "Tentativas"
 
 #: inginious/frontend/templates/task.html:77
 msgid "Submission limit"
-msgstr ""
+msgstr "Limite de submissão"
 
 #: inginious/frontend/templates/course_admin/edit_tabs/basic.html:109
 #: inginious/frontend/templates/task.html:81
+#, fuzzy
 msgid "No limitation"
-msgstr ""
+msgstr "Sem limite"
 
 #: inginious/frontend/templates/task.html:84
 msgid "{nb_submissions} submissions<br /> every {nb_hours} hour(s)"
-msgstr ""
+msgstr "{nb_submissions} submissões <br /> a cada {nb_hours} hora(s)"
 
 #: inginious/frontend/templates/task.html:86
 msgid "{nb_submissions} submissions"
-msgstr ""
+msgstr "{nb_submissions} submissões"
 
 #: inginious/frontend/templates/task.html:119
 msgid "Administration"
-msgstr ""
+msgstr "Administração"
 
 #: inginious/frontend/templates/task.html:122
 msgid ""
 "This course is currently invisible for students.  You can change this by "
 "modifying the \"accessible\" option in the configuration of the course."
 msgstr ""
+"Atualmente, este curso é invisível para os alunos. Você pode alterar isso "
+"modificando a opção \"acessível\" na configuração do curso."
 
 #: inginious/frontend/templates/task.html:126
 msgid ""
 "This task is currently invisible for students. You can change this by "
 "modifying the \"accessible\" option in the configuration of the task."
 msgstr ""
+"Atualmente, esta tarefa é invisível para os alunos. Você pode alterar isso "
+"modificando a opção \"acessível\" na configuração da tarefa."
 
 #: inginious/frontend/templates/task.html:134
 msgid "Edit task"
-msgstr ""
+msgstr "Editar tarefa"
 
 #: inginious/frontend/templates/task.html:137
 #: inginious/frontend/templates/task.html:322
 msgid "Debug information"
-msgstr ""
+msgstr "Informações de depuração"
 
 #: inginious/frontend/templates/task.html:141
 msgid "Submitting as"
-msgstr ""
+msgstr "Enviando como"
 
 #: inginious/frontend/templates/task.html:145
 msgid "Group"
-msgstr ""
+msgstr "Grupo"
 
 #: inginious/frontend/templates/course_admin/aggregation_list.html:76
 #: inginious/frontend/templates/course_admin/task_info.html:111
 #: inginious/frontend/templates/task.html:145
 msgid "Team"
-msgstr ""
+msgstr "Equipe"
 
 #: inginious/frontend/templates/task.html:163
 msgid "For evaluation"
-msgstr ""
+msgstr "Para avaliação"
 
 #: inginious/frontend/templates/course_admin/edit_tabs/basic.html:148
 #: inginious/frontend/templates/task.html:167
 msgid "Last submission"
-msgstr ""
+msgstr "Última submissão"
 
 #: inginious/frontend/templates/course_admin/edit_tabs/basic.html:142
 #: inginious/frontend/templates/task.html:169
 msgid "Best submission"
-msgstr ""
+msgstr "Melhor submissão"
 
 #: inginious/frontend/templates/task.html:171
 msgid "Selected submission"
-msgstr ""
+msgstr "Submissão selecionada"
 
 #: inginious/frontend/templates/task.html:179
 #: inginious/frontend/templates/task.html:234
 msgid "No submission"
-msgstr ""
+msgstr "Nenhuma submissão"
 
 #: inginious/frontend/templates/task.html:184
 msgid "Share my result"
-msgstr ""
+msgstr "Compartilhar meu resultado"
 
 #: inginious/frontend/templates/task.html:188
 msgid "Submission history"
-msgstr ""
+msgstr "Histórico de submissões"
 
 #: inginious/frontend/templates/task.html:275
 msgid "\"Previous task\""
-msgstr ""
+msgstr "\"Tarefa anterior\""
 
 #: inginious/frontend/templates/task.html:277
 msgid "\"Next task\""
-msgstr ""
+msgstr "\"Próxima tarefa\""
 
 #: inginious/frontend/templates/task.html:302
 msgid "Alternatively, you can also paste this command into your terminal:"
-msgstr ""
+msgstr "Como alternativa, você também pode colar este comando no seu terminal:"
 
 #: inginious/frontend/templates/task.html:304
 msgid "Paste this command into your terminal:"
-msgstr ""
+msgstr "Cole este comando no seu terminal:"
 
 #: inginious/frontend/templates/task.html:307
 msgid "The password to connect is {}"
-msgstr ""
+msgstr "A senha para conectar é {}"
 
 #: inginious/frontend/templates/task.html:310
 msgid "Please answer to all the questions."
-msgstr ""
+msgstr "Por favor, responda todas as questões."
 
 #: inginious/frontend/templates/task.html:326
 msgid ""
@@ -1536,6 +1544,9 @@ msgid ""
 "debug the task.<br/> This box is only displayed because you are an "
 "administrator of this course. It is not displayed to students."
 msgstr ""
+"Os dados brutos do contêiner serão exibidos aqui, ajudando você a depurar a "
+"tarefa. <br/> Esta caixa é exibida apenas porque você é um administrador "
+"deste curso. Isso não é exibido para os alunos."
 
 #: inginious/frontend/templates/task.html:359
 msgid "Question {}"
