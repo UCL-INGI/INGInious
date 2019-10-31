@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-09-25 16:04+0200\n"
-"PO-Revision-Date: 2019-10-31 15:05+0000\n"
+"PO-Revision-Date: 2019-10-31 15:09+0000\n"
 "Last-Translator: Maxime Piraux <maxime.piraux@uclouvain.be>\n"
 "Language-Team: Walloon <http://weblate.info.ucl.ac.be/projects/inginious/"
 "frontend/wa/>\n"
@@ -140,7 +140,7 @@ msgstr ""
 #: inginious/frontend/pages/register.py:82
 #: inginious/frontend/pages/register.py:161
 msgid "Password too short."
-msgstr ""
+msgstr "Mot d' passe trop court"
 
 #: inginious/frontend/pages/preferences/profile.py:51
 #: inginious/frontend/pages/register.py:85
@@ -157,8 +157,9 @@ msgid "This email address is already in use !"
 msgstr ""
 
 #: inginious/frontend/pages/register.py:106
+#, fuzzy
 msgid "Welcome on INGInious"
-msgstr ""
+msgstr "Wilicom a INGInious"
 
 #: inginious/frontend/pages/register.py:107
 msgid ""
