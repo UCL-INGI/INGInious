@@ -28,7 +28,8 @@ install_requires = [
     "natsort >= 5.0.1",
     "psutil >= 4.4.2",
     "zipstream >= 1.1.4",
-    "WsgiDAV == 2.2.4"
+    "WsgiDAV == 2.2.4",
+    "sphinx-tabs >= 1.1.13"
 ]
 
 test_requires = [
@@ -39,7 +40,7 @@ test_requires = [
 
 # Platform specific dependencies
 if not on_rtd:
-    install_requires += ["pytidylib>=0.2.4", "sphinx-rtd-theme>=0.1.8", "sphinx-tabs"]
+    install_requires += ["pytidylib>=0.2.4", "sphinx-rtd-theme>=0.1.8"]
 else:
     install_requires += test_requires + ["Pygments>=2.0.2"]
 
