@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-09-25 16:04+0200\n"
-"PO-Revision-Date: 2019-10-31 14:31+0000\n"
+"PO-Revision-Date: 2019-10-31 14:43+0000\n"
 "Last-Translator: Rosana Veroneze <rveroneze@gmail.com>\n"
 "Language-Team: Portuguese <http://weblate.info.ucl.ac.be/projects/inginious/"
 "frontend/pt/>\n"
@@ -1108,11 +1108,11 @@ msgstr "Contexto da ferramenta:"
 
 #: inginious/frontend/templates/lti_bind.html:26
 msgid "Tool identifiers:"
-msgstr ""
+msgstr "Identificadores da ferramenta:"
 
 #: inginious/frontend/templates/lti_bind.html:33
 msgid "Bind my account"
-msgstr ""
+msgstr "Vincular minha conta"
 
 #: inginious/frontend/templates/course_admin/classroom_edit.html:94
 #: inginious/frontend/templates/course_admin/danger_zone.html:85
@@ -1124,112 +1124,119 @@ msgstr ""
 #: inginious/frontend/templates/lti_bind.html:34
 #: inginious/frontend/templates/unregister_modal.html:24
 msgid "Cancel"
-msgstr ""
+msgstr "Cancelar"
 
 #: inginious/frontend/templates/lti_login.html:16
 msgid "Hello!"
-msgstr ""
+msgstr "Olá!"
 
 #: inginious/frontend/templates/lti_login.html:17
 msgid "Welcome on the INGInious platform."
-msgstr ""
+msgstr "Bem-vindo à plataforma INGInious."
 
 #: inginious/frontend/templates/lti_login.html:29
 msgid ""
 "In order to use INGInious via this platform, please bind your existing "
 "account or create a new one."
 msgstr ""
+"Para usar o INGInious através desta plataforma, vincule sua conta existente "
+"ou crie uma nova."
 
 #: inginious/frontend/templates/lti_login.html:35
 msgid "Bind your INGInious account"
-msgstr ""
+msgstr "Vincule sua conta do INGInious"
 
 #: inginious/frontend/templates/lti_login.html:36
 msgid "Refresh"
-msgstr ""
+msgstr "Atualizar"
 
 #: inginious/frontend/templates/maintenance.html:59
 msgid ""
 "<b>This INGInious instance is currently under maintenance.</b> Please "
 "come back in a few minutes!"
 msgstr ""
+"<b> Esta instância do INGInious está atualmente em manutenção. </b> Por "
+"favor, volte em alguns minutos!"
 
 #: inginious/frontend/templates/mycourses.html:61
 msgid "LTI course"
-msgstr ""
+msgstr "Curso LTI"
 
 #: inginious/frontend/templates/mycourses.html:63
 msgid "Hidden course"
-msgstr ""
+msgstr "Curso oculto"
 
 #: inginious/frontend/templates/mycourses.html:66
 msgid "Administrator"
-msgstr ""
+msgstr "Administrador"
 
 #: inginious/frontend/templates/mycourses.html:68
 msgid "Tutor"
-msgstr ""
+msgstr "Tutor"
 
 #: inginious/frontend/templates/course_admin/task_info.html:46
 #: inginious/frontend/templates/mycourses.html:70
 msgid "Student"
-msgstr ""
+msgstr "Aluno"
 
 #: inginious/frontend/templates/mycourses.html:76
 msgid "You are not registered to any course"
-msgstr ""
+msgstr "Você não está registrado em nenhum curso"
 
 #: inginious/frontend/templates/mycourses.html:83
 msgid "Course created."
-msgstr ""
+msgstr "Curso criado."
 
 #: inginious/frontend/templates/mycourses.html:88
 msgid "Failed to create the course."
-msgstr ""
+msgstr "Falha ao criar o curso."
 
 #: inginious/frontend/templates/mycourses.html:92
 #: inginious/frontend/templates/mycourses.html:113
 msgid "Course"
-msgstr ""
+msgstr "Curso"
 
 #: inginious/frontend/templates/mycourses.html:96
 msgid "Create new course"
-msgstr ""
+msgstr "Criar novo curso"
 
 #: inginious/frontend/templates/mycourses.html:100
 msgid "Register for a course"
-msgstr ""
+msgstr "Inscreva-se em um curso"
 
 #: inginious/frontend/templates/mycourses.html:104
 msgid "Registration complete."
-msgstr ""
+msgstr "Registro completo."
 
 #: inginious/frontend/templates/mycourses.html:109
 msgid "Registration failed. Please check that you properly typed the password."
 msgstr ""
+"O registro falhou. Por favor, verifique se você digitou a senha corretamente."
 
 #: inginious/frontend/templates/mycourses.html:115
 msgid "Select a course"
-msgstr ""
+msgstr "Selecione um curso"
 
 #: inginious/frontend/templates/notfound.html:8
 #: inginious/frontend/templates/notfound.html:13
 msgid "Error 404"
-msgstr ""
+msgstr "Erro 404"
 
 #: inginious/frontend/templates/queue.html:8
 #: inginious/frontend/templates/queue.html:14
 #: inginious/frontend/templates/queue.html:21
 msgid "Job queue"
-msgstr ""
+msgstr "Fila de trabalhos"
 
 #: inginious/frontend/templates/queue.html:22
+#, fuzzy
 msgid "This page shows a <strong>snapshot</strong> of the job queue."
 msgstr ""
+"Esta página mostra um <strong> instantâneo </strong> da fila de trabalhos."
 
 #: inginious/frontend/templates/queue.html:24
 msgid "Running jobs"
-msgstr ""
+msgstr "Trabalhos em execução"
 
 #: inginious/frontend/templates/course_admin/download.html:49
 #: inginious/frontend/templates/course_admin/subproblems/code.html:22
@@ -1237,27 +1244,28 @@ msgstr ""
 #: inginious/frontend/templates/queue.html:28
 #: inginious/frontend/templates/queue.html:59
 msgid "Type"
-msgstr ""
+msgstr "Tipo"
 
 #: inginious/frontend/templates/queue.html:29
 msgid "Local client"
-msgstr ""
+msgstr "Cliente local"
 
 #: inginious/frontend/templates/queue.html:30
 msgid "Agent name"
-msgstr ""
+msgstr "Nome do agente"
 
 #: inginious/frontend/templates/course_admin/settings.html:31
 #: inginious/frontend/templates/course_admin/task_edit.html:146
 #: inginious/frontend/templates/queue.html:31
 #: inginious/frontend/templates/queue.html:61
 msgid "Name"
-msgstr ""
+msgstr "Nome"
 
 #: inginious/frontend/templates/queue.html:32
 #: inginious/frontend/templates/queue.html:62
+#, fuzzy
 msgid "Launcher name"
-msgstr ""
+msgstr "Nome do iniciador"
 
 #: inginious/frontend/templates/queue.html:33
 msgid "Started at"
