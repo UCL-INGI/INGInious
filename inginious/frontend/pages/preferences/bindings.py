@@ -6,6 +6,7 @@
 """ Auth bindings page """
 import web
 
+from pymongo import ReturnDocument
 from inginious.frontend.pages.utils import INGIniousAuthPage
 
 
@@ -47,8 +48,10 @@ class BindingsPage(INGIniousAuthPage):
                 error = True
                 msg = _("Incorrect authentication binding.")
             elif len(user_data.get("bindings", {}).keys()) > 1 or "password" in user_data:
-                user_data = self.database.users.find_one_and_update({"username": self.user_manager.session_username()},
-                                                        {"$unset": {"bindings." + auth_id: 1}})
+                user_data = self.database.users.find_one_and_update(
+                    {"username": self.user_manager.session_username()},
+                    {"$unset": {"bindings." + auth_id: 1}},
+                    return_document=ReturnDocument.AFTER)
             else:
                 error = True
                 msg = _("You must set a password before removing all bindings.")

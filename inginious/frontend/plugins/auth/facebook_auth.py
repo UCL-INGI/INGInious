@@ -38,7 +38,7 @@ class FacebookAuthMethod(AuthMethod):
             r = facebook.get('https://graph.facebook.com/me?fields=id,name,email')
             profile = json.loads(r.content.decode('utf-8'))
             auth_storage["oauth_state"] = facebook.state
-            return str(profile["id"]), profile["name"], profile["email"]
+            return str(profile["id"]), profile["name"], profile["email"], {}
         except:
             return None, None
 

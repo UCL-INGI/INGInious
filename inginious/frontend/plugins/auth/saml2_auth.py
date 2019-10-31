@@ -74,12 +74,16 @@ class SAMLAuthMethod(AuthMethod):
             realname = attrs[self._settings["attributes"]["cn"]][0]
             email = attrs[self._settings["attributes"]["email"]][0]
 
+            additional = {}
+            for field, urn in self._settings.get("additional", {}).items():
+                additional[field] = attrs[urn][0] if urn in attrs else ""
+
             # Redirect to desired url
             self_url = OneLogin_Saml2_Utils.get_self_url(req)
             if 'RelayState' in input_data and self_url != input_data['RelayState']:
                 redirect_url = auth.redirect_to(input_data['RelayState'])
                 # Initialize session in user manager and update cache
-                return (str(username), realname, email) if redirect_url == auth_storage["redir_url"] else None
+                return (str(username), realname, email, additional) if redirect_url == auth_storage["redir_url"] else None
         else:
             logging.getLogger('inginious.webapp.plugin.auth.saml').error("Errors while processing response : ",
                                                                          ", ".join(errors))
