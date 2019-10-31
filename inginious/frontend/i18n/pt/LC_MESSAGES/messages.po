@@ -8,40 +8,45 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-09-25 16:04+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2019-10-31 12:28+0000\n"
+"Last-Translator: Rosana Veroneze <rveroneze@gmail.com>\n"
+"Language-Team: Portuguese <http://weblate.info.ucl.ac.be/projects/inginious/"
+"frontend/pt/>\n"
 "Language: pt\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 3.8\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: inginious/frontend/parsable_text.py:36
 msgid "[no content]"
-msgstr ""
+msgstr "[sem conteúdo]"
 
 #: inginious/frontend/parsable_text.py:80
 msgid "The feedback below will be hidden to the students until {}."
-msgstr ""
+msgstr "O feedback abaixo ficará oculto para os alunos até {}."
 
 #: inginious/frontend/parsable_text.py:95
 msgid ""
 "A part of this feedback is hidden until {}. Please come back later and "
 "reload the submission to see the full feedback."
 msgstr ""
+"Uma parte desse feedback ficará oculta até {}. Por favor, volte mais tarde e "
+"recarregue a submissão para ver o feedback completo."
 
 #: inginious/frontend/parsable_text.py:257
 msgid "<b>Parsing failed</b>: <pre>{}</pre>"
-msgstr ""
+msgstr "<b>Falha na análise</b>: <pre>{}</pre>"
 
 #: inginious/frontend/task_problems.py:61
 msgid "code"
-msgstr ""
+msgstr "código"
 
 #: inginious/frontend/task_problems.py:92
 msgid "single-line code"
-msgstr ""
+msgstr "código de linha única"
 
 #: inginious/frontend/task_problems.py:118
 msgid "file upload"
