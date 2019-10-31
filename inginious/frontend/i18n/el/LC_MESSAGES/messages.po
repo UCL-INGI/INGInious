@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-09-25 16:04+0200\n"
-"PO-Revision-Date: 2019-10-31 15:09+0000\n"
+"PO-Revision-Date: 2019-11-01 17:04+0000\n"
 "Last-Translator: Mathieu Jadin <mathieu.jadin@uclouvain.be>\n"
 "Language-Team: Greek <http://weblate.info.ucl.ac.be/projects/inginious/"
 "frontend/el/>\n"
@@ -84,7 +84,7 @@ msgstr "Δεν είναι εγγεγραμμένος/η σε μια ομάδα."
 
 #: inginious/frontend/pages/lti.py:46 inginious/frontend/pages/lti.py:58
 msgid "Missing LTI session id"
-msgstr "Απών αναγνωριστικό της σύνδεσης LTI"
+msgstr "Δεν υπάρχει το αναγνωριστικό της σύνδεσης LTI"
 
 #: inginious/frontend/pages/lti.py:51 inginious/frontend/pages/lti.py:63
 msgid "Invalid LTI session id"
@@ -127,7 +127,7 @@ msgstr "Ο λογαριασμος σας είναι ενεργοποιημένο
 #: inginious/frontend/pages/preferences/profile.py:27
 #: inginious/frontend/pages/register.py:76
 msgid "Invalid username format."
-msgstr "Λάθος φορμάτ του όνομα χρήστης."
+msgstr "Λάθος φορμάτ του όνοματος χρήστης."
 
 #: inginious/frontend/pages/register.py:79
 #: inginious/frontend/pages/register.py:131
@@ -337,7 +337,7 @@ msgstr "Δεν μπορούμε να απλώσουμε τους αλλαγές 
 
 #: inginious/frontend/pages/course_admin/aggregation_edit.py:235
 msgid "Teams updated."
-msgstr "Επικαιροποιημένη oμάδα."
+msgstr "Επικαιροποιημένες oμάδες."
 
 #: inginious/frontend/pages/course_admin/aggregation_edit.py:237
 #: inginious/frontend/pages/course_admin/classroom_edit.py:187
@@ -505,85 +505,87 @@ msgstr "Μερικές ετικέτες έχουν τον ίδιο αναγνω�
 
 #: inginious/frontend/pages/course_admin/tags.py:42
 msgid "Some tag fields were missing."
-msgstr "Μερικά πεδία ετικέτων"
+msgstr "Δεν υπάρχει όλα τα πεδία ετικετών."
 
 #: inginious/frontend/pages/course_admin/tags.py:45
 msgid "Invalid tag id: {}"
-msgstr ""
+msgstr "Λάθος αναγνωριστικό ετικετάς: {}"
 
 #: inginious/frontend/pages/course_admin/task_edit.py:135
 msgid "Invalid file type: {}"
-msgstr ""
+msgstr "Λάθος τύπος αρχείου: {}"
 
 #: inginious/frontend/pages/course_admin/task_edit.py:151
 msgid "Unknown category tag."
-msgstr ""
+msgstr "Άγνωστη κατηγορία ετικετάς."
 
 #: inginious/frontend/pages/course_admin/task_edit.py:162
 msgid "Grade weight must be a floating-point number"
-msgstr ""
+msgstr "Το βάρος βαθμού πρέπει να είναι ένας αριθμός κινητής υποδιαστολής"
 
 #: inginious/frontend/pages/course_admin/task_edit.py:175
 #: inginious/frontend/pages/course_admin/task_edit.py:178
 msgid "The number of stored submission must be positive!"
-msgstr ""
+msgstr "Ο αριθμός των αποθηκευμένων υποβολών πρέπει να είναι θετικός!"
 
 #: inginious/frontend/pages/course_admin/task_edit.py:189
 #: inginious/frontend/pages/course_admin/task_edit.py:195
 msgid "Invalid submission limit!"
-msgstr ""
+msgstr "Λάθος όριο υποβολής!"
 
 #: inginious/frontend/pages/course_admin/task_edit.py:220
 msgid "Your browser returned an invalid form ({})"
-msgstr ""
+msgstr "Το πρόγραμμα περιήγησής σας επέστρεψε μια λάθος φόρμα ({})"
 
 #: inginious/frontend/pages/course_admin/task_edit.py:226
 msgid "Error while reading course's informations"
-msgstr ""
+msgstr "Λάθος όταν διαβάσατε τους πληροφορίες του μαθήματος"
 
 #: inginious/frontend/pages/course_admin/task_edit.py:250
 msgid "Invalid data: {}"
-msgstr ""
+msgstr "Λάθος δεδομένα: {}"
 
 #: inginious/frontend/pages/course_admin/task_edit.py:256
 msgid "Cannot read zip file. Files were not modified"
-msgstr ""
+msgstr "Δεν μπορείτε να διαβάσαμε του αρχείου zip. Τα αρχεία δεν τροποποιήθηκαν"
 
 #: inginious/frontend/pages/course_admin/task_edit.py:263
 msgid ""
 "There was a problem while extracting the zip archive. Some files may have"
 " been modified"
 msgstr ""
+"Υπήρξε ένα πρόβλημα οτάν εξηγάγαμε το αρχείο zip. Ορισμένα αρχεία ενδέχεται "
+"να έχουν τροποποιηθεί"
 
 #: inginious/frontend/pages/course_admin/task_edit_file.py:161
 #: inginious/frontend/pages/course_admin/task_edit_file.py:181
 #: inginious/frontend/pages/course_admin/task_edit_file.py:206
 msgid "Invalid new path"
-msgstr ""
+msgstr "Λάθος νέα διαδρομή"
 
 #: inginious/frontend/pages/course_admin/task_edit_file.py:167
 msgid "An error occurred while writing the file"
-msgstr ""
+msgstr "Λάθος οτάν εγράψαμε το αρχείο"
 
 #: inginious/frontend/pages/course_admin/task_edit_file.py:212
 msgid "An error occurred while moving the files"
-msgstr ""
+msgstr "Λάθος οτάν μετακομίσαμε τα αρχεία"
 
 #: inginious/frontend/pages/course_admin/task_edit_file.py:233
 msgid "An error occurred while deleting the files"
-msgstr ""
+msgstr "Λάθος οτάν διαγράψατε τα αρχεία"
 
 #: inginious/frontend/pages/course_admin/utils.py:256
 #: inginious/frontend/templates/course_admin/settings.html:18
 #: inginious/frontend/templates/course_admin/settings.html:23
 msgid "Course settings"
-msgstr ""
+msgstr "Ρυθμίσεις μαθήματος"
 
 #: inginious/frontend/pages/course_admin/utils.py:258
 #: inginious/frontend/templates/course_admin/stats.html:23
 #: inginious/frontend/templates/course_admin/stats.html:30
 msgid "Stats"
-msgstr ""
+msgstr "Στατιστικά στοιχεία"
 
 #: inginious/frontend/pages/course_admin/utils.py:259
 #: inginious/frontend/templates/classroom.html:117
@@ -595,14 +597,14 @@ msgstr ""
 #: inginious/frontend/templates/team.html:83
 #: inginious/frontend/templates/team.html:155
 msgid "Students"
-msgstr ""
+msgstr "Φοιτητές"
 
 #: inginious/frontend/pages/course_admin/utils.py:263
 #: inginious/frontend/templates/course_admin/aggregation_list.html:22
 #: inginious/frontend/templates/course_admin/aggregation_list.html:29
 #: inginious/frontend/templates/course_admin/submissions.html:70
 msgid "Classrooms"
-msgstr ""
+msgstr "Αίθουσες"
 
 #: inginious/frontend/pages/course_admin/utils.py:263
 #: inginious/frontend/templates/course_admin/aggregation_list.html:22
@@ -611,7 +613,7 @@ msgstr ""
 #: inginious/frontend/templates/course_admin/submissions.html:70
 #: inginious/frontend/templates/team.html:67
 msgid "Teams"
-msgstr ""
+msgstr "Ομάδες"
 
 #: inginious/frontend/pages/course_admin/utils.py:265
 #: inginious/frontend/templates/course_admin/stats.html:129
@@ -619,7 +621,7 @@ msgstr ""
 #: inginious/frontend/templates/course_admin/task_list.html:19
 #: inginious/frontend/templates/course_admin/task_list.html:25
 msgid "Tasks"
-msgstr ""
+msgstr "'Ασκησεις"
 
 #: inginious/frontend/pages/course_admin/utils.py:266
 #: inginious/frontend/templates/course_admin/submission.html:88
@@ -628,7 +630,7 @@ msgstr ""
 #: inginious/frontend/templates/course_admin/tags.html:24
 #: inginious/frontend/templates/task.html:108
 msgid "Tags"
-msgstr ""
+msgstr "Ετικετές"
 
 #: inginious/frontend/pages/course_admin/utils.py:267
 #: inginious/frontend/templates/course_admin/submissions.html:12
@@ -636,94 +638,95 @@ msgstr ""
 #: inginious/frontend/templates/course_admin/submissions.html:35
 #: inginious/frontend/templates/task.html:130
 msgid "View submissions"
-msgstr ""
+msgstr "Βλέπω τις υποβολές"
 
 #: inginious/frontend/pages/course_admin/utils.py:268
 #: inginious/frontend/templates/course_admin/download.html:8
 #: inginious/frontend/templates/course_admin/download.html:20
 #: inginious/frontend/templates/course_admin/download.html:25
 msgid "Download submissions"
-msgstr ""
+msgstr "Κατέβαζω τις υποβολές"
 
 #: inginious/frontend/pages/course_admin/utils.py:272
 #: inginious/frontend/templates/course_admin/webdav.html:24
 msgid "WebDAV access"
-msgstr ""
+msgstr "WebDAV πρόσβαση"
 
 #: inginious/frontend/pages/course_admin/utils.py:273
 #: inginious/frontend/templates/course_admin/replay.html:8
 #: inginious/frontend/templates/course_admin/replay.html:20
 #: inginious/frontend/templates/course_admin/replay.html:25
 msgid "Replay submissions"
-msgstr ""
+msgstr "επαναλαμβάνω τις υποβολές"
 
 #: inginious/frontend/pages/course_admin/utils.py:274
 #: inginious/frontend/templates/course_admin/danger_zone.html:8
 #: inginious/frontend/templates/course_admin/danger_zone.html:20
 #: inginious/frontend/templates/course_admin/danger_zone.html:25
 msgid "Danger zone"
-msgstr ""
+msgstr "Επικίνδυνη ζώνη"
 
 #: inginious/frontend/pages/preferences/bindings.py:40
 #: inginious/frontend/pages/preferences/bindings.py:48
 msgid "Incorrect authentication binding."
-msgstr ""
+msgstr "Λάθος σύνδεση ταυτοποίησης."
 
 #: inginious/frontend/pages/preferences/bindings.py:54
 msgid "You must set a password before removing all bindings."
 msgstr ""
+"Πρέπει να ορίσετε έναν κωδικό πρόσβασης πριν να αφαιρέσετε όλες τις σύνδεσες."
 
 #: inginious/frontend/pages/preferences/delete.py:27
 msgid "The specified email is incorrect."
-msgstr ""
+msgstr "Αυτό το email είναι λάθος."
 
 #: inginious/frontend/pages/preferences/profile.py:30
 msgid "Username already taken"
-msgstr ""
+msgstr "Το όνομα χρήστης χρησιμοποιείται ήδη."
 
 #: inginious/frontend/pages/preferences/profile.py:37
 msgid "Incorrect email."
-msgstr ""
+msgstr "Λάθος email."
 
 #: inginious/frontend/pages/preferences/profile.py:41
 #: inginious/frontend/pages/preferences/profile.py:98
 msgid "Profile updated."
-msgstr ""
+msgstr "Επικαιροποιημένο προφίλ."
 
 #: inginious/frontend/pages/preferences/profile.py:66
 msgid "Incorrect old password."
-msgstr ""
+msgstr "Λάθος παλαιός κωδικός πρόσβασης."
 
 #: inginious/frontend/pages/preferences/profile.py:77
 #: inginious/frontend/pages/preferences/profile.py:89
 msgid "Incorrect username."
-msgstr ""
+msgstr "Λάθος όνομα χρήστη."
 
 #: inginious/frontend/pages/preferences/profile.py:95
 msgid "Name is too short."
-msgstr ""
+msgstr "Το όνομα είναι πολύ μικρό."
 
 #: inginious/frontend/pages/preferences/utils.py:15
 #: inginious/frontend/templates/preferences/profile.html:8
 #: inginious/frontend/templates/preferences/profile.html:18
 #: inginious/frontend/templates/preferences/profile.html:23
 msgid "My profile"
-msgstr ""
+msgstr "Το προφιλ μου"
 
 #: inginious/frontend/pages/preferences/utils.py:16
 #: inginious/frontend/templates/preferences/bindings.html:8
 #: inginious/frontend/templates/preferences/bindings.html:18
 #: inginious/frontend/templates/preferences/bindings.html:35
 msgid "Authentication bindings"
-msgstr ""
+msgstr "Σύνδεσες ταυτοποίησης"
 
 #: inginious/frontend/pages/preferences/utils.py:19
 msgid "Delete my account"
-msgstr ""
+msgstr "Διαγράψω τον λογαριασμό μου"
 
 #: inginious/frontend/plugins/auth/facebook_auth.py:51
 msgid "INGInious | {course} - {task}"
-msgstr ""
+msgstr "INGInious | {course} - {task}"
 
 #: inginious/frontend/plugins/auth/facebook_auth.py:55
 #: inginious/frontend/plugins/auth/twitter_auth.py:54
@@ -732,63 +735,65 @@ msgid ""
 "Check out INGInious course {course} and beat my score of {score}% on task"
 " {task} !"
 msgstr ""
+"Να ελέγξετε το INGInious μάθημα {course} και να δείρετε το βάθμο μου {score}%"
+" για την ασκήση {task}!"
 
 #: inginious/frontend/templates/auth.html:8
 msgid "Welcome"
-msgstr ""
+msgstr "Καλωσήρθες"
 
 #: inginious/frontend/templates/auth.html:17
 #: inginious/frontend/templates/course_admin/edit_tabs/file_modals.html:23
 #: inginious/frontend/templates/register_modal.html:27
 msgid "Close"
-msgstr ""
+msgstr "λείνω"
 
 #: inginious/frontend/templates/auth.html:24
 #: inginious/frontend/templates/course_admin/webdav.html:29
 msgid "Username"
-msgstr ""
+msgstr "Όνομα χρήστη"
 
 #: inginious/frontend/templates/auth.html:27
 #: inginious/frontend/templates/course_admin/webdav.html:30
 #: inginious/frontend/templates/mycourses.html:124
 #: inginious/frontend/templates/register_modal.html:22
 msgid "Password"
-msgstr ""
+msgstr "Κωδικός πρόσβασης"
 
 #: inginious/frontend/templates/auth.html:27
 msgid "Lost password?"
-msgstr ""
+msgstr "Χαμένος κωδικός?"
 
 #: inginious/frontend/templates/auth.html:29
 #: inginious/frontend/templates/layout.html:143
 #: inginious/frontend/templates/signin_button.html:8
 #: inginious/frontend/templates/signin_button.html:15
 msgid "Sign in"
-msgstr ""
+msgstr "Συνδεθείτε"
 
 #: inginious/frontend/templates/auth.html:39
 msgid "Sign in with"
-msgstr ""
+msgstr "Συνδεθείτε με"
 
 #: inginious/frontend/templates/classroom.html:22
 #: inginious/frontend/templates/course.html:22
 #: inginious/frontend/templates/mycourses.html:22
 #: inginious/frontend/templates/team.html:22
 msgid "Last tried exercises"
-msgstr ""
+msgstr "Τελευταίες δοκιμασμένες ασκήσεις"
 
 #: inginious/frontend/templates/classroom.html:41
 #: inginious/frontend/templates/course.html:40
 #: inginious/frontend/templates/mycourses.html:41
 #: inginious/frontend/templates/team.html:41
 msgid "No submissions"
-msgstr ""
+msgstr "Δεν υπάρχουν υποβολές"
 
 #: inginious/frontend/templates/classroom.html:47
 #: inginious/frontend/templates/course.html:66
 #: inginious/frontend/templates/team.html:46
 msgid "Unregister from this course"
-msgstr ""
+msgstr "Καταργήστε την εγγραφή από αυτό το μαθήμα"
 
 #: inginious/frontend/templates/classroom.html:59
 #: inginious/frontend/templates/course.html:92
@@ -817,7 +822,7 @@ msgstr ""
 #: inginious/frontend/templates/task.html:261
 #: inginious/frontend/templates/team.html:60
 msgid "(current)"
-msgstr ""
+msgstr "(τρέχων)"
 
 #: inginious/frontend/templates/classroom.html:84
 msgid "Members"
