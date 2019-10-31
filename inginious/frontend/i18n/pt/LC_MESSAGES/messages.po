@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-09-25 16:04+0200\n"
-"PO-Revision-Date: 2019-10-31 13:25+0000\n"
+"PO-Revision-Date: 2019-10-31 13:29+0000\n"
 "Last-Translator: Rosana Veroneze <rveroneze@gmail.com>\n"
 "Language-Team: Portuguese <http://weblate.info.ucl.ac.be/projects/inginious/"
 "frontend/pt/>\n"
@@ -447,40 +447,40 @@ msgstr "Valor de ACL inválido"
 
 #: inginious/frontend/pages/course_admin/settings.py:92
 msgid "LTI keys must be alphanumerical."
-msgstr ""
+msgstr "As chaves LTI devem ser alfanuméricas."
 
 #: inginious/frontend/pages/course_admin/statistics.py:185
 msgid "Number of submissions"
-msgstr ""
+msgstr "Número de submissões"
 
 #: inginious/frontend/pages/course_admin/statistics.py:186
 msgid "Evaluation submissions (Total)"
-msgstr ""
+msgstr "Submissões de avaliação (Total)"
 
 #: inginious/frontend/pages/course_admin/statistics.py:187
 msgid "Evaluation submissions (Succeeded)"
-msgstr ""
+msgstr "Submissões de avaliação (êxito)"
 
 #: inginious/frontend/pages/course_admin/statistics.py:188
 msgid "Evaluation submissions (Failed)"
-msgstr ""
+msgstr "Submissões de avaliação (com falha)"
 
 #: inginious/frontend/pages/course_admin/submissions.py:24
 msgid "Submitted on"
-msgstr ""
+msgstr "Submetido em"
 
 #: inginious/frontend/pages/course_admin/submissions.py:24
 msgid "User"
-msgstr ""
+msgstr "Usuário"
 
 #: inginious/frontend/pages/course_admin/submissions.py:24
 #: inginious/frontend/templates/task.html:60
 msgid "Grade"
-msgstr ""
+msgstr "Nota"
 
 #: inginious/frontend/pages/course_admin/submissions.py:24
 msgid "Task id"
-msgstr ""
+msgstr "ID da tarefa"
 
 #: inginious/frontend/pages/course_admin/submissions.py:43
 msgid "{0} selected submissions were set for replay."
