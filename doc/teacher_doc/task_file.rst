@@ -12,6 +12,7 @@ subdirectory.
 .. code-block:: yaml
 
     author: Your name
+    contact_url: mailto:yourself@example.com?subject=About the task {task_id} (course {course_id}), INGInious username {username}
     context: |-
         The context of this task. Explain here what the students have to do.
     order: 1
@@ -34,6 +35,8 @@ subdirectory.
 -   ``author``, ``context``, ``order``, ``name``, ``language`` and ``header`` are only needed
     if you use the frontend.
     ``context`` and ``header`` are parsed using restructuredText.
+
+-   ``contact_url`` is an url to contact the maintainer of the task. It is a Python format string that will be formatted with values for the keys ``{task_id, course_id, username}``. It must form a valid URL. It can thus also be an HTTP link.
 
 -   ``order`` is an integer, used by the frontend to sort the task list. Task are sorted
     in increasing value of *order*.

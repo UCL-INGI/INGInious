@@ -34,6 +34,11 @@ class WebAppTask(Task):
         else:
             self._author = ""
 
+        if isinstance(self._data.get('contact_url'), str):
+            self._contact_url = self._data['contact_url']
+        else:
+            self._contact_url = ""
+
         # Submission storage
         self._stored_submissions = int(self._data.get("stored_submissions", 0))
 
@@ -106,6 +111,10 @@ class WebAppTask(Task):
     def get_authors(self, language):
         """ Return the list of this task's authors """
         return self.gettext(language, self._author) if self._author else ""
+
+    def get_contact_url(self, _language):
+        """ Return the contact link format string for this task """
+        return self._contact_url or ""
 
     def adapt_input_for_backend(self, input_data):
         """ Adapt the input from web.py for the inginious.backend """
