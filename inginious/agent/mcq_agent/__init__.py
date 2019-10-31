@@ -11,7 +11,7 @@ from inginious import get_root_path
 from inginious.common.course_factory import create_factories
 from inginious.common.messages import BackendNewJob, BackendKillJob
 from inginious.common.tasks_problems import MultipleChoiceProblem, MatchProblem
-
+import os.path
 
 class MCQAgent(Agent):
     def __init__(self, context, backend_addr, friendly_name, concurrency, tasks_filesystem, course_factory):
@@ -27,10 +27,11 @@ class MCQAgent(Agent):
         self.course_factory = course_factory
 
         # Init gettext
-        languages = ["en", "fr", "es"]
-        self._translations = {
-            lang: gettext.translation('messages', get_root_path() + '/agent/mcq_agent/i18n', [lang]) for lang in languages
-        }
+        self._translations = {"en": gettext.NullTranslations()}
+        available_translations = [x for x in os.listdir(get_root_path() + '/agent/mcq_agent/i18n') if os.path.isdir(os.path.join(get_root_path() + '/agent/mcq_agent/i18n', x))]
+        self._translations.update({
+            lang: gettext.translation('messages', get_root_path() + '/agent/mcq_agent/i18n', [lang]) for lang in available_translations
+        })
 
     @property
     def environments(self):

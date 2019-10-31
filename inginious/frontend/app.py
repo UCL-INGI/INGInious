@@ -151,13 +151,16 @@ def get_app(config):
     appli = CookieLessCompatibleApplication(MongoStore(database, 'sessions'))
 
     # Init gettext
-    available_languages = {
-        "en": "English",
+    available_translations = {
         "fr": "Français",
         "es": "Español"
     }
 
-    for lang in available_languages.keys():
+    available_languages = {"en": "English"}
+    available_languages.update(available_translations)
+
+    appli.add_translation("en", gettext.NullTranslations())  # English does not need translation ;-)
+    for lang in available_translations.keys():
         appli.add_translation(lang, gettext.translation('messages', get_root_path() + '/frontend/i18n', [lang]))
 
     builtins.__dict__['_'] = appli.gettext
