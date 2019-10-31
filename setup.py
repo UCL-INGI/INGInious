@@ -28,8 +28,7 @@ install_requires = [
     "natsort >= 5.0.1",
     "psutil >= 4.4.2",
     "zipstream >= 1.1.4",
-    "WsgiDAV == 2.2.4",
-    "sphinx-tabs >= 1.1.13"
+    "WsgiDAV == 2.2.4"
 ]
 
 test_requires = [
@@ -38,11 +37,18 @@ test_requires = [
     "pyvirtualdisplay"
 ]
 
+doc_requires = [
+    "sphinx-tabs >= 1.1.13",
+    "ipython >= 7.6.1"
+]
+
 # Platform specific dependencies
 if not on_rtd:
-    install_requires += ["pytidylib>=0.2.4", "sphinx-rtd-theme>=0.1.8"]
-else:
-    install_requires += test_requires + ["Pygments>=2.0.2"]
+    doc_requires += ["sphinx-rtd-theme>=0.1.8"]
+    install_requires += ["pytidylib>=0.2.4"]
+
+if on_rtd:
+    install_requires += test_requires + doc_requires
 
 if sys.platform == 'win32':
     install_requires += ["pbs>=0.110"]
@@ -62,7 +68,8 @@ setup(
         "ldap": ["ldap3"],
         "saml2": ["python3-saml"],
         "uwsgi": ["uwsgi"],
-        "test": test_requires
+        "test": test_requires,
+        "doc": doc_requires
     },
 
     scripts=[
