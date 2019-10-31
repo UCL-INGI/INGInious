@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-09-25 16:04+0200\n"
 "PO-Revision-Date: 2019-10-31 14:43+0000\n"
-"Last-Translator: Rosana Veroneze <rveroneze@gmail.com>\n"
+"Last-Translator: Guillaume Derval <guillaume.derval@uclouvain.be>\n"
 "Language-Team: Portuguese <http://weblate.info.ucl.ac.be/projects/inginious/"
 "frontend/pt/>\n"
 "Language: pt\n"
@@ -1082,13 +1082,12 @@ msgid "Authorization required"
 msgstr "Autorização necessária"
 
 #: inginious/frontend/templates/lti_bind.html:20
-#, fuzzy
 msgid ""
 "You are going to bind your INGInious account <strong>{realname} "
 "[{username}]</strong> with the following LTI tool and context:"
 msgstr ""
-"Você vinculará sua conta do INGInious <strong> {realname} [{nomedeusuário}] "
-"</strong> com a seguinte ferramenta e contexto da LTI:"
+"Você vinculará sua conta do INGInious <strong>{realname} "
+"[{nomedeusuário}]</strong> com a seguinte ferramenta e contexto da LTI:"
 
 #: inginious/frontend/templates/lti_bind.html:22
 msgid "Tool name:"
