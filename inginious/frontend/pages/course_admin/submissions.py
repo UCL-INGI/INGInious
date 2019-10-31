@@ -22,8 +22,8 @@ class CourseSubmissionsPage(INGIniousAdminPage):
 
     _allowed_sort = ["submitted_on", "username", "grade", "taskid"]
     _allowed_sort_name = [_("Submitted on"), _("User"), _("Grade"), _("Task id")]
-    _valid_formats = ["taskid/username", "taskid/aggregation", "username/taskid", "aggregation/taskid"]
-    _valid_formats_name = [_("taskid/username"), _("taskid/aggregation"), _("username/taskid"), _("aggregation/taskid")]
+    _valid_formats = ["taskid/username", "taskid/audience", "username/taskid", "audience/taskid"]
+    _valid_formats_name = [_("taskid/username"), _("taskid/audience"), _("username/taskid"), _("audience/taskid")]
     _trunc_limit = 500  # To trunc submissions if there are too many submissions
 
     def POST_AUTH(self, courseid):  # pylint: disable=arguments-differ
@@ -58,11 +58,23 @@ class CourseSubmissionsPage(INGIniousAdminPage):
         msgs = msgs if msgs else []
         
         user_input = self.get_input()
-        data, classroom = self.get_submissions(course, user_input)  # ONLY classrooms user wants to query
+        data, audience = self.get_submissions(course, user_input)  # ONLY audiences user wants to query
         if len(data) == 0 and not self.show_collapse(user_input):
             msgs.append(_("No submissions found"))
 
-        classrooms = self.user_manager.get_course_aggregations(course)  # ALL classrooms of the course
+        audiences = self.user_manager.get_course_audiences(course)  # ALL audiences of the course
+        audiences_id = [audience["_id"] for audience in audiences]
+        audiences_list = list(self.database.audiences.aggregate([
+            {"$match": {"_id": {"$in": audiences_id}}},
+            {"$unwind": "$students"},
+            {"$project": {
+                "audience": "$_id",
+                "students": 1
+            }}
+        ]))
+        audiences = {audience["_id"]: audience for audience in audiences}
+        audiences = {d["students"]: audiences[d["audience"]] for d in audiences_list}
+
         users = self.get_users(course)  # All users of the course
         tasks = course.get_tasks()  # All tasks of the course
 
@@ -78,16 +90,10 @@ class CourseSubmissionsPage(INGIniousAdminPage):
             web.header('Content-Type', 'application/x-gzip', unique=True)
             web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)
 
-            # Tweak if not using classrooms : classroom['students'] may content ungrouped users
-            aggregations = dict([(username,
-                                  aggregation if course.use_classrooms() or (
-                                  username in aggregation['groups'][0]["students"]) else None
-                                  ) for aggregation in classroom for username in aggregation["students"]])
-
             download_type = web.input(download_type=self._valid_formats[0]).download_type
             if download_type not in self._valid_formats:
                 download_type = self._valid_formats[0]
-            return self.submission_manager.get_submission_archive(data, list(reversed(download_type.split('/'))), aggregations)
+            return self.submission_manager.get_submission_archive(data, list(reversed(download_type.split('/'))), audiences)
 
         if user_input.limit != '' and user_input.limit.isdigit():
             data = data[:int(user_input.limit)]
@@ -95,12 +101,12 @@ class CourseSubmissionsPage(INGIniousAdminPage):
         if len(data) > self._trunc_limit:
             msgs.append(_("The result contains more than {0} submissions. The displayed submissions are truncated.\n").format(self._trunc_limit))
             data = data[:self._trunc_limit]
-        return self.template_helper.get_renderer().course_admin.submissions(course, tasks, users, classrooms, data, statistics, user_input, self._allowed_sort, self._allowed_sort_name, self._valid_formats, msgs, self.show_collapse(user_input))
+        return self.template_helper.get_renderer().course_admin.submissions(course, tasks, users, audiences, data, statistics, user_input, self._allowed_sort, self._allowed_sort_name, self._valid_formats, msgs, self.show_collapse(user_input))
 
     def show_collapse(self, user_input):
         """ Return True is we should display the main collapse. """
-        # If users has not specified any user/aggregation, there are no submissions so we display the main collapse.
-        if len(user_input['user']) == 0 and len(user_input['aggregation']) == 0:
+        # If users has not specified any user/audience, there are no submissions so we display the main collapse.
+        if len(user_input['users']) == 0 and len(user_input['audiences']) == 0:
             return True
         return False
 
@@ -113,42 +119,42 @@ class CourseSubmissionsPage(INGIniousAdminPage):
     def get_submissions(self, course, user_input):
         """ Returns the list of submissions and corresponding aggragations based on inputs """
 
-        # Build lists of wanted users based on classrooms and specific users
-        list_classroom_id = [ObjectId(o) for o in user_input.aggregation]
-        classroom = list(self.database.aggregations.find({"_id": {"$in": list_classroom_id}}))
-        more_username = [s["students"] for s in classroom]  # Extract usernames of students
+        # Build lists of wanted users based on audiences and specific users
+        list_audience_id = [ObjectId(o) for o in user_input.audiences]
+        audience = list(self.database.audiences.find({"_id": {"$in": list_audience_id}}))
+        more_username = [s["students"] for s in audience]  # Extract usernames of students
         more_username = [y for x in more_username for y in x]  # Flatten lists
         
         # Get tasks based on categories
         categories = set(user_input.org_tags)
         more_tasks = [taskid for taskid, task in course.get_tasks().items() if categories.intersection(task.get_categories())]
 
-        #Base query
-        query_base = {
-                "username": {"$in": user_input.user + more_username},
-                "courseid": course.get_id(),
-                "taskid": {"$in": user_input.task + more_tasks}
-                }
+        # Base query
+        query_base = {"courseid": course.get_id()}
+
+        students = user_input.users + more_username
+        if len(students):
+            query_base["username"] = {"$in": students}
+
+        tasks = user_input.tasks + more_tasks
+        if len(tasks):
+            query_base["taskid"] = {"$in": tasks}
+
+        if not len(tasks) and not len(students):
+            return {}, {}
 
         # Additional query field
         query_advanced = {}
-        if user_input.grade_min and not user_input.grade_max:
-            query_advanced["grade"] = {"$gte": float(user_input.grade_min)}
-        elif not user_input.grade_min and user_input.grade_max:
-            query_advanced["grade"] = {"$lte": float(user_input.grade_max)}
-        elif user_input.grade_min and user_input.grade_max:
-            query_advanced["grade"] = {"$gte": float(user_input.grade_min), "$lte": float(user_input.grade_max)}
+        if user_input.grade_min:
+            query_advanced.setdefault("grade", {})["$gte"] = float(user_input.grade_min)
+        if user_input.grade_max:
+            query_advanced.setdefault("grade", {})["$lte"] = float(user_input.grade_max)
 
         try:
-            date_before = datetime.strptime(user_input.date_before, "%Y-%m-%d %H:%M:%S") if user_input.date_before else ''
-            date_after = datetime.strptime(user_input.date_after, "%Y-%m-%d %H:%M:%S") if user_input.date_after else ''
-
-            if date_before and not date_after:
-                query_advanced["submitted_on"] = {"$lte": date_before}
-            elif not date_before and date_after:
-                query_advanced["submitted_on"] = {"$gte": date_after}
-            elif date_before and date_after:
-                query_advanced["submitted_on"] = {"$gte": date_after, "$lte": date_before}
+            if user_input.date_before:
+                query_advanced.setdefault("submitted_on", {})["$lte"] = datetime.strptime(user_input.date_before, "%Y-%m-%d %H:%M:%S")
+            if user_input.date_after:
+                query_advanced.setdefault("submitted_on", {})["$gte"] = datetime.strptime(user_input.date_after, "%Y-%m-%d %H:%M:%S")
         except ValueError:  # If match of datetime.strptime() fails
             pass
         
@@ -173,14 +179,14 @@ class CourseSubmissionsPage(INGIniousAdminPage):
         # Keep best submissions
         if "eval" in user_input or ("eval_dl" in user_input and "download" in web.input()):
             data = [d for d in data if d["best"]]
-        return data, classroom
+        return data, audience
 
     def get_input(self):
         """ Loads web input, initialise default values and check/sanitise some inputs from users """
         user_input = web.input(
-            user=[],
-            task=[],
-            aggregation=[],
+            users=[],
+            tasks=[],
+            audiences=[],
             org_tags=[],
             grade_min='',
             grade_max='',
@@ -195,7 +201,7 @@ class CourseSubmissionsPage(INGIniousAdminPage):
         )
 
         # Sanitise inputs
-        for item in itertools.chain(user_input.task, user_input.aggregation):
+        for item in itertools.chain(user_input.tasks, user_input.audiences):
             if not id_checker(item):
                 raise web.notfound()
 

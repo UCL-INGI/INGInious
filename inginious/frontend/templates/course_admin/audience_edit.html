@@ -1,0 +1,200 @@
+$def with (course,student_list,tutor_list,other_students,users_info,audience,msg,error)
+
+$#
+$# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
+$# more information about the licensing of this file.
+$#
+
+$var title: Edit $audience["description"]
+
+$def ColumnF():
+    $:template_helper.call('course_admin_menu',course=course,current='audiences')
+$var Column: $:ColumnF()
+
+$def NavbarF():
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="$get_homepath()/course/$course.get_id()">$course.get_name(user_manager.session_language())</a></li>
+            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()" title=$:_('"Administration"') data-toggle="tooltip" data-placement="bottom">
+                <i class="fa fa-user-secret"></i></a></li>
+            <li class="breadcrumb-item"><a href="$get_homepath()/admin/$course.get_id()/audiences" title=$:_('"Audiences"') data-toggle="tooltip" data-placement="bottom">
+                <i class='fa fa-users'></i></a></li>
+            <li class="breadcrumb-item active"><a href="#">$:_("Edit audience {}").format(audience["description"]) <span class="sr-only">$:_("(current)")</span></a></li>
+        </ol>
+    </nav>
+$var Navbar: $:NavbarF()
+
+<h2>$:_("Edit audience {}").format(audience["description"])</h2>
+$if error:
+    <div class="alert alert-danger alert-dismissable" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        $:msg
+    </div>
+$elif msg:
+    <div class="alert alert-success alert-dismissable" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        $:msg
+    </div>
+
+<!-- Modal -->
+<div id="student_modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">$:_("Add student")</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="audiences_student_add();return false;">
+                    <div class="card">
+                        <div class="card-header">
+                            <ul class="nav nav-tabs card-header-tabs">
+                                <li role="presentation" class="nav-item">
+                                    <a href="#tab_registered_student" class="nav-link active"  aria-controls="registered_student" role="tab" data-toggle="tab">
+                                    <i class="fa fa-user fa-fw"></i>&nbsp; $:_("Registered student")</a>
+                                </li>
+                                <li role="presentation" class="nav-item">
+                                    <a href="#tab_new_student" class="nav-link" aria-controls="new_student" role="tab" data-toggle="tab">
+                                    <i class="fa fa-plus fa-fw"></i>&nbsp; $:_("New student")</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="tab-content">
+                            <div role="tabpanel" class="card-body tab-pane active" id="tab_registered_student">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label class="control-label" for="registered_student">$:_("Choose student :")</label>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <select id="registered_students" name="registered_students" class="form-control">
+                                            $for student in other_students:
+                                                $if users_info[student] is not None:
+                                                    <option value="$student">$users_info[student][0] ($student)</option>
+                                                $else:
+                                                    <option value="$student">$student</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="tab_new_student" role="tabpanel" class="card-body tab-pane">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label class="control-label" for="new_student">$:_("Student username (will be registered) :")</label>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input id="new_student" name="new_student" type="text" class="form-control" placeholder="Student username">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">$:_("Cancel")</button>
+                <button type="button" class="btn btn-primary" onclick="javascript:audiences_student_add()">$:_("Add student")</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form method="post" enctype="multipart/form-data" class="form-horizontal">
+    <input type="hidden" id="audiences" name="audiences" value="true" />
+    <input type="hidden" id="_id" name="_id" value="$audience['_id']" />
+
+    <div class="card mb-3">
+        <div class="card-header">
+            $:_("Basic settings")
+        </div>
+        <div class="card-body">
+            <div class="form-group row">
+                <label for="name" class="col-sm-2 control-label">$:_("Audience description")</label>
+                <div class="col-sm-10">
+                    <div class="row">
+                        <div class="col-xs-12 col-md-8">
+                            <input type="text" class="form-control" id="description" name="description" placeholder=$:_('"Audience description"') value="$audience['description']">
+                        </div>
+                        <div class="col-xs-12 col-md-4">
+                            <button name="delete" onclick="javascript:audience_delete('$audience['_id']')" class="form-control btn btn-block btn-danger"><span class="fa fa-trash"></span> $:_("Delete audience")</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label for="name" class="col-sm-2 control-label">$:_("Tutor list")</label>
+                <div class="col-sm-10">
+                    <ul class="list-group mb-3" id="tutors_">
+                    $for user in (audience["tutors"] + [None]):
+                            $if user is None:
+                                <li class="list-group-item" style="display:none;">
+                                    <span></span>
+                            $else:
+                                <li class="list-group-item tutor" id="$user">
+                                    <span>$user ($user_manager.get_user_realname(user))</span>
+                                    <input type="hidden" name="tutors" value="$user">
+
+                            <div class="pull-right"><a href="#" onclick="javascript:audiences_tutor_remove($$(this).rparent(2).attr('id'), '')"><i class="fa fa-trash-o fa-lg"></i></a></div>
+                        </li>
+                    </ul>
+                    <div class="row">
+                        <div class="col-xs-12 col-md-8">
+                            <select type="text" class="form-control" id="tutor_list_" name="tutor_list_">
+                                $for tutor in tutor_list:
+                                    $if tutor not in audience["tutors"]:
+                                        $if users_info[tutor] is not None:
+                                            <option value="$tutor">$users_info[tutor][0] ($tutor)</option>
+                                        $else:
+                                            <option value="$tutor">$tutor</option>
+                            </select>
+                        </div>
+                        <div class="col-xs-12 col-md-4">
+                            <button type="button" onclick="javascript:audiences_tutor_add($$('#tutor_list_').val(), $$('#tutor_list_ option:selected').text(), '')" class="btn btn-block btn-warning"><span class="fa fa-plus"></span> $:_("Add tutor")</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div id="groups" class='list-group'>
+        <div class="card border-warning mb-3 group">
+            <div class="card-header bg-warning text-white" role="tab">
+                $:_("Student list")
+                <a class="text-white pull-right" id="group_delete" href="#" data-toggle="modal" data-target="#student_modal">
+                    <i class="fa fa-plus"></i>
+                </a>
+            </div>
+            <input id="size" type="hidden" class="form-control" value="0">
+            <ul id="group_0" class="students list-group list-group-flush">
+                $for username in audience["students"]:
+                    $ user=users_info[username]
+                    <li data-username="$username" class="list-group-item group-entry">
+                        $if users_info[username] is not None:
+                            <span id="$username"><i class="fa fa-arrows"></i> $user[0] ($username)</span>
+                        $else:
+                            <span id="$username"><i class="fa fa-arrows"></i>  $username</span>
+                        <a class="pull-right" id="user_delete" href="#" onclick="javascript:audiences_student_remove('$username')" data-toggle="tooltip" data-placement="left" title=$:_('"Remove student"')>
+                            <i class="fa fa-user-times"></i>
+                        </a>
+                    </li>
+            </ul>
+        </div>
+
+    </div>
+
+    <button name="update" class="btn btn-primary btn-block" onclick="javascript:audiences_prepare_submit()" type="submit"><i class="fa fa-floppy-o"></i> $:_("Update")</button>
+
+</form>
+
+<!-- Javascript for managing student/tutor lists -->
+<script type="text/javascript">
+$$(document).ready(function() {
+    if(!$$("#tutor_list").val())
+        $$("#tutor_list").prop("disabled", true);
+
+    $$("ul.students").sortable({group:"students"});
+});
+</script>

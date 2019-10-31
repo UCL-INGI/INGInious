@@ -62,16 +62,15 @@ class BaseTaskPage(object):
         if task.get_evaluate() != 'student' and not is_staff:
             return False
 
-        # Check if task is done per group/team
+        # Check if task is done per group
         if task.is_group_task() and not is_staff:
-            group = self.database.aggregations.find_one(
-                {"courseid": task.get_course_id(), "groups.students": self.user_manager.session_username()},
-                {"groups": {"$elemMatch": {"students": self.user_manager.session_username()}}})
-            students = group["groups"][0]["students"]
+            group = self.database.groups.find_one({"courseid": task.get_course_id(),
+                                                 "students": self.user_manager.session_username()})
+            students = group["students"]
         else:
             students = [self.user_manager.session_username()]
 
-        # Check if group/team is the same
+        # Check if group/group is the same
         if students == submission["username"]:
             self.database.user_tasks.update_many(
                 {"courseid": task.get_course_id(), "taskid": task.get_id(), "username": {"$in": students}},
@@ -161,11 +160,10 @@ class BaseTaskPage(object):
 
             students = [self.user_manager.session_username()]
             if task.is_group_task() and not self.user_manager.has_admin_rights_on_course(course, username):
-                group = self.database.aggregations.find_one(
-                    {"courseid": task.get_course_id(), "groups.students": self.user_manager.session_username()},
-                    {"groups": {"$elemMatch": {"students": self.user_manager.session_username()}}})
-                if group is not None and len(group["groups"]) > 0:
-                    students = group["groups"][0]["students"]
+                group = self.database.groups.find_one({"courseid": task.get_course_id(),
+                                                     "students": self.user_manager.session_username()})
+                if group is not None:
+                    students = group["students"]
                 # we don't care for the other case, as the student won't be able to submit.
 
             submissions = self.submission_manager.get_user_submissions(task) if self.user_manager.session_logged_in() else []

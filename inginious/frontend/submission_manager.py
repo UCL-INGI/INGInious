@@ -105,11 +105,8 @@ class WebAppSubmissionManager:
         username = self._user_manager.session_username()
 
         if task.is_group_task() and not self._user_manager.has_staff_rights_on_course(task.get_course(), username):
-            group = self._database.aggregations.find_one(
-                {"courseid": task.get_course_id(), "groups.students": username},
-                {"groups": {"$elemMatch": {"students": username}}})
-
-            obj.update({"username": group["groups"][0]["students"]})
+            group = self._database.groups.find_one({"courseid": task.get_course_id(), "students": username})
+            obj.update({"username": group["students"]})
         else:
             obj.update({"username": [username]})
 
@@ -141,10 +138,8 @@ class WebAppSubmissionManager:
         if "group" not in [p.get_id() for p in task.get_problems()]:  # do not overwrite
             username = self._user_manager.session_username()
             if task.is_group_task() and not self._user_manager.has_staff_rights_on_course(task.get_course(), username):
-                group = self._database.aggregations.find_one(
-                    {"courseid": task.get_course_id(), "groups.students": username},
-                    {"groups": {"$elemMatch": {"students": username}}})
-                inputdata["username"] = ','.join(group["groups"][0]["students"])
+                group = self._database.groups.find_one({"courseid": task.get_course_id(), "students": username})
+                inputdata["username"] = ','.join(group["students"])
 
         return self._delete_exceeding_submissions(self._user_manager.session_username(), task)
 
@@ -474,7 +469,7 @@ class WebAppSubmissionManager:
         """ Returns the GridFS used by the submission manager """
         return self._gridfs
 
-    def get_submission_archive(self, submissions, sub_folders, aggregations, archive_file=None):
+    def get_submission_archive(self, submissions, sub_folders, audiences, archive_file=None):
         """
         :param submissions: a list of submissions
         :param sub_folders: possible values:
@@ -503,15 +498,14 @@ class WebAppSubmissionManager:
                     elif sub_folder == 'username':
                         base_path = '_' + '-'.join(submission['username']) + base_path
                         base_path = base_path[1:]
-                    elif sub_folder == 'aggregation':
-                        if username in aggregations:
-                            if aggregations[username] is None:
-                                # If classrooms are not used, and user is not grouped, his classroom is replaced by None
-                                base_path = '_' + '-'.join(submission['username']) + base_path
-                                base_path = base_path[1:]
-                            else:
-                                base_path = (aggregations[username]["description"] +
-                                             " (" + str(aggregations[username]["_id"]) + ")").replace(" ", "_") + base_path
+                    elif sub_folder == 'audience':
+                        if username not in audiences:
+                            # If audiences are not used, and user is not grouped, his audience is replaced by None
+                            base_path = '_' + '-'.join(submission['username']) + base_path
+                            base_path = base_path[1:]
+                        else:
+                            base_path = (audiences[username]["description"] +
+                                         " (" + str(audiences[username]["_id"]) + ")").replace(" ", "_") + base_path
 
                     base_path = '/' + base_path
                 base_path = base_path[1:]

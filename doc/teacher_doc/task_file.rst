@@ -81,8 +81,8 @@ subdirectory.
     This field is only needed if there is code to correct; a multiple-choice question does
     not need it. This environment will be used by default for the student containers.
 
--   ``groups`` allows to indicate if the submission is to be done individually or per groups/teams.
-    (see Classrooms and Teams).
+-   ``groups`` allows to indicate if the submission is to be done individually or per groups.
+    (see Groups).
 
 -   ``network_grading`` indicates if the grading container should have access to the net. This
     is not the case by default.
@@ -118,7 +118,7 @@ Code problems
 `````````````
 
 ``type: code`` problems allows students to submit their code. The code is then
-sent to a container where a script made by the teaching team corrects it.
+sent to a container where a script, made by the teaching staff, corrects it.
 
 Here is a simple example for a code problem
 
