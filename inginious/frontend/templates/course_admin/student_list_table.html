@@ -14,6 +14,8 @@ $ is_admin = user_manager.has_admin_rights_on_course(course)
                     <th>$:_("member")</th>
                 $else:
                     <th>$:_("student")</th>
+                <th>$:_("username")</th>
+                <th>$:_("email address")</th>
                 <th>$:_("# task tried")</th>
                 <th>$:_("# task done")</th>
                 <th>$:_("current grade")</th>
@@ -33,11 +35,13 @@ $ is_admin = user_manager.has_admin_rights_on_course(course)
         $for user in user_data:
              <tr>
                 <td>
-                    $if user["realname"] != "":
-                        <a href="$get_homepath()/admin/${course.get_id()}/student/$user["username"]">$user["realname"]</a>
-                        (<a href="$get_homepath()/admin/${course.get_id()}/student/$user["username"]">$user["username"]</a> - <a href='mailto:$user["email"]'>email</a>)
-                    $else:
-                        <a href="$get_homepath()/admin/${course.get_id()}/student/$user["username"]">$user["username"]</a>
+                    $(user["realname"] or user["username"])
+                </td>
+                <td>
+                    $user["username"]
+                </td>
+                <td>
+                    <a href='mailto:$user["email"]'>$user["email"]</a>
                 </td>
                 <td>$user["task_tried"]</td>
                 <td>$user["task_succeeded"]</td>
