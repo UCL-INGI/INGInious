@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-09-25 16:04+0200\n"
-"PO-Revision-Date: 2019-10-31 15:05+0000\n"
+"PO-Revision-Date: 2019-10-31 15:09+0000\n"
 "Last-Translator: Rosana Veroneze <rveroneze@gmail.com>\n"
 "Language-Team: Portuguese <http://weblate.info.ucl.ac.be/projects/inginious/"
 "frontend/pt/>\n"
@@ -1550,44 +1550,44 @@ msgstr ""
 
 #: inginious/frontend/templates/task.html:359
 msgid "Question {}"
-msgstr ""
+msgstr "Questão {}"
 
 #: inginious/frontend/templates/task.html:373
 msgid "Please enroll in the course to submit."
-msgstr ""
+msgstr "Inscreva-se no curso para enviar."
 
 #: inginious/frontend/templates/task.html:379
 #: inginious/frontend/templates/task.html:389
 msgid "Submit"
-msgstr ""
+msgstr "Submeter"
 
 #: inginious/frontend/templates/task.html:383
 msgid "\"Start remote SSH console with this input\""
-msgstr ""
+msgstr "\"Iniciar console SSH remoto com esta entrada\""
 
 #: inginious/frontend/templates/task.html:391
 msgid "The deadline is over, you cannot submit anymore"
-msgstr ""
+msgstr "O prazo de entrega acabou, você não pode mais enviar"
 
 #: inginious/frontend/templates/task.html:393
 msgid "Please register in a group"
-msgstr ""
+msgstr "Por favor, registre-se em um grupo"
 
 #: inginious/frontend/templates/task.html:393
 msgid "Please register in a team"
-msgstr ""
+msgstr "Por favor, registre-se em uma equipe"
 
 #: inginious/frontend/templates/task.html:396
 msgid "You have reached the submission limit."
-msgstr ""
+msgstr "Você atingiu o limite de submissões."
 
 #: inginious/frontend/templates/task.html:396
 msgid "Your group have reached the submission limit."
-msgstr ""
+msgstr "Seu grupo atingiu o limite de submissões."
 
 #: inginious/frontend/templates/task.html:396
 msgid "Your team have reached the submission limit."
-msgstr ""
+msgstr "Sua equipe atingiu o limite de submissões."
 
 #: inginious/frontend/templates/task.html:398
 msgid "It will be refilled within the next {} hour(s)"
