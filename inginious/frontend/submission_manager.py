@@ -499,14 +499,13 @@ class WebAppSubmissionManager:
                         base_path = '_' + '-'.join(submission['username']) + base_path
                         base_path = base_path[1:]
                     elif sub_folder == 'audience':
-                        if username in audiences:
-                            if audiences[username] is None:
-                                # If audiences are not used, and user is not grouped, his audience is replaced by None
-                                base_path = '_' + '-'.join(submission['username']) + base_path
-                                base_path = base_path[1:]
-                            else:
-                                base_path = (audiences[username]["description"] +
-                                             " (" + str(audiences[username]["_id"]) + ")").replace(" ", "_") + base_path
+                        if username not in audiences:
+                            # If audiences are not used, and user is not grouped, his audience is replaced by None
+                            base_path = '_' + '-'.join(submission['username']) + base_path
+                            base_path = base_path[1:]
+                        else:
+                            base_path = (audiences[username]["description"] +
+                                         " (" + str(audiences[username]["_id"]) + ")").replace(" ", "_") + base_path
 
                     base_path = '/' + base_path
                 base_path = base_path[1:]

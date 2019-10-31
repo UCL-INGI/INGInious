@@ -63,6 +63,18 @@ class CourseSubmissionsPage(INGIniousAdminPage):
             msgs.append(_("No submissions found"))
 
         audiences = self.user_manager.get_course_audiences(course)  # ALL audiences of the course
+        audiences_id = [audience["_id"] for audience in audiences]
+        audiences_list = list(self.database.audiences.aggregate([
+            {"$match": {"_id": {"$in": audiences_id}}},
+            {"$unwind": "$students"},
+            {"$project": {
+                "audience": "$_id",
+                "students": 1
+            }}
+        ]))
+        audiences = {audience["_id"]: audience for audience in audiences}
+        audiences = {d["students"]: audiences[d["audience"]] for d in audiences_list}
+
         users = self.get_users(course)  # All users of the course
         tasks = course.get_tasks()  # All tasks of the course
 
