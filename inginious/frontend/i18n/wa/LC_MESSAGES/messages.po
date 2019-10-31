@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-09-25 16:04+0200\n"
-"PO-Revision-Date: 2019-10-31 15:09+0000\n"
-"Last-Translator: Guillaume Derval <guillaume.derval@uclouvain.be>\n"
+"PO-Revision-Date: 2019-11-01 17:05+0000\n"
+"Last-Translator: Maxime Piraux <maxime.piraux@uclouvain.be>\n"
 "Language-Team: Walloon <http://weblate.info.ucl.ac.be/projects/inginious/"
 "frontend/wa/>\n"
 "Language: wa\n"
@@ -26,7 +26,7 @@ msgstr "[åcun contnou]"
 
 #: inginious/frontend/parsable_text.py:80
 msgid "The feedback below will be hidden to the students until {}."
-msgstr ""
+msgstr "Les comintaires å dzo vont esse catchî a l'estudiants djusk' al {}."
 
 #: inginious/frontend/parsable_text.py:95
 msgid ""
@@ -237,7 +237,7 @@ msgstr ""
 #: inginious/frontend/pages/course_admin/task_edit_file.py:227
 #: inginious/frontend/pages/tasks.py:242 inginious/frontend/pages/tasks.py:258
 msgid "Internal error"
-msgstr ""
+msgstr "Brotchî åddins"
 
 #: inginious/frontend/pages/tasks.py:305
 msgid "<b>INGInious is currently grading your answers.<b/> (almost done)"
