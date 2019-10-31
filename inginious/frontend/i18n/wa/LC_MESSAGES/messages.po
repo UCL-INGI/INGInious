@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-09-25 16:04+0200\n"
-"PO-Revision-Date: 2019-10-31 14:43+0000\n"
+"PO-Revision-Date: 2019-10-31 15:05+0000\n"
 "Last-Translator: Maxime Piraux <maxime.piraux@uclouvain.be>\n"
 "Language-Team: Walloon <http://weblate.info.ucl.ac.be/projects/inginious/"
 "frontend/wa/>\n"
@@ -53,8 +53,9 @@ msgid "file upload"
 msgstr "eberwetage di fitchî"
 
 #: inginious/frontend/task_problems.py:151
+#, fuzzy
 msgid "multiple choice"
-msgstr ""
+msgstr "tchoezixhaedjes"
 
 #: inginious/frontend/task_problems.py:218
 msgid "match"
@@ -66,33 +67,36 @@ msgstr ""
 
 #: inginious/frontend/tasks.py:82
 msgid "It's too late"
-msgstr ""
+msgstr "Il est trop tård"
 
 #: inginious/frontend/pages/aggregation.py:51
 #: inginious/frontend/pages/aggregation.py:72
 msgid "Couldn't register to the specified group."
-msgstr ""
+msgstr "Eredjistraedje a li brigåde impossibe."
 
 #: inginious/frontend/pages/aggregation.py:77
 #: inginious/frontend/pages/aggregation.py:93
 msgid "You are not allowed to change group."
-msgstr ""
+msgstr "Vos n'estoz nin permetou di candjî d'brigade."
 
 #: inginious/frontend/pages/aggregation.py:90
 msgid "You're not registered in a group."
-msgstr ""
+msgstr "Vos n'estoz nin eredjistré a ene brigade."
 
 #: inginious/frontend/pages/lti.py:46 inginious/frontend/pages/lti.py:58
+#, fuzzy
 msgid "Missing LTI session id"
-msgstr ""
+msgstr "LTI session id mancant"
 
 #: inginious/frontend/pages/lti.py:51 inginious/frontend/pages/lti.py:63
+#, fuzzy
 msgid "Invalid LTI session id"
-msgstr ""
+msgstr "LTI session id invalide"
 
 #: inginious/frontend/pages/lti.py:70
+#, fuzzy
 msgid "Invalid LTI data"
-msgstr ""
+msgstr "Bayeyes LTI invalides"
 
 #: inginious/frontend/pages/lti.py:90
 msgid "Your account is already bound with this context."
@@ -118,8 +122,9 @@ msgid "Invalid activation hash."
 msgstr ""
 
 #: inginious/frontend/pages/register.py:59
+#, fuzzy
 msgid "You are now activated. You can proceed to login."
-msgstr ""
+msgstr "Vos estoz maintenin aviké. Vos povez vo raloyî."
 
 #: inginious/frontend/pages/preferences/profile.py:27
 #: inginious/frontend/pages/register.py:76
