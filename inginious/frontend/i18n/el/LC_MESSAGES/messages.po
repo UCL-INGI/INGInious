@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-09-25 16:04+0200\n"
-"PO-Revision-Date: 2019-10-28 09:50+0000\n"
+"PO-Revision-Date: 2019-10-31 14:31+0000\n"
 "Last-Translator: Mathieu Jadin <mathieu.jadin@uclouvain.be>\n"
 "Language-Team: Greek <http://weblate.info.ucl.ac.be/projects/inginious/"
 "frontend/el/>\n"
@@ -96,7 +96,7 @@ msgstr "Λάθη LTI δεδομένων"
 
 #: inginious/frontend/pages/lti.py:90
 msgid "Your account is already bound with this context."
-msgstr ""
+msgstr "Ο λογαριασμός δεσμεύεται μαζί αυτό το περιεχόμενο."
 
 #: inginious/frontend/pages/lti.py:162
 msgid "Error while validating LTI request"
@@ -166,7 +166,7 @@ msgid ""
 msgstr ""
 "Καλωσόρισες στο INGInious!\n"
 "\n"
-"Για να ενεργοποιήσουμε τον λογαριασμο σας, να κάνετε κλικ στο παρακάτω "
+"Για να ενεργοποιήσουμε τον λογαριασμό σας, να κάνετε κλικ στο παρακάτω "
 "σύνδεσμο:\n"
 
 #: inginious/frontend/pages/register.py:112
@@ -496,14 +496,16 @@ msgid ""
 "The result contains more than {0} submissions. The displayed submissions "
 "are truncated.\n"
 msgstr ""
+"Η Αναζήτηση περιέχει περισσότερο από {0} υποβολές. Οι εκτεθειμένες υποβολές "
+"είναι κολοβές.\n"
 
 #: inginious/frontend/pages/course_admin/tags.py:31
 msgid "Some tags have the same id! The id of a tag must be unique."
-msgstr ""
+msgstr "Μερικές ετικέτες έχουν τον ίδιο αναγνωριστικό."
 
 #: inginious/frontend/pages/course_admin/tags.py:42
 msgid "Some tag fields were missing."
-msgstr ""
+msgstr "Μερικά πεδία ετικέτων"
 
 #: inginious/frontend/pages/course_admin/tags.py:45
 msgid "Invalid tag id: {}"
