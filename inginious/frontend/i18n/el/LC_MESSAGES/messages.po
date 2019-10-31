@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-09-25 16:04+0200\n"
-"PO-Revision-Date: 2019-10-31 14:31+0000\n"
+"PO-Revision-Date: 2019-10-31 15:09+0000\n"
 "Last-Translator: Mathieu Jadin <mathieu.jadin@uclouvain.be>\n"
 "Language-Team: Greek <http://weblate.info.ucl.ac.be/projects/inginious/"
 "frontend/el/>\n"
@@ -84,7 +84,7 @@ msgstr "Δεν είναι εγγεγραμμένος/η σε μια ομάδα."
 
 #: inginious/frontend/pages/lti.py:46 inginious/frontend/pages/lti.py:58
 msgid "Missing LTI session id"
-msgstr "Χαμένο αναγνωριστικό της σύνδεσης LTI"
+msgstr "Απών αναγνωριστικό της σύνδεσης LTI"
 
 #: inginious/frontend/pages/lti.py:51 inginious/frontend/pages/lti.py:63
 msgid "Invalid LTI session id"
