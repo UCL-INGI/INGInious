@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2019-09-25 16:04+0200\n"
-"PO-Revision-Date: 2019-10-31 13:18+0000\n"
+"PO-Revision-Date: 2019-10-31 13:25+0000\n"
 "Last-Translator: Rosana Veroneze <rveroneze@gmail.com>\n"
 "Language-Team: Portuguese <http://weblate.info.ucl.ac.be/projects/inginious/"
 "frontend/pt/>\n"
@@ -414,35 +414,36 @@ msgstr "nome de usuário / ID da tarefa"
 #: inginious/frontend/pages/course_admin/download.py:24
 #: inginious/frontend/pages/course_admin/submissions.py:26
 msgid "aggregation/taskid"
-msgstr ""
+msgstr "agregação / ID da tarefa"
 
 #: inginious/frontend/pages/course_admin/replay.py:36
+#, fuzzy
 msgid "Selected submissions were set for replay."
-msgstr ""
+msgstr "As submissões selecionadas foram definidas para reprodução."
 
 #: inginious/frontend/pages/course_admin/replay.py:39
 msgid "Task with id {} does not exist !"
-msgstr ""
+msgstr "A tarefa com o ID {} não existe!"
 
 #: inginious/frontend/pages/course_admin/settings.py:33
 msgid "Invalid name"
-msgstr ""
+msgstr "Nome inválido"
 
 #: inginious/frontend/pages/course_admin/settings.py:37
 msgid "You cannot remove yourself from the administrators of this course"
-msgstr ""
+msgstr "Você não pode se remover dos administradores deste curso"
 
 #: inginious/frontend/pages/course_admin/settings.py:59
 msgid "Invalid accessibility dates"
-msgstr ""
+msgstr "Datas de acessibilidade inválidas"
 
 #: inginious/frontend/pages/course_admin/settings.py:74
 msgid "Invalid registration dates"
-msgstr ""
+msgstr "Datas de registro inválidas"
 
 #: inginious/frontend/pages/course_admin/settings.py:82
 msgid "Invalid ACL value"
-msgstr ""
+msgstr "Valor de ACL inválido"
 
 #: inginious/frontend/pages/course_admin/settings.py:92
 msgid "LTI keys must be alphanumerical."
