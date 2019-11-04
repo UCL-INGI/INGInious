@@ -780,7 +780,7 @@ class UserManager:
         """
 
         course_obj = self._database.courses.find_one({"_id": course.get_id()})
-        l = course_obj["students"] if course_obj else []
+        l = course_obj.get("students", []) if course_obj else []
 
         if with_admins:
             return list(set(l + course.get_staff()))
