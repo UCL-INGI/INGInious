@@ -384,9 +384,9 @@ class BaseTaskPage(object):
             new_data = {}
             for key, value in data.items():
                 if isinstance(value, bytes) and len(value) > limit:
-                    new_data[key] = value[:limit] + _(" <text cut due to its length>").encode("utf-8")
+                    new_data[key] = value[:limit] + _(" <truncated>").encode("utf-8")
                 elif isinstance(value, str) and len(value) > limit:
-                    new_data[key] = value[:limit] + _(" <text cut due to its length>")
+                    new_data[key] = value[:limit] + _(" <truncated>")
                 elif isinstance(value, dict):
                     new_data[key] = self._cut_long_chains(value)
                 else:
