@@ -1,4 +1,4 @@
-$def with (course, tasks, users, aggregations, data, statistics, old_input, allowed_sort, allowed_sort_name, valid_formats, msg, show_collapse)
+$def with (course, tasks, users, audiences, data, statistics, old_input, allowed_sort, allowed_sort_name, valid_formats, msg, show_collapse)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -13,7 +13,6 @@ $var title: $:_("View submissions")
 
 $var Column: $:template_helper.call('course_admin_menu',course=course,current='submissions')
 $ is_admin = user_manager.has_admin_rights_on_course(course)
-$ use_classrooms = course.use_classrooms()
 
 $def NavbarF():
     <nav aria-label="breadcrumb">
@@ -26,22 +25,16 @@ $def NavbarF():
     </nav>
 $var Navbar: $:NavbarF()
 
-$for m in msg:
-    <div class="alert alert-warning alert-dismissable" role="alert">
-        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-        $m
-    </div>
-
 <h2>$:_("View submissions")</h2>
-<!-- Add a title if only one task and one user/aggregation -->
-$if len(old_input.task) == 1:
-    $ task_name = tasks[old_input.task[0]].get_name(user_manager.session_language())
-    $if len(old_input.user) == 1 and len(old_input.aggregation) == 0:
-        $ complete_name = users[old_input.user[0]][0] if users[old_input.user[0]] != None and len(users[old_input.user[0]]) > 0 else 'Unknow'
-        <h4>$:_('Submissions for task "{0}" - {1} ({2})').format(task_name, complete_name, old_input.user[0])</h4>
-    $if len(old_input.aggregation) == 1 and len(old_input.user) == 0:
-        $for c in aggregations:
-            $if str(c['_id']) in old_input['aggregation']:
+<!-- Add a title if only one task and one user/audience -->
+$if len(old_input.tasks) == 1:
+    $ task_name = tasks[old_input.tasks[0]].get_name(user_manager.session_language())
+    $if len(old_input.users) == 1 and len(old_input.audiences) == 0:
+        $ complete_name = users[old_input.users[0]][0] if users[old_input.users[0]] != None and len(users[old_input.users[0]]) > 0 else _('Unknown')
+        <h4>$:_('Submissions for task "{0}" - {1} ({2})').format(task_name, complete_name, old_input.users[0])</h4>
+    $if len(old_input.audiences) == 1 and len(old_input.users) == 0:
+        $for c in audiences:
+            $if str(c['_id']) in old_input['audiences']:
                 <h4>$:_('Submissions for the task "{0}" - {1}').format(task_name, c["description"])</h4>
 
 <form id="select_form" method="post" action="submissions">
@@ -49,28 +42,28 @@ $if len(old_input.task) == 1:
 <!-- Query submissions -->
 <div class="card mb-3">
     <div class="card-header">
-        <a data-toggle="collapse" data-target="#collapseMAIN">$:_("Query submissions")</a>
+        $:_("Query submissions")
     </div>
-    <div id="collapseMAIN" class="panel-collapse collapse $('in' if show_collapse else '')">
+
     <div class="card-body">
         <div class="row">
             
             <!-- Users -->
             <div class="col-sm-6 form-group">
                 <label>$:_("Users")</label>
-                <select name="user" multiple size="7" class="form-control" id="select_user">
+                <select name="users" multiple size="7" class="form-control" id="select_user">
                 $for u in users:
                     $ complete_name = users[u][0] if users[u] != None and len(users[u]) > 0 else ''
-                    <option value="$u" $('selected' if u in old_input['user'] else '')>$complete_name ($u)</option>
+                    <option value="$u" $('selected' if u in old_input['users'] else '')>$complete_name ($u)</option>
                  </select>
             </div>
 
-            <!-- aggregations -->
+            <!-- audiences -->
             <div class="col-sm-6 form-group">
-                <label>$(_("Classrooms") if use_classrooms else _("Teams"))</label>
-                <select name="aggregation" multiple size="7" class="form-control" id="select_aggregation">
-                $for c in aggregations:
-                    <option value="$c['_id']" $('selected' if str(c['_id']) in old_input['aggregation'] else '')>$c["description"]</option>
+                <label>$:_("Audiences")</label>
+                <select name="audiences" multiple size="7" class="form-control" id="select_audience">
+                $for c in audiences:
+                    <option value="$c['_id']" $('selected' if str(c['_id']) in old_input['audiences'] else '')>$c["description"]</option>
                 </select>
             </div>
         </div>
@@ -81,7 +74,7 @@ $if len(old_input.task) == 1:
                 <label>$:_("Tasks")</label>
                 <select name="task" multiple size="9" class="form-control" id="select_task">
                 $for t in tasks:
-                    <option value="$t" $('selected' if t in old_input['task'] else '')>($t) $tasks[t].get_name(user_manager.session_language())</option>
+                    <option value="$t" $('selected' if t in old_input['tasks'] else '')>($t) $tasks[t].get_name(user_manager.session_language())</option>
                 </select>
             </div>
                 
@@ -222,8 +215,13 @@ $if len(old_input.task) == 1:
         </div>
     </div>
 </div>
-</div>
 <!-- Query submissions END -->
+
+$for m in msg:
+    <div class="alert alert-warning alert-dismissable" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        $m
+    </div>
 
 <!-- Modal to download submissions -->
 <div id="download_modal" class="modal fade">

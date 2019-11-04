@@ -101,97 +101,50 @@ The behaviour of the *Move* action is Unix-like : it can be used for renaming fi
 
 .. _groups:
 
-Classrooms and teams
---------------------
+Audiences
+---------
 
-Collaborative work and separate students administration are possible in INGInious.
-Two models are available:
+*Audiences* are useful to administratively separate
+students following the same course. They offer separate statistics to
+help the teacher identify problems students may encounter in this particular context.
 
-- *Classrooms and groups* : Classrooms are useful to administratively separate
-  students following the same course. They offer separate statistics to
-  help the teacher identify problems students may encounter in this particular context.
-
-  Submissions groups can be set in classrooms and define a set of users that
-  will submit together. Their submissions will contain as authors all the
-  students that were members of the group at submission time. Note that students cannot
-  collaborate with students from another classroom. In this case, please consider
-  using only teams, as described below.
-- *Teams* : Teams are administratively-separated submissions groups. They are
-  internally assimilated to classrooms with a unique submission group. They offer
-  separate statistics for each submission group.
-
-Choice between these two models can be made in the course settings. Switching from
-one model to another will reinitialize the all course structure (that is, students
-registration also). Course structures can be backed up if necessary from the
-classrooms/teams administration pages.
 
 Creation and edition
 ````````````````````
 
-Classrooms and teams are created and edited from the web app in the course
+Audiences are created and edited from the web app in the course
 administration.
 
-Classrooms and groups
-*********************
+In the audiences list view, specify an audience description, and click on
+"*Create new audience*". The newly created audience will appear in the list.
 
-In the classroom list view, specify a classroom description, and click on
-"*Create new classroom*". The newly created classroom will appear in the list.
+To edit an audience, click on the quick link "*Edit audience*" located on the
+right side of the table. You'll be able to change the audience description,
+the associated teaching staff, and to specify the students.
+Assigning tutors will help them to retrieve their audience statistics.
 
-To edit a classroom, click on the quick link "*Edit classroom*" located on the
-right side of the table. You'll be able to change the classroom description,
-the associated teaching staff, and to specify the (grouped) students.
-Assigning tutors will help them to retrieve their classroom statistics.
-
-The student list is entirely managed by drag-and-drop. You can create
-a new group on the same page, set its maximum size, and drag-and-drop
-ungrouped students or already grouped students in the newly created group.
-
-Teams
-*****
-
-To create a new team, click on "*Edit teams*" simply in the team list view and
-press on the "*New team*" button. You'll then be able to specify the team
-description, its maximum size, assigned tutors and students. Team edition
-works the same way.
-
-The student list is entirely managed by drag-and-drop. Students can be moved
-from one team to another by simply moving his name to the new team.
-
-Group/team attribution
-``````````````````````
-
-If you do not really matter the way students work together, you can
-set empty groups or teams with maximum size and let the students choose their
-groups or teams themselves. Just check the option in the course settings to
-allow them to gather. When submissions will be retrieved, the group/team members will
-be displayed as the authors as with staff-defined groups or teams.
+The student list is entirely managed by drag-and-drop.
 
 Course structure upload
 ```````````````````````
 
-You can generate the course classroom or team structure with an external tool
-and then upload it on INGInious. This is done with a YAML file, which structure
-for classrooms or teams are similar and described below. The course structure
-can be upload on the classroom or team list view in the course administration.
+You can generate the course audience structure with an external tool and then upload
+it on INGInious. This is done with a YAML file, which structure is described below.
+The course structure can be uploaded on the audience list view in the course administration.
 
-Classrooms YAML structure
+Audiences YAML structure
 *************************
 
 ::
 
-    -    description: Classroom 1
+    -    description: Audience 1
          tutors:
                  - tutor1
                  - tutor2
          students:
                  - user1
                  - user2
-         groups:
-                 - size: 2
-                   students:
-                         - user1
-                         - user2
-    -    description: Classroom 2
+    -    description: Audience 2
          tutors:
                  - tutor1
                  - tutor2
@@ -199,29 +152,64 @@ Classrooms YAML structure
                  - user3
                  - user4
 
--   *description* is a string and corresponds to your class description
+-   *description* is a string and corresponds to your audience description
 -   *tutors* is a list of strings representing the usernames of the
-    assigned classroom tutors.
+    assigned audience tutors.
 -   *students* is a list of strings representing the usernames of the
-    classroom students.
--   *groups* is a list of group structures containing the following elements :
+    audience students.
 
-    - *size*: the maximum group size
-    - *students*:  the list of student usernames in this group
+Groups
+------
 
-Teams YAML structure
+Collaborative work is possible in INGInious. *Groups* define a set of users that
+will submit together. Their submissions will contain as authors all the students
+that were members of the group at submission time.
+
+Creation and edition
+````````````````````
+Groups are created and edited from the web app in the course
+administration.
+
+To create a new group,  simply press on the "*New group*" button in the group list
+view. You'll then be able to specify the group description, its maximum size,
+assigned tutors and students, as well as the required audiences to enter the group.
+
+The student list is entirely managed by drag-and-drop. Students can be moved
+from one group to another by simply moving his name to the new group.
+
+Group attribution
+``````````````````
+
+If you do not really matter the way students work together, you can
+set empty groups with maximum size and allowed audiences and let the students choose their
+groups or groups themselves. Just check the option in the course settings to
+allow them to gather. When submissions will be retrieved, the group members will
+be displayed as the authors as with staff-defined groups or groups.
+
+Course structure upload
+```````````````````````
+
+You can generate the course group structure with an external tool
+and then upload it on INGInious. This is done with a YAML file, which structure
+for groups are similar and described below. The course structure
+can be uploaded on the group list view in the course administration.
+
+Group YAML structure
 ********************
 
 ::
 
-    -    description: Team 1
+    -    description: Group 1
          tutors:
                  - tutor1
                  - tutor2
          students:
                  - user1
                  - user2
-    -    description: Team 2
+         audiences:
+                - 5daffce21d064a2fb1f67527
+                - 5daf00d61d064a6c25ed7be1
+    -    description: Group 2
          tutors:
                  - tutor1
                  - tutor2
@@ -229,16 +217,17 @@ Teams YAML structure
                  - user3
                  - user4
 
--   *description* is a string and corresponds to your team description
+-   *description* is a string and corresponds to your group description
 -   *tutors* is a list of strings representing the usernames of the
-    assigned team tutors.
+    assigned group tutors.
 -   *students* is a list of strings representing the usernames of the
-    team students.
+    group students.
+-   *audiences* is a list of authorized audiences identifiers.
 
 Backup course structure
 ```````````````````````
 
-Course structures (classrooms or teams) can be exported for backup or manual
-edition via the classroom/team list page in the course administration pages.
+Course structures (audiences and groups) can be exported for backup or manual
+edition via the audience/group list page in the course administration pages.
 Simply click on the "*Download structure*" button. The download file will have
 the same format as described above.

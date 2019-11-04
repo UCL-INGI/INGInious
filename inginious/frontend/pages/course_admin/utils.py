@@ -60,56 +60,51 @@ class INGIniousSubmissionAdminPage(INGIniousAdminPage):
             if not id_checker(i):
                 raise web.notfound()
 
-    def get_selected_submissions(self, course, filter_type, selected_tasks, users, aggregations, stype):
+    def get_selected_submissions(self, course, filter_type, selected_tasks, users, audiences, stype):
         """
         Returns the submissions that have been selected by the admin
         :param course: course
-        :param filter_type: users or aggregations
+        :param filter_type: users or audiences
         :param selected_tasks: selected tasks id
         :param users: selected usernames
-        :param aggregations: selected aggregations
+        :param audiences: selected audiences
         :param stype: single or all submissions
         :return:
         """
         if filter_type == "users":
             self._validate_list(users)
-            aggregations = list(self.database.aggregations.find({"courseid": course.get_id(),
-                                                                 "students": {"$in": users}}))
-            # Tweak if not using classrooms : classroom['students'] may content ungrouped users
-            aggregations = dict([(username,
-                                  aggregation if course.use_classrooms() or (
-                                      len(aggregation['groups']) and
-                                      username in aggregation['groups'][0]["students"]
-                                  ) else None
-                                  ) for aggregation in aggregations for username in users])
+            audiences = self.database.audiences.find({"courseid": course.get_id(), "students": {"$in": users}})
 
         else:
-            self._validate_list(aggregations)
-            aggregations = list(
-                self.database.aggregations.find({"_id": {"$in": [ObjectId(cid) for cid in aggregations]}}))
+            self._validate_list(audiences)
+            audiences = self.database.audiences.find({"_id": {"$in": [ObjectId(cid) for cid in audiences]}})
 
-            # Tweak if not using classrooms : classroom['students'] may content ungrouped users
-            aggregations = dict([(username,
-                                  aggregation if course.use_classrooms() or (
-                                      len(aggregation['groups']) and
-                                      username in aggregation['groups'][0]["students"]
-                                  ) else None
-                                  ) for aggregation in aggregations for username in aggregation["students"]])
+        audiences_id = [audience["_id"] for audience in audiences]
+        audiences_list = list(self.database.audiences.aggregate([
+            {"$match": {"_id": {"$in": audiences_id}}},
+            {"$unwind": "$students"},
+            {"$project": {
+                "audience": "$_id",
+                "students": 1
+            }}
+        ]))
+        audiences = {audience["_id"]: audience for audience in audiences}
+        audiences = {d["students"]: audiences[d["audience"]] for d in audiences_list}
 
         if stype == "single":
-            user_tasks = list(self.database.user_tasks.find({"username": {"$in": list(aggregations.keys())},
+            user_tasks = list(self.database.user_tasks.find({"username": {"$in": list(audiences)},
                                                              "taskid": {"$in": selected_tasks},
                                                              "courseid": course.get_id()}))
 
             submissionsid = [user_task['submissionid'] for user_task in user_tasks if user_task['submissionid'] is not None]
             submissions = list(self.database.submissions.find({"_id": {"$in": submissionsid}}))
         else:
-            submissions = list(self.database.submissions.find({"username": {"$in": list(aggregations.keys())},
+            submissions = list(self.database.submissions.find({"username": {"$in": list(audiences)},
                                                                "taskid": {"$in": selected_tasks},
                                                                "courseid": course.get_id(),
                                                                "status": {"$in": ["done", "error"]}}))
 
-        return submissions, aggregations
+        return submissions, audiences
 
     def show_page_params(self, course, user_input):
         tasks = sorted(list(course.get_tasks().items()), key=lambda task: (task[1].get_order(), task[1].get_id()))
@@ -120,44 +115,39 @@ class INGIniousSubmissionAdminPage(INGIniousAdminPage):
         user_data = OrderedDict(
             [(username, user[0] if user is not None else username) for username, user in users.items()])
 
-        aggregations = self.user_manager.get_course_aggregations(course)
-        tutored_aggregations = [str(aggregation["_id"]) for aggregation in aggregations if
-                                self.user_manager.session_username() in aggregation["tutors"] and len(
-                                    aggregation['groups']) > 0]
+        audiences = self.user_manager.get_course_audiences(course)
+        tutored_audiences = [str(audience["_id"]) for audience in audiences if
+                                self.user_manager.session_username() in audience["tutors"]]
 
         tutored_users = []
-        for aggregation in aggregations:
-            for username in aggregation["students"]:
-                # If no classrooms used, only students inside groups
-                if self.user_manager.session_username() in aggregation["tutors"] and \
-                        (course.use_classrooms() or
-                             (len(aggregation['groups']) > 0 and username in aggregation['groups'][0]['students'])):
-                    tutored_users += [username]
+        for audience in audiences:
+            if self.user_manager.session_username() in audience["tutors"]:
+                tutored_users += audience["students"]
 
         checked_tasks = list(course.get_tasks().keys())
         checked_users = list(user_data.keys())
-        checked_aggregations = [aggregation['_id'] for aggregation in aggregations]
-        show_aggregations = False
+        checked_audiences = [audience['_id'] for audience in audiences]
+        show_audiences = False
 
         if "tasks" in user_input:
             checked_tasks = user_input.tasks.split(',')
         if "users" in user_input:
             checked_users = user_input.users.split(',')
-        if "aggregations" in user_input:
-            checked_aggregations = user_input.aggregations.split(',')
-            show_aggregations = True
+        if "audiences" in user_input:
+            checked_audiences = user_input.audiences.split(',')
+            show_audiences = True
         if "tutored" in user_input:
-            if user_input.tutored == "aggregations":
-                checked_aggregations = tutored_aggregations
-                show_aggregations = True
+            if user_input.tutored == "audiences":
+                checked_audiences = tutored_audiences
+                show_audiences = True
             elif user_input.tutored == "users":
                 checked_users = tutored_users
-                show_aggregations = True
+                show_audiences = True
 
-        for aggregation in aggregations:
-            aggregation['checked'] = str(aggregation['_id']) in checked_aggregations
+        for audience in audiences:
+            audience['checked'] = str(audience['_id']) in checked_audiences
 
-        return tasks, user_data, aggregations, tutored_aggregations, tutored_users, checked_tasks, checked_users, show_aggregations
+        return tasks, user_data, audiences, tutored_audiences, tutored_users, checked_tasks, checked_users, show_audiences
 
 class UnicodeWriter(object):
     """
@@ -256,11 +246,11 @@ def get_menu(course, current, renderer, plugin_manager, user_manager):
         default_entries += [("settings", "<i class='fa fa-cog fa-fw'></i>&nbsp; " + _("Course settings"))]
 
     default_entries += [("stats", "<i class='fa fa-area-chart fa-fw'></i>&nbsp; " + _("Stats")),
-                        ("students", "<i class='fa fa-user fa-fw'></i>&nbsp; " + _("Students"))]
+                        ("students", "<i class='fa fa-user fa-fw'></i>&nbsp; " + _("Students")),
+                        ("audiences", "<i class='fa fa-group fa-fw'></i>&nbsp; " + _("Audiences"))]
 
     if not course.is_lti():
-        default_entries += [("aggregations", "<i class='fa fa-group fa-fw'></i>&nbsp; " +
-                             (_("Classrooms") if course.use_classrooms() else _("Teams")))]
+        default_entries += [("groups", "<i class='fa fa-group fa-fw'></i>&nbsp; " +_("Groups"))]
 
     default_entries += [("tasks", "<i class='fa fa-tasks fa-fw'></i>&nbsp; " + _("Tasks")),
                         ("tags", "<i class='fa fa-tags fa-fw'></i>&nbsp;" + _("Tags")),
@@ -268,8 +258,6 @@ def get_menu(course, current, renderer, plugin_manager, user_manager):
                         ("download", "<i class='fa fa-download fa-fw'></i>&nbsp; " + _("Download submissions"))]
 
     if user_manager.has_admin_rights_on_course(course):
-        if web.ctx.app_stack[0].webdav_host:
-            default_entries += [("webdav", "<i class='fa fa-folder-open fa-fw'></i>&nbsp; " + _("WebDAV access"))]
         default_entries += [("replay", "<i class='fa fa-refresh fa-fw'></i>&nbsp; " + _("Replay submissions")),
                             ("danger", "<i class='fa fa-bomb fa-fw'></i>&nbsp; " + _("Danger zone"))]
 

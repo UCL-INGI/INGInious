@@ -9,43 +9,34 @@ inginious.frontend.pages.course_admin package
 Submodules
 ----------
 
-inginious.frontend.pages.course_admin.aggregation_edit module
+inginious.frontend.pages.course_admin.audience_edit module
 --------------------------------------------------------------------
 
-.. automodule:: inginious.frontend.pages.course_admin.aggregation_edit
+.. automodule:: inginious.frontend.pages.course_admin.audience_edit
     :members:
     :undoc-members:
     :show-inheritance:
 
-inginious.frontend.pages.course_admin.aggregation_info module
+inginious.frontend.pages.course_admin.audience_list module
 --------------------------------------------------------------------
 
-.. automodule:: inginious.frontend.pages.course_admin.aggregation_info
+.. automodule:: inginious.frontend.pages.course_admin.audience_list
     :members:
     :undoc-members:
     :show-inheritance:
 
-inginious.frontend.pages.course_admin.aggregation_list module
+inginious.frontend.pages.course_admin.group_edit module
 --------------------------------------------------------------------
 
-.. automodule:: inginious.frontend.pages.course_admin.aggregation_list
+.. automodule:: inginious.frontend.pages.course_admin.group_edit
     :members:
     :undoc-members:
     :show-inheritance:
 
-inginious.frontend.pages.course_admin.aggregation_task module
+inginious.frontend.pages.course_admin.group_list module
 --------------------------------------------------------------------
 
-.. automodule:: inginious.frontend.pages.course_admin.aggregation_task
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-inginious.frontend.pages.course_admin.classroom_edit module
-------------------------------------------------------------------
-
-.. automodule:: inginious.frontend.pages.course_admin.classroom_edit
+.. automodule:: inginious.frontend.pages.course_admin.group_list
     :members:
     :undoc-members:
     :show-inheritance:
@@ -70,14 +61,6 @@ inginious.frontend.pages.course_admin.settings module
 ------------------------------------------------------------
 
 .. automodule:: inginious.frontend.pages.course_admin.settings
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-inginious.frontend.pages.course_admin.student_info module
-----------------------------------------------------------------
-
-.. automodule:: inginious.frontend.pages.course_admin.student_info
     :members:
     :undoc-members:
     :show-inheritance:
@@ -118,14 +101,6 @@ inginious.frontend.pages.course_admin.task_edit_file module
 ------------------------------------------------------------------
 
 .. automodule:: inginious.frontend.pages.course_admin.task_edit_file
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-inginious.frontend.pages.course_admin.task_info module
--------------------------------------------------------------
-
-.. automodule:: inginious.frontend.pages.course_admin.task_info
     :members:
     :undoc-members:
     :show-inheritance:

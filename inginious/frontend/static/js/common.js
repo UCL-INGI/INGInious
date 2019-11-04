@@ -158,7 +158,7 @@ function download_page_select_tutor(panel_member, users, groups)
     panel_member = $(panel_member);
     while(!panel_member.hasClass('panel'))
         panel_member = panel_member.parent();
-    $('input[name="aggregations"]', panel_member).each(function() { $(this).prop('checked', $.inArray($(this).val(),groups) != -1); });
+    $('input[name="audiences"]', panel_member).each(function() { $(this).prop('checked', $.inArray($(this).val(),groups) != -1); });
     $('input[name="users"]', panel_member).each(function() { $(this).prop('checked', $.inArray($(this).val(), users) != -1); });
     $('input[type="checkbox"]', panel_member).trigger('change');
 }

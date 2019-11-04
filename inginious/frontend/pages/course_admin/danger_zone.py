@@ -20,7 +20,7 @@ from inginious.frontend.pages.course_admin.utils import INGIniousAdminPage
 
 
 class CourseDangerZonePage(INGIniousAdminPage):
-    """ Course administration page: list of classrooms """
+    """ Course administration page: list of audiences """
     _logger = logging.getLogger("inginious.webapp.danger_zone")
 
     def wipe_course(self, courseid):
@@ -31,7 +31,8 @@ class CourseDangerZonePage(INGIniousAdminPage):
                 if key in submission and type(submission[key]) == bson.objectid.ObjectId and gridfs.exists(submission[key]):
                     gridfs.delete(submission[key])
 
-        self.database.aggregations.remove({"courseid": courseid})
+        self.database.audiences.remove({"courseid": courseid})
+        self.database.groups.remove({"courseid": courseid})
         self.database.user_tasks.remove({"courseid": courseid})
         self.database.submissions.remove({"courseid": courseid})
 
@@ -45,8 +46,11 @@ class CourseDangerZonePage(INGIniousAdminPage):
             os.makedirs(os.path.dirname(filepath))
 
         with zipfile.ZipFile(filepath, "w", allowZip64=True) as zipf:
-            aggregations = self.database.aggregations.find({"courseid": courseid})
-            zipf.writestr("aggregations.json", bson.json_util.dumps(aggregations), zipfile.ZIP_DEFLATED)
+            audiences = self.database.audiences.find({"courseid": courseid})
+            zipf.writestr("audiences.json", bson.json_util.dumps(audiences), zipfile.ZIP_DEFLATED)
+
+            groups = self.database.groups.find({"courseid": courseid})
+            zipf.writestr("groups.json", bson.json_util.dumps(groups), zipfile.ZIP_DEFLATED)
 
             user_tasks = self.database.user_tasks.find({"courseid": courseid})
             zipf.writestr("user_tasks.json", bson.json_util.dumps(user_tasks), zipfile.ZIP_DEFLATED)
@@ -79,9 +83,13 @@ class CourseDangerZonePage(INGIniousAdminPage):
         filepath = os.path.join(self.backup_dir, courseid, backup + ".zip")
         with zipfile.ZipFile(filepath, "r") as zipf:
 
-            aggregations = bson.json_util.loads(zipf.read("aggregations.json").decode("utf-8"))
-            if len(aggregations) > 0:
-                self.database.aggregations.insert(aggregations)
+            audiences = bson.json_util.loads(zipf.read("audiences.json").decode("utf-8"))
+            if len(audiences) > 0:
+                self.database.audiences.insert(audiences)
+
+            groups = bson.json_util.loads(zipf.read("groups.json").decode("utf-8"))
+            if len(groups) > 0:
+                self.database.groups.insert(groups)
 
             user_tasks = bson.json_util.loads(zipf.read("user_tasks.json").decode("utf-8"))
             if len(user_tasks) > 0:

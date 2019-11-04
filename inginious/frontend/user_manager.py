@@ -362,7 +362,7 @@ class UserManager:
 
 
     def bind_user(self, auth_id, user):
-        username, realname, email = user
+        username, realname, email, additional = user
 
         auth_method = self.get_auth_method(auth_id)
         if not auth_method:
@@ -376,15 +376,15 @@ class UserManager:
             self.connect_user(user_profile["username"], user_profile["realname"], user_profile["email"], user_profile["language"])
         elif user_profile and self.session_username() == user_profile["username"]:
             # Logged in, refresh fields if found profile username matches session username
-            pass
+            self._database.users.find_one_and_update({"username": self.session_username()},
+                                                     {"$set": {"bindings." + auth_id: [username, additional]}})
         elif user_profile:
             # Logged in, but already linked to another account
             self._logger.exception("Tried to bind an already bound account !")
         elif self.session_logged_in():
             # No binding, but logged: add new binding
             self._database.users.find_one_and_update({"username": self.session_username()},
-                                                    {"$set": {"bindings." + auth_id: [username, {}]}},
-                                                    return_document=pymongo.ReturnDocument.AFTER)
+                                                    {"$set": {"bindings." + auth_id: [username, additional]}})
 
         else:
             # No binding, check for email
@@ -397,7 +397,7 @@ class UserManager:
                 self._database.users.insert({"username": "",
                                             "realname": realname,
                                             "email": email,
-                                            "bindings": {auth_id: [username, {}]},
+                                            "bindings": {auth_id: [username, additional]},
                                             "language": self._session.get("language", "en")})
                 self.connect_user("", realname, email, self._session.get("language", "en"))
 
@@ -601,16 +601,14 @@ class UserManager:
         staff_right = self.has_staff_rights_on_course(task.get_course(), username)
 
         # Check for group
-        aggregation = self._database.aggregations.find_one(
-            {"courseid": task.get_course_id(), "groups.students": self.session_username()},
-            {"groups": {"$elemMatch": {"students": self.session_username()}}})
+        group = self._database.groups.find_one({"courseid": task.get_course_id(), "students": self.session_username()})
 
         if not only_check or only_check == 'groups':
-            group_filter = (aggregation is not None and task.is_group_task()) or not task.is_group_task()
+            group_filter = (group is not None and task.is_group_task()) or not task.is_group_task()
         else:
             group_filter = True
 
-        students = aggregation["groups"][0]["students"] if (aggregation is not None and task.is_group_task()) else [self.session_username()]
+        students = group["students"] if (group is not None and task.is_group_task()) else [self.session_username()]
 
 
         # Check for token availability
@@ -647,20 +645,24 @@ class UserManager:
 
         return (course_registered and task_accessible and group_filter and enough_tokens) or staff_right
 
-    def get_course_aggregations(self, course):
-        """ Returns a list of the course aggregations"""
-        return natsorted(list(self._database.aggregations.find({"courseid": course.get_id()})), key=lambda x: x["description"])
+    def get_course_audiences(self, course):
+        """ Returns a list of the course audiences"""
+        return natsorted(list(self._database.audiences.find({"courseid": course.get_id()})), key=lambda x: x["description"])
 
-    def get_course_user_aggregation(self, course, username=None):
-        """ Returns the classroom whose username belongs to
+    def get_course_groups(self, course):
+        """ Returns a list of the course groups"""
+        return natsorted(list(self._database.groups.find({"courseid": course.get_id()})), key=lambda x: x["description"])
+
+    def get_course_user_group(self, course, username=None):
+        """ Returns the audience whose username belongs to
         :param course: a Course object
         :param username: The username of the user that we want to register. If None, uses self.session_username()
-        :return: the classroom description
+        :return: the audience description
         """
         if username is None:
             username = self.session_username()
 
-        return self._database.aggregations.find_one({"courseid": course.get_id(), "students": username})
+        return self._database.groups.find_one({"courseid": course.get_id(), "students": username})
 
     def course_register_user(self, course, username=None, password=None, force=False):
         """
@@ -688,13 +690,7 @@ class UserManager:
         if self.course_is_user_registered(course, username):
             return False  # already registered?
 
-        aggregation = self._database.aggregations.find_one({"courseid": course.get_id(), "default": True})
-        if aggregation is None:
-            self._database.aggregations.insert({"courseid": course.get_id(), "description": "Default classroom",
-                                              "students": [username], "tutors": [], "groups": [], "default": True})
-        else:
-            self._database.aggregations.find_one_and_update({"courseid": course.get_id(), "default": True},
-                                                          {"$push": {"students": username}})
+        self._database.courses.find_one_and_update({"_id": course.get_id()}, {"$push": {"students": username}}, upsert=True)
 
         self._logger.info("User %s registered to course %s", username, course.get_id())
         return True
@@ -708,15 +704,22 @@ class UserManager:
         if username is None:
             username = self.session_username()
 
+        # If user doesn't belong to a group, will ensure correct deletion
+        self._database.audiences.find_one_and_update(
+            {"courseid": course.get_id(), "students": username},
+            {"$pull": {"students": username}})
+
         # Needed if user belongs to a group
-        self._database.aggregations.find_one_and_update(
+        self._database.groups.find_one_and_update(
             {"courseid": course.get_id(), "groups.students": username},
             {"$pull": {"groups.$.students": username, "students": username}})
 
         # If user doesn't belong to a group, will ensure correct deletion
-        self._database.aggregations.find_one_and_update(
+        self._database.groups.find_one_and_update(
             {"courseid": course.get_id(), "students": username},
             {"$pull": {"students": username}})
+
+        self._database.courses.find_one_and_update({"_id": course.get_id()}, {"$pull": {"students": username}})
 
         self._logger.info("User %s unregistered from course %s", username, course.get_id())
 
@@ -767,7 +770,7 @@ class UserManager:
         if self.has_staff_rights_on_course(course, username):
             return True
 
-        return self._database.aggregations.find_one({"students": username, "courseid": course.get_id()}) is not None
+        return self._database.courses.find_one({"students": username, "_id": course.get_id()}) is not None
 
     def get_course_registered_users(self, course, with_admins=True):
         """
@@ -777,11 +780,9 @@ class UserManager:
         :return: a list of usernames that are registered to the course
         """
 
-        l = [entry['students'] for entry in list(self._database.aggregations.aggregate([
-            {"$match": {"courseid": course.get_id()}},
-            {"$unwind": "$students"},
-            {"$project": {"_id": 0, "students": 1}}
-        ]))]
+        course_obj = self._database.courses.find_one({"_id": course.get_id()})
+        l = course_obj["students"] if course_obj else []
+
         if with_admins:
             return list(set(l + course.get_staff()))
         else:

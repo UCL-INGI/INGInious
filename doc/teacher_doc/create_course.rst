@@ -78,7 +78,6 @@ file. For instance, this file, for a course with id ``courseid1``, should be pla
     name: "[DEMO] Demonstration course"
     tutors: []
     groups_student_choice: false
-    use_classrooms: true
     accessible: true
     registration: true
     registration_password: null
@@ -96,7 +95,7 @@ the webapp. Here are the possible fields to set:
 - ``tutors``
   List of tutors usernames (restricted-rights teaching assistants). These users will have read-only rights on the
   course content. They cannot change course parameters nor tasks, cannot replay submissions or wipe the course data.
-  However, they can manage the classroom composition and download all the student submissions.
+  However, they can manage the audience composition and download all the student submissions.
 
 - ``accessible``
   When this field is defined, the course is only visible if within the defined period.
@@ -148,8 +147,4 @@ the webapp. Here are the possible fields to set:
 
 - ``groups_student_choice``
   If this field is defined and set to ``true`` and if collaborative work is activated for a given task, students will be
-  invited to register by themselves for a group or team before submitting.
-
-- ``use_classrooms``
-  If this field is set to ``true``, the classroom model will be used, otherwise, the team model will be used. The default
-  value for this field is ``true``. (See :ref:`groups`)
+  invited to register by themselves for a group before submitting.

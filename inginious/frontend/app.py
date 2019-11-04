@@ -51,7 +51,7 @@ urls = (
     r'/course/([^/]+)', 'inginious.frontend.pages.course.CoursePage',
     r'/course/([^/]+)/([^/]+)', 'inginious.frontend.pages.tasks.TaskPage',
     r'/course/([^/]+)/([^/]+)/(.*)', 'inginious.frontend.pages.tasks.TaskPageStaticDownload',
-    r'/aggregation/([^/]+)', 'inginious.frontend.pages.aggregation.AggregationPage',
+    r'/group/([^/]+)', 'inginious.frontend.pages.group.GroupPage',
     r'/queue', 'inginious.frontend.pages.queue.QueuePage',
     r'/mycourses', 'inginious.frontend.pages.mycourses.MyCoursesPage',
     r'/preferences', 'inginious.frontend.pages.preferences.utils.RedirectPage',
@@ -63,21 +63,18 @@ urls = (
     r'/admin/([^/]+)/students', 'inginious.frontend.pages.course_admin.student_list.CourseStudentListPage',
     r'/admin/([^/]+)/student/([^/]+)', 'inginious.frontend.pages.course_admin.student_info.CourseStudentInfoPage',
     r'/submission/([^/]+)', 'inginious.frontend.pages.course_admin.submission.SubmissionPage',
-    r'/admin/([^/]+)/aggregations', 'inginious.frontend.pages.course_admin.aggregation_list.CourseAggregationListPage',
-    r'/admin/([^/]+)/aggregation/([^/]+)', 'inginious.frontend.pages.course_admin.aggregation_info.CourseAggregationInfoPage',
+    r'/admin/([^/]+)/audiences', 'inginious.frontend.pages.course_admin.audience_list.CourseAudienceListPage',
     r'/admin/([^/]+)/submissions', 'inginious.frontend.pages.course_admin.submissions.CourseSubmissionsPage',
     r'/admin/([^/]+)/tasks', 'inginious.frontend.pages.course_admin.task_list.CourseTaskListPage',
     r'/admin/([^/]+)/tags', 'inginious.frontend.pages.course_admin.tags.CourseTagsPage',
-    r'/admin/([^/]+)/task/([^/]+)', 'inginious.frontend.pages.course_admin.task_info.CourseTaskInfoPage',
-    r'/admin/([^/]+)/edit/aggregation/([^/]+)', 'inginious.frontend.pages.course_admin.aggregation_edit.CourseEditAggregation',
-    r'/admin/([^/]+)/edit/aggregations', 'inginious.frontend.pages.course_admin.aggregation_edit.CourseEditAggregation',
+    r'/admin/([^/]+)/groups', 'inginious.frontend.pages.course_admin.group_edit.CourseEditGroup',
+    r'/admin/([^/]+)/edit/audience/([^/]+)', 'inginious.frontend.pages.course_admin.audience_edit.CourseEditAudience',
     r'/admin/([^/]+)/edit/task/([^/]+)', 'inginious.frontend.pages.course_admin.task_edit.CourseEditTask',
     r'/admin/([^/]+)/edit/task/([^/]+)/files', 'inginious.frontend.pages.course_admin.task_edit_file.CourseTaskFiles',
     r'/admin/([^/]+)/edit/task/([^/]+)/dd_upload', 'inginious.frontend.pages.course_admin.task_edit_file.CourseTaskFileUpload',
     r'/admin/([^/]+)/download', 'inginious.frontend.pages.course_admin.download.CourseDownloadSubmissions',
     r'/admin/([^/]+)/replay', 'inginious.frontend.pages.course_admin.replay.CourseReplaySubmissions',
     r'/admin/([^/]+)/danger', 'inginious.frontend.pages.course_admin.danger_zone.CourseDangerZonePage',
-    r'/admin/([^/]+)/webdav', 'inginious.frontend.pages.course_admin.webdav.WebDavInfoPage',
     r'/admin/([^/]+)/stats', 'inginious.frontend.pages.course_admin.statistics.CourseStatisticsPage',
     r'/admin/([^/]+)/stats/([^/]+)/([^/]+)', 'inginious.frontend.pages.course_admin.statistics.CourseStatisticsPage',
     r'/api/v0/auth_methods', 'inginious.frontend.pages.api.auth_methods.APIAuthMethods',
@@ -151,13 +148,16 @@ def get_app(config):
     appli = CookieLessCompatibleApplication(MongoStore(database, 'sessions'))
 
     # Init gettext
-    available_languages = {
-        "en": "English",
+    available_translations = {
         "fr": "Français",
         "es": "Español"
     }
 
-    for lang in available_languages.keys():
+    available_languages = {"en": "English"}
+    available_languages.update(available_translations)
+
+    appli.add_translation("en", gettext.NullTranslations())  # English does not need translation ;-)
+    for lang in available_translations.keys():
         appli.add_translation(lang, gettext.translation('messages', get_root_path() + '/frontend/i18n', [lang]))
 
     builtins.__dict__['_'] = appli.gettext
