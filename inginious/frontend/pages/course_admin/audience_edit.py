@@ -128,9 +128,6 @@ class CourseEditAudience(INGIniousAdminPage):
                 if audience is None:
                     msg = _("Audience with id {} not found.").format(classid)
                     error = True
-                elif audience['default'] and audienceid:
-                    msg = _("You can't remove your default audience.")
-                    error = True
                 else:
                     self.database.audiences.find_one_and_update({"courseid": courseid},
                                                                  {"$push": {
