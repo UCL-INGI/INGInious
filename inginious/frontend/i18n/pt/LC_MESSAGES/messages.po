@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2019-10-28 08:59+0100\n"
+"POT-Creation-Date: 2019-11-04 08:44+0100\n"
 "PO-Revision-Date: 2019-11-01 17:05+0000\n"
 "Last-Translator: Rosana Veroneze <rveroneze@gmail.com>\n"
 "Language-Team: Portuguese <http://weblate.info.ucl.ac.be/projects/inginious/"
@@ -307,7 +307,7 @@ msgid "[Submission #{submissionid}]"
 msgstr "[Submissão nº {submissionid}]"
 
 #: inginious/frontend/pages/tasks.py:387 inginious/frontend/pages/tasks.py:389
-msgid " <text cut due to its length>"
+msgid " <truncated>"
 msgstr ""
 
 #: inginious/frontend/pages/course_admin/audience_edit.py:129
@@ -320,17 +320,17 @@ msgstr ""
 
 #: inginious/frontend/pages/course_admin/audience_edit.py:141
 #: inginious/frontend/pages/course_admin/audience_edit.py:171
-#: inginious/frontend/pages/course_admin/group_edit.py:157
+#: inginious/frontend/pages/course_admin/group_edit.py:152
 msgid "Audience updated."
 msgstr ""
 
 #: inginious/frontend/pages/course_admin/audience_edit.py:165
-#: inginious/frontend/pages/course_admin/group_edit.py:178
+#: inginious/frontend/pages/course_admin/group_edit.py:173
 msgid "Changes couldn't be applied for following students :"
 msgstr "Não foi possível aplicar as alterações para os seguintes alunos:"
 
 #: inginious/frontend/pages/course_admin/audience_edit.py:173
-#: inginious/frontend/pages/course_admin/group_edit.py:187
+#: inginious/frontend/pages/course_admin/group_edit.py:182
 msgid "An error occurred while parsing the data."
 msgstr "Ocorreu um erro ao analisar os dados."
 
@@ -400,7 +400,7 @@ msgstr "nome de usuário / ID da tarefa"
 msgid "audience/taskid"
 msgstr ""
 
-#: inginious/frontend/pages/course_admin/group_edit.py:184
+#: inginious/frontend/pages/course_admin/group_edit.py:179
 msgid "Groups updated."
 msgstr ""
 
@@ -479,7 +479,7 @@ msgstr "{0} submissões selecionadas foram definidas para reprodução."
 msgid "No submissions found"
 msgstr "Nenhuma submissão encontrada"
 
-#: inginious/frontend/pages/course_admin/submissions.py:90
+#: inginious/frontend/pages/course_admin/submissions.py:102
 msgid ""
 "The result contains more than {0} submissions. The displayed submissions are "
 "truncated.\n"
@@ -563,43 +563,42 @@ msgstr "Ocorreu um erro ao mover os arquivos"
 msgid "An error occurred while deleting the files"
 msgstr "Ocorreu um erro ao excluir os arquivos"
 
-#: inginious/frontend/pages/course_admin/utils.py:237
+#: inginious/frontend/pages/course_admin/utils.py:246
 #: inginious/frontend/templates/course_admin/settings.html:18
 #: inginious/frontend/templates/course_admin/settings.html:23
 msgid "Course settings"
 msgstr "Configurações do curso"
 
-#: inginious/frontend/pages/course_admin/utils.py:239
+#: inginious/frontend/pages/course_admin/utils.py:248
 #: inginious/frontend/templates/course_admin/stats.html:23
 #: inginious/frontend/templates/course_admin/stats.html:30
 msgid "Stats"
 msgstr "Estatísticas"
 
-#: inginious/frontend/pages/course_admin/utils.py:240
-#: inginious/frontend/templates/course_admin/groups_edit.html:253
+#: inginious/frontend/pages/course_admin/utils.py:249
+#: inginious/frontend/templates/course_admin/groups_edit.html:207
 #: inginious/frontend/templates/course_admin/student_list.html:20
 #: inginious/frontend/templates/course_admin/student_list.html:27
 #: inginious/frontend/templates/course_admin/student_list.html:34
-#: inginious/frontend/templates/group.html:84
-#: inginious/frontend/templates/group.html:158
 msgid "Students"
 msgstr "Alunos"
 
-#: inginious/frontend/pages/course_admin/utils.py:241
+#: inginious/frontend/pages/course_admin/utils.py:250
 #: inginious/frontend/templates/course_admin/audience_list.html:21
 #: inginious/frontend/templates/course_admin/audience_list.html:28
 #: inginious/frontend/templates/course_admin/submissions.html:63
 msgid "Audiences"
 msgstr ""
 
-#: inginious/frontend/pages/course_admin/utils.py:244
-#: inginious/frontend/templates/course_admin/groups_edit.html:27
+#: inginious/frontend/pages/course_admin/utils.py:253
+#: inginious/frontend/templates/course_admin/groups_edit.html:20
+#: inginious/frontend/templates/course_admin/groups_edit.html:25
 #: inginious/frontend/templates/group.html:59
 #: inginious/frontend/templates/group.html:67
 msgid "Groups"
 msgstr "Grupos"
 
-#: inginious/frontend/pages/course_admin/utils.py:246
+#: inginious/frontend/pages/course_admin/utils.py:255
 #: inginious/frontend/templates/course_admin/stats.html:129
 #: inginious/frontend/templates/course_admin/submissions.html:74
 #: inginious/frontend/templates/course_admin/task_list.html:19
@@ -607,7 +606,7 @@ msgstr "Grupos"
 msgid "Tasks"
 msgstr "Tarefas"
 
-#: inginious/frontend/pages/course_admin/utils.py:247
+#: inginious/frontend/pages/course_admin/utils.py:256
 #: inginious/frontend/templates/course_admin/submission.html:88
 #: inginious/frontend/templates/course_admin/tags.html:8
 #: inginious/frontend/templates/course_admin/tags.html:19
@@ -616,7 +615,7 @@ msgstr "Tarefas"
 msgid "Tags"
 msgstr "Etiquetas"
 
-#: inginious/frontend/pages/course_admin/utils.py:248
+#: inginious/frontend/pages/course_admin/utils.py:257
 #: inginious/frontend/templates/course_admin/submissions.html:12
 #: inginious/frontend/templates/course_admin/submissions.html:23
 #: inginious/frontend/templates/course_admin/submissions.html:28
@@ -624,34 +623,34 @@ msgstr "Etiquetas"
 msgid "View submissions"
 msgstr "Ver submissões"
 
-#: inginious/frontend/pages/course_admin/utils.py:249
+#: inginious/frontend/pages/course_admin/utils.py:258
 #: inginious/frontend/templates/course_admin/download.html:8
 #: inginious/frontend/templates/course_admin/download.html:18
 #: inginious/frontend/templates/course_admin/download.html:23
 msgid "Download submissions"
 msgstr "Download de submissões"
 
-#: inginious/frontend/pages/course_admin/utils.py:252
+#: inginious/frontend/pages/course_admin/utils.py:261
 #: inginious/frontend/templates/course_admin/replay.html:8
 #: inginious/frontend/templates/course_admin/replay.html:18
 #: inginious/frontend/templates/course_admin/replay.html:23
 msgid "Replay submissions"
 msgstr "Reproduzir submissões"
 
-#: inginious/frontend/pages/course_admin/utils.py:253
+#: inginious/frontend/pages/course_admin/utils.py:262
 #: inginious/frontend/templates/course_admin/danger_zone.html:8
 #: inginious/frontend/templates/course_admin/danger_zone.html:20
 #: inginious/frontend/templates/course_admin/danger_zone.html:25
 msgid "Danger zone"
 msgstr "Zona de perigo"
 
-#: inginious/frontend/pages/preferences/bindings.py:40
-#: inginious/frontend/pages/preferences/bindings.py:48
+#: inginious/frontend/pages/preferences/bindings.py:41
+#: inginious/frontend/pages/preferences/bindings.py:49
 #, fuzzy
 msgid "Incorrect authentication binding."
 msgstr "Ligação de autenticação incorreta."
 
-#: inginious/frontend/pages/preferences/bindings.py:54
+#: inginious/frontend/pages/preferences/bindings.py:57
 #, fuzzy
 msgid "You must set a password before removing all bindings."
 msgstr "Você deve definir uma senha antes de remover todas as ligações."
@@ -788,7 +787,6 @@ msgid "Course administration"
 msgstr "Administração do curso"
 
 #: inginious/frontend/templates/course.html:58
-#: inginious/frontend/templates/group.html:151
 #: inginious/frontend/templates/task.html:153
 msgid "Group : {}"
 msgstr ""
@@ -832,10 +830,11 @@ msgstr "\"Lista de cursos\""
 #: inginious/frontend/templates/course_admin/audience_list.html:21
 #: inginious/frontend/templates/course_admin/danger_zone.html:20
 #: inginious/frontend/templates/course_admin/download.html:18
-#: inginious/frontend/templates/course_admin/groups_edit.html:22
+#: inginious/frontend/templates/course_admin/groups_edit.html:20
 #: inginious/frontend/templates/course_admin/replay.html:18
 #: inginious/frontend/templates/course_admin/settings.html:18
 #: inginious/frontend/templates/course_admin/stats.html:23
+#: inginious/frontend/templates/course_admin/student_info.html:23
 #: inginious/frontend/templates/course_admin/student_list.html:20
 #: inginious/frontend/templates/course_admin/submission.html:35
 #: inginious/frontend/templates/course_admin/submissions.html:23
@@ -885,35 +884,36 @@ msgstr "Você não está registrado neste curso."
 msgid "Register for a group"
 msgstr "Registre-se em um grupo"
 
-#: inginious/frontend/templates/group.html:81
+#: inginious/frontend/templates/group.html:83
 msgid "My group : {}"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/groups_edit.html:169
-#: inginious/frontend/templates/course_admin/settings.html:44
-#: inginious/frontend/templates/group.html:110
-#: inginious/frontend/templates/group.html:188
-msgid "Tutors"
-msgstr "Tutores"
+#: inginious/frontend/templates/group.html:86
+msgid "\"Quit group\""
+msgstr ""
 
-#: inginious/frontend/templates/group.html:131
+#: inginious/frontend/templates/group.html:98
+msgid "\"Send an email\""
+msgstr ""
+
+#: inginious/frontend/templates/group.html:110
 msgid ""
 "No set group in this course. If you think this is a mistake, please contact "
 "the course administrator."
 msgstr ""
 
-#: inginious/frontend/templates/group.html:135
+#: inginious/frontend/templates/group.html:114
 msgid ""
 "Groups have been set up but you're not allowed to register in anyone. Please "
 "contact the course administrator."
 msgstr ""
 
-#: inginious/frontend/templates/group.html:138
-#: inginious/frontend/templates/group.html:143
+#: inginious/frontend/templates/group.html:117
+#: inginious/frontend/templates/group.html:122
 msgid "My group"
 msgstr "Meu grupo"
 
-#: inginious/frontend/templates/group.html:140
+#: inginious/frontend/templates/group.html:119
 msgid ""
 "You're not registered to a group. Please consider registration in one of the "
 "group below to take part in all course activities. If no more group is "
@@ -924,7 +924,7 @@ msgstr ""
 "houver mais nenhum grupo disponível, por favor, entre em contato com o "
 "administrador do curso."
 
-#: inginious/frontend/templates/group.html:145
+#: inginious/frontend/templates/group.html:124
 msgid ""
 "You're not yet registered to a group. Please contact the course "
 "administrator for more information."
@@ -932,15 +932,15 @@ msgstr ""
 "Você ainda não está registrado em um grupo. Por favor, entre em contato com "
 "o administrador do curso para obter mais informações."
 
-#: inginious/frontend/templates/group.html:149
+#: inginious/frontend/templates/group.html:128
 msgid "All groups"
 msgstr "Todos os grupos"
 
-#: inginious/frontend/templates/group.html:160
+#: inginious/frontend/templates/group.html:138
 msgid "(available : {})"
 msgstr "(disponível : {})"
 
-#: inginious/frontend/templates/group.html:170
+#: inginious/frontend/templates/group.html:148
 msgid "No registered member."
 msgstr "Nenhum membro registrado."
 
@@ -1080,7 +1080,7 @@ msgstr "Vincular minha conta"
 #: inginious/frontend/templates/course_admin/audience_edit.html:94
 #: inginious/frontend/templates/course_admin/danger_zone.html:85
 #: inginious/frontend/templates/course_admin/danger_zone.html:164
-#: inginious/frontend/templates/course_admin/groups_edit.html:93
+#: inginious/frontend/templates/course_admin/groups_edit.html:91
 #: inginious/frontend/templates/course_admin/student_list_table.html:85
 #: inginious/frontend/templates/course_admin/submissions.html:247
 #: inginious/frontend/templates/course_admin/task_edit.html:114
@@ -1352,6 +1352,7 @@ msgstr "Status"
 msgid "Not yet attempted"
 msgstr "Ainda não tentou"
 
+#: inginious/frontend/templates/course_admin/student_info.html:68
 #: inginious/frontend/templates/course_admin/submissions.html:376
 #: inginious/frontend/templates/task.html:46
 msgid "Succeeded"
@@ -1361,6 +1362,7 @@ msgstr "Sucedido"
 msgid "Waiting for verification"
 msgstr "Aguardando verificação"
 
+#: inginious/frontend/templates/course_admin/student_info.html:71
 #: inginious/frontend/templates/course_admin/submissions.html:380
 #: inginious/frontend/templates/task.html:56
 msgid "Failed"
@@ -1577,6 +1579,7 @@ msgstr "Cancelar registro"
 #: inginious/frontend/templates/course_admin/replay.html:16
 #: inginious/frontend/templates/course_admin/settings.html:16
 #: inginious/frontend/templates/course_admin/stats.html:19
+#: inginious/frontend/templates/course_admin/student_info.html:18
 #: inginious/frontend/templates/course_admin/student_list.html:16
 #: inginious/frontend/templates/course_admin/submission.html:24
 #: inginious/frontend/templates/course_admin/submissions.html:21
@@ -1597,8 +1600,8 @@ msgstr ""
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:44
 #: inginious/frontend/templates/course_admin/audience_edit.html:95
-#: inginious/frontend/templates/course_admin/groups_edit.html:75
-#: inginious/frontend/templates/course_admin/groups_edit.html:94
+#: inginious/frontend/templates/course_admin/groups_edit.html:73
+#: inginious/frontend/templates/course_admin/groups_edit.html:92
 msgid "Add student"
 msgstr "Adicionar aluno"
 
@@ -1615,7 +1618,7 @@ msgid "Choose student :"
 msgstr "Escolha aluno:"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:82
-#: inginious/frontend/templates/course_admin/groups_edit.html:83
+#: inginious/frontend/templates/course_admin/groups_edit.html:81
 msgid "Student username (will be registered) :"
 msgstr "Nome de usuário do aluno (será registrado):"
 
@@ -1641,7 +1644,6 @@ msgid "Tutor list"
 msgstr "Lista de tutores"
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:152
-#: inginious/frontend/templates/course_admin/groups_edit.html:182
 msgid "Add tutor"
 msgstr "Adicionar tutor"
 
@@ -1654,39 +1656,39 @@ msgid "\"Remove student\""
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/audience_edit.html:188
-#: inginious/frontend/templates/course_admin/groups_edit.html:288
+#: inginious/frontend/templates/course_admin/groups_edit.html:242
 msgid "Update"
 msgstr "Atualizar"
 
 #: inginious/frontend/templates/course_admin/audience_list.html:31
-#: inginious/frontend/templates/course_admin/groups_edit.html:30
+#: inginious/frontend/templates/course_admin/groups_edit.html:28
 #, fuzzy
 msgid "Upload structure"
 msgstr "Estrutura de upload"
 
 #: inginious/frontend/templates/course_admin/audience_list.html:32
-#: inginious/frontend/templates/course_admin/groups_edit.html:31
+#: inginious/frontend/templates/course_admin/groups_edit.html:29
 #, fuzzy
 msgid "Download structure"
 msgstr "Estrutura de download"
 
 #: inginious/frontend/templates/course_admin/audience_list.html:52
-#: inginious/frontend/templates/course_admin/groups_edit.html:41
+#: inginious/frontend/templates/course_admin/groups_edit.html:39
 msgid "Upload course structure"
 msgstr "Fazer upload de estrutura do curso"
 
 #: inginious/frontend/templates/course_admin/audience_list.html:56
-#: inginious/frontend/templates/course_admin/groups_edit.html:45
+#: inginious/frontend/templates/course_admin/groups_edit.html:43
 msgid "Note : Please refer to documentation for file format"
 msgstr "Nota: Consulte a documentação para o formato do arquivo"
 
 #: inginious/frontend/templates/course_admin/audience_list.html:58
-#: inginious/frontend/templates/course_admin/groups_edit.html:47
+#: inginious/frontend/templates/course_admin/groups_edit.html:45
 msgid "Course structure"
 msgstr "Estrutura do curso"
 
 #: inginious/frontend/templates/course_admin/audience_list.html:63
-#: inginious/frontend/templates/course_admin/groups_edit.html:52
+#: inginious/frontend/templates/course_admin/groups_edit.html:50
 msgid "Upload (will erase current settings)"
 msgstr "Upload (irá apagar as configurações atuais)"
 
@@ -1710,11 +1712,13 @@ msgid "# task done"
 msgstr "# tarefas concluídas"
 
 #: inginious/frontend/templates/course_admin/audience_list.html:80
+#: inginious/frontend/templates/course_admin/student_info.html:38
 #: inginious/frontend/templates/course_admin/task_list.html:67
 msgid "\"Download all submissions\""
 msgstr "\"Baixar todas as submissões\""
 
 #: inginious/frontend/templates/course_admin/audience_list.html:82
+#: inginious/frontend/templates/course_admin/student_info.html:45
 #: inginious/frontend/templates/course_admin/student_list_table.html:27
 #: inginious/frontend/templates/course_admin/submissions.html:334
 #: inginious/frontend/templates/course_admin/task_list.html:69
@@ -1739,12 +1743,14 @@ msgid "\"View submissions\""
 msgstr "\"Ver submissões\""
 
 #: inginious/frontend/templates/course_admin/audience_list.html:109
+#: inginious/frontend/templates/course_admin/student_info.html:78
 #: inginious/frontend/templates/course_admin/student_list_table.html:59
 #: inginious/frontend/templates/course_admin/task_list.html:92
 msgid "\"Download submissions\""
 msgstr "\"Baixar submissões\""
 
 #: inginious/frontend/templates/course_admin/audience_list.html:112
+#: inginious/frontend/templates/course_admin/student_info.html:81
 #: inginious/frontend/templates/course_admin/student_list_table.html:62
 #: inginious/frontend/templates/course_admin/task_list.html:95
 #, fuzzy
@@ -1858,46 +1864,41 @@ msgid "Download"
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/groups_edit.html:8
-#: inginious/frontend/templates/course_admin/groups_edit.html:22
 msgid "Edit groups"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/groups_edit.html:20
-msgid "\"Groups\""
+#: inginious/frontend/templates/course_admin/groups_edit.html:103
+msgid "Ungrouped students"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/groups_edit.html:105
-msgid "Non grouped students"
-msgstr ""
-
-#: inginious/frontend/templates/course_admin/groups_edit.html:132
-#: inginious/frontend/templates/course_admin/groups_edit.html:153
+#: inginious/frontend/templates/course_admin/groups_edit.html:130
+#: inginious/frontend/templates/course_admin/groups_edit.html:151
 msgid "Max group size :"
 msgstr "Tamanho máximo do grupo:"
 
-#: inginious/frontend/templates/course_admin/groups_edit.html:138
-#: inginious/frontend/templates/course_admin/groups_edit.html:159
+#: inginious/frontend/templates/course_admin/groups_edit.html:136
+#: inginious/frontend/templates/course_admin/groups_edit.html:157
 msgid "\"Delete group\""
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/groups_edit.html:213
+#: inginious/frontend/templates/course_admin/groups_edit.html:167
 msgid "Restrict to audiences"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/groups_edit.html:223
+#: inginious/frontend/templates/course_admin/groups_edit.html:177
 msgid "Add audience"
 msgstr ""
 
-#: inginious/frontend/templates/course_admin/groups_edit.html:273
+#: inginious/frontend/templates/course_admin/groups_edit.html:227
 msgid "New group"
 msgstr "Novo grupo"
 
-#: inginious/frontend/templates/course_admin/groups_edit.html:278
+#: inginious/frontend/templates/course_admin/groups_edit.html:232
 #, fuzzy
 msgid "Clean groups"
 msgstr "Grupos limpos"
 
-#: inginious/frontend/templates/course_admin/groups_edit.html:283
+#: inginious/frontend/templates/course_admin/groups_edit.html:237
 msgid "Delete all groups"
 msgstr "Excluir todos os grupos"
 
@@ -1939,6 +1940,10 @@ msgstr ""
 #: inginious/frontend/templates/course_admin/settings.html:39
 msgid "\"Usernames of the administrators, separated by commas\""
 msgstr ""
+
+#: inginious/frontend/templates/course_admin/settings.html:44
+msgid "Tutors"
+msgstr "Tutores"
 
 #: inginious/frontend/templates/course_admin/settings.html:46
 msgid "\"Usernames of the tutors, separated by commas\""
@@ -2115,6 +2120,44 @@ msgstr ""
 msgid "Users"
 msgstr ""
 
+#: inginious/frontend/templates/course_admin/student_info.html:20
+#: inginious/frontend/templates/course_admin/submission.html:29
+msgid "\"Students\""
+msgstr ""
+
+#: inginious/frontend/templates/course_admin/student_info.html:28
+msgid "Statistics for student {realname} ({username})"
+msgstr ""
+
+#: inginious/frontend/templates/course_admin/student_info.html:32
+msgid "task"
+msgstr ""
+
+#: inginious/frontend/templates/course_admin/student_info.html:33
+msgid "status"
+msgstr ""
+
+#: inginious/frontend/templates/course_admin/student_info.html:34
+msgid "# submissions"
+msgstr "# submissões"
+
+#: inginious/frontend/templates/course_admin/student_info.html:42
+#, fuzzy
+msgid "\"Replay all submissions\""
+msgstr "\"Repetir todas as submissões\""
+
+#: inginious/frontend/templates/course_admin/student_info.html:63
+msgid "Not viewed"
+msgstr "Não visualizado"
+
+#: inginious/frontend/templates/course_admin/student_info.html:65
+msgid "Not attempted (viewed)"
+msgstr "Não tentado (visualizado)"
+
+#: inginious/frontend/templates/course_admin/student_info.html:76
+msgid "\"View all submissions\""
+msgstr ""
+
 #: inginious/frontend/templates/course_admin/student_list.html:38
 msgid "Teaching staff"
 msgstr ""
@@ -2154,10 +2197,6 @@ msgstr ""
 
 #: inginious/frontend/templates/course_admin/student_list_table.html:86
 msgid "Remove {}"
-msgstr ""
-
-#: inginious/frontend/templates/course_admin/submission.html:29
-msgid "\"Students\""
 msgstr ""
 
 #: inginious/frontend/templates/course_admin/submission.html:40
@@ -2873,18 +2912,22 @@ msgid "\"Revoke access\""
 msgstr ""
 
 #: inginious/frontend/templates/preferences/bindings.html:57
-msgid "Identifier:"
+msgid "Identifier"
 msgstr ""
 
-#: inginious/frontend/templates/preferences/bindings.html:64
+#: inginious/frontend/templates/preferences/bindings.html:59
+msgid "Additional fields"
+msgstr ""
+
+#: inginious/frontend/templates/preferences/bindings.html:68
 msgid "Add a new binding"
 msgstr ""
 
-#: inginious/frontend/templates/preferences/bindings.html:69
+#: inginious/frontend/templates/preferences/bindings.html:73
 msgid "Select a authentication binding"
 msgstr ""
 
-#: inginious/frontend/templates/preferences/bindings.html:76
+#: inginious/frontend/templates/preferences/bindings.html:80
 msgid "Add new binding"
 msgstr ""
 
@@ -3058,19 +3101,6 @@ msgstr ""
 
 #~ msgid "Task"
 #~ msgstr "Tarefa"
-
-#~ msgid "# submissions"
-#~ msgstr "# submissões"
-
-#, fuzzy
-#~ msgid "\"Replay all submissions\""
-#~ msgstr "\"Repetir todas as submissões\""
-
-#~ msgid "Not viewed"
-#~ msgstr "Não visualizado"
-
-#~ msgid "Not attempted (viewed)"
-#~ msgstr "Não tentado (visualizado)"
 
 #~ msgid "Edit teams"
 #~ msgstr "Editar equipes"
