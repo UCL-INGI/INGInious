@@ -142,9 +142,9 @@ class INGIniousSubmissionAdminPage(INGIniousAdminPage):
         if "tasks" in user_input:
             checked_tasks = user_input.tasks if isinstance(user_input.tasks, list) else user_input.tasks.split(',')
         if "users" in user_input:
-            checked_users = user_input.users if isinstance(user_input.tasks, list) else user_input.users.split(',')
+            checked_users = user_input.users if isinstance(user_input.users, list) else user_input.users.split(',')
         if "aggregations" in user_input:
-            checked_aggregations = user_input.aggregations if isinstance(user_input.tasks, list) else user_input.aggregations.split(',')
+            checked_aggregations = user_input.aggregations if isinstance(user_input.aggregations, list) else user_input.aggregations.split(',')
             show_aggregations = True
         if "tutored" in user_input:
             if user_input.tutored == "aggregations":
