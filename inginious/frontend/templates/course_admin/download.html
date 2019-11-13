@@ -1,4 +1,4 @@
-$def with (course, tasks, user_data, aggregations, tutored_aggregations, tutored_users, checked_tasks, checked_users, valid_formats, chosen_format, show_aggregations)
+$def with (course, tasks, user_data, aggregations, tutored_aggregations, tutored_users, checked_tasks, checked_users, valid_formats, chosen_format, show_aggregations, error)
 
 $#
 $# This file is part of INGInious. See the LICENSE and the COPYRIGHTS files for
@@ -23,6 +23,12 @@ $def NavbarF():
 $var Navbar: $:NavbarF()
 
 <h2>$:_("Download submissions")</h2>
+
+$if error:
+    <div class="alert alert-danger alert-dismissable" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        $error
+    </div>
 
 <form method="post" action="$get_homepath()/admin/$course.get_id()/download">
     $:include.course_admin.submissions_tabs.tasks(tasks, checked_tasks, "download")
