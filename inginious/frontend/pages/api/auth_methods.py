@@ -17,7 +17,7 @@ class APIAuthMethods(APIPage):
         """
             Returns all the auth methods available. (200 OK)
 
-            Response: list of auth methods. The value of the dict is an auth method, represented by:
+            Response: list of auth methods. The values in the last are auth methods, represented by:
 
             id
                 id of the auth method
@@ -26,8 +26,11 @@ class APIAuthMethods(APIPage):
                 the name of the authentication method, typically displayed by the webapp
 
             input
-                a dictionary containing as key the name of the input (in the HTML sense of name), and, as value,
-                a dictionary containing two fields:
+                a list containing the inputs to this method.
+                Each input is represented as a dictionary containing three fields:
+
+                id
+                    the id of the input, to be returned as id in the POST request of /api/v0/authentication
 
                 name
                     the placeholder for the input
@@ -35,12 +38,12 @@ class APIAuthMethods(APIPage):
                 type
                     text or password
         """
-        to_display = []
-        for key, (name, data) in self.user_manager.get_auth_methods().items():
-            to_display.append({
-                "id": key,
-                "name": name,
-                "input": [{"id": ik, "name": iv["placeholder"], "type": iv["type"]} for ik, iv in data["input"].items()]
-            })
-
-        return 200, to_display
+        # this is an old API, not used anymore. This ensures retrocompatibility.
+        return 200, [{
+            "id": 0,
+            "name": "INGInious account",
+            "input": [
+                {"id": "login", "name": "Login", "type": "text"},
+                {"id": "password", "name": "Password", "type": "password"}
+            ]
+        }]
