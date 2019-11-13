@@ -274,6 +274,8 @@ $# Start content
         $if not is_lti():
             <div class="pull-right">
                 <div class="btn-group">
+                    <button type="button" id="load_loc" class="btn btn-info mr-1"><i class="fa fa-arrow-circle-o-down"></i></button>
+                    <button type="button" id="save_loc" class="btn btn-info mr-1"><i class="fa fa-save"></i></button>
                     <button type="button" class="btn btn-info mr-1" data-toggle="collapse" data-target="#task_context">$:_("Collapse context")</button>
                     $if previous_taskid:
                         <a class="btn-sm btn btn-info" href="$get_homepath()/course/$course.get_id()/$previous_taskid" title=$:_('"Previous task"') data-toggle="tooltip" data-placement="bottom"><i class="fa fa-arrow-left"></i></a>
@@ -375,6 +377,7 @@ $else:
     $# no need to check with lti=True/False here as it was already checked by the calling python script.
     $ groups_ok = user_manager.task_can_user_submit(task, user_manager.session_username(), 'groups')
     $ tokens_ok = user_manager.task_can_user_submit(task, user_manager.session_username(), 'tokens')
+
     $if not registered:
         <button type="submit" class="btn btn-default btn-lg btn-block center-block" disabled="disabled">$:_("Please enroll in the course to submit.")</button>
     $elif groups_ok and tokens_ok:
@@ -434,6 +437,15 @@ $$(document).ready(function() {
     init_task_page("$task.get_evaluate()");
 });
 
+</script>
+
+<script type="text/javascript">
+    $$("#load_loc").on('click', function(e){
+        load_from_storage("$course.get_id()","$task.get_id()");
+    });
+    $$("#save_loc").on('click', function(e){
+        save_to_storage("$course.get_id()","$task.get_id()");
+    });
 </script>
 
 $# Input random
