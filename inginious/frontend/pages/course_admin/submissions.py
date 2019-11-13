@@ -86,14 +86,18 @@ class CourseSubmissionsPage(INGIniousAdminPage):
             return make_csv(data)
                         
         if "download" in web.input():
-            # self._logger.info("Downloading %d submissions from course %s", len(data), course.get_id())
-            web.header('Content-Type', 'application/x-gzip', unique=True)
-            web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)
-
             download_type = web.input(download_type=self._valid_formats[0]).download_type
             if download_type not in self._valid_formats:
                 download_type = self._valid_formats[0]
-            return self.submission_manager.get_submission_archive(data, list(reversed(download_type.split('/'))), audiences)
+
+            archive, error = self.submission_manager.get_submission_archive(data, list(reversed(download_type.split('/'))), audiences)
+            if not error:
+                # self._logger.info("Downloading %d submissions from course %s", len(data), course.get_id())
+                web.header('Content-Type', 'application/x-gzip', unique=True)
+                web.header('Content-Disposition', 'attachment; filename="submissions.tgz"', unique=True)
+                return archive
+            else:
+                msgs.append(_("The following submission could not be prepared for download: {}").format(error))
 
         if user_input.limit != '' and user_input.limit.isdigit():
             data = data[:int(user_input.limit)]

@@ -482,89 +482,93 @@ class WebAppSubmissionManager:
         """
         tmpfile = archive_file if archive_file is not None else tempfile.TemporaryFile()
         tar = tarfile.open(fileobj=tmpfile, mode='w:gz')
+        error = ""
 
         for submission in submissions:
-            submission = self.get_input_from_submission(submission)
+            try:
+                submission = self.get_input_from_submission(submission)
 
-            submission_yaml = io.BytesIO(inginious.common.custom_yaml.dump(submission).encode('utf-8'))
+                submission_yaml = io.BytesIO(inginious.common.custom_yaml.dump(submission).encode('utf-8'))
 
-            # Considering multiple single submissions for each user
-            for username in submission["username"]:
-                # Compute base path in the tar file
-                base_path = "/"
-                for sub_folder in sub_folders:
-                    if sub_folder == 'taskid':
-                        base_path = submission['taskid'] + base_path
-                    elif sub_folder == 'username':
-                        base_path = '_' + '-'.join(submission['username']) + base_path
-                        base_path = base_path[1:]
-                    elif sub_folder == 'audience':
-                        if username not in audiences:
-                            # If audiences are not used, and user is not grouped, his audience is replaced by None
+                # Considering multiple single submissions for each user
+                for username in submission["username"]:
+                    # Compute base path in the tar file
+                    base_path = "/"
+                    for sub_folder in sub_folders:
+                        if sub_folder == 'taskid':
+                            base_path = submission['taskid'] + base_path
+                        elif sub_folder == 'username':
                             base_path = '_' + '-'.join(submission['username']) + base_path
                             base_path = base_path[1:]
-                        else:
-                            base_path = (audiences[username]["description"] +
-                                         " (" + str(audiences[username]["_id"]) + ")").replace(" ", "_") + base_path
+                        elif sub_folder == 'audience':
+                            if username not in audiences:
+                                # If audiences are not used, and user is not grouped, his audience is replaced by None
+                                base_path = '_' + '-'.join(submission['username']) + base_path
+                                base_path = base_path[1:]
+                            else:
+                                base_path = (audiences[username]["description"] +
+                                             " (" + str(audiences[username]["_id"]) + ")").replace(" ", "_") + base_path
 
-                    base_path = '/' + base_path
-                base_path = base_path[1:]
+                        base_path = '/' + base_path
+                    base_path = base_path[1:]
 
-                submission_yaml_fname = base_path + str(submission["_id"]) + '/submission.test'
+                    submission_yaml_fname = base_path + str(submission["_id"]) + '/submission.test'
 
-                # Avoid putting two times the same submission on the same place
-                if submission_yaml_fname not in tar.getnames():
+                    # Avoid putting two times the same submission on the same place
+                    if submission_yaml_fname not in tar.getnames():
 
-                    info = tarfile.TarInfo(name=submission_yaml_fname)
-                    info.size = submission_yaml.getbuffer().nbytes
-                    info.mtime = time.mktime(submission["submitted_on"].timetuple())
+                        info = tarfile.TarInfo(name=submission_yaml_fname)
+                        info.size = submission_yaml.getbuffer().nbytes
+                        info.mtime = time.mktime(submission["submitted_on"].timetuple())
 
-                    # Add file in tar archive
-                    tar.addfile(info, fileobj=submission_yaml)
+                        # Add file in tar archive
+                        tar.addfile(info, fileobj=submission_yaml)
 
-                    # If there is an archive, add it too
-                    if 'archive' in submission and submission['archive'] is not None and submission['archive'] != "":
-                        subfile = self._gridfs.get(submission['archive'])
-                        subtar = tarfile.open(fileobj=subfile, mode="r:gz")
+                        # If there is an archive, add it too
+                        if 'archive' in submission and submission['archive'] is not None and submission['archive'] != "":
+                            subfile = self._gridfs.get(submission['archive'])
+                            subtar = tarfile.open(fileobj=subfile, mode="r:gz")
 
-                        for member in subtar.getmembers():
-                            subtarfile = subtar.extractfile(member)
-                            member.name = base_path + str(submission["_id"]) + "/archive/" + member.name
-                            tar.addfile(member, subtarfile)
+                            for member in subtar.getmembers():
+                                subtarfile = subtar.extractfile(member)
+                                member.name = base_path + str(submission["_id"]) + "/archive/" + member.name
+                                tar.addfile(member, subtarfile)
 
-                        subtar.close()
-                        subfile.close()
+                            subtar.close()
+                            subfile.close()
 
-                    # If there files that were uploaded by the student, add them
-                    if submission['input'] is not None:
-                        for pid, problem in submission['input'].items():
-                            # If problem is a dict, it is a file (from the specification of the problems)
-                            if isinstance(problem, dict):
-                                # Get the extension (match extensions with more than one dot too)
-                                DOUBLE_EXTENSIONS = ['.tar.gz', '.tar.bz2', '.tar.bz', '.tar.xz']
-                                ext = ""
-                                if not problem['filename'].endswith(tuple(DOUBLE_EXTENSIONS)):
-                                    _, ext = os.path.splitext(problem['filename'])
-                                else:
-                                    for t_ext in DOUBLE_EXTENSIONS:
-                                        if problem['filename'].endswith(t_ext):
-                                            ext = t_ext
+                        # If there files that were uploaded by the student, add them
+                        if submission['input'] is not None:
+                            for pid, problem in submission['input'].items():
+                                if isinstance(problem, dict) and "filename" in problem:
+                                    # Get the extension (match extensions with more than one dot too)
+                                    DOUBLE_EXTENSIONS = ['.tar.gz', '.tar.bz2', '.tar.bz', '.tar.xz']
+                                    ext = ""
+                                    if not problem['filename'].endswith(tuple(DOUBLE_EXTENSIONS)):
+                                        _, ext = os.path.splitext(problem['filename'])
+                                    else:
+                                        for t_ext in DOUBLE_EXTENSIONS:
+                                            if problem['filename'].endswith(t_ext):
+                                                ext = t_ext
 
-                                subfile = io.BytesIO(problem['value'])
-                                taskfname = base_path + str(submission["_id"]) + '/uploaded_files/' + pid + ext
+                                    subfile = io.BytesIO(problem['value'])
+                                    taskfname = base_path + str(submission["_id"]) + '/uploaded_files/' + pid + ext
 
-                                # Generate file info
-                                info = tarfile.TarInfo(name=taskfname)
-                                info.size = subfile.getbuffer().nbytes
-                                info.mtime = time.mktime(submission["submitted_on"].timetuple())
+                                    # Generate file info
+                                    info = tarfile.TarInfo(name=taskfname)
+                                    info.size = subfile.getbuffer().nbytes
+                                    info.mtime = time.mktime(submission["submitted_on"].timetuple())
 
-                                # Add file in tar archive
-                                tar.addfile(info, fileobj=subfile)
+                                    # Add file in tar archive
+                                    tar.addfile(info, fileobj=subfile)
+            except Exception as e:
+                error = str(submission["_id"])
+                break
 
         # Close tarfile and put tempfile cursor at 0
         tar.close()
         tmpfile.seek(0)
-        return tmpfile
+        return tmpfile, error
 
     def _handle_ssh_callback(self, submission_id, host, port, password):
         """ Handles the creation of a remote ssh server """

@@ -130,11 +130,11 @@ class INGIniousSubmissionAdminPage(INGIniousAdminPage):
         show_audiences = False
 
         if "tasks" in user_input:
-            checked_tasks = user_input.tasks.split(',')
+            checked_tasks = user_input.tasks if isinstance(user_input.tasks, list) else user_input.tasks.split(',')
         if "users" in user_input:
-            checked_users = user_input.users.split(',')
+            checked_users = user_input.users if isinstance(user_input.users, list) else user_input.users.split(',')
         if "audiences" in user_input:
-            checked_audiences = user_input.audiences.split(',')
+            checked_audiences = user_input.audiences if isinstance(user_input.audiences, list) else user_input.audiences.split(',')
             show_audiences = True
         if "tutored" in user_input:
             if user_input.tutored == "audiences":
