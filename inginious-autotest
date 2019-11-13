@@ -203,7 +203,6 @@ def test_task_yaml(path, output, course_factory, task_name, course_name, config)
     :param config: dict, contains configuration variable
     :return: None
     """
-    print(path)
     with open(path, 'r') as yaml_file:
         yaml_data = load(yaml_file, Loader=SafeLoader)
     res = test_web_task(yaml_data, course_factory.get_task(course_name, task_name), config, path)
